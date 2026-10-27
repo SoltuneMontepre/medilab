@@ -165,3 +165,5 @@ Preserve failed containers, databases, volumes and protected logs. The `down` co
 - [Executed results and blockers](RESULTS.md)
 - [Laboratory files specification](../../docs/specs/laboratory-files.md)
 - [Testing conventions](../../docs/conventions/testing.md)
+
+The browser image defaults to `pwuser`. The owned browser/page Compose services explicitly start the trusted key/NSS initializer as root, then execute Node as `pwuser`. The Garage gateway explicitly uses root to read its mode-0600 mounted leaf key, with all capabilities dropped, no-new-privileges and a read-only root filesystem; it has no host publications, production mounts or engine socket. Its S3 Unix socket is shared only with Garage. The gateway allows the fixture S3 header/encoding/checksum contract and refuses redirects and foreign/noncanonical request authorities. Disposable CA certificates declare critical CA constraints and signing Key Usage for strict contemporary Python verification. Linux test certificate generation uses `/usr/bin/openssl`; no fixture key is committed.

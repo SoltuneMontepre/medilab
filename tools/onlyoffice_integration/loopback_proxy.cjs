@@ -113,7 +113,7 @@ function websocketHeaders(req, port) {
   return {...headers, connection: "Upgrade", upgrade: "websocket"};
 }
 
-function proxy(port, listenPort = port, tls) {
+function proxy(port, tls, listenPort = port) {
   target(port);
   tls ??= serverTLS();
   const server = https.createServer(tls, (req, res) => {
@@ -184,4 +184,4 @@ function proxy(port, listenPort = port, tls) {
   return server.listen(listenPort, "127.0.0.1");
 }
 
-module.exports = {proxy, requestPath, requestURL, requestHeaders, responseHeaders, websocketHeaders};
+module.exports = {proxy, requestPath, requestURL, requestHeaders, responseHeaders, websocketHeaders, validateSegment, selectHeaders};

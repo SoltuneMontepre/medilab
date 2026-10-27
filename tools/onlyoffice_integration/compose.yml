@@ -47,7 +47,9 @@ services:
 
   garage-tls:
     image: localhost/medilab171-agent4-browser:local
+    user: root
     entrypoint: [node, /opt/browser/garage_tls.cjs]
+    read_only: true
     init: true
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
@@ -109,6 +111,7 @@ services:
 
   browser:
     image: localhost/medilab171-agent4-browser:local
+    user: root
     build:
       context: ../..
       dockerfile: tools/onlyoffice_integration/browser.Dockerfile

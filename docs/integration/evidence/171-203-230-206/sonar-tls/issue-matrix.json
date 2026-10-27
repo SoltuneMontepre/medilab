@@ -15,7 +15,11 @@
     "original_status": "OPEN",
     "action": "Verified HTTPS to canonical TLS Document Server, backend SNI fixed independently of forwarded Host",
     "tests": "9 strict-role HTTPS/WebSocket cases; 4 real page/coediting saves; 5 real callback cases",
-    "verification": "IMPLEMENTED; HOSTED VERIFICATION PENDING"
+    "verification": "FIXED \u2014 verified Sonar analysis",
+    "sonar_status": "CLOSED",
+    "sonar_resolution": "FIXED",
+    "verified_revision": "78f1db1dce2e1f984bf33e0ae0523871c389d375",
+    "current_line": null
   },
   {
     "key": "AaF2G1TlIES1tmkRiAIN",
@@ -33,7 +37,11 @@
     "original_status": "OPEN",
     "action": "Verified HTTPS to fixed Garage gateway; local Unix socket forwarding without plaintext S3 TCP hop",
     "tests": "2 gateway/SigV4-host cases; native1857; 4 real page saves; actual Rust HTTPS download",
-    "verification": "IMPLEMENTED; HOSTED VERIFICATION PENDING"
+    "verification": "FIXED \u2014 verified Sonar analysis",
+    "sonar_status": "CLOSED",
+    "sonar_resolution": "FIXED",
+    "verified_revision": "78f1db1dce2e1f984bf33e0ae0523871c389d375",
+    "current_line": null
   },
   {
     "key": "AaF2G1TlIES1tmkRiAIQ",
@@ -51,7 +59,11 @@
     "original_status": "OPEN",
     "action": "Required RFC6455 public nonce + fixed GUID SHA1; no password/key/document protection use",
     "tests": "Strict real WSS handshake acceptance/refusal and actual coediting saves",
-    "verification": "PENDING OWNER APPROVAL \u2014 proposed FALSE POSITIVE"
+    "verification": "PENDING OWNER APPROVAL \u2014 proposed FALSE POSITIVE",
+    "sonar_status": "OPEN",
+    "sonar_resolution": null,
+    "verified_revision": "78f1db1dce2e1f984bf33e0ae0523871c389d375",
+    "current_line": 158
   },
   {
     "key": "AaF2G1X8IES1tmkRiAIS",
@@ -69,7 +81,11 @@
     "original_status": "OPEN",
     "action": "Expected Garage HTTPS authority now corresponds to actual verified TLS transport",
     "tests": "9 actual HTTPS/WebSocket forwarding/refusal cases",
-    "verification": "IMPLEMENTED; HOSTED VERIFICATION PENDING"
+    "verification": "FIXED \u2014 verified Sonar analysis",
+    "sonar_status": "CLOSED",
+    "sonar_resolution": "FIXED",
+    "verified_revision": "78f1db1dce2e1f984bf33e0ae0523871c389d375",
+    "current_line": null
   },
   {
     "key": "AaF2G1X8IES1tmkRiAIT",
@@ -87,7 +103,11 @@
     "original_status": "OPEN",
     "action": "Expected Document Server HTTPS authority now corresponds to actual verified TLS transport",
     "tests": "9 actual HTTPS/WebSocket forwarding/refusal cases",
-    "verification": "IMPLEMENTED; HOSTED VERIFICATION PENDING"
+    "verification": "FIXED \u2014 verified Sonar analysis",
+    "sonar_status": "CLOSED",
+    "sonar_resolution": "FIXED",
+    "verified_revision": "78f1db1dce2e1f984bf33e0ae0523871c389d375",
+    "current_line": null
   },
   {
     "key": "AaF2G1X8IES1tmkRiAIV",
@@ -105,7 +125,11 @@
     "original_status": "OPEN",
     "action": "HTTPS forwarding fixture uses a real TLS server and separate backend/loopback certificates",
     "tests": "CA/name refusals send zero application requests; valid tunnel preserves exact bytes",
-    "verification": "IMPLEMENTED; HOSTED VERIFICATION PENDING"
+    "verification": "FIXED \u2014 verified Sonar analysis",
+    "sonar_status": "CLOSED",
+    "sonar_resolution": "FIXED",
+    "verified_revision": "78f1db1dce2e1f984bf33e0ae0523871c389d375",
+    "current_line": null
   },
   {
     "key": "AaF0FHq1vCiqu-XFDLDC",
@@ -123,7 +147,11 @@
     "original_status": "OPEN",
     "action": "TLS loopback listener and verified HTTPS upstream; minimum TLS1.2; no verification bypass",
     "tests": "Python real TLS listener/CA cases; 4 real page saves; actual Rust HTTPS download",
-    "verification": "IMPLEMENTED; HOSTED VERIFICATION PENDING"
+    "verification": "FIXED \u2014 verified Sonar analysis",
+    "sonar_status": "CLOSED",
+    "sonar_resolution": "FIXED",
+    "verified_revision": "78f1db1dce2e1f984bf33e0ae0523871c389d375",
+    "current_line": null
   },
   {
     "key": "AaF0FHqsvCiqu-XFDLC7",
@@ -141,7 +169,11 @@
     "original_status": "OPEN",
     "action": "Explicit bounded serial editor promise chain; keeper and shared history preserved",
     "tests": "2 lifecycle unit cases; actual 27-editor JWT regression",
-    "verification": "IMPLEMENTED; HOSTED VERIFICATION PENDING"
+    "verification": "FIXED \u2014 verified Sonar analysis",
+    "sonar_status": "CLOSED",
+    "sonar_resolution": "FIXED",
+    "verified_revision": "78f1db1dce2e1f984bf33e0ae0523871c389d375",
+    "current_line": null
   },
   {
     "key": "AaF0FHqtvCiqu-XFDLC8",
@@ -159,7 +191,11 @@
     "original_status": "OPEN",
     "action": "Serial destroy step completes before page closure or next participant",
     "tests": "2 lifecycle unit cases; actual 27-editor JWT regression",
-    "verification": "IMPLEMENTED; HOSTED VERIFICATION PENDING"
+    "verification": "FIXED \u2014 verified Sonar analysis",
+    "sonar_status": "CLOSED",
+    "sonar_resolution": "FIXED",
+    "verified_revision": "78f1db1dce2e1f984bf33e0ae0523871c389d375",
+    "current_line": null
   },
   {
     "key": "AaF0FHqtvCiqu-XFDLC9",
@@ -177,7 +213,11 @@
     "original_status": "OPEN",
     "action": "Serial page close completes before next participant",
     "tests": "2 lifecycle unit cases; actual 27-editor JWT regression",
-    "verification": "IMPLEMENTED; HOSTED VERIFICATION PENDING"
+    "verification": "FIXED \u2014 verified Sonar analysis",
+    "sonar_status": "CLOSED",
+    "sonar_resolution": "FIXED",
+    "verified_revision": "78f1db1dce2e1f984bf33e0ae0523871c389d375",
+    "current_line": null
   },
   {
     "key": "AaF0FHhWvCiqu-XFDLCR",
@@ -195,6 +235,10 @@
     "original_status": "OPEN",
     "action": "Standard onbeforeunload handler with preventDefault plus legacy truthy return",
     "tests": "8 fresh Cypress cases; 4 real page/coediting cases",
-    "verification": "IMPLEMENTED; HOSTED VERIFICATION PENDING"
+    "verification": "FIXED \u2014 verified Sonar analysis",
+    "sonar_status": "CLOSED",
+    "sonar_resolution": "FIXED",
+    "verified_revision": "78f1db1dce2e1f984bf33e0ae0523871c389d375",
+    "current_line": null
   }
 ]

@@ -6,6 +6,7 @@ services:
       ONLYOFFICE_DESKTOP_PROBE: ${ONLYOFFICE_DESKTOP_PROBE:-0}
   page-browser:
     image: localhost/medilab171-agent4-browser:local
+    user: root
     command: [node, /opt/browser/page_browser.cjs]
     init: true
     shm_size: 1gb

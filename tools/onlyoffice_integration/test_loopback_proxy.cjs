@@ -83,7 +83,7 @@ async function fixture(t, handler, upstreamName) {
     return original({hostname: "127.0.0.1", port: upstream.address().port,
       path: url.pathname + url.search, ...options, ...(upstreamName ? {servername: upstreamName} : {})}, callback);
   });
-  const server = proxy(8081, 0, tls);
+  const server = proxy(8081, tls, 0);
   await once(server, "listening");
   t.after(() => { server.closeAllConnections(); server.close(); upstream.closeAllConnections(); upstream.close(); });
   return {upstream, server, calls, original, tls};

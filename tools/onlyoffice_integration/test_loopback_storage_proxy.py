@@ -187,6 +187,15 @@ class TestIsolatedFixture(unittest.TestCase):
         self.addCleanup(untrusted.close)
         with self.assertRaises(ssl.SSLCertVerificationError):
             untrusted.connect()
+        self.assertIsInstance(servers[1].socket, ssl.SSLSocket)
+        with socket.create_connection(("127.0.0.1", servers[1].server_port), timeout=3) as plain:
+            plain.sendall(b"GET /laboratory-files/report.docx HTTP/1.1\r\nHost: localhost:3900\r\n\r\n")
+            try:
+                refused = plain.recv(4096)
+            except ConnectionResetError:
+                refused = b""
+        self.assertFalse(refused.startswith(b"HTTP/"))
+        self.assertEqual(len(calls), 1)
 
 
 if __name__ == "__main__":

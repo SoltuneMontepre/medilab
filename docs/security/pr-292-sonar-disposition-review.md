@@ -2,7 +2,13 @@
 
 **PENDING OWNER APPROVAL. No risk is accepted and no Sonar status is changed by this document.**
 
-## Current per-finding revalidation and requested decisions
+## TLS remediation and new-finding review checkpoint
+
+Sonar at `78f1db1` automatically fixes six of the seven original security keys: `AaF2G1TlIES1tmkRiAIM`, `AaF2G1TlIES1tmkRiAIN`, `AaF0FHq1vCiqu-XFDLDC`, `AaF2G1X8IES1tmkRiAIS`, `AaF2G1X8IES1tmkRiAIT`, `AaF2G1X8IES1tmkRiAIV`. They require no administrative acceptance or false-positive exception. `AaF2G1TlIES1tmkRiAIQ` remains OPEN and PENDING OWNER APPROVAL for required public-nonce RFC 6455 SHA-1. Both formal governance roles remain TBD, as previously directed.
+
+Eight additional support-code findings were introduced by the first TLS migration; [exact flows and hardening actions](../integration/sonar-cleanup-pr-292.md#tls-hardening-verification). Header/redirect, executable-path, default-image-user and style hardening is implemented and tested; no resolution is claimed until hosted verification. The Python warning `AaF-Rmjm3D2qssSsqTlU` flags a TLS-wrapped listener: valid TLS works, plaintext and foreign CAs fail before application handling. Proposed FALSE POSITIVE remains PENDING OWNER APPROVAL. The fixed-Unix-socket SSRF key `AaF-RmjV3D2qssSsqTlR` has stronger method/target validation and malicious-target refusal tests; independently verify the invariant that request data cannot select the peer before any future disposition. No scanner setting or finding status is changed. The earlier seven-key HTTP recommendations below describe their dated source checkpoint and are not approval of either TLS implementation or these additional findings.
+
+## Earlier per-finding revalidation before TLS remediation
 
 The fresh exact-head baseline at `4a1ad89` contains these same seven OPEN security keys and 15 OPEN smells. [Exact issue inventory](../integration/evidence/171-203-230-206/sonar-finalization/baseline.json). The source review and regression fixes are in `c485c1c`; main is additionally incorporated through `0cdb503` by normal merges. The last four-line CloudBeaver override removal changes no reviewed editor, logging, worker, callback or Sync source. [Current delivered SHA, hosted checks and approval request](https://github.com/SoltuneMontepre/medilab/pull/292#issuecomment-6431682516). No approval or administrative issue change has occurred.
 
