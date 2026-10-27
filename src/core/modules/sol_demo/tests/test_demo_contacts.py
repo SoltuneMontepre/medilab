@@ -56,8 +56,9 @@ class TestDemoContacts(TransactionCase):
         self.assertFalse(self.env[MODEL_CUSTOMER].search([("partner_id", "=", person.id)])._contacts())
 
     def test_vietnamese_businesses_and_their_contacts_use_vietnamese(self):
+        # A contact who signs in keeps the language of the screens the browser tests read.
         for xml_id in ("demo_customer_nuoc_sach", "demo_customer_an_phu", "demo_customer_green_farm"):
             customer = self.customer(xml_id)
-            for partner in customer.partner_id | customer._contacts():
+            for partner in customer.partner_id | customer._contacts().filtered(lambda contact: not contact.user_ids):
                 with self.subTest(partner=partner.name):
                     self.assertEqual(partner.lang, "vi_VN")

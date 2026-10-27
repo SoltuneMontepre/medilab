@@ -200,7 +200,6 @@
         <field name="email">pham.thi.hoa@nuocuongsach.example</field>
         <field name="phone">0903 111 222</field>
         <field name="type">contact</field>
-        <field name="lang">vi_VN</field>
     </record>
     <record id="demo_res_partner_khoa" model="res.partner">
         <field name="name">Lê Văn Khoa</field>
@@ -250,7 +249,6 @@
         <field name="name">Đỗ Văn Tài</field>
         <field name="parent_id" ref="demo_res_partner_nong_san_registered" />
         <field name="function">Chủ nhiệm hợp tác xã</field>
-        <field name="lang">vi_VN</field>
         <field name="email">tai.do@nongsanxanh.example</field>
         <field name="phone">0263 382 9999</field>
         <field name="type">contact</field>
