@@ -200,6 +200,7 @@
         <field name="email">pham.thi.hoa@nuocuongsach.example</field>
         <field name="phone">0903 111 222</field>
         <field name="type">contact</field>
+        <field name="lang">en_US</field>
     </record>
     <record id="demo_res_partner_khoa" model="res.partner">
         <field name="name">Lê Văn Khoa</field>
@@ -252,6 +253,7 @@
         <field name="email">tai.do@nongsanxanh.example</field>
         <field name="phone">0263 382 9999</field>
         <field name="type">contact</field>
+        <field name="lang">en_US</field>
     </record>
     <record id="demo_res_partner_vietnam_chemicals" model="res.partner">
         <field name="name">Vietnam Laboratory Chemicals Co., Ltd.</field>

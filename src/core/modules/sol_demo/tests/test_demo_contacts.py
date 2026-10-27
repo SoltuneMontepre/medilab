@@ -62,3 +62,8 @@ class TestDemoContacts(TransactionCase):
             for partner in customer.partner_id | customer._contacts().filtered(lambda contact: not contact.user_ids):
                 with self.subTest(partner=partner.name):
                     self.assertEqual(partner.lang, "vi_VN")
+
+    def test_the_contacts_who_sign_in_use_english_screens(self):
+        for xml_id in ("demo_res_partner_hoa", "demo_res_partner_tai"):
+            with self.subTest(partner=xml_id):
+                self.assertEqual(self.env.ref(f"sol_demo.{xml_id}").lang, "en_US")
