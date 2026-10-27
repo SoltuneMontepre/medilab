@@ -162,7 +162,6 @@ Preserve failed containers, databases, volumes and protected logs. The `down` co
 
 ## Related documents
 
-- [Executed results and blockers](RESULTS.md)
 - [Laboratory files specification](../../docs/specs/laboratory-files.md)
 - [Testing conventions](../../docs/conventions/testing.md)
 

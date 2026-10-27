@@ -20,8 +20,3 @@ timeout 45s podman --url unix:///run/user/1000/podman/podman.sock run --rm \
 The script refuses an unexpected binary, a different retention policy, or preexisting eligible or changed task records. Its native deadline is 30 seconds. The mounted settings contain public policy only. Credentials, signed URLs and tokens are not printed.
 
 This is a native algorithm and filesystem fixture in a separate process. It does not establish seven elapsed days of retention, the supervised worker's cron execution, live task-state persistence or continuous recovery. Worker configuration, restart persistence and real Office saves need their separate runtime and integration evidence.
-
-## Related documents
-
-- [Integration evidence](../../onlyoffice_integration/RESULTS.md)
-- [Executed native retention fixture](../../onlyoffice_integration/evidence/2026-10-25/p1/worker/retention-native-fixture.json)

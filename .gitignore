@@ -168,3 +168,5 @@ src/core/modules/coverage.xml
 
 # Local integration and review evidence
 docs/integration/
+tools/onlyoffice_integration/evidence/
+tools/onlyoffice_integration/RESULTS.md
