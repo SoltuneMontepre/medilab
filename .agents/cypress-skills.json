@@ -1,0 +1,11 @@
+{
+  "repository": "https://github.com/cypress-io/ai-toolkit",
+  "revision": "5258ece52a0010d268946e08606c98784c98f255",
+  "license": "MIT",
+  "skills": {
+    "cypress-author": "1.0.1",
+    "cypress-explain": "1.0.1",
+    "cypress-docs": "1.0.0",
+    "cypress-tap": "1.1.0"
+  }
+}

@@ -158,6 +158,15 @@ class SaleOrder(models.Model):
             )
         return vals
 
+    def _compute_user_id(self):
+        # Odoo falls back to the current user only for its own salesman group. A salesperson creating an order
+        # on the orders screen keeps it when the contact changes.
+        result = super()._compute_user_id()
+        if self.env.context.get("medilab_sales_order"):
+            for order in self.filtered(lambda order: not order.user_id and not order._origin.id):
+                order.user_id = self.env.user
+        return result
+
     @api.model_create_multi
     def create(self, vals_list):
         self._fill_create_values(vals_list)
