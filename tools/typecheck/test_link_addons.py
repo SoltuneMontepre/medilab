@@ -184,6 +184,13 @@ class TestLinkAddons(unittest.TestCase):
         with mock.patch.object(link_addons.sys.stdin, "isatty", return_value=False):
             self.assertFalse(link_addons.ask_to_replace(self.addons / "sol_a"))
 
+    def test_a_folder_is_declined_when_the_input_is_empty(self):
+        with (
+            mock.patch.object(link_addons.sys.stdin, "isatty", return_value=True),
+            mock.patch("builtins.input", side_effect=EOFError),
+        ):
+            self.assertFalse(link_addons.ask_to_replace(self.addons / "sol_a"))
+
     def test_an_identical_odoo_addon_directory_is_kept_and_reported(self):
         shutil.copytree(self.source / "addons" / "web", self.addons / "web")
         before = snapshot(self.addons / "web")

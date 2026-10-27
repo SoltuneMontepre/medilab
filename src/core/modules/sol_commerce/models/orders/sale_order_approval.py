@@ -5,6 +5,7 @@ from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
 from odoo.addons.sol_commerce.constants.orders import (
     APPROVAL_APPROVED,
     APPROVAL_NONE,
+    APPROVAL_REJECTED,
     STATUS_COMPLETED,
     STATUS_CONFIRMED,
 )
@@ -23,9 +24,20 @@ class SaleOrderApproval(models.Model):
     def action_request_approval(self):
         """Sign the first level, which asks the next levels to approve the confirmed order."""
         self.ensure_one()
-        if self.approval_status != APPROVAL_NONE:
+        if self.approval_status not in (APPROVAL_NONE, APPROVAL_REJECTED):
             raise UserError(self.env._("The approval of this order was already requested."))
         return self.action_sign()
+
+    def action_reject(self, reason):
+        result = super().action_reject(reason)
+        self._reopen_rejected()
+        return result
+
+    def _reopen_rejected(self):
+        """Return rejected orders to sales: their signatures are withdrawn so sales can correct them and request
+        approval again, and they stay rejected until then."""
+        self._approval_restart()
+        self.sudo()._approval_set_state(APPROVAL_REJECTED)
 
     def action_sign(self):
         self.ensure_one()

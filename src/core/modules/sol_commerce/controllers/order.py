@@ -90,6 +90,7 @@ class CustomerOrder(http.Controller):
         current = order._latest_quotation() if order else None
         if not current:
             return request.not_found()
+        advance = current.advance_invoice_id.filtered(lambda invoice: invoice.state == "posted")
         return request.render(
             "sol_commerce.quotation_page",
             {
@@ -98,6 +99,9 @@ class CustomerOrder(http.Controller):
                 "quotations": order.quotation_ids.sorted("revision", reverse=True),
                 "revising": order.state == "draft",
                 "lines": order._catalog_lines(),
+                "advance": advance,
+                # The invoice page takes the payment; its token lets Odoo's payment form find the invoice.
+                "advance_url": advance.get_portal_url(query_string="&payment=True") if advance else False,
             },
         )
 

@@ -368,13 +368,11 @@ class SaleOrder(models.Model):
         self.ensure_one()
         if self.approval_status == APPROVAL_APPROVED:
             return self.env._(
-                "The approval is signed, so this order cannot be cancelled. The laboratory will contact you."
+                "The approval is signed, so this order cannot be cancelled directly. "
+                "Raise a change request for the Head of Sales to approve."
             )
         if self.order_status == STATUS_COMPLETED or self._laboratory_blocks_cancellation():
-            return self.env._(
-                "Testing is completed or results are released, so this order cannot be cancelled. "
-                "The laboratory will contact you."
-            )
+            return self.env._("Testing is completed or results are released, so this order cannot be cancelled.")
         return False
 
     def action_reorder(self):

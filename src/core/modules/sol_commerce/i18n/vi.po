@@ -1375,6 +1375,21 @@ msgid "Pay the advance before"
 msgstr "Thanh toán tạm ứng trước"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+msgid "Pay the advance"
+msgstr "Thanh toán tạm ứng"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+msgid "Advance invoice"
+msgstr "Hóa đơn tạm ứng"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+msgid "is paid."
+msgstr "đã được thanh toán."
+
+#. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/quotation.py:0
 msgid "Pay the advance invoice to accept this quotation."
@@ -1977,8 +1992,8 @@ msgstr "Yêu Cầu Thử Nghiệm"
 #: code:addons/sol_commerce/models/orders/sale_order.py:0
 msgid ""
 "Testing is completed or results are released, so this order cannot be "
-"cancelled. The laboratory will contact you."
-msgstr "Việc thử nghiệm đã hoàn tất hoặc kết quả đã được phát hành nên đơn hàng không hủy được. Phòng thí nghiệm sẽ liên hệ với bạn."
+"cancelled."
+msgstr "Việc thử nghiệm đã hoàn tất hoặc kết quả đã được phát hành nên đơn hàng không hủy được."
 
 #. module: sol_commerce
 #. odoo-python
@@ -2002,9 +2017,9 @@ msgstr "Tỷ lệ tạm ứng phải lớn hơn 0 và không quá 100."
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order.py:0
 msgid ""
-"The approval is signed, so this order cannot be cancelled. The laboratory "
-"will contact you."
-msgstr "Đơn hàng đã được ký duyệt nên không hủy được. Phòng thí nghiệm sẽ liên hệ với bạn."
+"The approval is signed, so this order cannot be cancelled directly. Raise a "
+"change request for the Head of Sales to approve."
+msgstr "Đơn hàng đã được ký duyệt nên không hủy trực tiếp được. Hãy tạo yêu cầu thay đổi để Trưởng Phòng Kinh Doanh phê duyệt."
 
 #. module: sol_commerce
 #. odoo-python

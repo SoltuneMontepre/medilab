@@ -64,6 +64,13 @@
             <xpath expr="//button[@name='action_view_invoice']" position="attributes">
                 <attribute name="groups">account.group_account_invoice</attribute>
             </xpath>
+            <!-- The accountant drafts the final invoice from the confirmed order. -->
+            <xpath expr="//header/button[@id='create_invoice']" position="attributes">
+                <attribute name="groups">account.group_account_invoice</attribute>
+            </xpath>
+            <xpath expr="//header/button[@id='create_invoice_percentage']" position="attributes">
+                <attribute name="groups">account.group_account_invoice</attribute>
+            </xpath>
             <xpath expr="//header" position="inside">
                 <field name="can_save_order_template" invisible="1" />
                 <field name="order_status" widget="statusbar" statusbar_visible="draft,submitted,claimed,confirmed,completed" />
@@ -100,7 +107,7 @@
                     type="object"
                     string="Request approval"
                     class="btn-primary"
-                    invisible="order_status != 'confirmed' or approval_status != 'none' or not approval_can_sign"
+                    invisible="order_status != 'confirmed' or approval_status not in ('none', 'rejected') or not approval_can_sign"
                 />
                 <button
                     name="action_sign"
@@ -137,7 +144,7 @@
                     type="object"
                     string="Cancel"
                     class="btn-danger"
-                    invisible="order_status in ('completed', 'cancelled')"
+                    invisible="order_status in ('completed', 'cancelled') or approval_status == 'approved'"
                     confirm="Cancel this order?"
                 />
             </xpath>

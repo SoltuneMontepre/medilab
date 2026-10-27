@@ -65,7 +65,11 @@ def ask_to_replace(folder):
     """Ask whether to delete folder and link its name instead. Without a terminal, the answer is no."""
     if not sys.stdin.isatty():
         return False
-    answer = input(f"{folder} is a folder, not a link. Delete it and link the name instead? [y/N] ")
+    # Windows reports the NUL device as a terminal, so an empty input also answers no.
+    try:
+        answer = input(f"{folder} is a folder, not a link. Delete it and link the name instead? [y/N] ")
+    except EOFError:
+        return False
     return answer.strip().lower() in ("y", "yes")
 
 

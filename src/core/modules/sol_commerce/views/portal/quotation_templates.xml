@@ -14,7 +14,14 @@
                 <div t-if="revising" class="alert alert-warning" role="alert">
                     This quotation is being revised. Its items are shown again when the new revision is sent.
                 </div>
-                <p t-if="order.payment_deadline and quotation.advance_invoice_id">Pay the advance before <t t-out="order.payment_deadline" t-options="{'widget': 'datetime'}" />.</p>
+                <div t-if="advance and not revising" class="alert alert-info d-flex flex-wrap align-items-center justify-content-between gap-2" role="alert">
+                    <div t-if="advance.amount_residual">
+                        <p class="mb-1">Advance invoice <t t-out="advance.name" />: <span t-field="advance.amount_owed" t-options='{"widget": "monetary", "display_currency": advance.currency_id}' /></p>
+                        <p t-if="order.payment_deadline" class="mb-0">Pay the advance before <t t-out="order.payment_deadline" t-options="{'widget': 'datetime'}" />.</p>
+                    </div>
+                    <p t-else="" class="mb-0">Advance invoice <t t-out="advance.name" /> is paid.</p>
+                    <a t-if="advance.amount_residual" class="btn btn-primary" t-att-href="advance_url">Pay the advance</a>
+                </div>
                 <p t-if="order.payment_deadline and not quotation.advance_invoice_id">Accept the quotation before <t t-out="order.payment_deadline" t-options="{'widget': 'datetime'}" />.</p>
                 <table class="table">
                     <thead>

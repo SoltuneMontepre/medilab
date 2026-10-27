@@ -754,6 +754,9 @@ def _compose_environment(project, owner=None, config=None):
         "HOME",
         "NO_COLOR",
         "PATH",
+        # Docker on Windows finds its compose and buildx plugins under these folders.
+        "PROGRAMDATA",
+        "PROGRAMFILES",
         "SYSTEMROOT",
         "TEMP",
         "TERM",
