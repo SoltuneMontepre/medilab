@@ -29,6 +29,7 @@ src/tests/
       features/
         onboarding/master-data-staging/
         inventory/solution-preparation/
+        theme/chatter-resize/
       *.cy.js
     support/
     fixtures/
@@ -72,6 +73,7 @@ Start test titles with the issue's `TC-WF…`, `TC-SF…` or `TC-F…` ID. Map f
 | --- | --- | --- | --- |
 | Pick an organisation, start a run, review staged records and accept a certificate with its methods. | [#176](https://github.com/SoltuneMontepre/medilab/issues/176) | `features/onboarding/master-data-staging/` | `master-data-staging.cy.js` |
 | Prepare a solution from scanned bottles; verify the resulting stock movements and container. | [#181](https://github.com/SoltuneMontepre/medilab/issues/181) | `features/inventory/solution-preparation/` | `solution-preparation.cy.js` |
+| Resize and collapse the chatter that sits beside a form, and keep its width and state. | [#282](https://github.com/SoltuneMontepre/medilab/issues/282) | `features/theme/chatter-resize/` | `chatter-resize.cy.js` |
 
 Onboarding and solution-preparation scenarios follow their approved feature documents and demo starting data. Reserving a directory does not settle the open requirements in those issues.
 

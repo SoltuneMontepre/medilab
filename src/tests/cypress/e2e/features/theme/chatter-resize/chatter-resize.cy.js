@@ -1,4 +1,4 @@
-import { call, signIn } from "../support/odoo";
+import { call } from "../../../../support/odoo";
 
 const STORAGE_KEY = "sol_theme.chatter";
 const DRAG = 120;
@@ -9,9 +9,9 @@ describe("Resizable chatter", () => {
   beforeEach(() => {
     // The chatter sits beside the form from 1,400 px wide.
     cy.viewport(1600, 900);
-    signIn("demo.administrator");
+    cy.signInAs("administrator");
     call("sale.order", "search_read", [[]], { fields: ["id"], limit: 1 }).then(([order]) => {
-      cy.visit(`/odoo/sales/${order.id}`);
+      cy.openRecord({ model: "sale.order", id: order.id });
     });
     cy.get(".o-mail-ChatterPanel").should("be.visible");
   });
