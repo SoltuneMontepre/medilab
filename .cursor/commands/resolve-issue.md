@@ -1,3 +1,3 @@
 # Resolve issue
 
-Follow [.agent/skills/resolve-issue/SKILL.md](../../.agent/skills/resolve-issue/SKILL.md).
+Follow [.agents/skills/resolve-issue/SKILL.md](../../.agents/skills/resolve-issue/SKILL.md).

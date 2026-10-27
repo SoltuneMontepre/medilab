@@ -22,7 +22,8 @@ Documentation index: [docs/readme.md](docs/readme.md).
 | [Task](https://taskfile.dev/installation/)               | `task` CLI for setup and daily commands            |
 | [uv](https://docs.astral.sh/uv/)                         | Python environment for linting and typecheck       |
 | [Doppler CLI](https://docs.doppler.com/docs/install-cli) | Secrets                                            |
-| [Node.js](https://nodejs.org/en/download)                | `npx` for the `doppler` and `context7` MCP servers |
+| [Node.js](https://nodejs.org/en/download) (22.x, 24.x or >=26) | Cypress CLI and `npx` for the `doppler` and `context7` MCP servers |
+| [Bun](https://bun.sh/docs/installation)                 | Cypress and application tests                     |
 
 ## Quick start
 
@@ -72,6 +73,39 @@ MEDILAB_ODOO_IMAGE=medilab-odoo:medilab-api
 - The `postgres` MCP server connects to `localhost:15432`; for a worktree's database, set `DATABASE_URI` to its port, as [Odoo intelligence](docs/workflows/odoo-intelligence.md#database-access) says.
 - Commands that reach a container go through the project, never a container name: `docker compose -f tools/infrastructure/docker-compose.yml exec -T postgres psql -U root -d medilab`.
 
+## Browser tests
+
+Run these commands from the repository root. Start Docker or Podman and use a local demo environment with the demo data installed; the tests change its records. For a new demo, follow [Quick start](#quick-start) first.
+
+```powershell
+task test:e2e:help
+task up
+task test:e2e:open
+```
+
+In Cypress App, choose **E2E Testing**, select a browser, click **Start E2E Testing**, then choose a file such as `login.cy.js`. Saving a test reruns it in that window. Close Cypress App when finished. To run all tests in the terminal:
+
+```powershell
+task test:e2e
+```
+
+Both modes print and check the Odoo URL, install the locked dependencies and install the matching Cypress binary if it is missing. A stopped server produces a message with the next command to run. Cypress does not start Odoo or seed its database.
+
+`task test:e2e:app` prepares a disposable E2E environment: it checks the selected Compose project, starts Postgres and Garage, configures the test buckets, installs the modules and demo data, starts Odoo and waits for `/web/health`. It uses the selected application's database. For an existing demo, use `task up`; after changing Odoo models or views, use `task upgrade`. Then use `task test:e2e:open` or `task test:e2e` to run tests. See [application preparation](docs/conventions/testing.md#preparing-the-application) for the installation and demo-data behavior.
+
+The Cypress version is locked in `src/tests/bun.lock`. After a dependency upgrade, close any running Cypress App window and reopen it with `task test:e2e:open` to use the installed version.
+
+If the demo uses another port, pass its address to either mode:
+
+```powershell
+task test:e2e:open MEDILAB_URL=http://localhost:8169
+task test:e2e MEDILAB_URL=http://localhost:8169
+```
+
+Use the Odoo port saved in `tools/infrastructure/.env`; save `MEDILAB_URL` there to reuse the address. The default is `http://localhost:8069`. See [the browser test guide](docs/conventions/testing.md#running-browser-tests) for setup, troubleshooting and running a single spec.
+
+For AI authoring and live debugging, use `task test:e2e:tap:open` and the [Cypress Tap workflow](docs/workflows/cypress-tap.md). The repository includes the official author, explain, docs and Tap skills for Codex, Cursor, Antigravity and Claude Code.
+
 ## Commands
 
 | Command                    | Purpose                                                                                                                                           |
@@ -92,7 +126,13 @@ MEDILAB_ODOO_IMAGE=medilab-odoo:medilab-api
 | `task ai:setup`            | Install Serena, OdooLS and its Odoo source in this worktree for the coding clients                                                                |
 | `task ai:odoo-ls`          | Install the pinned OdooLS release, typeshed and Odoo source that the `odoo` MCP server uses                                                       |
 | `task ai:test`             | Run the AI tooling tests and lint checks                                                                                                          |
-| `task test:taskfiles`       | Check module selection in setup and upgrade commands without running containers                                                                    |
+| `task test:taskfiles`       | Check module selection and browser-test setup without running containers or Cypress                                                               |
+| `task test:e2e:help`        | Show browser-test setup, the selected Odoo URL and troubleshooting                                                                                |
+| `task test:e2e:open`        | Open Cypress App to choose, watch and debug a test                                                                                                 |
+| `task test:e2e:tap:open`    | Open this worktree with Chrome for live AI debugging                                                                                             |
+| `task test:e2e:tap TAP_ARGS='status --json'` | Inspect this worktree's live Cypress E2E session                                                                                         |
+| `task test:e2e`             | Run every browser test against the running local demo                                                                                             |
+| `task test:e2e:app`         | Install demo data and start the disposable browser-test application, as CI does                                                                   |
 | `task ai:verify`           | Check Odoo model and field navigation through the `odoo` MCP server                                                                               |
 | `task ai:cursor-setup`     | Install the official Odoo extension into an isolated Cursor profile                                                                               |
 | `task dev:lock`            | Re-resolve `uv.lock` after editing dependencies in `pyproject.toml`                                                                               |

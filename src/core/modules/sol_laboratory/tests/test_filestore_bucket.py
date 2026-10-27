@@ -56,13 +56,17 @@ class TestFilestoreBucket(LaboratoryBucketCase):
         with open(stream.path, "rb") as file:
             self.assertEqual(file.read(), content)
 
-    def test_a_file_in_neither_place_reads_as_empty(self):
+    def test_a_file_in_neither_place_reads_as_empty_and_is_logged(self):
         attachment = self.new_attachment(os.urandom(100))
         self.remove_local_copy(attachment)
         laboratory_bucket.delete(self.attachments._bucket_key(attachment.store_fname))
         attachment.invalidate_recordset(["raw"])
 
-        self.assertFalse(attachment.raw)
+        with self.assertLogs("odoo.addons.sol_laboratory.models.system.ir_attachment", "WARNING") as logs:
+            content = attachment.raw
+
+        self.assertFalse(content)
+        self.assertIn(attachment.store_fname, logs.output[0])
 
     def test_an_install_or_update_writes_the_files_odoo_wrote_before_this_module_loaded(self):
         content = os.urandom(3000)

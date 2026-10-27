@@ -5,7 +5,7 @@ description: Bring a MediLab module's Prisma database diagram in line with the t
 
 # Sync database
 
-Follow [.agent/skills/sync-database/SKILL.md](../../../.agent/skills/sync-database/SKILL.md).
+Follow [.agents/skills/sync-database/SKILL.md](../../../.agents/skills/sync-database/SKILL.md).
 
 In Claude Code:
 

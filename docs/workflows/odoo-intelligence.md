@@ -47,7 +47,7 @@ Blocking LSP operations run in worker threads so MCP cancellation and disconnect
 | Client        | Project configuration                       | Odoo interface                                   | Serena               |
 | ------------- | ------------------------------------------- | ------------------------------------------------ | -------------------- |
 | Claude Code   | `.mcp.json`, `.claude/settings.json`        | `odoo` MCP tools                                 | MCP server and hooks |
-| Codex CLI     | `.codex/config.toml`                        | `odoo` MCP tools                                 | MCP server           |
+| Codex CLI     | `.codex/config.toml`, `.codex/hooks.json`   | `odoo` MCP tools                                 | MCP server and hooks |
 | Cursor Agent  | `.cursor/mcp.json`, `.claude/settings.json` | `odoo` MCP tools                                 | MCP server and hooks |
 | Cursor editor | `odools.toml`, `.vscode/settings.json`      | Native LSP of the official `Odoo.odoo` extension | Not used             |
 
@@ -70,6 +70,10 @@ The Serena hooks run through the locked local environment.
 ### Codex CLI
 
 Trust the specific worktree when Codex asks so it can load `.codex/config.toml`. Check `codex mcp get odoo --json` and use `/mcp` in a new session. Project configuration is ignored in untrusted checkouts. Launching from a subdirectory is supported: the launcher finds the nearest checkout containing `tools/odoo-intelligence/run.py`, and the package binds the server to that checkout.
+
+Review and trust the hook definitions with `/hooks` in a new Codex CLI session. Codex records trust for each definition's current hash; new or changed hooks are skipped until trusted. Trusting the worktree does not automatically trust its hooks.
+
+`.codex/hooks.json` runs the Git message checker and Serena hooks through the locked launcher with `--client=codex`. `PreToolUse` matches `Bash`, which includes Codex shell commands executed through PowerShell, to check Git messages and remind the agent to use symbolic tools. The Git checker returns a JSON denial for Codex so a PowerShell wrapper cannot change the blocking decision by normalizing a nonzero exit code. `PostToolUse` observes Serena calls and resets the reminder counters after a successful symbolic call. `SessionStart` prompts the agent to activate the project and read Serena's instructions; `SessionEnd` removes that session's hook data, with a three-second timeout. Tool approval follows Codex's permission configuration.
 
 For a noninteractive check without persisting trust globally, supply the worktree trust as a CLI override:
 
@@ -120,7 +124,7 @@ The probe writes `.local/verification/cursor-editor.json`. It quits its test win
 
 - **Missing Terraform blocks Serena:** rerun setup, then use the repository's Serena launcher. It prepends the local Terraform directory only to that process's PATH.
 - **Doppler servers report `you must provide a token`:** `doppler login` stores the token for a directory scope, and on Windows the scope match is case-sensitive. When the client opens the workspace as `d:\medilab` but the token is scoped to `D:\`, Doppler, SonarQube and Context7 fail; check `doppler configure --scope .` from the path the client uses and log in again for that scope, for example `doppler login --scope "d:\"`.
-- **Claude Code hooks in Cursor:** Cursor loads `.claude/settings.json` without setting `CLAUDE_PROJECT_DIR`, so the hook commands fall back to `CURSOR_PROJECT_DIR` and then the working directory.
+- **Claude Code hooks in Cursor:** Cursor also runs the hooks of `.claude/settings.json`, through PowerShell on Windows. The hook commands therefore use no shell variables: they start through the same launcher as the MCP servers, which finds the checkout from the working directory, so they run the same in bash and PowerShell.
 - **Missing mirror or release:** run setup in this worktree. A different agent's `.local` directory is not searched automatically.
 - **Incorrect root:** call Odoo `status` and compare `workspace` with the intended checkout. Open the worktree root in the editor. Do not combine several different Odoo worktrees in one OdooLS workspace.
 - **Index timeout, crashes or empty results:** inspect the directory returned by `status` or the tool error, then check `odools.toml`, the source revision and module dependencies. Restart only this client's MCP session after a crashed server. Empty definitions can indicate unsupported expressions or incomplete analysis.
@@ -141,4 +145,5 @@ The probe writes `.local/verification/cursor-editor.json`. It quits its test win
 - [Official Odoo extension](https://github.com/odoo/odoo-vscode)
 - [Claude Code MCP](https://code.claude.com/docs/en/mcp)
 - [Codex MCP](https://developers.openai.com/codex/mcp)
+- [Codex hooks](https://learn.chatgpt.com/docs/hooks)
 - [Cursor MCP](https://cursor.com/docs/mcp)
