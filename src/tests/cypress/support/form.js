@@ -34,7 +34,11 @@ export function choose(field, label) {
 
 // Filters the shown list by the first field of its search view, so a record past the first page is found too.
 export function search(text) {
-  cy.get(".o_searchview_input").type(`${text}{enter}`);
+  cy.get(".o_searchview_input").type(text);
+  // Enter applies the first suggestion only once the suggestions are shown.
+  cy.get(".o_searchview_autocomplete").should("contain", text);
+  cy.get(".o_searchview_input").type("{enter}");
+  cy.contains(".o_searchview_facet", text);
 }
 
 export function save() {
