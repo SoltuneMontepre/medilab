@@ -25,6 +25,7 @@ Sales is the laboratory's salesperson. Sales turns customer orders into quotatio
 ### Payment collection
 
 - **US-S11** As a salesperson, I want to record a cash or bank-transfer payment received from a customer, so that the accountant can confirm it without asking the customer again.
+- **US-S24** As a salesperson, I want to create an invoice from a confirmed order, so that the customer is billed without waiting for the accountant to prepare it.
 
 ### Confirmation and approval
 
@@ -129,9 +130,16 @@ Acceptance criteria:
 - Skipped names and reasons remain visible after reopening the order; no valid selections means no new order.
 - Template operations do not send quotations, issue invoices, confirm orders or start laboratory work.
 
-### 3. Payment collection (US-S11)
+### 3. Payment collection (US-S11, US-S24)
 
 When a customer pays sales directly in cash or by bank transfer, sales records the amount, date and method on the order. The record is **pending**: it does not count as paid until the accountant confirms it (see [accountant](accountant.md)). The order shows the pending amount so the same payment is not recorded twice, and the amount cannot exceed what the customer still owes.
+
+A salesperson who holds the **Create invoices** permission creates invoices from a confirmed order, as the accountant does. The invoice is a draft; the accountant posts it.
+
+Acceptance criteria:
+
+- A salesperson without the Create invoices permission does not see Create Invoice on the order and cannot create an invoice from it.
+- An invoice a salesperson creates stays a draft until the accountant posts it.
 
 ### 4. Confirmation and approval (US-S12 to US-S15)
 
@@ -154,7 +162,7 @@ stateDiagram-v2
 | Credit gate    | The laboratory core cannot confirm the test request of an order that has no payment unless the customer is marked as allowed to order on credit. Only the Head of Sales sets that flag.                                                                                                                                                                                                      |
 | Approval       | Two levels: the salesperson requests, the Head of Sales signs or rejects. Approval can only be requested on a confirmed order.                                                                                                                                                                                                                                                               |
 | Separation     | The person who requested approval cannot also approve the same order.                                                                                                                                                                                                                                                                                                                        |
-| Frozen content | Requesting approval is the salesperson's signature, so from the request on, customer, prices, validity date and parameters cannot be changed. To edit, the signers withdraw in the reverse order they signed, usually the Head of Sales first if they have signed, then sales. Once the order is completed, a [change request](../../shared.md#sh-07-signed-documents-are-locked) is needed. |
+| Frozen content | Requesting approval is the salesperson's signature, so from the request on, customer, prices, validity date and parameters cannot be changed. To edit, the signers withdraw in the reverse order they signed, usually the Head of Sales first if they have signed, then sales. A rejection withdraws the signatures, so sales can correct the order and request approval again. Once the order is completed, a [change request](../../shared.md#sh-07-signed-documents-are-locked) is needed. |
 | Collection     | **Start sample collection** is available only when the order is approved.                                                                                                                                                                                                                                                                                                                    |
 | Cancel guard   | An approved (fully signed) order cannot be cancelled directly; cancelling it goes through a change request that the Head of Sales approves.                                                                                                                                                                                                                                                  |
 

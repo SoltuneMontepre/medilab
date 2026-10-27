@@ -47,6 +47,21 @@ class TestQuotationPortal(AuditLookup, HttpCase, OrderCase):
         self.assertIn(f"/orders/{self.order.id}/quotation/{self.quotation.id}/pdf", response.text)
         self.assertNotIn("Earlier revisions were replaced", response.text)
 
+    def test_the_quotation_leads_to_paying_its_advance_invoice(self):
+        advance = self.quotation.sudo().advance_invoice_id
+
+        response = self.page()
+
+        self.assertIn(advance.name, response.text)
+        self.assertIn("Pay the advance</a>", response.text)
+        link = re.search(r'href="([^"]*)"[^>]*>Pay the advance</a>', response.text)
+        if link is None:
+            self.fail("The quotation page has no link to pay the advance.")
+        url = link.group(1).replace("&amp;", "&")
+        self.assertIn(f"/my/invoices/{advance.id}?access_token=", url)
+        self.assertIn("payment=True", url)
+        self.assertEqual(self.url_open(url).status_code, 200)
+
     def test_a_revision_shows_the_replaced_banner_and_the_list(self):
         self.order.with_user(self.sales).action_revise_quotation()
         self.order.with_user(self.sales).action_send_quotation()

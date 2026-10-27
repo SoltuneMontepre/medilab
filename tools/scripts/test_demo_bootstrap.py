@@ -981,6 +981,14 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
         self.assertEqual(environment["MEDILAB_DEMO_BOOTSTRAP_OWNER"], "owner-id")
         self.assertEqual(environment["MEDILAB_ODOO_PORT"], "18069")
 
+    def test_compose_environment_keeps_the_docker_plugin_folders(self):
+        folders = {"PROGRAMDATA": r"C:\ProgramData", "PROGRAMFILES": r"C:\Program Files"}
+        with patch.dict(os.environ, folders, clear=False):
+            environment = _compose_environment("medilab-local-test", "owner-id")
+
+        for name, folder in folders.items():
+            self.assertEqual(environment[name], folder)
+
     def test_selected_ports_override_existing_worktree_ports(self):
         ports = {
             "MEDILAB_ODOO_PORT": "28069",

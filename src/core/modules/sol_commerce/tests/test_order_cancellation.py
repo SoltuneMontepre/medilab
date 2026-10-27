@@ -70,6 +70,8 @@ class TestOrderCancellation(OrderCase):
 
         with self.assertRaises(UserError):
             signed_request.with_user(self.sales).action_accept()
+        with self.assertRaisesRegex(UserError, "change request"):
+            signed.with_user(self.sales).action_sales_cancel()
 
         self.assertEqual(signed.order_status, "confirmed")
 

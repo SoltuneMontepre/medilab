@@ -50,7 +50,7 @@ _logger = logging.getLogger(__name__)
 class SaleOrder(models.Model):
     _name = MODEL_SALE_ORDER
     _inherit = [MODEL_SALE_ORDER, MODEL_PERMISSION_MIXIN]
-    _permission_actions = ("read", "create", "edit", "delete", "sign")
+    _permission_actions = ("read", "create", "edit", "delete", "sign", "invoice")
 
     # The customer who orders: the company, or the individual when they order for themselves.
     customer_id = fields.Many2one("res.partner", string="Customer", ondelete="restrict", index=True)
@@ -368,13 +368,11 @@ class SaleOrder(models.Model):
         self.ensure_one()
         if self.approval_status == APPROVAL_APPROVED:
             return self.env._(
-                "The approval is signed, so this order cannot be cancelled. The laboratory will contact you."
+                "The approval is signed, so this order cannot be cancelled directly. "
+                "Raise a change request for the Head of Sales to approve."
             )
         if self.order_status == STATUS_COMPLETED or self._laboratory_blocks_cancellation():
-            return self.env._(
-                "Testing is completed or results are released, so this order cannot be cancelled. "
-                "The laboratory will contact you."
-            )
+            return self.env._("Testing is completed or results are released, so this order cannot be cancelled.")
         return False
 
     def action_reorder(self):

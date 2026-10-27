@@ -63,6 +63,25 @@ class TestOrderApproval(OrderCase):
         with self.assertRaises(UserError):
             order.with_user(self.head).action_sign()
 
+    def test_sales_corrects_a_rejected_order_and_requests_again(self):
+        order = self.requested_order()
+        order.with_user(self.head).action_reject("The deadline is too short")
+        self.assertTrue(order.with_user(self.sales).approval_can_sign)
+
+        deadline = fields.Datetime.now() + timedelta(days=9)
+        order.with_user(self.sales).write({"payment_deadline": deadline})
+        order.with_user(self.sales).action_request_approval()
+        self.assertEqual(order.approval_status, "requested")
+        order.with_user(self.head).action_sign()
+
+        self.assertEqual(order.approval_status, "approved")
+        self.assertEqual(order.payment_deadline, deadline)
+        signatures = self.env[MODEL_SIGNATURE].search(
+            [("document_model", "=", "sale.order"), ("document_id", "=", order.id)]
+        )
+        self.assertEqual(len(signatures), 4)
+        self.assertEqual(len(signatures.filtered("withdrawn_at")), 2)
+
     def test_the_rejection_wizard_needs_a_reason_and_rejects(self):
         order = self.requested_order()
         wizard = (

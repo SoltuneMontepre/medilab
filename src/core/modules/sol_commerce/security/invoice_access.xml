@@ -16,6 +16,14 @@
         <field name="operation">r</field>
         <field name="domain">[("move_type", "in", ("out_invoice", "out_refund"))]</field>
     </record>
+    <!-- Odoo's Create Invoices dialog; confirming it checks the order's invoice permission. -->
+    <record id="access_advance_payment_inv_order_invoice" model="ir.access">
+        <field name="name">Create invoices from orders</field>
+        <field name="model_id" ref="sale.model_sale_advance_payment_inv" />
+        <field name="group_id" ref="sol_laboratory.group_permission_order_invoice_all" />
+        <field name="operation">crud</field>
+        <field name="domain">[(1, "=", 1)]</field>
+    </record>
     <record id="access_account_move_line_order_read" model="ir.access">
         <field name="name">Invoice lines follow the invoice</field>
         <field name="model_id" ref="account.model_account_move_line" />
