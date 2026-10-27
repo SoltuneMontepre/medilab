@@ -11,13 +11,14 @@ spec:
     repoURL: https://github.com/SoltuneMontepre/medilab.git
     targetRevision: main
     path: infra/cluster/cloudbeaver
+    kustomize:
+      replicas:
+        - name: cloudbeaver
+          count: 0
   destination:
     server: https://kubernetes.default.svc
     namespace: medilab
   syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
     syncOptions:
       - CreateNamespace=true
     retry:
