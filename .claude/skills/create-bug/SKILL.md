@@ -5,7 +5,7 @@ description: Turn a defect report into a GitHub bug issue for MediLab. Finds the
 
 # Create bug
 
-Follow [.agent/skills/create-bug/SKILL.md](../../../.agent/skills/create-bug/SKILL.md).
+Follow [.agents/skills/create-bug/SKILL.md](../../../.agents/skills/create-bug/SKILL.md).
 
 In Claude Code:
 

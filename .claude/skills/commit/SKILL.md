@@ -5,7 +5,7 @@ description: Commit MediLab changes following the Git conventions. Branches off 
 
 # Commit
 
-Follow [.agent/skills/commit/SKILL.md](../../../.agent/skills/commit/SKILL.md).
+Follow [.agents/skills/commit/SKILL.md](../../../.agents/skills/commit/SKILL.md).
 
 In Claude Code:
 

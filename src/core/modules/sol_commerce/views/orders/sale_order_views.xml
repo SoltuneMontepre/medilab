@@ -61,6 +61,9 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form" />
         <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_view_invoice']" position="attributes">
+                <attribute name="groups">account.group_account_invoice</attribute>
+            </xpath>
             <xpath expr="//header" position="inside">
                 <field name="can_save_order_template" invisible="1" />
                 <field name="order_status" widget="statusbar" statusbar_visible="draft,submitted,claimed,confirmed,completed" />
