@@ -12,7 +12,7 @@ import jwt
 import requests
 
 SECRET = "test-secret-of-the-editing-service-0123456789"
-ORIGIN = "http://documentserver"
+ORIGIN = "https://documentserver"
 
 
 def command(operation, **fields):
@@ -32,7 +32,7 @@ def read(key):
         result["bytes_available"] = False
         return result
     target = urlsplit(url)
-    if target.scheme != "http" or target.netloc != "documentserver" or target.username or target.password:
+    if target.scheme != "https" or target.netloc != "documentserver" or target.username or target.password:
         raise RuntimeError("Unexpected forgotten-file origin")
     response = requests.get(url, timeout=30, allow_redirects=False)
     result["download_http"] = response.status_code

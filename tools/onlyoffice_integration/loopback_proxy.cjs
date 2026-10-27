@@ -2,10 +2,12 @@
 
 const crypto = require("node:crypto");
 const http = require("node:http");
+const https = require("node:https");
+const {serverTLS} = require("./fixture_tls.cjs");
 
 const TARGETS = new Map([
-  [8081, {upstream: "http://documentserver", origin: "http://localhost:8081"}],
-  [3900, {upstream: "http://garage:3900", origin: "http://localhost:3900"}],
+  [8081, {upstream: "https://documentserver", origin: "https://localhost:8081"}],
+  [3900, {upstream: "https://garage-tls:3900", origin: "https://localhost:3900"}],
 ]);
 const REQUEST_HEADERS = ["host", "accept", "accept-encoding", "accept-language", "authorization", "cache-control",
   "content-length", "content-type", "cookie", "if-modified-since", "if-none-match", "origin", "range", "referer",
@@ -111,9 +113,10 @@ function websocketHeaders(req, port) {
   return {...headers, connection: "Upgrade", upgrade: "websocket"};
 }
 
-function proxy(port, listenPort = port) {
+function proxy(port, listenPort = port, tls) {
   target(port);
-  const server = http.createServer((req, res) => {
+  tls ??= serverTLS();
+  const server = https.createServer(tls, (req, res) => {
     let url;
     let headers;
     try {
@@ -125,7 +128,7 @@ function proxy(port, listenPort = port) {
     } catch {
       res.writeHead(400); res.end(); return;
     }
-    const upstream = http.request(url, {method: req.method, headers}, answer => {
+    const upstream = https.request(url, {method: req.method, headers, ca: tls.ca, servername: url.hostname}, answer => {
       try {
         res.writeHead(answer.statusCode, responseHeaders(answer.headers, port));
       } catch {
@@ -149,7 +152,7 @@ function proxy(port, listenPort = port) {
     } catch {
       socket.destroy(); return;
     }
-    const upstream = http.request(url, {method: "GET", headers});
+    const upstream = https.request(url, {method: "GET", headers, ca: tls.ca, servername: url.hostname});
     upstream.on("upgrade", (answer, tunnel, upstreamHead) => {
       // RFC 6455 4.2.2/10.8: public nonce framing only; this is not a credential or integrity hash.
       const expected = crypto.createHash("sha1").update(req.headers["sec-websocket-key"] +

@@ -38,18 +38,18 @@ class TestOnlyofficePageReal(LaboratoryEditingHttpCase):
 
     @classmethod
     def editing_internal_url(cls):
-        return "http://documentserver"
+        return "https://documentserver"
 
     @classmethod
     def editing_public_url(cls):
-        return "http://localhost:8081"
+        return "https://localhost:8081"
 
     @classmethod
     def server_environment(cls):
         port = cls.http_url.rsplit(":", 1)[1]
         return {
             CALLBACK_ORIGIN_VARIABLE: f"http://{socket.gethostname()}:{port}",
-            PUBLIC_ADDRESS_VARIABLE: "http://localhost:3900",
+            PUBLIC_ADDRESS_VARIABLE: "https://localhost:3900",
         }
 
     def setUp(self):

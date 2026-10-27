@@ -51,11 +51,11 @@ class TestOnlyofficeReal(LaboratoryEditingHttpCase):
 
     @classmethod
     def editing_internal_url(cls):
-        return "http://documentserver"
+        return "https://documentserver"
 
     @classmethod
     def editing_public_url(cls):
-        return "http://documentserver"
+        return "https://documentserver"
 
     def setUp(self):
         self.extension = next(

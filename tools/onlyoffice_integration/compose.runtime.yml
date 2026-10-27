@@ -1,6 +1,6 @@
 services:
   documentserver:
-    entrypoint: [/bin/bash, /opt/onlyoffice-integration/start_runtime.sh]
+    entrypoint: [/bin/bash, /opt/medilab/onlyoffice/start.sh]
     environment:
       JWT_IN_BODY: "false"
       DS_LOG_LEVEL: "OFF"

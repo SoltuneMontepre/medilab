@@ -8,7 +8,7 @@ import jwt
 import requests
 
 SECRET = "test-secret-of-the-editing-service-0123456789"
-URL = "http://documentserver/command"
+URL = "https://documentserver/command"
 
 
 def probe():

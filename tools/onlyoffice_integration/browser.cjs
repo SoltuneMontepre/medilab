@@ -1,5 +1,6 @@
 const http = require("node:http");
 const { chromium } = require("playwright");
+const { visitEditorsInOrder } = require("./editor_lifecycle.cjs");
 
 http.createServer(async (request, response) => {
   response.setHeader("Content-Type", "application/json");
@@ -26,7 +27,7 @@ http.createServer(async (request, response) => {
     const target = new URL(input.url);
     const participants = input.participants ?? 25;
     if (!Number.isInteger(participants) || participants < 1 || participants > 25) throw new Error("Invalid participant count");
-    if (target.hostname !== "runner" || target.protocol !== "http:" || target.pathname !== "/editor") {
+    if (target.hostname !== "runner" || target.protocol !== "https:" || target.pathname !== "/editor") {
       throw new Error("Unexpected test origin");
     }
     stage = "launch";
@@ -58,13 +59,12 @@ http.createServer(async (request, response) => {
     }
     const keeper = await openEditor(target.href);
     if (request.url === "/edit-many") {
-      for (let index = 1; index <= participants; index++) {
+      const urls = Array.from({length: participants}, (_, index) => {
         const url = new URL(target.href);
-        url.searchParams.set("participant", String(index));
-        const editor = await openEditor(url.href);
-        await editor.evaluate(() => window.editor.destroyEditor());
-        await editor.close();
-      }
+        url.searchParams.set("participant", String(index + 1));
+        return url.href;
+      });
+      await visitEditorsInOrder(urls, openEditor);
       const last = await openEditor(target.href);
       await last.evaluate(() => window.editor.destroyEditor());
       await last.close();

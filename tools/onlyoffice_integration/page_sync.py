@@ -10,6 +10,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 from tools.onlyoffice_integration import run
+from tools.onlyoffice_integration.isolation import validate_member
 
 
 def wait_for_desktop_ready(process):
@@ -36,6 +37,10 @@ def wait_for_desktop_ready(process):
 
 
 def observe_desktop_save(desktop, ready):
+    metadata = run.require_success(
+        run.command([*run.DOCKER, "inspect", desktop], env=run.DOCKER_ENV), "Inspect owned desktop fixture"
+    )
+    validate_member(run.PROJECT, run.PROJECT + "_default", json.loads(metadata.stdout)[0])
     container = json.loads(run.command([*run.DOCKER, "inspect", run.CONTAINER], env=run.DOCKER_ENV).stdout)[0]
     address = urlsplit(ready["url"])
     if (
@@ -58,6 +63,7 @@ def observe_desktop_save(desktop, ready):
         "MEDILAB_E2E_EDITOR_FOLDER": str(ready["folder"]),
         "MEDILAB_E2E_EDITOR_FILE": str(ready["file"]),
         "MEDILAB_E2E_EDITOR_SHA256": ready["sha256"],
+        "MEDILAB_E2E_EDITOR_CA": "/run/fixture-ca/ca.crt",
     }
     for name, value in variables.items():
         command.extend(["-e", f"{name}={value}"])

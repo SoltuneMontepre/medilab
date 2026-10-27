@@ -497,6 +497,24 @@ None of those corrections resolves or administratively classifies these seven se
 
 All seven remain **PENDING OWNER APPROVAL**, with the Accountable Risk Owner and Authorized Security Approver formally TBD. The individual recommendations, rejection/fix fallback, residual risks and required attributable Sonar actions above remain in force. GitGuardian incident 39039733 remains a separate pending disposition. Engineering instructions and passing regressions do not approve security risk.
 
+## TLS implementation and current requested decision
+
+The [remaining-finding implementation](../integration/sonar-cleanup-pr-292.md#remaining-browser-and-tls-remediation) replaces the three reported fixture HTTP transports with actual verified TLS. Document Server uses its canonical TLS entrypoint; browser proxies and the storage adapter use TLS loopback listeners and verify fixed backend identities; Garage receives only local Unix-socket S3 forwarding from its TLS gateway. Signed Host/path/query bytes remain unchanged. The real callback/plugin relay has project-bound runner certificates. The CA signing key stays on the host, peers receive only leaf keys/public CA, and the browser imports trust in its own NSS database. No insecure verification flag is introduced. Native Odoo/control HTTP remains an isolated synthetic fixture; no claim of production or universal transport encryption follows.
+
+Fresh proof includes 1,857 native tests, all selected callback transaction cases, four actual TLS callbacks including 27 editors and expiry/retry, actual rejection of a foreign self-signed source, four real released-page/coediting saves, the actual Rust ApiClient observation/HTTPS download, nine strict-role HTTPS/WebSocket cases and the gateway's Unix-only/SigV4-host contracts. Live bidirectional outside-canary controls, single-network/no-route/no-publication inspection, loopback reachability and configured disposable-value/CA-custody checks pass. Earlier failure receipts and fresh successful repeats remain explicit. The Rust CA addition is confined to an ignored test compiled under `cfg(test)`; production client trust is unchanged.
+
+| Original security key | Current engineering action | Owner/admin state |
+| --- | --- | --- |
+| `AaF2G1TlIES1tmkRiAIQ` | Required RFC 6455 public nonce/GUID SHA-1 preserved, covered by valid/invalid real WSS handshakes | **PENDING OWNER APPROVAL** — proposed FALSE POSITIVE; no decision/action exists |
+| `AaF2G1TlIES1tmkRiAIM` | Real verified Document Server HTTPS, fixed backend SNI | Code fix implemented; automatic Sonar confirmation pending; no ACCEPT/FP action |
+| `AaF2G1TlIES1tmkRiAIN` | Real verified Garage-gateway HTTPS with Unix-only S3 backend | Code fix implemented; automatic Sonar confirmation pending; no ACCEPT/FP action |
+| `AaF0FHq1vCiqu-XFDLDC` | TLS loopback storage listener and verified HTTPS backend | Code fix implemented; automatic Sonar confirmation pending; no ACCEPT/FP action |
+| `AaF2G1X8IES1tmkRiAIS` | Expected HTTPS authority matches the actual TLS Garage transport | Code fix implemented; automatic Sonar confirmation pending; no ACCEPT/FP action |
+| `AaF2G1X8IES1tmkRiAIT` | Expected HTTPS authority matches the actual TLS Document Server transport | Code fix implemented; automatic Sonar confirmation pending; no ACCEPT/FP action |
+| `AaF2G1X8IES1tmkRiAIV` | Actual TLS forwarding fixture with separate backend/loopback certificate names | Code fix implemented; automatic Sonar confirmation pending; no ACCEPT/FP action |
+
+The earlier four-FP/three-ACCEPT proposals describe the recorded HTTP checkpoint, not an approval of the new source. If Sonar confirms the six genuine fixes, they require no administrative exception; their historical approvals remain absent. The remaining protocol decision must be individually verified and attributed by a formally designated security owner. Accountable Risk Owner: **TBD — MediLab project/repository owner to designate**. Authorized Security Approver: **TBD — project security governance authority to designate**. Engineering authorization is not security approval. After attributable approval of `AaF2G1TlIES1tmkRiAIQ`, an authorized operator with Administer Issues permission may apply the approved Open → False positive action with the evidence/decision reference; this agent performs no transition. GitGuardian incident 39039733 remains independently pending authorized review.
+
 ## Related documents
 
 - [Integration acceptance](../integration/171-203-230-206-acceptance.md)

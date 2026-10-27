@@ -2,12 +2,15 @@
 
 import hashlib
 import json
+import os
 import socket
+import ssl
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 from copy import deepcopy
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
 import jwt
@@ -82,8 +85,13 @@ class OnlyofficeRealRelay:
                 self.answer(status, answer)
 
         self.server = ThreadingHTTPServer(("0.0.0.0", 0), Handler)
-        self.url = f"http://runner:{self.server.server_address[1]}"
-        self.callback_url = f"http://{socket.gethostname()}:{self.server.server_address[1]}"
+        directory = Path(os.environ["ONLYOFFICE_FIXTURE_TLS_DIR"])
+        context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        context.minimum_version = ssl.TLSVersion.TLSv1_2
+        context.load_cert_chain(directory / "tls.crt", directory / "tls.key")
+        self.server.socket = context.wrap_socket(self.server.socket, server_side=True)
+        self.url = f"https://runner:{self.server.server_address[1]}"
+        self.callback_url = f"https://{socket.gethostname()}:{self.server.server_address[1]}"
         threading.Thread(target=self.server.serve_forever, daemon=True).start()
         case.addCleanup(self.server.server_close)
         case.addCleanup(self.server.shutdown)

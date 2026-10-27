@@ -4,9 +4,12 @@ x-bucket: &bucket
   BUCKET_LABORATORY_ACCESS_KEY: GK000000000000000000000001
   BUCKET_LABORATORY_SECRET_KEY: "0000000000000000000000000000000000000000000000000000000000000001"
   BUCKET_LABORATORY_NAME: laboratory-files
-  BUCKET_LABORATORY_ADDRESS: http://garage:3900
-  BUCKET_LABORATORY_PUBLIC_ADDRESS: http://garage:3900
+  BUCKET_LABORATORY_ADDRESS: https://garage-tls:3900
+  BUCKET_LABORATORY_PUBLIC_ADDRESS: https://garage-tls:3900
   BUCKET_LABORATORY_REGION: garage
+  AWS_CA_BUNDLE: /run/fixture-ca/ca.crt
+  REQUESTS_CA_BUNDLE: /run/fixture-ca/ca.crt
+  SSL_CERT_FILE: /run/fixture-ca/ca.crt
 
 services:
   postgres:
@@ -39,7 +42,27 @@ services:
       retries: 30
     volumes:
       - agent4-garage:/var/lib/garage
-      - ../infrastructure/garage/garage.toml:/etc/garage.toml:ro
+      - ./garage.fixture.toml:/etc/garage.toml:ro
+      - agent4-garage-socket:/run/garage-s3
+
+  garage-tls:
+    image: localhost/medilab171-agent4-browser:local
+    entrypoint: [node, /opt/browser/garage_tls.cjs]
+    init: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    healthcheck:
+      test: [CMD, node, -e, "require('node:https').get('https://garage-tls:3900/',r=>process.exit(r.statusCode<500?0:1)).on('error',()=>process.exit(1))"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+    environment:
+      NODE_EXTRA_CA_CERTS: /run/fixture-ca/ca.crt
+      MEDILAB_ONLYOFFICE_STORAGE_FIXTURE: isolated-owned
+    volumes:
+      - agent4-garage-socket:/run/garage-s3
+      - ${ONLYOFFICE_FIXTURE_TLS_DIRECTORY:?Start through run.py}/garage:/run/fixture-tls:ro
+      - ${ONLYOFFICE_FIXTURE_TLS_DIRECTORY:?Start through run.py}/ca:/run/fixture-ca:ro
 
   garage-setup:
     image: docker.io/library/python:3.12.13-slim@sha256:229a2c5bfa27522db7815ea81f9bed70af17ccb9de9fc7ad142b1877b5830d36
@@ -55,6 +78,7 @@ services:
         condition: service_healthy
     volumes:
       - ../infrastructure/garage:/setup:ro
+      - ${ONLYOFFICE_FIXTURE_TLS_DIRECTORY:?Start through run.py}/ca:/run/fixture-ca:ro
 
   documentserver:
     image: docker.io/onlyoffice/documentserver:9.4.0.1@sha256:3ab6ebc7c605e5a32b7ae3ff19daed4925090245acc8100ce2230bd766c88212
@@ -65,15 +89,23 @@ services:
       JWT_IN_BODY: "true"
       ALLOW_PRIVATE_IP_ADDRESS: "true"
       ALLOW_META_IP_ADDRESS: "false"
+      SSL_CERTIFICATE_PATH: /run/onlyoffice-tls/tls.crt
+      SSL_KEY_PATH: /run/onlyoffice-tls/tls.key
+      NODE_EXTRA_CA_CERTS: /run/onlyoffice-ca/ca.crt
+      SSL_CERT_FILE: /run/onlyoffice-ca/ca.crt
+      ONLYOFFICE_PROBE_HOST: documentserver
     shm_size: 1gb
     healthcheck:
-      test: [CMD-SHELL, "curl --fail --silent http://localhost/healthcheck | grep -qx true"]
+      test: [CMD-SHELL, "curl --fail --silent --cacert /run/onlyoffice-ca/ca.crt https://documentserver/healthcheck | grep -qx true"]
       interval: 5s
       timeout: 5s
       retries: 120
     volumes:
       - agent4-documentserver:/var/lib/onlyoffice
       - agent4-documentserver-data:/var/www/onlyoffice/Data
+      - ${ONLYOFFICE_FIXTURE_TLS_DIRECTORY:?Start through run.py}/documentserver:/run/onlyoffice-tls:ro
+      - ${ONLYOFFICE_FIXTURE_TLS_DIRECTORY:?Start through run.py}/ca:/run/onlyoffice-ca:ro
+      - ${ONLYOFFICE_FIXTURE_TLS_DIRECTORY:?Start through run.py}/loopback:/run/fixture-tls:ro
 
   browser:
     image: localhost/medilab171-agent4-browser:local
@@ -83,6 +115,9 @@ services:
       secrets: [proxy_ca]
     init: true
     shm_size: 1gb
+    volumes:
+      - ${ONLYOFFICE_FIXTURE_TLS_DIRECTORY:?Start through run.py}/loopback:/run/fixture-leaf:ro
+      - ${ONLYOFFICE_FIXTURE_TLS_DIRECTORY:?Start through run.py}/ca:/run/fixture-ca:ro
     healthcheck:
       test: [CMD, node, -e, "fetch('http://localhost:3000/health').then(r=>process.exit(r.ok?0:1))"]
       interval: 2s
@@ -91,6 +126,10 @@ services:
 
   runner:
     image: ${MEDILAB_ODOO_IMAGE:-medilab-odoo:local}
+    hostname: ${ONLYOFFICE_RUNNER_HOSTNAME:?Start through run.py}
+    user: root
+    init: true
+    entrypoint: [/bin/bash, /opt/onlyoffice-integration/start_runner.sh]
     environment:
       <<: *bucket
       HOST: postgres
@@ -111,11 +150,14 @@ services:
       - --stop-after-init
       - --max-cron-threads=0
       - --http-port=8069
+      - --data-dir=/var/lib/odoo
     volumes:
       - ../../src/core/modules:/mnt/extra-addons:ro
       - ../../src/core/config:/etc/odoo:ro
       - .:/opt/onlyoffice-integration:ro
       - agent4-odoo:/var/lib/odoo
+      - ${ONLYOFFICE_FIXTURE_TLS_DIRECTORY:?Start through run.py}/ca:/run/fixture-ca:ro
+      - ${ONLYOFFICE_FIXTURE_TLS_DIRECTORY:?Start through run.py}/runners/${ONLYOFFICE_RUNNER_HOSTNAME:?}:/run/fixture-leaf:ro
 
 networks:
   default:
@@ -129,6 +171,7 @@ secrets:
 volumes:
   agent4-postgres:
   agent4-garage:
+  agent4-garage-socket:
   agent4-documentserver:
   agent4-documentserver-data:
   agent4-odoo:

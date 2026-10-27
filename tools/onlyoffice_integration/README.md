@@ -12,7 +12,7 @@ The runner verifies the live container image ID, repository digest, architecture
 
 ## Run in an authorized local environment
 
-Use Compose, registry access, the stored KietPham-VN GitHub CLI token and an already built compatible Odoo image. The image needs the bundled `base/tests/files/file.docx`, `file.xlsx` and `file.pptx` fixtures. Python contract tests require the dependencies in `src/core/pyproject.toml`.
+Use Compose, the OpenSSL CLI, registry access, the stored KietPham-VN GitHub CLI token and an already built compatible Odoo image. The image needs the bundled `base/tests/files/file.docx`, `file.xlsx` and `file.pptx` fixtures. Python contract tests require the dependencies in `src/core/pyproject.toml`.
 
 ```bash
 export ONLYOFFICE_CONTAINER_SOCKET=/run/user/1000/podman/podman.sock
@@ -29,7 +29,7 @@ Choose a new, owned project for a fresh run. No host ports are published. All ne
 
 The runner creates the project bridge explicitly with `--internal --opt isolate=strict` before Compose starts. Compose treats that named bridge as external to its own network creation, but the runner verifies the exact project label, strict isolation setting, every running peer's ownership and single-network attachment, and the absence of published ports or engine sockets. Podman Compose did not propagate `driver_opts.isolate`; declaring the option in Compose alone left inbound traffic from another bridge reachable. An existing network without the required metadata fails closed. Use a new project name instead of altering or removing a retained fixture. Build/download dependencies before attaching offline helpers to the bridge; helpers must be project-labeled and use only this bridge. This boundary is for synthetic fixtures and does not establish production ingress or CNI isolation.
 
-Use the corrected production worker bootstrap for acceptance. The HTTP fixture retains the same pinned binaries, settings, sender correction and native configuration attestation as the TLS wrapper:
+Use the canonical production TLS entrypoint and worker bootstrap for acceptance. The fixture retains the pinned binaries, settings, sender correction and native configuration attestation:
 
 ```bash
 export ONLYOFFICE_COMPOSE_OVERRIDE="$PWD/tools/onlyoffice_integration/compose.runtime.yml"
@@ -40,13 +40,28 @@ python3 -m tools.onlyoffice_integration.probe_runtime
 python3 tools/onlyoffice_integration/run.py test
 ```
 
-The combined selection runs 15 real-service cases and 60 native HTTP/logging/JWT cases. The additional 650-second transaction case crosses the old ten-minute callback limit and requires the original delivery to return 503 before a fresh-JWT delivery commits. The original 370-second test remains. The fixture's Odoo HTTP worker uses the approved 1200-second limit; callback and whole-run waits are bounded separately. Full TLS startup, native policy drift rejection and restart/recreation are independently verified through the production wrapper; the HTTP adapter does not establish ingress, CNI or CDN acceptance.
+The combined selection runs the real-service cases and native HTTP/logging/JWT cases. The additional 650-second transaction case crosses the old ten-minute callback limit and requires the original delivery to return 503 before a fresh-JWT delivery commits. The original 370-second test remains. The fixture's Odoo HTTP worker uses the approved 1200-second limit; callback and whole-run waits are bounded separately. Full TLS startup, native policy drift rejection and restart/recreation are independently verified through the production wrapper; the isolated fixture does not establish deployed ingress, CNI or CDN acceptance.
 
 For a further run against your own services after a restart, set a new `ONLYOFFICE_RUN_ID`, `ONLYOFFICE_RUNNER_SUFFIX` and `ONLYOFFICE_TEST_DATABASE` before `test`. Database names must start with `medilab171` and contain only lowercase letters, digits or underscores. The runner refuses an existing database or container; failed resources and evidence remain preserved. The local Odoo health loop retries connection/read timeouts within its existing 45-second startup deadline.
 
 Preflight clears inherited GitHub token variables in child commands, selects the stored KietPham-VN token and verifies `gh api user --jq .login`. It changes neither shared authentication nor global Git configuration. It prints no token. Rootless Podman's authorized socket works on this host; the root socket remains inaccessible. No socket permissions or security controls need changing.
 
 The browser build uses a read-only CA secret from `/etc/ssl/certs/ca-certificates.crt`; override `ONLYOFFICE_TEST_CA_BUNDLE` when needed. Certificate verification stays enabled. `ONLYOFFICE_CALLBACK_TEST_BUCKET` can select a fresh, owned callback bucket after an interrupted attempt; Garage setup provisions it. Do not remove ownership markers to bypass its guard.
+
+## Fixture TLS identities
+
+`run.py start` creates an owned two-day CA and separate Document Server, Garage-gateway and loopback leaf identities under `.local/onlyoffice-tls/<project>`. The CA signing key stays on the host; peers receive only their leaf key and public CA. Private keys use mode 0600. The browser imports the public CA into its own NSS database and runs as `pwuser`. A guarded runner gets a unique certificate for `runner` and its container hostname, then drops to the image's Odoo user with an explicit data directory. Existing/expired/foreign identities fail closed; use a fresh guarded project or runner suffix. `.local` is excluded from container build context. No certificate or hostname verification bypass is used.
+
+Document Server uses the canonical TLS entrypoint. Browser proxies listen on HTTPS loopback origins and validate backend certificate names independently of the preserved signed Host header. Garage's S3 endpoint is a Unix socket shared only with the TLS gateway. The real callback/plugin relay also uses verified TLS, avoiding mixed-content plugins. Native Odoo HTTP/control endpoints remain isolated synthetic fixtures; this is not a claim that every test-control hop is encrypted.
+
+For the manual Compose inspection/page commands below, select the same generated identities as the runner:
+
+```bash
+export ONLYOFFICE_FIXTURE_TLS_DIRECTORY="$PWD/.local/onlyoffice-tls/$ONLYOFFICE_COMPOSE_PROJECT"
+export ONLYOFFICE_RUNNER_HOSTNAME="$ONLYOFFICE_COMPOSE_PROJECT-acceptance"
+```
+
+`run.py` computes the actual suffixed runner hostname itself before issuing its certificate. Keep the default fixture CA/leaf mounts when adding page/Rust helpers. Do not mount the CA signing key or relax peer verification.
 
 ## Selected cases and runtime comparison
 
@@ -61,7 +76,7 @@ python3 tools/onlyoffice_integration/run.py test
 
 The `onlyoffice_real` prefix matters: this class excludes `standard`. A bare module/class selector can silently select no test; missing evidence prevents acceptance.
 
-The default fixture has body JWT enabled. The environment generator reads canonical policy from the verified P1 revision `e6f24173c831eac945fc90cd50af4a6f788ba2c6`; `--commit` accepts an exact integrated revision. Its policy bytes match the earlier infrastructure declaration. For a fresh HTTP comparison with that committed policy:
+The default fixture has body JWT enabled. The environment generator reads canonical policy from the verified P1 revision `e6f24173c831eac945fc90cd50af4a6f788ba2c6`; `--commit` accepts an exact integrated revision. Its policy bytes match the earlier infrastructure declaration. For a fresh worker-policy comparison with that committed policy:
 
 ```bash
 python3 tools/onlyoffice_integration/runtime_env.py
@@ -73,7 +88,7 @@ python3 -m tools.onlyoffice_integration.probe_runtime
 
 The generator reads local commit `5b42e14f5715f21f85f525911cd8f692ae51302e` and creates a mode-0600 test environment file. This overlay deliberately reproduces the old declaration-only launch: it loses NODE_CONFIG when starting Supervisor and retains the large-history signing defect. Use it for a fresh failing baseline, with a separate project and evidence directory. The corrected `compose.runtime.yml` uses the mounted production worker bootstrap. Its probe requires policy read by `config.get` inside every native worker, bound to the current PID/start time, settings hash and pinned binary hash. Parent environment or disk declarations cannot produce a passing corrected probe. Callback body tokens remain present despite body JWT false and still require strict validation. Output must be a new file beneath this worktree's `.local` directory; existing files and symbolic-link outputs are refused. Use a fresh `--output` path for another comparison.
 
-This comparison adapter uses isolated HTTP. It does not execute #203's full TLS entrypoint, trusted callback ingress, health/drain helper or Kubernetes policy. The full handoff remains in the infrastructure branch's committed `docs/infrastructure/onlyoffice.md`; do not copy its production manifests into this harness. Probe and scan available upstream logs without printing credentials:
+This comparison adapter uses the fixture TLS listeners but bypasses the canonical worker bootstrap. It does not execute the full TLS entrypoint, deployed callback ingress, health/drain helper or Kubernetes policy. The full handoff remains in the infrastructure branch's committed `docs/infrastructure/onlyoffice.md`; do not copy its production manifests into this harness. Probe and scan available upstream logs without printing credentials:
 
 ```bash
 python3 -m tools.onlyoffice_integration.probe_runtime
@@ -98,7 +113,7 @@ It signs only getForgottenList/getForgotten, validates the returned origin, refu
 
 ## Released editor page
 
-After starting an owned runtime project, add the page browser and Document Server loopback storage proxy. The storage adapter requires the explicit `MEDILAB_ONLYOFFICE_STORAGE_FIXTURE=isolated-owned` opt-in and container runtime markers. Its HTTP listener binds only `127.0.0.1:3900`, sends only owned bucket paths to the fixed Garage fixture, and forwards no caller credentials. This transport is restricted to disposable, isolated fixtures; it is not the production HTTPS storage route. The environment and runtime markers record intended use; they do not authenticate ownership or prove isolation. Network/container inspection must establish the actual boundary:
+After starting an owned runtime project, add the page browser and Document Server loopback storage proxy. The storage adapter requires the explicit `MEDILAB_ONLYOFFICE_STORAGE_FIXTURE=isolated-owned` opt-in and container runtime markers. Its verified TLS listener binds only `127.0.0.1:3900`, sends only owned bucket paths over TLS to the fixed Garage gateway, and forwards no caller credentials. The gateway forwards locally over a shared Unix socket; Garage exposes no plaintext S3 TCP listener. This transport remains a disposable fixture, separate from production storage. The environment and runtime markers record intended use; they do not authenticate ownership or prove isolation. Network/container inspection must establish the actual boundary:
 
 ```bash
 docker --host=unix:///run/user/1000/podman/podman.sock compose -p "$ONLYOFFICE_COMPOSE_PROJECT" \
@@ -119,11 +134,11 @@ python3 tools/onlyoffice_integration/run.py test-native
 
 Use fresh guarded identities and a bucket not owned by another active database. Serialize browser runners: the callback harness requires a `runner` DNS alias; native-only runners omit it. Callback origins use the fixture container's unique hostname because Document Server can cache service-name DNS across ephemeral runners. Do not restart or recreate another owner's services.
 
-The page probe starts with no editing session, follows native CSRF-protected admin login/return, loads the released signed configuration, types into the native DOCX canvas, closes, and checks one new immutable version, attribution, Office XML marker and actual Garage SHA-256. `page-docx.json` records the real-service result; `test-native` describes the Odoo runner and its summary, not a callback stress cohort. The storage proxy permits objects only in the owned `laboratory-files` bucket namespace, including fresh suffixed fixture buckets, and rejects literal/encoded traversal, separators and controls while preserving signed queries. The loopback proxies keep the existing public-origin checks intact while using the isolated HTTP topology; they do not establish deployed TLS/CNI behavior. No production key, verifier bypass or resigned browser configuration is used.
+The page probe starts with no editing session, follows native CSRF-protected admin login/return, loads the released signed configuration, types into the native DOCX canvas, closes, and checks one new immutable version, attribution, Office XML marker and actual Garage SHA-256. `page-docx.json` records the real-service result; `test-native` describes the Odoo runner and its summary, not a callback stress cohort. The storage proxy permits objects only in the owned `laboratory-files` bucket namespace, including fresh suffixed fixture buckets, and rejects literal/encoded traversal, separators and controls while preserving signed queries. The loopback proxies keep the existing public-origin checks intact while using verified TLS, with backend SNI fixed independently of the signed Host header; they do not establish deployed TLS/CNI behavior. No production key, verifier bypass or resigned browser configuration is used.
 
 For a real elapsed credential-lifetime case, choose fresh run/database identities and set `ONLYOFFICE_PAGE_HOLD_SECONDS=920` and `ONLYOFFICE_RUN_TIMEOUT=1400`. The native editor holds its changes beyond the original fifteen-minute configuration lifetime before closing and saving. This does not simulate seven-day recovery, initial expired-token admission or a complete native desktop pilot. Browser failures retain a protected screenshot inside the owned page browser and fixed-stage diagnostics; never publish raw page configuration or callback logs.
 
-To observe the resulting page save with the actual Sync Rust client, use a fresh short-run identity, set `ONLYOFFICE_DESKTOP_PROBE=1` and `ONLYOFFICE_DESKTOP_CONTAINER` to an owned `medilab-integration-*` Rust fixture on the same private network. It must mount this checkout at `/workspace`, have the locked Rust dependencies/Linux libraries, and run `loopback_storage_proxy.py` with the same explicit fixture opt-in for the test-only loopback download origin. Run `python3 -m tools.onlyoffice_integration.page_sync` instead of the direct runner. The bounded rendezvous occurs after database transactions close; the observer signs in with the disposable database's default administrator, checks file/history/hash/source and downloads the exact bytes through the normal contract-checked API client, then revokes its unique device. No key/callback authority is passed in the browser URL.
+To observe the resulting page save with the actual Sync Rust client, use a fresh short-run identity, set `ONLYOFFICE_DESKTOP_PROBE=1` and `ONLYOFFICE_DESKTOP_CONTAINER` to an owned `medilab-integration-*` Rust fixture on the same private network. It must mount the required source/API paths beneath `/workspace`, have the locked Rust dependencies/Linux libraries, and run `loopback_storage_proxy.py` with the explicit fixture opt-in, loopback leaf identity and public fixture CA. The observer validates helper ownership/isolation before passing its synthetic login. Only the ignored observer test adds this explicit CA for `https://localhost:3900`; production Rust client trust settings are unchanged. Run `python3 -m tools.onlyoffice_integration.page_sync` instead of the direct runner. The bounded rendezvous occurs after database transactions close; the observer signs in with the disposable database's default administrator, checks file/history/hash/source and downloads the exact bytes through the normal contract-checked API client, then revokes its unique device. No key/callback authority is passed in the browser URL.
 
 Launch persistent Rust/Cypress helper containers with `--init` or a signal-handling supervisor. A bare `sleep infinity` as PID 1 ignores default SIGTERM and can reach the stop timeout even after every test has finished. Stop only owned fixtures and record exit status; retain timeout/forced-shutdown evidence rather than labeling it graceful shutdown. The Compose browser fixtures already enable init.
 
@@ -137,7 +152,7 @@ src/core/.venv/bin/ruff check --config src/core/pyproject.toml tools/onlyoffice_
 node --check tools/onlyoffice_integration/browser.cjs
 ```
 
-The integration suite loads actual JWT/origin/logging production code; namespace placeholders only avoid addon initialization. It does not substitute for Document Server execution. Native result parsing is separate from engine orchestration: test_native_results.py and test_runner.py verify that rotated logs retain failures, missing evidence and zero-test runs cannot claim acceptance, and timeouts stop only the selected runner. The seven Node tests load the real signing hook through a bounded module-loader fixture and cover sender ordering and trimming boundaries. Infrastructure Python tests cover deployment, effective-policy drift and the monitor. The deployed runtime source is canonical under infra/cluster/onlyoffice; local fixtures mount those exact files rather than keeping duplicate copies. CI runs these suites, including the double-encoded URL regression.
+The integration suite loads actual JWT/origin/logging production code; namespace placeholders only avoid addon initialization. It does not substitute for Document Server execution. Native result parsing is separate from engine orchestration: test_native_results.py and test_runner.py verify that rotated logs retain failures, missing evidence and zero-test runs cannot claim acceptance, and timeouts stop only the selected runner. The signing tests load the real signing hook through a bounded module-loader fixture and cover sender ordering and trimming boundaries. Infrastructure Python tests cover deployment, effective-policy drift and the monitor. The deployed runtime source is canonical under infra/cluster/onlyoffice; local fixtures mount those exact files rather than keeping duplicate copies. CI runs these suites, including the double-encoded URL regression.
 
 Runner evidence uses a private per-database directory beneath `/var/lib/odoo/onlyoffice-integration`, copied into `.local/onlyoffice-agent4/<run-id>/`. Browser failure screenshots use an owner-only temporary directory. Private artifacts include: runtime/source hashes, native outcomes, callback timing and token fingerprints, signature consistency, saved hashes/sizes/version counts and logging checks. Raw capabilities, JWTs, callback bodies and signed output URLs stay out of shared artifacts. The runner samples test names and outcomes while polling so engine log rotation cannot erase earlier case identities. Per-case cleanup records the real test-body outcome; absent logs/outcomes are classified unknown, never inferred passing from file presence. A successful acceptance still requires the native zero-failure summary, all evidence and exit 0.
 

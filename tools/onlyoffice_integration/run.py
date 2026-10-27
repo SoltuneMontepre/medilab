@@ -6,6 +6,7 @@ import json
 import os
 import platform
 import re
+import shutil
 import socket
 import subprocess
 import sys
@@ -14,9 +15,10 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 if __package__:
-    from . import native_results
+    from . import fixture_tls, native_results
     from .isolation import validate_network, validate_plan, validate_runtime
 else:
+    import fixture_tls
     import native_results
     from isolation import validate_network, validate_plan, validate_runtime
 
@@ -55,6 +57,9 @@ SOCKET = os.environ.get("ONLYOFFICE_CONTAINER_SOCKET", "/var/run/docker.sock")
 if not SOCKET.startswith("/"):
     raise ValueError("ONLYOFFICE_CONTAINER_SOCKET must be an absolute local Unix socket path.")
 DOCKER_ENV["DOCKER_HOST"] = "unix://" + SOCKET
+TLS_DIRECTORY = ROOT / ".local/onlyoffice-tls" / PROJECT
+DOCKER_ENV["ONLYOFFICE_FIXTURE_TLS_DIRECTORY"] = str(TLS_DIRECTORY)
+DOCKER_ENV["ONLYOFFICE_RUNNER_HOSTNAME"] = CONTAINER
 DOCKER = ["docker", "--host=unix://" + SOCKET]
 
 
@@ -112,6 +117,7 @@ def preflight():
         "at": datetime.now(UTC).isoformat(),
         "platform": platform.platform(),
         "python": sys.version.split()[0],
+        "openssl_available": shutil.which("openssl") is not None,
         "expected_image": IMAGE,
         "github": identity(),
         "real_service_executed": False,
@@ -130,7 +136,9 @@ def preflight():
     if runtime.returncode == 0:
         result["docker_version"] = json.loads(runtime.stdout)
     result["container_socket"] = SOCKET
-    result["ready"] = all((result["github"]["verified"], result["local_tcp"], result["docker_available"]))
+    result["ready"] = all(
+        (result["github"]["verified"], result["local_tcp"], result["docker_available"], result["openssl_available"])
+    )
     write_result("preflight.json", result)
     return result["ready"]
 
@@ -261,6 +269,11 @@ def verify_image():
 
 
 def start():
+    fixture_tls.prepare(TLS_DIRECTORY, PROJECT)
+    write_result(
+        "tls.json",
+        {"ca_sha256": fixture_tls.fingerprint(TLS_DIRECTORY), "disposable": True},
+    )
     planned = require_success(compose("config", "--format", "json"), "Read fixture network plan")
     validate_plan(json.loads(planned.stdout), PROJECT)
     network = PROJECT + "_default"
@@ -320,6 +333,7 @@ def start():
             "660",
             "postgres",
             "garage",
+            "garage-tls",
             "documentserver",
             "browser",
             timeout=690,
@@ -359,6 +373,7 @@ def check_test_run(native_only):
     )
     if database.stdout.strip():
         raise RuntimeError("The test database already exists; preserve evidence before explicit cleanup.")
+    fixture_tls.prepare_runner(TLS_DIRECTORY, PROJECT, CONTAINER)
 
 
 def wait_for_runner(launch, limit):

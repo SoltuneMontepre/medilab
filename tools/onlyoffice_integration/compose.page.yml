@@ -10,6 +10,8 @@ services:
     init: true
     shm_size: 1gb
     volumes:
+      - ${ONLYOFFICE_FIXTURE_TLS_DIRECTORY:?Start through run.py}/loopback:/run/fixture-leaf:ro
+      - ${ONLYOFFICE_FIXTURE_TLS_DIRECTORY:?Start through run.py}/ca:/run/fixture-ca:ro
       - ./page_browser.cjs:/opt/browser/page_browser.cjs:ro
       - ./loopback_proxy.cjs:/opt/browser/loopback_proxy.cjs:ro
       - ./frame_diagnostics.cjs:/opt/browser/frame_diagnostics.cjs:ro

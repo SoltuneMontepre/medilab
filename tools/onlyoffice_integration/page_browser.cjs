@@ -10,9 +10,10 @@ const { collectFrameDiagnostics } = require("./frame_diagnostics.cjs");
 proxy(8081);
 proxy(3900);
 
-async function openEditor(browser, input, credentials) {
+async function openEditor(browser, input, credentials, progress) {
   const context = await browser.newContext();
   const page = await context.newPage();
+  progress(page, "login-navigation");
   const errors = [];
   page.on("pageerror", () => errors.push("pageerror"));
   await page.goto(input.url);
@@ -24,7 +25,9 @@ async function openEditor(browser, input, credentials) {
   await page.locator("input[name=login]").fill(credentials.login);
   await page.locator("input[name=password]").fill(credentials.password);
   await page.locator("button[type=submit]").click();
+  progress(page, "login-return");
   await page.waitForURL(value => value.pathname === requested.pathname);
+  progress(page, "editor-ready");
   await page.locator("#editor-status").filter({ hasText: "Editor ready." }).waitFor({ timeout: 120000 });
   const frame = page.frames().find(value => /\/web-apps\/apps\/(documenteditor|spreadsheeteditor|presentationeditor)\//.test(value.url()));
   if (!frame) throw new Error("Missing native editor frame");
@@ -87,15 +90,17 @@ http.createServer(async (request, response) => {
     const input = await readInput(request);
     browser = await chromium.launch({ headless: true });
     stage = "login-return";
-    const primary = await openEditor(browser, input, { login: "admin", password: "admin" });
+    const progress = (current, step) => { page = current; stage = step; };
+    const primary = await openEditor(browser, input, { login: "admin", password: "admin" }, progress);
     page = primary.page;
     let secondary;
     if (input.coeditor) {
       stage = "coeditor-login";
-      secondary = await openEditor(browser, input, input.coeditor);
+      secondary = await openEditor(browser, input, input.coeditor, progress);
       stage = "coeditor-edit";
       await edit(secondary, input.extension, input.marker + "_MEMBER", true);
     }
+    page = primary.page;
     stage = "edit";
     await edit(primary, input.extension ?? "docx", input.marker, false);
     const hold = input.holdSeconds ?? 3;
@@ -117,12 +122,18 @@ http.createServer(async (request, response) => {
     response.writeHead(500);
     // Native error messages can contain capabilities; retain only the fixed stage and error type.
     let frames = [];
+    let editorState = "unavailable";
     if (page) {
       const diagnostic = fs.mkdtempSync(path.join(os.tmpdir(), "medilab-page-probe-"));
       await page.screenshot({ path: path.join(diagnostic, "failure.png") }).catch(() => {});
       frames = await collectFrameDiagnostics(page);
+      editorState = await page.evaluate(() => {
+        const text = document.getElementById("editor-status")?.textContent;
+        return Array.from(document.querySelectorAll("[data-message]"))
+          .find(node => node.textContent === text)?.dataset.message ?? "unknown";
+      }).catch(() => "unavailable");
     }
-    response.end(JSON.stringify({ stage, error: error.name, frames }));
+    response.end(JSON.stringify({ stage, error: error.name, frames, editorState }));
   } finally {
     if (browser) await browser.close();
   }

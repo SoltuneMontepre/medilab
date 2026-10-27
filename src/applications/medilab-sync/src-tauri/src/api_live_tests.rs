@@ -49,7 +49,20 @@ async fn live_editor_save_is_visible_to_desktop_client() {
         .authorize_download(folder, file, current.id)
         .await
         .unwrap();
-    let bytes = reqwest::get(download.url)
+    let mut transport = reqwest::Client::builder().redirect(reqwest::redirect::Policy::none());
+    if let Ok(path) = std::env::var("MEDILAB_E2E_EDITOR_CA") {
+        let url = reqwest::Url::parse(&download.url).unwrap();
+        assert_eq!(url.scheme(), "https");
+        assert_eq!(url.host_str(), Some("localhost"));
+        assert_eq!(url.port(), Some(3900));
+        let certificate = reqwest::Certificate::from_pem(&std::fs::read(path).unwrap()).unwrap();
+        transport = transport.add_root_certificate(certificate);
+    }
+    let bytes = transport
+        .build()
+        .unwrap()
+        .get(download.url)
+        .send()
         .await
         .unwrap()
         .error_for_status()
