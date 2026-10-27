@@ -186,3 +186,9 @@ The [seven-key owner dossier](../security/pr-292-sonar-disposition-review.md) is
 - [Real page receipts](evidence/171-203-230-206/sonar-cleanup/real-pages.json) and [desktop observer](evidence/171-203-230-206/sonar-cleanup/desktop-observer.json)
 - [TLS lifecycle](evidence/171-203-230-206/sonar-cleanup/tls-lifecycle.json), [native retention](evidence/171-203-230-206/sonar-cleanup/retention.json) and [owned cleanup](evidence/171-203-230-206/sonar-cleanup/cleanup.json)
 - [Harness and fixture ownership](../../tools/onlyoffice_integration/README.md)
+
+## Behavior-preserving follow-up remediation
+
+The follow-up starts from the exact `6cc655d` analysis (15 OPEN smells, seven OPEN vulnerabilities, zero bugs), after fast-forwarding to the already-pushed main synchronization. Two sanitizing logging filters now delegate emission eligibility to `logging.Filter.filter`; default unnamed filters still emit every sanitized record, while explicitly named filters obey Python's namespace contract. Both sensitive and ordinary representations retain their redaction/attribution behavior. Three decimal patterns use scoped ASCII `(?a:\d+)`: non-ASCII identifiers remain refused, and Unicode whitespace following an editor reference remains recognized for redaction.
+
+Fresh native Odoo verification on `medilab171remediationnative` passes **53 tests**, including both logging classes, native editor HTTP/ASCII boundary, origin validation and JWT contracts. The earlier 1,855-test and released-service evidence retains its original source attribution. These five issue implementations await hosted Sonar confirmation; no issue status, exclusion or threshold has been changed. The required WebSocket SHA-1, controlled HTTP fixture topology and legacy unload warning remain subject to the documented protocol/owner boundaries.

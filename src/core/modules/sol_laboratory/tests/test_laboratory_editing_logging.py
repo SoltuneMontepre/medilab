@@ -15,6 +15,15 @@ from odoo.addons.sol_laboratory.services.editing_callback_logging import Editing
 
 @tagged("post_install", "-at_install")
 class TestLaboratoryEditingLogging(TransactionCase):
+    def test_named_filter_retains_logging_namespace_contract_after_redaction(self):
+        filter_ = EditingCallbackFilter("odoo.http")
+        for name, expected in (("odoo.http", True), ("odoo.http.server", True), ("odoo.https", False)):
+            with self.subTest(name=name):
+                record = logging.makeLogRecord({"name": name, "msg": CALLBACK_PREFIX + "private-capability"})
+                with patch.object(editing_callback_logging, "request", None):
+                    self.assertEqual(filter_.filter(record), expected)
+                self.assertNotIn("private-capability", record.getMessage())
+
     def test_nested_callback_paths_are_redacted_in_access_and_worker_records(self):
         url = "https://odoo.example" + CALLBACK_PREFIX + "secret-capability"
         for depth in range(20):

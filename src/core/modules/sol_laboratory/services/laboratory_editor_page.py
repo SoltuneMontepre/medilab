@@ -26,7 +26,7 @@ from odoo.addons.sol_laboratory.services.laboratory_file_error import Laboratory
 from odoo.addons.sol_laboratory.services.request_env import request_env
 
 CALLBACK_ORIGIN_VARIABLE = "ONLYOFFICE_CALLBACK_ORIGIN"
-EDITOR_PATH = re.compile(r"/medilab/laboratory-files/([0-9]+)/edit\Z")
+EDITOR_PATH = re.compile(r"/medilab/laboratory-files/((?a:\d+))/edit\Z")
 INVALID_SERVICE_ORIGIN = "Invalid service origin"
 
 ASSETS = "/sol_laboratory/static/src/laboratory_files/editor/"
@@ -40,7 +40,7 @@ def _local_service_host(host):
             raise ValueError(INVALID_SERVICE_ORIGIN) from None
         if any(not label or label.startswith("-") or label.endswith("-") for label in host.split(".")):
             raise ValueError(INVALID_SERVICE_ORIGIN)
-        if re.fullmatch(r"(?:[0-9]+|0[xX][0-9a-fA-F]+)", host.rsplit(".", 1)[-1]):
+        if re.fullmatch(r"(?:(?a:\d+)|0[xX][0-9a-fA-F]+)", host.rsplit(".", 1)[-1]):
             raise ValueError("Ambiguous IP address")
         return host.lower() == "localhost"
 

@@ -55,7 +55,7 @@ class EditingCallbackFilter(logging.Filter):
             transport and request and request.httprequest.path.startswith(CALLBACK_PREFIX)
         ) or _references_callback(record)
         if not callback:
-            return True
+            return super().filter(record)
         # The server already expanded debug headers and its colored message; replace all representations together.
         record.msg = "ONLYOFFICE callback HTTP status=%s"
         record.args = (getattr(record, "http_response_status", "-"),)
@@ -65,7 +65,7 @@ class EditingCallbackFilter(logging.Filter):
         record.exc_info = None
         record.exc_text = None
         record.stack_info = None
-        return True
+        return super().filter(record)
 
 
 def install_filter():

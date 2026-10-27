@@ -9,7 +9,7 @@ from odoo.http import request
 from odoo.addons.sol_laboratory.services.editing_callback_logging import NETWORK_LOGGERS
 from odoo.addons.sol_laboratory.services.laboratory_editor_page import EDITOR_PATH
 
-EDITOR_REFERENCE = re.compile(r"/medilab/laboratory-files/[0-9]+/edit(?:[?\s\"'<]|$)")
+EDITOR_REFERENCE = re.compile(r"/medilab/laboratory-files/(?a:\d+)/edit(?:[?\s\"'<]|$)")
 
 
 def references_editor(text):
@@ -42,7 +42,7 @@ class LaboratoryEditorFilter(logging.Filter):
         if record.exc_info:
             text += logging.Formatter().formatException(record.exc_info)
         if not active and not references_editor(text):
-            return True
+            return super().filter(record)
         record.msg = "Laboratory editor HTTP status=%s"
         record.args = (getattr(record, "http_response_status", "-"),)
         record.http_request_line = "/medilab/laboratory-files/[redacted]/edit"
@@ -51,7 +51,7 @@ class LaboratoryEditorFilter(logging.Filter):
         record.exc_info = None
         record.exc_text = None
         record.stack_info = None
-        return True
+        return super().filter(record)
 
 
 def install_editor_filter():

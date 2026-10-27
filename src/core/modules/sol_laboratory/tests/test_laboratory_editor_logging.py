@@ -60,9 +60,19 @@ class TestLaboratoryEditorLogging(TransactionCase):
 
     def test_editor_references_keep_ascii_identifier_semantics(self):
         self.assertTrue(references_editor("/medilab/laboratory-files/17/edit?token=fixture"))
+        self.assertTrue(references_editor("/medilab/laboratory-files/17/edit\u2003diagnostic"))
         for identifier in ("١٧", "１７", "1٧"):
             with self.subTest(identifier=identifier):
                 self.assertFalse(references_editor(f"/medilab/laboratory-files/{identifier}/edit"))
+
+    def test_named_filter_retains_logging_namespace_contract_after_redaction(self):
+        filter_ = LaboratoryEditorFilter("odoo.http")
+        for name, expected in (("odoo.http", True), ("odoo.http.server", True), ("odoo.https", False)):
+            with self.subTest(name=name):
+                record = self.record(name, "/medilab/laboratory-files/17/edit?token=private-value")
+                self.assertEqual(filter_.filter(record), expected)
+                self.assertNotIn("private-value", record.getMessage())
+        self.assertTrue(LaboratoryEditorFilter().filter(self.record("security.audit", "session_id=17")))
 
     def test_nested_editor_references_are_redacted_outside_request_context(self):
         value = "/medilab/laboratory-files/17/edit?token=private-value"
