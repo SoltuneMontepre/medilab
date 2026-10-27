@@ -4,7 +4,7 @@
 
 ## Current owner request
 
-Read-only Sonar analysis of `7e211a2` leaves these three security keys. All six original HTTP keys are automatically CLOSED/FIXED, so their earlier four-FP/three-ACCEPT proposals are historical and require no current exception for fixed code. The additional prototype/header, redirect, executable-PATH and default-image-user findings are also automatically FIXED. [Exact analyzed source](../integration/evidence/171-203-230-206/sonar-tls/analysis-7e211a2.json). The open Unix-socket issue moved from `AaF-RmjV3D2qssSsqTlR` to `AaF-agc9LPRtorYA4vcl`; it is tracked as the same unresolved review concern.
+Read-only Sonar analysis of `7cca1f6` leaves these three security keys and zero smells. All six original HTTP keys are automatically CLOSED/FIXED, so their earlier four-FP/three-ACCEPT proposals are historical and require no current exception for fixed code. The additional prototype/header, redirect, executable-PATH and default-image-user findings are also automatically FIXED. [Exact analyzed source](../integration/evidence/171-203-230-206/sonar-tls/analysis-7cca1f6.json). The open Unix-socket issue moved from `AaF-RmjV3D2qssSsqTlR` to `AaF-agc9LPRtorYA4vcl`; it is tracked as the same unresolved review concern.
 
 | Current key / recommendation | Technical proof and regression | Residual risk and requested accountable decision |
 | --- | --- | --- |
@@ -15,6 +15,8 @@ Read-only Sonar analysis of `7e211a2` leaves these three security keys. All six 
 **Accountable Risk Owner:** TBD — MediLab project/repository owner to designate. **Authorized Security Approver:** TBD — project security governance authority to designate. Each key remains **PENDING OWNER APPROVAL**. Engineering authorization and successful tests do not constitute approval. After an attributable per-key approval, an authorized Sonar operator may apply **Open → False positive** to only the approved key and record decision/evidence/source references. No ACCEPT is requested for these three protocol/transport findings. Rejection requires a reviewed behavior-compatible correction, preserving required RFC 6455, verified TLS and fixed destinations. This agent performs no issue transition. GitGuardian incident 39039733 remains separate and pending authorized disposition.
 
 The remaining sections preserve dated earlier source/HTTP reviews. Their quoted plaintext code and proposed ACCEPT tables are superseded by verified TLS fixes; they grant no exception on current source.
+
+Final-source proof additionally passes 1,870 native tests, four real page/coediting saves and an actual Rust client save/download. The four hardened callback cases at the earlier source cover 27 editors and expiry/retry with unchanged signing/worker code. Fresh [boundary proof](../integration/evidence/171-203-230-206/sonar-tls/final-boundary.json) verifies actual ingress/egress controls, no default routes/publication, loopback-only TLS sockets and host-only CA signing key. All owned services stopped normally with data retained. The six original HTTP fixes require no risk acceptance, and the three current review recommendations remain unapproved.
 
 ## TLS remediation and new-finding review checkpoint
 

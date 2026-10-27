@@ -31,7 +31,11 @@
       }
     ],
     "action": "Merged the two consecutive build RUN layers with the same secret mount; hosted verification pending",
-    "verification": "HOSTED VERIFICATION PENDING"
+    "verification": "FIXED \u2014 verified Sonar analysis",
+    "sonar_status": "CLOSED",
+    "sonar_resolution": "FIXED",
+    "verified_revision": "7cca1f6bb6f07daf712e5ba096a26bc0b04b4401",
+    "current_line": null
   },
   {
     "key": "AaF-RmjV3D2qssSsqTlR",
@@ -95,7 +99,12 @@
       }
     ],
     "action": "Owned origin-relative bucket/path/method validation strengthened. Destination remains a fixed local Unix socket independent of Host/path/query. Malicious targets reach zero upstream requests; potential scanner false positive requires attributable review if retained",
-    "verification": "HOSTED VERIFICATION PENDING"
+    "verification": "RELOCATED \u2014 logical concern remains OPEN under replacement key",
+    "sonar_status": "CLOSED",
+    "sonar_resolution": "FIXED",
+    "verified_revision": "7cca1f6bb6f07daf712e5ba096a26bc0b04b4401",
+    "current_line": null,
+    "replacement_key": "AaF-agc9LPRtorYA4vcl"
   },
   {
     "key": "AaF-RmjV3D2qssSsqTlQ",
@@ -139,7 +148,11 @@
       }
     ],
     "action": "Static S3 header allowlists into null-prototype maps; malformed/constructor/prototype/unreviewed headers refused or stripped; hosted verification pending",
-    "verification": "HOSTED VERIFICATION PENDING"
+    "verification": "FIXED \u2014 verified Sonar analysis",
+    "sonar_status": "CLOSED",
+    "sonar_resolution": "FIXED",
+    "verified_revision": "7cca1f6bb6f07daf712e5ba096a26bc0b04b4401",
+    "current_line": null
   },
   {
     "key": "AaF-RmjV3D2qssSsqTlS",
@@ -183,7 +196,11 @@
       }
     ],
     "action": "Refuse all storage 3xx and Location responses; actual compromised-upstream redirect regression passes; hosted verification pending",
-    "verification": "HOSTED VERIFICATION PENDING"
+    "verification": "FIXED \u2014 verified Sonar analysis",
+    "sonar_status": "CLOSED",
+    "sonar_resolution": "FIXED",
+    "verified_revision": "7cca1f6bb6f07daf712e5ba096a26bc0b04b4401",
+    "current_line": null
   },
   {
     "key": "AaF-Rmjk3D2qssSsqTlT",
@@ -202,7 +219,11 @@
     "message": "Move this default parameter last, so callers can omit it instead of passing \"undefined\".",
     "flows": [],
     "action": "Optional TLS argument precedes the final default listen-port argument; all callers verified; hosted verification pending",
-    "verification": "HOSTED VERIFICATION PENDING"
+    "verification": "FIXED \u2014 verified Sonar analysis",
+    "sonar_status": "CLOSED",
+    "sonar_resolution": "FIXED",
+    "verified_revision": "7cca1f6bb6f07daf712e5ba096a26bc0b04b4401",
+    "current_line": null
   },
   {
     "key": "AaF-Rmjm3D2qssSsqTlU",
@@ -221,7 +242,11 @@
     "message": "Using HTTP protocol is insecure. Use HTTPS instead.",
     "flows": [],
     "action": "TLS is already mandatory: SSLContext wraps listener before serve_forever; actual plaintext and untrusted-CA refusals pass. Proposed FALSE POSITIVE, PENDING OWNER APPROVAL; do not replace correct TLS implementation to conceal the scanner pattern",
-    "verification": "PENDING OWNER APPROVAL \u2014 proposed FALSE POSITIVE"
+    "verification": "PENDING OWNER APPROVAL \u2014 proposed FALSE POSITIVE",
+    "sonar_status": "OPEN",
+    "sonar_resolution": null,
+    "verified_revision": "7cca1f6bb6f07daf712e5ba096a26bc0b04b4401",
+    "current_line": 104
   },
   {
     "key": "AaF-Rmee3D2qssSsqTlP",
@@ -240,7 +265,11 @@
     "message": "Make sure the \"PATH\" variable only contains fixed, unwriteable directories.",
     "flows": [],
     "action": "Use the supported Linux absolute OpenSSL executable; actual hostile PATH regression passes; hosted verification pending",
-    "verification": "HOSTED VERIFICATION PENDING"
+    "verification": "FIXED \u2014 verified Sonar analysis",
+    "sonar_status": "CLOSED",
+    "sonar_resolution": "FIXED",
+    "verified_revision": "7cca1f6bb6f07daf712e5ba096a26bc0b04b4401",
+    "current_line": null
   },
   {
     "key": "AaF-Rmjo3D2qssSsqTlW",
@@ -259,6 +288,10 @@
     "message": "This image runs with \"root\" or \"containerAdministrator\" as the default user. Make sure it is safe here.",
     "flows": [],
     "action": "Image defaults to pwuser; owned Compose explicitly initializes/drops browser privilege. Gateway remains explicit root with every capability dropped and read-only root filesystem; hosted verification pending",
-    "verification": "HOSTED VERIFICATION PENDING"
+    "verification": "FIXED \u2014 verified Sonar analysis",
+    "sonar_status": "CLOSED",
+    "sonar_resolution": "FIXED",
+    "verified_revision": "7cca1f6bb6f07daf712e5ba096a26bc0b04b4401",
+    "current_line": null
   }
 ]
