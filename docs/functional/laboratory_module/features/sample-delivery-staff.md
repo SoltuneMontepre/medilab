@@ -38,7 +38,7 @@ Sample collection tasks follow [SH-10](../../shared.md#sh-10-tasks-and-to-do-lis
 
 | Rule           | Description                                                                                                       |
 | -------------- | ----------------------------------------------------------------------------------------------------------------- |
-| Scheduled task | Sales schedules a sample collection task on an order. A head of department's request to collect a sample again schedules one too. |
+| Scheduled task | Sales schedules a sample collection task on an approved order with **Start sample collection**: one task of the order's test request, in the shared queue of sample delivery staff, with the customer's address as its place and no time. Sample delivery staff claim it and plan its time. An order has at most one open collection task. The administrator routes the Sample collection task type to the role of sample delivery staff. A head of department's request to collect a sample again schedules one too. |
 | Done by hand   | The task is marked done once the samples are collected.                                                           |
 | Photos         | Photos of a sample are attached when it is collected or received, on the web or the mobile app. Testers never see them. |
 | Sampling location | When a sample is collected or received, the location it was taken from, such as sampling point RO-01, can be chosen from the locations. |
@@ -47,6 +47,7 @@ Sample collection tasks follow [SH-10](../../shared.md#sh-10-tasks-and-to-do-lis
 Acceptance criteria:
 
 - A collection task assigned to sample delivery staff appears on their personal schedule and in their to-do list.
+- Starting sample collection on an approved order queues one unassigned collection task for sample delivery staff, and starting it again while that task is open is refused.
 - A reminder arrives before the collection starts.
 - A collection task created by a request to collect again shows the sample it is for.
 - A photo taken on the mobile app appears on the sample on the web.

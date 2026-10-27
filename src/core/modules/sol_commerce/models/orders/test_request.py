@@ -5,8 +5,8 @@ from odoo.addons.sol_commerce.constants.orders import STATUS_COMPLETED, STATUS_C
 from odoo.addons.sol_laboratory.constants.models import MODEL_TEST_REQUEST
 
 
-# Yêu Cầu Thử Nghiệm: a request waits for its order's payment unless the customer may buy on credit, and issuing its
-# report completes the order.
+# Yêu Cầu Thử Nghiệm: the request of an order goes through the paid step, its confirmation waits for the order's payment
+# unless the customer may buy on credit, and issuing its report completes the order.
 class TestRequest(models.Model):
     _inherit = MODEL_TEST_REQUEST
 
@@ -23,8 +23,16 @@ class TestRequest(models.Model):
         terms = self.env[MODEL_CUSTOMER_SALES_TERMS].sudo().search([("customer_id", "=", self.customer_id.id)], limit=1)
         return not terms.allow_credit
 
+    def _awaits_payment(self):
+        self.ensure_one()
+        return bool(self._sale_order())
+
     def _set_status(self, status):
         result = super()._set_status(status)
+        if status == "confirmed":
+            # Confirmation needs the order paid or the customer allowed credit, so the request of an order is paid at once.
+            orders = self.env[MODEL_SALE_ORDER].sudo().search([("test_request_id", "in", self.ids)])
+            (self & orders.test_request_id)._set_status("paid")
         if status == "reported":
             for request in self:
                 order = request._sale_order()

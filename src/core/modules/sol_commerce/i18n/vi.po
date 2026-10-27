@@ -1275,6 +1275,12 @@ msgid "Order"
 msgstr "Đơn Hàng"
 
 #. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_approval.py:0
+msgid "Order %s already has an open sample collection task."
+msgstr "Đơn hàng %s đã có một công việc lấy mẫu đang mở."
+
+#. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_medilab_order_sample
 msgid "Order Sample"
 msgstr "Mẫu Đơn Hàng"
@@ -1760,6 +1766,12 @@ msgid "Revisions"
 msgstr "Các Bản Sửa Đổi"
 
 #. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_approval.py:0
+msgid "Route the %s task type to the role of sample delivery staff first."
+msgstr "Hãy giao loại công việc %s cho vai trò Nhân viên giao nhận mẫu trước."
+
+#. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__source__sales
 msgid "Sales"
 msgstr "Nhân Viên Kinh Doanh"
@@ -2104,6 +2116,12 @@ msgid ""
 "The results of order %(order)s are ready. Download report %(report)s from "
 "your portal."
 msgstr "Đã có kết quả của đơn hàng %(order)s. Hãy tải phiếu kết quả %(report)s trên cổng khách hàng."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_approval.py:0
+msgid "The sample collection task waits in the queue of sample delivery staff."
+msgstr "Công việc lấy mẫu đang chờ trong hàng đợi của Nhân viên giao nhận mẫu."
 
 #. module: sol_commerce
 #. odoo-python

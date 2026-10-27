@@ -141,6 +141,30 @@ class TestOrderConfirmation(OrderCase):
         self.assertFalse(paid.test_request_id._credit_blocks_confirmation())
         self.assertFalse(alone._credit_blocks_confirmation())
 
+    def test_the_request_of_a_paid_order_goes_through_the_paid_step(self):
+        request = self.make_confirmed_order().test_request_id
+
+        request.action_confirm()
+
+        self.assertEqual(request.status, "paid")
+        request.sample_ids[:1].with_user(self.sales).sudo().action_receive(1, "damaged", "The bottle leaked")
+        self.assertEqual(request.status, "sample_received")
+
+    def test_the_request_of_a_credit_customer_is_paid_on_confirmation(self):
+        request = self.accepted_unpaid_order().test_request_id
+        self.env[MODEL_CUSTOMER_SALES_TERMS].create({"customer_id": self.customer_record.id, "allow_credit": True})
+
+        request.action_confirm()
+
+        self.assertEqual(request.status, "paid")
+
+    def test_only_the_request_of_an_order_awaits_payment(self):
+        request = self.make_confirmed_order().test_request_id
+        alone = self.env[MODEL_TEST_REQUEST].create({"customer_id": self.customer_record.id})
+
+        self.assertTrue(request._awaits_payment())
+        self.assertFalse(alone._awaits_payment())
+
     def test_only_the_head_of_sales_changes_the_sales_terms(self):
         terms = self.env[MODEL_CUSTOMER_SALES_TERMS]
 
