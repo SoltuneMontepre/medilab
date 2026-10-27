@@ -36,6 +36,8 @@ jobs:
               - ".mcp.json"
               - ".cursor/mcp.json"
               - ".codex/config.toml"
+              - ".codex/hooks.json"
+              - ".claude/hooks/check_git_message.py"
               - ".serena/project.yml"
               - ".claude/settings.json"
               - ".github/workflows/ci.tools.yml"
@@ -128,6 +130,15 @@ jobs:
               - "tools/scripts/log.sh"
               - "tools/scripts/test_log.py"
               - "tools/scripts/test_taskfile_modules.py"
+              - "tools/scripts/test_e2e.sh"
+              - "tools/scripts/test_e2e_tasks.py"
+              - "tools/scripts/test_e2e_readiness.py"
+              - "tools/scripts/cypress_tap.py"
+              - "tools/scripts/test_cypress_tap.py"
+              - "tools/scripts/test_cypress_skills.py"
+              - ".agents/cypress-skills.json"
+              - ".agents/skills/cypress-*/**"
+              - ".claude/skills/cypress-*/**"
               - "src/core/modules.txt"
               - "tools/taskfiles/ai.taskfile.yml"
               - "tools/taskfiles/app.taskfile.yml"
@@ -155,7 +166,7 @@ jobs:
         if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         run: task test:logging
 
-      - name: Taskfile module selection tests
+      - name: Taskfile regression tests
         if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         run: task test:taskfiles
 

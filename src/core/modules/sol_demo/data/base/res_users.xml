@@ -29,7 +29,7 @@
         <field name="login">demo.accountant</field>
         <field name="tz">Asia/Ho_Chi_Minh</field>
         <field name="partner_id" ref="demo_res_partner_accountant" />
-        <field name="group_ids" eval="[Command.set([ref('base.group_user')])]" />
+        <field name="group_ids" eval="[Command.set([ref('base.group_user'), ref('account.group_account_invoice')])]" />
     </record>
     <record id="demo_res_users_sample_delivery_staff" model="res.users">
         <field name="login">demo.sample_delivery_staff</field>

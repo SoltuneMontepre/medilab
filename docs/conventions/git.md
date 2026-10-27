@@ -50,7 +50,7 @@ The check is the pattern `^\[(feat|fix|chore|docs|refactor|test|style|perf|build
 - A commit title follows the pull request title pattern with the standard lowercase types: `[fix] Keep the demo password out of the repository`. Merge and revert titles that Git writes are allowed.
 - Commits and pull request descriptions carry no `Co-Authored-By` or other attribution lines.
 
-For Claude Code, `.claude/settings.json` turns off its attribution lines, and the hook `.claude/hooks/check_git_message.py` blocks a `git commit`, `gh pr create` or `gh pr edit` that breaks these rules.
+For Claude Code, `.claude/settings.json` turns off its attribution lines. Claude Code and Cursor use those hook settings; Codex uses `.codex/hooks.json`. Both configurations run `.claude/hooks/check_git_message.py` to block a `git commit`, `gh pr create` or `gh pr edit` that breaks these rules.
 
 ## Related documents
 

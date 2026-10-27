@@ -8,6 +8,10 @@ Always read [docs/readme.md](docs/readme.md) first to understand the conventions
 - Documents describe what the system should do. They are not a description of existing code.
 - `questions/` holds the owner's open questions, one file per topic: `questions/<topic>.md`.
 
+## Browser tests
+
+When authoring, reviewing or debugging Cypress specs, read [Cypress Tap and AI Skills](docs/workflows/cypress-tap.md). Use the repository's Cypress skills and bind live Tap commands to this worktree's E2E session.
+
 ## MCP servers
 
 `.mcp.json`, `.codex/config.toml` and `.cursor/mcp.json` configure the clients; `task ai:setup` installs worktree-local AI tooling. [Odoo intelligence](docs/workflows/odoo-intelligence.md) covers installation and verification. Use them whenever the task calls for them, before falling back to the shell:
