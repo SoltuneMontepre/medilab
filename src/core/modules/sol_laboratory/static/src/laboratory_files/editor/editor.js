@@ -25,7 +25,7 @@
     window.addEventListener("beforeunload", (event) => {
         if (dirty) {
             event.preventDefault();
-            event.returnValue = "";
+            event.returnValue = true;
         }
     });
     const script = document.createElement("script");

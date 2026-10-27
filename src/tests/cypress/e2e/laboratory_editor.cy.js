@@ -121,19 +121,21 @@ describe("Laboratory browser editor adapter", () => {
     cy.visit(path);
     cy.get("#editor-status").should("contain", "Connecting");
     cy.window({ log: false }).then((win) => {
-      function unloadState() {
+      function unloadState(modern = true) {
         const event = new win.Event("beforeunload", { cancelable: true });
+        if (!modern) event.preventDefault = () => {};
         let legacyValue = "untouched";
         Object.defineProperty(event, "returnValue", {
           get() { return legacyValue; },
-          set(value) { legacyValue = value; },
+          set(value) { legacyValue = String(value); },
         });
         win.dispatchEvent(event);
         return { prevented: event.defaultPrevented, legacyValue };
       }
       expect(unloadState()).to.deep.eq({ prevented: false, legacyValue: "untouched" });
       win.editorFixture.config.events.onDocumentStateChange({ data: true });
-      expect(unloadState()).to.deep.eq({ prevented: true, legacyValue: "" });
+      expect(unloadState()).to.deep.eq({ prevented: true, legacyValue: "true" });
+      expect(unloadState(false)).to.deep.eq({ prevented: false, legacyValue: "true" });
       win.editorFixture.config.events.onDocumentStateChange({ data: false });
       expect(unloadState()).to.deep.eq({ prevented: false, legacyValue: "untouched" });
     });

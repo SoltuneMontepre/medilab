@@ -77,6 +77,15 @@ class TestLaboratoryEditorHttp(LaboratoryEditingHttpCase):
             ]
         )
 
+    def test_non_ascii_file_ids_are_refused_before_opening_a_session(self):
+        for digits in ("٠١٢٣٤٥٦٧٨٩", "０１２３４５６７８９"):
+            identifier = str(self.file_id).translate(str.maketrans("0123456789", digits))
+            response = self.client.get(
+                f"{self.http_url}/medilab/laboratory-files/{identifier}/edit", timeout=30, allow_redirects=False
+            )
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(self.identity(), [])
+
     def test_login_open_and_reentry_commit_one_session(self):
         first = self.get_page()
         identity = self.identity()

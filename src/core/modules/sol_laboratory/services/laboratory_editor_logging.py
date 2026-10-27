@@ -34,6 +34,7 @@ class LaboratoryEditorFilter(logging.Filter):
             (
                 record.getMessage(),
                 getattr(record, "http_request_line", ""),
+                getattr(record, "colored_message", ""),
                 record.exc_text or "",
                 record.stack_info or "",
             )
