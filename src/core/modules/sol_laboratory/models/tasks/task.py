@@ -226,7 +226,9 @@ class Task(models.Model):
             vals = {**vals, LINKED_BY_SYSTEM: False}
         if {"assignee_id", "department_id"} & set(vals):
             self._check_reassign(vals)
-        moved_out = self.filtered(lambda task: "department_id" in vals and vals["department_id"] != task.department_id.id)
+        moved_out = self.filtered(
+            lambda task: vals.get("department_id", task.department_id.id) != task.department_id.id
+        )
         result = super().write(vals)
         person = self.env[MODEL_PERSON]._current()
         if moved_out and person:
