@@ -4,7 +4,6 @@ import { orderAt } from "../wf-01-order-to-test-request/setup";
 import { HEAD, LAB_HEAD, PARAMETERS, STAFF, approveTests, draftReport, issuedReport, receiveRequest } from "./setup";
 
 const ADMIN = "demo.administrator";
-const REPORT = ["status", "code", "attachment_id", "delivered_at"];
 
 // The message raised for a report, by its event: `issued` tells the customer, `delivered` e-mails the PDF. With
 // `partnerId`, only a message that notifies that partner.
@@ -17,8 +16,15 @@ const reportMessage = (report, event, partnerId) =>
 const reportHtml = (report) =>
   cy.request(`/report/html/sol_laboratory.report_test_report/${report.id}`).then(({ body }) => body.split("<main")[1]);
 
-// A demo person's name.
-const personName = (xmlId) => refAs(ADMIN, xmlId).then(({ id }) => callAs(ADMIN, "medilab.person", "read", [[id], ["name"]])).its("0.name");
+// Demo people's names, in the order of their external IDs.
+const personNames = (...xmlIds) =>
+  callAs(ADMIN, "ir.model.data", "search_read", [[["module", "=", "sol_demo"], ["name", "in", xmlIds.map((xmlId) => xmlId.split(".")[1])]]], {
+    fields: ["name", "res_id"],
+  }).then((rows) =>
+    callAs(ADMIN, "medilab.person", "read", [xmlIds.map((xmlId) => rows.find((row) => `sol_demo.${row.name}` === xmlId).res_id), ["name"]]).then((people) =>
+      people.map((person) => person.name),
+    ),
+  );
 
 // The lab head signs the report on its form and confirms.
 function signOnForm(report) {
@@ -50,7 +56,7 @@ describe("WF-06 Report signing, release and delivery", () => {
       refAs(ADMIN, "sol_demo.demo_res_partner_hoa").then((hoa) =>
       draftReport({ delivery_method: "email", report_recipient_id: hoa.id }).then(({ request, report }) => {
         signOnForm(report);
-        cy.readRecord(report, REPORT).then((issued) => {
+        cy.readRecord(report, ["status", "code", "attachment_id"]).then((issued) => {
           expect(issued.status).to.equal("issued");
           expect(issued.code).to.match(/^PKQ\.\d{4}\.\d+$/);
           expect(issued.attachment_id[1]).to.equal(`${issued.code}.pdf`);
@@ -58,7 +64,9 @@ describe("WF-06 Report signing, release and delivery", () => {
           reportMessage(report, "issued", customer.id).its("0.subject").should("eq", issued.code);
 
           deliverFromList(issued.code);
-          cy.readRecord(report, ["delivered_at", "delivered_by_id"]).its("delivered_by_id.1").should("eq", "Vo Van Tai");
+          personNames("sol_demo.demo_person_sample_delivery_staff").then(([staff]) =>
+            cy.readRecord(report, ["delivered_by_id"]).its("delivered_by_id.1").should("eq", staff),
+          );
           reportMessage(report, "delivered", hoa.id).should(([message]) => {
             expect(message, "e-mail to the recipient").to.exist;
             expect(message.attachment_ids, "PDF").to.include(issued.attachment_id[0]);
@@ -165,17 +173,13 @@ describe("WF-06 Report signing, release and delivery", () => {
           .should("eq", 1);
       });
       // The report names the approving head of department and the lab head, never the tester.
-      personName("sol_demo.demo_person_head_of_department").then((head) =>
-        personName("sol_demo.demo_person_lab_head").then((labHead) =>
-          personName("sol_demo.demo_person_tester").then((tester) =>
-            reportHtml(report).should((html) => {
-              expect(html).to.contain("Lead (Pb)");
-              expect(html).not.to.match(/>\s*pH\s*</);
-              expect(html).to.contain(head).and.contain(labHead);
-              expect(html).not.to.contain(tester);
-            }),
-          ),
-        ),
+      personNames("sol_demo.demo_person_head_of_department", "sol_demo.demo_person_lab_head", "sol_demo.demo_person_tester").then(([head, labHead, tester]) =>
+        reportHtml(report).should((html) => {
+          expect(html).to.contain("Lead (Pb)");
+          expect(html).not.to.match(/>\s*pH\s*</);
+          expect(html).to.contain(head).and.contain(labHead);
+          expect(html).not.to.contain(tester);
+        }),
       );
     });
   });
@@ -219,12 +223,27 @@ describe("WF-06 Report signing, release and delivery", () => {
   });
 
   describe("with digital signing on", () => {
-    // Turned off again even when the test fails, so later reports are issued without Viettel Sign.
-    afterEach(() => setDigitalSigning(false));
+    let signed;
+
+    // Turned off, and the queued signature cancelled, even when the test fails, so later reports are issued without
+    // Viettel Sign and nothing keeps retrying.
+    afterEach(() => {
+      setDigitalSigning(false);
+      if (signed) {
+        callAs(ADMIN, "medilab.job.item", "search", [
+          [
+            ["document_model", "=", "medilab.test.report"],
+            ["document_id", "=", signed.id],
+            ["status", "in", ["pending", "failed"]],
+          ],
+        ]).then((items) => items.length && callAs(ADMIN, "medilab.job.item", "action_cancel", [items]));
+      }
+    });
 
     it("TC-WF06-E1 keeps a report unsigned while Viettel Sign is unavailable, and retries the signature", () => {
       setDigitalSigning(true);
       draftReport().then(({ report }) => {
+        signed = report;
         signOnForm(report);
         cy.contains(".alert-warning", "Viettel Sign has not signed the PDF yet.").should("be.visible");
         cy.readRecord(report, ["attachment_id", "digital_signature_id", "digital_signing_pending"]).should((read) => {
@@ -313,7 +332,7 @@ describe("WF-06 feature acceptance criteria", () => {
       refAs(ADMIN, "sol_demo.demo_testing_field_chemistry").then((field) =>
         refAs(ADMIN, "sol_demo.demo_testing_method_tcvn_7602").then((first) =>
           refAs(ADMIN, "sol_demo.demo_testing_method_tcvn_6187_1").then((second) =>
-            callAs(ADMIN, "medilab.testing.method", "read", [[first.id, second.id], ["code", "name"]]).then((known) => {
+            callAs(ADMIN, "medilab.testing.method", "read", [[first.id, second.id], ["code", "name"]], { context: { lang: "vi_VN" } }).then((known) => {
               // Two methods the laboratory already has, under other titles that must not replace theirs.
               const lines = [
                 ...known.map((method) => ({ code: method.code, name: `Tên khác của ${method.code}` })),
@@ -322,7 +341,7 @@ describe("WF-06 feature acceptance criteria", () => {
               callAs(ADMIN, "medilab.accreditation.certificate.import", "create", [
                 { certificate_id: certificate.id, field_id: field.id, lang: "vi_VN", line_ids: lines.map((line) => [0, 0, line]) },
               ]).then((wizard) => callAs(ADMIN, "medilab.accreditation.certificate.import", "action_import", [[wizard]]));
-              callAs(ADMIN, "medilab.testing.method", "read", [[first.id, second.id], ["name"]]).should((after) =>
+              callAs(ADMIN, "medilab.testing.method", "read", [[first.id, second.id], ["name"]], { context: { lang: "vi_VN" } }).should((after) =>
                 expect(after.map((method) => method.name)).to.deep.equal(known.map((method) => method.name)),
               );
               callAs(ADMIN, "medilab.testing.method", "search_count", [[["code", "=like", `E2E-${stamp}-%`]]]).should("eq", 28);
@@ -336,34 +355,46 @@ describe("WF-06 feature acceptance criteria", () => {
     );
   });
 
-  it("TC-F41-02 accredits an in-house way of testing only while its method's certificate is valid, and never a subcontracted one", () => {
-    newMethod("E2E-WAY").then((method) =>
-      refAs(ADMIN, "sol_demo.demo_parameter_method_lead_aas").then((leadWay) =>
-        callAs(ADMIN, "medilab.parameter.method", "read", [[leadWay.id], ["parameter_id", "unit_id", "department_id"]]).then(([way]) =>
-          refAs(ADMIN, "sol_demo.demo_subcontractor_northern_testing").then((subcontractor) => {
-            const values = { parameter_id: way.parameter_id[0], method_id: method.id, unit_id: way.unit_id[0] };
-            callAs(ADMIN, "medilab.parameter.method", "create", [
-              [
-                { ...values, department_id: way.department_id[0] },
-                { ...values, subcontractor_id: subcontractor.id },
-              ],
-            ]).then(([inHouse, subcontracted]) => {
-              const readAccredited = () =>
-                callAs(ADMIN, "medilab.parameter.method", "read", [[inHouse, subcontracted], ["is_accredited"]]).then((ways) => ways.map((row) => row.is_accredited));
-              newCertificate([method.id]).then((certificate) => {
-                readAccredited().should("deep.equal", [true, false]);
-                cy.signInAs("administrator");
-                cy.openRecord({ model: "medilab.parameter.method", id: inHouse });
-                cy.get(".o_field_widget[name=is_accredited] input").should("be.checked");
-                callAs(ADMIN, "medilab.accreditation.certificate", "write", [[certificate.id], { valid_until: "2000-01-01" }]);
-                readAccredited().should("deep.equal", [false, false]);
-                callAs(ADMIN, "medilab.parameter.method", "action_archive", [[inHouse, subcontracted]]);
+  describe("with ways of testing of a new method", () => {
+    let ways = [];
+
+    // Archived even when the test fails, so Lead keeps only its own ways of testing.
+    afterEach(() => {
+      if (ways.length) {
+        callAs(ADMIN, "medilab.parameter.method", "action_archive", [ways]);
+      }
+    });
+
+    it("TC-F41-02 accredits an in-house way of testing only while its method's certificate is valid, and never a subcontracted one", () => {
+      newMethod("E2E-WAY").then((method) =>
+        refAs(ADMIN, "sol_demo.demo_parameter_method_lead_aas").then((leadWay) =>
+          callAs(ADMIN, "medilab.parameter.method", "read", [[leadWay.id], ["parameter_id", "unit_id", "department_id"]]).then(([way]) =>
+            refAs(ADMIN, "sol_demo.demo_subcontractor_northern_testing").then((subcontractor) => {
+              const values = { parameter_id: way.parameter_id[0], method_id: method.id, unit_id: way.unit_id[0] };
+              callAs(ADMIN, "medilab.parameter.method", "create", [
+                [
+                  { ...values, department_id: way.department_id[0] },
+                  { ...values, subcontractor_id: subcontractor.id },
+                ],
+              ]).then((created) => {
+                ways = created;
+                const [inHouse, subcontracted] = created;
+                const readAccredited = () =>
+                  callAs(ADMIN, "medilab.parameter.method", "read", [[inHouse, subcontracted], ["is_accredited"]]).then((ways) => ways.map((row) => row.is_accredited));
+                newCertificate([method.id]).then((certificate) => {
+                  readAccredited().should("deep.equal", [true, false]);
+                  cy.signInAs("administrator");
+                  cy.openRecord({ model: "medilab.parameter.method", id: inHouse });
+                  cy.get(".o_field_widget[name=is_accredited] input").should("be.checked");
+                  callAs(ADMIN, "medilab.accreditation.certificate", "write", [[certificate.id], { valid_until: "2000-01-01" }]);
+                  readAccredited().should("deep.equal", [false, false]);
+                });
               });
-            });
-          }),
+            }),
+          ),
         ),
-      ),
-    );
+      );
+    });
   });
 
   it("TC-F41-03 refuses an import with a row without a title and creates nothing", () => {
@@ -415,7 +446,7 @@ describe("WF-06 feature acceptance criteria", () => {
       callAs(STAFF, "medilab.test.request", "lock_take", [[request.id]]).its("taken").should("eq", true);
       cy.signInAs("administrator");
       cy.openRecord(request);
-      cy.contains(".o_form_view", "is editing").should("contain", "Vo Van Tai");
+      personNames("sol_demo.demo_person_sample_delivery_staff").then(([staff]) => cy.contains(".o_form_view", "is editing").should("contain", staff));
       cy.get(".o_field_widget[name=customer_id] input").invoke("val").should("contain", "Nước Uống Sạch");
       callAs(STAFF, "medilab.test.request", "lock_release", [[request.id], "left"]);
     });
@@ -464,7 +495,8 @@ describe("WF-06 feature acceptance criteria", () => {
     orderAt("submitted").then((order) => {
       cy.signInAs("customer");
       callRefused("sale.order", "action_give_feedback", [[order.id], 5, "Tốt"]).should("eq", "Feedback can be given once the order is completed.");
-      callAs(ADMIN, "medilab.support.request", "search", [[["customer_id.partner_id.name", "ilike", "Nước Uống Sạch"]]], { limit: 1 }).then(([requestId]) => {
+      refAs(ADMIN, "sol_demo.demo_support_request_open").then(({ id: requestId }) => {
+        callAs(ADMIN, "medilab.support.request", "read", [[requestId], ["customer_id"]]).its("0.customer_id.1").should("contain", "Nước Uống Sạch");
         cy.signInAs("individual");
         cy.request({ url: `/orders/${order.id}`, failOnStatusCode: false }).its("status").should("be.oneOf", [403, 404]);
         cy.request({ url: `/support/${requestId}`, failOnStatusCode: false }).its("status").should("be.oneOf", [403, 404]);
@@ -521,6 +553,7 @@ describe("WF-06 feature acceptance criteria", () => {
     });
     const citizenId = `07908${String(Date.now()).slice(-7)}`;
     refAs(ADMIN, "sol_demo.demo_customer_pham_van_long").then((customer) => {
+      callAs(ADMIN, "medilab.customer", "read", [[customer.id], ["citizen_id"]]).its("0.citizen_id").as("seeded");
       callAs(ADMIN, "medilab.customer", "write", [[customer.id], { citizen_id: citizenId }]);
       callAs(ADMIN, "medilab.audit.change", "search_read", [
         [
@@ -529,6 +562,7 @@ describe("WF-06 feature acceptance criteria", () => {
           ["field_name", "=", "citizen_id"],
         ],
       ], { fields: ["new_value"], order: "id desc", limit: 1 }).its("0.new_value").should("eq", `***${citizenId.slice(-3)}`);
+      cy.get("@seeded").then((seeded) => callAs(ADMIN, "medilab.customer", "write", [[customer.id], { citizen_id: seeded }]));
     });
   });
 
@@ -563,6 +597,8 @@ describe("WF-06 feature acceptance criteria", () => {
             ["create_date", "<=", `${file.period_end} 23:59:59`],
           ],
         ]).should("eq", 0);
+        // The regulation the seeded old notification was about stays.
+        refAs(ADMIN, "sol_demo.demo_regulation_qcvn_6_1").then(({ model, id }) => callAs(ADMIN, model, "search_count", [[["id", "=", id]]]).should("eq", 1));
         cy.signInAs("administrator");
         cy.request(`/web/content/${file.attachment_id[0]}?download=true`).its("status").should("eq", 200);
       }),
