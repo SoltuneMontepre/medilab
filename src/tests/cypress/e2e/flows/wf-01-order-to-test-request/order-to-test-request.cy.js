@@ -123,7 +123,7 @@ describe("WF-01 Order to approved test request", () => {
     pick("customer_id", "Công ty TNHH Nước Uống Sạch");
     pick("partner_id", "Phạm Thị Hoa");
     cy.get(".o_field_widget[name=order_line] .o_field_x2many_list_row_add button").first().click();
-    cy.get(".o_selected_row td[name=product_and_description] textarea").type("Lead (Pb)");
+    cy.get(".o_selected_row .o_field_widget[name=product_template_id] input").type("Lead (Pb)");
     cy.contains(".o-autocomplete--dropdown-item a", "Lead (Pb)").click();
     cy.get(".o_field_widget[name=order_line] .o_data_row").should("contain", "280.000");
     save();
@@ -440,7 +440,7 @@ describe("WF-01 feature acceptance criteria", () => {
       cy.openRecord(order);
       cy.intercept("POST", "/web/dataset/call_kw/product.*/*search*").as("productSearch");
       cy.get(".o_field_widget[name=order_line] .o_field_x2many_list_row_add button").first().click();
-      cy.get(".o_selected_row td[name=product_and_description] textarea").type("Cadmi");
+      cy.get(".o_selected_row .o_field_widget[name=product_template_id] input").type("Cadmi");
       cy.wait("@productSearch")
         .its("response.body")
         .should((body) => {
