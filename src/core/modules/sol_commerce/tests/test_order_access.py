@@ -43,7 +43,7 @@ class TestOrderAccess(OrderCase):
         paid = self.make_confirmed_order()
         unpaid = self.sent_order()
         self.env["account.payment"].create_pending_payment(unpaid.invoice_ids, 1_000, "cash")
-        (paid | unpaid).user_id = self.other_sales
+        (paid | unpaid).write({"user_id": self.other_sales.id})
         self.env.invalidate_all()
         orders = self.env[MODEL_SALE_ORDER].with_user(self.other_sales)
         form_fields = orders.get_views([(False, "form")])["models"][MODEL_SALE_ORDER]["fields"]
