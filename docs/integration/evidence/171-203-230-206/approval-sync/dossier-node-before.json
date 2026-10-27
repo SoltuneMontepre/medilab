@@ -1,0 +1,10 @@
+{
+  "command": [
+    "node",
+    "--test",
+    "tools/onlyoffice_integration/test_loopback_proxy.cjs"
+  ],
+  "exit_code": 0,
+  "status": "PASS",
+  "elapsed_seconds": 0.114
+}

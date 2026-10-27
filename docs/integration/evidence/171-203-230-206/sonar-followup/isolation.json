@@ -1,0 +1,25 @@
+{
+  "internal": true,
+  "members": [
+    {
+      "name": "medilab171-agent4-sonar-remediation-browser-1",
+      "single_owned_network": true,
+      "published_ports": false
+    },
+    {
+      "name": "medilab171-agent4-sonar-remediation-garage-1",
+      "single_owned_network": true,
+      "published_ports": false
+    },
+    {
+      "name": "medilab171-agent4-sonar-remediation-documentserver-1",
+      "single_owned_network": true,
+      "published_ports": false
+    },
+    {
+      "name": "medilab171-agent4-sonar-remediation-postgres-1",
+      "single_owned_network": true,
+      "published_ports": false
+    }
+  ]
+}

@@ -1,0 +1,189 @@
+{
+  "status": "PASS",
+  "worktree": "/home/leon/Projects/medilab-wt-onlyoffice-p1",
+  "branch": "fix/171-203-onlyoffice-p1",
+  "preservedBaseline": "fec03154ceac7bb1ce9a637b9f0c077d5c3374ed",
+  "commits": [
+    {
+      "sha": "edd0cb37fbe4273e161ab4540cd28e4ff79c73a6",
+      "author": {
+        "name": "KietPham-VN",
+        "email": "153413668+KietPham-VN@users.noreply.github.com"
+      },
+      "committer": {
+        "name": "KietPham-VN",
+        "email": "153413668+KietPham-VN@users.noreply.github.com"
+      },
+      "subject": "[docs] | #171 Record verified ONLYOFFICE P1 remediation evidence"
+    },
+    {
+      "sha": "7d51cd068c8102160ee0d834776ae6ccdcc7e60a",
+      "author": {
+        "name": "KietPham-VN",
+        "email": "153413668+KietPham-VN@users.noreply.github.com"
+      },
+      "committer": {
+        "name": "KietPham-VN",
+        "email": "153413668+KietPham-VN@users.noreply.github.com"
+      },
+      "subject": "[docs] | #203 Clarify policy acceptance after runtime drift"
+    },
+    {
+      "sha": "cadbcc919c10bf35ac07698c80a6fbd28192c857",
+      "author": {
+        "name": "KietPham-VN",
+        "email": "153413668+KietPham-VN@users.noreply.github.com"
+      },
+      "committer": {
+        "name": "KietPham-VN",
+        "email": "153413668+KietPham-VN@users.noreply.github.com"
+      },
+      "subject": "[test] | #171 Verify real callbacks through the native worker bootstrap"
+    },
+    {
+      "sha": "bc97c8c40e977c2565297f519e014d026cb92129",
+      "author": {
+        "name": "KietPham-VN",
+        "email": "153413668+KietPham-VN@users.noreply.github.com"
+      },
+      "committer": {
+        "name": "KietPham-VN",
+        "email": "153413668+KietPham-VN@users.noreply.github.com"
+      },
+      "subject": "[fix] | #203 Refuse stale policy proof after runtime changes"
+    },
+    {
+      "sha": "01cf9cf58bec09c1738ff513cc8f9bed6859d9dd",
+      "author": {
+        "name": "KietPham-VN",
+        "email": "153413668+KietPham-VN@users.noreply.github.com"
+      },
+      "committer": {
+        "name": "KietPham-VN",
+        "email": "153413668+KietPham-VN@users.noreply.github.com"
+      },
+      "subject": "[test] | #203 Verify native cache retention over aged fixtures"
+    },
+    {
+      "sha": "41f604652863fd931444d51aa5813542cd19809a",
+      "author": {
+        "name": "KietPham-VN",
+        "email": "153413668+KietPham-VN@users.noreply.github.com"
+      },
+      "committer": {
+        "name": "KietPham-VN",
+        "email": "153413668+KietPham-VN@users.noreply.github.com"
+      },
+      "subject": "[ci] | #203 Check worker policy drift and callback signing regressions"
+    },
+    {
+      "sha": "a7cb81790282fe04a74de02a23a28ee86d4b580e",
+      "author": {
+        "name": "KietPham-VN",
+        "email": "153413668+KietPham-VN@users.noreply.github.com"
+      },
+      "committer": {
+        "name": "KietPham-VN",
+        "email": "153413668+KietPham-VN@users.noreply.github.com"
+      },
+      "subject": "[fix] | #203 Verify policy inside native supervised workers"
+    },
+    {
+      "sha": "ab1a19ff8d4de974f916546c4bab92c10da31a50",
+      "author": {
+        "name": "KietPham-VN",
+        "email": "153413668+KietPham-VN@users.noreply.github.com"
+      },
+      "committer": {
+        "name": "KietPham-VN",
+        "email": "153413668+KietPham-VN@users.noreply.github.com"
+      },
+      "subject": "[test] | #171 Reject malformed signed large-history callback payloads"
+    },
+    {
+      "sha": "f4b600c82b1c6eebd2285876010aa1711a96d696",
+      "author": {
+        "name": "KietPham-VN",
+        "email": "153413668+KietPham-VN@users.noreply.github.com"
+      },
+      "committer": {
+        "name": "KietPham-VN",
+        "email": "153413668+KietPham-VN@users.noreply.github.com"
+      },
+      "subject": "[fix] | #171 Finalize callback history before signing both tokens"
+    },
+    {
+      "sha": "e18867965837d493c25bb73194c497c251c0c905",
+      "author": {
+        "name": "KietPham-VN",
+        "email": "153413668+KietPham-VN@users.noreply.github.com"
+      },
+      "committer": {
+        "name": "KietPham-VN",
+        "email": "153413668+KietPham-VN@users.noreply.github.com"
+      },
+      "subject": "[fix] | #203 Apply runtime policy inside supervised workers"
+    },
+    {
+      "sha": "0798cc288600ee2b38e401fafc4bd4d1c50a8805",
+      "author": {
+        "name": "KietPham-VN",
+        "email": "153413668+KietPham-VN@users.noreply.github.com"
+      },
+      "committer": {
+        "name": "KietPham-VN",
+        "email": "153413668+KietPham-VN@users.noreply.github.com"
+      },
+      "subject": "[docs] | #203 Correct effective-runtime compatibility evidence"
+    },
+    {
+      "sha": "e576e5f114a0ba16c0d39945c2dbe5f54812b9d1",
+      "author": {
+        "name": "KietPham-VN",
+        "email": "153413668+KietPham-VN@users.noreply.github.com"
+      },
+      "committer": {
+        "name": "KietPham-VN",
+        "email": "153413668+KietPham-VN@users.noreply.github.com"
+      },
+      "subject": "[docs] | #203 Gate release on native large-history callback compatibility"
+    },
+    {
+      "sha": "0e3a39cc527b87ebe8323cf9e510592a7a53fb27",
+      "author": {
+        "name": "KietPham-VN",
+        "email": "153413668+KietPham-VN@users.noreply.github.com"
+      },
+      "committer": {
+        "name": "KietPham-VN",
+        "email": "153413668+KietPham-VN@users.noreply.github.com"
+      },
+      "subject": "[docs] | #203 Clarify custom plugin support in runtime handoff"
+    },
+    {
+      "sha": "715804964e79b71ae2de1709139fc9afccc6d097",
+      "author": {
+        "name": "KietPham-VN",
+        "email": "153413668+KietPham-VN@users.noreply.github.com"
+      },
+      "committer": {
+        "name": "KietPham-VN",
+        "email": "153413668+KietPham-VN@users.noreply.github.com"
+      },
+      "subject": "[fix] | #203 Correct Community runtime probes and shutdown budget"
+    },
+    {
+      "sha": "309a73f7eeb6a78905cae4b941830c8a19d51e43",
+      "author": {
+        "name": "KietPham-VN",
+        "email": "153413668+KietPham-VN@users.noreply.github.com"
+      },
+      "committer": {
+        "name": "KietPham-VN",
+        "email": "153413668+KietPham-VN@users.noreply.github.com"
+      },
+      "subject": "[chore] | #203 Add gated ONLYOFFICE deployment and recovery checks"
+    }
+  ],
+  "scope": "Source and report commits before this evidence commit; final HEAD metadata is verified separately after committing."
+}

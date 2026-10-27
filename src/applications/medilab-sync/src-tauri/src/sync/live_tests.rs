@@ -177,7 +177,7 @@ impl Live {
         assert_eq!(current.size, size as i64, "Odoo size");
         let auth = self
             .client
-            .authorize_download(item.id, current.id)
+            .authorize_download(self.remote_folder_id, item.id, current.id)
             .await
             .unwrap();
         let temp = self
@@ -1591,7 +1591,7 @@ async fn live_two_devices_sync_and_conflict() {
         .await;
     let versions = a
         .client
-        .get_file_versions(remote_file_id, 50, 0)
+        .get_file_versions(a.remote_folder_id, remote_file_id, 50, 0)
         .await
         .unwrap();
     let hashes: Vec<(String, bool)> = versions

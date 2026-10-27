@@ -1,0 +1,19 @@
+{
+  "status": "FAIL",
+  "diagnostics": 32,
+  "unchanged_baseline_files": [
+    "src/core/modules/sol_commerce/controllers/portal.py",
+    "src/core/modules/sol_commerce/models/orders/product_template.py",
+    "src/core/modules/sol_commerce/tests/test_order_template.py",
+    "src/core/modules/sol_laboratory/models/laboratory_files/laboratory_file_locking.py",
+    "src/core/modules/sol_laboratory/models/laboratory_files/laboratory_file_version_signing.py",
+    "src/core/modules/sol_laboratory/models/system/ir_access.py",
+    "src/core/modules/sol_laboratory/models/system/ir_attachment.py",
+    "src/core/modules/sol_laboratory/models/testing/test_report.py",
+    "src/core/modules/sol_laboratory/tests/laboratory_upload_case.py",
+    "src/core/modules/sol_laboratory/tests/test_laboratory_api_folders.py",
+    "src/core/modules/sol_laboratory/tests/test_laboratory_folder_api_concurrency.py",
+    "src/core/modules/sol_laboratory/tests/test_saved_documents.py"
+  ],
+  "changed_files_with_findings": []
+}

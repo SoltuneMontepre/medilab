@@ -58,14 +58,16 @@ class LaboratoryFile(models.Model):
 
     def _check_file_access(self, access):
         """Writing a file someone else has locked is refused, so callers refuse it before they act."""
-        super()._check_file_access(access)
+        result = super()._check_file_access(access)
         if access == FILE_WRITE:
             self._check_not_locked_by_others(self.env.user)
+        return result
 
     def _check_can_add_version(self, user, device):
         """No version of a file someone else has locked is stored, whoever stores it and with whatever rights."""
-        super()._check_can_add_version(user, device)
+        result = super()._check_can_add_version(user, device)
         self._check_not_locked_by_others(user)
+        return result
 
     def _check_not_locked_by_others(self, user):
         others = self._locks_in_force().filtered(lambda lock: lock.user_id != user)

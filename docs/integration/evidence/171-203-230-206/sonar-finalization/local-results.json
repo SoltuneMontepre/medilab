@@ -1,0 +1,210 @@
+{
+  "observed_utc": "2026-10-27T01:56:21.400750+00:00",
+  "implementation_commit": "c485c1c",
+  "main_incorporated": "06c340f",
+  "fresh_tests": [
+    {
+      "name": "full-native-laboratory-commerce-inventory",
+      "status": "PASS",
+      "tests": 1855,
+      "failures": 0,
+      "errors": 0,
+      "post_test_seconds": 617.05
+    },
+    {
+      "name": "native-editor-logging-and-ascii",
+      "status": "PASS",
+      "tests": 9,
+      "before": "cached colored_message subtest failed before correction"
+    },
+    {
+      "name": "native-unicode-editor-route",
+      "status": "PASS",
+      "tests": 1,
+      "before": "200 instead of404; corrected to404 with no sessions"
+    },
+    {
+      "name": "cypress-editor",
+      "status": "PASS",
+      "tests": 8,
+      "pending": 0,
+      "skipped": 0,
+      "cypress": "16.2.0",
+      "electron": "41.7.0",
+      "legacy_browser": "fallback emulated; no old browser binary run"
+    },
+    {
+      "name": "actual-callbacks",
+      "status": "PASS",
+      "tests": 4,
+      "cases": [
+        "27-editor signed history",
+        "concurrent duplicate save",
+        "fresh-JWT503 retry",
+        "370-second expiry/transaction retry"
+      ]
+    },
+    {
+      "name": "actual-page-coediting",
+      "status": "PASS",
+      "tests": 4,
+      "formats": [
+        "DOCX",
+        "XLSX",
+        "PPTX"
+      ]
+    },
+    {
+      "name": "actual-rust-desktop-observer-download",
+      "status": "PASS",
+      "tests": 1,
+      "ignored_default_case_selected_explicitly": true
+    },
+    {
+      "name": "rust",
+      "status": "PASS",
+      "passed": 213,
+      "default_ignored": 18
+    },
+    {
+      "name": "strict-clippy",
+      "status": "PASS"
+    },
+    {
+      "name": "onlyoffice-runtime-python",
+      "status": "PASS",
+      "tests": 39
+    },
+    {
+      "name": "onlyoffice-harness-python",
+      "status": "PASS",
+      "tests": 60
+    },
+    {
+      "name": "proxy-websocket-node",
+      "status": "PASS",
+      "tests": 7
+    },
+    {
+      "name": "signer-node",
+      "status": "PASS",
+      "tests": 7
+    },
+    {
+      "name": "taskfile-and-browser-tools",
+      "status": "PASS",
+      "cohorts": [
+        9,
+        9,
+        2,
+        16,
+        3
+      ]
+    },
+    {
+      "name": "cloudbeaver-runtime-storage-units",
+      "status": "PASS",
+      "cohorts": [
+        6,
+        6
+      ]
+    },
+    {
+      "name": "native-worker-effective-config",
+      "status": "PASS"
+    },
+    {
+      "name": "production-tls-readiness-native-drift",
+      "status": "PASS",
+      "network": "none",
+      "production_access": false
+    },
+    {
+      "name": "native-retention-gc",
+      "status": "PASS",
+      "policy_seconds": 604800,
+      "retained_days": 2,
+      "expired_days": 8,
+      "elapsed_seven_days": false
+    },
+    {
+      "name": "independent-bidirectional-network-controls",
+      "status": "PASS"
+    },
+    {
+      "name": "credential-mount-provenance-fixed-dns-loopback-listeners",
+      "status": "PASS"
+    },
+    {
+      "name": "ruff-and-changed-file-format",
+      "status": "PASS"
+    },
+    {
+      "name": "full-repository-lint",
+      "status": "FAIL",
+      "scope": "Only three existing Commerce product decisions",
+      "findings": [
+        "E8102 portal.py:64",
+        "W8163 product_template.py:108",
+        "W8163 product_template.py:109"
+      ]
+    }
+  ],
+  "retained_attempts": [
+    {
+      "name": "logging-before",
+      "status": "FAIL",
+      "cause": "independently reproduced cached colored-message redaction gap",
+      "test_count": 9
+    },
+    {
+      "name": "unicode-route-before",
+      "status": "FAIL",
+      "cause": "independently reproduced Unicode integer routing outside ASCII boundary",
+      "test_count": 1
+    },
+    {
+      "name": "legacy-only-warning-before",
+      "status": "FAIL",
+      "cause": "empty returnValue never requested legacy warning"
+    },
+    {
+      "name": "first-real-fixture",
+      "status": "FAIL",
+      "cause": "new disposable bucket was not yet provisioned",
+      "test_count": 0,
+      "errors": 1,
+      "repeat": "fresh database real2 all4 passed"
+    },
+    {
+      "name": "first-cypress",
+      "status": "BLOCKED",
+      "cause": "cache binary_state.json ownership prevented verification",
+      "repeat": "rootless cache-owning container user; no chmod or host permission changes;8 passed"
+    },
+    {
+      "name": "first-cloudbeaver-selection",
+      "status": "NOT RUN",
+      "cause": "no file matched initial discovery pattern;0 tests; corrected actual cohorts6+6 passed"
+    },
+    {
+      "name": "first-native-retention-invocation",
+      "status": "NOT RUN",
+      "cause": "pkg default entrypoint did not execute probe; supported PKG_EXECPATH external entry then passed"
+    }
+  ],
+  "historical_only": [
+    "other11 real callback cases, including650-second case",
+    "Bun/Mobile/production build/OpenAPI from prior cleanup",
+    "earlier restart/recreation and seven-day-policy source evidence"
+  ],
+  "not_run": [
+    "seven continuous elapsed days",
+    "staging ingress/CNI/external logging sinks",
+    "native released installers",
+    "older browser binaries"
+  ],
+  "security_approvals_received": false,
+  "sonar_status_transitions_performed": false,
+  "cleanup": "PASS: all new owned fixtures stopped with no OOM/forced kills; databases, volumes and failed evidence retained; unrelated services unchanged"
+}

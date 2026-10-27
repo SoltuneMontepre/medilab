@@ -1,0 +1,46 @@
+{
+  "source_head": "7cca1f6bb6f07daf712e5ba096a26bc0b04b4401",
+  "observed_utc": "2026-10-27T18:04:52.861715+00:00",
+  "status": "PASS",
+  "newly_stopped": [
+    {
+      "name": "medilab171-agent4-sonar-review2-postgres-1",
+      "exit_code": 0,
+      "oom_killed": false
+    },
+    {
+      "name": "medilab-integration-pr292-review4-rust",
+      "exit_code": 143,
+      "oom_killed": false
+    },
+    {
+      "name": "medilab171-agent4-sonar-review2-page-browser-1",
+      "exit_code": 143,
+      "oom_killed": false
+    },
+    {
+      "name": "medilab171-agent4-sonar-review2-garage-tls-1",
+      "exit_code": 143,
+      "oom_killed": false
+    },
+    {
+      "name": "medilab171-agent4-sonar-review2-garage-1",
+      "exit_code": 0,
+      "oom_killed": false
+    },
+    {
+      "name": "medilab171-agent4-sonar-review2-documentserver-1",
+      "exit_code": 0,
+      "oom_killed": false
+    },
+    {
+      "name": "medilab171-agent4-sonar-review2-browser-1",
+      "exit_code": 143,
+      "oom_killed": false
+    }
+  ],
+  "volumes_deleted": false,
+  "databases_deleted": false,
+  "failed_containers_and_logs_retained": true,
+  "unrelated_services_changed": false
+}

@@ -1,0 +1,12 @@
+{
+  "command": [
+    "src/core/.venv/bin/python",
+    "-m",
+    "unittest",
+    "tools.onlyoffice_integration.test_contract",
+    "-v"
+  ],
+  "exit_code": 0,
+  "status": "PASS",
+  "elapsed_seconds": 0.414
+}

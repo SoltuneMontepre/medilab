@@ -1,0 +1,7 @@
+{
+  "container": "medilab-integration-sonar-quality-rust",
+  "exit_code": 143,
+  "oom_killed": false,
+  "resources_preserved": true,
+  "elapsed_seconds": 0.205
+}

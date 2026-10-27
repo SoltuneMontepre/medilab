@@ -1,0 +1,24 @@
+{
+  "listeners": [
+    {
+      "service": "page-browser",
+      "port": 8081,
+      "loopback_reachable": true,
+      "same_bridge_peer_reachable": false
+    },
+    {
+      "service": "page-browser",
+      "port": 3900,
+      "loopback_reachable": true,
+      "same_bridge_peer_reachable": false
+    },
+    {
+      "service": "documentserver",
+      "port": 3900,
+      "loopback_reachable": true,
+      "same_bridge_peer_reachable": false
+    }
+  ],
+  "project": "fresh owned strict fixture",
+  "note": "No address or credential is recorded. Listener checks do not imply isolation of ports 80/3000/3900/3903 on owned peers."
+}

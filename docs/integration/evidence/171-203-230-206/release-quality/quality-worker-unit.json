@@ -1,0 +1,16 @@
+{
+  "command": [
+    "src/core/.venv/bin/python",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tools/infrastructure/onlyoffice",
+    "-p",
+    "test_*.py",
+    "-v"
+  ],
+  "exit_code": 0,
+  "status": "PASS",
+  "elapsed_seconds": 0.615
+}

@@ -98,7 +98,9 @@ class ChangeRequest(models.Model):
             raise UserError(self.env._("Only a person can raise a change request."))
         if not (requested_change or "").strip() or not (reason or "").strip():
             raise UserError(self.env._("Say what to change and why."))
-        if document_model not in self.env or not isinstance(self.env[document_model], self.env.registry[MODEL_APPROVAL_MIXIN]):
+        if document_model not in self.env or not isinstance(
+            self.env[document_model], self.env.registry[MODEL_APPROVAL_MIXIN]
+        ):
             raise UserError(self.env._("Change requests are raised on signed documents only."))
         document = self.env[document_model].browse(document_id).exists()
         document._check_permission("edit")

@@ -1,0 +1,9 @@
+{
+  "command": [
+    "task",
+    "test:onlyoffice:coverage"
+  ],
+  "exit_code": 0,
+  "status": "PASS",
+  "elapsed_seconds": 4.671
+}

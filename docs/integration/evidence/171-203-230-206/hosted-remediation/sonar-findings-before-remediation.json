@@ -1,0 +1,992 @@
+{
+  "commit": "d96f63525e4b8307d4ac89a1b36e8d479a5c2465",
+  "total": 109,
+  "by_type": {
+    "CODE_SMELL": 88,
+    "VULNERABILITY": 20,
+    "BUG": 1
+  },
+  "findings": [
+    {
+      "key": "AaF0FHhSvCiqu-XFDLCL",
+      "rule": "python:S3776",
+      "type": "CODE_SMELL",
+      "severity": "CRITICAL",
+      "file": "src/core/modules/sol_laboratory/services/sync_releases.py",
+      "line": 63,
+      "message": "Refactor this function to reduce its Cognitive Complexity from 19 to the 15 allowed."
+    },
+    {
+      "key": "AaF0FHhSvCiqu-XFDLCM",
+      "rule": "python:S5713",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "src/core/modules/sol_laboratory/services/sync_releases.py",
+      "line": 91,
+      "message": "Remove this redundant Exception class; it derives from another which is already caught."
+    },
+    {
+      "key": "AaF0FHhQvCiqu-XFDLCJ",
+      "rule": "python:S1192",
+      "type": "CODE_SMELL",
+      "severity": "CRITICAL",
+      "file": "src/core/modules/sol_laboratory/services/sync_update_http.py",
+      "line": 23,
+      "message": "Define a constant instead of duplicating this literal \"Invalid update request.\" 3 times."
+    },
+    {
+      "key": "AaF0FHhQvCiqu-XFDLCK",
+      "rule": "python:S5713",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "src/core/modules/sol_laboratory/services/sync_update_http.py",
+      "line": 67,
+      "message": "Remove this redundant Exception class; it derives from another which is already caught."
+    },
+    {
+      "key": "AaF0FHq1vCiqu-XFDLDD",
+      "rule": "pythonsecurity:S5144",
+      "type": "VULNERABILITY",
+      "severity": "MAJOR",
+      "file": "tools/onlyoffice_integration/loopback_storage_proxy.py",
+      "line": 11,
+      "message": "Server-Side Request Forgery via unsanitized user input in Handler.do_GET()"
+    },
+    {
+      "key": "AaF0FHq1vCiqu-XFDLDB",
+      "rule": "python:S1186",
+      "type": "CODE_SMELL",
+      "severity": "CRITICAL",
+      "file": "tools/onlyoffice_integration/loopback_storage_proxy.py",
+      "line": 23,
+      "message": "Add a nested comment explaining why this method is empty, or complete the implementation."
+    },
+    {
+      "key": "AaF0FHq1vCiqu-XFDLDC",
+      "rule": "python:S5332",
+      "type": "VULNERABILITY",
+      "severity": "MINOR",
+      "file": "tools/onlyoffice_integration/loopback_storage_proxy.py",
+      "line": 28,
+      "message": "Using HTTP protocol is insecure. Use HTTPS instead."
+    },
+    {
+      "key": "AaF0FHqhvCiqu-XFDLC0",
+      "rule": "jssecurity:S5144",
+      "type": "VULNERABILITY",
+      "severity": "MAJOR",
+      "file": "tools/onlyoffice_integration/page_browser.cjs",
+      "line": 8,
+      "message": "Server-Side Request Forgery via unsanitized user input"
+    },
+    {
+      "key": "AaF0FHqhvCiqu-XFDLC1",
+      "rule": "jssecurity:S5146",
+      "type": "VULNERABILITY",
+      "severity": "BLOCKER",
+      "file": "tools/onlyoffice_integration/page_browser.cjs",
+      "line": 10,
+      "message": "Open Redirect via unsanitized user input"
+    },
+    {
+      "key": "AaF0FHqhvCiqu-XFDLC2",
+      "rule": "jssecurity:S6109",
+      "type": "VULNERABILITY",
+      "severity": "BLOCKER",
+      "file": "tools/onlyoffice_integration/page_browser.cjs",
+      "line": 10,
+      "message": "Prototype Pollution via unsanitized user input"
+    },
+    {
+      "key": "AaF0FHqhvCiqu-XFDLCw",
+      "rule": "javascript:S3776",
+      "type": "CODE_SMELL",
+      "severity": "CRITICAL",
+      "file": "tools/onlyoffice_integration/page_browser.cjs",
+      "line": 76,
+      "message": "Refactor this function to reduce its Cognitive Complexity from 18 to the 15 allowed."
+    },
+    {
+      "key": "AaF0FHqhvCiqu-XFDLCx",
+      "rule": "javascript:S6353",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "tools/onlyoffice_integration/page_browser.cjs",
+      "line": 94,
+      "message": "Use concise character class syntax '\\d' instead of '[0-9]'."
+    },
+    {
+      "key": "AaF0FHqhvCiqu-XFDLCy",
+      "rule": "javascript:S5443",
+      "type": "VULNERABILITY",
+      "severity": "CRITICAL",
+      "file": "tools/onlyoffice_integration/page_browser.cjs",
+      "line": 132,
+      "message": "Make sure publicly writable directories are used safely here."
+    },
+    {
+      "key": "AaF0FHqhvCiqu-XFDLCz",
+      "rule": "javascript:S9382",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "tools/onlyoffice_integration/page_browser.cjs",
+      "line": 134,
+      "message": "Unexpected `await` inside a loop."
+    },
+    {
+      "key": "AaF0FHqzvCiqu-XFDLC_",
+      "rule": "python:S3776",
+      "type": "CODE_SMELL",
+      "severity": "CRITICAL",
+      "file": "tools/onlyoffice_integration/page_sync.py",
+      "line": 15,
+      "message": "Refactor this function to reduce its Cognitive Complexity from 18 to the 15 allowed."
+    },
+    {
+      "key": "AaF0FHqzvCiqu-XFDLDA",
+      "rule": "python:S5443",
+      "type": "VULNERABILITY",
+      "severity": "CRITICAL",
+      "file": "tools/onlyoffice_integration/page_sync.py",
+      "line": 22,
+      "message": "Make sure publicly writable directories are used safely here."
+    },
+    {
+      "key": "AaF0FHqwvCiqu-XFDLC-",
+      "rule": "python:S3776",
+      "type": "CODE_SMELL",
+      "severity": "CRITICAL",
+      "file": "tools/onlyoffice_integration/run.py",
+      "line": 262,
+      "message": "Refactor this function to reduce its Cognitive Complexity from 36 to the 15 allowed."
+    },
+    {
+      "key": "AaF0FHrFvCiqu-XFDLDZ",
+      "rule": "pythonsecurity:S6350",
+      "type": "VULNERABILITY",
+      "severity": "MAJOR",
+      "file": "tools/infrastructure/onlyoffice/runtime_drift_probe.py",
+      "line": 87,
+      "message": "Command Argument Injection via file content in runtime_drift_probe.main()"
+    },
+    {
+      "key": "AaF0FHrNvCiqu-XFDLDh",
+      "rule": "javascript:S7772",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "tools/infrastructure/onlyoffice/retention_probe.cjs",
+      "line": 3,
+      "message": "Prefer `node:assert/strict` over `assert/strict`."
+    },
+    {
+      "key": "AaF0FHrNvCiqu-XFDLDi",
+      "rule": "javascript:S7772",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "tools/infrastructure/onlyoffice/retention_probe.cjs",
+      "line": 4,
+      "message": "Prefer `node:crypto` over `crypto`."
+    },
+    {
+      "key": "AaF0FHrNvCiqu-XFDLDj",
+      "rule": "javascript:S7772",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "tools/infrastructure/onlyoffice/retention_probe.cjs",
+      "line": 5,
+      "message": "Prefer `node:fs` over `fs`."
+    },
+    {
+      "key": "AaF0FHrNvCiqu-XFDLDk",
+      "rule": "javascript:S9382",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "tools/infrastructure/onlyoffice/retention_probe.cjs",
+      "line": 62,
+      "message": "Unexpected `await` inside a loop."
+    },
+    {
+      "key": "AaF0FHrNvCiqu-XFDLDl",
+      "rule": "javascript:S9382",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "tools/infrastructure/onlyoffice/retention_probe.cjs",
+      "line": 63,
+      "message": "Unexpected `await` inside a loop."
+    },
+    {
+      "key": "AaF0FHrNvCiqu-XFDLDm",
+      "rule": "javascript:S9382",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "tools/infrastructure/onlyoffice/retention_probe.cjs",
+      "line": 67,
+      "message": "Unexpected `await` inside a loop."
+    },
+    {
+      "key": "AaF0FHrNvCiqu-XFDLDn",
+      "rule": "javascript:S9382",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "tools/infrastructure/onlyoffice/retention_probe.cjs",
+      "line": 70,
+      "message": "Unexpected `await` inside a loop."
+    },
+    {
+      "key": "AaF0FHqZvCiqu-XFDLCn",
+      "rule": "python:S7494",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "infra/cluster/onlyoffice/inspect_config.py",
+      "line": 69,
+      "message": "Replace dict constructor call with a dictionary comprehension."
+    },
+    {
+      "key": "AaF0FHqWvCiqu-XFDLCi",
+      "rule": "javascript:S7772",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "infra/cluster/onlyoffice/worker-bootstrap.cjs",
+      "line": 4,
+      "message": "Prefer `node:fs` over `fs`."
+    },
+    {
+      "key": "AaF0FHqWvCiqu-XFDLCj",
+      "rule": "javascript:S7772",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "infra/cluster/onlyoffice/worker-bootstrap.cjs",
+      "line": 5,
+      "message": "Prefer `node:crypto` over `crypto`."
+    },
+    {
+      "key": "AaF0FHqWvCiqu-XFDLCk",
+      "rule": "javascript:S7772",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "infra/cluster/onlyoffice/worker-bootstrap.cjs",
+      "line": 6,
+      "message": "Prefer `node:path` over `path`."
+    },
+    {
+      "key": "AaF0FHqWvCiqu-XFDLCl",
+      "rule": "javascript:S7772",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "infra/cluster/onlyoffice/worker-bootstrap.cjs",
+      "line": 7,
+      "message": "Prefer `node:assert/strict` over `assert/strict`."
+    },
+    {
+      "key": "AaF0FHqUvCiqu-XFDLCg",
+      "rule": "shelldre:S7688",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "file": "infra/cluster/onlyoffice/worker.sh",
+      "line": 4,
+      "message": "Use '[[' instead of 'test' command for conditional tests. The '[[' construct is safer and more feature-rich."
+    },
+    {
+      "key": "AaF0FHrLvCiqu-XFDLDg",
+      "rule": "python:S7494",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "tools/infrastructure/onlyoffice/inspect_config.py",
+      "line": 69,
+      "message": "Replace dict constructor call with a dictionary comprehension."
+    },
+    {
+      "key": "AaF0FHq-vCiqu-XFDLDN",
+      "rule": "javascript:S7772",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "tools/infrastructure/onlyoffice/worker-bootstrap.cjs",
+      "line": 4,
+      "message": "Prefer `node:fs` over `fs`."
+    },
+    {
+      "key": "AaF0FHq-vCiqu-XFDLDO",
+      "rule": "javascript:S7772",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "tools/infrastructure/onlyoffice/worker-bootstrap.cjs",
+      "line": 5,
+      "message": "Prefer `node:crypto` over `crypto`."
+    },
+    {
+      "key": "AaF0FHq-vCiqu-XFDLDP",
+      "rule": "javascript:S7772",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "tools/infrastructure/onlyoffice/worker-bootstrap.cjs",
+      "line": 6,
+      "message": "Prefer `node:path` over `path`."
+    },
+    {
+      "key": "AaF0FHq-vCiqu-XFDLDQ",
+      "rule": "javascript:S7772",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "tools/infrastructure/onlyoffice/worker-bootstrap.cjs",
+      "line": 7,
+      "message": "Prefer `node:assert/strict` over `assert/strict`."
+    },
+    {
+      "key": "AaF0FHq6vCiqu-XFDLDG",
+      "rule": "shelldre:S7688",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "file": "tools/infrastructure/onlyoffice/worker.sh",
+      "line": 4,
+      "message": "Use '[[' instead of 'test' command for conditional tests. The '[[' construct is safer and more feature-rich."
+    },
+    {
+      "key": "AaF0FHqTvCiqu-XFDLCf",
+      "rule": "javascript:S7772",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "infra/cluster/onlyoffice/callback-signing.cjs",
+      "line": 3,
+      "message": "Prefer `node:module` over `module`."
+    },
+    {
+      "key": "AaF0FHrPvCiqu-XFDLDp",
+      "rule": "javascript:S7772",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "tools/infrastructure/onlyoffice/callback-signing.cjs",
+      "line": 3,
+      "message": "Prefer `node:module` over `module`."
+    },
+    {
+      "key": "AaF0FHq8vCiqu-XFDLDI",
+      "rule": "javascript:S7784",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "tools/infrastructure/onlyoffice/test_callback_signing.cjs",
+      "line": 47,
+      "message": "Prefer `structuredClone(\u2026)` over `JSON.parse(JSON.stringify(\u2026))` to create a deep clone."
+    },
+    {
+      "key": "AaF0FHq8vCiqu-XFDLDJ",
+      "rule": "javascript:S7784",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "tools/infrastructure/onlyoffice/test_callback_signing.cjs",
+      "line": 63,
+      "message": "Prefer `structuredClone(\u2026)` over `JSON.parse(JSON.stringify(\u2026))` to create a deep clone."
+    },
+    {
+      "key": "AaF0FHq8vCiqu-XFDLDK",
+      "rule": "javascript:S1523",
+      "type": "VULNERABILITY",
+      "severity": "CRITICAL",
+      "file": "tools/infrastructure/onlyoffice/test_callback_signing.cjs",
+      "line": 83,
+      "message": "Make sure that this dynamic injection or execution of code is safe."
+    },
+    {
+      "key": "AaF0FHq8vCiqu-XFDLDL",
+      "rule": "javascript:S7723",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "tools/infrastructure/onlyoffice/test_callback_signing.cjs",
+      "line": 122,
+      "message": "Use `new Array()` instead of `Array()`."
+    },
+    {
+      "key": "AaF0FHq8vCiqu-XFDLDM",
+      "rule": "javascript:S9382",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "tools/infrastructure/onlyoffice/test_callback_signing.cjs",
+      "line": 152,
+      "message": "Unexpected `await` inside a loop."
+    },
+    {
+      "key": "AaF0FHrZvCiqu-XFDLDt",
+      "rule": "githubactions:S8541",
+      "type": "VULNERABILITY",
+      "severity": "MAJOR",
+      "file": ".github/workflows/ci.infra.yml",
+      "line": 135,
+      "message": "Omitting \"--only-binary :all:\" can lead to the execution of setup scripts. Make sure it is safe here."
+    },
+    {
+      "key": "AaF0FHqevCiqu-XFDLCu",
+      "rule": "python:S5713",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "infra/cluster/onlyoffice-monitor/probe.py",
+      "line": 26,
+      "message": "Remove this redundant Exception class; it derives from another which is already caught."
+    },
+    {
+      "key": "AaF0FHqevCiqu-XFDLCv",
+      "rule": "python:S5713",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "infra/cluster/onlyoffice-monitor/probe.py",
+      "line": 34,
+      "message": "Remove this redundant Exception class; it derives from another which is already caught."
+    },
+    {
+      "key": "AaF0FHqavCiqu-XFDLCo",
+      "rule": "shelldre:S7688",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "file": "infra/cluster/onlyoffice/healthcheck.sh",
+      "line": 10,
+      "message": "Use '[[' instead of 'test' command for conditional tests. The '[[' construct is safer and more feature-rich."
+    },
+    {
+      "key": "AaF0FHqXvCiqu-XFDLCm",
+      "rule": "shelldre:S7688",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "file": "infra/cluster/onlyoffice/shutdown.sh",
+      "line": 6,
+      "message": "Use '[[' instead of 'test' command for conditional tests. The '[[' construct is safer and more feature-rich."
+    },
+    {
+      "key": "AaF0FHqbvCiqu-XFDLCp",
+      "rule": "shelldre:S7688",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "file": "infra/cluster/onlyoffice/start.sh",
+      "line": 15,
+      "message": "Use '[[' instead of 'test' command for conditional tests. The '[[' construct is safer and more feature-rich."
+    },
+    {
+      "key": "AaF0FHqbvCiqu-XFDLCq",
+      "rule": "shelldre:S7688",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "file": "infra/cluster/onlyoffice/start.sh",
+      "line": 16,
+      "message": "Use '[[' instead of 'test' command for conditional tests. The '[[' construct is safer and more feature-rich."
+    },
+    {
+      "key": "AaF0FHqbvCiqu-XFDLCr",
+      "rule": "shelldre:S7688",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "file": "infra/cluster/onlyoffice/start.sh",
+      "line": 17,
+      "message": "Use '[[' instead of 'test' command for conditional tests. The '[[' construct is safer and more feature-rich."
+    },
+    {
+      "key": "AaF0FHqbvCiqu-XFDLCs",
+      "rule": "shelldre:S7688",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "file": "infra/cluster/onlyoffice/start.sh",
+      "line": 35,
+      "message": "Use '[[' instead of 'test' command for conditional tests. The '[[' construct is safer and more feature-rich."
+    },
+    {
+      "key": "AaF0FHqbvCiqu-XFDLCt",
+      "rule": "shelldre:S7688",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "file": "infra/cluster/onlyoffice/start.sh",
+      "line": 38,
+      "message": "Use '[[' instead of 'test' command for conditional tests. The '[[' construct is safer and more feature-rich."
+    },
+    {
+      "key": "AaF0FHqUvCiqu-XFDLCh",
+      "rule": "shelldre:S7688",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "file": "infra/cluster/onlyoffice/worker.sh",
+      "line": 5,
+      "message": "Use '[[' instead of 'test' command for conditional tests. The '[[' construct is safer and more feature-rich."
+    },
+    {
+      "key": "AaF0FHrAvCiqu-XFDLDR",
+      "rule": "shelldre:S7688",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "file": "tools/infrastructure/onlyoffice/healthcheck.sh",
+      "line": 10,
+      "message": "Use '[[' instead of 'test' command for conditional tests. The '[[' construct is safer and more feature-rich."
+    },
+    {
+      "key": "AaF0FHrJvCiqu-XFDLDe",
+      "rule": "python:S5713",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "tools/infrastructure/onlyoffice/probe.py",
+      "line": 26,
+      "message": "Remove this redundant Exception class; it derives from another which is already caught."
+    },
+    {
+      "key": "AaF0FHrJvCiqu-XFDLDf",
+      "rule": "python:S5713",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "tools/infrastructure/onlyoffice/probe.py",
+      "line": 34,
+      "message": "Remove this redundant Exception class; it derives from another which is already caught."
+    },
+    {
+      "key": "AaF0FHrIvCiqu-XFDLDb",
+      "rule": "pythonsecurity:S8707",
+      "type": "VULNERABILITY",
+      "severity": "MAJOR",
+      "file": "tools/infrastructure/onlyoffice/recover.py",
+      "line": 65,
+      "message": "Path Traversal via faulty LLM-supplied CLI arguments in recover.main()"
+    },
+    {
+      "key": "AaF0FHrIvCiqu-XFDLDd",
+      "rule": "pythonsecurity:S8707",
+      "type": "VULNERABILITY",
+      "severity": "MAJOR",
+      "file": "tools/infrastructure/onlyoffice/recover.py",
+      "line": 69,
+      "message": "Path Traversal via faulty LLM-supplied CLI arguments in recover.main()"
+    },
+    {
+      "key": "AaF0FHrIvCiqu-XFDLDa",
+      "rule": "python:S4830",
+      "type": "VULNERABILITY",
+      "severity": "CRITICAL",
+      "file": "tools/infrastructure/onlyoffice/recover.py",
+      "line": 73,
+      "message": "Enable server certificate validation on this SSL/TLS connection."
+    },
+    {
+      "key": "AaF0FHrIvCiqu-XFDLDc",
+      "rule": "pythonsecurity:S8707",
+      "type": "VULNERABILITY",
+      "severity": "MAJOR",
+      "file": "tools/infrastructure/onlyoffice/recover.py",
+      "line": 106,
+      "message": "Path Traversal via faulty LLM-supplied CLI arguments in recover.main()"
+    },
+    {
+      "key": "AaF0FHrOvCiqu-XFDLDo",
+      "rule": "shelldre:S7688",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "file": "tools/infrastructure/onlyoffice/shutdown.sh",
+      "line": 6,
+      "message": "Use '[[' instead of 'test' command for conditional tests. The '[[' construct is safer and more feature-rich."
+    },
+    {
+      "key": "AaF0FHrBvCiqu-XFDLDS",
+      "rule": "shelldre:S7688",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "file": "tools/infrastructure/onlyoffice/start.sh",
+      "line": 15,
+      "message": "Use '[[' instead of 'test' command for conditional tests. The '[[' construct is safer and more feature-rich."
+    },
+    {
+      "key": "AaF0FHrBvCiqu-XFDLDT",
+      "rule": "shelldre:S7688",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "file": "tools/infrastructure/onlyoffice/start.sh",
+      "line": 16,
+      "message": "Use '[[' instead of 'test' command for conditional tests. The '[[' construct is safer and more feature-rich."
+    },
+    {
+      "key": "AaF0FHrBvCiqu-XFDLDU",
+      "rule": "shelldre:S7688",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "file": "tools/infrastructure/onlyoffice/start.sh",
+      "line": 17,
+      "message": "Use '[[' instead of 'test' command for conditional tests. The '[[' construct is safer and more feature-rich."
+    },
+    {
+      "key": "AaF0FHrBvCiqu-XFDLDV",
+      "rule": "shelldre:S7688",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "file": "tools/infrastructure/onlyoffice/start.sh",
+      "line": 35,
+      "message": "Use '[[' instead of 'test' command for conditional tests. The '[[' construct is safer and more feature-rich."
+    },
+    {
+      "key": "AaF0FHrBvCiqu-XFDLDW",
+      "rule": "shelldre:S7688",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "file": "tools/infrastructure/onlyoffice/start.sh",
+      "line": 38,
+      "message": "Use '[[' instead of 'test' command for conditional tests. The '[[' construct is safer and more feature-rich."
+    },
+    {
+      "key": "AaF0FHrDvCiqu-XFDLDX",
+      "rule": "shell:S6506",
+      "type": "VULNERABILITY",
+      "severity": "MAJOR",
+      "file": "tools/infrastructure/onlyoffice/validate.sh",
+      "line": 6,
+      "message": "Not enforcing HTTPS here might allow for redirections to insecure websites. Make sure it is safe here."
+    },
+    {
+      "key": "AaF0FHrDvCiqu-XFDLDY",
+      "rule": "shell:S6506",
+      "type": "VULNERABILITY",
+      "severity": "MAJOR",
+      "file": "tools/infrastructure/onlyoffice/validate.sh",
+      "line": 11,
+      "message": "Not enforcing HTTPS here might allow for redirections to insecure websites. Make sure it is safe here."
+    },
+    {
+      "key": "AaF0FHrRvCiqu-XFDLDq",
+      "rule": "python:S3776",
+      "type": "CODE_SMELL",
+      "severity": "CRITICAL",
+      "file": "tools/infrastructure/onlyoffice/validate_crds.py",
+      "line": 11,
+      "message": "Refactor this function to reduce its Cognitive Complexity from 20 to the 15 allowed."
+    },
+    {
+      "key": "AaF0FHrRvCiqu-XFDLDr",
+      "rule": "pythonsecurity:S8707",
+      "type": "VULNERABILITY",
+      "severity": "MAJOR",
+      "file": "tools/infrastructure/onlyoffice/validate_crds.py",
+      "line": 19,
+      "message": "Path Traversal via faulty LLM-supplied CLI arguments in validate_crds.main()"
+    },
+    {
+      "key": "AaF0FHrRvCiqu-XFDLDs",
+      "rule": "pythonsecurity:S8707",
+      "type": "VULNERABILITY",
+      "severity": "MAJOR",
+      "file": "tools/infrastructure/onlyoffice/validate_crds.py",
+      "line": 29,
+      "message": "Path Traversal via faulty LLM-supplied CLI arguments in validate_crds.main()"
+    },
+    {
+      "key": "AaF0FHq6vCiqu-XFDLDH",
+      "rule": "shelldre:S7688",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "file": "tools/infrastructure/onlyoffice/worker.sh",
+      "line": 5,
+      "message": "Use '[[' instead of 'test' command for conditional tests. The '[[' construct is safer and more feature-rich."
+    },
+    {
+      "key": "AaF0FHq5vCiqu-XFDLDF",
+      "rule": "pythonsecurity:S8707",
+      "type": "VULNERABILITY",
+      "severity": "MAJOR",
+      "file": "tools/onlyoffice_integration/runtime_env.py",
+      "line": 55,
+      "message": "Path Traversal via faulty LLM-supplied CLI arguments in runtime_env.main()"
+    },
+    {
+      "key": "AaF0FHl6vCiqu-XFDLCZ",
+      "rule": "rust:S2737",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "src/applications/medilab-sync/src-tauri/src/commands.rs",
+      "line": 1011,
+      "message": "Remove this redundant conversion; \"?\" already converts the error."
+    },
+    {
+      "key": "AaF0FHl6vCiqu-XFDLCa",
+      "rule": "rust:S2737",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "src/applications/medilab-sync/src-tauri/src/commands.rs",
+      "line": 1024,
+      "message": "Remove this redundant conversion; \"?\" already converts the error."
+    },
+    {
+      "key": "AaF0FHmAvCiqu-XFDLCc",
+      "rule": "rust:S2737",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "src/applications/medilab-sync/src-tauri/src/updater.rs",
+      "line": 179,
+      "message": "Remove this redundant conversion; \"?\" already converts the error."
+    },
+    {
+      "key": "AaF0FHmEvCiqu-XFDLCd",
+      "rule": "rust:S7487",
+      "type": "BUG",
+      "severity": "MAJOR",
+      "file": "src/applications/medilab-sync/src-tauri/src/updater_migration_tests.rs",
+      "line": 164,
+      "message": "Use an asynchronous process API instead of this blocking `std::process::Command` call, or move it to `spawn_blocking`."
+    },
+    {
+      "key": "AaF0FHqsvCiqu-XFDLC7",
+      "rule": "javascript:S9382",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "tools/onlyoffice_integration/browser.cjs",
+      "line": 64,
+      "message": "Unexpected `await` inside a loop."
+    },
+    {
+      "key": "AaF0FHqtvCiqu-XFDLC8",
+      "rule": "javascript:S9382",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "tools/onlyoffice_integration/browser.cjs",
+      "line": 65,
+      "message": "Unexpected `await` inside a loop."
+    },
+    {
+      "key": "AaF0FHqtvCiqu-XFDLC9",
+      "rule": "javascript:S9382",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "tools/onlyoffice_integration/browser.cjs",
+      "line": 66,
+      "message": "Unexpected `await` inside a loop."
+    },
+    {
+      "key": "AaF0FHl6vCiqu-XFDLCT",
+      "rule": "rust:S2737",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "src/applications/medilab-sync/src-tauri/src/commands.rs",
+      "line": 146,
+      "message": "Remove this redundant conversion; \"?\" already converts the error."
+    },
+    {
+      "key": "AaF0FHl6vCiqu-XFDLCU",
+      "rule": "rust:S2737",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "src/applications/medilab-sync/src-tauri/src/commands.rs",
+      "line": 597,
+      "message": "Remove this redundant conversion; \"?\" already converts the error."
+    },
+    {
+      "key": "AaF0FHl6vCiqu-XFDLCV",
+      "rule": "rust:S2737",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "src/applications/medilab-sync/src-tauri/src/commands.rs",
+      "line": 698,
+      "message": "Remove this redundant conversion; \"?\" already converts the error."
+    },
+    {
+      "key": "AaF0FHl6vCiqu-XFDLCW",
+      "rule": "rust:S2737",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "src/applications/medilab-sync/src-tauri/src/commands.rs",
+      "line": 737,
+      "message": "Remove this redundant conversion; \"?\" already converts the error."
+    },
+    {
+      "key": "AaF0FHl6vCiqu-XFDLCX",
+      "rule": "rust:S2737",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "src/applications/medilab-sync/src-tauri/src/commands.rs",
+      "line": 744,
+      "message": "Remove this redundant conversion; \"?\" already converts the error."
+    },
+    {
+      "key": "AaF0FHl6vCiqu-XFDLCY",
+      "rule": "rust:S2737",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "src/applications/medilab-sync/src-tauri/src/commands.rs",
+      "line": 993,
+      "message": "Remove this redundant conversion; \"?\" already converts the error."
+    },
+    {
+      "key": "AaF0FHmAvCiqu-XFDLCb",
+      "rule": "rust:S2737",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "src/applications/medilab-sync/src-tauri/src/updater.rs",
+      "line": 175,
+      "message": "Remove this redundant conversion; \"?\" already converts the error."
+    },
+    {
+      "key": "AaF0FHjyvCiqu-XFDLCS",
+      "rule": "rust:S2208",
+      "type": "CODE_SMELL",
+      "severity": "CRITICAL",
+      "file": "src/applications/medilab-sync/src-tauri/src/wire.rs",
+      "line": 1,
+      "message": "Remove this wildcard import and import each name explicitly."
+    },
+    {
+      "key": "AaF0FHhTvCiqu-XFDLCN",
+      "rule": "python:S6353",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "src/core/modules/sol_laboratory/services/laboratory_editor_logging.py",
+      "line": 12,
+      "message": "Use concise character class syntax '\\d' instead of '[0-9]'."
+    },
+    {
+      "key": "AaF0FHhTvCiqu-XFDLCO",
+      "rule": "python:S3516",
+      "type": "CODE_SMELL",
+      "severity": "BLOCKER",
+      "file": "src/core/modules/sol_laboratory/services/laboratory_editor_logging.py",
+      "line": 28,
+      "message": "Refactor this method to not always return the same value."
+    },
+    {
+      "key": "AaF0FHhNvCiqu-XFDLCE",
+      "rule": "python:S6353",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "src/core/modules/sol_laboratory/services/laboratory_editor_page.py",
+      "line": 29,
+      "message": "Use concise character class syntax '\\d' instead of '[0-9]'."
+    },
+    {
+      "key": "AaF0FHhNvCiqu-XFDLCF",
+      "rule": "python:S3776",
+      "type": "CODE_SMELL",
+      "severity": "CRITICAL",
+      "file": "src/core/modules/sol_laboratory/services/laboratory_editor_page.py",
+      "line": 33,
+      "message": "Refactor this function to reduce its Cognitive Complexity from 18 to the 15 allowed."
+    },
+    {
+      "key": "AaF0FHhNvCiqu-XFDLCD",
+      "rule": "python:S1192",
+      "type": "CODE_SMELL",
+      "severity": "CRITICAL",
+      "file": "src/core/modules/sol_laboratory/services/laboratory_editor_page.py",
+      "line": 36,
+      "message": "Define a constant instead of duplicating this literal \"Invalid service origin\" 5 times."
+    },
+    {
+      "key": "AaF0FHhNvCiqu-XFDLCG",
+      "rule": "python:S6353",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "src/core/modules/sol_laboratory/services/laboratory_editor_page.py",
+      "line": 57,
+      "message": "Use concise character class syntax '\\d' instead of '[0-9]'."
+    },
+    {
+      "key": "AaF0FHhNvCiqu-XFDLCH",
+      "rule": "python:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "file": "src/core/modules/sol_laboratory/services/laboratory_editor_page.py",
+      "line": 142,
+      "message": "Extract this nested conditional expression into an independent statement."
+    },
+    {
+      "key": "AaF0FHhVvCiqu-XFDLCP",
+      "rule": "css:S9423",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "file": "src/core/modules/sol_laboratory/static/src/laboratory_files/editor/editor.css",
+      "line": 11,
+      "message": "Remove this \"!important\" and resolve the specificity conflict instead."
+    },
+    {
+      "key": "AaF0FHhWvCiqu-XFDLCQ",
+      "rule": "javascript:S6582",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "src/core/modules/sol_laboratory/static/src/laboratory_files/editor/editor.js",
+      "line": 5,
+      "message": "Prefer using an optional chain expression instead, as it's more concise and easier to read."
+    },
+    {
+      "key": "AaF0FHhWvCiqu-XFDLCR",
+      "rule": "javascript:S1874",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "src/core/modules/sol_laboratory/static/src/laboratory_files/editor/editor.js",
+      "line": 28,
+      "message": "'returnValue' is deprecated."
+    },
+    {
+      "key": "AaF0FHq3vCiqu-XFDLDE",
+      "rule": "docker:S6471",
+      "type": "VULNERABILITY",
+      "severity": "MINOR",
+      "file": "tools/onlyoffice_integration/browser.Dockerfile",
+      "line": 1,
+      "message": "This image runs with \"root\" or \"containerAdministrator\" as the default user. Make sure it is safe here."
+    },
+    {
+      "key": "AaF0FHqrvCiqu-XFDLC3",
+      "rule": "python:S5778",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "file": "tools/onlyoffice_integration/test_contract.py",
+      "line": 172,
+      "message": "Refactor this exception test to have only one invocation possibly throwing an exception."
+    },
+    {
+      "key": "AaF0FHqrvCiqu-XFDLC4",
+      "rule": "python:S5906",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "tools/onlyoffice_integration/test_contract.py",
+      "line": 221,
+      "message": "Consider using \"assertNotIn\" instead."
+    },
+    {
+      "key": "AaF0FHqrvCiqu-XFDLC5",
+      "rule": "python:S5906",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "tools/onlyoffice_integration/test_contract.py",
+      "line": 238,
+      "message": "Consider using \"assertNotIn\" instead."
+    },
+    {
+      "key": "AaF0FHqrvCiqu-XFDLC6",
+      "rule": "python:S5906",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "tools/onlyoffice_integration/test_contract.py",
+      "line": 241,
+      "message": "Consider using \"assertNotIn\" instead."
+    },
+    {
+      "key": "AaF0FHmGvCiqu-XFDLCe",
+      "rule": "rust:S2737",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "src/applications/medilab-sync/src-tauri/src/browser.rs",
+      "line": 25,
+      "message": "Remove this redundant conversion; \"?\" already converts the error."
+    },
+    {
+      "key": "AaF0FHhPvCiqu-XFDLCI",
+      "rule": "python:S3516",
+      "type": "CODE_SMELL",
+      "severity": "BLOCKER",
+      "file": "src/core/modules/sol_laboratory/services/editing_callback_logging.py",
+      "line": 51,
+      "message": "Refactor this method to not always return the same value."
+    },
+    {
+      "key": "AaF0FHcEvCiqu-XFDLCB",
+      "rule": "python:S5713",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "file": "src/core/modules/sol_laboratory/services/laboratory_editing_callback.py",
+      "line": 59,
+      "message": "Remove this redundant Exception class; it derives from another which is already caught."
+    },
+    {
+      "key": "AaF0FHcEvCiqu-XFDLCC",
+      "rule": "python:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "file": "src/core/modules/sol_laboratory/services/laboratory_editing_callback.py",
+      "line": 108,
+      "message": "Extract this nested conditional expression into an independent statement."
+    }
+  ]
+}

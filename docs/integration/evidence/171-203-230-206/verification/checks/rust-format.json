@@ -1,0 +1,17 @@
+{
+  "command": [
+    "podman",
+    "exec",
+    "-w",
+    "/workspace",
+    "medilab-integration-verification-rust",
+    "cargo",
+    "fmt",
+    "--check",
+    "--manifest-path",
+    "src/applications/medilab-sync/src-tauri/Cargo.toml"
+  ],
+  "exit_code": 0,
+  "status": "PASS",
+  "elapsed_seconds": 0.414
+}

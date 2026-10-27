@@ -1,0 +1,10 @@
+{
+  "compared_base": "d2cb46c5d59a4bc4daa17de1d4bf19bf14ab59d8",
+  "files_reviewed": 513,
+  "candidate_locations": [],
+  "binary_files": [],
+  "deletions": [
+    "src/applications/medilab-sync/src/features/office/OfficeEditor.tsx"
+  ],
+  "deletion_review": "OfficeEditor.tsx is intentionally replaced by authenticated browser handoff."
+}

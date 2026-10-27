@@ -1,0 +1,11 @@
+{
+  "base": "702acf27725b9407c192c438c0954d90f0030b44",
+  "head": "07a92429e0f58e17367c34faf11b1f7797452180",
+  "added_line_pattern_hits": {
+    "private_key": false,
+    "github_token": false,
+    "jwt_value": false,
+    "aws_access_key": false
+  },
+  "limitation": "Bounded pattern scan plus manual diff review; hosted GitGuardian is separately verified."
+}

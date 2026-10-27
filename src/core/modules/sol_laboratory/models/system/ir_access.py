@@ -13,7 +13,8 @@ class IrAccess(models.Model):
         # Odoo keeps only the groups that can also read the parent of an _inherits model, so a view would hide every
         # node with groups from people who hold only the document's permissions.
         if model_name in self.env.context.get(UNCHECKED_PARENTS, ()):
-            return self.env["res.groups"].sudo().search([])
+            groups = self.env["res.groups"].sudo()
+            return groups.browse(groups._get_group_definitions().get_all_ids())
         model = self.env[model_name]
         accesses = self
         if model._inherits and not model._check_inherits_access:

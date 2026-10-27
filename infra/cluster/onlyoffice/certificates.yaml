@@ -1,0 +1,51 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: onlyoffice-bootstrap
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: onlyoffice-ca
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  isCA: true
+  usages: [cert sign, crl sign, digital signature]
+  commonName: MediLab ONLYOFFICE internal CA
+  secretName: onlyoffice-ca
+  duration: 87600h
+  renewBefore: 720h
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  issuerRef:
+    name: onlyoffice-bootstrap
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: onlyoffice-ca
+spec:
+  ca:
+    secretName: onlyoffice-ca
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: onlyoffice-tls
+spec:
+  secretName: onlyoffice-tls
+  duration: 2160h
+  renewBefore: 360h
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+    rotationPolicy: Always
+  dnsNames:
+    - onlyoffice.medilab.svc.cluster.local
+    - onlyoffice-callback.kube-system.svc.cluster.local
+  issuerRef:
+    name: onlyoffice-ca

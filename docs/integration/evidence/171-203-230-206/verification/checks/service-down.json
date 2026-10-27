@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "editor_http": 503,
+  "ready_http": 200,
+  "ready": {
+    "status": "pass",
+    "checks": {
+      "database": "pass",
+      "bucket": "pass"
+    }
+  },
+  "session_created": false,
+  "version_count": 1
+}

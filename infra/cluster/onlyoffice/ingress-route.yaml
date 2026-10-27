@@ -1,0 +1,47 @@
+apiVersion: traefik.io/v1alpha1
+kind: ServersTransport
+metadata:
+  name: onlyoffice-tls
+spec:
+  serverName: onlyoffice.medilab.svc.cluster.local
+  rootCAsSecrets:
+    - onlyoffice-tls
+  forwardingTimeouts:
+    dialTimeout: 10s
+    responseHeaderTimeout: 22m
+    idleConnTimeout: 22m
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: onlyoffice-privacy
+spec:
+  headers:
+    customRequestHeaders:
+      X-Forwarded-Proto: https
+    customResponseHeaders:
+      Cache-Control: no-store
+      Referrer-Policy: no-referrer
+      X-Content-Type-Options: nosniff
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: onlyoffice
+spec:
+  entryPoints: [web]
+  routes:
+    - kind: Rule
+      match: >-
+        Host(`office.soltunemontepre.tech`) &&
+        !PathRegexp(`(?i)^/(?:[0-9]+\.[0-9]+\.[0-9]+[.|-]\w+/)?(?:command|coauthoring/CommandService)(?:[/.]|$)`)
+      observability:
+        accessLogs: false
+        tracing: false
+      middlewares:
+        - name: onlyoffice-privacy
+      services:
+        - name: onlyoffice
+          port: https
+          scheme: https
+          serversTransport: onlyoffice-tls

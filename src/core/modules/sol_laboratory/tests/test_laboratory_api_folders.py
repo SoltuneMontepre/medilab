@@ -23,7 +23,7 @@ class TestLaboratoryApiFolders(LaboratoryApiCase):
         self.outsiders_key = self.signed_in_key(self.outsider, "outsiders-installation")
         self.device = self.env[MODEL_LABORATORY_DEVICE].search([("client_uid", "=", "tester-installation")])
 
-    def create(self, name, key=None, idempotency_key=None):
+    def create_folder(self, name, key=None, idempotency_key=None):
         headers = {"Idempotency-Key": idempotency_key} if idempotency_key else None
         return self.api("POST", "/folders", {"name": name}, key=key or self.key, headers=headers)
 
@@ -54,37 +54,37 @@ class TestLaboratoryApiFolders(LaboratoryApiCase):
         self.assertEqual(self.api("GET", "/folders", key=self.outsiders_key).json()["folders"], [])
 
     def test_creating_a_folder_makes_the_person_its_owner_from_this_computer(self):
-        folder = self.create("AAS").json()["folder"]
+        folder = self.create_folder("AAS").json()["folder"]
 
         created = self.env[MODEL_LABORATORY_FOLDER].browse(folder["id"])
         self.assertEqual((folder["name"], folder["root"], folder["role"]), ("AAS", "AAS", "owner"))
         self.assertEqual((created.owner_id, created.created_by_device_id), (self.tester, self.device))
 
     def test_a_name_the_person_already_has_a_folder_of_is_refused_without_a_key(self):
-        self.create("AAS")
+        self.create_folder("AAS")
 
-        self.assertApiRefused(FOLDER_EXISTS, self.create("AAS"))
-        self.assertApiRefused(FOLDER_EXISTS, self.create("HPLC"))
-        self.assertEqual(self.create("AAS", key=self.members_key).status_code, 200)
+        self.assertApiRefused(FOLDER_EXISTS, self.create_folder("AAS"))
+        self.assertApiRefused(FOLDER_EXISTS, self.create_folder("HPLC"))
+        self.assertEqual(self.create_folder("AAS", key=self.members_key).status_code, 200)
 
     def test_a_creation_repeated_with_its_idempotency_key_answers_with_the_folder_it_created(self):
-        first = self.create("AAS", idempotency_key="create-aas-1")
-        again = self.create("AAS", idempotency_key="create-aas-1")
+        first = self.create_folder("AAS", idempotency_key="create-aas-1")
+        again = self.create_folder("AAS", idempotency_key="create-aas-1")
 
         self.assertEqual(again.status_code, 200)
         self.assertEqual(again.json(), first.json())
         self.assertEqual(self.env[MODEL_LABORATORY_FOLDER].search_count([("root", "=", "AAS")]), 1)
 
     def test_an_idempotency_key_sent_with_another_request_is_refused(self):
-        self.create("AAS", idempotency_key="create-1")
+        self.create_folder("AAS", idempotency_key="create-1")
 
-        self.assertApiRefused(IDEMPOTENCY_CONFLICT, self.create("GC", idempotency_key="create-1"))
-        self.assertApiRefused(INVALID_REQUEST, self.create("GC", idempotency_key="a key with spaces"))
+        self.assertApiRefused(IDEMPOTENCY_CONFLICT, self.create_folder("GC", idempotency_key="create-1"))
+        self.assertApiRefused(INVALID_REQUEST, self.create_folder("GC", idempotency_key="a key with spaces"))
 
     def test_a_folder_is_named_never_given_a_path(self):
         for name in ("C:\\Users\\lab\\HPLC", "/home/lab/HPLC", "HPLC/run-01", "..", "~lab"):
             with self.subTest(name=name):
-                self.assertApiRefused(INVALID_REQUEST, self.create(name))
+                self.assertApiRefused(INVALID_REQUEST, self.create_folder(name))
                 folder = self.api("PATCH", f"/folders/{self.folder.id}", {"name": name}, key=self.key)
                 self.assertApiRefused(INVALID_REQUEST, folder)
         self.assertEqual(self.folder.name, "HPLC")
@@ -95,7 +95,7 @@ class TestLaboratoryApiFolders(LaboratoryApiCase):
         for method, path in (("GET", "/folders"), ("GET", f"/folders/{self.folder.id}")):
             with self.subTest(path=path):
                 self.assertApiRefused(PERMISSION_DENIED, self.api(method, path, key=self.key))
-        self.assertApiRefused(PERMISSION_DENIED, self.create("AAS"))
+        self.assertApiRefused(PERMISSION_DENIED, self.create_folder("AAS"))
 
     def test_a_folder_the_person_is_not_a_member_of_is_not_found(self):
         for path in (f"/folders/{self.folder.id}", "/folders/0"):

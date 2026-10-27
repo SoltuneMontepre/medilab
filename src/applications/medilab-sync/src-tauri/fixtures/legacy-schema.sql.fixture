@@ -1,0 +1,71 @@
+-- Frozen pre-migration schema from e74b1f8 storage initialization.
+CREATE TABLE IF NOT EXISTS app_meta (
+                key TEXT PRIMARY KEY,
+                value TEXT NOT NULL
+            );
+            CREATE TABLE IF NOT EXISTS sync_folder (
+                id INTEGER PRIMARY KEY,
+                local_path TEXT NOT NULL UNIQUE,
+                remote_id INTEGER,
+                logical_root TEXT NOT NULL,
+                enabled INTEGER NOT NULL DEFAULT 1,
+                recursive INTEGER NOT NULL DEFAULT 1
+            );
+            CREATE TABLE IF NOT EXISTS sync_rule (
+                id INTEGER PRIMARY KEY,
+                folder_id INTEGER NOT NULL,
+                type TEXT NOT NULL,
+                pattern TEXT NOT NULL,
+                recursive INTEGER NOT NULL DEFAULT 1,
+                enabled INTEGER NOT NULL DEFAULT 1,
+                FOREIGN KEY(folder_id) REFERENCES sync_folder(id) ON DELETE CASCADE
+            );
+            CREATE TABLE IF NOT EXISTS sync_file (
+                id INTEGER PRIMARY KEY,
+                folder_id INTEGER NOT NULL,
+                relative_path TEXT NOT NULL,
+                size INTEGER NOT NULL,
+                mtime INTEGER NOT NULL,
+                sha256 TEXT,
+                remote_file_id INTEGER,
+                remote_version_id INTEGER,
+                status TEXT NOT NULL DEFAULT 'local',
+                UNIQUE(folder_id, relative_path),
+                FOREIGN KEY(folder_id) REFERENCES sync_folder(id) ON DELETE CASCADE
+            );
+            CREATE TABLE IF NOT EXISTS sync_job (
+                id INTEGER PRIMARY KEY,
+                folder_id INTEGER NOT NULL,
+                file_id INTEGER NOT NULL,
+                relative_path TEXT NOT NULL,
+                operation TEXT NOT NULL DEFAULT 'upload',
+                status TEXT NOT NULL,
+                attempt_count INTEGER NOT NULL DEFAULT 0,
+                next_retry_at INTEGER,
+                last_error TEXT,
+                bytes_total INTEGER NOT NULL DEFAULT 0,
+                bytes_done INTEGER NOT NULL DEFAULT 0,
+                remote_file_id INTEGER,
+                remote_version_id INTEGER,
+                session_id INTEGER,
+                uploaded_parts TEXT,
+                content_hash TEXT,
+                created_at INTEGER NOT NULL DEFAULT 0,
+                updated_at INTEGER NOT NULL DEFAULT 0,
+                FOREIGN KEY(folder_id) REFERENCES sync_folder(id) ON DELETE CASCADE,
+                FOREIGN KEY(file_id) REFERENCES sync_file(id) ON DELETE CASCADE
+            );
+            CREATE UNIQUE INDEX IF NOT EXISTS idx_active_job
+                ON sync_job(file_id, operation)
+                WHERE status IN ('pending','running','retry_wait');
+ALTER TABLE sync_file ADD COLUMN last_synced_hash TEXT;
+ALTER TABLE sync_file ADD COLUMN suppress_hash TEXT;
+ALTER TABLE sync_job ADD COLUMN target_version_number INTEGER;
+ALTER TABLE sync_folder ADD COLUMN sample_name TEXT;
+ALTER TABLE sync_folder ADD COLUMN sample_code TEXT;
+ALTER TABLE sync_folder ADD COLUMN category TEXT;
+ALTER TABLE sync_folder ADD COLUMN workflow_status TEXT;
+ALTER TABLE sync_folder ADD COLUMN instrument_label TEXT;
+ALTER TABLE sync_folder ADD COLUMN access_state TEXT;
+ALTER TABLE sync_job ADD COLUMN rerun_requested INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE sync_job ADD COLUMN part_size INTEGER;

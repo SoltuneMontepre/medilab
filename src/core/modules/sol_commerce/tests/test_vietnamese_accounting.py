@@ -13,18 +13,29 @@ class TestVietnameseAccounting(TransactionCase):
     def setUp(self):
         super().setUp()
         self.company = self.env.ref("base.main_company")
+        self.company_xmlid = "base.main_company"
         self.vnd = self.env.ref("base.VND")
         self.usd = self.env.ref("base.USD")
         self.addCleanup(vars(self.env.registry).pop, PENDING_CHART, None)
 
-    def use_generic_chart(self):
-        # Journal items that other test classes committed must not stop the company from starting over in USD.
-        with patch.object(type(self.company), "_existing_accounting", return_value=False):
-            self.company.write({"chart_template": "generic_coa", "currency_id": self.usd.id})
-
     def use_vietnamese_accounting(self, existing_accounting):
-        with patch.object(type(self.company), "_existing_accounting", return_value=existing_accounting):
+        with (
+            patch.object(type(self.company), "_existing_accounting", return_value=existing_accounting),
+            patch("odoo.addons.sol_commerce.hooks.MAIN_COMPANY", self.company_xmlid),
+        ):
             use_vietnamese_accounting(self.env)
+
+    def use_company_without_journal_items(self):
+        self.company = self.env["res.company"].create({"name": "Generic chart fixture", "currency_id": self.usd.id})
+        self.company_xmlid = "sol_commerce.test_generic_chart_company"
+        self.env["ir.model.data"].create(
+            {
+                "module": "sol_commerce",
+                "name": "test_generic_chart_company",
+                "model": "res.company",
+                "res_id": self.company.id,
+            }
+        )
 
     def test_the_company_has_the_vietnamese_chart_in_vnd_with_cash_and_bank_journals(self):
         self.assertEqual(self.company.chart_template, "vn")
@@ -34,8 +45,11 @@ class TestVietnameseAccounting(TransactionCase):
         self.assertTrue({"cash", "bank", "sale"} <= set(journals.mapped("type")))
 
     def test_a_company_on_the_generic_chart_moves_to_vnd_and_the_vietnamese_chart(self):
-        self.use_generic_chart()
-        pricelist = self.env["product.pricelist"].create({"name": "Default", "currency_id": self.usd.id})
+        self.use_company_without_journal_items()
+        self.company.write({"chart_template": "generic_coa", "currency_id": self.usd.id})
+        pricelist = self.env["product.pricelist"].create(
+            {"name": "Default", "company_id": self.company.id, "currency_id": self.usd.id}
+        )
 
         self.use_vietnamese_accounting(existing_accounting=False)
 
@@ -45,7 +59,8 @@ class TestVietnameseAccounting(TransactionCase):
         self.assertTrue(callable(getattr(self.env.registry, PENDING_CHART, None)))
 
     def test_a_company_with_journal_items_keeps_its_chart_and_currency(self):
-        self.use_generic_chart()
+        self.use_company_without_journal_items()
+        self.company.write({"chart_template": "generic_coa", "currency_id": self.usd.id})
 
         with self.assertLogs("odoo.addons.sol_commerce.hooks", level="WARNING"):
             self.use_vietnamese_accounting(existing_accounting=True)
