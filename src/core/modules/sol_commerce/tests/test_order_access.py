@@ -1,9 +1,11 @@
+from lxml import etree
+
 from odoo.exceptions import AccessError, UserError
 from odoo.fields import Command
-from odoo.tests import tagged
+from odoo.tests import new_test_user, tagged
 
 from .order_case import OrderCase
-from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
+from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER, MODEL_SALE_REPORT
 
 
 @tagged("post_install", "-at_install")
@@ -35,6 +37,57 @@ class TestOrderAccess(OrderCase):
 
         self.assertFalse(self.env[MODEL_SALE_ORDER].with_user(self.sales).search([("id", "=", draft.id)]))
         self.assertEqual(draft.with_user(self.head).order_status, "draft")
+
+    def test_a_salesperson_opens_an_order_taken_over_from_another(self):
+        # An invoice keeps the salesperson who sold it, whom the one taking the order over cannot read.
+        paid = self.make_confirmed_order()
+        unpaid = self.sent_order()
+        self.env["account.payment"].create_pending_payment(unpaid.invoice_ids, 1_000, "cash")
+        (paid | unpaid).write({"user_id": self.other_sales.id})
+        self.env.invalidate_all()
+        orders = self.env[MODEL_SALE_ORDER].with_user(self.other_sales)
+        form_fields = orders.get_views([(False, "form")])["models"][MODEL_SALE_ORDER]["fields"]
+
+        def opened(order):
+            [values] = orders.browse(order.id).web_read({name: {} for name in form_fields})
+            return values
+
+        self.assertFalse(paid.invoice_ids.with_user(self.other_sales).has_access("read"))
+        figures = ("invoice_count", "payment_status", "pending_amount")
+        self.assertEqual([opened(paid)[name] for name in figures], [1, "paid", 0])
+        self.assertEqual([opened(unpaid)[name] for name in figures], [1, "not_paid", 1_000])
+
+    def test_only_the_billing_group_opens_the_invoices_from_an_order(self):
+        orders = self.env[MODEL_SALE_ORDER]
+        invoicing = new_test_user(
+            self.env, login="order.invoicing", groups="base.group_user,account.group_account_invoice"
+        )
+
+        def invoices_buttons(user):
+            arch = etree.fromstring(orders.with_user(user).get_view(view_type="form")["arch"])
+            return arch.xpath("//button[@name='action_view_invoice']")
+
+        self.assertFalse(invoices_buttons(self.sales))
+        self.assertFalse(invoices_buttons(self.head))
+        self.assertTrue(invoices_buttons(invoicing))
+
+    def test_a_salesperson_analyses_only_their_own_orders(self):
+        mine = self.make_confirmed_order()
+        theirs = self.make_confirmed_order()
+        theirs.user_id = self.other_sales
+        self.env.flush_all()
+        names = (mine | theirs).mapped("name")
+        reports = self.env[MODEL_SALE_REPORT]
+
+        def analysed(user):
+            return {name for [name] in reports.with_user(user)._read_group([("name", "in", names)], ["name"])}
+
+        self.assertEqual(analysed(self.sales), {mine.name})
+        self.assertEqual(analysed(self.other_sales), {theirs.name})
+        self.assertEqual(analysed(self.head), set(names))
+        for user in (self.sales, self.other_sales):
+            dashboard = self.env[MODEL_SALE_ORDER].with_user(user).retrieve_sale_dashboard(30)
+            self.assertEqual(dashboard["orders"]["total"], 1)
 
     def test_sales_creates_an_order_for_a_customer(self):
         order = (
