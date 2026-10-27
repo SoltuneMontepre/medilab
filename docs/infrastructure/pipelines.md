@@ -7,7 +7,7 @@ What each GitHub Actions workflow in `.github/workflows/` does. How workflows ar
 | Workflow        | Runs on                                                                                 | Does                                                                                                                 |
 | --------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | `ci-core`       | every pull request and every push to `main`                                             | Lints, builds and tests the Odoo modules, runs the browser tests, then SonarQube Cloud.                              |
-| `ci-infra`      | every pull request                                                                      | Runs `terraform fmt`, `validate` and `plan` when `infra/` changes, and Ansible lint and origin isolation regression tests when their code changes. |
+| `ci-infra`      | every pull request                                                                      | Checks Terraform, Ansible, origin isolation and CloudBeaver when their code changes. |
 | `ci-tools`      | every pull request                                                                      | Runs the AI tooling tests, Ruff and the typecheck tooling tests when that tooling changes.                           |
 | `ci-sync-app`   | every pull request                                                                      | Checks the format, lints, tests and builds the sync app when it changes.                                             |
 | `ci-mobile-app` | every pull request                                                                      | Type-checks, lints and tests the mobile app, and builds it for Android and iOS, when it changes.                     |
@@ -34,7 +34,7 @@ flowchart LR
 - A push to `main` skips `lint` and `e2e`, which already passed on the pull request. When the merge changes anything SonarQube scans, it runs `build`, the test runners, `coverage` and `sonarqube`, so SonarQube Cloud analyses all of `main` with full coverage after each merge; otherwise it runs nothing. That analysis is the project's overall view: its issues, coverage and quality gate on `main`, against which pull requests are compared.
 - A manual run ignores what `changes` decides and runs every job.
 - `lint` runs `task typecheck` and `task test:typecheck`, then `task test:openapi`, then pylint-odoo inside the Odoo image. A type error fails it; see [Python](../conventions/python.md#type-checking).
-- `task test:openapi` lints the OpenAPI document of the laboratory files API with `openapi-spec-validator`, then compares it with the document on `main` with oasdiff, in its image pinned by digest. A change that breaks the document, such as removing a field or a route, fails unless it gives the document a new `info.version`. The tests of the routes check their answers against the same document; see [Testing](../conventions/testing.md#odoo-module-tests).
+- `task test:openapi` refuses a key that a mapping of the OpenAPI document of the laboratory files API defines twice, naming the key and its line, since YAML loaders silently keep the last value. It then lints the document with `openapi-spec-validator` and compares it with the document on `main` with oasdiff, in its image pinned by digest. A change that breaks the document, such as removing a field or a route, fails unless it gives the document a new `info.version`. The tests of the routes check their answers against the same document; see [Testing](../conventions/testing.md#odoo-module-tests).
 - The test runners and `e2e` reach the laboratory files bucket of the Garage server that Docker Compose starts; `garage-setup` sets it up once per run, before the modules install. It also adds `laboratory-files-other`, which Odoo's key may not reach, and `laboratory-files-reconcile`, which only the reconciliation tests use and empty, since the shards share one server. Production has neither ([#202](https://github.com/SoltuneMontepre/medilab/issues/202)).
 - `build` builds the production image into the GitHub Actions build cache and does not push it.
 - Four test runners each build the image again from that cache and load it as `medilab-odoo:ci`, so the tests run on the image that ships, with its Python requirements. Each runs its own copy of the test database per shard, four shards at once, one per runner CPU, and uploads its raw coverage data as a `coverage-data-<n>` artifact. The runners skip when the change is not relevant.
@@ -49,19 +49,21 @@ flowchart LR
 
 ## ci-tools
 
-Checks the developer tooling. `tools` is its required check: it fails unless `ai` and both `typecheck` jobs passed.
+Checks the developer tooling. `tools` is its required check: it fails unless `ai`, both `typecheck` jobs and both `logging` jobs passed.
 
 - The `ai` job detects whether the pull request touches `tools/odoo-intelligence`, the AI or dev taskfile, `infra/terraform.tf`, `odools.toml`, the coding client configs (`.mcp.json`, `.cursor/mcp.json`, `.codex/config.toml`, `.serena/project.yml`, `.claude/settings.json`) or the workflow. The dev taskfile and `infra/terraform.tf` hold the Odoo and Terraform pins that the tooling must match.
 - It runs `task ai:test`: the unit tests, the client config checks and Ruff. It uses no secrets, database or Doppler.
 - It does not install OdooLS, so the live OdooLS tests report skips and `task ai:verify` does not run; run both locally after `task ai:setup`.
 - `typecheck (Linux)` and `typecheck (Windows)` run the addon link safety and Pyright report tests of `tools/typecheck`, only when it or the workflow changes. Windows uses real directory junctions to verify that cleanup preserves unmanaged links and target files.
+- `logging (Linux)` and `logging (Windows)` run `task test:logging` and `task test:taskfiles` when the logging helpers, Task entrypoint, included taskfiles, module list, regression tests or their setup dependencies change. The module selection tests compile the real Task entrypoint and replace Python with a temporary probe for test environments, stopping before any container or database operation.
 
 ## ci-infra and cd-infra
 
 - Both read the `dev` Doppler config through the `DOPPLER_TOKEN` Actions secret; see [Secrets](secrets.md).
 - Both authenticate to HCP Terraform with the `TF_API_TOKEN` Actions secret.
 - The `ansible` job of `ci-infra` runs `ansible-lint` with the `production` profile inside the Ansible image and the origin isolation script's syntax and regression tests, when `infra/ansible/`, `tools/ansible/`, the script or its tests change. It uses no secrets and never reaches a node.
-- `infrastructure` is the required check of `ci-infra`: it fails unless `terraform` and `ansible` both passed.
+- The `cloudbeaver` job runs CloudBeaver 26.2.2 and PostgreSQL 18.4 container regressions, then a disposable kind Kubernetes 1.36.4 cluster with Traefik 3.7.13, when manifests, helpers or tests change. It uses synthetic credentials, local volumes and an explicitly isolated context, with no production access or secrets. It checks bootstrap classification, concurrent writers, immediate process termination, original-password login, preserved subjects/settings/connections/credentials, JSON ambiguity and escaping, authenticated readiness, PVC retention, Pod replacement, EndpointSlices and actual Service/IngressRoute availability. The Kubernetes harness refuses any context, API address or node identity outside its named disposable cluster.
+- `infrastructure` is the required check of `ci-infra`: it fails unless `terraform`, `ansible` and `cloudbeaver` all passed.
 
 ## cd-ansible
 
@@ -160,7 +162,7 @@ flowchart LR
 - `rollback` runs only when `verify` fails:
   1. Commits one `[fix] Roll back release <short SHA>` commit to `main` that sets the image tag in `infra/cluster/` back to the previous release and reverts the commits of the release, which are the commits since the previous release that changed `src/core` or `tools/dockerfiles`: one in `continuous` mode and every such change in `window` mode, so `main` again matches what runs. Argo CD returns to the previous image. When the revert conflicts with a commit merged after the release, the commit only sets the tag back, and the draft pull request below is also labelled `release-blocked`, so `release` stops until it is merged or closed.
   2. Creates the branch `fix/redeploy-<short SHA>` from the new `main` and cherry-picks the commits of the release onto it, so the changes are kept.
-  3. Opens a draft pull request from that branch, titled `[fix] Redeploy release <short SHA>`, assigned to the authors of the commits and labelled `failed-release`. Its body lists the commits, links the failed run, and holds the Argo CD status, the last 100 lines of each container of the `odoo-upgrade` Job and the last 30 lines of the Odoo replicas, each line cut to 250 characters so that the body fits a pull request.
+  3. Opens a draft pull request from that branch, titled `[fix] Redeploy release <short SHA>`, assigned to the authors of the commits and labelled `failed-release`. Its body lists the commits, links the failed run, and holds the Argo CD status, the last 100 lines of the `odoo-upgrade` Job and the last 30 lines of the Odoo replicas, each line cut to 250 characters so that the body fits a pull request.
   4. Fails the run, so the failure shows on the release commit.
 - The release and rollback commits on `main` carry `[skip ci]`, so they start no workflow and the rollback does not start `cd-core` again. The redeploy pull request's pipelines run as for any pull request.
 - A rollback does not restore the database. When the upgrade Job failed, Odoo rolled back its own transaction and the schema is unchanged. When the upgrade succeeded and the replicas then failed, the previous image runs on the newer schema; the pre-sync backup is there to restore by hand.

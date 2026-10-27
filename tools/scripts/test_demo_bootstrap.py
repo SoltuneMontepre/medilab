@@ -2,6 +2,7 @@ import json
 import os
 import runpy
 import socket
+import subprocess
 import tempfile
 import unittest
 import uuid
@@ -695,8 +696,83 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
                 "MEDILAB_GARAGE_ADMIN_PORT": "3903",
                 "MEDILAB_CLOUDBEAVER_PORT": "8978",
             }
-            with self.assertRaisesRegex(BootstrapError, "unavailable"):
+            with (
+                patch("demo_bootstrap._published_ports", return_value=set()),
+                self.assertRaisesRegex(BootstrapError, "unavailable"),
+            ):
                 _assert_ports_available(ports)
+
+    def test_published_host_port_fails_although_a_bind_accepts_it(self):
+        ports = {
+            "MEDILAB_ODOO_PORT": "28069",
+            "MEDILAB_DB_PORT": "25432",
+            "MEDILAB_GARAGE_PORT": "32539",
+            "MEDILAB_GARAGE_ADMIN_PORT": "23903",
+            "MEDILAB_CLOUDBEAVER_PORT": "28978",
+        }
+
+        with (
+            patch("demo_bootstrap._published_ports", return_value={32539}),
+            patch("demo_bootstrap.socket.socket"),
+            self.assertRaisesRegex(
+                BootstrapError, "Port 32539 from MEDILAB_GARAGE_PORT is unavailable"
+            ),
+        ):
+            _assert_ports_available(ports)
+
+    def test_published_ports_read_bindings_of_running_and_stopped_containers(self):
+        containers = [
+            {
+                "HostConfig": {
+                    "PortBindings": {
+                        "8069/tcp": [{"HostIp": "", "HostPort": "32539"}],
+                        "3903/tcp": [{"HostIp": "127.0.0.1", "HostPort": "28437"}],
+                        "8000/tcp": [{"HostIp": "", "HostPort": "21000-21002"}],
+                        "8978/tcp": [{"HostIp": "", "HostPort": ""}],
+                    }
+                },
+                "NetworkSettings": {
+                    "Ports": {
+                        "8069/tcp": [
+                            {"HostIp": "0.0.0.0", "HostPort": "32539"},
+                            {"HostIp": "::", "HostPort": "32539"},
+                        ],
+                        "8978/tcp": [{"HostIp": "0.0.0.0", "HostPort": "31269"}],
+                        "5432/tcp": None,
+                    }
+                },
+            },
+            {"HostConfig": {"PortBindings": None}, "NetworkSettings": {"Ports": {}}},
+        ]
+        outputs = {
+            "ps": "running-id\nstopped-id\n",
+            "inspect": json.dumps(containers),
+        }
+
+        with patch(
+            "demo_bootstrap._run",
+            side_effect=lambda args, **_kwargs: subprocess.CompletedProcess(
+                args, 0, stdout=outputs[args[1]]
+            ),
+        ) as run:
+            ports = demo_bootstrap._published_ports()
+
+        self.assertEqual(ports, {21000, 21001, 21002, 28437, 31269, 32539})
+        self.assertEqual(
+            [call.args[0] for call in run.call_args_list],
+            [
+                ["docker", "ps", "--all", "--quiet"],
+                ["docker", "inspect", "running-id", "stopped-id"],
+            ],
+        )
+
+    def test_published_ports_are_empty_without_containers(self):
+        with patch(
+            "demo_bootstrap._run",
+            return_value=subprocess.CompletedProcess([], 0, stdout=""),
+        ) as run:
+            self.assertEqual(demo_bootstrap._published_ports(), set())
+        run.assert_called_once()
 
     def test_reset_refuses_unowned_environments_before_removing_resources(self):
         with (
@@ -710,6 +786,145 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
             reset()
 
         run.assert_not_called()
+
+    def test_reset_discards_a_completed_environment_whose_volumes_are_missing(self):
+        with tempfile.TemporaryDirectory() as directory:
+            project, config, _marker, marker_path = self.completed_selection(
+                Path(directory)
+            )
+            remaining = config["MEDILAB_DB_VOLUME"]
+            resources = {
+                "containers": [],
+                "networks": [],
+                "volumes": [{"Name": remaining}],
+            }
+            with (
+                patch("demo_bootstrap.MARKER", marker_path),
+                patch("demo_bootstrap.project_name", return_value=project),
+                patch("demo_bootstrap._assert_local_engine"),
+                patch("demo_bootstrap._assert_owned_resources", return_value=resources),
+                patch("demo_bootstrap._owned_volume_names", return_value=(remaining,)),
+                patch("builtins.input", return_value="owner"),
+                patch("demo_bootstrap._run") as run,
+            ):
+                reset()
+            run.assert_called_once_with(["docker", "volume", "rm", remaining])
+            self.assertEqual(json.loads(marker_path.read_text())["status"], "discarded")
+
+    def test_reset_refuses_volumes_outside_the_completed_marker(self):
+        with tempfile.TemporaryDirectory() as directory:
+            project, config, marker, marker_path = self.completed_selection(
+                Path(directory)
+            )
+            foreign = f"{project}_db_other"
+            with (
+                patch("demo_bootstrap.MARKER", marker_path),
+                patch("demo_bootstrap.project_name", return_value=project),
+                patch("demo_bootstrap._assert_local_engine"),
+                patch(
+                    "demo_bootstrap._assert_owned_resources",
+                    return_value={"containers": [], "networks": [], "volumes": []},
+                ),
+                patch(
+                    "demo_bootstrap._owned_volume_names",
+                    return_value=(config["MEDILAB_APP_VOLUME"], foreign),
+                ),
+                patch("builtins.input") as confirm,
+                patch("demo_bootstrap._run") as run,
+                self.assertRaisesRegex(BootstrapError, foreign),
+            ):
+                reset()
+            confirm.assert_not_called()
+            run.assert_not_called()
+            self.assertEqual(json.loads(marker_path.read_text()), marker)
+
+    def test_reset_refuses_empty_selection_on_a_different_container_engine(self):
+        with tempfile.TemporaryDirectory() as directory:
+            project, _config, marker, marker_path = self.completed_selection(
+                Path(directory)
+            )
+            marker["engine"] = "unix:///var/run/docker.sock"
+            marker_path.write_text(json.dumps(marker), encoding="utf-8")
+            with (
+                patch("demo_bootstrap.MARKER", marker_path),
+                patch("demo_bootstrap.project_name", return_value=project),
+                patch(
+                    "demo_bootstrap._assert_local_engine",
+                    return_value="unix:///home/dev/.docker/desktop/docker.sock",
+                ),
+                patch(
+                    "demo_bootstrap._assert_owned_resources",
+                    return_value={"containers": [], "networks": [], "volumes": []},
+                ),
+                patch("demo_bootstrap._owned_volume_names", return_value=()),
+                patch("builtins.input") as confirm,
+                patch("demo_bootstrap._run") as run,
+                self.assertRaisesRegex(
+                    BootstrapError,
+                    "selected container engine does not match",
+                ),
+            ):
+                reset()
+            confirm.assert_not_called()
+            run.assert_not_called()
+            self.assertEqual(json.loads(marker_path.read_text()), marker)
+
+    def test_reset_discards_empty_selection_when_saved_engine_matches(self):
+        with tempfile.TemporaryDirectory() as directory:
+            project, _config, marker, marker_path = self.completed_selection(
+                Path(directory)
+            )
+            marker["engine"] = "unix:///var/run/docker.sock"
+            marker_path.write_text(json.dumps(marker), encoding="utf-8")
+            with (
+                patch("demo_bootstrap.MARKER", marker_path),
+                patch("demo_bootstrap.project_name", return_value=project),
+                patch(
+                    "demo_bootstrap._assert_local_engine",
+                    return_value="unix:///var/run/docker.sock",
+                ),
+                patch(
+                    "demo_bootstrap._assert_owned_resources",
+                    return_value={"containers": [], "networks": [], "volumes": []},
+                ),
+                patch("demo_bootstrap._owned_volume_names", return_value=()),
+                patch("builtins.input", return_value="owner"),
+                patch("demo_bootstrap._run") as run,
+            ):
+                reset()
+            run.assert_not_called()
+            self.assertEqual(json.loads(marker_path.read_text())["status"], "discarded")
+
+    def test_free_ports_stay_below_dynamic_ranges_and_skip_busy_ports(self):
+        busy = set(range(20000, 32768, 2))
+        with (
+            patch("demo_bootstrap._published_ports", return_value=set()),
+            patch(
+                "demo_bootstrap._port_is_free",
+                side_effect=lambda _host, port, _published: port not in busy,
+            ),
+        ):
+            ports = demo_bootstrap._free_ports()
+
+        values = [int(port) for port in ports.values()]
+        self.assertEqual(set(ports), set(demo_bootstrap.PORT_KEYS))
+        self.assertEqual(len(set(values)), len(values))
+        for port in values:
+            self.assertIn(port, range(20000, 32768))
+            self.assertNotIn(port, busy)
+
+    def test_free_ports_skip_published_ports_that_a_bind_accepts(self):
+        unpublished = {20001, 20002, 20003, 20004, 20005}
+        with (
+            patch(
+                "demo_bootstrap._published_ports",
+                return_value=set(range(20000, 32768)) - unpublished,
+            ),
+            patch("demo_bootstrap.socket.socket"),
+        ):
+            ports = demo_bootstrap._free_ports()
+
+        self.assertEqual({int(port) for port in ports.values()}, unpublished)
 
     def test_accounting_foundation_precedes_application_install(self):
         calls = []

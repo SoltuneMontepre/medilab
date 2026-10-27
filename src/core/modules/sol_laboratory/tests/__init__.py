@@ -165,6 +165,7 @@ from . import (
     test_settings,
     test_signed_pdf_verification,
     test_signing_certificates,
+    test_step_room_bookings,
     test_subcontract_dispatch,
     test_subcontractor,
     test_subcontractor_selection,

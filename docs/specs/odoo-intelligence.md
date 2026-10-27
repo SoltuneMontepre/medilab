@@ -12,7 +12,7 @@ Expose definition, references, hover, completion, document symbols and published
 
 Configure the bridge as project tooling for Claude Code, Codex and Cursor Agent. Native LSP is optional for Claude Code; MCP is the common navigation interface. Use the official Odoo VS Code extension in Cursor's editor. Editor activation and Agent MCP access require separate verification.
 
-Serena should use its built-in Python server alongside TypeScript, Terraform and HTML. It retains symbol search, references and editing rather than routing these through the Odoo adapter, which lacks rename support. Launch a pinned Serena environment locally and retain its Claude hooks. Keep the other MCP definitions intact.
+Serena should use its built-in Python server alongside TypeScript, Terraform and HTML. It retains symbol search, references and editing rather than routing these through the Odoo adapter, which lacks rename support. Launch a pinned Serena environment locally with lifecycle hooks for Claude Code and Codex. Keep the other MCP definitions intact.
 
 Each worktree owns its Python environment, source mirror and configuration. Each bridge process owns a distinct log directory and disables OdooLS's on-disk file cache. Do not search ancestors for another checkout's binary or addons, use fixed TCP ports, reinstall global tools, or stop other clients. Serialize installation and publish verified downloads atomically. Existing processes may continue using their versioned binaries.
 

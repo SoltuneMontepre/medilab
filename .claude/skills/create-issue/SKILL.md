@@ -5,7 +5,7 @@ description: Turn a feature from the MediLab functional documents into a GitHub 
 
 # Create issue
 
-Follow [.agent/skills/create-issue/SKILL.md](../../../.agent/skills/create-issue/SKILL.md).
+Follow [.agents/skills/create-issue/SKILL.md](../../../.agents/skills/create-issue/SKILL.md).
 
 In Claude Code:
 

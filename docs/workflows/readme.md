@@ -13,6 +13,8 @@ Step-by-step procedures for recurring tasks.
 - [Running Medilab Mobile](running-mobile-app.md): run the mobile app on a phone, an emulator or a simulator against a MediLab server
 - [Provisioning a node](provisioning-node.md): give Ansible access to a machine from the VPS web console and Doppler, then check, inspect, preview and apply k3s and Argo CD with `cd-ansible`
 - [Moving a node](moving-node.md): replace a production node, such as the Azure witness, with another machine without stopping the system
+- [CloudBeaver recovery](cloudbeaver-recovery.md): classify installation state, back up the workspace, review recovery and validate a GitOps rollout or rollback
+- [Cypress Tap and AI Skills](cypress-tap.md): author, review and debug browser tests with the project's skills and live E2E session
 - [Odoo intelligence](odoo-intelligence.md): install and verify Odoo navigation across coding clients and isolated worktrees
 - [Office documents](office-documents.md): install OfficeCLI and read or edit the `.docx`, `.xlsx` and `.pptx` files in `docs`
 - [Reviewing task links](reviewing-task-links.md): after the upgrade that locks task links, review the tasks the audit trail cannot verify before calling production secure

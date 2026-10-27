@@ -6,6 +6,7 @@ The recovery command only removes resources whose Compose project and bootstrap 
 
 import json
 import os
+import random
 import re
 import socket
 import subprocess
@@ -43,6 +44,21 @@ ODOO_DATABASE_ARGUMENTS = (
 INTERRUPTED_SWITCH_ERROR = (
     "An interrupted project switch exists; run `task setup:fresh:switch:recover`."
 )
+VOLUME_KEYS = (
+    "MEDILAB_DB_VOLUME",
+    "MEDILAB_GARAGE_VOLUME",
+    "MEDILAB_APP_VOLUME",
+    "MEDILAB_CLOUDBEAVER_VOLUME",
+)
+PORT_KEYS = (
+    "MEDILAB_ODOO_PORT",
+    "MEDILAB_DB_PORT",
+    "MEDILAB_GARAGE_PORT",
+    "MEDILAB_GARAGE_ADMIN_PORT",
+    "MEDILAB_CLOUDBEAVER_PORT",
+)
+# Below the dynamic ranges that Linux (32768+) and Windows (49152+) hand out and reserve.
+SELECTED_PORT_RANGE = range(20000, 32768)
 MODULES = [
     line.strip()
     for line in (ROOT / "src/core/modules.txt").read_text().splitlines()
@@ -80,6 +96,7 @@ def _assert_local_context(context, source):
         raise BootstrapError(
             f"The {source} container context is not local; refusing fresh bootstrap."
         )
+    return host
 
 
 def _assert_local_engine():
@@ -90,17 +107,36 @@ def _assert_local_engine():
             "The configured container engine is not local; refusing fresh bootstrap."
         )
     if context:
-        _assert_local_context(context, "configured")
-    elif not endpoint:
-        result = _run(["docker", "context", "show"], capture_output=True, check=False)
-        if result.returncode == 0:
-            _assert_local_context(result.stdout.strip(), "selected")
-        else:
-            version = _run(["docker", "--version"], capture_output=True, check=False)
-            if "podman" not in version.stdout.lower():
-                raise BootstrapError(
-                    "Could not verify that the selected container engine is local."
-                )
+        host = _assert_local_context(context, "configured")
+        return endpoint or host
+    if endpoint:
+        return endpoint
+    result = _run(["docker", "context", "show"], capture_output=True, check=False)
+    if result.returncode == 0:
+        return _assert_local_context(result.stdout.strip(), "selected")
+    version = _run(["docker", "--version"], capture_output=True, check=False)
+    if "podman" not in version.stdout.lower():
+        raise BootstrapError(
+            "Could not verify that the selected container engine is local."
+        )
+    return "podman"
+
+
+def _record_engine(marker, engine):
+    if isinstance(engine, str) and engine:
+        marker["engine"] = engine
+
+
+def _assert_matching_engine(marker, engine, resources, missing):
+    saved_engine = marker.get("engine")
+    if saved_engine and (not isinstance(engine, str) or engine != saved_engine):
+        raise BootstrapError(
+            "Reset refused: the selected container engine does not match the completed bootstrap marker."
+        )
+    if missing and not saved_engine and not any(resources.values()):
+        raise BootstrapError(
+            "Reset refused: cannot verify that the selected container engine owns the missing volumes."
+        )
 
 
 def _read_marker():
@@ -196,27 +232,113 @@ def _fresh_config(project, owner, selected_ports=None):
     }
 
 
-def _free_ports():
-    keys = (
-        "MEDILAB_ODOO_PORT",
-        "MEDILAB_DB_PORT",
-        "MEDILAB_GARAGE_PORT",
-        "MEDILAB_GARAGE_ADMIN_PORT",
-        "MEDILAB_CLOUDBEAVER_PORT",
-    )
-    probes = []
+def _port_host(key):
+    return "127.0.0.1" if key == "MEDILAB_GARAGE_ADMIN_PORT" else "0.0.0.0"
+
+
+def _host_port_range(value):
+    start, _separator, end = (value or "").partition("-")
+    if not start.isdigit():
+        return range(0)
+    return range(int(start), int(end if end.isdigit() else start) + 1)
+
+
+def _published_ports():
+    """Return the host ports that containers publish, running or stopped; Docker Desktop still lets a socket bind them."""
+    result = _run(["docker", "ps", "--all", "--quiet"], capture_output=True)
+    identities = result.stdout.split()
+    if not identities:
+        return set()
+    result = _run(["docker", "inspect", *identities], capture_output=True)
+    ports = set()
+    for container in json.loads(result.stdout):
+        for bindings in (
+            *((container.get("HostConfig") or {}).get("PortBindings") or {}).values(),
+            *((container.get("NetworkSettings") or {}).get("Ports") or {}).values(),
+        ):
+            for binding in bindings or ():
+                ports.update(_host_port_range(binding.get("HostPort")))
+    return ports
+
+
+def _port_is_free(host, port, published):
+    if port in published:
+        return False
+    probe = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        for _key in keys:
-            probe = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            probe.bind(("0.0.0.0", 0))
-            probes.append(probe)
-        return {
-            key: str(probe.getsockname()[1])
-            for key, probe in zip(keys, probes, strict=True)
-        }
+        probe.bind((host, port))
+    except OSError:
+        return False
     finally:
-        for probe in probes:
-            probe.close()
+        probe.close()
+    return True
+
+
+def _free_ports():
+    published = _published_ports()
+    candidates = iter(
+        random.SystemRandom().sample(SELECTED_PORT_RANGE, len(SELECTED_PORT_RANGE))
+    )
+    ports = {}
+    for key in PORT_KEYS:
+        port = next(
+            (
+                port
+                for port in candidates
+                if _port_is_free(_port_host(key), port, published)
+            ),
+            None,
+        )
+        if port is None:
+            raise BootstrapError(
+                f"No free host port is left between {SELECTED_PORT_RANGE.start} and {SELECTED_PORT_RANGE.stop - 1} for {key}."
+            )
+        ports[key] = str(port)
+    return ports
+
+
+def _volume_mismatch(config, actual):
+    expected = {config[key] for key in VOLUME_KEYS}
+    return sorted(expected - set(actual)), sorted(set(actual) - expected)
+
+
+def _volume_mismatch_message(missing, unexpected):
+    if unexpected:
+        return f"Owned volumes {', '.join(unexpected)} are not in the saved Compose configuration; refusing to proceed."
+    return f"Persistent volumes {', '.join(missing)} of the completed bootstrap no longer exist; run `task reset` to discard what remains and create a new environment."
+
+
+def _reselect(existing, project):
+    """Accept a repeated selection only when it matches the saved marker and resources."""
+    if (
+        existing.get("project") != project
+        or not existing.get("selected_project")
+        or existing.get("worktree") != str(ROOT)
+        or existing.get("lifecycle_version") != 2
+        or existing.get("status") not in ("selected", "completed")
+        or (
+            existing.get("status") == "completed"
+            and existing.get("handoff_verified") is not True
+        )
+    ):
+        raise BootstrapError(
+            "This worktree already has a different or incomplete fresh bootstrap; refusing to replace its ownership marker."
+        )
+    config = existing["config"]
+    persisted = _read_compose_env()
+    if any(persisted.get(key) != value for key, value in config.items()):
+        raise BootstrapError(
+            "The saved Compose selection differs from .env; refusing to select an ambiguous environment."
+        )
+    if existing["status"] == "selected":
+        _assert_no_resources(project)
+    else:
+        missing, unexpected = _volume_mismatch(
+            config, _owned_volume_names(project, existing["owner"])
+        )
+        if missing or unexpected:
+            raise BootstrapError(_volume_mismatch_message(missing, unexpected))
+    print(f"Compose project {project} is already selected ({existing['status']}).")
 
 
 def select(project):
@@ -224,48 +346,12 @@ def select(project):
         raise BootstrapError(
             "Use a new project name beginning with medilab-bootstrap- and containing only lowercase letters, digits, _ or -."
         )
-    _assert_local_engine()
+    engine = _assert_local_engine()
     if SWITCH_JOURNAL.exists():
         raise BootstrapError(INTERRUPTED_SWITCH_ERROR)
     existing = _read_marker()
     if existing:
-        if (
-            existing.get("project") != project
-            or not existing.get("selected_project")
-            or existing.get("worktree") != str(ROOT)
-            or existing.get("lifecycle_version") != 2
-            or existing.get("status") not in ("selected", "completed")
-            or (
-                existing.get("status") == "completed"
-                and existing.get("handoff_verified") is not True
-            )
-        ):
-            raise BootstrapError(
-                "This worktree already has a different or incomplete fresh bootstrap; refusing to replace its ownership marker."
-            )
-        config = existing["config"]
-        persisted = _read_compose_env()
-        if any(persisted.get(key) != value for key, value in config.items()):
-            raise BootstrapError(
-                "The saved Compose selection differs from .env; refusing to select an ambiguous environment."
-            )
-        if existing["status"] == "selected":
-            _assert_no_resources(project)
-        else:
-            expected = {
-                config[key]
-                for key in (
-                    "MEDILAB_DB_VOLUME",
-                    "MEDILAB_GARAGE_VOLUME",
-                    "MEDILAB_APP_VOLUME",
-                    "MEDILAB_CLOUDBEAVER_VOLUME",
-                )
-            }
-            if set(_owned_volume_names(project, existing["owner"])) != expected:
-                raise BootstrapError(
-                    "The selected project's persistent volumes do not match its ownership marker."
-                )
-        print(f"Compose project {project} is already selected ({existing['status']}).")
+        _reselect(existing, project)
         return
     _assert_no_resources(project)
     owner = str(uuid.uuid4())
@@ -281,6 +367,7 @@ def select(project):
         "status": "selected",
         "worktree": str(ROOT),
     }
+    _record_engine(marker, engine)
     _write_marker(marker)
     _write_compose_env(config)
     print(
@@ -314,18 +401,14 @@ def _validate_completed_selection(marker, project):
 def _verify_completed_selection(marker, project):
     config = _validate_completed_selection(marker, project)
     _assert_owned_resources(project, marker["owner"])
-    expected = {
-        config[key]
-        for key in (
-            "MEDILAB_DB_VOLUME",
-            "MEDILAB_GARAGE_VOLUME",
-            "MEDILAB_APP_VOLUME",
-            "MEDILAB_CLOUDBEAVER_VOLUME",
-        )
-    }
-    if set(_owned_volume_names(project, marker["owner"])) != expected:
+    missing, unexpected = _volume_mismatch(
+        config, _owned_volume_names(project, marker["owner"])
+    )
+    if unexpected:
+        raise BootstrapError(_volume_mismatch_message(missing, unexpected))
+    if missing:
         raise BootstrapError(
-            "Owned persistent volumes do not match the saved Compose selection."
+            f"Persistent volumes {', '.join(missing)} of Compose project {project!r} no longer exist."
         )
 
 
@@ -422,7 +505,7 @@ def switch(project):
         raise BootstrapError(
             "Use a medilab-bootstrap- project name to switch selections."
         )
-    _assert_local_engine()
+    engine = _assert_local_engine()
     if SWITCH_JOURNAL.exists():
         raise BootstrapError(INTERRUPTED_SWITCH_ERROR)
     current = _read_marker()
@@ -453,6 +536,7 @@ def switch(project):
             "status": "selected",
             "worktree": str(ROOT),
         }
+        _record_engine(target, engine)
 
     _archive_current_selection(current)
     _write_switch_journal(current, target)
@@ -512,33 +596,21 @@ def recover_switch():
 
 
 def _assert_ports_available(config):
-    keys = (
-        "MEDILAB_ODOO_PORT",
-        "MEDILAB_DB_PORT",
-        "MEDILAB_GARAGE_PORT",
-        "MEDILAB_GARAGE_ADMIN_PORT",
-        "MEDILAB_CLOUDBEAVER_PORT",
-    )
     seen = {}
-    for key in keys:
+    for key in PORT_KEYS:
         port = int(config[key])
         if port in seen:
             raise BootstrapError(
                 f"{key} and {seen[port]} use the same host port {port}; configured ports must be distinct."
             )
         seen[port] = key
-    for key in keys:
+    published = _published_ports()
+    for key in PORT_KEYS:
         port = int(config[key])
-        host = "127.0.0.1" if key == "MEDILAB_GARAGE_ADMIN_PORT" else "0.0.0.0"
-        probe = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        try:
-            probe.bind((host, port))
-        except OSError as error:
+        if not _port_is_free(_port_host(key), port, published):
             raise BootstrapError(
-                f"Port {port} from {key} is unavailable; no bootstrap resources were changed. Set a free port in {COMPOSE_ENV_FILE} and retry only after checking the environment state."
-            ) from error
-        finally:
-            probe.close()
+                f"Port {port} from {key} is unavailable; no bootstrap resources were changed. Set a free port below {SELECTED_PORT_RANGE.stop} in {COMPOSE_ENV_FILE} and retry only after checking the environment state."
+            )
 
 
 def _create_owned_volumes(project, owner, config):
@@ -1068,17 +1140,10 @@ def _resume_setup(project, marker):
     owner = marker["owner"]
     config = marker["config"]
     _assert_owned_resources(project, owner)
-    actual_volumes = set(_owned_volume_names(project, owner))
-    expected_volumes = {
-        config[key]
-        for key in (
-            "MEDILAB_DB_VOLUME",
-            "MEDILAB_GARAGE_VOLUME",
-            "MEDILAB_APP_VOLUME",
-            "MEDILAB_CLOUDBEAVER_VOLUME",
-        )
-    }
-    if actual_volumes != expected_volumes:
+    missing, unexpected = _volume_mismatch(config, _owned_volume_names(project, owner))
+    if marker.get("status") == "completed" and (missing or unexpected):
+        raise BootstrapError(_volume_mismatch_message(missing, unexpected))
+    if missing or unexpected:
         raise BootstrapError(
             "The bootstrap volume identities differ from the saved environment configuration; refusing handoff."
         )
@@ -1106,7 +1171,7 @@ def _resume_setup(project, marker):
 
 
 def setup():
-    _assert_local_engine()
+    engine = _assert_local_engine()
     project = project_name()
     marker = _read_marker()
     _validate_setup_marker(project, marker)
@@ -1136,6 +1201,7 @@ def setup():
         "project": project,
         "status": "creating",
     }
+    _record_engine(marker, engine)
     _write_marker(marker)
     _write_compose_env(config)
     env = _compose_environment(project, owner, config)
@@ -1342,7 +1408,7 @@ def recover():
 
 
 def reset():
-    _assert_local_engine()
+    engine = _assert_local_engine()
     marker = _read_marker()
     if (
         not marker
@@ -1359,19 +1425,14 @@ def reset():
             "Reset refused: the completed bootstrap belongs to a different Compose project."
         )
     resources = _assert_owned_resources(project, marker["owner"])
-    expected_volumes = {
-        marker["config"][key]
-        for key in (
-            "MEDILAB_DB_VOLUME",
-            "MEDILAB_GARAGE_VOLUME",
-            "MEDILAB_APP_VOLUME",
-            "MEDILAB_CLOUDBEAVER_VOLUME",
-        )
-    }
-    if set(_owned_volume_names(project, marker["owner"])) != expected_volumes:
+    missing, unexpected = _volume_mismatch(
+        marker["config"], _owned_volume_names(project, marker["owner"])
+    )
+    if unexpected:
         raise BootstrapError(
-            "Reset refused: owned persistent volume identities do not match the completed bootstrap marker."
+            f"Reset refused: owned volumes {', '.join(unexpected)} are not in the completed bootstrap marker."
         )
+    _assert_matching_engine(marker, engine, resources, missing)
     summary = {
         kind: [
             item.get("Name") or item.get("name") or item.get("Id") or item.get("id")
@@ -1379,7 +1440,16 @@ def reset():
         ]
         for kind, items in resources.items()
     }
-    print(json.dumps({"project": project, "resources": summary}, indent=2))
+    print(
+        json.dumps(
+            {"project": project, "resources": summary, "missing_volumes": missing},
+            indent=2,
+        )
+    )
+    if missing:
+        print(
+            "The missing volumes cannot be restored; reset discards what remains of this environment."
+        )
     confirmation = input(
         f"Type {marker['owner']} to delete only this verified local demo environment and recreate it: "
     )

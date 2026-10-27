@@ -47,13 +47,20 @@ def test_clients_read_the_database_without_writing():
         assert not any(arg.startswith("postgres-mcp") and arg != "postgres-mcp==0.3.0" for arg in args), name
 
 
-def test_claude_hooks_run_serena_from_this_worktree():
+def test_claude_hooks_run_through_the_launcher_without_shell_variables():
     settings = json.loads((ROOT / ".claude/settings.json").read_text())
     commands = [hook["command"] for event in settings["hooks"].values() for entry in event for hook in entry["hooks"]]
-    serena = [command for command in commands if "serena-hooks" in command]
-    assert len(serena) == 4
-    prefix = 'uv run --locked --project "$CLAUDE_PROJECT_DIR/tools/odoo-intelligence" medilab-odoo serena-hooks '
-    assert all(command.startswith(prefix) for command in serena)
+    command, args = launcher(CLAUDE["odoo"])
+    prefix = f'{command} {" ".join(args[:-1])} "{args[-1]}" '
+    assert all(command.startswith(prefix) for command in commands)
+    assert not any("$" in command for command in commands)
+    assert sorted(command.removeprefix(prefix) for command in commands) == [
+        "hook-git-message",
+        "hook-serena-activate",
+        "hook-serena-auto-approve",
+        "hook-serena-cleanup",
+        "hook-serena-remind",
+    ]
 
 
 def test_serena_uses_its_built_in_python_server():
@@ -62,9 +69,20 @@ def test_serena_uses_its_built_in_python_server():
     assert "odoo" not in project["language_servers"]
 
 
-def test_launcher_starts_only_the_client_servers_with_fixed_arguments():
+def test_launcher_starts_only_the_client_servers_and_hooks_with_fixed_arguments():
     launcher = str(ROOT / "tools/odoo-intelligence/run.py")
-    for arguments in [["install"], ["mcp", "--root", "/"], ["serena", "start-mcp-server"]]:
+    for arguments in [["install"], ["mcp", "--root", "/"], ["serena", "start-mcp-server"], ["hook-git-message", "x"]]:
         result = subprocess.run([sys.executable, launcher, *arguments], capture_output=True, text=True)
         assert result.returncode == 1, arguments
-        assert "mcp, serena-claude-code, serena-ide" in result.stderr, arguments
+        assert "mcp, serena-claude-code, serena-ide, hook-serena-activate" in result.stderr, arguments
+        assert "hook-git-message" in result.stderr, arguments
+
+
+def test_launcher_passes_the_git_message_hook_exit_code():
+    launcher = str(ROOT / "tools/odoo-intelligence/run.py")
+    payload = json.dumps({"tool_input": {"command": "git commit -m 'no type'"}})
+    result = subprocess.run(
+        [sys.executable, launcher, "hook-git-message"], input=payload, cwd=ROOT / "src", capture_output=True, text=True
+    )
+    assert result.returncode == 2
+    assert "must be '[<type>] <title>'" in result.stderr

@@ -10,7 +10,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "uv run --no-project python \"$CLAUDE_PROJECT_DIR/.claude/hooks/check_git_message.py\""
+            "command": "uv run --no-project python -c \"import runpy; from pathlib import Path; runpy.run_path(str(next(p / 'tools/odoo-intelligence/run.py' for p in [Path.cwd(), *Path.cwd().parents] if (p / 'tools/odoo-intelligence/run.py').is_file())), run_name='__main__')\" hook-git-message"
           }
         ]
       },
@@ -19,7 +19,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "uv run --locked --project \"$CLAUDE_PROJECT_DIR/tools/odoo-intelligence\" medilab-odoo serena-hooks remind --client=claude-code"
+            "command": "uv run --no-project python -c \"import runpy; from pathlib import Path; runpy.run_path(str(next(p / 'tools/odoo-intelligence/run.py' for p in [Path.cwd(), *Path.cwd().parents] if (p / 'tools/odoo-intelligence/run.py').is_file())), run_name='__main__')\" hook-serena-remind"
           }
         ]
       },
@@ -28,7 +28,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "uv run --locked --project \"$CLAUDE_PROJECT_DIR/tools/odoo-intelligence\" medilab-odoo serena-hooks auto-approve --client=claude-code"
+            "command": "uv run --no-project python -c \"import runpy; from pathlib import Path; runpy.run_path(str(next(p / 'tools/odoo-intelligence/run.py' for p in [Path.cwd(), *Path.cwd().parents] if (p / 'tools/odoo-intelligence/run.py').is_file())), run_name='__main__')\" hook-serena-auto-approve"
           }
         ]
       }
@@ -39,7 +39,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "uv run --locked --project \"$CLAUDE_PROJECT_DIR/tools/odoo-intelligence\" medilab-odoo serena-hooks activate --client=claude-code"
+            "command": "uv run --no-project python -c \"import runpy; from pathlib import Path; runpy.run_path(str(next(p / 'tools/odoo-intelligence/run.py' for p in [Path.cwd(), *Path.cwd().parents] if (p / 'tools/odoo-intelligence/run.py').is_file())), run_name='__main__')\" hook-serena-activate"
           }
         ]
       }
@@ -50,7 +50,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "uv run --locked --project \"$CLAUDE_PROJECT_DIR/tools/odoo-intelligence\" medilab-odoo serena-hooks cleanup --client=claude-code"
+            "command": "uv run --no-project python -c \"import runpy; from pathlib import Path; runpy.run_path(str(next(p / 'tools/odoo-intelligence/run.py' for p in [Path.cwd(), *Path.cwd().parents] if (p / 'tools/odoo-intelligence/run.py').is_file())), run_name='__main__')\" hook-serena-cleanup"
           }
         ]
       }

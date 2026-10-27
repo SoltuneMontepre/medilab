@@ -5,14 +5,15 @@ from functools import partial
 from pathlib import Path
 
 import anyio
-from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import MCPServer
+from mcp.server.mcpserver.exceptions import ToolError
 from mcp.types import ToolAnnotations
 
 from .lsp import LspClient
 from .workspace import RELEASE
 
 
-def create_server(root: Path) -> FastMCP:
+def create_server(root: Path) -> MCPServer:
     client = LspClient(root)
 
     @asynccontextmanager
@@ -23,14 +24,14 @@ def create_server(root: Path) -> FastMCP:
             with anyio.CancelScope(shield=True):
                 await anyio.to_thread.run_sync(client.close)
 
-    server = FastMCP(
+    server = MCPServer(
         "MediLab OdooLS",
         instructions="Use relative worktree paths and zero-based UTF-16 positions. Tools query official OdooLS. "
         "They do not edit code. Serena provides symbol editing. Diagnostics may be unavailable or stale.",
         lifespan=lifespan,
         log_level="WARNING",
     )
-    readonly = ToolAnnotations(readOnlyHint=True, destructiveHint=False, openWorldHint=False)
+    readonly = ToolAnnotations(read_only_hint=True, destructive_hint=False, open_world_hint=False)
 
     async def run(operation, *args, **kwargs):
         try:
@@ -39,6 +40,8 @@ def create_server(root: Path) -> FastMCP:
             with anyio.CancelScope(shield=True):
                 await anyio.to_thread.run_sync(client.close)
             raise
+        except Exception as error:
+            raise ToolError(str(error)) from error
 
     async def navigate(method, path, line=None, character=None, **extra):
         return {

@@ -4,7 +4,7 @@
 - For the user, signing is one click of a button.
 - When a document or report is generated, the signatures of the people its approval rules name are attached automatically.
 - A signed document is locked: it cannot be changed or discarded, even by its owner.
-- Until the document's process is completed, a signer at any level, the final level included, can withdraw their own signature while they can still sign it: they hold the permission and the role of their level. Withdrawing follows the timeline: it is refused only while a signature given after theirs stands.
+- Until the document's process is completed, a signer at any level, the final level included, can withdraw their own signature, even after losing the permission or the role of their level. Withdrawing follows the timeline: it is refused only while a signature given after theirs stands.
 - Once a result, report, quotation or order completes its process, no signature can be withdrawn; changes use a change request producing a linked version.
 - The Head of Department approves results, including results they entered. Other result entrants cannot approve their own results. The Lab Head reviews the approved results and signs the final report, including reports with results self-approved by a Head of Department.
 - A report signature binds its saved DOCX, template and business-data versions, result versions and the prepared PDF the signer reviewed. Editing an unsigned draft or changing its source data invalidates that PDF; a signed draft is locked until permitted withdrawals. Digital signing uses the prepared PDF and never regenerates it from later edits. See [Test reports](../specs/test-reports.md).

@@ -5,4 +5,4 @@ description: Create, analyze, proofread, and modify Office documents (.docx, .xl
 
 # officecli
 
-Follow [.agent/skills/officecli/SKILL.md](../../../.agent/skills/officecli/SKILL.md).
+Follow [.agents/skills/officecli/SKILL.md](../../../.agents/skills/officecli/SKILL.md).

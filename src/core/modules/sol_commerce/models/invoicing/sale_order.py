@@ -36,7 +36,8 @@ class SaleOrder(models.Model):
 
     @api.depends("invoice_ids", "invoice_ids.payment_state", "invoice_ids.amount_residual")
     def _compute_pending_amount(self):
-        payments = self.env["account.payment"]
+        # Sales see the total of the pending payments, not the payments themselves.
+        payments = self.env["account.payment"].sudo()
         for order in self:
             invoices = order.invoice_ids
             pending = payments.browse()
