@@ -66,7 +66,12 @@ class TestTestReportSigning(ReportCase):
         self.complete()
         self.sign()
 
-        self.assertIn("VI Lab head / Lab head", self.html(self.report()))
+        report = self.report()
+        self.assertIn("VI Lab head / Lab head", self.html(report))
+        # The heads who approved the results print their level in both languages too.
+        levels = [signer["level"] for signer in report._print_signers()]
+        self.assertGreater(len(levels), 1)
+        self.assertTrue(all(level.startswith("VI ") and " / " in level for level in levels), levels)
 
     def test_a_vietnamese_report_prints_the_approvers_levels_in_vietnamese(self):
         self.name_levels_in_vietnamese()
@@ -74,10 +79,12 @@ class TestTestReportSigning(ReportCase):
         self.complete()
         self.sign()
 
-        printed = self.html(self.report())
+        report = self.report()
 
-        self.assertIn("VI Lab head", printed)
-        self.assertNotIn("VI Lab head /", printed)
+        self.assertIn("VI Lab head", self.html(report))
+        levels = [signer["level"] for signer in report._print_signers()]
+        self.assertGreater(len(levels), 1)
+        self.assertTrue(all(level.startswith("VI ") and " / " not in level for level in levels), levels)
 
     def test_the_report_prints_the_heads_and_the_lab_head_not_the_testers_and_leaves_out_cancelled_tests(self):
         arsenic = self.add_test()
