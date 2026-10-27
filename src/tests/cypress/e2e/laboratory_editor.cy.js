@@ -121,23 +121,19 @@ describe("Laboratory browser editor adapter", () => {
     cy.visit(path);
     cy.get("#editor-status").should("contain", "Connecting");
     cy.window({ log: false }).then((win) => {
-      function unloadState(modern = true) {
+      function unloadState() {
         const event = new win.Event("beforeunload", { cancelable: true });
-        if (!modern) event.preventDefault = () => {};
-        let legacyValue = "untouched";
-        Object.defineProperty(event, "returnValue", {
-          get() { return legacyValue; },
-          set(value) { legacyValue = String(value); },
-        });
         win.dispatchEvent(event);
-        return { prevented: event.defaultPrevented, legacyValue };
+        return event.defaultPrevented;
       }
-      expect(unloadState()).to.deep.eq({ prevented: false, legacyValue: "untouched" });
+      expect(unloadState()).to.eq(false);
+      expect(win.onbeforeunload({ preventDefault() { throw new Error("Clean document must not warn"); } })).to.eq(undefined);
       win.editorFixture.config.events.onDocumentStateChange({ data: true });
-      expect(unloadState()).to.deep.eq({ prevented: true, legacyValue: "true" });
-      expect(unloadState(false)).to.deep.eq({ prevented: false, legacyValue: "true" });
+      expect(unloadState()).to.eq(true);
+      expect(win.onbeforeunload({ preventDefault() {} }), "legacy handler warning value").to.eq("true");
       win.editorFixture.config.events.onDocumentStateChange({ data: false });
-      expect(unloadState()).to.deep.eq({ prevented: false, legacyValue: "untouched" });
+      expect(unloadState()).to.eq(false);
+      expect(win.onbeforeunload({ preventDefault() { throw new Error("Saved document must not warn"); } })).to.eq(undefined);
     });
   });
 });

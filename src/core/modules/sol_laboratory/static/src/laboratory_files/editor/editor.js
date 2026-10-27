@@ -22,12 +22,13 @@
         clearTimeout(timer);
         show("expired", true);
     }
-    window.addEventListener("beforeunload", (event) => {
+    window.onbeforeunload = (event) => {
         if (dirty) {
             event.preventDefault();
-            event.returnValue = true;
+            return "true";
         }
-    });
+        return undefined;
+    };
     const script = document.createElement("script");
     script.src = page.dataset.scriptUrl;
     script.referrerPolicy = "no-referrer";
