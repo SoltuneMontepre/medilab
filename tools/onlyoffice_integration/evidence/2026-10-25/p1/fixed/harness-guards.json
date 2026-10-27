@@ -1,0 +1,5 @@
+{
+  "ONLYOFFICE_TEST_DATABASE:invalid syntax": "PASS",
+  "ONLYOFFICE_TEST_DATABASE:foreign namespace": "PASS",
+  "ONLYOFFICE_RUNNER_SUFFIX:invalid syntax": "PASS"
+}

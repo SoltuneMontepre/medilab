@@ -1,0 +1,100 @@
+{
+  "logging-before": {
+    "at": "2026-10-27T01:29:38.390809+00:00",
+    "runner_exit": 1,
+    "native_summary": [
+      "1 failed, 0 error(s) of 9 tests when loading database 'medilab171finalizelogbefore'"
+    ],
+    "passed": false,
+    "passed_tests": [],
+    "failed_tests": [],
+    "not_started_tests": []
+  },
+  "logging-after": {
+    "at": "2026-10-27T01:31:23.330046+00:00",
+    "runner_exit": 0,
+    "native_summary": [
+      "0 failed, 0 error(s) of 9 tests when loading database 'medilab171finalizelogafter'"
+    ],
+    "passed": true,
+    "passed_tests": [],
+    "failed_tests": [],
+    "not_started_tests": []
+  },
+  "route-before": {
+    "at": "2026-10-27T01:33:52.016613+00:00",
+    "runner_exit": 1,
+    "native_summary": [
+      "1 failed, 0 error(s) of 1 tests when loading database 'medilab171finalizeroutebefore'"
+    ],
+    "passed": false,
+    "passed_tests": [],
+    "failed_tests": [],
+    "not_started_tests": []
+  },
+  "route-after": {
+    "at": "2026-10-27T01:35:30.653759+00:00",
+    "runner_exit": 0,
+    "native_summary": [
+      "0 failed, 0 error(s) of 1 tests when loading database 'medilab171finalizerouteafter'"
+    ],
+    "passed": true,
+    "passed_tests": [],
+    "failed_tests": [],
+    "not_started_tests": []
+  },
+  "real": {
+    "at": "2026-10-27T01:32:54.173806+00:00",
+    "runner_exit": 1,
+    "native_summary": [
+      "0 failed, 1 error(s) of 0 tests when loading database 'medilab171finalizereal'"
+    ],
+    "passed": false,
+    "passed_tests": [],
+    "failed_tests": [],
+    "not_started_tests": [
+      "test_docx_200_error_one_does_not_retry",
+      "test_docx_503_redelivery_has_fresh_jwt",
+      "test_docx_bucket_failure_recovers_on_real_redelivery",
+      "test_docx_callback_exceeds_default_worker_timeout",
+      "test_docx_captured_delivery_authentication_controls",
+      "test_docx_conflict_preserves_concurrent_version",
+      "test_docx_documentserver_refuses_untrusted_tls_source",
+      "test_docx_finite_retry_exhaustion",
+      "test_docx_large_history_header_compatibility",
+      "test_docx_many_editors_header_trimming",
+      "test_docx_real_jwt_expiry_on_transaction_retry",
+      "test_docx_save_and_concurrent_duplicate_callbacks",
+      "test_docx_two_authorized_editors",
+      "test_pptx_save",
+      "test_xlsx_save"
+    ]
+  },
+  "real2": {
+    "at": "2026-10-27T01:47:53.877203+00:00",
+    "runner_exit": 0,
+    "native_summary": [
+      "0 failed, 0 error(s) of 4 tests when loading database 'medilab171finalizereal2'"
+    ],
+    "passed": true,
+    "passed_tests": [
+      "test_docx_503_redelivery_has_fresh_jwt",
+      "test_docx_many_editors_header_trimming",
+      "test_docx_real_jwt_expiry_on_transaction_retry",
+      "test_docx_save_and_concurrent_duplicate_callbacks"
+    ],
+    "failed_tests": [],
+    "not_started_tests": []
+  },
+  "pages": {
+    "at": "2026-10-27T01:50:49.530594+00:00",
+    "runner_exit": 0,
+    "native_summary": [
+      "0 failed, 0 error(s) of 4 tests when loading database 'medilab171finalizepages'"
+    ],
+    "passed": true,
+    "passed_tests": [],
+    "failed_tests": [],
+    "not_started_tests": []
+  }
+}

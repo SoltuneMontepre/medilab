@@ -1,0 +1,90 @@
+{
+  "test": "test_docx_save_and_concurrent_duplicate_callbacks",
+  "extension": "docx",
+  "events": [
+    {
+      "at": 1792919877.6341465,
+      "status": 1,
+      "bytes": 378,
+      "header_bytes": 287,
+      "body_token_bytes": 264,
+      "users_count": 1,
+      "history_json_bytes": 2,
+      "body_sha256": "75cbc53b3aac2457542d1994e37f9dd722f85e1f106cf22d4265a8c5c6be4c5b",
+      "body_iat": 1792919877,
+      "body_exp": 1792920177,
+      "body_history_json_bytes": 2,
+      "body_history_changes": 0,
+      "header_sha256": "443fea96d1f90a2d5e1549b1084aaffa14c2c66c4da6a5c1469c2e98042b72c6",
+      "header_iat": 1792919877,
+      "header_exp": 1792920177,
+      "header_history_json_bytes": 2,
+      "header_history_changes": 0,
+      "jwt_consistent": true,
+      "http": 200,
+      "error": 0
+    },
+    {
+      "at": 1792919886.150848,
+      "status": 2,
+      "bytes": 2067,
+      "header_bytes": 1252,
+      "body_token_bytes": 1229,
+      "users_count": 1,
+      "history_json_bytes": 207,
+      "body_sha256": "876f490130520afbfda7410774c0ed95f3ba6ac41bbc6f2877bdb98cae437c5d",
+      "body_iat": 1792919886,
+      "body_exp": 1792920186,
+      "body_history_json_bytes": 207,
+      "body_history_changes": 1,
+      "header_sha256": "2f58518fc3de98785cc715a6e635bf976915da32a5dfefb5723a607497db2638",
+      "header_iat": 1792919886,
+      "header_exp": 1792920186,
+      "header_history_json_bytes": 207,
+      "header_history_changes": 1,
+      "jwt_consistent": true,
+      "parallel_http": [
+        200,
+        200,
+        200,
+        200
+      ],
+      "http": 200,
+      "error": 0
+    }
+  ],
+  "initial_sha256": "b9e45ae23c84b558533b75f13541083c8322a38078ce1751119e3f888d80cf81",
+  "saved": {
+    "sha256": "b883a3e05948daa2a0f71b520e5136be2aa3d1e524b27c87dbd061422c60c642",
+    "bucket_sha256": "b883a3e05948daa2a0f71b520e5136be2aa3d1e524b27c87dbd061422c60c642",
+    "size": 58552,
+    "session_status": "committed",
+    "version_count": 2,
+    "version_user_id": 2,
+    "marker_present": true
+  },
+  "final_state": [
+    [
+      [
+        1,
+        "synced"
+      ],
+      [
+        2,
+        "edited_online"
+      ]
+    ],
+    [
+      [
+        "committed",
+        2
+      ]
+    ]
+  ],
+  "odoo_sensitive_values_absent": true,
+  "browser": {
+    "edited": true,
+    "editorSessions": 1
+  },
+  "test_body_passed": true
+}

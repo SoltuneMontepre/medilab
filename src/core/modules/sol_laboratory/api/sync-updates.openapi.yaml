@@ -1,0 +1,512 @@
+openapi: 3.1.0
+info:
+  title: MediLab Sync updates and legacy compatibility
+  version: 1.0.0
+  description: Public native HTTP, separate from device keys and browser sessions.
+    Target and architecture enumeration identifies catalog artifacts and is not native
+    platform certification. Only the selected installation database serves these routes.
+    HEAD suppresses all bodies. Catalog publication requires release-owner artifact
+    and signing-trust verification.
+servers:
+- url: /
+security: []
+paths:
+  /medilab/api/v1/updates/{target}/{arch}/{version}:
+    get:
+      operationId: syncUpdateGet
+      parameters: &id005
+      - name: target
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+      - name: arch
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+      - name: version
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+      - name: channel
+        in: query
+        schema:
+          type: string
+          pattern: ^[a-z][a-z0-9-]{0,31}$
+          default: stable
+      responses: &id006
+        '200': &id007
+          description: Newer published artifact. The desktop verifies its signature
+            over the artifact bytes; this unsigned manifest establishes no trust.
+          headers: &id001
+            Cache-Control: &id002
+              required: true
+              schema:
+                type: string
+                const: no-store
+            X-Content-Type-Options: &id003
+              required: true
+              schema:
+                type: string
+                const: nosniff
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Manifest'
+        '204': &id008
+          description: No newer eligible release for the platform, channel and trust
+            boundary.
+          headers: *id001
+        '400': &id009
+          description: Invalid platform, semantic version, channel, query or body.
+          headers: *id001
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '405': &id010
+          description: Wrong method.
+          headers:
+            Cache-Control: *id002
+            X-Content-Type-Options: *id003
+            Allow:
+              required: true
+              schema:
+                type: string
+                const: GET, HEAD
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503': &id011
+          description: Catalog absent, unreadable or invalid; no manifest is served.
+          headers: *id001
+          content: &id004
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No updater route at this address.
+          headers: *id001
+          content: *id004
+        '500':
+          description: Unexpected update service failure; no operation commits.
+          headers: *id001
+          content: *id004
+      security: []
+    head:
+      operationId: syncUpdateHead
+      parameters: *id005
+      responses: *id006
+      security: []
+    post:
+      operationId: syncUpdatePost
+      parameters: *id005
+      responses: *id006
+      security: []
+    put:
+      operationId: syncUpdatePut
+      parameters: *id005
+      responses: *id006
+      security: []
+    patch:
+      operationId: syncUpdatePatch
+      parameters: *id005
+      responses: *id006
+      security: []
+    delete:
+      operationId: syncUpdateDelete
+      parameters: *id005
+      responses: *id006
+      security: []
+    options:
+      operationId: syncUpdateOptions
+      parameters: *id005
+      responses: *id006
+      security: []
+    trace:
+      operationId: syncUpdateTrace
+      parameters: *id005
+      responses: *id006
+      security: []
+  /api/sync/v1/updates/{target}/{arch}/{version}:
+    get:
+      operationId: legacySyncUpdateGet
+      parameters: *id005
+      responses: &id012
+        '200': *id007
+        '204': *id008
+        '400': *id009
+        '405': *id010
+        '503': *id011
+        '410':
+          description: Legacy updates refused unless existing-trust manifests are
+            explicitly enabled.
+          headers: *id001
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No updater route at this address.
+          headers: *id001
+          content: *id004
+        '500':
+          description: Unexpected update service failure; no operation commits.
+          headers: *id001
+          content: *id004
+      security: []
+    head:
+      operationId: legacySyncUpdateHead
+      parameters: *id005
+      responses: *id012
+      security: []
+    post:
+      operationId: legacySyncUpdatePost
+      parameters: *id005
+      responses: *id012
+      security: []
+    put:
+      operationId: legacySyncUpdatePut
+      parameters: *id005
+      responses: *id012
+      security: []
+    patch:
+      operationId: legacySyncUpdatePatch
+      parameters: *id005
+      responses: *id012
+      security: []
+    delete:
+      operationId: legacySyncUpdateDelete
+      parameters: *id005
+      responses: *id012
+      security: []
+    options:
+      operationId: legacySyncUpdateOptions
+      parameters: *id005
+      responses: *id012
+      security: []
+    trace:
+      operationId: legacySyncUpdateTrace
+      parameters: *id005
+      responses: *id012
+      security: []
+  /api/sync/v1:
+    get:
+      operationId: refuseLegacyRootGet
+      parameters: &id013 []
+      security: []
+      responses:
+        '410':
+          description: Retired API; no authentication or mutation. Safe configured
+            download link is optional. HEAD has no body.
+          headers: *id001
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    head:
+      operationId: refuseLegacyRootHead
+      parameters: *id013
+      security: []
+      responses:
+        '410':
+          description: Retired API; no authentication or mutation. Safe configured
+            download link is optional. HEAD has no body.
+          headers: *id001
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      operationId: refuseLegacyRootPost
+      parameters: *id013
+      security: []
+      responses:
+        '410':
+          description: Retired API; no authentication or mutation. Safe configured
+            download link is optional. HEAD has no body.
+          headers: *id001
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      operationId: refuseLegacyRootPut
+      parameters: *id013
+      security: []
+      responses:
+        '410':
+          description: Retired API; no authentication or mutation. Safe configured
+            download link is optional. HEAD has no body.
+          headers: *id001
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      operationId: refuseLegacyRootPatch
+      parameters: *id013
+      security: []
+      responses:
+        '410':
+          description: Retired API; no authentication or mutation. Safe configured
+            download link is optional. HEAD has no body.
+          headers: *id001
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      operationId: refuseLegacyRootDelete
+      parameters: *id013
+      security: []
+      responses:
+        '410':
+          description: Retired API; no authentication or mutation. Safe configured
+            download link is optional. HEAD has no body.
+          headers: *id001
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    options:
+      operationId: refuseLegacyRootOptions
+      parameters: *id013
+      security: []
+      responses:
+        '410':
+          description: Retired API; no authentication or mutation. Safe configured
+            download link is optional. HEAD has no body.
+          headers: *id001
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    trace:
+      operationId: refuseLegacyRootTrace
+      parameters: *id013
+      security: []
+      responses:
+        '410':
+          description: Retired API; no authentication or mutation. Safe configured
+            download link is optional. HEAD has no body.
+          headers: *id001
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    x-legacy-all-methods: true
+  /api/sync/v1/{legacy_path}:
+    get:
+      operationId: refuseLegacyPathGet
+      parameters: &id014
+      - name: legacy_path
+        in: path
+        required: true
+        description: Any slash-separated legacy descendant, including unknown paths.
+        schema:
+          type: string
+      security: []
+      responses:
+        '410':
+          description: Retired API; no authentication or mutation. Safe configured
+            download link is optional. HEAD has no body.
+          headers: *id001
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    head:
+      operationId: refuseLegacyPathHead
+      parameters: *id014
+      security: []
+      responses:
+        '410':
+          description: Retired API; no authentication or mutation. Safe configured
+            download link is optional. HEAD has no body.
+          headers: *id001
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      operationId: refuseLegacyPathPost
+      parameters: *id014
+      security: []
+      responses:
+        '410':
+          description: Retired API; no authentication or mutation. Safe configured
+            download link is optional. HEAD has no body.
+          headers: *id001
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      operationId: refuseLegacyPathPut
+      parameters: *id014
+      security: []
+      responses:
+        '410':
+          description: Retired API; no authentication or mutation. Safe configured
+            download link is optional. HEAD has no body.
+          headers: *id001
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      operationId: refuseLegacyPathPatch
+      parameters: *id014
+      security: []
+      responses:
+        '410':
+          description: Retired API; no authentication or mutation. Safe configured
+            download link is optional. HEAD has no body.
+          headers: *id001
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      operationId: refuseLegacyPathDelete
+      parameters: *id014
+      security: []
+      responses:
+        '410':
+          description: Retired API; no authentication or mutation. Safe configured
+            download link is optional. HEAD has no body.
+          headers: *id001
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    options:
+      operationId: refuseLegacyPathOptions
+      parameters: *id014
+      security: []
+      responses:
+        '410':
+          description: Retired API; no authentication or mutation. Safe configured
+            download link is optional. HEAD has no body.
+          headers: *id001
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    trace:
+      operationId: refuseLegacyPathTrace
+      parameters: *id014
+      security: []
+      responses:
+        '410':
+          description: Retired API; no authentication or mutation. Safe configured
+            download link is optional. HEAD has no body.
+          headers: *id001
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    x-legacy-all-methods: true
+components:
+  schemas:
+    Manifest:
+      type: object
+      required:
+      - version
+      - url
+      - signature
+      additionalProperties: false
+      properties:
+        version: &id015
+          type: string
+          minLength: 5
+          maxLength: 128
+        url: &id016
+          type: string
+          format: uri
+          maxLength: 2048
+        signature: &id017
+          type: string
+          minLength: 1
+          maxLength: 16384
+        notes: &id018
+          type: string
+          maxLength: 32768
+        pub_date: &id019
+          type: string
+          format: date-time
+    Error:
+      type: object
+      required:
+      - error
+      additionalProperties: false
+      properties:
+        error:
+          type: object
+          required:
+          - code
+          - message
+          additionalProperties: false
+          properties:
+            code:
+              enum:
+              - invalid_request
+              - method_not_allowed
+              - update_unavailable
+              - client_update_required
+              - not_found
+              - internal_error
+            message:
+              type: string
+            download_url:
+              type: string
+              format: uri
+    Catalog:
+      type: object
+      required:
+      - releases
+      additionalProperties: false
+      properties:
+        releases:
+          type: array
+          maxItems: 1000
+          items:
+            type: object
+            additionalProperties: false
+            required:
+            - version
+            - url
+            - signature
+            - target
+            - arch
+            - channel
+            - trust
+            properties:
+              version: *id015
+              url: *id016
+              signature: *id017
+              notes: *id018
+              pub_date: *id019
+              target:
+                enum:
+                - linux
+                - windows
+                - darwin
+              arch:
+                enum:
+                - x86_64
+                - aarch64
+              channel:
+                type: string
+                pattern: ^[a-z][a-z0-9-]{0,31}$
+              trust:
+                enum:
+                - current
+                - legacy

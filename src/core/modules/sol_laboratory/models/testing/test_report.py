@@ -161,10 +161,11 @@ class TestReport(models.Model):
             raise UserError(self.env._("Name the results to check again."))
         if results - self.sudo().result_ids:
             raise UserError(self.env._("Only results printed on the report can be checked again."))
-        super().action_reject(reason)
+        result = super().action_reject(reason)
         results.sudo()._send_back(
             self.env._("Report of %(request)s rejected: %(reason)s", request=self.sudo().request_id.code, reason=reason)
         )
+        return result
 
     def action_record_delivery(self):
         self._check_permission("edit")
@@ -360,26 +361,25 @@ class TestReport(models.Model):
         verify_url = f"{self.get_base_url()}{VERIFY_PATH}"
 
         def labels(env):
-            _ = env._
             return {
-                "title": _("Test Report"),
-                "draft": _("Draft, not digitally signed"),
-                "verify": _("Digitally signed. Verify this report at %s", verify_url),
-                "number": _("Report No."),
-                "request": _("Test Request"),
-                "customer": _("Customer"),
-                "address": _("Address"),
-                "received": _("Samples Received"),
-                "date": _("Report Date"),
-                "sample": _("Sample"),
-                "lab_code": _("Lab Code"),
-                "conclusion": _("Conclusion"),
-                "parameter": _("Parameter"),
-                "result": _("Result"),
-                "unit": _("Unit"),
-                "limit": _("Limit"),
-                "method": _("Method"),
-                "signatures": _("Approved By"),
+                "title": env._("Test Report"),
+                "draft": env._("Draft, not digitally signed"),
+                "verify": env._("Digitally signed. Verify this report at %s", verify_url),
+                "number": env._("Report No."),
+                "request": env._("Test Request"),
+                "customer": env._("Customer"),
+                "address": env._("Address"),
+                "received": env._("Samples Received"),
+                "date": env._("Report Date"),
+                "sample": env._("Sample"),
+                "lab_code": env._("Lab Code"),
+                "conclusion": env._("Conclusion"),
+                "parameter": env._("Parameter"),
+                "result": env._("Result"),
+                "unit": env._("Unit"),
+                "limit": env._("Limit"),
+                "method": env._("Method"),
+                "signatures": env._("Approved By"),
             }
 
         per_lang = [labels(self.with_context(lang=lang).env) for lang in self._print_langs()]

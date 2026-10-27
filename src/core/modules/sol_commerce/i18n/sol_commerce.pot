@@ -16,6 +16,11 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_mail_message
+msgid "Message"
+msgstr ""
+
+#. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/order_template.py:0
 msgid "%(item)s: %(reason)s"

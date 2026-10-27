@@ -1,0 +1,301 @@
+{
+  "source_head": "42ff6544694745d82fc6cc24d57ed6759dac38a6",
+  "counts": {
+    "VULNERABILITY": 7,
+    "CODE_SMELL": 4
+  },
+  "issues": [
+    {
+      "key": "AaF2G1TlIES1tmkRiAIM",
+      "rule": "javascript:S5332",
+      "type": "VULNERABILITY",
+      "severity": "MINOR",
+      "status": "OPEN",
+      "resolution": null,
+      "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/loopback_proxy.cjs",
+      "line": 7,
+      "textRange": {
+        "startLine": 7,
+        "endLine": 7,
+        "startOffset": 20,
+        "endOffset": 43
+      },
+      "message": "Using http protocol is insecure. Use https instead."
+    },
+    {
+      "key": "AaF2G1TlIES1tmkRiAIN",
+      "rule": "javascript:S5332",
+      "type": "VULNERABILITY",
+      "severity": "MINOR",
+      "status": "OPEN",
+      "resolution": null,
+      "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/loopback_proxy.cjs",
+      "line": 8,
+      "textRange": {
+        "startLine": 8,
+        "endLine": 8,
+        "startOffset": 20,
+        "endOffset": 40
+      },
+      "message": "Using http protocol is insecure. Use https instead."
+    },
+    {
+      "key": "AaF2G1TlIES1tmkRiAIQ",
+      "rule": "javascript:S4790",
+      "type": "VULNERABILITY",
+      "severity": "CRITICAL",
+      "status": "OPEN",
+      "resolution": null,
+      "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/loopback_proxy.cjs",
+      "line": 155,
+      "textRange": {
+        "startLine": 155,
+        "endLine": 155,
+        "startOffset": 23,
+        "endOffset": 40
+      },
+      "message": "Make sure this weak hash algorithm is not used in a sensitive context here."
+    },
+    {
+      "key": "AaF2G1X8IES1tmkRiAIS",
+      "rule": "javascript:S5332",
+      "type": "VULNERABILITY",
+      "severity": "MINOR",
+      "status": "OPEN",
+      "resolution": null,
+      "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/test_loopback_proxy.cjs",
+      "line": 16,
+      "textRange": {
+        "startLine": 16,
+        "endLine": 16,
+        "startOffset": 27,
+        "endOffset": 47
+      },
+      "message": "Using http protocol is insecure. Use https instead."
+    },
+    {
+      "key": "AaF2G1X8IES1tmkRiAIT",
+      "rule": "javascript:S5332",
+      "type": "VULNERABILITY",
+      "severity": "MINOR",
+      "status": "OPEN",
+      "resolution": null,
+      "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/test_loopback_proxy.cjs",
+      "line": 18,
+      "textRange": {
+        "startLine": 18,
+        "endLine": 18,
+        "startOffset": 90,
+        "endOffset": 113
+      },
+      "message": "Using http protocol is insecure. Use https instead."
+    },
+    {
+      "key": "AaF2G1X8IES1tmkRiAIV",
+      "rule": "javascript:S5332",
+      "type": "VULNERABILITY",
+      "severity": "MINOR",
+      "status": "OPEN",
+      "resolution": null,
+      "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/test_loopback_proxy.cjs",
+      "line": 76,
+      "textRange": {
+        "startLine": 76,
+        "endLine": 76,
+        "startOffset": 29,
+        "endOffset": 52
+      },
+      "message": "Using http protocol is insecure. Use https instead."
+    },
+    {
+      "key": "AaF0FHq1vCiqu-XFDLDC",
+      "rule": "python:S5332",
+      "type": "VULNERABILITY",
+      "severity": "MINOR",
+      "status": "OPEN",
+      "resolution": null,
+      "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/loopback_storage_proxy.py",
+      "line": 84,
+      "textRange": {
+        "startLine": 84,
+        "endLine": 84,
+        "startOffset": 4,
+        "endOffset": 69
+      },
+      "message": "Using HTTP protocol is insecure. Use HTTPS instead."
+    },
+    {
+      "key": "AaF0FHqsvCiqu-XFDLC7",
+      "rule": "javascript:S9382",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "status": "OPEN",
+      "resolution": null,
+      "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/browser.cjs",
+      "line": 64,
+      "textRange": {
+        "startLine": 64,
+        "endLine": 64,
+        "startOffset": 23,
+        "endOffset": 49
+      },
+      "message": "Unexpected `await` inside a loop."
+    },
+    {
+      "key": "AaF0FHqtvCiqu-XFDLC8",
+      "rule": "javascript:S9382",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "status": "OPEN",
+      "resolution": null,
+      "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/browser.cjs",
+      "line": 65,
+      "textRange": {
+        "startLine": 65,
+        "endLine": 65,
+        "startOffset": 8,
+        "endOffset": 66
+      },
+      "message": "Unexpected `await` inside a loop."
+    },
+    {
+      "key": "AaF0FHqtvCiqu-XFDLC9",
+      "rule": "javascript:S9382",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "status": "OPEN",
+      "resolution": null,
+      "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/browser.cjs",
+      "line": 66,
+      "textRange": {
+        "startLine": 66,
+        "endLine": 66,
+        "startOffset": 8,
+        "endOffset": 28
+      },
+      "message": "Unexpected `await` inside a loop."
+    },
+    {
+      "key": "AaF0FHhWvCiqu-XFDLCR",
+      "rule": "javascript:S1874",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "status": "OPEN",
+      "resolution": null,
+      "component": "SoltuneMontepre_medilab2:src/core/modules/sol_laboratory/static/src/laboratory_files/editor/editor.js",
+      "line": 28,
+      "textRange": {
+        "startLine": 28,
+        "endLine": 28,
+        "startOffset": 18,
+        "endOffset": 29
+      },
+      "message": "'returnValue' is deprecated."
+    }
+  ],
+  "gate": {
+    "status": "ERROR",
+    "conditions": [
+      {
+        "status": "OK",
+        "metricKey": "new_reliability_rating",
+        "comparator": "GT",
+        "periodIndex": 1,
+        "errorThreshold": "1",
+        "actualValue": "1"
+      },
+      {
+        "status": "ERROR",
+        "metricKey": "new_security_rating",
+        "comparator": "GT",
+        "periodIndex": 1,
+        "errorThreshold": "1",
+        "actualValue": "4"
+      },
+      {
+        "status": "OK",
+        "metricKey": "new_maintainability_rating",
+        "comparator": "GT",
+        "periodIndex": 1,
+        "errorThreshold": "1",
+        "actualValue": "1"
+      },
+      {
+        "status": "OK",
+        "metricKey": "new_coverage",
+        "comparator": "LT",
+        "periodIndex": 1,
+        "errorThreshold": "80",
+        "actualValue": "86.1"
+      },
+      {
+        "status": "OK",
+        "metricKey": "new_duplicated_lines_density",
+        "comparator": "GT",
+        "periodIndex": 1,
+        "errorThreshold": "3",
+        "actualValue": "0.0"
+      },
+      {
+        "status": "OK",
+        "metricKey": "new_security_hotspots_reviewed",
+        "comparator": "LT",
+        "periodIndex": 1,
+        "errorThreshold": "100",
+        "actualValue": "100.0"
+      }
+    ]
+  },
+  "measures": [
+    {
+      "metric": "reliability_rating",
+      "value": "1.0",
+      "bestValue": true
+    },
+    {
+      "metric": "bugs",
+      "value": "0",
+      "bestValue": true
+    },
+    {
+      "metric": "code_smells",
+      "value": "4",
+      "bestValue": false
+    },
+    {
+      "metric": "security_rating",
+      "value": "4.0",
+      "bestValue": false
+    },
+    {
+      "metric": "new_coverage",
+      "periods": [
+        {
+          "index": 1,
+          "value": "86.09958506224066",
+          "bestValue": false
+        }
+      ]
+    },
+    {
+      "metric": "vulnerabilities",
+      "value": "7",
+      "bestValue": false
+    },
+    {
+      "metric": "new_duplicated_lines_density",
+      "periods": [
+        {
+          "index": 1,
+          "value": "0.049557522123893805",
+          "bestValue": false
+        }
+      ]
+    },
+    {
+      "metric": "sqale_rating",
+      "value": "1.0",
+      "bestValue": true
+    }
+  ]
+}

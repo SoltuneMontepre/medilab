@@ -1,0 +1,37 @@
+{
+  "selection": "sync::dispatcher_tests::revoked_folder_stops_running_transfers_and_blocks_new_claims",
+  "worker_threads": 1,
+  "attempts": [
+    {
+      "attempt": 1,
+      "exit_code": 0,
+      "one_case_passed": true,
+      "elapsed_seconds": 9.326
+    },
+    {
+      "attempt": 2,
+      "exit_code": 0,
+      "one_case_passed": true,
+      "elapsed_seconds": 5.644
+    },
+    {
+      "attempt": 3,
+      "exit_code": 0,
+      "one_case_passed": true,
+      "elapsed_seconds": 5.658
+    },
+    {
+      "attempt": 4,
+      "exit_code": 0,
+      "one_case_passed": true,
+      "elapsed_seconds": 5.739
+    },
+    {
+      "attempt": 5,
+      "exit_code": 0,
+      "one_case_passed": true,
+      "elapsed_seconds": 5.566
+    }
+  ],
+  "status": "PASS"
+}

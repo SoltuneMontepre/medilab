@@ -1,0 +1,10 @@
+{
+  "command": [
+    "src/core/.venv/bin/python",
+    "-m",
+    "tools.onlyoffice_integration.probe_runtime"
+  ],
+  "exit_code": 0,
+  "status": "PASS",
+  "elapsed_seconds": 0.465
+}

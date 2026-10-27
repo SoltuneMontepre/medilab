@@ -183,9 +183,9 @@ class TestAccreditationImport(MasterDataCase):
             before,
         )
         self.assertFalse(
-            self.env[MODEL_TESTING_METHOD].with_context(active_test=False).search(
-                [("code", "in", ["LINK-FAIL-1", "LINK-FAIL-2"])]
-            )
+            self.env[MODEL_TESTING_METHOD]
+            .with_context(active_test=False)
+            .search([("code", "in", ["LINK-FAIL-1", "LINK-FAIL-2"])])
         )
         self.assertFalse(self.certificate.method_ids)
 

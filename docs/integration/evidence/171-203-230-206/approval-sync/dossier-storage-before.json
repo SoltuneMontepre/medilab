@@ -1,0 +1,12 @@
+{
+  "command": [
+    "src/core/.venv/bin/python",
+    "-m",
+    "unittest",
+    "tools.onlyoffice_integration.test_loopback_storage_proxy",
+    "-v"
+  ],
+  "exit_code": 0,
+  "status": "PASS",
+  "elapsed_seconds": 1.068
+}

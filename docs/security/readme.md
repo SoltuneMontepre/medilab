@@ -20,6 +20,11 @@ One document per role, in `permissions/<role>.md`.
 
 - [Administrator](permissions/admin.md): every permission, as Odoo's default administrator
 
+## Security reviews
+
+- [PR #292 Sonar disposition review](pr-292-sonar-disposition-review.md): individual technical proofs, fixture risk records and pending security-owner approvals.
+- [PR #292 GitGuardian review](pr-292-gitguardian-review.md): Git object identity proof and pending review of incident 39039733.
+
 ## Related documents
 
 - [Permissions](../specs/permissions.md)

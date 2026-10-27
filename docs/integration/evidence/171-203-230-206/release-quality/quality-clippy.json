@@ -1,0 +1,17 @@
+{
+  "command": [
+    "cargo",
+    "clippy",
+    "--locked",
+    "--manifest-path",
+    "src-tauri/Cargo.toml",
+    "--all-targets",
+    "--all-features",
+    "--",
+    "-D",
+    "warnings"
+  ],
+  "exit_code": 0,
+  "status": "PASS",
+  "elapsed_seconds": 3.52
+}

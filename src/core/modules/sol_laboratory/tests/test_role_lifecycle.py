@@ -29,7 +29,9 @@ class TestRoleLifecycle(UnshippedPermissionCase):
 
         self.assertEqual(self.role.group_id, group)
         self.assertEqual(group.name, "Role: qa_tester")
-        data = self.env["ir.model.data"].search([("module", "=", "sol_laboratory"), ("name", "=", "group_role_qa_tester")])
+        data = self.env["ir.model.data"].search(
+            [("module", "=", "sol_laboratory"), ("name", "=", "group_role_qa_tester")]
+        )
         self.assertTrue(data.noupdate)
 
     def test_role_group_implies_exactly_its_permission_groups(self):
@@ -43,7 +45,9 @@ class TestRoleLifecycle(UnshippedPermissionCase):
         self.assertIn(export, implied)
 
     def test_holder_of_the_role_holds_its_permissions(self):
-        user = new_test_user(self.env, login="role.holder", groups="base.group_user,sol_laboratory.group_role_qa_tester")
+        user = new_test_user(
+            self.env, login="role.holder", groups="base.group_user,sol_laboratory.group_role_qa_tester"
+        )
 
         self.assertIn(self.read.group_id, user.all_group_ids)
         self.role.permission_ids = [Command.link(self.delete.id)]

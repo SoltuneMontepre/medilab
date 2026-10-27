@@ -1,0 +1,15 @@
+{
+  "status": "FAIL",
+  "files": [
+    "src/core/modules/sol_laboratory/models/system/job_run.py",
+    "src/core/modules/sol_laboratory/models/testing/change_request.py",
+    "src/core/modules/sol_laboratory/tests/test_accreditation_import.py",
+    "src/core/modules/sol_laboratory/tests/test_accreditation_import_concurrency.py",
+    "src/core/modules/sol_laboratory/tests/test_accreditation_job.py",
+    "src/core/modules/sol_laboratory/tests/test_is_accredited.py",
+    "src/core/modules/sol_laboratory/tests/test_laboratory_upload_verification.py",
+    "src/core/modules/sol_laboratory/tests/test_permission_enforcement.py",
+    "src/core/modules/sol_laboratory/tests/test_role_lifecycle.py"
+  ],
+  "all_byte_identical_to_baseline": true
+}

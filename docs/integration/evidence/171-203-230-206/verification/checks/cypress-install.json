@@ -1,0 +1,10 @@
+{
+  "command": [
+    "node",
+    "src/tests/node_modules/cypress/bin/cypress",
+    "install"
+  ],
+  "exit_code": 0,
+  "status": "PASS",
+  "elapsed_seconds": 15.13
+}

@@ -1,0 +1,15 @@
+{
+  "command": [
+    "src/core/.venv/bin/ruff",
+    "format",
+    "--config",
+    "src/core/pyproject.toml",
+    "--check",
+    "src/core/modules",
+    "tools/infrastructure/onlyoffice",
+    "tools/onlyoffice_integration"
+  ],
+  "exit_code": 0,
+  "status": "PASS",
+  "elapsed_seconds": 0.032
+}

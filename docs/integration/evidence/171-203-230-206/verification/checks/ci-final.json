@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "openapi_only_triggers": {
+    "src/core/modules/sol_laboratory/api/openapi.yaml": true,
+    "src/core/modules/sol_laboratory/api/sync-updates.openapi.yaml": true
+  },
+  "literal_task_test_apps": true,
+  "cargo_precheck": true,
+  "required_aggregation": [
+    "changes",
+    "test-runner"
+  ],
+  "hosted_execution": "NOT VERIFIED"
+}

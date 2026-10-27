@@ -1,0 +1,13 @@
+{
+  "command": [
+    "src/core/.venv/bin/python",
+    "-m",
+    "ruff",
+    "format",
+    "--check",
+    "src/core/modules"
+  ],
+  "exit_code": 0,
+  "status": "PASS",
+  "elapsed_seconds": 0.064
+}

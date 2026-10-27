@@ -1,0 +1,246 @@
+{
+  "environment": "Owned rootless Podman strict internal bridge; local Odoo 20/PostgreSQL 18/Garage 2.4.1/Document Server 9.4.0.1; fresh named databases and buckets; retained source fixtures. No production endpoint contacted.",
+  "base_main": "029b979d1945484dbb720088dd77b4993a4ff2ad",
+  "source_head": "66eadeb831d58e787e6bc59f8c32f1917f62dfe8",
+  "results": [
+    {
+      "case": "merged-native-final",
+      "status": "PASS",
+      "exit_code": 0,
+      "seconds": 733.889,
+      "command": [
+        "docker",
+        "--host=unix:///run/user/1000/podman/podman.sock",
+        "compose",
+        "-p",
+        "medilab171-agent4-approval-strict3",
+        "-f",
+        "tools/onlyoffice_integration/compose.yml",
+        "-f",
+        ".local/pr292-sync/native-strict-final.compose.yml",
+        "run",
+        "--no-deps",
+        "--name",
+        "medilab171-agent4-approval-strict3-native-final",
+        "sync-native"
+      ]
+    },
+    {
+      "case": "merged-history",
+      "status": "PASS",
+      "exit_code": 0,
+      "seconds": 97.208,
+      "command": [
+        "src/core/.venv/bin/python",
+        "tools/onlyoffice_integration/run.py",
+        "test"
+      ]
+    },
+    {
+      "case": "merged-saves",
+      "status": "PASS",
+      "exit_code": 0,
+      "seconds": 95.157,
+      "command": [
+        "src/core/.venv/bin/python",
+        "tools/onlyoffice_integration/run.py",
+        "test"
+      ]
+    },
+    {
+      "case": "merged-workers",
+      "status": "PASS",
+      "exit_code": 0,
+      "seconds": 0.364,
+      "command": [
+        "src/core/.venv/bin/python",
+        "-m",
+        "tools.onlyoffice_integration.probe_runtime"
+      ]
+    },
+    {
+      "case": "merged-desktop-observer",
+      "status": "PASS",
+      "exit_code": 0,
+      "seconds": 65.84,
+      "command": [
+        "src/core/.venv/bin/python",
+        "-m",
+        "tools.onlyoffice_integration.page_sync"
+      ]
+    },
+    {
+      "case": "merged-cypress",
+      "status": "PASS",
+      "exit_code": 0,
+      "seconds": 23.549,
+      "command": [
+        "podman",
+        "exec",
+        "-w",
+        "/workspace/src/tests",
+        "-e",
+        "MEDILAB_URL=http://strict-web:8069",
+        "medilab-integration-pr292-cypress-v2",
+        "env",
+        "-u",
+        "ELECTRON_RUN_AS_NODE",
+        "node",
+        "node_modules/cypress/bin/cypress",
+        "run",
+        "--browser",
+        "electron",
+        "--spec",
+        "cypress/e2e/laboratory_editor.cy.js",
+        "--config",
+        "video=false,screenshotOnRunFailure=false"
+      ]
+    },
+    {
+      "case": "merged-apps",
+      "status": "PASS",
+      "exit_code": 0,
+      "seconds": 12.081,
+      "command": [
+        "task",
+        "test:apps"
+      ]
+    },
+    {
+      "case": "merged-clippy",
+      "status": "PASS",
+      "exit_code": 0,
+      "seconds": 0.565,
+      "command": [
+        "podman",
+        "exec",
+        "-w",
+        "/workspace/src/applications/medilab-sync",
+        "medilab-integration-pr292-sync-rust-v4",
+        "cargo",
+        "clippy",
+        "--locked",
+        "--manifest-path",
+        "src-tauri/Cargo.toml",
+        "--all-targets",
+        "--all-features",
+        "--",
+        "-D",
+        "warnings"
+      ]
+    },
+    {
+      "case": "merged-rust-fmt",
+      "status": "PASS",
+      "exit_code": 0,
+      "seconds": 0.364,
+      "command": [
+        "podman",
+        "exec",
+        "-w",
+        "/workspace/src/applications/medilab-sync",
+        "medilab-integration-pr292-sync-rust-v4",
+        "cargo",
+        "fmt",
+        "--manifest-path",
+        "src-tauri/Cargo.toml",
+        "--all",
+        "--",
+        "--check"
+      ]
+    },
+    {
+      "case": "merged-frontend-build",
+      "status": "PASS",
+      "exit_code": 0,
+      "seconds": 2.367,
+      "command": [
+        "bun",
+        "run",
+        "build"
+      ]
+    },
+    {
+      "case": "merged-typecheck",
+      "status": "PASS",
+      "exit_code": 0,
+      "seconds": 10.326,
+      "command": [
+        "task",
+        "typecheck"
+      ]
+    },
+    {
+      "case": "merged-openapi",
+      "status": "PASS",
+      "exit_code": 0,
+      "seconds": 2.467,
+      "command": [
+        "task",
+        "test:openapi"
+      ]
+    },
+    {
+      "case": "merged-taskfiles",
+      "status": "PASS",
+      "exit_code": 0,
+      "seconds": 2.57,
+      "command": [
+        "task",
+        "test:taskfiles"
+      ]
+    },
+    {
+      "case": "merged-fast",
+      "status": "PASS",
+      "exit_code": 0,
+      "seconds": 5.068,
+      "command": [
+        "task",
+        "test:onlyoffice:coverage"
+      ]
+    },
+    {
+      "case": "merged-infra-schema-ready",
+      "status": "PASS",
+      "exit_code": 0,
+      "seconds": 6.477,
+      "command": [
+        "bash",
+        "tools/infrastructure/onlyoffice/validate.sh"
+      ]
+    },
+    {
+      "case": "merged-cloudbeaver-unit",
+      "status": "PASS",
+      "exit_code": 0,
+      "seconds": 240.403,
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/cloudbeaver",
+        "-v"
+      ]
+    },
+    {
+      "case": "merged-lint",
+      "status": "FAIL",
+      "exit_code": 201,
+      "seconds": 31.655,
+      "command": [
+        "task",
+        "lint"
+      ]
+    }
+  ],
+  "count_notes": {
+    "merged-native-final": "1846 post-tests, zero failures/errors, no skipped reported",
+    "merged-apps": "213 Rust passed, 18 ignored; 53 Bun passed; 4 Mobile passed",
+    "merged-cypress": "7 passed, zero pending",
+    "merged-cloudbeaver-unit": "44 passed, 4 Kubernetes cases skipped; hosted kind job passed separately",
+    "merged-lint": "three documented Commerce baseline diagnostics only"
+  }
+}

@@ -1,0 +1,188 @@
+openapi: 3.1.0
+info:
+  title: MediLab ONLYOFFICE callback
+  version: 1.0.0
+  description: >-
+    Native Document Server callback, outside the device API. The callback token and
+    every supplied JWT are verified; header JWT payload, body JWT claims and body
+    fields must agree after registered token claims are removed. The configured
+    outbox header is Medilab-Editor-Token with prefix "Bearer ", HS256, a five-minute
+    lifetime and a required exp claim; Odoo permits 60 seconds of clock difference.
+    A fully signed body-only callback is also supported. No device key or browser
+    session authenticates this route. HTML editor pages are not part of this contract.
+    A header JWT can supply the signed fields with an empty object body. Token-only
+    bodies supply the fields through their JWT claims.
+servers:
+  - url: /
+paths:
+  /medilab/laboratory-files/callback/{callback_token}:
+    post:
+      operationId: receiveEditingCallback
+      summary: Receives a checked Document Server activity or final-save callback.
+      x-onlyoffice-authentication:
+        callbackToken: Required path capability, verified against its stored SHA-256.
+        signature: Verified custom-header JWT or body JWT; every supplied token must agree.
+        description: >-
+          OpenAPI security schemes cannot express a path capability combined with
+          conditional body-JWT authentication. This extension is enforced by runtime
+          cryptographic checks and HTTP tests, not by schema validation alone.
+      parameters:
+        - name: callback_token
+          in: path
+          required: true
+          description: Session capability whose SHA-256 alone is stored; never log it.
+          schema:
+            type: string
+            minLength: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/CallbackFields'
+                - type: object
+                  required: [token]
+                  properties:
+                    token:
+                      type: string
+                  additionalProperties: false
+                - type: object
+                  maxProperties: 0
+      responses:
+        '200':
+          description: >-
+            The checked callback was handled and its intended effects committed.
+            Includes duplicate/unchanged saves and recorded terminal error states;
+            acknowledgement is not a claim that a version was stored.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Acknowledged'
+        '400':
+          $ref: '#/components/responses/Malformed'
+        '403':
+          $ref: '#/components/responses/Unauthenticated'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          description: Wrong method; nothing is changed.
+          headers:
+            Allow:
+              required: true
+              schema:
+                type: string
+                const: POST
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Failure'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          description: >-
+            Temporary save failure or exhausted Odoo concurrency retries. A normal
+            temporary-failure response commits saving/expired state needed by the
+            next callback; failed Odoo retry attempts roll back. Document Server's
+            delivery retries are finite. HTTP 200 with error 1 is not a retry signal.
+            Also requests a fresh signed delivery if the JWT expires during an
+            internal retry of a previously validated save. The expired attempt
+            performs no fetch or mutation. Commit-time concurrency failures roll
+            back and are not evidence that Odoo exhausted five attempts.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Failure'
+components:
+  securitySchemes:
+    EditorHeader:
+      type: apiKey
+      in: header
+      name: Medilab-Editor-Token
+  schemas:
+    CallbackFields:
+      type: object
+      required: [key, status]
+      properties:
+        key:
+          type: string
+          minLength: 1
+          maxLength: 128
+        status:
+          type: integer
+          enum: [1, 2, 3, 4, 6, 7]
+        token:
+          type: string
+        url:
+          type: [string, 'null']
+        users:
+          type: array
+          items:
+            type: string
+        history:
+          type: object
+          properties:
+            changes:
+              type: array
+              items:
+                type: object
+                properties:
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      name:
+                        type: string
+      allOf:
+        - if:
+            properties:
+              status:
+                const: 2
+          then:
+            required: [url]
+            properties:
+              url:
+                type: string
+                minLength: 1
+    Acknowledged:
+      type: object
+      required: [error]
+      additionalProperties: false
+      properties:
+        error:
+          type: integer
+          const: 0
+    Failure:
+      type: object
+      required: [error]
+      additionalProperties: false
+      properties:
+        error:
+          type: integer
+          const: 1
+  responses:
+    Malformed:
+      description: Malformed payload, unsupported status or refused saved URL; no partial mutation.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Failure'
+    Unauthenticated:
+      description: Invalid JWT, callback token or document key; no mutation or file fetch.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Failure'
+    NotFound:
+      description: No callback route at this path.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Failure'
+    InternalError:
+      description: Unexpected failure; the request is rolled back and a sanitized incident is logged.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Failure'

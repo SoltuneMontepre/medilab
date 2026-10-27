@@ -1,0 +1,26 @@
+{
+  "command": [
+    "podman",
+    "exec",
+    "-w",
+    "/workspace/src/tests",
+    "-e",
+    "MEDILAB_URL=http://security-web:8069",
+    "medilab-release-quality-cypress",
+    "env",
+    "-u",
+    "ELECTRON_RUN_AS_NODE",
+    "node",
+    "node_modules/cypress/bin/cypress",
+    "run",
+    "--browser",
+    "electron",
+    "--spec",
+    "cypress/e2e/laboratory_editor.cy.js",
+    "--config",
+    "video=false,screenshotOnRunFailure=false"
+  ],
+  "exit_code": 0,
+  "status": "PASS",
+  "elapsed_seconds": 27.715
+}

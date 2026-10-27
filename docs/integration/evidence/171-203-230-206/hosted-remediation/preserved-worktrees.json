@@ -1,0 +1,39 @@
+[
+  {
+    "worktree": "/home/leon/Projects/medilab",
+    "head": "9e01810747710a96a673a2688456d8624f09e4c1",
+    "status": [
+      " M questions/laboratory.md"
+    ]
+  },
+  {
+    "worktree": "/home/leon/Projects/medilab-wt-onlyoffice-p1",
+    "head": "e6f24173c831eac945fc90cd50af4a6f788ba2c6",
+    "status": []
+  },
+  {
+    "worktree": "/home/leon/Projects/medilab-wt-171-security-verification",
+    "head": "fec03154ceac7bb1ce9a637b9f0c077d5c3374ed",
+    "status": []
+  },
+  {
+    "worktree": "/home/leon/Projects/medilab-wt-203",
+    "head": "c3f9dd1817ca43c898e9ef3f4b3dd6570a41b7f6",
+    "status": []
+  },
+  {
+    "worktree": "/home/leon/Projects/medilab-wt-230",
+    "head": "5a7e48f0afa7c64cca245a844a1408c7480b25cc",
+    "status": []
+  },
+  {
+    "worktree": "/home/leon/Projects/medilab-wt-206",
+    "head": "8cf339fd601e49c366518495f26d8695a33be26a",
+    "status": []
+  },
+  {
+    "worktree": "/tmp/medilab-integration-171-203-230-206",
+    "head": "c086db3210a3c0a692570b170f4f856a36ad9786",
+    "status": []
+  }
+]

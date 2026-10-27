@@ -1,0 +1,10 @@
+{
+  "command": [
+    "task",
+    "test:openapi",
+    "OPENAPI_BASE=origin/main"
+  ],
+  "exit_code": 0,
+  "status": "PASS",
+  "elapsed_seconds": 1.918
+}
