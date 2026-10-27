@@ -19,6 +19,7 @@ Odoo enforces permissions: each permission becomes Odoo groups and accesses, so 
 One document per role, in `permissions/<role>.md`.
 
 - [Administrator](permissions/admin.md): every permission, as Odoo's default administrator
+- [Head of department](permissions/head-of-department.md): the testing work of their department
 
 ## Security reviews
 

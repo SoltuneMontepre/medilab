@@ -58,6 +58,18 @@ class TestTaskReassigning(TaskCase):
         self.assign(task, department_id=self.microbiology.id, reason="Needs a culture")
         self.assertEqual((task.department_id, task.status), (self.microbiology, "open"))
 
+    def test_head_who_moved_a_task_to_another_department_still_reads_it_but_cannot_change_it(self):
+        task = self.receive_sample(self.chemistry)
+
+        self.assign(task, department_id=self.microbiology.id, reason="Needs a culture")
+
+        moved = self.as_person(task, self.head)
+        self.assertEqual(moved.read(["department_id", "can_edit"])[0]["department_id"][0], self.microbiology.id)
+        self.assertFalse(moved.can_edit)
+        with self.assertRaises(AccessError):
+            moved.write({"note": "Back to chemistry"})
+        self.assertFalse(self.as_person(task, self.colleague).has_access("read"))
+
     def test_assignee_must_belong_to_the_department(self):
         task = self.receive_sample(self.chemistry)
 

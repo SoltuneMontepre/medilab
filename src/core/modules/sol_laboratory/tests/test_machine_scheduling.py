@@ -144,6 +144,24 @@ class TestMachineScheduling(SchedulingCase):
         self.assertEqual((booking.starts_at, booking.ends_at), (later, later + 3 * SLOT))
         self.assertEqual(event.stop, later + 3 * SLOT)
 
+    def test_the_person_running_a_test_moves_their_booking_from_its_form_and_the_calendar(self):
+        self.slow.status = "under_repair"
+        self.testing_task(self.test, self.tester)
+        booking = self.schedule(self.test, self.tester)
+        waiting = self.queue(self.new_test(MONDAY + timedelta(minutes=50)), self.other_tester, MONDAY)
+        self.env[MODEL_MACHINE_BOOKING]._process_queue()
+        own = booking.with_user(self.tester.user_id)
+        for view_type in ("form", "calendar"):
+            self.assertNotIn('edit="False"', own.get_view(view_type=view_type)["arch"])
+
+        later = MONDAY + timedelta(hours=2)
+        own.write({"starts_at": later, "ends_at": later + SLOT})
+
+        self.assertEqual((booking.starts_at, booking.ends_at), (later, later + 3 * SLOT))
+        self.assertEqual((waiting.status, waiting.starts_at), ("scheduled", MONDAY))
+        with self.assertRaises(AccessError):
+            own.write({"person_id": self.other_tester.id})
+
     def test_only_the_person_running_a_test_and_their_head_adjust_its_booking(self):
         self.testing_task(self.test, self.tester)
         booking = self.schedule(self.test, self.tester)

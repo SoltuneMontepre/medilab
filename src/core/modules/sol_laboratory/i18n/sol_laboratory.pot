@@ -14349,3 +14349,13 @@ msgstr ""
 #: code:addons/sol_laboratory/services/laboratory_editor_page.py:0
 msgid "You do not have permission to edit this file."
 msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__can_edit
+msgid "Can Edit"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__moved_out_by_ids
+msgid "Moved Out By"
+msgstr ""

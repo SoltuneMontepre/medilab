@@ -60,6 +60,7 @@
                     <field name="is_mine" invisible="1" />
                     <field name="in_my_queue" invisible="1" />
                     <field name="closed_by_system" invisible="1" />
+                    <field name="can_edit" invisible="1" />
                     <button name="action_claim" type="object" string="Claim" class="btn-primary" invisible="not in_my_queue" />
                     <button
                         name="action_start"
@@ -80,14 +81,14 @@
                         type="action"
                         string="Assign"
                         context="{'active_ids': [id]}"
-                        invisible="not id or status in ('done', 'cancelled')"
+                        invisible="not id or not can_edit or status in ('done', 'cancelled')"
                         groups="sol_laboratory.group_permission_task_edit_all,sol_laboratory.group_permission_task_edit_own_department"
                     />
                     <button
                         name="action_assign_sample"
                         type="object"
                         string="Assign Sample"
-                        invisible="document_model != 'medilab.sample.test' or status in ('done', 'cancelled')"
+                        invisible="document_model != 'medilab.sample.test' or not can_edit or status in ('done', 'cancelled')"
                         groups="sol_laboratory.group_permission_task_edit_all,sol_laboratory.group_permission_task_edit_own_department"
                     />
                     <button
@@ -95,7 +96,7 @@
                         type="object"
                         string="Cancel Task"
                         class="btn-danger"
-                        invisible="not id or closed_by_system or status in ('done', 'cancelled')"
+                        invisible="not id or not can_edit or closed_by_system or status in ('done', 'cancelled')"
                         groups="sol_laboratory.group_permission_task_edit_all,sol_laboratory.group_permission_task_edit_own_department"
                     />
                     <field name="status" widget="statusbar" statusbar_visible="open,assigned,in_progress,done" />
@@ -113,7 +114,7 @@
                     </div>
                     <div class="oe_title">
                         <label for="name" />
-                        <h1><field name="name" /></h1>
+                        <h1><field name="name" readonly="not can_edit" /></h1>
                     </div>
                     <group>
                         <group>
@@ -124,13 +125,13 @@
                             <field name="sampling_location_id" invisible="not sampling_location_id" />
                         </group>
                         <group>
-                            <field name="deadline" required="not id" />
-                            <field name="planned_start" />
-                            <field name="planned_end" />
+                            <field name="deadline" required="not id" readonly="not can_edit" />
+                            <field name="planned_start" readonly="not can_edit" />
+                            <field name="planned_end" readonly="not can_edit" />
                             <field name="done_at" invisible="not done_at" />
                         </group>
                         <field name="reassign_reason" colspan="2" invisible="not reassign_reason" />
-                        <field name="note" colspan="2" nolabel="1" placeholder="Details of the work" />
+                        <field name="note" colspan="2" nolabel="1" placeholder="Details of the work" readonly="not can_edit" />
                         <field name="document_model" invisible="1" />
                         <field name="document_id" invisible="1" />
                     </group>
