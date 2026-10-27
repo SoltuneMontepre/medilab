@@ -92,6 +92,7 @@
         "views/testing/change_request_views.xml",
         "views/testing/machine_booking_views.xml",
         "views/testing/res_config_settings_views.xml",
+        "views/master_data/res_config_settings_views.xml",
         "views/system/res_config_settings_views.xml",
         "views/signing/res_config_settings_views.xml",
         "views/laboratory_files/res_config_settings_views.xml",

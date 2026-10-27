@@ -72,6 +72,14 @@
         <field name="interval_number">1</field>
         <field name="interval_type">days</field>
     </record>
+    <record id="ir_cron_quality_registration_expiry" model="ir.cron">
+        <field name="name">Quality registration expiry</field>
+        <field name="model_id" ref="model_medilab_scheduled_job" />
+        <field name="state">code</field>
+        <field name="code">model._run_key("quality_registration.expiry")</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+    </record>
     <record id="ir_cron_laboratory_file_locks_expire" model="ir.cron">
         <field name="name">Expire laboratory file locks</field>
         <field name="model_id" ref="model_medilab_scheduled_job" />
