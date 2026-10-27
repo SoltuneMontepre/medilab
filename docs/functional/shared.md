@@ -198,6 +198,7 @@ Work waiting for someone is a task with a deadline, and every person sees their 
 - **Tasks are MediLab's own.** A task has its chatter and attachments. Tasks are internal: a task is assigned to one internal Odoo user, so everyone who does tasks has a login.
 - **Task types.** Each kind of task, such as sample collection, testing a parameter or signing a document, is a task type. Task types come with the modules that create their tasks; administrators neither create nor remove them. A task type says what creates its tasks (an event, or people by hand), where new tasks go (the queue of the department the event names, the holders of a role, or the person the event names), and the deadline when the document gives none. Administrators choose where new tasks go and the default deadline.
 - **Created by the system or by people.** The system creates a task when its event happens, such as a sample being received. People can also create a task and assign it with a deadline, such as sales scheduling a sample collection on an order.
+- **Waiting work.** Every step of a module that waits on a person is a task, so nothing waits where nobody sees it. Each module document names its task types: what creates the task, who receives it, when it is done or cancelled, and its default deadline.
 - **Linked documents.** Only the system links a task to the document it opens and sets its type. Nobody changes a task's type or document afterwards. A task acts on its document, such as a testing task showing its method's steps or moving its test along as it is assigned, only while the system linked it. A task stored before this rule is trusted only when its audit trail shows it was created that way and never changed; an administrator reviews the others.
 - **Department queue.** A task routed to a department waits in that department's queue until the head of department assigns it to a person or a person of the department claims it. When two people claim the same task at once, the second is told it is already claimed. A task routed to a role waits the same way until one of the role's holders claims it.
 - **Access.** Every person sees the tasks assigned to them and the queues they can claim from without any permission. Creating tasks by hand, assigning, reassigning and cancelling them, and seeing other tasks need the task permissions, such as those of the person's department for a head of department.
@@ -210,6 +211,7 @@ Work waiting for someone is a task with a deadline, and every person sees their 
 Acceptance criteria:
 
 - A task assigned to a person appears in their to-do list with its deadline.
+- Each step a module document lists as waiting on a person appears as a task in someone's to-do list or queue.
 - A person can claim an unassigned task of their own department, not of another; a task already claimed cannot be claimed again.
 - Reassigning a task without a reason is refused.
 - A task created by hand that names a document, or a change to a task's type or document, is refused; a task changed that way before the rule never acts on its document.
