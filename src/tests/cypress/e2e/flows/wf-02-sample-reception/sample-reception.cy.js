@@ -1,6 +1,6 @@
 import { choose, newRecord, openTab, pick, save, search } from "../../../support/form";
 import { callAs, callRefused, refAs } from "../../../support/odoo";
-import { PARAMETERS, PNG, STAFF, orderRequest, receive, signedRecord, staffRequest, testingTasks } from "./setup";
+import { PARAMETERS, PNG, STAFF, collectionTask, inMinutes, orderRequest, receive, signedRecord, staffRequest, testingTasks } from "./setup";
 
 // Sample delivery staff record a sample's receipt on its form.
 function receiveOnForm(sample, condition, note) {
@@ -78,24 +78,12 @@ describe("WF-02 Sample reception and handover", () => {
   it("TC-WF02-A1 collects the samples at the customer's site from the collection task, with photos and the customer's signature", () => {
     staffRequest().then((request) => {
       const [sample] = request.samples;
-      // Sales schedules the collection; a task created by hand names what to collect and opens no document.
-      refAs("demo.administrator", "sol_laboratory.task_type_sample_collection").then((type) =>
-        refAs("demo.administrator", "sol_demo.demo_person_sample_delivery_staff").then((staff) =>
-          callAs("demo.administrator", "medilab.task", "create", [
-            {
-              type_id: type.id,
-              name: `Collect ${request.code}`,
-              assignee_id: staff.id,
-              deadline: new Date(Date.now() + 86400000).toISOString().replace("T", " ").slice(0, 19),
-            },
-          ]),
-        ),
-      ).then((id) => {
-        const task = { model: "medilab.task", id };
+      // Sales schedules the collection.
+      collectionTask(request, { deadline: inMinutes(24 * 60) }).then((task) => {
         cy.signInAs("sample_delivery_staff");
         cy.visit("/odoo/my-tasks");
-        search(`Collect ${request.code}`);
-        cy.contains(".o_data_row", `Collect ${request.code}`).should("be.visible");
+        search(task.name);
+        cy.contains(".o_data_row", task.name).should("be.visible");
         cy.openRecord(task);
         cy.get(".o_statusbar_buttons button[name=action_start]").click();
         cy.get(".o_statusbar_buttons button[name=action_start]").should("not.exist");
@@ -106,6 +94,32 @@ describe("WF-02 Sample reception and handover", () => {
         cy.get(".o_statusbar_buttons button[name=action_done]").should("not.exist");
         cy.readRecord(task, ["status"]).its("status").should("eq", "done");
         cy.readRecord(sample, ["photo_ids"]).its("photo_ids").should("have.length", 1);
+      });
+    });
+  });
+
+  it("TC-F16-01 shows a planned collection task on the staff's schedule and to-do list, and reminds them before it starts", () => {
+    staffRequest().then((request) => {
+      // Inside the default reminder lead of 15 minutes.
+      collectionTask(request, { planned_start: inMinutes(10), deadline: inMinutes(24 * 60) }).then((task) => {
+        cy.signInAs("sample_delivery_staff");
+        cy.visit("/odoo/my-tasks");
+        search(task.name);
+        cy.contains(".o_data_row", task.name).should("be.visible");
+        cy.visit("/odoo/calendar");
+        cy.contains(".fc-event", task.name).should("exist");
+
+        refAs("demo.administrator", "sol_laboratory.ir_cron_notifications_remind").then(({ id }) =>
+          callAs("demo.administrator", "ir.cron", "method_direct_trigger", [[id]]),
+        );
+        callAs("demo.administrator", "mail.message", "search_count", [
+          [
+            ["model", "=", "medilab.task"],
+            ["res_id", "=", task.id],
+            ["subtype_id.code", "=", "task.reminder"],
+            ["notification_ids.res_partner_id.user_ids.login", "=", STAFF],
+          ],
+        ]).should("eq", 1);
       });
     });
   });
@@ -132,10 +146,7 @@ describe("WF-02 Sample reception and handover", () => {
     pick("sample_type_id", "Bottled water");
     choose("physical_state", "Liquid");
     cy.get(".modal .o_field_widget[name=test_ids] .o_field_x2many_list_row_add button").click();
-    // Saving while the sample still recomputes from its new test breaks Odoo's dialog.
-    cy.intercept("POST", "/web/dataset/call_kw/medilab.sample/onchange").as("sampleChange");
     pick("parameter_id", "Lead (Pb)");
-    cy.wait("@sampleChange");
     cy.contains(".modal footer button", "Save & Close").click();
     cy.get(".modal").should("not.exist");
     cy.get(".o_statusbar_buttons button[name=action_confirm]").click();
@@ -368,13 +379,15 @@ describe("WF-02 feature acceptance criteria", () => {
     afterEach(() => setOwnPermission(3));
 
     it("TC-F19-01 gives a person every permission of their roles plus their own", () => {
-      setOwnPermission(3);
-      cy.signInAs("microbiology_tester");
-      callRefused("medilab.test.request", "search", [[]]).should("contain", "medilab.test.request");
-      setOwnPermission(4);
-      // Testers' own role still applies alongside the permission given to the person.
-      callAs(login, "medilab.test.request", "search_count", [[]]).should("be.greaterThan", 0);
-      callAs(login, "medilab.sample", "search_count", [[]]).should("be.greaterThan", 0);
+      staffRequest().then((request) => {
+        setOwnPermission(3);
+        cy.signInAs("microbiology_tester");
+        callRefused("medilab.test.request", "search", [[]]).should("contain", "medilab.test.request");
+        setOwnPermission(4);
+        // Testers' own role still applies alongside the permission given to the person.
+        callAs(login, "medilab.test.request", "search_count", [[["id", "=", request.id]]]).should("eq", 1);
+        callAs(login, "medilab.sample", "search_count", [[["id", "=", request.samples[0].id]]]).should("eq", 1);
+      });
     });
   });
 

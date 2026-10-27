@@ -174,7 +174,7 @@ cy.expectRefusal({
 | `newRecord(path)` | Open a list such as `/odoo/lab-orders`, click **New** and wait until Odoo has filled in the defaults. |
 | `pick(field, text)` | Type into a many2one field and click the suggestion that contains `text`. |
 | `choose(field, label)` | Choose a selection field's value by its label. |
-| `search(text)` | Filter the list by the first field of its search view, so a record past the first page is shown. |
+| `search(text)` | Filter the list by the first field of its search view and wait for the filtered rows, so a record past the first page is shown. |
 | `save()` | Save the form and wait until it has no unsaved changes. |
 | `openTab(name)` | Open the notebook page with that `name`. |
 

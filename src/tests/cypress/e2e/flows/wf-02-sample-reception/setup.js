@@ -94,6 +94,24 @@ export function signedRecord(request, sample, quantity = "500 ml", device = fals
     .then((id) => callAs(STAFF, "medilab.handover.record", "action_sign", [[id], PNG, device]).then(() => ({ model: "medilab.handover.record", id })));
 }
 
+// A sample collection task of a test request, assigned to sample delivery staff by an administrator, as `{ model, id, name }`.
+// A task created by hand names what to collect and opens no document.
+export function collectionTask(request, values) {
+  const name = `Collect ${request.code}`;
+  return refAs("demo.administrator", "sol_laboratory.task_type_sample_collection")
+    .then((type) =>
+      refAs("demo.administrator", "sol_demo.demo_person_sample_delivery_staff").then((staff) =>
+        callAs("demo.administrator", "medilab.task", "create", [{ type_id: type.id, name, assignee_id: staff.id, ...values }]),
+      ),
+    )
+    .then((id) => ({ model: "medilab.task", id, name }));
+}
+
+// A time from now as Odoo stores it, in UTC.
+export function inMinutes(minutes) {
+  return new Date(Date.now() + minutes * 60000).toISOString().replace("T", " ").slice(0, 19);
+}
+
 // The testing tasks of a sample's tests, whoever may see them.
 export function testingTasks(sample) {
   return callAs(STAFF, "medilab.sample", "read", [[sample.id], ["test_ids"]]).then(([read]) =>

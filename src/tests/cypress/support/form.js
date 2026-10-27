@@ -37,8 +37,11 @@ export function search(text) {
   cy.get(".o_searchview_input").type(text);
   // Enter applies the first suggestion only once the suggestions are shown.
   cy.get(".o_searchview_autocomplete").should("contain", text);
+  // Rows shown before the filtered list arrives still match the callers' row queries.
+  cy.intercept("POST", "/web/dataset/call_kw/*/web_search_read").as("filtered");
   cy.get(".o_searchview_input").type("{enter}");
   cy.contains(".o_searchview_facet", text);
+  cy.wait("@filtered");
 }
 
 export function save() {
