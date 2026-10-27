@@ -56,11 +56,6 @@ msgid "<span>Quantity</span>"
 msgstr "<span>Số lượng</span>"
 
 #. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.report_saleorder_document_customer_logo
-msgid "<strong>Salesperson</strong>"
-msgstr "<strong>Nhân viên kinh doanh</strong>"
-
-#. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/controllers/catalog.py:0
 #: code:addons/sol_commerce/models/orders/sale_order.py:0
@@ -1776,6 +1771,7 @@ msgstr "Dòng đơn bán hàng"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_search
+#: model_terms:ir.ui.view,arch_db:sol_commerce.report_saleorder_document_customer_logo
 msgid "Salesperson"
 msgstr "Nhân viên kinh doanh"
 

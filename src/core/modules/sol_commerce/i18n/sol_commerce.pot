@@ -3461,6 +3461,7 @@ msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_search
+#: model_terms:ir.ui.view,arch_db:sol_commerce.report_saleorder_document_customer_logo
 msgid "Salesperson"
 msgstr ""
 

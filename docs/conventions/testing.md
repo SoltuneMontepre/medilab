@@ -59,7 +59,7 @@ The harness requires context `kind-medilab-286-review`, a loopback API server an
 
 - A test file is named `<feature>.cy.js` under `src/tests/cypress/e2e/`. Business-flow specs belong to `flows/<flow>/`; feature specs without an owning flow belong to `features/<module>/<feature>/`. The [browser test layout](../../src/tests/cypress/e2e/README.md) maps issue scopes to directories and spec basenames.
 - Every feature has a browser test of its main path, written with the feature: it signs in as the demo user of the role that does the work, such as `demo.tester`, and walks the main path on the demo data.
-- The support entry point `cypress/support/e2e.js` registers the shared commands below. Tests use them instead of copying sign-in, navigation or action steps. `call(<model>, <method>, <args>, <kwargs>)` from `cypress/support/odoo.js` calls a model method in the signed-in session and fails on an RPC error. Existing tests may still import `signIn(<login>)` from that file; it uses the same session handling as `cy.signInAs()`.
+- The support entry point `cypress/support/e2e.js` registers the shared commands below and keeps Odoo from subscribing to web push, which the test browser cannot do. Tests use them instead of copying sign-in, navigation or action steps. `call(<model>, <method>, <args>, <kwargs>)` from `cypress/support/odoo.js` calls a model method in the signed-in session and fails on an RPC error. Existing tests may still import `signIn(<login>)` from that file; it uses the same session handling as `cy.signInAs()`.
 - Tests use the app address `MEDILAB_URL`, default `http://localhost:8069`.
 - Tests do not depend on data a previous test created.
 - The task unsets `ELECTRON_RUN_AS_NODE`, which editors such as VS Code set and which stops Cypress from starting.
@@ -166,6 +166,17 @@ cy.expectRefusal({
 | `refAs(login, xmlId)` | Resolve a full demo external ID as a login and yield `{ model, id }`. |
 | `portalPostAs(login, page, path, form)` | Submit a portal form as a login, with the CSRF token of `page`. |
 | `callRefused(model, method, args, kwargs)` | Call a model method that must be refused and yield the server's message, in the signed-in user's language. Use it with a check that the screen does not offer the action. |
+
+`cypress/support/form.js` exports the steps for filling a form in the interface:
+
+| Function | Use |
+| --- | --- |
+| `newRecord(path)` | Open a list such as `/odoo/lab-orders`, click **New** and wait until Odoo has filled in the defaults. |
+| `pick(field, text)` | Type into a many2one field and click the suggestion that contains `text`. |
+| `choose(field, label)` | Choose a selection field's value by its label. |
+| `search(text)` | Filter the list by the first field of its search view and wait for the filtered rows, so a record past the first page is shown. |
+| `save()` | Save the form and wait until it has no unsaved changes. |
+| `openTab(name)` | Open the notebook page with that `name`. |
 
 Messages on screen follow the user's language: `demo.sales` reads Vietnamese, most other demo users English. Odoo screens load their data after the page, so commands wait up to ten seconds.
 

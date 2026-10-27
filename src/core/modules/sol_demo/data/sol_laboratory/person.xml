@@ -59,6 +59,7 @@
     </record>
     <record id="demo_person_microbiology_tester" model="medilab.person">
         <field name="name">Ngo Thi Mai</field>
+        <field name="user_id" ref="demo_res_users_microbiology_tester" />
         <field name="work_contact_id" ref="demo_res_partner_microbiology_tester" />
         <field name="department_id" ref="demo_hr_department_microbiology" />
         <field name="team_id" ref="demo_hr_department_pathogens" />
