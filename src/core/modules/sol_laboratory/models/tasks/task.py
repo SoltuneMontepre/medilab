@@ -231,7 +231,7 @@ class Task(models.Model):
         )
         result = super().write(vals)
         person = self.env[MODEL_PERSON]._current()
-        if moved_out and person:
+        if moved_out and person and not self.env.su:
             # Full rights: the person no longer changes a task that waits in another department's queue.
             moved_out.sudo().moved_out_by_ids = [Command.link(person.id)]
         if "assignee_id" in vals:
