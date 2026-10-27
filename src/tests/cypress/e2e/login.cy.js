@@ -14,4 +14,22 @@ describe("Login", () => {
 
     cy.contains("Wrong login/password").should("be.visible");
   });
+
+  describe("Demo sessions", () => {
+    before(() => cy.signInAs("tester"));
+
+    beforeEach(() => {
+      cy.intercept("POST", "/web/login").as("login");
+      cy.signInAs("tester");
+    });
+
+    it("signs in as the demo tester", () => {
+      cy.get(".o_web_client").should("be.visible");
+    });
+
+    it("restores the demo tester session between tests without another login", () => {
+      cy.get(".o_web_client").should("be.visible");
+      cy.get("@login.all").should("have.length", 0);
+    });
+  });
 });

@@ -5,7 +5,8 @@
     "test": "cypress run"
   },
   "devDependencies": {
-    "cypress": "^15.21.0"
+    "@cypress/grep": "^7.0.0",
+    "cypress": "^16.2.0"
   },
   "trustedDependencies": [
     "cypress"

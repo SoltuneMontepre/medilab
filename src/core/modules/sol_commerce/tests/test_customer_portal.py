@@ -46,6 +46,12 @@ class TestCustomerPortal(HttpCase, OrderCase):
         self.env.invalidate_all()
         return response
 
+    def test_the_catalog_lists_each_parameter_with_its_add_form(self):
+        html = self.url_open("/catalog").text
+
+        self.assertIn(self.lead_product.name, html)
+        self.assertRegex(html, rf'name="product_tmpl_id" value="{self.lead_product.id}"')
+
     def test_signing_up_registers_the_customer_who_sees_only_their_own_documents(self):
         order = self.make_quotable_order()
         order.with_user(self.sales).action_send_quotation()

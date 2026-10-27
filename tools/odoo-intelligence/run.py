@@ -17,20 +17,22 @@ SERENA = [
     "--enable-gui-log-window",
     "false",
 ]
+CLAUDE_CODE = "--client=claude-code"
+CODEX = "--client=codex"
 COMMANDS = {
     "mcp": ["mcp"],
     "serena-claude-code": [*SERENA, "--context", "claude-code"],
     "serena-ide": [*SERENA, "--context", "ide"],
-    "hook-serena-activate": ["serena-hooks", "activate", "--client=claude-code"],
-    "hook-serena-remind": ["serena-hooks", "remind", "--client=claude-code"],
-    "hook-serena-auto-approve": ["serena-hooks", "auto-approve", "--client=claude-code"],
-    "hook-serena-cleanup": ["serena-hooks", "cleanup", "--client=claude-code"],
-    "hook-serena-codex-activate": ["serena-hooks", "activate", "--client=codex"],
-    "hook-serena-codex-remind": ["serena-hooks", "remind", "--client=codex"],
-    "hook-serena-codex-reset": ["serena-hooks", "reset", "--client=codex"],
-    "hook-serena-codex-cleanup": ["serena-hooks", "cleanup", "--client=codex"],
+    "hook-serena-activate": ["serena-hooks", "activate", CLAUDE_CODE],
+    "hook-serena-remind": ["serena-hooks", "remind", CLAUDE_CODE],
+    "hook-serena-auto-approve": ["serena-hooks", "auto-approve", CLAUDE_CODE],
+    "hook-serena-cleanup": ["serena-hooks", "cleanup", CLAUDE_CODE],
+    "hook-serena-codex-activate": ["serena-hooks", "activate", CODEX],
+    "hook-serena-codex-remind": ["serena-hooks", "remind", CODEX],
+    "hook-serena-codex-reset": ["serena-hooks", "reset", CODEX],
+    "hook-serena-codex-cleanup": ["serena-hooks", "cleanup", CODEX],
 }
-GIT_MESSAGE_HOOKS = {"hook-git-message": [], "hook-git-message-codex": ["--client=codex"]}
+GIT_MESSAGE_HOOKS = {"hook-git-message": [], "hook-git-message-codex": [CODEX]}
 
 project = Path(__file__).resolve().parent
 mode = sys.argv[1] if len(sys.argv) == 2 else None
