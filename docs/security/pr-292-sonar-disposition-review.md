@@ -489,6 +489,14 @@ if __name__ == "__main__":
 
 PENDING OWNER APPROVAL. Four findings have evidence-backed FALSE POSITIVE recommendations: AaF2G1TlIES1tmkRiAIQ, AaF2G1X8IES1tmkRiAIS, AaF2G1X8IES1tmkRiAIT, AaF2G1X8IES1tmkRiAIV. Three live-HTTP findings are intended ACCEPT candidates: AaF2G1TlIES1tmkRiAIM, AaF2G1TlIES1tmkRiAIN, AaF0FHq1vCiqu-XFDLDC. Live bidirectional strict-bridge isolation has been demonstrated locally; the three decisions remain PROPOSED ACCEPT pending individually attributed security-owner decisions and all scope conditions. If any condition fails, they revert to FIX / REASSESS. Name the accountable risk owner and security approver, approve/reject each key independently, set scope and review/expiration dates, and record residual CIA risk. No response or automated test result constitutes approval. No Sonar status, rule, exclusion or threshold is changed.
 
+## Maintainability follow-up boundary
+
+The [follow-up 22-key matrix](../integration/sonar-cleanup-pr-292.md#behavior-preserving-follow-up-remediation) implements eleven behavior-preserving smell corrections. Fresh verification passes 53 native logging/editor HTTP/origin/JWT tests, two real callback cases including 27 editors and duplicate saves, four released-page/coediting cases and seven HTTP/WebSocket proxy cases. Native GC and a separate no-network TLS worker retain the existing signing/retention policy. The fresh source manifests and receipts distinguish these executions from earlier broad/Sync/Cypress results.
+
+None of those corrections resolves or administratively classifies these seven security findings. SHA-1 still processes only the RFC 6455 public nonce and fixed GUID; the three expected-origin assertions still verify the real fixed fixture destinations. The three HTTP findings still represent plaintext fixture transport/listeners. Garage requires a TLS reverse proxy for its S3 endpoint ([official configuration](https://garagehq.deuxfleurs.fr/documentation/reference-manual/configuration/#api_bind_addr)); changing URL literals or using a different WebSocket hash cannot provide a valid remediation. A full fixture TLS migration would need matching service/listener configuration, trusted certificate identities, unchanged presigned Host/path/query bytes and fresh real HTTP/WebSocket/save/retry validation. No TLS migration or risk approval is claimed here.
+
+All seven remain **PENDING OWNER APPROVAL**, with the Accountable Risk Owner and Authorized Security Approver formally TBD. The individual recommendations, rejection/fix fallback, residual risks and required attributable Sonar actions above remain in force. GitGuardian incident 39039733 remains a separate pending disposition. Engineering instructions and passing regressions do not approve security risk.
+
 ## Related documents
 
 - [Integration acceptance](../integration/171-203-230-206-acceptance.md)

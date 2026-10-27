@@ -1,0 +1,13 @@
+{
+  "src/core/modules/sol_laboratory/services/editing_callback_logging.py": "43bbf99993d615a5095e6aa206b268b15af20f1537638687f0a697acd952dcb2",
+  "src/core/modules/sol_laboratory/services/laboratory_editor_logging.py": "5f48b99c12860e4cb5412d3a7656881a98e00ba35c83845759d34c114b896734",
+  "src/core/modules/sol_laboratory/services/laboratory_editor_page.py": "48471fabbe2082310244d4edc67c97bba30babf5f581c26cda173023c1949f87",
+  "tools/infrastructure/onlyoffice/retention_probe.cjs": "22f7e1e13bba6d6fd92f0221a4f884c5aa964dcca221cfc928ce2e4cad8d9a34",
+  "tools/infrastructure/onlyoffice/retention_fixture.cjs": "30eecb130d221e9136872cfb5ede310b67f53f66e63a39b8d5dcf9a81d74f4c0",
+  "tools/infrastructure/onlyoffice/test_retention_fixture.cjs": "ed0b6fc51d6fd3e829657c71e64d4cd34c9cd3ac68c47405654a9f818ec5ff05",
+  "tools/infrastructure/onlyoffice/test_callback_signing.cjs": "16824324ffccdd1d444a62eae7faa4f3c810f5f148a7752a371fb23e49c085e1",
+  "tools/onlyoffice_integration/page_browser.cjs": "40e228e6f34a8e24b54bc0212c7a6c72b15e83324195b51200502348dcd213c3",
+  "tools/onlyoffice_integration/frame_diagnostics.cjs": "f0cc77d3e819320fb42fff3cd9f47f3276a9335885b222b43fd7d12048a3d413",
+  "tools/onlyoffice_integration/test_frame_diagnostics.cjs": "b7321a73a7fee1ab116667eff76991f5204c5c91d324f08359048680f2cf7319",
+  "tools/onlyoffice_integration/compose.page.yml": "3bf96808d5894f590a38dac642135f07f5c06c344e11f02e564acd6c88da4ac6"
+}

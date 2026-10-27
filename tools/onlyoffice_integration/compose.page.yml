@@ -12,3 +12,4 @@ services:
     volumes:
       - ./page_browser.cjs:/opt/browser/page_browser.cjs:ro
       - ./loopback_proxy.cjs:/opt/browser/loopback_proxy.cjs:ro
+      - ./frame_diagnostics.cjs:/opt/browser/frame_diagnostics.cjs:ro

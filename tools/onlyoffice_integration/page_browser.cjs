@@ -5,6 +5,7 @@ const os = require("node:os");
 const path = require("node:path");
 const { chromium } = require("playwright");
 const { proxy } = require("./loopback_proxy.cjs");
+const { collectFrameDiagnostics } = require("./frame_diagnostics.cjs");
 
 proxy(8081);
 proxy(3900);
@@ -115,14 +116,11 @@ http.createServer(async (request, response) => {
   } catch (error) {
     response.writeHead(500);
     // Native error messages can contain capabilities; retain only the fixed stage and error type.
-    const frames = [];
+    let frames = [];
     if (page) {
       const diagnostic = fs.mkdtempSync(path.join(os.tmpdir(), "medilab-page-probe-"));
       await page.screenshot({ path: path.join(diagnostic, "failure.png") }).catch(() => {});
-      for (const frame of page.frames()) {
-        frames.push(await frame.evaluate(() => Array.from(document.querySelectorAll("canvas, textarea, [contenteditable]"))
-          .map(el => ({ tag: el.tagName, id: el.id, editable: el.getAttribute("contenteditable") })).slice(0, 20)).catch(() => []));
-      }
+      frames = await collectFrameDiagnostics(page);
     }
     response.end(JSON.stringify({ stage, error: error.name, frames }));
   } finally {

@@ -3,6 +3,7 @@
 const assert = require("node:assert/strict");
 const crypto = require("node:crypto");
 const fs = require("node:fs");
+const {createAgedFixture} = require("./retention_fixture.cjs");
 
 const BINARY = "/var/www/onlyoffice/documentserver/server/DocService/docservice";
 const BINARY_SHA256 = "556df4aab7b1a87123046a4459baee34e60f57deaf7bcd189bccd6f271bd8fcb";
@@ -45,30 +46,9 @@ async function main() {
   const sha256 = crypto.createHash("sha256").update(bytes).digest("hex");
   stage = "create-fixtures";
   const NativeDate = Date;
-  for (const [name, ageDays] of [["young", 2], ["expired", 8]]) {
-    const ageMilliseconds = ageDays * DAY_SECONDS * 1000;
-    // The Community adapter assigns its own timestamp. Age only this disposable process's fixture creation.
-    global.Date = class FixtureDate extends NativeDate {
-      constructor(...args) {
-        super(...(args.length ? args : [NativeDate.now() - ageMilliseconds]));
-      }
-      static now() { return NativeDate.now() - ageMilliseconds; }
-    };
-    try {
-      const task = new tasks.TaskResultData();
-      task.key = keys[name];
-      task.tenant = ctx.tenant;
-      task.completeDefaults();
-      assert.equal((await tasks.select(ctx, task.key)).length, 0);
-      await tasks.upsert(ctx, task);
-    } finally {
-      global.Date = NativeDate;
-    }
-    const row = (await tasks.select(ctx, keys[name]))[0];
-    const actualAge = NativeDate.now() - new NativeDate(row.last_open_date).getTime();
-    assert.ok(Math.abs(actualAge - ageMilliseconds) < 5000);
-    await storage.putObject(ctx, keys[name] + "/probe.bin", bytes, bytes.length);
-  }
+  const fixture = {tasks, storage, ctx, bytes};
+  await createAgedFixture({...fixture, key: keys.young, ageDays: 2});
+  await createAgedFixture({...fixture, key: keys.expired, ageDays: 8});
   assert.equal(Date, NativeDate);
   const selected = await tasks.getExpired(ctx, 100, ctx.getCfg("services.CoAuthoring.expire.files", 0));
   stage = "expiration-selection";

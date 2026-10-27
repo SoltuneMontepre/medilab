@@ -170,6 +170,8 @@ tasks:
       - "{{.UV}} run --with coverage==7.10.7 python -m coverage xml --data-file=.local/onlyoffice-coverage/.coverage -o .local/onlyoffice-coverage/coverage.xml"
       - "{{.UV}} run python -m unittest discover -s tools/onlyoffice_integration -t . -p 'test_*.py'"
       - node tools/onlyoffice_integration/test_loopback_proxy.cjs
+      - node tools/onlyoffice_integration/test_frame_diagnostics.cjs
+      - node tools/infrastructure/onlyoffice/test_retention_fixture.cjs
       - npm exec --yes --ignore-scripts --package=c8@10.1.3 -- c8 --include=infra/cluster/onlyoffice/callback-signing.cjs --reporter=lcov --reports-dir=.local/onlyoffice-coverage/js node tools/infrastructure/onlyoffice/test_callback_signing.cjs
 
   test:uninstall:

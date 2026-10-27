@@ -163,16 +163,18 @@ for (const length of [7167, 7168]) {
   });
 }
 
-test("ordinary callbacks and callbacks with no trimming keep every field", async () => {
-  const f = fixture();
-  f.load();
-  for (const check of [f.checkLength, undefined]) {
+for (const trimming of [true, false]) {
+  test(`ordinary callbacks keep every field with trimming ${trimming ? "enabled" : "absent"}`, async () => {
+    const f = fixture();
+    f.load();
+    const check = trimming ? f.checkLength : undefined;
     const result = await f.docs.sendServerRequest({}, "https://odoo.example/callback/private", structuredClone(FIELDS), check);
     assertMatching(result);
     assert.deepEqual(result.body, FIELDS);
-  }
-  assert.equal(f.counts().checks, 1);
-});
+    assert.equal(f.counts().checks, trimming ? 1 : 0);
+    assert.equal(f.counts().sends, 1);
+  });
+}
 
 test("authentication-disabled or excluded requests retain upstream behavior", async () => {
   const f = fixture({enabled: false});
