@@ -22,7 +22,14 @@ Fresh regression receipts include 1,855 native tests, four actual callback cases
 | `AaF2G1TlIES1tmkRiAIN` | PROPOSED scoped ACCEPT; page-browser loopback → fixed owned Garage HTTP; caller Authorization/Cookie stripped, signed query preserved; same fresh controls independently apply. | Presigned capabilities and synthetic bytes still cross plaintext; stripping headers does not remove disclosure, replay/tampering or availability risk. Named fixture risk owner and security approver required. | Approve/reject this hop independently; specify owner, scope/date/expiry and CIA risk; only then Open → Accepted with evidence. Otherwise FIX via reviewed TLS/isolation. |
 | `AaF0FHq1vCiqu-XFDLDC` | PROPOSED scoped ACCEPT; explicitly enabled Document Server loopback GET adapter → fixed owned Garage; loopback positive/peer-negative and strict-bridge controls pass. | Same-namespace processes can use adapter; signed capabilities/bytes traverse plaintext; host/peer compromise and fixture disruption remain. Named fixture risk owner and security approver required. | Approve/reject this adapter independently; specify owner, scope/date/expiry and CIA risk; only then Open → Accepted with evidence. Otherwise FIX via reviewed TLS/isolation. |
 
-**All seven approval statuses: PENDING.** No repository CODEOWNERS map or attributable finding-specific approval was found in the current PR comments/reviews. Owner designation is requested in [Security questions](../../questions/security.md); it is not inferred from the committing identity. For each key, the owner must provide an attributable approve/reject statement. Each HTTP acceptance additionally requires its actual review/expiration date and acceptance of the residual confidentiality, integrity and availability risks. The earlier proposed 30-day review period remains a proposal, not an assigned expiration.
+**All seven approval statuses: PENDING OWNER APPROVAL.** No repository CODEOWNERS map or attributable finding-specific approval was found in the current PR comments/reviews. Owner designation is requested in [Security questions](../../questions/security.md); it is not inferred from the committing identity. For each key, the owner must provide an attributable approve/reject statement. Each HTTP acceptance additionally requires its actual review/expiration date and acceptance of the residual confidentiality, integrity and availability risks. The earlier proposed 30-day review period remains a proposal, not an assigned expiration.
+
+| Provisional assignment | Required designation |
+| --- | --- |
+| Accountable Risk Owner | TBD — to be formally designated by the MediLab project/repository owner |
+| Authorized Security Approver | TBD — to be formally designated by the project's security governance authority |
+
+The four proposed False Positives each require individual security-owner verification and approval. Each of the three proposed ACCEPTs requires explicit acceptance by the named Risk Owner and approval by the authorized Security Approver. Authorization to continue engineering, regression tests, documentation and normal pushes is not security approval. These appointments do not block independent engineering or CI verification.
 
 After an attributable approval only, an authorized operator with Sonar **Administer Issues** permission should open the exact key in project `SoltuneMontepre_medilab2`, PR 292, select its Open status, select **False positive** or **Accepted** as individually approved, and record owner, decision link, reviewed source/evidence and scope/expiry in the change comment. [Official Sonar issue-editing procedure](https://docs.sonarsource.com/sonarqube-cloud/managing-your-projects/issues/editing). This is a requested future action, not permission for this agent to execute it. Reassess and choose FIX through reviewed TLS/network isolation if any required condition becomes unverifiable; do not retain an exception by assumption.
 
@@ -44,13 +51,13 @@ The maintainability cleanup analyzed at `800652b` automatically closed 43 code s
 
 | Finding | Rule | Proposed Decision | Technical Evidence | Residual Risk | Required Approval | Status |
 | --- | --- | --- | --- | --- | --- | --- |
-| `AaF2G1TlIES1tmkRiAIQ` | `javascript:S4790` (CRITICAL) | FALSE POSITIVE | [Public WebSocket nonce handshake](#websocket) | No applicable vulnerable operation at this location; scoped assumptions below. | Security owner TBD; no approval received | PROPOSED FALSE POSITIVE |
-| `AaF2G1X8IES1tmkRiAIS` | `javascript:S5332` (MINOR) | FALSE POSITIVE | [Expected Garage origin assertion](#test-garage) | No applicable vulnerable operation at this location; scoped assumptions below. | Security owner TBD; no approval received | PROPOSED FALSE POSITIVE |
-| `AaF2G1X8IES1tmkRiAIT` | `javascript:S5332` (MINOR) | FALSE POSITIVE | [Expected editor origin assertion](#test-editor) | No applicable vulnerable operation at this location; scoped assumptions below. | Security owner TBD; no approval received | PROPOSED FALSE POSITIVE |
-| `AaF2G1X8IES1tmkRiAIV` | `javascript:S5332` (MINOR) | FALSE POSITIVE | [Expected origin inside transport mock](#test-mock) | No applicable vulnerable operation at this location; scoped assumptions below. | Security owner TBD; no approval received | PROPOSED FALSE POSITIVE |
-| `AaF2G1TlIES1tmkRiAIM` | `javascript:S5332` (MINOR) | ACCEPT within verified fixture scope | [Editor fixture HTTP](#http-editor) | Plaintext capabilities/data, tampering/replay, peer/host compromise and availability. | Security owner TBD; no approval received | PROPOSED ACCEPT |
-| `AaF2G1TlIES1tmkRiAIN` | `javascript:S5332` (MINOR) | ACCEPT within verified fixture scope | [Browser-to-Garage fixture HTTP](#http-garage) | Plaintext capabilities/data, tampering/replay, peer/host compromise and availability. | Security owner TBD; no approval received | PROPOSED ACCEPT |
-| `AaF0FHq1vCiqu-XFDLDC` | `python:S5332` (MINOR) | ACCEPT within verified fixture scope | [Document Server storage adapter HTTP](#http-python) | Plaintext capabilities/data, tampering/replay, peer/host compromise and availability. | Security owner TBD; no approval received | PROPOSED ACCEPT |
+| `AaF2G1TlIES1tmkRiAIQ` | `javascript:S4790` (CRITICAL) | FALSE POSITIVE | [Public WebSocket nonce handshake](#websocket) | No applicable vulnerable operation at this location; scoped assumptions below. | Security owner TBD; no approval received | PENDING OWNER APPROVAL — PROPOSED FALSE POSITIVE |
+| `AaF2G1X8IES1tmkRiAIS` | `javascript:S5332` (MINOR) | FALSE POSITIVE | [Expected Garage origin assertion](#test-garage) | No applicable vulnerable operation at this location; scoped assumptions below. | Security owner TBD; no approval received | PENDING OWNER APPROVAL — PROPOSED FALSE POSITIVE |
+| `AaF2G1X8IES1tmkRiAIT` | `javascript:S5332` (MINOR) | FALSE POSITIVE | [Expected editor origin assertion](#test-editor) | No applicable vulnerable operation at this location; scoped assumptions below. | Security owner TBD; no approval received | PENDING OWNER APPROVAL — PROPOSED FALSE POSITIVE |
+| `AaF2G1X8IES1tmkRiAIV` | `javascript:S5332` (MINOR) | FALSE POSITIVE | [Expected origin inside transport mock](#test-mock) | No applicable vulnerable operation at this location; scoped assumptions below. | Security owner TBD; no approval received | PENDING OWNER APPROVAL — PROPOSED FALSE POSITIVE |
+| `AaF2G1TlIES1tmkRiAIM` | `javascript:S5332` (MINOR) | ACCEPT within verified fixture scope | [Editor fixture HTTP](#http-editor) | Plaintext capabilities/data, tampering/replay, peer/host compromise and availability. | Security owner TBD; no approval received | PENDING OWNER APPROVAL — PROPOSED ACCEPT |
+| `AaF2G1TlIES1tmkRiAIN` | `javascript:S5332` (MINOR) | ACCEPT within verified fixture scope | [Browser-to-Garage fixture HTTP](#http-garage) | Plaintext capabilities/data, tampering/replay, peer/host compromise and availability. | Security owner TBD; no approval received | PENDING OWNER APPROVAL — PROPOSED ACCEPT |
+| `AaF0FHq1vCiqu-XFDLDC` | `python:S5332` (MINOR) | ACCEPT within verified fixture scope | [Document Server storage adapter HTTP](#http-python) | Plaintext capabilities/data, tampering/replay, peer/host compromise and availability. | Security owner TBD; no approval received | PENDING OWNER APPROVAL — PROPOSED ACCEPT |
 
 ## Evidence and approval boundary
 
@@ -75,7 +82,7 @@ Status vocabulary: PROPOSED FALSE POSITIVE, PROPOSED ACCEPT, FIX REQUIRED, NEEDS
 | Supplied complete taint flow | `[]` — no flow supplied; manual trace below |
 | Current Sonar status | OPEN; unchanged |
 | Recommended decision / eligibility | FALSE POSITIVE / PROPOSED FALSE POSITIVE |
-| Security owner approval | PENDING; named authorized approver not yet identified |
+| Security owner approval | PENDING OWNER APPROVAL; named approver awaits formal security-governance designation |
 
 **Operation and manual source-to-sink analysis.** The only SHA-1 call receives Sec-WebSocket-Key plus the fixed RFC GUID. The local digest is compared only with Sec-WebSocket-Accept inside the 101 upgrade handler. It is not exported, persisted or applied to passwords, JWTs, credentials, document bytes or digital signatures. JWT authentication remains HS256 in services/onlyoffice_jwt.py; object integrity remains SHA-256 in services/laboratory_bucket.py. This is protocol validation, not authentication or integrity protection.
 
@@ -122,7 +129,7 @@ Status vocabulary: PROPOSED FALSE POSITIVE, PROPOSED ACCEPT, FIX REQUIRED, NEEDS
 | Supplied complete taint flow | `[]` — no flow supplied; manual trace below |
 | Current Sonar status | OPEN; unchanged |
 | Recommended decision / eligibility | FALSE POSITIVE / PROPOSED FALSE POSITIVE |
-| Security owner approval | PENDING; named authorized approver not yet identified |
+| Security owner approval | PENDING OWNER APPROVAL; named approver awaits formal security-governance designation |
 
 **Operation and manual source-to-sink analysis.** The flagged HTTP literal is an expected value passed to assert.equal after requestURL constructs a URL. This test never opens a socket. Even proxy(80) must throw before listening. No sensitive data is transmitted by the flagged operation.
 
@@ -156,7 +163,7 @@ test("fixed upstream authority and presigned query survive without normalization
 | Supplied complete taint flow | `[]` — no flow supplied; manual trace below |
 | Current Sonar status | OPEN; unchanged |
 | Recommended decision / eligibility | FALSE POSITIVE / PROPOSED FALSE POSITIVE |
-| Security owner approval | PENDING; named authorized approver not yet identified |
+| Security owner approval | PENDING OWNER APPROVAL; named approver awaits formal security-governance designation |
 
 **Operation and manual source-to-sink analysis.** The flagged HTTP literal is an expected url.origin in the same pure URL-construction test. A query containing another encoded URL cannot change the authority. requestURL constructs a URL without performing network I/O.
 
@@ -190,7 +197,7 @@ test("fixed upstream authority and presigned query survive without normalization
 | Supplied complete taint flow | `[]` — no flow supplied; manual trace below |
 | Current Sonar status | OPEN; unchanged |
 | Recommended decision / eligibility | FALSE POSITIVE / PROPOSED FALSE POSITIVE |
-| Security owner approval | PENDING; named authorized approver not yet identified |
+| Security owner approval | PENDING OWNER APPROVAL; named approver awaits formal security-governance designation |
 
 **Operation and manual source-to-sink analysis.** The literal is asserted inside a per-test http.request mock. The saved original request is invoked with a literal 127.0.0.1 hostname and an ephemeral local server port. The logical Document Server origin is not used as the network destination. Both actual test listeners bind loopback and are closed during cleanup; bodies and headers are fixed synthetic values.
 
@@ -232,7 +239,7 @@ async function fixture(t, handler) {
 | Supplied complete taint flow | `[]` — no flow supplied; manual trace below |
 | Current Sonar status | OPEN; unchanged |
 | Recommended decision / eligibility | ACCEPT within verified fixture scope / PROPOSED ACCEPT |
-| Security owner approval | PENDING; named authorized approver not yet identified |
+| Security owner approval | PENDING OWNER APPROVAL; named approver awaits formal security-governance designation |
 
 **Operation and manual source-to-sink analysis.** page-browser exposes the proxy at 127.0.0.1:8081 and forwards to the fixed owned Document Server on port 80. Host, authority, path, redirect and upgrade validation constrain traffic. Authorization and Cookie headers are deliberately preserved for this editor upstream. A plaintext connection really occurs, so FALSE POSITIVE is not appropriate.
 
@@ -284,8 +291,8 @@ const UPGRADE_HEADERS = ["sec-websocket-accept", "sec-websocket-protocol", "sec-
 
 | Metadata | Value |
 | --- | --- |
-| Accountable risk owner | TBD — must be explicitly named; not inferred from Git identity |
-| Required approver | TBD — authorized security owner |
+| Accountable risk owner | TBD — to be formally designated by the MediLab project/repository owner |
+| Required approver | TBD — to be formally designated by the project's security governance authority |
 | Approval / decision date | PENDING; no attributable approval exists |
 | Exact scope | This finding, controlled ONLYOFFICE test fixture, generated synthetic documents, disposable credentials, fixed owned endpoints and verified internal network only |
 | Residual risk owner accepts | Disclosure/replay/tampering of fixture capabilities/bytes; compromised trusted host/peer; disruption, flooding and retained fixture-data availability |
@@ -309,7 +316,7 @@ const UPGRADE_HEADERS = ["sec-websocket-accept", "sec-websocket-protocol", "sec-
 | Supplied complete taint flow | `[]` — no flow supplied; manual trace below |
 | Current Sonar status | OPEN; unchanged |
 | Recommended decision / eligibility | ACCEPT within verified fixture scope / PROPOSED ACCEPT |
-| Security owner approval | PENDING; named authorized approver not yet identified |
+| Security owner approval | PENDING OWNER APPROVAL; named approver awaits formal security-governance designation |
 
 **Operation and manual source-to-sink analysis.** page-browser listens at 127.0.0.1:3900 and forwards only to owned Garage:3900. Owned bucket paths and canonical targets are required; Authorization and Cookie headers are stripped. Presigned query strings are bearer capabilities and file bytes still cross the bridge in cleartext. Removing headers does not provide confidentiality.
 
@@ -361,8 +368,8 @@ const UPGRADE_HEADERS = ["sec-websocket-accept", "sec-websocket-protocol", "sec-
 
 | Metadata | Value |
 | --- | --- |
-| Accountable risk owner | TBD — must be explicitly named; not inferred from Git identity |
-| Required approver | TBD — authorized security owner |
+| Accountable risk owner | TBD — to be formally designated by the MediLab project/repository owner |
+| Required approver | TBD — to be formally designated by the project's security governance authority |
 | Approval / decision date | PENDING; no attributable approval exists |
 | Exact scope | This finding, controlled ONLYOFFICE test fixture, generated synthetic documents, disposable credentials, fixed owned endpoints and verified internal network only |
 | Residual risk owner accepts | Disclosure/replay/tampering of fixture capabilities/bytes; compromised trusted host/peer; disruption, flooding and retained fixture-data availability |
@@ -386,7 +393,7 @@ const UPGRADE_HEADERS = ["sec-websocket-accept", "sec-websocket-protocol", "sec-
 | Supplied complete taint flow | `[]` — no flow supplied; manual trace below |
 | Current Sonar status | OPEN; unchanged |
 | Recommended decision / eligibility | ACCEPT within verified fixture scope / PROPOSED ACCEPT |
-| Security owner approval | PENDING; named authorized approver not yet identified |
+| Security owner approval | PENDING OWNER APPROVAL; named approver awaits formal security-governance designation |
 
 **Operation and manual source-to-sink analysis.** An explicitly enabled adapter in the Document Server namespace binds 127.0.0.1:3900 and issues GET only to fixed owned Garage:3900. It forwards Host only, validates encoded paths/query byte equality, and refuses unknown Host values. The environment/runtime markers are startup intent checks, not isolation or ownership proof.
 
@@ -466,8 +473,8 @@ if __name__ == "__main__":
 
 | Metadata | Value |
 | --- | --- |
-| Accountable risk owner | TBD — must be explicitly named; not inferred from Git identity |
-| Required approver | TBD — authorized security owner |
+| Accountable risk owner | TBD — to be formally designated by the MediLab project/repository owner |
+| Required approver | TBD — to be formally designated by the project's security governance authority |
 | Approval / decision date | PENDING; no attributable approval exists |
 | Exact scope | This finding, controlled ONLYOFFICE test fixture, generated synthetic documents, disposable credentials, fixed owned endpoints and verified internal network only |
 | Residual risk owner accepts | Disclosure/replay/tampering of fixture capabilities/bytes; compromised trusted host/peer; disruption, flooding and retained fixture-data availability |

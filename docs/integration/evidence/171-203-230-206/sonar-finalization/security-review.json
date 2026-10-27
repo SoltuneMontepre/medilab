@@ -18,9 +18,9 @@
       "message": "Using http protocol is insecure. Use https instead.",
       "flows": [],
       "recommended_disposition": "SCOPED ACCEPT PROPOSAL",
-      "approval_status": "PENDING",
-      "accountable_risk_owner": "UNASSIGNED; explicit designation required",
-      "authorized_security_approver": "UNASSIGNED; explicit designation required",
+      "approval_status": "PENDING OWNER APPROVAL",
+      "accountable_risk_owner": "TBD \u2014 to be formally designated by the MediLab project/repository owner",
+      "authorized_security_approver": "TBD \u2014 to be formally designated by the project's security governance authority",
       "sonar_action_performed": false,
       "sonar_action_requested_only_after_approval": "Open -> Accepted; approval date, actual expiry/review, scope and residual CIA risk required",
       "evidence": [
@@ -31,7 +31,8 @@
         "real2.json",
         "pages.json",
         "desktop-observer.json"
-      ]
+      ],
+      "required_approval": "Explicit acceptance by the named Risk Owner and approval by the authorized Security Approver"
     },
     {
       "key": "AaF2G1TlIES1tmkRiAIN",
@@ -51,9 +52,9 @@
       "message": "Using http protocol is insecure. Use https instead.",
       "flows": [],
       "recommended_disposition": "SCOPED ACCEPT PROPOSAL",
-      "approval_status": "PENDING",
-      "accountable_risk_owner": "UNASSIGNED; explicit designation required",
-      "authorized_security_approver": "UNASSIGNED; explicit designation required",
+      "approval_status": "PENDING OWNER APPROVAL",
+      "accountable_risk_owner": "TBD \u2014 to be formally designated by the MediLab project/repository owner",
+      "authorized_security_approver": "TBD \u2014 to be formally designated by the project's security governance authority",
       "sonar_action_performed": false,
       "sonar_action_requested_only_after_approval": "Open -> Accepted; approval date, actual expiry/review, scope and residual CIA risk required",
       "evidence": [
@@ -64,7 +65,8 @@
         "real2.json",
         "pages.json",
         "desktop-observer.json"
-      ]
+      ],
+      "required_approval": "Explicit acceptance by the named Risk Owner and approval by the authorized Security Approver"
     },
     {
       "key": "AaF2G1TlIES1tmkRiAIQ",
@@ -84,14 +86,15 @@
       "message": "Make sure this weak hash algorithm is not used in a sensitive context here.",
       "flows": [],
       "recommended_disposition": "FALSE POSITIVE",
-      "approval_status": "PENDING",
-      "accountable_risk_owner": "UNASSIGNED; explicit designation required",
-      "authorized_security_approver": "UNASSIGNED; explicit designation required",
+      "approval_status": "PENDING OWNER APPROVAL",
+      "accountable_risk_owner": "TBD \u2014 to be formally designated by the MediLab project/repository owner",
+      "authorized_security_approver": "TBD \u2014 to be formally designated by the project's security governance authority",
       "sonar_action_performed": false,
       "sonar_action_requested_only_after_approval": "Open -> False positive",
       "evidence": [
         "RFC6455 protocol/source and7 proxy tests"
-      ]
+      ],
+      "required_approval": "Individual security-owner verification and approval"
     },
     {
       "key": "AaF2G1X8IES1tmkRiAIS",
@@ -111,14 +114,15 @@
       "message": "Using http protocol is insecure. Use https instead.",
       "flows": [],
       "recommended_disposition": "FALSE POSITIVE",
-      "approval_status": "PENDING",
-      "accountable_risk_owner": "UNASSIGNED; explicit designation required",
-      "authorized_security_approver": "UNASSIGNED; explicit designation required",
+      "approval_status": "PENDING OWNER APPROVAL",
+      "accountable_risk_owner": "TBD \u2014 to be formally designated by the MediLab project/repository owner",
+      "authorized_security_approver": "TBD \u2014 to be formally designated by the project's security governance authority",
       "sonar_action_performed": false,
       "sonar_action_requested_only_after_approval": "Open -> False positive",
       "evidence": [
         "pure assertion/mock source and7 proxy tests"
-      ]
+      ],
+      "required_approval": "Individual security-owner verification and approval"
     },
     {
       "key": "AaF2G1X8IES1tmkRiAIT",
@@ -138,14 +142,15 @@
       "message": "Using http protocol is insecure. Use https instead.",
       "flows": [],
       "recommended_disposition": "FALSE POSITIVE",
-      "approval_status": "PENDING",
-      "accountable_risk_owner": "UNASSIGNED; explicit designation required",
-      "authorized_security_approver": "UNASSIGNED; explicit designation required",
+      "approval_status": "PENDING OWNER APPROVAL",
+      "accountable_risk_owner": "TBD \u2014 to be formally designated by the MediLab project/repository owner",
+      "authorized_security_approver": "TBD \u2014 to be formally designated by the project's security governance authority",
       "sonar_action_performed": false,
       "sonar_action_requested_only_after_approval": "Open -> False positive",
       "evidence": [
         "pure assertion/mock source and7 proxy tests"
-      ]
+      ],
+      "required_approval": "Individual security-owner verification and approval"
     },
     {
       "key": "AaF2G1X8IES1tmkRiAIV",
@@ -165,14 +170,15 @@
       "message": "Using http protocol is insecure. Use https instead.",
       "flows": [],
       "recommended_disposition": "FALSE POSITIVE",
-      "approval_status": "PENDING",
-      "accountable_risk_owner": "UNASSIGNED; explicit designation required",
-      "authorized_security_approver": "UNASSIGNED; explicit designation required",
+      "approval_status": "PENDING OWNER APPROVAL",
+      "accountable_risk_owner": "TBD \u2014 to be formally designated by the MediLab project/repository owner",
+      "authorized_security_approver": "TBD \u2014 to be formally designated by the project's security governance authority",
       "sonar_action_performed": false,
       "sonar_action_requested_only_after_approval": "Open -> False positive",
       "evidence": [
         "pure assertion/mock source and7 proxy tests"
-      ]
+      ],
+      "required_approval": "Individual security-owner verification and approval"
     },
     {
       "key": "AaF0FHq1vCiqu-XFDLDC",
@@ -192,9 +198,9 @@
       "message": "Using HTTP protocol is insecure. Use HTTPS instead.",
       "flows": [],
       "recommended_disposition": "SCOPED ACCEPT PROPOSAL",
-      "approval_status": "PENDING",
-      "accountable_risk_owner": "UNASSIGNED; explicit designation required",
-      "authorized_security_approver": "UNASSIGNED; explicit designation required",
+      "approval_status": "PENDING OWNER APPROVAL",
+      "accountable_risk_owner": "TBD \u2014 to be formally designated by the MediLab project/repository owner",
+      "authorized_security_approver": "TBD \u2014 to be formally designated by the project's security governance authority",
       "sonar_action_performed": false,
       "sonar_action_requested_only_after_approval": "Open -> Accepted; approval date, actual expiry/review, scope and residual CIA risk required",
       "evidence": [
@@ -205,10 +211,12 @@
         "real2.json",
         "pages.json",
         "desktop-observer.json"
-      ]
+      ],
+      "required_approval": "Explicit acceptance by the named Risk Owner and approval by the authorized Security Approver"
     }
   ],
   "no_attributable_owner_approval_in_current_pr_reviews_or_comments": true,
   "repository_CODEOWNERS": "not found via read-only API or tracked tree; no authority inferred from author",
-  "scope": "Fresh controlled fixture only; required conditions unverifiable => FIX through reviewed TLS/network isolation"
+  "scope": "Fresh controlled fixture only; required conditions unverifiable => FIX through reviewed TLS/network isolation",
+  "engineering_authorization_constitutes_security_approval": false
 }

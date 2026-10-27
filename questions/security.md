@@ -8,7 +8,7 @@
 - **Subcontractor contact people.** The subcontractor permissions create and change the subcontractor's company contact, but creating a new contact person from the subcontractor form still needs Odoo's contact rights, which only administrators hold. Should the subcontractor permissions let people create its contact people too? (blocks US-AD12)
 - **Records without a department.** A permission limited to the person's department does not show records that have no department. Should such records be visible to everyone with that permission instead? (blocks US-AD15)
 
-- **Sonar dispositions.** Who is the accountable fixture risk owner and who is authorized to approve the seven per-finding decisions in [the PR #292 dossier](../docs/security/pr-292-sonar-disposition-review.md)? Each scoped HTTP acceptance also needs an approval date and expiration/review date. Git authorship and implementation approval do not establish that authority. (blocks #171/#203/#230/#206 security disposition and PR #292 merge)
+- **Sonar dispositions.** The Accountable Risk Owner is TBD, to be formally designated by the MediLab project/repository owner; the Authorized Security Approver is TBD, to be formally designated by the project's security governance authority. Which named appointments and individual approvals will govern the seven per-finding decisions in [the PR #292 dossier](../docs/security/pr-292-sonar-disposition-review.md)? Each scoped HTTP acceptance also needs an approval date and expiration/review date. Git authorship and implementation approval do not establish that authority. (blocks #171/#203/#230/#206 security disposition and PR #292 merge)
 
 ## Related documents
 
