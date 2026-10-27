@@ -50,7 +50,7 @@ _logger = logging.getLogger(__name__)
 class SaleOrder(models.Model):
     _name = MODEL_SALE_ORDER
     _inherit = [MODEL_SALE_ORDER, MODEL_PERMISSION_MIXIN]
-    _permission_actions = ("read", "create", "edit", "delete", "sign")
+    _permission_actions = ("read", "create", "edit", "delete", "sign", "invoice")
 
     # The customer who orders: the company, or the individual when they order for themselves.
     customer_id = fields.Many2one("res.partner", string="Customer", ondelete="restrict", index=True)

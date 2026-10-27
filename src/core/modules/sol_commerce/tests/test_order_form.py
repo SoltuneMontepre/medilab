@@ -43,11 +43,12 @@ class TestOrderForm(OrderCase):
                 with self.subTest(name=name, string=button.get("string")):
                     self.assertIn(button.get("invisible"), HIDDEN)
 
-    def test_only_the_accountant_sees_create_invoice(self):
+    def test_create_invoice_follows_the_invoice_permission(self):
         accountant = new_test_user(
             self.env, login="form_accountant", groups="base.group_user,account.group_account_invoice"
         )
-        for user, expected in ((self.sales, 0), (accountant, 2)):
+        self.other_person.permission_ids |= self.env.ref("sol_commerce.permission_order_invoice_all")
+        for user, expected in ((self.sales, 0), (self.other_sales, 2), (accountant, 2)):
             with self.subTest(user=user.login):
                 arch = etree.fromstring(self.env[MODEL_SALE_ORDER].with_user(user).get_view(view_type="form")["arch"])
                 buttons = arch.xpath("//header/button[@id='create_invoice' or @id='create_invoice_percentage']")

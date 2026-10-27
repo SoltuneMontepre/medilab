@@ -6,19 +6,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-27 18:04+0000\n"
-"PO-Revision-Date: 2026-10-27 18:04+0000\n"
+"POT-Creation-Date: 2026-10-27 19:02+0000\n"
+"PO-Revision-Date: 2026-10-27 19:02+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
-
-#. module: sol_commerce
-#: model:ir.model,name:sol_commerce.model_mail_message
-msgid "Message"
-msgstr ""
 
 #. module: sol_commerce
 #. odoo-python
@@ -391,6 +386,11 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/invoicing/reconciliation_day.py:0
 msgid "Acknowledge the amount differences before locking this day."
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_permission__action
+msgid "Action"
 msgstr ""
 
 #. module: sol_commerce
@@ -1087,8 +1087,18 @@ msgid "Create customer sales terms"
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.actions.act_window,name:sol_commerce.action_create_invoice
+msgid "Create invoice"
+msgstr ""
+
+#. module: sol_commerce
 #: model:medilab.permission,name:sol_commerce.permission_invoice_adjustment_create_all
 msgid "Create invoice adjustments"
+msgstr ""
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_order_invoice_all
+msgid "Create invoices"
 msgstr ""
 
 #. module: sol_commerce
@@ -1488,6 +1498,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_template_line__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_template_save__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_parameter_price__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_permission__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_receivable_report__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_reconciliation_day__display_name
@@ -1509,6 +1520,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_rating_rating__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_res_company__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_advance_payment_inv__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__display_name
 msgid "Display Name"
@@ -1856,6 +1868,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_template_line__id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_template_save__id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_parameter_price__id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_permission__id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_receivable_report__id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_reconciliation_day__id
@@ -1877,6 +1890,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_rating_rating__id
 #: model:ir.model.fields,field_description:sol_commerce.field_res_company__id
 #: model:ir.model.fields,field_description:sol_commerce.field_res_config_settings__id
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_advance_payment_inv__id
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__id
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__id
 msgid "ID"
@@ -1909,6 +1923,7 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_receivable_report__name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_revenue_report__name
+#: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_permission__action__invoice
 #: model_terms:ir.ui.view,arch_db:sol_commerce.report_reconciliation_day
 msgid "Invoice"
 msgstr ""
@@ -2898,6 +2913,11 @@ msgid "Performance"
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_permission
+msgid "Permission"
+msgstr ""
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.contact_form
 #: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
@@ -3447,6 +3467,11 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__source__sales
 msgid "Sales"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_sale_advance_payment_inv
+msgid "Sales Advance Payment Invoice"
 msgstr ""
 
 #. module: sol_commerce

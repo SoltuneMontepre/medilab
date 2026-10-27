@@ -6,10 +6,12 @@ from . import (
     invoice_adjustment,
     payment_provider,
     payment_transaction,
+    permission,
     receivable_report,
     reconciliation_day,
     res_config_settings,
     revenue_report,
+    sale_advance_payment_inv,
     sale_order,
     scheduled_job,
 )
