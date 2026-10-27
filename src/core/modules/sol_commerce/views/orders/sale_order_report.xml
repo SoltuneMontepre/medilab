@@ -14,8 +14,11 @@
         <xpath expr="//t[@t-set='layout_document_title']/span[@t-field='doc.name']" position="replace">
             <span t-out="env.context.get('quotation_code') or doc.quotation_code or doc.name" />
         </xpath>
-        <xpath expr="//strong[normalize-space(text())='Contact']" position="replace">
-            <strong>Salesperson</strong>
+        <xpath expr="//div[@t-if='doc.user_id.name']/strong" position="attributes">
+            <attribute name="t-if">False</attribute>
+        </xpath>
+        <xpath expr="//div[@t-if='doc.user_id.name']" position="inside">
+            <div class="fw-bold">Salesperson</div>
         </xpath>
         <xpath expr="//th[@name='th_description']" position="inside">
             <span>Parameter or package</span>
