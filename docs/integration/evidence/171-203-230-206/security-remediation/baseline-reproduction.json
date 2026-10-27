@@ -1,6 +1,0 @@
-{
-  "baseline_sha": "702acf27725b9407c192c438c0954d90f0030b44",
-  "recovery_evidence_symlink_followed": true,
-  "scope": "private temporary operator-owned fixture; no production files or credentials",
-  "nested_traversal_admitted_before": true
-}

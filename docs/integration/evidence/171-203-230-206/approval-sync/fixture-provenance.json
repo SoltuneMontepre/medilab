@@ -1,8 +1,0 @@
-{
-  "peer_count": 11,
-  "all_declared_sensitive_variables_match_fixed_disposable_fixture_values": true,
-  "unreviewed_sensitive_variables": [],
-  "all_mounts_within_checkout_or_local_rootless_named_volumes": true,
-  "production_profile_or_engine_socket_mounts": false,
-  "scope": "Inspected live fixture process environments and mounts; no values or host paths are published. Host and peer integrity remain trusted assumptions."
-}
