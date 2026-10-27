@@ -140,7 +140,7 @@ Use [Cypress Tap and AI Skills](../workflows/cypress-tap.md) when an agent write
 
 | Command | Use |
 | --- | --- |
-| `cy.signInAs(role)` | Sign in as `demo.<role>`, for example `tester`, `head_of_department` or `customer`. Read the password from `MEDILAB_DEMO_PASSWORD`, default `demo`. Cache and validate the session within this spec file, then open the backend or portal as appropriate. |
+| `cy.signInAs(role)` | Sign in as `demo.<role>`, for example `tester`, `head_of_department` or `customer`. Read the password from `MEDILAB_DEMO_PASSWORD`, default `demo`. First unregister Odoo's service worker: its update check after the previous backend page would get a new session cookie, which the login form's CSRF token does not match. Cache and validate the session within this spec file, then open the backend or portal as appropriate. |
 | `cy.openRecord(record)` | Open the backend form of a record given by a full demo external ID such as `sol_demo.demo_test_result_retest`, or as `{ model, id }`, and yield `{ model, id }`. The current user's permissions apply. |
 | `cy.readRecord(record, fields)` | Read the named fields of that record in the current session and yield its values. `fields` must be a nonempty array. |
 | `cy.signRecord(action)` | Click the visible form button named `action`, default `action_sign`. |
