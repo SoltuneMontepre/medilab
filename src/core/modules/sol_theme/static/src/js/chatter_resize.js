@@ -40,8 +40,8 @@ patch(FormRenderer.prototype, {
     this.onChatterResize = (newWidth) => {
       // The stylesheet caps the panel's width, so the width kept is the one shown.
       const panel = this.rootRef()?.querySelector(".o-mail-ChatterPanel");
-      const cap = panel ? parseFloat(getComputedStyle(panel).maxWidth) : NaN;
-      const width = cap < newWidth ? cap : newWidth;
+      const cap = panel ? Number.parseFloat(getComputedStyle(panel).maxWidth) : Infinity;
+      const width = Math.min(cap, newWidth);
       if (width !== this.chatterWidth) {
         this.chatterWidth = width;
         storeChatter(width, this.state.chatterCollapsed);
@@ -58,57 +58,60 @@ patch(FormRenderer.prototype, {
 });
 
 // Wraps the chatter beside a form in Odoo's resizable panel, with a button on the bar that collapses it.
+function wrapChatter(res, container) {
+  const chatter = container.querySelector("t[t-component='__comp__.mailComponents.Chatter']");
+  const toggle = createElement(
+    "button",
+    {
+      type: "button",
+      class: "o-mail-ChatterToggle",
+      "t-on-click": "__comp__.toggleChatter",
+      "t-att-aria-label": "__comp__.chatterToggleLabel",
+      "t-att-title": "__comp__.chatterToggleLabel",
+      "t-att-aria-expanded": "__comp__.state.chatterCollapsed ? 'false' : 'true'",
+    },
+    [
+      createElement("i", {
+        class: "oi",
+        "t-att-data-icon": "__comp__.state.chatterCollapsed ? 'chevron_backward' : 'chevron_forward'",
+      }),
+    ],
+  );
+  const panel = createElement(
+    "t",
+    {
+      "t-component": "__comp__.mailComponents.ResizablePanel",
+      class: "'o-mail-ChatterPanel' + (__comp__.state.chatterCollapsed ? ' o-isCollapsed' : '')",
+      handleSide: "'start'",
+      minWidth: String(MIN_WIDTH),
+      initialWidth: "__comp__.chatterWidth",
+      onResize: "__comp__.onChatterResize",
+    },
+    [
+      createElement("t", { "t-set-slot": "default" }, [
+        createElement("div", { class: "o-mail-ChatterPanelContent" }, [
+          createElement("div", { class: "o-mail-ChatterBar flex-shrink-0 d-print-none" }, [toggle]),
+          createElement("div", { class: "o-mail-ChatterBody flex-grow-1", "t-att-class": "{ 'd-none': __comp__.state.chatterCollapsed }" }, [
+            chatter.cloneNode(true),
+          ]),
+        ]),
+      ]),
+    ],
+  );
+  const hasPreview = Boolean(res.querySelector(".o_attachment_preview"));
+  const aside = createElement("t", { "t-if": `${ASIDE_LAYOUTS}.includes(__comp__.mailLayout(${hasPreview}))` }, [panel]);
+  const beside = createElement("t", { "t-else": "" }, [chatter.cloneNode(true)]);
+  chatter.replaceWith(aside, beside);
+}
+
 patch(FormCompiler.prototype, {
   compile(node, params) {
     const res = super.compile(node, params);
     const container = res.querySelector(".o-mail-Form-chatter:not(.o-isInFormSheetBg)");
     // Only a chatter that can sit beside the form has the class expression.
-    if (!container?.hasAttribute("t-attf-class")) {
-      return res;
+    if (container?.hasAttribute("t-attf-class")) {
+      wrapChatter(res, container);
     }
-    const chatter = container.querySelector("t[t-component='__comp__.mailComponents.Chatter']");
-    const toggle = createElement(
-      "button",
-      {
-        type: "button",
-        class: "o-mail-ChatterToggle",
-        "t-on-click": "__comp__.toggleChatter",
-        "t-att-aria-label": "__comp__.chatterToggleLabel",
-        "t-att-title": "__comp__.chatterToggleLabel",
-        "t-att-aria-expanded": "__comp__.state.chatterCollapsed ? 'false' : 'true'",
-      },
-      [
-        createElement("i", {
-          class: "oi",
-          "t-att-data-icon": "__comp__.state.chatterCollapsed ? 'chevron_backward' : 'chevron_forward'",
-        }),
-      ],
-    );
-    const panel = createElement(
-      "t",
-      {
-        "t-component": "__comp__.mailComponents.ResizablePanel",
-        class: "'o-mail-ChatterPanel' + (__comp__.state.chatterCollapsed ? ' o-isCollapsed' : '')",
-        handleSide: "'start'",
-        minWidth: String(MIN_WIDTH),
-        initialWidth: "__comp__.chatterWidth",
-        onResize: "__comp__.onChatterResize",
-      },
-      [
-        createElement("t", { "t-set-slot": "default" }, [
-          createElement("div", { class: "o-mail-ChatterPanelContent" }, [
-            createElement("div", { class: "o-mail-ChatterBar flex-shrink-0 d-print-none" }, [toggle]),
-            createElement("div", { class: "o-mail-ChatterBody flex-grow-1", "t-att-class": "{ 'd-none': __comp__.state.chatterCollapsed }" }, [
-              chatter.cloneNode(true),
-            ]),
-          ]),
-        ]),
-      ],
-    );
-    const hasPreview = Boolean(res.querySelector(".o_attachment_preview"));
-    const aside = createElement("t", { "t-if": `${ASIDE_LAYOUTS}.includes(__comp__.mailLayout(${hasPreview}))` }, [panel]);
-    const beside = createElement("t", { "t-else": "" }, [chatter.cloneNode(true)]);
-    chatter.replaceWith(aside, beside);
     return res;
   },
 });

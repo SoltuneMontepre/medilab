@@ -22,8 +22,8 @@ describe("Resizable chatter", () => {
         const { left, top, width } = $handle[0].getBoundingClientRect();
         const center = left + width / 2;
         cy.wrap($handle).trigger("mousedown", { button: 0, clientX: center, clientY: top + 200 });
-        cy.get("body").trigger("mousemove", { force: true, clientX: center - DRAG, clientY: top + 200 });
-        cy.get("body").trigger("mouseup", { force: true });
+        cy.document().trigger("mousemove", { clientX: center - DRAG, clientY: top + 200 });
+        cy.document().trigger("mouseup");
       });
       panelWidth().should("be.closeTo", before + DRAG, 2);
 
@@ -38,8 +38,8 @@ describe("Resizable chatter", () => {
       const { left, top, width } = $handle[0].getBoundingClientRect();
       const center = left + width / 2;
       cy.wrap($handle).trigger("mousedown", { button: 0, clientX: center, clientY: top + 200 });
-      cy.get("body").trigger("mousemove", { force: true, clientX: 0, clientY: top + 200 });
-      cy.get("body").trigger("mouseup", { force: true });
+      cy.document().trigger("mousemove", { clientX: 0, clientY: top + 200 });
+      cy.document().trigger("mouseup");
     });
     panelWidth().should("be.within", 900, 1600 * 0.6 + 1);
     panelWidth().then((shown) => {
