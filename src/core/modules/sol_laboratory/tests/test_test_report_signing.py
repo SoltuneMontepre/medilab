@@ -4,7 +4,7 @@ from odoo.exceptions import AccessError, UserError
 from odoo.tests import tagged
 
 from .report_case import ReportCase
-from odoo.addons.sol_laboratory.constants.models import MODEL_TASK
+from odoo.addons.sol_laboratory.constants.models import MODEL_APPROVAL_LEVEL, MODEL_TASK
 from odoo.addons.sol_laboratory.constants.xml_ids import TEST_REPORT_REPORT
 
 
@@ -56,6 +56,28 @@ class TestTestReportSigning(ReportCase):
         printed = self.html(self.report())
 
         self.assertIn("Chỉ Tiêu / Parameter", printed)
+
+    def name_levels_in_vietnamese(self):
+        for level in self.env[MODEL_APPROVAL_LEVEL].search([]):
+            level.with_context(lang="vi_VN").name = f"VI {level.name}"
+
+    def test_a_bilingual_report_prints_the_approvers_levels_in_vietnamese_and_english(self):
+        self.name_levels_in_vietnamese()
+        self.complete()
+        self.sign()
+
+        self.assertIn("VI Lab head / Lab head", self.html(self.report()))
+
+    def test_a_vietnamese_report_prints_the_approvers_levels_in_vietnamese(self):
+        self.name_levels_in_vietnamese()
+        self.request.report_language = "vi"
+        self.complete()
+        self.sign()
+
+        printed = self.html(self.report())
+
+        self.assertIn("VI Lab head", printed)
+        self.assertNotIn("VI Lab head /", printed)
 
     def test_the_report_prints_the_heads_and_the_lab_head_not_the_testers_and_leaves_out_cancelled_tests(self):
         arsenic = self.add_test()
