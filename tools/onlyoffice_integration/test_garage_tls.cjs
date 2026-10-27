@@ -21,7 +21,7 @@ test("storage gateway accepts only owned origin-relative targets without changin
   const signed = "/laboratory-files/report%20one.docx?signature=A%2FB%2B&next=https%3A%2F%2Fother.example";
   for (const target of ["/", "/laboratory-files", signed]) assert.equal(gatewayPath(target), target);
   for (const target of ["//other.example/path", "https://other.example/path", "/other-bucket/key",
-    "/laboratory-files/%252e%252e/file", "/laboratory-files/x%2fy", "/laboratory-files/x\\y",
+    "/laboratory-files/%252e%252e/file", "/laboratory-files/x%2fy", String.raw`/laboratory-files/x\y`,
     "/laboratory-files/x\r\nHost:other", "/laboratory-files/x#fragment"])
     assert.throws(() => gatewayPath(target), /Invalid/);
 });
@@ -39,10 +39,11 @@ async function fixture(t, handler) {
   return {
     socketPath,
     upstream,
-    request(target, method = "GET", body = "") {
+    request(target, {method = "GET", body = "", checksumAlgorithm} = {}) {
       return new Promise((resolve, reject) => {
         const req = https.request({hostname: "127.0.0.1", port: server.address().port, ca: tls.ca,
-          method, path: target, headers: {host: "localhost:3900"}}, res => {
+          method, path: target, headers: {host: "localhost:3900",
+            ...(checksumAlgorithm ? {"x-amz-checksum-algorithm": checksumAlgorithm} : {})}}, res => {
           const bytes = [];
           res.on("data", chunk => bytes.push(chunk));
           res.on("end", () => resolve({status: res.statusCode, headers: res.headers, body: Buffer.concat(bytes).toString()}));
@@ -60,14 +61,16 @@ test("verified TLS forwards exact signed Host, query and body through a Unix soc
     const bytes = [];
     req.on("data", chunk => bytes.push(chunk));
     req.on("end", () => {
-      calls.push({host: req.headers.host, path: req.url, body: Buffer.concat(bytes).toString()});
+      calls.push({host: req.headers.host, path: req.url, body: Buffer.concat(bytes).toString(),
+        checksumAlgorithm: req.headers["x-amz-checksum-algorithm"]});
       res.end("immutable fixture bytes");
     });
   });
-  const response = await client.request("/laboratory-files/report%20one.docx?signature=A%2FB%2B", "PUT", "signed request bytes");
+  const response = await client.request("/laboratory-files/report%20one.docx?signature=A%2FB%2B&next=https%3A%2F%2Fother.example",
+    {method: "PUT", body: "signed request bytes", checksumAlgorithm: "SHA256"});
   assert.equal(response.body, "immutable fixture bytes");
-  assert.deepEqual(calls, [{host: "localhost:3900", path: "/laboratory-files/report%20one.docx?signature=A%2FB%2B",
-    body: "signed request bytes"}]);
+  assert.deepEqual(calls, [{host: "localhost:3900", path: "/laboratory-files/report%20one.docx?signature=A%2FB%2B&next=https%3A%2F%2Fother.example",
+    body: "signed request bytes", checksumAlgorithm: "SHA256"}]);
   assert.equal(client.upstream.address(), client.socketPath);
 });
 

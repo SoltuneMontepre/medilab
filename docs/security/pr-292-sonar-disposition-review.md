@@ -1,6 +1,20 @@
 # PR #292 Sonar disposition review
 
-**PENDING OWNER APPROVAL. No risk is accepted and no Sonar status is changed by this document.**
+**Three current security findings are PENDING OWNER APPROVAL. Six original HTTP findings are automatically FIXED by code; no risk is accepted or finding administratively classified.**
+
+## Current owner request
+
+Read-only Sonar analysis of `7e211a2` leaves these three security keys. All six original HTTP keys are automatically CLOSED/FIXED, so their earlier four-FP/three-ACCEPT proposals are historical and require no current exception for fixed code. The additional prototype/header, redirect, executable-PATH and default-image-user findings are also automatically FIXED. [Exact analyzed source](../integration/evidence/171-203-230-206/sonar-tls/analysis-7e211a2.json). The open Unix-socket issue moved from `AaF-RmjV3D2qssSsqTlR` to `AaF-agc9LPRtorYA4vcl`; it is tracked as the same unresolved review concern.
+
+| Current key / recommendation | Technical proof and regression | Residual risk and requested accountable decision |
+| --- | --- | --- |
+| `AaF2G1TlIES1tmkRiAIQ` — proposed FALSE POSITIVE | The only SHA-1 invocation receives a validated public Sec-WebSocket-Key plus the RFC 6455 fixed GUID, and only compares Sec-WebSocket-Accept. Fixed-backend WSS certificate identity, JWT HS256 and document SHA-256 provide their separate protections. Valid/wrong-handshake/TLS-refusal cases and actual 27-editor/coediting saves pass. [RFC 6455](https://datatracker.ietf.org/doc/html/rfc6455#section-4.2.2). | No password/key/document-protection claim is made by this digest. Replacing it breaks protocol interoperability. Approver must verify this exact source-to-sink scope and record an attributable approve/reject decision. |
+| `AaF-agc9LPRtorYA4vcl` — proposed FALSE POSITIVE | The gateway selects only `/run/garage-s3/s3.sock`; no hostname/port option comes from a request. The alternate socket argument is a local test dependency, never a service parameter. Host is a bounded signed authority, not the destination. Origin-relative owned-bucket targets/methods are validated; absolute/encoded traversal targets reach zero upstream calls; 3xx/Location responses are refused. TLS-to-Unix bytes/SigV4 Host preservation and actual saves pass. [Node 22 socketPath contract](https://github.com/nodejs/node/blob/v22.20.0/doc/api/http.md#httprequesturl-options-callback). | Compromise of the local host/Garage peer can still affect synthetic fixture data; that does not permit request-selected network destinations. The Unix socket is shared only by Garage/gateway; strict owned bridge/no production mounts or public ports remain required. Approver must independently verify the fixed-destination invariant, scope and tests before disposition. |
+| `AaF-Rmjm3D2qssSsqTlU` — proposed FALSE POSITIVE | `LoopbackTLSServer.__init__` unconditionally replaces its listening socket with `SSLContext.wrap_socket(..., server_side=True)` before `serve_forever`. The context requires minimum TLS 1.2 and a leaf certificate. Real TLS works; untrusted CA and plaintext HTTP are refused before application handling. Verified HTTPS is used upstream. [Python TLS listening-socket contract](https://docs.python.org/3.12/library/ssl.html#ssl.SSLContext.wrap_socket). | The class derives from HTTPServer for HTTP parsing, but network acceptance is TLS. Local namespace/host compromise remains a fixture risk, without converting this listener to plaintext. Approver must verify the unconditional wrapping and negative tests for the exact source. |
+
+**Accountable Risk Owner:** TBD — MediLab project/repository owner to designate. **Authorized Security Approver:** TBD — project security governance authority to designate. Each key remains **PENDING OWNER APPROVAL**. Engineering authorization and successful tests do not constitute approval. After an attributable per-key approval, an authorized Sonar operator may apply **Open → False positive** to only the approved key and record decision/evidence/source references. No ACCEPT is requested for these three protocol/transport findings. Rejection requires a reviewed behavior-compatible correction, preserving required RFC 6455, verified TLS and fixed destinations. This agent performs no issue transition. GitGuardian incident 39039733 remains separate and pending authorized disposition.
+
+The remaining sections preserve dated earlier source/HTTP reviews. Their quoted plaintext code and proposed ACCEPT tables are superseded by verified TLS fixes; they grant no exception on current source.
 
 ## TLS remediation and new-finding review checkpoint
 
@@ -53,7 +67,7 @@ The subsequent analysis for pushed HEAD `590ea31` completed in [ci-core 40343822
 
 The maintainability cleanup analyzed at `800652b` automatically closed 43 code smells and introduced no new issue keys. Fifteen behavior-sensitive smells and these same seven OPEN vulnerabilities remain; zero bugs, Security D, maintainability/reliability A, coverage 85.8% and duplication 0.1%. The gate still fails only on security rating. All 15 actual callback cases, four real page/coediting cases, desktop observation, live updater preservation and 1,846 native tests passed on the cleanup source. [Complete issue matrix and regression evidence](../integration/sonar-cleanup-pr-292.md). The 4/3 security recommendations and every approval requirement below remain unchanged.
 
-## Decision matrix
+## Historical HTTP decision matrix
 
 | Finding | Rule | Proposed Decision | Technical Evidence | Residual Risk | Required Approval | Status |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -491,7 +505,7 @@ if __name__ == "__main__":
 | Change verification | Reinspect actual listeners/port bindings/network members/routes, DNS ownership, secret/data provenance; rerun outside-canary positive/negative controls and affected HTTP/WebSocket/JWT/save/migration regressions |
 | Administrative disposition | Separate authorized Sonar action only after explicit per-finding owner approval; not performed here |
 
-## Approval request summary
+## Historical HTTP acceptance proposals
 
 PENDING OWNER APPROVAL. Four findings have evidence-backed FALSE POSITIVE recommendations: AaF2G1TlIES1tmkRiAIQ, AaF2G1X8IES1tmkRiAIS, AaF2G1X8IES1tmkRiAIT, AaF2G1X8IES1tmkRiAIV. Three live-HTTP findings are intended ACCEPT candidates: AaF2G1TlIES1tmkRiAIM, AaF2G1TlIES1tmkRiAIN, AaF0FHq1vCiqu-XFDLDC. Live bidirectional strict-bridge isolation has been demonstrated locally; the three decisions remain PROPOSED ACCEPT pending individually attributed security-owner decisions and all scope conditions. If any condition fails, they revert to FIX / REASSESS. Name the accountable risk owner and security approver, approve/reject each key independently, set scope and review/expiration dates, and record residual CIA risk. No response or automated test result constitutes approval. No Sonar status, rule, exclusion or threshold is changed.
 

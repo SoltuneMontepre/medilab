@@ -10,6 +10,7 @@ const REQUEST_HEADERS = ["host", "authorization", "accept", "accept-encoding", "
   "trailer", "x-amz-decoded-content-length", "x-amz-trailer", "x-amz-checksum-mode",
   "expect", "range", "if-match", "if-none-match", "if-modified-since", "if-unmodified-since",
   "x-amz-content-sha256", "x-amz-date", "x-amz-security-token", "x-amz-sdk-checksum-algorithm",
+  "x-amz-checksum-algorithm",
   "x-amz-checksum-crc32", "x-amz-checksum-crc32c", "x-amz-checksum-sha1", "x-amz-checksum-sha256",
   "x-amz-copy-source", "x-amz-copy-source-if-match", "x-amz-metadata-directive",
   "amz-sdk-invocation-id", "amz-sdk-request", "user-agent"];
