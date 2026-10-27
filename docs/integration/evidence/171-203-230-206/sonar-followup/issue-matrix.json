@@ -16,7 +16,10 @@
     "original_status": "OPEN",
     "action": "Individual protocol/fixture security evidence retained in security dossier",
     "tests": "7 real HTTP/WebSocket proxy contracts; 2 real callbacks; 4 real page/coediting saves",
-    "verification": "PENDING OWNER APPROVAL"
+    "verification": "PENDING OWNER APPROVAL",
+    "sonar_status": "OPEN",
+    "sonar_resolution": null,
+    "verified_revision": "42ff6544694745d82fc6cc24d57ed6759dac38a6"
   },
   {
     "key": "AaF2G1TlIES1tmkRiAIN",
@@ -35,7 +38,10 @@
     "original_status": "OPEN",
     "action": "Individual protocol/fixture security evidence retained in security dossier",
     "tests": "7 real HTTP/WebSocket proxy contracts; 2 real callbacks; 4 real page/coediting saves",
-    "verification": "PENDING OWNER APPROVAL"
+    "verification": "PENDING OWNER APPROVAL",
+    "sonar_status": "OPEN",
+    "sonar_resolution": null,
+    "verified_revision": "42ff6544694745d82fc6cc24d57ed6759dac38a6"
   },
   {
     "key": "AaF2G1TlIES1tmkRiAIQ",
@@ -54,7 +60,10 @@
     "original_status": "OPEN",
     "action": "Individual protocol/fixture security evidence retained in security dossier",
     "tests": "7 real HTTP/WebSocket proxy contracts; 2 real callbacks; 4 real page/coediting saves",
-    "verification": "PENDING OWNER APPROVAL"
+    "verification": "PENDING OWNER APPROVAL",
+    "sonar_status": "OPEN",
+    "sonar_resolution": null,
+    "verified_revision": "42ff6544694745d82fc6cc24d57ed6759dac38a6"
   },
   {
     "key": "AaF2G1X8IES1tmkRiAIS",
@@ -73,7 +82,10 @@
     "original_status": "OPEN",
     "action": "Individual protocol/fixture security evidence retained in security dossier",
     "tests": "7 real HTTP/WebSocket proxy contracts; 2 real callbacks; 4 real page/coediting saves",
-    "verification": "PENDING OWNER APPROVAL"
+    "verification": "PENDING OWNER APPROVAL",
+    "sonar_status": "OPEN",
+    "sonar_resolution": null,
+    "verified_revision": "42ff6544694745d82fc6cc24d57ed6759dac38a6"
   },
   {
     "key": "AaF2G1X8IES1tmkRiAIT",
@@ -92,7 +104,10 @@
     "original_status": "OPEN",
     "action": "Individual protocol/fixture security evidence retained in security dossier",
     "tests": "7 real HTTP/WebSocket proxy contracts; 2 real callbacks; 4 real page/coediting saves",
-    "verification": "PENDING OWNER APPROVAL"
+    "verification": "PENDING OWNER APPROVAL",
+    "sonar_status": "OPEN",
+    "sonar_resolution": null,
+    "verified_revision": "42ff6544694745d82fc6cc24d57ed6759dac38a6"
   },
   {
     "key": "AaF2G1X8IES1tmkRiAIV",
@@ -111,7 +126,10 @@
     "original_status": "OPEN",
     "action": "Individual protocol/fixture security evidence retained in security dossier",
     "tests": "7 real HTTP/WebSocket proxy contracts; 2 real callbacks; 4 real page/coediting saves",
-    "verification": "PENDING OWNER APPROVAL"
+    "verification": "PENDING OWNER APPROVAL",
+    "sonar_status": "OPEN",
+    "sonar_resolution": null,
+    "verified_revision": "42ff6544694745d82fc6cc24d57ed6759dac38a6"
   },
   {
     "key": "AaF0FHq1vCiqu-XFDLDC",
@@ -130,7 +148,10 @@
     "original_status": "OPEN",
     "action": "Individual protocol/fixture security evidence retained in security dossier",
     "tests": "7 real HTTP/WebSocket proxy contracts; 2 real callbacks; 4 real page/coediting saves",
-    "verification": "PENDING OWNER APPROVAL"
+    "verification": "PENDING OWNER APPROVAL",
+    "sonar_status": "OPEN",
+    "sonar_resolution": null,
+    "verified_revision": "42ff6544694745d82fc6cc24d57ed6759dac38a6"
   },
   {
     "key": "AaF0FHqhvCiqu-XFDLCz",
@@ -149,7 +170,10 @@
     "original_status": "OPEN",
     "action": "Parallel independent read-only frame queries; ordered results; await all before cleanup",
     "tests": "2 diagnostic tests; 4 real page/coediting saves",
-    "verification": "IMPLEMENTED; HOSTED VERIFICATION PENDING"
+    "verification": "FIXED \u2014 verified Sonar analysis",
+    "sonar_status": "CLOSED",
+    "sonar_resolution": "FIXED",
+    "verified_revision": "42ff6544694745d82fc6cc24d57ed6759dac38a6"
   },
   {
     "key": "AaF0FHrNvCiqu-XFDLDk",
@@ -168,7 +192,10 @@
     "original_status": "OPEN",
     "action": "Extract complete aged-fixture lifecycle; explicit serial young/expired cases",
     "tests": "4 helper cases; native GC; TLS worker drift",
-    "verification": "IMPLEMENTED; HOSTED VERIFICATION PENDING"
+    "verification": "FIXED \u2014 verified Sonar analysis",
+    "sonar_status": "CLOSED",
+    "sonar_resolution": "FIXED",
+    "verified_revision": "42ff6544694745d82fc6cc24d57ed6759dac38a6"
   },
   {
     "key": "AaF0FHrNvCiqu-XFDLDl",
@@ -187,7 +214,10 @@
     "original_status": "OPEN",
     "action": "Extract complete aged-fixture lifecycle; clock restored on every exit",
     "tests": "4 helper cases; native GC; TLS worker drift",
-    "verification": "IMPLEMENTED; HOSTED VERIFICATION PENDING"
+    "verification": "FIXED \u2014 verified Sonar analysis",
+    "sonar_status": "CLOSED",
+    "sonar_resolution": "FIXED",
+    "verified_revision": "42ff6544694745d82fc6cc24d57ed6759dac38a6"
   },
   {
     "key": "AaF0FHrNvCiqu-XFDLDm",
@@ -206,7 +236,10 @@
     "original_status": "OPEN",
     "action": "Read timestamp after clock restoration inside fixture lifecycle",
     "tests": "4 helper cases; native GC",
-    "verification": "IMPLEMENTED; HOSTED VERIFICATION PENDING"
+    "verification": "FIXED \u2014 verified Sonar analysis",
+    "sonar_status": "CLOSED",
+    "sonar_resolution": "FIXED",
+    "verified_revision": "42ff6544694745d82fc6cc24d57ed6759dac38a6"
   },
   {
     "key": "AaF0FHrNvCiqu-XFDLDn",
@@ -225,7 +258,10 @@
     "original_status": "OPEN",
     "action": "Finish storage write before next explicit fixture case",
     "tests": "4 helper cases; native GC",
-    "verification": "IMPLEMENTED; HOSTED VERIFICATION PENDING"
+    "verification": "FIXED \u2014 verified Sonar analysis",
+    "sonar_status": "CLOSED",
+    "sonar_resolution": "FIXED",
+    "verified_revision": "42ff6544694745d82fc6cc24d57ed6759dac38a6"
   },
   {
     "key": "AaF0FHq8vCiqu-XFDLDM",
@@ -244,7 +280,10 @@
     "original_status": "OPEN",
     "action": "Independent parameterized tests, each with fresh hook/counters",
     "tests": "8 signer tests; 2 real callback cases including 27 editors",
-    "verification": "IMPLEMENTED; HOSTED VERIFICATION PENDING"
+    "verification": "FIXED \u2014 verified Sonar analysis",
+    "sonar_status": "CLOSED",
+    "sonar_resolution": "FIXED",
+    "verified_revision": "42ff6544694745d82fc6cc24d57ed6759dac38a6"
   },
   {
     "key": "AaF0FHqsvCiqu-XFDLC7",
@@ -263,7 +302,10 @@
     "original_status": "OPEN",
     "action": "Open one participant after prior destruction/close; shared keeper, page and history state",
     "tests": "Fresh 27-editor real-service regression; prior unload/browser receipts remain dated",
-    "verification": "INTENTIONAL / OWNER REVIEW"
+    "verification": "INTENTIONAL / OWNER REVIEW",
+    "sonar_status": "OPEN",
+    "sonar_resolution": null,
+    "verified_revision": "42ff6544694745d82fc6cc24d57ed6759dac38a6"
   },
   {
     "key": "AaF0FHqtvCiqu-XFDLC8",
@@ -282,7 +324,10 @@
     "original_status": "OPEN",
     "action": "Destroy the participant before closing its page and opening another",
     "tests": "Fresh 27-editor real-service regression; prior unload/browser receipts remain dated",
-    "verification": "INTENTIONAL / OWNER REVIEW"
+    "verification": "INTENTIONAL / OWNER REVIEW",
+    "sonar_status": "OPEN",
+    "sonar_resolution": null,
+    "verified_revision": "42ff6544694745d82fc6cc24d57ed6759dac38a6"
   },
   {
     "key": "AaF0FHqtvCiqu-XFDLC9",
@@ -301,7 +346,10 @@
     "original_status": "OPEN",
     "action": "Await page closure before next participant to preserve bounded sequential session churn",
     "tests": "Fresh 27-editor real-service regression; prior unload/browser receipts remain dated",
-    "verification": "INTENTIONAL / OWNER REVIEW"
+    "verification": "INTENTIONAL / OWNER REVIEW",
+    "sonar_status": "OPEN",
+    "sonar_resolution": null,
+    "verified_revision": "42ff6544694745d82fc6cc24d57ed6759dac38a6"
   },
   {
     "key": "AaF0FHhTvCiqu-XFDLCN",
@@ -320,7 +368,10 @@
     "original_status": "OPEN",
     "action": "Scoped ASCII decimal shorthand; Unicode whitespace unchanged",
     "tests": "53 native; exhaustive Unicode decimal/whitespace equivalence",
-    "verification": "IMPLEMENTED; HOSTED VERIFICATION PENDING"
+    "verification": "FIXED \u2014 verified Sonar analysis",
+    "sonar_status": "CLOSED",
+    "sonar_resolution": "FIXED",
+    "verified_revision": "42ff6544694745d82fc6cc24d57ed6759dac38a6"
   },
   {
     "key": "AaF0FHhTvCiqu-XFDLCO",
@@ -339,7 +390,10 @@
     "original_status": "OPEN",
     "action": "Delegate emission to logging.Filter after sanitization",
     "tests": "53 native logging/editor/origin/JWT",
-    "verification": "IMPLEMENTED; HOSTED VERIFICATION PENDING"
+    "verification": "FIXED \u2014 verified Sonar analysis",
+    "sonar_status": "CLOSED",
+    "sonar_resolution": "FIXED",
+    "verified_revision": "42ff6544694745d82fc6cc24d57ed6759dac38a6"
   },
   {
     "key": "AaF0FHhNvCiqu-XFDLCE",
@@ -358,7 +412,10 @@
     "original_status": "OPEN",
     "action": "Scoped ASCII decimal shorthand; route capture unchanged",
     "tests": "53 native including Unicode HTTP refusal",
-    "verification": "IMPLEMENTED; HOSTED VERIFICATION PENDING"
+    "verification": "FIXED \u2014 verified Sonar analysis",
+    "sonar_status": "CLOSED",
+    "sonar_resolution": "FIXED",
+    "verified_revision": "42ff6544694745d82fc6cc24d57ed6759dac38a6"
   },
   {
     "key": "AaF0FHhNvCiqu-XFDLCG",
@@ -377,7 +434,10 @@
     "original_status": "OPEN",
     "action": "Scoped ASCII decimal shorthand; ambiguous host refusal unchanged",
     "tests": "53 native including origin validation",
-    "verification": "IMPLEMENTED; HOSTED VERIFICATION PENDING"
+    "verification": "FIXED \u2014 verified Sonar analysis",
+    "sonar_status": "CLOSED",
+    "sonar_resolution": "FIXED",
+    "verified_revision": "42ff6544694745d82fc6cc24d57ed6759dac38a6"
   },
   {
     "key": "AaF0FHhWvCiqu-XFDLCR",
@@ -396,7 +456,10 @@
     "original_status": "OPEN",
     "action": "Legacy unsaved-edit compatibility; preventDefault alone has not been approved for all supported browsers",
     "tests": "Fresh 27-editor real-service regression; prior unload/browser receipts remain dated",
-    "verification": "INTENTIONAL / OWNER REVIEW"
+    "verification": "INTENTIONAL / OWNER REVIEW",
+    "sonar_status": "OPEN",
+    "sonar_resolution": null,
+    "verified_revision": "42ff6544694745d82fc6cc24d57ed6759dac38a6"
   },
   {
     "key": "AaF0FHhPvCiqu-XFDLCI",
@@ -415,6 +478,9 @@
     "original_status": "OPEN",
     "action": "Delegate emission to logging.Filter after sanitization",
     "tests": "53 native logging/editor/origin/JWT",
-    "verification": "IMPLEMENTED; HOSTED VERIFICATION PENDING"
+    "verification": "FIXED \u2014 verified Sonar analysis",
+    "sonar_status": "CLOSED",
+    "sonar_resolution": "FIXED",
+    "verified_revision": "42ff6544694745d82fc6cc24d57ed6759dac38a6"
   }
 ]

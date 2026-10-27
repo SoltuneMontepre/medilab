@@ -162,6 +162,13 @@
       "name": "Older browser binaries, staging and released installers",
       "status": "NOT RUN",
       "reason": "Unavailable release-environment acceptance; no claim from fixture results"
+    },
+    {
+      "name": "Repository typecheck",
+      "status": "PASS",
+      "errors": 0,
+      "warnings": 6377,
+      "files": 714
     }
   ],
   "setup_attempts": [
