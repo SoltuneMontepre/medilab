@@ -15,7 +15,7 @@ Laboratory owns report templates and report preparation. ONLYOFFICE provides edi
 - Template administration is an assignable permission held by the administrator. Template versions have read, create, edit and archive permissions.
 - Editing a report draft requires permission to edit test reports and access to its request. Signing uses the report's approval chain; edit permission alone never permits signing.
 - Enforce access when opening the editor, reading content, accepting a save, generating a PDF and signing. Folder membership alone grants no report or customer access.
-- Customers cannot open the editor or download internal DOCX drafts or unsigned PDFs. They download their issued PDF through the existing portal and delivery rules.
+- Customers cannot open the editor or download internal DOCX drafts or unissued PDFs. They download their issued PDF through the existing portal and delivery rules; it is digitally signed when digital signing is on.
 
 ### Templates
 
@@ -61,7 +61,8 @@ Signing checks that the reviewed candidate is still current and all required sou
 - Before the first signature, reopening a draft invalidates the candidate PDF. Save, validate and prepare it again before review.
 - Once any approval level signs, the draft and candidate are locked. Editing resumes only after signatures are withdrawn in the order allowed by SH-07; a stale editor callback cannot bypass that lock.
 - Once the report's process is completed, its signatures cannot be withdrawn. Corrections use the existing change-request process and create a replacement draft and signing task. Keep the earlier report's files, sources and history.
-- After the final approval, digital signing uses the stored candidate PDF. It adds the digital signature without regenerating the report from a newer template, business record or DOCX save. Retry uses the same candidate. With digital signing off, store that candidate as the issued PDF.
+- After the final approval, digital signing uses the stored candidate PDF. It adds the digital signature without regenerating the report from a newer template, business record or DOCX save. Store the verified signed PDF before issuing the report. Retry uses the same candidate and checks that the candidate and its approvals still stand. With digital signing off, store that candidate without a digital signature, then issue the report.
+- If digital signing fails, keep the approvals and show pending digital signing; the report remains unissued. It cannot be delivered or downloaded by the customer, sends no release notification and does not replace an earlier report. Signing resumes through the existing retry process.
 - Delivery and portal download use the stored issued PDF. After the replacement's own approvals and signing are complete, issue it; only issuance marks the earlier report replaced and notifies the customer that the new PDF is ready.
 
 ### Availability
@@ -79,6 +80,8 @@ An unavailable editor, failed save or failed conversion blocks preparation of a 
 - Reopening an unsigned draft invalidates its PDF. A draft with signatures stays locked until permitted withdrawals; an issued report requires a change request.
 - A template update or customer-profile change leaves an issued report's files and printed data unchanged.
 - A Viettel Sign retry uses the original candidate; it cannot pick up a newer DOCX or template.
+- With digital signing on, a report stays unissued until its approved candidate has been digitally signed and stored. An outage preserves the approvals, and a successful retry issues that version once without repeating a release notification or replacement transition.
+- With digital signing off, the approved candidate is stored and issued without a digital signature. Turning signing on later does not rewrite an already issued PDF.
 - A customer receives only the issued PDF, and a person without request access cannot read its draft through a working folder or editor URL.
 - Download and delivery of an issued PDF work when ONLYOFFICE is unavailable.
 

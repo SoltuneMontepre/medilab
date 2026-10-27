@@ -98,12 +98,12 @@ Follows [Reports and change requests](../overview.md#reports-and-change-requests
 
 | Rule     | Description                                                                                                         |
 | -------- | ------------------------------------------------------------------------------------------------------------------- |
-| Waiting  | Issued reports whose PDF is ready and not yet delivered are listed with their delivery method, note and the contact who receives them. A report waiting for its digital signature is listed once it is signed. |
+| Waiting  | Issued, undelivered reports are listed with their delivery method, note and the contact who receives them. A report pending digital signing remains unissued and enters this list only after its signed PDF is stored and the report is issued. |
 | Delivery | Sample delivery staff deliver the report as the test request says and record when it was delivered; they are recorded as who delivered it. A report sent by email is emailed to its recipient from the system. |
 
 Acceptance criteria:
 
-- An issued report appears in the list waiting for delivery once its PDF is ready, until its delivery is recorded.
+- Issuance makes the stored report PDF available in the list waiting for delivery, until its delivery is recorded. A digital-signing failure leaves the report outside that list.
 - Recording a delivery stores when and by whom.
 - A report not yet issued cannot be delivered.
 

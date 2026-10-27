@@ -71,21 +71,23 @@ Acceptance criteria:
 | Rejection        | A signer can reject with a reason instead of signing. The reason is kept and the requester is notified.                                                                                                                  |
 | Documents        | Invoices, quotations, orders, test results and any other document type that has an approval chain.                                                                                                                       |
 
-**Digital signature is applied automatically when a document is printed.** When a signed document is printed or exported as PDF (for sending, downloading or archiving), the system has the signature provider (see Viettel Sign below) digitally sign the PDF with the laboratory's certificate and stores the signed file. Users do not sign certificates by hand.
+**Digital signing follows completion of the approval chain.** The system has the signature provider (see Viettel Sign below) digitally sign the PDF with the laboratory's certificate and stores the signed file. For a test report, it signs the prepared PDF after the final approval and stores it before issuing the report. Printing or exporting returns the stored PDF and can retry pending signing. Users do not sign certificates by hand.
 
 - One laboratory certificate signs every digitally signed document, whoever signed the approval chain.
 - The test report is the document type that is digitally signed. Another document type joins by naming the report it prints; the rules below then apply to it.
 - The signed PDF is stored with the document, together with the signature details and the time, so the same file is returned every time it is downloaded.
-- Only documents that have been fully signed (final level approved) are digitally signed on print. A document still under approval prints as a draft, clearly marked, without a digital signature.
+- Only documents that have been fully signed (final level approved) are eligible for digital signing. Approval-chain completion does not mean the PDF has a digital signature or that the report is issued. A document still under approval prints as a draft, clearly marked, without a digital signature.
 - Every signed PDF can be verified: it shows who approved it (from the signature records), that the digital signature is valid, and that the content has not changed. Verification is a public page, open to the customer without logging in: they upload the PDF and see the result. Each signed PDF prints the page's address.
-- If the provider is unavailable, the document is not printed as signed; the user is told and can retry, and the signing is retried automatically. Nothing is shown as digitally signed unless the provider confirmed it.
+- If the provider is unavailable, the approvals stand, the document is not printed as digitally signed, and the user is told and can retry; signing is also retried automatically. A test report stays unissued and pending digital signing, without customer delivery, download, release notification or replacement of the previous report. Nothing is shown as digitally signed unless the provider confirmed it.
+- Digital signing can be turned off in Laboratory settings. A report then stores its approved prepared PDF without a digital signature and issues it. An issued PDF stays unchanged if the setting changes later.
 
 Acceptance criteria:
 
-- Printing a fully signed document returns a digitally signed PDF without any extra step from the user.
+- With digital signing on, printing a fully signed document returns a digitally signed PDF without any extra step from the user; an already issued report always returns its stored PDF.
 - Printing a document that is still under approval returns an unsigned, marked draft.
 - A signed PDF fails verification if any of its content is changed.
-- A provider outage leaves the document unsigned and retries it.
+- A provider outage preserves the approvals and retries digital signing. A test report is issued only after its signed PDF is stored; retries cannot issue stale content or notify the customer twice.
+- With digital signing off, a test report stores and issues its approved PDF without a digital signature.
 - The signature record shows the signer, role, time and document version for every level.
 
 #### SH-05 Audit trail

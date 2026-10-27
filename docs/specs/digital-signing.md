@@ -26,24 +26,25 @@ A fully signed document prints as a PDF that Viettel Sign digitally signed with 
 - Signing takes the document version's unsigned PDF, adds an invisible PAdES signature field with Odoo's `odoo.tools.pdf.signature`, and sends the SHA-256 of the CMS signed attributes to Viettel Sign. The RSA signature it returns, with the certificate chain, makes the CMS that fills the field. A document type may render this source at signing; test reports supply the stored PDF prepared and reviewed before approval, as specified in [Test reports](test-reports.md#preparing-the-pdf).
 - The signed PDF is checked before it is stored: a signature the certificate does not verify counts as a signing Viettel Sign did not confirm, and is retried like an outage.
 - The signed file is stored as an attachment of the document, with a `medilab.digital.signature`: the document and its version, the certificate, when Viettel Sign signed and the SHA-256 of the file. A document version is signed once; the record is never edited or deleted. An `integration` audit entry on the document records the signing, and an `error` entry a signing that failed.
-- A document type takes part by inheriting `medilab.digital.signing.mixin`, naming its report in `_digital_signing_report` and saying when it is fully signed. Test reports also supply their prepared source PDF rather than rendering one again. The test report is fully signed once it is issued.
+- A document type takes part by inheriting `medilab.digital.signing.mixin`, naming its report in `_digital_signing_report` and saying when its approval chain is complete. Fully signed means that the final approval level has signed; it does not require issuance or a digital signature. Test reports supply their prepared source PDF rather than rendering one again, and completion of their approval chain starts digital signing before issue.
 
 ### Printing
 
-- Printing the report a document type named returns, for a fully signed document, its stored signed PDF, and signs it first when there is none yet. A document still under approval prints the report with its draft mark. Fully signed documents are printed one at a time, because merging PDFs breaks their signatures.
-- Digital signing is off until an administrator turns it on in the Laboratory settings. While it is off, a fully signed document prints without a digital signature and without the draft mark.
+- Printing the report a document type named returns, for a fully signed document, its stored signed PDF, and signs it first when there is none yet. A document still under approval prints the report with its draft mark. An issued test report always returns its stored issued PDF; printing never rewrites it. Fully signed documents are printed one at a time, because merging PDFs breaks their signatures.
+- Digital signing is off until an administrator turns it on in the Laboratory settings. While it is off, a fully signed document prints without a digital signature and without the draft mark. A test report issued while it is off keeps that stored PDF after the setting changes.
 - A signed PDF prints the address of the verification page.
 
 ### Outage and retry
 
-- When a document becomes fully signed, its PDF is signed at once. When Viettel Sign fails, the approval stands, the item `<model>:<id>:<version>` is queued on `digital_signing.sign` and the user is told on the screen. The job retries the item with a growing delay, up to 8 attempts; an item that fails for good alerts the administrator as every failed job item does.
-- A document whose signing waits in the queue shows that it is pending, with a button to try again now. Printing it also tries again and, when Viettel Sign still fails, tells the user; the queued item stays. A document fully signed before digital signing was turned on is signed the first time it is printed.
+- When digital signing is on and a document becomes fully signed, its PDF is digitally signed at once. When Viettel Sign fails, the approval stands, the item `<model>:<id>:<version>` is queued on `digital_signing.sign` and the user is told on the screen. The job retries the item with a growing delay, up to 8 attempts; an item that fails for good alerts the administrator as every failed job item does.
+- A document whose signing waits in the queue shows that it is pending, with a button to try again now. Printing it also tries again and, when Viettel Sign still fails, tells the user; the queued item stays. A document fully signed before digital signing was turned on is signed the first time it is printed, except an already issued test report whose stored PDF stays unchanged.
 
 ### Test reports
 
 - Approval and signing bind the prepared PDF and its DOCX, template and business-data versions. Digital signing and every retry use that same source; a template update or later editor save cannot change it. A marked draft preview is a separate copy and never replaces the prepared source.
-- With digital signing on, an issued report gets its PDF once Viettel Sign has signed it. Until then it is not listed for delivery and cannot be delivered, and the portal lists it without a download. The customer is told the results are released once the signed PDF is stored.
-- With digital signing off, the report stores its prepared PDF without a digital signature when it is issued.
+- With digital signing on, completing the approval chain signs the prepared PDF. Only after Viettel Sign succeeds and the verified signed PDF is stored is the report issued. Until then the approvals stand, the report remains unissued and pending digital signing, and it cannot be delivered or downloaded by the customer. Failure does not mark a previous report replaced or notify the customer of a release.
+- With digital signing off, completing the approval chain stores the prepared PDF without a digital signature, then issues the report.
+- Issuance makes the stored PDF available for delivery and customer download and sends the release notification. For a replacement, only issuance marks the previous report replaced. A retry rechecks that the candidate and its approvals still stand; a withdrawn approval or corrected source cannot issue an obsolete candidate.
 - Issued PDFs are downloaded and delivered from storage, including while ONLYOFFICE is unavailable. Internal DOCX drafts are not customer downloads.
 
 ### Verification
@@ -65,7 +66,7 @@ Turning digital signing on, the alert days and refreshing the certificates belon
 CI does not call Viettel Sign. A check against it needs a Viettel Sign test account that signs automatically:
 
 1. Set the variables, turn digital signing on and refresh the certificates. The laboratory's certificate is listed as valid with its expiry.
-2. Issue a test report. Its PDF opens in a PDF reader as signed with the laboratory's certificate.
+2. Complete a test report's approval chain. Its prepared PDF is digitally signed and stored before the report is issued, and opens in a PDF reader as signed with the laboratory's certificate.
 3. Upload it on `/verify`: it is valid. Change one byte and upload it again: it is not.
 
 Until that run is done, signing against Viettel Sign is unverified. Tests with the client mocked cover the same rules.
