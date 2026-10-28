@@ -91,7 +91,7 @@ class ApprovalMixin(models.AbstractModel):
         """Withdraw every signature and rejection that still stands and reopen the document, so it is signed again
         from the first level; the rows stay on record."""
         for document in self.sudo():
-            document._approval_open_rows().write({"withdrawn_at": fields.Datetime.now()})
+            document._approval_open_rows()._record_withdrawal()
             document.with_context(**{APPROVAL_SYSTEM_CONTEXT: True}).write(
                 {"document_version": document.document_version + 1}
             )

@@ -33,9 +33,9 @@ task setup:fresh:select PROJECT=medilab-bootstrap-local
 task setup:fresh
 ```
 
-Selection saves an empty Compose project and available host ports for this checkout. It leaves existing projects and their data intact, including resources from a previous `task setup`. The bootstrap creates `src/core/.venv`, fetches the Odoo source, installs Serena and the Odoo Language Server, initializes the Vietnamese accounting chart and seeds the MediLab demo data with private report assets. It uses local development credentials without Doppler.
+Selection saves an empty Compose project and host ports for this checkout, keeping the default ports such as 8069 when they are free. It leaves existing projects and their data intact, including resources from a previous `task setup`. The bootstrap creates `src/core/.venv`, fetches the Odoo source, installs Serena and the Odoo Language Server, initializes the Vietnamese accounting chart and seeds the MediLab demo data with private report assets. It uses local development credentials without Doppler.
 
-Open the Odoo port printed by selection, also saved as `MEDILAB_ODOO_PORT` in `tools/infrastructure/.env`. The database manager is turned off (`list_db = False`), so the login page shows no database administration link. Demo users sign in as `demo.<role>` with password `demo`.
+Open the Odoo port printed by selection, 8069 unless another stack holds it, also saved as `MEDILAB_ODOO_PORT` in `tools/infrastructure/.env`. The database manager is turned off (`list_db = False`), so the login page shows no database administration link. Demo users sign in as `demo.<role>` with password `demo`.
 
 For an existing local environment, `task setup` prepares the tooling, authenticates Doppler (project `medilab`, config `dev`) and upgrades installed modules. Install other modules with `task upgrade MODULES=<module>`, for example `task upgrade MODULES=sol_laboratory`. Installing `sol_demo` through `task upgrade` is refused unless it is already installed; use the fresh bootstrap for a new demo. See [local demo setup](docs/workflows/setting-up.md#local-demo-setup) for recovery and switching projects.
 
@@ -121,6 +121,7 @@ For AI authoring and live debugging, use `task test:e2e:tap:open` and the [Cypre
 | `task upgrade`             | Upgrade all installed modules                                                                                                                     |
 | `task upgrade MODULES=a,b` | Install and upgrade the listed modules                                                                                                            |
 | `task reset`               | Recreate a verified fresh demo after confirming its owner; ordinary environments are refused                                                     |
+| `task clean`               | Delete a verified fresh demo, its image and its selection after confirming its owner, without recreating it                                      |
 | `task dev:setup`           | Sync `src/core/.venv` from `uv.lock`, fetch the Odoo source and link the modules into it for type checks, and set this checkout's compose project |
 | `task ai:setup`            | Install Serena, OdooLS and its Odoo source in this worktree for the coding clients                                                                |
 | `task ai:odoo-ls`          | Install the pinned OdooLS release, typeshed and Odoo source that the `odoo` MCP server uses                                                       |

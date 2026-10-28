@@ -7,6 +7,7 @@ What each role may do. Roles and their permissions are defined by administrators
 Rules that hold for everyone, whatever their roles and permissions:
 
 - A signed document cannot be edited, archived or deleted ([SH-07](../functional/shared.md#sh-07-signed-documents-are-locked)).
+- Signatures are never changed once given; only their withdrawal is recorded, once.
 - Signatures, results, people who have signed a document, test parameters, parameter and method pairs, subcontractors, stock items and suppliers are never deleted. Audit entries are never deleted by anyone; only the cleanup job removes them after the audit retention period.
 - Permissions are enforced in the API and in the interface; a person does not see menus, records, fields or buttons for what they are not allowed to do.
 - A page never shows text taken from its address, such as an error message in the URL; every message it shows comes from the system.
@@ -20,11 +21,6 @@ Odoo enforces permissions: each permission becomes Odoo groups and accesses, so 
 One document per role, in `permissions/<role>.md`.
 
 - [Administrator](permissions/admin.md): every permission, as Odoo's default administrator
-
-## Security reviews
-
-- [PR #292 Sonar disposition review](pr-292-sonar-disposition-review.md): individual technical proofs, fixture risk records and pending security-owner approvals.
-- [PR #292 GitGuardian review](pr-292-gitguardian-review.md): Git object identity proof and pending review of incident 39039733.
 
 ## Related documents
 

@@ -436,6 +436,18 @@ msgstr "Một lần chạy mất ít nhất một phút."
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/signature.py:0
+msgid "A signature cannot be changed once it is given."
+msgstr "Chữ ký đã ký thì không thể thay đổi."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/signature.py:0
+msgid "A signature is given in force; only withdrawing it records a withdrawal."
+msgstr "Chữ ký mới luôn có hiệu lực; chỉ việc rút chữ ký mới ghi nhận thời điểm rút."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/signature.py:0
 msgid "A signature is withdrawn, not deleted."
 msgstr "Chữ ký được rút lại, không bị xóa."
 

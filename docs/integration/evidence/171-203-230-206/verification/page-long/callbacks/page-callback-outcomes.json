@@ -1,4 +1,0 @@
-[
-  "status=200 outcome=open session_id=1 elapsed_seconds=0.023 correlation_id=3f5bef56f7ce4bf6b0e8d3fedbc6fae9 error_type=none",
-  "status=200 outcome=committed session_id=1 elapsed_seconds=1.308 correlation_id=80a4649319fc424da42a1deaf9b9770f error_type=none"
-]
