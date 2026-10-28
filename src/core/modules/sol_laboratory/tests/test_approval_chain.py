@@ -45,20 +45,22 @@ class TestApprovalChain(PeopleCase):
 
     @classmethod
     def sign(cls, person, level, decision=DECISION_SIGNED, reason=False, document_id=1):
-        return cls.env[MODEL_SIGNATURE].create(
-            {
-                "document_model": DOCUMENT_MODEL,
-                "document_id": document_id,
-                "document_version": 1,
-                "level_id": level.id,
-                "signer_id": person.id,
-                "signer_name": person.name,
-                "signer_role": level.role_id.name,
-                "level_name": level.name,
-                "decision": decision,
-                "reason": reason,
-            }
-        )
+        return cls.env[MODEL_SIGNATURE].create(cls.signature_vals(person, level, decision, reason, document_id))
+
+    @classmethod
+    def signature_vals(cls, person, level, decision=DECISION_SIGNED, reason=False, document_id=1):
+        return {
+            "document_model": DOCUMENT_MODEL,
+            "document_id": document_id,
+            "document_version": 1,
+            "level_id": level.id,
+            "signer_id": person.id,
+            "signer_name": person.name,
+            "signer_role": level.role_id.name,
+            "level_name": level.name,
+            "decision": decision,
+            "reason": reason,
+        }
 
     def test_a_document_type_has_one_chain_per_purpose(self):
         with self.assertRaises(IntegrityError), mute_logger("odoo.sql_db"), self.cr.savepoint():
@@ -194,6 +196,16 @@ class TestApprovalChain(PeopleCase):
         self.assertEqual(signature.decision, DECISION_SIGNED)
         self.assertEqual(signature.document_id, 7)
 
+    def test_a_signature_is_given_in_force(self):
+        vals = self.signature_vals(self.chemist, self.sales_level)
+        signatures = self.env[MODEL_SIGNATURE].sudo()
+
+        given = signatures.with_context(default_withdrawn_at="2020-01-01 00:00:00").create(vals)
+        with self.assertRaises(UserError):
+            signatures.create({**vals, "document_id": 2, "withdrawn_at": "2020-01-01 00:00:00"})
+
+        self.assertFalse(given.withdrawn_at)
+
     def test_only_withdrawing_records_a_withdrawal(self):
         signature = self.sign(self.chemist, self.sales_level)
 
@@ -211,6 +223,8 @@ class TestApprovalChain(PeopleCase):
             signature.sudo().write({"withdrawn_at": False})
         with self.assertRaises(UserError):
             signature.sudo().write({"withdrawn_at": "2020-01-01 00:00:00"})
+        with self.assertRaises(UserError):
+            signature._record_withdrawal()
 
         self.assertEqual(signature.withdrawn_at, withdrawn_at)
 

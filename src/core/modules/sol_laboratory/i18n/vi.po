@@ -442,8 +442,8 @@ msgstr "Chữ ký đã ký thì không thể thay đổi."
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/signature.py:0
-msgid "A signature is withdrawn once, by withdrawing it or restarting its document's signing."
-msgstr "Chữ ký chỉ được rút một lần, bằng cách rút chữ ký hoặc ký lại tài liệu từ đầu."
+msgid "A signature is given in force; only withdrawing it records a withdrawal."
+msgstr "Chữ ký mới luôn có hiệu lực; chỉ việc rút chữ ký mới ghi nhận thời điểm rút."
 
 #. module: sol_laboratory
 #. odoo-python

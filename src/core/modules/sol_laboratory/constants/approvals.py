@@ -16,5 +16,3 @@ STATE_APPLIED = "applied"
 
 # Context key that lets the system write content fields of a document that has a standing signature.
 APPROVAL_SYSTEM_CONTEXT = "medilab_approval_system"
-# Context key that lets withdrawing a signature or restarting a chain record when a signature was withdrawn.
-SIGNATURE_WITHDRAWAL_CONTEXT = "medilab_signature_withdrawal"
