@@ -1,4 +1,4 @@
-import { callAs, refAs } from "../../../support/odoo";
+import { callAs, refAs, task } from "../../../support/odoo";
 
 const RECEPTION = "demo.sample_delivery_staff";
 export const HEAD = "demo.head_of_department";
@@ -257,8 +257,8 @@ export function plannedTask() {
 
 // Runs the job that reminds people of what starts within the reminder lead.
 export function runReminders() {
-  return refAs(ADMINISTRATOR, "sol_laboratory.ir_cron_notifications_remind").then(({ id }) =>
-    callAs(ADMINISTRATOR, "ir.cron", "method_direct_trigger", [[id]]),
+  return refAs(ADMINISTRATOR, "sol_laboratory.ir_cron_notifications_remind", { context: { active_test: false } }).then(({ id }) =>
+    callAs(ADMINISTRATOR, "ir.cron", "method_direct_trigger", [[id]]).should("eq", true),
   );
 }
 
@@ -286,7 +286,7 @@ export function storedSettings() {
 
 export function checkpointSettings() {
   return storedSettings().then((stored) =>
-    cy.task("odooCheckpointSettings", { login: ADMINISTRATOR }, { log: false }).then((checkpoint) => ({ ...stored, checkpoint })),
+    task("odooCheckpointSettings", { login: ADMINISTRATOR }, { log: false }).then((checkpoint) => ({ ...stored, checkpoint })),
   );
 }
 
@@ -300,7 +300,7 @@ export function forgetSetting(key) {
 // Keep both absent parameters and a disabled reminder exactly as they were before the test.
 export function restoreSettings(stored) {
   if (!stored) return cy.wrap(null, { log: false });
-  cy.task("odooRestoreSettings", { checkpoint: stored.checkpoint }, { log: false });
+  task("odooRestoreSettings", { checkpoint: stored.checkpoint }, { log: false });
   callAs(ADMINISTRATOR, "mail.message.subtype", "write", [[stored.reminder.id], { enabled: stored.reminder.enabled }]);
   return storedSettings().should((restored) => {
     expect(restored.parameters.map(({ key, value }) => ({ key, value })).sort((a, b) => a.key.localeCompare(b.key))).to.deep.equal(

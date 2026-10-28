@@ -66,7 +66,9 @@ function odooTasks(baseUrl, password) {
         sessions.delete(login);
         return call({ login, model, method, args, kwargs }, true);
       }
-      throw new Error(`${login}: ${model}.${method} failed: ${reply.error.data?.message ?? reply.error.message}`);
+      const error = new Error(`${login}: ${model}.${method} failed: ${reply.error.data?.message ?? reply.error.message}`);
+      error.name = reply.error.data?.name || "OdooRPCError";
+      throw error;
     }
     // A task must not yield undefined.
     return reply.result ?? null;
