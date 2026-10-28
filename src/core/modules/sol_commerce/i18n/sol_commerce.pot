@@ -2451,6 +2451,12 @@ msgstr ""
 
 #. module: sol_commerce
 #. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_approval.py:0
+msgid "Order %s already has an open sample collection task."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order.py:0
 msgid "Order %s was cancelled."
 msgstr ""
@@ -3433,6 +3439,12 @@ msgid "Revisions"
 msgstr ""
 
 #. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_approval.py:0
+msgid "Route the %s task type to the role of sample delivery staff first."
+msgstr ""
+
+#. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__message_has_sms_error
 msgid "SMS Delivery error"
 msgstr ""
@@ -4005,6 +4017,12 @@ msgstr ""
 msgid ""
 "The results of order %(order)s are ready. Download report %(report)s from "
 "your portal."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_approval.py:0
+msgid "The sample collection task waits in the queue of sample delivery staff."
 msgstr ""
 
 #. module: sol_commerce

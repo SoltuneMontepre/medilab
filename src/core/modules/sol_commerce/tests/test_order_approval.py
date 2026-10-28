@@ -3,13 +3,21 @@ from datetime import timedelta
 from psycopg2 import IntegrityError
 
 from odoo import fields
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError
 from odoo.tests import tagged
 from odoo.tools import mute_logger
 
 from .order_case import OrderCase
 from odoo.addons.sol_commerce.constants.models import MODEL_ORDER_REJECT
-from odoo.addons.sol_laboratory.constants.models import MODEL_SIGNATURE
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_PERSON,
+    MODEL_ROLE,
+    MODEL_SIGNATURE,
+    MODEL_TASK,
+    MODEL_TASK_TYPE,
+    MODEL_TEST_REQUEST,
+)
+from odoo.addons.sol_laboratory.constants.tasks import SAMPLE_COLLECTION_CODE
 
 
 @tagged("post_install", "-at_install")
@@ -135,14 +143,79 @@ class TestOrderApproval(OrderCase):
 
         order.write({"expected_result_date": fields.Date.today()})
 
+    def route_collection_to_delivery_staff(self):
+        """Route the sample collection task type to a role of sample delivery staff and return its holder."""
+        role = self.env[MODEL_ROLE].create({"code": "qo_delivery", "name": "Sample delivery staff"})
+        self.collection_type().write({"route": "role", "role_id": role.id})
+        return self.env[MODEL_PERSON].create({"name": "Vo Van Tai", "login": "sales.delivery", "role_ids": role.ids})
+
+    def collection_type(self):
+        return self.env[MODEL_TASK_TYPE].search([("code", "=", SAMPLE_COLLECTION_CODE)], limit=1)
+
+    def collection_tasks(self, order):
+        return self.env[MODEL_TASK].search(
+            [("document_model", "=", MODEL_TEST_REQUEST), ("document_id", "=", order.test_request_id.id)]
+        )
+
     def test_sample_collection_waits_for_the_approval(self):
+        self.route_collection_to_delivery_staff()
         order = self.requested_order()
 
         with self.assertRaises(UserError):
             order.with_user(self.sales).action_start_sample_collection()
+        self.assertFalse(self.collection_tasks(order))
         order.with_user(self.head).action_sign()
 
-        self.assertTrue(order.with_user(self.sales).action_start_sample_collection())
+        action = order.with_user(self.sales).action_start_sample_collection()
+        self.assertEqual(action["tag"], "display_notification")
+
+    def test_starting_collection_queues_one_task_for_sample_delivery_staff(self):
+        staff = self.route_collection_to_delivery_staff()
+        self.customer.write({"street": "12 Nguyen Hue", "city": "Ho Chi Minh"})
+        order = self.approved_order()
+
+        order.with_user(self.sales).action_start_sample_collection()
+
+        task = self.collection_tasks(order)
+        self.assertEqual(len(task), 1)
+        self.assertEqual(task.type_id, self.collection_type())
+        self.assertEqual(task.status, "open")
+        self.assertFalse(task.assignee_id)
+        self.assertFalse(task.department_id)
+        self.assertFalse(task.planned_start)
+        self.assertIn(order.name, task.name)
+        self.assertIn("12 Nguyen Hue", task.note)
+        self.assertTrue(task._claimable_by(staff))
+        self.assertFalse(task._claimable_by(self.sales_person))
+        with self.assertRaises(UserError):
+            order.with_user(self.sales).action_start_sample_collection()
+        self.assertEqual(len(self.collection_tasks(order)), 1)
+
+    def test_a_finished_collection_task_lets_sales_start_another(self):
+        self.route_collection_to_delivery_staff()
+        order = self.approved_order()
+        order.with_user(self.sales).action_start_sample_collection()
+        self.collection_tasks(order).write({"status": "cancelled"})
+
+        order.with_user(self.sales).action_start_sample_collection()
+
+        self.assertEqual(sorted(self.collection_tasks(order).mapped("status")), ["cancelled", "open"])
+
+    def test_only_those_who_change_the_order_start_its_collection(self):
+        self.route_collection_to_delivery_staff()
+        order = self.approved_order()
+
+        with self.assertRaises(AccessError):
+            order.with_user(self.portal).action_start_sample_collection()
+        self.assertFalse(self.collection_tasks(order))
+
+    def test_collection_needs_its_task_type_routed_to_a_role(self):
+        order = self.approved_order()
+        self.collection_type().write({"route": "person"})
+
+        with self.assertRaises(UserError):
+            order.with_user(self.sales).action_start_sample_collection()
+        self.assertFalse(self.collection_tasks(order))
 
     def test_withdrawing_every_signature_edits_the_order_again_in_a_new_version(self):
         order = self.approved_order()
