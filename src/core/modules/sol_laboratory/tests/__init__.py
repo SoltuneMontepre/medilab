@@ -175,6 +175,8 @@ from . import (
     test_sample_test_cancellation,
     test_sample_test_due_date,
     test_saved_documents,
+    test_scheduling_concurrency,
+    test_scheduling_http,
     test_settings,
     test_signed_pdf_verification,
     test_signing_certificates,
