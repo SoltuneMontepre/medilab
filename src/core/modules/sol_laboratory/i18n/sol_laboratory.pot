@@ -6377,6 +6377,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_quality_registration
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form_master_data
 msgid "Quality Registration"
 msgstr ""
 
@@ -14348,6 +14349,46 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/services/laboratory_editor_page.py:0
 msgid "You do not have permission to edit this file."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__quality_registration_warning_days
+msgid "Expiry Warning (days)"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__quality_registration_warning_days
+msgid "Days before a quality registration expires when administrators are warned. They are warned again on its last valid day."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/res_config_settings.py:0
+msgid "The expiry warning cannot be negative; 0 warns only on the last valid day."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_quality_registration_expiry_ir_actions_server
+#: model:mail.message.subtype,name:sol_laboratory.event_quality_registration_expiry
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_quality_registration_expiry
+msgid "Quality registration expiry"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_quality_registration_expiry
+msgid "A quality registration expires soon or expires today"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/quality_registration_scheduled_job.py:0
+msgid "The quality registration %(name)s expires today, %(date)s. From tomorrow its mark is no longer printed on reports."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/quality_registration_scheduled_job.py:0
+msgid "The quality registration %(name)s expires on %(date)s. Renew it before then, or its mark is no longer printed on reports."
 msgstr ""
 
 #. module: sol_laboratory

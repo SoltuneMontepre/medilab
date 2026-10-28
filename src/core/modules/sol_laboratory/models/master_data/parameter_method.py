@@ -140,7 +140,10 @@ class ParameterMethod(models.Model):
             if "is_accredited" in vals:
                 raise UserError(self.env._("Accreditation is computed from certificates; it cannot be set by hand."))
         self._unset_defaults([vals.get("parameter_id") for vals in vals_list if vals.get("is_default")])
-        return super().create(vals_list)
+        pairs = super().create(vals_list)
+        # The constraint runs only for the fields written, so a create that leaves out both testers would skip it.
+        pairs._check_tester()
+        return pairs
 
     def write(self, vals):
         if "is_accredited" in vals:
