@@ -1,9 +1,0 @@
-{
-  "command": [
-    "task",
-    "test:typecheck"
-  ],
-  "exit_code": 0,
-  "status": "PASS",
-  "elapsed_seconds": 5.172
-}

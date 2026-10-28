@@ -436,6 +436,18 @@ msgstr "Một lần chạy mất ít nhất một phút."
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/signature.py:0
+msgid "A signature cannot be changed once it is given."
+msgstr "Chữ ký đã ký thì không thể thay đổi."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/signature.py:0
+msgid "A signature is given in force; only withdrawing it records a withdrawal."
+msgstr "Chữ ký mới luôn có hiệu lực; chỉ việc rút chữ ký mới ghi nhận thời điểm rút."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/signature.py:0
 msgid "A signature is withdrawn, not deleted."
 msgstr "Chữ ký được rút lại, không bị xóa."
 
@@ -6484,6 +6496,7 @@ msgstr "Mục đích"
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_quality_registration
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form_master_data
 msgid "Quality Registration"
 msgstr "Hồ Sơ Đăng Ký Chất Lượng"
 
@@ -14560,3 +14573,43 @@ msgstr "Bạn không có quyền chỉnh sửa tệp này."
 #: code:addons/sol_laboratory/controllers/laboratory_editor.py:0
 msgid "This page accepts GET requests only."
 msgstr "Trang này chỉ chấp nhận yêu cầu GET."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__quality_registration_warning_days
+msgid "Expiry Warning (days)"
+msgstr "Cảnh báo hết hạn (ngày)"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__quality_registration_warning_days
+msgid "Days before a quality registration expires when administrators are warned. They are warned again on its last valid day."
+msgstr "Số ngày trước khi hồ sơ đăng ký chất lượng hết hạn để cảnh báo quản trị viên. Quản trị viên được cảnh báo lại vào ngày hiệu lực cuối cùng."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/res_config_settings.py:0
+msgid "The expiry warning cannot be negative; 0 warns only on the last valid day."
+msgstr "Số ngày cảnh báo hết hạn không được âm; 0 chỉ cảnh báo vào ngày hiệu lực cuối cùng."
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_quality_registration_expiry_ir_actions_server
+#: model:mail.message.subtype,name:sol_laboratory.event_quality_registration_expiry
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_quality_registration_expiry
+msgid "Quality registration expiry"
+msgstr "Hồ sơ đăng ký chất lượng hết hạn"
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_quality_registration_expiry
+msgid "A quality registration expires soon or expires today"
+msgstr "Hồ sơ đăng ký chất lượng sắp hết hạn hoặc hết hạn hôm nay"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/quality_registration_scheduled_job.py:0
+msgid "The quality registration %(name)s expires today, %(date)s. From tomorrow its mark is no longer printed on reports."
+msgstr "Hồ sơ đăng ký chất lượng %(name)s hết hạn hôm nay, ngày %(date)s. Từ ngày mai, ký hiệu của hồ sơ không còn được in trên phiếu kết quả."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/quality_registration_scheduled_job.py:0
+msgid "The quality registration %(name)s expires on %(date)s. Renew it before then, or its mark is no longer printed on reports."
+msgstr "Hồ sơ đăng ký chất lượng %(name)s hết hạn ngày %(date)s. Hãy gia hạn trước ngày đó, nếu không ký hiệu của hồ sơ sẽ không còn được in trên phiếu kết quả."

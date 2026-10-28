@@ -72,6 +72,13 @@ tasks:
       - python tools/scripts/demo_bootstrap.py reset
       - task: setup:fresh
 
+  clean:
+    desc: "Delete a verified fresh local demo environment, its image and its selection after owner confirmation, without recreating it"
+    silent: true
+    interactive: true
+    cmds:
+      - python tools/scripts/demo_bootstrap.py clean
+
   print:
     silent: true
     internal: true

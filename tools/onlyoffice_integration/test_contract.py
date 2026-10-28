@@ -14,8 +14,8 @@ import jwt
 
 from .production import load_service
 
-SECRET = "agent4-local-test-secret-01234567890123456789"
-FIELDS = {"key": "agent4-key", "status": 2, "url": "http://documentserver/cache/result.docx", "users": ["7"]}
+SECRET = "harness-local-test-secret-01234567890123456789"
+FIELDS = {"key": "harness-key", "status": 2, "url": "http://documentserver/cache/result.docx", "users": ["7"]}
 SERVICE = load_service("onlyoffice_jwt")
 URLS = load_service("editing_service_urls")
 LOGGING = load_service("editing_callback_logging")
@@ -50,7 +50,7 @@ class TestContract(unittest.TestCase):
 
     def test_invalid_signature_even_with_a_valid_other_token(self):
         body, header = signed(FIELDS)
-        bad_body, bad_header = signed(FIELDS, secret="different-agent4-secret-01234567890123456789")
+        bad_body, bad_header = signed(FIELDS, secret="different-harness-secret-01234567890123456789")
         self.refuse(body, bad_header)
         self.refuse(bad_body, header)
 
@@ -243,14 +243,14 @@ class TestContract(unittest.TestCase):
                 self.assertNotIn(capability, record.http_request_line, "Request line retained a capability")
 
     def test_trusted_incident_correlation_is_preserved(self):
-        evidence = {"session_id": 7, "validated_save": True, "correlation": "agent4-correlation-7"}
+        evidence = {"session_id": 7, "validated_save": True, "correlation": "harness-correlation-7"}
         request = SimpleNamespace(httprequest=SimpleNamespace(environ={"medilab.editing_callback": evidence}))
         with patch.object(LOGGING, "request", request), self.assertLogs(LOGGING._logger.name, level="INFO") as messages:
             LOGGING.record_staged_document(7, "test-object", "a" * 64, 19)
         self.assertEqual(len(messages.records), 1)
         record = messages.records[0]
         LOGGING.EditingCallbackFilter().filter(record)
-        self.assertIn("correlation_id=agent4-correlation-7", record.getMessage())
+        self.assertIn("correlation_id=harness-correlation-7", record.getMessage())
         self.assertIn("session_id=7", record.getMessage())
 
     def test_unrelated_diagnostics_preserved(self):

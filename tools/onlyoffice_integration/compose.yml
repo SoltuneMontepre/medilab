@@ -1,4 +1,4 @@
-name: medilab171-agent4
+name: medilab-onlyoffice
 
 x-bucket: &bucket
   BUCKET_LABORATORY_ACCESS_KEY: GK000000000000000000000001
@@ -15,23 +15,23 @@ services:
   postgres:
     image: docker.io/library/postgres:18
     environment:
-      POSTGRES_USER: agent4
-      POSTGRES_PASSWORD: agent4-local-only
+      POSTGRES_USER: harness
+      POSTGRES_PASSWORD: harness-local-only
       POSTGRES_DB: postgres
     healthcheck:
-      test: [CMD-SHELL, pg_isready -U agent4 -d postgres]
+      test: [CMD-SHELL, pg_isready -U harness -d postgres]
       interval: 2s
       timeout: 5s
       retries: 30
     volumes:
-      - agent4-postgres:/var/lib/postgresql
+      - harness-postgres:/var/lib/postgresql
 
   garage:
     image: docker.io/dxflrs/garage:v2.4.1@sha256:9c96caa2612d3411acc5b0e6701fb238dbfba33e533a6d7d3d811a4b12d0d020
     command: [/garage, server, --single-node, --default-bucket]
     environment:
       GARAGE_RPC_SECRET: "0000000000000000000000000000000000000000000000000000000000000002"
-      GARAGE_ADMIN_TOKEN: agent4-local-only
+      GARAGE_ADMIN_TOKEN: harness-local-only
       GARAGE_DEFAULT_ACCESS_KEY: GK000000000000000000000001
       GARAGE_DEFAULT_SECRET_KEY: "0000000000000000000000000000000000000000000000000000000000000001"
       GARAGE_DEFAULT_BUCKET: laboratory-files
@@ -41,12 +41,12 @@ services:
       timeout: 5s
       retries: 30
     volumes:
-      - agent4-garage:/var/lib/garage
+      - harness-garage:/var/lib/garage
       - ./garage.fixture.toml:/etc/garage.toml:ro
-      - agent4-garage-socket:/run/garage-s3
+      - harness-garage-socket:/run/garage-s3
 
   garage-tls:
-    image: localhost/medilab171-agent4-browser:local
+    image: localhost/medilab-onlyoffice-browser:local
     user: root
     entrypoint: [node, /opt/browser/garage_tls.cjs]
     read_only: true
@@ -62,7 +62,7 @@ services:
       NODE_EXTRA_CA_CERTS: /run/fixture-ca/ca.crt
       MEDILAB_ONLYOFFICE_STORAGE_FIXTURE: isolated-owned
     volumes:
-      - agent4-garage-socket:/run/garage-s3
+      - harness-garage-socket:/run/garage-s3
       - ${ONLYOFFICE_FIXTURE_TLS_DIRECTORY:?Start through run.py}/garage:/run/fixture-tls:ro
       - ${ONLYOFFICE_FIXTURE_TLS_DIRECTORY:?Start through run.py}/ca:/run/fixture-ca:ro
 
@@ -72,7 +72,7 @@ services:
     environment:
       <<: *bucket
       GARAGE_ADMIN_URL: http://garage:3903
-      GARAGE_ADMIN_TOKEN: agent4-local-only
+      GARAGE_ADMIN_TOKEN: harness-local-only
       GARAGE_OTHER_BUCKET: laboratory-files-other
       GARAGE_RECONCILE_BUCKET: ${ONLYOFFICE_CALLBACK_TEST_BUCKET:-laboratory-files-reconcile}
     depends_on:
@@ -103,14 +103,14 @@ services:
       timeout: 5s
       retries: 120
     volumes:
-      - agent4-documentserver:/var/lib/onlyoffice
-      - agent4-documentserver-data:/var/www/onlyoffice/Data
+      - harness-documentserver:/var/lib/onlyoffice
+      - harness-documentserver-data:/var/www/onlyoffice/Data
       - ${ONLYOFFICE_FIXTURE_TLS_DIRECTORY:?Start through run.py}/documentserver:/run/onlyoffice-tls:ro
       - ${ONLYOFFICE_FIXTURE_TLS_DIRECTORY:?Start through run.py}/ca:/run/onlyoffice-ca:ro
       - ${ONLYOFFICE_FIXTURE_TLS_DIRECTORY:?Start through run.py}/loopback:/run/fixture-tls:ro
 
   browser:
-    image: localhost/medilab171-agent4-browser:local
+    image: localhost/medilab-onlyoffice-browser:local
     user: root
     build:
       context: ../..
@@ -136,16 +136,16 @@ services:
     environment:
       <<: *bucket
       HOST: postgres
-      USER: agent4
-      PASSWORD: agent4-local-only
+      USER: harness
+      PASSWORD: harness-local-only
       ONLYOFFICE_REAL: "1"
       ONLYOFFICE_CALLBACK_TEST_BUCKET: ${ONLYOFFICE_CALLBACK_TEST_BUCKET:-laboratory-files-callback-http}
-      ONLYOFFICE_EVIDENCE_DIR: /var/lib/odoo/onlyoffice-integration/${ONLYOFFICE_TEST_DATABASE:-medilab171agent4}
+      ONLYOFFICE_EVIDENCE_DIR: /var/lib/odoo/onlyoffice-integration/${ONLYOFFICE_TEST_DATABASE:-medilab_onlyoffice}
     command:
       - odoo
       - -d
-      - ${ONLYOFFICE_TEST_DATABASE:-medilab171agent4}
-      - --db-filter=^${ONLYOFFICE_TEST_DATABASE:-medilab171agent4}$
+      - ${ONLYOFFICE_TEST_DATABASE:-medilab_onlyoffice}
+      - --db-filter=^${ONLYOFFICE_TEST_DATABASE:-medilab_onlyoffice}$
       - --init=sol_laboratory
       - --without-demo=all
       - --test-enable
@@ -158,13 +158,13 @@ services:
       - ../../src/core/modules:/mnt/extra-addons:ro
       - ../../src/core/config:/etc/odoo:ro
       - .:/opt/onlyoffice-integration:ro
-      - agent4-odoo:/var/lib/odoo
+      - harness-odoo:/var/lib/odoo
       - ${ONLYOFFICE_FIXTURE_TLS_DIRECTORY:?Start through run.py}/ca:/run/fixture-ca:ro
       - ${ONLYOFFICE_FIXTURE_TLS_DIRECTORY:?Start through run.py}/runners/${ONLYOFFICE_RUNNER_HOSTNAME:?}:/run/fixture-leaf:ro
 
 networks:
   default:
-    name: ${ONLYOFFICE_COMPOSE_PROJECT:-medilab171-agent4}_default
+    name: ${ONLYOFFICE_COMPOSE_PROJECT:-medilab-onlyoffice}_default
     external: true
 
 secrets:
@@ -172,9 +172,9 @@ secrets:
     file: ${ONLYOFFICE_TEST_CA_BUNDLE:-/etc/ssl/certs/ca-certificates.crt}
 
 volumes:
-  agent4-postgres:
-  agent4-garage:
-  agent4-garage-socket:
-  agent4-documentserver:
-  agent4-documentserver-data:
-  agent4-odoo:
+  harness-postgres:
+  harness-garage:
+  harness-garage-socket:
+  harness-documentserver:
+  harness-documentserver-data:
+  harness-odoo:

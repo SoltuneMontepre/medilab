@@ -1,4 +1,4 @@
-"""Read-only snapshot of actual forgotten Office outputs in the isolated Agent 4 fixture."""
+"""Read-only snapshot of actual forgotten Office outputs in the isolated harness fixture."""
 
 import hashlib
 import io
@@ -43,7 +43,7 @@ def read(key):
         result["size"] = len(data)
         with zipfile.ZipFile(io.BytesIO(data)) as archive:
             result["marker_present"] = any(
-                b"MEDILAB_AGENT4_" in archive.read(name) for name in archive.namelist() if name.endswith(".xml")
+                b"MEDILAB_HARNESS_" in archive.read(name) for name in archive.namelist() if name.endswith(".xml")
             )
     return result
 
