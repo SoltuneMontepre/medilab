@@ -44,6 +44,7 @@ class TestScheduleIntegrity(SchedulingCase, LocationCase):
                     "start",
                     "stop",
                     "active",
+                    "allday",
                     "user_id",
                     "partner_ids",
                     "alarm_ids",
@@ -97,6 +98,20 @@ class TestScheduleIntegrity(SchedulingCase, LocationCase):
         booking = self.scheduled()
         event = booking.calendar_event_id.with_user(self.tester.user_id)
         self.assert_refused_unchanged(booking, event.action_archive)
+
+    def test_false_boolean_aliases_cannot_archive_a_room_reservation(self):
+        booking = self.scheduled()
+        event = booking.room_event_ids.with_user(self.tester.user_id)
+        for inactive in (False, 0, None):
+            with self.subTest(inactive=repr(inactive)):
+                self.assert_refused_unchanged(booking, lambda: event.write({"active": inactive}))
+
+    def test_false_boolean_aliases_cannot_archive_the_main_calendar_event(self):
+        booking = self.scheduled()
+        event = booking.calendar_event_id.with_user(self.tester.user_id)
+        for inactive in (False, 0, None):
+            with self.subTest(inactive=repr(inactive)):
+                self.assert_refused_unchanged(booking, lambda: event.write({"active": inactive}))
 
     def test_boolean_sync_context_cannot_desynchronize_the_main_calendar(self):
         booking = self.scheduled()
@@ -174,6 +189,15 @@ class TestScheduleIntegrity(SchedulingCase, LocationCase):
         booking = self.scheduled()
         event = booking.calendar_event_id.with_user(self.tester.user_id)
         event.write({"duration": 2})
+        self.assertEqual((event.start, event.stop), (booking.starts_at, booking.ends_at))
+        self.assertEqual(booking.ends_at - booking.starts_at, timedelta(minutes=45))
+
+    def test_the_main_calendar_event_keeps_a_timed_booking(self):
+        booking = self.scheduled()
+        event = booking.calendar_event_id.with_user(self.tester.user_id)
+        event.write({"allday": True})
+        self.assertFalse(event.allday)
+        self.assertFalse(booking.room_event_ids.allday)
         self.assertEqual((event.start, event.stop), (booking.starts_at, booking.ends_at))
         self.assertEqual(booking.ends_at - booking.starts_at, timedelta(minutes=45))
 

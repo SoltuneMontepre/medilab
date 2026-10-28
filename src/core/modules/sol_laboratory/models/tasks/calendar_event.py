@@ -103,17 +103,18 @@ class CalendarEvent(models.Model):
         return super().create(vals_list)
 
     def write(self, vals):
+        cancelling = "active" in vals and not vals["active"]
         if SCHEDULE_LINK_FIELDS & set(vals):
             self._check_schedule_links()
         if BOOKING_FIELDS & set(vals):
             self._check_not_scheduled(rooms_only=True)
-        if RESERVATION_FIELDS & set(vals) or vals.get("active") is False:
+        if RESERVATION_FIELDS & set(vals) or cancelling:
             self._check_not_scheduled()
         bookings = self if vals.get("location_id") else self.filtered("location_id")
         if bookings and BOOKING_FIELDS & set(vals):
             bookings._check_organiser()
             self._flush_bookings()
-        if vals.get("active") is False:
+        if cancelling:
             bookings._check_organiser(cancelling=True)
         if "location_id" in vals:
             vals = {**vals, **self._booking_values(vals["location_id"])}

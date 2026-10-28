@@ -126,6 +126,20 @@ class TestLocationBookings(PeopleCase, LocationCase):
         self.assertFalse(booking.active)
         self.assertFalse(other.exists())
 
+    def test_an_attendee_cannot_archive_a_booking_with_false_boolean_aliases(self):
+        booking = self.book(self.room)
+        attendee = booking.with_user(self.microbiologist.user_id)
+        snapshot_fields = ["active", "start", "stop", "location_id", "user_id", "partner_ids"]
+        before = booking.read(snapshot_fields)
+        for inactive in (False, 0, None):
+            with self.subTest(inactive=repr(inactive)):
+                with (
+                    self.assertRaisesRegex(UserError, "Only the organiser or an administrator can cancel"),
+                    self.env.cr.savepoint(),
+                ):
+                    attendee.write({"active": inactive})
+                self.assertEqual(booking.read(snapshot_fields), before)
+
     def test_a_booking_is_reminded_once_to_its_organiser_and_attendees(self):
         booking = self.book(self.room)
 

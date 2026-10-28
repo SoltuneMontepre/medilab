@@ -238,6 +238,7 @@ class MachineBooking(models.Model):
                 "name": f"{booking.machine_id.name}: {booking.display_name}",
                 "start": booking.starts_at,
                 "stop": booking.ends_at,
+                "allday": False,
                 "user_id": user.id,
                 "partner_ids": [Command.set(user.partner_id.ids)],
                 "alarm_ids": [Command.clear()],
@@ -279,7 +280,7 @@ class MachineBooking(models.Model):
         if any(event and begin > event.start for _step, event, begin, _length in planned):
             planned.reverse()
         for step, event, begin, length in planned:
-            values = {"start": begin, "stop": begin + length, **attendees}
+            values = {"start": begin, "stop": begin + length, "allday": False, **attendees}
             if event:
                 event.write(values)
                 continue
