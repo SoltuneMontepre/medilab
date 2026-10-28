@@ -16,7 +16,7 @@ The system consists of three modules (E-commerce, Inventory, Laboratory) that ca
 - Installing a module never requires installing a module that depends on it.
 - When two modules are installed, the integration between them is active without extra configuration. Features that need a module that is not installed are hidden, not broken.
 - Each module can be upgraded without losing the data of the others.
-- The MediLab look is the optional Medilab Theme module (`sol_theme`), which depends on no other MediLab module and that no MediLab module depends on. Installing or removing it changes only how the system looks.
+- The MediLab look is the optional Medilab Theme module (`sol_theme`), which depends on no other MediLab module and that no MediLab module depends on. Installing or removing it changes only how the system looks and whether the user can resize and collapse the chatter beside a form.
 - The Onboarding module (`sol_onboarding`) is optional: it depends on Laboratory and no MediLab module depends on it. Uninstalling it leaves the master data it created.
 - Each module builds on Odoo Community apps and installs them with itself, as listed in [Module boundaries](../business/module-boundaries.md#odoo-apps). No module needs Odoo Enterprise.
 
@@ -87,6 +87,7 @@ Acceptance criteria:
 - A signed PDF fails verification if any of its content is changed.
 - A provider outage leaves the document unsigned and retries it.
 - The signature record shows the signer, role, time and document version for every level.
+- A signature record never changes once it is given, not even by an administrator; only its withdrawal is recorded, once.
 
 #### SH-05 Audit trail
 

@@ -20,6 +20,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_RES_USERS,
 )
 from odoo.addons.sol_laboratory.services import laboratory_bucket
+from odoo.addons.sol_laboratory.services.editing_callback_logging import record_staged_document
 from odoo.addons.sol_laboratory.services.editing_service_health import is_editing_service_up
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
 from odoo.addons.sol_laboratory.services.onlyoffice_jwt import EditingCallbackRefused, jwt_secret, sign, verify_callback
@@ -91,7 +92,11 @@ class LaboratoryEditingSession(models.Model):
         key = fields.get("key")
         if not session or not isinstance(key, str):
             raise EditingCallbackRefused("The callback is for no editing session.")
-        if not hmac.compare_digest(session.document_key.encode(), key.encode()):
+        try:
+            key_bytes = key.encode()
+        except UnicodeEncodeError:
+            raise EditingCallbackRefused("The callback's document key is not valid UTF-8.") from None
+        if not hmac.compare_digest(session.document_key.encode(), key_bytes):
             raise EditingCallbackRefused("The callback's document key is not its session's.")
         return session, fields
 
@@ -163,6 +168,7 @@ class LaboratoryEditingSession(models.Model):
         except (SavedDocumentTooLarge, SavedDocumentUnavailable):
             content._fail()
             raise
+        record_staged_document(self.id, content.object_key, sha256, size)
         return content._settle(sha256, size)
 
     def _editors_of(self, fields):

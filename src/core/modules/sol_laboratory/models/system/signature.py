@@ -59,6 +59,20 @@ class Signature(models.Model):
         for signature in self:
             signature.display_name = f"{signature.signer_name} - {signature.level_name}"
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        # A signature is given in force, whatever default the context carries.
+        for vals in vals_list:
+            if vals.get("withdrawn_at"):
+                raise UserError(self.env._("A signature is given in force; only withdrawing it records a withdrawal."))
+            vals["withdrawn_at"] = False
+        return super().create(vals_list)
+
+    def write(self, vals):
+        # A signature proves what was signed, so even full rights cannot change it; _record_withdrawal records its
+        # withdrawal.
+        raise UserError(self.env._("A signature cannot be changed once it is given."))
+
     def unlink(self):
         # Only uninstalling the module removes signatures.
         if not self.env.context.get(MODULE_UNINSTALL_FLAG):
@@ -73,7 +87,14 @@ class Signature(models.Model):
     def _withdraw(self, process_completed=False):
         for signature in self:
             signature._check_withdrawable(process_completed)
-        self.sudo().write({"withdrawn_at": fields.Datetime.now()})
+        self._record_withdrawal()
+
+    def _record_withdrawal(self):
+        # The only way a signature's withdrawal is recorded: once, at the current time, past the refusal of write.
+        signatures = self.sudo()
+        if signatures.filtered("withdrawn_at"):
+            raise UserError(self.env._("This signature is already withdrawn."))
+        super(Signature, signatures).write({"withdrawn_at": fields.Datetime.now()})
 
     def _check_withdrawable(self, process_completed=False):
         self.ensure_one()
@@ -84,18 +105,18 @@ class Signature(models.Model):
             raise UserError(self.env._("This signature is already withdrawn."))
         if process_completed:
             raise UserError(self.env._("The process of the document is completed, so a signature cannot be withdrawn."))
-        if signature._higher_rows():
-            raise UserError(self.env._("Withdraw the signatures of the higher levels first."))
+        if signature._later_rows():
+            raise UserError(self.env._("Withdraw the signatures given after yours first."))
 
-    def _higher_rows(self):
-        # Rows of higher levels of the same chain on the same document that are not withdrawn; a rejection counts.
+    def _later_rows(self):
+        # Rows of the same document given after this one that are not withdrawn; a rejection counts. The id grows with
+        # every row, so it orders them where the creation time can be equal.
         self.ensure_one()
         return self.search(
             [
                 ("document_model", "=", self.document_model),
                 ("document_id", "=", self.document_id),
                 ("withdrawn_at", "=", False),
-                ("level_id.chain_id", "=", self.level_id.chain_id.id),
-                ("level_id.sequence", ">", self.level_id.sequence),
+                ("id", ">", self.id),
             ]
         )

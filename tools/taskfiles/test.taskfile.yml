@@ -40,6 +40,8 @@ vars:
   TYPECHECK_DIR: tools/typecheck
   UV: uv --project src/core
   OPENAPI_DOCUMENT: src/core/modules/sol_laboratory/api/openapi.yaml
+  CALLBACK_DOCUMENT: src/core/modules/sol_laboratory/api/onlyoffice-callback.openapi.yaml
+  UPDATES_DOCUMENT: src/core/modules/sol_laboratory/api/sync-updates.openapi.yaml
   OASDIFF_IMAGE: docker.io/tufin/oasdiff:v1.33.0@sha256:6263a96dd2ef0726c54e21fea9b8e1607eac4841add0079324b424c1f52b819c
   OPENAPI_BASE: '{{.OPENAPI_BASE | default "origin/main"}}'
   LOG: tools/scripts/log.sh
@@ -160,6 +162,20 @@ tasks:
     cmds:
       - python tools/scripts/core_test_guard.py clean
 
+  test:onlyoffice:coverage:
+    desc: "Test the deployed ONLYOFFICE runtime helpers and report Python and signing-hook coverage"
+    cmds:
+      - mkdir -p .local/onlyoffice-coverage
+      - "{{.UV}} run --with coverage==7.10.7 python -m coverage run --branch --source=infra/cluster/onlyoffice,infra/cluster/onlyoffice-monitor --data-file=.local/onlyoffice-coverage/.coverage -m unittest discover -s tools/infrastructure/onlyoffice -p 'test_*.py'"
+      - "{{.UV}} run --with coverage==7.10.7 python -m coverage xml --data-file=.local/onlyoffice-coverage/.coverage -o .local/onlyoffice-coverage/coverage.xml"
+      - "{{.UV}} run python -m unittest discover -s tools/onlyoffice_integration -t . -p 'test_*.py'"
+      - node tools/onlyoffice_integration/test_loopback_proxy.cjs
+      - node tools/onlyoffice_integration/test_frame_diagnostics.cjs
+      - node tools/onlyoffice_integration/test_editor_lifecycle.cjs
+      - node tools/onlyoffice_integration/test_garage_tls.cjs
+      - node tools/infrastructure/onlyoffice/test_retention_fixture.cjs
+      - npm exec --yes --ignore-scripts --package=c8@10.1.3 -- c8 --include=infra/cluster/onlyoffice/callback-signing.cjs --reporter=lcov --reports-dir=.local/onlyoffice-coverage/js node tools/infrastructure/onlyoffice/test_callback_signing.cjs
+
   test:uninstall:
     desc: "Install the modules in a throwaway database, uninstall commerce and inventory and check that the Laboratory data is intact"
     silent: true
@@ -191,12 +207,18 @@ tasks:
       - "{{.UV}} run python -m unittest discover -s {{.TYPECHECK_DIR}}"
 
   test:openapi:
-    desc: "Lint the OpenAPI document of the laboratory files API, refuse a duplicate key in it, and refuse a change that breaks it against main unless its version changes; task test:openapi OPENAPI_BASE=<revision> compares with another revision"
+    desc: "Reject duplicate keys, validate the device, callback and updater OpenAPI contracts, and refuse incompatible changes against main unless versions change; task test:openapi OPENAPI_BASE=<revision> compares with another revision"
     cmds:
       - "{{.UV}} run python tools/scripts/test_test_openapi_keys.py"
       - "{{.UV}} run python tools/scripts/test_openapi_keys.py {{.OPENAPI_DOCUMENT}}"
+      - "{{.UV}} run python tools/scripts/test_openapi_keys.py {{.CALLBACK_DOCUMENT}}"
+      - "{{.UV}} run python tools/scripts/test_openapi_keys.py {{.UPDATES_DOCUMENT}}"
       - "{{.UV}} run openapi-spec-validator {{.OPENAPI_DOCUMENT}}"
+      - "{{.UV}} run openapi-spec-validator {{.CALLBACK_DOCUMENT}}"
+      - "{{.UV}} run openapi-spec-validator {{.UPDATES_DOCUMENT}}"
       - "{{.UV}} run python tools/scripts/test_openapi.py {{.OPENAPI_DOCUMENT}} {{.OASDIFF_IMAGE}} {{.OPENAPI_BASE}}"
+      - "{{.UV}} run python tools/scripts/test_openapi.py {{.CALLBACK_DOCUMENT}} {{.OASDIFF_IMAGE}} {{.OPENAPI_BASE}}"
+      - "{{.UV}} run python tools/scripts/test_openapi.py {{.UPDATES_DOCUMENT}} {{.OASDIFF_IMAGE}} {{.OPENAPI_BASE}}"
 
   test:e2e:
     desc: "Run browser tests; GREP=TC-WF01-A5 or SPEC=<spec path> runs only those; start Odoo with task up first, or see task test:e2e:help"

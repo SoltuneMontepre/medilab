@@ -106,6 +106,10 @@ External Secrets reads the Doppler `infra` config through the `doppler` `Cluster
 - The PVC's live Argo CD annotations must contain `Prune=false,Delete=false`. Adding them to an existing bound claim must retain its UID; new claims receive them at creation. They protect Argo-managed prune/application deletion only after application, not manual/namespace deletion, storage loss, force/replace or unrelated controllers. Verify the installed Argo version and actual live annotations; keep independent backups.
 - `main` is watched by auto-sync with prune/self-heal, so merging is a deployment action. Use the reviewed Git reconciliation hold, cold backup, clone validation and staged rollout in [CloudBeaver recovery](../workflows/cloudbeaver-recovery.md) before merging the application change. Keep the claim name, class, mount and image version unchanged. Recovery Jobs do not belong in the normal application Kustomization.
 
+## ONLYOFFICE candidates
+
+The manual `applications/onlyoffice.yaml` and `applications/onlyoffice-monitor.yaml` are kept outside the root resource list until acceptance. `onlyoffice/` pins 9.4.0.1 by digest with a protected 40 GiB claim, TLS, ExternalSecret and restrictive policies. `onlyoffice-integration/` is the gated Odoo variant; `onlyoffice-edge/` defines the internal callback boundary. No unrestricted bucket egress is supplied. Follow [ONLYOFFICE deployment and recovery](onlyoffice.md) to validate and activate them together; Odoo readiness stays independent.
+
 ## Logs
 
 - Alloy reads the logs of every pod through the Kubernetes API and sends them to Loki, labelled with `namespace`, `pod`, `container` and `app`. Odoo's lines also get their `level`, such as `INFO`, `WARNING` or `ERROR`, and its `/web/health` requests, which the probes make every few seconds, are dropped.

@@ -34,6 +34,7 @@ from odoo.addons.sol_laboratory.constants.routes import DEVICE_KEY
 from odoo.addons.sol_laboratory.services import openapi_document
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
 from odoo.addons.sol_laboratory.services.request_env import request_env
+from odoo.addons.sol_laboratory.services.sync_update_http import is_public_sync_path
 
 _logger = logging.getLogger(__name__)
 
@@ -49,7 +50,7 @@ UNAUTHENTICATED = "none"
 
 
 def is_api_path(path):
-    return path == API_PREFIX or path.startswith(API_PREFIX + "/")
+    return (path == API_PREFIX or path.startswith(API_PREFIX + "/")) and not is_public_sync_path(path)
 
 
 def laboratory_api_route(path, methods, operation, auth=BY_KEY, permission=True, readonly=False):

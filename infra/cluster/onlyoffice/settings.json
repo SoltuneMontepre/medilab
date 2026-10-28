@@ -1,0 +1,59 @@
+{
+  "services": {
+    "CoAuthoring": {
+      "server": {
+        "callbackRequestTimeout": {
+          "connectionAndInactivity": "21m",
+          "wholeCycle": "21m"
+        },
+        "forgottenfiles": "forgotten",
+        "forgottenfilesname": "output"
+      },
+      "requestDefaults": {
+        "rejectUnauthorized": true
+      },
+      "request-filtering-agent": {
+        "allowPrivateIPAddress": true,
+        "allowMetaIPAddress": false
+      },
+      "token": {
+        "enable": {
+          "browser": true,
+          "request": {
+            "inbox": true,
+            "outbox": true
+          }
+        },
+        "inbox": {
+          "header": "Medilab-Editor-Token",
+          "prefix": "Bearer ",
+          "inBody": false
+        },
+        "outbox": {
+          "header": "Medilab-Editor-Token",
+          "prefix": "Bearer ",
+          "inBody": false,
+          "algorithm": "HS256",
+          "expires": "5m",
+          "urlExclusionRegex": ""
+        }
+      },
+      "callbackBackoffOptions": {
+        "retries": 3,
+        "timeout": {
+          "factor": 2,
+          "minTimeout": 1000,
+          "maxTimeout": 2147483647,
+          "randomize": false
+        },
+        "httpStatus": "429,500-599"
+      },
+      "expire": {
+        "files": 604800
+      },
+      "autoAssembly": {
+        "enable": false
+      }
+    }
+  }
+}
