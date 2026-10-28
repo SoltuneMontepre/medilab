@@ -21,7 +21,7 @@ Normal device operations and updater traffic validate against their respective r
 
 `ci-sync-app` includes both shared device/updater documents in relevant-change detection, requires Cargo and runs literal `task test:apps`, including Mobile. The prepared CI proposal is incorporated and superseded by this workflow. Hosted execution against the local integration commit remains unverified.
 
-The desktop opens `GET /medilab/laboratory-files/<file_id>/edit` through the existing OS opener with the configured base path and no device/editor credentials or redirect query. The integrated page has actual browser login/return, native Office coediting, immutable Garage-save and Sync observer evidence in [integrated acceptance](../../../../docs/integration/171-203-230-206-acceptance.md). A headless component fixture is narrower than a complete graphical native desktop pilot. Non-root deployment requires the existing owner-approved proxy/application prefix decision and end-to-end ingress evidence; no desktop rewrite discards a configured prefix.
+The desktop opens `GET /medilab/laboratory-files/<file_id>/edit` through the existing OS opener with the configured base path and no device/editor credentials or redirect query. The integrated page has actual browser login/return, native Office coediting, immutable Garage-save and Sync observer evidence. A headless component fixture is narrower than a complete graphical native desktop pilot. Non-root deployment requires the existing owner-approved proxy/application prefix decision and end-to-end ingress evidence; no desktop rewrite discards a configured prefix.
 
 ## Release gates
 
@@ -29,7 +29,7 @@ The release owner must identify installed versions/package types and verify exis
 
 Unavailable old binaries cannot be retrofitted with a download-link UI by changing server JSON. The owner must demonstrate that identified legacy binaries support it or approve a revised notification/delivery path. New-client 410 presentation is verified separately.
 
-Hosted required CI, Windows/macOS/native lifecycle evidence, production catalog/key inventory and the original-release scenarios remain open. [Integrated acceptance](../../../../docs/integration/171-203-230-206-acceptance.md) records measured local boundaries, failures, corrections and closure gates.
+Hosted required CI, Windows/macOS/native lifecycle evidence, production catalog/key inventory and the original-release scenarios remain open.
 
 ## Related documents
 

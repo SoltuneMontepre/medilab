@@ -491,7 +491,11 @@ class TestReport(models.Model):
             ]
         ) + report._approval_open_rows().filtered(lambda row: row.decision == DECISION_SIGNED).sorted("id")
         signers = {
-            (row.signer_id.id, row.level_name): {"name": row.signer_name, "level": row.level_name} for row in rows
+            (row.signer_id.id, row.level_id.id): {
+                "name": row.signer_name,
+                "level": report._in_langs(lambda env, level=row.level_id: level.with_env(env).name),
+            }
+            for row in rows
         }
         return list(signers.values())
 
