@@ -39,7 +39,7 @@ function executionTasks({
   }
 
   async function reference(name) {
-    const [, id] = await rpc("ir.model.data", "check_object_reference", ["sol_laboratory", name]);
+    const [, id] = await rpc("ir.model.data", "check_object_reference", ["sol_laboratory", name], { context: { active_test: false } });
     return id;
   }
 

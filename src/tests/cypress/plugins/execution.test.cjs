@@ -64,7 +64,9 @@ function server({ active = true, databaseUuid = randomUUID() } = {}) {
     }
     if (model === "ir.model.data" && method === "check_object_reference") {
       assert.equal(args[0], "sol_laboratory");
-      if (args[1] === "ir_cron_notifications_remind") return ["ir.cron", cron.id];
+      if (args[1] === "ir_cron_notifications_remind") {
+        return ["ir.cron", cron.active || kwargs.context?.active_test === false ? cron.id : false];
+      }
       if (args[1] === "event_task_reminder") return ["mail.message.subtype", reminder.id];
     }
     if (model === "ir.cron" && method === "read") {
@@ -364,6 +366,19 @@ for (const active of [false, true]) {
     assert.equal(h.reminder.enabled, false);
   });
 }
+
+test("preparing an originally inactive cron resolves its external ID with inactive records included", async (t) => {
+  const h = await harness(t, { active: false });
+  const tasks = h.create();
+  const execution = scope();
+  await tasks.begin(execution);
+  const lookup = h.calls.find(
+    ({ model, method, args }) => model === "ir.model.data" && method === "check_object_reference" && args[1] === "ir_cron_notifications_remind",
+  );
+  assert.equal(lookup.kwargs.context.active_test, false);
+  await tasks.finish(execution);
+  assert.equal(h.cron.active, false);
+});
 
 test("distinct intentional reminder invocations both reach the server", async (t) => {
   const h = await harness(t);
