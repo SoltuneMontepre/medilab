@@ -1,6 +1,6 @@
 # ONLYOFFICE callback integration tests
 
-This opt-in harness uses real browser editors, pinned Document Server, Odoo, PostgreSQL and Garage. The callback stress cases use a private test editor page. The separate released-page probe below uses the actual #230 page and native browser keyboard input. Neither launches the complete native Sync UI. The reviewed callback base is `fa8031db9eee3108211d771e09a57f20c038e4ad`; the separate verification branch starts at the official security fix `a3cec45f17f2429f99ae8556391c5750e38cc80a` and preserves test commit `27fa44c8436206765dd5bfa9f12099761af3f712` through a cherry-pick.
+This opt-in harness uses real browser editors, pinned Document Server, Odoo, PostgreSQL and Garage. The callback stress cases use a private test editor page. The separate released-page probe below uses the actual editor page and native browser keyboard input. Neither launches the complete native Sync UI.
 
 Required image:
 
@@ -12,20 +12,20 @@ The runner verifies the live container image ID, repository digest, architecture
 
 ## Run in an authorized local environment
 
-Use Compose, the OpenSSL CLI, registry access, the stored KietPham-VN GitHub CLI token and an already built compatible Odoo image. The image needs the bundled `base/tests/files/file.docx`, `file.xlsx` and `file.pptx` fixtures. Python contract tests require the dependencies in `src/core/pyproject.toml`.
+Use Compose, the OpenSSL CLI, registry access, a GitHub CLI token stored for the account in `ONLYOFFICE_GITHUB_USER` and an already built compatible Odoo image. The image needs the bundled `base/tests/files/file.docx`, `file.xlsx` and `file.pptx` fixtures. Python contract tests require the dependencies in `src/core/pyproject.toml`.
 
 ```bash
-export ONLYOFFICE_CONTAINER_SOCKET=/run/user/1000/podman/podman.sock
-export ONLYOFFICE_COMPOSE_PROJECT=medilab171-agent4-newrun
+export ONLYOFFICE_CONTAINER_SOCKET="$XDG_RUNTIME_DIR/podman/podman.sock"
+export ONLYOFFICE_COMPOSE_PROJECT=medilab-onlyoffice-newrun
 export ONLYOFFICE_RUN_ID=newrun
 export ONLYOFFICE_RUN_TIMEOUT=1200
-export MEDILAB_ODOO_IMAGE=medilab-odoo:issue-171-callback
+export MEDILAB_ODOO_IMAGE=medilab-odoo:local
 python3 tools/onlyoffice_integration/run.py preflight
 python3 tools/onlyoffice_integration/run.py start
 python3 tools/onlyoffice_integration/run.py test
 ```
 
-Choose a new, owned project for a fresh run. No host ports are published. All networks, volumes and databases belong to the selected project. The runner refuses an existing acceptance container, database or evidence directory; it never removes them automatically. Its outer deadline stops only its named runner, preserving services and volumes. Individual engine commands also have deadlines. Podman Compose attach can hang after a container exits, so acceptance runs are detached and polled through the engine. Do not terminate a shared service or reuse another agent's resources.
+Choose a new, owned project for a fresh run. No host ports are published. All networks, volumes and databases belong to the selected project. The runner refuses an existing acceptance container, database or evidence directory; it never removes them automatically. Its outer deadline stops only its named runner, preserving services and volumes. Individual engine commands also have deadlines. Podman Compose attach can hang after a container exits, so acceptance runs are detached and polled through the engine. Do not terminate a shared service or reuse another run's resources.
 
 The runner creates the project bridge explicitly with `--internal --opt isolate=strict` before Compose starts. Compose treats that named bridge as external to its own network creation, but the runner verifies the exact project label, strict isolation setting, every running peer's ownership and single-network attachment, and the absence of published ports or engine sockets. Podman Compose did not propagate `driver_opts.isolate`; declaring the option in Compose alone left inbound traffic from another bridge reachable. An existing network without the required metadata fails closed. Use a new project name instead of altering or removing a retained fixture. Build/download dependencies before attaching offline helpers to the bridge; helpers must be project-labeled and use only this bridge. This boundary is for synthetic fixtures and does not establish production ingress or CNI isolation.
 
@@ -42,9 +42,9 @@ python3 tools/onlyoffice_integration/run.py test
 
 The combined selection runs the real-service cases and native HTTP/logging/JWT cases. The additional 650-second transaction case crosses the old ten-minute callback limit and requires the original delivery to return 503 before a fresh-JWT delivery commits. The original 370-second test remains. The fixture's Odoo HTTP worker uses the approved 1200-second limit; callback and whole-run waits are bounded separately. Full TLS startup, native policy drift rejection and restart/recreation are independently verified through the production wrapper; the isolated fixture does not establish deployed ingress, CNI or CDN acceptance.
 
-For a further run against your own services after a restart, set a new `ONLYOFFICE_RUN_ID`, `ONLYOFFICE_RUNNER_SUFFIX` and `ONLYOFFICE_TEST_DATABASE` before `test`. Database names must start with `medilab171` and contain only lowercase letters, digits or underscores. The runner refuses an existing database or container; failed resources and evidence remain preserved. The local Odoo health loop retries connection/read timeouts within its existing 45-second startup deadline.
+For a further run against your own services after a restart, set a new `ONLYOFFICE_RUN_ID`, `ONLYOFFICE_RUNNER_SUFFIX` and `ONLYOFFICE_TEST_DATABASE` before `test`. Database names must start with `medilab_onlyoffice` and contain only lowercase letters, digits or underscores. The runner refuses an existing database or container; failed resources and evidence remain preserved. The local Odoo health loop retries connection/read timeouts within its existing 45-second startup deadline.
 
-Preflight clears inherited GitHub token variables in child commands, selects the stored KietPham-VN token and verifies `gh api user --jq .login`. It changes neither shared authentication nor global Git configuration. It prints no token. Rootless Podman's authorized socket works on this host; the root socket remains inaccessible. No socket permissions or security controls need changing.
+Preflight clears inherited GitHub token variables in child commands, selects the stored token of `ONLYOFFICE_GITHUB_USER` and verifies that `gh api user --jq .login` returns that account. It changes neither shared authentication nor global Git configuration. It prints no token. Use the rootless Podman socket; no socket permissions or security controls need changing.
 
 The browser build uses a read-only CA secret from `/etc/ssl/certs/ca-certificates.crt`; override `ONLYOFFICE_TEST_CA_BUNDLE` when needed. Certificate verification stays enabled. `ONLYOFFICE_CALLBACK_TEST_BUCKET` can select a fresh, owned callback bucket after an interrupted attempt; Garage setup provisions it. Do not remove ownership markers to bypass its guard.
 
@@ -86,9 +86,9 @@ python3 tools/onlyoffice_integration/run.py start
 python3 -m tools.onlyoffice_integration.probe_runtime
 ```
 
-The generator reads local commit `5b42e14f5715f21f85f525911cd8f692ae51302e` and creates a mode-0600 test environment file. This overlay deliberately reproduces the old declaration-only launch: it loses NODE_CONFIG when starting Supervisor and retains the large-history signing defect. Use it for a fresh failing baseline, with a separate project and evidence directory. The corrected `compose.runtime.yml` uses the mounted production worker bootstrap. Its probe requires policy read by `config.get` inside every native worker, bound to the current PID/start time, settings hash and pinned binary hash. Parent environment or disk declarations cannot produce a passing corrected probe. Callback body tokens remain present despite body JWT false and still require strict validation. Output must be a new file beneath this worktree's `.local` directory; existing files and symbolic-link outputs are refused. Use a fresh `--output` path for another comparison.
+The generator creates a mode-0600 test environment file. This overlay deliberately reproduces the old declaration-only launch: it loses NODE_CONFIG when starting Supervisor and retains the large-history signing defect. Use it for a fresh failing baseline, with a separate project and evidence directory. The corrected `compose.runtime.yml` uses the mounted production worker bootstrap. Its probe requires policy read by `config.get` inside every native worker, bound to the current PID/start time, settings hash and pinned binary hash. Parent environment or disk declarations cannot produce a passing corrected probe. Callback body tokens remain present despite body JWT false and still require strict validation. Output must be a new file beneath this worktree's `.local` directory; existing files and symbolic-link outputs are refused. Use a fresh `--output` path for another comparison.
 
-This comparison adapter uses the fixture TLS listeners but bypasses the canonical worker bootstrap. It does not execute the full TLS entrypoint, deployed callback ingress, health/drain helper or Kubernetes policy. The full handoff remains in the infrastructure branch's committed `docs/infrastructure/onlyoffice.md`; do not copy its production manifests into this harness. Probe and scan available upstream logs without printing credentials:
+This comparison adapter uses the fixture TLS listeners but bypasses the canonical worker bootstrap. It does not execute the full TLS entrypoint, deployed callback ingress, health/drain helper or Kubernetes policy. The full handoff is in [ONLYOFFICE](../../docs/infrastructure/onlyoffice.md); do not copy its production manifests into this harness. Probe and scan available upstream logs without printing credentials:
 
 ```bash
 python3 -m tools.onlyoffice_integration.probe_runtime
@@ -106,7 +106,7 @@ The slow transaction trigger is installed on the main test thread. A bounded ren
 The read-only forgotten-output snapshot runs inside the owned network; keep its output protected and compare hashes before/after an explicitly controlled restart:
 
 ```bash
-docker --host=unix:///run/user/1000/podman/podman.sock compose -p "$ONLYOFFICE_COMPOSE_PROJECT" -f tools/onlyoffice_integration/compose.yml run --no-deps --entrypoint python3 runner /opt/onlyoffice-integration/forgotten_probe.py
+docker --host=unix://$XDG_RUNTIME_DIR/podman/podman.sock compose -p "$ONLYOFFICE_COMPOSE_PROJECT" -f tools/onlyoffice_integration/compose.yml run --no-deps --entrypoint python3 runner /opt/onlyoffice-integration/forgotten_probe.py
 ```
 
 It signs only getForgottenList/getForgotten, validates the returned origin, refuses redirects and reports hashes, size and actual Office markers. It has no delete or replay operation. It was executed against retained real failed-save outputs; it does not make dirty-edit recovery automatic.
@@ -116,18 +116,18 @@ It signs only getForgottenList/getForgotten, validates the returned origin, refu
 After starting an owned runtime project, add the page browser and Document Server loopback storage proxy. The storage adapter requires the explicit `MEDILAB_ONLYOFFICE_STORAGE_FIXTURE=isolated-owned` opt-in and container runtime markers. Its verified TLS listener binds only `127.0.0.1:3900`, sends only owned bucket paths over TLS to the fixed Garage gateway, and forwards no caller credentials. The gateway forwards locally over a shared Unix socket; Garage exposes no plaintext S3 TCP listener. This transport remains a disposable fixture, separate from production storage. The environment and runtime markers record intended use; they do not authenticate ownership or prove isolation. Network/container inspection must establish the actual boundary:
 
 ```bash
-docker --host=unix:///run/user/1000/podman/podman.sock compose -p "$ONLYOFFICE_COMPOSE_PROJECT" \
+docker --host=unix://$XDG_RUNTIME_DIR/podman/podman.sock compose -p "$ONLYOFFICE_COMPOSE_PROJECT" \
   -f tools/onlyoffice_integration/compose.yml -f tools/onlyoffice_integration/compose.page.yml up -d page-browser
 podman exec -d -e MEDILAB_ONLYOFFICE_STORAGE_FIXTURE=isolated-owned "$ONLYOFFICE_COMPOSE_PROJECT-documentserver-1" \
   python3 /opt/onlyoffice-integration/loopback_storage_proxy.py
 export ONLYOFFICE_CALLBACK_TEST_BUCKET=laboratory-files-integration-page
-docker --host=unix:///run/user/1000/podman/podman.sock compose -p "$ONLYOFFICE_COMPOSE_PROJECT" \
+docker --host=unix://$XDG_RUNTIME_DIR/podman/podman.sock compose -p "$ONLYOFFICE_COMPOSE_PROJECT" \
   -f tools/onlyoffice_integration/compose.yml run --rm --no-deps garage-setup
 export ONLYOFFICE_COMPOSE_OVERRIDE="$PWD/tools/onlyoffice_integration/compose.page.yml"
 export ONLYOFFICE_REAL_TAGS=onlyoffice_page_real
 export ONLYOFFICE_RUN_ID=page
 export ONLYOFFICE_RUNNER_SUFFIX=page
-export ONLYOFFICE_TEST_DATABASE=medilab171page
+export ONLYOFFICE_TEST_DATABASE=medilab_onlyoffice_page
 export ONLYOFFICE_RUN_TIMEOUT=480
 python3 tools/onlyoffice_integration/run.py test-native
 ```
@@ -154,7 +154,7 @@ node --check tools/onlyoffice_integration/browser.cjs
 
 The integration suite loads actual JWT/origin/logging production code; namespace placeholders only avoid addon initialization. It does not substitute for Document Server execution. Native result parsing is separate from engine orchestration: test_native_results.py and test_runner.py verify that rotated logs retain failures, missing evidence and zero-test runs cannot claim acceptance, and timeouts stop only the selected runner. The signing tests load the real signing hook through a bounded module-loader fixture and cover sender ordering and trimming boundaries. Infrastructure Python tests cover deployment, effective-policy drift and the monitor. The deployed runtime source is canonical under infra/cluster/onlyoffice; local fixtures mount those exact files rather than keeping duplicate copies. CI runs these suites, including the double-encoded URL regression.
 
-Runner evidence uses a private per-database directory beneath `/var/lib/odoo/onlyoffice-integration`, copied into `.local/onlyoffice-agent4/<run-id>/`. Browser failure screenshots use an owner-only temporary directory. Private artifacts include: runtime/source hashes, native outcomes, callback timing and token fingerprints, signature consistency, saved hashes/sizes/version counts and logging checks. Raw capabilities, JWTs, callback bodies and signed output URLs stay out of shared artifacts. The runner samples test names and outcomes while polling so engine log rotation cannot erase earlier case identities. Per-case cleanup records the real test-body outcome; absent logs/outcomes are classified unknown, never inferred passing from file presence. A successful acceptance still requires the native zero-failure summary, all evidence and exit 0.
+Runner evidence uses a private per-database directory beneath `/var/lib/odoo/onlyoffice-integration`, copied into `.local/onlyoffice-harness/<run-id>/`. Browser failure screenshots use an owner-only temporary directory. Private artifacts include: runtime/source hashes, native outcomes, callback timing and token fingerprints, signature consistency, saved hashes/sizes/version counts and logging checks. Raw capabilities, JWTs, callback bodies and signed output URLs stay out of shared artifacts. The runner samples test names and outcomes while polling so engine log rotation cannot erase earlier case identities. Per-case cleanup records the real test-body outcome; absent logs/outcomes are classified unknown, never inferred passing from file presence. A successful acceptance still requires the native zero-failure summary, all evidence and exit 0.
 
 For a native-only repeat, select fresh evidence/database/container identities as above, set `ONLYOFFICE_REAL_TAGS=/sol_laboratory:TestLaboratoryEditingHttp,/sol_laboratory:TestLaboratoryEditingLogging,/sol_laboratory:TestOnlyofficeJwt`, and run `python3 tools/onlyoffice_integration/run.py test-native`. This selection runs 60 native Odoo cases; it does not claim real-service callback coverage or require callback evidence files.
 

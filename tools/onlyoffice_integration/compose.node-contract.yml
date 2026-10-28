@@ -19,7 +19,7 @@ services:
     tmpfs:
       - /var/log/onlyoffice:size=134217728
     volumes:
-      - agent4-fonts:/usr/share/fonts/truetype/custom
+      - harness-fonts:/usr/share/fonts/truetype/custom
 
 volumes:
-  agent4-fonts:
+  harness-fonts:

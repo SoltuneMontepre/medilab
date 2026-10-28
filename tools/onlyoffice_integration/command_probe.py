@@ -15,7 +15,7 @@ def probe():
     results = {}
     for name, secret, lifetime, expected in (
         ("valid", SECRET, 300, 0),
-        ("invalid_signature", "different-agent4-secret-01234567890123456789", 300, 6),
+        ("invalid_signature", "different-harness-secret-01234567890123456789", 300, 6),
         ("expired", SECRET, -3600, 7),
         ("missing", None, 300, 6),
     ):
