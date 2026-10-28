@@ -1,4 +1,4 @@
-import { newRecord, pick, save, search } from "../../../support/form";
+import { newRecord, pick, save } from "../../../support/form";
 import { call, callAs, callRefused, refAs } from "../../../support/odoo";
 import {
   ADMINISTRATOR,
@@ -32,6 +32,11 @@ function shownDate(date) {
   return `${month}/${day}/${year}`;
 }
 
+// A date as an English list shows it, such as "Nov 4"; another year follows it.
+function listedDate(date) {
+  return new Date(`${date}T00:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
+}
+
 // Opens the outsource dialog of the sample test form shown.
 function openOutsource() {
   cy.contains(`${ACTIONS} button:visible`, "Outsource").click();
@@ -44,8 +49,8 @@ describe("WF-05 Outsourced testing", () => {
     clearDrafts();
     suggestedTest().then((test) => {
       cy.signInAs("head_of_department");
+      // The list shows the newest samples first, and its search looks up parameters, not sample codes.
       cy.visit("/odoo/outsourcing-suggestions");
-      search(test.code);
       cy.contains(".o_data_row", test.code).contains("button", "Outsource").click();
       cy.get(".modal:visible").within(() => {
         cy.get("[name=reason]").should("not.exist");
@@ -65,7 +70,7 @@ describe("WF-05 Outsourced testing", () => {
           expect(read.courier_id[1]).to.equal("Vo Van Tai");
           cy.readRecord(test, ["status"]).its("status").should("eq", "outsourced");
           cy.visit("/odoo/outsourcing-schedule?view_type=list");
-          cy.contains(".o_data_row", read.code).find("td[name=expected_date]").invoke("text").should("not.be.empty");
+          cy.contains(".o_data_row", read.code).find("td[name=expected_date]").should("contain", listedDate(expected));
 
           cy.signInAs("sample_delivery_staff");
           cy.visit("/odoo/dispatches-to-carry");
@@ -82,7 +87,11 @@ describe("WF-05 Outsourced testing", () => {
         });
         reportedResult(test).then((result) => {
           expect(result.entered_by_id[1]).to.equal("Nguyen Thi Lan");
-          callAs(TESTER, "medilab.test.result", "action_sign", [[result.id]]);
+          cy.signInAs("tester");
+          cy.openRecord(result);
+          cy.signRecord();
+          cy.get(`${ACTIONS} button[name=action_withdraw]:visible`).should("exist");
+          cy.readRecord(result, ["status"]).its("status").should("eq", "requested");
           cy.signInAs("head_of_department");
           cy.openRecord(result);
           cy.signRecord();
@@ -218,10 +227,17 @@ describe("WF-05 Outsourced testing", () => {
   it("TC-WF05-E2 shows a subcontractor user only their own dispatches, never a sample's customer", () => {
     sentDispatch("chlorpyrifos").then((other) =>
       sentDispatch().then(({ test, dispatch }) => {
-        cy.signInAs("subcontractor");
-        cy.visit("/my/dispatches");
-        cy.contains("a", dispatch.code).should("be.visible");
-        cy.contains("a", other.dispatch.code).should("not.exist");
+        outsourcedTest().then((draft) => {
+          cy.signInAs("subcontractor");
+          cy.visit("/my/dispatches");
+          cy.contains("a", dispatch.code).should("be.visible");
+          cy.contains("a", other.dispatch.code).should("not.exist");
+          cy.contains("a", draft.dispatch.code).should("not.exist");
+          cy.request(`/my/dispatches/${draft.dispatch.id}`).should((response) => {
+            expect(response.redirects, "sent back to the dispatches").not.to.be.empty;
+            expect(response.body).not.to.contain(draft.test.code);
+          });
+        });
         cy.contains("a", dispatch.code).click();
         cy.contains("tr", test.code).should("contain", "Lead (Pb)");
         cy.get("main").should("not.contain", test.sampleName).and("not.contain", test.customerName);

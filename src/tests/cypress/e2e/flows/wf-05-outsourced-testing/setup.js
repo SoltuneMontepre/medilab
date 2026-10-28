@@ -150,7 +150,12 @@ export function outsourcedTest(kind = "lead") {
   return suggestedTest(kind).then((test) =>
     outsourceDialog(test)
       .then((wizard) => callAs(HEAD, "medilab.sample.test.outsource", "action_outsource", [[wizard]]))
-      .then((action) => ({ test, dispatch: { model: "medilab.subcontract.dispatch", id: action.res_id } })),
+      .then((action) =>
+        callAs(HEAD, "medilab.subcontract.dispatch", "read", [[action.res_id], ["code"]]).then(([read]) => ({
+          test,
+          dispatch: { model: "medilab.subcontract.dispatch", id: action.res_id, code: read.code },
+        })),
+      ),
   );
 }
 
@@ -160,11 +165,7 @@ export function sentDispatch(kind = "lead") {
   return outsourcedTest(kind).then(({ test, dispatch }) =>
     refAs(HEAD, "sol_demo.demo_person_sample_delivery_staff").then((courier) => {
       callAs(HEAD, "medilab.subcontract.dispatch", "write", [[dispatch.id], { courier_id: courier.id, expected_date: inDays(7) }]);
-      callAs(HEAD, "medilab.subcontract.dispatch", "action_send", [[dispatch.id]]);
-      return callAs(HEAD, "medilab.subcontract.dispatch", "read", [[dispatch.id], ["code"]]).then(([read]) => ({
-        test,
-        dispatch: { ...dispatch, code: read.code },
-      }));
+      return callAs(HEAD, "medilab.subcontract.dispatch", "action_send", [[dispatch.id]]).then(() => ({ test, dispatch }));
     }),
   );
 }
