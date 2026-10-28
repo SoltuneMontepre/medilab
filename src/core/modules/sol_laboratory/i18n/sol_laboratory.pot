@@ -14402,3 +14402,9 @@ msgstr ""
 #: code:addons/sol_laboratory/models/system/quality_registration_scheduled_job.py:0
 msgid "The quality registration %(name)s expires on %(date)s. Renew it before then, or its mark is no longer printed on reports."
 msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/calendar_event.py:0
+msgid "Calendar links are managed by their task or machine booking."
+msgstr ""

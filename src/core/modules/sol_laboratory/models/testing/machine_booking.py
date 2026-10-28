@@ -19,14 +19,17 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_SAMPLE_TEST,
     MODEL_TASK,
 )
+from odoo.addons.sol_laboratory.constants.scheduling import (
+    CALENDAR_SYNC_CONTEXT,
+    CALENDAR_SYNC_TOKEN,
+    SCHEDULING_CONTEXT,
+    SCHEDULING_TOKEN,
+)
 from odoo.addons.sol_laboratory.models.testing.sample_test import OPEN_STATUSES as OPEN_TEST_STATUSES
 
 SLOT_MINUTES = 15
 ACTIVE_STATUSES = ("scheduled", "in_progress")
 OPEN_STATUSES = ("queued", *ACTIVE_STATUSES)
-# Writes of the scheduler, which has already checked the slot.
-SCHEDULING = "medilab_scheduling"
-SKIP_SYNC = "medilab_skip_calendar_sync"
 # ponytail: a test without a due date is fitted within this many days; give it a due date to plan further ahead.
 HORIZON_DAYS = 30
 
@@ -147,7 +150,7 @@ class MachineBooking(models.Model):
         return bookings
 
     def write(self, vals):
-        if {"starts_at", "ends_at"} & set(vals) and not self.env.context.get(SCHEDULING):
+        if {"starts_at", "ends_at"} & set(vals) and self.env.context.get(SCHEDULING_CONTEXT) is not SCHEDULING_TOKEN:
             # People move a booking only to a slot the scheduler finds free; its length stays the run time.
             vals = dict(vals)
             vals.pop("ends_at", None)
@@ -168,7 +171,7 @@ class MachineBooking(models.Model):
         return self.filtered(lambda booking: booking.status in OPEN_STATUSES)
 
     def _set(self, vals):
-        self.sudo().with_context(**{SCHEDULING: True}).write(vals)
+        self.sudo().with_context(**{SCHEDULING_CONTEXT: SCHEDULING_TOKEN}).write(vals)
 
     def _check_adjustable(self):
         """The person who runs a booking adjusts it; anyone else needs the permission to edit it."""
@@ -220,11 +223,11 @@ class MachineBooking(models.Model):
 
         The event has no alarm: the reminder job reminds of it, as of planned tasks.
         """
-        events = self.env[MODEL_CALENDAR_EVENT].sudo().with_context(**{SKIP_SYNC: True})
+        events = self.env[MODEL_CALENDAR_EVENT].sudo().with_context(**{CALENDAR_SYNC_CONTEXT: CALENDAR_SYNC_TOKEN})
         for booking in self.sudo():
             booking._sync_room_events()
             user = booking.person_id.user_id
-            event = booking.calendar_event_id.with_context(**{SKIP_SYNC: True})
+            event = booking.calendar_event_id.with_context(**{CALENDAR_SYNC_CONTEXT: CALENDAR_SYNC_TOKEN})
             if booking.status not in ACTIVE_STATUSES or not user:
                 # A done booking stays on the calendar as the time the test ran.
                 if event and booking.status != "done":
@@ -260,7 +263,7 @@ class MachineBooking(models.Model):
         A queued or cancelled booking frees them; a done one keeps them as the time the steps ran.
         """
         self.ensure_one()
-        events = self.room_event_ids.with_context(**{SKIP_SYNC: True})
+        events = self.room_event_ids.with_context(**{CALENDAR_SYNC_CONTEXT: CALENDAR_SYNC_TOKEN})
         if self.status not in ACTIVE_STATUSES:
             if self.status != "done":
                 events.unlink()
