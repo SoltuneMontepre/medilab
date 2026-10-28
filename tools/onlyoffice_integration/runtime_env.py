@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-INFRASTRUCTURE_COMMIT = "e6f24173c831eac945fc90cd50af4a6f788ba2c6"
+INFRASTRUCTURE_COMMIT = "63bbfba04b85741da07b9aa0a02ebb0728d4cca8"
 
 
 def write_fixture(output, values):

@@ -1,8 +1,0 @@
-{
-  "status": "PASS",
-  "openapi_only_relevant": true,
-  "literal_application_command": "task test:apps",
-  "cargo_required": true,
-  "required_aggregation": "test",
-  "hosted_execution": "NOT VERIFIED"
-}

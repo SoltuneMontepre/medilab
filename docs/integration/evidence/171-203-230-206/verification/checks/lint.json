@@ -1,9 +1,0 @@
-{
-  "command": [
-    "task",
-    "lint"
-  ],
-  "exit_code": 201,
-  "status": "FAIL",
-  "elapsed_seconds": 0.114
-}

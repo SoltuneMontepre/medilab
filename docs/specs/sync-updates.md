@@ -64,4 +64,3 @@ The opt-in Rust test `updater_migration_tests::live_odoo_catalog_and_tauri_verif
 
 - [Laboratory files](laboratory-files.md)
 - [Sync migration handoff](../../src/applications/medilab-sync/docs/migration-handoff.md)
-- [Integration acceptance](../integration/171-203-230-206-acceptance.md)
