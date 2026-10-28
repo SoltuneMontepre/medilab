@@ -28,11 +28,15 @@ function parameterServer(initial) {
         throw error;
       }
       if (method === "search_read") return [...rows.values()].map((row) => ({ ...row }));
-      if (method === "set_param") {
+      if (method === "create") {
+        this.put(args[0].key, args[0].value);
+        return rows.get(args[0].key).id;
+      }
+      if (method === "write") {
         if (ignoreWrite) {
           ignoreWrite = false;
         } else {
-          this.put(args[0], args[1]);
+          for (const row of rows.values()) if (args[0].includes(row.id)) this.put(row.key, args[1].value);
         }
         return null;
       }
@@ -68,15 +72,22 @@ test("restoration repairs changed and deleted settings and removes newly saved d
     ["changed", "original"],
     ["deleted", "restore me"],
     ["untouched", "keep me"],
+    ["blank", false],
+    ["empty", ""],
   ];
   const server = parameterServer(original);
   const tasks = tasksFor(server);
   const checkpoint = await tasks.odooCheckpointSettings({ login: "demo.administrator" });
   server.put("changed", "different");
   server.remove("deleted");
+  server.put("blank", "changed");
+  server.remove("empty");
   server.put("new.default", "not previously stored");
   assert.equal(await tasks.odooRestoreSettings({ checkpoint }), null);
-  assert.deepEqual(server.snapshot(), original);
+  assert.deepEqual(
+    server.snapshot(),
+    [...original].sort(([a], [b]) => a.localeCompare(b)),
+  );
   await assert.rejects(() => tasks.odooRestoreSettings({ checkpoint }), { message: "The settings checkpoint is unavailable." });
 });
 
@@ -110,7 +121,8 @@ test("backend failures are redacted and a failed restoration retains its checkpo
 
   for (const [method, occurrence] of [
     ["search_read", 1],
-    ["set_param", 1],
+    ["write", 1],
+    ["create", 1],
     ["unlink", 1],
     ["search_read", 2],
   ]) {
@@ -119,11 +131,15 @@ test("backend failures are redacted and a failed restoration retains its checkpo
     const tasks = tasksFor(server);
     const checkpoint = await tasks.odooCheckpointSettings({ login: "demo.administrator" });
     server.put("private.token", "changed");
+    if (method === "create") server.remove("private.token");
     server.put("new.default", secret);
     server.fail(method, backendError(), occurrence);
     await assertSafeRejection(() => tasks.odooRestoreSettings({ checkpoint }), "The settings checkpoint could not be restored.");
     assert.equal(await tasks.odooRestoreSettings({ checkpoint }), null);
-    assert.deepEqual(server.snapshot(), original);
+    assert.deepEqual(
+      server.snapshot(),
+      [...original].sort(([a], [b]) => a.localeCompare(b)),
+    );
   }
 
   const server = parameterServer([["private.token", secret]]);

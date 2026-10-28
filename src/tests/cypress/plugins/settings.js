@@ -23,10 +23,13 @@ function settingsTasks(call) {
     try {
       const original = new Map(saved.parameters.map(({ key, value }) => [key, value]));
       const current = await parameters(saved.login);
-      const present = new Map(current.map(({ key, value }) => [key, value]));
+      const present = new Map(current.map((parameter) => [parameter.key, parameter]));
       for (const [key, value] of original) {
-        if (!present.has(key) || present.get(key) !== value) {
-          await call({ login: saved.login, model: "ir.config_parameter", method: "set_param", args: [key, value] });
+        const parameter = present.get(key);
+        if (!parameter) {
+          await call({ login: saved.login, model: "ir.config_parameter", method: "create", args: [{ key, value }] });
+        } else if (parameter.value !== value) {
+          await call({ login: saved.login, model: "ir.config_parameter", method: "write", args: [[parameter.id], { value }] });
         }
       }
       const added = current.filter(({ key }) => !original.has(key)).map(({ id }) => id);
