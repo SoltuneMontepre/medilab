@@ -14,6 +14,7 @@ from . import (
     quality_registration,
     regulation,
     regulation_limit,
+    res_config_settings,
     res_partner,
     res_users,
     sample_type,
