@@ -1,0 +1,311 @@
+{
+  "observed_utc": "2026-10-27T16:27:59.542800+00:00",
+  "fixture_project": "medilab171-agent4-sonar-tls",
+  "implementation_state": "Tested working tree; exact source hashes recorded separately",
+  "results": [
+    {
+      "name": "Native logging/editor HTTP/origin/JWT",
+      "status": "PASS",
+      "native_summary": [
+        "0 failed, 0 error(s) of 53 tests when loading database 'medilab171tlsnative'"
+      ],
+      "individual_statuses": {
+        "TestLaboratoryEditingLogging.test_background_exception_redacts_callback_references_from_its_traceback": "PASS",
+        "TestLaboratoryEditingLogging.test_chained_exceptions_and_traceback_caches_are_redacted": "PASS",
+        "TestLaboratoryEditingLogging.test_debug_access_records_redact_every_expanded_representation": "PASS",
+        "TestLaboratoryEditingLogging.test_double_encoded_callback_reference_is_redacted": "PASS",
+        "TestLaboratoryEditingLogging.test_encoded_callback_paths_are_redacted_after_the_request_context_is_gone": "PASS",
+        "TestLaboratoryEditingLogging.test_encoded_credentials_are_removed_from_every_formatted_boundary": "PASS",
+        "TestLaboratoryEditingLogging.test_named_filter_retains_logging_namespace_contract_after_redaction": "PASS",
+        "TestLaboratoryEditingLogging.test_nested_callback_paths_are_redacted_in_access_and_worker_records": "PASS",
+        "TestLaboratoryEditingLogging.test_normalization_has_strict_size_and_depth_limits": "PASS",
+        "TestLaboratoryEditingLogging.test_scoped_network_redaction_preserves_business_cleanup_diagnostics": "PASS",
+        "TestLaboratoryEditingLogging.test_unrelated_encoded_diagnostics_and_recovery_metadata_are_preserved": "PASS",
+        "TestLaboratoryEditingLogging.test_unrelated_http_records_keep_their_diagnostics": "PASS",
+        "TestLaboratoryEditingLogging.test_worker_diagnostics_redact_callback_references_without_a_request_context": "PASS",
+        "TestLaboratoryEditorHttp.test_concurrent_opens_retry_and_commit_one_session": "PASS",
+        "TestLaboratoryEditorHttp.test_explicit_idle_reentry_expires_old_session_and_commits_new_key": "PASS",
+        "TestLaboratoryEditorHttp.test_login_open_and_reentry_commit_one_session": "PASS",
+        "TestLaboratoryEditorHttp.test_logout_requires_login_again_and_retains_existing_session": "PASS",
+        "TestLaboratoryEditorHttp.test_non_ascii_file_ids_are_refused_before_opening_a_session": "PASS",
+        "TestLaboratoryEditorHttp.test_page_transport_logs_do_not_include_configuration_credentials": "PASS",
+        "TestLaboratoryEditorHttp.test_service_failure_leaves_no_committed_session_and_retry_works": "PASS",
+        "TestLaboratoryEditorHttp.test_untrusted_host_does_not_supply_callback_origin": "PASS",
+        "TestLaboratoryEditorLogging.test_editor_references_keep_ascii_identifier_semantics": "PASS",
+        "TestLaboratoryEditorLogging.test_formatted_editor_diagnostics_are_redacted_and_emitted": "PASS",
+        "TestLaboratoryEditorLogging.test_named_filter_retains_logging_namespace_contract_after_redaction": "PASS",
+        "TestLaboratoryEditorLogging.test_nested_editor_references_are_redacted_outside_request_context": "PASS",
+        "TestLaboratoryEditorLogging.test_sdk_diagnostics_are_redacted_only_during_the_editor_request": "PASS",
+        "TestLaboratoryEditorLogging.test_unrelated_security_records_are_emitted_with_exception_and_attribution": "PASS",
+        "TestLaboratoryEditorOrigins.test_editor_path_accepts_only_ascii_identifiers": "PASS",
+        "TestLaboratoryEditorOrigins.test_only_explicit_unambiguous_origins_are_accepted": "PASS",
+        "TestLaboratoryEditorOrigins.test_public_tls_and_loopback_http_and_explicit_private_callback_are_supported": "PASS",
+        "TestLaboratoryEditorOrigins.test_unicode_numeric_host_labels_do_not_change_origin_validation": "PASS",
+        "TestOnlyofficeJwt.test_a_body_of_only_a_token_gives_the_fields_it_signs": "PASS",
+        "TestOnlyofficeJwt.test_a_body_that_is_not_an_object_is_refused": "PASS",
+        "TestOnlyofficeJwt.test_a_body_that_is_not_what_its_body_token_signs_is_refused": "PASS",
+        "TestOnlyofficeJwt.test_a_body_that_is_not_what_its_header_token_signs_is_refused": "PASS",
+        "TestOnlyofficeJwt.test_a_callback_as_document_server_sends_it_gives_its_fields": "PASS",
+        "TestOnlyofficeJwt.test_a_callback_signed_only_in_its_header_or_only_in_its_body_gives_its_fields": "PASS",
+        "TestOnlyofficeJwt.test_a_callback_without_a_token_is_refused": "PASS",
+        "TestOnlyofficeJwt.test_a_header_token_and_a_body_token_that_disagree_are_refused": "PASS",
+        "TestOnlyofficeJwt.test_a_header_token_without_a_payload_is_refused": "PASS",
+        "TestOnlyofficeJwt.test_a_malformed_token_is_refused": "PASS",
+        "TestOnlyofficeJwt.test_a_signed_configuration_is_valid_for_its_lifetime": "PASS",
+        "TestOnlyofficeJwt.test_a_token_of_another_operation_than_a_callback_is_refused": "PASS",
+        "TestOnlyofficeJwt.test_a_token_signed_with_another_secret_is_refused": "PASS",
+        "TestOnlyofficeJwt.test_a_token_without_an_expiry_is_refused": "PASS",
+        "TestOnlyofficeJwt.test_an_expired_token_is_refused_beyond_a_minute_of_clock_difference": "PASS",
+        "TestOnlyofficeJwt.test_consistently_trimmed_history_keeps_security_fields_bound": "PASS",
+        "TestOnlyofficeJwt.test_large_history_does_not_hide_invalid_or_malformed_tokens": "PASS",
+        "TestOnlyofficeJwt.test_large_history_signed_before_native_trimming_is_still_refused": "PASS",
+        "TestOnlyofficeJwt.test_only_a_verified_expired_signature_is_classified_as_expired": "PASS",
+        "TestOnlyofficeJwt.test_the_secret_comes_from_the_environment_and_is_at_least_32_bytes": "PASS",
+        "TestOnlyofficeJwt.test_tokens_of_any_other_algorithm_are_refused": "PASS",
+        "TestOnlyofficeJwt.test_without_the_secret_every_callback_is_refused": "PASS"
+      }
+    },
+    {
+      "name": "Native callback transactions/retries",
+      "status": "PASS",
+      "native_summary": [
+        "0 failed, 0 error(s) of 27 tests when loading database 'medilab171tlshttp2'"
+      ],
+      "individual_statuses": {
+        "TestLaboratoryEditingHttp.test_a_commit_time_serialization_failure_rolls_back_without_claiming_retry_exhaustion": "PASS",
+        "TestLaboratoryEditingHttp.test_access_and_error_logs_do_not_expose_capabilities_jwts_or_saved_urls": "PASS",
+        "TestLaboratoryEditingHttp.test_authenticated_browser_cookie_does_not_attribute_the_callback_to_its_user": "PASS",
+        "TestLaboratoryEditingHttp.test_concurrent_callbacks_commit_one_version_and_one_save_audit": "PASS",
+        "TestLaboratoryEditingHttp.test_device_authorization_header_does_not_authenticate_a_callback": "PASS",
+        "TestLaboratoryEditingHttp.test_encoded_callback_path_keeps_native_contract_and_redacts_credentials": "PASS",
+        "TestLaboratoryEditingHttp.test_exhausted_retries_roll_back_database_and_leave_only_reconcilable_objects": "PASS",
+        "TestLaboratoryEditingHttp.test_expiry_during_http_save_still_commits_the_version": "PASS",
+        "TestLaboratoryEditingHttp.test_failed_fetch_keeps_an_expired_session_expired": "PASS",
+        "TestLaboratoryEditingHttp.test_header_only_and_body_only_signed_activity_are_supported": "PASS",
+        "TestLaboratoryEditingHttp.test_header_signed_fields_with_an_empty_body_match_the_documented_request": "PASS",
+        "TestLaboratoryEditingHttp.test_internal_origin_is_accepted_without_public_rewrite": "PASS",
+        "TestLaboratoryEditingHttp.test_interrupted_stream_commits_failed_staging_content_and_saving": "PASS",
+        "TestLaboratoryEditingHttp.test_invalid_expired_or_mismatched_tokens_never_mutate_or_fetch": "PASS",
+        "TestLaboratoryEditingHttp.test_jwt_expiry_on_internal_retry_requests_fresh_delivery_without_accepting_expired_credentials": "PASS",
+        "TestLaboratoryEditingHttp.test_last_editor_without_write_access_keeps_bytes_and_commits_terminal_error": "PASS",
+        "TestLaboratoryEditingHttp.test_malformed_or_unsupported_payloads_have_no_partial_state": "PASS",
+        "TestLaboratoryEditingHttp.test_odoo_stack_dump_during_a_callback_redacts_its_capability": "PASS",
+        "TestLaboratoryEditingHttp.test_permanent_bucket_permission_failure_rolls_back_and_requires_an_operator": "PASS",
+        "TestLaboratoryEditingHttp.test_save_commits_a_version_and_duplicate_does_not_fetch_again": "PASS",
+        "TestLaboratoryEditingHttp.test_serialization_retry_reexecutes_http_without_duplicate_state": "PASS",
+        "TestLaboratoryEditingHttp.test_temporary_bucket_failure_commits_failed_content_then_recovers": "PASS",
+        "TestLaboratoryEditingHttp.test_temporary_failure_commits_saving_then_a_later_call_commits_the_save": "PASS",
+        "TestLaboratoryEditingHttp.test_terminal_failure_is_acknowledged_and_audited_without_a_version": "PASS",
+        "TestLaboratoryEditingHttp.test_unexpected_failure_rolls_back_after_bucket_write": "PASS",
+        "TestLaboratoryEditingHttp.test_upload_during_http_save_preserves_conflict_and_history": "PASS",
+        "TestLaboratoryEditingHttp.test_wrong_method_and_unknown_path_use_native_errors": "PASS"
+      }
+    },
+    {
+      "name": "Real TLS callbacks:27editors,duplicate,503freshJWT,actual370sexpiry",
+      "status": "PASS",
+      "native_summary": [
+        "0 failed, 0 error(s) of 4 tests when loading database 'medilab171tlsreal4'"
+      ],
+      "individual_statuses": {
+        "TestOnlyofficeReal.test_docx_503_redelivery_has_fresh_jwt": "PASS",
+        "TestOnlyofficeReal.test_docx_many_editors_header_trimming": "PASS",
+        "TestOnlyofficeReal.test_docx_real_jwt_expiry_on_transaction_retry": "PASS",
+        "TestOnlyofficeReal.test_docx_save_and_concurrent_duplicate_callbacks": "PASS"
+      }
+    },
+    {
+      "name": "Actual pinnedDS refuses foreign self-signed source",
+      "status": "PASS",
+      "native_summary": [
+        "0 failed, 0 error(s) of 1 tests when loading database 'medilab171tlsnegative'"
+      ],
+      "individual_statuses": {
+        "TestOnlyofficeReal.test_docx_documentserver_refuses_untrusted_tls_source": "PASS"
+      }
+    },
+    {
+      "name": "Real TLS released-page/coediting",
+      "status": "PASS",
+      "native_summary": [
+        "0 failed, 0 error(s) of 4 tests when loading database 'medilab171tlspages3'"
+      ],
+      "individual_statuses": {
+        "TestOnlyofficePageReal.test_docx_login_page_keyboard_save": "PASS",
+        "TestOnlyofficePageReal.test_docx_two_person_save": "PASS",
+        "TestOnlyofficePageReal.test_pptx_two_person_save": "PASS",
+        "TestOnlyofficePageReal.test_xlsx_two_person_save": "PASS"
+      }
+    },
+    {
+      "name": "Real page save observed/downloaded by actual Rust ApiClient",
+      "status": "PASS",
+      "native_summary": [
+        "0 failed, 0 error(s) of 1 tests when loading database 'medilab171tlsdesktop'"
+      ],
+      "individual_statuses": {
+        "TestOnlyofficePageReal.test_docx_login_page_keyboard_save": "PASS"
+      }
+    },
+    {
+      "name": "Full Laboratory/Commerce/Inventory native repeat",
+      "status": "PASS",
+      "tests": 1857,
+      "failures": 0,
+      "errors": 0,
+      "native_log_sha256": "339e7e7f1b3b0f5a62ae102cc4b3563f0b457ec3809d2e40216d611bfd49623a"
+    },
+    {
+      "name": "Infrastructure Python",
+      "status": "PASS",
+      "tests": 39
+    },
+    {
+      "name": "Harness Python",
+      "status": "PASS",
+      "tests": 64
+    },
+    {
+      "name": "HTTPS/WebSocket strict peer identities",
+      "status": "PASS",
+      "tests": 9
+    },
+    {
+      "name": "Gateway Unix IPC and signed Host",
+      "status": "PASS",
+      "tests": 2
+    },
+    {
+      "name": "Ordered editor lifecycle",
+      "status": "PASS",
+      "tests": 2
+    },
+    {
+      "name": "Read-only frame diagnostics",
+      "status": "PASS",
+      "tests": 2
+    },
+    {
+      "name": "Retention helper",
+      "status": "PASS",
+      "tests": 4
+    },
+    {
+      "name": "Signer",
+      "status": "PASS",
+      "tests": 8
+    },
+    {
+      "name": "Cypress editor/unload",
+      "status": "PASS",
+      "tests": 8
+    },
+    {
+      "name": "Rust default suite",
+      "status": "PASS",
+      "tests": 213
+    },
+    {
+      "name": "Actual task test:onlyoffice:coverage",
+      "status": "PASS"
+    },
+    {
+      "name": "Strict Clippy with warnings denied",
+      "status": "PASS"
+    },
+    {
+      "name": "Rust formatting",
+      "status": "PASS"
+    },
+    {
+      "name": "OpenAPI compatibility",
+      "status": "PASS"
+    },
+    {
+      "name": "Taskfile contracts",
+      "status": "PASS"
+    },
+    {
+      "name": "Changed-file Ruff and shell/JavaScript syntax",
+      "status": "PASS"
+    },
+    {
+      "name": "Canonical effective TLS worker policy",
+      "status": "PASS"
+    },
+    {
+      "name": "Bidirectional strict network isolation, positive controls, no default routes/publications",
+      "status": "PASS"
+    },
+    {
+      "name": "Repository typecheck",
+      "status": "PASS",
+      "errors": 0,
+      "warnings": 6383,
+      "files": 716
+    }
+  ],
+  "limits": [
+    {
+      "name": "Rust default ignored cases",
+      "status": "IGNORED",
+      "count": 18,
+      "note": "One live observer case explicitly selected separately and passed; default ignore policy unchanged"
+    },
+    {
+      "name": "Local full Cypress suite, Bun/Mobile builds",
+      "status": "NOT RUN",
+      "reason": "No corresponding implementation change; final hosted applicable jobs inspected separately"
+    },
+    {
+      "name": "Older browser binaries, native released installers, staging/CNI/external logging, seven elapsed days",
+      "status": "NOT RUN",
+      "reason": "Separate release-environment acceptance; earlier receipts retain their source/date"
+    }
+  ],
+  "retained_attempts": [
+    {
+      "name": "TLS browser package build",
+      "status": "FAIL then PASS",
+      "cause": "apt could not read root-only secret mount; temporary readable public CA fixed verifier access and is deleted within the build layer"
+    },
+    {
+      "name": "First real TLS cohort",
+      "status": "FAIL/BLOCKED",
+      "cause": "Mixed-content HTTP plugin relay; corrected real relay TLS with project-bound runner certificates"
+    },
+    {
+      "name": "real2 runner startup",
+      "status": "FAIL before tests",
+      "cause": "Root account home selected wrong filestore; explicit data directory added"
+    },
+    {
+      "name": "real3 runner startup",
+      "status": "FAIL before tests",
+      "cause": "runuser changed database USER binding; privilege drop preserves image database environment"
+    },
+    {
+      "name": "First full native run",
+      "status": "FAIL",
+      "tests": 1857,
+      "failures": 14,
+      "errors": 0,
+      "cause": "Gateway rejected signed ephemeral loopback Host values; bounded loopback ports restored, then fresh full repeat passed"
+    },
+    {
+      "name": "First TLS page cohort",
+      "status": "FAIL/BLOCKED",
+      "cause": "TLS name derived from forwarded Host; explicit fixed-backend SNI and separate-role unit certificates corrected it"
+    },
+    {
+      "name": "Second TLS page cohort",
+      "status": "FAIL",
+      "cause": "Failure diagnostic callback changed cleanup page reference; restored primary before closing coeditor; four fresh cases then passed"
+    },
+    {
+      "name": "Setup-only interpreter/import and initial unit mock attempts",
+      "status": "NOT RUN/FAIL then PASS",
+      "cause": "Repository interpreter/import path and HTTPS-local factory mocks corrected; no failed attempt counted as passing"
+    }
+  ]
+}

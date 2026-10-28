@@ -1,0 +1,12 @@
+{
+  "status": "FAIL reproduced on previous generator; corrected regression PASS",
+  "source_and_input_revision": "3c5104f063772daf9aab5248f0b0ea1b883df92a",
+  "old_generator_exit_code": 1,
+  "cause": "Removed tools policy mirror cannot be read from a current revision. The old default revision is outside integrated ancestry.",
+  "old_default": "5b42e14f5715f21f85f525911cd8f692ae51302e",
+  "verified_default": "e6f24173c831eac945fc90cd50af4a6f788ba2c6",
+  "old_default_is_ancestor": false,
+  "verified_default_is_ancestor": true,
+  "policy_bytes_unchanged": true,
+  "regression": "TestRuntimeEnvironmentSource.test_pinned_and_current_revisions_generate_the_verified_policy; verified P1 and current revision CLI invocations."
+}

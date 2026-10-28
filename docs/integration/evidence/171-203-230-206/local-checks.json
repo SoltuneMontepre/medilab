@@ -1,0 +1,78 @@
+{
+  "workflow_syntax": {
+    "status": "PASS",
+    "command": "actionlint -shellcheck= .github/workflows/ci.sync-app.yml"
+  },
+  "openapi": {
+    "status": "PASS",
+    "command": "task test:openapi",
+    "device_compatibility": "unchanged",
+    "callback_compatibility": "new contract; no baseline comparison"
+  },
+  "typecheck": {
+    "status": "PASS",
+    "errors": 0,
+    "warnings": 6293,
+    "files": 697,
+    "command": "task typecheck"
+  },
+  "rust_clippy": {
+    "status": "PASS",
+    "command": "cargo clippy --locked --all-targets --all-features -- -D warnings"
+  },
+  "rust_build": {
+    "status": "PASS",
+    "command": "cargo build --locked"
+  },
+  "rust_format": {
+    "status": "PASS",
+    "command": "cargo fmt --check"
+  },
+  "sync_build": {
+    "status": "PASS",
+    "command": "bun run build"
+  },
+  "mobile_typecheck_lint": {
+    "status": "PASS",
+    "commands": [
+      "bun run typecheck",
+      "bun run lint"
+    ]
+  },
+  "ruff": {
+    "status": "PASS",
+    "command": "ruff check src/core/modules tools/onlyoffice_integration tools/infrastructure/onlyoffice"
+  },
+  "changed_format": {
+    "status": "PASS",
+    "files": 55
+  },
+  "whole_format": {
+    "status": "FAIL",
+    "unchanged_baseline_files": 9
+  },
+  "whole_lint": {
+    "status": "FAIL",
+    "baseline_diagnostics": 32,
+    "current_diagnostics": 32,
+    "added": 0,
+    "removed": 0
+  },
+  "schemas": {
+    "status": "PASS",
+    "core_valid": 14,
+    "custom_valid": 18,
+    "inherited_backup": "SKIPPED"
+  },
+  "fast_contracts": {
+    "status": "PASS",
+    "jwt_origin_logging": 29,
+    "deployment": 19,
+    "worker": 7,
+    "sender": 7
+  },
+  "remote_ci": {
+    "status": "NOT VERIFIED",
+    "relevant_local_sha_executed": false
+  }
+}

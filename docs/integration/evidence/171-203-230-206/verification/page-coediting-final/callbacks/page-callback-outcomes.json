@@ -1,0 +1,16 @@
+[
+  "status=200 outcome=open session_id=1 elapsed_seconds=0.021 correlation_id=61dfa19bedf44aeab21ee633ec18e609 error_type=none",
+  "status=200 outcome=committed session_id=1 elapsed_seconds=1.153 correlation_id=79371a2d0e5d476fabe8c793ab927496 error_type=none",
+  "status=200 outcome=open session_id=2 elapsed_seconds=0.007 correlation_id=962e80f4cde545a4859d46128ef103b1 error_type=none",
+  "status=200 outcome=open session_id=2 elapsed_seconds=0.008 correlation_id=68732153848844ae92e8834b165834d5 error_type=none",
+  "status=200 outcome=open session_id=2 elapsed_seconds=0.006 correlation_id=a6605e8b258449399c4700910a894ba1 error_type=none",
+  "status=200 outcome=committed session_id=2 elapsed_seconds=1.045 correlation_id=2c5c4488875847c48fceda6d5d496376 error_type=none",
+  "status=200 outcome=open session_id=3 elapsed_seconds=0.007 correlation_id=d8704ecc4a014219bbcf53a8f961d0b5 error_type=none",
+  "status=200 outcome=open session_id=3 elapsed_seconds=0.010 correlation_id=e5c39d2644844d4ab415acf3ced9f921 error_type=none",
+  "status=200 outcome=open session_id=3 elapsed_seconds=0.009 correlation_id=162f72dacd8b401cabd7f31fcd83e7be error_type=none",
+  "status=200 outcome=committed session_id=3 elapsed_seconds=1.049 correlation_id=ffe1622dd27040d18cd470a076a3ea68 error_type=none",
+  "status=200 outcome=open session_id=4 elapsed_seconds=0.009 correlation_id=a87c92f18e5a4d1a984aa27447a97a36 error_type=none",
+  "status=200 outcome=open session_id=4 elapsed_seconds=0.012 correlation_id=45e4e830d371495e9e076074c6215666 error_type=none",
+  "status=200 outcome=open session_id=4 elapsed_seconds=0.010 correlation_id=fe1d341728e84a6b8cc7bc8c1b565b01 error_type=none",
+  "status=200 outcome=committed session_id=4 elapsed_seconds=1.046 correlation_id=9b96b638b2374012b8616f4d2aa6cd04 error_type=none"
+]

@@ -11,6 +11,10 @@ function viEn<V extends string, E extends string>(vi: V, en: E) {
 }
 
 const messages = {
+  "migration.required": { vi: "Cần cập nhật MediLab Sync", en: "MediLab Sync update required" },
+  "migration.preserve": { vi: "Tệp trên máy và hàng đợi được giữ nguyên. Giữ dữ liệu ứng dụng khi cài lại, rồi đăng nhập và gắn lại thư mục.", en: "Your local files and queued work are preserved. Keep application data when reinstalling, then sign in and rebind your folders." },
+  "migration.download": { vi: "Mở trang tải xuống", en: "Open download page" },
+  "migration.contact": { vi: "Liên hệ quản trị viên để nhận địa chỉ bộ cài an toàn.", en: "Contact your administrator for a safe installer address." },
   "app.title": { vi: "Đồng bộ tệp phòng lab", en: "Lab file sync" },
   "app.technician": { vi: "Kỹ thuật viên", en: "Technician" },
   "app.degraded": { vi: "Chế độ quét định kỳ", en: "Periodic scan mode" },
@@ -226,6 +230,7 @@ const messages = {
   "folders.sample": { vi: "Mẫu", en: "Sample" },
   "folders.workflow": { vi: "Trạng thái", en: "Status" },
   "folders.instrument": { vi: "Thiết bị", en: "Instrument" },
+  "folders.unbound": { vi: "Chưa gắn — chọn lại thư mục máy chủ để tiếp tục. Tệp và hàng đợi được giữ nguyên.", en: "Not bound — choose a server folder again to resume. Local files and queue are preserved." },
   "folders.denied": {
     vi: "Mất quyền truy cập — đồng bộ đã tạm dừng. Tệp trên máy vẫn còn nguyên và các tệp đang chờ sẽ tự đồng bộ lại khi bạn được cấp lại quyền. Hãy liên hệ chủ thư mục hoặc quản trị viên.",
     en: "Access lost — syncing is paused. Your files on this computer are untouched, and waiting files will sync again once access is restored. Contact the folder owner or your administrator.",

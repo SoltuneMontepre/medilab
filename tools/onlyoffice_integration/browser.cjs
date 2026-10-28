@@ -1,0 +1,85 @@
+const http = require("node:http");
+const { chromium } = require("playwright");
+const { visitEditorsInOrder } = require("./editor_lifecycle.cjs");
+
+http.createServer(async (request, response) => {
+  response.setHeader("Content-Type", "application/json");
+  if (request.url === "/health") return response.end("{}");
+  if (request.method !== "POST" || !["/edit", "/edit-many"].includes(request.url)) {
+    response.writeHead(404); return response.end("{}");
+  }
+  let browser;
+  let page;
+  let stage = "input";
+  const failures = [];
+  const pluginRequests = [];
+  const redact = value => String(value)
+    .replace(/https?:\/\/[^\s"'<>]+/g, "[url]")
+    .replace(/eyJ[A-Za-z0-9_.-]+/g, "[jwt]")
+    .replace(/\/medilab\/laboratory-files\/callback\/[^\s"'<>]+/g, "[callback]");
+  try {
+    let raw = "";
+    for await (const part of request) {
+      raw += part;
+      if (raw.length > 4096) throw new Error("Request too large");
+    }
+    const input = JSON.parse(raw);
+    const target = new URL(input.url);
+    const participants = input.participants ?? 25;
+    if (!Number.isInteger(participants) || participants < 1 || participants > 25) throw new Error("Invalid participant count");
+    if (target.hostname !== "runner" || target.protocol !== "https:" || target.pathname !== "/editor") {
+      throw new Error("Unexpected test origin");
+    }
+    stage = "launch";
+    browser = await chromium.launch({ headless: true });
+    const context = await browser.newContext();
+    async function openEditor(url) {
+    page = await context.newPage();
+    page.on("pageerror", error => failures.push(redact(error.message)));
+    page.on("requestfailed", request => failures.push(redact(request.failure()?.errorText || "request failed")));
+    page.on("request", request => {
+      const path = new URL(request.url()).pathname;
+      if (path.startsWith("/plugin/")) pluginRequests.push(path);
+    });
+    stage = "navigate";
+    await page.goto(url);
+    stage = "editor-save";
+    await page.evaluate(() => {
+      window.relayEdited = false;
+      window.relayPoll = setInterval(() => {
+        fetch("/state" + window.location.search).then(result => result.json()).then(state => {
+          window.relayEdited = state.edited;
+        }).catch(() => {});
+      }, 100);
+    });
+    await page.waitForFunction(() => {
+      return window.relayEdited && window.sawDirty && !window.dirty;
+    }, null, { timeout: 120000 });
+    return page;
+    }
+    const keeper = await openEditor(target.href);
+    if (request.url === "/edit-many") {
+      const urls = Array.from({length: participants}, (_, index) => {
+        const url = new URL(target.href);
+        url.searchParams.set("participant", String(index + 1));
+        return url.href;
+      });
+      await visitEditorsInOrder(urls, openEditor);
+      const last = await openEditor(target.href);
+      await last.evaluate(() => window.editor.destroyEditor());
+      await last.close();
+    }
+    page = keeper;
+    await page.evaluate(() => window.editor.destroyEditor());
+    await context.close();
+    response.end(JSON.stringify({ edited: true, editorSessions: request.url === "/edit-many" ? participants + 2 : 1 }));
+  } catch (error) {
+    let state = {};
+    if (page) state = await page.evaluate(() => ({ dirty: window.dirty, sawDirty: window.sawDirty })).catch(() => ({}));
+    response.writeHead(500);
+    response.end(JSON.stringify({ edited: false, stage, error: redact(error.message),
+      failures: failures.slice(-20), pluginRequests, state }));
+  } finally {
+    if (browser) await browser.close();
+  }
+}).listen(3000, "0.0.0.0");

@@ -1,0 +1,90 @@
+{
+  "docservice-out": {
+    "status": "PASS",
+    "bytes_scanned": 0,
+    "jwt_values": 0,
+    "callback_capabilities": 0,
+    "jwt_fingerprints": [],
+    "capability_fingerprints": []
+  },
+  "docservice-err": {
+    "status": "PASS",
+    "bytes_scanned": 0,
+    "jwt_values": 0,
+    "callback_capabilities": 0,
+    "jwt_fingerprints": [],
+    "capability_fingerprints": []
+  },
+  "converter-out": {
+    "status": "PASS",
+    "bytes_scanned": 0,
+    "jwt_values": 0,
+    "callback_capabilities": 0,
+    "jwt_fingerprints": [],
+    "capability_fingerprints": []
+  },
+  "converter-err": {
+    "status": "PASS",
+    "bytes_scanned": 0,
+    "jwt_values": 0,
+    "callback_capabilities": 0,
+    "jwt_fingerprints": [],
+    "capability_fingerprints": []
+  },
+  "example-out": {
+    "status": "PASS",
+    "bytes_scanned": 0,
+    "jwt_values": 0,
+    "callback_capabilities": 0,
+    "jwt_fingerprints": [],
+    "capability_fingerprints": []
+  },
+  "example-err": {
+    "status": "PASS",
+    "bytes_scanned": 0,
+    "jwt_values": 0,
+    "callback_capabilities": 0,
+    "jwt_fingerprints": [],
+    "capability_fingerprints": []
+  },
+  "metrics-out": {
+    "status": "PASS",
+    "bytes_scanned": 0,
+    "jwt_values": 0,
+    "callback_capabilities": 0,
+    "jwt_fingerprints": [],
+    "capability_fingerprints": []
+  },
+  "metrics-err": {
+    "status": "PASS",
+    "bytes_scanned": 0,
+    "jwt_values": 0,
+    "callback_capabilities": 0,
+    "jwt_fingerprints": [],
+    "capability_fingerprints": []
+  },
+  "nginx-access": {
+    "status": "PASS",
+    "bytes_scanned": 0,
+    "jwt_values": 0,
+    "callback_capabilities": 0,
+    "jwt_fingerprints": [],
+    "capability_fingerprints": []
+  },
+  "nginx-error": {
+    "status": "PASS",
+    "bytes_scanned": 0,
+    "jwt_values": 0,
+    "callback_capabilities": 0,
+    "jwt_fingerprints": [],
+    "capability_fingerprints": []
+  },
+  "container-output": {
+    "status": "PASS",
+    "bytes_scanned": 0,
+    "jwt_values": 0,
+    "callback_capabilities": 0,
+    "jwt_fingerprints": [],
+    "capability_fingerprints": []
+  }
+}

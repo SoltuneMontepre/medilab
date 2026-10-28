@@ -1,0 +1,69 @@
+{
+  "status": "PASS",
+  "documentserver_stop_seconds": 30.266,
+  "containers": [
+    {
+      "name": "medilab171-agent4-sonar-cleanup-sonar-web-1",
+      "exit_code": 0,
+      "oom_killed": false,
+      "running": false
+    },
+    {
+      "name": "medilab171-agent4-sonar-cleanup-garage-1",
+      "exit_code": 0,
+      "oom_killed": false,
+      "running": false
+    },
+    {
+      "name": "medilab171-agent4-sonar-cleanup-browser-1",
+      "exit_code": 143,
+      "oom_killed": false,
+      "running": false
+    },
+    {
+      "name": "medilab171-agent4-sonar-cleanup-page-browser-1",
+      "exit_code": 143,
+      "oom_killed": false,
+      "running": false
+    },
+    {
+      "name": "medilab171-agent4-sonar-cleanup-postgres-1",
+      "exit_code": 0,
+      "oom_killed": false,
+      "running": false
+    },
+    {
+      "name": "medilab171-agent4-sonar-cleanup-sonar-updates2-1",
+      "exit_code": 0,
+      "oom_killed": false,
+      "running": false
+    },
+    {
+      "name": "medilab-integration-pr292-sonar-rust",
+      "exit_code": 143,
+      "oom_killed": false,
+      "running": false
+    },
+    {
+      "name": "medilab171-agent4-sonar-cleanup-documentserver-1",
+      "exit_code": 0,
+      "oom_killed": false,
+      "running": false
+    },
+    {
+      "name": "medilab-integration-pr292-sonar-updater",
+      "exit_code": 143,
+      "oom_killed": false,
+      "running": false
+    },
+    {
+      "name": "medilab-integration-pr292-sonar-cypress",
+      "exit_code": 143,
+      "oom_killed": false,
+      "running": false
+    }
+  ],
+  "volumes_deleted": false,
+  "databases_deleted": false,
+  "unrelated_services_changed": false
+}

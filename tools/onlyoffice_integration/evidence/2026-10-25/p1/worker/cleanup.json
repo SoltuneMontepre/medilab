@@ -1,0 +1,36 @@
+{
+  "status": "PASS",
+  "scope": "Only resources created by the worker-policy verification agent in this task.",
+  "recorded_at": "2026-10-25T09:31:03.369986+00:00",
+  "containers": [
+    {
+      "name": "medilab203-worker-proof",
+      "id": "cb6e49e9551b06ba143c037b47cb16fc42be1ea39e7f959574850b327e0952be",
+      "status": "exited",
+      "exit_code": 0,
+      "oom_killed": false,
+      "stop_budget_seconds": 1890,
+      "finished_at": "2026-10-25T16:30:23.08247176+07:00",
+      "signals": "SIGTERM"
+    },
+    {
+      "name": "medilab203-worker-proof-source",
+      "id": "46c445c5f96f76bee0761f0abce184b947e12d4556d3e0c52cef03288b9fc37c",
+      "status": "exited",
+      "exit_code": 130,
+      "oom_killed": false,
+      "stop_budget_seconds": 1890,
+      "finished_at": "2026-10-25T16:31:02.748810236+07:00",
+      "signals": "SIGTERM then SIGINT"
+    }
+  ],
+  "volumes_preserved": [
+    "medilab203-worker-proof-lib",
+    "medilab203-worker-proof-data",
+    "medilab203-worker-proof-fonts"
+  ],
+  "network_preserved": "medilab203-worker-proof",
+  "files_and_evidence_preserved": true,
+  "shared_resources_touched": false,
+  "source_fixture_note": "The Python HTTP server ran as PID 1 and did not exit on SIGTERM; its registered SIGINT handler stopped it without SIGKILL. The recorded exit code is the actual container result."
+}

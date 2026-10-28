@@ -1,0 +1,37 @@
+{
+  "at": "2026-10-25T15:32:20.611353+00:00",
+  "runner_exit": 0,
+  "database": "medilab171verifyrecreated",
+  "container": "medilab171-agent4-integration-verification-acceptance-post-recreation",
+  "evidence_copy_exit": 0,
+  "evidence_files": [
+    "test_docx_many_editors_header_trimming.json",
+    "test_docx_save_and_concurrent_duplicate_callbacks.json",
+    "test_pptx_save.json",
+    "test_xlsx_save.json"
+  ],
+  "runner_log_sha256": "cc6c9e59fd27f0a08f36c6136bc400a7b187c9e008beb9e690b910ac7f3b5363",
+  "real_service_executed": true,
+  "native_odoo_executed": true,
+  "native_test_status": {
+    "TestOnlyofficeReal.test_docx_many_editors_header_trimming": "PASS",
+    "TestOnlyofficeReal.test_docx_save_and_concurrent_duplicate_callbacks": "PASS",
+    "TestOnlyofficeReal.test_pptx_save": "PASS",
+    "TestOnlyofficeReal.test_xlsx_save": "PASS"
+  },
+  "native_summary": [
+    "0 failed, 0 error(s) of 4 tests when loading database 'medilab171verifyrecreated'"
+  ],
+  "passed": true,
+  "failed_tests": [],
+  "passed_tests": [
+    "test_docx_many_editors_header_trimming",
+    "test_docx_save_and_concurrent_duplicate_callbacks",
+    "test_pptx_save",
+    "test_xlsx_save"
+  ],
+  "unknown_outcome_tests": [],
+  "blocked_tests": [],
+  "not_started_tests": [],
+  "whole_runner_timeout_seconds": 600
+}

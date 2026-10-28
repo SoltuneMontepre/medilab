@@ -8569,7 +8569,7 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/signature.py:0
-msgid "Withdraw the signatures of the higher levels first."
+msgid "Withdraw the signatures given after yours first."
 msgstr ""
 
 #. module: sol_laboratory
@@ -14259,6 +14259,95 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_content_reconciliation.py:0
 msgid "The laboratory file content %(key)s is still pending a day after it was made, and no open upload holds it."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.laboratory_editor_page
+msgid "Changes are being edited."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.laboratory_editor_page
+msgid "Changes sent to the editing service. MediLab save is not confirmed."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.laboratory_editor_page
+msgid "Connecting to the editor..."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.laboratory_editor_page
+msgid "Document editor"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.laboratory_editor_page
+msgid "Editor ready."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.laboratory_editor_page
+msgid "JavaScript is required to open the editor."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.laboratory_editor_page
+msgid "Loading editor..."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.laboratory_editor_page
+msgid "Online editor"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.laboratory_editor_page
+msgid ""
+"Opening the editor does not confirm a save. Check version history after "
+"editing."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.laboratory_editor_page
+msgid "Reopen editor"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.laboratory_editor_page
+msgid ""
+"The editor could not connect or reported an error. Your save is not "
+"confirmed."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.laboratory_editor_page
+msgid "The editor is taking longer to connect. You can wait or reopen it."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.laboratory_editor_page
+msgid ""
+"The editor needs a fresh configuration. Reopen to check access and the "
+"current session."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/services/laboratory_editor_page.py:0
+msgid "This file does not exist or you do not have access to it."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/controllers/laboratory_editor.py:0
+msgid "This page accepts GET requests only."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/services/laboratory_editor_page.py:0
+msgid "You do not have permission to edit this file."
 msgstr ""
 
 #. module: sol_laboratory

@@ -1,0 +1,7 @@
+{
+  "fixture": "medilab171-agent4-release-quality-quality-demo-1",
+  "bounded_renderer_stop_exit": 0,
+  "reason": "Fixture started HTTP while demo installation rendered a report and waited for its own registry. Use the repository install-then-start sequence.",
+  "stop_after_init_renderer_still_blocked": true,
+  "correction": "Use explicit Odoo test mode for the Cypress adapter fixture; it does not establish report PDF release acceptance."
+}

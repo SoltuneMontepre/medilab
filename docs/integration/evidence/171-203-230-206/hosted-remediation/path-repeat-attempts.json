@@ -1,0 +1,47 @@
+[
+  {
+    "attempt": "sonar-traversal-real",
+    "wrapper": {
+      "command": [
+        "src/core/.venv/bin/python",
+        "tools/onlyoffice_integration/run.py",
+        "test"
+      ],
+      "exit_code": 1,
+      "status": "FAIL",
+      "elapsed_seconds": 2.216
+    },
+    "acceptance_status": "NOT RUN",
+    "reason": "Existing retained acceptance container refused before tests."
+  },
+  {
+    "attempt": "sonar-traversal-real-ready",
+    "wrapper": {
+      "command": [
+        "src/core/.venv/bin/python",
+        "tools/onlyoffice_integration/run.py",
+        "test"
+      ],
+      "exit_code": 1,
+      "status": "FAIL",
+      "elapsed_seconds": 178.344
+    },
+    "acceptance_status": "FAIL",
+    "reason": "Missing native tag selected slow full suite; stopped only owned runner normally and retained partial evidence."
+  },
+  {
+    "attempt": "sonar-traversal-exact",
+    "wrapper": {
+      "command": [
+        "src/core/.venv/bin/python",
+        "tools/onlyoffice_integration/run.py",
+        "test"
+      ],
+      "exit_code": 1,
+      "status": "FAIL",
+      "elapsed_seconds": 46.505
+    },
+    "acceptance_status": "BLOCKED",
+    "reason": "Test class refused a bucket owned by the interrupted database; zero tests executed."
+  }
+]

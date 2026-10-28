@@ -18,7 +18,7 @@ class TestPreflightStorage(unittest.TestCase):
                     if count:
                         path = Path(directory, WORKSPACE_FILES[count - 1])
                         path.parent.mkdir(parents=True, exist_ok=True)
-                        path.write_text("PRIVATE-CONTENT-NOT-READ")
+                        path.write_text("PRIVATE-CONTENT-NOT-READ", encoding="utf-8")
                     output = subprocess.check_output(["/bin/bash", "-c", METADATA_COMMAND], cwd=directory, text=True)
                     result = workspace_metadata(output)
                     self.assertEqual(result["available"], count == 3)

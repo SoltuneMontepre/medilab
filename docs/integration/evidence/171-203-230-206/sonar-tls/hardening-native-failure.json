@@ -1,0 +1,16 @@
+{
+  "source_head": "7e211a2c617261c54df59ee0de9636c0493197cb",
+  "status": "FAIL",
+  "tests": 1870,
+  "failures": 0,
+  "errors": 3,
+  "root_cause": "Gateway request allowlist omitted the signed x-amz-checksum-algorithm header required by CreateMultipartUpload",
+  "affected_tests": [
+    "TestLaboratoryBucket.test_a_write_that_fails_midway_leaves_no_upload",
+    "TestLaboratoryBucket.test_odoo_writes_content_in_parts_and_returns_its_size_and_sha256",
+    "TestLaboratoryBucket.test_the_bucket_refuses_a_part_whose_sha256_is_not_its_content"
+  ],
+  "log_sha256": "6dc03689d1ea5dcfe67042a13960ecbb1a81de43a2c4fb0ad2b6cf30a509884c",
+  "followup": "Restore that S3 header; actual TLS/Unix regression checks checksum-algorithm preservation; fresh full repeat required",
+  "failed_container_and_database_retained": true
+}

@@ -1,0 +1,70 @@
+{
+  "project": "medilab171-agent4-integration-verification",
+  "status": "PASS",
+  "before_container_id": "3bdeaf2967bdc7befc84b77d0a9bd2e5d06ee55ff350df2082f7b00f11ce3b57",
+  "before_started_at": "2026-10-25T21:08:22.614298574+07:00",
+  "retained_before": {
+    "e04f7173d4e7552863b0de78a8059626d5ceace174159f35be309f4205238c69": [
+      "957aeea6dde3b5e2b171fc82873ad07d2ef69068e1aefdcc4382dbd6874cf7c9",
+      58552,
+      true
+    ]
+  },
+  "state_paths_before": {
+    "/var/lib/onlyoffice": "6dd180e6841e04b6202ccb7e19068fb9159008b91b995e8aae4483247835d918",
+    "/var/www/onlyoffice/Data": "6dd180e6841e04b6202ccb7e19068fb9159008b91b995e8aae4483247835d918",
+    "/usr/share/fonts/truetype/custom": "6dd180e6841e04b6202ccb7e19068fb9159008b91b995e8aae4483247835d918"
+  },
+  "stop_seconds": 30.269,
+  "stop_state": {
+    "ExitCode": 0,
+    "OOMKilled": false
+  },
+  "page_down_exit": 0,
+  "sync_while_down": [
+    {
+      "selection": "api_live_tests::live_api_auth_members_history_restore_conflict_and_revocation",
+      "status": "PASS",
+      "exit_code": 0
+    },
+    {
+      "selection": "sync::live_tests::live_upload_integrity",
+      "status": "PASS",
+      "exit_code": 0
+    },
+    {
+      "selection": "sync::live_tests::live_two_devices_sync_and_conflict",
+      "status": "PASS",
+      "exit_code": 0
+    }
+  ],
+  "after_restart_started_at": "2026-10-25T22:28:22.255446154+07:00",
+  "state_paths_after_restart": {
+    "/var/lib/onlyoffice": "6dd180e6841e04b6202ccb7e19068fb9159008b91b995e8aae4483247835d918",
+    "/var/www/onlyoffice/Data": "6dd180e6841e04b6202ccb7e19068fb9159008b91b995e8aae4483247835d918",
+    "/usr/share/fonts/truetype/custom": "6dd180e6841e04b6202ccb7e19068fb9159008b91b995e8aae4483247835d918"
+  },
+  "retained_after_restart": {
+    "e04f7173d4e7552863b0de78a8059626d5ceace174159f35be309f4205238c69": [
+      "957aeea6dde3b5e2b171fc82873ad07d2ef69068e1aefdcc4382dbd6874cf7c9",
+      58552,
+      true
+    ]
+  },
+  "recreated_container": "medilab171-agent4-integration-verification-documentserver-recreated",
+  "recreated_container_id": "58c8e1ad4f0ba5beda67ed4ac8e0b26b3d4de2dad475d0fc9179e1d0ea1686bc",
+  "state_paths_after_recreation": {
+    "/var/lib/onlyoffice": "6dd180e6841e04b6202ccb7e19068fb9159008b91b995e8aae4483247835d918",
+    "/var/www/onlyoffice/Data": "6dd180e6841e04b6202ccb7e19068fb9159008b91b995e8aae4483247835d918",
+    "/usr/share/fonts/truetype/custom": "6dd180e6841e04b6202ccb7e19068fb9159008b91b995e8aae4483247835d918"
+  },
+  "retained_after_recreation": {
+    "e04f7173d4e7552863b0de78a8059626d5ceace174159f35be309f4205238c69": [
+      "957aeea6dde3b5e2b171fc82873ad07d2ef69068e1aefdcc4382dbd6874cf7c9",
+      58552,
+      true
+    ]
+  },
+  "state_paths_match": true,
+  "retained_hashes_match": true
+}

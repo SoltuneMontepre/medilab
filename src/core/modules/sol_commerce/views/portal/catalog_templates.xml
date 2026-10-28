@@ -42,10 +42,10 @@
                 </form>
                 <t t-foreach="groups" t-as="entry">
                     <h2 t-out="entry[0].name" />
-                    <t t-call="sol_commerce.catalog_products"><t t-set="products" t-value="entry[1]" /></t>
+                    <t t-call="sol_commerce.catalog_products" products="entry[1]" />
                 </t>
                 <h2 t-if="packages">Service packages</h2>
-                <t t-if="packages" t-call="sol_commerce.catalog_products"><t t-set="products" t-value="packages" /></t>
+                <t t-if="packages" t-call="sol_commerce.catalog_products" products="packages" />
             </div>
         </t>
     </template>

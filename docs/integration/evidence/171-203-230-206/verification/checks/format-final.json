@@ -1,0 +1,17 @@
+{
+  "command": [
+    "src/core/.venv/bin/python",
+    "-m",
+    "ruff",
+    "format",
+    "--check",
+    "--config",
+    "src/core/pyproject.toml",
+    "src/core/modules",
+    "tools/onlyoffice_integration",
+    "tools/infrastructure/onlyoffice"
+  ],
+  "exit_code": 1,
+  "status": "FAIL",
+  "elapsed_seconds": 0.064
+}

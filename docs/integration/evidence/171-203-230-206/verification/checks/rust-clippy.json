@@ -1,0 +1,22 @@
+{
+  "command": [
+    "podman",
+    "exec",
+    "-w",
+    "/workspace",
+    "medilab-integration-verification-rust",
+    "cargo",
+    "clippy",
+    "--locked",
+    "--manifest-path",
+    "src/applications/medilab-sync/src-tauri/Cargo.toml",
+    "--all-targets",
+    "--all-features",
+    "--",
+    "-D",
+    "warnings"
+  ],
+  "exit_code": 0,
+  "status": "PASS",
+  "elapsed_seconds": 3.217
+}

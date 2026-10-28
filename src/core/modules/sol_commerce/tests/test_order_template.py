@@ -129,7 +129,7 @@ class TestOrderTemplate(TemplateCase):
         wizard = (
             self.env[action["res_model"]]
             .with_user(self.sales)
-            .with_context(action["context"])
+            .with_context(**action["context"])
             .create({"name": "Water check"})
         )
         result = wizard.action_save()

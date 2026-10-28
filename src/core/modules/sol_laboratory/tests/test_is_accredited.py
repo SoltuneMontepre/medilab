@@ -127,13 +127,9 @@ class TestIsAccredited(MasterDataCase):
             }
         )
         # Stale True on an unrelated pair must not be cleared by editing this certificate's dates.
-        self.env.cr.execute(
-            "UPDATE medilab_parameter_method SET is_accredited = TRUE WHERE id = %s", [other_pair.id]
-        )
+        self.env.cr.execute("UPDATE medilab_parameter_method SET is_accredited = TRUE WHERE id = %s", [other_pair.id])
         self.certificate.write({"valid_until": self.certificate._laboratory_today()})
-        self.env.cr.execute(
-            "SELECT is_accredited FROM medilab_parameter_method WHERE id = %s", [other_pair.id]
-        )
+        self.env.cr.execute("SELECT is_accredited FROM medilab_parameter_method WHERE id = %s", [other_pair.id])
         stale = self.env.cr.fetchone()
         if stale is None:
             self.fail("The unrelated pair has no row.")

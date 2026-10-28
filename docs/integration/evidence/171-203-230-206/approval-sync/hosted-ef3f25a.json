@@ -1,0 +1,305 @@
+{
+  "measured_remote_head": "ef3f25ac1f87280aa291745ecf10a72f7ca5b586",
+  "sonar_scanner_revision": "ef3f25ac1f87280aa291745ecf10a72f7ca5b586",
+  "sonar_scanner_run_id": 40338498691,
+  "quality_gate": "ERROR",
+  "conditions": [
+    {
+      "metric": "new_reliability_rating",
+      "value": "1",
+      "status": "OK"
+    },
+    {
+      "metric": "new_security_rating",
+      "value": "4",
+      "status": "ERROR"
+    },
+    {
+      "metric": "new_maintainability_rating",
+      "value": "1",
+      "status": "OK"
+    },
+    {
+      "metric": "new_coverage",
+      "value": "85.7",
+      "status": "OK"
+    },
+    {
+      "metric": "new_duplicated_lines_density",
+      "value": "0.1",
+      "status": "OK"
+    },
+    {
+      "metric": "new_security_hotspots_reviewed",
+      "value": "100.0",
+      "status": "OK"
+    }
+  ],
+  "active_vulnerabilities": [
+    {
+      "key": "AaF2G1TlIES1tmkRiAIM",
+      "rule": "javascript:S5332",
+      "status": "OPEN",
+      "severity": "MINOR"
+    },
+    {
+      "key": "AaF2G1TlIES1tmkRiAIN",
+      "rule": "javascript:S5332",
+      "status": "OPEN",
+      "severity": "MINOR"
+    },
+    {
+      "key": "AaF2G1TlIES1tmkRiAIQ",
+      "rule": "javascript:S4790",
+      "status": "OPEN",
+      "severity": "CRITICAL"
+    },
+    {
+      "key": "AaF2G1X8IES1tmkRiAIS",
+      "rule": "javascript:S5332",
+      "status": "OPEN",
+      "severity": "MINOR"
+    },
+    {
+      "key": "AaF2G1X8IES1tmkRiAIT",
+      "rule": "javascript:S5332",
+      "status": "OPEN",
+      "severity": "MINOR"
+    },
+    {
+      "key": "AaF2G1X8IES1tmkRiAIV",
+      "rule": "javascript:S5332",
+      "status": "OPEN",
+      "severity": "MINOR"
+    },
+    {
+      "key": "AaF0FHq1vCiqu-XFDLDC",
+      "rule": "python:S5332",
+      "status": "OPEN",
+      "severity": "MINOR"
+    }
+  ],
+  "workflows": [
+    {
+      "workflow": "ci-core",
+      "run_id": 40338498691,
+      "url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40338498691",
+      "head_sha": "ef3f25ac1f87280aa291745ecf10a72f7ca5b586",
+      "status": "completed",
+      "conclusion": "failure",
+      "jobs": [
+        {
+          "name": "changes",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "build",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "lint",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "e2e",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "test (3/3)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "test (1/3)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "test (2/3)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "test (install)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "test",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "coverage",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "sonarqube",
+          "status": "completed",
+          "conclusion": "failure"
+        }
+      ]
+    },
+    {
+      "workflow": "ci-sync-app",
+      "run_id": 40338498684,
+      "url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40338498684",
+      "head_sha": "ef3f25ac1f87280aa291745ecf10a72f7ca5b586",
+      "status": "in_progress",
+      "conclusion": "",
+      "jobs": [
+        {
+          "name": "changes",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "compile (Windows)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "test-runner",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "compile (Linux)",
+          "status": "in_progress",
+          "conclusion": ""
+        },
+        {
+          "name": "compile (macOS)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "lint",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "test",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "workflow": "ci-infra",
+      "run_id": 40338498795,
+      "url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40338498795",
+      "head_sha": "ef3f25ac1f87280aa291745ecf10a72f7ca5b586",
+      "status": "completed",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "name": "terraform",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "onlyoffice",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "ansible",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "cloudbeaver",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "infrastructure",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "workflow": "ci-tools",
+      "run_id": 40338498913,
+      "url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40338498913",
+      "head_sha": "ef3f25ac1f87280aa291745ecf10a72f7ca5b586",
+      "status": "completed",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "name": "ai",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "logging (Linux)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "logging (Windows)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "typecheck (Linux)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "typecheck (Windows)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "tools",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "workflow": "ci-mobile-app",
+      "run_id": 40338498768,
+      "url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40338498768",
+      "head_sha": "ef3f25ac1f87280aa291745ecf10a72f7ca5b586",
+      "status": "completed",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "name": "changes",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "test",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "lint",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "build",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "compile (${{ matrix.label }})",
+          "status": "completed",
+          "conclusion": "skipped"
+        }
+      ]
+    }
+  ],
+  "note": "The two Sonar checks represent the same quality gate. Newer local commits were not pushed at this checkpoint."
+}

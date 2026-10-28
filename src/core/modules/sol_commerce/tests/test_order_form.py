@@ -1,8 +1,16 @@
+from ast import literal_eval
+
 from lxml import etree
 
-from odoo.tests import TransactionCase, tagged
+from odoo.tests import tagged
 
-from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER, MODEL_SALE_ORDER_LINE
+from .order_case import OrderCase
+from odoo.addons.sol_commerce.constants.models import (
+    MODEL_PRODUCT_PRODUCT,
+    MODEL_PRODUCT_TEMPLATE,
+    MODEL_SALE_ORDER,
+    MODEL_SALE_ORDER_LINE,
+)
 
 # Odoo's own order actions that go around MediLab's quotation, confirmation and cancellation.
 ODOO_HEADER_ACTIONS = (
@@ -14,10 +22,11 @@ ODOO_HEADER_ACTIONS = (
     "action_draft",
 )
 HIDDEN = ("1", "True")
+LINE_FORM = "//field[@name='order_line']/form"
 
 
 @tagged("post_install", "-at_install")
-class TestOrderForm(TransactionCase):
+class TestOrderForm(OrderCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -61,15 +70,77 @@ class TestOrderForm(TransactionCase):
                 hidden = node.get("invisible") in HIDDEN or (parent is not None and parent.get("invisible") in HIDDEN)
                 self.assertTrue(hidden)
 
+    def test_customer_and_contact_cannot_be_created_from_the_order(self):
+        for name in ("customer_id", "partner_id"):
+            with self.subTest(name=name):
+                field = self._nodes("//sheet//field[@name=$name]", name=name)[0]
+                self.assertTrue(literal_eval(field.get("options")).get("no_create"))
+
     def test_vietnamese_tells_customer_and_contact_apart(self):
         fields = self.env[MODEL_SALE_ORDER].with_context(lang="vi_VN").fields_get(["customer_id", "partner_id"])
         self.assertEqual(fields["customer_id"]["string"], "Khách Hàng")
         self.assertEqual(fields["partner_id"]["string"], "Liên Hệ")
 
     def test_lines_offer_no_section_note_or_odoo_catalog(self):
-        controls = self._nodes("//field[@name='order_line']/list/control/*")
-        names = {control.get("name") for control in controls}
-        self.assertEqual(names, {"add_product_control"})
+        for view in ("list", "kanban"):
+            with self.subTest(view=view):
+                controls = self._nodes(f"//field[@name='order_line']/{view}/control/*")
+                self.assertEqual({control.get("name") for control in controls}, {"add_product_control"})
+        self.assertFalse(self._nodes("//widget[@name='combo_menu']"))
+
+    def test_line_is_a_parameter_or_package_on_a_sample(self):
+        shown = self._nodes("//list[@name='sol_list']/column[@name='product_and_description']/field")
+        names = [field.get("name") for field in shown if field.get("invisible") not in HIDDEN]
+        self.assertEqual(names, ["product_template_id"])
+        product = shown[0]
+        self.assertNotIn("optional", product.attrib)
+        self.assertIn("('parameter_id', '!=', False)", product.get("domain"))
+        self.assertIn("('service_package_id', '!=', False)", product.get("domain"))
+        columns = [child.get("name") for child in self._nodes("//list[@name='sol_list']/*")]
+        self.assertEqual(columns[columns.index("product_and_description") + 1], "sample_id")
+        delivered = self._nodes("//list[@name='sol_list']/column[field[@name='qty_delivered']]")
+        self.assertEqual(delivered[0].get("column_invisible"), "1")
+
+    def test_line_domain_offers_only_parameters_and_packages(self):
+        plain = self.env[MODEL_PRODUCT_TEMPLATE].create({"name": "Courier fee"})
+        cases = (
+            (MODEL_PRODUCT_TEMPLATE, "//list[@name='sol_list']//field[@name='product_template_id']", lambda p: p),
+            (MODEL_PRODUCT_PRODUCT, f"{LINE_FORM}//field[@name='product_id']", lambda p: p.product_variant_id),
+        )
+        for model, path, variant in cases:
+            with self.subTest(model=model):
+                offered = self.env[model].search(literal_eval(self._nodes(path)[0].get("domain")))
+                self.assertIn(variant(self.lead_product), offered)
+                self.assertIn(variant(self.package_product), offered)
+                self.assertNotIn(variant(plain), offered)
+                self.assertFalse(offered.filtered(lambda p: not (p.parameter_id or p.service_package_id)))
+
+    def test_line_form_follows_the_list(self):
+        product = self._nodes(f"{LINE_FORM}//field[@name='product_id']")[0]
+        self.assertEqual(literal_eval(product.get("options")), {"no_create": True, "no_open": True})
+        sample = self._nodes(f"{LINE_FORM}//field[@name='sample_id']")[0]
+        self.assertEqual(sample.get("domain"), "[('order_id', '=', parent.id)]")
+        self.assertTrue(literal_eval(sample.get("options")).get("no_create"))
+        for path in (
+            f"{LINE_FORM}/group/group/field[@name='name']",
+            f"{LINE_FORM}//label[@for='qty_delivered']",
+            f"{LINE_FORM}//div[@name='delivered_qty']",
+        ):
+            with self.subTest(path=path):
+                self.assertIn(self._nodes(path)[0].get("invisible"), HIDDEN)
+
+    def test_form_shows_no_tax_included_switch(self):
+        for field in self._nodes("//field[@name='document_tax_mode']"):
+            with self.subTest(id=field.get("id")):
+                self.assertIn(field.get("invisible"), HIDDEN)
+
+    def test_notebook_leads_with_lines_samples_and_revisions(self):
+        pages = [page.get("name") for page in self._nodes("//notebook/page")]
+        self.assertEqual(pages[:3], ["order_lines", "samples", "revisions"])
+
+    def test_salesperson_sits_with_the_order_dates(self):
+        self.assertTrue(self._nodes("//group[@name='order_details']/field[@name='user_id']"))
+        self.assertFalse(self._nodes("//group[@name='sales_person']/field[@name='user_id']"))
 
     def test_line_without_a_product_has_no_tax(self):
         order = self.env[MODEL_SALE_ORDER].create({"partner_id": self.env.user.partner_id.id})

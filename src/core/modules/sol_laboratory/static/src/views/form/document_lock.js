@@ -87,9 +87,16 @@ patch(FormController.prototype, {
 
   async onDocumentLockChanged({ model, id }) {
     const root = this.model.root;
-    if (model !== root.resModel || id !== root.resId || this.documentLock.held || (await root.isDirty())) {
+    if (model !== root.resModel || id !== root.resId || this.documentLock.held || this.isUnderDialog() || (await root.isDirty())) {
       return;
     }
     await root.load();
+  },
+
+  // A dialog open over the form, such as one adding a line, edits records the form does not count as changes yet;
+  // reloading the form drops them.
+  isUnderDialog() {
+    const formEl = this.rootRef();
+    return Boolean(formEl && !this.ui.activeElement.contains(formEl));
   },
 });

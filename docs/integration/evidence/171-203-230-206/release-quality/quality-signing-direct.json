@@ -1,0 +1,9 @@
+{
+  "command": [
+    "node",
+    "tools/infrastructure/onlyoffice/test_callback_signing.cjs"
+  ],
+  "exit_code": 0,
+  "status": "PASS",
+  "elapsed_seconds": 0.114
+}

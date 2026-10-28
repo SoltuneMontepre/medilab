@@ -1,3 +1,3 @@
 # Create pull request
 
-Follow [.agent/skills/create-pr/SKILL.md](../../.agent/skills/create-pr/SKILL.md).
+Follow [.agents/skills/create-pr/SKILL.md](../../.agents/skills/create-pr/SKILL.md).

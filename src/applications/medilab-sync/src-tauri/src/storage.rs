@@ -237,6 +237,8 @@ impl Db {
             "INTEGER NOT NULL DEFAULT 0",
         )?;
         Self::ensure_column(&conn, "sync_job", "part_size", "INTEGER")?;
+        Self::ensure_column(&conn, "sync_job", "prepare_key", "TEXT")?;
+        Self::ensure_column(&conn, "sync_job", "prepare_fingerprint", "TEXT")?;
         conn.execute(
             "UPDATE sync_folder SET access_state = 'ok' WHERE access_state IS NULL",
             [],
@@ -246,6 +248,36 @@ impl Db {
              WHERE status = 'synced' AND last_synced_hash IS NULL AND sha256 IS NOT NULL",
             [],
         )?;
+        Ok(())
+    }
+
+    /// Preserve local files and queued work; old remote IDs require explicit rebinding.
+    pub fn migrate_laboratory_api(&self) -> AppResult<()> {
+        let mut conn = self.conn.lock();
+        let tx = conn.transaction()?;
+        let generation: Option<String> = tx
+            .query_row(
+                "SELECT value FROM app_meta WHERE key = 'laboratory_api_version'",
+                [],
+                |r| r.get(0),
+            )
+            .optional()?;
+        if generation.as_deref() == Some("1") {
+            return Ok(());
+        }
+        tx.execute("INSERT OR IGNORE INTO app_meta(key,value) SELECT 'legacy_folder:' || id, CAST(remote_id AS TEXT) FROM sync_folder WHERE remote_id IS NOT NULL", [])?;
+        tx.execute(
+            "UPDATE sync_folder SET remote_id = NULL, access_state = 'unbound'",
+            [],
+        )?;
+        tx.execute("UPDATE sync_file SET remote_file_id = NULL, remote_version_id = NULL, last_synced_hash = NULL, suppress_hash = NULL", [])?;
+        tx.execute("UPDATE sync_job SET session_id = NULL, uploaded_parts = NULL, part_size = NULL, prepare_key = NULL, prepare_fingerprint = NULL, remote_file_id = NULL, remote_version_id = NULL, bytes_done = 0, status = CASE WHEN status IN ('running','retry_wait') THEN 'pending' ELSE status END", [])?;
+        tx.execute("DELETE FROM app_meta WHERE key LIKE 'change_cursor:%'", [])?;
+        tx.execute(
+            "INSERT OR REPLACE INTO app_meta(key,value) VALUES('laboratory_api_version','1')",
+            [],
+        )?;
+        tx.commit()?;
         Ok(())
     }
 
@@ -352,6 +384,31 @@ impl Db {
         remote: &crate::api::FolderDto,
     ) -> AppResult<()> {
         let conn = self.conn.lock();
+        let previous_mode: Option<String> = conn
+            .query_row(
+                "SELECT value FROM app_meta WHERE key=?1",
+                [format!("folder_mode:{folder_id}")],
+                |r| r.get(0),
+            )
+            .optional()?;
+        if previous_mode.as_deref() == Some("upload_only") && remote.sync_mode == "two_way" {
+            conn.execute(
+                "INSERT OR REPLACE INTO app_meta(key,value) VALUES(?1,'1')",
+                [format!("needs_hydration:{folder_id}")],
+            )?;
+        }
+
+        conn.execute(
+            "INSERT OR REPLACE INTO app_meta(key,value) VALUES(?1,?2)",
+            params![format!("folder_mode:{folder_id}"), remote.sync_mode],
+        )?;
+        conn.execute(
+            "INSERT OR REPLACE INTO app_meta(key,value) VALUES(?1,?2)",
+            params![
+                format!("folder_writable:{folder_id}"),
+                if remote.enabled { "yes" } else { "no" }
+            ],
+        )?;
         conn.execute(
             "UPDATE sync_folder SET
                 sample_name = ?2,
@@ -1064,7 +1121,11 @@ impl Db {
                      AND NOT EXISTS (
                        SELECT 1 FROM sync_folder AS folder
                        WHERE folder.id = candidate.folder_id
-                         AND COALESCE(folder.access_state, 'ok') = 'denied')
+                         AND COALESCE(folder.access_state, 'ok') IN ('denied','unbound'))
+                     AND NOT EXISTS (
+                       SELECT 1 FROM app_meta WHERE
+                         (candidate.operation = 'download' AND key = 'folder_mode:' || candidate.folder_id AND value = 'upload_only')
+                         OR (candidate.operation = 'upload' AND key = 'folder_writable:' || candidate.folder_id AND value = 'no'))
                      AND NOT EXISTS (
                        SELECT 1 FROM sync_job AS active
                        WHERE active.file_id = candidate.file_id AND active.status = 'running')
@@ -1202,6 +1263,13 @@ impl Db {
             .unwrap_or(false))
     }
 
+    pub fn folder_downloads_allowed(&self, folder_id: i64) -> AppResult<bool> {
+        Ok(self
+            .meta_get(&format!("folder_mode:{folder_id}"))?
+            .as_deref()
+            != Some("upload_only"))
+    }
+
     /// True nếu folder đang bị server từ chối quyền (`access_state = 'denied'`).
     pub fn folder_access_denied(&self, folder_id: i64) -> AppResult<bool> {
         let conn = self.conn.lock();
@@ -1212,7 +1280,10 @@ impl Db {
                 |row| row.get(0),
             )
             .optional()?;
-        Ok(state.flatten().as_deref() == Some("denied"))
+        Ok(matches!(
+            state.flatten().as_deref(),
+            Some("denied" | "unbound")
+        ))
     }
 
     /// Liệt kê tối đa 200 job gần nhất, mới nhất trước, cho UI trang Jobs.
@@ -1252,7 +1323,12 @@ impl Db {
     pub fn retry_job(&self, job_id: i64) -> AppResult<()> {
         let conn = self.conn.lock();
         let changed = conn.execute(
-            "UPDATE sync_job SET status = 'pending', next_retry_at = NULL, attempt_count = 0,
+            "UPDATE sync_job SET
+                session_id = CASE WHEN operation = 'upload' AND status = 'failed' THEN NULL ELSE session_id END,
+                uploaded_parts = CASE WHEN operation = 'upload' AND status = 'failed' THEN NULL ELSE uploaded_parts END,
+                prepare_key = CASE WHEN operation = 'upload' AND status = 'failed' THEN NULL ELSE prepare_key END,
+                prepare_fingerprint = CASE WHEN operation = 'upload' AND status = 'failed' THEN NULL ELSE prepare_fingerprint END,
+                status = 'pending', next_retry_at = NULL, attempt_count = 0,
                 last_error = NULL
              WHERE id = ?1",
             params![job_id],
@@ -1268,7 +1344,12 @@ impl Db {
     pub fn retry_failed_jobs_for_folder(&self, folder_id: i64) -> AppResult<usize> {
         let conn = self.conn.lock();
         let changed = conn.execute(
-            "UPDATE sync_job SET status = 'pending', next_retry_at = NULL, attempt_count = 0,
+            "UPDATE sync_job SET
+                session_id = CASE WHEN operation = 'upload' AND status = 'failed' THEN NULL ELSE session_id END,
+                uploaded_parts = CASE WHEN operation = 'upload' AND status = 'failed' THEN NULL ELSE uploaded_parts END,
+                prepare_key = CASE WHEN operation = 'upload' AND status = 'failed' THEN NULL ELSE prepare_key END,
+                prepare_fingerprint = CASE WHEN operation = 'upload' AND status = 'failed' THEN NULL ELSE prepare_fingerprint END,
+                status = 'pending', next_retry_at = NULL, attempt_count = 0,
                 last_error = NULL
              WHERE folder_id = ?1 AND status IN ('failed', 'retry_wait')",
             params![folder_id],
@@ -1357,22 +1438,6 @@ impl Db {
     pub fn clear_job_session(&self, job_id: i64) -> AppResult<()> {
         let conn = self.conn.lock();
         clear_job_session_on(&conn, job_id)
-    }
-
-    /// Xóa toàn bộ folder/tệp/rule/job cục bộ và metadata gắn với tài khoản (dùng khi đăng nhập
-    /// tài khoản khác); `client_uid` được giữ nguyên vì nó gắn với chính máy trạm.
-    pub fn clear_account_local_state(&self) -> AppResult<()> {
-        let conn = self.conn.lock();
-        conn.execute("DELETE FROM sync_job", [])?;
-        conn.execute("DELETE FROM sync_file", [])?;
-        conn.execute("DELETE FROM sync_rule", [])?;
-        conn.execute("DELETE FROM sync_folder", [])?;
-        conn.execute(
-            "DELETE FROM app_meta WHERE key IN ('device_id', 'user_name', 'user_login', 'user_id')
-             OR key LIKE 'change_cursor:%'",
-            [],
-        )?;
-        Ok(())
     }
 
     /// Đọc cấu hình đã lưu, hoặc mặc định nếu chưa từng lưu/parse lỗi.
@@ -1632,19 +1697,6 @@ pub(crate) fn set_file_fingerprint_on(
     conn.execute(
         "UPDATE sync_file SET size = ?1, mtime = ?2, sha256 = ?3 WHERE id = ?4",
         params![size, mtime, sha256, file_id],
-    )?;
-    Ok(())
-}
-
-/// Ghi hash nội dung mà một job đã chứng minh được (xem `Db::set_job_content_hash`).
-pub(crate) fn set_job_content_hash_on(
-    conn: &Connection,
-    job_id: i64,
-    content_hash: &str,
-) -> AppResult<()> {
-    conn.execute(
-        "UPDATE sync_job SET content_hash = ?1, updated_at = ?2 WHERE id = ?3",
-        params![content_hash, now_ts(), job_id],
     )?;
     Ok(())
 }
@@ -2059,6 +2111,30 @@ fn now_ts() -> i64 {
         .as_secs() as i64
 }
 
+/// Persist the preparation key before the request; a changed snapshot gets a new key.
+pub(crate) fn prepare_key_on(
+    conn: &Connection,
+    job_id: i64,
+    fingerprint: &str,
+) -> AppResult<String> {
+    let (key, previous): (Option<String>, Option<String>) = conn.query_row(
+        "SELECT prepare_key, prepare_fingerprint FROM sync_job WHERE id = ?1",
+        [job_id],
+        |r| Ok((r.get(0)?, r.get(1)?)),
+    )?;
+    if previous.as_deref() == Some(fingerprint) {
+        if let Some(key) = key {
+            return Ok(key);
+        }
+    }
+    let key = uuid::Uuid::new_v4().to_string();
+    conn.execute(
+        "UPDATE sync_job SET prepare_key = ?1, prepare_fingerprint = ?2 WHERE id = ?3",
+        params![key, fingerprint, job_id],
+    )?;
+    Ok(key)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -2380,9 +2456,9 @@ mod tests {
         assert_eq!(db.meta_get("client_uid").unwrap().as_deref(), Some("pc-1"));
     }
 
-    /// Đổi tài khoản phải xóa hết folder/job/metadata tài khoản cũ nhưng giữ nguyên `client_uid`.
+    /// Account changes preserve local data and quarantine remote IDs.
     #[test]
-    fn account_switch_clears_folder_bindings_keeps_client_uid() {
+    fn account_change_preserves_local_folder_and_installation_identity() {
         let dir = tempfile::tempdir().unwrap();
         let db = Db::open(&dir.path().join("t.db")).unwrap();
         db.meta_set("client_uid", "pc-1").unwrap();
@@ -2390,17 +2466,20 @@ mod tests {
         db.upsert_folder("/data/a", "LabResults", Some(7), true, &[])
             .unwrap();
         db.set_change_cursor(7, 99).unwrap();
-        db.clear_account_local_state().unwrap();
-        assert!(db.list_folders().unwrap().is_empty());
+        db.migrate_laboratory_api().unwrap();
+        assert_eq!(db.list_folders().unwrap().len(), 1);
         assert!(db.list_jobs().unwrap().is_empty());
-        assert!(db.meta_get("user_login").unwrap().is_none());
+        assert_eq!(
+            db.meta_get("user_login").unwrap().as_deref(),
+            Some("sync_user_a")
+        );
         assert!(db.meta_get("device_id").unwrap().is_none());
         assert!(db.meta_get("change_cursor:7").unwrap().is_none());
         assert_eq!(db.meta_get("client_uid").unwrap().as_deref(), Some("pc-1"));
     }
 
     /// Ngữ cảnh mẫu LIMS và trạng thái truy cập bị từ chối phải được lưu và đọc lại đúng, rồi bị
-    /// xóa sạch khi đổi tài khoản.
+    /// quarantined when account or server changes.
     #[test]
     fn lab_context_and_access_denied_persist() {
         let dir = tempfile::tempdir().unwrap();
@@ -2437,8 +2516,8 @@ mod tests {
         assert_eq!(row.access_state, "ok");
         db.set_folder_access_state(folder, "denied").unwrap();
         assert_eq!(db.list_folders().unwrap()[0].access_state, "denied");
-        db.clear_account_local_state().unwrap();
-        assert!(db.list_folders().unwrap().is_empty());
+        db.migrate_laboratory_api().unwrap();
+        assert_eq!(db.list_folders().unwrap()[0].access_state, "unbound");
     }
 
     /// "Ngừng đồng bộ" (bỏ binding cục bộ) và mất quyền là hai chuyện khác nhau: bỏ binding xóa

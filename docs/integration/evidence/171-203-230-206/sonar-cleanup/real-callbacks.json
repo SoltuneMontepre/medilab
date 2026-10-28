@@ -1,0 +1,43 @@
+{
+  "at": "2026-10-26T16:30:56.557161+00:00",
+  "runner_exit": 0,
+  "database": "medilab171sonarreal",
+  "container": "medilab171-agent4-sonar-cleanup-acceptance-real",
+  "evidence_copy_exit": 0,
+  "evidence_files": [
+    "test_docx_503_redelivery_has_fresh_jwt.json",
+    "test_docx_many_editors_header_trimming.json",
+    "test_docx_real_jwt_expiry_on_transaction_retry.json",
+    "test_docx_save_and_concurrent_duplicate_callbacks.json",
+    "test_pptx_save.json",
+    "test_xlsx_save.json"
+  ],
+  "runner_log_sha256": "80da4351a7a1337aba3292347a62fce2966b8fb62d6e9dcb85d33a6b534145d9",
+  "real_service_executed": true,
+  "native_odoo_executed": true,
+  "native_test_status": {
+    "TestOnlyofficeReal.test_docx_503_redelivery_has_fresh_jwt": "PASS",
+    "TestOnlyofficeReal.test_docx_many_editors_header_trimming": "PASS",
+    "TestOnlyofficeReal.test_docx_real_jwt_expiry_on_transaction_retry": "PASS",
+    "TestOnlyofficeReal.test_docx_save_and_concurrent_duplicate_callbacks": "PASS",
+    "TestOnlyofficeReal.test_pptx_save": "PASS",
+    "TestOnlyofficeReal.test_xlsx_save": "PASS"
+  },
+  "native_summary": [
+    "0 failed, 0 error(s) of 6 tests when loading database 'medilab171sonarreal'"
+  ],
+  "passed": true,
+  "failed_tests": [],
+  "passed_tests": [
+    "test_docx_503_redelivery_has_fresh_jwt",
+    "test_docx_many_editors_header_trimming",
+    "test_docx_real_jwt_expiry_on_transaction_retry",
+    "test_docx_save_and_concurrent_duplicate_callbacks",
+    "test_pptx_save",
+    "test_xlsx_save"
+  ],
+  "unknown_outcome_tests": [],
+  "blocked_tests": [],
+  "not_started_tests": [],
+  "whole_runner_timeout_seconds": 1800
+}

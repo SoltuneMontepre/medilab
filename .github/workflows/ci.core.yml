@@ -29,6 +29,7 @@ jobs:
       lint: ${{ steps.result.outputs.lint }}
       e2e: ${{ steps.result.outputs.e2e }}
       scan: ${{ steps.result.outputs.scan }}
+      runtime: ${{ steps.result.outputs.runtime }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -53,6 +54,11 @@ jobs:
               - ".github/workflows/ci.core.yml"
             e2e:
               - "src/tests/**"
+            runtime:
+              - "infra/cluster/onlyoffice/**"
+              - "infra/cluster/onlyoffice-monitor/probe.py"
+              - "tools/infrastructure/onlyoffice/**"
+              - "tools/onlyoffice_integration/**"
             ai:
               - "tools/odoo-intelligence/**"
               - "tools/taskfiles/ai.taskfile.yml"
@@ -65,6 +71,7 @@ jobs:
           FILES: ${{ steps.filter.outputs.core_files }}
           E2E: ${{ steps.filter.outputs.e2e }}
           AI: ${{ steps.filter.outputs.ai }}
+          RUNTIME: ${{ steps.filter.outputs.runtime }}
         run: |
           core=false
           for f in $FILES; do
@@ -75,6 +82,7 @@ jobs:
           done
           scan=$core
           [ "$AI" = true ] && scan=true
+          [ "$RUNTIME" = true ] && scan=true
           e2e=$core
           [ "$E2E" = true ] && e2e=true
           case "$EVENT" in
@@ -87,6 +95,7 @@ jobs:
             echo "lint=$lint"
             echo "e2e=$e2e"
             echo "scan=$scan"
+            echo "runtime=$RUNTIME"
           } >> "$GITHUB_OUTPUT"
 
   lint:
@@ -316,12 +325,17 @@ jobs:
 
   coverage:
     needs: [changes, test-runner]
-    if: needs.changes.outputs.relevant == 'true'
+    if: >-
+      ${{ !cancelled() &&
+          (needs.changes.outputs.relevant == 'true' || needs.changes.outputs.runtime == 'true') &&
+          (needs.changes.outputs.relevant != 'true' || needs.test-runner.result == 'success') }}
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - name: Set up uv
         uses: astral-sh/setup-uv@v10.3.0
@@ -332,6 +346,7 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download coverage data
+        if: needs.changes.outputs.relevant == 'true'
         uses: actions/download-artifact@v8
         with:
           pattern: coverage-data-*
@@ -339,9 +354,23 @@ jobs:
           path: .local/coverage
 
       - name: Combine coverage
+        if: needs.changes.outputs.relevant == 'true'
         run: task test:core:coverage COVERAGE_DIR=.local/coverage
 
+      - name: ONLYOFFICE runtime coverage
+        run: task test:onlyoffice:coverage
+
+      - name: Upload runtime coverage
+        uses: actions/upload-artifact@v7
+        with:
+          name: onlyoffice-coverage
+          path: |
+            .local/onlyoffice-coverage/coverage.xml
+            .local/onlyoffice-coverage/js/lcov.info
+          retention-days: 1
+
       - name: Upload coverage report
+        if: needs.changes.outputs.relevant == 'true'
         uses: actions/upload-artifact@v7
         with:
           name: coverage
@@ -368,12 +397,30 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set up Bun
+        if: github.event.pull_request.head.repo.fork != true && needs.changes.outputs.scan == 'true'
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.4
+
+      - name: Install Mobile analysis dependencies
+        if: github.event.pull_request.head.repo.fork != true && needs.changes.outputs.scan == 'true'
+        working-directory: src/applications/medilab-mobile
+        run: bun install --frozen-lockfile --ignore-scripts
+
       - name: Download coverage report
         if: github.event.pull_request.head.repo.fork != true && needs.changes.outputs.relevant == 'true'
         uses: actions/download-artifact@v8
         with:
           name: coverage
           path: src/core/modules
+
+      - name: Download runtime coverage
+        if: github.event.pull_request.head.repo.fork != true && (needs.changes.outputs.relevant == 'true' || needs.changes.outputs.runtime == 'true')
+        uses: actions/download-artifact@v8
+        with:
+          name: onlyoffice-coverage
+          path: .local/onlyoffice-coverage
 
       - name: SonarQube Cloud scan
         if: github.event.pull_request.head.repo.fork != true && needs.changes.outputs.scan == 'true'

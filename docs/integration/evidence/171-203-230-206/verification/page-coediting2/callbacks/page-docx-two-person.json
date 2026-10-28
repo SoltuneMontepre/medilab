@@ -1,0 +1,17 @@
+{
+  "status": "PASS",
+  "browser": {
+    "loginReturn": true,
+    "editorReady": true,
+    "keyboardEdit": true,
+    "holdSeconds": 3,
+    "editorSessions": 2,
+    "xssAbsent": true,
+    "errors": []
+  },
+  "version_count": 2,
+  "sha256": "510e48445dd2fd9a1f305b1a04410d7d622429122133447329490f8346df502d",
+  "size": 58593,
+  "marker_present": true,
+  "transport": "isolated HTTP with loopback proxies; no ingress/TLS claim"
+}

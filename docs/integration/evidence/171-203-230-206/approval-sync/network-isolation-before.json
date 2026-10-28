@@ -1,0 +1,19 @@
+{
+  "configuration": "basic internal bridge without isolate=strict",
+  "outbound_from_fixture_blocked": true,
+  "outside_to_inside": [
+    {
+      "service": "documentserver",
+      "outside_peer_reachable": true
+    },
+    {
+      "service": "garage",
+      "outside_peer_reachable": true
+    },
+    {
+      "service": "browser",
+      "outside_peer_reachable": true
+    }
+  ],
+  "status": "INSUFFICIENT for required bidirectional isolation; retained only as negative control"
+}

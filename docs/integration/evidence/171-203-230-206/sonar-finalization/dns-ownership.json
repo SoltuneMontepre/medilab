@@ -1,0 +1,8 @@
+{
+  "fixed_logical_upstreams_resolve_only_to_inspected_owned_containers": true,
+  "services": [
+    "garage",
+    "documentserver"
+  ],
+  "production_destinations_contacted": false
+}

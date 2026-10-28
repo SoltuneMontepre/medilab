@@ -1,0 +1,10 @@
+{
+  "command": [
+    "bun",
+    "run",
+    "typecheck"
+  ],
+  "exit_code": 0,
+  "status": "PASS",
+  "elapsed_seconds": 1.617
+}

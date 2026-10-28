@@ -1,0 +1,34 @@
+{
+  "key": "292",
+  "title": "[Integration] ONLYOFFICE + MediLab Sync (#171, #203, #230, #206)",
+  "branch": "task/integration-171-203-230-206-verification",
+  "base": "main",
+  "status": {
+    "qualityGateStatus": "ERROR",
+    "bugs": 0,
+    "vulnerabilities": 9,
+    "codeSmells": 59
+  },
+  "analysisDate": "2026-10-25T19:20:40+0000",
+  "url": "https://github.com/SoltuneMontepre/medilab/pull/292",
+  "target": "main",
+  "commit": {
+    "sha": "9bbbdc3b3be6f1ea7f7c1e9c6e1d701fc4512ded",
+    "author": {
+      "name": "Ph\u1ea1m Anh Ki\u1ec7t",
+      "login": "KietPham-VN-0pV5j@github",
+      "avatar": "7c67561be2b8cf7fb5e8082949760380"
+    },
+    "date": "2026-10-25T19:07:08+0000",
+    "message": "[test] Record executed CI gates and remaining security decisions"
+  },
+  "contributors": [
+    {
+      "name": "Ph\u1ea1m Anh Ki\u1ec7t",
+      "login": "KietPham-VN-0pV5j@github",
+      "avatar": "7c67561be2b8cf7fb5e8082949760380"
+    }
+  ],
+  "pullRequestUuidV1": "AaF0EoPe49xxdljbg7NF",
+  "pullRequestId": "b95c77c3-a114-429c-bd33-5e7c9574dddc"
+}

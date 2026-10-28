@@ -1,0 +1,26 @@
+{
+  "command": [
+    "docker",
+    "--host=unix:///run/user/1000/podman/podman.sock",
+    "compose",
+    "-p",
+    "medilab171-agent4-release-quality",
+    "-f",
+    "tools/onlyoffice_integration/compose.yml",
+    "-f",
+    ".local/integration/native-vn.compose.yml",
+    "run",
+    "--name",
+    "medilab171-agent4-release-quality-native-vn-final",
+    "--no-deps",
+    "quality-native-vn"
+  ],
+  "exit_code": 0,
+  "status": "PASS",
+  "elapsed_seconds": 682.343,
+  "native_summary": "0 failed, 0 error(s) of 1697 tests when loading database 'medilab171qualityvn'",
+  "native_test_count": 1697,
+  "skip_lines": 0,
+  "runner_log_sha256": "d8c48baf1b053ee97970a9ac08e0f478ae3478e77fe8b8e267ffda5133341c3c",
+  "accounting_preparation": "Unmodified tools/scripts/test_core_common.sh prepare_vietnamese_accounting before installing sol_laboratory,sol_commerce."
+}

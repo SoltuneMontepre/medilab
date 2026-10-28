@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head><meta charset="utf-8"><title>Browser helper checks</title></head>
+  <body>
+    <div class="o_form_view">
+      <div class="o_statusbar_buttons">
+        <button name="action_sign">Sign</button>
+        <button name="action_send_quotation">Send quotation</button>
+        <button id="reject" class="btn-danger">Reject</button>
+      </div>
+    </div>
+    <button id="refuse">Refused action</button>
+    <button id="changed">Changed record with an error</button>
+    <script>
+      window.record = { status: "requested", reason: "" };
+      function refuse() {
+        const notification = document.createElement("div");
+        notification.className = "o_notification";
+        notification.textContent = "Signing is not allowed.";
+        document.body.append(notification);
+      }
+      document.querySelector('[name="action_sign"]').onclick = () => {
+        window.record.status = "approved";
+      };
+      document.querySelector('[name="action_send_quotation"]').onclick = () => {
+        window.record.status = "sent";
+      };
+      document.querySelector("#reject").onclick = () => {
+        const modal = document.createElement("div");
+        modal.className = "modal";
+        modal.innerHTML = '<div name="reason"><textarea></textarea></div><button name="action_reject">Reject</button>';
+        modal.querySelector("button").onclick = () => {
+          window.record.status = "rejected";
+          window.record.reason = modal.querySelector("textarea").value;
+          modal.remove();
+        };
+        document.body.append(modal);
+      };
+      document.querySelector("#refuse").onclick = refuse;
+      document.querySelector("#changed").onclick = () => {
+        window.record.status = "approved";
+        refuse();
+      };
+    </script>
+  </body>
+</html>

@@ -1,0 +1,24 @@
+{
+  "basis": "Native Odoo summary observed live: 1 failed, 0 error(s) of 13 tests; retained callback files corroborate outcomes. Native log subsequently unavailable. Original collector result retained and its lists are incorrect.",
+  "passing": 12,
+  "failing": 1,
+  "skipped": 0,
+  "blocked": 0,
+  "failed_tests": [
+    "test_docx_many_editors_header_trimming"
+  ],
+  "passed_tests": [
+    "test_docx_200_error_one_does_not_retry",
+    "test_docx_503_redelivery_has_fresh_jwt",
+    "test_docx_bucket_failure_recovers_on_real_redelivery",
+    "test_docx_captured_delivery_authentication_controls",
+    "test_docx_conflict_preserves_concurrent_version",
+    "test_docx_finite_retry_exhaustion",
+    "test_docx_large_history_header_compatibility",
+    "test_docx_real_jwt_expiry_on_transaction_retry",
+    "test_docx_save_and_concurrent_duplicate_callbacks",
+    "test_docx_two_authorized_editors",
+    "test_pptx_save",
+    "test_xlsx_save"
+  ]
+}

@@ -8,6 +8,7 @@ from odoo.addons.sol_laboratory.constants.laboratory_api import API_PREFIX, ERRO
 from odoo.addons.sol_laboratory.constants.laboratory_files import DEVICE_KEY_SCOPE
 from odoo.addons.sol_laboratory.constants.models import MODEL_IR_HTTP
 from odoo.addons.sol_laboratory.services import openapi_document
+from odoo.addons.sol_laboratory.services.laboratory_api import is_api_path
 
 # The routes that cannot take a computer's key: signing in, which gives it, and the health checks.
 WITHOUT_KEY = {("POST", "/sign-in"): "public", ("GET", "/health"): "none", ("GET", "/ready"): "none"}
@@ -19,7 +20,7 @@ class TestLaboratoryApiRoutes(LaboratoryApiCase):
         """Each route under the API's path, by method and path as the document writes it, with its routing."""
         routes = {}
         for rule in self.env[MODEL_IR_HTTP].routing_map().iter_rules():
-            if not rule.rule.startswith(API_PREFIX + "/"):
+            if not rule.rule.startswith(API_PREFIX + "/") or not is_api_path(rule.rule):
                 continue
             path = re.sub(r"<(?:[^:<>]+:)?([^:<>]+)>", r"{\1}", rule.rule.removeprefix(API_PREFIX))
             for method in rule.endpoint.routing["methods"]:
