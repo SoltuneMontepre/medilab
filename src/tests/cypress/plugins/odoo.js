@@ -1,6 +1,8 @@
 // Odoo sessions of the logins tests act as, kept for the whole run, so building a test's records
 // never changes the browser's session or reloads the back office.
 
+const { settingsTasks } = require("./settings");
+
 function sessionCookie(response, current) {
   const cookie = response.headers.getSetCookie().find((value) => value.startsWith("session_id="));
   return cookie ? cookie.split(";")[0] : current;
@@ -82,7 +84,7 @@ function odooTasks(baseUrl, password) {
     return { status: response.status, location: location.pathname };
   }
 
-  return { odooCall: call, odooPortalPost: portalPost };
+  return { odooCall: call, odooPortalPost: portalPost, ...settingsTasks(call) };
 }
 
 module.exports = { odooTasks };

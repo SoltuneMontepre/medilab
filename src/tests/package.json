@@ -2,7 +2,7 @@
   "name": "medilab-core-tests",
   "private": true,
   "scripts": {
-    "test": "cypress run"
+    "test": "node --test cypress/plugins/settings.test.cjs && cypress run"
   },
   "devDependencies": {
     "@cypress/grep": "^7.0.0",
