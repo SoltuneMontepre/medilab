@@ -181,8 +181,9 @@ flowchart TD
   - WF-04-A3: The tester withdraws a result they sent before the head acts.
   - WF-04-A4: An unusual result warns before sending; the tester sends it anyway and the head sees the warning.
   - WF-04-A5: The head cancels a test that cannot be done, with a reason; the sample completes with its other tests approved.
+  - WF-04-A6: The head enters a result, sends it and approves it themself; the lab head reviews it when signing the report.
 - **Exceptions:**
-  - WF-04-E1: A tester who entered a result cannot approve it; the head of department may approve a result they entered.
+  - WF-04-E1: A tester who entered a result cannot approve it.
   - WF-04-E2: A result on a sample with a regulation cannot be sent without a conclusion.
   - WF-04-E3: Cancelling a test without a reason, or a test with an approved result, is refused.
 - **Paths in other flows:** SF-03 for changing a result whose process is completed.
