@@ -1,7 +1,0 @@
-{
-  "status": "PASS",
-  "relative_links_checked": 4,
-  "json_files_parsed": 148,
-  "raw_jwt_or_fixture_jwt_secret_found": false,
-  "implementation_commit": "2cad26e6f6a56342321ad8e7c564c6dd20cf7a19"
-}
