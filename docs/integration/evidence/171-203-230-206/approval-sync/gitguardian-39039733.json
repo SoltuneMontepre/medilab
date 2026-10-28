@@ -1,0 +1,69 @@
+{
+  "incident_id": 39039733,
+  "occurrence_id": 307185493,
+  "check_run_id": 121645446938,
+  "reported_commit": "590ea3140715ec001080647bf8209483ded3c8ae",
+  "reported_path": "docs/integration/evidence/171-203-230-206/approval-sync/hosted-ef3f25a.json",
+  "reported_line": 3,
+  "reported_detector": "SonarQube Token",
+  "incident_status_observed": "Triggered",
+  "recommendation": "PROPOSED FALSE POSITIVE",
+  "owner_review": "PENDING",
+  "candidate": {
+    "length": 40,
+    "sha256": "6ae72d0b96de8ab377cc031956903cbb655842a788ef8175a86fc2ca9097cbc1",
+    "plaintext_persisted_in_this_proof": false
+  },
+  "assertions": {
+    "git_object_type": "commit",
+    "recomputed_git_object_id_matches": true,
+    "matches_measured_remote_head": true,
+    "matches_all_five_workflow_heads": true,
+    "tracked_occurrences_only_in_documentation": true,
+    "credential_validation_attempted": false,
+    "scanner_status_changed": false,
+    "credential_rotation_performed": false,
+    "published_history_rewritten": false
+  },
+  "tracked_occurrences_before_review_document": [
+    {
+      "path": "docs/integration/171-203-230-206-acceptance.md",
+      "lines": [
+        484,
+        511
+      ]
+    },
+    {
+      "path": "docs/integration/evidence/171-203-230-206/approval-sync/hosted-ef3f25a.json",
+      "lines": [
+        2,
+        3,
+        87,
+        152,
+        197,
+        232,
+        272
+      ]
+    },
+    {
+      "path": "docs/security/pr-292-sonar-disposition-review.md",
+      "lines": [
+        11
+      ]
+    }
+  ],
+  "published_file_history": [
+    "590ea31 [docs] Record pushed checkpoint and approval-policy blocker"
+  ],
+  "review_discussions": {
+    "issue_comments": 5,
+    "submitted_reviews": 0,
+    "inline_comments": 0,
+    "finding_specific_owner_approval_found": false
+  },
+  "limitations": [
+    "GitGuardian dashboard-only validity or detector internals were not available from the GitHub check.",
+    "Git commit identity is established independently; no service credential was tested.",
+    "Incident resolution requires authorized review."
+  ]
+}

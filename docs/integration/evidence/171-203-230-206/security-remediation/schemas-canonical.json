@@ -1,0 +1,11 @@
+{
+  "command": [
+    "env",
+    "ONLYOFFICE_VALIDATION_PYTHON=/home/leon/Projects/medilab-wt-release-integration/src/core/.venv/bin/python",
+    "bash",
+    "tools/infrastructure/onlyoffice/validate.sh"
+  ],
+  "exit_code": 0,
+  "status": "PASS",
+  "elapsed_seconds": 6.075
+}

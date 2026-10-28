@@ -24,6 +24,12 @@ msgstr "Ứng dụng"
 
 #. module: sol_theme
 #. odoo-javascript
+#: code:addons/sol_theme/static/src/js/chatter_resize.js:0
+msgid "Collapse the chatter"
+msgstr "Thu gọn khung trao đổi"
+
+#. module: sol_theme
+#. odoo-javascript
 #: code:addons/sol_theme/static/src/xml/form_status_indicator.xml:0
 msgid "Discard"
 msgstr "Hủy"
@@ -39,6 +45,12 @@ msgstr "Hủy tất cả thay đổi"
 #: code:addons/sol_theme/static/src/xml/app_drawer.xml:0
 msgid "Esc"
 msgstr "Esc"
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/js/chatter_resize.js:0
+msgid "Expand the chatter"
+msgstr "Mở rộng khung trao đổi"
 
 #. module: sol_theme
 #. odoo-javascript

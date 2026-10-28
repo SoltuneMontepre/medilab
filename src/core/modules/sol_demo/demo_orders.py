@@ -3,6 +3,7 @@ from odoo.fields import Command
 
 from odoo.addons.sol_commerce.constants.models import MODEL_PRODUCT_TEMPLATE, MODEL_SALE_ORDER
 from odoo.addons.sol_commerce.constants.xml_ids import ALL_ORDERS_GROUP
+from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER
 
 
 def seed_orders(env):
@@ -11,6 +12,9 @@ def seed_orders(env):
     env.ref("sol_demo.demo_res_users_head_of_sales").write({"group_ids": [Command.link(env.ref(ALL_ORDERS_GROUP).id)]})
     company = env.ref("sol_demo.demo_res_partner_nuoc_sach")
     hoa = env.ref("sol_demo.demo_res_partner_hoa")
+    khoa = env.ref("sol_demo.demo_res_partner_khoa")
+    lan = env.ref("sol_demo.demo_res_partner_lan")
+    thao = env.ref("sol_demo.demo_res_partner_thao")
     minh = env.ref("sol_demo.demo_res_partner_minh")
     sales = env.ref("sol_demo.demo_res_users_sales")
     customer = env.ref("sol_demo.demo_res_users_customer")
@@ -18,8 +22,8 @@ def seed_orders(env):
     package = _product(env, "service_package_id", env.ref("sol_demo.demo_service_package_bottled_water_basic").id)
     orders = env[MODEL_SALE_ORDER]
 
-    draft = _order(orders, hoa, company, "draft", lead, quantity=2)
-    submitted = _order(orders, hoa, company, "submitted", package, submitted_at="2026-03-01 08:00:00")
+    draft = _order(orders, lan, company, "draft", lead, quantity=2)
+    submitted = _order(orders, khoa, company, "submitted", package, submitted_at="2026-03-01 08:00:00")
     claimed = _order(orders, hoa, company, "claimed", lead, user_id=sales.id, claimed_at=fields.Datetime.now())
     confirmed = _order(
         orders,
@@ -33,7 +37,9 @@ def seed_orders(env):
     declined_order = _order(orders, hoa, company, "confirmed", package, user_id=sales.id)
     accepted_order = _order(orders, hoa, company, "confirmed", lead, user_id=sales.id)
     completed = _order(orders, hoa, company, "completed", lead, quantity=2, user_id=sales.id)
-    completed_unrated = _order(orders, hoa, company, "completed", package, user_id=sales.id)
+    # The business later removes the contact of this order; the order keeps it.
+    completed_unrated = _order(orders, thao, company, "completed", package, user_id=sales.id)
+    env[MODEL_CUSTOMER].search([("partner_id", "=", company.id)]).remove_contact(thao)
     behalf = (
         orders.with_user(sales)
         .with_context(medilab_sales_order=True)

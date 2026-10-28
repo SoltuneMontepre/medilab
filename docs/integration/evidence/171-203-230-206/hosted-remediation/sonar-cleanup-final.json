@@ -1,0 +1,62 @@
+{
+  "project": "medilab171-agent4-sonar-quality",
+  "resources_preserved": true,
+  "results": [
+    {
+      "container": "medilab171-agent4-sonar-quality-sonar-updates-1",
+      "running": false,
+      "exit_code": 0,
+      "oom_killed": false,
+      "elapsed_seconds": 0.042
+    },
+    {
+      "container": "medilab171-agent4-sonar-quality-page-browser-1",
+      "running": false,
+      "exit_code": 143,
+      "oom_killed": false,
+      "elapsed_seconds": 0.19
+    },
+    {
+      "container": "medilab171-agent4-sonar-quality-browser-1",
+      "running": false,
+      "exit_code": 143,
+      "oom_killed": false,
+      "elapsed_seconds": 0.161
+    },
+    {
+      "container": "medilab171-agent4-sonar-quality-documentserver-1",
+      "running": false,
+      "exit_code": 0,
+      "oom_killed": false,
+      "elapsed_seconds": 30.329
+    },
+    {
+      "container": "medilab203-sonar-worker-proof",
+      "running": false,
+      "exit_code": 0,
+      "oom_killed": false,
+      "elapsed_seconds": 0.046
+    },
+    {
+      "container": "medilab-integration-sonar-quality-rust",
+      "running": false,
+      "exit_code": 143,
+      "oom_killed": false,
+      "elapsed_seconds": 0.042
+    },
+    {
+      "container": "medilab171-agent4-sonar-quality-garage-1",
+      "running": false,
+      "exit_code": 0,
+      "oom_killed": false,
+      "elapsed_seconds": 0.51
+    },
+    {
+      "container": "medilab171-agent4-sonar-quality-postgres-1",
+      "running": false,
+      "exit_code": 0,
+      "oom_killed": false,
+      "elapsed_seconds": 0.855
+    }
+  ]
+}

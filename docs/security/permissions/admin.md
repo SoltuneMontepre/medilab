@@ -11,6 +11,7 @@ The [global rules](../readme.md#global-rules) still hold for the administrator: 
 - Releases an editing lock that is stuck; this is audited.
 - Runs a scheduled job by hand and retries a failed one.
 - Turns digital signing on, refreshes the laboratory's certificate from Viettel Sign and receives its expiry and revocation alerts.
+- Receives the expiry warnings of quality registrations and sets how many days before their expiry they come.
 - Cannot change a signed document.
 
 ## Laboratory files

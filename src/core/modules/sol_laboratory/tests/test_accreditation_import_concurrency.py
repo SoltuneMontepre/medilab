@@ -104,12 +104,8 @@ class TestAccreditationImportConcurrency(MasterDataCase):
     def _prepare_committed(self):
         with sql_db.db_connect(self.registry.db_name).cursor() as cursor:
             env = api.Environment(cursor, SUPERUSER_ID, {})
-            field = env[MODEL_TESTING_FIELD].create(
-                {"code": f"F{uuid.uuid4().hex[:6]}", "name": "Concurrency field"}
-            )
-            certificate = env[MODEL_ACCREDITATION_CERTIFICATE].create(
-                {"code": f"VILAS-{uuid.uuid4().hex[:8]}"}
-            )
+            field = env[MODEL_TESTING_FIELD].create({"code": f"F{uuid.uuid4().hex[:6]}", "name": "Concurrency field"})
+            certificate = env[MODEL_ACCREDITATION_CERTIFICATE].create({"code": f"VILAS-{uuid.uuid4().hex[:8]}"})
             return certificate.id, field.id
 
     def _commit_wizard(self, certificate_id, field_id, code):

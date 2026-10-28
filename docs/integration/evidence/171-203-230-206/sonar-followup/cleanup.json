@@ -1,0 +1,45 @@
+{
+  "status": "PASS",
+  "documentserver_stop_seconds": 30.263,
+  "containers": [
+    {
+      "name": "medilab171-agent4-sonar-remediation-page-browser-1",
+      "exit_code": 143,
+      "oom_killed": false,
+      "running": false
+    },
+    {
+      "name": "medilab171-agent4-sonar-remediation-browser-1",
+      "exit_code": 143,
+      "oom_killed": false,
+      "running": false
+    },
+    {
+      "name": "medilab171-agent4-sonar-remediation-documentserver-1",
+      "exit_code": 0,
+      "oom_killed": false,
+      "running": false
+    },
+    {
+      "name": "medilab171-agent4-sonar-remediation-garage-1",
+      "exit_code": 0,
+      "oom_killed": false,
+      "running": false
+    },
+    {
+      "name": "medilab171-agent4-sonar-remediation-postgres-1",
+      "exit_code": 0,
+      "oom_killed": false,
+      "running": false
+    },
+    {
+      "name": "medilab203-sonar-remediation-worker",
+      "exit_code": 0,
+      "oom_killed": false,
+      "running": false
+    }
+  ],
+  "volumes_deleted": false,
+  "databases_deleted": false,
+  "unrelated_services_changed": false
+}

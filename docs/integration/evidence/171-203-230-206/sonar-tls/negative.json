@@ -1,0 +1,9 @@
+[
+  {
+    "test": "test_docx_documentserver_refuses_untrusted_tls_source",
+    "extension": "docx",
+    "test_body_passed": true,
+    "odoo_sensitive_values_absent": true,
+    "initial_sha256": "b9e45ae23c84b558533b75f13541083c8322a38078ce1751119e3f888d80cf81"
+  }
+]

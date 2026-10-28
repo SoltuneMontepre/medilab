@@ -1,0 +1,8 @@
+{
+  "base": "4594a23de1d38727cd0ebd2aca0017a4c10f93b7",
+  "files_scanned": 558,
+  "candidate_locations": [],
+  "canonical_signing_worker_settings_match_verified_p1": true,
+  "only_intentional_deletions": "Main diff removes replaced OfficeEditor; post-cfc982f comparison removes nine byte-identical runtime mirrors in favor of unchanged deployed sources.",
+  "evidence_commit": "Containing commit and final delivered SHA supplied in PR and final delivery."
+}

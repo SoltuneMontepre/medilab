@@ -1,0 +1,138 @@
+{
+  "source_head": "7cca1f6bb6f07daf712e5ba096a26bc0b04b4401",
+  "status": "PASS",
+  "native": {
+    "source_head": "7cca1f6bb6f07daf712e5ba096a26bc0b04b4401",
+    "observed_utc": "2026-10-27T17:54:33.540178+00:00",
+    "status": "PASS",
+    "tests": 1870,
+    "failures": 0,
+    "errors": 0,
+    "returncode": 0,
+    "log_sha256": "484d4ce1336b33caa863d144c8330b4ba99879544d77c522cea029feddcfa475",
+    "database_retained": true,
+    "owned_dependencies_stopped": true
+  },
+  "real_service_cohorts": [
+    {
+      "name": "Real released-page/coediting: DOCX single and DOCX/XLSX/PPTX two-person saves",
+      "source_head": "7cca1f6bb6f07daf712e5ba096a26bc0b04b4401",
+      "status": "PASS",
+      "native_summary": [
+        "0 failed, 0 error(s) of 4 tests when loading database 'medilab171review2pages5'"
+      ],
+      "native_test_status": {
+        "TestOnlyofficePageReal.test_docx_login_page_keyboard_save": "PASS",
+        "TestOnlyofficePageReal.test_docx_two_person_save": "PASS",
+        "TestOnlyofficePageReal.test_pptx_two_person_save": "PASS",
+        "TestOnlyofficePageReal.test_xlsx_two_person_save": "PASS"
+      }
+    },
+    {
+      "name": "Additional real DOCX save observed/downloaded by actual Rust ApiClient",
+      "source_head": "7cca1f6bb6f07daf712e5ba096a26bc0b04b4401",
+      "status": "PASS",
+      "native_summary": [
+        "0 failed, 0 error(s) of 1 tests when loading database 'medilab171review2desktop2'"
+      ],
+      "native_test_status": {
+        "TestOnlyofficePageReal.test_docx_login_page_keyboard_save": "PASS"
+      }
+    }
+  ],
+  "earlier_callback_cohort": {
+    "source_head": "7e211a2c617261c54df59ee0de9636c0493197cb",
+    "status": "PASS",
+    "tests": 4,
+    "covers": "27 editors, duplicate idempotency, fresh-JWT503, actual370-second expiry/retry",
+    "source_boundary": "Callback/JWT/worker implementation unchanged; only the multipart S3 header and test literal changed afterward"
+  },
+  "focused_coverage": {
+    "status": "PASS",
+    "infrastructure_python": 39,
+    "harness_python": 64,
+    "https_websocket": 9,
+    "diagnostics": 2,
+    "lifecycle": 2,
+    "gateway": 6,
+    "retention": 4,
+    "signer": 8
+  },
+  "rust_observer": {
+    "status": "PASS",
+    "passed": 1,
+    "failed": 0,
+    "ignored": 0,
+    "filtered": 230
+  },
+  "hosted_cypress": {
+    "status": "PASS",
+    "passed": 97,
+    "pending": 8,
+    "failed": 0
+  },
+  "preserved_same_source_results": {
+    "local_cypress_editor_cases": 8,
+    "rust_default_passed": 213,
+    "rust_default_ignored": 18,
+    "strict_clippy_and_formatting": "PASS",
+    "openapi": "PASS"
+  },
+  "limits": [
+    {
+      "name": "Native Mobile compilation",
+      "status": "SKIPPED",
+      "scope": "Hosted optional compile job"
+    },
+    {
+      "name": "Older browser binaries, complete native Sync UI, released installer upgrades, staging/CNI/external logging, seven elapsed days",
+      "status": "NOT RUN",
+      "scope": "Separate release/environment gates; historical receipts retain source/date"
+    },
+    {
+      "name": "Original shipped native artifacts/trust inventory and target environments",
+      "status": "BLOCKED",
+      "scope": "Existing release-owner acceptance dependency"
+    }
+  ],
+  "retained_failures": [
+    {
+      "name": "Hardening native1870",
+      "status": "FAIL",
+      "errors": 3,
+      "cause": "Missing signed multipart checksum header",
+      "corrected_repeat": "PASS1870 at7cca1f6"
+    },
+    {
+      "name": "Page cohort without explicitly started adapter",
+      "status": "FAIL",
+      "cause": "Documented loopback adapter startup omitted",
+      "corrected_repeat": "PASS4 at7cca1f6"
+    },
+    {
+      "name": "Initial real method selection",
+      "status": "NOT RUN",
+      "cause": "Zero tests matched; harness refused acceptance",
+      "corrected_repeat": "PASS4 at7e211a2"
+    },
+    {
+      "name": "Initial Rust observer/helper launch",
+      "status": "FAIL / NOT RUN",
+      "cause": "Helper command/entrypoint omitted; no client test executed",
+      "corrected_repeat": "PASS actual Rust observer and real save at7cca1f6"
+    },
+    {
+      "name": "Initial boundary diagnostic",
+      "status": "FAIL",
+      "cause": "Wrong page-control port invalidated positive control",
+      "corrected_repeat": "PASS using actual3000 port with outside positive controls"
+    },
+    {
+      "name": "Strict CA and first gateway image setup",
+      "status": "FAIL then PASS",
+      "cause": "Missing CA Key Usage / shared helper copy; corrected before passing real callbacks"
+    }
+  ],
+  "all_owned_fixtures_stopped": true,
+  "unrelated_services_changed": false
+}

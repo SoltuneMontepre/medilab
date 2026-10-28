@@ -1,0 +1,9 @@
+{
+  "command": [
+    "bash",
+    "tools/infrastructure/onlyoffice/validate.sh"
+  ],
+  "exit_code": 0,
+  "status": "PASS",
+  "elapsed_seconds": 7.274
+}

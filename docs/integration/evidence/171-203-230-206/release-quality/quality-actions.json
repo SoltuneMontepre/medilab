@@ -1,0 +1,12 @@
+{
+  "command": [
+    ".local/integration/actionlint/actionlint",
+    "-shellcheck=",
+    ".github/workflows/ci.core.yml",
+    ".github/workflows/ci.sync-app.yml",
+    ".github/workflows/ci.infra.yml"
+  ],
+  "exit_code": 0,
+  "status": "PASS",
+  "elapsed_seconds": 0.008
+}

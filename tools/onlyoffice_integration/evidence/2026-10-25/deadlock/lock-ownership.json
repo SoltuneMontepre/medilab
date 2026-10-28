@@ -1,0 +1,22 @@
+{
+  "runner_host_pid": 551964,
+  "owned_child_host_pids": [
+    557684
+  ],
+  "runner_container_pid": 1,
+  "owned_child_container_pids": [
+    12
+  ],
+  "thread_headers": [
+    "# Thread: <Thread(Thread-335 (process_request_thread), started daemon 139787093354176)> (db:n/a) (uid:n/a) (url:n/a) (qc:n/a qt:n/a pt:n/a)",
+    "# Thread: <Thread(Thread-334 (process_request_thread), started daemon 139787084961472)> (db:medilab171agent4) (uid:n/a) (url:n/a) (qc:n/a qt:n/a pt:n/a)",
+    "# Thread: <Thread(Thread-297 (serve_forever), started daemon 139787101746880)> (db:n/a) (uid:n/a) (url:n/a) (qc:n/a qt:n/a pt:n/a)",
+    "# Thread: <Thread(Thread-2 (serve_forever), started daemon 139787110139584)> (db:n/a) (uid:n/a) (url:n/a) (qc:n/a qt:n/a pt:n/a)",
+    "# Thread: <Thread(Thread-1 (serve_forever), started daemon 139787118532288)> (db:n/a) (uid:n/a) (url:n/a) (qc:n/a qt:n/a pt:n/a)",
+    "# Thread: <Thread(odoo.service.httpd, started daemon 139787296134848)> (db:n/a) (uid:n/a) (url:n/a) (qc:n/a qt:n/a pt:n/a)",
+    "# Thread: <_MainThread(MainThread, started 139787414040704)> (db:medilab171agent4) (uid:n/a) (url:n/a) (qc:n/a qt:n/a pt:n/a)"
+  ],
+  "lock_cycle": "Relay thread holds relay.lock and waits for Registry._lock during transaction reset; main test thread holds registry test lock and waits for relay.lock in final_events.",
+  "sql_delay_started": false,
+  "registry_lock_ownership": "Inferred from native thread stacks and the test registry context; process-local locks do not survive process termination."
+}

@@ -1,0 +1,9 @@
+{
+  "command": [
+    "src/core/.venv/bin/python",
+    ".local/integration/sonar-cleanup.py"
+  ],
+  "exit_code": 0,
+  "status": "PASS",
+  "elapsed_seconds": 63.716
+}

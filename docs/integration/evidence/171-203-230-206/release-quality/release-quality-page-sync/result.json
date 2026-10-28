@@ -1,0 +1,24 @@
+{
+  "at": "2026-10-25T16:53:35.186513+00:00",
+  "runner_exit": 0,
+  "database": "medilab171qualitypagesync",
+  "container": "medilab171-agent4-release-quality-acceptance-page-sync",
+  "evidence_copy_exit": 0,
+  "evidence_files": [],
+  "runner_log_sha256": "be0966f221956836b3e487b6d1c5dd75005cc0beaee75439a5cf6eeababd9c72",
+  "real_service_executed": false,
+  "native_odoo_executed": true,
+  "native_test_status": {
+    "TestOnlyofficePageReal.test_docx_login_page_keyboard_save": "PASS"
+  },
+  "native_summary": [
+    "0 failed, 0 error(s) of 1 tests when loading database 'medilab171qualitypagesync'"
+  ],
+  "passed": true,
+  "failed_tests": [],
+  "passed_tests": [],
+  "unknown_outcome_tests": [],
+  "blocked_tests": [],
+  "not_started_tests": [],
+  "whole_runner_timeout_seconds": 600
+}

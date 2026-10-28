@@ -1,0 +1,16 @@
+{
+  "docservice": {
+    "bytes_scanned": 0,
+    "jwt_values": 0,
+    "callback_capabilities": 0,
+    "jwt_fingerprints": [],
+    "capability_fingerprints": []
+  },
+  "converter": {
+    "bytes_scanned": 0,
+    "jwt_values": 0,
+    "callback_capabilities": 0,
+    "jwt_fingerprints": [],
+    "capability_fingerprints": []
+  }
+}

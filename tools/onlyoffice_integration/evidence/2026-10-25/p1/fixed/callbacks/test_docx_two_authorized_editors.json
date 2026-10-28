@@ -1,0 +1,172 @@
+{
+  "test": "test_docx_two_authorized_editors",
+  "extension": "docx",
+  "events": [
+    {
+      "at": 1792920055.2768543,
+      "status": 1,
+      "bytes": 378,
+      "header_bytes": 287,
+      "body_token_bytes": 264,
+      "users_count": 1,
+      "history_json_bytes": 2,
+      "body_sha256": "fdf9afe82495df7200ebd6f2ddd3ff5008d74b359a3ee6f8276d02d7c330c573",
+      "body_iat": 1792920055,
+      "body_exp": 1792920355,
+      "body_history_json_bytes": 2,
+      "body_history_changes": 0,
+      "header_sha256": "e08cdafd83feb28349215648c20fd0c8ee74173ee9081e1fba22b8a5a1a9dc69",
+      "header_iat": 1792920055,
+      "header_exp": 1792920355,
+      "header_history_json_bytes": 2,
+      "header_history_changes": 0,
+      "jwt_consistent": true,
+      "http": 200,
+      "error": 0
+    },
+    {
+      "at": 1792920058.780444,
+      "status": 1,
+      "bytes": 387,
+      "header_bytes": 292,
+      "body_token_bytes": 269,
+      "users_count": 2,
+      "history_json_bytes": 2,
+      "body_sha256": "d36da1b6a8fba5f4cb7c35040412900bf0af58d7257a5f64f2aec7514cde8380",
+      "body_iat": 1792920058,
+      "body_exp": 1792920358,
+      "body_history_json_bytes": 2,
+      "body_history_changes": 0,
+      "header_sha256": "26ae35f82b291c5f12c1e8bb91e281bfa1b0c31be20db799509be394ee33dac9",
+      "header_iat": 1792920058,
+      "header_exp": 1792920358,
+      "header_history_json_bytes": 2,
+      "header_history_changes": 0,
+      "jwt_consistent": true,
+      "http": 200,
+      "error": 0
+    },
+    {
+      "at": 1792920059.5370297,
+      "status": 1,
+      "bytes": 378,
+      "header_bytes": 287,
+      "body_token_bytes": 264,
+      "users_count": 1,
+      "history_json_bytes": 2,
+      "body_sha256": "f0b50a6c4c8e80e2211352a1672b6b4917cc378fe09651825dd7fa5c2b81b7e2",
+      "body_iat": 1792920059,
+      "body_exp": 1792920359,
+      "body_history_json_bytes": 2,
+      "body_history_changes": 0,
+      "header_sha256": "f68a5dc2576e98a01f4286e2d11bbb9537651a82d32158b63c0046aa93b571f3",
+      "header_iat": 1792920059,
+      "header_exp": 1792920359,
+      "header_history_json_bytes": 2,
+      "header_history_changes": 0,
+      "jwt_consistent": true,
+      "http": 200,
+      "error": 0
+    },
+    {
+      "at": 1792920060.096468,
+      "status": 1,
+      "bytes": 378,
+      "header_bytes": 287,
+      "body_token_bytes": 264,
+      "users_count": 1,
+      "history_json_bytes": 2,
+      "body_sha256": "2a9c3a1d803a018423b2760af34dac137706a059a21567049fb7aadc099a65f9",
+      "body_iat": 1792920060,
+      "body_exp": 1792920360,
+      "body_history_json_bytes": 2,
+      "body_history_changes": 0,
+      "header_sha256": "a0f5615012919f607f075caf4cdebe6bb8e3358083b05b1006ed82fc7f1ffa7f",
+      "header_iat": 1792920060,
+      "header_exp": 1792920360,
+      "header_history_json_bytes": 2,
+      "header_history_changes": 0,
+      "jwt_consistent": true,
+      "http": 200,
+      "error": 0
+    },
+    {
+      "at": 1792920060.8362777,
+      "status": 1,
+      "bytes": 378,
+      "header_bytes": 287,
+      "body_token_bytes": 264,
+      "users_count": 1,
+      "history_json_bytes": 2,
+      "body_sha256": "346dc1648e032f911846ae702f737ed065e8b7cd934f0b8758fe40edfa391167",
+      "body_iat": 1792920060,
+      "body_exp": 1792920360,
+      "body_history_json_bytes": 2,
+      "body_history_changes": 0,
+      "header_sha256": "efb3bf36fee686620ee1d639b34b96b627a8b6b723697207171320be17914acd",
+      "header_iat": 1792920060,
+      "header_exp": 1792920360,
+      "header_history_json_bytes": 2,
+      "header_history_changes": 0,
+      "jwt_consistent": true,
+      "http": 200,
+      "error": 0
+    },
+    {
+      "at": 1792920066.213301,
+      "status": 2,
+      "bytes": 3078,
+      "header_bytes": 1830,
+      "body_token_bytes": 1807,
+      "users_count": 1,
+      "history_json_bytes": 656,
+      "body_sha256": "3f13a854f528cdd36c50bb872b8d1d97321b8064f5eb403ad4a1f23ae37b3490",
+      "body_iat": 1792920066,
+      "body_exp": 1792920366,
+      "body_history_json_bytes": 656,
+      "body_history_changes": 3,
+      "header_sha256": "9350141799e6397eb2e3052feb8b221b0bcc0fb5e93b80d1f3d59e7dad215629",
+      "header_iat": 1792920066,
+      "header_exp": 1792920366,
+      "header_history_json_bytes": 656,
+      "header_history_changes": 3,
+      "jwt_consistent": true,
+      "http": 200,
+      "error": 0
+    }
+  ],
+  "initial_sha256": "b9e45ae23c84b558533b75f13541083c8322a38078ce1751119e3f888d80cf81",
+  "saved": {
+    "sha256": "c86fd722d1f446c7b5ed8a0e039717948f3ef74b4562a956e465a79febd4d7a1",
+    "bucket_sha256": "c86fd722d1f446c7b5ed8a0e039717948f3ef74b4562a956e465a79febd4d7a1",
+    "size": 58578,
+    "session_status": "committed",
+    "version_count": 2,
+    "version_user_id": 2,
+    "marker_present": true
+  },
+  "final_state": [
+    [
+      [
+        1,
+        "synced"
+      ],
+      [
+        2,
+        "edited_online"
+      ]
+    ],
+    [
+      [
+        "committed",
+        2
+      ]
+    ]
+  ],
+  "odoo_sensitive_values_absent": true,
+  "browser": {
+    "edited": true,
+    "editorSessions": 3
+  },
+  "test_body_passed": true
+}

@@ -44,9 +44,7 @@ class TestAccreditationJob(MasterDataCase):
     def setUp(self):
         super().setUp()
         # Each test starts discovery for today from the beginning.
-        self.env["ir.config_parameter"].sudo().set_str(
-            f"{DISCOVERY_PARAM_PREFIX}{self.today.isoformat()}", "0"
-        )
+        self.env["ir.config_parameter"].sudo().set_str(f"{DISCOVERY_PARAM_PREFIX}{self.today.isoformat()}", "0")
 
     def run_job(self):
         with self.registry_test_mode():
@@ -88,18 +86,14 @@ class TestAccreditationJob(MasterDataCase):
             ACCREDITATION_REFRESH_JOB, f"date:{yesterday.isoformat()}:pair:{self.pair.id}"
         ).write({"status": "failed", "attempts": 3, "last_error": "missed"})
         self.certificate.valid_until = self.today - timedelta(days=1)
-        self.env.cr.execute(
-            "UPDATE medilab_parameter_method SET is_accredited = TRUE WHERE id = %s", [self.pair.id]
-        )
+        self.env.cr.execute("UPDATE medilab_parameter_method SET is_accredited = TRUE WHERE id = %s", [self.pair.id])
         self.pair.invalidate_recordset(["is_accredited"])
         self.run_job()
         self.assertFalse(self.pair.is_accredited)
 
     def test_stale_true_cleared_when_no_certificates(self):
         self.certificate.unlink()
-        self.env.cr.execute(
-            "UPDATE medilab_parameter_method SET is_accredited = TRUE WHERE id = %s", [self.pair.id]
-        )
+        self.env.cr.execute("UPDATE medilab_parameter_method SET is_accredited = TRUE WHERE id = %s", [self.pair.id])
         self.pair.invalidate_recordset(["is_accredited"])
         self.run_job()
         self.assertFalse(self.pair.is_accredited)
@@ -109,9 +103,7 @@ class TestAccreditationJob(MasterDataCase):
             raise ValueError("refresh failed")
 
         with freeze_time(f"{self.today.isoformat()} 08:00:00"):
-            item = self.env[MODEL_SCHEDULED_JOB].queue(
-                ACCREDITATION_REFRESH_JOB, self._today_pair_key(self.pair)
-            )
+            item = self.env[MODEL_SCHEDULED_JOB].queue(ACCREDITATION_REFRESH_JOB, self._today_pair_key(self.pair))
             with (
                 patch.object(type(self.env[MODEL_SCHEDULED_JOB]), "_handle_accreditation_refresh", fail),
                 mute_logger(JOB_LOGGER),
@@ -155,9 +147,7 @@ class TestAccreditationJob(MasterDataCase):
                 return
 
     def _discovery_marker(self):
-        return self.env["ir.config_parameter"].sudo().get_str(
-            f"{DISCOVERY_PARAM_PREFIX}{self.today.isoformat()}"
-        )
+        return self.env["ir.config_parameter"].sudo().get_str(f"{DISCOVERY_PARAM_PREFIX}{self.today.isoformat()}")
 
     def test_discovery_advances_cursor_across_batches(self):
         """Each batch discovers the next ID page; it must not restart from id 0."""
@@ -183,9 +173,7 @@ class TestAccreditationJob(MasterDataCase):
             created_pairs |= pair
             self.certificate.write({"method_ids": [Command.link(method.id)]})
 
-        self.env["ir.config_parameter"].sudo().set_str(
-            f"{DISCOVERY_PARAM_PREFIX}{self.today.isoformat()}", "0"
-        )
+        self.env["ir.config_parameter"].sudo().set_str(f"{DISCOVERY_PARAM_PREFIX}{self.today.isoformat()}", "0")
         self.run_one_batch()
         first_marker = self._discovery_marker()
         self.assertNotEqual(first_marker, "0")
@@ -223,9 +211,7 @@ class TestAccreditationJob(MasterDataCase):
             )
             self.certificate.write({"method_ids": [Command.link(method.id)]})
 
-        self.env["ir.config_parameter"].sudo().set_str(
-            f"{DISCOVERY_PARAM_PREFIX}{self.today.isoformat()}", "0"
-        )
+        self.env["ir.config_parameter"].sudo().set_str(f"{DISCOVERY_PARAM_PREFIX}{self.today.isoformat()}", "0")
         queue_calls = {"n": 0}
         real_queue = type(self.env[MODEL_SCHEDULED_JOB]).queue
 
@@ -318,9 +304,7 @@ class TestAccreditationJob(MasterDataCase):
         """method_direct_trigger finishes every discovery page without a manual _run_batch loop."""
         self.job.batch_size = 2
         pairs = self._create_scoped_pairs(7, "CRON")
-        self.env["ir.config_parameter"].sudo().set_str(
-            f"{DISCOVERY_PARAM_PREFIX}{self.today.isoformat()}", "0"
-        )
+        self.env["ir.config_parameter"].sudo().set_str(f"{DISCOVERY_PARAM_PREFIX}{self.today.isoformat()}", "0")
         self.assertEqual(self.job._due_count(fields.Datetime.now()), 1)
         self.run_job()
         self.assertEqual(self._discovery_marker(), DISCOVERY_DONE)
@@ -340,9 +324,7 @@ class TestAccreditationJob(MasterDataCase):
         """After the last item of a page is done, _due_count stays positive until discovery is DONE."""
         self.job.batch_size = 2
         self._create_scoped_pairs(5, "REMAIN")
-        self.env["ir.config_parameter"].sudo().set_str(
-            f"{DISCOVERY_PARAM_PREFIX}{self.today.isoformat()}", "0"
-        )
+        self.env["ir.config_parameter"].sudo().set_str(f"{DISCOVERY_PARAM_PREFIX}{self.today.isoformat()}", "0")
         self.run_one_batch()
         self.assertNotEqual(self._discovery_marker(), DISCOVERY_DONE)
 
@@ -398,12 +380,8 @@ class TestAccreditationJob(MasterDataCase):
 
     def test_empty_catalog_marks_discovery_done(self):
         self.certificate.unlink()
-        self.env.cr.execute(
-            "UPDATE medilab_parameter_method SET is_accredited = FALSE WHERE is_accredited IS TRUE"
-        )
-        self.env["ir.config_parameter"].sudo().set_str(
-            f"{DISCOVERY_PARAM_PREFIX}{self.today.isoformat()}", "0"
-        )
+        self.env.cr.execute("UPDATE medilab_parameter_method SET is_accredited = FALSE WHERE is_accredited IS TRUE")
+        self.env["ir.config_parameter"].sudo().set_str(f"{DISCOVERY_PARAM_PREFIX}{self.today.isoformat()}", "0")
         self.assertEqual(self.job._due_count(fields.Datetime.now()), 1)
         self.run_job()
         self.assertEqual(self._discovery_marker(), DISCOVERY_DONE)
@@ -412,9 +390,7 @@ class TestAccreditationJob(MasterDataCase):
     def test_discovery_interruption_and_resume(self):
         self.job.batch_size = 2
         pairs = self._create_scoped_pairs(6, "RESUME")
-        self.env["ir.config_parameter"].sudo().set_str(
-            f"{DISCOVERY_PARAM_PREFIX}{self.today.isoformat()}", "0"
-        )
+        self.env["ir.config_parameter"].sudo().set_str(f"{DISCOVERY_PARAM_PREFIX}{self.today.isoformat()}", "0")
         self.run_one_batch()
         mid = self._discovery_marker()
         self.assertNotEqual(mid, DISCOVERY_DONE)
@@ -433,27 +409,21 @@ class TestAccreditationJob(MasterDataCase):
     def test_day_rollover_starts_fresh_discovery(self):
         self.job.batch_size = 2
         self._create_scoped_pairs(3, "DAY")
-        self.env["ir.config_parameter"].sudo().set_str(
-            f"{DISCOVERY_PARAM_PREFIX}{self.today.isoformat()}", "0"
-        )
+        self.env["ir.config_parameter"].sudo().set_str(f"{DISCOVERY_PARAM_PREFIX}{self.today.isoformat()}", "0")
         self.run_one_batch()
         today_marker = self._discovery_marker()
         self.assertNotEqual(today_marker, DISCOVERY_DONE)
 
         tomorrow = self.today + timedelta(days=1)
         with freeze_time(f"{tomorrow.isoformat()} 08:00:00"):
-            self.env["ir.config_parameter"].sudo().set_str(
-                f"{DISCOVERY_PARAM_PREFIX}{tomorrow.isoformat()}", "0"
-            )
+            self.env["ir.config_parameter"].sudo().set_str(f"{DISCOVERY_PARAM_PREFIX}{tomorrow.isoformat()}", "0")
             self.run_job()
-            tomorrow_marker = self.env["ir.config_parameter"].sudo().get_str(
-                f"{DISCOVERY_PARAM_PREFIX}{tomorrow.isoformat()}"
+            tomorrow_marker = (
+                self.env["ir.config_parameter"].sudo().get_str(f"{DISCOVERY_PARAM_PREFIX}{tomorrow.isoformat()}")
             )
             self.assertEqual(tomorrow_marker, DISCOVERY_DONE)
             self.assertEqual(
-                self.env["ir.config_parameter"].sudo().get_str(
-                    f"{DISCOVERY_PARAM_PREFIX}{self.today.isoformat()}"
-                ),
+                self.env["ir.config_parameter"].sudo().get_str(f"{DISCOVERY_PARAM_PREFIX}{self.today.isoformat()}"),
                 today_marker,
             )
 
@@ -461,9 +431,7 @@ class TestAccreditationJob(MasterDataCase):
         """Discovery pages must not load every certificate's method_ids into Python."""
         self.job.batch_size = 2
         self._create_scoped_pairs(8, "SQL")
-        self.env["ir.config_parameter"].sudo().set_str(
-            f"{DISCOVERY_PARAM_PREFIX}{self.today.isoformat()}", "0"
-        )
+        self.env["ir.config_parameter"].sudo().set_str(f"{DISCOVERY_PARAM_PREFIX}{self.today.isoformat()}", "0")
         mapped_calls = {"n": 0}
         from odoo import models as odoo_models
 

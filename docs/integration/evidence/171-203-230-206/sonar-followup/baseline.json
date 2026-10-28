@@ -1,0 +1,572 @@
+{
+  "observed_utc": "2026-10-27T13:40:01.425502+00:00",
+  "source_head": "6cc655ded979ccd5b393f6ec702569feccbc82db",
+  "analysis_date": "2026-10-27T13:34:56+0000",
+  "counts": {
+    "VULNERABILITY": 7,
+    "CODE_SMELL": 15
+  },
+  "issues": [
+    {
+      "key": "AaF2G1TlIES1tmkRiAIM",
+      "rule": "javascript:S5332",
+      "severity": "MINOR",
+      "type": "VULNERABILITY",
+      "status": "OPEN",
+      "resolution": null,
+      "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/loopback_proxy.cjs",
+      "line": 7,
+      "textRange": {
+        "startLine": 7,
+        "endLine": 7,
+        "startOffset": 20,
+        "endOffset": 43
+      },
+      "message": "Using http protocol is insecure. Use https instead.",
+      "flows": []
+    },
+    {
+      "key": "AaF2G1TlIES1tmkRiAIN",
+      "rule": "javascript:S5332",
+      "severity": "MINOR",
+      "type": "VULNERABILITY",
+      "status": "OPEN",
+      "resolution": null,
+      "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/loopback_proxy.cjs",
+      "line": 8,
+      "textRange": {
+        "startLine": 8,
+        "endLine": 8,
+        "startOffset": 20,
+        "endOffset": 40
+      },
+      "message": "Using http protocol is insecure. Use https instead.",
+      "flows": []
+    },
+    {
+      "key": "AaF2G1TlIES1tmkRiAIQ",
+      "rule": "javascript:S4790",
+      "severity": "CRITICAL",
+      "type": "VULNERABILITY",
+      "status": "OPEN",
+      "resolution": null,
+      "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/loopback_proxy.cjs",
+      "line": 155,
+      "textRange": {
+        "startLine": 155,
+        "endLine": 155,
+        "startOffset": 23,
+        "endOffset": 40
+      },
+      "message": "Make sure this weak hash algorithm is not used in a sensitive context here.",
+      "flows": []
+    },
+    {
+      "key": "AaF2G1X8IES1tmkRiAIS",
+      "rule": "javascript:S5332",
+      "severity": "MINOR",
+      "type": "VULNERABILITY",
+      "status": "OPEN",
+      "resolution": null,
+      "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/test_loopback_proxy.cjs",
+      "line": 16,
+      "textRange": {
+        "startLine": 16,
+        "endLine": 16,
+        "startOffset": 27,
+        "endOffset": 47
+      },
+      "message": "Using http protocol is insecure. Use https instead.",
+      "flows": []
+    },
+    {
+      "key": "AaF2G1X8IES1tmkRiAIT",
+      "rule": "javascript:S5332",
+      "severity": "MINOR",
+      "type": "VULNERABILITY",
+      "status": "OPEN",
+      "resolution": null,
+      "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/test_loopback_proxy.cjs",
+      "line": 18,
+      "textRange": {
+        "startLine": 18,
+        "endLine": 18,
+        "startOffset": 90,
+        "endOffset": 113
+      },
+      "message": "Using http protocol is insecure. Use https instead.",
+      "flows": []
+    },
+    {
+      "key": "AaF2G1X8IES1tmkRiAIV",
+      "rule": "javascript:S5332",
+      "severity": "MINOR",
+      "type": "VULNERABILITY",
+      "status": "OPEN",
+      "resolution": null,
+      "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/test_loopback_proxy.cjs",
+      "line": 76,
+      "textRange": {
+        "startLine": 76,
+        "endLine": 76,
+        "startOffset": 29,
+        "endOffset": 52
+      },
+      "message": "Using http protocol is insecure. Use https instead.",
+      "flows": []
+    },
+    {
+      "key": "AaF0FHq1vCiqu-XFDLDC",
+      "rule": "python:S5332",
+      "severity": "MINOR",
+      "type": "VULNERABILITY",
+      "status": "OPEN",
+      "resolution": null,
+      "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/loopback_storage_proxy.py",
+      "line": 84,
+      "textRange": {
+        "startLine": 84,
+        "endLine": 84,
+        "startOffset": 4,
+        "endOffset": 69
+      },
+      "message": "Using HTTP protocol is insecure. Use HTTPS instead.",
+      "flows": []
+    },
+    {
+      "key": "AaF0FHqhvCiqu-XFDLCz",
+      "rule": "javascript:S9382",
+      "severity": "MINOR",
+      "type": "CODE_SMELL",
+      "status": "OPEN",
+      "resolution": null,
+      "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/page_browser.cjs",
+      "line": 123,
+      "textRange": {
+        "startLine": 123,
+        "endLine": 124,
+        "startOffset": 20,
+        "endOffset": 130
+      },
+      "message": "Unexpected `await` inside a loop.",
+      "flows": []
+    },
+    {
+      "key": "AaF0FHrNvCiqu-XFDLDk",
+      "rule": "javascript:S9382",
+      "severity": "MINOR",
+      "type": "CODE_SMELL",
+      "status": "OPEN",
+      "resolution": null,
+      "component": "SoltuneMontepre_medilab2:tools/infrastructure/onlyoffice/retention_probe.cjs",
+      "line": 62,
+      "textRange": {
+        "startLine": 62,
+        "endLine": 62,
+        "startOffset": 20,
+        "endOffset": 53
+      },
+      "message": "Unexpected `await` inside a loop.",
+      "flows": []
+    },
+    {
+      "key": "AaF0FHrNvCiqu-XFDLDl",
+      "rule": "javascript:S9382",
+      "severity": "MINOR",
+      "type": "CODE_SMELL",
+      "status": "OPEN",
+      "resolution": null,
+      "component": "SoltuneMontepre_medilab2:tools/infrastructure/onlyoffice/retention_probe.cjs",
+      "line": 63,
+      "textRange": {
+        "startLine": 63,
+        "endLine": 63,
+        "startOffset": 6,
+        "endOffset": 35
+      },
+      "message": "Unexpected `await` inside a loop.",
+      "flows": []
+    },
+    {
+      "key": "AaF0FHrNvCiqu-XFDLDm",
+      "rule": "javascript:S9382",
+      "severity": "MINOR",
+      "type": "CODE_SMELL",
+      "status": "OPEN",
+      "resolution": null,
+      "component": "SoltuneMontepre_medilab2:tools/infrastructure/onlyoffice/retention_probe.cjs",
+      "line": 67,
+      "textRange": {
+        "startLine": 67,
+        "endLine": 67,
+        "startOffset": 17,
+        "endOffset": 52
+      },
+      "message": "Unexpected `await` inside a loop.",
+      "flows": []
+    },
+    {
+      "key": "AaF0FHrNvCiqu-XFDLDn",
+      "rule": "javascript:S9382",
+      "severity": "MINOR",
+      "type": "CODE_SMELL",
+      "status": "OPEN",
+      "resolution": null,
+      "component": "SoltuneMontepre_medilab2:tools/infrastructure/onlyoffice/retention_probe.cjs",
+      "line": 70,
+      "textRange": {
+        "startLine": 70,
+        "endLine": 70,
+        "startOffset": 4,
+        "endOffset": 80
+      },
+      "message": "Unexpected `await` inside a loop.",
+      "flows": []
+    },
+    {
+      "key": "AaF0FHq8vCiqu-XFDLDM",
+      "rule": "javascript:S9382",
+      "severity": "MINOR",
+      "type": "CODE_SMELL",
+      "status": "OPEN",
+      "resolution": null,
+      "component": "SoltuneMontepre_medilab2:tools/infrastructure/onlyoffice/test_callback_signing.cjs",
+      "line": 170,
+      "textRange": {
+        "startLine": 170,
+        "endLine": 170,
+        "startOffset": 19,
+        "endOffset": 126
+      },
+      "message": "Unexpected `await` inside a loop.",
+      "flows": []
+    },
+    {
+      "key": "AaF0FHqsvCiqu-XFDLC7",
+      "rule": "javascript:S9382",
+      "severity": "MINOR",
+      "type": "CODE_SMELL",
+      "status": "OPEN",
+      "resolution": null,
+      "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/browser.cjs",
+      "line": 64,
+      "textRange": {
+        "startLine": 64,
+        "endLine": 64,
+        "startOffset": 23,
+        "endOffset": 49
+      },
+      "message": "Unexpected `await` inside a loop.",
+      "flows": []
+    },
+    {
+      "key": "AaF0FHqtvCiqu-XFDLC8",
+      "rule": "javascript:S9382",
+      "severity": "MINOR",
+      "type": "CODE_SMELL",
+      "status": "OPEN",
+      "resolution": null,
+      "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/browser.cjs",
+      "line": 65,
+      "textRange": {
+        "startLine": 65,
+        "endLine": 65,
+        "startOffset": 8,
+        "endOffset": 66
+      },
+      "message": "Unexpected `await` inside a loop.",
+      "flows": []
+    },
+    {
+      "key": "AaF0FHqtvCiqu-XFDLC9",
+      "rule": "javascript:S9382",
+      "severity": "MINOR",
+      "type": "CODE_SMELL",
+      "status": "OPEN",
+      "resolution": null,
+      "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/browser.cjs",
+      "line": 66,
+      "textRange": {
+        "startLine": 66,
+        "endLine": 66,
+        "startOffset": 8,
+        "endOffset": 28
+      },
+      "message": "Unexpected `await` inside a loop.",
+      "flows": []
+    },
+    {
+      "key": "AaF0FHhTvCiqu-XFDLCN",
+      "rule": "python:S6353",
+      "severity": "MINOR",
+      "type": "CODE_SMELL",
+      "status": "OPEN",
+      "resolution": null,
+      "component": "SoltuneMontepre_medilab2:src/core/modules/sol_laboratory/services/laboratory_editor_logging.py",
+      "line": 12,
+      "textRange": {
+        "startLine": 12,
+        "endLine": 12,
+        "startOffset": 58,
+        "endOffset": 63
+      },
+      "message": "Use concise character class syntax '\\d' instead of '[0-9]'.",
+      "flows": []
+    },
+    {
+      "key": "AaF0FHhTvCiqu-XFDLCO",
+      "rule": "python:S3516",
+      "severity": "BLOCKER",
+      "type": "CODE_SMELL",
+      "status": "OPEN",
+      "resolution": null,
+      "component": "SoltuneMontepre_medilab2:src/core/modules/sol_laboratory/services/laboratory_editor_logging.py",
+      "line": 28,
+      "textRange": {
+        "startLine": 28,
+        "endLine": 28,
+        "startOffset": 8,
+        "endOffset": 14
+      },
+      "message": "Refactor this method to not always return the same value.",
+      "flows": [
+        {
+          "locations": [
+            {
+              "component": "SoltuneMontepre_medilab2:src/core/modules/sol_laboratory/services/laboratory_editor_logging.py",
+              "textRange": {
+                "startLine": 54,
+                "endLine": 54,
+                "startOffset": 8,
+                "endOffset": 19
+              },
+              "msg": "returned value"
+            }
+          ]
+        },
+        {
+          "locations": [
+            {
+              "component": "SoltuneMontepre_medilab2:src/core/modules/sol_laboratory/services/laboratory_editor_logging.py",
+              "textRange": {
+                "startLine": 45,
+                "endLine": 45,
+                "startOffset": 12,
+                "endOffset": 23
+              },
+              "msg": "returned value"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "AaF0FHhNvCiqu-XFDLCE",
+      "rule": "python:S6353",
+      "severity": "MINOR",
+      "type": "CODE_SMELL",
+      "status": "OPEN",
+      "resolution": null,
+      "component": "SoltuneMontepre_medilab2:src/core/modules/sol_laboratory/services/laboratory_editor_page.py",
+      "line": 29,
+      "textRange": {
+        "startLine": 29,
+        "endLine": 29,
+        "startOffset": 54,
+        "endOffset": 59
+      },
+      "message": "Use concise character class syntax '\\d' instead of '[0-9]'.",
+      "flows": []
+    },
+    {
+      "key": "AaF0FHhNvCiqu-XFDLCG",
+      "rule": "python:S6353",
+      "severity": "MINOR",
+      "type": "CODE_SMELL",
+      "status": "OPEN",
+      "resolution": null,
+      "component": "SoltuneMontepre_medilab2:src/core/modules/sol_laboratory/services/laboratory_editor_page.py",
+      "line": 43,
+      "textRange": {
+        "startLine": 43,
+        "endLine": 43,
+        "startOffset": 29,
+        "endOffset": 34
+      },
+      "message": "Use concise character class syntax '\\d' instead of '[0-9]'.",
+      "flows": []
+    },
+    {
+      "key": "AaF0FHhWvCiqu-XFDLCR",
+      "rule": "javascript:S1874",
+      "severity": "MINOR",
+      "type": "CODE_SMELL",
+      "status": "OPEN",
+      "resolution": null,
+      "component": "SoltuneMontepre_medilab2:src/core/modules/sol_laboratory/static/src/laboratory_files/editor/editor.js",
+      "line": 28,
+      "textRange": {
+        "startLine": 28,
+        "endLine": 28,
+        "startOffset": 18,
+        "endOffset": 29
+      },
+      "message": "'returnValue' is deprecated.",
+      "flows": []
+    },
+    {
+      "key": "AaF0FHhPvCiqu-XFDLCI",
+      "rule": "python:S3516",
+      "severity": "BLOCKER",
+      "type": "CODE_SMELL",
+      "status": "OPEN",
+      "resolution": null,
+      "component": "SoltuneMontepre_medilab2:src/core/modules/sol_laboratory/services/editing_callback_logging.py",
+      "line": 51,
+      "textRange": {
+        "startLine": 51,
+        "endLine": 51,
+        "startOffset": 8,
+        "endOffset": 14
+      },
+      "message": "Refactor this method to not always return the same value.",
+      "flows": [
+        {
+          "locations": [
+            {
+              "component": "SoltuneMontepre_medilab2:src/core/modules/sol_laboratory/services/editing_callback_logging.py",
+              "textRange": {
+                "startLine": 68,
+                "endLine": 68,
+                "startOffset": 8,
+                "endOffset": 19
+              },
+              "msg": "returned value"
+            }
+          ]
+        },
+        {
+          "locations": [
+            {
+              "component": "SoltuneMontepre_medilab2:src/core/modules/sol_laboratory/services/editing_callback_logging.py",
+              "textRange": {
+                "startLine": 58,
+                "endLine": 58,
+                "startOffset": 12,
+                "endOffset": 23
+              },
+              "msg": "returned value"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "gate": {
+    "status": "ERROR",
+    "conditions": [
+      {
+        "status": "OK",
+        "metricKey": "new_reliability_rating",
+        "comparator": "GT",
+        "periodIndex": 1,
+        "errorThreshold": "1",
+        "actualValue": "1"
+      },
+      {
+        "status": "ERROR",
+        "metricKey": "new_security_rating",
+        "comparator": "GT",
+        "periodIndex": 1,
+        "errorThreshold": "1",
+        "actualValue": "4"
+      },
+      {
+        "status": "OK",
+        "metricKey": "new_maintainability_rating",
+        "comparator": "GT",
+        "periodIndex": 1,
+        "errorThreshold": "1",
+        "actualValue": "1"
+      },
+      {
+        "status": "OK",
+        "metricKey": "new_coverage",
+        "comparator": "LT",
+        "periodIndex": 1,
+        "errorThreshold": "80",
+        "actualValue": "86.1"
+      },
+      {
+        "status": "OK",
+        "metricKey": "new_duplicated_lines_density",
+        "comparator": "GT",
+        "periodIndex": 1,
+        "errorThreshold": "3",
+        "actualValue": "0.1"
+      },
+      {
+        "status": "OK",
+        "metricKey": "new_security_hotspots_reviewed",
+        "comparator": "LT",
+        "periodIndex": 1,
+        "errorThreshold": "100",
+        "actualValue": "100.0"
+      }
+    ],
+    "periods": [],
+    "ignoredConditions": false
+  },
+  "measures": [
+    {
+      "metric": "reliability_rating",
+      "value": "1.0",
+      "bestValue": true
+    },
+    {
+      "metric": "bugs",
+      "value": "0",
+      "bestValue": true
+    },
+    {
+      "metric": "code_smells",
+      "value": "15",
+      "bestValue": false
+    },
+    {
+      "metric": "security_rating",
+      "value": "4.0",
+      "bestValue": false
+    },
+    {
+      "metric": "new_coverage",
+      "periods": [
+        {
+          "index": 1,
+          "value": "86.09958506224066",
+          "bestValue": false
+        }
+      ]
+    },
+    {
+      "metric": "vulnerabilities",
+      "value": "7",
+      "bestValue": false
+    },
+    {
+      "metric": "new_duplicated_lines_density",
+      "periods": [
+        {
+          "index": 1,
+          "value": "0.0500751126690035",
+          "bestValue": false
+        }
+      ]
+    },
+    {
+      "metric": "sqale_rating",
+      "value": "1.0",
+      "bestValue": true
+    }
+  ]
+}

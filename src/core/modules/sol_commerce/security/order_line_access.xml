@@ -62,6 +62,22 @@
         <field name="domain">[(1, "=", 1)]</field>
     </record>
 
+    <!-- The sales dashboard and Odoo's sales analyses read sale.report, which has no order access of its own. -->
+    <record id="access_sale_report_read" model="ir.access">
+        <field name="name">sale.report follows the order owner</field>
+        <field name="model_id" ref="sale.model_sale_report" />
+        <field name="group_id" ref="sol_laboratory.group_permission_order_read_all" />
+        <field name="operation">r</field>
+        <field name="domain">[("user_id", "=", user.id)]</field>
+    </record>
+    <record id="access_sale_report_all" model="ir.access">
+        <field name="name">All orders analysis</field>
+        <field name="model_id" ref="sale.model_sale_report" />
+        <field name="group_id" ref="group_all_orders" />
+        <field name="operation">r</field>
+        <field name="domain">[(1, "=", 1)]</field>
+    </record>
+
     <record id="access_sale_order_line_read" model="ir.access">
         <field name="name">sale.order.line follows the order</field>
         <field name="model_id" ref="sale.model_sale_order_line" />

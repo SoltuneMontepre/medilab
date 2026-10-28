@@ -1,3 +1,4 @@
+import { openEditorInBrowser } from "./editorHandoff";
 import { getVersion } from "@tauri-apps/api/app";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
@@ -10,7 +11,6 @@ import type {
   FilesChangedDto,
   FolderMembers,
   MemberUser,
-  OfficeSession,
   ProgressDeltaDto,
   RemoteFileRow,
   StatusDto,
@@ -217,9 +217,9 @@ export async function keepLocalConflict(fileId: number) {
   return profiledInvoke<StatusDto>("keep_local_conflict", { fileId });
 }
 
-/** Mở phiên chỉnh sửa ONLYOFFICE cho một tệp. */
+/** Open the authenticated editor page in the default browser. */
 export async function openOfficeEditor(fileId: number) {
-  return profiledInvoke<OfficeSession>("open_office_editor", { fileId });
+  return openEditorInBrowser(fileId, (command, args) => profiledInvoke<void>(command, args));
 }
 
 /** Thông tin bản cập nhật đang chờ. */
@@ -268,3 +268,13 @@ export async function getAppVersion(): Promise<string> {
   return DEFAULT_APP_VERSION;
 }
 
+export type ClientMigration = { message: string; download_url: string | null };
+export function getClientMigration(serverUrl?: string): Promise<ClientMigration | null> {
+  return profiledInvoke<ClientMigration | null>("get_client_migration", { serverUrl });
+}
+export function openClientDownload(serverUrl?: string): Promise<void> {
+  return profiledInvoke<void>("open_client_download", { serverUrl });
+}
+export function onClientMigrationChanged(handler: () => void): Promise<UnlistenFn> {
+  return listen("client-migration-changed", handler);
+}

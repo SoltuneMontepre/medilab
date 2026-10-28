@@ -1,0 +1,37 @@
+{
+  "status": "PASS",
+  "method": "aged-record native-GC fixture",
+  "timestampMethod": "process-local Date override during fixture creation; restored before native GC",
+  "binarySha256": "556df4aab7b1a87123046a4459baee34e60f57deaf7bcd189bccd6f271bd8fcb",
+  "expire_files": 604800,
+  "younger": {
+    "ageDays": 2,
+    "rowRetained": true,
+    "bytesRetained": true,
+    "sha256": "221e44cd02e7b7e4ce7ca406a1ff45a2364cffacca9d5c86d97072e1fb4084f4"
+  },
+  "expired": {
+    "ageDays": 8,
+    "rowRemoved": true,
+    "bytesRemoved": true
+  },
+  "fixturesCleaned": true,
+  "elapsedSevenDays": false,
+  "executedUtc": "2026-10-25T09:06:54.843609+00:00",
+  "image": "docker.io/onlyoffice/documentserver:9.4.0.1@sha256:3ab6ebc7c605e5a32b7ae3ff19daed4925090245acc8100ce2230bd766c88212",
+  "process": "separate disposable native pkg process; no supervised worker process modified",
+  "network": "none",
+  "container": "medilab171-native-retention-probe",
+  "containerRemoved": true,
+  "exitCode": 0,
+  "outerTimeoutSeconds": 45,
+  "nativeDeadlineSeconds": 30,
+  "probeSha256": "407c1f02093f131f2daf27aa586ea05fa76fa55f1679ae114619288858020bb7",
+  "approvedSettingsSha256": "4e7faa0e26e8baa3b4ad3ef6912f1a38acd2b9f1e423995f07fe4c77ba77d666",
+  "limits": [
+    "Checks native GC selection and actual filesystem cache deletion over synthetic aged records.",
+    "Does not establish seven days of elapsed retention or continuous recovery.",
+    "Does not establish the supervised worker cron schedule or live task-state persistence.",
+    "Does not modify production settings, actual service clocks, shared records or shared volumes."
+  ]
+}

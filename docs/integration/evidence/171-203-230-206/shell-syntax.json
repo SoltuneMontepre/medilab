@@ -1,0 +1,22 @@
+[
+  {
+    "file": "tools/infrastructure/onlyoffice/healthcheck.sh",
+    "exit": 0
+  },
+  {
+    "file": "tools/infrastructure/onlyoffice/shutdown.sh",
+    "exit": 0
+  },
+  {
+    "file": "tools/infrastructure/onlyoffice/start.sh",
+    "exit": 0
+  },
+  {
+    "file": "tools/infrastructure/onlyoffice/validate.sh",
+    "exit": 0
+  },
+  {
+    "file": "tools/infrastructure/onlyoffice/worker.sh",
+    "exit": 0
+  }
+]

@@ -1,0 +1,251 @@
+{
+  "source_head": "78f1db1dce2e1f984bf33e0ae0523871c389d375",
+  "issues": [
+    {
+      "key": "AaF-Rmjo3D2qssSsqTlV",
+      "rule": "docker:S7031",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "status": "OPEN",
+      "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/browser.Dockerfile",
+      "line": 4,
+      "textRange": {
+        "startLine": 4,
+        "endLine": 4,
+        "startOffset": 0,
+        "endOffset": 3
+      },
+      "message": "Merge this RUN instruction with the consecutive ones.",
+      "flows": [
+        {
+          "locations": [
+            {
+              "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/browser.Dockerfile",
+              "textRange": {
+                "startLine": 9,
+                "endLine": 9,
+                "startOffset": 0,
+                "endOffset": 3
+              },
+              "msg": "consecutive RUN instruction"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "AaF-RmjV3D2qssSsqTlR",
+      "rule": "jssecurity:S5144",
+      "type": "VULNERABILITY",
+      "severity": "MAJOR",
+      "status": "OPEN",
+      "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/garage_tls.cjs",
+      "line": 19,
+      "textRange": {
+        "startLine": 19,
+        "endLine": 19,
+        "startOffset": 26,
+        "endOffset": 33
+      },
+      "message": "Server-Side Request Forgery via unsanitized user input",
+      "flows": [
+        {
+          "locations": [
+            {
+              "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/garage_tls.cjs",
+              "textRange": {
+                "startLine": 19,
+                "endLine": 19,
+                "startOffset": 26,
+                "endOffset": 33
+              },
+              "msg": "Sink: this invocation is not safe; a malicious value can be used as argument"
+            },
+            {
+              "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/garage_tls.cjs",
+              "textRange": {
+                "startLine": 19,
+                "endLine": 19,
+                "startOffset": 67,
+                "endOffset": 80
+              },
+              "msg": "A malicious value can be assigned to field \u2018path\u2019"
+            },
+            {
+              "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/garage_tls.cjs",
+              "textRange": {
+                "startLine": 19,
+                "endLine": 19,
+                "startOffset": 77,
+                "endOffset": 80
+              },
+              "msg": "A malicious value was previously assigned to field \u2018url\u2019"
+            },
+            {
+              "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/garage_tls.cjs",
+              "textRange": {
+                "startLine": 13,
+                "endLine": 13,
+                "startOffset": 15,
+                "endOffset": 27
+              },
+              "msg": "Source: a user can craft an HTTP request with malicious content"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "AaF-RmjV3D2qssSsqTlQ",
+      "rule": "jssecurity:S6109",
+      "type": "VULNERABILITY",
+      "severity": "BLOCKER",
+      "status": "OPEN",
+      "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/garage_tls.cjs",
+      "line": 20,
+      "textRange": {
+        "startLine": 20,
+        "endLine": 20,
+        "startOffset": 10,
+        "endOffset": 19
+      },
+      "message": "Prototype Pollution via unsanitized user input",
+      "flows": [
+        {
+          "locations": [
+            {
+              "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/garage_tls.cjs",
+              "textRange": {
+                "startLine": 20,
+                "endLine": 20,
+                "startOffset": 10,
+                "endOffset": 19
+              },
+              "msg": "Sink: this invocation is not safe; a malicious value can be used as argument"
+            },
+            {
+              "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/garage_tls.cjs",
+              "textRange": {
+                "startLine": 19,
+                "endLine": 19,
+                "startOffset": 26,
+                "endOffset": 33
+              },
+              "msg": "Source: when this remote server gets compromised, this response will contain malicious data"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "AaF-RmjV3D2qssSsqTlS",
+      "rule": "jssecurity:S5146",
+      "type": "VULNERABILITY",
+      "severity": "BLOCKER",
+      "status": "OPEN",
+      "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/garage_tls.cjs",
+      "line": 20,
+      "textRange": {
+        "startLine": 20,
+        "endLine": 20,
+        "startOffset": 10,
+        "endOffset": 19
+      },
+      "message": "Open Redirect via unsanitized user input",
+      "flows": [
+        {
+          "locations": [
+            {
+              "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/garage_tls.cjs",
+              "textRange": {
+                "startLine": 20,
+                "endLine": 20,
+                "startOffset": 10,
+                "endOffset": 19
+              },
+              "msg": "Sink: this invocation is not safe; a malicious value can be used as argument"
+            },
+            {
+              "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/garage_tls.cjs",
+              "textRange": {
+                "startLine": 19,
+                "endLine": 19,
+                "startOffset": 26,
+                "endOffset": 33
+              },
+              "msg": "Source: when this remote server gets compromised, this response will contain malicious data"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "AaF-Rmjk3D2qssSsqTlT",
+      "rule": "javascript:S1788",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "status": "OPEN",
+      "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/loopback_proxy.cjs",
+      "line": 116,
+      "textRange": {
+        "startLine": 116,
+        "endLine": 116,
+        "startOffset": 21,
+        "endOffset": 38
+      },
+      "message": "Move this default parameter last, so callers can omit it instead of passing \"undefined\".",
+      "flows": []
+    },
+    {
+      "key": "AaF-Rmjm3D2qssSsqTlU",
+      "rule": "python:S5332",
+      "type": "VULNERABILITY",
+      "severity": "MINOR",
+      "status": "OPEN",
+      "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/loopback_storage_proxy.py",
+      "line": 104,
+      "textRange": {
+        "startLine": 104,
+        "endLine": 104,
+        "startOffset": 4,
+        "endOffset": 85
+      },
+      "message": "Using HTTP protocol is insecure. Use HTTPS instead.",
+      "flows": []
+    },
+    {
+      "key": "AaF-Rmee3D2qssSsqTlP",
+      "rule": "javascript:S4036",
+      "type": "VULNERABILITY",
+      "severity": "MINOR",
+      "status": "OPEN",
+      "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/test_tls.cjs",
+      "line": 14,
+      "textRange": {
+        "startLine": 14,
+        "endLine": 14,
+        "startOffset": 15,
+        "endOffset": 24
+      },
+      "message": "Make sure the \"PATH\" variable only contains fixed, unwriteable directories.",
+      "flows": []
+    },
+    {
+      "key": "AaF-Rmjo3D2qssSsqTlW",
+      "rule": "docker:S6471",
+      "type": "VULNERABILITY",
+      "severity": "MINOR",
+      "status": "OPEN",
+      "component": "SoltuneMontepre_medilab2:tools/onlyoffice_integration/browser.Dockerfile",
+      "line": 1,
+      "textRange": {
+        "startLine": 1,
+        "endLine": 1,
+        "startOffset": 0,
+        "endOffset": 47
+      },
+      "message": "This image runs with \"root\" or \"containerAdministrator\" as the default user. Make sure it is safe here.",
+      "flows": []
+    }
+  ]
+}

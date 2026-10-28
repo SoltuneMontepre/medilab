@@ -1,0 +1,45 @@
+{
+  "at": "2026-10-26T02:34:52.750291+00:00",
+  "runner_exit": 0,
+  "database": "medilab171securityobserver",
+  "container": "medilab171-agent4-security-remediation-acceptance-observer",
+  "runner_log_sha256": "57ee0976dfc7cc3819b559d193df5f8c311de1c6549a587810029e9960daf0a4",
+  "real_service_executed": false,
+  "native_odoo_executed": true,
+  "native_summary": [
+    "0 failed, 0 error(s) of 1 tests when loading database 'medilab171securityobserver'"
+  ],
+  "passed": true,
+  "failed_tests": [],
+  "passed_tests": [],
+  "unknown_outcome_tests": [],
+  "blocked_tests": [],
+  "not_started_tests": [],
+  "whole_runner_timeout_seconds": 1200,
+  "native_status_counts": {
+    "PASS": 1
+  },
+  "selected_outcomes": {
+    "page-docx.json": {
+      "status": "PASS",
+      "browser": {
+        "loginReturn": true,
+        "editorReady": true,
+        "keyboardEdit": true,
+        "holdSeconds": 3,
+        "editorSessions": 1,
+        "xssAbsent": true,
+        "errors": []
+      },
+      "version_count": 2,
+      "sha256": "6cd7c299d58e4763c7a3269835f1c04b977e9519fbe8997deef176d397b166d7",
+      "size": 58581,
+      "marker_present": true,
+      "transport": "isolated HTTP with loopback proxies; no ingress/TLS claim"
+    },
+    "desktop-result.json": {
+      "status": "PASS",
+      "desktop_client_observed_save": true
+    }
+  }
+}

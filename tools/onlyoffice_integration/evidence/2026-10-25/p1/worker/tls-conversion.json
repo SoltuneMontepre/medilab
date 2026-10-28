@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "source": "DOCX",
+  "output": "PDF",
+  "verified_TLS_source": true,
+  "verified_TLS_output": true,
+  "signed_inbox": true,
+  "bytes": 1922,
+  "sha256": "ab1bbceb34de830f0f24505cc51dfb56b69ea3595cecafaca43526f1ce99e738",
+  "scope": "Standalone conversion through full TLS wrapper; not Odoo callback ingress.",
+  "source_commit": "775a5a798db8a28ccc998cd1ff49d26bd207f689",
+  "native_log_bytes_after_TLS_conversion": 0
+}

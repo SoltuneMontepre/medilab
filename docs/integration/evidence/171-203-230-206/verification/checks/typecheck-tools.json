@@ -1,0 +1,13 @@
+{
+  "command": [
+    "src/core/.venv/bin/python",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tools/typecheck"
+  ],
+  "exit_code": 0,
+  "status": "PASS",
+  "elapsed_seconds": 3.268
+}

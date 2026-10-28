@@ -1,0 +1,60 @@
+{
+  "internal": true,
+  "members": [
+    {
+      "name": "medilab171-agent4-sonar-cleanup-browser-1",
+      "single_owned_network": true,
+      "published_ports": false
+    },
+    {
+      "name": "medilab171-agent4-sonar-cleanup-garage-1",
+      "single_owned_network": true,
+      "published_ports": false
+    },
+    {
+      "name": "medilab171-agent4-sonar-cleanup-documentserver-1",
+      "single_owned_network": true,
+      "published_ports": false
+    },
+    {
+      "name": "medilab171-agent4-sonar-cleanup-postgres-1",
+      "single_owned_network": true,
+      "published_ports": false
+    },
+    {
+      "name": "medilab-integration-pr292-sonar-rust",
+      "single_owned_network": true,
+      "published_ports": false
+    },
+    {
+      "name": "medilab-integration-pr292-sonar-cypress",
+      "single_owned_network": true,
+      "published_ports": false
+    },
+    {
+      "name": "medilab171-agent4-sonar-cleanup-page-browser-1",
+      "single_owned_network": true,
+      "published_ports": false
+    },
+    {
+      "name": "medilab171-agent4-sonar-cleanup-sonar-web-1",
+      "single_owned_network": true,
+      "published_ports": false
+    },
+    {
+      "name": "medilab-integration-pr292-sonar-updater",
+      "single_owned_network": true,
+      "published_ports": false
+    },
+    {
+      "name": "medilab171-agent4-sonar-cleanup-sonar-updates2-1",
+      "single_owned_network": true,
+      "published_ports": false
+    },
+    {
+      "name": "medilab171-agent4-sonar-cleanup-acceptance-remaining2",
+      "single_owned_network": true,
+      "published_ports": false
+    }
+  ]
+}

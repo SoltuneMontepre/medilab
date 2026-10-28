@@ -6484,6 +6484,7 @@ msgstr "Mục đích"
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_quality_registration
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form_master_data
 msgid "Quality Registration"
 msgstr "Hồ Sơ Đăng Ký Chất Lượng"
 
@@ -8739,8 +8740,8 @@ msgstr "Windows"
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/signature.py:0
-msgid "Withdraw the signatures of the higher levels first."
-msgstr "Hãy rút lại chữ ký của các cấp cao hơn trước."
+msgid "Withdraw the signatures given after yours first."
+msgstr "Hãy rút lại các chữ ký được ký sau chữ ký của bạn trước."
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__withdrawn_at
@@ -14467,3 +14468,136 @@ msgstr "Đối tượng %(key)s của nội dung tệp phòng thí nghiệm đã
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_content_reconciliation.py:0
 msgid "The laboratory file content %(key)s is still pending a day after it was made, and no open upload holds it."
 msgstr "Nội dung tệp phòng thí nghiệm %(key)s vẫn đang chờ sau một ngày kể từ khi được tạo, và không lần tải lên nào đang mở giữ nó."
+
+#. module: sol_laboratory
+#: model:ir.ui.view,name:sol_laboratory.laboratory_editor_page
+msgid "Laboratory File Editor"
+msgstr "Trình chỉnh sửa tệp phòng thí nghiệm"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.laboratory_editor_page
+msgid "Online editor · MediLab"
+msgstr "Chỉnh sửa trực tuyến · MediLab"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.laboratory_editor_page
+msgid "Online editor"
+msgstr "Chỉnh sửa trực tuyến"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.laboratory_editor_page
+msgid "Loading editor..."
+msgstr "Đang tải trình chỉnh sửa..."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.laboratory_editor_page
+msgid "Opening the editor does not confirm a save. Check version history after editing."
+msgstr "Mở trình chỉnh sửa chưa xác nhận việc lưu. Kiểm tra lịch sử phiên bản sau khi chỉnh sửa."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.laboratory_editor_page
+msgid "Reopen editor"
+msgstr "Mở lại trình chỉnh sửa"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.laboratory_editor_page
+msgid "Document editor"
+msgstr "Trình chỉnh sửa tài liệu"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.laboratory_editor_page
+msgid "JavaScript is required to open the editor."
+msgstr "Cần bật JavaScript để mở trình chỉnh sửa."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.laboratory_editor_page
+msgid "Connecting to the editor..."
+msgstr "Đang kết nối đến trình chỉnh sửa..."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.laboratory_editor_page
+msgid "Editor ready."
+msgstr "Trình chỉnh sửa đã sẵn sàng."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.laboratory_editor_page
+msgid "Changes are being edited."
+msgstr "Đang chỉnh sửa thay đổi."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.laboratory_editor_page
+msgid "Changes sent to the editing service. MediLab save is not confirmed."
+msgstr "Đã gửi thay đổi đến dịch vụ chỉnh sửa. Chưa xác nhận việc lưu vào MediLab."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.laboratory_editor_page
+msgid "The editor could not connect or reported an error. Your save is not confirmed."
+msgstr "Trình chỉnh sửa không thể kết nối hoặc đã báo lỗi. Chưa xác nhận việc lưu của bạn."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.laboratory_editor_page
+msgid "The editor needs a fresh configuration. Reopen to check access and the current session."
+msgstr "Trình chỉnh sửa cần cấu hình mới. Mở lại để kiểm tra quyền truy cập và phiên hiện tại."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.laboratory_editor_page
+msgid "The editor is taking longer to connect. You can wait or reopen it."
+msgstr "Trình chỉnh sửa kết nối lâu hơn dự kiến. Bạn có thể chờ hoặc mở lại."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/services/laboratory_editor_page.py:0
+msgid "This file does not exist or you do not have access to it."
+msgstr "Tệp này không tồn tại hoặc bạn không có quyền truy cập."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/services/laboratory_editor_page.py:0
+msgid "You do not have permission to edit this file."
+msgstr "Bạn không có quyền chỉnh sửa tệp này."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/controllers/laboratory_editor.py:0
+msgid "This page accepts GET requests only."
+msgstr "Trang này chỉ chấp nhận yêu cầu GET."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__quality_registration_warning_days
+msgid "Expiry Warning (days)"
+msgstr "Cảnh báo hết hạn (ngày)"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__quality_registration_warning_days
+msgid "Days before a quality registration expires when administrators are warned. They are warned again on its last valid day."
+msgstr "Số ngày trước khi hồ sơ đăng ký chất lượng hết hạn để cảnh báo quản trị viên. Quản trị viên được cảnh báo lại vào ngày hiệu lực cuối cùng."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/res_config_settings.py:0
+msgid "The expiry warning cannot be negative; 0 warns only on the last valid day."
+msgstr "Số ngày cảnh báo hết hạn không được âm; 0 chỉ cảnh báo vào ngày hiệu lực cuối cùng."
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_quality_registration_expiry_ir_actions_server
+#: model:mail.message.subtype,name:sol_laboratory.event_quality_registration_expiry
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_quality_registration_expiry
+msgid "Quality registration expiry"
+msgstr "Hồ sơ đăng ký chất lượng hết hạn"
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_quality_registration_expiry
+msgid "A quality registration expires soon or expires today"
+msgstr "Hồ sơ đăng ký chất lượng sắp hết hạn hoặc hết hạn hôm nay"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/quality_registration_scheduled_job.py:0
+msgid "The quality registration %(name)s expires today, %(date)s. From tomorrow its mark is no longer printed on reports."
+msgstr "Hồ sơ đăng ký chất lượng %(name)s hết hạn hôm nay, ngày %(date)s. Từ ngày mai, ký hiệu của hồ sơ không còn được in trên phiếu kết quả."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/quality_registration_scheduled_job.py:0
+msgid "The quality registration %(name)s expires on %(date)s. Renew it before then, or its mark is no longer printed on reports."
+msgstr "Hồ sơ đăng ký chất lượng %(name)s hết hạn ngày %(date)s. Hãy gia hạn trước ngày đó, nếu không ký hiệu của hồ sơ sẽ không còn được in trên phiếu kết quả."

@@ -1,0 +1,2 @@
+2026-10-25 08:32:06,298 1 ERROR medilab171agent4 odoo.tests.result: 1 failed, 0 error(s) of 2 tests when loading database 'medilab171agent4'
+2026-10-25 08:32:06,298 1 INFO medilab171agent4 odoo.service.server.ThreadedServer: Failed: odoo.addons.sol_laboratory.tests.test_onlyoffice_real.TestOnlyofficeReal.test_docx_many_editors_header_trimming - 'open' != 'committed' - open + committed

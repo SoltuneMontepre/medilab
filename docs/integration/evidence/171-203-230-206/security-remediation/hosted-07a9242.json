@@ -1,0 +1,450 @@
+{
+  "head": "07a92429e0f58e17367c34faf11b1f7797452180",
+  "pr": {
+    "baseRefName": "main",
+    "headRefName": "task/integration-171-203-230-206-verification",
+    "headRefOid": "07a92429e0f58e17367c34faf11b1f7797452180",
+    "isDraft": true,
+    "number": 292,
+    "title": "[chore] ONLYOFFICE + MediLab Sync (#171, #203, #230, #206)",
+    "url": "https://github.com/SoltuneMontepre/medilab/pull/292"
+  },
+  "runs": [
+    {
+      "conclusion": "success",
+      "databaseId": 40259642160,
+      "headSha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "name": "ci-tools",
+      "status": "completed",
+      "url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642160"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 40259642095,
+      "headSha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "name": "ci-infra",
+      "status": "completed",
+      "url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642095"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 40259642101,
+      "headSha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "name": "ci-sync-app",
+      "status": "completed",
+      "url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642101"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 40259642076,
+      "headSha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "name": "ci-mobile-app",
+      "status": "completed",
+      "url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642076"
+    },
+    {
+      "conclusion": "failure",
+      "databaseId": 40259642134,
+      "headSha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "name": "ci-core",
+      "status": "completed",
+      "url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642134"
+    }
+  ],
+  "checks": [
+    {
+      "name": "SonarCloud Code Analysis",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "failure",
+      "started_at": "2026-10-26T02:44:56Z",
+      "completed_at": "2026-10-26T02:47:46Z",
+      "details_url": "https://sonarcloud.io/dashboard?id=SoltuneMontepre_medilab2&pullRequest=292",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/runs/121372742226"
+    },
+    {
+      "name": "sonarqube",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "failure",
+      "started_at": "2026-10-26T02:44:31Z",
+      "completed_at": "2026-10-26T02:47:55Z",
+      "details_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642134/job/121371908293",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642134/job/121371908293"
+    },
+    {
+      "name": "coverage",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-26T02:43:40Z",
+      "completed_at": "2026-10-26T02:44:28Z",
+      "details_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642134/job/121371693423",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642134/job/121371693423"
+    },
+    {
+      "name": "test",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-26T02:43:40Z",
+      "completed_at": "2026-10-26T02:43:44Z",
+      "details_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642134/job/121371693303",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642134/job/121371693303"
+    },
+    {
+      "name": "test",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-26T02:35:28Z",
+      "completed_at": "2026-10-26T02:35:30Z",
+      "details_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642101/job/121369632135",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642101/job/121369632135"
+    },
+    {
+      "name": "build",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-26T02:35:00Z",
+      "completed_at": "2026-10-26T02:35:03Z",
+      "details_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642101/job/121369512485",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642101/job/121369512485"
+    },
+    {
+      "name": "infrastructure",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-26T02:33:35Z",
+      "completed_at": "2026-10-26T02:33:38Z",
+      "details_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642095/job/121369156796",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642095/job/121369156796"
+    },
+    {
+      "name": "test (2/3)",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-26T02:33:33Z",
+      "completed_at": "2026-10-26T02:41:24Z",
+      "details_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642134/job/121369148438",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642134/job/121369148438"
+    },
+    {
+      "name": "test (install)",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-26T02:33:33Z",
+      "completed_at": "2026-10-26T02:39:22Z",
+      "details_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642134/job/121369148388",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642134/job/121369148388"
+    },
+    {
+      "name": "test (3/3)",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-26T02:33:33Z",
+      "completed_at": "2026-10-26T02:40:13Z",
+      "details_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642134/job/121369148383",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642134/job/121369148383"
+    },
+    {
+      "name": "test (1/3)",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-26T02:33:33Z",
+      "completed_at": "2026-10-26T02:43:38Z",
+      "details_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642134/job/121369148380",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642134/job/121369148380"
+    },
+    {
+      "name": "e2e",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-26T02:33:33Z",
+      "completed_at": "2026-10-26T02:42:53Z",
+      "details_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642134/job/121369148374",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642134/job/121369148374"
+    },
+    {
+      "name": "tools",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-26T02:33:27Z",
+      "completed_at": "2026-10-26T02:33:30Z",
+      "details_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642160/job/121369125990",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642160/job/121369125990"
+    },
+    {
+      "name": "GitGuardian Security Checks",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-26T02:33:13Z",
+      "completed_at": "2026-10-26T02:33:15Z",
+      "details_url": "https://dashboard.gitguardian.com",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/runs/121369076163"
+    },
+    {
+      "name": "lint",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-26T02:33:12Z",
+      "completed_at": "2026-10-26T02:35:30Z",
+      "details_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642134/job/121369060302",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642134/job/121369060302"
+    },
+    {
+      "name": "build",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-26T02:33:12Z",
+      "completed_at": "2026-10-26T02:33:31Z",
+      "details_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642134/job/121369060285",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642134/job/121369060285"
+    },
+    {
+      "name": "compile (${{ matrix.label }})",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "skipped",
+      "started_at": "2026-10-26T02:33:07Z",
+      "completed_at": "2026-10-26T02:33:07Z",
+      "details_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642076/job/121369048997",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642076/job/121369048997"
+    },
+    {
+      "name": "compile (Linux)",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-26T02:33:09Z",
+      "completed_at": "2026-10-26T02:34:23Z",
+      "details_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642101/job/121369048958",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642101/job/121369048958"
+    },
+    {
+      "name": "compile (macOS)",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-26T02:33:10Z",
+      "completed_at": "2026-10-26T02:34:16Z",
+      "details_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642101/job/121369048889",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642101/job/121369048889"
+    },
+    {
+      "name": "lint",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-26T02:33:09Z",
+      "completed_at": "2026-10-26T02:43:58Z",
+      "details_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642101/job/121369048878",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642101/job/121369048878"
+    },
+    {
+      "name": "test-runner",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-26T02:33:09Z",
+      "completed_at": "2026-10-26T02:35:26Z",
+      "details_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642101/job/121369048873",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642101/job/121369048873"
+    },
+    {
+      "name": "compile (Windows)",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-26T02:33:09Z",
+      "completed_at": "2026-10-26T02:34:58Z",
+      "details_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642101/job/121369048867",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642101/job/121369048867"
+    },
+    {
+      "name": "build",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-26T02:33:09Z",
+      "completed_at": "2026-10-26T02:33:11Z",
+      "details_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642076/job/121369047684",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642076/job/121369047684"
+    },
+    {
+      "name": "test",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-26T02:33:09Z",
+      "completed_at": "2026-10-26T02:33:12Z",
+      "details_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642076/job/121369047420",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642076/job/121369047420"
+    },
+    {
+      "name": "lint",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-26T02:33:09Z",
+      "completed_at": "2026-10-26T02:33:13Z",
+      "details_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642076/job/121369047364",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642076/job/121369047364"
+    },
+    {
+      "name": "logging (Windows)",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-26T02:33:00Z",
+      "completed_at": "2026-10-26T02:33:25Z",
+      "details_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642160/job/121369011522",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642160/job/121369011522"
+    },
+    {
+      "name": "typecheck (Windows)",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-26T02:33:00Z",
+      "completed_at": "2026-10-26T02:33:16Z",
+      "details_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642160/job/121369011459",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642160/job/121369011459"
+    },
+    {
+      "name": "logging (Linux)",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-26T02:33:00Z",
+      "completed_at": "2026-10-26T02:33:14Z",
+      "details_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642160/job/121369011455",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642160/job/121369011455"
+    },
+    {
+      "name": "typecheck (Linux)",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-26T02:33:00Z",
+      "completed_at": "2026-10-26T02:33:08Z",
+      "details_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642160/job/121369011427",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642160/job/121369011427"
+    },
+    {
+      "name": "ai",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-26T02:33:00Z",
+      "completed_at": "2026-10-26T02:33:10Z",
+      "details_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642160/job/121369011262",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642160/job/121369011262"
+    },
+    {
+      "name": "ansible",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-26T02:33:00Z",
+      "completed_at": "2026-10-26T02:33:33Z",
+      "details_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642095/job/121369010948",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642095/job/121369010948"
+    },
+    {
+      "name": "terraform",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-26T02:33:00Z",
+      "completed_at": "2026-10-26T02:33:18Z",
+      "details_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642095/job/121369010929",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642095/job/121369010929"
+    },
+    {
+      "name": "changes",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-26T02:33:00Z",
+      "completed_at": "2026-10-26T02:33:09Z",
+      "details_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642134/job/121369010818",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642134/job/121369010818"
+    },
+    {
+      "name": "onlyoffice",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-26T02:33:00Z",
+      "completed_at": "2026-10-26T02:33:27Z",
+      "details_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642095/job/121369010784",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642095/job/121369010784"
+    },
+    {
+      "name": "changes",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-26T02:33:00Z",
+      "completed_at": "2026-10-26T02:33:07Z",
+      "details_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642101/job/121369010634",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642101/job/121369010634"
+    },
+    {
+      "name": "changes",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-26T02:33:00Z",
+      "completed_at": "2026-10-26T02:33:07Z",
+      "details_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642076/job/121369010445",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/actions/runs/40259642076/job/121369010445"
+    },
+    {
+      "name": "Naming conventions / Pull request",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-26T02:32:56Z",
+      "completed_at": "2026-10-26T02:32:56Z",
+      "details_url": "https://github.com/conventionsbot",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/runs/121369002474"
+    },
+    {
+      "name": "Naming conventions / Branch",
+      "head_sha": "07a92429e0f58e17367c34faf11b1f7797452180",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-26T02:32:56Z",
+      "completed_at": "2026-10-26T02:32:56Z",
+      "details_url": "https://github.com/conventionsbot",
+      "html_url": "https://github.com/SoltuneMontepre/medilab/runs/121368999927"
+    }
+  ],
+  "statuses": [
+    {
+      "url": "https://api.github.com/repos/SoltuneMontepre/medilab/statuses/07a92429e0f58e17367c34faf11b1f7797452180",
+      "avatar_url": "https://avatars.githubusercontent.com/in/347564?v=4",
+      "id": 57227808921,
+      "node_id": "SC_kwDOU-8T9s8AAAANUwsQmQ",
+      "state": "success",
+      "description": "Review skipped: draft pull request",
+      "target_url": null,
+      "context": "CodeRabbit",
+      "created_at": "2026-10-26T02:33:00Z",
+      "updated_at": "2026-10-26T02:33:00Z"
+    }
+  ]
+}

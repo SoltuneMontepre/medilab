@@ -21,7 +21,8 @@
     />
 
     <!-- Odoo shows its Reporting menu to its sales managers only; salespeople reach the pipeline and performance through
-         their order permission. Odoo's own analyses under it stay hidden from users who cannot read them. -->
+         their order permission. Odoo's own analyses under it show to whoever reads the sales report, which the order
+         permission gives for the salesperson's own orders. -->
     <record id="sale.menu_sale_report" model="ir.ui.menu">
         <field name="group_ids" eval="[Command.clear()]" />
     </record>
