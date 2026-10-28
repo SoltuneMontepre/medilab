@@ -22,8 +22,9 @@ function create(login, model, values) {
 }
 
 // Each test owns its catalog and resources; no seeded booking or shared machine is moved to force availability.
-export function schedulingFixture(count = 2) {
+export function schedulingFixture(count = 2, register = () => {}) {
   const fixture = { tag: `Cu-UI-${Date.now()}`, tasks: [], tests: [], bookings: [], eventIds: [] };
+  register(fixture);
   const refs = {
     department: "sol_demo.demo_hr_department_chemistry",
     sampleType: "sol_demo.demo_sample_type_bottled_water",
@@ -113,7 +114,7 @@ export function schedulingFixture(count = 2) {
 export function snapshot(fixture) {
   const graph = {};
   const reads = {
-    tasks: ["medilab.task", fixture.tasks, ["status", "assignee_id", "assigned_by_id", "department_id", "reassign_reason", "planned_start", "planned_end", "write_date"]],
+    tasks: ["medilab.task", fixture.tasks, ["status", "assignee_id", "assigned_by_id", "department_id", "reassign_reason", "note", "planned_start", "planned_end", "write_date"]],
     tests: ["medilab.sample.test", fixture.tests, ["status", "parameter_method_id", "due_date", "write_date"]],
     bookings: ["medilab.machine.booking", fixture.bookings, ["sample_test_id", "task_id", "machine_id", "person_id", "starts_at", "ends_at", "status", "calendar_event_id", "room_event_ids", "write_date"]],
   };
@@ -134,7 +135,7 @@ export function snapshot(fixture) {
 }
 
 export function release(fixture) {
-  if (!fixture) return;
+  if (!fixture?.machine) return null;
   return callAs(ADMIN, "medilab.machine.booking", "search", [
     [["machine_id", "=", fixture.machine], ["status", "in", ["queued", "scheduled"]]],
   ]).then((ids) => ids.length ? callAs(ADMIN, "medilab.machine.booking", "action_cancel", [ids]) : null);

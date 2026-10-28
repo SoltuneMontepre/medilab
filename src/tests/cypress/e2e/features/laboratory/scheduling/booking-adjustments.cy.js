@@ -1,10 +1,13 @@
 import { call, callRefused } from "../../../../support/odoo";
-import { pick, save } from "../../../../support/form";
+import { pick, save, search } from "../../../../support/form";
 import { milliseconds, odooTime, release, schedulingFixture, snapshot, typeStart } from "./setup";
 
 describe("WF-03 booking adjustments", () => {
   let fixture;
-  beforeEach(() => schedulingFixture().then((created) => (fixture = created)));
+  beforeEach(() => {
+    fixture = undefined;
+    return schedulingFixture(2, (created) => (fixture = created));
+  });
   afterEach(() => release(fixture));
 
   it("TC-F24-03 keeps every reservation after a conflicting UI move and saves a valid retry on the same form", () => {
@@ -22,7 +25,9 @@ describe("WF-03 booking adjustments", () => {
       });
       cy.contains(".o_error_dialog .modal-footer button", "Close").click();
       typeStart(valid);
+      cy.intercept("POST", "/web/dataset/call_kw/medilab.machine.booking/web_save").as("savedBooking");
       save();
+      cy.wait("@savedBooking").its("response.body.error").should("not.exist");
       snapshot(fixture).then((after) => {
         const moved = after.bookings.find((row) => row.id === booking.id);
         const task = after.tasks.find((row) => row.id === booking.task_id[0]);
@@ -56,6 +61,7 @@ describe("WF-03 booking adjustments", () => {
       const [booking] = before.bookings;
       cy.signInAs("chemistry_tester");
       cy.visit("/odoo/machine-schedule?view_type=list");
+      search(fixture.tag);
       cy.get(".o_list_renderer").should("not.contain", fixture.tag);
       callRefused("medilab.machine.booking", "write", [[booking.id], { starts_at: booking.starts_at }])
         .should("contain", "doesn't have 'read' access")
@@ -68,7 +74,10 @@ describe("WF-03 booking adjustments", () => {
 // These assertions describe PR #373's proposed retained-read contract, whose access-policy decision remains open.
 describe("PR #373 proposed department-transfer contract", () => {
   let fixture;
-  beforeEach(() => schedulingFixture(1).then((created) => (fixture = created)));
+  beforeEach(() => {
+    fixture = undefined;
+    return schedulingFixture(1, (created) => (fixture = created));
+  });
   afterEach(() => release(fixture));
 
   it("TC-F23-03 retries a missing transfer reason from the task form and keeps the moved task read-only", () => {
@@ -107,6 +116,10 @@ describe("PR #373 proposed department-transfer contract", () => {
         expect(after.tasks[0].planned_start).to.equal(false);
         expect(after.tasks[0].planned_end).to.equal(false);
         expect(after.tests[0].status).not.to.equal("cancelled");
+        callRefused("medilab.task", "write", [[fixture.tasks[0]], { note: "An unauthorized change after transfer." }])
+          .should("contain", "not allowed")
+          .and("contain", "edit");
+        snapshot(fixture).should("deep.equal", after);
       });
     });
   });
