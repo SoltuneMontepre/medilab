@@ -7,17 +7,18 @@ The lab head signs the test report of each test request once all its results are
 - **US-LH01** As a lab head, I want to see the test requests whose results are all approved, so that I know which reports wait for my signature.
 - **US-LH02** As a lab head, I want to sign a test report, or reject it with a reason and the results to check again, so that only checked reports are issued.
 - **US-LH03** As a lab head, I want to approve change requests on issued reports, so that a corrected report is issued as a new version.
+- **US-LH05** As a lab head, I want to review results a head of department approved themself when signing their report, so that those results get a final review before issue.
 
 ## II. Feature details
 
-### 1. Test reports (US-LH01 to US-LH03)
+### 1. Test reports (US-LH01 to US-LH03, US-LH05)
 
 Follows [Reports and change requests](../overview.md#reports-and-change-requests) and [SH-07](../../shared.md#sh-07-signed-documents-are-locked).
 
 | Rule           | Description                                                                                                                   |
 | -------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | One report     | A test request has one report covering all its samples, in Vietnamese, English or both side by side, as the request asks.    |
-| Signing        | Samples have no sign-off of their own; once all results of a request are approved, the next signature is the lab head's on the report. |
+| Signing        | Samples have no sign-off of their own; once all results of a request are approved, the next signature is the lab head's on the report. Results a head of department entered and approved themself get no extra approval step; the lab head reviews them when signing. |
 | Draft          | When every sample test of a request is approved or cancelled, the system creates the draft report and a signing task for the lab head. |
 | Content        | The report shows its report number and the test request's code, the customer and their address, when the samples were received and the report date, and for each sample its name, lab code and conclusion with a table of parameter, result, unit, limit and method. It prints the heads of department who approved the results and the lab head; testers' signatures are internal and not printed. Cancelled tests are left out. |
 | Rejection      | The lab head can reject a report with a reason, naming the results to check again. Those results go back to the queue of their head of department, unassigned and unsigned: their signatures are withdrawn, their sample tests, samples and request go back to testing, and a new testing task with the reason waits unassigned in the queue of the department that tested them. The report waits until they are approved again; the lab head then gets a new signing task. |
@@ -29,6 +30,7 @@ Acceptance criteria:
 - A test request whose results are not all approved has no report waiting for the lab head.
 - Approving the last result of a request, with its other tests approved or cancelled, creates the draft report and the lab head's signing task.
 - A report prints the approving heads of department and the lab head, not the testers, and leaves out cancelled tests.
+- A report with a result its head of department entered and approved stays a draft until the lab head signs it.
 - Rejecting a report without a reason or without naming a result is refused; the named results go back to their head of department's queue, unassigned.
 - Signing a report gives it a report number and a digitally signed PDF in the request's language.
 - An approved change request creates a new report version; the old version stays readable and is marked as replaced.

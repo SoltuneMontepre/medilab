@@ -6,6 +6,7 @@
 - A signed document is locked: it cannot be changed or discarded, even by its owner.
 - Until the document's process is completed, a signer at any level, the final level included, can withdraw their own signature, even after losing the permission or the role of their level. Withdrawing follows the timeline: it is refused only while a signature given after theirs stands.
 - Once the document's process is completed, no signature can be withdrawn, and changes go through a change request that produces a new linked version.
+- The head of department approves results, including results they entered. Other people who entered a result cannot approve it. The lab head reviews the approved results and signs the report, including results a head of department approved themself.
 - Each signature keeps its own record of who signed and at what level when it was applied. A later change to the signer's role or account does not change an existing signature.
 - A signature never changes once it is given, not even by an administrator. Only withdrawing it, or restarting the document's chain, records when it was withdrawn, once; a withdrawn signature is never put back in force.
 

@@ -114,6 +114,10 @@ class ApprovalMixin(models.AbstractModel):
     def _approval_content_fields(self):
         return frozenset()
 
+    def _approval_signs_again(self, level):
+        # True when the current user, who already signed the document, may also sign it at the level.
+        return False
+
     def _approval_document_hash(self):
         """The SHA-256 of the content a signature binds to, which the signature records; empty for a document type
         whose content has none."""
@@ -197,7 +201,7 @@ class ApprovalMixin(models.AbstractModel):
         department = self._approval_department()
         if level.same_department and (not department or person.department_id != department):
             raise UserError(self.env._("Only people of the department that did the work can act at this level."))
-        if person in rows.signer_id:
+        if person in rows.signer_id and not self._approval_signs_again(level):
             raise UserError(self.env._("You have already signed this document."))
         if rejecting and not level.can_reject:
             raise UserError(self.env._("This level cannot reject."))

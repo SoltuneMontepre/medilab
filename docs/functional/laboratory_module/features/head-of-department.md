@@ -79,7 +79,7 @@ Follows [Reception](../overview.md#reception), [Results](../overview.md#results)
 | ------------- | ------------------------------------------------------------------------------------------------------------ |
 | Handover      | A person of the department records when and by whom it received a handed-over sample by scanning its label, on the web or the mobile app. |
 | Collect again | Asking for an insufficient sample to be collected again schedules a sample collection task for sample delivery staff. |
-| Approval      | The head signs or rejects results at their level of the test result's approval chain; a rejection records its reason. A head cannot approve a result they entered. |
+| Approval      | The head signs or rejects results at their level of the test result's approval chain; a rejection records its reason. The head may approve a result they entered, including when they are the department's only result signer; the lab head reviews it when signing the report. |
 | Cancelling    | The head cancels a sample test of the department that has no approved result, with a reason. Its task and bookings are cancelled, and the report leaves it out. |
 
 Acceptance criteria:
@@ -88,7 +88,7 @@ Acceptance criteria:
 - Asking for a sample to be collected again creates a sample collection task and records who asked and when.
 - Rejecting a result sends its sample test back to testing and tells the tester the reason.
 - Once every result of a sample is approved, the sample is completed.
-- A head cannot approve a result they entered.
+- A head can approve a result they entered and sent; a tester cannot approve a result they entered.
 - A result sent with a sanity warning shows the warning to the head who approves it.
 - Cancelling a sample test without a reason is refused; a cancelled test does not appear on the report.
 - A sample whose remaining tests are all approved is completed even if others were cancelled.
@@ -138,7 +138,7 @@ Follows [Medilab Mobile](../applications/medilab-mobile.md#tasks-and-notificatio
 Acceptance criteria:
 
 - Rejecting a result on the phone without a reason is refused.
-- A head cannot approve on the phone a result they entered.
+- A head may approve on the phone a result they entered, as on the web.
 
 ## III. Related documents
 

@@ -102,7 +102,7 @@ Conversations follow [SH-12](../../shared.md#sh-12-conversations).
 - Scanning the label of a sample not handed over to the person's department records no receipt and says why.
 - Scanning a sample's label lets a tester claim only the unassigned testing tasks of their own department.
 - A result entered and signed on the phone shows on the web waiting for the head of department, with the tester's signature.
-- A head of department cannot approve on the phone a result they entered.
+- A head of department may approve on the phone a result they entered, as on the web.
 - A photo taken on the phone appears on the sample on the web and not to testers.
 - A handover record signed on the phone records the phone and emails the PDF; it cannot be changed afterwards.
 - An action without a connection is refused with a message and changes nothing; an unsent photo stays on the phone.

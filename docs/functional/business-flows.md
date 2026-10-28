@@ -182,7 +182,7 @@ flowchart TD
   - WF-04-A4: An unusual result warns before sending; the tester sends it anyway and the head sees the warning.
   - WF-04-A5: The head cancels a test that cannot be done, with a reason; the sample completes with its other tests approved.
 - **Exceptions:**
-  - WF-04-E1: The person who entered a result cannot approve it.
+  - WF-04-E1: A tester who entered a result cannot approve it; the head of department may approve a result they entered.
   - WF-04-E2: A result on a sample with a regulation cannot be sent without a conclusion.
   - WF-04-E3: Cancelling a test without a reason, or a test with an approved result, is refused.
 - **Paths in other flows:** SF-03 for changing a result whose process is completed.
@@ -252,7 +252,7 @@ flowchart TD
 
 - **Trigger:** every sample test of a test request is approved or cancelled, and the system creates the draft report and a signing task for the lab head.
 - **Result:** the signed report is issued, delivered to the customer and downloadable on the portal.
-- **Stories:** US-LH01, US-LH02, US-SD14, US-C07, US-C18, US-C19.
+- **Stories:** US-LH01, US-LH02, US-LH05, US-SD14, US-C07, US-C18, US-C19.
 - **Starts from:** test requests whose sample tests are all approved or cancelled, with their draft reports.
 - **Main path:** The lab head signs the report; it gets a number and a signed PDF; staff record an e-mail delivery; the customer is notified and downloads it.
 - **Alternative paths:**
