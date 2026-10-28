@@ -57,7 +57,9 @@ class TestMandatoryNotificationEvents(TransactionCase):
         root = etree.fromstring(arch)
         for name in ("code", "mandatory", "enabled"):
             with self.subTest(field=name):
-                self.assertEqual(root.xpath(f"//field[@name='{name}']")[0].get("readonly"), "mandatory")
+                fields = root.findall(f".//field[@name='{name}']")
+                self.assertEqual(len(fields), 1)
+                self.assertEqual(fields[0].get("readonly"), "mandatory")
 
     def test_an_optional_event_can_be_disabled_and_enabled_again(self):
         event = self.optional.with_user(self.administrator)
