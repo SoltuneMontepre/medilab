@@ -1,9 +1,0 @@
-{
-  "command": [
-    "bash",
-    ".local/integration/exact-ci-lint.sh"
-  ],
-  "exit_code": 0,
-  "status": "PASS",
-  "elapsed_seconds": 55.865
-}

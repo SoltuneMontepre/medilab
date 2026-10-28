@@ -1,4 +1,4 @@
-"""Run only the Agent 4 stack. Leaves failed-run volumes intact until explicit cleanup."""
+"""Run only the ONLYOFFICE harness stack. Leaves failed-run volumes intact until explicit cleanup."""
 
 import argparse
 import hashlib
@@ -24,23 +24,23 @@ else:
 
 ROOT = Path(__file__).resolve().parents[2]
 COMPOSE = Path(__file__).with_name("compose.yml")
-PROJECT = os.environ.get("ONLYOFFICE_COMPOSE_PROJECT", "medilab171-agent4")
-if not re.fullmatch(r"medilab171-agent4(?:-[a-z0-9-]+)?", PROJECT):
-    raise ValueError("Select an isolated Agent 4 Compose project.")
+PROJECT = os.environ.get("ONLYOFFICE_COMPOSE_PROJECT", "medilab-onlyoffice")
+if not re.fullmatch(r"medilab-onlyoffice(?:-[a-z0-9-]+)?", PROJECT):
+    raise ValueError("Select an isolated ONLYOFFICE harness Compose project.")
 RUNNER_SUFFIX = os.environ.get("ONLYOFFICE_RUNNER_SUFFIX", "")
 if RUNNER_SUFFIX and not re.fullmatch(r"[a-z0-9-]+", RUNNER_SUFFIX):
     raise ValueError("ONLYOFFICE_RUNNER_SUFFIX must be a simple container suffix.")
 CONTAINER = PROJECT + "-acceptance" + ("-" + RUNNER_SUFFIX if RUNNER_SUFFIX else "")
-DATABASE = os.environ.get("ONLYOFFICE_TEST_DATABASE", "medilab171agent4")
-if not re.fullmatch(r"medilab171[a-z0-9_]{1,40}", DATABASE):
-    raise ValueError("Select an isolated medilab171 test database.")
+DATABASE = os.environ.get("ONLYOFFICE_TEST_DATABASE", "medilab_onlyoffice")
+if not re.fullmatch(r"medilab_onlyoffice[a-z0-9_]{0,40}", DATABASE):
+    raise ValueError("Select an isolated medilab_onlyoffice test database.")
 EVIDENCE_DIRECTORY = "/var/lib/odoo/onlyoffice-integration/" + DATABASE
 DIGEST = "sha256:3ab6ebc7c605e5a32b7ae3ff19daed4925090245acc8100ce2230bd766c88212"
 IMAGE = "docker.io/onlyoffice/documentserver:9.4.0.1@" + DIGEST
 RUN_ID = os.environ.get("ONLYOFFICE_RUN_ID", "current")
 if not re.fullmatch(r"[a-zA-Z0-9_-]+", RUN_ID):
     raise ValueError("ONLYOFFICE_RUN_ID must be a simple local directory name.")
-OUTPUT = ROOT / ".local/onlyoffice-agent4" / RUN_ID
+OUTPUT = ROOT / ".local/onlyoffice-harness" / RUN_ID
 DOCKER_ENV = {
     key: value
     for key, value in os.environ.items()
@@ -100,12 +100,15 @@ def identity():
             "GITHUB_ENTERPRISE_TOKEN",
         )
     }
-    token = command(["gh", "auth", "token", "--hostname", "github.com", "--user", "KietPham-VN"], env=environment)
+    account = os.environ.get("ONLYOFFICE_GITHUB_USER", "")
+    if not account:
+        return {"verified": False, "reason": "Set ONLYOFFICE_GITHUB_USER to the stored GitHub CLI account"}
+    token = command(["gh", "auth", "token", "--hostname", "github.com", "--user", account], env=environment)
     if token.returncode or not token.stdout.strip():
-        return {"verified": False, "reason": "Stored KietPham-VN token unavailable"}
+        return {"verified": False, "reason": "Stored token of ONLYOFFICE_GITHUB_USER unavailable"}
     environment["GH_TOKEN"] = token.stdout.strip()
     user = command(["gh", "api", "user", "--jq", ".login"], env=environment)
-    verified = user.returncode == 0 and user.stdout.strip() == "KietPham-VN"
+    verified = user.returncode == 0 and user.stdout.strip() == account
     return {
         "verified": verified,
         "reason": "Exact account verified" if verified else "Exact account verification failed",
@@ -248,7 +251,6 @@ def verify_image():
             "container_started": running["State"]["StartedAt"],
             "package_version": version,
             "upstream_binary_sha256": sources.stdout.splitlines(),
-            "reviewed_base": "fa8031db9eee3108211d771e09a57f20c038e4ad",
             "harness_commit": command(["git", "rev-parse", "HEAD"], cwd=ROOT).stdout.strip(),
             "callback_commit": command(
                 [
@@ -315,7 +317,7 @@ def start():
                     "-f",
                     str(COMPOSE.with_name("browser.Dockerfile")),
                     "-t",
-                    "localhost/medilab171-agent4-browser:local",
+                    "localhost/medilab-onlyoffice-browser:local",
                     str(ROOT),
                 ],
                 timeout=600,
@@ -363,7 +365,7 @@ def check_test_run(native_only):
             "postgres",
             "psql",
             "-U",
-            "agent4",
+            "harness",
             "-d",
             "postgres",
             "-Atc",
@@ -462,7 +464,7 @@ def main():
     parser.add_argument("action", choices=("preflight", "start", "test", "test-native", "down"))
     args = parser.parse_args()
     if args.action == "down":
-        require_success(compose("down", "--volumes", "--remove-orphans"), "Remove Agent 4 stack")
+        require_success(compose("down", "--volumes", "--remove-orphans"), "Remove the harness stack")
         leftover = command([*DOCKER, "inspect", CONTAINER], env=DOCKER_ENV)
         if leftover.returncode == 0:
             metadata = json.loads(leftover.stdout)[0]

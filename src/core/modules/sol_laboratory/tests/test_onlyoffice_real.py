@@ -61,7 +61,7 @@ class TestOnlyofficeReal(LaboratoryEditingHttpCase):
         self.extension = next(
             (extension for extension in ("docx", "xlsx", "pptx") if extension in self._testMethodName), "docx"
         )
-        self.marker = "MEDILAB_AGENT4_" + uuid.uuid4().hex
+        self.marker = "MEDILAB_HARNESS_" + uuid.uuid4().hex
         super().setUp()
         self.relay = OnlyofficeRealRelay(self, self.editing_public_url(), self.marker, self.extension)
         self.addCleanup(self.save_evidence)
@@ -345,7 +345,7 @@ class TestOnlyofficeReal(LaboratoryEditingHttpCase):
         )
         fields = verify_callback(json.loads(raw), headers.get(JWT_HEADER), SECRET)
         body, header = callback(fields)
-        wrong_body, wrong_header = callback(fields, secret="agent4-wrong-secret-01234567890123456789")
+        wrong_body, wrong_header = callback(fields, secret="harness-wrong-secret-01234567890123456789")
         expired, expired_header = callback(fields, lifetime=-120)
         mismatch, mismatch_header = callback({**fields, "key": "wrong-document-key"})
         altered = {**body, "users": ["99999999"]}

@@ -1,9 +1,0 @@
-{
-  "command": [
-    "task",
-    "test:apps"
-  ],
-  "exit_code": 0,
-  "status": "PASS",
-  "elapsed_seconds": 14.344
-}
