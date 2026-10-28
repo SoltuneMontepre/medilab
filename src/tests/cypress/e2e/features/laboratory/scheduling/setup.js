@@ -1,4 +1,5 @@
 import { callAs, refAs } from "../../../../support/odoo";
+import { calendarSlots } from "./calendar";
 
 export const ADMIN = "demo.administrator";
 export const HEAD = "demo.head_of_department";
@@ -9,12 +10,31 @@ const OPEN = ["queued", "scheduled", "in_progress"];
 export const odooTime = (milliseconds) => new Date(milliseconds).toISOString().slice(0, 19).replace("T", " ");
 export const milliseconds = (value) => new Date(`${value}Z`).getTime();
 
-// The next Monday morning in the demo users' Vietnamese working calendar, away from today's slot boundary.
-function nextMonday() {
-  const day = new Date();
-  day.setUTCDate(day.getUTCDate() + ((8 - day.getUTCDay()) % 7 || 7));
-  day.setUTCHours(2, 0, 0, 0);
-  return day.getTime();
+function workingSlots(fixture) {
+  const from = odooTime(Date.now() + 7 * 86400000).slice(0, 10);
+  const until = odooTime(Date.now() + 21 * 86400000).slice(0, 10);
+  return callAs(ADMIN, "medilab.person", "read", [[fixture.tester], ["resource_id", "user_id"]]).then(([person]) =>
+    callAs(ADMIN, "res.users", "read", [[person.user_id[0]], ["tz"]]).then(([user]) => {
+      fixture.displayZone = user.tz;
+      expect(fixture.displayZone, "the tester's display timezone").to.be.a("string").and.not.be.empty;
+      return callAs(ADMIN, "resource.resource", "read", [[person.resource_id[0]], ["tz", "calendar_id"]]);
+    }),
+  ).then(([resource]) => {
+    fixture.resourceZone = resource.tz;
+    return callAs(ADMIN, "resource.calendar", "get_attendances", [
+      [resource.calendar_id[0]], from, until,
+      ["hour_from", "hour_to", "duration_based", "duration_hours", "sequence"],
+    ]).then((attendances) =>
+      callAs(ADMIN, "resource.calendar.leaves", "search_read", [[
+        ["calendar_id", "in", [false, resource.calendar_id[0]]],
+        ["resource_id", "in", [false, resource.id]],
+        ["count_as", "=", "absence"],
+        ["date_from", "<=", odooTime(Date.parse(`${until}T00:00:00Z`) + 2 * 86400000)],
+        ["date_to", ">=", odooTime(Date.parse(`${from}T00:00:00Z`) - 86400000)],
+      ]], { fields: ["date_from", "date_to"] })
+        .then((leaves) => (fixture.slots = calendarSlots(attendances, leaves, resource.tz))),
+    );
+  });
 }
 
 function create(login, model, values) {
@@ -36,6 +56,7 @@ export function schedulingFixture(count = 2, register = () => {}) {
     head: "sol_demo.demo_person_head_of_department",
   };
   Object.entries(refs).forEach(([key, xmlId]) => refAs(ADMIN, xmlId).then(({ id }) => (fixture[key] = id)));
+  cy.then(() => workingSlots(fixture));
   cy.then(() => create(ADMIN, "medilab.location", {
     code: fixture.tag,
     name: `Copper preparation ${fixture.tag}`,
@@ -105,7 +126,7 @@ export function schedulingFixture(count = 2, register = () => {}) {
         const [booking] = bookings;
         fixture.bookings.push(booking.id);
         fixture.eventIds.push(booking.calendar_event_id[0], ...booking.room_event_ids);
-        return callAs(TESTER, "medilab.machine.booking", "write", [[booking.id], { starts_at: odooTime(nextMonday() + index * 3600000) }]);
+        return callAs(TESTER, "medilab.machine.booking", "write", [[booking.id], { starts_at: fixture.slots[index] }]);
       });
   }
   return cy.then(() => fixture);
@@ -141,9 +162,9 @@ export function release(fixture) {
   ]).then((ids) => ids.length ? callAs(ADMIN, "medilab.machine.booking", "action_cancel", [ids]) : null);
 }
 
-export function typeStart(value) {
+export function typeStart(value, zone) {
   const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone: "Asia/Ho_Chi_Minh", year: "numeric", month: "2-digit", day: "2-digit",
+    timeZone: zone, year: "numeric", month: "2-digit", day: "2-digit",
     hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true,
   }).formatToParts(new Date(`${value}Z`));
   const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]));

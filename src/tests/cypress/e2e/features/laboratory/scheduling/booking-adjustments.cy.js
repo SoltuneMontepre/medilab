@@ -1,6 +1,6 @@
 import { call, callAs, callRefused } from "../../../../support/odoo";
 import { pick, save } from "../../../../support/form";
-import { ADMIN, milliseconds, odooTime, release, schedulingFixture, snapshot, typeStart } from "./setup";
+import { ADMIN, milliseconds, release, schedulingFixture, snapshot, typeStart } from "./setup";
 
 function findFixtureBookings(fixture) {
   const { tag } = fixture;
@@ -29,18 +29,19 @@ describe("WF-03 booking adjustments", () => {
   it("TC-F24-03 keeps every reservation after a conflicting UI move and saves a valid retry on the same form", () => {
     snapshot(fixture).then((before) => {
       const [taken, booking] = before.bookings;
-      const valid = odooTime(milliseconds(booking.starts_at) + 3600000);
+      const valid = fixture.slots[2];
+      const movedBy = milliseconds(valid) - milliseconds(booking.starts_at);
       cy.signInAs("tester");
       cy.visit(`/odoo/machine-schedule/${booking.id}`);
       cy.get('.o_field_widget[name="starts_at"]').should("not.have.class", "o_readonly_modifier");
-      typeStart(taken.starts_at);
+      typeStart(taken.starts_at, fixture.displayZone);
       cy.expectRefusal({
         read: () => snapshot(fixture),
         action: () => cy.get(".o_form_button_save").click(),
         message: `${booking.machine_id[1]} is not free`,
       });
       cy.contains(".o_error_dialog .modal-footer button", "Close").click();
-      typeStart(valid);
+      typeStart(valid, fixture.displayZone);
       cy.intercept("POST", "/web/dataset/call_kw/medilab.machine.booking/web_save").as("savedBooking");
       save();
       cy.wait("@savedBooking").its("response.body.error").should("not.exist");
@@ -62,8 +63,8 @@ describe("WF-03 booking adjustments", () => {
         expect(after.events).to.have.length(before.events.length);
         previousEvents.forEach((event) => {
           const changed = after.events.find((row) => row.id === event.id);
-          expect(milliseconds(changed.start) - milliseconds(event.start)).to.equal(3600000);
-          expect(milliseconds(changed.stop) - milliseconds(event.stop)).to.equal(3600000);
+          expect(milliseconds(changed.start) - milliseconds(event.start)).to.equal(movedBy);
+          expect(milliseconds(changed.stop) - milliseconds(event.stop)).to.equal(movedBy);
           expect(changed.partner_ids).to.deep.equal(event.partner_ids);
           expect(changed.machine_booking_id).to.deep.equal(event.machine_booking_id);
           expect(changed.location_id).to.deep.equal(event.location_id);
