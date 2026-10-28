@@ -1,6 +1,22 @@
-import { call, callRefused } from "../../../../support/odoo";
-import { pick, save, search } from "../../../../support/form";
-import { milliseconds, odooTime, release, schedulingFixture, snapshot, typeStart } from "./setup";
+import { call, callAs, callRefused } from "../../../../support/odoo";
+import { pick, save } from "../../../../support/form";
+import { ADMIN, milliseconds, odooTime, release, schedulingFixture, snapshot, typeStart } from "./setup";
+
+function findFixtureBookings(fixture) {
+  const { tag } = fixture;
+  cy.get(".o_list_renderer").should("be.visible");
+  cy.get(".o_searchview_input").type(tag);
+  cy.get(".o_searchview_autocomplete").should("contain", tag);
+  cy.intercept("POST", "/web/dataset/call_kw/medilab.machine.booking/web_search_read").as("fixtureBookings");
+  cy.contains(".o_searchview_autocomplete .o-dropdown-item", "Sample Test").click();
+  cy.contains(".o_searchview_facet", tag).should("be.visible");
+  cy.wait("@fixtureBookings").then(({ request, response }) => {
+    expect(JSON.stringify(request.body.params.kwargs.domain)).to.contain("sample_test_id").and.contain(tag);
+    expect(response.body.error).to.be.undefined;
+    return callAs(ADMIN, "medilab.machine.booking", "search_count", [request.body.params.kwargs.domain])
+      .should("eq", fixture.bookings.length);
+  });
+}
 
 describe("WF-03 booking adjustments", () => {
   let fixture;
@@ -61,7 +77,7 @@ describe("WF-03 booking adjustments", () => {
       const [booking] = before.bookings;
       cy.signInAs("chemistry_tester");
       cy.visit("/odoo/machine-schedule?view_type=list");
-      search(fixture.tag);
+      findFixtureBookings(fixture);
       cy.get(".o_list_renderer").should("not.contain", fixture.tag);
       callRefused("medilab.machine.booking", "write", [[booking.id], { starts_at: booking.starts_at }])
         .should("contain", "doesn't have 'read' access")
