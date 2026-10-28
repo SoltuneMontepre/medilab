@@ -50,13 +50,14 @@ VOLUME_KEYS = (
     "MEDILAB_APP_VOLUME",
     "MEDILAB_CLOUDBEAVER_VOLUME",
 )
-PORT_KEYS = (
-    "MEDILAB_ODOO_PORT",
-    "MEDILAB_DB_PORT",
-    "MEDILAB_GARAGE_PORT",
-    "MEDILAB_GARAGE_ADMIN_PORT",
-    "MEDILAB_CLOUDBEAVER_PORT",
-)
+DEFAULT_PORTS = {
+    "MEDILAB_ODOO_PORT": "8069",
+    "MEDILAB_DB_PORT": "15432",
+    "MEDILAB_GARAGE_PORT": "3900",
+    "MEDILAB_GARAGE_ADMIN_PORT": "3903",
+    "MEDILAB_CLOUDBEAVER_PORT": "8978",
+}
+PORT_KEYS = tuple(DEFAULT_PORTS)
 # Below the dynamic ranges that Linux (32768+) and Windows (49152+) hand out and reserve.
 SELECTED_PORT_RANGE = range(20000, 32768)
 MODULES = [
@@ -131,11 +132,11 @@ def _assert_matching_engine(marker, engine, resources, missing):
     saved_engine = marker.get("engine")
     if saved_engine and (not isinstance(engine, str) or engine != saved_engine):
         raise BootstrapError(
-            "Reset refused: the selected container engine does not match the completed bootstrap marker."
+            "Refused: the selected container engine does not match the completed bootstrap marker."
         )
     if missing and not saved_engine and not any(resources.values()):
         raise BootstrapError(
-            "Reset refused: cannot verify that the selected container engine owns the missing volumes."
+            "Refused: cannot verify that the selected container engine owns the missing volumes."
         )
 
 
@@ -198,15 +199,23 @@ def _write_compose_env(values):
     temporary.replace(COMPOSE_ENV_FILE)
 
 
+def _remove_compose_env(values):
+    """Drop the saved selection lines from .env, keeping every other line."""
+    if not COMPOSE_ENV_FILE.exists():
+        return
+    kept = [
+        line
+        for line in COMPOSE_ENV_FILE.read_text(encoding="utf-8").splitlines()
+        if line.lstrip().startswith("#") or line.split("=", 1)[0] not in values
+    ]
+    temporary = COMPOSE_ENV_FILE.with_suffix(".tmp")
+    temporary.write_text("".join(f"{line}\n" for line in kept), encoding="utf-8")
+    temporary.replace(COMPOSE_ENV_FILE)
+
+
 def _fresh_config(project, owner, selected_ports=None):
     current = _read_compose_env()
-    ports = {
-        "MEDILAB_ODOO_PORT": current.get("MEDILAB_ODOO_PORT", "8069"),
-        "MEDILAB_DB_PORT": current.get("MEDILAB_DB_PORT", "15432"),
-        "MEDILAB_GARAGE_PORT": current.get("MEDILAB_GARAGE_PORT", "3900"),
-        "MEDILAB_GARAGE_ADMIN_PORT": current.get("MEDILAB_GARAGE_ADMIN_PORT", "3903"),
-        "MEDILAB_CLOUDBEAVER_PORT": current.get("MEDILAB_CLOUDBEAVER_PORT", "8978"),
-    }
+    ports = {key: current.get(key, default) for key, default in DEFAULT_PORTS.items()}
     for key, default in ports.items():
         value = selected_ports[key] if selected_ports else os.environ.get(key, default)
         try:
@@ -275,18 +284,20 @@ def _port_is_free(host, port, published):
 
 
 def _free_ports():
+    """Keep each default port when it is free; otherwise take a random free port from SELECTED_PORT_RANGE."""
     published = _published_ports()
     candidates = iter(
         random.SystemRandom().sample(SELECTED_PORT_RANGE, len(SELECTED_PORT_RANGE))
     )
     ports = {}
     for key in PORT_KEYS:
+        host = _port_host(key)
+        default = int(DEFAULT_PORTS[key])
+        if _port_is_free(host, default, published):
+            ports[key] = str(default)
+            continue
         port = next(
-            (
-                port
-                for port in candidates
-                if _port_is_free(_port_host(key), port, published)
-            ),
+            (port for port in candidates if _port_is_free(host, port, published)),
             None,
         )
         if port is None:
@@ -754,6 +765,7 @@ def _compose_environment(project, owner=None, config=None):
         "HOME",
         "NO_COLOR",
         "PATH",
+        "SYSTEMDRIVE",
         "SYSTEMROOT",
         "TEMP",
         "TERM",
@@ -1407,7 +1419,8 @@ def recover():
     _write_marker(marker)
 
 
-def reset():
+def _remove_verified(action, prompt):
+    """Delete the containers, networks and volumes of this worktree's completed bootstrap after owner confirmation."""
     engine = _assert_local_engine()
     marker = _read_marker()
     if (
@@ -1417,12 +1430,12 @@ def reset():
         or marker.get("handoff_verified") is not True
     ):
         raise BootstrapError(
-            "Reset refused: there is no verified fresh bootstrap owned by this worktree. Existing or ambiguous environments are never deleted."
+            f"{action} refused: there is no verified fresh bootstrap owned by this worktree. Existing or ambiguous environments are never deleted."
         )
     project = marker.get("project")
     if project != project_name():
         raise BootstrapError(
-            "Reset refused: the completed bootstrap belongs to a different Compose project."
+            f"{action} refused: the completed bootstrap belongs to a different Compose project."
         )
     resources = _assert_owned_resources(project, marker["owner"])
     missing, unexpected = _volume_mismatch(
@@ -1430,7 +1443,7 @@ def reset():
     )
     if unexpected:
         raise BootstrapError(
-            f"Reset refused: owned volumes {', '.join(unexpected)} are not in the completed bootstrap marker."
+            f"{action} refused: owned volumes {', '.join(unexpected)} are not in the completed bootstrap marker."
         )
     _assert_matching_engine(marker, engine, resources, missing)
     summary = {
@@ -1448,13 +1461,11 @@ def reset():
     )
     if missing:
         print(
-            "The missing volumes cannot be restored; reset discards what remains of this environment."
+            f"The missing volumes cannot be restored; {action.lower()} discards what remains of this environment."
         )
-    confirmation = input(
-        f"Type {marker['owner']} to delete only this verified local demo environment and recreate it: "
-    )
+    confirmation = input(f"Type {marker['owner']} to {prompt}: ")
     if confirmation != marker["owner"]:
-        raise BootstrapError("Reset was not confirmed; no resources were removed.")
+        raise BootstrapError(f"{action} was not confirmed; no resources were removed.")
     for container in resources["containers"]:
         _run(["docker", "stop", container["Id"]], check=False)
         _run(["docker", "rm", container["Id"]], check=False)
@@ -1465,8 +1476,28 @@ def reset():
         )
     for volume in resources["volumes"]:
         _run(["docker", "volume", "rm", volume["Name"]])
+    return marker
+
+
+def reset():
+    marker = _remove_verified(
+        "Reset", "delete only this verified local demo environment and recreate it"
+    )
     marker["status"] = "discarded"
     _write_marker(marker)
+
+
+def clean():
+    """Remove the verified demo environment, its image and its selection, leaving the worktree unselected."""
+    marker = _remove_verified(
+        "Clean", "delete this verified local demo environment without recreating it"
+    )
+    _run(["docker", "image", "rm", marker["config"]["MEDILAB_ODOO_IMAGE"]], check=False)
+    _remove_compose_env(marker["config"])
+    MARKER.unlink()
+    print(
+        f"Removed Compose project {marker['project']}. Run `task setup:fresh:select PROJECT=medilab-bootstrap-<name>` to create a new one."
+    )
 
 
 def main():
@@ -1478,10 +1509,11 @@ def main():
         "recover": recover,
         "check-normal": check_normal_setup,
         "reset": reset,
+        "clean": clean,
     }
     if len(sys.argv) < 2 or sys.argv[1] not in commands:
         raise SystemExit(
-            "Usage: python tools/scripts/demo_bootstrap.py select|switch|switch-recover|setup|recover|check-normal|reset"
+            "Usage: python tools/scripts/demo_bootstrap.py select|switch|switch-recover|setup|recover|check-normal|reset|clean"
         )
     action = sys.argv[1]
     try:
