@@ -5741,6 +5741,26 @@ msgid "Permission: minimum_quantity.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Permission: onboarding.run.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: onboarding.run.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: onboarding.run.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: onboarding.staged.record.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: onboarding.staged.record.read.all"
+msgstr ""
+
+#. module: sol_laboratory
 msgid "Permission: order.create.all"
 msgstr ""
 

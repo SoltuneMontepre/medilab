@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_onboarding_snapshot_organisation_earlier" model="medilab.onboarding.snapshot">
+        <field name="run_id" ref="demo_onboarding_run_failed" />
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="url">https://www.boa.gov.vn/vi/timkiem/tochuc/9901</field>
+        <field name="fetched_at" eval="(DateTime.now() - timedelta(days=6, minutes=-1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="content_type">html</field>
+        <field name="checksum">0d34a468a8b48296e0dd2bdfe8f81adc10fb5816178daa25460e916453f7360a</field>
+        <field name="attachment_id" ref="demo_ir_attachment_onboarding_organisation_earlier" />
+    </record>
+    <record id="demo_onboarding_snapshot_organisation" model="medilab.onboarding.snapshot">
+        <field name="run_id" ref="demo_onboarding_run_done" />
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="url">https://www.boa.gov.vn/vi/timkiem/tochuc/9901</field>
+        <field name="fetched_at" eval="(DateTime.now() - timedelta(days=5, minutes=-1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="content_type">html</field>
+        <field name="checksum">5cbd44186041b4e220af2024c657fa1f15d5c52680efd6b79e16d35528122ce5</field>
+        <field name="attachment_id" ref="demo_ir_attachment_onboarding_organisation" />
+    </record>
+    <record id="demo_onboarding_snapshot_food" model="medilab.onboarding.snapshot">
+        <field name="run_id" ref="demo_onboarding_run_done" />
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="url">https://www.boa.gov.vn/vi/timkiem/phamvi/thuc-pham</field>
+        <field name="fetched_at" eval="(DateTime.now() - timedelta(days=5, minutes=-2)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="content_type">html</field>
+        <field name="checksum">bf29c575b5dfeb9c3efb537eaa5a8970f9624811396b72167f47cec69502ec05</field>
+        <field name="attachment_id" ref="demo_ir_attachment_onboarding_food" />
+    </record>
+    <record id="demo_onboarding_snapshot_environment" model="medilab.onboarding.snapshot">
+        <field name="run_id" ref="demo_onboarding_run_done" />
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="url">https://www.boa.gov.vn/en/search/scope/environment</field>
+        <field name="fetched_at" eval="(DateTime.now() - timedelta(days=5, minutes=-3)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="content_type">html</field>
+        <field name="checksum">d10967134b53df3fd943f9dbc9f63cbc10d4f690905c06f55fb82e2d49eb611d</field>
+        <field name="attachment_id" ref="demo_ir_attachment_onboarding_environment" />
+    </record>
+    <record id="demo_onboarding_snapshot_cosmetics" model="medilab.onboarding.snapshot">
+        <field name="run_id" ref="demo_onboarding_run_cancelled" />
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="url">https://www.boa.gov.vn/en/search/scope/cosmetics</field>
+        <field name="fetched_at" eval="(DateTime.now() - timedelta(days=1, minutes=-1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="content_type">html</field>
+        <field name="checksum">ff307ea8f645ef5d3b0eb48f9c8e0779e34337ff9f83d8e6ffc20c079a6a08dd</field>
+        <field name="attachment_id" ref="demo_ir_attachment_onboarding_cosmetics" />
+    </record>
+    <!-- Each page's attachment points at its snapshot once the snapshot exists. -->
+    <record id="demo_ir_attachment_onboarding_organisation_earlier" model="ir.attachment">
+        <field name="res_id" eval="ref('demo_onboarding_snapshot_organisation_earlier')" />
+    </record>
+    <record id="demo_ir_attachment_onboarding_organisation" model="ir.attachment">
+        <field name="res_id" eval="ref('demo_onboarding_snapshot_organisation')" />
+    </record>
+    <record id="demo_ir_attachment_onboarding_food" model="ir.attachment">
+        <field name="res_id" eval="ref('demo_onboarding_snapshot_food')" />
+    </record>
+    <record id="demo_ir_attachment_onboarding_environment" model="ir.attachment">
+        <field name="res_id" eval="ref('demo_onboarding_snapshot_environment')" />
+    </record>
+    <record id="demo_ir_attachment_onboarding_cosmetics" model="ir.attachment">
+        <field name="res_id" eval="ref('demo_onboarding_snapshot_cosmetics')" />
+    </record>
+</odoo>

@@ -9,6 +9,7 @@ Laboratory Information Management System (LIMS) for testing laboratories, built 
 - [E-commerce](docs/functional/ecommerce_module/overview.md)
 - [Laboratory](docs/functional/laboratory_module/overview.md)
 - [Inventory](docs/functional/inventory_module/overview.md)
+- [Onboarding](docs/functional/onboarding_module/overview.md) (`sol_onboarding`), optional
 - Medilab Theme (`sol_theme`), optional: the MediLab look
 
 Documentation index: [docs/readme.md](docs/readme.md).

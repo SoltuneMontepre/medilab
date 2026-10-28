@@ -177,10 +177,10 @@ tasks:
       - npm exec --yes --ignore-scripts --package=c8@10.1.3 -- c8 --include=infra/cluster/onlyoffice/callback-signing.cjs --reporter=lcov --reports-dir=.local/onlyoffice-coverage/js node tools/infrastructure/onlyoffice/test_callback_signing.cjs
 
   test:uninstall:
-    desc: "Install the modules in a throwaway database, uninstall commerce and inventory and check that the Laboratory data is intact"
+    desc: "Install the modules in a throwaway database, uninstall commerce, inventory and onboarding and check that the Laboratory data is intact"
     silent: true
     vars:
-      MODULES: sol_laboratory,sol_commerce,sol_inventory
+      MODULES: sol_laboratory,sol_commerce,sol_inventory,sol_onboarding
       STANDALONE_TAG: medilab_uninstall
     env:
       TEST_DB: '{{.TEST_DB}}'

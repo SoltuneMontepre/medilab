@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img">
+  <title>MediLab Onboarding — chữ M trên tờ tài liệu</title>
+  <rect width="1024" height="1024" rx="224" fill="#0083EF"/>
+  <path fill="#FFFFFF" d="M262 150H610L762 302V838C762 858 746 874 726 874H298C278 874 262 858 262 838Z"/>
+  <path fill="#0A4D8C" d="M610 150L762 302H640C623 302 610 289 610 272Z"/>
+  <path fill="#0083EF" transform="translate(320 470) scale(1.5)" d="M0 0H64L128 56L192 0H256V224H211L149 126V91H152C160 91 160 79 152 79H104C96 79 96 91 104 91H107V126L45 224H0Z"/>
+</svg>

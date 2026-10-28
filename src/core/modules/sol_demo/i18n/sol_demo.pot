@@ -107,6 +107,11 @@ msgid "Bottled water microbiology"
 msgstr ""
 
 #. module: sol_demo
+#: model:medilab.onboarding.source,name:sol_demo.demo_onboarding_source_boa
+msgid "Bureau of Accreditation"
+msgstr ""
+
+#. module: sol_demo
 #: model:medilab.sample.type,name:sol_demo.demo_sample_type_cabbage
 msgid "Cabbage"
 msgstr ""

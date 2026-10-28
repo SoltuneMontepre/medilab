@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_onboarding_run_done" model="medilab.onboarding.run">
+        <field name="organisation_id" ref="demo_onboarding_organisation_medilab" />
+        <field name="sector_ids" eval="[Command.set([ref('sol_onboarding.sector_food'), ref('sol_onboarding.sector_environment')])]" />
+        <field name="state">done</field>
+        <field name="requested_by_id" ref="demo_res_users_administrator" />
+        <field name="started_at" eval="(DateTime.now() - timedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="ended_at" eval="(DateTime.now() - timedelta(days=5, minutes=-4)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="page_count">3</field>
+        <field name="skipped_count">1</field>
+        <field name="staged_count">21</field>
+        <field name="log">fetched https://www.boa.gov.vn/vi/timkiem/tochuc/9901
+fetched https://www.boa.gov.vn/vi/timkiem/phamvi/thuc-pham
+fetched https://www.boa.gov.vn/en/search/scope/environment
+skipped https://www.boa.gov.vn/vi/timkiem/phamvi/thuc-pham/huong-dan.doc: content type application/msword not accepted
+Certificate: 3
+Testing Field: 3
+Testing Method: 6
+Sample Type: 3
+Test Parameter: 3
+Way of Testing: 3</field>
+    </record>
+    <record id="demo_onboarding_run_failed" model="medilab.onboarding.run">
+        <field name="organisation_id" ref="demo_onboarding_organisation_medilab" />
+        <field name="state">failed</field>
+        <field name="requested_by_id" ref="demo_res_users_administrator" />
+        <field name="started_at" eval="(DateTime.now() - timedelta(days=6)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="ended_at" eval="(DateTime.now() - timedelta(days=6, minutes=-40)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="page_count">1</field>
+        <field name="skipped_count">0</field>
+        <field name="staged_count">6</field>
+        <field name="log">fetched https://www.boa.gov.vn/vi/timkiem/tochuc/9901
+failed https://www.boa.gov.vn/vi/timkiem/tochuc/9901/pham-vi.pdf: The source answered 503.
+Certificate: 1
+Testing Field: 1
+Testing Method: 1
+Sample Type: 1
+Test Parameter: 1
+Way of Testing: 1</field>
+    </record>
+    <record id="demo_onboarding_run_cancelled" model="medilab.onboarding.run">
+        <field name="sector_ids" eval="[Command.set([ref('sol_onboarding.sector_cosmetics')])]" />
+        <field name="state">cancelled</field>
+        <field name="requested_by_id" ref="demo_res_users_administrator" />
+        <field name="started_at" eval="(DateTime.now() - timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="ended_at" eval="(DateTime.now() - timedelta(days=1, minutes=-2)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="page_count">1</field>
+        <field name="skipped_count">0</field>
+        <field name="staged_count">4</field>
+        <field name="log">fetched https://www.boa.gov.vn/en/search/scope/cosmetics
+Testing Method: 2
+Test Parameter: 2</field>
+    </record>
+    <record id="demo_onboarding_run_running" model="medilab.onboarding.run">
+        <field name="organisation_id" ref="demo_onboarding_organisation_medilab" />
+        <field name="state">running</field>
+        <field name="requested_by_id" ref="demo_res_users_administrator" />
+        <field name="started_at" eval="(DateTime.now() - timedelta(minutes=10)).strftime('%Y-%m-%d %H:%M:%S')" />
+    </record>
+    <record id="demo_onboarding_run_draft" model="medilab.onboarding.run">
+        <field name="organisation_id" ref="demo_onboarding_organisation_medilab" />
+        <field name="sector_ids" eval="[Command.set([ref('sol_onboarding.sector_food')])]" />
+        <field name="requested_by_id" ref="demo_res_users_administrator" />
+    </record>
+</odoo>
