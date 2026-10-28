@@ -76,7 +76,7 @@ python3 tools/onlyoffice_integration/run.py test
 
 The `onlyoffice_real` prefix matters: this class excludes `standard`. A bare module/class selector can silently select no test; missing evidence prevents acceptance.
 
-The default fixture has body JWT enabled. The environment generator reads canonical policy from the verified P1 revision `e6f24173c831eac945fc90cd50af4a6f788ba2c6`; `--commit` accepts an exact integrated revision. Its policy bytes match the earlier infrastructure declaration. For a fresh worker-policy comparison with that committed policy:
+The default fixture has body JWT enabled. The environment generator reads canonical policy from the merged revision `63bbfba04b85741da07b9aa0a02ebb0728d4cca8`; `--commit` accepts an exact integrated revision. Its policy bytes match the earlier infrastructure declaration. For a fresh worker-policy comparison with that committed policy:
 
 ```bash
 python3 tools/onlyoffice_integration/runtime_env.py
