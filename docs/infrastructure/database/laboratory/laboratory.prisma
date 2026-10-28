@@ -1325,7 +1325,7 @@ model ApprovalLevel {
   @@map("medilab_approval_level")
 }
 
-/// One signature or rejection on one version of a document. Records are never deleted; a withdrawal sets withdrawn_at.
+/// One signature or rejection on one version of a document. Records are never deleted or changed; a withdrawal sets withdrawn_at once.
 /// Points to its document by document_model and document_id: partial index on them where withdrawn_at is empty, for the signatures in force.
 /// When it was signed is Odoo's creation time of the row.
 model Signature {
