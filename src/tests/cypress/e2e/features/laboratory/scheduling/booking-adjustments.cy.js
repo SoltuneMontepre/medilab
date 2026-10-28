@@ -118,7 +118,7 @@ describe("PR #373 proposed department-transfer contract", () => {
         expect(after.tests[0].status).not.to.equal("cancelled");
         callRefused("medilab.task", "write", [[fixture.tasks[0]], { note: "An unauthorized change after transfer." }])
           .should("contain", "not allowed")
-          .and("contain", "edit");
+          .and("match", /edit/i);
         snapshot(fixture).should("deep.equal", after);
       });
     });
