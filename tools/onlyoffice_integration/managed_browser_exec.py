@@ -10,6 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
+from tools.onlyoffice_integration.managed_browser_arguments import browser_arguments
 from tools.onlyoffice_integration.managed_process import identity
 from tools.scripts.local_private_paths import guard_local_path
 
@@ -41,7 +42,8 @@ def main():
     if guard_local_path(ROOT, directory / "browser-cancel").exists():
         return
     chrome = guard_local_path(ROOT, ROOT / ".local/onlyoffice-tools/chromium/chrome")
-    os.execv(chrome, [str(chrome), *sys.argv[1:]])
+    arguments = browser_arguments(sys.argv[1:], directory)
+    os.execv(chrome, [str(chrome), *arguments])
 
 
 if __name__ == "__main__":

@@ -6,14 +6,14 @@ const packageRoot = path.join(root, ".local/onlyoffice-tools/node_modules/playwr
 const { chromium } = require(packageRoot);
 const { isDocumentEditorFrame } = require("./managed_frame.cjs");
 
-async function main() {
+async function readOwnedInput() {
   let raw = "";
   for await (const part of process.stdin) {
     raw += part;
     if (raw.length > 8192) throw new Error("Input too large");
   }
   const input = JSON.parse(raw);
-  const local = value => /^http:\/\/localhost:([1-9][0-9]{0,4})$/.test(value) && Number(new URL(value).port) <= 65535;
+  const local = value => /^http:\/\/localhost:([1-9]\d{0,4})$/.test(value) && Number(new URL(value).port) <= 65535;
   if (!/^[a-f0-9]{32}$/.test(input.nonce) || !local(input.base) || !local(input.editor) ||
       !Number.isSafeInteger(input.fileId) || input.fileId <= 0 || input.login !== "demo.tester" ||
       input.marker !== "MEDILAB_MANAGED_" + input.nonce || typeof input.password !== "string") {
@@ -29,6 +29,11 @@ async function main() {
       manifest.actor !== input.login || manifest.file_id !== input.fileId ||
       manifest.selection.odoo_origin !== input.base || manifest.selection.editor_origin !== input.editor ||
       manifest.edit_marker !== input.marker) throw new Error("Input differs from the reviewed owned manifest");
+  return { input, directory };
+}
+
+async function main() {
+  const { input, directory } = await readOwnedInput();
   const resultPath = path.join(directory, "browser-result.json");
   if (fs.existsSync(resultPath)) throw new Error("A browser result already exists");
   function record(result) {
@@ -92,7 +97,7 @@ async function main() {
     await page.waitForFunction(() => {
       const status = document.getElementById("editor-status");
       const ready = document.querySelector('[data-message="ready"]');
-      return Boolean(status && ready && status.textContent === ready.textContent);
+      return Boolean(status && status.textContent === ready?.textContent);
     }, null, { timeout: 120000 });
     const frame = page.frames().find(value => isDocumentEditorFrame(value.url(), input.editor));
     if (!frame || responseCount < 1) throw new Error("Missing real Document Server response or frame");

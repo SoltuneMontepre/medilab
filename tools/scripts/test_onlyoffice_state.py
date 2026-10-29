@@ -25,11 +25,9 @@ class OnlyofficeStateTest(unittest.TestCase):
             patch.object(onlyoffice, "ROOT", self.root),
             patch.object(Path, "is_file", return_value=True),
             patch.object(onlyoffice.subprocess, "run", return_value=result) as run,
+            self.assertRaises(SystemExit) as raised,
         ):
-            with self.assertRaises(SystemExit) as raised:
-                onlyoffice.onlyoffice_commands.use_core_environment(
-                    onlyoffice, "verify"
-                )
+            onlyoffice.onlyoffice_commands.use_core_environment(onlyoffice, "verify")
         self.assertEqual(raised.exception.code, 17)
         executable = (
             self.root
@@ -140,7 +138,7 @@ class OnlyofficeStateTest(unittest.TestCase):
                 self.assertEqual(
                     state.read_state(addon["project"], engine="local"), current
                 )
-                self.assertEqual((file.read_bytes(), file.stat().st_mtime_ns), original)
+                self.assertEqual(original, (file.read_bytes(), file.stat().st_mtime_ns))
 
     def test_malformed_owned_state_is_rejected_before_engine_or_state_mutation_and_can_be_restored(
         self,
@@ -206,7 +204,7 @@ class OnlyofficeStateTest(unittest.TestCase):
                 resources.assert_not_called()
                 run.assert_not_called()
                 save.assert_not_called()
-                self.assertEqual((file.read_bytes(), file.stat().st_mtime_ns), original)
+                self.assertEqual(original, (file.read_bytes(), file.stat().st_mtime_ns))
                 state.atomic_json(file, addon)
                 self.assertEqual(
                     state.read_state(addon["project"], engine="local"), addon

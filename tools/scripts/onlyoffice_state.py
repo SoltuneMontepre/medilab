@@ -211,8 +211,7 @@ def verify_registration(state, marker, persisted):
         )
 
 
-def checked_path(path, *, private=False):
-    path = Path(path)
+def _guard_managed_path(path):
     try:
         path.relative_to(ROOT / ".local")
     except ValueError:
@@ -222,6 +221,11 @@ def checked_path(path, *, private=False):
             guard_local_path(ROOT, path)
         except LocalPrivatePathError as error:
             raise OnlyofficeError(str(error)) from None
+
+
+def checked_path(path, *, private=False):
+    path = Path(path)
+    _guard_managed_path(path)
     for item in (path, *path.parents):
         if item.is_symlink() or (hasattr(item, "is_junction") and item.is_junction()):
             raise OnlyofficeError(

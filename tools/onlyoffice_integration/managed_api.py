@@ -10,6 +10,8 @@ from xml.etree import ElementTree
 
 from .managed_http import HttpSession
 
+DEVICE_NAME_PREFIX = "Managed browser "
+
 
 class ProbeError(RuntimeError):
     pass
@@ -26,7 +28,7 @@ def validate_new_device(device, nonce, existing_ids):
         type(identifier) is int
         and identifier > 0
         and identifier not in existing_ids
-        and device.get("name") == "Managed browser " + nonce
+        and device.get("name") == DEVICE_NAME_PREFIX + nonce
         and device.get("platform") == "linux"
         and device.get("status") == "signed_in"
         and device.get("current") is True
@@ -139,7 +141,7 @@ class ManagedApi:
                 "login": self.login,
                 "password": self.password,
                 "client_uid": nonce,
-                "name": "Managed browser " + nonce,
+                "name": DEVICE_NAME_PREFIX + nonce,
                 "platform": "linux",
             },
             authenticated=False,
@@ -151,7 +153,7 @@ class ManagedApi:
         require(
             len(actual) == 1
             and actual[0]["client_uid"] == nonce
-            and actual[0]["name"] == "Managed browser " + nonce
+            and actual[0]["name"] == DEVICE_NAME_PREFIX + nonce
             and actual[0]["platform"] == "linux"
             and actual[0]["status"] == "signed_in",
             "Read-only server state does not confirm the owned device; revocation is forbidden.",

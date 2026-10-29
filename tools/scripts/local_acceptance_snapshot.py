@@ -124,6 +124,35 @@ def database_read(container, query):
     ).strip()
 
 
+def snapshot_volumes(marker, resources, owner):
+    expected = {
+        value for key, value in marker["config"].items() if key.endswith("_VOLUME")
+    }
+    if len(expected) != 7:
+        raise SnapshotError(
+            "The completed demo must own exactly seven configured volumes."
+        )
+    volumes = {}
+    for volume in resources["volumes"]:
+        name = volume.get("Name") or volume.get("name")
+        if name in expected:
+            labels = bootstrap._labels(volume, "volumes")
+            if (
+                labels.get(bootstrap.OWNER_LABEL) != owner
+                or volume.get("Name") != name
+                or not isinstance(volume.get("CreatedAt"), str)
+                or not volume["CreatedAt"]
+                or name in volumes
+            ):
+                raise SnapshotError("A persistent volume belongs to another owner.")
+            volumes[name] = {
+                key: volume.get(key) for key in ("Name", "CreatedAt", "Labels")
+            }
+    if set(volumes) != expected:
+        raise SnapshotError("A required persistent volume is missing.")
+    return volumes
+
+
 def capture(project, owner):
     marker, resources, containers = selected(project, owner)
     database_uuid = database_read(
@@ -210,31 +239,7 @@ def capture(project, owner):
             "The owned cache-signing fingerprint could not be verified."
         )
     identities["cache-signing-key"] = digest
-    expected = {
-        value for key, value in marker["config"].items() if key.endswith("_VOLUME")
-    }
-    if len(expected) != 7:
-        raise SnapshotError(
-            "The completed demo must own exactly seven configured volumes."
-        )
-    volumes = {}
-    for volume in resources["volumes"]:
-        name = volume.get("Name") or volume.get("name")
-        if name in expected:
-            labels = bootstrap._labels(volume, "volumes")
-            if (
-                labels.get(bootstrap.OWNER_LABEL) != owner
-                or volume.get("Name") != name
-                or not isinstance(volume.get("CreatedAt"), str)
-                or not volume["CreatedAt"]
-                or name in volumes
-            ):
-                raise SnapshotError("A persistent volume belongs to another owner.")
-            volumes[name] = {
-                key: volume.get(key) for key in ("Name", "CreatedAt", "Labels")
-            }
-    if set(volumes) != expected:
-        raise SnapshotError("A required persistent volume is missing.")
+    volumes = snapshot_volumes(marker, resources, owner)
     return {
         "project": project,
         "owner": owner,

@@ -118,6 +118,19 @@ def _scoped_path(root, path):
     ]
 
 
+def _check_existing_item(item, info, leaf):
+    if stat.S_ISLNK(info.st_mode) or (
+        hasattr(item, "is_junction") and item.is_junction()
+    ):
+        raise LocalPrivatePathError(ERROR)
+    if not stat.S_ISDIR(info.st_mode) and (not leaf or not stat.S_ISREG(info.st_mode)):
+        raise LocalPrivatePathError(ERROR)
+    if os.name != "nt" and (
+        info.st_uid != os.getuid() or stat.S_IMODE(info.st_mode) & 0o022
+    ):
+        raise LocalPrivatePathError(ERROR)
+
+
 def guard_local_path(root, path):
     path, chain = _scoped_path(root, path)
     existing = []
@@ -127,18 +140,7 @@ def guard_local_path(root, path):
                 info = item.lstat()
             except FileNotFoundError:
                 break
-            if stat.S_ISLNK(info.st_mode) or (
-                hasattr(item, "is_junction") and item.is_junction()
-            ):
-                raise LocalPrivatePathError(ERROR)
-            if not stat.S_ISDIR(info.st_mode) and (
-                index != len(chain) - 1 or not stat.S_ISREG(info.st_mode)
-            ):
-                raise LocalPrivatePathError(ERROR)
-            if os.name != "nt" and (
-                info.st_uid != os.getuid() or stat.S_IMODE(info.st_mode) & 0o022
-            ):
-                raise LocalPrivatePathError(ERROR)
+            _check_existing_item(item, info, index == len(chain) - 1)
             existing.append(str(item))
         if os.name == "nt" and existing:
             _powershell(

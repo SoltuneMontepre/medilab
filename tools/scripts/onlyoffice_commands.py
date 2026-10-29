@@ -54,7 +54,6 @@ def _report_status(controller, state):
     print(json.dumps(status))
     if not status["ready"]:
         raise SystemExit(1)
-    return
 
 
 def _print_logs(controller, state):
@@ -62,7 +61,6 @@ def _print_logs(controller, state):
         result = controller.run(["docker", "logs", "--tail", "100", peer["Id"]])
         print(result.stdout, end="")
         print(result.stderr, end="", file=sys.stderr)
-    return
 
 
 def _start_completed(controller, command, project, state, marker, environment):

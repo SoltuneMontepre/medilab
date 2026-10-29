@@ -58,6 +58,22 @@ def browser_group(directory, nonce, launcher_group, executable):
         return None
 
 
+def wait_for_browser_exit(browser, cleanup):
+    deadline = time.monotonic() + 3
+    while browser and time.monotonic() < deadline:
+        current = identity(browser["pid"])
+        if (
+            current is None
+            or current["start_ticks"] != browser["start_ticks"]
+            or current["state"] == "Z"
+        ):
+            break
+        time.sleep(0.05)
+    else:
+        if browser:
+            cleanup["errors"].append("OwnedBrowserStillLive")
+
+
 def hard_cleanup(process, launcher, directory, nonce, executable):
     cleanup = {
         "forced": True,
@@ -90,19 +106,7 @@ def hard_cleanup(process, launcher, directory, nonce, executable):
         cleanup["errors"].append("PipeDrainTimeout")
     cleanup["browser_record_present"] = (directory / "browser-launch.json").is_file()
     cleanup["browser_identity_validated"] = browser is not None
-    deadline = time.monotonic() + 3
-    while browser and time.monotonic() < deadline:
-        current = identity(browser["pid"])
-        if (
-            current is None
-            or current["start_ticks"] != browser["start_ticks"]
-            or current["state"] == "Z"
-        ):
-            break
-        time.sleep(0.05)
-    else:
-        if browser:
-            cleanup["errors"].append("OwnedBrowserStillLive")
+    wait_for_browser_exit(browser, cleanup)
     if cleanup["browser_record_present"] and browser is None:
         cleanup["errors"].append("BrowserIdentityUnverified")
     return {

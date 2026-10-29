@@ -105,7 +105,7 @@ class PrivateStateWritersTest(unittest.TestCase):
         ):
             bootstrap._write_switch_journal({}, {})
         self.assertEqual(
-            (self.journal.read_bytes(), self.journal.stat().st_mtime_ns), original
+            original, (self.journal.read_bytes(), self.journal.stat().st_mtime_ns)
         )
         self.assertFalse(list(self.local.glob(".medilab-*")))
 

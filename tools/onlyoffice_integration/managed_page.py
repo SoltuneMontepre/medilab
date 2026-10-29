@@ -63,6 +63,9 @@ def write_json(path, value):
         temporary.unlink(missing_ok=True)
 
 
+DOCX_BODY = b"<w:body>"
+
+
 def unique_fixture(nonce):
     require(
         isinstance(nonce, str) and re.fullmatch(r"[a-f0-9]{32}", nonce),
@@ -83,13 +86,13 @@ def unique_fixture(nonce):
             content = original.read(item.filename)
             if item.filename == "word/document.xml":
                 require(
-                    b"<w:body>" in content,
+                    DOCX_BODY in content,
                     "The fixed DOCX has an unexpected document body.",
                 )
                 paragraph = (
                     f"<w:p><w:r><w:t>MEDILAB_BASE_{nonce}</w:t></w:r></w:p>".encode()
                 )
-                content = content.replace(b"<w:body>", b"<w:body>" + paragraph, 1)
+                content = content.replace(DOCX_BODY, DOCX_BODY + paragraph, 1)
             prepared.writestr(item, content)
     return output.getvalue()
 
@@ -105,10 +108,8 @@ def preflight():
         "A completed owned demo selection is required.",
     )
     state = onlyoffice.read_state(project, marker, engine)
-    require(
-        state is not None and state["status"] == "completed",
-        "A completed owned editor is required.",
-    )
+    if state is None or state["status"] != "completed":
+        raise ProbeError("A completed owned editor is required.")
     onlyoffice.resources(state)
     onlyoffice.verify_image(state)
     base = selected_odoo_url(require_saved_selection=True)
@@ -123,7 +124,7 @@ def preflight():
         "bucket": runtime["bucket"],
     }
     require(
-        re.fullmatch(r"http://localhost:[1-9][0-9]{0,4}", base),
+        re.fullmatch(r"http://localhost:[1-9]\d{0,4}", base),
         "The managed probe requires the selected loopback origin.",
     )
     return expected
@@ -459,17 +460,21 @@ def execute(argument):
         checkpoint(status="failed", failure_type=type(error).__name__, **details)
         raise
     finally:
-        if "device_id" in manifest:
-            try:
-                result = api.request("POST", f"/devices/{manifest['device_id']}/revoke")
-                require(
-                    result["device"]["status"] == "revoked",
-                    "The owned device was not revoked.",
-                )
-                checkpoint(owned_device_revoked=True)
-            except Exception:
-                checkpoint(status="failed", owned_device_revoked=False)
-                raise
+        revoke_owned_device(api, manifest, checkpoint)
+
+
+def revoke_owned_device(api, manifest, checkpoint):
+    if "device_id" in manifest:
+        try:
+            result = api.request("POST", f"/devices/{manifest['device_id']}/revoke")
+            require(
+                result["device"]["status"] == "revoked",
+                "The owned device was not revoked.",
+            )
+            checkpoint(owned_device_revoked=True)
+        except Exception:
+            checkpoint(status="failed", owned_device_revoked=False)
+            raise
 
 
 def main():
