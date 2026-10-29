@@ -14,6 +14,7 @@ from unittest.mock import patch
 
 import onlyoffice
 import onlyoffice_state as state
+from local_private_paths import ensure_local_directory
 
 
 class OnlyofficeStateTest(unittest.TestCase):
@@ -115,7 +116,7 @@ class OnlyofficeStateTest(unittest.TestCase):
     def test_state_loader_accepts_actual_generator_lifecycle_and_preserves_bytes(self):
         addon = self.generated_state()
         directory = state.state_directory(addon["project"])
-        directory.mkdir(parents=True, mode=0o700)
+        ensure_local_directory(self.root, directory)
         state.protect(directory)
         for changes in (
             {},
@@ -145,7 +146,7 @@ class OnlyofficeStateTest(unittest.TestCase):
     ):
         addon = self.generated_state()
         directory = state.state_directory(addon["project"])
-        directory.mkdir(parents=True, mode=0o700)
+        ensure_local_directory(self.root, directory)
         state.protect(directory)
         file = directory / "state.json"
         broken = [
@@ -342,7 +343,7 @@ class OnlyofficeStateTest(unittest.TestCase):
 
     def test_foreign_registration_change_is_refused_before_any_write(self):
         directory = state.state_directory("medilab-test")
-        directory.mkdir(parents=True, mode=0o700)
+        ensure_local_directory(self.root, directory)
         addon = {
             "project": "medilab-test",
             "owner": "a" * 32,
