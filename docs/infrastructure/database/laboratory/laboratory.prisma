@@ -1054,6 +1054,8 @@ model Person {
   tasks         Task[]           @relation("TaskAssignee")
   /// Tasks the person assigned.
   assigned_tasks Task[]          @relation("TaskAssigner")
+  /// Tasks the person moved to another department.
+  moved_out_tasks TaskMovedOutBy[]
   /// Permissions given to the person directly, on top of their roles.
   permissions   PersonPermission[]
   /// Sample tests the person cancelled.
@@ -1504,6 +1506,8 @@ model Task {
   bookings       MachineBooking[]
   /// Assign-task wizards that include this task.
   reassign_wizards TaskReassignTask[]
+  /// People who moved the task to another department; they still read it, but no longer change it.
+  moved_out_by   TaskMovedOutBy[]
 
   @@index([assignee_id, status])
   @@index([department_id, status])
@@ -1546,6 +1550,22 @@ model TaskReassignTask {
   @@id([medilab_task_reassign_id, medilab_task_id])
   @@index([medilab_task_id])
   @@map("medilab_task_medilab_task_reassign_rel")
+}
+
+/// Links a task to a person who moved it to another department.
+model TaskMovedOutBy {
+  /// The task.
+  task_id   Int
+  /// The person who moved it.
+  person_id Int
+  /// The task.
+  task      Task   @relation(fields: [task_id], references: [id], onDelete: Cascade)
+  /// The person.
+  person    Person @relation(fields: [person_id], references: [id], onDelete: Cascade)
+
+  @@id([task_id, person_id])
+  @@index([person_id])
+  @@map("medilab_task_moved_out_by_rel")
 }
 
 /// Odoo's calendar event (calendar.event), shown with the columns this schema uses: the planned time of a task, a machine booking or a location booking on the attendees' calendars. It has no Odoo alarm: the reminder job reminds of it before it starts.

@@ -14575,6 +14575,16 @@ msgid "This page accepts GET requests only."
 msgstr "Trang này chỉ chấp nhận yêu cầu GET."
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__can_edit
+msgid "Can Edit"
+msgstr "Được sửa"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__moved_out_by_ids
+msgid "Moved Out By"
+msgstr "Người chuyển đi"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__quality_registration_warning_days
 msgid "Expiry Warning (days)"
 msgstr "Cảnh báo hết hạn (ngày)"

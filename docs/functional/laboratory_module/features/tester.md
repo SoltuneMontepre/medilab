@@ -61,7 +61,7 @@ Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling
 | Marking urgent | The tester marks a test of their own testing task urgent, stating why, or removes the mark. A marked test is urgent whatever its due date. |
 | Deadline risk  | The tester is told when one of their tests becomes at risk of missing its due date, and sees it marked at risk on the task, the to-do list and the schedule. |
 | Machine heads-up | Scheduling or starting a booking on a machine due for calibration or maintenance soon, or repaired recently, shows a warning naming what is due or what was repaired; the booking goes ahead. |
-| Adjusting      | Moving or cancelling a booking puts its slot back in the queue.                                                          |
+| Adjusting      | The tester moves their own booking that has not started, from its form or by dragging it on the machine schedule, only to a free slot. Moving or cancelling a booking puts its slot back in the queue. |
 
 Acceptance criteria:
 

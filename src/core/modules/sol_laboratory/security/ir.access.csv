@@ -23,6 +23,7 @@ access_medilab_unit_category_user,medilab.unit.category user,medilab.unit.catego
 access_medilab_task_type_user,medilab.task.type user,medilab.task.type,base.group_user,r,
 access_medilab_task_assignee,medilab.task assignee,medilab.task,base.group_user,r,"[('assignee_id.user_id', '=', user.id)]"
 access_medilab_task_queue,medilab.task queue,medilab.task,base.group_user,r,"['&', ('status', '=', 'open'), '|', ('department_id', 'in', user.employee_id.department_id.ids), '&', '&', ('department_id', '=', False), ('type_id.route', '=', 'role'), ('type_id.role_id.person_ids', 'any', [('user_id', '=', user.id), ('active', '=', True)])]"
+access_medilab_task_moved_out,medilab.task moved out,medilab.task,base.group_user,r,"[('moved_out_by_ids.user_id', '=', user.id)]"
 access_medilab_task_reassign_user,medilab.task.reassign user,medilab.task.reassign,base.group_user,crud,
 access_medilab_test_result_reject_user,medilab.test.result.reject user,medilab.test.result.reject,base.group_user,crud,
 access_medilab_test_report_reject_user,medilab.test.report.reject user,medilab.test.report.reject,base.group_user,crud,
@@ -38,7 +39,7 @@ access_medilab_mobile_device_system,medilab.mobile.device system,medilab.mobile.
 access_medilab_push_delivery_user,medilab.push.delivery user,medilab.push.delivery,base.group_user,r,
 access_medilab_push_delivery_system,medilab.push.delivery system,medilab.push.delivery,base.group_system,crud,
 access_medilab_sample_scan_user,medilab.sample.scan user,medilab.sample.scan,base.group_user,crud,
-access_medilab_machine_booking_person,medilab.machine.booking person,medilab.machine.booking,base.group_user,r,"[('person_id.user_id', '=', user.id)]"
+access_medilab_machine_booking_person,medilab.machine.booking person,medilab.machine.booking,base.group_user,ru,"[('person_id.user_id', '=', user.id)]"
 access_medilab_change_request_requester,medilab.change.request requester,medilab.change.request,base.group_user,r,"[('requested_by_id.user_id', '=', user.id)]"
 access_medilab_change_request_raise_user,medilab.change.request.raise user,medilab.change.request.raise,base.group_user,crud,
 access_medilab_change_request_reject_user,medilab.change.request.reject user,medilab.change.request.reject,base.group_user,crud,

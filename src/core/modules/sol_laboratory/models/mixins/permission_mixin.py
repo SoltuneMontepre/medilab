@@ -28,11 +28,16 @@ class PermissionMixin(models.AbstractModel):
     @api.model
     def get_view(self, view_id=None, view_type="form", **options):
         result = super().get_view(view_id, view_type, **options)
-        if view_type in EDITABLE_VIEW_TYPES and not self._has_permission("edit"):
+        if view_type in EDITABLE_VIEW_TYPES and not self._edits_in_views():
             root = etree.fromstring(result["arch"])
             root.set("edit", "False")
             result["arch"] = etree.tostring(root, encoding="unicode")
         return result
+
+    @api.model
+    def _edits_in_views(self):
+        """Whether the form, list and kanban views let the user change records."""
+        return self._has_permission("edit")
 
     def write(self, vals):
         if "active" in vals:

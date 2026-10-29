@@ -164,6 +164,11 @@ class MachineBooking(models.Model):
             self._sync_schedule()
         return result
 
+    @api.model
+    def _edits_in_views(self):
+        # A person moves their own bookings without the edit permission; _move refuses anyone else's.
+        return super()._edits_in_views() or bool(self.env[MODEL_PERSON]._current())
+
     def _open(self):
         return self.filtered(lambda booking: booking.status in OPEN_STATUSES)
 
