@@ -58,7 +58,7 @@ describe("WF-01 Order to approved test request", () => {
         choose("physical_state", "Lỏng");
         save();
         openTab("order_lines");
-        cy.get(".o_field_widget[name=order_line] .o_data_row td[name=sample_id]").first().click();
+        cy.get(".o_field_widget[name=product_line_ids] .o_data_row td[name=sample_id]").first().click();
         pick("sample_id", sampleName);
         openTab("payment");
         choose("advance_method", "Trực tuyến");
@@ -102,10 +102,10 @@ describe("WF-01 Order to approved test request", () => {
     newRecord("/odoo/lab-orders");
     pick("customer_id", "Công ty TNHH Nước Uống Sạch");
     pick("partner_id", "Phạm Thị Hoa");
-    cy.get(".o_field_widget[name=order_line] .o_field_x2many_list_row_add button").first().click();
+    cy.get(".o_field_widget[name=product_line_ids] .o_field_x2many_list_row_add button").first().click();
     cy.get(".o_selected_row .o_field_widget[name=product_template_id] input").type("Lead (Pb)");
     cy.contains(".o-autocomplete--dropdown-item a", "Lead (Pb)").click();
-    cy.get(".o_field_widget[name=order_line] .o_data_row").should("contain", "280.000");
+    cy.get(".o_field_widget[name=product_line_ids] .o_data_row").should("contain", "280.000");
     save();
     cy.location("pathname")
       .then((path) => cy.readRecord({ model: "sale.order", id: Number(path.split("/").pop()) }, ["source", "order_status", "user_id"]))
@@ -418,7 +418,7 @@ describe("WF-01 feature acceptance criteria", () => {
       cy.signInAs("sales");
       cy.openRecord(order);
       cy.intercept("POST", "/web/dataset/call_kw/product.*/*search*").as("productSearch");
-      cy.get(".o_field_widget[name=order_line] .o_field_x2many_list_row_add button").first().click();
+      cy.get(".o_field_widget[name=product_line_ids] .o_field_x2many_list_row_add button").first().click();
       cy.get(".o_selected_row .o_field_widget[name=product_template_id] input").type("Cadmi");
       cy.wait("@productSearch")
         .its("response.body")
@@ -518,7 +518,7 @@ describe("WF-01 feature acceptance criteria", () => {
       cy.expectRefusal({
         read: () => call("sale.order.line", "search_read", [[["order_id", "=", order.id]]], { fields: ["price_unit", "discount", "tax_ids"] }),
         action: () => {
-          cy.get(".o_field_widget[name=order_line] .o_data_row td[name=price_unit]").first().click();
+          cy.get(".o_field_widget[name=product_line_ids] .o_data_row td[name=price_unit]").first().click();
           cy.get(".o_selected_row .o_field_widget[name=price_unit] input").clear().type("100000");
           cy.get(".o_form_button_save").click();
         },
