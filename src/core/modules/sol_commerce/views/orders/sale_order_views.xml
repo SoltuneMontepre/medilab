@@ -220,7 +220,7 @@
                             decoration-success="approval_status == 'approved'"
                             decoration-danger="approval_status == 'rejected'"
                         />
-                        <span class="text-muted" invisible="not approval_waiting_for">
+                        <span class="d-inline-flex align-items-center gap-1 text-muted" invisible="not approval_waiting_for">
                             waiting for <field name="approval_waiting_for" class="text-muted" />
                         </span>
                     </div>
