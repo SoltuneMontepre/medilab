@@ -45,4 +45,9 @@
         <field name="name">Foods of plant origin — Multimethod for the determination of pesticide residues using GC- and LC-based analysis following acetonitrile extraction (QuEChERS)</field>
         <field name="field_id" ref="demo_testing_field_chemistry" />
     </record>
+    <record id="demo_testing_method_chromium_vi_colorimetry" model="medilab.testing.method">
+        <field name="code">LAB-CR6-01</field>
+        <field name="name">Water quality — Determination of chromium(VI) by colorimetry</field>
+        <field name="field_id" ref="demo_testing_field_chemistry" />
+    </record>
 </odoo>

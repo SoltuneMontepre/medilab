@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-28 14:42+0000\n"
-"PO-Revision-Date: 2026-10-28 14:42+0000\n"
+"POT-Creation-Date: 2026-10-29 17:57+0000\n"
+"PO-Revision-Date: 2026-10-29 17:57+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -19,6 +19,12 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__meeting_count
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__meeting_count
 msgid "# Meetings"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__supplier_invoice_count
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__supplier_invoice_count
+msgid "# Vendor Bills"
 msgstr ""
 
 #. module: sol_laboratory
@@ -197,6 +203,14 @@ msgstr ""
 msgid ""
 "%s has no team, so a permission on it cannot be limited to the person's "
 "team."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/permission.py:0
+msgid ""
+"%s has no user, so a permission on it cannot be limited to the person's own "
+"records."
 msgstr ""
 
 #. module: sol_laboratory
@@ -1007,6 +1021,36 @@ msgid "Access"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__account_move_count
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__account_move_count
+msgid "Account Move Count"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__property_account_payable_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__property_account_payable_id
+msgid "Account Payable"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__property_account_payable_active
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__property_account_payable_active
+msgid "Account Payable Active"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__property_account_receivable_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__property_account_receivable_id
+msgid "Account Receivable"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__property_account_receivable_active
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__property_account_receivable_active
+msgid "Account Receivable Active"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_accreditation_certificate
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import__certificate_id
 msgid "Accreditation Certificate"
@@ -1774,6 +1818,12 @@ msgid "Assigned By"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__specific_property_product_pricelist
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__specific_property_product_pricelist
+msgid "Assigned Pricelist"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__assignee_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__assignee_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
@@ -1878,14 +1928,46 @@ msgid "Audit report %(start)s - %(end)s.xlsx"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__autopost_bills
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__autopost_bills
+msgid "Auto-post bills"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__autopost_bills
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__autopost_bills
+msgid "Automatically post bills for this trusted partner"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__receipt_reminder_email
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__receipt_reminder_email
+msgid ""
+"Automatically send a confirmation email to the vendor X days before the "
+"expected receipt date, asking him to confirm the exact date."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__available_additional_identifiers_metadata
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__available_additional_identifiers_metadata
 msgid "Available Additional Identifiers Metadata"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__available_invoice_template_pdf_report_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__available_invoice_template_pdf_report_ids
+msgid "Available Invoice Template Pdf Report"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_reject__available_result_ids
 msgid "Available Result"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__available_routing_schemes
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__available_routing_schemes
+msgid "Available Routing Schemes"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1950,6 +2032,12 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__barcode
 msgid "Badge ID"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__bank_account_count
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__bank_account_count
+msgid "Bank"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2071,6 +2159,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/controllers/brevo.py:0
 msgid "Brevo webhook refused: the token does not match"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__buyer_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__buyer_id
+msgid "Buyer"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2581,6 +2675,12 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_editing_session__status__committed
 msgid "Committed"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__ref_company_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__ref_company_ids
+msgid "Companies that refers to partner"
 msgstr ""
 
 #. module: sol_laboratory
@@ -3225,6 +3325,24 @@ msgid "Credential ID"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__credit_limit
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__credit_limit
+msgid "Credit Limit"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__credit_to_invoice
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__credit_to_invoice
+msgid "Credit To Invoice"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__credit_limit
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__credit_limit
+msgid "Credit limit specific to this partner."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__cron_id
 msgid "Cron"
 msgstr ""
@@ -3235,7 +3353,9 @@ msgid "Cron Pass"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__currency_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__currency_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__currency_id
 msgid "Currency"
 msgstr ""
 
@@ -3277,6 +3397,24 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__customer_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_search
 msgid "Customer"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__property_stock_customer
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__property_stock_customer
+msgid "Customer Location"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__property_payment_term_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__property_payment_term_id
+msgid "Customer Payment Terms"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__customer_rank
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__customer_rank
+msgid "Customer Rank"
 msgstr ""
 
 #. module: sol_laboratory
@@ -3347,6 +3485,18 @@ msgstr ""
 #. odoo-javascript
 #: code:addons/sol_laboratory/static/src/views/timeline/timeline_renderer.js:0
 msgid "Day"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__reminder_date_before_receipt
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__reminder_date_before_receipt
+msgid "Days Before Receipt"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__days_sales_outstanding
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__days_sales_outstanding
+msgid "Days Sales Outstanding (DSO)"
 msgstr ""
 
 #. module: sol_laboratory
@@ -3456,6 +3606,12 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__deadline_hours
 msgid "Default Deadline (Hours)"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__trust
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__trust
+msgid "Degree of trust you have in this debtor"
 msgstr ""
 
 #. module: sol_laboratory
@@ -3826,6 +3982,18 @@ msgid "Display Certification Page"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__display_invoice_edi_format
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__display_invoice_edi_format
+msgid "Display Invoice Edi Format"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__display_invoice_template_pdf_report_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__display_invoice_template_pdf_report_id
+msgid "Display Invoice Template Pdf Report"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_calendar_event__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_hr_department__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_hr_employee__display_name
@@ -4187,6 +4355,12 @@ msgid "Duplicate"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__duplicate_bank_partner_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__duplicate_bank_partner_ids
+msgid "Duplicate Bank Partner"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__duration
 msgid "Duration"
 msgstr ""
@@ -4196,6 +4370,12 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_run_list
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
 msgid "Duration (s)"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__routing_identifier
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__routing_identifier
+msgid "EDI Routing Address"
 msgstr ""
 
 #. module: sol_laboratory
@@ -5154,6 +5334,24 @@ msgid "First Contract Date"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__fiscal_country_codes
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__fiscal_country_codes
+msgid "Fiscal Country Codes"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__fiscal_country_group_codes
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__fiscal_country_group_codes
+msgid "Fiscal Country Group Codes"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__property_account_position_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__property_account_position_id
+msgid "Fiscal Position"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__fixed_term
 msgid "Fixed Term"
 msgstr ""
@@ -5253,6 +5451,12 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__global_location_number
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__global_location_number
+msgid "GLN"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__physical_state__gas
 msgid "Gas"
 msgstr ""
@@ -5296,6 +5500,12 @@ msgstr ""
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
 msgid "Given when the sample is saved"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__global_location_number
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__global_location_number
+msgid "Global Location Number"
 msgstr ""
 
 #. module: sol_laboratory
@@ -5710,6 +5920,18 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__ignore_abnormal_invoice_amount
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__ignore_abnormal_invoice_amount
+msgid "Ignore Abnormal Invoice Amount"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__ignore_abnormal_invoice_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__ignore_abnormal_invoice_date
+msgid "Ignore Abnormal Invoice Date"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__image_1920
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__image
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__image_1920
@@ -5862,6 +6084,14 @@ msgid "Integration"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__purchase_incoterm_id
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__purchase_incoterm_id
+msgid ""
+"International Commercial Terms are a series of predefined commercial terms "
+"used in international transactions."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__interval_number
 msgid "Interval Number"
 msgstr ""
@@ -5874,6 +6104,30 @@ msgstr ""
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_customer_form
 msgid "Invite to Portal"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__invoice_edi_format_store
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__invoice_edi_format_store
+msgid "Invoice Edi Format Store"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__invoice_template_pdf_report_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__invoice_template_pdf_report_id
+msgid "Invoice report"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__invoice_sending_method
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__invoice_sending_method
+msgid "Invoice sending"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__invoice_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__invoice_ids
+msgid "Invoices"
 msgstr ""
 
 #. module: sol_laboratory
@@ -5921,6 +6175,12 @@ msgid "Is Past"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__is_pricelist_manually_set
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__is_pricelist_manually_set
+msgid "Is Pricelist Manually Set"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__is_public
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__is_public
 msgid "Is Public"
@@ -5934,6 +6194,12 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__is_trusted_bank_account
 msgid "Is Trusted Bank Account"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__is_ubl_format
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__is_ubl_format
+msgid "Is Ubl Format"
 msgstr ""
 
 #. module: sol_laboratory
@@ -6898,6 +7164,18 @@ msgid "Message Subtype"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__purchase_warn_msg
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__purchase_warn_msg
+msgid "Message for Purchase Order"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__picking_warn_msg
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__picking_warn_msg
+msgid "Message for Stock Picking"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_ids
@@ -7433,6 +7711,12 @@ msgid "Number of Actions"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__reminder_date_before_receipt
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__reminder_date_before_receipt
+msgid "Number of days to send reminder email before the promised receipt date"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_has_error_counter
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_has_error_counter
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_has_error_counter
@@ -7912,6 +8196,11 @@ msgid "Own department"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__scope__own
+msgid "Own records"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__scope__own_team
 msgid "Own team"
 msgstr ""
@@ -8048,6 +8337,24 @@ msgid "Partner"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__contract_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__contract_ids
+msgid "Partner Contracts"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__use_partner_credit_limit
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__use_partner_credit_limit
+msgid "Partner Limit"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__partner_vat_placeholder
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__partner_vat_placeholder
+msgid "Partner Vat Placeholder"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__same_vat_partner_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__same_vat_partner_id
 msgid "Partner with same Tax ID"
@@ -8098,6 +8405,24 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__payload
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_item_form
 msgid "Payload"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__qr_code_method
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__qr_code_method
+msgid "Payment QR-code"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__payment_token_count
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__payment_token_count
+msgid "Payment Token Count"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__payment_token_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__payment_token_ids
+msgid "Payment Tokens"
 msgstr ""
 
 #. module: sol_laboratory
@@ -8229,6 +8554,31 @@ msgid "Permission: audit.entry.read.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_cancellation_request_create_all
+msgid "Permission: cancellation.request.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_cancellation_request_delete_all
+msgid "Permission: cancellation.request.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_cancellation_request_edit_all
+msgid "Permission: cancellation.request.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_cancellation_request_read_all
+msgid "Permission: cancellation.request.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_cash_flow_report_read_all
+msgid "Permission: cash.flow.report.read.all"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_change_request_read_all
 msgid "Permission: change.request.read.all"
 msgstr ""
@@ -8259,6 +8609,56 @@ msgid "Permission: chemical.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_cost_centre_archive_all
+msgid "Permission: cost_centre.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_cost_centre_archive_own_department
+msgid "Permission: cost_centre.archive.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_cost_centre_create_all
+msgid "Permission: cost_centre.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_cost_centre_create_own_department
+msgid "Permission: cost_centre.create.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_cost_centre_delete_all
+msgid "Permission: cost_centre.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_cost_centre_delete_own_department
+msgid "Permission: cost_centre.delete.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_cost_centre_edit_all
+msgid "Permission: cost_centre.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_cost_centre_edit_own_department
+msgid "Permission: cost_centre.edit.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_cost_centre_read_all
+msgid "Permission: cost_centre.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_cost_centre_read_own_department
+msgid "Permission: cost_centre.read.own_department"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_customer_archive_all
 msgid "Permission: customer.archive.all"
 msgstr ""
@@ -8281,6 +8681,26 @@ msgstr ""
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_customer_read_all
 msgid "Permission: customer.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_customer_sales_terms_create_all
+msgid "Permission: customer.sales.terms.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_customer_sales_terms_delete_all
+msgid "Permission: customer.sales.terms.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_customer_sales_terms_edit_all
+msgid "Permission: customer.sales.terms.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_customer_sales_terms_read_all
+msgid "Permission: customer.sales.terms.read.all"
 msgstr ""
 
 #. module: sol_laboratory
@@ -8356,6 +8776,26 @@ msgstr ""
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_handover_record_sample_read_all
 msgid "Permission: handover.record.sample.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_invoice_adjustment_create_all
+msgid "Permission: invoice.adjustment.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_invoice_adjustment_delete_all
+msgid "Permission: invoice.adjustment.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_invoice_adjustment_edit_all
+msgid "Permission: invoice.adjustment.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_invoice_adjustment_read_all
+msgid "Permission: invoice.adjustment.read.all"
 msgstr ""
 
 #. module: sol_laboratory
@@ -8509,6 +8949,36 @@ msgid "Permission: laboratory.upload.read.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_location_archive_all
+msgid "Permission: location.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_location_create_all
+msgid "Permission: location.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_location_delete_all
+msgid "Permission: location.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_location_edit_all
+msgid "Permission: location.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_location_read_all
+msgid "Permission: location.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_lot_edit_all
+msgid "Permission: lot.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_machine_archive_all
 msgid "Permission: machine.archive.all"
 msgstr ""
@@ -8594,6 +9064,36 @@ msgid "Permission: measurement.unit.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_method_consumption_create_all
+msgid "Permission: method.consumption.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_method_consumption_delete_all
+msgid "Permission: method.consumption.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_method_consumption_edit_all
+msgid "Permission: method.consumption.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_minimum_quantity_create_all
+msgid "Permission: minimum_quantity.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_minimum_quantity_delete_all
+msgid "Permission: minimum_quantity.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_minimum_quantity_edit_all
+msgid "Permission: minimum_quantity.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_mobile_device_archive_all
 msgid "Permission: mobile.device.archive.all"
 msgstr ""
@@ -8616,6 +9116,26 @@ msgstr ""
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_mobile_device_read_all
 msgid "Permission: mobile.device.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_notification_contact_create_all
+msgid "Permission: notification.contact.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_notification_contact_delete_all
+msgid "Permission: notification.contact.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_notification_contact_edit_all
+msgid "Permission: notification.contact.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_notification_contact_read_all
+msgid "Permission: notification.contact.read.all"
 msgstr ""
 
 #. module: sol_laboratory
@@ -8656,6 +9176,106 @@ msgstr ""
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_notification_preference_read_all
 msgid "Permission: notification.preference.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_create_all
+msgid "Permission: order.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_delete_all
+msgid "Permission: order.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_edit_all
+msgid "Permission: order.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_edit_own
+msgid "Permission: order.edit.own"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_read_all
+msgid "Permission: order.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_read_own
+msgid "Permission: order.read.own"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_sample_create_all
+msgid "Permission: order.sample.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_sample_delete_all
+msgid "Permission: order.sample.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_sample_edit_all
+msgid "Permission: order.sample.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_sample_read_all
+msgid "Permission: order.sample.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_sign_all
+msgid "Permission: order.sign.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_archive_all
+msgid "Permission: order.template.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_create_all
+msgid "Permission: order.template.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_delete_all
+msgid "Permission: order.template.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_edit_all
+msgid "Permission: order.template.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_line_create_all
+msgid "Permission: order.template.line.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_line_delete_all
+msgid "Permission: order.template.line.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_line_edit_all
+msgid "Permission: order.template.line.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_line_read_all
+msgid "Permission: order.template.line.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_read_all
+msgid "Permission: order.template.read.all"
 msgstr ""
 
 #. module: sol_laboratory
@@ -8721,6 +9341,31 @@ msgstr ""
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_parameter_method_machine_edit_all
 msgid "Permission: parameter.method.machine.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_price_archive_all
+msgid "Permission: parameter.price.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_price_create_all
+msgid "Permission: parameter.price.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_price_delete_all
+msgid "Permission: parameter.price.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_price_edit_all
+msgid "Permission: parameter.price.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_price_read_all
+msgid "Permission: parameter.price.read.all"
 msgstr ""
 
 #. module: sol_laboratory
@@ -8809,6 +9454,56 @@ msgid "Permission: person.read.own_team"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_create_all
+msgid "Permission: purchase_order.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_create_own_department
+msgid "Permission: purchase_order.create.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_delete_all
+msgid "Permission: purchase_order.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_delete_own_department
+msgid "Permission: purchase_order.delete.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_edit_all
+msgid "Permission: purchase_order.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_edit_own_department
+msgid "Permission: purchase_order.edit.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_read_all
+msgid "Permission: purchase_order.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_read_own_department
+msgid "Permission: purchase_order.read.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_sign_all
+msgid "Permission: purchase_order.sign.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_sign_own_department
+msgid "Permission: purchase_order.sign.own_department"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_push_delivery_create_all
 msgid "Permission: push.delivery.create.all"
 msgstr ""
@@ -8844,6 +9539,101 @@ msgid "Permission: quality.registration.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_quotation_create_all
+msgid "Permission: quotation.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_quotation_delete_all
+msgid "Permission: quotation.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_quotation_edit_all
+msgid "Permission: quotation.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_quotation_read_all
+msgid "Permission: quotation.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_receipt_create_all
+msgid "Permission: receipt.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_receipt_delete_all
+msgid "Permission: receipt.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_receipt_edit_all
+msgid "Permission: receipt.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_receipt_read_all
+msgid "Permission: receipt.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_receivable_report_read_all
+msgid "Permission: receivable.report.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_recipe_archive_all
+msgid "Permission: recipe.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_recipe_create_all
+msgid "Permission: recipe.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_recipe_delete_all
+msgid "Permission: recipe.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_recipe_edit_all
+msgid "Permission: recipe.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_recipe_line_create_all
+msgid "Permission: recipe.line.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_recipe_line_delete_all
+msgid "Permission: recipe.line.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_recipe_line_edit_all
+msgid "Permission: recipe.line.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_reconciliation_day_create_all
+msgid "Permission: reconciliation.day.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_reconciliation_day_edit_all
+msgid "Permission: reconciliation.day.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_reconciliation_day_read_all
+msgid "Permission: reconciliation.day.read.all"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_regulation_archive_all
 msgid "Permission: regulation.archive.all"
 msgstr ""
@@ -8876,6 +9666,11 @@ msgstr ""
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_regulation_limit_edit_all
 msgid "Permission: regulation.limit.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_revenue_report_read_all
+msgid "Permission: revenue.report.read.all"
 msgstr ""
 
 #. module: sol_laboratory
@@ -8989,6 +9784,51 @@ msgid "Permission: scheduled.job.read.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_service_package_archive_all
+msgid "Permission: service.package.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_service_package_create_all
+msgid "Permission: service.package.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_service_package_delete_all
+msgid "Permission: service.package.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_service_package_edit_all
+msgid "Permission: service.package.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_service_package_line_create_all
+msgid "Permission: service.package.line.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_service_package_line_delete_all
+msgid "Permission: service.package.line.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_service_package_line_edit_all
+msgid "Permission: service.package.line.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_service_package_line_read_all
+msgid "Permission: service.package.line.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_service_package_read_all
+msgid "Permission: service.package.read.all"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_signature_read_all
 msgid "Permission: signature.read.all"
 msgstr ""
@@ -8996,6 +9836,46 @@ msgstr ""
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_signing_certificate_read_all
 msgid "Permission: signing.certificate.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_stock_item_archive_all
+msgid "Permission: stock_item.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_stock_item_create_all
+msgid "Permission: stock_item.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_stock_item_edit_all
+msgid "Permission: stock_item.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_subcontract_cost_archive_all
+msgid "Permission: subcontract.cost.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_subcontract_cost_create_all
+msgid "Permission: subcontract.cost.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_subcontract_cost_delete_all
+msgid "Permission: subcontract.cost.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_subcontract_cost_edit_all
+msgid "Permission: subcontract.cost.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_subcontract_cost_read_all
+msgid "Permission: subcontract.cost.read.all"
 msgstr ""
 
 #. module: sol_laboratory
@@ -9026,6 +9906,56 @@ msgstr ""
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_subcontractor_edit_all
 msgid "Permission: subcontractor.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_supplier_archive_all
+msgid "Permission: supplier.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_supplier_create_all
+msgid "Permission: supplier.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_supplier_edit_all
+msgid "Permission: supplier.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_supplier_item_create_all
+msgid "Permission: supplier_item.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_supplier_item_delete_all
+msgid "Permission: supplier_item.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_supplier_item_edit_all
+msgid "Permission: supplier_item.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_support_request_create_all
+msgid "Permission: support.request.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_support_request_delete_all
+msgid "Permission: support.request.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_support_request_edit_all
+msgid "Permission: support.request.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_support_request_read_all
+msgid "Permission: support.request.read.all"
 msgstr ""
 
 #. module: sol_laboratory
@@ -9071,6 +10001,51 @@ msgstr ""
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_task_type_edit_all
 msgid "Permission: task.type.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_tax_archive_all
+msgid "Permission: tax.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_tax_create_all
+msgid "Permission: tax.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_tax_delete_all
+msgid "Permission: tax.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_tax_edit_all
+msgid "Permission: tax.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_tax_rate_create_all
+msgid "Permission: tax.rate.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_tax_rate_delete_all
+msgid "Permission: tax.rate.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_tax_rate_edit_all
+msgid "Permission: tax.rate.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_tax_rate_read_all
+msgid "Permission: tax.rate.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_tax_read_all
+msgid "Permission: tax.read.all"
 msgstr ""
 
 #. module: sol_laboratory
@@ -9344,6 +10319,12 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__property_product_pricelist
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__property_product_pricelist
+msgid "Pricelist"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__primary_bank_account_id
 msgid "Primary Bank Account"
 msgstr ""
@@ -9433,8 +10414,26 @@ msgid "Properties Base Definition"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__property_inbound_payment_method_line_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__property_inbound_payment_method_line_id
+msgid "Property Inbound Payment Method Line"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__property_outbound_payment_method_line_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__property_outbound_payment_method_line_id
+msgid "Property Outbound Payment Method Line"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__birthday_public_display_string
 msgid "Public Date of Birth"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__purchase_order_count
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__purchase_order_count
+msgid "Purchase Order Count"
 msgstr ""
 
 #. module: sol_laboratory
@@ -9518,6 +10517,14 @@ msgstr ""
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_search
 msgid "Raised by Me"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__rating_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__rating_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__rating_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__rating_ids
+msgid "Ratings"
 msgstr ""
 
 #. module: sol_laboratory
@@ -9804,6 +10811,12 @@ msgstr ""
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
 msgid "Receipt"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__receipt_reminder_email
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__receipt_reminder_email
+msgid "Receipt Reminder"
 msgstr ""
 
 #. module: sol_laboratory
@@ -10430,8 +11443,53 @@ msgid "Role"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_role_accountant
+msgid "Role: accountant"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_role_administrator
 msgid "Role: administrator"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_role_auditor
+msgid "Role: auditor"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_role_head_of_department
+msgid "Role: head_of_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_role_head_of_sales
+msgid "Role: head_of_sales"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_role_lab_head
+msgid "Role: lab_head"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_role_sales
+msgid "Role: sales"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_role_sample_delivery_staff
+msgid "Role: sample_delivery_staff"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_role_storekeeper
+msgid "Role: storekeeper"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_role_tester
+msgid "Role: tester"
 msgstr ""
 
 #. module: sol_laboratory
@@ -10464,6 +11522,18 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__route
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_type_search
 msgid "Route"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__routing_endpoint
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__routing_endpoint
+msgid "Routing Endpoint"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__routing_scheme
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__routing_scheme
+msgid "Routing ID"
 msgstr ""
 
 #. module: sol_laboratory
@@ -10935,6 +12005,12 @@ msgid "Service History"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__use_partner_credit_limit
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__use_partner_credit_limit
+msgid "Set a value greater than 0.0 to activate a credit limit check"
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/test_result.py:0
 msgid "Set the conclusion against the regulation before sending the result."
@@ -10970,6 +12046,12 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__birthday_public_display
 msgid "Show Birthday To Employees"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__show_credit_limit
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__show_credit_limit
+msgid "Show Credit Limit"
 msgstr ""
 
 #. module: sol_laboratory
@@ -11443,6 +12525,18 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__sunday_location_id
 msgid "Sunday"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__property_purchase_currency_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__property_purchase_currency_id
+msgid "Supplier Currency"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__supplier_rank
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__supplier_rank
+msgid "Supplier Rank"
 msgstr ""
 
 #. module: sol_laboratory
@@ -12096,6 +13190,13 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__property_account_position_id
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__property_account_position_id
+msgid ""
+"The fiscal position determines the taxes/accounts used for this contact."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_file_folder_path_unique
 msgid ""
 "The folder already has a file with this path, perhaps in another letter "
@@ -12432,6 +13533,20 @@ msgid "The server is busy with the same records; try again."
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__property_stock_customer
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__property_stock_customer
+msgid ""
+"The stock location used as destination when sending goods to this contact."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__property_stock_supplier
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__property_stock_supplier
+msgid ""
+"The stock location used as source when receiving goods from this contact."
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/test_result.py:0
 msgid ""
@@ -12549,6 +13664,12 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_customer_partner_unique
 msgid "This contact is already a customer."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__property_purchase_currency_id
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__property_purchase_currency_id
+msgid "This currency will be used for purchases from the current partner"
 msgstr ""
 
 #. module: sol_laboratory
@@ -12866,6 +13987,36 @@ msgid "Too many failed sign-ins with this login; try again in %s seconds."
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__total_invoiced
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__total_invoiced
+msgid "Total Invoiced"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__debit
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__debit
+msgid "Total Payable"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__credit
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__credit
+msgid "Total Receivable"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__credit
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__credit
+msgid "Total amount this customer owes you."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__debit
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__debit
+msgid "Total amount you have to pay to this vendor."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__trigger
 msgid "Trigger"
 msgstr ""
@@ -13050,6 +14201,12 @@ msgid "Use laboratory files"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__property_product_pricelist
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__property_product_pricelist
+msgid "Used for sales to the current partner"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__login
 msgid "Used to log into the system"
 msgstr ""
@@ -13125,6 +14282,30 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__value
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatch
 msgid "Value"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__purchase_incoterm_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__purchase_incoterm_id
+msgid "Vendor Incoterm"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__purchase_incoterm_location
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__purchase_incoterm_location
+msgid "Vendor Incoterm Location"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__property_stock_supplier
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__property_stock_supplier
+msgid "Vendor Location"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__property_supplier_payment_term_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__property_supplier_payment_term_id
+msgid "Vendor Payment Terms"
 msgstr ""
 
 #. module: sol_laboratory
@@ -13601,8 +14782,22 @@ msgid "Zip"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__days_sales_outstanding
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__days_sales_outstanding
+msgid ""
+"[(Total Receivable/Total Revenue) * number of days since the first invoice] "
+"for this customer"
+msgstr ""
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_form
 msgid "e.g. Viettel Post, VTP 8402 1157 2210"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__invoice_edi_format
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__invoice_edi_format
+msgid "eInvoice format"
 msgstr ""
 
 #. module: sol_laboratory

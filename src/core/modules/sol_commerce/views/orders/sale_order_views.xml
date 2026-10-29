@@ -188,32 +188,42 @@
                     Nothing has been paid on this order. It can still be confirmed.
                 </div>
             </xpath>
+            <!-- Each status says what it is about, and a requested approval names the role it waits for. -->
             <xpath expr="//div[hasclass('oe_title')]" position="inside">
-                <div class="d-flex flex-wrap gap-2">
-                    <field
-                        name="customer_status"
-                        string="Progress"
-                        widget="badge"
-                        decoration-info="customer_status in ('quoted', 'waiting', 'testing')"
-                        decoration-success="customer_status == 'completed'"
-                        decoration-danger="customer_status == 'cancelled'"
-                    />
-                    <field
-                        name="quotation_follow_up"
-                        widget="badge"
-                        decoration-warning="quotation_follow_up == 'unpaid'"
-                        decoration-success="quotation_follow_up == 'paid'"
-                        decoration-danger="quotation_follow_up in ('declined', 'expired')"
-                        invisible="not quotation_follow_up"
-                    />
-                    <field
-                        name="approval_status"
-                        widget="badge"
-                        decoration-warning="approval_status == 'requested'"
-                        decoration-success="approval_status == 'approved'"
-                        decoration-danger="approval_status == 'rejected'"
-                        invisible="approval_status == 'none'"
-                    />
+                <div class="d-flex flex-wrap align-items-center column-gap-4 row-gap-1">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="text-muted">Customer sees</span>
+                        <field
+                            name="customer_status"
+                            widget="badge"
+                            decoration-info="customer_status in ('quoted', 'waiting', 'testing')"
+                            decoration-success="customer_status == 'completed'"
+                            decoration-danger="customer_status == 'cancelled'"
+                        />
+                    </div>
+                    <div class="d-flex align-items-center gap-2" invisible="not quotation_follow_up">
+                        <span class="text-muted">Quotation</span>
+                        <field
+                            name="quotation_follow_up"
+                            widget="badge"
+                            decoration-warning="quotation_follow_up == 'unpaid'"
+                            decoration-success="quotation_follow_up == 'paid'"
+                            decoration-danger="quotation_follow_up in ('declined', 'expired')"
+                        />
+                    </div>
+                    <div class="d-flex align-items-center gap-2" invisible="approval_status == 'none'">
+                        <span class="text-muted">Approval</span>
+                        <field
+                            name="approval_status"
+                            widget="badge"
+                            decoration-warning="approval_status == 'requested'"
+                            decoration-success="approval_status == 'approved'"
+                            decoration-danger="approval_status == 'rejected'"
+                        />
+                        <span class="d-inline-flex align-items-center gap-1 text-muted" invisible="not approval_waiting_for">
+                            waiting for <field name="approval_waiting_for" class="text-muted" />
+                        </span>
+                    </div>
                 </div>
             </xpath>
             <xpath expr="//group[@name='partner_details']/field[@name='partner_id']" position="before">
@@ -268,6 +278,12 @@
             <xpath expr="//field[@name='order_line']/kanban/control/create[@name='add_note_control']" position="replace" />
             <xpath expr="//field[@name='order_line']/kanban/control/button[@name='action_add_from_catalog']" position="replace" />
             <xpath expr="//div[@name='so_button_below_order_lines']/widget[@name='combo_menu']" position="replace" />
+            <xpath expr="//list[@name='sol_list']/control/create[@name='add_product_control']" position="attributes">
+                <attribute name="string">Add a parameter or package</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/kanban/control/create[@name='add_product_control']" position="attributes">
+                <attribute name="string">Add a parameter or package</attribute>
+            </xpath>
             <xpath expr="//field[@name='order_line']/kanban//main/div[hasclass('text-muted')]" position="after">
                 <div class="text-muted" invisible="not sample_id">Sample: <field name="sample_id" /></div>
             </xpath>
@@ -357,6 +373,21 @@
                             <field name="catalog_total" />
                         </group>
                     </group>
+                    <separator string="Advance payments" invisible="not downpayment_line_ids" />
+                    <field name="downpayment_line_ids" invisible="not downpayment_line_ids">
+                        <list>
+                            <field name="downpayment_invoice_id" />
+                            <field name="currency_id" column_invisible="1" />
+                            <field name="price_unit" string="Untaxed amount" widget="monetary" />
+                        </list>
+                        <form>
+                            <group>
+                                <field name="downpayment_invoice_id" />
+                                <field name="currency_id" invisible="1" />
+                                <field name="price_unit" string="Untaxed amount" widget="monetary" />
+                            </group>
+                        </form>
+                    </field>
                 </page>
                 <page string="Tracking" name="tracking">
                     <group>
@@ -383,6 +414,20 @@
                         </list>
                     </field>
                 </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Runs after every other change to the order form, so they all still find Odoo's order lines field. -->
+    <record id="view_order_form_medilab_product_lines" model="ir.ui.view">
+        <field name="name">sale.order.form.medilab.product.lines</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form" />
+        <field name="priority">1000</field>
+        <field name="arch" type="xml">
+            <!-- The Order Lines tab edits the ordered parameters and packages; the Payment tab lists the down payments. -->
+            <xpath expr="//page[@name='order_lines']/field[@name='order_line']" position="attributes">
+                <attribute name="name">product_line_ids</attribute>
             </xpath>
         </field>
     </record>
