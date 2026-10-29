@@ -20,9 +20,9 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 
 ORDER_PERMISSIONS = (
-    "order.read.all",
+    "order.read.own",
     "order.create.all",
-    "order.edit.all",
+    "order.edit.own",
     "cancellation.request.read.all",
     "cancellation.request.edit.all",
     "order.sample.read.all",

@@ -53,4 +53,23 @@
         <field name="duration_minutes">20</field>
         <field name="instruction">Measure the digest and the blank on the ICP-MS.</field>
     </record>
+    <record id="demo_testing_method_step_chromium_vi_1" model="medilab.testing.method.step">
+        <field name="method_id" ref="demo_testing_method_chromium_vi_colorimetry" />
+        <field name="sequence">1</field>
+        <field name="duration_minutes">15</field>
+        <field name="instruction">Prepare the water sample, blank and chromium(VI) calibration solutions.</field>
+    </record>
+    <record id="demo_testing_method_step_chromium_vi_2" model="medilab.testing.method.step">
+        <field name="method_id" ref="demo_testing_method_chromium_vi_colorimetry" />
+        <field name="sequence">2</field>
+        <field name="duration_minutes">30</field>
+        <field name="instruction">Add the colour reagent and develop the sample, blank and calibration solutions together.</field>
+        <field name="location_id" ref="demo_location_colorimetry_room" />
+    </record>
+    <record id="demo_testing_method_step_chromium_vi_3" model="medilab.testing.method.step">
+        <field name="method_id" ref="demo_testing_method_chromium_vi_colorimetry" />
+        <field name="sequence">3</field>
+        <field name="duration_minutes">15</field>
+        <field name="instruction">Measure the absorbance and calculate the chromium(VI) concentration.</field>
+    </record>
 </odoo>

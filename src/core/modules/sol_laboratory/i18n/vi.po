@@ -112,6 +112,12 @@ msgstr "%s chưa có bản đồ. Thêm hình ảnh để đặt các vị trí 
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/system/permission.py:0
+msgid "%s has no user, so a permission on it cannot be limited to the person's own records."
+msgstr "%s không có người dùng nên quyền trên đó không thể giới hạn trong các bản ghi của chính người đó."
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/tasks/task.py:0
 msgid "%s is already claimed."
 msgstr "%s đã có người nhận."
@@ -5252,6 +5258,11 @@ msgid "Own department"
 msgstr "Phòng ban của mình"
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__scope__own
+msgid "Own records"
+msgstr "Bản ghi của mình"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__owner_id
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_folder_member__role__owner
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_search
@@ -5856,8 +5867,16 @@ msgid "Permission: order.edit.all"
 msgstr "Quyền: order.edit.all"
 
 #. module: sol_laboratory
+msgid "Permission: order.edit.own"
+msgstr "Quyền: order.edit.own"
+
+#. module: sol_laboratory
 msgid "Permission: order.read.all"
 msgstr "Quyền: order.read.all"
+
+#. module: sol_laboratory
+msgid "Permission: order.read.own"
+msgstr "Quyền: order.read.own"
 
 #. module: sol_laboratory
 msgid "Permission: order.sample.create.all"
