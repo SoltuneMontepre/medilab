@@ -2339,31 +2339,50 @@ mod tests {
     /// Hoàn tất một job phải cập nhật id/version từ xa và chuyển tệp cục bộ sang `synced`.
     #[test]
     fn completing_job_marks_file_synced() {
-        let dir = tempdir().unwrap();
-        let db = Db::open(&dir.path().join("t.db")).unwrap();
-        let folder = db.upsert_folder("/tmp/e", "E", None, true, &[]).unwrap();
-        let file = db.upsert_file(folder, "ABC.xlsx", 1, 1, "aa").unwrap();
-        let job = db
-            .enqueue_upload(folder, file, "ABC.xlsx", 1, None, None)
-            .unwrap();
-        db.mark_job(job, "completed", None, 1, None, Some(9), Some(3))
-            .unwrap();
-        let conn = db.conn.lock();
-        let (remote_file_id, remote_version_id, status): (Option<i64>, Option<i64>, String) = conn
-            .query_row(
-                "SELECT remote_file_id, remote_version_id, status FROM sync_file WHERE id = ?1",
-                params![file],
-                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
-            )
-            .unwrap();
-        assert_eq!(remote_file_id, Some(9));
-        assert_eq!(remote_version_id, Some(3));
-        assert_eq!(status, "synced");
-        drop(conn);
-        assert_eq!(
-            db.file_status(folder, "ABC.xlsx").unwrap().as_deref(),
-            Some("synced")
-        );
+        for size in [0, 1] {
+            let dir = tempdir().unwrap();
+            let db = Db::open(&dir.path().join("t.db")).unwrap();
+            let folder = db.upsert_folder("/tmp/e", "E", None, true, &[]).unwrap();
+            let file = db.upsert_file(folder, "ABC.xlsx", size, 1, "aa").unwrap();
+            let job = db
+                .enqueue_upload(folder, file, "ABC.xlsx", size, None, None)
+                .unwrap();
+            db.mark_job(job, "completed", None, 1, None, Some(9), Some(3))
+                .unwrap();
+            let conn = db.conn.lock();
+            let (remote_file_id, remote_version_id, status): (Option<i64>, Option<i64>, String) =
+                conn.query_row(
+                    "SELECT remote_file_id, remote_version_id, status FROM sync_file WHERE id = ?1",
+                    params![file],
+                    |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+                )
+                .unwrap();
+            assert_eq!(remote_file_id, Some(9));
+            assert_eq!(remote_version_id, Some(3));
+            assert_eq!(status, "synced");
+            drop(conn);
+            assert_eq!(
+                db.file_status(folder, "ABC.xlsx").unwrap().as_deref(),
+                Some("synced")
+            );
+            let listed = db.list_remote_files().unwrap();
+            assert_eq!(listed.len(), 1);
+            assert_eq!(listed[0].remote_file_id, Some(9));
+            assert_eq!(listed[0].remote_version_id, Some(3));
+            drop(db);
+            let reopened = Db::open(&dir.path().join("t.db")).unwrap();
+            let listed = reopened.list_remote_files().unwrap();
+            assert_eq!(listed.len(), 1);
+            assert_eq!(listed[0].relative_path, "ABC.xlsx");
+            assert_eq!(listed[0].remote_file_id, Some(9));
+            assert_eq!(listed[0].remote_version_id, Some(3));
+            let jobs = reopened.list_jobs().unwrap();
+            assert_eq!(jobs.len(), 1);
+            assert_eq!(jobs[0].status, "completed");
+            assert_eq!(jobs[0].bytes_total, size);
+            assert_eq!(jobs[0].remote_file_id, Some(9));
+            assert_eq!(jobs[0].remote_version_id, Some(3));
+        }
     }
 
     /// Bỏ qua xung đột (giữ bản cục bộ) phải đưa tệp về `synced`, job về `completed`, và bộ đếm
