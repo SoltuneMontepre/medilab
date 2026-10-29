@@ -91,3 +91,21 @@ class TestOrderReadScope(OrderCase):
             queued.with_user(self.other_sales).action_claim()
         queued.with_user(self.sales).action_claim()
         self.assertEqual(queued.user_id, self.sales)
+
+    def test_sales_puts_an_order_in_the_queue_with_catalog_prices(self):
+        queued = (
+            self.env[MODEL_SALE_ORDER]
+            .with_user(self.sales)
+            .create(
+                {
+                    "customer_id": self.customer.id,
+                    "partner_id": self.contact.id,
+                    "source": "portal",
+                    "order_status": "submitted",
+                    "order_line": [Command.create({"product_id": self.lead_product.product_variant_id.id})],
+                }
+            )
+        )
+
+        self.assertFalse(queued.user_id)
+        self.assertEqual(queued.order_line.price_unit, self.lead_product.list_price)

@@ -174,7 +174,8 @@ class SaleOrder(models.Model):
         orders = super().create(vals_list)
         for order, user_id in zip(orders, wanted_users, strict=True):
             order._settle_user(user_id)
-        orders.order_line._lock_catalog_price()
+        # The catalog prices are the system's, so a salesperson who may not change the new order still locks them.
+        orders.order_line.sudo()._lock_catalog_price()
         return orders
 
     def _fill_create_values(self, vals_list):
