@@ -497,7 +497,7 @@ describe("WF-01 feature acceptance criteria", () => {
         expect(read.name).to.match(/^S\d+/);
         expect(read.order_can_edit).to.be.false;
       });
-      callRefused("sale.order", "write", [[other.id], { note: "Changed by another salesperson" }]).should("contain", "sale.order");
+      callRefused("sale.order", "write", [[other.id], { note: "Changed by another salesperson" }]).should("match", /S\d+/);
       cy.visit("/odoo/unclaimed-orders");
       cy.get(".o_data_row").should("have.length.greaterThan", 0);
       cy.signInAs("head_of_sales");
