@@ -64,7 +64,7 @@ tasks:
           log_error "uv not found. Install: https://docs.astral.sh/uv/getting-started/installation/"
           exit 1
         fi
-        {{.UV}} sync
+        {{.UV}} sync --locked
         log_ok "{{.PROJECT_DIR}}/.venv ready. Select it as the interpreter in your editor."
 
   dev:lock:

@@ -18,6 +18,8 @@ from urllib.parse import urlsplit
 from urllib.request import urlopen
 
 from compose_env import project_name
+from onlyoffice_state import CONFIG_KEYS as ONLYOFFICE_CONFIG_KEYS
+from onlyoffice_state import missing_core_volumes, optional_volume_names
 
 ROOT = Path(__file__).resolve().parents[2]
 COMPOSE = ROOT / "tools/infrastructure/docker-compose.yml"
@@ -73,8 +75,18 @@ class BootstrapError(RuntimeError):
 
 def _is_local_engine_endpoint(endpoint):
     parsed = urlsplit(endpoint)
-    if parsed.scheme in ("unix", "npipe"):
-        return True
+    if parsed.scheme == "unix":
+        return (
+            not parsed.netloc
+            and parsed.path.startswith("/")
+            and not parsed.path.startswith("//")
+        )
+    if parsed.scheme == "npipe":
+        target = (parsed.netloc + parsed.path).lower()
+        return (
+            re.fullmatch(r"(?://)?(?:\.|localhost)/pipe/[a-z0-9_.-]+", target)
+            is not None
+        )
     return parsed.scheme == "tcp" and parsed.hostname in (
         "localhost",
         "127.0.0.1",
@@ -101,12 +113,49 @@ def _assert_local_context(context, source):
 
 
 def _assert_local_engine():
+    if os.environ.get("CONTAINER_CONNECTION"):
+        raise BootstrapError(
+            "Named Podman connections are not verified by this wrapper; select an explicit local container endpoint."
+        )
+    container_host = os.environ.get("CONTAINER_HOST")
+    if container_host and not _is_local_engine_endpoint(container_host):
+        raise BootstrapError(
+            "The selected Podman endpoint is not local; refusing environment changes."
+        )
     endpoint = os.environ.get("DOCKER_HOST")
     context = os.environ.get("DOCKER_CONTEXT")
     if endpoint and not _is_local_engine_endpoint(endpoint):
         raise BootstrapError(
             "The configured container engine is not local; refusing fresh bootstrap."
         )
+    version = _run(["docker", "--version"], capture_output=True, check=False)
+    if version.returncode:
+        raise BootstrapError("Cannot identify the selected container CLI.")
+    if "podman" in (version.stdout + version.stderr).lower():
+        if context:
+            raise BootstrapError(
+                "Docker contexts cannot verify a Podman endpoint; select an explicit local Podman endpoint."
+            )
+        information = _run(
+            ["docker", "info", "--format", "{{json .}}"],
+            capture_output=True,
+            check=False,
+        )
+        try:
+            remote = json.loads(information.stdout)["host"]["serviceIsRemote"]
+        except (KeyError, TypeError, ValueError):
+            raise BootstrapError(
+                "Cannot verify whether the selected Podman service is local."
+            ) from None
+        if (
+            information.returncode
+            or not isinstance(remote, bool)
+            or (remote and not container_host)
+        ):
+            raise BootstrapError(
+                "The selected Podman service is remote or unverified; select an explicit local endpoint."
+            )
+        return container_host or "podman"
     if context:
         host = _assert_local_context(context, "configured")
         return endpoint or host
@@ -115,12 +164,9 @@ def _assert_local_engine():
     result = _run(["docker", "context", "show"], capture_output=True, check=False)
     if result.returncode == 0:
         return _assert_local_context(result.stdout.strip(), "selected")
-    version = _run(["docker", "--version"], capture_output=True, check=False)
-    if "podman" not in version.stdout.lower():
-        raise BootstrapError(
-            "Could not verify that the selected container engine is local."
-        )
-    return "podman"
+    raise BootstrapError(
+        "Could not verify that the selected container engine is local."
+    )
 
 
 def _record_engine(marker, engine):
@@ -185,6 +231,12 @@ def _write_compose_env(values):
             output.append(line)
             continue
         key, _value = line.split("=", 1)
+        if (
+            values.get("MEDILAB_DEMO_BOOTSTRAP_OWNER")
+            and key in ONLYOFFICE_CONFIG_KEYS
+            and key not in values
+        ):
+            continue
         if key in pending:
             output.append(f"{key}={pending.pop(key)}")
         else:
@@ -254,11 +306,13 @@ def _host_port_range(value):
 
 def _published_ports():
     """Return the host ports that containers publish, running or stopped; Docker Desktop still lets a socket bind them."""
-    result = _run(["docker", "ps", "--all", "--quiet"], capture_output=True)
+    result = _resource_read(["docker", "ps", "--all", "--quiet"], "container", "list")
     identities = result.stdout.split()
     if not identities:
         return set()
-    result = _run(["docker", "inspect", *identities], capture_output=True)
+    result = _resource_read(
+        ["docker", "container", "inspect", *identities], "container", "inspect"
+    )
     ports = set()
     for container in json.loads(result.stdout):
         for bindings in (
@@ -309,7 +363,7 @@ def _free_ports():
 
 
 def _volume_mismatch(config, actual):
-    expected = {config[key] for key in VOLUME_KEYS}
+    expected = {config[key] for key in VOLUME_KEYS} | optional_volume_names(config)
     return sorted(expected - set(actual)), sorted(set(actual) - expected)
 
 
@@ -347,7 +401,7 @@ def _reselect(existing, project):
         missing, unexpected = _volume_mismatch(
             config, _owned_volume_names(project, existing["owner"])
         )
-        if missing or unexpected:
+        if missing_core_volumes(config, missing) or unexpected:
             raise BootstrapError(_volume_mismatch_message(missing, unexpected))
     print(f"Compose project {project} is already selected ({existing['status']}).")
 
@@ -417,7 +471,7 @@ def _verify_completed_selection(marker, project):
     )
     if unexpected:
         raise BootstrapError(_volume_mismatch_message(missing, unexpected))
-    if missing:
+    if missing_core_volumes(config, missing):
         raise BootstrapError(
             f"Persistent volumes {', '.join(missing)} of Compose project {project!r} no longer exist."
         )
@@ -673,6 +727,7 @@ def _run(args, *, env=None, stdin=None, capture_output=False, check=True):
         stdin=stdin,
         capture_output=capture_output,
         text=capture_output,
+        encoding="utf-8" if capture_output else None,
         check=check,
     )
 
@@ -755,16 +810,28 @@ def _prepare_accounting_foundation(project, owner, env):
 def _compose_environment(project, owner=None, config=None):
     allowed = {
         "ANSICON",
+        "ALLUSERSPROFILE",
+        "APPDATA",
+        "CARGO_BUILD_JOBS",
         "COLORTERM",
         "ConEmuANSI",
         "COMSPEC",
+        "CONTAINER_HOST",
         "DOCKER_CONFIG",
         "DOCKER_CONTEXT",
         "DOCKER_HOST",
         "FORCE_COLOR",
         "HOME",
+        "HOMEDRIVE",
+        "HOMEPATH",
+        "LOCALAPPDATA",
         "NO_COLOR",
         "PATH",
+        "PATHEXT",
+        "PROGRAMDATA",
+        "PROGRAMFILES",
+        "PROGRAMFILES(X86)",
+        "PROGRAMW6432",
         "SYSTEMDRIVE",
         "SYSTEMROOT",
         "TEMP",
@@ -854,6 +921,19 @@ def _compose_args(project, *, owned, bootstrap):
     return command
 
 
+def _resource_read(command, resource, operation):
+    failure = None
+    try:
+        result = _run(command, capture_output=True)
+    except subprocess.CalledProcessError as error:
+        failure = error.returncode
+    if failure is not None:
+        raise BootstrapError(
+            f"Cannot {operation} local {resource} resources (engine exit {failure}). Existing resources were preserved; inspect the selected local engine."
+        )
+    return result
+
+
 def _inspect(kind, project):
     command = ["docker", kind]
     if kind == "ps":
@@ -865,14 +945,14 @@ def _inspect(kind, project):
         "--filter",
         f"label={PROJECT_LABEL}={project}",
     ]
-    result = _run(
-        command,
-        capture_output=True,
-    )
+    resource = "container" if kind == "ps" else kind
+    result = _resource_read(command, resource, "list")
     identities = result.stdout.split()
     if not identities:
         return []
-    result = _run(["docker", "inspect", *identities], capture_output=True)
+    result = _resource_read(
+        ["docker", resource, "inspect", *identities], resource, "inspect"
+    )
     return json.loads(result.stdout)
 
 
@@ -970,16 +1050,28 @@ def _owned_volume_identities(project, owner):
 
 
 def _normal_app_ready(project, owner, config):
-    _compose(
-        project,
-        False,
-        "up",
-        "-d",
-        "--no-build",
-        owner=owner,
-        owned=True,
-        config=config,
-    )
+    if optional_volume_names(config):
+        _run(
+            [
+                sys.executable,
+                str(ROOT / "tools/scripts/local_compose.py"),
+                "up",
+                "-d",
+                "--no-build",
+            ],
+            env=_compose_environment(project, owner, config),
+        )
+    else:
+        _compose(
+            project,
+            False,
+            "up",
+            "-d",
+            "--no-build",
+            owner=owner,
+            owned=True,
+            config=config,
+        )
     port = config["MEDILAB_ODOO_PORT"]
     url = f"http://127.0.0.1:{port}/web/login?db={DATABASE}"
     last_error = None
@@ -1153,6 +1245,8 @@ def _resume_setup(project, marker):
     config = marker["config"]
     _assert_owned_resources(project, owner)
     missing, unexpected = _volume_mismatch(config, _owned_volume_names(project, owner))
+    if marker.get("status") == "completed":
+        missing = missing_core_volumes(config, missing)
     if marker.get("status") == "completed" and (missing or unexpected):
         raise BootstrapError(_volume_mismatch_message(missing, unexpected))
     if missing or unexpected:

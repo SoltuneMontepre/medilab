@@ -38,6 +38,10 @@ jobs:
               - "src/core/modules/sol_laboratory/api/sync-updates.openapi.yaml"
               - "src/applications/medilab-mobile/**"
               - "tools/scripts/test_apps.sh"
+              - "tools/scripts/host_tools.py"
+              - "tools/scripts/sync*.py"
+              - "tools/scripts/test_sync*.py"
+              - "tools/taskfiles/sync.taskfile.yml"
               - "tools/taskfiles/test.taskfile.yml"
               - "taskfile.yml"
               - ".github/workflows/ci.sync-app.yml"
@@ -109,13 +113,16 @@ jobs:
         include:
           - label: Linux
             os: ubuntu-24.04
+            shell: bash
           - label: Windows
             os: windows-2025
+            shell: pwsh
           - label: macOS
             os: macos-15
+            shell: bash
     defaults:
       run:
-        shell: bash
+        shell: ${{ matrix.shell }}
         working-directory: ${{ env.SYNC_APP_DIR }}
     steps:
       - name: Checkout
@@ -123,6 +130,8 @@ jobs:
 
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
 
       - name: Cache Rust build
         uses: swatinem/rust-cache@v2
@@ -146,7 +155,43 @@ jobs:
         run: bun run build
 
       - name: Build the app
+        if: runner.os != 'Windows'
         run: cargo build --locked --manifest-path src-tauri/Cargo.toml
+
+      - name: Set up Task for native Windows entrypoints
+        if: runner.os == 'Windows'
+        uses: arduino/setup-task@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Exclude external Bash from native Windows Sync checks
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $paths = $env:PATH -split ';' | Where-Object { $_ -notmatch '(?i)[\/]Git[\/](usr[\/]bin|bin)([\/]|$)|[\/]msys64[\/]' }
+          $guard = Join-Path $env:RUNNER_TEMP 'medilab-native-shell-guard'
+          New-Item -ItemType Directory -Force $guard | Out-Null
+          foreach ($name in @('bash', 'sh')) {
+            Set-Content -Path (Join-Path $guard "$name.cmd") -Value '@exit /b 97'
+          }
+          Add-Content $env:GITHUB_ENV ('PATH=' + $guard + ';' + ($paths -join ';'))
+          Add-Content $env:GITHUB_ENV 'PYTHONUTF8=1'
+
+      - name: Set up Python for native Windows entrypoints
+        if: runner.os == 'Windows'
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Check native Windows Sync through Task
+        if: runner.os == 'Windows'
+        working-directory: .
+        run: task sync:check
+
+      - name: Package native Windows Sync through Task
+        if: runner.os == 'Windows'
+        working-directory: .
+        run: task sync:build
 
   build:
     needs: [changes, compile]

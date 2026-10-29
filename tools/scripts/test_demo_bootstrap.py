@@ -26,6 +26,22 @@ from demo_bootstrap import (
 )
 
 
+class ProcessCaptureTest(unittest.TestCase):
+    def test_engine_capture_decodes_utf8_paths_independently_of_windows_ansi_locale(
+        self,
+    ):
+        payload = '{"path":"C:/MediLab tài liệu/compose.yml"}'
+        command = [
+            demo_bootstrap.sys.executable,
+            "-c",
+            f"import os; os.write(1, bytes.fromhex('{payload.encode().hex()}'))",
+        ]
+        with patch.object(subprocess, "_text_encoding", return_value="cp1252"):
+            self.assertEqual(
+                demo_bootstrap._run(command, capture_output=True).stdout, payload
+            )
+
+
 class SetCountryScriptTest(unittest.TestCase):
     def test_refuses_to_commit_when_country_write_did_not_persist(self):
         vietnam = type("Country", (), {"id": 240})()
@@ -747,7 +763,7 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
         ]
         outputs = {
             "ps": "running-id\nstopped-id\n",
-            "inspect": json.dumps(containers),
+            "container": json.dumps(containers),
         }
 
         with patch(
@@ -763,7 +779,7 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
             [call.args[0] for call in run.call_args_list],
             [
                 ["docker", "ps", "--all", "--quiet"],
-                ["docker", "inspect", "running-id", "stopped-id"],
+                ["docker", "container", "inspect", "running-id", "stopped-id"],
             ],
         )
 
@@ -1057,6 +1073,50 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
         labels = {"com.medilab.bootstrap.owner": "owner-id"}
 
         self.assertEqual(_labels({"labels": labels}, "networks"), labels)
+
+    def test_network_inspection_does_not_resolve_volume_prefixes(self):
+        project = "medilab-bootstrap-prefix"
+        networks = [{"name": project + "_default"}, {"name": project + "_onlyoffice"}]
+
+        def command(arguments, **_kwargs):
+            if arguments[:3] == ["docker", "network", "ls"]:
+                return subprocess.CompletedProcess(
+                    arguments, 0, stdout="\n".join(item["name"] for item in networks)
+                )
+            if arguments[:2] == ["docker", "inspect"]:
+                raise subprocess.CalledProcessError(
+                    125, arguments, stderr="more than one result for volume name"
+                )
+            self.assertEqual(
+                arguments,
+                ["docker", "network", "inspect", *(item["name"] for item in networks)],
+            )
+            return subprocess.CompletedProcess(
+                arguments, 0, stdout=json.dumps(networks)
+            )
+
+        with patch("demo_bootstrap._run", side_effect=command):
+            self.assertEqual(demo_bootstrap._inspect("network", project), networks)
+
+    def test_resource_inspection_failure_has_safe_operation_diagnostics(self):
+        secret = "FAKE-INSPECT-STDOUT-SECRET"
+
+        def command(arguments, **_kwargs):
+            if arguments[:3] == ["docker", "network", "ls"]:
+                return subprocess.CompletedProcess(arguments, 0, stdout="owned-network")
+            raise subprocess.CalledProcessError(
+                125, arguments, output=secret, stderr=secret
+            )
+
+        with (
+            patch("demo_bootstrap._run", side_effect=command),
+            self.assertRaises(BootstrapError) as raised,
+        ):
+            demo_bootstrap._inspect("network", "project")
+        self.assertIn("inspect local network", str(raised.exception))
+        self.assertIn("125", str(raised.exception))
+        self.assertNotIn(secret, str(raised.exception))
+        self.assertIsNone(raised.exception.__context__)
 
     def test_compose_environment_uses_only_local_credentials(self):
         with patch.dict(

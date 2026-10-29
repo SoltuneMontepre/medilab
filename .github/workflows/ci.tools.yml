@@ -110,7 +110,7 @@ jobs:
           - os: windows-2025
             label: Windows
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 5
+    timeout-minutes: 15
     permissions:
       contents: read
       pull-requests: read
@@ -125,6 +125,24 @@ jobs:
           filters: |
             relevant:
               - "taskfile.yml"
+              - "tools/taskfiles/**"
+              - "tools/scripts/host_tools.py"
+              - "tools/scripts/local_setup.py"
+              - "tools/scripts/test_host_tools.py"
+              - "tools/scripts/test_local_setup*.py"
+              - "tools/scripts/sync*.py"
+              - "tools/scripts/test_sync*.py"
+              - "tools/scripts/onlyoffice*.py"
+              - "tools/scripts/test_onlyoffice*.py"
+              - "tools/onlyoffice/**"
+              - "src/core/pyproject.toml"
+              - "src/core/uv.lock"
+              - "tools/scripts/demo_bootstrap*.py"
+              - "tools/scripts/local_compose.py"
+              - "tools/scripts/test_demo_bootstrap.py"
+              - "tools/scripts/test_local_compose.py"
+              - "tools/scripts/test_compose_env.py"
+              - "src/applications/medilab-sync/docker-compose.yml"
               - "tools/scripts/compose_env.py"
               - "tools/scripts/colorize_odoo_logs.py"
               - "tools/scripts/log.sh"
@@ -162,6 +180,26 @@ jobs:
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set up uv for locked local TLS contracts
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        uses: astral-sh/setup-uv@v10.3.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: src/core/uv.lock
+
+      - name: Exclude external Bash from native Windows task checks
+        if: runner.os == 'Windows' && (steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch')
+        shell: pwsh
+        run: |
+          $paths = $env:PATH -split ';' | Where-Object { $_ -notmatch '(?i)[\/]Git[\/](usr[\/]bin|bin)([\/]|$)|[\/]msys64[\/]' }
+          $guard = Join-Path $env:RUNNER_TEMP 'medilab-native-shell-guard'
+          New-Item -ItemType Directory -Force $guard | Out-Null
+          foreach ($name in @('bash', 'sh')) {
+            Set-Content -Path (Join-Path $guard "$name.cmd") -Value '@exit /b 97'
+          }
+          Add-Content $env:GITHUB_ENV ('PATH=' + $guard + ';' + ($paths -join ';'))
+          Add-Content $env:GITHUB_ENV 'PYTHONUTF8=1'
+
       - name: Logging regression tests
         if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         run: task test:logging
@@ -169,6 +207,34 @@ jobs:
       - name: Taskfile regression tests
         if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         run: task test:taskfiles
+
+      - name: Portable host invocation contracts
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: python -m unittest discover -s tools/scripts -p 'test_host_tools.py'
+
+      - name: Root setup and native Task entrypoint contracts
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: python -m unittest discover -s tools/scripts -p 'test_local_setup*.py'
+
+      - name: Sync development contracts
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: python -m unittest discover -s tools/scripts -p 'test_sync*.py'
+
+      - name: ONLYOFFICE local setup contracts
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: uv run --locked --project src/core python -m unittest discover -s tools/scripts -p 'test_onlyoffice*.py'
+
+      - name: ONLYOFFICE local protocol contracts
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: uv run --locked --project src/core python -m unittest discover -s tools/onlyoffice -p 'test_*.py'
+
+      - name: Bootstrap lifecycle regression tests
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: python tools/scripts/test_demo_bootstrap.py
+
+      - name: Selected Compose lifecycle regression tests
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: python -m unittest discover -s tools/scripts -p 'test_*compose*.py'
 
   tools:
     needs: [ai, typecheck, logging]

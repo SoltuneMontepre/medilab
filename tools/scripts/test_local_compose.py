@@ -1,7 +1,9 @@
 import os
 import unittest
+from contextlib import contextmanager
 from unittest.mock import patch
 
+import onlyoffice
 from demo_bootstrap import BootstrapError
 from local_compose import (
     _resolve,
@@ -10,6 +12,7 @@ from local_compose import (
     guard_uninstall,
     main,
 )
+from onlyoffice_state import OnlyofficeError
 
 
 class LocalComposeTest(unittest.TestCase):
@@ -51,6 +54,70 @@ class LocalComposeTest(unittest.TestCase):
         self.assertEqual(result.exception.code, 1)
         resolve.assert_not_called()
         run.assert_not_called()
+
+    def test_managed_down_drains_before_compose_and_holds_operation_lock(self):
+        events = []
+
+        @contextmanager
+        def drain(*_args):
+            events.append("drained")
+            yield
+            events.append("unlocked")
+
+        def compose(*_args, **_kwargs):
+            events.append("compose-down")
+            return type("Result", (), {"returncode": 0})()
+
+        with (
+            patch("local_compose.sys.argv", ["local_compose.py", "down"]),
+            patch("local_compose._resolve", return_value=("owned", None, [], {})),
+            patch(
+                "local_compose.resolve_addon", return_value=(["-f", "addon.yml"], {})
+            ),
+            patch.object(onlyoffice, "drained_for_compose", drain, create=True),
+            patch("local_compose.subprocess.run", side_effect=compose),
+            self.assertRaises(SystemExit) as result,
+        ):
+            main()
+        self.assertEqual(result.exception.code, 0)
+        self.assertEqual(events, ["drained", "compose-down", "unlocked"])
+
+    def test_managed_drain_failure_prevents_compose_from_stopping_base(self):
+        with (
+            patch("local_compose.sys.argv", ["local_compose.py", "down"]),
+            patch("local_compose._resolve", return_value=("owned", None, [], {})),
+            patch(
+                "local_compose.resolve_addon", return_value=(["-f", "addon.yml"], {})
+            ),
+            patch.object(
+                onlyoffice,
+                "drained_for_compose",
+                side_effect=OnlyofficeError("drain refused"),
+                create=True,
+            ),
+            patch("local_compose.subprocess.run") as run,
+            self.assertRaises(SystemExit) as result,
+        ):
+            main()
+        self.assertEqual(result.exception.code, 1)
+        run.assert_not_called()
+
+    def test_base_only_down_does_not_require_editor_private_state(self):
+        with (
+            patch("local_compose.sys.argv", ["local_compose.py", "down"]),
+            patch("local_compose._resolve", return_value=("owned", None, [], {})),
+            patch("local_compose.resolve_addon", return_value=([], {})),
+            patch.object(onlyoffice, "drained_for_compose", create=True) as drain,
+            patch(
+                "local_compose.subprocess.run",
+                return_value=type("Result", (), {"returncode": 0})(),
+            ) as run,
+            self.assertRaises(SystemExit) as result,
+        ):
+            main()
+        self.assertEqual(result.exception.code, 0)
+        drain.assert_not_called()
+        run.assert_called_once()
 
     def test_completed_bootstrap_uses_owned_compose_configuration(self):
         config = {

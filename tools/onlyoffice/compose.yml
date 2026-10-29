@@ -1,0 +1,101 @@
+services:
+  odoo:
+    environment:
+      ONLYOFFICE_INTERNAL_URL: https://onlyoffice-gateway:9443
+      ONLYOFFICE_PUBLIC_URL: http://localhost:${MEDILAB_ONLYOFFICE_PORT}
+      ONLYOFFICE_CALLBACK_ORIGIN: https://onlyoffice-gateway:7443
+      ONLYOFFICE_JWT_SECRET: ${ONLYOFFICE_JWT_SECRET}
+      REQUESTS_CA_BUNDLE: /run/onlyoffice-trust/bundle.crt
+      SSL_CERT_FILE: /run/onlyoffice-trust/bundle.crt
+    volumes:
+      - type: bind
+        source: ${ONLYOFFICE_CA_DIR}
+        target: /run/onlyoffice-trust
+        read_only: true
+
+  onlyoffice:
+    labels:
+      com.medilab.onlyoffice.owner: ${MEDILAB_ONLYOFFICE_OWNER}
+    depends_on:
+      onlyoffice-gateway:
+        condition: service_healthy
+
+  onlyoffice-gateway:
+    image: docker.io/library/python:3.12.13-slim@sha256:229a2c5bfa27522db7815ea81f9bed70af17ccb9de9fc7ad142b1877b5830d36
+    entrypoint: [python3, -B, /opt/onlyoffice/proxy.py]
+    environment:
+      ONLYOFFICE_PROXY_ROLE: gateway
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    labels:
+      com.medilab.onlyoffice.owner: ${MEDILAB_ONLYOFFICE_OWNER}
+    networks: [default, onlyoffice]
+    volumes:
+      - type: bind
+        source: ${ONLYOFFICE_SOURCE_ROOT}/tools/onlyoffice
+        target: /opt/onlyoffice
+        read_only: true
+      - type: bind
+        source: ${ONLYOFFICE_STATE_DIR}/runtime.json
+        target: /run/onlyoffice-config/runtime.json
+        read_only: true
+      - type: bind
+        source: ${ONLYOFFICE_TLS_DIR}
+        target: /run/onlyoffice-tls
+        read_only: true
+      - type: bind
+        source: ${ONLYOFFICE_CA_DIR}
+        target: /run/onlyoffice-ca
+        read_only: true
+    healthcheck:
+      test: [CMD, python3, -c, "import socket; s=socket.create_connection(('127.0.0.1',7443),2); s.close()"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  onlyoffice-adapter:
+    image: docker.io/library/python:3.12.13-slim@sha256:229a2c5bfa27522db7815ea81f9bed70af17ccb9de9fc7ad142b1877b5830d36
+    entrypoint: [python3, -B, /opt/onlyoffice/proxy.py]
+    environment:
+      ONLYOFFICE_PROXY_ROLE: adapter
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    network_mode: service:onlyoffice
+    labels:
+      com.medilab.onlyoffice.owner: ${MEDILAB_ONLYOFFICE_OWNER}
+    depends_on:
+      onlyoffice:
+        condition: service_healthy
+    volumes:
+      - type: bind
+        source: ${ONLYOFFICE_SOURCE_ROOT}/tools/onlyoffice
+        target: /opt/onlyoffice
+        read_only: true
+      - type: bind
+        source: ${ONLYOFFICE_STATE_DIR}/runtime.json
+        target: /run/onlyoffice-config/runtime.json
+        read_only: true
+      - type: bind
+        source: ${ONLYOFFICE_CA_DIR}
+        target: /run/onlyoffice-ca
+        read_only: true
+
+networks:
+  onlyoffice: !override
+    external: true
+    name: ${COMPOSE_PROJECT_NAME}_onlyoffice
+
+volumes:
+  onlyoffice-lib:
+    external: true
+    name: ${MEDILAB_ONLYOFFICE_LIB_VOLUME}
+  onlyoffice-data:
+    external: true
+    name: ${MEDILAB_ONLYOFFICE_DATA_VOLUME}
+  onlyoffice-fonts:
+    external: true
+    name: ${MEDILAB_ONLYOFFICE_FONTS_VOLUME}
