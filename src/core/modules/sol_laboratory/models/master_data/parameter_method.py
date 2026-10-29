@@ -60,6 +60,8 @@ class ParameterMethod(models.Model):
     loq = fields.Float(string="LOQ", digits=0)
     # Decimals a result of this way of testing shows, such as 2 for 0.50; results copy it.
     result_decimals = fields.Integer()
+    # True when its results may be negative, such as a redox potential or a temperature in °C.
+    allows_negative = fields.Boolean(string="Negative Results")
     # True for the way the parameter is normally tested.
     is_default = fields.Boolean(string="Default")
     # False when this way of testing is archived.
