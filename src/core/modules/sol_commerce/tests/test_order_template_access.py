@@ -192,7 +192,7 @@ class TestOrderTemplateAccess(TemplateCase):
         source._set_status("completed")
         self.sales_person.role_ids = False
         self.sales_person.permission_ids = self.sales_person.permission_ids.filtered(
-            lambda permission: permission.code != "order.edit.all"
+            lambda permission: permission.code != "order.edit.own"
         )
         self.assertFalse(source.with_user(self.sales).has_access("write"))
         template = self.save_template(source)

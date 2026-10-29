@@ -59,16 +59,16 @@ Before enabling deployed online editing, seed `ONLYOFFICE_JWT_SECRET` in `infra`
 
 The `ARGOCD_SERVER` Actions variable holds `argocd.soltunemontepre.tech`.
 
-| Environment secret    | Environments               | Doppler source        |
-| --------------------- | -------------------------- | --------------------- |
-| `DOPPLER_INFRA_TOKEN` | `ansible`, `ansible-apply` | `DOPPLER_INFRA_TOKEN` |
+| Environment secret    | Environments                                 | Doppler source        |
+| --------------------- | -------------------------------------------- | --------------------- |
+| `DOPPLER_INFRA_TOKEN` | `ansible`, `ansible-apply`, `database-reset` | `DOPPLER_INFRA_TOKEN` |
 
 Terraform owns these secrets: a value edited in GitHub is overwritten on the next `task tf:apply`. To change one, edit it in Doppler and apply. `DOPPLER_INFRA_TOKEN` must exist in `dev` before Terraform reads it, including in the `ci-infra` plan of the pull request that adds it.
 
 ## Pipelines
 
 - `ci-infra` and `cd-infra`, described in [Pipelines](pipelines.md), read the `dev` config through the `DOPPLER_TOKEN` Actions secret, a Doppler service token with read access to `dev`. Terraform publishes it; the first run that creates it needs the value in the Actions secrets already, so set it by hand once to bootstrap the pipelines.
-- `cd-ansible` reads the `infra` config through the `DOPPLER_INFRA_TOKEN` secret of the `ansible` and `ansible-apply` environments, which only `main` can use; see [Pipelines](pipelines.md#cd-ansible).
+- `cd-ansible` and `cd-reset` read the `infra` config through the `DOPPLER_INFRA_TOKEN` secret of the `ansible`, `ansible-apply` and `database-reset` environments, which only `main` can use; see [Pipelines](pipelines.md#cd-ansible).
 
 ## Commands
 

@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-13 17:56+0000\n"
-"PO-Revision-Date: 2026-10-13 17:56+0000\n"
+"POT-Creation-Date: 2026-10-28 14:19+0000\n"
+"PO-Revision-Date: 2026-10-28 14:19+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -134,6 +134,11 @@ msgid "Chlorpyrifos"
 msgstr ""
 
 #. module: sol_demo
+#: model:medilab.test.parameter,name:sol_demo.demo_test_parameter_chromium_vi
+msgid "Chromium (VI)"
+msgstr ""
+
+#. module: sol_demo
 #: model:medilab.test.parameter,name:sol_demo.demo_test_parameter_coliforms
 msgid "Coliforms"
 msgstr ""
@@ -146,6 +151,11 @@ msgstr ""
 #. module: sol_demo
 #: model:medilab.sample.type,sampling_requirements:sol_demo.demo_sample_type_cabbage
 msgid "Collect whole heads in clean paper bags."
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.location,name:sol_demo.demo_location_colorimetry_room
+msgid "Colorimetry room"
 msgstr ""
 
 #. module: sol_demo
@@ -260,6 +270,7 @@ msgid "Head of Sales of the department"
 msgstr ""
 
 #. module: sol_demo
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_laboratory_file_version_signing_head_of_department
 #: model:medilab.approval.level,name:sol_demo.demo_approval_level_test_result_signing_head_of_department
 #: model:medilab.role,name:sol_demo.demo_role_head_of_department
 msgid "Head of department"
@@ -300,6 +311,11 @@ msgstr ""
 #. module: sol_demo
 #: model:medilab.location,name:sol_demo.demo_location_lab_head_office
 msgid "Lab head's office"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_laboratory_file_version_signing
+msgid "Laboratory file signing"
 msgstr ""
 
 #. module: sol_demo
@@ -441,6 +457,17 @@ msgid "Organophosphates"
 msgstr ""
 
 #. module: sol_demo
+#: model:hr.department,name:sol_demo.demo_hr_department_pathogens
+msgid "Pathogens"
+msgstr ""
+
+#. module: sol_demo
+#: model:account.analytic.account,name:sol_demo.demo_account_analytic_account_pesticide_residues
+#: model:hr.department,name:sol_demo.demo_hr_department_pesticide_residues
+msgid "Pesticide residues"
+msgstr ""
+
+#. module: sol_demo
 #: model:medilab.parameter.group,name:sol_demo.demo_parameter_group_pesticides
 msgid "Pesticides"
 msgstr ""
@@ -458,6 +485,16 @@ msgstr ""
 #. module: sol_demo
 #: model:medilab.sample.type,disposal_method:sol_demo.demo_sample_type_bottled_water
 msgid "Pour into the drain and recycle the bottles."
+msgstr ""
+
+#. module: sol_demo
+#: model:ir.model,name:sol_demo.model_purchase_order
+msgid "Purchase Order"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_purchase_order_signing
+msgid "Purchase order signing"
 msgstr ""
 
 #. module: sol_demo
@@ -498,6 +535,11 @@ msgid "Sample delivery staff"
 msgstr ""
 
 #. module: sol_demo
+#: model:medilab.location,name:sol_demo.demo_location_preparation_room
+msgid "Sample preparation room"
+msgstr ""
+
+#. module: sol_demo
 #: model:hr.department,name:sol_demo.demo_hr_department_sample_reception
 msgid "Sample reception"
 msgstr ""
@@ -521,6 +563,11 @@ msgstr ""
 #. module: sol_demo
 #: model:medilab.testing.method,name:sol_demo.demo_testing_method_tcvn_5979
 msgid "Soil quality — Determination of pH"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.location,name:sol_demo.demo_location_store_room
+msgid "Store room"
 msgstr ""
 
 #. module: sol_demo
@@ -548,6 +595,21 @@ msgstr ""
 #. module: sol_demo
 #: model:medilab.sample.type,name:sol_demo.demo_sample_type_surface_water
 msgid "Surface water"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_test_report_change_request
+msgid "Test report change request"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_test_report_signing
+msgid "Test report signing"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_test_result_change_request
+msgid "Test result change request"
 msgstr ""
 
 #. module: sol_demo
@@ -591,6 +653,11 @@ msgid ""
 msgstr ""
 
 #. module: sol_demo
+#: model:medilab.testing.method,name:sol_demo.demo_testing_method_chromium_vi_colorimetry
+msgid "Water quality — Determination of chromium(VI) by colorimetry"
+msgstr ""
+
+#. module: sol_demo
 #: model:medilab.testing.method,name:sol_demo.demo_testing_method_tcvn_6492
 msgid "Water quality — Determination of pH"
 msgstr ""
@@ -610,45 +677,4 @@ msgstr ""
 #. module: sol_demo
 #: model:medilab.chemical,name:sol_demo.demo_chemical_ph_buffer
 msgid "pH buffer solution 7.00"
-msgstr ""
-
-#. module: sol_demo
-#: model:hr.department,name:sol_demo.demo_hr_department_pathogens
-msgid "Pathogens"
-msgstr ""
-
-#. module: sol_demo
-#: model:account.analytic.account,name:sol_demo.demo_account_analytic_account_pesticide_residues
-#: model:hr.department,name:sol_demo.demo_hr_department_pesticide_residues
-msgid "Pesticide residues"
-msgstr ""
-
-#. module: sol_demo
-#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_test_report_signing
-msgid "Test report signing"
-msgstr ""
-
-#. module: sol_demo
-#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_test_result_change_request
-msgid "Test result change request"
-msgstr ""
-
-#. module: sol_demo
-#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_test_report_change_request
-msgid "Test report change request"
-msgstr ""
-
-#. module: sol_demo
-#: model:ir.model,name:sol_demo.model_purchase_order
-msgid "Purchase Order"
-msgstr ""
-
-#. module: sol_demo
-#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_purchase_order_signing
-msgid "Purchase order signing"
-msgstr ""
-
-#. module: sol_demo
-#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_laboratory_file_version_signing
-msgid "Laboratory file signing"
 msgstr ""

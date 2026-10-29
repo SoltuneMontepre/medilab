@@ -206,3 +206,11 @@ class TestOrderForm(OrderCase):
         self.assertEqual(order.with_user(self.sales).approval_waiting_for, head_role.name)
         order.with_user(self.head).action_sign()
         self.assertFalse(order.approval_waiting_for)
+
+    def test_vietnamese_form_translates_its_headings_and_labels(self):
+        arch = self.env[MODEL_SALE_ORDER].with_context(lang="vi_VN").get_view(view_type="form")["arch"]
+
+        for text in ("Các khoản tạm ứng", "Khách hàng thấy", "đang chờ", "Thêm chỉ tiêu hoặc nhóm dịch vụ"):
+            with self.subTest(text=text):
+                self.assertIn(text, arch)
+        self.assertNotIn("Advance payments", arch)

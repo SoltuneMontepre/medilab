@@ -13,7 +13,7 @@
                     icon="fa-shopping-cart"
                     string="Orders"
                     context="{'search_default_customer_id': partner_id}"
-                    groups="sol_laboratory.group_permission_order_read_all"
+                    groups="sol_laboratory.group_permission_order_read_all,sol_laboratory.group_permission_order_read_own"
                 />
                 <button
                     name="%(action_medilab_customer_sales_terms)d"
