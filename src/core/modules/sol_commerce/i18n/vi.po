@@ -3635,12 +3635,6 @@ msgstr "Đơn hàng không thuộc về khách hàng này."
 
 #. module: sol_commerce
 #. odoo-python
-#: code:addons/sol_commerce/models/orders/sale_order_freeze.py:0
-msgid "The order is confirmed, so its lines and samples cannot be changed."
-msgstr "Đơn hàng đã được xác nhận nên không thể thay đổi các dòng và mẫu."
-
-#. module: sol_commerce
-#. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
 msgid "The order must be confirmed before the samples are collected."
 msgstr "Đơn hàng phải được xác nhận trước khi thu mẫu."

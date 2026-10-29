@@ -78,14 +78,11 @@ class OrderCase(PricingCase):
 
     @classmethod
     def setup_roles(cls):
-        """Both salespeople hold the Sales role and the Head of Sales theirs. The demo data may have made the roles."""
-        roles = cls.env[MODEL_ROLE]
-        for code, name in (("sales", "Sales"), ("head_of_sales", "Head of Sales")):
-            roles |= roles.search([("code", "=", code)]) or roles.create({"code": code, "name": name})
-        sales_role, head_role = roles
+        """Both salespeople hold a Sales role and the Head of Sales theirs; neither role grants a permission."""
+        sales_role = cls.env[MODEL_ROLE].create({"code": "qo_sales", "name": "Sales"})
         cls.sales_person.role_ids = sales_role
         cls.other_person.role_ids = sales_role
-        cls.head_person.role_ids = head_role
+        cls.head_person.role_ids = cls.env[MODEL_ROLE].create({"code": "qo_head", "name": "Head of Sales"})
 
     def make_order(self, lines, status="draft", **vals):
         return self.env["sale.order"].create(

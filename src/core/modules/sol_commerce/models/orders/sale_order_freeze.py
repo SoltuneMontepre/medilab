@@ -32,9 +32,7 @@ class SaleOrderFreeze(models.Model):
         )
 
     def _check_content_freeze(self):
-        """Refuse a change to the lines or samples of orders that are confirmed or whose quotation was sent."""
-        orders = self.sudo()
-        if orders._frozen_by_confirmation():
-            raise UserError(self.env._("The order is confirmed, so its lines and samples cannot be changed."))
-        if orders._frozen_by_quotation():
+        """Refuse a change to the lines or samples of orders whose quotation was sent. Confirming needs an accepted
+        quotation, so this also holds the lines and samples of every confirmed order."""
+        if self.sudo()._frozen_by_quotation():
             raise UserError(self.env._("The quotation was sent; revise it before changing its lines or samples."))

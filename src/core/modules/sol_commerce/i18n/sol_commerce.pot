@@ -3891,12 +3891,6 @@ msgstr ""
 
 #. module: sol_commerce
 #. odoo-python
-#: code:addons/sol_commerce/models/orders/sale_order_freeze.py:0
-msgid "The order is confirmed, so its lines and samples cannot be changed."
-msgstr ""
-
-#. module: sol_commerce
-#. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
 msgid "The order must be confirmed before the samples are collected."
 msgstr ""
