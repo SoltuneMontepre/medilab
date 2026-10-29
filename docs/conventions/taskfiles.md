@@ -14,7 +14,6 @@ tools/
 │   ├── ansible.taskfile.yml    Ansible in a container: ping, inspect, check, apply, kubeconfig, lint
 │   ├── app.taskfile.yml        run the app: up, stop, restart, logs, upgrade, reset
 │   ├── dev.taskfile.yml        developer setup and checks: doppler, venv, Odoo source, lint, typecheck
-│   ├── docs.taskfile.yml       tools for the Office files in docs: OfficeCLI
 │   ├── test.taskfile.yml       tests: core, uninstall, typecheck, e2e, apps
 │   └── tf.taskfile.yml         Terraform: setup, init, plan, apply, output
 ├── typecheck/                  pyright runner, the links of the addons into the Odoo source, and their tests

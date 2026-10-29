@@ -135,7 +135,6 @@ For AI authoring and live debugging, use `task test:e2e:tap:open` and the [Cypre
 | `task test:e2e:app`         | Install demo data and start the disposable browser-test application, as CI does                                                                   |
 | `task ai:verify`           | Check Odoo model and field navigation through the `odoo` MCP server                                                                               |
 | `task ai:cursor-setup`     | Install the official Odoo extension into an isolated Cursor profile                                                                               |
-| `task docs:setup`          | Install OfficeCLI to read and edit the `.docx`, `.xlsx` and `.pptx` files in `docs`                                                               |
 | `task dev:lock`            | Re-resolve `uv.lock` after editing dependencies in `pyproject.toml`                                                                               |
 | `task lint`                | Run ruff and pylint-odoo on `src/core/modules`                                                                                                    |
 | `task format`              | Format `src/core/modules` with ruff                                                                                                               |
