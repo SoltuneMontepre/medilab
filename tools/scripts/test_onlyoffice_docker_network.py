@@ -39,7 +39,6 @@ class DockerNetworkProofTest(unittest.TestCase):
                 patch.object(proof.sys, "argv", ["proof.py", "--report", str(report)]),
                 patch.object(proof.bootstrap, "_assert_local_engine"),
                 patch.object(proof, "ThreadingHTTPServer", return_value=fake_host),
-                patch.object(proof.threading, "Thread"),
                 patch.object(proof.onlyoffice_tls, "prepare"),
                 patch.object(
                     proof.Proof,
