@@ -29,6 +29,11 @@ msgid "%s waits in a queue you do not belong to."
 msgstr "%s đang chờ trong hàng đợi mà bạn không thuộc về."
 
 #. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_order_edit_own
+msgid "Edit own orders"
+msgstr "Sửa đơn hàng của mình"
+
+#. module: sol_commerce
 #: model:medilab.task.type,name:sol_commerce.task_type_invoice_posting
 msgid "Invoice posting"
 msgstr "Phát hành hóa đơn"
@@ -1292,6 +1297,11 @@ msgid "Order"
 msgstr "Đơn Hàng"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__order_can_edit
+msgid "Order Can Edit"
+msgstr "Có thể sửa đơn hàng"
+
+#. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_medilab_order_sample
 msgid "Order Sample"
 msgstr "Mẫu Đơn Hàng"
@@ -1619,6 +1629,11 @@ msgstr "Xem mẫu đơn hàng"
 #: model:medilab.permission,name:sol_commerce.permission_order_read_all
 msgid "Read orders"
 msgstr "Xem đơn hàng"
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_order_read_own
+msgid "Read own orders"
+msgstr "Xem đơn hàng của mình"
 
 #. module: sol_commerce
 #: model:medilab.permission,name:sol_commerce.permission_parameter_price_read_all
@@ -2316,6 +2331,12 @@ msgstr "Viết lời phản hồi cho khách hàng."
 #. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "You are not allowed to claim orders."
+msgstr "Bạn không được phép nhận đơn hàng."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
 msgid "You cannot change prices or internal fields of an order."
 msgstr "Bạn không thể sửa giá hoặc các trường nội bộ của đơn hàng."
 
@@ -2324,6 +2345,12 @@ msgstr "Bạn không thể sửa giá hoặc các trường nội bộ của đ�
 #: code:addons/sol_commerce/models/orders/sale_order_line.py:0
 msgid "You cannot change the price of an order."
 msgstr "Bạn không thể sửa giá của đơn hàng."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_approval.py:0
+msgid "You may only read this order, so you cannot sign or reject it."
+msgstr "Bạn chỉ được xem đơn hàng này nên không thể ký hoặc từ chối."
 
 #. module: sol_commerce
 #. odoo-python

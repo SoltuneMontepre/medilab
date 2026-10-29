@@ -52,7 +52,8 @@ Sales is the laboratory's salesperson. Sales turns customer orders into quotatio
 
 ### 1. Orders and customers (US-S01 to US-S04)
 
-- **Queue.** Submitted customer orders appear in an unclaimed queue, oldest first. A salesperson claims one; from then on only that salesperson (and the Head of Sales) sees and edits it. A claimed order is not visible to other salespeople.
+- **Queue.** Submitted customer orders appear in an unclaimed queue, oldest first. A salesperson claims one; from then on only that salesperson and the Head of Sales edit it and act on it.
+- **Reading other salespeople's orders.** The administrator chooses per role whether its salespeople read every order (**Read orders**) or only their own and the unclaimed queue (**Read own orders**). A salesperson who reads every order opens another salesperson's order read-only: its fields cannot be changed and its actions are hidden. Editing follows **Edit own orders** for a salesperson and **Edit orders** for whoever edits every order.
 - **Quotation task.** Submitting an order puts a quotation task in the queue of the Sales role ([SH-10](../../shared.md#sh-10-tasks-and-to-do-list)); the administrator chooses the role on the task type. Claiming the order, or claiming its task, gives both to that salesperson: the task moves to their to-do list and opens the order. When the order's salesperson changes, its open task moves to the new salesperson. The task is done when the order's first quotation is sent, and cancelled when the order is cancelled. It is due 24 elapsed hours after the order is submitted; the administrator changes this default on the task type.
 - **Order on behalf of a customer.** Sales selects the customer, adds parameters and service packages in the same catalog the customer uses and saves it as an order owned by the salesperson. From here the flow is the same as a portal order.
 - **Customer profile.** Name, tax code or citizen ID, addresses, the contact people of a business, and the customer's order history. Sales can set whether a customer is allowed to order on credit (see below). The customer itself is kept by the [Laboratory module](../../laboratory_module/overview.md#test-requests-and-samples); E-commerce keeps the customer's sales terms.
@@ -64,7 +65,8 @@ Acceptance criteria:
 - A submitted order is a task in the queue of every salesperson until one claims it.
 - Claiming the task claims the order, and claiming the order assigns its task, to the same salesperson.
 - Sending the quotation marks the task done; cancelling the order cancels it.
-- A salesperson sees only the orders they own and the unclaimed queue; the Head of Sales sees all.
+- A salesperson with Read own orders sees only the orders they own and the unclaimed queue; the Head of Sales sees all.
+- A salesperson with Read orders opens another salesperson's order read-only, and cannot change it, send its quotation, cancel it, change its samples or request or sign its approval.
 - Merging two profiles keeps every order and document on the remaining profile.
 
 ### 2. Quotation (US-S05 to US-S10, US-S21, US-S22)
