@@ -174,7 +174,8 @@ class SaleOrder(models.Model):
         orders = super().create(vals_list)
         for order, user_id in zip(orders, wanted_users, strict=True):
             order._settle_user(user_id)
-        orders.order_line._lock_catalog_price()
+        # The catalog prices are the system's, so a salesperson who may not change the new order still locks them.
+        orders.order_line.sudo()._lock_catalog_price()
         return orders
 
     def _fill_create_values(self, vals_list):
@@ -317,11 +318,15 @@ class SaleOrder(models.Model):
         self.with_context(medilab_status_change=True).write({"partner_id": partner.id, "customer_id": partner.id})
 
     def action_claim(self):
-        """Give the submitted order to the current salesperson."""
+        """Give the submitted order to the current salesperson. An unclaimed order has no owner yet, so a salesperson
+        who may only edit their own orders claims it with full rights once they may read it and edit orders."""
+        self.check_access("read")
+        if not self._has_permission("edit"):
+            raise AccessError(self.env._("You are not allowed to claim orders."))
         for order in self:
             if order.order_status != STATUS_SUBMITTED or order.user_id:
                 raise UserError(self.env._("This order is already claimed."))
-        self._set_status(STATUS_CLAIMED, {"user_id": self.env.uid, "claimed_at": fields.Datetime.now()})
+        self.sudo()._set_status(STATUS_CLAIMED, {"user_id": self.env.uid, "claimed_at": fields.Datetime.now()})
         return True
 
     def action_customer_cancel(self):
