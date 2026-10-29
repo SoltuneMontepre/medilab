@@ -126,6 +126,7 @@ class SyncDoctorTest(unittest.TestCase):
 
             with (
                 self.subTest(available=available),
+                patch.object(sync_doctor, "linux_family", return_value="arch"),
                 patch.object(
                     sync_doctor.shutil, "which", side_effect=lambda name: name
                 ),

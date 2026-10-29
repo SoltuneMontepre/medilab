@@ -191,7 +191,13 @@ jobs:
         if: runner.os == 'Windows' && (steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch')
         shell: pwsh
         run: |
-          $paths = $env:PATH -split ';' | Where-Object { $_ -notmatch '(?i)[\/]Git[\/](usr[\/]bin|bin)([\/]|$)|[\/]msys64[\/]' }
+          $medilabBlockedShellPath = '(?i)[\\/]Git[\\/](usr[\\/]bin|bin)([\\/]|$)|[\\/]msys64[\\/]'
+          foreach ($sample in @('C:\Program Files\Git\usr\bin', 'C:\Program Files\Git\bin', 'C:/Program Files/Git/usr/bin', 'C:\msys64\usr\bin')) {
+            if ($sample -notmatch $medilabBlockedShellPath) { throw 'External Bash path detection failed its native path contract.' }
+          }
+          if ('C:\Program Files\Git\cmd' -match $medilabBlockedShellPath) { throw 'Native Git cmd must remain available.' }
+          $paths = @($env:PATH -split ';' | Where-Object { $_ -notmatch $medilabBlockedShellPath })
+          if (@($paths | Where-Object { $_ -match $medilabBlockedShellPath }).Count -ne 0) { throw 'Native Windows PATH still exposes external Bash directories.' }
           $guard = Join-Path $env:RUNNER_TEMP 'medilab-native-shell-guard'
           New-Item -ItemType Directory -Force $guard | Out-Null
           foreach ($name in @('bash', 'sh')) {
