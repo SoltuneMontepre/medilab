@@ -39,6 +39,22 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__downpayment_line_ids
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 msgid "Advance payments"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/task.py:0
+msgid "%s is already claimed."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/task.py:0
+msgid "%s waits in a queue you do not belong to."
+msgstr ""
+
+#. module: sol_commerce
+#: model:medilab.task.type,name:sol_commerce.task_type_invoice_posting
+msgid "Invoice posting"
 msgstr ""
 
 #. module: sol_commerce
@@ -2540,6 +2556,11 @@ msgid "Order history"
 msgstr ""
 
 #. module: sol_commerce
+#: model:medilab.task.type,name:sol_commerce.task_type_order_quotation
+msgid "Order quotation"
+msgstr ""
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_submitted
 msgid "Order submitted"
 msgstr ""
@@ -3770,6 +3791,11 @@ msgid "Take"
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_task
+msgid "Task"
+msgstr ""
+
+#. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_medilab_tax
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_parameter_price__tax_id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package__tax_id
@@ -3964,6 +3990,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_approval.py:0
 msgid "The order must be approved before the samples are collected."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_task.py:0
+msgid "The order's salesperson changed."
 msgstr ""
 
 #. module: sol_commerce

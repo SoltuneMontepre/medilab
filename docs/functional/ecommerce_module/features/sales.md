@@ -53,6 +53,7 @@ Sales is the laboratory's salesperson. Sales turns customer orders into quotatio
 ### 1. Orders and customers (US-S01 to US-S04)
 
 - **Queue.** Submitted customer orders appear in an unclaimed queue, oldest first. A salesperson claims one; from then on only that salesperson (and the Head of Sales) sees and edits it. A claimed order is not visible to other salespeople.
+- **Quotation task.** Submitting an order puts a quotation task in the queue of the Sales role ([SH-10](../../shared.md#sh-10-tasks-and-to-do-list)); the administrator chooses the role on the task type. Claiming the order, or claiming its task, gives both to that salesperson: the task moves to their to-do list and opens the order. When the order's salesperson changes, its open task moves to the new salesperson. The task is done when the order's first quotation is sent, and cancelled when the order is cancelled. It is due 24 elapsed hours after the order is submitted; the administrator changes this default on the task type.
 - **Order on behalf of a customer.** Sales selects the customer, adds parameters and service packages in the same catalog the customer uses and saves it as an order owned by the salesperson. From here the flow is the same as a portal order.
 - **Order form.** Under the order number, each status has its label: **Customer sees** (the progress shown on the portal), **Quotation** (unpaid, paid, declined or expired) and **Approval** (requested, approved or rejected). A requested approval also names the role whose signature it waits for, such as the Head of Sales. The **Order Lines** tab holds only the ordered parameters and packages, added with **Add a parameter or package**. The down payments Odoo adds to the order when an advance invoice is created are listed on the **Payment** tab, each with its invoice and untaxed amount, next to the advance method, payment status and pending amount.
 - **Customer profile.** Name, tax code or citizen ID, addresses, the contact people of a business, and the customer's order history. Sales can set whether a customer is allowed to order on credit (see below). The customer itself is kept by the [Laboratory module](../../laboratory_module/overview.md#test-requests-and-samples); E-commerce keeps the customer's sales terms.
@@ -61,6 +62,9 @@ Sales is the laboratory's salesperson. Sales turns customer orders into quotatio
 Acceptance criteria:
 
 - A claimed order cannot be claimed by another salesperson.
+- A submitted order is a task in the queue of every salesperson until one claims it.
+- Claiming the task claims the order, and claiming the order assigns its task, to the same salesperson.
+- Sending the quotation marks the task done; cancelling the order cancels it.
 - A salesperson sees only the orders they own and the unclaimed queue; the Head of Sales sees all.
 - After the quotation with an advance is sent, the Order Lines tab shows no down payment line, and the Payment tab lists the advance invoice with its amount.
 - An order whose approval is requested shows which role must sign next.
