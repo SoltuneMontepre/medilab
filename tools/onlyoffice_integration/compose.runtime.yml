@@ -21,7 +21,7 @@ services:
       - ../../infra/cluster/onlyoffice:/opt/medilab/onlyoffice:ro
       - ../infrastructure/onlyoffice:/opt/medilab/onlyoffice-tools:ro
       - .:/opt/onlyoffice-integration:ro
-      - agent4-fonts:/usr/share/fonts/truetype/custom
+      - harness-fonts:/usr/share/fonts/truetype/custom
 
 volumes:
-  agent4-fonts:
+  harness-fonts:

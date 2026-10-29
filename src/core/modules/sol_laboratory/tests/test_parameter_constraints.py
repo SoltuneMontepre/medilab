@@ -123,3 +123,13 @@ class TestParameterConstraints(MasterDataCase):
                     for method in self.method | self.icp_ms
                 ]
             )
+
+    def test_an_in_house_way_of_testing_without_a_department_is_refused(self):
+        with self.assertRaisesRegex(ValidationError, "needs the department that tests it, or a subcontractor"):
+            self.env[MODEL_PARAMETER_METHOD].create(
+                {"parameter_id": self.parameter.id, "method_id": self.icp_ms.id, "unit_id": self.unit.id}
+            )
+
+    def test_a_way_of_testing_cannot_lose_its_department(self):
+        with self.assertRaisesRegex(ValidationError, "needs the department that tests it, or a subcontractor"):
+            self.pair.department_id = False
