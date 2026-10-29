@@ -110,7 +110,7 @@ jobs:
           - os: windows-2025
             label: Windows
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 15
+    timeout-minutes: ${{ matrix.label == 'Windows' && 30 || 15 }}
     permissions:
       contents: read
       pull-requests: read
