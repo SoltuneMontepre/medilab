@@ -74,6 +74,98 @@
     }
 }
 
+// The chatter beside a form is a resizable panel: its bar is dragged to resize it and holds the button that collapses it.
+$ml-chatter-bar-width: 1.25rem;
+
+.o-mail-Form-chatter.o-aside {
+    flex: 0 0 auto;
+    width: auto;
+}
+
+.o-mail-ChatterPanel {
+    max-width: 60vw;
+
+    > .o_resizable_panel_handle {
+        width: 0.625rem;
+
+        &::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 1px;
+            background: $ml-border;
+            transition: $ml-transition;
+        }
+
+        &:hover::after,
+        &:active::after {
+            width: 3px;
+            margin-left: -1px;
+            background: $ml-primary;
+        }
+    }
+
+    &.o-isCollapsed {
+        width: $ml-chatter-bar-width !important;
+
+        > .o_resizable_panel_handle {
+            display: none;
+        }
+    }
+}
+
+.o-mail-ChatterPanelContent {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.o-mail-ChatterBar {
+    width: $ml-chatter-bar-width;
+}
+
+.o-mail-ChatterBody {
+    min-width: 0;
+}
+
+.o-mail-ChatterToggle {
+    position: relative;
+    z-index: 11;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: $ml-chatter-bar-width;
+    height: $ml-chatter-bar-width;
+    margin: 1rem auto 0;
+    padding: 0;
+    border: 1px solid $ml-border-strong;
+    border-radius: $ml-radius-pill;
+    background: $ml-surface;
+    color: $ml-text-muted;
+    font-size: 0.75rem;
+    transition: $ml-transition;
+
+    &:hover {
+        border-color: $ml-primary;
+        color: $ml-primary;
+    }
+
+    &:focus-visible {
+        outline: none;
+        box-shadow: $ml-focus-ring;
+    }
+}
+
+@media print {
+    .o-mail-ChatterPanel,
+    .o-mail-ChatterPanel.o-isCollapsed {
+        width: 100% !important;
+        max-width: none;
+    }
+}
+
 .o-mail-Followers-button {
     color: $ml-accent !important;
 

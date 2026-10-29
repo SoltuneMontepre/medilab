@@ -29,6 +29,7 @@ src/tests/
       features/
         onboarding/master-data-staging/
         inventory/solution-preparation/
+        theme/chatter-resize/
       *.cy.js
     support/
     fixtures/
@@ -36,7 +37,7 @@ src/tests/
 
 - `flows/` holds the scenarios for WF-01 to WF-06 and SF-01 to SF-11. The table below maps each owning flow to its spec directory; one file suite can exercise both result-file work and file administration.
 - `features/` holds browser scenarios whose feature has no owning business flow.
-- `support/` holds shared authentication, record, action and refusal commands; `fixtures/` holds browser fixtures.
+- `support/` holds shared authentication, record, action, refusal and form commands; `fixtures/` holds browser fixtures.
 - `flows/<flow>/setup.js` builds the flow's starting records, such as an order taken to a given stage, so a spec runs again on the same database. `sol_demo` provides the catalog, customers, people and other records they read.
 - Keep a directory's `.gitkeep` until its first real spec is added. Do not add empty `.cy.js` files or skipped placeholder tests.
 - Existing flat specs keep their current paths. Inspect their cases when implementing a flow; reuse or move a matching case instead of adding a second copy.
@@ -73,6 +74,7 @@ Start test titles with the issue's `TC-WF…`, `TC-SF…` or `TC-F…` ID. Map f
 | --- | --- | --- | --- |
 | Pick an organisation, start a run, review staged records and accept a certificate with its methods. | [#176](https://github.com/SoltuneMontepre/medilab/issues/176) | `features/onboarding/master-data-staging/` | `master-data-staging.cy.js` |
 | Prepare a solution from scanned bottles; verify the resulting stock movements and container. | [#181](https://github.com/SoltuneMontepre/medilab/issues/181) | `features/inventory/solution-preparation/` | `solution-preparation.cy.js` |
+| Resize and collapse the chatter that sits beside a form, and keep its width and state. | [#282](https://github.com/SoltuneMontepre/medilab/issues/282) | `features/theme/chatter-resize/` | `chatter-resize.cy.js` |
 
 Onboarding and solution-preparation scenarios follow their approved feature documents and demo starting data. Reserving a directory does not settle the open requirements in those issues.
 

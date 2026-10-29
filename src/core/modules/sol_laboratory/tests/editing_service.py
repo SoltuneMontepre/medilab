@@ -57,6 +57,7 @@ class LocalEditingService:
     def __init__(self, case):
         self.answers = {}
         self.asked = []
+        self.before_get = None
         service = self
 
         class Handler(BaseHTTPRequestHandler):
@@ -68,6 +69,8 @@ class LocalEditingService:
 
             def do_GET(self):
                 service.asked.append(self.path)
+                if service.before_get:
+                    service.before_get(self.path)
                 status, headers, body = service.answers.get(self.path.split("?")[0], (404, {}, b""))
                 self.send_response(status)
                 for name, value in headers.items():

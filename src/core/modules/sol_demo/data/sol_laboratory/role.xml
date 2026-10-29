@@ -20,7 +20,7 @@
                 ref('sol_laboratory.permission_sample_test_edit_all'),
                 ref('sol_commerce.permission_order_read_all'),
                 ref('sol_commerce.permission_order_create_all'),
-                ref('sol_commerce.permission_order_edit_all'),
+                ref('sol_commerce.permission_order_edit_own'),
                 ref('sol_commerce.permission_cancellation_request_read_all'),
                 ref('sol_commerce.permission_cancellation_request_edit_all'),
                 ref('sol_commerce.permission_order_sign_all'),
@@ -92,6 +92,7 @@
         <field
             name="permission_ids"
             eval="[Command.set([
+                ref('sol_laboratory.permission_person_read_own_department'),
                 ref('sol_laboratory.permission_customer_read_all'),
                 ref('sol_laboratory.permission_test_request_read_all'),
                 ref('sol_laboratory.permission_test_request_create_all'),

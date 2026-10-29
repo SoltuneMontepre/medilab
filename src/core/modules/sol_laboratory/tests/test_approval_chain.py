@@ -19,6 +19,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 
 DOCUMENT_MODEL = "qa.document"
+LATER_SIGNATURES_STAND = "Withdraw the signatures given after yours first."
 
 
 @tagged("post_install", "-at_install")
@@ -44,20 +45,22 @@ class TestApprovalChain(PeopleCase):
 
     @classmethod
     def sign(cls, person, level, decision=DECISION_SIGNED, reason=False, document_id=1):
-        return cls.env[MODEL_SIGNATURE].create(
-            {
-                "document_model": DOCUMENT_MODEL,
-                "document_id": document_id,
-                "document_version": 1,
-                "level_id": level.id,
-                "signer_id": person.id,
-                "signer_name": person.name,
-                "signer_role": level.role_id.name,
-                "level_name": level.name,
-                "decision": decision,
-                "reason": reason,
-            }
-        )
+        return cls.env[MODEL_SIGNATURE].create(cls.signature_vals(person, level, decision, reason, document_id))
+
+    @classmethod
+    def signature_vals(cls, person, level, decision=DECISION_SIGNED, reason=False, document_id=1):
+        return {
+            "document_model": DOCUMENT_MODEL,
+            "document_id": document_id,
+            "document_version": 1,
+            "level_id": level.id,
+            "signer_id": person.id,
+            "signer_name": person.name,
+            "signer_role": level.role_id.name,
+            "level_name": level.name,
+            "decision": decision,
+            "reason": reason,
+        }
 
     def test_a_document_type_has_one_chain_per_purpose(self):
         with self.assertRaises(IntegrityError), mute_logger("odoo.sql_db"), self.cr.savepoint():
@@ -109,11 +112,11 @@ class TestApprovalChain(PeopleCase):
         self.assertIn(signature.display_name, str(refusal.exception))
         self.assertFalse(self.chemist.active)
 
-    def test_a_signature_is_withdrawn_from_the_highest_level_down(self):
+    def test_a_signature_is_withdrawn_in_the_reverse_order_it_was_given(self):
         lower = self.sign(self.chemist, self.sales_level)
         higher = self.sign(self.microbiologist, self.head_level)
 
-        with self.assertRaises(UserError):
+        with self.assertRaisesRegex(UserError, LATER_SIGNATURES_STAND):
             lower.with_user(self.chemist.user_id)._withdraw()
         higher.with_user(self.microbiologist.user_id)._withdraw()
         lower.with_user(self.chemist.user_id)._withdraw()
@@ -121,11 +124,31 @@ class TestApprovalChain(PeopleCase):
         self.assertTrue(higher.withdrawn_at)
         self.assertTrue(lower.withdrawn_at)
 
-    def test_a_rejection_on_a_higher_level_is_withdrawn_first(self):
+    def test_a_signature_given_out_of_level_order_follows_the_timeline(self):
+        higher = self.sign(self.microbiologist, self.head_level)
+        lower = self.sign(self.chemist, self.sales_level)
+
+        with self.assertRaisesRegex(UserError, LATER_SIGNATURES_STAND):
+            higher.with_user(self.microbiologist.user_id)._withdraw()
+        lower.with_user(self.chemist.user_id)._withdraw()
+        higher.with_user(self.microbiologist.user_id)._withdraw()
+
+        self.assertTrue(lower.withdrawn_at)
+        self.assertTrue(higher.withdrawn_at)
+
+    def test_a_signature_does_not_wait_for_a_later_one_on_another_document(self):
+        signature = self.sign(self.chemist, self.sales_level)
+        self.sign(self.microbiologist, self.head_level, document_id=2)
+
+        signature.with_user(self.chemist.user_id)._withdraw()
+
+        self.assertTrue(signature.withdrawn_at)
+
+    def test_a_later_rejection_is_withdrawn_first(self):
         lower = self.sign(self.chemist, self.sales_level)
         rejection = self.sign(self.microbiologist, self.head_level, DECISION_REJECTED, "Wrong price")
 
-        with self.assertRaises(UserError):
+        with self.assertRaisesRegex(UserError, LATER_SIGNATURES_STAND):
             lower.with_user(self.chemist.user_id)._withdraw()
         rejection.with_user(self.microbiologist.user_id)._withdraw()
         lower.with_user(self.chemist.user_id)._withdraw()
@@ -148,6 +171,62 @@ class TestApprovalChain(PeopleCase):
             signature.unlink()
 
         self.assertTrue(signature.exists())
+
+    def test_a_signature_cannot_be_changed_with_full_rights(self):
+        signature = self.sign(self.chemist, self.sales_level, document_id=7).sudo()
+        changes = {
+            "document_model": "qa.other",
+            "document_id": 8,
+            "document_version": 2,
+            "document_hash": "0" * 64,
+            "level_id": self.head_level.id,
+            "signer_id": self.microbiologist.id,
+            "signer_name": "Someone else",
+            "signer_role": "Someone else's role",
+            "level_name": "Another level",
+            "decision": DECISION_REJECTED,
+            "reason": "Changed",
+        }
+
+        for field_name, value in changes.items():
+            with self.subTest(field=field_name), self.assertRaises(UserError):
+                signature.write({field_name: value})
+
+        self.assertEqual(signature.signer_id, self.chemist)
+        self.assertEqual(signature.decision, DECISION_SIGNED)
+        self.assertEqual(signature.document_id, 7)
+
+    def test_a_signature_is_given_in_force(self):
+        vals = self.signature_vals(self.chemist, self.sales_level)
+        signatures = self.env[MODEL_SIGNATURE].sudo()
+
+        given = signatures.with_context(default_withdrawn_at="2020-01-01 00:00:00").create(vals)
+        with self.assertRaises(UserError):
+            signatures.create({**vals, "document_id": 2, "withdrawn_at": "2020-01-01 00:00:00"})
+
+        self.assertFalse(given.withdrawn_at)
+
+    def test_only_withdrawing_records_a_withdrawal(self):
+        signature = self.sign(self.chemist, self.sales_level)
+
+        with self.assertRaises(UserError):
+            signature.sudo().write({"withdrawn_at": "2020-01-01 00:00:00"})
+
+        self.assertFalse(signature.withdrawn_at)
+
+    def test_a_withdrawn_signature_is_never_withdrawn_again_or_put_back(self):
+        signature = self.sign(self.chemist, self.sales_level)
+        signature.with_user(self.chemist.user_id)._withdraw()
+        withdrawn_at = signature.withdrawn_at
+
+        with self.assertRaises(UserError):
+            signature.sudo().write({"withdrawn_at": False})
+        with self.assertRaises(UserError):
+            signature.sudo().write({"withdrawn_at": "2020-01-01 00:00:00"})
+        with self.assertRaises(UserError):
+            signature._record_withdrawal()
+
+        self.assertEqual(signature.withdrawn_at, withdrawn_at)
 
     def test_a_signature_of_a_completed_process_is_not_withdrawn(self):
         signature = self.sign(self.chemist, self.sales_level)

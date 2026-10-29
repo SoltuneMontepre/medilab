@@ -188,46 +188,58 @@
                     Nothing has been paid on this order. It can still be confirmed.
                 </div>
             </xpath>
+            <!-- Each status says what it is about, and a requested approval names the role it waits for. -->
             <xpath expr="//div[hasclass('oe_title')]" position="inside">
-                <div class="d-flex flex-wrap gap-2">
-                    <field
-                        name="customer_status"
-                        string="Progress"
-                        widget="badge"
-                        decoration-info="customer_status in ('quoted', 'waiting', 'testing')"
-                        decoration-success="customer_status == 'completed'"
-                        decoration-danger="customer_status == 'cancelled'"
-                    />
-                    <field
-                        name="quotation_follow_up"
-                        widget="badge"
-                        decoration-warning="quotation_follow_up == 'unpaid'"
-                        decoration-success="quotation_follow_up == 'paid'"
-                        decoration-danger="quotation_follow_up in ('declined', 'expired')"
-                        invisible="not quotation_follow_up"
-                    />
-                    <field
-                        name="approval_status"
-                        widget="badge"
-                        decoration-warning="approval_status == 'requested'"
-                        decoration-success="approval_status == 'approved'"
-                        decoration-danger="approval_status == 'rejected'"
-                        invisible="approval_status == 'none'"
-                    />
+                <div class="d-flex flex-wrap align-items-center column-gap-4 row-gap-1">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="text-muted">Customer sees</span>
+                        <field
+                            name="customer_status"
+                            widget="badge"
+                            decoration-info="customer_status in ('quoted', 'waiting', 'testing')"
+                            decoration-success="customer_status == 'completed'"
+                            decoration-danger="customer_status == 'cancelled'"
+                        />
+                    </div>
+                    <div class="d-flex align-items-center gap-2" invisible="not quotation_follow_up">
+                        <span class="text-muted">Quotation</span>
+                        <field
+                            name="quotation_follow_up"
+                            widget="badge"
+                            decoration-warning="quotation_follow_up == 'unpaid'"
+                            decoration-success="quotation_follow_up == 'paid'"
+                            decoration-danger="quotation_follow_up in ('declined', 'expired')"
+                        />
+                    </div>
+                    <div class="d-flex align-items-center gap-2" invisible="approval_status == 'none'">
+                        <span class="text-muted">Approval</span>
+                        <field
+                            name="approval_status"
+                            widget="badge"
+                            decoration-warning="approval_status == 'requested'"
+                            decoration-success="approval_status == 'approved'"
+                            decoration-danger="approval_status == 'rejected'"
+                        />
+                        <span class="d-inline-flex align-items-center gap-1 text-muted" invisible="not approval_waiting_for">
+                            waiting for <field name="approval_waiting_for" class="text-muted" />
+                        </span>
+                    </div>
                 </div>
             </xpath>
             <xpath expr="//group[@name='partner_details']/field[@name='partner_id']" position="before">
-                <field name="customer_id" domain="[('customer_ids', '!=', False)]" />
+                <field name="customer_id" domain="[('customer_ids', '!=', False)]" options="{'no_create': True}" />
                 <field name="customer_is_company" invisible="1" />
             </xpath>
             <xpath expr="//group[@name='partner_details']/field[@name='partner_id']" position="attributes">
+                <attribute name="widget">many2one</attribute>
+                <attribute name="context">{}</attribute>
+                <attribute name="options">{'no_create': True}</attribute>
                 <attribute name="domain">[('id', 'child_of', customer_id)]</attribute>
                 <attribute name="invisible">customer_id and not customer_is_company</attribute>
                 <attribute name="readonly">not customer_id or state in ['cancel', 'sale']</attribute>
             </xpath>
             <xpath expr="//group[@name='partner_details']" position="inside">
                 <field name="source" readonly="1" />
-                <field name="expected_result_date" />
                 <field name="reordered_from_id" readonly="1" invisible="not reordered_from_id" />
                 <field name="test_request_id" readonly="1" invisible="not test_request_id" />
                 <field name="test_request_status" invisible="not test_request_id" />
@@ -236,9 +248,14 @@
                 <field name="approval_can_reject" invisible="1" />
                 <field name="approval_can_withdraw" invisible="1" />
             </xpath>
+            <xpath expr="//group[@name='order_details']/field[@name='validity_date']" position="before">
+                <field name="user_id" widget="many2one_avatar_user" />
+            </xpath>
             <xpath expr="//group[@name='order_details']/field[@name='validity_date']" position="after">
                 <field name="payment_deadline" />
+                <field name="expected_result_date" />
             </xpath>
+            <xpath expr="//group[@name='sales_person']/field[@name='user_id']" position="replace" />
             <!-- There are no customer price lists: special prices are discounts on the quotation. -->
             <xpath expr="//group[@name='order_details']/label[@for='pricelist_id']" position="attributes">
                 <attribute name="invisible">1</attribute>
@@ -246,45 +263,77 @@
             <xpath expr="//group[@name='order_details']/div[field[@name='pricelist_id']]" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
-            <xpath expr="//list[@name='sol_list']/field[@name='currency_id']" position="after">
-                <field name="sample_id" domain="[('order_id', '=', parent.id)]" />
+            <!-- Prices are in VND, excluding VAT, so the tax-included switch does not apply. -->
+            <xpath expr="//field[@id='document_tax_mode']" position="attributes">
+                <attribute name="invisible">1</attribute>
             </xpath>
-            <!-- A line is a parameter or a package; sections, notes and Odoo's catalog dialog do not apply. -->
+            <xpath expr="//field[@id='document_tax_mode_mobile']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <!-- A line is a parameter or a package tested on a sample; sections, notes, Odoo's catalog dialog, variants, free-text descriptions and delivered quantities do not apply. -->
             <xpath expr="//list[@name='sol_list']/control/create[@name='add_section_control']" position="replace" />
             <xpath expr="//list[@name='sol_list']/control/create[@name='add_note_control']" position="replace" />
             <xpath expr="//list[@name='sol_list']/control/button[@name='action_add_from_catalog']" position="replace" />
+            <xpath expr="//field[@name='order_line']/kanban/control/create[@name='add_section_control']" position="replace" />
+            <xpath expr="//field[@name='order_line']/kanban/control/create[@name='add_note_control']" position="replace" />
+            <xpath expr="//field[@name='order_line']/kanban/control/button[@name='action_add_from_catalog']" position="replace" />
+            <xpath expr="//div[@name='so_button_below_order_lines']/widget[@name='combo_menu']" position="replace" />
+            <xpath expr="//list[@name='sol_list']/control/create[@name='add_product_control']" position="attributes">
+                <attribute name="string">Add a parameter or package</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/kanban/control/create[@name='add_product_control']" position="attributes">
+                <attribute name="string">Add a parameter or package</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/kanban//main/div[hasclass('text-muted')]" position="after">
+                <div class="text-muted" invisible="not sample_id">Sample: <field name="sample_id" /></div>
+            </xpath>
             <xpath expr="//list[@name='sol_list']/column[@name='product_and_description']" position="attributes">
                 <attribute name="string">Parameter or package</attribute>
             </xpath>
-            <xpath expr="//notebook" position="inside">
-                <page string="Payment" name="payment">
-                    <group>
-                        <group>
-                            <field name="advance_method" />
-                            <field name="advance_mode" invisible="not advance_method or advance_method == 'none'" />
-                            <field name="advance_value" invisible="advance_mode not in ('percentage', 'fixed')" />
-                        </group>
-                        <group>
-                            <field name="payment_status" />
-                            <field name="pending_amount" />
-                            <field name="catalog_total" />
-                        </group>
-                    </group>
-                </page>
-                <page string="Tracking" name="tracking">
-                    <group>
-                        <group>
-                            <field name="submitted_at" readonly="1" />
-                            <field name="claimed_at" readonly="1" />
-                            <field name="quoted_at" invisible="not quoted_at" />
-                            <field name="accepted_at" invisible="not accepted_at" />
-                        </group>
-                        <group>
-                            <field name="approved_at" invisible="not approved_at" />
-                            <field name="document_version" readonly="1" />
-                        </group>
-                    </group>
-                </page>
+            <xpath expr="//list[@name='sol_list']//field[@name='product_template_id']" position="attributes">
+                <attribute name="optional" />
+                <attribute name="required">not display_type and not is_downpayment</attribute>
+                <attribute name="domain">[('sale_ok', '=', True), '|', ('parameter_id', '!=', False), ('service_package_id', '!=', False)]</attribute>
+                <attribute name="placeholder">Type to find a parameter or package...</attribute>
+                <attribute name="options">{'no_create': True, 'no_open': True}</attribute>
+            </xpath>
+            <xpath expr="//list[@name='sol_list']//field[@name='product_id']" position="attributes">
+                <attribute name="optional" />
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//list[@name='sol_list']//field[@name='name']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//list[@name='sol_list']//field[@name='label']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//list[@name='sol_list']/column[field[@name='qty_delivered']]" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+            </xpath>
+            <xpath expr="//list[@name='sol_list']/column[@name='product_and_description']" position="after">
+                <field name="sample_id" domain="[('order_id', '=', parent.id)]" options="{'no_create': True}" />
+            </xpath>
+            <!-- The form of a line, used when the window is narrow, follows the list. -->
+            <xpath expr="//field[@name='order_line']/form//label[@for='product_id']" position="attributes">
+                <attribute name="string">Parameter or package</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/form//field[@name='product_id']" position="attributes">
+                <attribute name="domain">[('sale_ok', '=', True), '|', ('parameter_id', '!=', False), ('service_package_id', '!=', False)]</attribute>
+                <attribute name="options">{'no_create': True, 'no_open': True}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/form/group/group/field[@name='name']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/form/group/group/field[@name='name']" position="after">
+                <field name="sample_id" domain="[('order_id', '=', parent.id)]" options="{'no_create': True}" />
+            </xpath>
+            <xpath expr="//field[@name='order_line']/form//label[@for='qty_delivered']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/form//div[@name='delivered_qty']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//page[@name='order_lines']" position="after">
                 <page string="Samples" name="samples">
                     <field name="sample_ids">
                         <list editable="bottom">
@@ -311,6 +360,49 @@
                         </list>
                     </field>
                 </page>
+                <page string="Payment" name="payment">
+                    <group>
+                        <group>
+                            <field name="advance_method" />
+                            <field name="advance_mode" invisible="not advance_method or advance_method == 'none'" />
+                            <field name="advance_value" invisible="advance_mode not in ('percentage', 'fixed')" />
+                        </group>
+                        <group>
+                            <field name="payment_status" />
+                            <field name="pending_amount" />
+                            <field name="catalog_total" />
+                        </group>
+                    </group>
+                    <separator string="Advance payments" invisible="not downpayment_line_ids" />
+                    <field name="downpayment_line_ids" invisible="not downpayment_line_ids">
+                        <list>
+                            <field name="downpayment_invoice_id" />
+                            <field name="currency_id" column_invisible="1" />
+                            <field name="price_unit" string="Untaxed amount" widget="monetary" />
+                        </list>
+                        <form>
+                            <group>
+                                <field name="downpayment_invoice_id" />
+                                <field name="currency_id" invisible="1" />
+                                <field name="price_unit" string="Untaxed amount" widget="monetary" />
+                            </group>
+                        </form>
+                    </field>
+                </page>
+                <page string="Tracking" name="tracking">
+                    <group>
+                        <group>
+                            <field name="submitted_at" readonly="1" />
+                            <field name="claimed_at" readonly="1" />
+                            <field name="quoted_at" invisible="not quoted_at" />
+                            <field name="accepted_at" invisible="not accepted_at" />
+                        </group>
+                        <group>
+                            <field name="approved_at" invisible="not approved_at" />
+                            <field name="document_version" readonly="1" />
+                        </group>
+                    </group>
+                </page>
                 <page string="Cancellation" name="cancellation">
                     <field name="reorder_note" invisible="not reorder_note" />
                     <field name="cancellation_request_ids">
@@ -322,6 +414,20 @@
                         </list>
                     </field>
                 </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Runs after every other change to the order form, so they all still find Odoo's order lines field. -->
+    <record id="view_order_form_medilab_product_lines" model="ir.ui.view">
+        <field name="name">sale.order.form.medilab.product.lines</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form" />
+        <field name="priority">1000</field>
+        <field name="arch" type="xml">
+            <!-- The Order Lines tab edits the ordered parameters and packages; the Payment tab lists the down payments. -->
+            <xpath expr="//page[@name='order_lines']/field[@name='order_line']" position="attributes">
+                <attribute name="name">product_line_ids</attribute>
             </xpath>
         </field>
     </record>

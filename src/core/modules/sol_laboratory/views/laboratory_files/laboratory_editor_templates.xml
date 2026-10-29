@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="laboratory_editor_page" name="Laboratory File Editor">
+        <html t-att-lang="language">
+            <head>
+                <meta charset="utf-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <title>Online editor · MediLab</title>
+                <link rel="stylesheet" t-att-href="assets + 'editor.css'" />
+                <script t-if="config_json" defer="defer" t-att-src="assets + 'editor.js'" />
+            </head>
+            <body>
+                <main id="laboratory-editor" t-att-data-editor-config="config_json" t-att-data-script-url="script_url">
+                    <header>
+                        <h1 t-if="config_json" t-out="title" />
+                        <h1 t-else="">Online editor</h1>
+                        <p id="editor-status" role="status" aria-live="polite">
+                            <t t-if="config_json">Loading editor...</t>
+                            <t t-else="" t-out="message" />
+                        </p>
+                        <p t-if="config_json" class="save-notice">Opening the editor does not confirm a save. Check version history after editing.</p>
+                        <a t-if="retry_path" id="editor-retry" t-att-href="retry_path" t-att-hidden="bool(config_json)">Reopen editor</a>
+                    </header>
+                    <section t-if="config_json" id="editor-region" aria-label="Document editor" tabindex="-1">
+                        <div id="onlyoffice-editor" />
+                    </section>
+                    <noscript t-if="config_json">JavaScript is required to open the editor.</noscript>
+                    <div t-if="config_json" id="editor-messages" hidden="hidden">
+                        <p data-message="connecting">Connecting to the editor...</p>
+                        <p data-message="ready">Editor ready.</p>
+                        <p data-message="editing">Changes are being edited.</p>
+                        <p data-message="sent">Changes sent to the editing service. MediLab save is not confirmed.</p>
+                        <p data-message="failed">The editor could not connect or reported an error. Your save is not confirmed.</p>
+                        <p data-message="expired">The editor needs a fresh configuration. Reopen to check access and the current session.</p>
+                        <p data-message="timeout">The editor is taking longer to connect. You can wait or reopen it.</p>
+                    </div>
+                </main>
+            </body>
+        </html>
+    </template>
+</odoo>

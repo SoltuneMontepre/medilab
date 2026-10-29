@@ -1,3 +1,4 @@
+import { choose, newRecord, openTab, pick, save, search } from "../../../support/form";
 import { call, callAs, callRefused, refAs, resolveRecord, signIn } from "../../../support/odoo";
 import { CUSTOMERS, clearCarts, declineQuotation, latestQuotation, orderAt, payAdvance, reviseQuotation } from "./setup";
 
@@ -10,24 +11,6 @@ const readOrder =
   () =>
     cy.readRecord(order, fields);
 
-// Picks a many2one value in the edited form or list row.
-function pick(field, text) {
-  cy.get(`.o_field_widget[name=${field}] input`).clear().type(text);
-  cy.contains(".o-autocomplete--dropdown-item a", text).click();
-}
-
-// Picks a selection value in the edited form or list row by its label.
-function choose(field, label) {
-  cy.get(`.o_field_widget[name=${field}] .o_select_menu_toggler`).click();
-  cy.contains(".o_select_menu_item", label).click();
-  cy.get(`.o_field_widget[name=${field}] .o_select_menu_toggler`).should("have.value", label);
-}
-
-function save() {
-  cy.get(".o_form_button_save").click();
-  cy.get(".o_form_button_save").should("not.be.visible");
-}
-
 // Leaves the back office for a portal page, which sends no requests of its own, then signs out.
 function becomeVisitor() {
   cy.visit("/catalog");
@@ -39,10 +22,6 @@ function visitCatalogAsVisitor() {
   cy.visit("/catalog");
   cy.getCookie("session_id").should("exist");
   cy.visit("/catalog");
-}
-
-function openTab(name) {
-  cy.get(`.o_notebook .nav-link[name=${name}]`).click();
 }
 
 describe("WF-01 Order to approved test request", () => {
@@ -65,7 +44,9 @@ describe("WF-01 Order to approved test request", () => {
       .then(([submitted]) => {
         expect(submitted.order_status).to.equal("submitted");
         const order = { model: "sale.order", id: submitted.id };
+        // The queue lists the oldest orders first, so earlier runs can push this one to a later page.
         cy.visit("/odoo/unclaimed-orders");
+        search(submitted.name);
         cy.contains(".o_data_row", submitted.name).find("button[name=action_claim]").click();
         cy.contains(".o_data_row", submitted.name).should("not.exist");
 
@@ -77,7 +58,7 @@ describe("WF-01 Order to approved test request", () => {
         choose("physical_state", "Lỏng");
         save();
         openTab("order_lines");
-        cy.get(".o_field_widget[name=order_line] .o_data_row td[name=sample_id]").first().click();
+        cy.get(".o_field_widget[name=product_line_ids] .o_data_row td[name=sample_id]").first().click();
         pick("sample_id", sampleName);
         openTab("payment");
         choose("advance_method", "Trực tuyến");
@@ -118,14 +99,13 @@ describe("WF-01 Order to approved test request", () => {
 
   it("TC-WF01-A1 lets sales create the order for a customer who called", () => {
     cy.signInAs("sales");
-    cy.visit("/odoo/lab-orders");
-    cy.get(".o_list_button_add").click();
+    newRecord("/odoo/lab-orders");
     pick("customer_id", "Công ty TNHH Nước Uống Sạch");
     pick("partner_id", "Phạm Thị Hoa");
-    cy.get(".o_field_widget[name=order_line] .o_field_x2many_list_row_add button").first().click();
-    cy.get(".o_selected_row td[name=product_and_description] textarea").type("Lead (Pb)");
+    cy.get(".o_field_widget[name=product_line_ids] .o_field_x2many_list_row_add button").first().click();
+    cy.get(".o_selected_row .o_field_widget[name=product_template_id] input").type("Lead (Pb)");
     cy.contains(".o-autocomplete--dropdown-item a", "Lead (Pb)").click();
-    cy.get(".o_field_widget[name=order_line] .o_data_row").should("contain", "280.000");
+    cy.get(".o_field_widget[name=product_line_ids] .o_data_row").should("contain", "280.000");
     save();
     cy.location("pathname")
       .then((path) => cy.readRecord({ model: "sale.order", id: Number(path.split("/").pop()) }, ["source", "order_status", "user_id"]))
@@ -397,8 +377,7 @@ describe("WF-01 feature acceptance criteria", () => {
   it("TC-F01-02 gives a record without a code one from its sequence and refuses a code already used", () => {
     const name = `Kim loại vết ${Date.now()}`;
     cy.signInAs("administrator");
-    cy.visit("/odoo/parameter-groups");
-    cy.get(".o_list_button_add").click();
+    newRecord("/odoo/parameter-groups");
     cy.get(".o_field_widget[name=name] input").type(name);
     save();
     call("medilab.parameter.group", "search_read", [[["name", "=", name]]], { fields: ["code"] }).then(([group]) => {
@@ -439,8 +418,8 @@ describe("WF-01 feature acceptance criteria", () => {
       cy.signInAs("sales");
       cy.openRecord(order);
       cy.intercept("POST", "/web/dataset/call_kw/product.*/*search*").as("productSearch");
-      cy.get(".o_field_widget[name=order_line] .o_field_x2many_list_row_add button").first().click();
-      cy.get(".o_selected_row td[name=product_and_description] textarea").type("Cadmi");
+      cy.get(".o_field_widget[name=product_line_ids] .o_field_x2many_list_row_add button").first().click();
+      cy.get(".o_selected_row .o_field_widget[name=product_template_id] input").type("Cadmi");
       cy.wait("@productSearch")
         .its("response.body")
         .should((body) => {
@@ -511,10 +490,14 @@ describe("WF-01 feature acceptance criteria", () => {
     clearCarts(CUSTOMERS.nuocSach);
   });
 
-  it("TC-F05-02 shows a salesperson their orders and the unclaimed queue, and the Head of Sales every order", () => {
+  it("TC-F05-02 lets a salesperson who reads every order read another salesperson's order without changing it", () => {
     refAs("demo.administrator", "sol_demo.demo_sale_order_history_sales_2_1").then((other) => {
       cy.signInAs("sales");
-      callRefused("sale.order", "read", [[other.id], ["name"]]).should("contain", "sale.order");
+      call("sale.order", "read", [[other.id], ["name", "order_can_edit"]]).then(([read]) => {
+        expect(read.name).to.match(/^S\d+/);
+        expect(read.order_can_edit).to.be.false;
+      });
+      callRefused("sale.order", "write", [[other.id], { note: "Changed by another salesperson" }]).should("match", /S\d+/);
       cy.visit("/odoo/unclaimed-orders");
       cy.get(".o_data_row").should("have.length.greaterThan", 0);
       cy.signInAs("head_of_sales");
@@ -539,7 +522,7 @@ describe("WF-01 feature acceptance criteria", () => {
       cy.expectRefusal({
         read: () => call("sale.order.line", "search_read", [[["order_id", "=", order.id]]], { fields: ["price_unit", "discount", "tax_ids"] }),
         action: () => {
-          cy.get(".o_field_widget[name=order_line] .o_data_row td[name=price_unit]").first().click();
+          cy.get(".o_field_widget[name=product_line_ids] .o_data_row td[name=price_unit]").first().click();
           cy.get(".o_selected_row .o_field_widget[name=price_unit] input").clear().type("100000");
           cy.get(".o_form_button_save").click();
         },
@@ -603,10 +586,13 @@ describe("WF-01 feature acceptance criteria", () => {
             .clear()
             .type(String(owed + 1000)),
         );
+        cy.intercept("POST", `/my/invoices/${invoice}/pay`).as("pay");
         cy.get("button[name=method][value=bank_transfer]").click();
+        cy.wait("@pay");
         cy.visit(`/my/invoices/${invoice}`);
         cy.get("#medilab_payment_amount").clear().type("10000");
         cy.get("button[name=method][value=bank_transfer]").click();
+        cy.wait("@pay");
         callAs("demo.accountant", "account.payment", "search_read", [[["invoice_ids", "in", [invoice]]]], { fields: ["amount", "state"] }).should(
           (payments) => expect(payments.map((payment) => payment.amount)).to.deep.equal([10000]),
         );

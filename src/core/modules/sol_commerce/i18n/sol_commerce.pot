@@ -16,6 +16,59 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "<span class=\"text-muted\">Approval</span>"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "<span class=\"text-muted\">Customer sees</span>"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "<span class=\"text-muted\">Quotation</span>"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Add a parameter or package"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__downpayment_line_ids
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Advance payments"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/task.py:0
+msgid "%s is already claimed."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/task.py:0
+msgid "%s waits in a queue you do not belong to."
+msgstr ""
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_order_edit_own
+msgid "Edit own orders"
+msgstr ""
+
+#. module: sol_commerce
+#: model:medilab.task.type,name:sol_commerce.task_type_invoice_posting
+msgid "Invoice posting"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_mail_message
+msgid "Message"
+msgstr ""
+
+#. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/order_template.py:0
 msgid "%(item)s: %(reason)s"
@@ -86,7 +139,9 @@ msgstr ""
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.report_saleorder_document_customer_logo
 msgid "<strong>Salesperson</strong>"
+msgstr ""
 
+#. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_receivable_report__age__1_30
 msgid "1-30 days"
 msgstr ""
@@ -1903,6 +1958,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_receivable_report__name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_revenue_report__name
 #: model_terms:ir.ui.view,arch_db:sol_commerce.report_reconciliation_day
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__downpayment_invoice_id
 msgid "Invoice"
 msgstr ""
 
@@ -1921,6 +1977,11 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_medilab_invoice_adjustment
 msgid "Invoice Adjustment"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__invoice_count
+msgid "Invoice Count"
 msgstr ""
 
 #. module: sol_commerce
@@ -1953,6 +2014,7 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.actions.act_window,name:sol_commerce.action_medilab_invoice
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_cash_flow_report__invoices
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__invoice_ids
 #: model:ir.ui.menu,name:sol_commerce.menu_invoice
 #: model_terms:ir.ui.view,arch_db:sol_commerce.res_config_settings_view_form
 msgid "Invoices"
@@ -2457,6 +2519,16 @@ msgid "Order %s was submitted."
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__order_can_edit
+msgid "Order Can Edit"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__product_line_ids
+msgid "Order Lines"
+msgstr ""
+
+#. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_medilab_order_sample
 msgid "Order Sample"
 msgstr ""
@@ -2494,6 +2566,11 @@ msgstr ""
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
 msgid "Order history"
+msgstr ""
+
+#. module: sol_commerce
+#: model:medilab.task.type,name:sol_commerce.task_type_order_quotation
+msgid "Order quotation"
 msgstr ""
 
 #. module: sol_commerce
@@ -3149,6 +3226,11 @@ msgid "Read orders"
 msgstr ""
 
 #. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_order_read_own
+msgid "Read own orders"
+msgstr ""
+
+#. module: sol_commerce
 #: model:medilab.permission,name:sol_commerce.permission_parameter_price_read_all
 msgid "Read parameter prices"
 msgstr ""
@@ -3455,6 +3537,7 @@ msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_search
+#: model_terms:ir.ui.view,arch_db:sol_commerce.report_saleorder_document_customer_logo
 msgid "Salesperson"
 msgstr ""
 
@@ -3471,6 +3554,11 @@ msgstr ""
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_page
 msgid "Sample type"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Sample:"
 msgstr ""
 
 #. module: sol_commerce
@@ -3721,6 +3809,11 @@ msgid "Take"
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_task
+msgid "Task"
+msgstr ""
+
+#. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_medilab_tax
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_parameter_price__tax_id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package__tax_id
@@ -3915,6 +4008,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_approval.py:0
 msgid "The order must be approved before the samples are collected."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_task.py:0
+msgid "The order's salesperson changed."
 msgstr ""
 
 #. module: sol_commerce
@@ -4191,6 +4290,11 @@ msgid "Transfer total"
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Type to find a parameter or package..."
+msgstr ""
+
+#. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__pipeline_stage__unclaimed
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_search
 msgid "Unclaimed"
@@ -4205,6 +4309,11 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__quotation_follow_up__unpaid
 msgid "Unpaid"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Untaxed amount"
 msgstr ""
 
 #. module: sol_commerce
@@ -4235,6 +4344,11 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__customer_status__waiting
 msgid "Waiting"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__approval_waiting_for
+msgid "Waiting for"
 msgstr ""
 
 #. module: sol_commerce
@@ -4279,6 +4393,12 @@ msgstr ""
 
 #. module: sol_commerce
 #. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "You are not allowed to claim orders."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
 #: code:addons/sol_commerce/models/support/support_request.py:0
 msgid "You are not registered as a customer yet. Contact the laboratory."
 msgstr ""
@@ -4298,6 +4418,12 @@ msgstr ""
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.support_list
 msgid "You have not asked for help yet."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_approval.py:0
+msgid "You may only read this order, so you cannot sign or reject it."
 msgstr ""
 
 #. module: sol_commerce
@@ -4372,4 +4498,9 @@ msgstr ""
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_submitted
 msgid "is in the sales queue."
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "waiting for"
 msgstr ""

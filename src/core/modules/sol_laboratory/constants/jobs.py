@@ -15,6 +15,8 @@ JOB_RUN_CONTEXT = "medilab_job_run_id"
 CLEANUP_CONTEXT = "medilab_cleanup"
 # Key of the cleanup job.
 CLEANUP_JOB = "cleanup"
+# Key of the job that warns administrators before quality registrations expire.
+QUALITY_REGISTRATION_EXPIRY_JOB = "quality_registration.expiry"
 # What the cleanup job removes: each kind, its model and the settings field holding its retention period in days.
 CLEANUP_KINDS = {
     "job_items": (MODEL_JOB_ITEM, "job_retention_days"),

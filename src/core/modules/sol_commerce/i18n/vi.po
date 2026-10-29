@@ -17,6 +17,59 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "<span class=\"text-muted\">Approval</span>"
+msgstr "<span class=\"text-muted\">Phê duyệt</span>"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "<span class=\"text-muted\">Customer sees</span>"
+msgstr "<span class=\"text-muted\">Khách hàng thấy</span>"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "<span class=\"text-muted\">Quotation</span>"
+msgstr "<span class=\"text-muted\">Báo Giá</span>"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Add a parameter or package"
+msgstr "Thêm chỉ tiêu hoặc nhóm dịch vụ"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__downpayment_line_ids
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Advance payments"
+msgstr "Các khoản tạm ứng"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/task.py:0
+msgid "%s is already claimed."
+msgstr "%s đã có người nhận."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/task.py:0
+msgid "%s waits in a queue you do not belong to."
+msgstr "%s đang chờ trong hàng đợi mà bạn không thuộc về."
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_order_edit_own
+msgid "Edit own orders"
+msgstr "Sửa đơn hàng của mình"
+
+#. module: sol_commerce
+#: model:medilab.task.type,name:sol_commerce.task_type_invoice_posting
+msgid "Invoice posting"
+msgstr "Phát hành hóa đơn"
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_mail_message
+msgid "Message"
+msgstr "Tin nhắn"
+
+#. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/pricing/tax.py:0
 msgid "%(tax)s has no rate on %(date)s."
@@ -54,11 +107,6 @@ msgstr "<span>Chỉ tiêu hoặc gói</span>"
 #: model_terms:ir.ui.view,arch_db:sol_commerce.report_saleorder_document_customer_logo
 msgid "<span>Quantity</span>"
 msgstr "<span>Số lượng</span>"
-
-#. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.report_saleorder_document_customer_logo
-msgid "<strong>Salesperson</strong>"
-msgstr "<strong>Nhân viên kinh doanh</strong>"
 
 #. module: sol_commerce
 #. odoo-python
@@ -1275,6 +1323,16 @@ msgid "Order"
 msgstr "Đơn Hàng"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__order_can_edit
+msgid "Order Can Edit"
+msgstr "Có thể sửa đơn hàng"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__product_line_ids
+msgid "Order Lines"
+msgstr "Dòng Đơn Hàng"
+
+#. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_medilab_order_sample
 msgid "Order Sample"
 msgstr "Mẫu Đơn Hàng"
@@ -1298,6 +1356,11 @@ msgstr "Hủy đơn hàng"
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_search
 msgid "Order date"
 msgstr "Ngày đặt hàng"
+
+#. module: sol_commerce
+#: model:medilab.task.type,name:sol_commerce.task_type_order_quotation
+msgid "Order quotation"
+msgstr "Báo giá đơn hàng"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_submitted
@@ -1599,6 +1662,11 @@ msgid "Read orders"
 msgstr "Xem đơn hàng"
 
 #. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_order_read_own
+msgid "Read own orders"
+msgstr "Xem đơn hàng của mình"
+
+#. module: sol_commerce
 #: model:medilab.permission,name:sol_commerce.permission_parameter_price_read_all
 msgid "Read parameter prices"
 msgstr "Xem giá chỉ tiêu"
@@ -1776,6 +1844,7 @@ msgstr "Dòng đơn bán hàng"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_search
+#: model_terms:ir.ui.view,arch_db:sol_commerce.report_saleorder_document_customer_logo
 msgid "Salesperson"
 msgstr "Nhân viên kinh doanh"
 
@@ -1793,6 +1862,11 @@ msgstr "Loại Mẫu"
 #: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_page
 msgid "Sample type"
 msgstr "Loại mẫu"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Sample:"
+msgstr "Mẫu:"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__sample_ids
@@ -1936,6 +2010,11 @@ msgid "Submitted At"
 msgstr "Gửi Lúc"
 
 #. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_task
+msgid "Task"
+msgstr "Nhiệm Vụ"
+
+#. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_medilab_tax
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_parameter_price__tax_id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package__tax_id
@@ -2068,6 +2147,12 @@ msgid "The order must be approved before the samples are collected."
 msgstr "Đơn hàng phải được phê duyệt trước khi thu mẫu."
 
 #. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_task.py:0
+msgid "The order's salesperson changed."
+msgstr "Nhân viên kinh doanh của đơn hàng đã thay đổi."
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_service_package_form
 msgid "The package costs more than its parameters bought one by one."
 msgstr "Giá nhóm dịch vụ cao hơn tổng giá các chỉ tiêu khi mua lẻ."
@@ -2197,6 +2282,11 @@ msgid "Tracking"
 msgstr "Theo dõi"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Type to find a parameter or package..."
+msgstr "Nhập để tìm chỉ tiêu hoặc nhóm dịch vụ..."
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_search
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__pipeline_stage__unclaimed
 msgid "Unclaimed"
@@ -2212,6 +2302,11 @@ msgstr "Hàng đợi chưa nhận"
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__quotation_follow_up__unpaid
 msgid "Unpaid"
 msgstr "Chưa thanh toán"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Untaxed amount"
+msgstr "Số tiền chưa thuế"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
@@ -2232,6 +2327,11 @@ msgstr "Áp dụng đến"
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
 msgid "View quotation"
 msgstr "Xem báo giá"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__approval_waiting_for
+msgid "Waiting for"
+msgstr "Đang chờ"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_subcontract_cost__parameter_method_id
@@ -2272,6 +2372,12 @@ msgstr "Viết lời phản hồi cho khách hàng."
 #. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "You are not allowed to claim orders."
+msgstr "Bạn không được phép nhận đơn hàng."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
 msgid "You cannot change prices or internal fields of an order."
 msgstr "Bạn không thể sửa giá hoặc các trường nội bộ của đơn hàng."
 
@@ -2280,6 +2386,12 @@ msgstr "Bạn không thể sửa giá hoặc các trường nội bộ của đ�
 #: code:addons/sol_commerce/models/orders/sale_order_line.py:0
 msgid "You cannot change the price of an order."
 msgstr "Bạn không thể sửa giá của đơn hàng."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_approval.py:0
+msgid "You may only read this order, so you cannot sign or reject it."
+msgstr "Bạn chỉ được xem đơn hàng này nên không thể ký hoặc từ chối."
 
 #. module: sol_commerce
 #. odoo-python
@@ -2482,6 +2594,11 @@ msgid "Invoice Adjustment"
 msgstr "Hóa Đơn Điều Chỉnh"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__invoice_count
+msgid "Invoice Count"
+msgstr "Số hóa đơn"
+
+#. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_account_bank_statement_line__invoice_kind
 #: model:ir.model.fields,field_description:sol_commerce.field_account_move__invoice_kind
 msgid "Invoice Kind"
@@ -2490,6 +2607,7 @@ msgstr "Loại Hóa Đơn"
 #. module: sol_commerce
 #: model:ir.actions.act_window,name:sol_commerce.action_medilab_invoice
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_cash_flow_report__invoices
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__invoice_ids
 #: model:ir.ui.menu,name:sol_commerce.menu_invoice
 #: model_terms:ir.ui.view,arch_db:sol_commerce.res_config_settings_view_form
 msgid "Invoices"
@@ -2952,6 +3070,7 @@ msgstr "Chuyển khoản"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_receivable_report__name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_revenue_report__name
 #: model_terms:ir.ui.view,arch_db:sol_commerce.report_reconciliation_day
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__downpayment_invoice_id
 msgid "Invoice"
 msgstr "Hóa đơn"
 
@@ -4310,3 +4429,8 @@ msgid ""
 msgstr ""
 "Khách hàng của đơn hàng gốc đã thay đổi. Không thể dùng lại đơn hàng mẫu "
 "này. Hãy lưu trữ hoặc xóa rồi lưu đơn hàng mẫu mới từ đơn hàng phù hợp."
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "waiting for"
+msgstr "đang chờ"

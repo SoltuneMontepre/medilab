@@ -77,7 +77,7 @@ class LaboratoryFileVersionSigning(models.Model):
 
     def _approval_check_withdraw(self):
         self._check_withdrawing_access()
-        super()._approval_check_withdraw()
+        return super()._approval_check_withdraw()
 
     def _check_withdrawing_access(self):
         # Withdrawing writes with full rights, so only a signer who still reads the version's file withdraws.
