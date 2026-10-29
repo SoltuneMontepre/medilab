@@ -59,6 +59,18 @@ describe("WF-05 Outsourced testing", () => {
       cy.location("pathname").should("match", /medilab\.subcontract\.dispatch\/\d+$/);
       cy.contains(".o_field_widget[name=sample_test_ids] .o_data_row", test.code).should("be.visible");
       cy.get(".o_field_widget[name=expected_date] input").clear().type(shownDate(expected));
+      // Only people holding the sample delivery staff role named in the settings take a dispatch.
+      cy.location("pathname").then((path) =>
+        refAs(ADMINISTRATOR, "sol_demo.demo_person_tester").then((tester) =>
+          refAs(ADMINISTRATOR, "sol_demo.demo_person_sample_delivery_staff").then((courier) =>
+            cy
+              .readRecord({ model: "medilab.subcontract.dispatch", id: Number(path.split("/").pop()) }, ["courier_choice_ids"])
+              .its("courier_choice_ids")
+              .should("include", courier.id)
+              .and("not.include", tester.id),
+          ),
+        ),
+      );
       pick("courier_id", "Vo Van Tai");
       cy.sendRecord("action_send");
       cy.get(`${ACTIONS} button[name=action_receive]:visible`).should("exist");
@@ -79,6 +91,15 @@ describe("WF-05 Outsourced testing", () => {
           cy.signInAs("subcontractor");
           cy.visit("/my/dispatches");
           cy.contains("a", read.code).click();
+          // A negative concentration is refused with the system's message, which the address never carries.
+          cy.contains("tr", test.code).within(() => {
+            cy.get("input[name=value]").type("-1");
+            cy.get("button[type=submit]").click();
+          });
+          cy.get(".alert-danger").should("contain", "cannot be negative");
+          cy.location("search").should("not.contain", "error");
+          cy.reload();
+          cy.get(".alert-danger").should("not.exist");
           cy.contains("tr", test.code).within(() => {
             cy.get("input[name=value]").type("4.6");
             cy.get("button[type=submit]").click();
@@ -88,6 +109,9 @@ describe("WF-05 Outsourced testing", () => {
         reportedResult(test).then((result) => {
           expect(result.entered_by_id[1]).to.equal("Nguyen Thi Lan");
           cy.signInAs("tester");
+          // The subcontractor's result waiting to be sent comes before any other.
+          cy.openRecord(test);
+          cy.get(`${ACTIONS} button[name=action_enter_result]`).should("not.exist");
           cy.openRecord(result);
           cy.signRecord();
           cy.get(`${ACTIONS} button[name=action_withdraw]:visible`).should("exist");
@@ -107,7 +131,9 @@ describe("WF-05 Outsourced testing", () => {
     outsourcedTest().then(({ dispatch }) => {
       cy.signInAs("head_of_department");
       cy.openRecord(dispatch);
-      cy.get(".o_field_widget[name=expected_date] input").clear().type(shownDate(inDays(10)));
+      cy.get(".o_field_widget[name=expected_date] input")
+        .clear()
+        .type(shownDate(inDays(10)));
       cy.get(".o_field_widget[name=delivery_service] input").type(TRACKING);
       cy.sendRecord("action_send");
       cy.get(`${ACTIONS} button[name=action_receive]:visible`).should("exist");
@@ -159,19 +185,25 @@ describe("WF-05 Outsourced testing", () => {
         expect(read.emergency_outsource_reason).to.equal(REASON);
         expect(read.dispatch_ids).to.have.length(1);
       });
+      // Results of an outsourced test are entered once its dispatch is sent.
+      cy.signInAs("tester");
+      cy.openRecord(test);
+      cy.get(`${ACTIONS} button[name=action_enter_result]`).should("not.exist");
     });
   });
 
   it("TC-WF05-A4 lets the head reject the subcontractor's result, and the subcontractor enter a new one", () => {
+    const reason = "Kết quả vượt ngưỡng phát hiện của phương pháp, đề nghị đo lại.";
     resultAwaitingApproval().then(({ test, dispatch, result }) => {
       cy.signInAs("head_of_department");
       cy.openRecord(result);
-      cy.rejectRecord("Kết quả vượt ngưỡng phát hiện của phương pháp, đề nghị đo lại.");
+      cy.rejectRecord(reason);
       cy.readRecord(result, ["status"]).its("status").should("eq", "rejected");
       cy.readRecord(test, ["status"]).its("status").should("eq", "outsourced");
 
       cy.signInAs("subcontractor");
       cy.visit(`/my/dispatches/${dispatch.id}`);
+      cy.contains("tr", test.code).should("contain", "Rejected: 4.2").and("contain", reason);
       cy.contains("tr", test.code).within(() => {
         cy.get("input[name=value]").type("4.4");
         cy.get("button[type=submit]").click();
@@ -297,8 +329,8 @@ describe("WF-05 feature acceptance criteria", () => {
       cy.get(".o-autocomplete--dropdown-menu").should("contain", "Northern").and("not.contain", "Coastal").and("not.contain", "Mekong");
       cy.contains(".o-autocomplete--dropdown-item a", "Northern").click();
       save();
-      call("medilab.parameter.method", "search_read", [[["parameter_id", "=", parameter.id]]], { fields: ["subcontractor_id"] }).should(
-        ([way]) => expect(way.subcontractor_id[1]).to.contain("Northern"),
+      call("medilab.parameter.method", "search_read", [[["parameter_id", "=", parameter.id]]], { fields: ["subcontractor_id"] }).should(([way]) =>
+        expect(way.subcontractor_id[1]).to.contain("Northern"),
       );
     });
   });
@@ -324,7 +356,9 @@ describe("WF-05 feature acceptance criteria", () => {
               );
               cy.openRecord(subcontractor);
               cy.get(".o_field_widget[name=accreditation_expiry] button").click();
-              cy.get(".o_field_widget[name=accreditation_expiry] input").clear().type(shownDate(inDays(365)));
+              cy.get(".o_field_widget[name=accreditation_expiry] input")
+                .clear()
+                .type(shownDate(inDays(365)));
               save();
               call(kept.model, "create", [way(second)]).should("be.a", "number");
             });
