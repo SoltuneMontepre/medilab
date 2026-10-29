@@ -4,6 +4,7 @@ from . import (
     test_demo_contacts,
     test_demo_data_convention,
     test_demo_echo,
+    test_demo_quotation_language,
     test_demo_quotations,
     test_invoice_demo,
     test_laboratory_file_demo,

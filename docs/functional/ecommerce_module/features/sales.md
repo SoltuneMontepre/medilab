@@ -90,7 +90,7 @@ stateDiagram-v2
 | Samples          | Sales groups the quotation into the samples the customer will send. Each sample has the customer's name for it, its sample type, its physical state and the regulation its results are compared with, if any. Each line is tested on one sample; a parameter tested on two samples is two lines. Sales can copy a sample with its lines. A draft can be saved before its samples are set, but every line must be on a sample before the quotation is sent. |
 | Prices           | Prices come from the catalog: per parameter, and per package for a package line. All prices are in VND. Sales may apply a discount (percentage or fixed) to a line or to the whole quotation; special prices for partners or promotions are given this way. |
 | Tax              | Each line takes the tax of its parameter or package, at the rate in force on the quotation date. Sales can change a line's tax, such as 0% for a foreign customer. The system adds the tax. |
-| Advance payment  | When sending, sales chooses the collection method (online, bank transfer, cash) and the amount (full, percentage, fixed). The system creates the advance invoice and sends it with the quotation. |
+| Advance payment  | When sending, sales chooses the collection method (online, bank transfer, cash) and the amount (full, percentage, fixed). The system creates the advance invoice and sends it with the quotation. The invoice and the notice to the customer are written in the customer's language. |
 | Manager shortcut | The Head of Sales can send without an advance payment, for customers with an agreement.                                                                                                           |
 | Payment deadline | Default 3 days from sending, configurable by the administrator. Sales can set another date. An expired quotation is flagged, not cancelled; sales can extend it.                                  |
 | Revisions        | A revision copies the quotation into a new draft linked to the one it replaces. The old version becomes read-only and the customer sees the revision list.                                        |
@@ -116,7 +116,7 @@ Sales saves an accessible order as a named template from **Save as template**. T
 
 | Rule | Description |
 | --- | --- |
-| Selections | Keep top-level parameters, whole packages and quantities, including fractional quantities of at least 1. Generated package components, samples, prices, discounts and taxes are not saved. |
+| Selections | Keep top-level parameters, whole packages and quantities. A quantity is a whole number of at least 1; an order with a fractional quantity cannot be saved as a template. The selections are listed as **Parameter or package** and added with **Add a parameter or package**, as on the order form. Generated package components, samples, prices, discounts and taxes are not saved. |
 | Selection integrity | A template always retains at least one selection. Removing or moving its last selection is refused; replacing all selections in one saved edit is allowed. Newly entered selections must identify catalog parameters or packages. Later retirement does not prevent editing a saved template; availability is checked when it is reused. Invalid edits roll back without changing the template or its selections. |
 | Authorization | Sales needs template permissions, read access to the source order and assignment of that order. Read access to the unclaimed queue does not grant template access. Head of Sales and administrators retain their existing source-order access. |
 | Handover | Reassigning the source order transfers template access. Its customer and source references cannot be edited on the template. If the source changes customer, ordinary Sales cannot access the template. Nobody can reuse it while the customers differ. |
@@ -130,7 +130,7 @@ Sales saves an accessible order as a named template from **Save as template**. T
 
 Acceptance criteria:
 
-- Saving preserves parameter and package selections and fractional quantities without rounding.
+- Saving preserves parameter and package selections and their quantities; a fractional quantity is refused, never rounded.
 - Reuse creates an unsent Sales draft at current prices and package contents, using the same pricing and taxes as ordinary Sales creation.
 - Sales cannot access templates belonging to another salesperson or an unclaimed order through the queue.
 - Skipped names and reasons remain visible after reopening the order; no valid selections means no new order.
