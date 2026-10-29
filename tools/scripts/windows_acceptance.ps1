@@ -10,7 +10,7 @@ $PSNativeCommandUseErrorActionPreference = $false
 $failureReason = 'Native Python 3.12 or the collector could not return valid evidence.'
 $stage = 'python_lookup'
 try {
-    $python = (Get-Command python.exe -CommandType Application -ErrorAction Stop).Source
+    $python = (Get-Command python.exe -CommandType Application -ErrorAction Stop | Select-Object -First 1).Source
     if ($python -match '(?i)[\\/]Microsoft[\\/]WindowsApps[\\/]python(?:\.exe)?$') {
         $failureReason = 'Disable the Python Store execution alias and select native Python 3.12 or newer.'
         throw 'Python execution alias refused.'
