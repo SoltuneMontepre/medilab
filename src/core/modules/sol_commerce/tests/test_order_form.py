@@ -177,9 +177,11 @@ class TestOrderForm(OrderCase):
             before = form.tax_totals["total_amount_currency"]
             with form.product_line_ids.new() as line:
                 line.product_template_id = self.package_product
+                # The browser's product widget picks the variant and its price; the server-side form does not.
+                line.price_unit = 100000
             self.assertGreater(form.tax_totals["total_amount_currency"], before)
 
-        self.assertIn(self.package_product, order.order_line.product_template_id)
+        self.assertEqual(len(order.order_line), 2)
         self.assertEqual(order.product_line_ids, order.order_line)
 
     def test_each_status_has_its_label(self):

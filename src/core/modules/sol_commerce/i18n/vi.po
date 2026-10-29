@@ -18,6 +18,21 @@ msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "<span class=\"text-muted\">Approval</span>"
+msgstr "<span class=\"text-muted\">Phê duyệt</span>"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "<span class=\"text-muted\">Customer sees</span>"
+msgstr "<span class=\"text-muted\">Khách hàng thấy</span>"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "<span class=\"text-muted\">Quotation</span>"
+msgstr "<span class=\"text-muted\">Báo Giá</span>"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 msgid "Add a parameter or package"
 msgstr "Thêm chỉ tiêu hoặc nhóm dịch vụ"
 
@@ -26,16 +41,6 @@ msgstr "Thêm chỉ tiêu hoặc nhóm dịch vụ"
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 msgid "Advance payments"
 msgstr "Các khoản tạm ứng"
-
-#. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
-msgid "Approval"
-msgstr "Phê duyệt"
-
-#. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
-msgid "Customer sees"
-msgstr "Khách hàng thấy"
 
 #. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_mail_message
@@ -1519,7 +1524,6 @@ msgstr "Số lượng"
 #. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_medilab_quotation
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
-#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 msgid "Quotation"
 msgstr "Báo Giá"
 

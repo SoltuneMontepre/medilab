@@ -1,4 +1,4 @@
-from odoo import fields, models
+from odoo import api, fields, models
 
 from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER, MODEL_SALE_ORDER_LINE
 
@@ -24,3 +24,8 @@ class SaleOrder(models.Model):
         readonly=True,
         copy=False,
     )
+
+    @api.onchange("product_line_ids")
+    def _onchange_product_line_ids(self):
+        """Give the edited lines back to Odoo's order lines, which the totals follow while the order is edited."""
+        self.order_line = self.product_line_ids | self.order_line.filtered("is_downpayment")
