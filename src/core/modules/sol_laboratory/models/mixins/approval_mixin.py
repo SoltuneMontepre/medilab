@@ -91,7 +91,7 @@ class ApprovalMixin(models.AbstractModel):
         """Withdraw every signature and rejection that still stands and reopen the document, so it is signed again
         from the first level; the rows stay on record."""
         for document in self.sudo():
-            document._approval_open_rows().write({"withdrawn_at": fields.Datetime.now()})
+            document._approval_open_rows()._record_withdrawal()
             document.with_context(**{APPROVAL_SYSTEM_CONTEXT: True}).write(
                 {"document_version": document.document_version + 1}
             )
@@ -187,7 +187,7 @@ class ApprovalMixin(models.AbstractModel):
         rows = self._approval_open_rows()
         if rows.filtered(lambda row: row.decision == DECISION_REJECTED):
             raise UserError(self.env._("The document was rejected; withdraw the rejection first."))
-        level = chain.level_ids.filtered(lambda other: other not in rows.level_id).sorted("sequence")[:1]
+        level = self._approval_next_level(chain, rows)
         if not level:
             raise UserError(self.env._("Every level has already signed."))
         person = self.env[MODEL_PERSON]._current()
@@ -202,6 +202,10 @@ class ApprovalMixin(models.AbstractModel):
         if rejecting and not level.can_reject:
             raise UserError(self.env._("This level cannot reject."))
         return level
+
+    def _approval_next_level(self, chain, rows):
+        # The first level of the chain that has not signed yet.
+        return chain.level_ids.filtered(lambda other: other not in rows.level_id).sorted("sequence")[:1]
 
     def _approval_own_row(self):
         # The latest signature or rejection of the current user that is not withdrawn.

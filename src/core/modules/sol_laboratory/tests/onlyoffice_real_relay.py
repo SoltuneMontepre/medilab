@@ -108,7 +108,7 @@ class OnlyofficeRealRelay:
             values.pop("token")
             if participant != "0":
                 values["editorConfig"]["user"] = self.configured_users.get(
-                    participant, {"id": "agent4-user-" + participant, "name": (self.marker * 6)[:255]}
+                    participant, {"id": "onlyoffice-user-" + participant, "name": (self.marker * 6)[:255]}
                 )
             values["editorConfig"]["plugins"]["pluginsData"] = [
                 self.url + "/participant/" + participant + "/plugin/config.json"

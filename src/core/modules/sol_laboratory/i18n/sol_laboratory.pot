@@ -107,6 +107,12 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/system/permission.py:0
+msgid "%s has no user, so a permission on it cannot be limited to the person's own records."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/tasks/task.py:0
 msgid "%s is already claimed."
 msgstr ""
@@ -410,6 +416,18 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_method_machine_run_minutes_positive
 msgid "A run takes at least one minute."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/signature.py:0
+msgid "A signature cannot be changed once it is given."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/signature.py:0
+msgid "A signature is given in force; only withdrawing it records a withdrawal."
 msgstr ""
 
 #. module: sol_laboratory
@@ -5151,6 +5169,11 @@ msgid "Own department"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__scope__own
+msgid "Own records"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__owner_id
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_folder_member__role__owner
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_search
@@ -5753,7 +5776,15 @@ msgid "Permission: order.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Permission: order.edit.own"
+msgstr ""
+
+#. module: sol_laboratory
 msgid "Permission: order.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: order.read.own"
 msgstr ""
 
 #. module: sol_laboratory

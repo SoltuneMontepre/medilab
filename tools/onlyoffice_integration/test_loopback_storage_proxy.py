@@ -114,7 +114,7 @@ class TestIsolatedFixture(unittest.TestCase):
         directory = tempfile.TemporaryDirectory()
         self.addCleanup(directory.cleanup)
         tls = Path(directory.name) / "tls"
-        prepare(tls, "medilab171-agent4-test-storage")
+        prepare(tls, "medilab-onlyoffice-test-storage")
         trusted = ssl.create_default_context(cafile=str(tls / "ca/ca.crt"))
 
         def context(role):

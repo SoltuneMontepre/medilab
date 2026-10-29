@@ -10,7 +10,7 @@ from pathlib import Path
 
 from .fixture_tls import fingerprint, prepare, prepare_runner
 
-PROJECT = "medilab171-agent4-tls-unit"
+PROJECT = "medilab-onlyoffice-tls-unit"
 
 
 class TestFixtureTLS(unittest.TestCase):

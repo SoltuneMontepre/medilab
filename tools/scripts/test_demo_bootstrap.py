@@ -19,6 +19,7 @@ from demo_bootstrap import (
     _labels,
     _prepare_accounting_foundation,
     check_normal_setup,
+    clean,
     reset,
     select,
     switch,
@@ -811,6 +812,76 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
             run.assert_called_once_with(["docker", "volume", "rm", remaining])
             self.assertEqual(json.loads(marker_path.read_text())["status"], "discarded")
 
+    def test_clean_removes_the_environment_image_marker_and_saved_selection(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            project, config, marker, marker_path = self.completed_selection(root)
+            config["MEDILAB_ODOO_IMAGE"] = f"localhost/{project}-odoo:owner"
+            marker_path.write_text(json.dumps(marker), encoding="utf-8")
+            env_path = root / ".env"
+            env_path.write_text(
+                "".join(f"{key}={value}\n" for key, value in config.items())
+                + "MEDILAB_URL=http://localhost:8069\n",
+                encoding="utf-8",
+            )
+            volumes = [{"Name": config[key]} for key in demo_bootstrap.VOLUME_KEYS]
+            with (
+                patch("demo_bootstrap.MARKER", marker_path),
+                patch("demo_bootstrap.COMPOSE_ENV_FILE", env_path),
+                patch("demo_bootstrap.project_name", return_value=project),
+                patch("demo_bootstrap._assert_local_engine"),
+                patch(
+                    "demo_bootstrap._assert_owned_resources",
+                    return_value={"containers": [], "networks": [], "volumes": volumes},
+                ),
+                patch(
+                    "demo_bootstrap._owned_volume_names",
+                    return_value=[volume["Name"] for volume in volumes],
+                ),
+                patch("builtins.input", return_value="owner"),
+                patch("demo_bootstrap._run") as run,
+            ):
+                clean()
+
+            run.assert_any_call(
+                ["docker", "image", "rm", config["MEDILAB_ODOO_IMAGE"]], check=False
+            )
+            for volume in volumes:
+                run.assert_any_call(["docker", "volume", "rm", volume["Name"]])
+            self.assertFalse(marker_path.exists())
+            self.assertEqual(
+                env_path.read_text(encoding="utf-8"),
+                "MEDILAB_URL=http://localhost:8069\n",
+            )
+
+    def test_clean_keeps_everything_without_owner_confirmation(self):
+        with tempfile.TemporaryDirectory() as directory:
+            project, config, _marker, marker_path = self.completed_selection(
+                Path(directory)
+            )
+            names = [config[key] for key in demo_bootstrap.VOLUME_KEYS]
+            with (
+                patch("demo_bootstrap.MARKER", marker_path),
+                patch("demo_bootstrap.project_name", return_value=project),
+                patch("demo_bootstrap._assert_local_engine"),
+                patch(
+                    "demo_bootstrap._assert_owned_resources",
+                    return_value={
+                        "containers": [],
+                        "networks": [],
+                        "volumes": [{"Name": name} for name in names],
+                    },
+                ),
+                patch("demo_bootstrap._owned_volume_names", return_value=names),
+                patch("builtins.input", return_value="no"),
+                patch("demo_bootstrap._run") as run,
+                self.assertRaisesRegex(BootstrapError, "Clean was not confirmed"),
+            ):
+                clean()
+
+            run.assert_not_called()
+            self.assertTrue(marker_path.exists())
+
     def test_reset_refuses_volumes_outside_the_completed_marker(self):
         with tempfile.TemporaryDirectory() as directory:
             project, config, marker, marker_path = self.completed_selection(
@@ -895,8 +966,32 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
             run.assert_not_called()
             self.assertEqual(json.loads(marker_path.read_text())["status"], "discarded")
 
+    def test_free_ports_keep_free_default_ports(self):
+        with (
+            patch("demo_bootstrap._published_ports", return_value=set()),
+            patch("demo_bootstrap._port_is_free", return_value=True),
+        ):
+            ports = demo_bootstrap._free_ports()
+
+        self.assertEqual(ports, demo_bootstrap.DEFAULT_PORTS)
+
+    def test_free_ports_replace_only_busy_default_ports(self):
+        with (
+            patch("demo_bootstrap._published_ports", return_value=set()),
+            patch(
+                "demo_bootstrap._port_is_free",
+                side_effect=lambda _host, port, _published: port != 8069,
+            ),
+        ):
+            ports = demo_bootstrap._free_ports()
+
+        self.assertIn(int(ports["MEDILAB_ODOO_PORT"]), range(20000, 32768))
+        self.assertEqual(ports["MEDILAB_DB_PORT"], "15432")
+
     def test_free_ports_stay_below_dynamic_ranges_and_skip_busy_ports(self):
-        busy = set(range(20000, 32768, 2))
+        busy = set(range(20000, 32768, 2)) | {
+            int(port) for port in demo_bootstrap.DEFAULT_PORTS.values()
+        }
         with (
             patch("demo_bootstrap._published_ports", return_value=set()),
             patch(
@@ -918,7 +1013,10 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
         with (
             patch(
                 "demo_bootstrap._published_ports",
-                return_value=set(range(20000, 32768)) - unpublished,
+                return_value=(
+                    set(range(20000, 32768)) - unpublished
+                    | {int(port) for port in demo_bootstrap.DEFAULT_PORTS.values()}
+                ),
             ),
             patch("demo_bootstrap.socket.socket"),
         ):
@@ -980,6 +1078,13 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
         self.assertNotIn("ODOO_DEV", environment)
         self.assertEqual(environment["MEDILAB_DEMO_BOOTSTRAP_OWNER"], "owner-id")
         self.assertEqual(environment["MEDILAB_ODOO_PORT"], "18069")
+
+    def test_compose_environment_keeps_system_drive(self):
+        # Windows resolves %SystemDrive% paths relative to the working directory without it.
+        with patch.dict(os.environ, {"SYSTEMDRIVE": "C:"}):
+            environment = _compose_environment("medilab-local-test")
+
+        self.assertEqual(environment["SYSTEMDRIVE"], "C:")
 
     def test_selected_ports_override_existing_worktree_ports(self):
         ports = {

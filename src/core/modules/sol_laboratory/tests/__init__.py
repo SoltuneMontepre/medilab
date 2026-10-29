@@ -153,6 +153,7 @@ from . import (
     test_onlyoffice_page_real,
     test_onlyoffice_real,
     test_own_department_scope,
+    test_own_scope,
     test_own_team_scope,
     test_parameter_constraints,
     test_parameter_method_department,
