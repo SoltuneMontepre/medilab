@@ -145,6 +145,12 @@
         <field name="document_model">sale.order</field>
         <field name="action">read</field>
     </record>
+    <record id="permission_order_read_own" model="medilab.permission">
+        <field name="name">Read own orders</field>
+        <field name="document_model">sale.order</field>
+        <field name="action">read</field>
+        <field name="scope">own</field>
+    </record>
     <record id="permission_order_create_all" model="medilab.permission">
         <field name="name">Create orders</field>
         <field name="document_model">sale.order</field>
@@ -154,6 +160,12 @@
         <field name="name">Edit orders</field>
         <field name="document_model">sale.order</field>
         <field name="action">edit</field>
+    </record>
+    <record id="permission_order_edit_own" model="medilab.permission">
+        <field name="name">Edit own orders</field>
+        <field name="document_model">sale.order</field>
+        <field name="action">edit</field>
+        <field name="scope">own</field>
     </record>
     <record id="permission_order_delete_all" model="medilab.permission">
         <field name="name">Delete orders</field>

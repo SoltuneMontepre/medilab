@@ -39,6 +39,10 @@ module "github_actions" {
       branch    = "main"
       reviewers = var.ansible_apply_reviewers
     }
+    database-reset = {
+      branch    = "main"
+      reviewers = var.ansible_apply_reviewers
+    }
   }
 
   environment_secrets = {

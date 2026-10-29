@@ -1,5 +1,5 @@
 from odoo import api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError
 
 from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
 from odoo.addons.sol_commerce.constants.orders import (
@@ -54,6 +54,12 @@ class SaleOrderApproval(models.Model):
             if order.approval_status != APPROVAL_APPROVED:
                 raise UserError(self.env._("The order must be approved before the samples are collected."))
         return True
+
+    def _approval_check_actor(self, rejecting=False):
+        """Signing or rejecting changes the order, so a salesperson who may only read it cannot act on it."""
+        if not self._can_edit():
+            raise AccessError(self.env._("You may only read this order, so you cannot sign or reject it."))
+        return super()._approval_check_actor(rejecting)
 
     def _approval_requester(self):
         self.ensure_one()

@@ -12,6 +12,7 @@ from . import (
     res_company,
     res_config_settings,
     sale_order,
+    sale_order_access,
     sale_order_advance,
     sale_order_analysis,
     sale_order_approval,

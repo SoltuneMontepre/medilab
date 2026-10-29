@@ -92,4 +92,12 @@
         <field name="loq">3</field>
         <field name="result_decimals">1</field>
     </record>
+    <record id="demo_parameter_method_chromium_vi_colorimetry" model="medilab.parameter.method">
+        <field name="parameter_id" ref="demo_test_parameter_chromium_vi" />
+        <field name="method_id" ref="demo_testing_method_chromium_vi_colorimetry" />
+        <field name="unit_id" ref="demo_measurement_unit_mg_l" />
+        <field name="department_id" ref="demo_hr_department_chemistry" />
+        <field name="result_decimals">3</field>
+        <field name="is_default" eval="True" />
+    </record>
 </odoo>
