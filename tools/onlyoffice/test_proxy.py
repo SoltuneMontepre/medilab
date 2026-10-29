@@ -284,8 +284,9 @@ class ProxyContractTest(unittest.TestCase):
             [*fields, "Sec-WebSocket-Extensions: unrequested"],
             ["Upgrade: other", *fields[1:]],
         ):
+            response = head(values)
             with self.subTest(values=values), self.assertRaises(ValueError):
-                proxy.websocket_response(head(values), key, {})
+                proxy.websocket_response(response, key, {})
         self.assertIsNone(
             proxy.websocket_response(
                 head([*fields, "Sec-WebSocket-Protocol: chat"]),

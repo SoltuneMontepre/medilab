@@ -11,15 +11,13 @@ from http.client import HTTPConnection, HTTPException
 import demo_bootstrap as bootstrap
 from onlyoffice_state import SERVER_IMAGE, SERVICES, OnlyofficeError, validated_port
 
+COMPOSE_SERVICE_LABEL = "com.docker.compose.service"
 
-def verify_network(controller, state, marker, environment):
-    controller.resources(state)
-    peers = bootstrap._resources(state["project"])["containers"]
+
+def _backend_targets(peers):
     positive = []
     for peer in peers:
-        service = bootstrap._labels(peer, "containers").get(
-            "com.docker.compose.service"
-        )
+        service = bootstrap._labels(peer, "containers").get(COMPOSE_SERVICE_LABEL)
         port = {
             "postgres": 5432,
             "cloudbeaver": 8978,
@@ -30,6 +28,13 @@ def verify_network(controller, state, marker, environment):
             for network in peer.get("NetworkSettings", {}).get("Networks", {}).values():
                 if address := network.get("IPAddress"):
                     positive.append([address, port])
+    return positive
+
+
+def verify_network(controller, state, _marker, environment):
+    controller.resources(state)
+    peers = bootstrap._resources(state["project"])["containers"]
+    positive = _backend_targets(peers)
     targets = list(positive)
     network = controller.inspect_resource("network", state["project"] + "_onlyoffice")
     if not network:
@@ -54,7 +59,7 @@ def verify_network(controller, state, marker, environment):
     adapter_id = next(
         peer["Id"]
         for peer in peers
-        if bootstrap._labels(peer, "containers").get("com.docker.compose.service")
+        if bootstrap._labels(peer, "containers").get(COMPOSE_SERVICE_LABEL)
         == "onlyoffice-adapter"
     )
     command = [
@@ -69,7 +74,7 @@ def verify_network(controller, state, marker, environment):
     gateway_id = next(
         peer["Id"]
         for peer in peers
-        if bootstrap._labels(peer, "containers").get("com.docker.compose.service")
+        if bootstrap._labels(peer, "containers").get(COMPOSE_SERVICE_LABEL)
         == "onlyoffice-gateway"
     )
     control = json.loads(
@@ -216,7 +221,7 @@ def actual_status(controller, state):
         selected = [
             peer
             for peer in peers
-            if bootstrap._labels(peer, "containers").get("com.docker.compose.service")
+            if bootstrap._labels(peer, "containers").get(COMPOSE_SERVICE_LABEL)
             == service
         ]
         for peer in selected:
@@ -263,7 +268,7 @@ def verify_identity(controller, state, marker, environment):
         selected = [
             peer
             for peer in peers
-            if bootstrap._labels(peer, "containers").get("com.docker.compose.service")
+            if bootstrap._labels(peer, "containers").get(COMPOSE_SERVICE_LABEL)
             == service
             and peer.get("State", {}).get("Status") == "running"
         ]
@@ -307,7 +312,7 @@ def verify_image(controller, state):
     peers = [
         peer
         for peer in controller.owned_containers(state)
-        if bootstrap._labels(peer, "containers").get("com.docker.compose.service")
+        if bootstrap._labels(peer, "containers").get(COMPOSE_SERVICE_LABEL)
         == "onlyoffice"
     ]
     identity = (expected or {}).get("Id", (expected or {}).get("ID", ""))

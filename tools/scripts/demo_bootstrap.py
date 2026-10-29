@@ -11,6 +11,7 @@ import re
 import socket
 import subprocess
 import sys
+import tempfile
 import time
 import uuid
 from pathlib import Path
@@ -18,6 +19,12 @@ from urllib.parse import urlsplit
 from urllib.request import urlopen
 
 from compose_env import project_name
+from local_private_paths import (
+    LocalPrivatePathError,
+    ensure_local_directory,
+    guard_local_path,
+    protect_created_path,
+)
 from onlyoffice_state import CONFIG_KEYS as ONLYOFFICE_CONFIG_KEYS
 from onlyoffice_state import missing_core_volumes, optional_volume_names
 
@@ -112,6 +119,33 @@ def _assert_local_context(context, source):
     return host
 
 
+def _assert_local_podman(context, container_host):
+    if context:
+        raise BootstrapError(
+            "Docker contexts cannot verify a Podman endpoint; select an explicit local Podman endpoint."
+        )
+    information = _run(
+        ["docker", "info", "--format", "{{json .}}"],
+        capture_output=True,
+        check=False,
+    )
+    try:
+        remote = json.loads(information.stdout)["host"]["serviceIsRemote"]
+    except (KeyError, TypeError, ValueError):
+        raise BootstrapError(
+            "Cannot verify whether the selected Podman service is local."
+        ) from None
+    if (
+        information.returncode
+        or not isinstance(remote, bool)
+        or (remote and not container_host)
+    ):
+        raise BootstrapError(
+            "The selected Podman service is remote or unverified; select an explicit local endpoint."
+        )
+    return container_host or "podman"
+
+
 def _assert_local_engine():
     if os.environ.get("CONTAINER_CONNECTION"):
         raise BootstrapError(
@@ -132,30 +166,7 @@ def _assert_local_engine():
     if version.returncode:
         raise BootstrapError("Cannot identify the selected container CLI.")
     if "podman" in (version.stdout + version.stderr).lower():
-        if context:
-            raise BootstrapError(
-                "Docker contexts cannot verify a Podman endpoint; select an explicit local Podman endpoint."
-            )
-        information = _run(
-            ["docker", "info", "--format", "{{json .}}"],
-            capture_output=True,
-            check=False,
-        )
-        try:
-            remote = json.loads(information.stdout)["host"]["serviceIsRemote"]
-        except (KeyError, TypeError, ValueError):
-            raise BootstrapError(
-                "Cannot verify whether the selected Podman service is local."
-            ) from None
-        if (
-            information.returncode
-            or not isinstance(remote, bool)
-            or (remote and not container_host)
-        ):
-            raise BootstrapError(
-                "The selected Podman service is remote or unverified; select an explicit local endpoint."
-            )
-        return container_host or "podman"
+        return _assert_local_podman(context, container_host)
     if context:
         host = _assert_local_context(context, "configured")
         return endpoint or host
@@ -187,6 +198,7 @@ def _assert_matching_engine(marker, engine, resources, missing):
 
 
 def _read_marker():
+    _private_path(MARKER)
     if not MARKER.exists():
         return None
     try:
@@ -197,13 +209,52 @@ def _read_marker():
         ) from error
 
 
+def _private_path(path):
+    try:
+        return guard_local_path(ROOT, path)
+    except LocalPrivatePathError as error:
+        raise BootstrapError(str(error)) from None
+
+
+def _private_directory(path):
+    try:
+        return ensure_local_directory(ROOT, path)
+    except LocalPrivatePathError as error:
+        raise BootstrapError(str(error)) from None
+
+
+def _atomic_text(path, text, *, private=False, exclusive=False):
+    if private:
+        _private_path(path)
+        _private_directory(path.parent)
+    else:
+        path.parent.mkdir(parents=True, exist_ok=True)
+    descriptor, name = tempfile.mkstemp(prefix=".medilab-", dir=path.parent)
+    temporary = Path(name)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8", newline="\n") as output:
+            if private:
+                try:
+                    protect_created_path(ROOT, temporary)
+                except LocalPrivatePathError as error:
+                    raise BootstrapError(str(error)) from None
+            output.write(text)
+            output.flush()
+            os.fsync(output.fileno())
+        if private:
+            _private_path(path)
+        if exclusive:
+            os.link(temporary, path)
+        else:
+            temporary.replace(path)
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
 def _write_marker(marker):
-    MARKER.parent.mkdir(parents=True, exist_ok=True)
-    temporary = MARKER.with_suffix(".tmp")
-    temporary.write_text(
-        json.dumps(marker, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    _atomic_text(
+        MARKER, json.dumps(marker, indent=2, sort_keys=True) + "\n", private=True
     )
-    temporary.replace(MARKER)
 
 
 def _read_compose_env():
@@ -242,13 +293,7 @@ def _write_compose_env(values):
         else:
             output.append(line)
     output.extend(f"{key}={value}" for key, value in sorted(pending.items()))
-    COMPOSE_ENV_FILE.parent.mkdir(parents=True, exist_ok=True)
-    temporary = COMPOSE_ENV_FILE.with_suffix(".tmp")
-    temporary.write_text(
-        "\n".join(output) + "\n",
-        encoding="utf-8",
-    )
-    temporary.replace(COMPOSE_ENV_FILE)
+    _atomic_text(COMPOSE_ENV_FILE, "\n".join(output) + "\n")
 
 
 def _remove_compose_env(values):
@@ -260,9 +305,7 @@ def _remove_compose_env(values):
         for line in COMPOSE_ENV_FILE.read_text(encoding="utf-8").splitlines()
         if line.lstrip().startswith("#") or line.split("=", 1)[0] not in values
     ]
-    temporary = COMPOSE_ENV_FILE.with_suffix(".tmp")
-    temporary.write_text("".join(f"{line}\n" for line in kept), encoding="utf-8")
-    temporary.replace(COMPOSE_ENV_FILE)
+    _atomic_text(COMPOSE_ENV_FILE, "".join(f"{line}\n" for line in kept))
 
 
 def _fresh_config(project, owner, selected_ports=None):
@@ -412,6 +455,7 @@ def select(project):
             "Use a new project name beginning with medilab-bootstrap- and containing only lowercase letters, digits, _ or -."
         )
     engine = _assert_local_engine()
+    _private_path(SWITCH_JOURNAL)
     if SWITCH_JOURNAL.exists():
         raise BootstrapError(INTERRUPTED_SWITCH_ERROR)
     existing = _read_marker()
@@ -478,6 +522,7 @@ def _verify_completed_selection(marker, project):
 
 
 def _read_selection_file(path):
+    _private_path(path)
     try:
         return json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as error:
@@ -485,6 +530,7 @@ def _read_selection_file(path):
 
 
 def _saved_selection(project):
+    _private_path(SELECTIONS)
     paths = [
         SELECTIONS / f"{project}.json",
         *sorted(SELECTIONS.glob(f"{project}.*.json")),
@@ -520,6 +566,7 @@ def _saved_selection(project):
 def _archive_current_selection(marker):
     project = marker["project"]
     primary = SELECTIONS / f"{project}.json"
+    _private_path(primary)
     path = primary
     if primary.exists():
         saved = _read_selection_file(primary)
@@ -545,22 +592,23 @@ def _archive_current_selection(marker):
                 "The saved owner generation differs from the current selection."
             )
         return
-    SELECTIONS.mkdir(parents=True, exist_ok=True)
-    with path.open("x", encoding="utf-8") as output:
-        json.dump(marker, output, indent=2, sort_keys=True)
-        output.write("\n")
-        output.flush()
-        os.fsync(output.fileno())
+    _atomic_text(
+        path,
+        json.dumps(marker, indent=2, sort_keys=True) + "\n",
+        private=True,
+        exclusive=True,
+    )
 
 
 def _write_switch_journal(current, target):
-    SWITCH_JOURNAL.parent.mkdir(parents=True, exist_ok=True)
     try:
-        with SWITCH_JOURNAL.open("x", encoding="utf-8") as output:
-            json.dump({"from": current, "to": target}, output, indent=2, sort_keys=True)
-            output.write("\n")
-            output.flush()
-            os.fsync(output.fileno())
+        _atomic_text(
+            SWITCH_JOURNAL,
+            json.dumps({"from": current, "to": target}, indent=2, sort_keys=True)
+            + "\n",
+            private=True,
+            exclusive=True,
+        )
     except FileExistsError as error:
         raise BootstrapError(INTERRUPTED_SWITCH_ERROR) from error
 
@@ -571,6 +619,7 @@ def switch(project):
             "Use a medilab-bootstrap- project name to switch selections."
         )
     engine = _assert_local_engine()
+    _private_path(SWITCH_JOURNAL)
     if SWITCH_JOURNAL.exists():
         raise BootstrapError(INTERRUPTED_SWITCH_ERROR)
     current = _read_marker()
@@ -607,12 +656,14 @@ def switch(project):
     _write_switch_journal(current, target)
     _write_marker(target)
     _write_compose_env(target["config"])
+    _private_path(SWITCH_JOURNAL)
     SWITCH_JOURNAL.unlink()
     print(f"Selected Compose project {project} ({target['status']}).")
 
 
 def recover_switch():
     _assert_local_engine()
+    _private_path(SWITCH_JOURNAL)
     if not SWITCH_JOURNAL.exists():
         raise BootstrapError("There is no interrupted project switch to recover.")
     journal = _read_selection_file(SWITCH_JOURNAL)
@@ -656,6 +707,7 @@ def recover_switch():
         raise BootstrapError(
             "The switch marker or Compose configuration changed unexpectedly; manual review is required."
         )
+    _private_path(SWITCH_JOURNAL)
     SWITCH_JOURNAL.unlink()
     print(f"Interrupted project switch {outcome}; no resources were removed.")
 
@@ -1588,6 +1640,7 @@ def clean():
     )
     _run(["docker", "image", "rm", marker["config"]["MEDILAB_ODOO_IMAGE"]], check=False)
     _remove_compose_env(marker["config"])
+    _private_path(MARKER)
     MARKER.unlink()
     print(
         f"Removed Compose project {marker['project']}. Run `task setup:fresh:select PROJECT=medilab-bootstrap-<name>` to create a new one."

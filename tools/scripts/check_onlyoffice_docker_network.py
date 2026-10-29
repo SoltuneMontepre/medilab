@@ -35,6 +35,9 @@ from onlyoffice_state import assert_network_policy, network_driver_options
 ROOT = Path(__file__).resolve().parents[2]
 
 
+RUNTIME_FILE = "runtime.json"
+
+
 def command(*arguments, check=True, timeout=120):
     result = subprocess.run(
         ["docker", *arguments],
@@ -80,6 +83,21 @@ def wait(check, timeout=30):
                 "The synthetic Docker positive control did not become ready"
             )
         time.sleep(0.1)
+
+
+def _remove_owned_proof_resource(kind, name, owner):
+    value = inspect_optional(kind, name)
+    if not value:
+        return
+    labels = value["Config"]["Labels"] if kind == "container" else value["Labels"]
+    if labels.get(LABEL) != owner:
+        raise RuntimeError("Docker proof refused to remove a foreign resource")
+    if kind == "container":
+        command("rm", "-f", name, timeout=30)
+    else:
+        command("network", "rm", name, timeout=30)
+    if inspect_optional(kind, name):
+        raise RuntimeError("The owned Docker proof resource was not removed")
 
 
 class Proof:
@@ -175,26 +193,7 @@ class Proof:
         for kind, names in (("container", self.containers), ("network", self.networks)):
             for name in reversed(names):
                 try:
-                    value = inspect_optional(kind, name)
-                    if not value:
-                        continue
-                    labels = (
-                        value["Config"]["Labels"]
-                        if kind == "container"
-                        else value["Labels"]
-                    )
-                    if labels.get(LABEL) != self.owner:
-                        raise RuntimeError(
-                            "Docker proof refused to remove a foreign resource"
-                        )
-                    if kind == "container":
-                        command("rm", "-f", name, timeout=30)
-                    else:
-                        command("network", "rm", name, timeout=30)
-                    if inspect_optional(kind, name):
-                        raise RuntimeError(
-                            "The owned Docker proof resource was not removed"
-                        )
+                    _remove_owned_proof_resource(kind, name, self.owner)
                 except (
                     RuntimeError,
                     OSError,
@@ -213,7 +212,7 @@ class Proof:
         with socket.socket() as reserve:
             reserve.bind(("127.0.0.1", 0))
             public_port = reserve.getsockname()[1]
-        config_file = directory / "runtime.json"
+        config_file = directory / RUNTIME_FILE
         config = json.loads(config_file.read_text())
         config["public_origin"] = f"http://localhost:{public_port}"
         config_file.write_text(json.dumps(config))
@@ -441,7 +440,8 @@ def main():
 
     class Host(BaseHTTPRequestHandler):
         def log_message(self, *_args):
-            pass
+            # The synthetic listener must not log verification paths or request metadata.
+            return
 
         def do_GET(self):
             self.send_response(200)
@@ -460,7 +460,7 @@ def main():
             directory = Path(temporary)
             directory.chmod(0o700)
             onlyoffice_tls.prepare(directory, proof.project, proof.owner)
-            (directory / "runtime.json").write_text(
+            (directory / RUNTIME_FILE).write_text(
                 json.dumps(
                     {
                         "format": 1,

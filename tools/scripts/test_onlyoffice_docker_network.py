@@ -137,12 +137,13 @@ class DockerNetworkProofTest(unittest.TestCase):
 
     def test_owner_guard_refuses_foreign_posix_and_windows_owners(self):
         target = Path("owned-report.json")
+        foreign_owner = SimpleNamespace(st_uid=124)
         with (
             patch.object(report_output.os, "name", "posix"),
             patch.object(report_output.os, "getuid", return_value=123, create=True),
             self.assertRaises(RuntimeError),
         ):
-            report_output.FixedReport.owned(target, SimpleNamespace(st_uid=124))
+            report_output.FixedReport.owned(target, foreign_owner)
         with (
             patch.object(report_output.os, "name", "nt"),
             patch.object(

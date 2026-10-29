@@ -10,6 +10,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+import compose_env
 from compose_env import (
     compose_project_name,
     main,
@@ -17,7 +18,25 @@ from compose_env import (
     selected_project_name,
     worktree_paths,
 )
+from local_private_paths import ensure_local_directory
 from onlyoffice_state import CONFIG_KEYS
+
+
+@contextlib.contextmanager
+def local_state_directory():
+    with tempfile.TemporaryDirectory() as temporary:
+        root = Path(temporary).resolve()
+        ensure_local_directory(root, root / ".local")
+        with (
+            patch.object(compose_env, "ROOT", root),
+            patch.object(compose_env, "MARKER", root / ".local/demo-bootstrap.json"),
+            patch.object(
+                compose_env,
+                "SWITCH_JOURNAL",
+                root / ".local/demo-bootstrap-switch.json",
+            ),
+        ):
+            yield str(root)
 
 
 class TestComposeEnv(unittest.TestCase):
@@ -31,6 +50,7 @@ class TestComposeEnv(unittest.TestCase):
             for file in (
                 "tools/scripts/compose_env.py",
                 "tools/scripts/onlyoffice_state.py",
+                "tools/scripts/local_private_paths.py",
                 "tools/scripts/log.sh",
                 "tools/taskfiles/dev.taskfile.yml",
             ):
@@ -121,10 +141,10 @@ class TestComposeEnv(unittest.TestCase):
             )
 
     def test_selected_project_is_read_from_worktree_owned_marker(self):
-        with tempfile.TemporaryDirectory() as temporary:
+        with local_state_directory() as temporary:
             root = Path(temporary)
             marker = root / ".local/demo-bootstrap.json"
-            marker.parent.mkdir()
+            marker.parent.mkdir(exist_ok=True)
             marker.write_text(
                 json.dumps(
                     {
@@ -142,10 +162,10 @@ class TestComposeEnv(unittest.TestCase):
                 )
 
     def test_selected_project_refuses_marker_from_another_worktree(self):
-        with tempfile.TemporaryDirectory() as temporary:
+        with local_state_directory() as temporary:
             root = Path(temporary)
             marker = root / ".local/demo-bootstrap.json"
-            marker.parent.mkdir()
+            marker.parent.mkdir(exist_ok=True)
             marker.write_text(
                 json.dumps(
                     {
@@ -163,10 +183,10 @@ class TestComposeEnv(unittest.TestCase):
                 selected_project_name(root)
 
     def test_interrupted_switch_blocks_compose_selection(self):
-        with tempfile.TemporaryDirectory() as temporary:
+        with local_state_directory() as temporary:
             root = Path(temporary)
-            marker = root / "marker.json"
-            journal = root / "demo-bootstrap-switch.json"
+            marker = root / ".local/marker.json"
+            journal = root / ".local/demo-bootstrap-switch.json"
             marker.write_text(json.dumps({"project": "medilab-bootstrap-test-01"}))
             journal.write_text("{}", encoding="utf-8")
             with (
@@ -177,17 +197,16 @@ class TestComposeEnv(unittest.TestCase):
                 selected_project_name(root)
 
     def test_dev_setup_restores_selected_identity_and_ports(self):
-        root = Path(__file__).resolve().parents[2]
-        with tempfile.TemporaryDirectory() as temporary:
+        with local_state_directory() as temporary:
             directory = Path(temporary)
-            marker = directory / "marker.json"
+            marker = directory / ".local/marker.json"
             env = directory / ".env"
             marker.write_text(
                 json.dumps(
                     {
                         "project": "medilab-bootstrap-test-01",
                         "selected_project": True,
-                        "worktree": str(root),
+                        "worktree": str(directory.resolve()),
                         "config": {
                             "COMPOSE_PROJECT_NAME": "medilab-bootstrap-test-01",
                             "MEDILAB_ODOO_PORT": "28069",
@@ -211,7 +230,7 @@ class TestComposeEnv(unittest.TestCase):
             self.assertNotIn("medilab-07088fb8", values)
 
     def test_worktree_with_the_main_checkout_name_gets_an_isolated_project(self):
-        with tempfile.TemporaryDirectory() as temporary:
+        with local_state_directory() as temporary:
             root = Path(temporary)
             main = root / "main" / "medilab"
             worktree = root / "worktrees" / "branch" / "medilab"
@@ -225,17 +244,16 @@ class TestComposeEnv(unittest.TestCase):
             )
 
     def test_selection_change_drops_only_the_prior_optional_editor_identity(self):
-        root = Path(__file__).resolve().parents[2]
-        with tempfile.TemporaryDirectory() as temporary:
+        with local_state_directory() as temporary:
             directory = Path(temporary)
-            marker = directory / "marker.json"
+            marker = directory / ".local/marker.json"
             env = directory / ".env"
             marker.write_text(
                 json.dumps(
                     {
                         "project": "medilab-bootstrap-next",
                         "selected_project": True,
-                        "worktree": str(root),
+                        "worktree": str(directory.resolve()),
                         "config": {
                             "COMPOSE_PROJECT_NAME": "medilab-bootstrap-next",
                             "MEDILAB_DEMO_BOOTSTRAP_OWNER": "next-owner",
@@ -255,12 +273,12 @@ class TestComposeEnv(unittest.TestCase):
             self.assertTrue(all(key not in env.read_text() for key in CONFIG_KEYS))
 
     def test_ordinary_dev_setup_keeps_its_existing_editor_identity(self):
-        with tempfile.TemporaryDirectory() as temporary:
+        with local_state_directory() as temporary:
             directory = Path(temporary)
             env = directory / ".env"
             env.write_text("\n".join(f"{key}=saved" for key in CONFIG_KEYS))
             with (
-                patch("compose_env.MARKER", directory / "absent"),
+                patch("compose_env.MARKER", directory / ".local/absent"),
                 patch("compose_env.ENV_FILE", env),
                 patch("compose_env.project_name", return_value="ordinary"),
             ):

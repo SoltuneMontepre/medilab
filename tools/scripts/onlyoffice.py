@@ -10,13 +10,13 @@ import secrets
 import socket
 import subprocess
 import sys
-import tempfile
 import uuid
-from pathlib import Path
 
 import demo_bootstrap as bootstrap
 import onlyoffice_checks
+import onlyoffice_commands
 import onlyoffice_lifecycle
+import onlyoffice_setup
 from compose_env import project_name
 from onlyoffice_state import (
     CONFIG_KEYS,
@@ -35,7 +35,6 @@ from onlyoffice_state import (
     checked_path,
     configuration_inputs,
     expected_configuration,
-    material_fingerprints,
     network_driver_options,
     optional_volume_names,
     protect,
@@ -44,6 +43,9 @@ from onlyoffice_state import (
     state_directory,
     verify_registration,
 )
+
+COMPOSE_SERVICE_LABEL = "com.docker.compose.service"
+RUNTIME_FILE = "runtime.json"
 
 
 def run(arguments, *, environment=None, data=None, timeout=180, check=True):
@@ -115,14 +117,14 @@ def selection(*, recovering=False, validate_inputs=False, secure_engine=False):
 
 
 def addon_resource(resource, kind, project):
-    service = bootstrap._labels(resource, kind).get("com.docker.compose.service")
+    service = bootstrap._labels(resource, kind).get(COMPOSE_SERVICE_LABEL)
     name = (resource.get("Name") or resource.get("name") or "").lstrip("/")
     return service in SERVICES or name.startswith(
         (project + "_onlyoffice", project + "-onlyoffice-")
     )
 
 
-def guard_existing(project, state, environment):
+def _check_existing_inputs(state, environment):
     provided = configuration_inputs(environment, fresh=True)
     if not state and any(key != "ONLYOFFICE_JWT_SECRET" for key in provided):
         raise OnlyofficeError(
@@ -134,32 +136,40 @@ def guard_existing(project, state, environment):
         if "ONLYOFFICE_JWT_SECRET" not in expected and not state.get("material"):
             checked.pop("ONLYOFFICE_JWT_SECRET", None)
         assert_configuration_matches(checked, expected)
+    return expected
+
+
+def _check_existing_resource(resource, kind, project, state, expected):
+    if addon_resource(resource, kind, project):
+        if not state:
+            raise OnlyofficeError(
+                "Unmanaged ONLYOFFICE resources already exist. Preserve them and use their existing maintenance workflow or a separate isolated demo."
+            )
+        assert_resource(resource, state, kind)
+    if (
+        kind != "containers"
+        or bootstrap._labels(resource, kind).get(COMPOSE_SERVICE_LABEL) != "odoo"
+    ):
+        return
+    values = {}
+    for entry in resource.get("Config", {}).get("Env") or []:
+        key, separator, value = entry.partition("=")
+        if separator and key in INPUT_KEYS and value:
+            values[key] = value
+    if values and not state:
+        raise OnlyofficeError(
+            "Odoo already has unmanaged editing-service configuration. Preserve it and use its existing maintenance workflow or a separate isolated demo; automatic migration is refused."
+        )
+    if state:
+        assert_configuration_matches(values, expected)
+
+
+def guard_existing(project, state, environment):
+    expected = _check_existing_inputs(state, environment)
     inventory = bootstrap._resources(project)
     for kind, items in inventory.items():
         for resource in items:
-            if addon_resource(resource, kind, project):
-                if not state:
-                    raise OnlyofficeError(
-                        "Unmanaged ONLYOFFICE resources already exist. Preserve them and use their existing maintenance workflow or a separate isolated demo."
-                    )
-                assert_resource(resource, state, kind)
-            if (
-                kind != "containers"
-                or bootstrap._labels(resource, kind).get("com.docker.compose.service")
-                != "odoo"
-            ):
-                continue
-            values = {}
-            for entry in resource.get("Config", {}).get("Env") or []:
-                key, separator, value = entry.partition("=")
-                if separator and key in INPUT_KEYS and value:
-                    values[key] = value
-            if values and not state:
-                raise OnlyofficeError(
-                    "Odoo already has unmanaged editing-service configuration. Preserve it and use its existing maintenance workflow or a separate isolated demo; automatic migration is refused."
-                )
-            if state:
-                assert_configuration_matches(values, expected)
+            _check_existing_resource(resource, kind, project, state, expected)
 
 
 @contextlib.contextmanager
@@ -368,7 +378,7 @@ def assert_resource(resource, state, kind):
 def resources(state, *, preparing=False, inspect_policy=True):
     for container in bootstrap._resources(state["project"])["containers"]:
         if (
-            bootstrap._labels(container, "containers").get("com.docker.compose.service")
+            bootstrap._labels(container, "containers").get(COMPOSE_SERVICE_LABEL)
             in SERVICES
         ):
             assert_resource(container, state, "containers")
@@ -477,119 +487,18 @@ def runtime_config(state, environment):
 
 
 def setup():
-    project, marker, engine, environment = selection(
-        recovering=True, validate_inputs=True, secure_engine=True
-    )
-    guard_existing(project, read_state(project, marker, engine), environment)
-    directory = state_directory(project, (marker or {}).get("owner"))
-    checked_path(DIRECTORY)
-    if (
-        directory.exists()
-        and not (directory / "state.json").exists()
-        and any(item.name != "operation.lock" for item in directory.iterdir())
-    ):
-        raise OnlyofficeError(
-            "ONLYOFFICE private files exist without their ownership marker; refusing adoption."
-        )
-    if directory.exists():
-        checked_path(directory, private=True)
-    else:
-        directory.mkdir(parents=True, mode=0o700)
-        protect(directory)
-    with locked(directory):
-        state = read_state(project, marker, engine)
-        if state and state["status"] == "completed":
-            resources(state)
-            recover_registration(state, marker)
-            verify_registration(state, marker, bootstrap._read_compose_env())
-        else:
-            if not state:
-                for kind, items in bootstrap._resources(project).items():
-                    for resource in items:
-                        if addon_resource(resource, kind, project):
-                            raise OnlyofficeError(
-                                "Unowned ONLYOFFICE resources already exist in this project; no resources were adopted."
-                            )
-                state = new_state(project, marker, engine)
-                save(state)
-            registration(state, marker)
-            if marker:
-                environment = bootstrap._compose_environment(
-                    project, marker["owner"], marker["config"]
-                )
-            from onlyoffice_tls import prepare
-
-            prepare(directory, project, state["owner"])
-            jwt = checked_path(directory / "jwt", private=True)
-            if not jwt.exists():
-                if state.get("material"):
-                    raise OnlyofficeError(
-                        "Prepared ONLYOFFICE secret material is missing; it will not be regenerated."
-                    )
-                descriptor, temporary = tempfile.mkstemp(prefix=".jwt-", dir=directory)
-                try:
-                    with os.fdopen(descriptor, "w", encoding="ascii") as output:
-                        output.write(
-                            environment.get("ONLYOFFICE_JWT_SECRET")
-                            or secrets.token_urlsafe(48)
-                        )
-                        output.flush()
-                        os.fsync(output.fileno())
-                    protect(Path(temporary))
-                    os.link(temporary, jwt)
-                finally:
-                    Path(temporary).unlink(missing_ok=True)
-            expected = runtime_config(state, environment)
-            config_file = directory / "runtime.json"
-            if config_file.exists():
-                if json.loads(config_file.read_text()) != expected:
-                    raise OnlyofficeError(
-                        "The prepared ONLYOFFICE endpoint configuration changed; existing identities were preserved."
-                    )
-            else:
-                atomic_json(config_file, expected)
-            material = material_fingerprints(directory)
-            if state.get("material") and state["material"] != material:
-                raise OnlyofficeError(
-                    "Prepared ONLYOFFICE secret material changed outside its ownership state."
-                )
-            state["material"] = material
-            save(state)
-        from onlyoffice_tls import verify
-
-        verify(directory)
-        if json.loads(
-            (directory / "runtime.json").read_text(encoding="utf-8")
-        ) != runtime_config(state, environment):
-            raise OnlyofficeError(
-                "The selected local endpoint configuration differs from the owned editor configuration."
-            )
-        create_resources(state, allow_volumes=state["status"] != "completed")
-        compose(state, marker, environment, "config", "--quiet")
-        handoff_public_port(state, marker, environment)
-        try:
-            compose(state, marker, environment, "up", "-d", "--wait", *SERVICES)
-            verify_network(state, marker, environment)
-        except Exception:
-            stop(state, marker, environment)
-            raise
-        guard_existing(project, state, environment)
-        compose(state, marker, environment, "up", "-d", "--no-deps", "odoo")
-        verify_runtime(state, marker, environment)
-        state["status"] = "completed"
-        save(state)
-    print(
-        f"ONLYOFFICE setup and integration verification completed: http://localhost:{state['config']['MEDILAB_ONLYOFFICE_PORT']}."
+    return onlyoffice_setup.setup(
+        sys.modules[__name__], DIRECTORY, secrets.token_urlsafe
     )
 
 
-def stop(state, marker, environment):
+def stop(state, _marker, _environment):
     owned = owned_containers(state)
     for service in ("onlyoffice", "onlyoffice-adapter", "onlyoffice-gateway"):
         ids = [
             peer["Id"]
             for peer in owned
-            if bootstrap._labels(peer, "containers").get("com.docker.compose.service")
+            if bootstrap._labels(peer, "containers").get(COMPOSE_SERVICE_LABEL)
             == service
         ]
         if ids:
@@ -633,8 +542,7 @@ def owned_containers(state):
     selected = [
         peer
         for peer in bootstrap._resources(state["project"])["containers"]
-        if bootstrap._labels(peer, "containers").get("com.docker.compose.service")
-        in SERVICES
+        if bootstrap._labels(peer, "containers").get(COMPOSE_SERVICE_LABEL) in SERVICES
     ]
     for peer in selected:
         assert_resource(peer, state, "containers")
@@ -684,109 +592,11 @@ def main():
         raise SystemExit(__doc__)
     command = sys.argv[1]
     try:
-        if command in {"setup", "up", "restart", "verify", "config-check"}:
-            virtual = ROOT / "src/core/.venv"
-            if Path(sys.prefix).resolve() != virtual.resolve():
-                executable = virtual / (
-                    "Scripts/python.exe" if os.name == "nt" else "bin/python"
-                )
-                if not executable.is_file():
-                    raise OnlyofficeError(
-                        "The locked core Python environment is missing. Run task onlyoffice:setup after installing uv and Python 3.12 or later."
-                    )
-                raise SystemExit(
-                    subprocess.run(
-                        [str(executable), str(Path(__file__).resolve()), command],
-                        cwd=ROOT,
-                        check=False,
-                    ).returncode
-                )
+        onlyoffice_commands.use_core_environment(sys.modules[__name__], command)
         if command == "setup":
             setup()
             return
-        project, marker, engine, environment = selection(
-            secure_engine=command in {"up", "restart", "verify", "config-check"},
-            recovering=command in {"recover-registration", "guard-existing"},
-            validate_inputs=command
-            in {"guard-existing", "up", "restart", "verify", "config-check"},
-        )
-        state = read_state(project, marker, engine)
-        if command == "guard-existing":
-            guard_existing(project, state, environment)
-            return
-        if command == "recover-registration":
-            if state:
-                with locked(state_directory(project, state.get("base_owner"))):
-                    recover_registration(state, marker)
-            return
-        if not state:
-            raise OnlyofficeError(
-                "ONLYOFFICE has not been prepared for this selection; run task onlyoffice:setup."
-            )
-        if state["status"] == "completed":
-            verify_registration(state, marker, bootstrap._read_compose_env())
-        if command == "status":
-            status = actual_status(state)
-            print(json.dumps(status))
-            if not status["ready"]:
-                raise SystemExit(1)
-            return
-        resources(
-            state,
-            preparing=command in {"logs", "down"},
-            inspect_policy=command not in {"logs", "down"},
-        )
-        if command == "logs":
-            for peer in owned_containers(state):
-                result = run(["docker", "logs", "--tail", "100", peer["Id"]])
-                print(result.stdout, end="")
-                print(result.stderr, end="", file=sys.stderr)
-            return
-        if command in {"up", "restart", "verify", "config-check"}:
-            guard_existing(project, state, environment)
-            from onlyoffice_tls import verify
-
-            verify(state_directory(project, state.get("base_owner")))
-            if json.loads(
-                (
-                    state_directory(project, state.get("base_owner")) / "runtime.json"
-                ).read_text(encoding="utf-8")
-            ) != runtime_config(state, environment):
-                raise OnlyofficeError(
-                    "The selected local endpoint configuration differs from the owned editor configuration."
-                )
-        if command == "config-check":
-            compose(state, marker, environment, "config", "--quiet")
-            verify_identity(state, marker, environment)
-            print("ONLYOFFICE configuration and ownership are valid.")
-            return
-        with locked(state_directory(project, state.get("base_owner"))):
-            if command == "down":
-                stop(state, marker, environment)
-                remove_owned_containers(state)
-            elif command in {"up", "restart"}:
-                if state["status"] != "completed":
-                    raise OnlyofficeError(
-                        "ONLYOFFICE preparation is incomplete; resume onlyoffice:setup."
-                    )
-                if command == "restart":
-                    stop(state, marker, environment)
-                create_resources(state)
-                handoff_public_port(state, marker, environment)
-                try:
-                    compose(state, marker, environment, "up", "-d", "--wait", *SERVICES)
-                    verify_network(state, marker, environment)
-                except Exception:
-                    stop(state, marker, environment)
-                    raise
-                guard_existing(project, state, environment)
-                compose(state, marker, environment, "up", "-d", "--no-deps", "odoo")
-            elif command == "verify":
-                verify_network(state, marker, environment)
-                verify_runtime(state, marker, environment)
-                print(
-                    "ONLYOFFICE actual conversion, callback refusal and network verification passed."
-                )
+        onlyoffice_commands.execute(sys.modules[__name__], command)
     except (OnlyofficeError, bootstrap.BootstrapError) as error:
         print(str(error), file=sys.stderr)
         raise SystemExit(1) from None

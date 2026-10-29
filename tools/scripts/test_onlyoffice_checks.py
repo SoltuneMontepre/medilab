@@ -83,6 +83,7 @@ class PublicHealthTest(unittest.TestCase):
             "status": "completed",
             "config": {"MEDILAB_ONLYOFFICE_PORT": "80@foreign.invalid"},
         }
+        controller = SimpleNamespace(assert_resource=Mock())
         with (
             patch.object(
                 checks.bootstrap, "_resources", return_value={"containers": []}
@@ -90,7 +91,7 @@ class PublicHealthTest(unittest.TestCase):
             patch.object(checks, "HTTPConnection") as connection,
             self.assertRaises(OnlyofficeError),
         ):
-            checks.actual_status(SimpleNamespace(assert_resource=Mock()), state)
+            checks.actual_status(controller, state)
         connection.assert_not_called()
 
 

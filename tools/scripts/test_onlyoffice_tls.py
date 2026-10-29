@@ -74,18 +74,17 @@ class OnlyofficeTlsTests(unittest.TestCase):
                     b"GET / HTTP/1.1\r\nHost: onlyoffice\r\nConnection: close\r\n\r\n"
                 )
                 self.assertIn(b"200 OK", stream.recv(4096))
-            with (
-                self.assertRaises(ssl.SSLCertVerificationError),
-                socket.create_connection(server.server_address, timeout=3) as transport,
-            ):
-                trusted.wrap_socket(transport, server_hostname="foreign.example")
-            with (
-                self.assertRaises(ssl.SSLCertVerificationError),
-                socket.create_connection(server.server_address, timeout=3) as transport,
-            ):
-                ssl.create_default_context().wrap_socket(
-                    transport, server_hostname="onlyoffice"
-                )
+            with socket.create_connection(
+                server.server_address, timeout=3
+            ) as transport:
+                with self.assertRaises(ssl.SSLCertVerificationError):
+                    trusted.wrap_socket(transport, server_hostname="foreign.example")
+            untrusted = ssl.create_default_context()
+            with socket.create_connection(
+                server.server_address, timeout=3
+            ) as transport:
+                with self.assertRaises(ssl.SSLCertVerificationError):
+                    untrusted.wrap_socket(transport, server_hostname="onlyoffice")
         finally:
             server.shutdown()
             server.server_close()

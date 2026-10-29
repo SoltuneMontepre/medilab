@@ -127,6 +127,11 @@ jobs:
               - "taskfile.yml"
               - "tools/taskfiles/**"
               - "tools/scripts/host_tools.py"
+              - "tools/scripts/local_private_paths.py"
+              - "tools/scripts/test_local_private_paths.py"
+              - "tools/scripts/test_private_state_writers.py"
+              - "tools/scripts/*acceptance*.py"
+              - "tools/scripts/windows_acceptance.ps1"
               - "tools/scripts/local_setup.py"
               - "tools/scripts/test_host_tools.py"
               - "tools/scripts/test_local_setup*.py"
@@ -226,6 +231,10 @@ jobs:
         if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         run: python -m unittest discover -s tools/scripts -p 'test_sync*.py'
 
+      - name: Local setup security and platform evidence contracts
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: task test:setup
+
       - name: ONLYOFFICE local setup contracts
         if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         run: uv run --locked --no-build --project src/core python -m unittest discover -s tools/scripts -p 'test_onlyoffice*.py'
@@ -264,6 +273,11 @@ jobs:
               - "tools/scripts/check_onlyoffice_docker_network.py"
               - "tools/scripts/onlyoffice*.py"
               - "tools/scripts/host_tools.py"
+              - "tools/scripts/local_private_paths.py"
+              - "tools/scripts/test_local_private_paths.py"
+              - "tools/scripts/test_private_state_writers.py"
+              - "tools/scripts/*acceptance*.py"
+              - "tools/scripts/windows_acceptance.ps1"
               - "tools/scripts/local_setup.py"
               - "tools/scripts/demo_bootstrap*.py"
               - "tools/onlyoffice/**"

@@ -29,6 +29,25 @@ HOP_HEADERS = {
 }
 
 
+def _decode_segment(item):
+    decoded = item
+    for depth in range(8):
+        if decoded in {".", ".."} or any(
+            ord(c) < 32 or ord(c) == 127 or c in "/\\" for c in decoded
+        ):
+            raise ValueError("Invalid path segment")
+        if "%" not in decoded:
+            break
+        if re.search(r"%(?![0-9A-Fa-f]{2})", decoded):
+            if depth == 0:
+                raise ValueError("Invalid path encoding")
+            break
+        decoded = unquote(decoded, errors="strict")
+    else:
+        raise ValueError("Excessive path encoding")
+    return decoded
+
+
 def safe_path(raw):
     if (
         not isinstance(raw, str)
@@ -40,21 +59,7 @@ def safe_path(raw):
         raise ValueError("Invalid request target")
     segments = []
     for item in raw.split("?", 1)[0].split("/"):
-        decoded = item
-        for depth in range(8):
-            if decoded in {".", ".."} or any(
-                ord(c) < 32 or ord(c) == 127 or c in "/\\" for c in decoded
-            ):
-                raise ValueError("Invalid path segment")
-            if "%" not in decoded:
-                break
-            if re.search(r"%(?![0-9A-Fa-f]{2})", decoded):
-                if depth == 0:
-                    raise ValueError("Invalid path encoding")
-                break
-            decoded = unquote(decoded, errors="strict")
-        else:
-            raise ValueError("Excessive path encoding")
+        decoded = _decode_segment(item)
         segments.append(decoded.casefold())
     return segments
 
@@ -135,22 +140,44 @@ def websocket_response(head, key, requested):
         raise ValueError("Unrequested WebSocket extension")
 
 
+def _public_route(host, public, method, segments):
+    if (
+        host != public
+        or method not in {"GET", "HEAD", "POST", "OPTIONS"}
+        or any(
+            segment in {"command", "commandservice.ashx", "convertservice.ashx"}
+            for segment in segments
+        )
+    ):
+        raise ValueError("Public route refused")
+    return "https", "onlyoffice", 443
+
+
+def _callback_route(method, host, pathname):
+    if (
+        method != "POST"
+        or host != "onlyoffice-gateway:7443"
+        or not re.fullmatch(r"[A-Za-z0-9_-]{16,256}", pathname[len(CALLBACK) :])
+    ):
+        raise ValueError("Callback route refused")
+    return "http", "odoo", 8069
+
+
+def _internal_route(method, pathname):
+    return (
+        (pathname == "/healthcheck" and method in {"GET", "HEAD"})
+        or (pathname == "/ConvertService.ashx" and method == "POST")
+        or (pathname.startswith("/cache/files/") and method in {"GET", "HEAD"})
+    )
+
+
 def route(config, kind, method, raw, host):
     segments = safe_path(raw)
     pathname = raw.split("?", 1)[0]
     storage = urlsplit(config["storage_origin"]).netloc
     public = urlsplit(config["public_origin"]).netloc
     if kind == "public":
-        if (
-            host != public
-            or method not in {"GET", "HEAD", "POST", "OPTIONS"}
-            or any(
-                s in {"command", "commandservice.ashx", "convertservice.ashx"}
-                for s in segments
-            )
-        ):
-            raise ValueError("Public route refused")
-        return "https", "onlyoffice", 443
+        return _public_route(host, public, method, segments)
     if kind in {"storage", "gateway"} and pathname.startswith(f"/{config['bucket']}/"):
         if host != storage or method not in {"GET", "HEAD"}:
             raise ValueError("Storage route refused")
@@ -160,24 +187,23 @@ def route(config, kind, method, raw, host):
             else ("http", "garage", 3900)
         )
     if kind == "gateway" and pathname.startswith(CALLBACK):
-        if (
-            method != "POST"
-            or host != "onlyoffice-gateway:7443"
-            or not re.fullmatch(r"[A-Za-z0-9_-]{16,256}", pathname[len(CALLBACK) :])
-        ):
-            raise ValueError("Callback route refused")
-        return "http", "odoo", 8069
+        return _callback_route(method, host, pathname)
     if (
         kind == "internal"
         and host == "onlyoffice-gateway:9443"
-        and (
-            (pathname == "/healthcheck" and method in {"GET", "HEAD"})
-            or (pathname == "/ConvertService.ashx" and method == "POST")
-            or (pathname.startswith("/cache/files/") and method in {"GET", "HEAD"})
-        )
+        and _internal_route(method, pathname)
     ):
         return "https", "onlyoffice", 443
     raise ValueError("Route refused")
+
+
+def _untrusted_header(key):
+    name = key.lower()
+    return (
+        name in HOP_HEADERS
+        or name.startswith("x-forwarded-")
+        or name == "cloudfront-forwarded-proto"
+    )
 
 
 def headers_for(headers, config, kind, *, websocket=False):
@@ -189,11 +215,7 @@ def headers_for(headers, config, kind, *, websocket=False):
         raise ValueError("Ambiguous request length")
     result = {}
     for key, value in headers.items():
-        if (
-            key.lower() in HOP_HEADERS
-            or key.lower().startswith("x-forwarded-")
-            or key.lower() == "cloudfront-forwarded-proto"
-        ):
+        if _untrusted_header(key):
             continue
         if any(ord(c) < 32 or ord(c) == 127 for c in value):
             raise ValueError("Invalid request header")
@@ -268,6 +290,36 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Connection", "close")
         self.end_headers()
 
+    def send_body(self, connection, length):
+        remaining = length
+        while remaining:
+            chunk = self.rfile.read(min(65536, remaining))
+            if not chunk:
+                raise ConnectionError("Incomplete request")
+            connection.send(chunk)
+            remaining -= len(chunk)
+
+    def response_redirect(self, answer):
+        location = answer.getheader("Location")
+        redirect = None
+        if location:
+            if self.server.kind != "public":
+                raise ValueError("Redirect refused")
+            redirect = public_redirect(location, self.server.config["public_origin"])
+        return redirect
+
+    def send_answer(self, answer, redirect):
+        self.send_response(answer.status)
+        for key, value in answer.getheaders():
+            if key.lower() not in HOP_HEADERS:
+                self.send_header(key, redirect if key.lower() == "location" else value)
+        self.send_header("Connection", "close")
+        self.end_headers()
+        self.close_connection = True
+        if self.command != "HEAD":
+            while chunk := answer.read(65536):
+                self.wfile.write(chunk)
+
     def forward(self):
         try:
             scheme, host, port = route(
@@ -286,7 +338,7 @@ class Handler(BaseHTTPRequestHandler):
                 raise ValueError("Request body refused")
             if websocket:
                 return self.websocket(host, port, headers, length)
-        except (ValueError, UnicodeError):
+        except ValueError:
             self.refuse(400)
             return
         connection = None
@@ -305,35 +357,11 @@ class Handler(BaseHTTPRequestHandler):
             for key, value in headers.items():
                 connection.putheader(key, value)
             connection.endheaders()
-            remaining = length
-            while remaining:
-                chunk = self.rfile.read(min(65536, remaining))
-                if not chunk:
-                    raise ConnectionError("Incomplete request")
-                connection.send(chunk)
-                remaining -= len(chunk)
+            self.send_body(connection, length)
             answer = connection.getresponse()
-            location = answer.getheader("Location")
-            redirect = None
-            if location:
-                if self.server.kind != "public":
-                    raise ValueError("Redirect refused")
-                redirect = public_redirect(
-                    location, self.server.config["public_origin"]
-                )
+            redirect = self.response_redirect(answer)
             started = True
-            self.send_response(answer.status)
-            for key, value in answer.getheaders():
-                if key.lower() not in HOP_HEADERS:
-                    self.send_header(
-                        key, redirect if key.lower() == "location" else value
-                    )
-            self.send_header("Connection", "close")
-            self.end_headers()
-            self.close_connection = True
-            if self.command != "HEAD":
-                while chunk := answer.read(65536):
-                    self.wfile.write(chunk)
+            self.send_answer(answer, redirect)
         except (OSError, ValueError, http.client.HTTPException):
             self.close_connection = True
             if not started:
@@ -341,6 +369,32 @@ class Handler(BaseHTTPRequestHandler):
         finally:
             if connection:
                 connection.close()
+
+    def upgrade_websocket(self, upstream, key, headers):
+        wire = (
+            f"GET {self.path} HTTP/1.1\r\n"
+            + "".join(f"{name}: {value}\r\n" for name, value in headers.items())
+            + "\r\n"
+        )
+        upstream.sendall(wire.encode("latin-1"))
+        response = b""
+        while b"\r\n\r\n" not in response and len(response) <= 16384:
+            chunk = upstream.recv(4096)
+            if not chunk:
+                raise ValueError("Incomplete WebSocket handshake")
+            response += chunk
+        head, tail = response.split(b"\r\n\r\n", 1)
+        websocket_response(head, key, self.headers)
+        self.connection.sendall(head + b"\r\n\r\n" + tail)
+
+    def relay_websocket(self, upstream):
+        while True:
+            ready, _, _ = select.select([upstream, self.connection], [], [])
+            for source in ready:
+                chunk = source.recv(65536)
+                if not chunk:
+                    return
+                (self.connection if source is upstream else upstream).sendall(chunk)
 
     def websocket(self, host, port, headers, length):
         key = self.headers.get("Sec-WebSocket-Key", "")
@@ -363,32 +417,12 @@ class Handler(BaseHTTPRequestHandler):
             upstream = self.server.client_context.wrap_socket(
                 socket.create_connection((host, port), timeout=10), server_hostname=host
             )
-            wire = (
-                f"GET {self.path} HTTP/1.1\r\n"
-                + "".join(f"{name}: {value}\r\n" for name, value in headers.items())
-                + "\r\n"
-            )
-            upstream.sendall(wire.encode("latin-1"))
-            response = b""
-            while b"\r\n\r\n" not in response and len(response) <= 16384:
-                chunk = upstream.recv(4096)
-                if not chunk:
-                    raise ValueError("Incomplete WebSocket handshake")
-                response += chunk
-            head, tail = response.split(b"\r\n\r\n", 1)
-            websocket_response(head, key, self.headers)
-            self.connection.sendall(head + b"\r\n\r\n" + tail)
+            self.upgrade_websocket(upstream, key, headers)
             upgraded = True
             upstream.settimeout(None)
             self.connection.settimeout(None)
             self.close_connection = True
-            while True:
-                ready, _, _ = select.select([upstream, self.connection], [], [])
-                for source in ready:
-                    chunk = source.recv(65536)
-                    if not chunk:
-                        return
-                    (self.connection if source is upstream else upstream).sendall(chunk)
+            self.relay_websocket(upstream)
         except (OSError, ValueError):
             if not upgraded:
                 self.refuse(502)

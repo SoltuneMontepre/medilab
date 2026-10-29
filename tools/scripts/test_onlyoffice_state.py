@@ -17,6 +17,44 @@ import onlyoffice_state as state
 
 
 class OnlyofficeStateTest(unittest.TestCase):
+    def test_core_environment_reentry_uses_controller_script_and_propagates_exit_status(
+        self,
+    ):
+        result = subprocess.CompletedProcess([], 17)
+        with (
+            patch.object(onlyoffice, "ROOT", self.root),
+            patch.object(Path, "is_file", return_value=True),
+            patch.object(onlyoffice.subprocess, "run", return_value=result) as run,
+        ):
+            with self.assertRaises(SystemExit) as raised:
+                onlyoffice.onlyoffice_commands.use_core_environment(
+                    onlyoffice, "verify"
+                )
+        self.assertEqual(raised.exception.code, 17)
+        executable = (
+            self.root
+            / "src/core/.venv"
+            / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+        )
+        run.assert_called_once_with(
+            [str(executable), str(Path(onlyoffice.__file__).resolve()), "verify"],
+            cwd=self.root,
+            check=False,
+        )
+
+    def test_dotenv_comment_scan_preserves_hashes_and_quoted_values(self):
+        cases = (
+            ("value" + " " * 100000 + "# comment", "value"),
+            ("value" + " " * 100000 + "suffix", "value" + " " * 100000 + "suffix"),
+            ("value#literal", "value#literal"),
+            ("#literal", "#literal"),
+            ('"value # literal" # comment', "value # literal"),
+            ("value\u2003# comment", "value"),
+        )
+        for raw, expected in cases:
+            with self.subTest(length=len(raw)):
+                self.assertEqual(state.dotenv_value(raw), expected)
+
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)

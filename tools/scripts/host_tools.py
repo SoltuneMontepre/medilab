@@ -185,6 +185,30 @@ def verify_running_odoo(values, marker, port, hostname):
         )
 
 
+def _selected_url(values):
+    try:
+        port = int(values.get("MEDILAB_ODOO_PORT", "8069"))
+        selected = values.get("MEDILAB_URL") or f"http://localhost:{port}"
+        parsed = urlsplit(selected)
+        actual_port = parsed.port or (443 if parsed.scheme == "https" else 80)
+    except (ValueError, TypeError, AttributeError) as error:
+        raise HostError(URL_ERROR) from error
+    if (
+        not 1 <= port <= 65535
+        or parsed.scheme not in {"http", "https"}
+        or not loopback_host(parsed.hostname)
+        or parsed.username is not None
+        or parsed.password is not None
+        or parsed.query
+        or parsed.fragment
+        or actual_port != port
+        or any(character.isspace() or ord(character) < 32 for character in selected)
+        or "\\" in selected
+    ):
+        raise HostError(URL_ERROR)
+    return port, parsed
+
+
 def selected_odoo_url(*, require_saved_selection=False):
     from compose_env import project_name
     from demo_bootstrap import BootstrapError, _read_compose_env, _read_marker
@@ -214,26 +238,7 @@ def selected_odoo_url(*, require_saved_selection=False):
         raise HostError(
             "The selected environment could not be read safely. Check its ownership marker and the setup recovery guidance."
         ) from error
-    try:
-        port = int(values.get("MEDILAB_ODOO_PORT", "8069"))
-        selected = values.get("MEDILAB_URL") or f"http://localhost:{port}"
-        parsed = urlsplit(selected)
-        actual_port = parsed.port or (443 if parsed.scheme == "https" else 80)
-    except (ValueError, TypeError, AttributeError) as error:
-        raise HostError(URL_ERROR) from error
-    if (
-        not 1 <= port <= 65535
-        or parsed.scheme not in {"http", "https"}
-        or not loopback_host(parsed.hostname)
-        or parsed.username is not None
-        or parsed.password is not None
-        or parsed.query
-        or parsed.fragment
-        or actual_port != port
-        or any(character.isspace() or ord(character) < 32 for character in selected)
-        or "\\" in selected
-    ):
-        raise HostError(URL_ERROR)
+    port, parsed = _selected_url(values)
     if require_saved_selection:
         try:
             verify_running_odoo(values, marker, port, parsed.hostname)

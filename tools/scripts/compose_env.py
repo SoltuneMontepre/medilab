@@ -13,8 +13,10 @@ import re
 import subprocess
 import sys
 
+from local_private_paths import LocalPrivatePathError, guard_local_path
 from onlyoffice_state import CONFIG_KEYS as ONLYOFFICE_CONFIG_KEYS
 
+ROOT = pathlib.Path(__file__).resolve().parents[2]
 KEY = "COMPOSE_PROJECT_NAME"
 # The .env next to the compose file, found from this script rather than taken as an argument, so it can only ever be
 # that file.
@@ -24,6 +26,11 @@ SWITCH_JOURNAL = MARKER.with_name("demo-bootstrap-switch.json")
 
 
 def _selected_marker(root):
+    try:
+        guard_local_path(root, SWITCH_JOURNAL)
+        guard_local_path(root, MARKER)
+    except LocalPrivatePathError as error:
+        raise ValueError(str(error)) from None
     if SWITCH_JOURNAL.exists():
         raise ValueError(
             "An interrupted project switch exists; run `task setup:fresh:switch:recover` before Compose operations."
@@ -100,14 +107,14 @@ def main():
         sys.stdout.write(f"No {env.parent}; no compose project to set.\n")
         return
     lines = env.read_text(encoding="utf-8").splitlines() if env.exists() else []
-    root = pathlib.Path(__file__).resolve().parents[2]
+    root = ROOT
     selected = _selected_marker(root)
     values = selected["config"] if selected else {KEY: project_name()}
     removed = set(values)
     if selected and values.get("MEDILAB_DEMO_BOOTSTRAP_OWNER"):
         removed.update(ONLYOFFICE_CONFIG_KEYS)
     kept = [line for line in lines if line.split("=", 1)[0] not in removed]
-    name = project_name()
+    name = values[KEY]
     env.write_text(
         "\n".join([*(f"{key}={value}" for key, value in values.items()), *kept]) + "\n",
         encoding="utf-8",

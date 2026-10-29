@@ -87,6 +87,12 @@ def save_endpoint(base):
         pathlib.Path(temporary).unlink(missing_ok=True)
 
 
+def _check_build_tree(target):
+    for directory, folders, files in os.walk(target, followlinks=False):
+        for name in (*folders, *files):
+            _plain_path(pathlib.Path(directory) / name, ROOT)
+
+
 def clean():
     targets = (APP / "dist", APP / "src-tauri/target")
     for target in targets:
@@ -94,9 +100,7 @@ def clean():
         if target.exists() and not target.is_dir():
             raise HostError("A fixed Sync build-output path is not a directory.")
         if target.exists():
-            for directory, folders, files in os.walk(target, followlinks=False):
-                for name in (*folders, *files):
-                    _plain_path(pathlib.Path(directory) / name, ROOT)
+            _check_build_tree(target)
     for target in targets:
         if target.exists():
             shutil.rmtree(target)
@@ -144,6 +148,62 @@ def _free_dev_ports():
                 ) from error
 
 
+def _check_build(operation, environment, base):
+    if operation == "test":
+        _bun(["test"], environment)
+        run(
+            [executable("cargo"), "test", "--locked", "--manifest-path", MANIFEST],
+            cwd=APP,
+            env=environment,
+        )
+    elif operation == "lint":
+        run(
+            [executable("cargo"), "fmt", "--check", "--manifest-path", MANIFEST],
+            cwd=APP,
+            env=environment,
+        )
+        run(
+            [
+                executable("cargo"),
+                "clippy",
+                "--locked",
+                "--manifest-path",
+                MANIFEST,
+                "--all-targets",
+                "--all-features",
+                "--",
+                "-D",
+                "warnings",
+            ],
+            cwd=APP,
+            env=environment,
+        )
+    elif operation in {"check", "setup"}:
+        run(
+            [executable("cargo"), "check", "--locked", "--manifest-path", MANIFEST],
+            cwd=APP,
+            env=environment,
+        )
+        if operation == "setup":
+            verify(base)
+            save_endpoint(base)
+
+
+def _execute_build(operation, environment, base):
+    if operation == "dev":
+        _free_dev_ports()
+        _bun(["run", "tauri:dev"], environment)
+    elif operation == "build":
+        bundles = "nsis" if platform.system() == "Windows" else "deb,rpm"
+        _bun(
+            ["run", "tauri", "build", "--bundles", bundles, "--", "--locked"],
+            environment,
+        )
+    else:
+        _bun(["run", "build"], environment)
+        _check_build(operation, environment, base)
+
+
 def execute(operation):
     if operation == "clean":
         clean()
@@ -170,55 +230,7 @@ def execute(operation):
             cwd=APP,
             env=environment,
         )
-    if operation == "dev":
-        _free_dev_ports()
-        _bun(["run", "tauri:dev"], environment)
-    elif operation == "build":
-        bundles = "nsis" if platform.system() == "Windows" else "deb,rpm"
-        _bun(
-            ["run", "tauri", "build", "--bundles", bundles, "--", "--locked"],
-            environment,
-        )
-    else:
-        _bun(["run", "build"], environment)
-        if operation == "test":
-            _bun(["test"], environment)
-            run(
-                [executable("cargo"), "test", "--locked", "--manifest-path", MANIFEST],
-                cwd=APP,
-                env=environment,
-            )
-        elif operation == "lint":
-            run(
-                [executable("cargo"), "fmt", "--check", "--manifest-path", MANIFEST],
-                cwd=APP,
-                env=environment,
-            )
-            run(
-                [
-                    executable("cargo"),
-                    "clippy",
-                    "--locked",
-                    "--manifest-path",
-                    MANIFEST,
-                    "--all-targets",
-                    "--all-features",
-                    "--",
-                    "-D",
-                    "warnings",
-                ],
-                cwd=APP,
-                env=environment,
-            )
-        elif operation in {"check", "setup"}:
-            run(
-                [executable("cargo"), "check", "--locked", "--manifest-path", MANIFEST],
-                cwd=APP,
-                env=environment,
-            )
-            if operation == "setup":
-                verify(base)
-                save_endpoint(base)
+    _execute_build(operation, environment, base)
 
 
 def main():

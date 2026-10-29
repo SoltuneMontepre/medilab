@@ -14,13 +14,20 @@ import tempfile
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
+CA_KEY = "ca.key"
+SERVER_CERTIFICATE = "server/tls.crt"
+SERVER_KEY = "server/tls.key"
+CA_CERTIFICATE = "public/ca.crt"
+TRUST_BUNDLE = "public/bundle.crt"
+PUBLIC_ROOTS = "public-roots.json"
+
 FILES = (
-    "ca.key",
-    "server/tls.crt",
-    "server/tls.key",
-    "public/ca.crt",
-    "public/bundle.crt",
-    "public-roots.json",
+    CA_KEY,
+    SERVER_CERTIFICATE,
+    SERVER_KEY,
+    CA_CERTIFICATE,
+    TRUST_BUNDLE,
+    PUBLIC_ROOTS,
 )
 DNS_NAMES = {"onlyoffice", "onlyoffice-gateway"}
 CA_DAYS = 3650
@@ -153,7 +160,7 @@ def _generate(destination, identity, roots):
         .sign(ca_key, hashes.SHA256())
     )
     public_ca = ca.public_bytes(serialization.Encoding.PEM)
-    for key, relative in ((ca_key, "ca.key"), (server_key, "server/tls.key")):
+    for key, relative in ((ca_key, CA_KEY), (server_key, SERVER_KEY)):
         _write(
             destination / relative,
             key.private_bytes(
@@ -164,10 +171,11 @@ def _generate(destination, identity, roots):
             private=True,
         )
     _write(
-        destination / "server/tls.crt", server.public_bytes(serialization.Encoding.PEM)
+        destination / SERVER_CERTIFICATE,
+        server.public_bytes(serialization.Encoding.PEM),
     )
-    _write(destination / "public/ca.crt", public_ca)
-    _write(destination / "public/bundle.crt", roots + public_ca)
+    _write(destination / CA_CERTIFICATE, public_ca)
+    _write(destination / TRUST_BUNDLE, roots + public_ca)
     fingerprints = sorted(
         {
             hashlib.sha256(cert.public_bytes(serialization.Encoding.DER)).hexdigest()
@@ -175,7 +183,7 @@ def _generate(destination, identity, roots):
         }
     )
     _write(
-        destination / "public-roots.json",
+        destination / PUBLIC_ROOTS,
         (
             json.dumps(
                 {"format": 1, "identity": identity, "roots": fingerprints},
@@ -210,10 +218,9 @@ def _signature(public_key, certificate):
         raise TypeError("Unsupported CA key")
 
 
-def _validate(directory, identity=None):
-    x509, _hashes, serialization, ec, _padding, rsa, usage, names = _crypto()
+def _validate_files(directory):
     for parent, expected in (
-        (directory, {"ca.key", "server", "public", "public-roots.json"}),
+        (directory, {CA_KEY, "server", "public", PUBLIC_ROOTS}),
         (directory / "server", {"tls.key", "tls.crt"}),
         (directory / "public", {"ca.crt", "bundle.crt"}),
     ):
@@ -225,7 +232,7 @@ def _validate(directory, identity=None):
         path = _state().checked_path(
             directory / relative,
             private=relative.endswith(".key")
-            or relative == "public-roots.json"
+            or relative == PUBLIC_ROOTS
             or os.name == "nt",
         )
         if not path.is_file():
@@ -234,14 +241,10 @@ def _validate(directory, identity=None):
             raise ValueError("TLS material must not be writable by other users")
         if not relative.endswith(".key") and b"PRIVATE KEY" in path.read_bytes():
             raise ValueError("Private material in a public certificate file")
-    ca = x509.load_pem_x509_certificate((directory / "public/ca.crt").read_bytes())
-    server = x509.load_pem_x509_certificate((directory / "server/tls.crt").read_bytes())
-    ca_key = serialization.load_pem_private_key(
-        (directory / "ca.key").read_bytes(), password=None
-    )
-    server_key = serialization.load_pem_private_key(
-        (directory / "server/tls.key").read_bytes(), password=None
-    )
+
+
+def _validate_key_pairs(ca_key, ca, server_key, server):
+    _x509, _hashes, serialization, ec, _padding, rsa, _usage, _names = _crypto()
     encoding, key_format = (
         serialization.Encoding.DER,
         serialization.PublicFormat.SubjectPublicKeyInfo,
@@ -268,6 +271,10 @@ def _validate(directory, identity=None):
             "sha512",
         ):
             raise ValueError("Weak TLS certificate signature")
+
+
+def _validate_certificates(ca, server, identity):
+    x509, _hashes, _serialization, _ec, _padding, _rsa, usage, names = _crypto()
     if ca.issuer != ca.subject or server.issuer != ca.subject:
         raise ValueError("Unexpected certificate issuer")
     ca_identity = ca.subject.get_attributes_for_oid(names.ORGANIZATIONAL_UNIT_NAME)
@@ -302,7 +309,12 @@ def _validate(directory, identity=None):
         raise ValueError("Invalid loopback service address")
     _signature(ca.public_key(), ca)
     _signature(ca.public_key(), server)
-    bundle = (directory / "public/bundle.crt").read_bytes()
+    return ca_identity[0].value
+
+
+def _validate_bundle(directory, ca, certificate_identity):
+    x509, _hashes, serialization, *_rest = _crypto()
+    bundle = (directory / TRUST_BUNDLE).read_bytes()
     if b"PRIVATE KEY" in bundle:
         raise ValueError("Private material in public trust bundle")
     certificates = x509.load_pem_x509_certificates(bundle)
@@ -317,7 +329,7 @@ def _validate(directory, identity=None):
         for cert in certificates
     ):
         raise ValueError("Public trust roots missing from trust bundle")
-    manifest = json.loads((directory / "public-roots.json").read_text(encoding="utf-8"))
+    manifest = json.loads((directory / PUBLIC_ROOTS).read_text(encoding="utf-8"))
     expected_roots = manifest.get("roots") if isinstance(manifest, dict) else None
     if (
         not isinstance(expected_roots, list)
@@ -327,7 +339,7 @@ def _validate(directory, identity=None):
             for value in expected_roots
         )
         or manifest.get("format") != 1
-        or manifest.get("identity") != ca_identity[0].value
+        or manifest.get("identity") != certificate_identity
     ):
         raise ValueError("Invalid public-root provenance")
     actual_roots = {
@@ -337,7 +349,25 @@ def _validate(directory, identity=None):
     }
     if actual_roots != set(expected_roots):
         raise ValueError("The original public trust roots were not retained")
-    ssl.create_default_context(cafile=str(directory / "public/bundle.crt"))
+    ssl.create_default_context(cafile=str(directory / TRUST_BUNDLE))
+
+
+def _validate(directory, identity=None):
+    x509, _hashes, serialization, *_rest = _crypto()
+    _validate_files(directory)
+    ca = x509.load_pem_x509_certificate((directory / CA_CERTIFICATE).read_bytes())
+    server = x509.load_pem_x509_certificate(
+        (directory / SERVER_CERTIFICATE).read_bytes()
+    )
+    ca_key = serialization.load_pem_private_key(
+        (directory / CA_KEY).read_bytes(), password=None
+    )
+    server_key = serialization.load_pem_private_key(
+        (directory / SERVER_KEY).read_bytes(), password=None
+    )
+    _validate_key_pairs(ca_key, ca, server_key, server)
+    certificate_identity = _validate_certificates(ca, server, identity)
+    _validate_bundle(directory, ca, certificate_identity)
 
 
 def verify(directory, *, identity=None):

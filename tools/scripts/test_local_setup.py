@@ -25,6 +25,14 @@ def marker(status="selected"):
 
 
 class LocalSetupTests(unittest.TestCase):
+    def test_compose_version_rejects_unbounded_numeric_components(self):
+        for value in ("9" * 100000, "1." + "9" * 100000, "1.2." + "9" * 100000):
+            with (
+                self.subTest(length=len(value)),
+                self.assertRaises(local_setup.HostError),
+            ):
+                local_setup.check_compose_version(value)
+
     def test_old_docker_server_is_refused_before_selection_or_mutation(self):
         document = {
             "ServerVersion": "27.5.1",
@@ -333,6 +341,7 @@ class LocalSetupTests(unittest.TestCase):
 
     def test_required_component_failure_stops_later_setup_and_retains_exit_status(self):
         calls = []
+        selected = marker()
 
         def invoke(argv, **_kwargs):
             calls.append(argv)
@@ -343,7 +352,7 @@ class LocalSetupTests(unittest.TestCase):
             patch.object(local_setup, "run", side_effect=invoke),
             self.assertRaises(subprocess.CalledProcessError) as error,
         ):
-            local_setup.prepare("fresh", marker(), {}, "all")
+            local_setup.prepare("fresh", selected, {}, "all")
         self.assertEqual(error.exception.returncode, 19)
         self.assertFalse(
             any(argv[-2:] == ["tools/scripts/sync.py", "setup"] for argv in calls)
@@ -351,6 +360,7 @@ class LocalSetupTests(unittest.TestCase):
 
     def test_base_only_backend_failure_prevents_addon_initialization(self):
         calls = []
+        selected = marker()
 
         def invoke(argv, **_kwargs):
             calls.append(argv)
@@ -361,7 +371,7 @@ class LocalSetupTests(unittest.TestCase):
             patch.object(local_setup, "run", side_effect=invoke),
             self.assertRaises(subprocess.CalledProcessError),
         ):
-            local_setup.prepare("fresh", marker(), {}, "all")
+            local_setup.prepare("fresh", selected, {}, "all")
         self.assertFalse(any("tools/scripts/onlyoffice.py" in argv for argv in calls))
 
     def test_completed_fresh_recovery_refreshes_config_without_changing_ownership_or_authenticating(

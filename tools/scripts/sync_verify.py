@@ -75,7 +75,7 @@ def request_json(url, headers=None):
         response = opener.open(request, timeout=15)
     except urllib.error.HTTPError as error:
         response = error
-    except (urllib.error.URLError, TimeoutError, OSError) as error:
+    except OSError as error:
         raise HostError(
             "The selected Odoo API is unreachable. Start the selected stack and check its URL/TLS configuration."
         ) from error
@@ -90,9 +90,19 @@ def request_json(url, headers=None):
             )
         try:
             value = json.loads(body)
-        except (ValueError, UnicodeError) as error:
+        except ValueError as error:
             raise HostError("The selected Odoo API returned invalid JSON.") from error
         return response.status, value, response.headers
+
+
+def _check_ready(value):
+    checks = value.get("checks")
+    if (
+        not isinstance(checks, dict)
+        or not checks
+        or any(result != "pass" for result in checks.values())
+    ):
+        raise HostError("The Laboratory files API readiness checks did not all pass.")
 
 
 def verify(base, request=request_json):
@@ -108,15 +118,7 @@ def verify(base, request=request_json):
                 f"The Laboratory files API /{suffix} check failed. Install/configure sol_laboratory in the selected database."
             )
         if suffix == "ready":
-            checks = value.get("checks")
-            if (
-                not isinstance(checks, dict)
-                or not checks
-                or any(result != "pass" for result in checks.values())
-            ):
-                raise HostError(
-                    "The Laboratory files API readiness checks did not all pass."
-                )
+            _check_ready(value)
     for headers in ({}, {"Authorization": "Bearer medilab-setup-invalid-probe"}):
         status, value, response_headers = request(
             f"{base}/medilab/api/v1/devices", headers

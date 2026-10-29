@@ -3,6 +3,10 @@
 import demo_bootstrap as bootstrap
 from onlyoffice_state import SERVICES, OnlyofficeError
 
+INVALID_BINDINGS = (
+    "The owned publisher binding metadata is invalid; no container was changed."
+)
+
 
 def remove_containers(controller, state):
     peers = controller.owned_containers(state)
@@ -22,16 +26,12 @@ def _bindings(peer, section, key):
     if metadata is None:
         metadata = {}
     if not isinstance(metadata, dict):
-        raise OnlyofficeError(
-            "The owned publisher binding metadata is invalid; no container was changed."
-        )
+        raise OnlyofficeError(INVALID_BINDINGS)
     mapping = metadata.get(key)
     if mapping is None:
         mapping = {}
     if not isinstance(mapping, dict):
-        raise OnlyofficeError(
-            "The owned publisher binding metadata is invalid; no container was changed."
-        )
+        raise OnlyofficeError(INVALID_BINDINGS)
     result = {}
     for port, values in mapping.items():
         if values is None or values == []:
@@ -46,9 +46,7 @@ def _bindings(peer, section, key):
                 for value in values
             )
         ):
-            raise OnlyofficeError(
-                "The owned publisher binding metadata is invalid; no container was changed."
-            )
+            raise OnlyofficeError(INVALID_BINDINGS)
         result[port] = values
     return result
 
@@ -60,8 +58,7 @@ def _effective_matches(peer, actual, expected):
     return actual == expected or (not running and not actual)
 
 
-def handoff_public_port(controller, state, marker, environment):
-    peers = controller.owned_containers(state)
+def _selected_publishers(peers):
     selected = {}
     for service in SERVICES:
         matches = [
@@ -76,6 +73,57 @@ def handoff_public_port(controller, state, marker, environment):
             )
         if matches:
             selected[service] = matches[0]
+    return selected
+
+
+def _adapter_bindings(service, peer, server, actual_effective, effective):
+    if service == "onlyoffice-adapter" and actual_effective:
+        # Podman reports the server's effective publication on its namespace-sharing adapter.
+        if (
+            not server
+            or peer.get("HostConfig", {}).get("NetworkMode")
+            != "container:" + server["Id"]
+            or actual_effective != effective
+        ):
+            raise OnlyofficeError(
+                "The owned adapter has an unexpected public binding; no publisher was migrated."
+            )
+        actual_effective = {}
+    return actual_effective
+
+
+def _check_proxies(selected, server, effective, expected, legacy):
+    for service in ("onlyoffice-adapter", "onlyoffice-gateway"):
+        peer = selected.get(service)
+        if not peer:
+            continue
+        wanted = {} if service == "onlyoffice-adapter" or legacy else expected
+        actual_requested = _bindings(peer, "HostConfig", "PortBindings")
+        actual_effective = _bindings(peer, "NetworkSettings", "Ports")
+        actual_effective = _adapter_bindings(
+            service, peer, server, actual_effective, effective
+        )
+        stopped_old_gateway = (
+            service == "onlyoffice-gateway"
+            and not legacy
+            and not actual_requested
+            and not actual_effective
+            and not peer.get("State", {}).get(
+                "Running", peer.get("State", {}).get("Status") == "running"
+            )
+        )
+        if (
+            actual_requested != wanted
+            or not _effective_matches(peer, actual_effective, wanted)
+        ) and not stopped_old_gateway:
+            raise OnlyofficeError(
+                "The owned proxy has an unexpected public binding; no publisher was migrated."
+            )
+
+
+def handoff_public_port(controller, state, marker, environment):
+    peers = controller.owned_containers(state)
+    selected = _selected_publishers(peers)
     if not selected:
         return
     expected = {
@@ -96,41 +144,7 @@ def handoff_public_port(controller, state, marker, environment):
         raise OnlyofficeError(
             "The owned editor has an unexpected public binding; no publisher was migrated."
         )
-    for service in ("onlyoffice-adapter", "onlyoffice-gateway"):
-        peer = selected.get(service)
-        if not peer:
-            continue
-        wanted = {} if service == "onlyoffice-adapter" or legacy else expected
-        actual_requested = _bindings(peer, "HostConfig", "PortBindings")
-        actual_effective = _bindings(peer, "NetworkSettings", "Ports")
-        if service == "onlyoffice-adapter" and actual_effective:
-            # Podman reports the server's effective publication on its namespace-sharing adapter.
-            if (
-                not server
-                or peer.get("HostConfig", {}).get("NetworkMode")
-                != "container:" + server["Id"]
-                or actual_effective != effective
-            ):
-                raise OnlyofficeError(
-                    "The owned adapter has an unexpected public binding; no publisher was migrated."
-                )
-            actual_effective = {}
-        stopped_old_gateway = (
-            service == "onlyoffice-gateway"
-            and not legacy
-            and not actual_requested
-            and not actual_effective
-            and not peer.get("State", {}).get(
-                "Running", peer.get("State", {}).get("Status") == "running"
-            )
-        )
-        if (
-            actual_requested != wanted
-            or not _effective_matches(peer, actual_effective, wanted)
-        ) and not stopped_old_gateway:
-            raise OnlyofficeError(
-                "The owned proxy has an unexpected public binding; no publisher was migrated."
-            )
+    _check_proxies(selected, server, effective, expected, legacy)
     if legacy:
         controller.stop(state, marker, environment)
         remove_containers(controller, state)

@@ -125,7 +125,7 @@ def check_engine_transport(document):
 
 
 def check_compose_version(version):
-    match = re.search(r"(?<!\d)(\d+)\.(\d+)\.(\d+)", version)
+    match = re.search(r"(?<!\d)(\d{1,10})\.(\d{1,10})\.(\d{1,10})(?!\d)", version)
     if not match or tuple(map(int, match.groups())) < (2, 24, 4):
         raise HostError(
             "A Compose provider supporting !override (Docker Compose 2.24.4 or newer) is required. Configure the local Podman Compose provider if applicable."
@@ -300,7 +300,7 @@ def prepare(mode, marker, environment, modules):
 def setup():
     modules = os.environ.get("MEDILAB_SETUP_MODULES", "all")
     if modules != "all" and not re.fullmatch(
-        r"[a-zA-Z0-9_]+(?:[, ][a-zA-Z0-9_]+)*", modules
+        r"\w+(?:[, ]\w+)*", modules, flags=re.ASCII
     ):
         raise HostError("MODULES must contain comma- or space-separated module names.")
     doctor()

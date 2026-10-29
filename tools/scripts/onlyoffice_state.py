@@ -1,6 +1,5 @@
 """Owned local ONLYOFFICE state; importing this module never creates files or starts services."""
 
-import base64
 import hashlib
 import hmac
 import json
@@ -11,6 +10,18 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+
+import local_private_paths
+from local_private_paths import (
+    LocalPrivatePathError,
+    guard_local_path,
+    windows_private_acl,
+)
+
+WINDOWS_ACL = local_private_paths.WINDOWS_ACL
+JWT_PATTERN = r"[A-Za-z0-9_-]{32,}"
+CA_CERTIFICATE = "tls/public/ca.crt"
+SERVER_CERTIFICATE = "tls/server/tls.crt"
 
 ROOT = Path(__file__).resolve().parents[2]
 DIRECTORY = ROOT / ".local/onlyoffice"
@@ -35,59 +46,14 @@ INPUT_KEYS = (
     "ONLYOFFICE_PORT",
 )
 
-WINDOWS_ACL = r"""
-$ErrorActionPreference='Stop'
-Import-Module -Name (Join-Path $PSHOME 'Modules\Microsoft.PowerShell.Security\Microsoft.PowerShell.Security.psd1') -ErrorAction Stop
-$p=$env:MEDILAB_ONLYOFFICE_ACL_PATH
-$u=[Security.Principal.WindowsIdentity]::GetCurrent().User
-if($env:MEDILAB_ONLYOFFICE_ACL_PROTECT -eq '1') {
-  if(Test-Path -LiteralPath $p -PathType Container) {
-    $a=New-Object Security.AccessControl.DirectorySecurity
-    $flags=[Security.AccessControl.InheritanceFlags]'ContainerInherit,ObjectInherit'
-  } else {
-    $a=New-Object Security.AccessControl.FileSecurity
-    $flags=[Security.AccessControl.InheritanceFlags]::None
-  }
-  $a.SetOwner($u)
-  $a.SetAccessRuleProtection($true,$false)
-  foreach($sid in @($u.Value,'S-1-5-18')) {
-    $identity=New-Object Security.Principal.SecurityIdentifier($sid)
-    $rule=New-Object Security.AccessControl.FileSystemAccessRule($identity,'FullControl',$flags,'None','Allow')
-    $a.AddAccessRule($rule)
-  }
-  Set-Acl -LiteralPath $p -AclObject $a
-}
-$a=Get-Acl -LiteralPath $p
-if(-not $a.AreAccessRulesProtected){exit 1}
-if($a.GetOwner([Security.Principal.SecurityIdentifier]).Value -ne $u.Value){exit 1}
-foreach($rule in $a.GetAccessRules($true,$true,[Security.Principal.SecurityIdentifier])) {
-  if($rule.AccessControlType -eq 'Allow' -and $rule.IdentityReference.Value -notin @($u.Value,'S-1-5-18')) {exit 1}
-}
-"""
-
 
 def windows_acl(path, *, create=False):
-    environment = dict(
-        os.environ,
-        MEDILAB_ONLYOFFICE_ACL_PATH=str(path),
-        MEDILAB_ONLYOFFICE_ACL_PROTECT="1" if create else "0",
-    )
-    result = subprocess.run(
-        [
-            "powershell.exe",
-            "-NoProfile",
-            "-NonInteractive",
-            "-EncodedCommand",
-            base64.b64encode(WINDOWS_ACL.encode("utf-16-le")).decode("ascii"),
-        ],
-        env=environment,
-        capture_output=True,
-        check=False,
-    )
-    if result.returncode:
+    try:
+        windows_private_acl(path, create=create, invoke=subprocess.run)
+    except LocalPrivatePathError:
         raise OnlyofficeError(
             "ONLYOFFICE private material requires a protected current-user/SYSTEM-only Windows ACL."
-        )
+        ) from None
 
 
 class OnlyofficeError(RuntimeError):
@@ -95,7 +61,7 @@ class OnlyofficeError(RuntimeError):
 
 
 def validated_port(value):
-    if isinstance(value, str) and re.fullmatch(r"[0-9]+", value):
+    if isinstance(value, str) and re.fullmatch(r"\d+", value, flags=re.ASCII):
         digits = value.lstrip("0") or "0"
         number = int(digits) if len(digits) <= 5 else 0
     elif isinstance(value, int) and not isinstance(value, bool):
@@ -121,10 +87,13 @@ def dotenv_value(raw):
                 "The explicit ONLYOFFICE configuration has invalid dotenv quoting; no value was replaced."
             )
         return value[1:end]
-    return re.split(r"\s+#", value, maxsplit=1)[0].rstrip()
+    for index, character in enumerate(value):
+        if character == "#" and index and value[index - 1].isspace():
+            return value[:index].rstrip()
+    return value.rstrip()
 
 
-def configuration_inputs(environment, *, fresh=False):
+def _configuration_sources(environment, fresh):
     sources = [dict(environment)]
     if not fresh:
         for file in (ROOT / "src/core/.env.local", ROOT / "tools/infrastructure/.env"):
@@ -135,6 +104,24 @@ def configuration_inputs(environment, *, fresh=False):
                 key, separator, value = assignment.partition("=")
                 if separator and key.strip() in INPUT_KEYS:
                     sources.append({key.strip(): dotenv_value(value)})
+    return sources
+
+
+def _validate_input(key, value, result):
+    if not isinstance(value, str) or (
+        key == "ONLYOFFICE_JWT_SECRET" and not re.fullmatch(JWT_PATTERN, value)
+    ):
+        raise OnlyofficeError(
+            "The explicit ONLYOFFICE JWT configuration is invalid; it will not be replaced with a generated secret."
+        )
+    if key in result and not hmac.compare_digest(result[key].encode(), value.encode()):
+        raise OnlyofficeError(
+            "Explicit ONLYOFFICE configuration sources conflict; no value was selected or replaced."
+        )
+
+
+def configuration_inputs(environment, *, fresh=False):
+    sources = _configuration_sources(environment, fresh)
     result = {}
     for source in sources:
         for key in INPUT_KEYS:
@@ -143,19 +130,7 @@ def configuration_inputs(environment, *, fresh=False):
             value = source[key]
             if key != "ONLYOFFICE_JWT_SECRET" and value == "":
                 continue
-            if not isinstance(value, str) or (
-                key == "ONLYOFFICE_JWT_SECRET"
-                and not re.fullmatch(r"[A-Za-z0-9_-]{32,}", value)
-            ):
-                raise OnlyofficeError(
-                    "The explicit ONLYOFFICE JWT configuration is invalid; it will not be replaced with a generated secret."
-                )
-            if key in result and not hmac.compare_digest(
-                result[key].encode(), value.encode()
-            ):
-                raise OnlyofficeError(
-                    "Explicit ONLYOFFICE configuration sources conflict; no value was selected or replaced."
-                )
+            _validate_input(key, value, result)
             result[key] = value
     return result
 
@@ -173,7 +148,7 @@ def expected_configuration(state):
     file = checked_path(directory / "jwt", private=True)
     if file.exists():
         value = file.read_text(encoding="ascii").strip()
-        if not re.fullmatch(r"[A-Za-z0-9_-]{32,}", value):
+        if not re.fullmatch(JWT_PATTERN, value):
             raise OnlyofficeError(
                 "The owned JWT identity is invalid; automatic replacement is refused."
             )
@@ -238,6 +213,15 @@ def verify_registration(state, marker, persisted):
 
 def checked_path(path, *, private=False):
     path = Path(path)
+    try:
+        path.relative_to(ROOT / ".local")
+    except ValueError:
+        pass
+    else:
+        try:
+            guard_local_path(ROOT, path)
+        except LocalPrivatePathError as error:
+            raise OnlyofficeError(str(error)) from None
     for item in (path, *path.parents):
         if item.is_symlink() or (hasattr(item, "is_junction") and item.is_junction()):
             raise OnlyofficeError(
@@ -273,8 +257,8 @@ def atomic_json(path, value):
             output.write("\n")
             output.flush()
             os.fsync(output.fileno())
+        protect(Path(temporary))
         Path(temporary).replace(path)
-        protect(path)
     finally:
         Path(temporary).unlink(missing_ok=True)
 
@@ -288,6 +272,26 @@ def state_directory(project, base_owner=None):
         else "ordinary"
     )
     return checked_path(DIRECTORY / project / generation)
+
+
+def _validate_state_metadata(value, status, error):
+    if "provider" in value or status == "completed":
+        provider = value.get("provider")
+        if not isinstance(provider, str) or provider not in {"docker", "podman"}:
+            raise OnlyofficeError(error)
+    if "registered" in value and type(value["registered"]) is not bool:
+        raise OnlyofficeError(error)
+    if "material" in value:
+        material = value["material"]
+        if (
+            not isinstance(material, dict)
+            or set(material) != {"jwt", CA_CERTIFICATE, SERVER_CERTIFICATE}
+            or any(
+                not isinstance(digest, str) or not re.fullmatch(r"[a-f0-9]{64}", digest)
+                for digest in material.values()
+            )
+        ):
+            raise OnlyofficeError(error)
 
 
 def _validate_state(value):
@@ -322,23 +326,7 @@ def _validate_state(value):
     for key, kind in zip(VOLUME_KEYS, ("lib", "data", "fonts"), strict=True):
         if config[key] != f"{value.get('project')}_onlyoffice_{kind}_{owner[:12]}":
             raise OnlyofficeError(error)
-    if "provider" in value or status == "completed":
-        provider = value.get("provider")
-        if not isinstance(provider, str) or provider not in {"docker", "podman"}:
-            raise OnlyofficeError(error)
-    if "registered" in value and type(value["registered"]) is not bool:
-        raise OnlyofficeError(error)
-    if "material" in value:
-        material = value["material"]
-        if (
-            not isinstance(material, dict)
-            or set(material) != {"jwt", "tls/public/ca.crt", "tls/server/tls.crt"}
-            or any(
-                not isinstance(digest, str) or not re.fullmatch(r"[a-f0-9]{64}", digest)
-                for digest in material.values()
-            )
-        ):
-            raise OnlyofficeError(error)
+    _validate_state_metadata(value, status, error)
 
 
 def read_state(project, marker=None, engine=None):
@@ -378,7 +366,7 @@ def material_fingerprints(directory):
         name: hashlib.sha256(
             checked_path(directory / name, private=name == "jwt").read_bytes()
         ).hexdigest()
-        for name in ("jwt", "tls/public/ca.crt", "tls/server/tls.crt")
+        for name in ("jwt", CA_CERTIFICATE, SERVER_CERTIFICATE)
     }
 
 
@@ -387,7 +375,7 @@ def runtime_environment(state, environment):
     checked_path(directory / "jwt", private=True)
     checked_path(directory / "tls/ca.key", private=True)
     secret = (directory / "jwt").read_text(encoding="ascii").strip()
-    if not re.fullmatch(r"[A-Za-z0-9_-]{32,}", secret):
+    if not re.fullmatch(JWT_PATTERN, secret):
         raise OnlyofficeError(
             "The saved ONLYOFFICE JWT identity is invalid; it will not be replaced."
         )
@@ -402,9 +390,9 @@ def runtime_environment(state, environment):
             "The saved ONLYOFFICE secret or certificate identity changed; it will not be silently rotated."
         )
     for relative in (
-        "tls/server/tls.crt",
+        SERVER_CERTIFICATE,
         "tls/server/tls.key",
-        "tls/public/ca.crt",
+        CA_CERTIFICATE,
         "tls/public/bundle.crt",
         "runtime.json",
     ):
@@ -461,6 +449,46 @@ def assert_network_policy(network, provider):
         )
 
 
+def _configured_addon(state, marker, environment, project):
+    from demo_bootstrap import (
+        _assert_local_engine,
+        _labels,
+        _read_compose_env,
+        _resources,
+    )
+
+    verify_registration(state, marker, _read_compose_env())
+    if state.get("engine") != _assert_local_engine():
+        raise OnlyofficeError("The ONLYOFFICE engine has changed.")
+    resources = _resources(project)
+    volumes = {
+        item.get("Name") or item.get("name"): item for item in resources["volumes"]
+    }
+    for name in optional_volume_names(state["config"]):
+        if (
+            name not in volumes
+            or _labels(volumes[name], "volumes").get(OWNER_LABEL) != state["owner"]
+        ):
+            raise OnlyofficeError(
+                "Owned ONLYOFFICE persistent storage is missing or foreign."
+            )
+    networks = [
+        item
+        for item in resources["networks"]
+        if (item.get("Name") or item.get("name")) == project + "_onlyoffice"
+    ]
+    if (
+        len(networks) != 1
+        or _labels(networks[0], "networks").get(OWNER_LABEL) != state["owner"]
+        or not networks[0].get("Internal", networks[0].get("internal", False))
+    ):
+        raise OnlyofficeError(
+            "The owned internal editor network is missing; use onlyoffice:up to restore its policy."
+        )
+    assert_network_policy(networks[0], state.get("provider"))
+    return runtime_environment(state, environment)
+
+
 def resolve_addon(project, marker, environment, operation):
     try:
         state = read_state(project, marker)
@@ -481,43 +509,7 @@ def resolve_addon(project, marker, environment, operation):
         )
         return [], {}
     try:
-        from demo_bootstrap import (
-            _assert_local_engine,
-            _labels,
-            _read_compose_env,
-            _resources,
-        )
-
-        verify_registration(state, marker, _read_compose_env())
-        if state.get("engine") != _assert_local_engine():
-            raise OnlyofficeError("The ONLYOFFICE engine has changed.")
-        resources = _resources(project)
-        volumes = {
-            item.get("Name") or item.get("name"): item for item in resources["volumes"]
-        }
-        for name in optional_volume_names(state["config"]):
-            if (
-                name not in volumes
-                or _labels(volumes[name], "volumes").get(OWNER_LABEL) != state["owner"]
-            ):
-                raise OnlyofficeError(
-                    "Owned ONLYOFFICE persistent storage is missing or foreign."
-                )
-        networks = [
-            item
-            for item in resources["networks"]
-            if (item.get("Name") or item.get("name")) == project + "_onlyoffice"
-        ]
-        if (
-            len(networks) != 1
-            or _labels(networks[0], "networks").get(OWNER_LABEL) != state["owner"]
-            or not networks[0].get("Internal", networks[0].get("internal", False))
-        ):
-            raise OnlyofficeError(
-                "The owned internal editor network is missing; use onlyoffice:up to restore its policy."
-            )
-        assert_network_policy(networks[0], state.get("provider"))
-        configured = runtime_environment(state, environment)
+        configured = _configured_addon(state, marker, environment, project)
     except (OnlyofficeError, OSError):
         if operation not in {
             "up",
