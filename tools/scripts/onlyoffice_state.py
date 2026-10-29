@@ -94,6 +94,21 @@ class OnlyofficeError(RuntimeError):
     pass
 
 
+def validated_port(value):
+    if isinstance(value, str) and re.fullmatch(r"[0-9]+", value):
+        digits = value.lstrip("0") or "0"
+        number = int(digits) if len(digits) <= 5 else 0
+    elif isinstance(value, int) and not isinstance(value, bool):
+        number = int(value)
+    else:
+        number = 0
+    if not 1 <= number <= 65535:
+        raise OnlyofficeError(
+            "The saved ONLYOFFICE port is invalid; no resources were changed."
+        )
+    return number
+
+
 def dotenv_value(raw):
     value = raw.strip()
     if value.startswith(("'", '"')):
@@ -179,12 +194,17 @@ def assert_configuration_matches(provided, expected):
         if key in {"ONLYOFFICE_TLS_DIR", "ONLYOFFICE_CA_DIR"}:
             matches = (
                 key in expected
-                and checked_path(Path(value)).resolve()
-                == checked_path(Path(expected[key])).resolve()
+                and isinstance(value, str)
+                and os.path.normcase(os.path.abspath(value))
+                == os.path.normcase(os.path.abspath(expected[key]))
             )
+            if matches:
+                checked_path(Path(expected[key]))
         else:
-            matches = key in expected and hmac.compare_digest(
-                value.encode(), expected[key].encode()
+            matches = (
+                key in expected
+                and isinstance(value, str)
+                and hmac.compare_digest(value.encode(), expected[key].encode())
             )
         if not matches:
             raise OnlyofficeError(
@@ -270,6 +290,57 @@ def state_directory(project, base_owner=None):
     return checked_path(DIRECTORY / project / generation)
 
 
+def _validate_state(value):
+    error = "The owned ONLYOFFICE state is invalid; no resources were changed."
+    if (
+        not isinstance(value, dict)
+        or type(value.get("format")) is not int
+        or value["format"] != 1
+    ):
+        raise OnlyofficeError(error)
+    owner = value.get("owner")
+    config = value.get("config")
+    status = value.get("status")
+    if (
+        not isinstance(owner, str)
+        or not re.fullmatch(r"[a-f0-9]{32}", owner)
+        or not isinstance(config, dict)
+        or set(config) != set(CONFIG_KEYS)
+        or not isinstance(status, str)
+        or status not in {"preparing", "completed"}
+        or not isinstance(value.get("engine"), str)
+        or not value["engine"]
+    ):
+        raise OnlyofficeError(error)
+    if (
+        not isinstance(config["MEDILAB_ONLYOFFICE_PORT"], str)
+        or type(value.get("http_port")) is not int
+    ):
+        raise OnlyofficeError(error)
+    validated_port(config["MEDILAB_ONLYOFFICE_PORT"])
+    validated_port(value["http_port"])
+    for key, kind in zip(VOLUME_KEYS, ("lib", "data", "fonts"), strict=True):
+        if config[key] != f"{value.get('project')}_onlyoffice_{kind}_{owner[:12]}":
+            raise OnlyofficeError(error)
+    if "provider" in value or status == "completed":
+        provider = value.get("provider")
+        if not isinstance(provider, str) or provider not in {"docker", "podman"}:
+            raise OnlyofficeError(error)
+    if "registered" in value and type(value["registered"]) is not bool:
+        raise OnlyofficeError(error)
+    if "material" in value:
+        material = value["material"]
+        if (
+            not isinstance(material, dict)
+            or set(material) != {"jwt", "tls/public/ca.crt", "tls/server/tls.crt"}
+            or any(
+                not isinstance(digest, str) or not re.fullmatch(r"[a-f0-9]{64}", digest)
+                for digest in material.values()
+            )
+        ):
+            raise OnlyofficeError(error)
+
+
 def read_state(project, marker=None, engine=None):
     directory = state_directory(project, (marker or {}).get("owner"))
     file = checked_path(directory / "state.json", private=True)
@@ -282,6 +353,7 @@ def read_state(project, marker=None, engine=None):
         raise OnlyofficeError(
             "Cannot read the owned ONLYOFFICE state; no resources were changed."
         ) from error
+    _validate_state(value)
     if (
         value.get("format") != 1
         or value.get("project") != project
@@ -298,9 +370,6 @@ def read_state(project, marker=None, engine=None):
         raise OnlyofficeError(
             "The selected engine differs from the owned ONLYOFFICE engine."
         )
-    optional_volume_names(value.get("config", {}))
-    if not re.fullmatch(r"[a-f0-9]{32}", value.get("owner", "")):
-        raise OnlyofficeError("The ONLYOFFICE owner identity is invalid.")
     return value
 
 

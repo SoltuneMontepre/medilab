@@ -29,6 +29,174 @@ class OnlyofficeStateTest(unittest.TestCase):
             item.start()
             self.addCleanup(item.stop)
 
+    def generated_state(self):
+        with (
+            patch.object(onlyoffice, "ROOT", self.root),
+            patch.object(onlyoffice.bootstrap, "_published_ports", return_value=set()),
+            patch.object(onlyoffice.bootstrap, "_read_compose_env", return_value={}),
+            patch.object(onlyoffice, "port_available", return_value=True),
+        ):
+            return onlyoffice.new_state("medilab-test", None, "local")
+
+    def test_validated_port_accepts_decimal_boundaries_without_coercing_other_types(
+        self,
+    ):
+        for value, expected in (
+            ("1", 1),
+            ("65535", 65535),
+            (1, 1),
+            (65535, 65535),
+            ("00080", 80),
+        ):
+            with self.subTest(value=value):
+                self.assertEqual(state.validated_port(value), expected)
+        for value in (
+            True,
+            False,
+            None,
+            [],
+            {},
+            1.0,
+            0,
+            65536,
+            -1,
+            "",
+            "0",
+            "65536",
+            "80@external.invalid",
+            "+80",
+            " 80",
+            "８０",
+            "8\n0",
+            "9" * 5000,
+        ):
+            with (
+                self.subTest(value_type=type(value).__name__),
+                self.assertRaises(state.OnlyofficeError),
+            ):
+                state.validated_port(value)
+
+    def test_state_loader_accepts_actual_generator_lifecycle_and_preserves_bytes(self):
+        addon = self.generated_state()
+        directory = state.state_directory(addon["project"])
+        directory.mkdir(parents=True, mode=0o700)
+        for changes in (
+            {},
+            {"provider": "podman", "registered": True},
+            {
+                "provider": "podman",
+                "registered": True,
+                "status": "completed",
+                "material": {
+                    name: "a" * 64
+                    for name in ("jwt", "tls/public/ca.crt", "tls/server/tls.crt")
+                },
+            },
+        ):
+            with self.subTest(status=changes.get("status", "preparing")):
+                current = {**addon, **changes}
+                file = directory / "state.json"
+                state.atomic_json(file, current)
+                original = file.read_bytes(), file.stat().st_mtime_ns
+                self.assertEqual(
+                    state.read_state(addon["project"], engine="local"), current
+                )
+                self.assertEqual((file.read_bytes(), file.stat().st_mtime_ns), original)
+
+    def test_malformed_owned_state_is_rejected_before_engine_or_state_mutation_and_can_be_restored(
+        self,
+    ):
+        addon = self.generated_state()
+        directory = state.state_directory(addon["project"])
+        directory.mkdir(parents=True, mode=0o700)
+        file = directory / "state.json"
+        broken = [
+            None,
+            [],
+            {**addon, "format": True},
+            {**addon, "config": []},
+            {**addon, "config": {}},
+            {
+                **addon,
+                "config": {**addon["config"], "DOCKER_HOST": "ssh://external.invalid"},
+            },
+            {**addon, "owner": 123},
+            {**addon, "status": []},
+            {**addon, "status": "unknown"},
+            {**addon, "provider": "unknown"},
+            {**addon, "status": "completed"},
+            {**addon, "registered": "true"},
+            {**addon, "material": []},
+            {**addon, "material": {"jwt": "a" * 64}},
+        ]
+        for value in (
+            "--driver=untrusted",
+            "../other-volume",
+            "volume\nextra",
+            "another-owner-volume",
+        ):
+            broken.append(
+                {**addon, "config": {**addon["config"], state.VOLUME_KEYS[0]: value}}
+            )
+        for value in (True, 29843, "80@external.invalid", "65536", "８０"):
+            broken.append(
+                {
+                    **addon,
+                    "config": {**addon["config"], "MEDILAB_ONLYOFFICE_PORT": value},
+                }
+            )
+        for value in (True, "18080", 0, 65536):
+            broken.append({**addon, "http_port": value})
+        for index, value in enumerate(broken):
+            with self.subTest(case=index):
+                state.atomic_json(file, value)
+                original = file.read_bytes(), file.stat().st_mtime_ns
+                with (
+                    patch.object(
+                        onlyoffice,
+                        "selection",
+                        return_value=(addon["project"], None, "local", {}),
+                    ),
+                    patch.object(onlyoffice.bootstrap, "_resources") as resources,
+                    patch.object(onlyoffice, "run") as run,
+                    patch.object(onlyoffice, "save") as save,
+                    self.assertRaises(state.OnlyofficeError),
+                ):
+                    onlyoffice.setup()
+                resources.assert_not_called()
+                run.assert_not_called()
+                save.assert_not_called()
+                self.assertEqual((file.read_bytes(), file.stat().st_mtime_ns), original)
+                state.atomic_json(file, addon)
+                self.assertEqual(
+                    state.read_state(addon["project"], engine="local"), addon
+                )
+
+    def test_foreign_configured_paths_are_rejected_without_filesystem_probes(self):
+        for key in ("ONLYOFFICE_TLS_DIR", "ONLYOFFICE_CA_DIR"):
+            with (
+                self.subTest(key=key),
+                patch.object(
+                    state,
+                    "checked_path",
+                    side_effect=AssertionError("Foreign path must not be inspected"),
+                ) as checked,
+                self.assertRaises(state.OnlyofficeError),
+            ):
+                state.assert_configuration_matches(
+                    {key: str(self.root / "foreign")}, {key: str(self.root / "owned")}
+                )
+            checked.assert_not_called()
+
+    def test_equivalent_lexical_paths_probe_only_the_expected_owned_path(self):
+        expected = self.root / "owned/tls/server"
+        with patch.object(state, "checked_path", return_value=expected) as checked:
+            state.assert_configuration_matches(
+                {"ONLYOFFICE_TLS_DIR": str(self.root / "owned/tls/unused/../server")},
+                {"ONLYOFFICE_TLS_DIR": str(expected)},
+            )
+        checked.assert_called_once_with(expected)
+
     def test_optional_identity_is_all_or_none_and_old_four_volume_config_survives(self):
         self.assertEqual(
             state.optional_volume_names({"MEDILAB_DB_VOLUME": "db"}), set()
@@ -1003,7 +1171,13 @@ class OnlyofficeStateTest(unittest.TestCase):
                 patch.object(onlyoffice, "port_available", return_value=True),
                 patch("onlyoffice_tls.prepare", side_effect=prepare),
                 patch("onlyoffice_tls.verify"),
-                patch.object(onlyoffice, "create_resources"),
+                patch.object(
+                    onlyoffice,
+                    "create_resources",
+                    side_effect=lambda addon, **_kwargs: addon.setdefault(
+                        "provider", "podman"
+                    ),
+                ),
                 patch.object(onlyoffice, "resources"),
                 patch.object(onlyoffice, "verify_network"),
                 patch.object(onlyoffice, "verify_runtime"),
