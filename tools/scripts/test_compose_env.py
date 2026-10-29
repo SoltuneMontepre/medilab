@@ -103,6 +103,17 @@ class TestComposeEnv(unittest.TestCase):
                 "fixture",
             )
             git("worktree", "add", "--quiet", "--detach", str(linked))
+            linked = linked.resolve()
+            top = subprocess.run(
+                ["git", "rev-parse", "--show-toplevel"],
+                cwd=linked,
+                env=environment,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                check=True,
+            )
+            self.assertEqual(Path(top.stdout.rstrip("\r\n")).resolve(), linked)
             with (
                 patch.dict(os.environ, environment, clear=True),
                 contextlib.chdir(linked),
@@ -116,7 +127,14 @@ class TestComposeEnv(unittest.TestCase):
                     worktree_paths(linked), [primary.resolve(), linked.resolve()]
                 )
                 expected = compose_project_name(linked, [primary, linked])
-                self.assertEqual(project_name(), expected)
+                try:
+                    actual = project_name()
+                except ValueError as error:
+                    self.fail(
+                        f"{error}; git root={top.stdout!r}; fixture={str(linked)!r}; "
+                        f"local directory exists={(linked / '.local').exists()}"
+                    )
+                self.assertEqual(actual, expected)
             environment.pop("PYTHONUTF8", None)
             environment["PYTHONIOENCODING"] = "ascii"
             environment["UV_PYTHON"] = sys.executable
