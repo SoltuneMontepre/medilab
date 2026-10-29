@@ -127,14 +127,7 @@ class TestComposeEnv(unittest.TestCase):
                     worktree_paths(linked), [primary.resolve(), linked.resolve()]
                 )
                 expected = compose_project_name(linked, [primary, linked])
-                try:
-                    actual = project_name()
-                except ValueError as error:
-                    self.fail(
-                        f"{error}; git root={top.stdout!r}; fixture={str(linked)!r}; "
-                        f"local directory exists={(linked / '.local').exists()}"
-                    )
-                self.assertEqual(actual, expected)
+                self.assertEqual(project_name(), expected)
             environment.pop("PYTHONUTF8", None)
             environment["PYTHONIOENCODING"] = "ascii"
             environment["UV_PYTHON"] = sys.executable
