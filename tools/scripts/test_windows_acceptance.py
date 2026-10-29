@@ -20,13 +20,10 @@ class HostIdentityTests(unittest.TestCase):
     def identity(self, metadata, shell="7.4.6"):
         with (
             patch.object(host.platform, "system", return_value="Windows"),
-            patch.object(host, "executable", return_value="powershell.exe"),
-            patch.object(
-                host, "run", return_value=Mock(stdout=json.dumps(metadata))
-            ) as invoke,
+            patch.object(host, "_native_metadata", return_value=metadata) as read,
         ):
             result = host.host_identity(shell)
-            self.assertIn("-NoProfile", invoke.call_args.args[0])
+            read.assert_called_once_with()
             return result
 
     def test_server_build_is_not_windows11(self):
@@ -73,19 +70,23 @@ class HostIdentityTests(unittest.TestCase):
             self.assertFalse(host.host_identity("")["windows11"])
             invoke.assert_not_called()
 
+    def test_client_build_identifies_windows11_with_a_legacy_registry_caption(self):
+        self.assertTrue(
+            self.identity(
+                {
+                    "caption": "Windows 10 Pro",
+                    "build": 26100,
+                    "product_type": 1,
+                }
+            )["windows11"]
+        )
+
 
 class AcceptanceTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory(prefix="Windows kiểm tra ")
         self.addCleanup(self.temporary.cleanup)
         self.root = Path(self.temporary.name).resolve()
-
-    def private_directory(self):
-        from local_private_paths import ensure_local_directory
-
-        return ensure_local_directory(
-            self.root, self.root / ".local/windows-acceptance/test"
-        )
 
     def test_default_doctor_never_creates_files_or_claims_acceptance(self):
         before = list(self.root.rglob("*"))
@@ -431,6 +432,7 @@ class AcceptanceTests(unittest.TestCase):
         process = Mock(pid=123)
         process.wait.side_effect = [subprocess.TimeoutExpired("task", 5400), 0]
         process.poll.return_value = None
+        stream = io.BytesIO()
         with (
             patch.object(
                 acceptance, "process_arguments", return_value=[sys.executable]
@@ -442,7 +444,7 @@ class AcceptanceTests(unittest.TestCase):
             self.assertRaises(acceptance.AcceptanceError),
         ):
             acceptance.run_stage(
-                ("task", "setup"), root=self.root, environment={}, stream=io.BytesIO()
+                ("task", "setup"), root=self.root, environment={}, stream=stream
             )
         if os.name != "nt":
             process.kill.assert_called_once()
@@ -464,6 +466,7 @@ function Get-Command {
  [pscustomobject]@{Source=$env:TEST_PYTHON_PATH}
 }
 if($env:TEST_RUN_SETUP -eq '1'){& $env:TEST_WRAPPER -RunSetup}else{& $env:TEST_WRAPPER}
+exit $LASTEXITCODE
 """
         with tempfile.TemporaryDirectory(prefix="Store alias kiểm tra ") as temporary:
             root = Path(temporary).resolve()

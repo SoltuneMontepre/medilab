@@ -48,6 +48,8 @@ A failed command, source change, integrity mismatch or unavailable prerequisite 
 
 ## Validate the collector without accepting Windows 11
 
+The collector reads the native Windows build and workstation/server product type directly through Python's Win32 API. The registry product name is recorded for display; it may retain a Windows 10 label on Windows 11. Host classification does not require a WMI service or a nested PowerShell process.
+
 The portable contracts run without a runtime:
 
 ```powershell
