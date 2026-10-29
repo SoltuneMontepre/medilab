@@ -231,6 +231,10 @@ jobs:
         if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         run: python -m unittest discover -s tools/scripts -p 'test_sync*.py'
 
+      - name: Native PowerShell refusal contracts
+        if: runner.os == 'Windows' && (steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch')
+        run: python -B -m unittest discover -s tools/scripts -p 'test_windows_acceptance.py' -k NativePowerShellTests
+
       - name: Local setup security and platform evidence contracts
         if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         run: task test:setup
