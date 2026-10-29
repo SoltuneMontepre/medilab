@@ -21,6 +21,7 @@ from . import (
     test_order_confirmation,
     test_order_feedback,
     test_order_form,
+    test_order_read_scope,
     test_order_samples,
     test_order_tasks,
     test_order_template,

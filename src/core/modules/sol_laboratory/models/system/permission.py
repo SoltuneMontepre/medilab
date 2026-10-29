@@ -54,10 +54,15 @@ class Permission(models.Model):
         ],
         required=True,
     )
-    # all for every record, own_department for the person's department only or own_team for the person's team
-    # only; cannot change once it exists.
+    # all for every record, own_department for the person's department only, own_team for the person's team only or
+    # own for the records whose user is the person; cannot change once it exists.
     scope = fields.Selection(
-        [("all", "All records"), ("own_department", "Own department"), ("own_team", "Own team")],
+        [
+            ("all", "All records"),
+            ("own_department", "Own department"),
+            ("own_team", "Own team"),
+            ("own", "Own records"),
+        ],
         required=True,
         default="all",
     )
@@ -221,6 +226,9 @@ class Permission(models.Model):
                 ),
                 "own_team": self.env._(
                     "%s has no team, so a permission on it cannot be limited to the person's team.", label
+                ),
+                "own": self.env._(
+                    "%s has no user, so a permission on it cannot be limited to the person's own records.", label
                 ),
             }
             raise ValidationError(refusals[scope])
