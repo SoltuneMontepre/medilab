@@ -1,5 +1,7 @@
 # Medilab Mobile
 
+Medilab Mobile is deferred from the [current scope](../../index.md#scope). These requirements describe the deferred application.
+
 Medilab Mobile is the phone app of the laboratory's staff. It brings the work done away from a desk to the phone: the to-do list and its tasks, conversations, scanning sample labels and container QR codes, sample photos, the customer's signature on a handover record, and entering and signing results at the bench. It reaches MediLab through the Laboratory module's [REST API](../overview.md#laboratory-files) and receives pushes through [Firebase Cloud Messaging](../../shared.md#4-firebase-cloud-messaging-mobile-push). MediLab checks every call with the person's permissions, so the app shows and does only what the person may see and do on the web.
 
 ## Platforms and installation
@@ -102,7 +104,7 @@ Conversations follow [SH-12](../../shared.md#sh-12-conversations).
 - Scanning the label of a sample not handed over to the person's department records no receipt and says why.
 - Scanning a sample's label lets a tester claim only the unassigned testing tasks of their own department.
 - A result entered and signed on the phone shows on the web waiting for the head of department, with the tester's signature.
-- A head of department may approve on the phone a result they entered, as on the web.
+- A head of department may approve their own result on the phone, as on the web; the Lab Head reviews it when signing the final report.
 - A photo taken on the phone appears on the sample on the web and not to testers.
 - A handover record signed on the phone records the phone and emails the PDF; it cannot be changed afterwards.
 - An action without a connection is refused with a message and changes nothing; an unsent photo stays on the phone.

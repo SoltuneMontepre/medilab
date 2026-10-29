@@ -11,8 +11,8 @@ The head of department runs the testing work of one department: they assign its 
 - **US-HD03** As a head of department, I want to see my department's machine schedules and the people's schedules, so that I can balance the work.
 - **US-HD04** As a head of department, I want to move or cancel a booking of someone in my department, so that I can handle absences and incidents.
 - **US-HD05** As a head of department, I want to see the scheduler's outsourcing suggestions for tests that cannot finish in time in-house, so that they still meet their due date.
-- **US-HD12** As a head of department, I want to bump an urgent test to the earliest slot on a machine, moving bookings that have not started out of its way, so that a sample needed right away is tested right away.
-- **US-HD14** As a head of department, I want to see my department's tests at risk of missing their due date, so that I can move work, bump or outsource in time.
+- **US-HD12** As a head of department, I want urgent work to get the earliest feasible slot through a plan revision I approve for my department, moving bookings that have not started out of its way, so that a sample needed right away is tested right away.
+- **US-HD14** As a head of department, I want to see my department's tests at risk of missing their due date, so that I can move work, free capacity or outsource in time.
 
 ### Samples and results
 
@@ -25,7 +25,7 @@ The head of department runs the testing work of one department: they assign its 
 
 - **US-HD10** As a head of department, I want to accept an outsourcing suggestion and put its sample tests in a dispatch to the subcontractor, so that tests that cannot finish in time in-house still meet their due date.
 - **US-HD11** As a head of department, I want to record when a dispatch is sent, who or which delivery service takes it, and when its results are expected back, so that the outsourcing schedule shows where every outsourced test is.
-- **US-HD13** As a head of department, I want to outsource a test of my department straight away with a reason, without waiting for an outsourcing suggestion, so that an emergency is handled when no machine is free in time.
+- **US-HD13** As a head of department, I want to outsource a test of my department straight away with a reason, without waiting for an outsourcing suggestion, so that an emergency is handled when required in-house resources cannot meet the date.
 
 ### Laboratory files
 
@@ -36,22 +36,29 @@ The head of department runs the testing work of one department: they assign its 
 
 - **US-HD17** As a head of department, I want to assign my department's tasks and sign or reject its results on my phone, so that work and results do not wait while I am away from my desk.
 
+### Testing figures
+
+- **US-HD18** As a head of department, I want testing figures for my department over a period, so that I can review turnaround, overdue work, retests and workload.
+
 ## II. Feature details
 
 ### 1. Work and schedule (US-HD01 to US-HD05, US-HD12, US-HD14)
 
-Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling) and [SH-11](../../shared.md#sh-11-schedules-and-reminders).
+Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling), [Scheduling](../../../specs/scheduling.md) and [SH-11](../../shared.md#sh-11-schedules-and-reminders).
 
 | Rule                | Description                                                                                                             |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| Queue               | Testing tasks of the department wait in its queue until the head assigns them.                                          |
-| Assignment          | The head assigns all of a sample's testing tasks in the department to one person at once, or a single task; testers can also claim unassigned tasks. Assigning makes the scheduler recommend a way of testing, machine and slot to the assignee. Moving a task to another person or department needs a reason. |
-| Adjusting           | The head can move or cancel any booking of the department; the slot goes back to the queue.                            |
+| Queue | Testing tasks queue by department. The head assigns them or an authorized tester claims them; team membership does not create a separate testing queue. |
+| Assignment | The head assigns a sample's department tasks or one task to a person authorized by the Lab Head for each parameter. The department's plan proposes a booking for the agreed way. Reassignment to another person or department requires a reason. |
+| Adjusting | The head moves or cancels not-started bookings of the department. Changes synchronize its tester, machine when needed and required location reservations; cancelling returns its sample test to the plan without cancelling it. A booking the head places or moves by hand is pinned: plan revisions do not move it and report a conflict instead. |
 | Marking urgent      | The head can mark any test of the department urgent, stating why, or remove the mark, as the tester does ([US-T19](tester.md#1-planning-us-t01-to-us-t04-us-t19-to-us-t21)). |
-| Outsourcing         | When no machine can finish a test in time, or a machine becomes unavailable, the scheduler suggests outsourcing it through one of the parameter's subcontracted ways of testing. |
-| Bumping             | The head bumps an urgent test of the department to the earliest slot on a machine fit to run it, with a reason. Bookings in that slot that have not started go back to the queue and are planned again; a running booking is never interrupted, so the bumped test starts when it ends. |
-| Deadline risk       | The head is told when a test of the department becomes at risk of missing its due date, and can list the department's tests at risk from the queue and the schedules. |
-| Late after bumping  | Before bumping, the head sees the tests the bump would make miss their due date, and chooses for them: let them run after their due date, outsource them straight away, or not bump. |
+| Outsourcing | The scheduler suggests viable subcontracted ways when in-house resources cannot meet the due date. The head reviews them; changing an accepted way requires a revised quotation and customer agreement through Sales. |
+| Plan revisions | A recalculation that moves scheduled bookings, such as when urgent work needs a slot others hold, is a plan revision. It lists every moved booking with its new slot, internal due date and committed return date, and the head approves the moves in the department. A move whose planned finish passes its internal due date would miss a committed return date: it is held back, and its booking keeps its slot, until Sales records the customer's agreement to a new date; the other moves are recalculated without it and can be applied. A running booking is never moved. |
+| Deadline risk | Notify the head initially and in a daily consolidated summary while a risk remains. The queue and schedules show affected tests. Sales informs the customer when the committed return date is affected or at risk. |
+| Freeing capacity | Instead of waiting for a customer's agreement, the head may free capacity, such as with planned OverTime or another machine linked to the same method, and recalculate, or pursue an agreed outsourcing alternative. Any change to an accepted way still needs a revised quotation and customer agreement. |
+| Due date override | The head may change an internal due date with a reason. Preserve the override when the committed return date changes, recalculate only automatic dates and report conflicts. Feasibility checks only read: they use the company calendar and holidays, give reasons and the earliest feasible date, and reserve or move no bookings. An infeasible internal date may be kept with a reason and risk flag; it implies no reserved resources. |
+| Outside working hours | The head records planned OverTime for a tester, an outside-hours interval and a reason, without an HR overtime shift; the tester can then be booked in that interval. The scheduler never creates, moves or recalculates OverTime: moving or cancelling a booking leaves it for the head to change. OverTime extends only the tester's availability; machines and locations keep their own. Actual overtime and payroll are outside scope. |
+| Disruption | Downtime, an unavailable room or approved leave returns affected not-started bookings to the plan and notifies the head for reassignment or authorized claiming. Replan only on another machine linked to the same method. A machine that breaks down or loses calibration during a booking ends it; the head assesses the interrupted result as usable, needing a retest or needing more sample. A retest is a new result with a new booking. |
 
 Acceptance criteria:
 
@@ -59,17 +66,19 @@ Acceptance criteria:
 - Assigning a sample assigns all of its testing tasks in the department to the chosen person.
 - Reassigning a task to another person or department without a reason is refused; the reason is kept on the task.
 - A head of department sees the bookings of their department's people and machines, not those of other departments.
-- A test that no machine can finish before its due date shows an outsourcing suggestion.
-- Bumping an urgent test gives it the earliest slot on a fit machine; the bookings it moves are planned again and their people are notified.
-- Bumping a test that is not urgent, or bumping without a reason, is refused.
-- A running booking is not moved by a bump.
-- A bump that would make other tests miss their due date is not done until the head chooses what happens to them.
-- A test of the department that becomes at risk notifies the head once and appears in the list of tests at risk.
-- A sample test's due date can be changed by hand.
-- A due date on a Saturday, a Sunday or a public holiday is reported as not a working day; a public holiday the administrator marked as a working day is accepted.
-- A due date the test has a free slot to finish before is accepted.
-- A due date that can be met only by moving other bookings is accepted, and none of the moved bookings misses its own due date.
-- A due date with no free slot, and no bookings that can move to make room, is reported as one that cannot be met.
+- A test whose required in-house resources cannot meet its due date shows viable outsourcing alternatives; a way that needs no machine is checked against its tester and required locations.
+- A plan revision for urgent work proposes it in the earliest feasible slot and lists the bookings it moves with their new slots; their people are notified once it is applied.
+- A head approves only the moves of their own department in a plan revision.
+- A running booking is not moved by a plan revision.
+- A move whose planned finish passes its internal due date is held back, and its booking keeps its slot, until Sales records the customer's agreement to a new date.
+- A booking the head moved by hand stays where it is when the plan is recalculated, and the conflict is reported.
+- A risk sends an initial notice and remains in daily consolidated summaries until resolved.
+- A manual due-date override survives a customer-date change; automatic dates are recalculated.
+- A tester can be booked outside normal hours only within planned OverTime the head recorded; moving that booking leaves the OverTime unchanged.
+- Approving leave returns overlapping not-started bookings to the plan without assigning another tester.
+- A non-working day is reported according to the company calendar; a public holiday the administrator marked as a working day is accepted.
+- A feasible date is accepted when a free slot exists, or simulated moves can make room without missing other tests' due dates; checking the date moves no bookings.
+- A date with no feasible slot is reported with reasons and the earliest feasible date. Keeping it requires the head's reason and a visible risk flag.
 
 ### 2. Samples and results (US-HD06 to US-HD09)
 
@@ -77,18 +86,18 @@ Follows [Reception](../overview.md#reception), [Results](../overview.md#results)
 
 | Rule          | Description                                                                                                  |
 | ------------- | ------------------------------------------------------------------------------------------------------------ |
-| Handover      | A person of the department records when and by whom it received a handed-over sample by scanning its label, on the web or the mobile app. |
+| Handover | A person of the department records when and by whom it received a sample by scanning its label through the web interface. |
 | Collect again | Asking for an insufficient sample to be collected again schedules a sample collection task for sample delivery staff. |
-| Approval      | The head signs or rejects results at their level of the test result's approval chain; a rejection records its reason. The head may approve a result they entered, including when they are the department's only result signer; the lab head reviews it when signing the report. |
-| Cancelling    | The head cancels a sample test of the department that has no approved result, with a reason. Its task and bookings are cancelled, and the report leaves it out. |
+| Approval | The head signs or rejects results at the result approval level, recording a rejection reason. They may approve a result they entered, including when they are the department's only result signer. The Lab Head reviews the approved results and signs the report before issue. |
+| Cancelling    | The head cancels a sample test of the department that has no approved result, with a reason. Its testing task and its own booking end, and the report leaves it out. Bookings sharing its machine interval continue unchanged. |
 
 Acceptance criteria:
 
 - Scanning a sample's label records the handover for the scanner's department; a person outside the department is refused.
 - Asking for a sample to be collected again creates a sample collection task and records who asked and when.
-- Rejecting a result sends its sample test back to testing and tells the tester the reason.
+- Rejecting a result sends its sample test back to testing, opens a new testing task for it and tells the tester the reason.
 - Once every result of a sample is approved, the sample is completed.
-- A head can approve a result they entered and sent; a tester cannot approve a result they entered.
+- A head can explicitly approve a result they entered; it still needs the Lab Head's report signature before issue.
 - A result sent with a sanity warning shows the warning to the head who approves it.
 - Cancelling a sample test without a reason is refused; a cancelled test does not appear on the report.
 - A sample whose remaining tests are all approved is completed even if others were cancelled.
@@ -99,10 +108,10 @@ Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling
 
 | Rule        | Description                                                                                                                 |
 | ----------- | --------------------------------------------------------------------------------------------------------------------------- |
-| Accept      | Accepting a suggestion marks its sample tests as outsourced through the suggested subcontracted way of testing, or another of the parameter's subcontracted ways the head chooses, and puts them in the subcontractor's draft dispatch. |
-| Dispatch    | Outsourced sample tests for one subcontractor go in a dispatch: date sent, date results are expected back, and sample delivery staff (nhân viên giao nhận mẫu) or a delivery service with its tracking number. |
+| Accept | Accept an outsourcing suggestion only for the agreed subcontracted way. If it changes an accepted selection, Sales first obtains customer agreement through a revised quotation. The head then puts its sample tests in the subcontractor's draft dispatch. |
+| Dispatch | A dispatch holds one subcontractor, sending and due dates, the sample tests sent, the subcontractor's report, and sample delivery staff or a delivery service and tracking number. The way's turnaround includes transport and processing. |
 | Accreditation | A subcontractor whose accreditation has expired cannot be chosen.                                                          |
-| Emergency   | The head outsources a waiting or assigned test of the department straight away, with a reason, through one of the parameter's subcontracted ways of testing. Its bookings that have not started are cancelled, and it goes in the subcontractor's draft dispatch as an accepted suggestion does. Outsourcing a test asks for the reason only when the test has no outsourcing suggestion, and the reason shows on the test. Only the department testing a test with no suggestion sees the action. |
+| Emergency | The head may initiate outsourcing for a waiting or assigned test with a reason, without waiting for a scheduler suggestion. Only the department testing a test with no suggestion sees the emergency action, and its reason is shown on the test. Changing an accepted way still requires Sales and customer agreement on a revised quotation. Once agreed, cancel not-started bookings and put its sample tests in a draft dispatch. |
 
 Acceptance criteria:
 
@@ -138,7 +147,18 @@ Follows [Medilab Mobile](../applications/medilab-mobile.md#tasks-and-notificatio
 Acceptance criteria:
 
 - Rejecting a result on the phone without a reason is refused.
-- A head may approve on the phone a result they entered, as on the web.
+- A head may approve their own result on the phone, as on the web; the Lab Head reviews it when signing the final report.
+
+### 6. Testing figures (US-HD18)
+
+| Rule | Description |
+| --- | --- |
+| Department figures | For the chosen period show completed sample tests, the share completed on time, average receipt-to-approval time, overdue sample tests, retests and workload per person. The head sees their department; the Lab Head sees all departments. |
+
+Acceptance criteria:
+
+- Department filtering applies to all six measures and the underlying records.
+- The Lab Head can compare the same period across departments.
 
 ## III. Related documents
 
