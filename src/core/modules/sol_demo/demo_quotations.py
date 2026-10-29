@@ -56,7 +56,7 @@ def seed_quotations(env):
         ("demo_sale_order_quotation_declined", declined),
         ("demo_sale_order_quotation_expired", expired),
         ("demo_sale_order_quotation_revised", revised),
-        ("demo_sale_order_confirmed", confirmed),
+        ("demo_sale_order_quotation_confirmed", confirmed),
     ):
         _xml_id(env, xml_id, record)
 

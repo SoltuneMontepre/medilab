@@ -31,7 +31,8 @@ class TestOrderApprovalMigration(OrderCase):
         self.env.flush_all()
         self.env.cr.execute(
             """
-            UPDATE sale_order SET confirmed_at = NULL, pipeline_stage = 'accepted', date_order = '2026-09-05 08:00:00'
+            UPDATE sale_order SET confirmed_at = NULL, pipeline_stage = 'accepted', date_order = '2026-09-05 08:00:00',
+                   accepted_at = '2026-09-04 08:00:00'
              WHERE id IN %s
             """,
             (tuple((confirmed | completed).ids),),
@@ -45,6 +46,21 @@ class TestOrderApprovalMigration(OrderCase):
         self.assertFalse(draft.confirmed_at)
         self.assertEqual(draft.pipeline_stage, "draft")
 
+    def test_a_confirmation_never_counts_from_before_the_acceptance(self):
+        order = self.make_confirmed_order()
+        self.env.flush_all()
+        self.env.cr.execute(
+            """
+            UPDATE sale_order SET confirmed_at = NULL, date_order = '2026-09-01 08:00:00', accepted_at = '2026-09-04 08:00:00'
+             WHERE id = %s
+            """,
+            (order.id,),
+        )
+
+        self.migrate()
+
+        self.assertEqual(order.confirmed_at, fields.Datetime.to_datetime("2026-09-04 08:00:00"))
+
     def test_the_table_of_the_rejection_wizard_is_dropped(self):
         self.env.cr.execute("CREATE TABLE IF NOT EXISTS medilab_order_reject (id serial PRIMARY KEY)")
 
@@ -54,11 +70,13 @@ class TestOrderApprovalMigration(OrderCase):
         self.assertEqual(self.env.cr.fetchone(), (None,))
 
     def test_the_order_signing_chain_is_archived_and_the_sign_permission_deleted(self):
-        chain = self.env[MODEL_APPROVAL_CHAIN].search(
+        # An upgraded database has the chain archived already.
+        chain = self.env[MODEL_APPROVAL_CHAIN].with_context(active_test=False).search(
             [("document_model", "=", MODEL_SALE_ORDER), ("purpose", "=", PURPOSE_SIGNING)]
         ) or self.env[MODEL_APPROVAL_CHAIN].create(
             {"document_model": MODEL_SALE_ORDER, "purpose": PURPOSE_SIGNING, "name": "Order signing"}
         )
+        chain.active = True
         permissions = self.env[MODEL_PERMISSION]
         # Orders are no longer signed, so the permission the module used to ship can only be made this way.
         with patch.object(type(permissions), "_check_action"):

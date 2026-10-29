@@ -56,6 +56,15 @@ class TestOrderFreeze(OrderCase):
 
         order.write({"expected_result_date": fields.Date.today()})
 
+    def test_a_confirmed_order_cannot_go_back_to_a_quotation_or_drop_a_line_as_a_down_payment(self):
+        order = self.make_confirmed_order()
+
+        for state in ("draft", "sent"):
+            with self.subTest(state=state), self.assertRaises(UserError):
+                order.write({"state": state})
+        with self.assertRaises(UserError):
+            order._catalog_lines().write({"is_downpayment": True})
+
     def test_a_completed_order_stays_frozen(self):
         order = self.make_confirmed_order()
         order._set_status("completed")

@@ -51,8 +51,11 @@ FOLLOW_UP_BY_QUOTATION_STATUS = {
 
 # What the customer and sales agreed on the order itself: it stops changing once the order is confirmed.
 FROZEN_ORDER_FIELDS = frozenset({"customer_id", "partner_id", "payment_deadline", "validity_date"})
-# The line fields that stop changing once the quotation is sent or the order is confirmed.
-FROZEN_LINE_FIELDS = frozenset({"product_id", "product_uom_qty", "price_unit", "discount", "tax_ids", "sample_id"})
+# The line fields that stop changing once the quotation is sent or the order is confirmed; a line that became a down
+# payment would no longer count as content.
+FROZEN_LINE_FIELDS = frozenset(
+    {"product_id", "product_uom_qty", "price_unit", "discount", "tax_ids", "sample_id", "is_downpayment"}
+)
 
 # The sample fields that stop changing with the lines.
 FROZEN_SAMPLE_FIELDS = frozenset(

@@ -15,7 +15,8 @@ class SaleOrderFreeze(models.Model):
     _inherit = MODEL_SALE_ORDER
 
     def write(self, vals):
-        if FROZEN_ORDER_FIELDS & set(vals) and self._frozen_by_confirmation():
+        reopening = vals.get("state") in ("draft", "sent")
+        if (FROZEN_ORDER_FIELDS & set(vals) or reopening) and self._frozen_by_confirmation():
             raise UserError(self.env._("A confirmed order cannot be changed."))
         if ADVANCE_FIELDS & set(vals) and self._frozen_by_quotation():
             raise UserError(self.env._("The advance cannot change after the quotation is sent. Revise the quotation."))

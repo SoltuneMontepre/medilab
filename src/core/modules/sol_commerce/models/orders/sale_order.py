@@ -337,6 +337,10 @@ class SaleOrder(models.Model):
                 raise UserError(message)
         return self._cancel_order()
 
+    def action_cancel(self):
+        """Odoo's own cancellation goes through the same checks as the order's."""
+        return self.action_sales_cancel()
+
     def _cancel_order(self):
         self._cancel_laboratory_documents()
         self._set_status(STATUS_CANCELLED)

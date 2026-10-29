@@ -12,10 +12,11 @@ SIGN_PERMISSION = "order.sign.all"
 
 def migrate(cr, _version):
     # A confirmed order needs no approval any more: it counts from its confirmation, which Odoo stamped as its order
-    # date, and its pipeline stage is confirmed whatever its approval was.
+    # date, and its pipeline stage is confirmed whatever its approval was. Demo history backdated the order date to the
+    # claim, so a confirmation never counts from before the acceptance.
     cr.execute(
         """
-        UPDATE sale_order SET confirmed_at = date_order
+        UPDATE sale_order SET confirmed_at = GREATEST(date_order, accepted_at)
          WHERE confirmed_at IS NULL AND (test_request_id IS NOT NULL OR order_status IN ('confirmed', 'completed'))
         """
     )

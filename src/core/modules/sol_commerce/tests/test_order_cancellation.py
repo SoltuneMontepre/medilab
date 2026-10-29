@@ -74,6 +74,8 @@ class TestOrderCancellation(OrderCase):
             request.with_user(self.sales).action_accept()
         with self.assertRaisesRegex(UserError, "change request"):
             collected.with_user(self.sales).action_sales_cancel()
+        with self.assertRaisesRegex(UserError, "change request"):
+            collected.with_user(self.sales).action_cancel()
         waiting.with_user(self.sales).action_sales_cancel()
 
         self.assertEqual(collected.order_status, "confirmed")
