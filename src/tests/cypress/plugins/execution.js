@@ -49,9 +49,9 @@ function executionTasks({
     return record;
   }
 
-  async function cronWrite(id, values) {
+  function cronWrite(id, values) {
     const until = Date.now() + deadlineMs;
-    for (;;) {
+    async function attempt() {
       try {
         return await rpc("ir.cron", "write", [[id], values]);
       } catch (error) {
@@ -59,8 +59,10 @@ function executionTasks({
           error.name === "odoo.exceptions.UserError" && (error.message === CRON_LOCK_MESSAGE || error.message.endsWith(`: ${CRON_LOCK_MESSAGE}`));
         if (!locked || Date.now() >= until) throw error;
         await new Promise((resolve) => setTimeout(resolve, Math.min(100, until - Date.now())));
+        return attempt();
       }
     }
+    return attempt();
   }
 
   async function lease(scope) {
@@ -135,10 +137,12 @@ function executionTasks({
       scope.done.fixtures = true;
     }
     if (!scope.done.settings) {
-      for (const checkpoint of [...scope.checkpoints].reverse()) {
-        await settings.odooRestoreSettings({ checkpoint });
-        scope.checkpoints.delete(checkpoint);
-      }
+      // Each nested snapshot must finish restoring before the older one can start.
+      await [...scope.checkpoints].reverse().reduce(
+        (previous, checkpoint) =>
+          previous.then(() => settings.odooRestoreSettings({ checkpoint })).then(() => scope.checkpoints.delete(checkpoint)),
+        Promise.resolve(),
+      );
       if (scope.outer !== undefined) await settings.odooRestoreSettings({ checkpoint: scope.outer });
       scope.done.settings = true;
     }

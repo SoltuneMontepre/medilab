@@ -24,14 +24,18 @@ function settingsTasks(call) {
       const original = new Map(saved.parameters.map(({ key, value }) => [key, value]));
       const current = await parameters(saved.login);
       const present = new Map(current.map((parameter) => [parameter.key, parameter]));
-      for (const [key, value] of original) {
-        const parameter = present.get(key);
-        if (!parameter) {
-          await call({ login: saved.login, model: "ir.config_parameter", method: "create", args: [{ key, value }] });
-        } else if (parameter.value !== value) {
-          await call({ login: saved.login, model: "ir.config_parameter", method: "write", args: [[parameter.id], { value }] });
-        }
-      }
+      // A failed restore must not leave later mutations running while its checkpoint is retried.
+      await [...original].reduce(
+        (previous, [key, value]) =>
+          previous.then(() => {
+            const parameter = present.get(key);
+            if (!parameter) return call({ login: saved.login, model: "ir.config_parameter", method: "create", args: [{ key, value }] });
+            if (parameter.value !== value) {
+              return call({ login: saved.login, model: "ir.config_parameter", method: "write", args: [[parameter.id], { value }] });
+            }
+          }),
+        Promise.resolve(),
+      );
       const added = current.filter(({ key }) => !original.has(key)).map(({ id }) => id);
       if (added.length) await call({ login: saved.login, model: "ir.config_parameter", method: "unlink", args: [added] });
       const restored = await parameters(saved.login);

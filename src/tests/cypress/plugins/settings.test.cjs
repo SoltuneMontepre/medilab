@@ -53,6 +53,14 @@ function tasksFor(server) {
   return settingsTasks(server.call.bind(server));
 }
 
+function deferred() {
+  let resolve;
+  const promise = new Promise((yes) => {
+    resolve = yes;
+  });
+  return { promise, resolve };
+}
+
 test("a settings checkpoint exposes only an opaque reference", async () => {
   const secret = "FAKE-SECRET-ONLY-FOR-CONTRACT-TEST";
   const server = parameterServer([
@@ -88,6 +96,75 @@ test("restoration repairs changed and deleted settings and removes newly saved d
     server.snapshot(),
     [...original].sort(([a], [b]) => a.localeCompare(b)),
   );
+  await assert.rejects(() => tasks.odooRestoreSettings({ checkpoint }), { message: "The settings checkpoint is unavailable." });
+});
+
+test("settings mutations finish one at a time before removing additions and verifying the snapshot", { timeout: 5000 }, async () => {
+  const original = [
+    ["first", "original first"],
+    ["missing", "original missing"],
+    ["last", "original last"],
+  ];
+  const server = parameterServer(original);
+  const started = deferred();
+  const release = deferred();
+  const mutations = [];
+  const tasks = settingsTasks(async (payload) => {
+    if (["create", "write", "unlink"].includes(payload.method)) {
+      mutations.push(payload.method);
+      if (mutations.length === 1) {
+        started.resolve();
+        await release.promise;
+      }
+    }
+    return server.call(payload);
+  });
+  const checkpoint = await tasks.odooCheckpointSettings({ login: "demo.administrator" });
+  server.put("first", "changed first");
+  server.remove("missing");
+  server.put("last", "changed last");
+  server.put("new.default", "added");
+  const restoring = tasks.odooRestoreSettings({ checkpoint });
+  try {
+    await started.promise;
+    assert.deepEqual(mutations, ["write"], "no later mutation starts while the first write is pending");
+    assert.ok(server.snapshot().some(([key]) => key === "new.default"));
+  } finally {
+    release.resolve();
+    await restoring;
+  }
+  assert.deepEqual(mutations, ["write", "create", "write", "unlink"]);
+  assert.deepEqual(server.snapshot(), [...original].sort(([a], [b]) => a.localeCompare(b)));
+});
+
+test("a failed setting write stops later mutations and preserves its checkpoint for a complete retry", async () => {
+  const original = [
+    ["first", "original first"],
+    ["second", "original second"],
+    ["third", "original third"],
+  ];
+  const server = parameterServer(original);
+  const mutations = [];
+  const tasks = settingsTasks((payload) => {
+    if (["create", "write", "unlink"].includes(payload.method)) mutations.push(structuredClone(payload));
+    return server.call(payload);
+  });
+  const checkpoint = await tasks.odooCheckpointSettings({ login: "demo.administrator" });
+  for (const [key] of original) server.put(key, "changed");
+  server.put("new.default", "added");
+  server.fail("write", new Error("Controlled second-write failure"), 2);
+
+  await assert.rejects(() => tasks.odooRestoreSettings({ checkpoint }), { message: "The settings checkpoint could not be restored." });
+
+  assert.deepEqual(mutations.map(({ args }) => args[0]), [[1], [2]]);
+  assert.deepEqual(server.snapshot(), [
+    ["first", "original first"],
+    ["new.default", "added"],
+    ["second", "changed"],
+    ["third", "changed"],
+  ]);
+  assert.equal(await tasks.odooRestoreSettings({ checkpoint }), null);
+  assert.deepEqual(server.snapshot(), [...original].sort(([a], [b]) => a.localeCompare(b)));
   await assert.rejects(() => tasks.odooRestoreSettings({ checkpoint }), { message: "The settings checkpoint is unavailable." });
 });
 

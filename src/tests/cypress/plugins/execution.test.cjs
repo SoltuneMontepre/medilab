@@ -229,6 +229,20 @@ test("invalid begin input leaves the current execution open without touching app
   await tasks.finish(execution);
 });
 
+test("HTTP browser identifiers own an execution and survive scoped calls and lease cleanup", async (t) => {
+  const h = await harness(t);
+  const tasks = h.create();
+  const execution = { id: "000102030405060708090a0b0c0d0e0f", spec: SPEC };
+  const callId = "101112131415161718191a1b1c1d1e1f";
+  await tasks.begin(execution);
+  assert.equal(await tasks.call(operation(execution, { execution: { ...execution, callId, test: "HTTP origin" } })), 100);
+  assert.ok(h.trace.some((event) => event.id === execution.id && event.callId === callId));
+  await tasks.finish(execution);
+  const next = scope();
+  await tasks.begin(next);
+  await tasks.finish(next);
+});
+
 test("a live child process owns its database UUID across different application URLs", { timeout: 5000 }, async (t) => {
   const databaseUuid = randomUUID();
   const h = await harness(t, { databaseUuid });
@@ -617,6 +631,69 @@ test("a successful explicit restoration consumes only its own checkpoint", async
 const CRON_WRITE_LOCK =
   "Record cannot be modified right now: This cron task is currently being executed and may not be modified Please try again in a few minutes";
 const isPause = ({ model, method, args }) => model === "ir.cron" && method === "write" && args[1].active === false && !("nextcall" in args[1]);
+
+test("nested checkpoints restore newest first and a failed step retains the lease and older snapshots", { timeout: 5000 }, async (t) => {
+  const h = await harness(t);
+  const started = deferred();
+  const release = deferred();
+  const restored = [];
+  let newest;
+  let failing;
+  let blocked = false;
+  const tasks = h.create({
+    settings: {
+      ...h.settingsTasks,
+      async odooRestoreSettings(payload) {
+        restored.push(payload.checkpoint);
+        if (payload.checkpoint === newest && !blocked) {
+          blocked = true;
+          started.resolve();
+          await release.promise;
+        }
+        if (payload.checkpoint === failing) {
+          failing = undefined;
+          throw new Error("Controlled nested checkpoint failure");
+        }
+        return h.settingsTasks.odooRestoreSettings(payload);
+      },
+    },
+  });
+  const execution = scope();
+  await tasks.begin(execution);
+  const [outer] = h.checkpoints.keys();
+  h.settings.set("private.token", "before older checkpoint");
+  const older = await tasks.checkpoint(operation(execution));
+  h.settings.set("private.token", "before newest checkpoint");
+  newest = await tasks.checkpoint(operation(execution));
+  h.settings.set("private.token", "changed in nested test");
+  failing = older;
+  const failed = assert.rejects(() => tasks.finish(execution), /could not be restored/i);
+  try {
+    await started.promise;
+    assert.deepEqual(restored, [newest], "older snapshots cannot start while the newest restore is pending");
+    assert.equal(h.checkpoints.size, 3);
+    assert.equal(h.cron.active, false);
+  } finally {
+    release.resolve();
+    await failed;
+  }
+  assert.deepEqual(restored, [newest, older]);
+  assert.deepEqual([...h.checkpoints.keys()], [outer, older]);
+  assert.equal(h.settings.get("private.token"), "before newest checkpoint");
+  assert.equal(h.cron.active, false);
+  const contender = h.create();
+  await assert.rejects(() => contender.begin(scope()), /another.*execution/i);
+
+  await tasks.finish(execution);
+
+  assert.deepEqual(restored, [newest, older, older, outer]);
+  assert.equal(h.settings.get("private.token"), SECRET);
+  assert.equal(h.checkpoints.size, 0);
+  assert.deepEqual(h.cron, { id: 29, active: true, nextcall: ORIGINAL_NEXTCALL });
+  const next = scope();
+  await contender.begin(next);
+  await contender.finish(next);
+});
 
 test("only the exact typed cron-write lock refusal receives a bounded retry", async (t) => {
   const h = await harness(t);
