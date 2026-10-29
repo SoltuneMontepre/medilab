@@ -49,6 +49,7 @@ def _checked_arguments(arguments):
         )
     if any(
         argument in COMPOSE_IDENTITY_OPTIONS
+        or (len(argument) > 2 and argument.startswith(("-p", "-f")))
         or any(
             argument.startswith(option + "=")
             for option in COMPOSE_IDENTITY_OPTIONS

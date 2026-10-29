@@ -1,6 +1,7 @@
+import io
 import os
 import unittest
-from contextlib import contextmanager
+from contextlib import contextmanager, redirect_stderr
 from unittest.mock import patch
 
 import onlyoffice
@@ -16,6 +17,64 @@ from onlyoffice_state import OnlyofficeError
 
 
 class LocalComposeTest(unittest.TestCase):
+    def test_compose_wrapper_refuses_attached_identity_overrides_before_resolution(
+        self,
+    ):
+        for flag in ("-pforeign", "-p=foreign", "-fforeign.yml", "-f=foreign.yml"):
+            with self.subTest(flag=flag):
+                output = io.StringIO()
+                with (
+                    patch("local_compose.sys.argv", ["local_compose.py", "up", flag]),
+                    patch(
+                        "local_compose._resolve", return_value=("owned", None, [], {})
+                    ) as resolve,
+                    patch(
+                        "local_compose.resolve_addon", return_value=([], {})
+                    ) as addon,
+                    patch(
+                        "local_compose.subprocess.run",
+                        return_value=type("Result", (), {"returncode": 0})(),
+                    ) as run,
+                    redirect_stderr(output),
+                    self.assertRaises(SystemExit) as result,
+                ):
+                    main()
+                self.assertEqual(result.exception.code, 1)
+                self.assertIn(
+                    "project and file overrides are refused", output.getvalue()
+                )
+                resolve.assert_not_called()
+                addon.assert_not_called()
+                run.assert_not_called()
+
+    def test_normal_exec_and_run_keep_their_arguments_and_child_exit_status(self):
+        for arguments in (
+            ["exec", "-T", "odoo", "python3", "--version"],
+            ["run", "--rm", "--no-deps", "odoo", "--stop-after-init"],
+        ):
+            environment = {"COMPOSE_PROJECT_NAME": "owned"}
+            with (
+                self.subTest(arguments=arguments),
+                patch("local_compose.sys.argv", ["local_compose.py", *arguments]),
+                patch(
+                    "local_compose._resolve",
+                    return_value=("owned", None, ["-f", "base.yml"], environment),
+                ),
+                patch("local_compose.resolve_addon", return_value=([], {})),
+                patch(
+                    "local_compose.subprocess.run",
+                    return_value=type("Result", (), {"returncode": 17})(),
+                ) as run,
+                self.assertRaises(SystemExit) as result,
+            ):
+                main()
+            self.assertEqual(result.exception.code, 17)
+            run.assert_called_once_with(
+                ["docker", "compose", "-p", "owned", "-f", "base.yml", *arguments],
+                env=environment,
+                check=False,
+            )
+
     def test_compose_wrapper_rejects_volume_deletion(self):
         for flag in ("-v", "--volumes"):
             with (
