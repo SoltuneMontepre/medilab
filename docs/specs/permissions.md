@@ -40,6 +40,9 @@ A permission is one action on one document type within one scope. Its code is de
 | `all`            | every record: `[(1, '=', 1)]`                                                               |
 | `own_department` | `[('department_id', 'in', user.employee_id.department_id.ids)]`                             |
 | `own_team`       | `[('team_id', 'in', user.employee_id.person_team_id.ids)]`                                  |
+| `own`            | `[('user_id', '=', user.id)]`                                                               |
+
+The own scope holds the records whose `user_id` is the user, such as the orders a salesperson owns. It exists only for document types that have a `user_id` field; a module ships it for a document type when a role may be limited to its own records, and a module may widen its access, as the unclaimed order queue does.
 
 The team scope goes through the person's team: `team_id` on the person, one of the teams of the person's department. Access domains are evaluated as the user from their employee, so the employee carries `person_team_id`, the team of its person, read with full rights. The own-team scope exists only for document types that have a `team_id` field, and works as the own-department scope does: a record without a team belongs to nobody's team, and a person without a team sees no record through it.
 

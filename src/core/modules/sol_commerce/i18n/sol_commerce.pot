@@ -54,6 +54,11 @@ msgid "%s waits in a queue you do not belong to."
 msgstr ""
 
 #. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_order_edit_own
+msgid "Edit own orders"
+msgstr ""
+
+#. module: sol_commerce
 #: model:medilab.task.type,name:sol_commerce.task_type_invoice_posting
 msgid "Invoice posting"
 msgstr ""
@@ -2514,6 +2519,11 @@ msgid "Order %s was submitted."
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__order_can_edit
+msgid "Order Can Edit"
+msgstr ""
+
+#. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__product_line_ids
 msgid "Order Lines"
 msgstr ""
@@ -3213,6 +3223,11 @@ msgstr ""
 #. module: sol_commerce
 #: model:medilab.permission,name:sol_commerce.permission_order_read_all
 msgid "Read orders"
+msgstr ""
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_order_read_own
+msgid "Read own orders"
 msgstr ""
 
 #. module: sol_commerce
@@ -4378,6 +4393,12 @@ msgstr ""
 
 #. module: sol_commerce
 #. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "You are not allowed to claim orders."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
 #: code:addons/sol_commerce/models/support/support_request.py:0
 msgid "You are not registered as a customer yet. Contact the laboratory."
 msgstr ""
@@ -4397,6 +4418,12 @@ msgstr ""
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.support_list
 msgid "You have not asked for help yet."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_approval.py:0
+msgid "You may only read this order, so you cannot sign or reject it."
 msgstr ""
 
 #. module: sol_commerce

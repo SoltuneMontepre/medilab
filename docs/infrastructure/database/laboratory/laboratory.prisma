@@ -1231,7 +1231,7 @@ model Permission {
   document_model String             @db.VarChar
   /// read, create, edit, archive, delete or sign; cannot change once the permission exists.
   action         String             @db.VarChar
-  /// all for every record, own_department for records of the person's department only, or own_team for records of the person's team only; cannot change once the permission exists.
+  /// all for every record, own_department for records of the person's department only, own_team for records of the person's team only, or own for the records whose user is the person; cannot change once the permission exists.
   scope          String             @db.VarChar
   /// The Odoo group generated for the permission, which carries its access.
   group_id       Int                @unique

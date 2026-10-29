@@ -9,6 +9,13 @@
         <field name="operation">r</field>
         <field name="domain">[("move_type", "in", ("out_invoice", "out_refund")), ("invoice_user_id", "=", user.id)]</field>
     </record>
+    <record id="access_account_move_order_read_own" model="ir.access">
+        <field name="name">Customer invoices of the salesperson, for own orders</field>
+        <field name="model_id" ref="account.model_account_move" />
+        <field name="group_id" ref="sol_laboratory.group_permission_order_read_own" />
+        <field name="operation">r</field>
+        <field name="domain">[("move_type", "in", ("out_invoice", "out_refund")), ("invoice_user_id", "=", user.id)]</field>
+    </record>
     <record id="access_account_move_all_orders" model="ir.access">
         <field name="name">All customer invoices</field>
         <field name="model_id" ref="account.model_account_move" />
@@ -20,6 +27,13 @@
         <field name="name">Invoice lines follow the invoice</field>
         <field name="model_id" ref="account.model_account_move_line" />
         <field name="group_id" ref="sol_laboratory.group_permission_order_read_all" />
+        <field name="operation">r</field>
+        <field name="domain">[("move_id", "access", "read")]</field>
+    </record>
+    <record id="access_account_move_line_order_read_own" model="ir.access">
+        <field name="name">Invoice lines follow the invoice, for own orders</field>
+        <field name="model_id" ref="account.model_account_move_line" />
+        <field name="group_id" ref="sol_laboratory.group_permission_order_read_own" />
         <field name="operation">r</field>
         <field name="domain">[("move_id", "access", "read")]</field>
     </record>
