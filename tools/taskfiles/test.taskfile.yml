@@ -83,7 +83,7 @@ tasks:
       - python tools/scripts/local_compose.py up -d --wait postgres
       - python tools/scripts/core_test_guard.py prepare
       - defer: { task: test:core:clean }
-      - python tools/scripts/local_private_paths.py {{.TEST_COVERAGE_DIR}}
+      # Odoo reads this cache as its container user; prepare keeps the host .local parent private.
       - 'uv pip install --target {{.TEST_COVERAGE_DIR}} --python-version 3.12 --python-platform linux --no-deps --only-binary :all: coverage==7.10.7'
       - python tools/scripts/local_compose.py run --rm -T garage-setup
       - . {{.LOG}} && log_step "Splitting the test classes into {{.TOTAL_SHARDS}} shards"
