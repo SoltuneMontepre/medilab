@@ -19,6 +19,8 @@ from . import (
     sale_order_customer,
     sale_order_freeze,
     sale_order_line,
+    sale_order_line_downpayment,
+    sale_order_line_lists,
     sale_order_task,
     sale_order_template,
     task,
