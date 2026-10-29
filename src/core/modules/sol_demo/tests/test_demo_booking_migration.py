@@ -24,7 +24,10 @@ class TestDemoBookingMigration(SchedulingCase):
     def setUp(self):
         super().setUp()
         self.env.cr.execute("SELECT NOW() AT TIME ZONE 'UTC'")
-        self.now = self.env.cr.fetchone()[0].replace(microsecond=0)
+        row = self.env.cr.fetchone()
+        if row is None:
+            self.fail("The database clock query returned no row.")
+        self.now = row[0].replace(microsecond=0)
         self.test.due_date = self.now + timedelta(minutes=30)
         self.env[MODEL_PARAMETER_METHOD_MACHINE].search([("machine_id", "=", self.fast.id)]).run_minutes = 15
         task = self.testing_task(self.test, self.tester)
