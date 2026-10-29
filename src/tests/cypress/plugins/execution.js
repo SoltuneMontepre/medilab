@@ -28,7 +28,7 @@ function executionTasks({
   }
 
   function owns(execution) {
-    if (!current || !current.open || execution?.id !== current.id || execution.spec !== current.spec) {
+    if (!current?.open || execution?.id !== current.id || execution.spec !== current.spec) {
       throw new Error(OWNERSHIP_ERROR);
     }
     return current;
@@ -97,7 +97,7 @@ function executionTasks({
     let timeout;
     try {
       await Promise.race([
-        Promise.allSettled([...scope.pending]),
+        Promise.allSettled(scope.pending),
         new Promise((_, reject) => {
           timeout = setTimeout(() => reject(new Error("The previous test execution still has unfinished requests.")), deadlineMs);
         }),
@@ -255,7 +255,10 @@ function executionTasks({
       }
       if (scope && request.method === "create") {
         const ids = Array.isArray(result) ? result : [result];
-        const owned = request.model === "medilab.test.request" ? scope.requests : request.model === "medilab.task" ? scope.tasks : null;
+        const owned = new Map([
+          ["medilab.test.request", scope.requests],
+          ["medilab.task", scope.tasks],
+        ]).get(request.model);
         if (owned) ids.filter((id) => Number.isInteger(id) && id > 0).forEach((id) => owned.add(id));
       }
       return result;

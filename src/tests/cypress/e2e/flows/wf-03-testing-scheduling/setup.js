@@ -217,16 +217,18 @@ export function queueChromium(test, queuedAt) {
 
 // The dedicated colour-development method has one machine, so this does not fill unrelated machines' queues.
 export function bookedOnOneMachine() {
-  return assignedChromium().then(({ test: first }) =>
-    book(first).then((taken) =>
-      assignedChromium().then(({ test: second }) =>
-        book(second).then((booking) => {
-          expect(booking.machine_id).to.deep.equal(taken.machine_id);
-          return [taken, booking];
-        }),
-      ),
-    ),
-  );
+  let taken;
+  return assignedChromium()
+    .then(({ test }) => book(test))
+    .then((booking) => {
+      taken = booking;
+      return assignedChromium();
+    })
+    .then(({ test }) => book(test))
+    .then((booking) => {
+      expect(booking.machine_id).to.deep.equal(taken.machine_id);
+      return [taken, booking];
+    });
 }
 
 // A task the head of department gives the tester by hand, planned to start in ten minutes.
@@ -276,12 +278,14 @@ export function saveSettings(values) {
 
 // The stored system parameters of the scheduling settings; a setting never saved has none.
 export function storedSettings() {
-  return callAs(ADMINISTRATOR, "ir.config_parameter", "search_read", [[["key", "in", SETTING_KEYS]]], { fields: ["key", "value"] }).then(
-    (parameters) =>
-      refAs(ADMINISTRATOR, "sol_laboratory.event_task_reminder").then(({ id }) =>
-        callAs(ADMINISTRATOR, "mail.message.subtype", "read", [[id], ["enabled"]]).then(([reminder]) => ({ parameters, reminder })),
-      ),
-  );
+  let parameters;
+  return callAs(ADMINISTRATOR, "ir.config_parameter", "search_read", [[["key", "in", SETTING_KEYS]]], { fields: ["key", "value"] })
+    .then((read) => {
+      parameters = read;
+      return refAs(ADMINISTRATOR, "sol_laboratory.event_task_reminder");
+    })
+    .then(({ id }) => callAs(ADMINISTRATOR, "mail.message.subtype", "read", [[id], ["enabled"]]))
+    .then(([reminder]) => ({ parameters, reminder }));
 }
 
 export function checkpointSettings() {

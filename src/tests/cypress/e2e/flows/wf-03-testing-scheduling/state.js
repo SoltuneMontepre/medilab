@@ -74,7 +74,7 @@ export function scheduleState(tests) {
       ["medilab_task_id", "in", state.tasks.map(({ id }) => id)],
       ...state.tasks.map(({ name }) => ["name", "ilike", name]),
     ];
-    return callAs(ADMINISTRATOR, "calendar.event", "search_read", [[...Array(alternatives.length - 1).fill("|"), ...alternatives]], {
+    return callAs(ADMINISTRATOR, "calendar.event", "search_read", [[...new Array(alternatives.length - 1).fill("|"), ...alternatives]], {
       fields: EVENT_FIELDS,
       order: "id",
       context: { active_test: false },
@@ -88,7 +88,7 @@ export function scheduleState(tests) {
       "calendar.event": state.events.map(({ id }) => id),
     };
     const groups = Object.entries(records).map(([model, ids]) => ["&", ["model", "=", model], ["res_id", "in", ids]]);
-    return callAs(ADMINISTRATOR, "mail.message", "search_read", [[...Array(groups.length - 1).fill("|"), ...groups.flat()]], {
+    return callAs(ADMINISTRATOR, "mail.message", "search_read", [[...new Array(groups.length - 1).fill("|"), ...groups.flat()]], {
       fields: ["model", "res_id", "message_type", "subtype_id", "subject", "body", "notification_ids"],
       order: "id",
     });
