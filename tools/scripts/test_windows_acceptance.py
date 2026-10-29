@@ -16,6 +16,22 @@ import windows_acceptance as acceptance
 import windows_acceptance_host as host
 
 
+def copy_collector(root):
+    scripts = root / "tools/scripts"
+    shutil.copytree(
+        Path(__file__).parent,
+        scripts,
+        ignore=shutil.ignore_patterns("__pycache__"),
+    )
+    core = root / "src/core"
+    core.mkdir(parents=True)
+    shutil.copyfile(
+        Path(__file__).resolve().parents[2] / "src/core/modules.txt",
+        core / "modules.txt",
+    )
+    return scripts
+
+
 class HostIdentityTests(unittest.TestCase):
     def identity(self, metadata, shell="7.4.6"):
         with (
@@ -87,6 +103,38 @@ class AcceptanceTests(unittest.TestCase):
         self.temporary = tempfile.TemporaryDirectory(prefix="Windows kiểm tra ")
         self.addCleanup(self.temporary.cleanup)
         self.root = Path(self.temporary.name).resolve()
+
+    @unittest.skipIf(os.name == "nt", "native shell refusal is covered on Windows")
+    def test_collector_subprocess_reaches_the_host_guard_without_writes(self):
+        scripts = copy_collector(self.root)
+        before = sorted(
+            str(path.relative_to(self.root)) for path in self.root.rglob("*")
+        )
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-B",
+                "-X",
+                "utf8",
+                str(scripts / "windows_acceptance.py"),
+                "--shell-version",
+                "7.4.6",
+            ],
+            cwd=self.root,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            timeout=30,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 2, result.stderr)
+        report = json.loads(result.stdout)
+        self.assertEqual(report["status"], "blocked")
+        self.assertFalse(report["host"]["windows11"])
+        self.assertEqual(
+            sorted(str(path.relative_to(self.root)) for path in self.root.rglob("*")),
+            before,
+        )
 
     def test_default_doctor_never_creates_files_or_claims_acceptance(self):
         before = list(self.root.rglob("*"))
@@ -535,12 +583,7 @@ exit $LASTEXITCODE
         )
         with tempfile.TemporaryDirectory(prefix="Windows kiểm tra ") as temporary:
             root = Path(temporary).resolve()
-            scripts = root / "tools/scripts"
-            shutil.copytree(
-                Path(__file__).parent,
-                scripts,
-                ignore=shutil.ignore_patterns("__pycache__"),
-            )
+            scripts = copy_collector(root)
             fake_task = root / "task.cmd"
             fake_task.write_text(
                 '@echo off\r\n@echo forbidden>"%~dp0task-called"\r\n@exit /b 99\r\n',
