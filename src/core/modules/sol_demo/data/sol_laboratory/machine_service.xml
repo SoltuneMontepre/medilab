@@ -54,4 +54,12 @@
         <field name="performed_by">PerkinElmer Vietnam</field>
         <field name="note">The graphite furnace does not reach temperature; waiting for a new power supply.</field>
     </record>
+    <record id="demo_machine_service_uvvis_calibration" model="medilab.machine.service">
+        <field name="machine_id" ref="demo_machine_uvvis" />
+        <field name="kind">calibration</field>
+        <field name="service_date" eval="(DateTime.today() - relativedelta(months=1)).strftime('%Y-%m-%d')" />
+        <field name="next_due_date" eval="(DateTime.today() + relativedelta(months=11)).strftime('%Y-%m-%d')" />
+        <field name="performed_by">Quality Assurance and Testing Centre</field>
+        <field name="reference">HC-UVVIS-01</field>
+    </record>
 </odoo>

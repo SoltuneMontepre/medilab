@@ -30,4 +30,9 @@
         <field name="machine_id" ref="demo_machine_aas_3" />
         <field name="run_minutes">70</field>
     </record>
+    <record id="demo_parameter_method_machine_chromium_vi_uvvis" model="medilab.parameter.method.machine">
+        <field name="parameter_method_id" ref="demo_parameter_method_chromium_vi_colorimetry" />
+        <field name="machine_id" ref="demo_machine_uvvis" />
+        <field name="run_minutes">60</field>
+    </record>
 </odoo>

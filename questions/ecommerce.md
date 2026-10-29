@@ -14,6 +14,19 @@
 - **Quotation layout.** What does the laboratory's báo giá show, and in what order: the header, the customer and contact, the salesperson, the lines by sample, the totals, the advance payment, the payment deadline and the signatures? A sample of the current paper form settles it. (blocks US-S07, asked of @nnh53)
 - **PayOS checkout transaction.** Must the first payment request redirect directly to a newly created PayOS link, or may it show the pending page while a committed background job creates the link? Direct creation needs a transaction boundary that releases the invoice lock before the external call and preserves request retry and duplicate-click guarantees.
 - **Catalog filter size.** Must the catalog offer every sample type and parameter group, including those without an offered product, or should those controls search or page a restricted set? A fixed result limit would hide existing choices.
+- **Quotation and posting task deadlines.** A quotation task is due 24 elapsed hours after the order is submitted, and an invoice posting task 24 elapsed hours after the invoice is drafted, as for support requests. Are these the right defaults, and should only working hours count? (blocks US-S01, US-A02)
+- **Quotation task for sales orders.** An order sales creates on behalf of a customer is claimed at once and gets no quotation task. Should it get one in its salesperson's to-do list, so every unsent quotation is a task? (blocks US-S02)
+- **Orders already in the queue.** Orders submitted before quotation tasks existed have no task. Should the upgrade create one for each order still waiting in the queue or claimed and not quoted yet? (blocks US-S01)
+- **Other waiting steps as tasks.** Which of these become tasks, for whom, when are they done, and with what deadline and schedule? (blocks SH-10)
+  - A cash or transfer payment sales recorded, waiting for the accountant to confirm or reject it (US-A08).
+  - An order whose approval sales requested, waiting for the Head of Sales to sign or reject it (US-S13).
+  - A rejected order, waiting for its salesperson to correct it and request approval again (US-S14).
+  - A sent quotation not paid by its payment deadline, waiting for its salesperson to follow up, extend it or let it expire (US-S10).
+  - A completed order with something left to invoice, waiting for the accountant to create its final invoice (US-A02).
+  - A posted invoice past its due date, waiting for the accountant to follow up beyond the automatic reminders (US-A12).
+  - A support request about no order, waiting in the queue until a salesperson takes it (US-S20).
+  - An account flagged as a possible duplicate, waiting for sales to clear or merge it (US-S04).
+  - A day of PayOS transactions, waiting for the accountant to reconcile and lock it (US-A13).
 
 ## Related documents
 
