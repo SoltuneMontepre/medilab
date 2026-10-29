@@ -2376,6 +2376,7 @@ mod tests {
             assert_eq!(listed[0].relative_path, "ABC.xlsx");
             assert_eq!(listed[0].remote_file_id, Some(9));
             assert_eq!(listed[0].remote_version_id, Some(3));
+            assert_eq!(listed[0].status, "synced");
             let jobs = reopened.list_jobs().unwrap();
             assert_eq!(jobs.len(), 1);
             assert_eq!(jobs[0].status, "completed");
