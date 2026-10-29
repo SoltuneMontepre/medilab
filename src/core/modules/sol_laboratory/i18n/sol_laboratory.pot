@@ -11043,7 +11043,7 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/test_result.py:0
-msgid "You entered this result, so another person must approve it."
+msgid "You entered this result, so another person must sign this level."
 msgstr ""
 
 #. module: sol_laboratory

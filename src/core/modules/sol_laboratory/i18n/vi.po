@@ -11206,8 +11206,8 @@ msgstr "Rút chữ ký"
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/test_result.py:0
-msgid "You entered this result, so another person must approve it."
-msgstr "Bạn đã nhập kết quả này nên người khác phải phê duyệt."
+msgid "You entered this result, so another person must sign this level."
+msgstr "Bạn đã nhập kết quả này nên người khác phải ký ở cấp này."
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_test_result_decimals_range
