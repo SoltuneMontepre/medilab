@@ -16,10 +16,12 @@ def migrate(cr, _version):
     cr.execute(
         """
         UPDATE sale_order SET confirmed_at = date_order
-         WHERE confirmed_at IS NULL AND test_request_id IS NOT NULL
+         WHERE confirmed_at IS NULL AND (test_request_id IS NOT NULL OR order_status IN ('confirmed', 'completed'))
         """
     )
     cr.execute("UPDATE sale_order SET pipeline_stage = 'confirmed' WHERE order_status = 'confirmed'")
+    # Odoo leaves the table of a removed model behind: the wizard that rejected the approval.
+    cr.execute("DROP TABLE IF EXISTS medilab_order_reject")
     env = api.Environment(cr, SUPERUSER_ID, {})
     # Signatures already given stay on record, so the chain that took them is archived rather than deleted.
     env[MODEL_APPROVAL_CHAIN].search(

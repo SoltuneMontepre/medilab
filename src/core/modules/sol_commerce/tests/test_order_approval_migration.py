@@ -26,22 +26,32 @@ class TestOrderApprovalMigration(OrderCase):
 
     def test_a_confirmed_order_counts_from_its_order_date_in_the_confirmed_stage(self):
         confirmed = self.make_confirmed_order()
+        completed = self.make_order([(self.lead_product, 1)], status="completed", user_id=self.sales.id)
         draft = self.make_quotable_order()
         self.env.flush_all()
         self.env.cr.execute(
             """
             UPDATE sale_order SET confirmed_at = NULL, pipeline_stage = 'accepted', date_order = '2026-09-05 08:00:00'
-             WHERE id = %s
+             WHERE id IN %s
             """,
-            (confirmed.id,),
+            (tuple((confirmed | completed).ids),),
         )
 
         self.migrate()
 
-        self.assertEqual(confirmed.confirmed_at, fields.Datetime.to_datetime("2026-09-05 08:00:00"))
+        for order in (confirmed, completed):
+            self.assertEqual(order.confirmed_at, fields.Datetime.to_datetime("2026-09-05 08:00:00"))
         self.assertEqual(confirmed.pipeline_stage, "confirmed")
         self.assertFalse(draft.confirmed_at)
         self.assertEqual(draft.pipeline_stage, "draft")
+
+    def test_the_table_of_the_rejection_wizard_is_dropped(self):
+        self.env.cr.execute("CREATE TABLE IF NOT EXISTS medilab_order_reject (id serial PRIMARY KEY)")
+
+        self.migrate()
+
+        self.env.cr.execute("SELECT to_regclass('medilab_order_reject')")
+        self.assertEqual(self.env.cr.fetchone(), (None,))
 
     def test_the_order_signing_chain_is_archived_and_the_sign_permission_deleted(self):
         chain = self.env[MODEL_APPROVAL_CHAIN].search(
