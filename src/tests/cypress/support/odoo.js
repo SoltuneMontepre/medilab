@@ -69,6 +69,12 @@ export function callRefused(model, method, args, kwargs = {}) {
   });
 }
 
+// A random identifier. crypto.randomUUID needs a secure origin, which an HTTP address other than localhost is not.
+export function randomId() {
+  if (crypto.randomUUID) return crypto.randomUUID();
+  return Array.from(crypto.getRandomValues(new Uint8Array(16)), (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
 // Execution metadata identifies pending work without exposing RPC arguments or session cookies.
 export function task(name, payload, options) {
   const execution = Cypress.expose("wf03Execution");
@@ -79,7 +85,7 @@ export function task(name, payload, options) {
           ...payload,
           execution: {
             ...execution,
-            callId: crypto.randomUUID(),
+            callId: randomId(),
             test: Cypress.currentTest?.titlePath.join(" > ") || "suite hook",
           },
         }
