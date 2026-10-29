@@ -23,14 +23,15 @@ def main() -> None:
 
         create_server(root).run(transport="stdio")
     elif args.mode in {"serena", "serena-hooks"}:
-        from .prerequisites import terraform_directory
-
         os.environ["SERENA_HOME"] = str(root / ".local" / "serena")
-        os.environ["PATH"] = str(terraform_directory(Workspace(root))) + os.pathsep + os.environ.get("PATH", "")
         os.chdir(root)
         if args.mode == "serena":
+            # Only the server's Terraform language server needs it; importing the installer would slow every hook.
             from serena.cli import top_level
 
+            from .prerequisites import terraform_directory
+
+            os.environ["PATH"] = str(terraform_directory(Workspace(root))) + os.pathsep + os.environ.get("PATH", "")
             top_level(args=remaining)
         else:
             from serena.hooks import hook_commands
