@@ -1,0 +1,8 @@
+# Recreates the production database with the demo data; run only by cd-reset.
+- name: Reset the database
+  hosts: k3s_servers
+  become: true
+  gather_facts: false
+  run_once: true
+  roles:
+    - reset
