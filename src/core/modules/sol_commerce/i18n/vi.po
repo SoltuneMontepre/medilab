@@ -1964,6 +1964,11 @@ msgid "Submitted At"
 msgstr "Gửi Lúc"
 
 #. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_task
+msgid "Task"
+msgstr "Nhiệm Vụ"
+
+#. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_medilab_tax
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_parameter_price__tax_id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package__tax_id
