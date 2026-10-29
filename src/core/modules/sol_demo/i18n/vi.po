@@ -674,3 +674,23 @@ msgstr "Ký tệp phòng thí nghiệm"
 #: model:medilab.location,name:sol_demo.demo_location_preparation_room
 msgid "Sample preparation room"
 msgstr "Phòng chuẩn bị mẫu"
+
+#. module: sol_demo
+#: model:medilab.test.parameter,name:sol_demo.demo_test_parameter_chromium_vi
+msgid "Chromium (VI)"
+msgstr "Crom (VI)"
+
+#. module: sol_demo
+#: model:medilab.location,name:sol_demo.demo_location_colorimetry_room
+msgid "Colorimetry room"
+msgstr "Phòng đo màu"
+
+#. module: sol_demo
+#: model:medilab.testing.method,name:sol_demo.demo_testing_method_chromium_vi_colorimetry
+msgid "Water quality — Determination of chromium(VI) by colorimetry"
+msgstr "Chất lượng nước — Xác định crom(VI) bằng phương pháp đo màu"
+
+#. module: sol_demo
+#: model:medilab.location,name:sol_demo.demo_location_store_room
+msgid "Store room"
+msgstr "Kho"

@@ -48,4 +48,13 @@
         <field name="group_ids" eval="[Command.set([ref('demo_parameter_group_heavy_metals')])]" />
         <field name="main_group_id" ref="demo_parameter_group_heavy_metals" />
     </record>
+    <record id="demo_test_parameter_chromium_vi" model="medilab.test.parameter">
+        <field name="name">Chromium (VI)</field>
+        <field name="group_ids" eval="[Command.set([ref('demo_parameter_group_heavy_metals')])]" />
+        <field name="main_group_id" ref="demo_parameter_group_heavy_metals" />
+        <field
+            name="sample_type_ids"
+            eval="[Command.set([ref('demo_sample_type_bottled_water'), ref('demo_sample_type_surface_water')])]"
+        />
+    </record>
 </odoo>
