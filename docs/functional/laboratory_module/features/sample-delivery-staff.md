@@ -90,11 +90,12 @@ Acceptance criteria:
 
 | Rule     | Description                                                                                                     |
 | -------- | --------------------------------------------------------------------------------------------------------------- |
-| Carrier  | A dispatch is carried by sample delivery staff or by a delivery service, as the head of department records on it. |
+| Carrier  | A dispatch is carried by sample delivery staff or by a delivery service, as the head of department records on it. Only people holding the sample delivery staff role, which the administrator names in the Laboratory settings, can be chosen. |
 
 Acceptance criteria:
 
 - A dispatch assigned to sample delivery staff appears in their list of dispatches to carry, with the subcontractor and the date sent.
+- Only people holding the role named in the Laboratory settings are offered to take a dispatch, and choosing anyone else is refused; with no role named, nobody is.
 
 ### 4. Delivering reports (US-SD14)
 
