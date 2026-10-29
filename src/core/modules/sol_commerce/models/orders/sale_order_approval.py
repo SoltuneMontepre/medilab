@@ -1,4 +1,4 @@
-from odoo import fields, models
+from odoo import api, fields, models
 from odoo.exceptions import UserError
 
 from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
@@ -8,6 +8,7 @@ from odoo.addons.sol_commerce.constants.orders import (
     STATUS_COMPLETED,
     STATUS_CONFIRMED,
 )
+from odoo.addons.sol_laboratory.constants.approvals import STATE_REQUESTED
 from odoo.addons.sol_laboratory.constants.models import MODEL_APPROVAL_MIXIN, MODEL_PERSON
 
 # What the customer and sales agreed: edits stop once a signature stands.
@@ -19,6 +20,20 @@ class SaleOrderApproval(models.Model):
     _name = MODEL_SALE_ORDER
     _inherit = [MODEL_SALE_ORDER, MODEL_APPROVAL_MIXIN]
     _audit_children = ("order_line", "quotation_ids", "sample_ids", "cancellation_request_ids", "support_request_ids")
+
+    # The role whose signature a requested approval waits for; empty when no approval is requested.
+    approval_waiting_for = fields.Char(string="Waiting for", compute="_compute_approval_waiting_for", compute_sudo=True)
+
+    @api.depends("approval_status")
+    def _compute_approval_waiting_for(self):
+        for order in self:
+            level = order._approval_waiting_level() if order.approval_status == STATE_REQUESTED else False
+            order.approval_waiting_for = level.role_id.name if level else False
+
+    def _approval_waiting_level(self):
+        self.ensure_one()
+        chain = self._approval_chain()
+        return self._approval_next_level(chain, self._approval_open_rows()) if chain else False
 
     def action_request_approval(self):
         """Sign the first level, which asks the next levels to approve the confirmed order."""
