@@ -54,6 +54,7 @@ Sales is the laboratory's salesperson. Sales turns customer orders into quotatio
 
 - **Queue.** Submitted customer orders appear in an unclaimed queue, oldest first. A salesperson claims one; from then on only that salesperson (and the Head of Sales) sees and edits it. A claimed order is not visible to other salespeople.
 - **Order on behalf of a customer.** Sales selects the customer, adds parameters and service packages in the same catalog the customer uses and saves it as an order owned by the salesperson. From here the flow is the same as a portal order.
+- **Order form.** Under the order number, each status has its label: **Customer sees** (the progress shown on the portal), **Quotation** (unpaid, paid, declined or expired) and **Approval** (requested, approved or rejected). A requested approval also names the role whose signature it waits for, such as the Head of Sales. The **Order Lines** tab holds only the ordered parameters and packages, added with **Add a parameter or package**. The down payments Odoo adds to the order when an advance invoice is created are listed on the **Payment** tab, each with its invoice and untaxed amount, next to the advance method, payment status and pending amount.
 - **Customer profile.** Name, tax code or citizen ID, addresses, the contact people of a business, and the customer's order history. Sales can set whether a customer is allowed to order on credit (see below). The customer itself is kept by the [Laboratory module](../../laboratory_module/overview.md#test-requests-and-samples); E-commerce keeps the customer's sales terms.
 - **Portal invitation and duplicates.** Sales can invite a customer to the portal. A self-registered account that matches an existing profile on tax code or citizen ID is flagged; sales reviews it and either clears the flag or merges it into the profile it matched. Merging moves every order, document and person of the flagged account to that profile and deletes the flagged one; its login stays, as a contact of the remaining profile.
 
@@ -61,6 +62,8 @@ Acceptance criteria:
 
 - A claimed order cannot be claimed by another salesperson.
 - A salesperson sees only the orders they own and the unclaimed queue; the Head of Sales sees all.
+- After the quotation with an advance is sent, the Order Lines tab shows no down payment line, and the Payment tab lists the advance invoice with its amount.
+- An order whose approval is requested shows which role must sign next.
 - Merging two profiles keeps every order and document on the remaining profile.
 
 ### 2. Quotation (US-S05 to US-S10, US-S21, US-S22)

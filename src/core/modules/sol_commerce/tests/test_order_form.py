@@ -2,7 +2,7 @@ from ast import literal_eval
 
 from lxml import etree
 
-from odoo.tests import tagged
+from odoo.tests import Form, tagged
 
 from .order_case import OrderCase
 from odoo.addons.sol_commerce.constants.models import (
@@ -22,7 +22,8 @@ ODOO_HEADER_ACTIONS = (
     "action_draft",
 )
 HIDDEN = ("1", "True")
-LINE_FORM = "//field[@name='order_line']/form"
+LINES = "//page[@name='order_lines']/field[@name='product_line_ids']"
+LINE_FORM = f"{LINES}/form"
 
 
 @tagged("post_install", "-at_install")
@@ -84,7 +85,7 @@ class TestOrderForm(OrderCase):
     def test_lines_offer_no_section_note_or_odoo_catalog(self):
         for view in ("list", "kanban"):
             with self.subTest(view=view):
-                controls = self._nodes(f"//field[@name='order_line']/{view}/control/*")
+                controls = self._nodes(f"{LINES}/{view}/control/*")
                 self.assertEqual({control.get("name") for control in controls}, {"add_product_control"})
         self.assertFalse(self._nodes("//widget[@name='combo_menu']"))
 
@@ -146,3 +147,55 @@ class TestOrderForm(OrderCase):
         order = self.env[MODEL_SALE_ORDER].create({"partner_id": self.env.user.partner_id.id})
         line = self.env[MODEL_SALE_ORDER_LINE].create({"order_id": order.id, "name": "Empty line"})
         self.assertFalse(line.tax_ids)
+
+    def test_order_lines_tab_edits_the_ordered_lines_only(self):
+        self.assertFalse(self._nodes("//field[@name='order_line']"))
+        self.assertEqual(len(self._nodes(LINES)), 1)
+        for view in ("list", "kanban"):
+            with self.subTest(view=view):
+                add = self._nodes(f"{LINES}/{view}/control/create[@name='add_product_control']")[0]
+                self.assertEqual(add.get("string"), "Add a parameter or package")
+
+    def test_down_payments_move_to_the_payment_tab(self):
+        order = self.sent_order()
+        advance = order.sudo().invoice_ids.filtered(lambda invoice: invoice.invoice_kind == "advance")
+        down_payments = order.order_line.filtered("is_downpayment")
+        self.assertTrue(down_payments, "Sending the quotation adds Odoo's down payment lines.")
+
+        self.assertEqual(order.product_line_ids, order.order_line - down_payments)
+        self.assertEqual(order.downpayment_line_ids, down_payments.filtered(lambda line: not line.display_type))
+        self.assertEqual(order.downpayment_line_ids.downpayment_invoice_id, advance)
+        self.assertFalse(order.product_line_ids.downpayment_invoice_id)
+        listed = self._nodes("//page[@name='payment']//field[@name='downpayment_line_ids']/list/field")
+        self.assertEqual(
+            [field.get("name") for field in listed], ["downpayment_invoice_id", "currency_id", "price_unit"]
+        )
+
+    def test_editing_the_ordered_lines_updates_the_totals(self):
+        order = self.make_order([(self.lead_product, 1)], status="claimed", user_id=self.sales.id)
+        with Form(order) as form:
+            before = form.tax_totals["total_amount_currency"]
+            with form.product_line_ids.new() as line:
+                line.product_template_id = self.package_product
+            self.assertGreater(form.tax_totals["total_amount_currency"], before)
+
+        self.assertIn(self.package_product, order.order_line.product_template_id)
+        self.assertEqual(order.product_line_ids, order.order_line)
+
+    def test_each_status_has_its_label(self):
+        labels = {
+            name: self._nodes("//div[hasclass('oe_title')]//div[field[@name=$name]]/span[1]", name=name)[0].text
+            for name in ("customer_status", "quotation_follow_up", "approval_status")
+        }
+        self.assertEqual(
+            labels,
+            {"customer_status": "Customer sees", "quotation_follow_up": "Quotation", "approval_status": "Approval"},
+        )
+
+    def test_a_requested_approval_names_the_role_it_waits_for(self):
+        order = self.requested_order()
+        head_role = self.head_person.role_ids
+
+        self.assertEqual(order.with_user(self.sales).approval_waiting_for, head_role.name)
+        order.with_user(self.head).action_sign()
+        self.assertFalse(order.approval_waiting_for)

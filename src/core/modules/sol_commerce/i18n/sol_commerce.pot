@@ -16,6 +16,27 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Add a parameter or package"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__downpayment_line_ids
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Advance payments"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Approval"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Customer sees"
+msgstr ""
+
+#. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_mail_message
 msgid "Message"
 msgstr ""
@@ -1908,6 +1929,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_receivable_report__name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_revenue_report__name
 #: model_terms:ir.ui.view,arch_db:sol_commerce.report_reconciliation_day
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__downpayment_invoice_id
 msgid "Invoice"
 msgstr ""
 
@@ -2468,6 +2490,11 @@ msgid "Order %s was submitted."
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__product_line_ids
+msgid "Order Lines"
+msgstr ""
+
+#. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_medilab_order_sample
 msgid "Order Sample"
 msgstr ""
@@ -3009,6 +3036,7 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_medilab_quotation
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 msgid "Quotation"
 msgstr ""
 
@@ -4230,6 +4258,11 @@ msgid "Unpaid"
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Untaxed amount"
+msgstr ""
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
 msgid "Update"
 msgstr ""
@@ -4257,6 +4290,11 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__customer_status__waiting
 msgid "Waiting"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__approval_waiting_for
+msgid "Waiting for"
 msgstr ""
 
 #. module: sol_commerce
@@ -4394,4 +4432,9 @@ msgstr ""
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_submitted
 msgid "is in the sales queue."
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "waiting for"
 msgstr ""
