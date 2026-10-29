@@ -32,6 +32,7 @@ ENVIRONMENT = {
     "ONLYOFFICE_PUBLIC_URL": "http://localhost:29843",
     "ONLYOFFICE_CALLBACK_ORIGIN": "https://onlyoffice-gateway:7443",
     "ONLYOFFICE_JWT_SECRET": "local-contract-only-signing-material",
+    "REQUESTS_CA_BUNDLE": "/run/onlyoffice-trust/bundle.crt",
     "BUCKET_LABORATORY_NAME": BUCKET,
     "BUCKET_LABORATORY_REGION": "garage",
     "BUCKET_LABORATORY_ADDRESS": "http://garage:3900",
@@ -111,7 +112,7 @@ class Session:
         if self.conversion_error:
             raise self.conversion_error
         claims = jwt.decode(
-            json["token"], ENVIRONMENT["ONLYOFFICE_JWT_SECRET"], algorithms=["HS256"]
+            json["token"], os.environ["ONLYOFFICE_JWT_SECRET"], algorithms=["HS256"]
         )
         if claims["key"] != MARKER or claims["url"] != json["url"]:
             raise AssertionError("The actual request parameters were not signed")
@@ -135,7 +136,13 @@ class VerifierTests(unittest.TestCase):
         ).start()
 
     def run_probe(self, **kwargs):
-        return verifier.verify(marker=MARKER, expected_bucket=BUCKET, **kwargs)
+        return verifier.verify(
+            marker=MARKER,
+            expected_bucket=BUCKET,
+            expected_origin=ENVIRONMENT["ONLYOFFICE_PUBLIC_URL"],
+            expected_storage_origin=ENVIRONMENT["BUCKET_LABORATORY_PUBLIC_ADDRESS"],
+            **kwargs,
+        )
 
     def assert_owned_cleanup(self):
         self.assertEqual(
@@ -165,6 +172,94 @@ class VerifierTests(unittest.TestCase):
                 ENVIRONMENT["ONLYOFFICE_INTERNAL_URL"] + "/cache/files/"
             )
         )
+        self.assertFalse(self.session.trust_env)
+        self.assertEqual(self.session.verify, ENVIRONMENT["REQUESTS_CA_BUNDLE"])
+        for call in self.client.call_args_list:
+            self.assertEqual(call.kwargs["config"].proxies, {})
+
+    def test_running_endpoint_changes_are_rejected_before_network_or_storage(self):
+        changes = (
+            ("BUCKET_LABORATORY_ADDRESS", "https://foreign.invalid"),
+            ("BUCKET_LABORATORY_ACCESS_KEY", ""),
+            ("BUCKET_LABORATORY_SECRET_KEY", ""),
+            ("BUCKET_LABORATORY_PUBLIC_ADDRESS", "http://localhost:23901"),
+            ("ONLYOFFICE_INTERNAL_URL", "https://foreign.invalid"),
+            ("ONLYOFFICE_PUBLIC_URL", "http://localhost:29844"),
+            ("ONLYOFFICE_CALLBACK_ORIGIN", "https://foreign.invalid"),
+            ("REQUESTS_CA_BUNDLE", "foreign-ca.crt"),
+        )
+        self.storage.objects[BUCKET, "existing-document.docx"] = b"preserved"
+        original = dict(self.storage.objects)
+        for name, value in changes:
+            with self.subTest(setting=name), patch.dict(os.environ, {name: value}):
+                with self.assertRaises(RuntimeError):
+                    self.run_probe()
+                self.client.assert_not_called()
+                self.assertEqual(self.storage.calls, [])
+                self.assertEqual(self.storage.objects, original)
+                self.assertEqual((self.session.posts, self.session.gets), ([], []))
+
+    def test_negative_jwt_probe_always_uses_a_different_key_from_valid_configuration(
+        self,
+    ):
+        secret = "invalid-local-verification-key-0000000000"
+        with patch.dict(os.environ, {"ONLYOFFICE_JWT_SECRET": secret}):
+            self.assertTrue(self.run_probe()["jwt"])
+            with self.assertRaises(jwt.InvalidSignatureError):
+                jwt.decode(
+                    self.session.posts[0][1]["token"], secret, algorithms=["HS256"]
+                )
+        self.assert_owned_cleanup()
+
+    def test_owner_expectations_and_safe_origins_are_required(self):
+        for origin in (
+            None,
+            "https://foreign.invalid",
+            "http://localhost:23900@foreign.invalid",
+            "http://localhost:23900/path",
+            "http://user@localhost:23900",
+            "http://localhost:99999",
+        ):
+            with self.subTest(origin=origin), self.assertRaises(RuntimeError):
+                verifier.verify(
+                    marker=MARKER,
+                    expected_bucket=BUCKET,
+                    expected_origin=ENVIRONMENT["ONLYOFFICE_PUBLIC_URL"],
+                    expected_storage_origin=origin,
+                )
+        with self.assertRaises(RuntimeError):
+            verifier.verify(marker=MARKER)
+        self.client.assert_not_called()
+        self.assertEqual((self.session.posts, self.session.gets), ([], []))
+
+    def test_cleanup_requires_explicit_marker_and_fixed_local_storage(self):
+        for marker in (None, "", False, "../foreign"):
+            with self.subTest(marker=marker), self.assertRaises(RuntimeError):
+                verifier.verify(marker=marker, cleanup=True, expected_bucket=BUCKET)
+        with (
+            patch.dict(
+                os.environ, {"BUCKET_LABORATORY_ADDRESS": "https://foreign.invalid"}
+            ),
+            self.assertRaises(RuntimeError),
+        ):
+            self.run_probe(cleanup=True)
+        self.client.assert_not_called()
+        self.assertEqual(self.storage.calls, [])
+
+    def test_cleanup_recovers_owned_object_while_editor_configuration_is_broken(self):
+        self.storage.objects[BUCKET, KEY] = b"owned interrupted input"
+        with patch.dict(
+            os.environ,
+            {
+                "ONLYOFFICE_INTERNAL_URL": "https://foreign.invalid",
+                "REQUESTS_CA_BUNDLE": "missing.crt",
+            },
+        ):
+            result = self.run_probe(cleanup=True)
+        self.assertTrue(result["cleaned"])
+        self.assert_owned_cleanup()
+        self.assertEqual(self.client.call_count, 1)
+        self.assertEqual((self.session.posts, self.session.gets), ([], []))
 
     def test_download_error_does_not_prove_jwt_rejection(self):
         self.session.invalid_error = -4

@@ -6,10 +6,10 @@ The controller argument supplies the selected CLI's engine operations without im
 import hashlib
 import json
 import uuid
-from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener
+from http.client import HTTPConnection, HTTPException
 
 import demo_bootstrap as bootstrap
-from onlyoffice_state import SERVER_IMAGE, SERVICES, OnlyofficeError
+from onlyoffice_state import SERVER_IMAGE, SERVICES, OnlyofficeError, validated_port
 
 
 def verify_network(controller, state, marker, environment):
@@ -98,18 +98,32 @@ def verify_network(controller, state, marker, environment):
         )
 
 
-class NoRedirect(HTTPRedirectHandler):
-    def redirect_request(self, *_args, **_kwargs):
-        return None
+def public_health(port, *, timeout):
+    number = validated_port(port)
+    connection = HTTPConnection("127.0.0.1", number, timeout=timeout)
+    try:
+        connection.request(
+            "GET", "/healthcheck", headers={"Host": f"localhost:{number}"}
+        )
+        response = connection.getresponse()
+        return response.status == 200 and response.read(32) == b"true"
+    except (OSError, HTTPException):
+        return False
+    finally:
+        connection.close()
 
 
 def verify_runtime(controller, state, marker, environment):
     controller.verify_image(state)
     directory = controller.state_directory(state["project"], state.get("base_owner"))
     ledger = directory / "verification.json"
-    bucket = json.loads((directory / "runtime.json").read_text(encoding="utf-8"))[
-        "bucket"
-    ]
+    runtime_file = controller.checked_path(directory / "runtime.json")
+    runtime = json.loads(runtime_file.read_text(encoding="utf-8"))
+    if runtime != controller.runtime_config(state, environment):
+        raise OnlyofficeError(
+            "The prepared editor endpoints differ from the selected owned configuration."
+        )
+    bucket = runtime["bucket"]
     script = (controller.ROOT / "tools/onlyoffice/verify.py").read_text(
         encoding="utf-8"
     )
@@ -140,6 +154,8 @@ def verify_runtime(controller, state, marker, environment):
             previous["id"],
             "cleanup",
             bucket,
+            runtime["public_origin"],
+            runtime["storage_origin"],
             timeout=120,
         )
         if json.loads(cleanup.stdout) != {"cleaned": True}:
@@ -147,14 +163,10 @@ def verify_runtime(controller, state, marker, environment):
                 "The previous disposable conversion input could not be verified as removed."
             )
         ledger.unlink()
-    origin = f"http://localhost:{state['config']['MEDILAB_ONLYOFFICE_PORT']}"
-    with build_opener(ProxyHandler({}), NoRedirect).open(
-        Request(origin + "/healthcheck"), timeout=10
-    ) as response:
-        if response.status != 200 or response.read(32) != b"true":
-            raise OnlyofficeError(
-                "The local editor endpoint did not return exact healthy content."
-            )
+    if not public_health(state["config"]["MEDILAB_ONLYOFFICE_PORT"], timeout=10):
+        raise OnlyofficeError(
+            "The local editor endpoint did not return exact healthy content."
+        )
     identifier = uuid.uuid4().hex
     controller.atomic_json(
         ledger,
@@ -178,6 +190,8 @@ def verify_runtime(controller, state, marker, environment):
         identifier,
         "convert",
         bucket,
+        runtime["public_origin"],
+        runtime["storage_origin"],
         timeout=600,
     )
     report = json.loads(result.stdout)
@@ -221,15 +235,10 @@ def actual_status(controller, state):
             for name in ("onlyoffice", "onlyoffice-gateway")
         )
     )
-    origin = f"http://localhost:{state['config']['MEDILAB_ONLYOFFICE_PORT']}"
+    port = validated_port(state["config"]["MEDILAB_ONLYOFFICE_PORT"])
+    origin = f"http://localhost:{port}"
     if ready:
-        try:
-            with build_opener(ProxyHandler({}), NoRedirect).open(
-                origin + "/healthcheck", timeout=3
-            ) as response:
-                ready = response.status == 200 and response.read(32) == b"true"
-        except OSError:
-            ready = False
+        ready = public_health(port, timeout=3)
     return {
         "project": state["project"],
         "saved_status": state["status"],

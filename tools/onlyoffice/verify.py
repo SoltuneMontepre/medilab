@@ -16,16 +16,53 @@ import requests
 from botocore.config import Config
 
 
-def verify(marker=None, cleanup=False, expected_bucket=None):
-    marker = marker or uuid.uuid4().hex
-    if not re.fullmatch(r"[a-f0-9]{32}", marker):
+def loopback_origin(value):
+    try:
+        parsed = urlsplit(value)
+        valid = (
+            isinstance(value, str)
+            and parsed.scheme == "http"
+            and parsed.hostname == "localhost"
+            and parsed.username is None
+            and parsed.password is None
+            and not any((parsed.path, parsed.query, parsed.fragment))
+            and parsed.port is not None
+            and 1 <= parsed.port <= 65535
+            and not any(
+                character.isspace() or ord(character) < 32 for character in value
+            )
+        )
+    except (AttributeError, TypeError, ValueError):
+        valid = False
+    if not valid:
+        raise RuntimeError("Invalid owned local verification origin")
+    return value
+
+
+def verify(
+    marker=None,
+    cleanup=False,
+    expected_bucket=None,
+    expected_origin=None,
+    expected_storage_origin=None,
+):
+    if cleanup and marker is None:
+        raise RuntimeError(
+            "Cleanup requires its owned disposable verification identity"
+        )
+    marker = uuid.uuid4().hex if marker is None else marker
+    if not isinstance(marker, str) or not re.fullmatch(r"[a-f0-9]{32}", marker):
         raise RuntimeError("Invalid disposable verification identity")
     if (
-        expected_bucket is not None
-        and os.environ["BUCKET_LABORATORY_NAME"] != expected_bucket
+        not isinstance(expected_bucket, str)
+        or not expected_bucket
+        or os.environ["BUCKET_LABORATORY_NAME"] != expected_bucket
+        or os.environ["BUCKET_LABORATORY_ADDRESS"] != "http://garage:3900"
+        or not os.environ.get("BUCKET_LABORATORY_ACCESS_KEY")
+        or not os.environ.get("BUCKET_LABORATORY_SECRET_KEY")
     ):
         raise RuntimeError(
-            "The selected disposable bucket differs from the running application"
+            "The owned local Garage target differs from the running application"
         )
     result = {
         "health": False,
@@ -34,11 +71,27 @@ def verify(marker=None, cleanup=False, expected_bucket=None):
         "callback_refused": False,
         "cleaned": False,
     }
-    internal = os.environ["ONLYOFFICE_INTERNAL_URL"]
-    public = os.environ["ONLYOFFICE_PUBLIC_URL"]
-    secret = os.environ["ONLYOFFICE_JWT_SECRET"]
-    session = requests.Session()
-    session.trust_env = True
+    if not cleanup:
+        if (
+            os.environ["BUCKET_LABORATORY_PUBLIC_ADDRESS"]
+            != loopback_origin(expected_storage_origin)
+            or os.environ["ONLYOFFICE_PUBLIC_URL"] != loopback_origin(expected_origin)
+            or os.environ["ONLYOFFICE_INTERNAL_URL"]
+            != "https://onlyoffice-gateway:9443"
+            or os.environ["ONLYOFFICE_CALLBACK_ORIGIN"]
+            != "https://onlyoffice-gateway:7443"
+            or os.environ.get("REQUESTS_CA_BUNDLE")
+            != "/run/onlyoffice-trust/bundle.crt"
+        ):
+            raise RuntimeError(
+                "The running editor endpoints differ from the owned local configuration"
+            )
+        internal = os.environ["ONLYOFFICE_INTERNAL_URL"]
+        public = os.environ["ONLYOFFICE_PUBLIC_URL"]
+        secret = os.environ["ONLYOFFICE_JWT_SECRET"]
+        session = requests.Session()
+        session.trust_env = False
+        session.verify = "/run/onlyoffice-trust/bundle.crt"
     deadline = time.monotonic() + 45
     while not cleanup:
         try:
@@ -70,14 +123,14 @@ def verify(marker=None, cleanup=False, expected_bucket=None):
             connect_timeout=5,
             read_timeout=30,
             retries={"max_attempts": 1},
+            proxies={},
         ),
     }
     storage = boto3.client(
         "s3", endpoint_url=os.environ["BUCKET_LABORATORY_ADDRESS"], **options
     )
-    signer = boto3.client(
-        "s3", endpoint_url=os.environ["BUCKET_LABORATORY_PUBLIC_ADDRESS"], **options
-    )
+    if not cleanup:
+        signer = boto3.client("s3", endpoint_url=expected_storage_origin, **options)
     key = f"onlyoffice-setup/{marker}/input.docx"
     document = io.BytesIO()
     with zipfile.ZipFile(document, "w", zipfile.ZIP_DEFLATED) as archive:
@@ -108,13 +161,16 @@ def verify(marker=None, cleanup=False, expected_bucket=None):
             "url": source,
             "title": "input.docx",
         }
+        invalid_key = "invalid-local-verification-key-0000000000"
+        if secret == invalid_key:
+            invalid_key += "-different"
         bad = session.post(
             internal + "/ConvertService.ashx",
             json={
                 **conversion,
                 "token": jwt.encode(
                     conversion,
-                    "invalid-local-verification-key-0000000000",
+                    invalid_key,
                     algorithm="HS256",
                 ),
             },
@@ -195,6 +251,8 @@ def main():
         sys.argv[1] if len(sys.argv) > 1 else None,
         cleanup,
         sys.argv[3] if len(sys.argv) > 3 else None,
+        sys.argv[4] if len(sys.argv) > 4 else None,
+        sys.argv[5] if len(sys.argv) > 5 else None,
     )
     print(json.dumps({"cleaned": outcome["cleaned"]} if cleanup else outcome))
 
