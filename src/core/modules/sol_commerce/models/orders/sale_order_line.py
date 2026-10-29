@@ -8,7 +8,7 @@ from odoo.addons.sol_commerce.constants.models import (
     MODEL_SALE_ORDER,
     MODEL_SALE_ORDER_LINE,
 )
-from odoo.addons.sol_commerce.constants.orders import APPROVAL_FROZEN_LINE_FIELDS, PORTAL_LOCKED_LINE_FIELDS
+from odoo.addons.sol_commerce.constants.orders import FROZEN_LINE_FIELDS, PORTAL_LOCKED_LINE_FIELDS
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN
 
 
@@ -62,8 +62,8 @@ class SaleOrderLine(models.Model):
             if line.sample_id.order_id != line.order_id:
                 raise ValidationError(self.env._("A line can only be tested on a sample of its own order."))
 
-    def _signed_lines(self):
-        # The lines of a down payment are Odoo's own bookkeeping and follow the invoice, signed or not.
+    def _content_lines(self):
+        # The lines of a down payment are Odoo's own bookkeeping and follow the invoice, confirmed or not.
         return self.filtered(lambda line: not line.is_downpayment)
 
     @api.model_create_multi
@@ -75,14 +75,14 @@ class SaleOrderLine(models.Model):
         return lines
 
     def unlink(self):
-        self._signed_lines().order_id._check_content_freeze()
+        self._content_lines().order_id._check_content_freeze()
         return super().unlink()
 
     def write(self, vals):
         if PORTAL_LOCKED_LINE_FIELDS & set(vals) and self.env.user.share and not self.env.su:
             raise AccessError(self.env._("You cannot change the price of an order."))
-        if APPROVAL_FROZEN_LINE_FIELDS & set(vals):
-            self._signed_lines().order_id._check_content_freeze()
+        if FROZEN_LINE_FIELDS & set(vals):
+            self._content_lines().order_id._check_content_freeze()
         result = super().write(vals)
         if "product_uom_qty" in vals:
             self._sync_package_part_quantities()

@@ -78,7 +78,7 @@ class TestOrderTemplate(TemplateCase):
             "submitted_at",
             "quoted_at",
             "accepted_at",
-            "approved_at",
+            "confirmed_at",
             "payment_deadline",
             "expected_result_date",
             "quotation_ids",
@@ -91,7 +91,6 @@ class TestOrderTemplate(TemplateCase):
             self.assertFalse(order[field], field)
         self.assertEqual(order._catalog_lines().mapped("discount"), [0, 0])
         self.assertEqual(order.quotation_sent_count, 0)
-        self.assertEqual(order.approval_status, "none")
         self.assertEqual(counts, {model: self.env[model].search_count([]) for model in counts})
         self.assertEqual(source._catalog_lines().mapped("discount"), [20, 20])
 
@@ -104,14 +103,14 @@ class TestOrderTemplate(TemplateCase):
         self.assertEqual(len(order.invoice_ids), 1)
         self.assertEqual(order.state, "sent")
 
-    def test_signed_source_is_only_read_and_does_not_freeze_template_edits(self):
-        source = self.approved_order()
+    def test_confirmed_source_is_only_read_and_does_not_freeze_template_edits(self):
+        source = self.make_confirmed_order()
         template = self.save_template(source)
         template.with_user(self.sales).write({"name": "Updated selection"})
         template.line_ids.with_user(self.sales).write({"quantity": 2.25})
         order = self.reuse(template)
         self.assertEqual(order._catalog_lines().product_uom_qty, 2.25)
-        self.assertEqual(source.approval_status, "approved")
+        self.assertEqual(source.order_status, "confirmed")
         self.assertEqual(source._catalog_lines().product_uom_qty, 1)
 
     def test_archived_template_cannot_be_reused(self):

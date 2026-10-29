@@ -96,40 +96,11 @@
                     invisible="order_status != 'claimed' or quotation_follow_up != 'paid'"
                 />
                 <button
-                    name="action_request_approval"
-                    type="object"
-                    string="Request approval"
-                    class="btn-primary"
-                    invisible="order_status != 'confirmed' or approval_status != 'none' or not approval_can_sign"
-                />
-                <button
-                    name="action_sign"
-                    type="object"
-                    string="Approve"
-                    class="btn-success"
-                    invisible="order_status != 'confirmed' or approval_status != 'requested' or not approval_can_sign"
-                />
-                <button
-                    name="%(action_medilab_order_reject)d"
-                    type="action"
-                    string="Reject"
-                    class="btn-danger"
-                    context="{'default_order_id': id}"
-                    invisible="order_status != 'confirmed' or approval_status != 'requested' or not approval_can_reject"
-                />
-                <button
-                    name="action_withdraw"
-                    type="object"
-                    string="Withdraw signature"
-                    class="btn-secondary"
-                    invisible="not approval_can_withdraw"
-                />
-                <button
                     name="action_start_sample_collection"
                     type="object"
                     string="Start sample collection"
                     class="btn-primary"
-                    invisible="order_status != 'confirmed' or approval_status != 'approved'"
+                    invisible="order_status != 'confirmed'"
                 />
                 <button name="action_save_as_template" type="object" string="Save as template" class="btn-secondary" invisible="not can_save_order_template" groups="sol_laboratory.group_permission_order_template_create_all" />
                 <button
@@ -188,7 +159,7 @@
                     Nothing has been paid on this order. It can still be confirmed.
                 </div>
             </xpath>
-            <!-- Each status says what it is about, and a requested approval names the role it waits for. -->
+            <!-- Each status says what it is about. -->
             <xpath expr="//div[hasclass('oe_title')]" position="inside">
                 <div class="d-flex flex-wrap align-items-center column-gap-4 row-gap-1">
                     <div class="d-flex align-items-center gap-2">
@@ -211,19 +182,6 @@
                             decoration-danger="quotation_follow_up in ('declined', 'expired')"
                         />
                     </div>
-                    <div class="d-flex align-items-center gap-2" invisible="approval_status == 'none'">
-                        <span class="text-muted">Approval</span>
-                        <field
-                            name="approval_status"
-                            widget="badge"
-                            decoration-warning="approval_status == 'requested'"
-                            decoration-success="approval_status == 'approved'"
-                            decoration-danger="approval_status == 'rejected'"
-                        />
-                        <span class="d-inline-flex align-items-center gap-1 text-muted" invisible="not approval_waiting_for">
-                            waiting for <field name="approval_waiting_for" class="text-muted" />
-                        </span>
-                    </div>
                 </div>
             </xpath>
             <xpath expr="//group[@name='partner_details']/field[@name='partner_id']" position="before">
@@ -244,9 +202,6 @@
                 <field name="test_request_id" readonly="1" invisible="not test_request_id" />
                 <field name="test_request_status" invisible="not test_request_id" />
                 <field name="show_unpaid_warning" invisible="1" />
-                <field name="approval_can_sign" invisible="1" />
-                <field name="approval_can_reject" invisible="1" />
-                <field name="approval_can_withdraw" invisible="1" />
             </xpath>
             <xpath expr="//group[@name='order_details']/field[@name='validity_date']" position="before">
                 <field name="user_id" widget="many2one_avatar_user" />
@@ -398,8 +353,7 @@
                             <field name="accepted_at" invisible="not accepted_at" />
                         </group>
                         <group>
-                            <field name="approved_at" invisible="not approved_at" />
-                            <field name="document_version" readonly="1" />
+                            <field name="confirmed_at" invisible="not confirmed_at" />
                         </group>
                     </group>
                 </page>

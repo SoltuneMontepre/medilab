@@ -13,9 +13,8 @@ STATUS_CANCELLED = "cancelled"
 CUSTOMER_CANCELLABLE = (STATUS_DRAFT, STATUS_SUBMITTED, STATUS_CLAIMED)
 FINISHED_STATUSES = (STATUS_COMPLETED, STATUS_CANCELLED)
 NOTIFIED_STATUSES = (STATUS_SUBMITTED, STATUS_CLAIMED, STATUS_CANCELLED)
-
-APPROVAL_NONE = "none"
-APPROVAL_APPROVED = "approved"
+# The statuses from which the order's content changes only through a revised quotation the customer accepts.
+FROZEN_STATUSES = (STATUS_CONFIRMED, STATUS_COMPLETED)
 
 CANCELLATION_TRIGGER = "order_cancellation_requested"
 CANCELLATION_ACTION = "decide"
@@ -50,10 +49,10 @@ FOLLOW_UP_BY_QUOTATION_STATUS = {
     QUOTATION_EXPIRED: QUOTATION_EXPIRED,
 }
 
-# The line fields that stop changing once the order has a standing signature.
-APPROVAL_FROZEN_LINE_FIELDS = frozenset(
-    {"product_id", "product_uom_qty", "price_unit", "discount", "tax_ids", "sample_id"}
-)
+# What the customer and sales agreed on the order itself: it stops changing once the order is confirmed.
+FROZEN_ORDER_FIELDS = frozenset({"customer_id", "partner_id", "payment_deadline", "validity_date"})
+# The line fields that stop changing once the quotation is sent or the order is confirmed.
+FROZEN_LINE_FIELDS = frozenset({"product_id", "product_uom_qty", "price_unit", "discount", "tax_ids", "sample_id"})
 
 # The sample fields that stop changing with the lines.
 FROZEN_SAMPLE_FIELDS = frozenset(
@@ -66,9 +65,8 @@ PORTAL_LOCKED_ORDER_FIELDS = frozenset(
         "advance_method",
         "advance_mode",
         "advance_value",
-        "approval_status",
-        "approved_at",
         "claimed_at",
+        "confirmed_at",
         "customer_id",
         "expected_result_date",
         "order_status",
