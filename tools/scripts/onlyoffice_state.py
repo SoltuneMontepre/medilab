@@ -37,6 +37,7 @@ INPUT_KEYS = (
 
 WINDOWS_ACL = r"""
 $ErrorActionPreference='Stop'
+Import-Module -Name (Join-Path $PSHOME 'Modules\Microsoft.PowerShell.Security\Microsoft.PowerShell.Security.psd1') -ErrorAction Stop
 $p=$env:MEDILAB_ONLYOFFICE_ACL_PATH
 $u=[Security.Principal.WindowsIdentity]::GetCurrent().User
 if($env:MEDILAB_ONLYOFFICE_ACL_PROTECT -eq '1') {

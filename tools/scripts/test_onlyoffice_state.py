@@ -1,5 +1,6 @@
 """State, registration and ownership tests use disposable directories and mocked engine operations."""
 
+import base64
 import io
 import json
 import os
@@ -189,6 +190,36 @@ class OnlyofficeStateTest(unittest.TestCase):
             self.assertEqual(
                 state.resolve_addon("medilab-test", None, {}, "up"), ([], {})
             )
+
+    def test_acl_loads_child_native_security_module_without_changing_parent_module_path(
+        self,
+    ):
+        inherited = {"PSModulePath": "parent-shell-modules"}
+        with (
+            patch.dict(os.environ, inherited, clear=True),
+            patch.object(
+                state.subprocess, "run", return_value=subprocess.CompletedProcess([], 0)
+            ) as run,
+        ):
+            state.windows_acl(self.root / "synthetic marker", create=True)
+            self.assertEqual(os.environ["PSModulePath"], inherited["PSModulePath"])
+        command = run.call_args.args[0]
+        script = base64.b64decode(command[-1]).decode("utf-16-le")
+        native_import = "Import-Module -Name (Join-Path $PSHOME 'Modules\\Microsoft.PowerShell.Security\\Microsoft.PowerShell.Security.psd1') -ErrorAction Stop"
+        self.assertIn(native_import, script)
+        self.assertLess(script.index(native_import), script.index("Set-Acl"))
+        self.assertLess(script.index(native_import), script.index("Get-Acl"))
+        self.assertEqual(
+            {
+                key.casefold(): value
+                for key, value in run.call_args.kwargs["env"].items()
+            }["psmodulepath"],
+            inherited["PSModulePath"],
+        )
+        self.assertEqual(
+            command[:4],
+            ["powershell.exe", "-NoProfile", "-NonInteractive", "-EncodedCommand"],
+        )
 
     def test_engine_capture_decodes_utf8_paths_independently_of_windows_ansi_locale(
         self,

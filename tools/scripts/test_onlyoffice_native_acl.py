@@ -13,6 +13,7 @@ import onlyoffice_state as state
 
 def diagnostic_script():
     stages = {
+        "Import-Module": "import-native-security",
         "$u=": "identity",
         "$a=New-Object": "security-descriptor",
         "$a.SetOwner": "owner",
@@ -62,7 +63,7 @@ class NativeWindowsAclTest(unittest.TestCase):
 
                     def capture(*args, _calls=calls, **kwargs):
                         result = invoke(*args, **kwargs)
-                        _calls.append(result)
+                        _calls.append((result, kwargs["env"]))
                         return result
 
                     with patch.object(state.subprocess, "run", side_effect=capture):
@@ -79,25 +80,21 @@ class NativeWindowsAclTest(unittest.TestCase):
                                         diagnostic_script().encode("utf-16-le")
                                     ).decode("ascii"),
                                 ],
-                                env={
-                                    **os.environ,
-                                    "MEDILAB_ONLYOFFICE_ACL_PATH": str(target),
-                                    "MEDILAB_ONLYOFFICE_ACL_PROTECT": "1"
-                                    if create
-                                    else "0",
-                                },
+                                env=calls[-1][1],
                                 capture_output=True,
                                 check=False,
                             )
                             self.fail(
                                 f"Synthetic native ACL phase={'protect' if create else 'verify'} "
                                 f"kind={'directory' if target == directory else 'file'} "
-                                f"exit={calls[-1].returncode}; "
+                                f"exit={calls[-1][0].returncode}; "
                                 f"typed diagnostic={diagnostic.stderr.decode('utf-8', errors='replace')}; "
-                                f"original synthetic stderr={calls[-1].stderr.decode('utf-8', errors='replace')}"
+                                f"original synthetic stderr={calls[-1][0].stderr.decode('utf-8', errors='replace')}"
                             )
-            environment = {**os.environ, "MEDILAB_ONLYOFFICE_ACL_PATH": str(file)}
-            widen = """
+            environment = calls[-1][1]
+            widen = (
+                state.WINDOWS_ACL
+                + """
 $ErrorActionPreference='Stop'
 $p=$env:MEDILAB_ONLYOFFICE_ACL_PATH
 $a=Get-Acl -LiteralPath $p
@@ -106,6 +103,7 @@ $rule=New-Object Security.AccessControl.FileSystemAccessRule($identity,'Read','A
 $a.AddAccessRule($rule)
 Set-Acl -LiteralPath $p -AclObject $a
 """
+            )
             result = invoke(
                 [
                     "powershell.exe",
