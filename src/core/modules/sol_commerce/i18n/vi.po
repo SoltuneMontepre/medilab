@@ -17,6 +17,23 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/task.py:0
+msgid "%s is already claimed."
+msgstr "%s đã có người nhận."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/task.py:0
+msgid "%s waits in a queue you do not belong to."
+msgstr "%s đang chờ trong hàng đợi mà bạn không thuộc về."
+
+#. module: sol_commerce
+#: model:medilab.task.type,name:sol_commerce.task_type_invoice_posting
+msgid "Invoice posting"
+msgstr "Phát hành hóa đơn"
+
+#. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_mail_message
 msgid "Message"
 msgstr "Tin nhắn"
@@ -1300,6 +1317,11 @@ msgid "Order date"
 msgstr "Ngày đặt hàng"
 
 #. module: sol_commerce
+#: model:medilab.task.type,name:sol_commerce.task_type_order_quotation
+msgid "Order quotation"
+msgstr "Báo giá đơn hàng"
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_submitted
 msgid "Order submitted"
 msgstr "Đã gửi đơn hàng"
@@ -2072,6 +2094,12 @@ msgstr "Đơn hàng đã có chữ ký; hãy rút chữ ký trước khi sửa c
 #: code:addons/sol_commerce/models/orders/sale_order_approval.py:0
 msgid "The order must be approved before the samples are collected."
 msgstr "Đơn hàng phải được phê duyệt trước khi thu mẫu."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_task.py:0
+msgid "The order's salesperson changed."
+msgstr "Nhân viên kinh doanh của đơn hàng đã thay đổi."
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_service_package_form
