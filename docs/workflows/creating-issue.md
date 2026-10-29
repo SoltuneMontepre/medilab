@@ -63,6 +63,17 @@ The [medilab Trello board](https://trello.com/b/mk5Pnyu3/medilab) holds business
 
 Work that is neither a feature nor a bug, such as tooling or demo data, is a chore issue. Its title is `[Chore | <scope>] <short description>`, where the scope is the module or area, such as `Tooling`. Set the issue type to Task.
 
+## Epics
+
+Work that spans several features of one business area is an epic: a parent issue whose sub-issues are the feature and chore issues that build it.
+
+- Its title is `[Epic | <scope>] <area>`. Set the issue type to Feature. An epic has no assignee; its sub-issues do.
+- Its body states the goal, links the documents and spec of the area, and gives the order of its sub-issues.
+- Each sub-issue is a feature or chore issue as above, small enough for one pull request, and is added to the epic as a GitHub sub-issue.
+- A sub-issue that needs another one first records it with GitHub's **blocked by** relationship and names it in its body.
+- A sub-issue that changes existing code says what is already on `main` in a **Starting point on main** line of its Description.
+- A sub-issue may be created before its new tables are in the database diagrams when the documents describe them; its first step adds those tables to the diagram. This is the only exception to [Readiness](#readiness).
+
 ## Related documents
 
 - [Resolving an issue](resolving-issue.md)
