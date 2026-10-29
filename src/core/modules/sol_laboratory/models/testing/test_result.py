@@ -19,14 +19,8 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TEST_RESULT,
 )
 from odoo.addons.sol_laboratory.constants.notifications import EVENT_TEST_RESULT_REJECTED
-from odoo.addons.sol_laboratory.models.sample_collection.subcontract_dispatch import SENT_STATUSES
 from odoo.addons.sol_laboratory.models.testing.machine_booking import ACTIVE_STATUSES
-from odoo.addons.sol_laboratory.models.testing.sample_test import OPEN_STATUSES
 
-# The statuses of a sample while results can be entered for its tests.
-OPEN_SAMPLE_STATUSES = ("received", "testing")
-# The statuses of a sample test while a result can be entered for it: open, or sent to a subcontractor.
-MEASURABLE_STATUSES = (*OPEN_STATUSES, "outsourced")
 # Fields only the system sets, so the approval chain and who entered the result cannot be bypassed.
 SYSTEM_FIELDS = frozenset(
     {"attempt", "is_reported", "entered_by_id", "entered_at", "status", "version", "replaces_id", "is_replaced"}
@@ -228,20 +222,9 @@ class TestResult(models.Model):
                 # A new version is the system's copy of the result it replaces, not a measurement.
                 continue
             test = self.env[MODEL_SAMPLE_TEST].browse(vals.get("sample_test_id")).sudo()
-            if test.status not in MEASURABLE_STATUSES or test.sample_id.status not in OPEN_SAMPLE_STATUSES:
-                raise UserError(
-                    self.env._(
-                        "A result is entered only for a received sample while %s is waiting, assigned, in testing "
-                        "or outsourced.",
-                        test.display_name,
-                    )
-                )
-            if test.status == "outsourced" and not test.dispatch_ids.filtered(
-                lambda dispatch: dispatch.status in SENT_STATUSES
-            ):
-                raise UserError(
-                    self.env._("Send %s to its subcontractor before entering its result.", test.display_name)
-                )
+            refusal = test._result_refusal()
+            if refusal:
+                raise UserError(refusal)
             # A retest becomes the reported result; the earlier ones stay on record.
             vals["attempt"] = max(test.result_ids.mapped("attempt"), default=0) + 1
             vals["is_reported"] = True
@@ -267,6 +250,18 @@ class TestResult(models.Model):
         for result in self:
             if result.machine_id and result.subcontractor_id:
                 raise ValidationError(self.env._("An outsourced result has no machine: %s", result.display_name))
+
+    @api.constrains("value", "value_text")
+    def _check_not_negative(self):
+        # A new version is the system's copy of a result already accepted, so it is not checked again.
+        for result in self.filtered(lambda result: not result.replaces_id):
+            if result.value < 0 and not result.value_text and not result.sudo()._way_of_testing().allows_negative:
+                raise ValidationError(
+                    self.env._(
+                        '%s cannot be negative; enter a measurement below the LOD as a text, such as "< LOD".',
+                        result.display_name,
+                    )
+                )
 
     def write(self, vals):
         moves = "sample_test_id" in vals and any(result.sample_test_id.id != vals["sample_test_id"] for result in self)
