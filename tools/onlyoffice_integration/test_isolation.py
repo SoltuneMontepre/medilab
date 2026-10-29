@@ -5,7 +5,7 @@ import unittest
 
 from .isolation import validate_plan, validate_runtime
 
-PROJECT = "medilab171-agent4-isolation-test"
+PROJECT = "medilab-onlyoffice-isolation-test"
 NETWORK = PROJECT + "_default"
 METADATA = {
     "Name": NETWORK,
