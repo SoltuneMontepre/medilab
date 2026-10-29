@@ -26,6 +26,10 @@ includes:
     taskfile: tools/taskfiles/dev.taskfile.yml
     dir: .
     flatten: true
+  docs:
+    taskfile: tools/taskfiles/docs.taskfile.yml
+    dir: .
+    flatten: true
   tf:
     taskfile: tools/taskfiles/tf.taskfile.yml
     dir: .
