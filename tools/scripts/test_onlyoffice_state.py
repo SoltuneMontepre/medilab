@@ -80,6 +80,7 @@ class OnlyofficeStateTest(unittest.TestCase):
         addon = self.generated_state()
         directory = state.state_directory(addon["project"])
         directory.mkdir(parents=True, mode=0o700)
+        state.protect(directory)
         for changes in (
             {},
             {"provider": "podman", "registered": True},
@@ -109,6 +110,7 @@ class OnlyofficeStateTest(unittest.TestCase):
         addon = self.generated_state()
         directory = state.state_directory(addon["project"])
         directory.mkdir(parents=True, mode=0o700)
+        state.protect(directory)
         file = directory / "state.json"
         broken = [
             None,
