@@ -29,7 +29,7 @@ jobs:
       lint: ${{ steps.result.outputs.lint }}
       e2e: ${{ steps.result.outputs.e2e }}
       scan: ${{ steps.result.outputs.scan }}
-      # runtime: ${{ steps.result.outputs.runtime }}
+      runtime: ${{ steps.result.outputs.runtime }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -54,11 +54,11 @@ jobs:
               - ".github/workflows/ci.core.yml"
             e2e:
               - "src/tests/**"
-            # runtime:
-              # - "infra/cluster/onlyoffice/**"
-              # - "infra/cluster/onlyoffice-monitor/probe.py"
-              # - "tools/infrastructure/onlyoffice/**"
-              # - "tools/onlyoffice_integration/**"
+            runtime:
+              - "infra/cluster/onlyoffice/**"
+              - "infra/cluster/onlyoffice-monitor/probe.py"
+              - "tools/infrastructure/onlyoffice/**"
+              - "tools/onlyoffice_integration/**"
             ai:
               - "tools/odoo-intelligence/**"
               - "tools/taskfiles/ai.taskfile.yml"
@@ -71,7 +71,7 @@ jobs:
           FILES: ${{ steps.filter.outputs.core_files }}
           E2E: ${{ steps.filter.outputs.e2e }}
           AI: ${{ steps.filter.outputs.ai }}
-          # RUNTIME: ${{ steps.filter.outputs.runtime }}
+          RUNTIME: ${{ steps.filter.outputs.runtime }}
         run: |
           core=false
           for f in $FILES; do
@@ -82,7 +82,7 @@ jobs:
           done
           scan=$core
           [ "$AI" = true ] && scan=true
-          # [ "$RUNTIME" = true ] && scan=true
+          [ "$RUNTIME" = true ] && scan=true
           e2e=$core
           [ "$E2E" = true ] && e2e=true
           case "$EVENT" in
@@ -95,7 +95,7 @@ jobs:
             echo "lint=$lint"
             echo "e2e=$e2e"
             echo "scan=$scan"
-            # echo "runtime=$RUNTIME"
+            echo "runtime=$RUNTIME"
           } >> "$GITHUB_OUTPUT"
 
   lint:
@@ -325,10 +325,6 @@ jobs:
 
   coverage:
     needs: [changes, test-runner]
-    # if: >-
-    #   ${{ !cancelled() &&
-    #       (needs.changes.outputs.relevant == 'true' || needs.changes.outputs.runtime == 'true') &&
-    #       (needs.changes.outputs.relevant != 'true' || needs.test-runner.result == 'success') }}
     if: ${{ !cancelled() && needs.changes.outputs.relevant == 'true' && needs.test-runner.result == 'success' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 5
@@ -358,18 +354,6 @@ jobs:
         if: needs.changes.outputs.relevant == 'true'
         run: task test:core:coverage COVERAGE_DIR=.local/coverage
 
-      # - name: ONLYOFFICE runtime coverage
-        # run: task test:onlyoffice:coverage
-
-      # - name: Upload runtime coverage
-        # uses: actions/upload-artifact@v7
-        # with:
-          # name: onlyoffice-coverage
-          # path: |
-            # .local/onlyoffice-coverage/coverage.xml
-            # .local/onlyoffice-coverage/js/lcov.info
-          # retention-days: 1
-
       - name: Upload coverage report
         if: needs.changes.outputs.relevant == 'true'
         uses: actions/upload-artifact@v7
@@ -378,8 +362,45 @@ jobs:
           path: src/core/modules/coverage.xml
           retention-days: 1
 
+  onlyoffice:
+    needs: changes
+    if: needs.changes.outputs.relevant == 'true' || needs.changes.outputs.runtime == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v10.3.0
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+
+      - name: Set up Task
+        uses: arduino/setup-task@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: ONLYOFFICE runtime coverage
+        run: task test:onlyoffice:coverage
+
+      - name: Upload runtime coverage
+        uses: actions/upload-artifact@v7
+        with:
+          name: onlyoffice-coverage
+          path: |
+            .local/onlyoffice-coverage/coverage.xml
+            .local/onlyoffice-coverage/js/lcov.info
+          if-no-files-found: error
+          retention-days: 1
+
   sonarqube:
-    needs: [changes, test, coverage]
+    needs: [changes, test, coverage, onlyoffice]
     if: ${{ !cancelled() && needs.test.result == 'success' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 5
@@ -416,12 +437,29 @@ jobs:
           name: coverage
           path: src/core/modules
 
-      # - name: Download runtime coverage
-        # if: github.event.pull_request.head.repo.fork != true && (needs.changes.outputs.relevant == 'true' || needs.changes.outputs.runtime == 'true')
-        # uses: actions/download-artifact@v8
-        # with:
-          # name: onlyoffice-coverage
-          # path: .local/onlyoffice-coverage
+      - name: Download runtime coverage
+        if: github.event.pull_request.head.repo.fork != true && (needs.changes.outputs.relevant == 'true' || needs.changes.outputs.runtime == 'true')
+        uses: actions/download-artifact@v8
+        with:
+          name: onlyoffice-coverage
+          path: .local/onlyoffice-coverage
+
+      - name: Check coverage jobs
+        if: needs.changes.outputs.scan == 'true'
+        env:
+          CORE: ${{ needs.changes.outputs.relevant }}
+          RUNTIME: ${{ needs.changes.outputs.runtime }}
+          COVERAGE: ${{ needs.coverage.result }}
+          ONLYOFFICE: ${{ needs.onlyoffice.result }}
+        run: |
+          if [ "$CORE" = true ] && [ "$COVERAGE" != success ]; then
+            echo "::error::The core coverage job finished with result $COVERAGE."
+            exit 1
+          fi
+          if { [ "$CORE" = true ] || [ "$RUNTIME" = true ]; } && [ "$ONLYOFFICE" != success ]; then
+            echo "::error::The ONLYOFFICE job finished with result $ONLYOFFICE."
+            exit 1
+          fi
 
       - name: SonarQube Cloud scan
         if: github.event.pull_request.head.repo.fork != true && needs.changes.outputs.scan == 'true'

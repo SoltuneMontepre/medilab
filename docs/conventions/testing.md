@@ -166,7 +166,7 @@ cy.expectRefusal({
 | Function | Use |
 | --- | --- |
 | `callAs(login, model, method, args, kwargs)` | Call a model method as a login, such as `demo.sales` or `portal.anphu`, and yield its result. |
-| `refAs(login, xmlId)` | Resolve a full demo external ID as a login and yield `{ model, id }`. |
+| `refAs(login, xmlId, kwargs)` | Resolve a full demo external ID as a login and yield `{ model, id }`. Optional `kwargs` carries context, such as `active_test: false` for an inactive record. |
 | `portalPostAs(login, page, path, form)` | Submit a portal form as a login, with the CSRF token of `page`. |
 | `callRefused(model, method, args, kwargs)` | Call a model method that must be refused and yield the server's message, in the signed-in user's language. Use it with a check that the screen does not offer the action. |
 
@@ -177,13 +177,25 @@ cy.expectRefusal({
 | `newRecord(path)` | Open a list such as `/odoo/lab-orders`, click **New** and wait until Odoo has filled in the defaults. |
 | `pick(field, text)` | Type into a many2one field and click the suggestion that contains `text`. |
 | `choose(field, label)` | Choose a selection field's value by its label. |
-| `search(text)` | Filter the list by the first field of its search view and wait for the filtered rows, so a record past the first page is shown. |
+| `search(text, { grouped: false, field })` | Filter the list and wait for its response. The first search field is the default; `field` selects a label. Set `grouped: true` for a grouped list. |
 | `save()` | Save the form and wait until it has no unsaved changes. |
 | `openTab(name)` | Open the notebook page with that `name`. |
 
 Messages on screen follow the user's language: `demo.sales` reads Vietnamese, most other demo users English. Odoo screens load their data after the page, so commands wait up to ten seconds.
 
 `demo_roles.cy.js` checks every seeded demo account and opening a demo record. `browser_helpers.cy.js` checks the shared action and refusal commands on a controlled browser fixture, including that a successful action fails the refusal check. Business-flow tests create their starting records with their flow's `setup.js`, so a spec runs again on the same database, and cover only their flow's paths from [Business flows](../functional/business-flows.md).
+
+### WF-03 execution ownership
+
+WF-03 changes shared scheduling settings and explicitly runs the real notification-reminder job. Its support hooks acquire one host-local lease per database UUID before preparing fixtures. Another cooperating Cypress process using that database is refused before mutation; separate hosts must use separate test databases. The lease is stored under the OS temporary directory in `medilab-cypress/<database-UUID-hash>/owner.json`, with only the process and execution IDs.
+
+Within the owned execution, the automatic **Notification reminders** schedule is paused while genuine `method_direct_trigger` calls run sequentially. Those calls must return `true`; an Odoo error action is a failure. The XML-ID lookup includes inactive records. Cleanup cancels only owned reservations and manual tasks, verifies none remain active, then restores the complete private settings checkpoint, optional reminder state, and the cron's original `active` and `nextcall` values. Other scheduled jobs and application notification rules remain enabled.
+
+Each scoped Node task carries an execution and invocation ID. A new execution closes dispatch from the previous scope, drains its pending Node tasks to a deadline, and restores its checkpoints before proceeding. Stale tokens cannot write or release the new scope. Invocation IDs are diagnostic correlation, not request deduplication. Set `MEDILAB_E2E_TRACE` to a writable JSONL path to record IDs, test/spec names, model/method, timing and outcome; arguments, results, cookies and settings values are excluded.
+
+The explicit suite hooks run in both headed and headless modes. `experimentalInteractiveRunEvents` enables an additional `after:run` fallback when the Cypress project closes. Browser-close `after:spec` is deliberately not used to restore an execution because it does not identify each interactive rerun.
+
+A refresh can skip Mocha teardown. Recovery drains tracked Node RPCs; it cannot establish completion of browser-originated requests still executing in Odoo. After interrupting an active UI operation, close the Cypress project gracefully and check the owned database before restarting. Forced process termination can lose private in-memory checkpoints and leave a lease: inspect its owning PID and database activity, restore the known settings and cron state or recreate the owned disposable environment through the supported setup workflow, then remove only that verified stale lease. Never delete a live lease or assume a timeout makes it safe to steal ownership.
 
 ## Applications
 
@@ -195,7 +207,7 @@ Messages on screen follow the user's language: `demo.sales` reads Vietnamese, mo
 
 `task ai:test` runs the tooling suite and lint checks; `ci-tools` runs it on pull requests that change the AI tooling. Live OdooLS tests run when `task ai:setup` has installed the binary and source; otherwise they report skips, as they do in CI. `task ai:verify` checks the Python and XML model and field definitions in `odoo_intelligence/navigation_cases.json` through MCP, plus completion, hover, references and symbols. [Odoo intelligence](../workflows/odoo-intelligence.md) explains the client and Cursor extension-host checks. These checks do not install application modules or alter a database.
 
-The independent callback HTTP worker uses the parent coverage settings and a parallel data file. Its server process must terminate normally so the callback paths reach the combined report. `task test:onlyoffice:coverage` runs the runtime and fixture security contracts and writes Python XML and signing-hook LCOV under `.local/onlyoffice-coverage`. CI publishes those reports alongside Odoo coverage; Sonar imports both. The coverage checkout fetches full history so the real environment-generator regression can read both its verified pinned policy revision and the current commit. Runtime-only changes must keep the scan and runtime coverage jobs enabled.
+The independent callback HTTP worker uses the parent coverage settings and a parallel data file. Its server process must terminate normally so the callback paths reach the combined report. `task test:onlyoffice:coverage` runs the runtime and fixture security contracts and writes Python XML and signing-hook LCOV under `.local/onlyoffice-coverage`. The `onlyoffice` CI job runs it in parallel with the Odoo build and tests and publishes those reports alongside Odoo coverage; Sonar imports both after the jobs finish. The `onlyoffice` checkout fetches full history so the real environment-generator regression can read both its verified pinned policy revision and the current commit. Runtime-only changes must keep the scan and runtime coverage jobs enabled.
 
 ## Related documents
 

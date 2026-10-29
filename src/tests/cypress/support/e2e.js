@@ -1,6 +1,7 @@
 import { register as registerCypressGrep } from "@cypress/grep";
 
 import "./commands";
+import "./wf03";
 
 registerCypressGrep();
 

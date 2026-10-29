@@ -3,6 +3,7 @@ from odoo.exceptions import UserError
 from odoo.fields import Command
 
 from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ADVANCE_PAYMENT_INV, MODEL_SALE_ORDER
+from odoo.addons.sol_commerce.constants.tasks import AUTO_POST_CONTEXT
 
 PAID_STATES = ("paid", "in_payment", "reversed")
 
@@ -76,7 +77,7 @@ class SaleOrder(models.Model):
             }
         )
         invoices = wizard._create_invoices(self)
-        invoices.write({"invoice_kind": "advance", "order_id": self.id})
+        invoices.with_context(**{AUTO_POST_CONTEXT: True}).write({"invoice_kind": "advance", "order_id": self.id})
         invoices.action_post()
         return invoices
 
