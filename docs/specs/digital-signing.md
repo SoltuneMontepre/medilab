@@ -51,6 +51,7 @@ A fully signed document prints as a PDF that Viettel Sign digitally signed with 
 
 - `/verify` is a public page where a visitor uploads a PDF. It shows three checks: the digital signature verifies with the certificate the file carries, that certificate is one of the laboratory's, and the content is unchanged: the signature covers the whole file and the file is, byte for byte, one the system stored, found by its SHA-256. The file is valid when all three pass.
 - A valid file also shows the document, when it was signed, the certificate with its status and validity as Viettel Sign last reported them, and the signatures of the document's approval chain that stand on the signed version: signer, role, level and time.
+- Signed PDFs carry no timestamp or long-term validation data. A signature records who authorized the document and is responsible for it, so a file signed while its certificate was valid stays valid on `/verify` after the certificate expires; the page shows the certificate as expired. A PDF reader may report such a signature's validity as unknown.
 
 ### Document types of this feature
 

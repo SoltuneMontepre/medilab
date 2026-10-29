@@ -7,7 +7,7 @@ The tester, also called lab QA, runs assigned tests with a machine when the way 
 ### Planning
 
 - **US-T01** As a tester, I want to see my testing tasks in my to-do list, soonest deadline first, and claim unassigned testing tasks of my department, so that I work on what is due first.
-- **US-T02** As a tester, I want to schedule a run of the agreed way of testing from the recommended resources and slot, so that it finishes before its due date.
+- **US-T02** As a tester, I want to accept a booking of the agreed way of testing from my department's proposed plan, so that it finishes before its due date.
 - **US-T03** As a tester, I want to move or cancel my booking, so that my schedule matches what I can do.
 - **US-T04** As a tester, I want to be reminded before a booking starts, so that I am ready to start on time.
 - **US-T19** As a tester, I want to mark one of my tests urgent with a reason, so that a sample I know must come first is scheduled first even when its due date is not close.
@@ -51,32 +51,36 @@ The tester, also called lab QA, runs assigned tests with a machine when the way 
 
 ### 1. Planning (US-T01 to US-T04, US-T19 to US-T21)
 
-Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling), [SH-10](../../shared.md#sh-10-tasks-and-to-do-list) and [SH-11](../../shared.md#sh-11-schedules-and-reminders).
+Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling), [Scheduling](../../../specs/scheduling.md), [SH-10](../../shared.md#sh-10-tasks-and-to-do-list) and [SH-11](../../shared.md#sh-11-schedules-and-reminders).
 
 | Rule           | Description                                                                                                              |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------ |
 | Claiming | A tester may claim an unassigned testing task of their department only when the Lab Head's authorization list includes its parameter. There are no team queues and no authorization validity dates. A task someone else claimed first cannot be claimed. |
-| Recommendation | Recommend resources and a slot for a run of the already agreed way, with its explicit sample-type applicability; do not select a different method or performing party. |
-| Booking | A run has one person, one way, one time interval and a machine only if needed. It may combine attempts from several samples and requests within the configured capacity. Reserve the tester and required locations as well as the machine. Queued work is planned urgent first, then first in, first out. |
+| Proposed booking | The department's plan proposes a booking of the already agreed way, with its explicit sample-type applicability; it does not select a different method or performing party. The tester accepts it, which reserves the tester, the required locations and the machine together, or nothing when any is taken. |
+| Booking | A booking has one sample test, one person, one time interval and a machine only if needed. Bookings whose ways use the same method share a machine only for exactly the same interval, within the capacity of the machine-and-method link. The plan places work by priority class: urgent, due soon, then normal. |
 | Marking urgent | The tester marks a test of their own testing task urgent, stating why, or removes the mark. A marked test is urgent whatever its due date. |
-| Deadline risk | Notify the tester and Head of Department when risk first appears, then include unresolved risks in a daily summary. Show the flag on tasks and schedules. Sales contacts the customer only when the promised return date is affected or at risk. |
+| Deadline risk | Notify the tester and Head of Department when risk first appears, then include unresolved risks in a daily summary. Show the flag on tasks and schedules. Sales contacts the customer only when the committed return date is affected or at risk. |
 | Machine heads-up | Warn within the separate calibration, maintenance or recent-repair windows, each defaulting to 7 days. Valid warnings allow booking only while calibration, maintenance and availability requirements are satisfied. |
-| Adjusting | Move or cancel a not-started booking through its run, keeping all required reservations synchronized under SH-11. Cancelling the run returns its attempts to the queue without cancelling their sample tests. |
+| Releasing the machine | Entering the result or marking the measurement finished frees the machine before the booking's end. A booking whose end passes without either keeps the machine, flags the next bookings on it at risk and notifies the tester and head. |
+| Adjusting | Move or cancel a not-started booking, keeping all required reservations synchronized under SH-11. Cancelling the booking returns its sample test to the plan without cancelling it. |
 
 Acceptance criteria:
 
-- Each assigned testing task shows its run booking in the tester's to-do list; the run appears on the tester's schedule and on the schedules of its required resources; a no-machine run is schedulable without a machine.
+- Each assigned testing task shows its booking in the tester's to-do list; the booking appears on the tester's schedule and on the schedules of its required resources; a booking of a way that needs no machine has no machine reservation.
 - Claiming a task assigns it to the tester; a second tester claiming it at the same time is told it is already claimed.
 - A tester cannot claim a task of another department.
 - A reminder arrives before the booking starts.
-- Planning checks that the tester, every required location and a machine when required are available; an unavailable room blocks a no-machine run too.
+- Accepting a booking checks that the tester, every required location and a machine when required are available; an unavailable room blocks a booking without a machine too.
+- A sample test whose sample its department has not received, that is held for the customer's agreement or that is cancelled cannot be booked.
 - Moving a booking moves the room bookings of its steps with it.
-- Marking a queued test urgent without a reason is refused; once marked, it gets the next free slot before tests that are not urgent, and the reason shows on the test.
+- Marking a test urgent without a reason is refused; once marked, the plan places it before tests of lower priority classes, and the reason shows on the test.
 - A tester cannot mark urgent a test of a task assigned to someone else.
-- A test whose booking ends after its due date is flagged, sends an initial notice and remains in daily risk summaries until resolved.
+- A test whose booking ends after its internal due date is flagged, sends an initial notice and remains in daily risk summaries until resolved.
 - A tester not authorized for its parameter cannot claim or be scheduled for the test.
-- A run exceeding the configured capacity cannot be scheduled.
-- A booking that ended without a result makes its test at risk; entering the result, or a booking that finishes before the due date, clears it.
+- A booking cannot join a machine interval that has started, that is full, or that holds a booking of another method.
+- Measuring three parameters of one sample with the same method on a shared machine takes one place of its capacity.
+- A booking whose end passed without a result or a finished measurement keeps its machine, and the next bookings on the machine are flagged at risk; entering the result frees the machine.
+- A machine booking cannot end after the machine's calibration validity.
 - A currently valid calibration due within the warning window shows its date; booking proceeds only if all other maintenance and resource conditions hold.
 - A machine with a repair recorded within the warning days shows a warning naming the repair.
 - A tester sees the lab code of a sample, not its customer or the customer's name for it.
@@ -87,20 +91,20 @@ Follows [Results](../overview.md#results) and [Signing](../overview.md#signing).
 
 | Rule        | Description                                                                                          |
 | ----------- | ---------------------------------------------------------------------------------------------------- |
-| Limit copy | Creating an attempt copies its unit, LOD and LOQ from its way and sample type. If comparison is requested, copy the exact regulation, parameter and sample-type limit and unit; missing configuration remains visible. |
-| Measurement | Each attempt belongs to exactly one run or subcontract dispatch. Its run supplies the performer, interval and machine when required; entering one attempt's result does not complete every other attempt in a shared run. |
-| Conclusion | No conclusion is needed without requested regulation comparison. For a requested comparison, the tester assesses pass, fail or insufficient basis. Text and below-LOD/LOQ values need professional assessment, never automatic passing or substitution with zero. Reports show the threshold and unit from the attempt's snapshot. |
-| Retest | A retest is a new attempt in a new run; earlier attempts and the link to an interrupted run are retained. |
+| Limit copy | Creating a result copies its unit, LOD and LOQ from its way and sample type. If comparison is requested, copy the exact regulation, parameter and sample-type limit and unit; missing configuration remains visible. |
+| Measurement | Each result belongs to exactly one booking or subcontract dispatch. Its booking supplies the performer, interval and machine when required; entering one result does not complete the other bookings sharing its machine interval. |
+| Conclusion | No conclusion is needed without requested regulation comparison. For a requested comparison, the tester assesses pass, fail or insufficient basis. Text and below-LOD/LOQ values need professional assessment, never automatic passing or substitution with zero. Reports show the threshold and unit from the result's snapshot. |
+| Retest | A retest is a new result with a new booking; the rejected or interrupted result stays on record. The system does not count or limit retests. |
 | Sanity check | Before a numeric result is sent for approval, it is compared with past approved results and the regulation limit. An unusual value shows a warning with the reason; the tester may still send it, and the warning stays on the result. |
-| Task done   | The testing task is done when the reported result is approved.                                       |
+| Task done   | The testing task is done when the tester submits the result; approving it is the head's work at the result approval level. A rejected result keeps its record and review, and opens a new testing task for the same sample test, for a correction or a new measurement. |
 | Outsourced  | The results of an outsourced test are entered by the subcontractor or by a lab QA; each result records who entered it. |
 | Method steps | A tester sees the steps of the testing method of the way of testing chosen for their sample test, in step number order, from the testing task and the booking. They only read them; the administrator maintains them ([Administrator](admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28)). |
 
 Acceptance criteria:
 
-- A result identifies its run or subcontract dispatch, never both; a no-machine run has no machine.
+- A result identifies its booking or subcontract dispatch, never both; a booking of a way that needs no machine has no machine.
 - A below-LOQ result preserves the raw number if available and prints the copied threshold and unit after tester confirmation.
-- Catalog changes do not rewrite an existing attempt's unit, LOD or LOQ.
+- Catalog changes do not rewrite an existing result's unit, LOD or LOQ.
 - A requested comparison shows its exact copied limit or missing basis; insufficient basis does not force pass/fail. A result outside comparison scope is sent without a conclusion.
 - A numeric result far from the approved results of the same parameter, way of testing and sample type shows a warning before it is sent; sending it anyway keeps the warning on the result.
 - A numeric result within the margin of the regulation limit shows a warning.
@@ -110,8 +114,8 @@ Acceptance criteria:
 - A step with a location shows that location's code and name to the tester.
 - A testing task whose sample names a location shows that location on the task, the schedule, the to-do list and the timeline, and opening it shows it marked on its parent location's map.
 - A tester cannot change a step.
-- A rejected result stays on record, and the sample test goes back to testing.
-- Approving the reported result closes the tester's testing task.
+- A rejected result stays on record, the sample test goes back to testing and a new testing task opens for it.
+- Submitting the result closes the tester's testing task.
 
 ### 3. Samples (US-T10)
 

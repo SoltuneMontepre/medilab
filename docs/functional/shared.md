@@ -16,6 +16,7 @@ The system consists of three modules (E-commerce, Inventory, Laboratory) that ca
 - Installing a module never requires installing a module that depends on it.
 - When two modules are installed, the integration between them is active without extra configuration. Features that need a module that is not installed are hidden, not broken.
 - Each module can be upgraded without losing the data of the others.
+- Uninstalling E-commerce warns first; test requests keep the number of their order as text.
 - The MediLab look is the optional Medilab Theme module (`sol_theme`), which depends on no other MediLab module and that no MediLab module depends on. Installing or removing it changes only how the system looks and whether the user can resize and collapse the chatter beside a form.
 - The Onboarding module (`sol_onboarding`) is optional: it depends on Laboratory and no MediLab module depends on it. Uninstalling it leaves the master data it created.
 - Each module builds on Odoo Community apps and installs them with itself, as listed in [Module boundaries](../business/module-boundaries.md#odoo-apps). No module needs Odoo Enterprise.
@@ -27,6 +28,7 @@ Acceptance criteria:
 - Every module installs on Odoo Community without any Enterprise app.
 - E-commerce and Inventory each install on top of Laboratory without the other being present.
 - Uninstalling E-commerce or Inventory leaves Laboratory data intact.
+- Uninstalling E-commerce shows a warning before it runs, and afterwards every test request created from an order still shows that order's number.
 - Uninstalling Onboarding leaves the master data accepted from it intact.
 
 #### SH-02 Simple installation and configuration
@@ -66,10 +68,13 @@ Acceptance criteria:
 
 | Item             | Rule                                                                                                                                                                                                                     |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Who signs | The role required by the document's approval chain, for example the Head of Sales for an order, the Head of Department for a test result and the Lab Head for a test report. Chains can have several levels, each signing in turn. The Head of Department may approve results they entered; the Lab Head reviews the approved results and signs the report before issue. |
+| Who signs | The role required by the document's approval chain, for example the Head of Sales for a quotation above the approval thresholds, the Head of Department for a test result and the Lab Head for a test report. Chains can have several levels, each signing in turn. The Head of Department may approve results they entered; the Lab Head reviews the approved results and signs the report before issue. |
+| One level each | A person signs at most one level of a document version. The only exception is a Head of Department approving a result they entered. |
+| Chain levels | A document keeps the chain levels it had when its signing process started; a changed chain applies only to signing processes started afterwards. |
+| Absent signers | A level can be signed by any holder of its role, or by a holder of a higher level's role in the same chain, in their own name; that person then signs no other level of the document version. When no holder of the top level is available, an administrator gives its role to a backup for a limited time, recorded in the audit trail. Overdue signing tasks remind their assignees. |
 | What is recorded | For every signature: the signer, their role and level, the time, and the document version signed, with the hash of its content for a document whose content has one, such as a laboratory file version. The signer is the logged-in user; signing needs a deliberate action (and confirmation), not just opening the document. |
 | Rejection        | A signer can reject with a reason instead of signing. The reason is kept and the requester is notified.                                                                                                                  |
-| Documents        | Invoices, quotations, orders, test results and any other document type that has an approval chain.                                                                                                                       |
+| Documents        | Invoices, quotations, test results and any other document type that has an approval chain.                                                                                                                       |
 
 **Digital signing follows completion of the approval chain.** The system has the signature provider (see Viettel Sign below) digitally sign the PDF with the laboratory's certificate and stores the signed file. For a test report, it signs the prepared PDF after the final approval and stores it before issuing the report. Printing or exporting returns the stored PDF and can retry pending signing. Users do not sign certificates by hand.
 
@@ -78,6 +83,7 @@ Acceptance criteria:
 - The signed PDF is stored with the document, together with the signature details and the time, so the same file is returned every time it is downloaded.
 - Only documents that have been fully signed (final level approved) are eligible for digital signing. Approval-chain completion does not mean the PDF has a digital signature or that the report is issued. A document still under approval prints as a draft, clearly marked, without a digital signature.
 - Every signed PDF can be verified: it shows who approved it (from the signature records), that the digital signature is valid, and that the content has not changed. Verification is a public page, open to the customer without logging in: they upload the PDF and see the result. Each signed PDF prints the page's address.
+- Signed PDFs carry no timestamp or long-term validation data. A signature records who authorized the document and is responsible for it; the verification page checks a PDF against its stored record, also after the certificate has expired.
 - If the provider is unavailable, the approvals stand, the document is not printed as digitally signed, and the user is told and can retry; signing is also retried automatically. A test report stays unissued and pending digital signing, without customer delivery, download, release notification or replacement of the previous report. Nothing is shown as digitally signed unless the provider confirmed it.
 - Digital signing can be turned off in Laboratory settings. A report then stores its approved prepared PDF without a digital signature and issues it. An issued PDF stays unchanged if the setting changes later.
 
@@ -89,6 +95,11 @@ Acceptance criteria:
 - A provider outage preserves the approvals and retries digital signing. A test report is issued only after its signed PDF is stored; retries cannot issue stale content or notify the customer twice.
 - With digital signing off, a test report stores and issues its approved PDF without a digital signature.
 - The signature record shows the signer, role, time and document version for every level.
+- A person who signed one level of a document version cannot sign another level of it, except a Head of Department approving a result they entered.
+- Changing a chain leaves the levels of a document whose signing has started unchanged.
+- A holder of a higher level's role can sign a lower level in their own name, and then cannot sign their own level of that version.
+- A role an administrator gives a backup for a limited time is removed when that time ends, and both changes are in the audit trail.
+- A PDF signed while its certificate was valid still passes verification after the certificate expires.
 - A signature record never changes once it is given, not even by an administrator; only its withdrawal is recorded, once.
 
 #### SH-05 Audit trail
@@ -199,7 +210,8 @@ Acceptance criteria:
 Work waiting for someone is a task with a deadline, and every person sees their tasks in one to-do list.
 
 - **Tasks are MediLab's own.** A task has its chatter and attachments. Tasks are internal: a task is assigned to one internal Odoo user, so everyone who does tasks has a login.
-- **Task types.** Each kind of task, such as sample collection, testing a parameter or signing a document, is a task type. Task types come with the modules that create their tasks; administrators neither create nor remove them. A task type says what creates its tasks (an event, or people by hand), where new tasks go (the queue of the department the event names, the holders of a role, or the person the event names), and the deadline when the document gives none. Administrators choose where new tasks go and the default deadline.
+- **Task types.** Each kind of task, such as sample collection, testing a parameter or signing a document, is a task type. Task types come with the modules that create their tasks; administrators neither create nor remove them. A task type says what creates its tasks (an event, or people by hand), where new tasks go (the queue of the department the event names, the holders of a role, the administrators, or the person the event names), and the deadline when the document gives none. Administrators choose where new tasks go and the default deadline.
+- **Owner.** Every task belongs to a department, a role or the administrators, also while it is assigned to a person. When nobody there holds or claims it, it stays unassigned in that queue and administrators are notified. Archiving the last holder of a role that an active task type routes to shows a warning.
 - **Created by the system or by people.** The system creates a task when its event happens, such as a sample being received. People can also create a task and assign it with a deadline, such as sales scheduling a sample collection on an order.
 - **Waiting work.** Every step of a module that waits on a person is a task, so nothing waits where nobody sees it. Each module document names its task types: what creates the task, who receives it, when it is done or cancelled, and its default deadline.
 - **Linked documents.** Only the system links a task to the document it opens and sets its type. Nobody changes a task's type or document afterwards. A task acts on its document, such as a testing task showing its method's steps or moving its test along as it is assigned, only while the system linked it. A task stored before this rule is trusted only when its audit trail shows it was created that way and never changed; an administrator reviews the others.
@@ -209,7 +221,7 @@ Work waiting for someone is a task with a deadline, and every person sees their 
 - **To-do list.** A person's to-do list shows their open tasks, soonest deadline first. Clicking a task opens its document at the action to take, such as entering a result or signing.
 - **Dashboard.** The Tasks app opens on the person's day: today's planned tasks against the hours of the day, the next tasks to do with the action each needs, the tasks waiting in their queues to claim, and what they finished. From it, their tasks, their finished tasks and all the tasks they can see open as a list, a calendar or a timeline.
 - **Lifecycle.** Every task goes through the same statuses: open, assigned, in progress, then done or cancelled. The state of the work itself, such as a sample or a result, belongs to that document.
-- **Done.** A task created by the system is done when its work is done, such as when the result it asked for is approved. A task created by hand is marked done by its assignee. Done tasks move to the person's completed list.
+- **Done.** A task created by the system is done when its work is done, such as when the result it asked for is submitted. A task created by hand is marked done by its assignee. Done tasks move to the person's completed list.
 
 Acceptance criteria:
 
@@ -219,45 +231,59 @@ Acceptance criteria:
 - Reassigning a task without a reason is refused.
 - A task created by hand that names a document, or a change to a task's type or document, is refused; a task changed that way before the rule never acts on its document.
 - Clicking a task opens its document at its action.
-- A testing task is done when its result is approved, without anyone marking it.
+- A testing task is done when its result is submitted, without anyone marking it.
 - Changing where a task type's tasks go routes its new tasks there; existing tasks stay where they are.
+- A task whose role nobody holds stays unassigned in that role's queue, and administrators are notified.
+- Archiving the last holder of a role an active task type routes to shows a warning.
 
 #### SH-11 Schedules and reminders
 
-Tasks with a planned time, test runs and resource reservations appear on schedules, and people are reminded before they start.
+Tasks with a planned time, bookings of sample tests and resource reservations appear on schedules, and people are reminded before they start. A booking schedules one sample test for one tester and one interval, on a machine only when its way of testing needs one, and reserves every bookable location its method's steps name; [Scheduling](../specs/scheduling.md) states how bookings are planned, accepted and moved.
 
 | Schedule              | Shows                                                                                     |
 | --------------------- | ----------------------------------------------------------------------------------------- |
-| Personal schedule | A person's planned tasks, test runs including no-machine runs, and independent location bookings |
-| Machine schedule | A machine's reservations for runs, downtime and queued work |
-| Location schedule | Independent bookings and the step intervals reserved by test runs in a bookable location |
+| Personal schedule | A person's planned tasks, bookings including bookings without a machine, and independent location bookings |
+| Machine schedule | A machine's bookings and downtime, and the slots the proposed plan gives it, shown as proposed |
+| Location schedule | Independent bookings and the step intervals that bookings reserve in a bookable location |
 | Test request schedule | The tasks, bookings and due dates of the samples of one test request                     |
 | Outsourcing schedule  | Sample tests sent to subcontractors, with the date sent and the date results are expected |
 
-- **Built on Odoo Calendar.** A planned task and a test run, with a machine reservation when needed, each have an Odoo calendar event (`calendar.event`) with the person who does the work as attendee, so the personal schedule is the person's Odoo calendar, next to their other events. Task and event stay in step both ways: planning or moving the task moves the event, and moving or deleting the event in the calendar replans or unplans the task; a run's event can only move where its tester and all required resources are available. Working hours come from the person's working time (`resource.calendar`) and holidays from the HR calendar; approved leave comes from Odoo Time Off. A no-machine run still has a personal event and any required location reservations.
+- **Built on Odoo Calendar.** A planned task and a booking each have an Odoo calendar event (`calendar.event`) with the person who does the work as attendee, so the personal schedule is the person's Odoo calendar, next to their other events. Task and event stay in step both ways: planning or moving the task moves the event, and moving or deleting the event in the calendar replans or unplans the task; a booking's event can only move where its tester and every required resource are available. Working hours come from the person's working time (`resource.calendar`) and holidays from the HR calendar; approved leave comes from Odoo Time Off. A booking without a machine still has a personal event and any required location reservations.
+- **Proposed slots.** A slot of the proposed plan reserves nothing and has no calendar event. It becomes a booking, with its event and reservations, only when the tester or head accepts it.
+- **Shared machine intervals.** Bookings of the same testing method on one machine may share exactly the same interval, within the capacity of that machine and method, counted in samples. Each keeps its own event; the machine schedule shows them as one interval with the places they take. Nothing joins a machine once its interval has started.
 - **Booking a location.** Anyone who works for the company can book a bookable [location](laboratory_module/features/admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28) for a time: the booking is an Odoo calendar event that names the location, with its organiser and attendees, so it shows on their calendars and on the location's schedule. Bookings of one location do not overlap or fall within its unavailable intervals; a location that is not bookable, or is archived, cannot be booked. Newly recorded unavailability replans affected not-started bookings and notifies their responsible people. The organiser moves or cancels an independent booking; an administrator can cancel an independent booking. Booking a location shows the free times of the locations under a chosen location, such as the rooms of a floor.
-- **Run reservations.** A location reservation associated with a run cannot be moved or cancelled independently, including from the calendar. Change it through the run using the existing run-adjustment permissions. Moving a not-started run checks its tester, required machine and every required location before changing anything, then updates its event, not-started attempts and all resource reservations together; failure leaves every reservation unchanged. Cancelling a not-started run removes its personal event and resource reservations and returns its not-started attempts to the queue without cancelling their sample tests. Notify the responsible people and update reminders. Ordinary move or cancel actions are refused once the run starts; required-location unavailability follows the disruption rules.
-- A reminder is sent before a planned task, run or location booking starts, 15 minutes by default, configurable by an administrator. Use its calendar event and notify the task assignee or location organiser and attendees, without a second Odoo alarm. Moving a booking cancels its unsent old reminder and schedules a reminder for the new time. If the new time is already inside the reminder window, notify immediately. Deduplicate each schedule update; never retract a reminder already delivered.
+- **Booking reservations.** A location reservation of a booking cannot be moved or cancelled on its own, including from the calendar; it changes only through its booking, with the permissions that move bookings. Moving a not-started booking, by hand or through an approved plan revision, checks its tester, its machine when the way needs one and every required location before changing anything, then updates its event and all its reservations together; failure leaves every reservation unchanged. Cancelling a not-started booking removes its personal event and reservations and returns its sample test to the queue without cancelling it. Notify the responsible people and update reminders. Ordinary move or cancel actions are refused once the booking starts; disruptions and cancelling a sample test whose booking has started follow [Scheduling](../specs/scheduling.md).
+- A reminder is sent before a planned task, a booking or a location booking starts, 15 minutes by default, configurable by an administrator. Use its calendar event and notify the task assignee or location organiser and attendees, without a second Odoo alarm. Moving a booking cancels its unsent old reminder and schedules a reminder for the new time. If the new time is already inside the reminder window, notify immediately. Deduplicate each schedule update; never retract a reminder already delivered.
 - A reminder is shown in the application as a pop-up and sent by email through Brevo. Mobile-app delivery is deferred with Medilab Mobile.
 - **Event settings.** The administrator can turn an event off, so no notification of it is created, and edit its templates. Mandatory events cannot be turned off. Turning an event off does not stop the tasks the event creates.
 - **Recipients.** For each event, the administrator chooses who is notified: the holders of one or more roles, the people of one or more departments, or both, on top of the person the event concerns directly, such as the assignee of a task.
 - **Notifications.** Every notification belongs to an event, such as a booking reminder, and has a key, so the same notification is never created twice. It is delivered once on each channel the person keeps on for that event. Mandatory events, such as a password reset or a payment receipt, cannot be turned off.
+- **Own actions.** Nobody is notified of their own action, such as claiming a task. Task notifications are for events that need attention, such as a task coming due; a person has at most one open notice per task and event type.
+- **Mandatory notices to customers.** A notice of a mandatory event always stays in the customer portal, whatever happens to its email. It tracks three states: shown in the portal; its email, queued, sent, delivered, failed temporarily or bounced; and seen, from the first time the customer opens it in the portal. Whether the business it is about is done, such as an invoice paid or a report downloaded, stays the state of that document. Every delivery attempt and bounce is recorded in the audit trail.
+- **Undelivered email.** An email that failed temporarily is sent again up to a number of times at an interval an administrator sets, 3 times 1 hour apart by default; when the last attempt fails, it is handled as a permanent bounce. A permanent bounce flags the address, and no automatic email goes to it until Sales corrects it. The salesperson of the order the notice is about, or otherwise the Sales queue, gets a task to contact the customer, done when the customer sees the notice or the salesperson records how they reached the customer. A corrected address receives a confirmation link; emails to it resume once the customer opens the link, and until then the customer gets notices in the portal only.
 - **Built on Odoo Discuss.** A notification is an Odoo message (`mail.message`) on the document it is about, and an event is a message subtype (`mail.message.subtype`). In the application it is an Odoo inbox notification, shown as a pop-up through the bus. By e-mail it goes through Odoo's mail queue, which retries it. Mobile-app pushes are outside the current delivery scope.
 - **Channel choices.** A person's choice of channels extends Odoo's own notification preference on their user: Odoo's choice, in the application or by e-mail, is their default for every event, and their preferences add a choice per event and supported channel.
 
 Acceptance criteria:
 
-- A run appears on its tester's personal schedule and on each required resource schedule; a no-machine run needs no machine reservation.
+- A booking appears on its tester's personal schedule and on each required resource schedule; a booking without a machine needs no machine reservation.
+- A slot of the proposed plan has no calendar event and reserves nothing until it is accepted.
+- Two bookings share a machine interval only when they use the same testing method, have exactly that interval and the capacity has room; a booking cannot join an interval that has started.
 - A location booking appears on the calendars of its organiser and attendees and on the location's schedule.
 - Booking a location for a time that overlaps another of its bookings is refused with a message naming the existing booking.
 - A location that is not bookable cannot be chosen for a booking.
 - A reminder arrives 15 minutes before a booking starts, once on each selected channel.
 - Moving a booking cancels only unsent old reminders, schedules the new one and sends immediately if already inside the reminder window. Reprocessing the same update creates no duplicate.
-- A run cannot be planned during an unavailable interval of any required location.
-- Moving a run to a slot with a busy tester, machine or required location is refused without changing any reservation.
-- A run-associated location reservation cannot be dragged or deleted independently; a permitted run move updates every reservation and not-started attempt together.
-- Cancelling a not-started run releases all its reservations and queues its attempts without cancelling the sample tests; ordinary move and cancel actions on a running run are refused.
+- A booking cannot be accepted or moved into an unavailable interval of any required location.
+- Moving a booking to a slot with a busy tester, machine or required location is refused without changing any reservation.
+- A booking's location reservation cannot be dragged or deleted on its own; a permitted move of the booking updates its event and every reservation together.
+- Cancelling a not-started booking releases all its reservations and returns its sample test to the queue without cancelling it; ordinary move and cancel actions on a started booking are refused.
 - An event the administrator turned off notifies nobody; turning it on again notifies the next occurrence.
+- Claiming a task sends no notification to the person who claimed it.
+- A mandatory notice whose email bounced is still shown in the customer portal, and its email state shows the bounce.
+- An email that failed temporarily is sent again at most the set number of times, then handled as a permanent bounce.
+- No automatic email goes to a bounced address until Sales corrects it and the customer opens the confirmation link.
+- A permanent bounce gives the order's salesperson a task to contact the customer.
 
 #### SH-12 Conversations
 
@@ -289,7 +315,7 @@ The system sends all e-mail through Brevo's SMTP relay, set as Odoo's outgoing m
 - Administrators configure the sender and the templates. Templates are Odoo e-mail templates (`mail.template`), translatable (SH-08), and use the customer's contact (Sales documents) and notification preferences.
 - Delivery status (sent, delivered, opened, bounced, failed) is recorded against the message from Brevo's webhooks, on Odoo's notification of each recipient, so staff can see whether a customer received a quotation.
 - The webhook is accepted only when `Authorization: Bearer` matches `BREVO_WEBHOOK_TOKEN`. Brevo's create-webhook call can set that bearer token. A missing or wrong token is rejected before any event is stored. The event is matched by the `X-Mailin-custom` header `notification:<id>` or by the message id together with the recipient address. A later weaker event does not replace a bounce or a failure. A hard bounce flags `email_bounced` only on the partner of that notification whose address is the event address.
-- Bounced or invalid addresses are flagged on the customer's contact so that they are not used again.
+- A permanent bounce or an invalid address flags the customer's contact, so no automatic email goes to it until Sales corrects the address and the customer confirms it (SH-11).
 - If Brevo is unavailable the message stays queued and is retried; the business action that triggered it is not rolled back.
 
 ### 2. PayOS (payments)

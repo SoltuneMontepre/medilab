@@ -1,6 +1,6 @@
 # Features of: Sample delivery staff
 
-Sample delivery staff (nhân viên giao nhận mẫu) collect samples at the customer's site, receive the samples that arrive at the laboratory, hand them over to the departments that test them, and carry outsourced samples to subcontractors.
+Sample delivery staff (nhân viên giao nhận mẫu) collect samples at the customer's site, receive the samples that arrive at the laboratory, hand them over to the departments that test them, carry outsourced samples to subcontractors, and return the untested sample material customers ask for.
 
 ## I. User stories
 
@@ -14,7 +14,7 @@ Sample delivery staff (nhân viên giao nhận mẫu) collect samples at the cus
 
 ### Receiving samples
 
-- **US-SD06** As sample delivery staff, I want to create a test request for a customer with its samples, parameters, expected date and report delivery, so that the laboratory can take work that does not come through an order.
+- **US-SD06** As sample delivery staff, I want to create a test request for a customer with its samples, parameters, requested date and report delivery, so that the laboratory can take work that does not come through an order.
 - **US-SD07** As sample delivery staff, I want to see the samples expected for each test request, so that I know what should arrive.
 - **US-SD08** As sample delivery staff, I want to print a label for each sample with its lab code, test request, results due date and a QR code, so that the sample can be identified and scanned without showing the customer.
 - **US-SD09** As sample delivery staff, I want to record a sample's receipt with the amount, its condition and where it is stored, so that its state on arrival is on record.
@@ -30,6 +30,10 @@ Sample delivery staff (nhân viên giao nhận mẫu) collect samples at the cus
 
 - **US-SD14** As sample delivery staff, I want to see the issued reports waiting for delivery and record each delivery, so that every customer gets their report the way they asked.
 
+### Returning samples
+
+- **US-SD15** As sample delivery staff, I want to return untested sample material to a customer who asks for it and record the return, so that the customer gets back what the laboratory did not use.
+
 ## II. Feature details
 
 ### 1. Collecting samples (US-SD01 to US-SD05)
@@ -44,7 +48,7 @@ Sample collection tasks follow [SH-10](../../shared.md#sh-10-tasks-and-to-do-lis
 | Photos | Attach sample photos through the web interface when collecting or receiving a sample. Testers never see them. |
 | Sampling location | When a sample is collected or received, the location it was taken from, such as sampling point RO-01, can be chosen from the locations. |
 | Handover record | Record the staff member, appointment and collection time, actual samples and amounts, conditions, differences from the order and the customer's signature. A request can have several collections. Email the signed PDF; correct a signed record by a new record, preserving the old one. |
-| Actual samples | Adjust the expected samples calculated from method sampling requirements to what is actually handed over for customer confirmation. Fewer samples wait for another collection or Sales cancels the missing part. Hold extras pending a revised quotation and customer agreement before testing them. |
+| Actual samples | Adjust the expected samples calculated from method sampling requirements to what is actually handed over for customer confirmation, including extra samples and excess material. Fewer samples wait for another collection or Sales cancels the missing part. Testing stays within the agreed scope: extra samples and excess material add no test and stay with the sample until the customer asks for them back ([Returning samples](#5-returning-samples-us-sd15)). |
 
 Acceptance criteria:
 
@@ -54,7 +58,7 @@ Acceptance criteria:
 - A photo attached at collection appears only to readers who may see the customer's sample name; testers cannot see it.
 - Two collection appointments that leave less than the configured travel buffer are not offered as feasible.
 - One request can record several collections and their differences from expected samples.
-- Extra samples cannot start testing before customer agreement on the revised quotation.
+- Extra samples and excess material recorded at handover add no sample test.
 - Signing a handover record stores the signature, when and on which device it was signed, and emails the PDF to the customer.
 - A signed handover record cannot be edited.
 
@@ -64,9 +68,9 @@ Follows the reception rules and the sample lifecycle in the [Laboratory overview
 
 | Rule          | Description                                                                                                                  |
 | ------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| Test request | Without an order, create a request with customer, samples and their types, optional regulation comparison, each sample's parameters and selected ways, expected date, report language, delivery method and recipient. |
+| Test request | Without an order, create a request with customer, samples and their types, optional regulation comparison, each sample's parameters and selected ways, the customer's requested date, report language, delivery method and recipient. |
 | Identification QR | Use only the sample's QR for identification and handover; test requests and handover documents have no separate identification QR. |
-| Return estimate | The test request shows the estimated return date of its samples and parameters, and an earlier expected date is checked as a [priority request](../overview.md#testing-work-and-scheduling) before it is accepted. |
+| Return estimate | The test request shows the estimated return date of its samples and parameters. Its committed return date defaults to the requested date when the laboratory can meet it, otherwise to the estimate; an earlier requested date is checked as a [priority request](../overview.md#testing-work-and-scheduling) before it is accepted. |
 | Label         | The label shows the lab code, the test request's code, the date results are due and a QR code of the lab code, and nothing about the customer. |
 | Receipt       | Receipt records when and by whom the sample was received, the amount received, its condition (good, damaged or insufficient) with a note, and where it is stored. |
 | Testing tasks | Receiving a sample creates a testing task for each of its sample tests in the queue of the department that does the work.   |
@@ -106,6 +110,21 @@ Acceptance criteria:
 - Issuance makes the stored report PDF available in the list waiting for delivery, until its delivery is recorded. A digital-signing failure leaves the report outside that list.
 - Recording a delivery stores when and by whom.
 - A report not yet issued cannot be delivered.
+
+### 5. Returning samples (US-SD15)
+
+| Rule     | Description |
+| -------- | ----------- |
+| Returned | Extra samples and excess material, which testing never uses, and a retained sample once its retention period is over. |
+| When     | Only when the customer asks: at the counter when they collect the report in person, or at a separate pickup. |
+| Record   | A return records what was returned, when, by whom and to whom. Returning extra samples or excess material does not change the sample's state; returning a retained sample after its retention period ends it as returned instead of disposed. |
+| Not asked for | What nobody asks for is disposed of with the sample under its retention rules. |
+
+Acceptance criteria:
+
+- A retained sample cannot be returned before its retention period ends.
+- A return stores what was returned, when, by whom and to whom.
+- Returning excess material leaves the sample's state unchanged; returning a retained sample ends it as returned.
 
 ## III. Related documents
 

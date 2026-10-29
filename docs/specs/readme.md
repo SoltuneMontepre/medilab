@@ -33,6 +33,7 @@ Stories: US-AD13, US-AD15
 - [PayOS](payos.md): how the PayOS provider, its signed webhook, its jobs and its payment links behave
 - [Permissions](permissions.md): how permission, role and person records become Odoo groups and accesses, and how the own-department scope is applied
 - [Scheduled jobs](scheduled-jobs.md): how jobs, their item queues and runs work: handlers, claiming, retries, running by hand, the no-overlap rule, and the cleanup job with its archive files
+- [Scheduling](scheduling.md): how bookings of sample tests are planned, share a machine and free it, how priority and internal due dates order the plan, and how plan revisions are approved without breaking a committed return date
 - [Settings](settings.md): how a module declares a system parameter with its default, how features read it, who changes settings and how modules install and uninstall independently
 - [Stock costing and charges](stock-costing.md): how moves are costed, stock is valued and charged to cost centres, budgets are used up and charges are exported
 - [Test reports](test-reports.md): versioned ONLYOFFICE templates, controlled DOCX drafts, protected business data and the saved PDF that approval and digital signing bind

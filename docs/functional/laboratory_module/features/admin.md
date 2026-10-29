@@ -21,7 +21,7 @@ The administrator maintains the master data of the Laboratory module: test param
 ### Machines and chemicals
 
 - **US-AD09** As an administrator, I want to maintain machines with their location, status, calibration and maintenance, so that tests only run on machines that are fit to use.
-- **US-AD10** As an administrator, I want to record which parameter and method pairs each machine can run, so that a test is planned on a suitable machine.
+- **US-AD10** As an administrator, I want to record which testing methods each machine can run, with how long a booking on it takes and how many samples it holds at once, so that a test is planned on a suitable machine.
 - **US-AD11** As an administrator, I want to maintain chemicals with their identity, storage conditions and the methods that use them, so that the laboratory knows what each method needs.
 
 ### Subcontractors
@@ -66,7 +66,7 @@ The administrator maintains the master data of the Laboratory module: test param
 | Import from certificate | The administrator imports the scope lines with the standard code, optional title, parameters and sample types, choosing a testing field. An existing code links the existing method unchanged; a new code creates a method without steps. An omitted title defaults to the code, and other languages can be added later. A row without a code refuses the whole import. |
 | Department           | An in-house pair of parameter and method names the department that tests it. Departments are maintained by the administrator (US-AD13). |
 | Accreditation | Accreditation is determined on each sample test. Its way must be in-house, and a line of an active certificate valid that day must cover its method, parameter and the sample type or one of its ancestors. Validity is evaluated in the company time zone, including the last valid day; omitted date bounds are unbounded. Certificate changes and a daily job update the determination. An archived certificate accredits nothing; a subcontracted test is not within the laboratory's accreditation scope. Accreditation scope inheritance does not create technical applicability for a child sample type. |
-| Detection limits | LOD and LOQ belong to the way of testing's applicability for one sample type, in that applicability's unit. Either or both may be absent; absence is not zero. A supplied value must be non-negative and LOD must not exceed LOQ when both are supplied. Invalid settings cannot be saved. Creating an attempt copies its unit, LOD and LOQ. Once used, an applicability's unit is locked; a different unit needs a replacement applicability configuration, not a different method or way. Changes are audited and never rewrite earlier result snapshots. |
+| Detection limits | LOD and LOQ belong to the way of testing's applicability for one sample type, in that applicability's unit. Either or both may be absent; absence is not zero. A supplied value must be non-negative and LOD must not exceed LOQ when both are supplied. Invalid settings cannot be saved. Creating a result copies its unit, LOD and LOQ. Once used, an applicability's unit is locked; a different unit needs a replacement applicability configuration, not a different method or way. Changes are audited and never rewrite earlier result snapshots. |
 | Codes                | Parameters, groups, sample types, dossiers, subcontractors, customers, test requests and subcontract dispatches get a code from a sequence when none is typed, such as `CT.0001` for parameters, `NCT.0001` for groups, `LM.0001` for sample types, `HS.0001` for dossiers, `TP.0001` for subcontractors, `KH.0001` for customers and `YC.2026.0001` for test requests, numbered again each year. Samples get their lab code from a sequence, such as `PTN.2026.0001`. The administrator can change the prefix and length; existing codes keep their value. A typed code must still be unique. |
 | Sampling and storage | A sample type carries how to collect it, its minimum amount, storage conditions, whether and for how many days it is kept after testing, and how it is disposed of. A sample type without instructions has none; it does not use its parent's. |
 | Sampling requirements | Each testing method defines, for each sample type, the amount, container type and preservation condition needed. Container type is an attribute, not a stock item. The expected-sample calculation groups compatible methods as described in [Reception](../overview.md#reception). |
@@ -110,7 +110,7 @@ Acceptance criteria:
 - A child type without explicit technical applicability cannot be offered by inheriting its parent's way or default.
 - A child type in a regulation's scope but without its own limit shows missing configuration.
 - Negative LOD or LOQ, or LOD greater than LOQ, is refused; either limit may be absent.
-- Changing catalog LOD or LOQ does not alter existing attempts; changing a used applicability's unit or a used conversion factor is refused.
+- Changing catalog LOD or LOQ does not alter existing results; changing a used applicability's unit or a used conversion factor is refused.
 - Archiving a default requires replacement for every active offering; restoring it does not reclaim any default.
 - An archived record no longer appears when choosing records on a quotation or a parameter.
 - A unit used by an active sample-type applicability cannot be archived or deleted; the message lists those configurations.
@@ -124,11 +124,11 @@ Acceptance criteria:
 
 | Rule            | Description                                                                                                                                   |
 | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| Machine         | A machine has a code, name, model, manufacturer, serial number, location and status: in use, under repair or retired. The location is chosen from the locations, such as the bench the machine stands on.                       |
+| Machine         | A machine has a code, name, model, manufacturer, serial number, location and status: in use, under repair or retired. The location is chosen from the locations, such as the bench the machine stands on. Returning a machine to in use after a repair requires a calibration or maintenance record dated after the repair. |
 | Service history | Each calibration, maintenance or repair is recorded with its date, who did it, its certificate or report number and when the next one is due. A record can be edited, and the changes are kept in the audit trail. |
-| Calibration | New bookings require a currently valid calibration. A machine never calibrated, or whose calibration has expired, cannot be booked until valid calibration is recorded. |
+| Calibration | New bookings require a currently valid calibration, and a booking cannot end after the calibration validity. A machine never calibrated, or whose calibration has expired, cannot be booked until valid calibration is recorded. |
 | Maintenance | A maintenance interval in days determines the next due date from completed maintenance. Planned maintenance reserves an unavailable time interval on the machine schedule. Once maintenance is overdue, new bookings are blocked until completion is recorded. |
-| Machine use | Each machine and way-of-testing link defines run duration and maximum attempts per run. A way that needs no machine has its own run duration and capacity, with capacity 1 by default; its runs still reserve the tester and required locations. |
+| Machine use | Each link of a machine and a testing method gives the booking duration on that machine, covering preparation, measurement and time to repeat a failed measurement, and its capacity in samples, 1 by default. A way of testing needs a machine when its method is linked to at least one machine. Bookings whose ways use the same method share the machine only for exactly the same interval, up to that capacity; several parameters of one sample measured together take one place. For example, an ICP-MS linked to a metals method with capacity 20 measures Pb, Cd and As on 20 samples in one shared interval. A way that needs no machine has its own duration and capacity, with capacity 1 by default; its bookings still reserve the tester and required locations. |
 | Chemical        | A chemical has a code, name, CAS number, formula, grade, storage conditions and the testing methods that use it. Stock, expiry, suppliers and how much of a chemical one test uses belong to the [Inventory module](../../../business/module-boundaries.md). |
 
 Acceptance criteria:
@@ -137,9 +137,11 @@ Acceptance criteria:
 - A booking cannot overlap planned maintenance; overdue maintenance blocks new bookings until completed.
 - Recording valid calibration clears its calibration block; booking still requires every maintenance and availability condition to hold.
 - A machine that is under repair or retired cannot be chosen to run a test.
+- Setting a repaired machine back to in use without a calibration or maintenance record dated after the repair is refused.
+- A machine can be linked to a testing method only once; the link's duration is at least one minute and its capacity at least one sample.
 - A testing method shows the chemicals it uses, and a chemical shows the methods that use it.
 - A machine with a queued, scheduled or running booking cannot be archived; once its bookings are done or cancelled, it can be archived.
-- A machine that is in use, has any booking or service record, or is linked to a parameter and method pair cannot be deleted.
+- A machine that is in use, has any booking or service record, or is linked to a testing method cannot be deleted.
 - A chemical cannot be deleted while a testing method uses it.
 
 ### 3. Subcontractors (US-AD12)
@@ -170,11 +172,11 @@ Follows [Approval and signing chain](../../../business/approval-and-signing-chai
 | ----------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | Departments       | The administrator creates the laboratory's departments and puts people in them. Departments are Odoo's employee departments, and the head of a department is its manager. |
 | Teams             | A department can be split into teams (tổ), each with its team lead. A team is a department under its department, and its manager is its team lead. A person can belong to one team of their department. |
-| Person            | Each person has an Odoo employee. Their details are the employee's work contact. A person who signs in is linked to their Odoo user, which holds only the login. |
+| Person            | Each person has an Odoo employee. Their details are the employee's work contact. A person who signs in is linked to their Odoo user, which holds only the login. Internal users are created only through people; the administrator sees the internal users that no person links to, and links each one to a person or archives it. |
 | Permissions       | A permission is an action on a document type: read, create, edit, archive, delete or sign. Each covers every record, only those of the person's department or only those of the person's team. |
-| Roles             | A role is a set of permissions. The administrator assigns roles to people and can give a person extra permissions directly. |
+| Roles             | A role is a set of permissions. The administrator assigns roles to people and can give a person extra permissions directly. A role can be given until a date, such as to a backup signer while no holder of an approval chain's top level is available; it is removed when that date ends, and both changes are recorded in the audit trail. |
 | Approval chain    | Each document type has one chain for signing it and one for change requests on it.                                               |
-| Levels            | A chain has levels signed in order. Each level names one of the roles that signs it, whether the signer must belong to the department that did the work, and whether it can reject. |
+| Levels            | A chain has levels signed in order. Each level names one of the roles that signs it, whether the signer must belong to the department that did the work, and whether it can reject. A person signs at most one level of a document version; the only exception is a Head of Department approving a result they entered. A document keeps the chain levels it had when its signing process started; a changed chain applies only to signing processes started afterwards. |
 | Task types        | Task types come with the modules, each with its trigger and the document and action its tasks open. The administrator chooses where new tasks go, a department queue, the holders of a role or a person, and the default deadline. See [SH-10](../../shared.md#sh-10-tasks-and-to-do-list). |
 | Archiving         | Follows [Archiving and deleting](../../../business/archiving-and-deleting.md). Roles are never archived. |
 | Deleting          | The administrator can delete a department, team, person, role or approval chain when nothing refers to it: a department with no teams, people, parameter and method pairs or tasks; a team with no people; a person with no tasks, bookings or signatures; a role that no person holds and no approval level or task type names; a chain none of whose levels has been signed. Deleting a person also removes their roles, a role its permissions, and a chain its levels. |
@@ -189,6 +191,9 @@ Acceptance criteria:
 - A permission limited to the person's department hides the records of other departments.
 - A permission limited to the person's team hides the records of other teams.
 - A person's team must belong to their department.
+- An internal user that no person links to is listed for the administrator, who links it to a person or archives it.
+- A role given until a date is removed when that date ends, and both changes are in the audit trail.
+- Changing a chain leaves the levels of a document whose signing has started unchanged.
 - A department, person, role or approval chain that nothing refers to can be deleted.
 - Deleting a department that has people, parameter and method pairs or tasks, or a role that a person holds or an approval level or task type names, is refused with a message listing them.
 - A role cannot be archived; it is removed from people, approval levels and task types, then deleted.

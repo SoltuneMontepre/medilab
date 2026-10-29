@@ -38,7 +38,8 @@ erDiagram
     SAMPLE }o--o| REGULATION : optionally_compares_against
     SAMPLE ||--|{ SAMPLE_TEST : carries
     SAMPLE_TEST }o--|| PARAMETER_METHOD : uses_from_creation
-    SAMPLE_TEST ||--o{ TEST_RESULT : has_attempts
+    SAMPLE_TEST ||--o{ TEST_RESULT : has_results
+    SAMPLE ||--o{ SAMPLE_RETURN : is_returned_through
     TEST_REQUEST ||--o{ TEST_REPORT : reports
     REPORT_TEMPLATE ||--o{ TEST_REPORT : prepares
 ```
@@ -49,32 +50,34 @@ erDiagram
 | Sampling | A method's sample-type requirement gives amount, container and preservation. Compatible container and preservation groups share a physical sample and their amounts add. Expected objects per type are the largest line quantity; objects times groups gives expected samples. Collection records the actual handover and customer confirmation. |
 | Accreditation | A sample test is accredited only when its in-house way's method, parameter and sample type or ancestor match a valid certificate scope line. A method outside accreditation can still be used. |
 | Regulation | Comparison is optional. Scope includes descendants; limits are explicit per regulation, parameter and sample type and never inherited. The selected method, such as a TCVN, determines how to test; a QCVN determines requested comparisons. |
-| Attempt | Each attempt keeps its unit and LOD/LOQ snapshot and any exact sample-type regulation limit snapshot. It belongs to exactly one run or subcontract dispatch. |
+| Result | Each result keeps its unit and LOD/LOQ snapshot and any exact sample-type regulation limit snapshot. It belongs to exactly one booking or subcontract dispatch; a retest is a new result with a new booking. |
+| Sample return | A return records what was returned to the customer, when, by whom and to whom. Returning extra samples or excess material leaves the sample's state unchanged; returning a retained sample after its retention period ends it as returned. |
 | Report preparation | A report uses one template version and approved business data to create its internal draft. Approval binds the saved draft, result versions and prepared PDF; issued files stay unchanged. Template versions and working files are omitted at this conceptual level. |
 
-## Runs and people
+## Bookings and people
 
 ```mermaid
 erDiagram
     DEPARTMENT ||--o{ PERSON : contains
     PERSON }o--o{ TEST_PARAMETER : authorized_by_lab_head_for
-    TEST_RUN }o--|| PERSON : performed_by
-    TEST_RUN }o--|| PARAMETER_METHOD : runs
-    TEST_RUN }o--o| MACHINE : uses_if_required
-    MACHINE }o--o{ PARAMETER_METHOD : has_duration_and_capacity_for
-    TEST_RUN }o--o{ LOCATION : reserves_step_intervals
-    TEST_RUN ||--o| MACHINE_BOOKING : reserves
-    TEST_RUN o|--|{ TEST_RESULT : measures
-    SUBCONTRACT_DISPATCH o|--|{ TEST_RESULT : carries
+    SAMPLE_TEST ||--o{ MACHINE_BOOKING : is_booked_in
+    MACHINE_BOOKING }o--|| PERSON : performed_by
+    MACHINE_BOOKING }o--o| MACHINE : uses_if_required
+    MACHINE }o--o{ TESTING_METHOD : has_duration_and_capacity_for
+    MACHINE_BOOKING }o--o{ LOCATION : reserves_step_intervals
+    MACHINE_BOOKING o|--o{ TEST_RESULT : measures
+    PLAN_REVISION }o--|{ MACHINE_BOOKING : moves
+    PLAN_REVISION }o--|{ DEPARTMENT : approved_by_head_of
+    SUBCONTRACT_DISPATCH o|--o{ TEST_RESULT : carries
     SUBCONTRACT_DISPATCH }o--|| SUBCONTRACTOR : sends_to
     MACHINE ||--o{ MACHINE_SERVICE : has
     PERSON ||--o{ OVER_TIME : has_planned
     SAMPLE_COLLECTION }o--|| PERSON : collected_by
 ```
 
-Mermaid ER notation cannot express the exclusive ownership of an attempt: each `TEST_RESULT` belongs to exactly one `TEST_RUN` or one `SUBCONTRACT_DISPATCH`, never both or neither, as the Attempt rule above requires.
+Mermaid ER notation cannot express the exclusive ownership of a result: each `TEST_RESULT` belongs to exactly one `MACHINE_BOOKING` or one `SUBCONTRACT_DISPATCH`, never both or neither, as the Result rule above requires.
 
-A run has one way, one tester and one interval, and may combine attempts from several samples, customers and requests up to capacity. Its machine is optional when the way needs none; then duration and capacity belong to the way, with capacity 1 by default. A machine booking reserves the run. Staff shifts and approved leave come from HR; service records supply machine downtime. OverTime records the planned outside-hours interval, work, reason and assigner for a tester, without payroll or actual-hours confirmation.
+A booking has one sample test, one tester and one interval, and a machine only when the way needs one. Bookings whose ways use the same testing method share a machine for exactly the same interval, up to the capacity in samples of the machine-and-method link; a way that needs no machine has its own duration and capacity, 1 by default. Each department's plan proposes bookings for its received, not-started sample tests. A plan revision moves scheduled bookings once the head of each affected department approves its moves, and holds back a move that would miss a committed return date until the customer agrees. Staff shifts and approved leave come from HR; service records supply machine downtime. OverTime records a planned outside-hours interval and reason the head enters for a tester, without payroll or actual-hours confirmation.
 
 The Lab Head configures person-to-parameter authorization indefinitely, without start or expiry dates. The Head of Department assigns work and approves results, including their own entries. The Lab Head reviews the results and signs reports. A result correction and its affected issued report have linked change requests, and a replacement report needs fresh approval and signing before issue.
 

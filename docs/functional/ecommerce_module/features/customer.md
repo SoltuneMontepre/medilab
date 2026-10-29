@@ -155,7 +155,8 @@ stateDiagram-v2
 | Details on submit     | A visitor who is not signed in gives their details and e-mail address when submitting; they become the customer's contact.            |
 | Complete order        | Submitting requires at least one parameter or service package in the cart.                                                             |
 | Ways of testing | Select a sample type for each line and choose an applicable way for each parameter, or use its unique default. Only active ways the laboratory can perform are offered, following the [catalog rules](../../laboratory_module/features/admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28). An unavailable default shows a reason and viable alternatives for explicit selection; with none, the pair cannot be ordered. |
-| Expected samples | Show the expected sample count, containers and amounts calculated from method sampling requirements. The customer orders parameters and quantities, not physical samples; collection staff confirm the actual samples at handover. |
+| Expected samples | Show the expected sample count, containers and amounts calculated from method sampling requirements. The customer orders parameters and quantities, not physical samples; collection staff confirm the actual samples at handover. Extra samples or excess material add no test; the customer gets them back on request, when collecting the report in person or at a separate pickup. |
+| Requested date | The customer may give the date they want the results, kept as the order's requested date. |
 | Priority request | The customer may mark the order as priority and request an earlier date. Sales accepts or declines priority on the quotation after the feasibility check; the request itself does not promise the date. |
 | Submit is not confirm | Submitting only puts the order in the sales queue. Sales then prepares the quotation.                                                  |
 | Cancel                | The customer can cancel until the order is confirmed; after that the customer can only [request cancellation](#request-cancel-us-c12). |
@@ -200,8 +201,8 @@ stateDiagram-v2
 | When                          | Only on a confirmed order that is not yet completed. Before confirmation the customer cancels directly.                                                                                                                                  |
 | Reason required               | The request needs a reason. The salesperson receives a to-do and the reason is kept in the order's history.                                                                                                                              |
 | One open request              | An order can have only one open request. The customer can withdraw it while it is undecided.                                                                                                                                             |
-| Sales decides | Sales accepts or declines with a reply. A whole-order cancellation cancels the order and its laboratory work. When a new promised date is refused, Sales handles a request for the unfulfillable part and retains the rest, including completed results. |
-| Blocked cases | Whole-order cancellation is blocked if any testing is completed or results released. Cancelling an unfulfillable part preserves completed work and follows the affected sample-test cancellation rules. A fully signed order needs an approved change request. Sales tells the customer the decision. |
+| Sales decides | Sales accepts or declines with a reply. A whole-order cancellation cancels the order and its laboratory work. When a new committed return date is refused, Sales handles a request for the unfulfillable part and retains the rest, including completed results. |
+| Blocked cases | Whole-order cancellation is blocked if any testing is completed or results released. Cancelling an unfulfillable part preserves completed work and follows the affected sample-test cancellation rules. Once the order's samples are collected, accepting goes through a change request the Head of Sales approves. Sales tells the customer the decision. |
 | Order keeps running meanwhile | A pending request does not pause the laboratory; testing continues until sales accepts.                                                                                                                                                  |
 | Money                         | There is no refund flow. If an advance was paid, the money stays on the invoice and sales settles it with the customer outside the system. The customer is told this when sending the request.                                           |
 | Notification                  | The customer gets an email when the request is accepted or declined.                                                                                                                                                                     |
@@ -215,7 +216,7 @@ Acceptance criteria:
 
 ### 3. Quotation, acceptance and payment (US-C13 to US-C17)
 
-- The quotation page shows the parameters, prices, the payment deadline and the advance invoice.
+- The quotation page shows the parameters, prices, the payment deadline, the advance invoice, the customer's requested date and the committed return date. Internal due dates are never shown to the customer.
 - **Acceptance is payment.**. Paying the advance invoice means the customer accepted.
 - The customer can decline a sent quotation with a reason; the salesperson is notified and the order is not cancelled.
 - When sales creates a new revision of a quotation, the customer sees a banner and the list of revisions.
@@ -233,7 +234,7 @@ The portal maps the internal states to four customer-facing labels:
 | Completed | All samples completed                   |
 | Cancelled | Order cancelled                         |
 
-Results are available for download only after the laboratory has released them (testing is completed and the results are approved). The customer gets the latest version of the result document.
+Each order shows its requested date and committed return date. Results are available for download only after the laboratory has released them (testing is completed and the results are approved). The customer gets the latest version of the result document.
 
 ### 5. Notifications (US-C07, US-C18)
 
@@ -251,6 +252,8 @@ The customer receives one notification per event, through the channels chosen in
 | Results released                         | Results ready                               |
 
 The results of an order are released on the order, to the order's contact, once for each issued report. A test request the laboratory took without an order tells the customer on its report instead.
+
+A notice of a mandatory event always stays visible in the portal, whatever happens to its email ([SH-11](../../shared.md#sh-11-schedules-and-reminders)). When an email to the customer bounces and Sales corrects the address, the new address receives a confirmation link; emails resume once the customer opens it, and until then the customer gets notices in the portal only.
 
 ### 6. Support and feedback (US-C20, US-C21)
 

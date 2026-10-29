@@ -10,8 +10,6 @@ Each installation serves one laboratory company; there is no multi-company setup
 
 The main laboratory flow is testing by the selected method, including TCVN methods, and returning measured results in a signed report. Comparison with QCVN regulations is optional.
 
-Customer complaint and nonconforming-work management, QC blanks and control samples, reference-material and proficiency-test tracking, measurement uncertainty, and recording room temperature or humidity are outside the current scope. Room availability and booking remain in scope. Medilab Mobile is deferred; the current collection and testing workflows use the web interface. Medilab Sync remains in scope.
-
 ## Modules
 
 MediLab is split into three modules that can each be installed from the Odoo marketplace and support each other: **E-commerce**, **Inventory** and **Laboratory Testing (core)**. Each module is designed to handle specific aspects of laboratory management, allowing users to customize their experience based on their needs.
