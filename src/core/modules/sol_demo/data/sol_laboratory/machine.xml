@@ -43,4 +43,9 @@
         <field name="location_id" ref="demo_location_chemistry_bench_1" />
         <field name="status">under_repair</field>
     </record>
+    <record id="demo_machine_uvvis" model="medilab.machine">
+        <field name="code">UVVIS-01</field>
+        <field name="name">UV-Vis spectrophotometer 1</field>
+        <field name="location_id" ref="demo_location_chemistry_bench_2" />
+    </record>
 </odoo>
