@@ -171,15 +171,20 @@ class TestOrderForm(OrderCase):
             [field.get("name") for field in listed], ["downpayment_invoice_id", "currency_id", "price_unit"]
         )
 
+    def _total(self, form):
+        totals = form.tax_totals
+        assert isinstance(totals, dict)
+        return totals["total_amount_currency"]
+
     def test_editing_the_ordered_lines_updates_the_totals(self):
         order = self.make_order([(self.lead_product, 1)], status="claimed", user_id=self.sales.id)
         with Form(order) as form:
-            before = form.tax_totals["total_amount_currency"]
+            before = self._total(form)
             with form.product_line_ids.new() as line:
                 line.product_template_id = self.package_product
                 # The browser's product widget picks the variant and its price; the server-side form does not.
                 line.price_unit = 100000
-            self.assertGreater(form.tax_totals["total_amount_currency"], before)
+            self.assertGreater(self._total(form), before)
 
         self.assertEqual(len(order.order_line), 2)
         self.assertEqual(order.product_line_ids, order.order_line)
