@@ -4,18 +4,19 @@ What each GitHub Actions workflow in `.github/workflows/` does. How workflows ar
 
 ## Workflows
 
-| Workflow        | Runs on                                                                                 | Does                                                                                                                 |
-| --------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `ci-core`       | every pull request and every push to `main`                                             | Lints, builds and tests the Odoo modules, runs the browser tests, then SonarQube Cloud.                              |
-| `ci-infra`      | every pull request                                                                      | Checks Terraform, Ansible, origin isolation, ONLYOFFICE contracts and CloudBeaver when their paths change. |
-| `ci-tools`      | every pull request                                                                      | Runs the AI tooling tests, Ruff and the typecheck tooling tests when that tooling changes.                           |
-| `ci-sync-app`   | every pull request                                                                      | Checks the format, lints, tests and builds the sync app when it changes.                                             |
-| `ci-mobile-app` | every pull request                                                                      | Type-checks, lints and tests the mobile app, and builds it for Android and iOS, when it changes.                     |
-| `cd-core`       | a push to `main` that changes `src/core` or the Dockerfile, and hourly in `window` mode | Publishes the image, releases it through Argo CD at once or in the maintenance window, and rolls back if it fails.   |
-| `cd-infra`      | a push to `main` that changes `infra/`                                                  | Runs `terraform apply`.                                                                                              |
-| `cd-ansible`    | a manual run on `main`                                                                  | Runs the Ansible playbooks against the nodes: `ping`, `inspect`, `check` or `apply`.                                 |
-| `cd-sync-app`   | a `filesync-v*` tag                                                                     | Builds the sync app's Windows, macOS and Linux packages and publishes them as a GitHub release.                      |
-| `cd-cleanup`    | a closed pull request, merged or not, or a finished `cd-core`                           | Deletes the branch, artifacts and build caches of closed pull requests, and old images.                              |
+| Workflow        | Runs on                                                                                 | Does                                                                                                               |
+| --------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `ci-core`       | every pull request and every push to `main`                                             | Lints, builds and tests the Odoo modules, runs the browser tests, then SonarQube Cloud.                            |
+| `ci-infra`      | every pull request                                                                      | Checks Terraform, Ansible, origin isolation, ONLYOFFICE contracts and CloudBeaver when their paths change.         |
+| `ci-tools`      | every pull request                                                                      | Runs the AI tooling tests, Ruff and the typecheck tooling tests when that tooling changes.                         |
+| `ci-sync-app`   | every pull request                                                                      | Checks the format, lints, tests and builds the sync app when it changes.                                           |
+| `ci-mobile-app` | every pull request                                                                      | Type-checks, lints and tests the mobile app, and builds it for Android and iOS, when it changes.                   |
+| `cd-core`       | a push to `main` that changes `src/core` or the Dockerfile, and hourly in `window` mode | Publishes the image, releases it through Argo CD at once or in the maintenance window, and rolls back if it fails. |
+| `cd-infra`      | a push to `main` that changes `infra/`                                                  | Runs `terraform apply`.                                                                                            |
+| `cd-ansible`    | a manual run on `main`                                                                  | Runs the Ansible playbooks against the nodes: `ping`, `inspect`, `check` or `apply`.                               |
+| `cd-reset`      | a manual run on `main`                                                                  | Recreates the production database and installs it again with the demo data.                                        |
+| `cd-sync-app`   | a `filesync-v*` tag                                                                     | Builds the sync app's Windows, macOS and Linux packages and publishes them as a GitHub release.                    |
+| `cd-cleanup`    | a closed pull request, merged or not, or a finished `cd-core`                           | Deletes the branch, artifacts and build caches of closed pull requests, and old images.                            |
 
 Every workflow can also be started by hand.
 
@@ -85,6 +86,21 @@ Checks the developer tooling. `tools` is its required check: it fails unless `ai
 - Terraform creates both environments, their branch policy, their reviewers from the `ansible_apply_reviewers` variable in `infra/`, and their `DOPPLER_INFRA_TOKEN` secret; change them there and apply, not in GitHub.
 - No pull request trigger starts it, so a pull request never reaches the nodes or the `infra` secrets.
 - The kubeconfig is never printed in its log; see [Provisioning a node](../workflows/provisioning-node.md).
+
+## cd-reset
+
+`cd-reset` drops the production database and installs it again, such as when the company was installed with a chart or currency that Odoo no longer lets change.
+
+- It starts only by hand, from the Actions page, and does nothing unless its `confirm` input is `RESET`.
+- It runs in the `database-reset` environment: `main` only, and approval by a reviewer from the `ansible_apply_reviewers` variable in `infra/`. It builds the same Ansible image and reads the same `infra` config as `cd-ansible`, then runs `reset.yml` on a k3s server.
+- The `reset` role, `infra/ansible/roles/reset/files/reset.sh`, runs in order:
+  1. Takes the `medilab-db-reset` on-demand backup of the `medilab-db` cluster, replacing the previous one, and waits until it completes.
+  2. Drops the `medilab` database, closing Odoo's connections, and creates it again empty, owned by the `medilab` user.
+  3. Has Argo CD sync the `odoo` application from `main`, so its upgrade Job installs every module and the demo data on the empty database, and waits until the sync succeeds; see [Cluster](cluster.md#odoo).
+  4. Restarts Odoo, so no worker keeps the registry of the dropped database.
+  5. Fails unless the company's currency is VND and `sol_demo` is installed.
+- Odoo answers with errors from the drop until the restart. Every session ends, and the `demo.<role>` users get the password `demo` again.
+- The attachments of the dropped database stay in the filestore bucket until Odoo's autovacuum deletes them, since no attachment refers to them; see [Laboratory files](../specs/laboratory-files.md#filestore). Mailpit keeps its messages.
 
 ## ci-sync-app and cd-sync-app
 
