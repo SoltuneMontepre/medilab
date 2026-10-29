@@ -208,6 +208,40 @@ class Proof:
                 "The synthetic Docker cleanup could not verify all owned resources"
             )
 
+    def start_gateway(self, directory, base, isolated, cert, common):
+        with socket.socket() as reserve:
+            reserve.bind(("127.0.0.1", 0))
+            public_port = reserve.getsockname()[1]
+        config_file = directory / "runtime.json"
+        config = json.loads(config_file.read_text())
+        config["public_origin"] = f"http://localhost:{public_port}"
+        config_file.write_text(json.dumps(config))
+        gateway = self.container(
+            "gateway",
+            base,
+            GATEWAY,
+            *cert,
+            *common,
+            "-e",
+            "ONLYOFFICE_PROXY_ROLE=gateway",
+            "-p",
+            f"127.0.0.1:{public_port}:8080",
+        )
+        command(
+            "network", "connect", "--alias", "onlyoffice-gateway", isolated, gateway
+        )
+        binding = inspect("container", gateway)["NetworkSettings"]["Ports"]["8080/tcp"]
+        expected = [{"HostIp": "127.0.0.1", "HostPort": str(public_port)}]
+        if binding != expected:
+            raise RuntimeError(
+                "The synthetic gateway did not retain its explicitly requested loopback port"
+            )
+        self.report.update(
+            public_port_requested=public_port,
+            public_port_effective=int(binding[0]["HostPort"]),
+        )
+        return gateway, public_port
+
     def run(self, directory, listener_port):
         info = json.loads(command("info", "--format", "{{json .}}").stdout)
         if "host" in info:
@@ -306,19 +340,8 @@ class Proof:
             "IPAddress"
         ]
         ds = self.container("ds", isolated, DS, *cert, "--network-alias", "onlyoffice")
-        gateway = self.container(
-            "gateway",
-            base,
-            GATEWAY,
-            *cert,
-            *common,
-            "-e",
-            "ONLYOFFICE_PROXY_ROLE=gateway",
-            "-p",
-            "127.0.0.1::8080",
-        )
-        command(
-            "network", "connect", "--alias", "onlyoffice-gateway", isolated, gateway
+        gateway, public_port = self.start_gateway(
+            directory, base, isolated, cert, common
         )
         adapter = self.container(
             "adapter",
@@ -328,38 +351,6 @@ class Proof:
             "-e",
             "ONLYOFFICE_PROXY_ROLE=adapter",
         )
-        public_port = int(
-            inspect("container", gateway)["NetworkSettings"]["Ports"]["8080/tcp"][0][
-                "HostPort"
-            ]
-        )
-        config = json.loads((directory / "runtime.json").read_text())
-        config["public_origin"] = f"http://localhost:{public_port}"
-        (directory / "runtime.json").write_text(json.dumps(config))
-        # Restart only our synthetic proxy after its host port is known.
-        command("restart", gateway)
-        after_port = int(
-            inspect("container", gateway)["NetworkSettings"]["Ports"]["8080/tcp"][0][
-                "HostPort"
-            ]
-        )
-        self.report.update(
-            public_port_before_restart=public_port, public_port_after_restart=after_port
-        )
-        if after_port != public_port:
-            self.report["stage"] = "candidate-public-port-reallocated"
-            old = host_get(public_port)
-            self.report["old_public_http_status"] = old[0] if old else None
-            wait(
-                lambda: (
-                    host_get(after_port, authority=f"localhost:{public_port}")
-                    == (200, b"true")
-                )
-            )
-            self.report["reallocated_endpoint_healthy_with_configured_authority"] = True
-            raise RuntimeError(
-                "Docker reallocated the synthetic gateway's randomly requested host port on restart"
-            )
         wait(lambda: self.public_health(public_port))
         public_denied = host_get(public_port, "/ConvertService.ashx") == (400, b"")
         targets = [(backend_ip, p) for p in (3900, 3903, 5432, 8069, 8978)] + [

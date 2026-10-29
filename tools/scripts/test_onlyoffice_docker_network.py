@@ -98,6 +98,109 @@ class DockerNetworkProofTest(unittest.TestCase):
             self.assertTrue(fixture.public_health(12345))
             self.assertEqual(fixture.report["candidate_public_http_status"], 200)
 
+    def test_gateway_origin_and_explicit_binding_are_fixed_before_start_without_restart(
+        self,
+    ):
+        fixture = proof.Proof()
+        expected_port = 43210
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = Path(temporary)
+            config_file = directory / "runtime.json"
+            config_file.write_text(
+                json.dumps(
+                    {
+                        "public_origin": "http://localhost:8080",
+                        "bucket": "synthetic-proof",
+                    }
+                )
+            )
+
+            def create(*args):
+                self.assertEqual(
+                    json.loads(config_file.read_text()),
+                    {
+                        "public_origin": f"http://localhost:{expected_port}",
+                        "bucket": "synthetic-proof",
+                    },
+                )
+                self.assertEqual(args[-2:], ("-p", f"127.0.0.1:{expected_port}:8080"))
+                return "owned-gateway"
+
+            with (
+                patch.object(proof.socket, "socket") as reserve,
+                patch.object(
+                    fixture, "container", side_effect=create
+                ) as create_gateway,
+                patch.object(proof, "command") as command,
+                patch.object(
+                    proof,
+                    "inspect",
+                    return_value={
+                        "NetworkSettings": {
+                            "Ports": {
+                                "8080/tcp": [
+                                    {
+                                        "HostIp": "127.0.0.1",
+                                        "HostPort": str(expected_port),
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                ),
+            ):
+                reserve.return_value.__enter__.return_value.getsockname.return_value = (
+                    "127.0.0.1",
+                    expected_port,
+                )
+                result = fixture.start_gateway(directory, "base", "isolated", [], [])
+            self.assertEqual(result, ("owned-gateway", expected_port))
+            create_gateway.assert_called_once()
+            command.assert_called_once_with(
+                "network",
+                "connect",
+                "--alias",
+                "onlyoffice-gateway",
+                "isolated",
+                "owned-gateway",
+            )
+            self.assertEqual(
+                fixture.report["public_port_requested"],
+                fixture.report["public_port_effective"],
+            )
+
+    def test_gateway_rejects_a_changed_effective_public_binding(self):
+        fixture = proof.Proof()
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = Path(temporary)
+            (directory / "runtime.json").write_text(
+                '{"public_origin":"http://localhost:8080"}'
+            )
+            with (
+                patch.object(proof.socket, "socket") as reserve,
+                patch.object(fixture, "container", return_value="owned-gateway"),
+                patch.object(proof, "command"),
+                patch.object(
+                    proof,
+                    "inspect",
+                    return_value={
+                        "NetworkSettings": {
+                            "Ports": {
+                                "8080/tcp": [
+                                    {"HostIp": "127.0.0.1", "HostPort": "43211"}
+                                ]
+                            }
+                        }
+                    },
+                ),
+                self.assertRaises(RuntimeError),
+            ):
+                reserve.return_value.__enter__.return_value.getsockname.return_value = (
+                    "127.0.0.1",
+                    43210,
+                )
+                fixture.start_gateway(directory, "base", "isolated", [], [])
+
     def test_cleanup_refuses_foreign_label_and_continues_other_owned_resources(self):
         fixture = proof.Proof()
         fixture.containers = ["owned", "foreign"]
