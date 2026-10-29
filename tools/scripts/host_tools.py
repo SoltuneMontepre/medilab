@@ -16,6 +16,25 @@ class HostError(RuntimeError):
     pass
 
 
+def assert_onlyoffice_engine(information):
+    if isinstance(information, dict) and isinstance(information.get("host"), dict):
+        return
+    version = (
+        information.get("ServerVersion") if isinstance(information, dict) else None
+    )
+    match = (
+        re.fullmatch(r"(\d+)\.(\d+)\.(\d+)(?:[-+][\w.~-]+)?", version)
+        if isinstance(version, str)
+        else None
+    )
+    if not match or int(match[1]) < 28:
+        raise HostError(
+            "Managed ONLYOFFICE requires Docker Engine server 28 or newer for isolated internal networking. "
+            "Update the local Docker engine (Docker Desktop on Windows), or use the supported local Podman setup. "
+            "The Docker CLI version alone does not establish server support."
+        )
+
+
 def check_node_version(value):
     match = re.match(r"v?(\d+)\.(\d+)\.(\d+)", value)
     version = tuple(map(int, match.groups())) if match else ()

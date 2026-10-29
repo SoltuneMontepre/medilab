@@ -228,11 +228,11 @@ jobs:
 
       - name: ONLYOFFICE local setup contracts
         if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
-        run: uv run --locked --project src/core python -m unittest discover -s tools/scripts -p 'test_onlyoffice*.py'
+        run: uv run --locked --no-build --project src/core python -m unittest discover -s tools/scripts -p 'test_onlyoffice*.py'
 
       - name: ONLYOFFICE local protocol contracts
         if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
-        run: uv run --locked --project src/core python -m unittest discover -s tools/onlyoffice -p 'test_*.py'
+        run: uv run --locked --no-build --project src/core python -m unittest discover -s tools/onlyoffice -p 'test_*.py'
 
       - name: Bootstrap lifecycle regression tests
         if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
@@ -242,8 +242,68 @@ jobs:
         if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         run: python -m unittest discover -s tools/scripts -p 'test_*compose*.py'
 
+  onlyoffice-docker:
+    name: ONLYOFFICE Docker network
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Detect relevant changes
+        id: filter
+        uses: dorny/paths-filter@v4
+        with:
+          filters: |
+            relevant:
+              - "taskfile.yml"
+              - "tools/taskfiles/onlyoffice.taskfile.yml"
+              - "tools/scripts/check_onlyoffice_docker_network.py"
+              - "tools/scripts/onlyoffice*.py"
+              - "tools/scripts/host_tools.py"
+              - "tools/scripts/local_setup.py"
+              - "tools/scripts/demo_bootstrap*.py"
+              - "tools/onlyoffice/**"
+              - "tools/infrastructure/docker-compose.yml"
+              - "src/applications/medilab-sync/docker-compose.yml"
+              - "src/core/pyproject.toml"
+              - "src/core/uv.lock"
+              - ".github/workflows/ci.tools.yml"
+
+      - name: Initialize sanitized Docker fixture evidence
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: >-
+          python -c "import json; from pathlib import Path;
+          report=Path('.local/onlyoffice-docker-network.json');
+          report.parent.mkdir(parents=True,exist_ok=True);
+          report.write_text(json.dumps({'status':'not_run','stage':'environment-preparation','server_version':None,'checks':{}},indent=2),encoding='utf-8')"
+
+      - name: Set up uv for the locked synthetic TLS fixture
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        uses: astral-sh/setup-uv@v10.3.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: src/core/uv.lock
+
+      - name: Verify Docker network and public proxy with owned synthetic fixtures
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: uv run --locked --no-build --project src/core python tools/scripts/check_onlyoffice_docker_network.py --report .local/onlyoffice-docker-network.json
+
+      - name: Upload sanitized Docker network evidence
+        if: always() && (steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch')
+        uses: actions/upload-artifact@v7
+        with:
+          name: onlyoffice-docker-network
+          path: .local/onlyoffice-docker-network.json
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+
   tools:
-    needs: [ai, typecheck, logging]
+    needs: [ai, typecheck, logging, onlyoffice-docker]
     if: ${{ !cancelled() }}
     runs-on: ubuntu-24.04
     timeout-minutes: 2
@@ -253,8 +313,9 @@ jobs:
           AI: ${{ needs.ai.result }}
           TYPECHECK: ${{ needs.typecheck.result }}
           LOGGING: ${{ needs.logging.result }}
+          DOCKER_NETWORK: ${{ needs.onlyoffice-docker.result }}
         run: |
-          if [ "$AI" != success ] || [ "$TYPECHECK" != success ] || [ "$LOGGING" != success ]; then
-            echo "::error::ai finished with result $AI, typecheck with result $TYPECHECK, and logging with result $LOGGING."
+          if [ "$AI" != success ] || [ "$TYPECHECK" != success ] || [ "$LOGGING" != success ] || [ "$DOCKER_NETWORK" != success ]; then
+            echo "::error::ai finished with result $AI, typecheck with result $TYPECHECK, logging with result $LOGGING, and Docker network with result $DOCKER_NETWORK."
             exit 1
           fi

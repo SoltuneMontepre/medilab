@@ -37,7 +37,7 @@ class OnlyofficeTlsTests(unittest.TestCase):
 
     def fingerprints(self):
         return {
-            str(path.relative_to(self.tls)): (
+            path.relative_to(self.tls).as_posix(): (
                 hashlib.sha256(path.read_bytes()).hexdigest(),
                 path.stat().st_mtime_ns,
             )

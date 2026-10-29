@@ -403,10 +403,10 @@ def main():
         [
             Proxy(("0.0.0.0", 7443), "gateway", config, True),
             Proxy(("0.0.0.0", 9443), "internal", config, True),
+            Proxy(("0.0.0.0", config["http_port"]), "public", config),
         ]
         if os.environ.get("ONLYOFFICE_PROXY_ROLE") == "gateway"
         else [
-            Proxy(("0.0.0.0", config["http_port"]), "public", config),
             Proxy(("127.0.0.1", config["storage_port"]), "storage", config),
         ]
     )

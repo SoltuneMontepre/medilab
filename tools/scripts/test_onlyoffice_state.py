@@ -1,6 +1,7 @@
 """State, registration and ownership tests use disposable directories and mocked engine operations."""
 
 import base64
+import copy
 import io
 import json
 import os
@@ -328,6 +329,78 @@ class OnlyofficeStateTest(unittest.TestCase):
                 onlyoffice.create_resources(addon, allow_volumes=True)
             run.assert_not_called()
 
+    def test_standalone_secure_engine_preflight_precedes_owned_marker_reads(self):
+        for info in ({"ServerVersion": "27.5.1"}, {"Version": "99.0.0"}):
+            with (
+                self.subTest(info=info),
+                patch.object(onlyoffice, "project_name", return_value="medilab-test"),
+                patch.object(
+                    onlyoffice.bootstrap, "_assert_local_engine", return_value="local"
+                ),
+                patch.object(onlyoffice.bootstrap, "_read_marker") as marker,
+                patch.object(
+                    onlyoffice,
+                    "run",
+                    return_value=subprocess.CompletedProcess(
+                        [], 0, json.dumps(info), ""
+                    ),
+                ),
+                self.assertRaises(state.OnlyofficeError),
+            ):
+                onlyoffice.selection(secure_engine=True)
+            marker.assert_not_called()
+
+    def test_existing_docker_network_requires_ipv4_and_ipv6_isolated_policy(self):
+        addon = {
+            "owner": "a" * 32,
+            "project": "medilab-test",
+            "provider": "docker",
+            "config": dict(
+                zip(state.CONFIG_KEYS, ("lib", "data", "fonts", "29843"), strict=True)
+            ),
+        }
+        labels = {
+            "com.docker.compose.project": addon["project"],
+            state.OWNER_LABEL: addon["owner"],
+        }
+        options = {
+            f"com.docker.network.bridge.gateway_mode_ipv{version}": "isolated"
+            for version in (4, 6)
+        }
+        for changed in (None, 4, 6, "driver"):
+            configured = {
+                key: value
+                for key, value in options.items()
+                if changed is None or not key.endswith(str(changed))
+            }
+            network = {
+                "Labels": labels,
+                "Internal": True,
+                "Driver": "macvlan" if changed == "driver" else "bridge",
+                "Options": configured,
+            }
+            with (
+                self.subTest(missing=changed),
+                patch.object(
+                    onlyoffice.bootstrap, "_resources", return_value={"containers": []}
+                ),
+                patch.object(
+                    onlyoffice,
+                    "inspect_resource",
+                    side_effect=lambda kind, _name, selected=network: (
+                        selected if kind == "network" else {"Labels": labels}
+                    ),
+                ),
+                patch.object(onlyoffice, "run") as run,
+            ):
+                if changed is None:
+                    onlyoffice.resources(addon)
+                else:
+                    with self.assertRaises(state.OnlyofficeError):
+                        onlyoffice.create_resources(addon)
+                    onlyoffice.resources(addon, preparing=True, inspect_policy=False)
+                run.assert_not_called()
+
     def test_external_network_is_created_with_owner_and_isolation_and_never_adopted(
         self,
     ):
@@ -426,6 +499,138 @@ class OnlyofficeStateTest(unittest.TestCase):
             ["onlyoffice", "onlyoffice-adapter", "onlyoffice-gateway"],
         )
         self.assertIn("1890", run.call_args_list[0].args[0])
+
+    def test_legacy_publisher_handoff_drains_then_removes_only_verified_owned_containers(
+        self,
+    ):
+        addon = {
+            "owner": "a" * 32,
+            "project": "medilab-test",
+            "http_port": 18080,
+            "config": {"MEDILAB_ONLYOFFICE_PORT": "29843"},
+        }
+        peers = [
+            {
+                "Id": service,
+                "Config": {
+                    "Labels": {
+                        "com.docker.compose.project": addon["project"],
+                        state.OWNER_LABEL: addon["owner"],
+                        "com.docker.compose.service": service,
+                    }
+                },
+            }
+            for service in state.SERVICES
+        ]
+        mapping = {"18080/tcp": [{"HostIp": "127.0.0.1", "HostPort": "29843"}]}
+        peers[1]["HostConfig"] = {
+            "NetworkMode": "container:onlyoffice",
+            "PortBindings": {},
+        }
+        peers[1]["NetworkSettings"] = {"Ports": mapping}
+        peers[0].update(
+            {
+                "HostConfig": {"PortBindings": mapping},
+                "NetworkSettings": {"Ports": mapping},
+                "State": {"Running": True},
+            }
+        )
+        events = []
+        with (
+            patch.object(
+                onlyoffice.bootstrap, "_resources", return_value={"containers": peers}
+            ),
+            patch.object(
+                onlyoffice, "stop", side_effect=lambda *_args: events.append("drain")
+            ),
+            patch.object(
+                onlyoffice, "run", side_effect=lambda args: events.append(args)
+            ),
+        ):
+            onlyoffice.handoff_public_port(addon, None, {})
+        self.assertEqual(
+            events,
+            [
+                "drain",
+                ["docker", "rm", "onlyoffice-adapter"],
+                ["docker", "rm", "onlyoffice"],
+                ["docker", "rm", "onlyoffice-gateway"],
+            ],
+        )
+        for change in (
+            "foreign-owner",
+            "public-address",
+            "wrong-port",
+            "extra-port",
+            "effective-mismatch",
+            "gateway-extra",
+            "adapter-extra",
+            "duplicate-gateway",
+            "malformed-bindings",
+            "empty-malformed-bindings",
+            "empty-malformed-section",
+            "new-layout",
+        ):
+            current = copy.deepcopy(peers)
+            server = current[0]
+            if change == "foreign-owner":
+                server["Config"]["Labels"][state.OWNER_LABEL] = "foreign"
+            elif change == "public-address":
+                server["HostConfig"]["PortBindings"]["18080/tcp"][0]["HostIp"] = (
+                    "0.0.0.0"
+                )
+            elif change == "wrong-port":
+                server["HostConfig"]["PortBindings"]["18080/tcp"][0]["HostPort"] = (
+                    "29844"
+                )
+            elif change == "extra-port":
+                server["HostConfig"]["PortBindings"]["443/tcp"] = [
+                    {"HostIp": "127.0.0.1", "HostPort": "29845"}
+                ]
+            elif change == "effective-mismatch":
+                server["NetworkSettings"]["Ports"] = {}
+            elif change in {"gateway-extra", "adapter-extra"}:
+                current[2 if change == "gateway-extra" else 1].setdefault(
+                    "HostConfig", {}
+                )["PortBindings"] = {
+                    "9999/tcp": [{"HostIp": "0.0.0.0", "HostPort": "29999"}]
+                }
+            elif change == "duplicate-gateway":
+                current.append(copy.deepcopy(current[2]))
+            elif change == "malformed-bindings":
+                current[1]["HostConfig"]["PortBindings"] = "invalid"
+            elif change == "empty-malformed-bindings":
+                current[1]["HostConfig"]["PortBindings"] = []
+            elif change == "empty-malformed-section":
+                current[1]["HostConfig"] = []
+            else:
+                server["HostConfig"]["PortBindings"] = None
+                server["NetworkSettings"]["Ports"] = None
+                current[1]["NetworkSettings"]["Ports"] = None
+                current[2].update(
+                    {
+                        "HostConfig": {"PortBindings": mapping},
+                        "NetworkSettings": {"Ports": mapping},
+                        "State": {"Running": True},
+                    }
+                )
+            with (
+                self.subTest(change=change),
+                patch.object(
+                    onlyoffice.bootstrap,
+                    "_resources",
+                    return_value={"containers": current},
+                ),
+                patch.object(onlyoffice, "stop") as stop,
+                patch.object(onlyoffice, "run") as run,
+            ):
+                if change == "new-layout":
+                    onlyoffice.handoff_public_port(addon, None, {})
+                else:
+                    with self.assertRaises(state.OnlyofficeError):
+                        onlyoffice.handoff_public_port(addon, None, {})
+                stop.assert_not_called()
+                run.assert_not_called()
 
     def test_compose_drain_validates_identity_and_holds_owner_lock_through_delegation(
         self,

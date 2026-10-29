@@ -25,6 +25,33 @@ def marker(status="selected"):
 
 
 class LocalSetupTests(unittest.TestCase):
+    def test_old_docker_server_is_refused_before_selection_or_mutation(self):
+        document = {
+            "ServerVersion": "27.5.1",
+            "OSType": "linux",
+            "Architecture": "amd64",
+            "NCPU": 8,
+            "MemTotal": 16 * 1024**3,
+        }
+
+        def invoke(argv, **_kwargs):
+            output = (
+                "v24.22.1" if argv == ["node", "--version"] else json.dumps(document)
+            )
+            return subprocess.CompletedProcess(argv, 0, output, "")
+
+        with (
+            patch.object(local_setup, "executable"),
+            patch.object(local_setup, "run", side_effect=invoke),
+            patch.object(local_setup.bootstrap, "_assert_local_engine"),
+            patch.object(local_setup, "classify") as classify,
+            patch.object(local_setup, "prepare") as prepare,
+            self.assertRaisesRegex(local_setup.HostError, "server 28"),
+        ):
+            local_setup.setup()
+        classify.assert_not_called()
+        prepare.assert_not_called()
+
     def test_node_prerequisite_follows_the_locked_vite_engine_range(self):
         for version in ("v20.19.0", "v20.20.1", "v22.12.0", "v23.0.0", "v24.22.1"):
             local_setup.check_node_version(version)

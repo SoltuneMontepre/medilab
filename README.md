@@ -22,13 +22,13 @@ Run commands from this checkout in a Linux terminal or native Windows PowerShell
 | Python 3.12+ and Git on `PATH` | Portable setup and worktree ownership |
 | [Task](https://taskfile.dev/docs/installation) | Root entrypoint; the Arch package is `go-task` |
 | [uv](https://docs.astral.sh/uv/getting-started/installation/) | Existing locked Python environments |
-| Local Docker-compatible CLI and Compose | Docker or Podman exposing `docker`, a local Linux amd64 engine and a provider supporting `!override` (Docker Compose 2.24.4+) |
+| Local Docker-compatible CLI and Compose | Docker Engine server >=28 or supported Podman exposing `docker`, a local Linux amd64 engine and a provider supporting `!override` (Docker Compose 2.24.4+) |
 | [Node.js](https://nodejs.org/en/download) 20.19+ (20.x) or >=22.12, including npm/npx | AI tooling and application tooling |
 | [Bun](https://bun.sh/docs/installation) stable >=1.4.0 | Locked frontend and Tauri CLI dependencies; the committed Sync lockfile uses format 2 |
 | Rust/Cargo and [Tauri native dependencies](https://v2.tauri.app/start/prerequisites/) | Native Sync checks and compilation |
 | [Doppler CLI](https://docs.doppler.com/docs/install-cli) | Authentication for an existing ordinary environment; a fresh local demo does not use it |
 
-Allocate at least four CPUs and 8 GiB to the container engine: the pinned ONLYOFFICE service reserves up to 6 GiB, with additional capacity for Odoo and storage. Start the daemon before setup. A shell alias for `docker` is insufficient; Task must find the executable and Compose provider on `PATH`. Remote engines are refused.
+Allocate at least four CPUs and 8 GiB to the container engine: the pinned ONLYOFFICE service reserves up to 6 GiB, with additional capacity for Odoo and storage. Start the daemon before setup. A shell alias for `docker` is insufficient; Task must find the executable and Compose provider on `PATH`. Remote engines are refused. Docker Engine server 28+ is required for isolated editor networking; a newer CLI connected to an older server is insufficient.
 
 On Arch/CachyOS install the native Tauri development libraries described in the linked Arch instructions, including WebKitGTK 4.1, GTK/appindicator, OpenSSL and the compiler/pkg-config toolchain. On Windows install the MSVC Rust target, Microsoft C++ Build Tools with the desktop C++ workload/Windows SDK, and WebView2. These are native OS prerequisites; setup does not elevate, install another runtime manager, change global trust or silently skip missing compilers. Restart the terminal after installing tools. If Windows resolves `python` to its Store alias, disable that alias and install native Python.
 

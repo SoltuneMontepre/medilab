@@ -16,6 +16,7 @@ from pathlib import Path
 
 import demo_bootstrap as bootstrap
 import onlyoffice_checks
+import onlyoffice_lifecycle
 from compose_env import project_name
 from onlyoffice_state import (
     CONFIG_KEYS,
@@ -29,11 +30,13 @@ from onlyoffice_state import (
     VOLUME_KEYS,
     OnlyofficeError,
     assert_configuration_matches,
+    assert_network_policy,
     atomic_json,
     checked_path,
     configuration_inputs,
     expected_configuration,
     material_fingerprints,
+    network_driver_options,
     optional_volume_names,
     protect,
     read_state,
@@ -67,10 +70,19 @@ def run(arguments, *, environment=None, data=None, timeout=180, check=True):
     return result
 
 
-def selection(*, recovering=False, validate_inputs=False):
+def selection(*, recovering=False, validate_inputs=False, secure_engine=False):
     project = project_name()
-    marker = bootstrap._read_marker()
     engine = bootstrap._assert_local_engine()
+    if secure_engine:
+        from host_tools import HostError, assert_onlyoffice_engine
+
+        try:
+            assert_onlyoffice_engine(
+                json.loads(run(["docker", "info", "--format", "{{json .}}"]).stdout)
+            )
+        except HostError as error:
+            raise OnlyofficeError(str(error)) from None
+    marker = bootstrap._read_marker()
     if marker:
         bootstrap._validate_completed_selection(marker, project)
         bootstrap._assert_owned_resources(project, marker["owner"])
@@ -353,7 +365,7 @@ def assert_resource(resource, state, kind):
         )
 
 
-def resources(state, *, preparing=False):
+def resources(state, *, preparing=False, inspect_policy=True):
     for container in bootstrap._resources(state["project"])["containers"]:
         if (
             bootstrap._labels(container, "containers").get("com.docker.compose.service")
@@ -374,16 +386,8 @@ def resources(state, *, preparing=False):
     network = inspect_resource("network", state["project"] + "_onlyoffice")
     if network:
         assert_resource(network, state, "networks")
-        if not network.get("Internal", network.get("internal", False)):
-            raise OnlyofficeError("The ONLYOFFICE network is not internal.")
-        if (
-            state.get("provider") == "podman"
-            and (network.get("Options") or network.get("options") or {}).get("isolate")
-            != "strict"
-        ):
-            raise OnlyofficeError(
-                "The owned ONLYOFFICE network has lost its strict Podman isolation policy."
-            )
+        if inspect_policy:
+            assert_network_policy(network, state.get("provider"))
     return missing, network
 
 
@@ -421,8 +425,8 @@ def create_resources(state, *, allow_volumes=False):
         info = json.loads(engine.stdout)
         state["provider"] = "podman" if "host" in info else "docker"
         save(state)
-        if "host" in info:
-            arguments += ["--opt", "isolate=strict"]
+        for key, value in network_driver_options(state["provider"]).items():
+            arguments += ["--opt", f"{key}={value}"]
         run([*arguments, state["project"] + "_onlyoffice"])
 
 
@@ -474,7 +478,7 @@ def runtime_config(state, environment):
 
 def setup():
     project, marker, engine, environment = selection(
-        recovering=True, validate_inputs=True
+        recovering=True, validate_inputs=True, secure_engine=True
     )
     guard_existing(project, read_state(project, marker, engine), environment)
     directory = state_directory(project, (marker or {}).get("owner"))
@@ -562,6 +566,7 @@ def setup():
             )
         create_resources(state, allow_volumes=state["status"] != "completed")
         compose(state, marker, environment, "config", "--quiet")
+        handoff_public_port(state, marker, environment)
         try:
             compose(state, marker, environment, "up", "-d", "--wait", *SERVICES)
             verify_network(state, marker, environment)
@@ -612,6 +617,16 @@ def drained_for_compose(project, marker, environment):
         resources(state, preparing=True)
         stop(state, marker, environment)
         yield
+
+
+def remove_owned_containers(state):
+    return onlyoffice_lifecycle.remove_containers(sys.modules[__name__], state)
+
+
+def handoff_public_port(state, marker, environment):
+    return onlyoffice_lifecycle.handoff_public_port(
+        sys.modules[__name__], state, marker, environment
+    )
 
 
 def owned_containers(state):
@@ -690,6 +705,7 @@ def main():
             setup()
             return
         project, marker, engine, environment = selection(
+            secure_engine=command in {"up", "restart", "verify", "config-check"},
             recovering=command in {"recover-registration", "guard-existing"},
             validate_inputs=command
             in {"guard-existing", "up", "restart", "verify", "config-check"},
@@ -715,7 +731,11 @@ def main():
             if not status["ready"]:
                 raise SystemExit(1)
             return
-        resources(state, preparing=command in {"logs", "down"})
+        resources(
+            state,
+            preparing=command in {"logs", "down"},
+            inspect_policy=command not in {"logs", "down"},
+        )
         if command == "logs":
             for peer in owned_containers(state):
                 result = run(["docker", "logs", "--tail", "100", peer["Id"]])
@@ -743,22 +763,7 @@ def main():
         with locked(state_directory(project, state.get("base_owner"))):
             if command == "down":
                 stop(state, marker, environment)
-                peers = owned_containers(state)
-                for service in (
-                    "onlyoffice-adapter",
-                    "onlyoffice",
-                    "onlyoffice-gateway",
-                ):
-                    ids = [
-                        peer["Id"]
-                        for peer in peers
-                        if bootstrap._labels(peer, "containers").get(
-                            "com.docker.compose.service"
-                        )
-                        == service
-                    ]
-                    if ids:
-                        run(["docker", "rm", *ids])
+                remove_owned_containers(state)
             elif command in {"up", "restart"}:
                 if state["status"] != "completed":
                     raise OnlyofficeError(
@@ -767,6 +772,7 @@ def main():
                 if command == "restart":
                     stop(state, marker, environment)
                 create_resources(state)
+                handoff_public_port(state, marker, environment)
                 try:
                     compose(state, marker, environment, "up", "-d", "--wait", *SERVICES)
                     verify_network(state, marker, environment)

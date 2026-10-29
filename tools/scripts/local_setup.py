@@ -12,7 +12,13 @@ from pathlib import Path
 
 import demo_bootstrap as bootstrap
 from compose_env import project_name
-from host_tools import HostError, check_node_version, executable, run
+from host_tools import (
+    HostError,
+    assert_onlyoffice_engine,
+    check_node_version,
+    executable,
+    run,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 MIN_ENGINE_MEMORY = 8 * 1024**3
@@ -168,6 +174,7 @@ def doctor():
             try:
                 document = json.loads(result.stdout)
                 check_engine_transport(document)
+                assert_onlyoffice_engine(document)
                 information = engine_information(document)
                 break
             except (ValueError, TypeError, AttributeError):

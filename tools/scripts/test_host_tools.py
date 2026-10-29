@@ -13,6 +13,31 @@ import host_tools
 
 
 class HostToolsTests(unittest.TestCase):
+    def test_editor_requires_actual_docker_server_28_and_preserves_podman_support(self):
+        for document in (
+            {"ServerVersion": "28.0.0"},
+            {"ServerVersion": "29.1.2"},
+            {"ServerVersion": "28.0.1-0ubuntu1~24.04.1"},
+            {"ServerVersion": "28.0.1+dfsg1-5"},
+            {"host": {"os": "linux", "serviceIsRemote": False}},
+        ):
+            host_tools.assert_onlyoffice_engine(document)
+        for document in (
+            {"ServerVersion": "27.5.1"},
+            {"ServerVersion": "27.5.1-0ubuntu1~24.04.1"},
+            {"ServerVersion": "unverified-28.0.1"},
+            {"ClientVersion": "28.0.0"},
+            {"ServerVersion": "unverified"},
+            {"ServerVersion": 28},
+            {},
+            None,
+        ):
+            with (
+                self.subTest(document=document),
+                self.assertRaises(host_tools.HostError),
+            ):
+                host_tools.assert_onlyoffice_engine(document)
+
     def test_native_invocation_preserves_spaces_unicode_and_child_environment(self):
         result = host_tools.run(
             [

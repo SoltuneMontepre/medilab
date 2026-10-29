@@ -3,6 +3,8 @@
 import base64
 import hashlib
 import http.client
+import json
+import os
 import ssl
 import threading
 import unittest
@@ -21,6 +23,30 @@ CONFIG = {
 
 
 class ProxyContractTest(unittest.TestCase):
+    def test_gateway_owns_public_listener_and_adapter_has_only_loopback_storage(self):
+        for role, expected in (
+            (
+                "gateway",
+                [
+                    ("0.0.0.0", 7443),
+                    ("0.0.0.0", 9443),
+                    ("0.0.0.0", CONFIG["http_port"]),
+                ],
+            ),
+            ("adapter", [("127.0.0.1", CONFIG["storage_port"])]),
+        ):
+            with (
+                self.subTest(role=role),
+                patch.dict(os.environ, {"ONLYOFFICE_PROXY_ROLE": role}),
+                patch.object(proxy.Path, "read_text", return_value=json.dumps(CONFIG)),
+                patch.object(proxy, "Proxy") as server,
+                patch.object(proxy.socket, "has_ipv6", False),
+                patch.object(proxy.threading, "Thread"),
+                patch.object(proxy.threading, "Event"),
+            ):
+                proxy.main()
+            self.assertEqual([call.args[0] for call in server.call_args_list], expected)
+
     def test_signed_storage_target_and_host_are_not_normalized(self):
         observed = []
 

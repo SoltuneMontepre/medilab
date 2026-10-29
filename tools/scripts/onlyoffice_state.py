@@ -364,6 +364,34 @@ def missing_core_volumes(config, missing):
     return sorted(set(missing) - optional_volume_names(config))
 
 
+def network_driver_options(provider):
+    if provider == "podman":
+        return {"isolate": "strict"}
+    if provider == "docker":
+        return {
+            f"com.docker.network.bridge.gateway_mode_ipv{version}": "isolated"
+            for version in (4, 6)
+        }
+    raise OnlyofficeError("The editor network provider has not been verified.")
+
+
+def assert_network_policy(network, provider):
+    if network.get("Driver", network.get("driver")) != "bridge":
+        raise OnlyofficeError(
+            "The owned editor network is not a verified bridge network."
+        )
+    if not network.get("Internal", network.get("internal", False)):
+        raise OnlyofficeError("The ONLYOFFICE network is not internal.")
+    options = network.get("Options") or network.get("options") or {}
+    if any(
+        options.get(key) != value
+        for key, value in network_driver_options(provider).items()
+    ):
+        raise OnlyofficeError(
+            "The owned editor network isolation policy is missing; preserve it for explicit recovery."
+        )
+
+
 def resolve_addon(project, marker, environment, operation):
     try:
         state = read_state(project, marker)
@@ -419,18 +447,7 @@ def resolve_addon(project, marker, environment, operation):
             raise OnlyofficeError(
                 "The owned internal editor network is missing; use onlyoffice:up to restore its policy."
             )
-        if (
-            state.get("provider") == "podman"
-            and (networks[0].get("Options") or networks[0].get("options") or {}).get(
-                "isolate"
-            )
-            != "strict"
-        ):
-            raise OnlyofficeError(
-                "The owned editor network no longer has its strict Podman isolation policy."
-            )
-        if state.get("provider") not in {"docker", "podman"}:
-            raise OnlyofficeError("The editor network provider has not been verified.")
+        assert_network_policy(networks[0], state.get("provider"))
         configured = runtime_environment(state, environment)
     except (OnlyofficeError, OSError):
         if operation not in {

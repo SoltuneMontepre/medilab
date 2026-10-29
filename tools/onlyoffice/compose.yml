@@ -14,6 +14,7 @@ services:
         read_only: true
 
   onlyoffice:
+    ports: !override []
     labels:
       com.medilab.onlyoffice.owner: ${MEDILAB_ONLYOFFICE_OWNER}
     depends_on:
@@ -21,6 +22,8 @@ services:
         condition: service_healthy
 
   onlyoffice-gateway:
+    ports:
+      - "127.0.0.1:${MEDILAB_ONLYOFFICE_PORT}:${ONLYOFFICE_HTTP_PORT}"
     image: docker.io/library/python:3.12.13-slim@sha256:229a2c5bfa27522db7815ea81f9bed70af17ccb9de9fc7ad142b1877b5830d36
     entrypoint: [python3, -B, /opt/onlyoffice/proxy.py]
     environment:
