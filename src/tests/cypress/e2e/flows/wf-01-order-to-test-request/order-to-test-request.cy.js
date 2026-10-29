@@ -490,10 +490,14 @@ describe("WF-01 feature acceptance criteria", () => {
     clearCarts(CUSTOMERS.nuocSach);
   });
 
-  it("TC-F05-02 shows a salesperson their orders and the unclaimed queue, and the Head of Sales every order", () => {
+  it("TC-F05-02 lets a salesperson who reads every order read another salesperson's order without changing it", () => {
     refAs("demo.administrator", "sol_demo.demo_sale_order_history_sales_2_1").then((other) => {
       cy.signInAs("sales");
-      callRefused("sale.order", "read", [[other.id], ["name"]]).should("contain", "sale.order");
+      call("sale.order", "read", [[other.id], ["name", "order_can_edit"]]).then(([read]) => {
+        expect(read.name).to.match(/^S\d+/);
+        expect(read.order_can_edit).to.be.false;
+      });
+      callRefused("sale.order", "write", [[other.id], { note: "Changed by another salesperson" }]).should("match", /S\d+/);
       cy.visit("/odoo/unclaimed-orders");
       cy.get(".o_data_row").should("have.length.greaterThan", 0);
       cy.signInAs("head_of_sales");
