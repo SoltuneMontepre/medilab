@@ -4,4 +4,12 @@
     <record id="sol_laboratory.task_type_report_signing" model="medilab.task.type">
         <field name="role_id" ref="demo_role_lab_head" />
     </record>
+    <!-- Sales claim submitted orders. -->
+    <record id="sol_commerce.task_type_order_quotation" model="medilab.task.type">
+        <field name="role_id" ref="demo_role_sales" />
+    </record>
+    <!-- The accountant posts the invoices sales drafts. -->
+    <record id="sol_commerce.task_type_invoice_posting" model="medilab.task.type">
+        <field name="role_id" ref="demo_role_accountant" />
+    </record>
 </odoo>
