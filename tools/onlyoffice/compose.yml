@@ -31,6 +31,7 @@ services:
     restart: unless-stopped
     read_only: true
     cap_drop: [ALL]
+    user: "${ONLYOFFICE_PROXY_USER:-0:0}"
     security_opt: [no-new-privileges:true]
     labels:
       com.medilab.onlyoffice.owner: ${MEDILAB_ONLYOFFICE_OWNER}
@@ -66,6 +67,7 @@ services:
     restart: unless-stopped
     read_only: true
     cap_drop: [ALL]
+    user: "${ONLYOFFICE_PROXY_USER:-0:0}"
     security_opt: [no-new-privileges:true]
     network_mode: service:onlyoffice
     labels:

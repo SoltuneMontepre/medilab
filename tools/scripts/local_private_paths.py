@@ -5,11 +5,13 @@ unwritable by other users before private files are opened. OS administrators are
 already trusted on Windows; this check grants them no additional permissions.
 """
 
+import argparse
 import base64
 import json
 import os
 import stat
 import subprocess
+import sys
 from pathlib import Path
 
 ERROR = "Local state path integrity cannot be verified; preserve data and review owner/write permissions."
@@ -190,3 +192,23 @@ def ensure_local_directory(root, path):
         return guard_local_path(root, path)
     except OSError:
         raise LocalPrivatePathError(ERROR) from None
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--root", type=Path, default=Path(__file__).resolve().parents[2]
+    )
+    parser.add_argument("directory", type=Path)
+    arguments = parser.parse_args()
+    root = arguments.root.resolve()
+    try:
+        ensure_local_directory(root, root / arguments.directory)
+    except LocalPrivatePathError as error:
+        sys.stderr.write(f"{error}\n")
+        return 2
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

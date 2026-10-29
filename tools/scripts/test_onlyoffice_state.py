@@ -61,6 +61,7 @@ class OnlyofficeStateTest(unittest.TestCase):
         self.patches = [
             patch.object(state, "ROOT", self.root),
             patch.object(state, "DIRECTORY", self.root / ".local/onlyoffice"),
+            patch.object(state, "runtime_proxy_user", return_value="0:0"),
         ]
         for item in self.patches:
             item.start()
@@ -1359,6 +1360,50 @@ class EngineBoundaryTest(unittest.TestCase):
                 with self.assertRaises(onlyoffice.bootstrap.BootstrapError):
                     onlyoffice.bootstrap._assert_local_engine()
                 run.assert_not_called()
+
+
+class ProxyIdentityTest(unittest.TestCase):
+    def test_runtime_identity_uses_verified_daemon_mapping_and_windows_needs_no_uid_probe(
+        self,
+    ):
+        import host_tools
+
+        for system, expected in (("posix", "1001:1002"), ("nt", "0:0")):
+            with (
+                self.subTest(system=system),
+                patch.object(state.os, "name", system),
+                patch.object(host_tools.os, "getuid", return_value=1001, create=True),
+                patch.object(host_tools.os, "getgid", return_value=1002, create=True),
+                patch.object(
+                    host_tools,
+                    "run",
+                    return_value=subprocess.CompletedProcess(
+                        [], 0, '{"ServerVersion":"28.0.0"}'
+                    ),
+                ) as run,
+            ):
+                self.assertEqual(state.runtime_proxy_user(), expected)
+                if system == "nt":
+                    run.assert_not_called()
+                else:
+                    self.assertEqual(run.call_args.kwargs["timeout"], 30)
+
+    def test_unreadable_engine_identity_is_refused_without_exposing_its_output(self):
+        import host_tools
+
+        with (
+            patch.object(state.os, "name", "posix"),
+            patch.object(
+                host_tools,
+                "run",
+                return_value=subprocess.CompletedProcess(
+                    [], 0, "private invalid metadata"
+                ),
+            ),
+            self.assertRaises(state.OnlyofficeError) as raised,
+        ):
+            state.runtime_proxy_user()
+        self.assertNotIn("private invalid metadata", str(raised.exception))
 
 
 if __name__ == "__main__":

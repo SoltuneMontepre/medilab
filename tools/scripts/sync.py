@@ -17,6 +17,11 @@ import sys
 import tempfile
 
 from host_tools import HostError, executable, run, selected_odoo_url
+from local_private_paths import (
+    LocalPrivatePathError,
+    ensure_local_directory,
+    guard_local_path,
+)
 from sync_doctor import doctor
 from sync_verify import validate_url, verify
 
@@ -55,6 +60,11 @@ def _plain_path(path, boundary):
 
 def save_endpoint(base):
     _plain_path(METADATA, ROOT)
+    try:
+        ensure_local_directory(ROOT, METADATA.parent)
+        guard_local_path(ROOT, METADATA)
+    except LocalPrivatePathError as error:
+        raise HostError(str(error)) from None
     if METADATA.exists():
         try:
             saved = json.loads(METADATA.read_text(encoding="utf-8"))
@@ -70,7 +80,6 @@ def save_endpoint(base):
             raise HostError(
                 "The Sync development metadata belongs to another worktree or unsupported version."
             )
-    METADATA.parent.mkdir(parents=True, exist_ok=True)
     descriptor, temporary = tempfile.mkstemp(
         prefix="sync-development-", suffix=".json", dir=METADATA.parent
     )
@@ -220,7 +229,9 @@ def execute(operation):
     base = validate_url(
         selected_odoo_url(require_saved_selection=operation in {"setup", "dev"})
     )
-    environment = {**os.environ, "MEDILAB_SYNC_ODOO_URL": base}
+    environment = dict(os.environ)
+    if operation != "build":
+        environment["MEDILAB_SYNC_ODOO_URL"] = base
     if operation == "setup":
         _bun(["install", "--frozen-lockfile", "--ignore-scripts"], environment)
     _locked_cli(environment)

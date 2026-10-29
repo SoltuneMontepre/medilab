@@ -18,6 +18,8 @@ A fresh installation works with the defaults: every setting has one, and only wh
 
 ## Local demo setup
 
+Local tasks require `.local` and managed state paths to be owned by the checkout user and unwritable by other users. If an existing path fails this check, verify its ownership and links before repairing permissions; setup leaves it unchanged.
+
 - `task setup` checks Python/Git/uv/Node/npx, stable Bun >=1.4.0 for the committed Sync lockfile, native Sync prerequisites and the local Linux container engine (Docker server >=28 for isolated networking, or supported Podman) before authentication or mutable initialization. It prepares Odoo, managed ONLYOFFICE and native Sync dependencies, then verifies the API/auth boundary and real disposable conversion. It leaves the desktop app closed; `task sync:dev` opens it explicitly. See the [host prerequisites](../../README.md#prerequisites).
 - With no marker or existing worktree resources, setup auto-selects an empty deterministic fresh project and follows the existing guarded bootstrap. Caller Doppler/payment/ONLYOFFICE credentials are excluded from fresh child environments, including nested Task dotenv loading. A completed selected fresh environment retains its saved project and uses ordinary module upgrades without reseeding.
 - An existing ordinary environment retains check-normal → Doppler → dev:setup → ai:setup → upgrade order. A narrowly owned ONLYOFFICE registration recovery and read-only existing-configuration guard run before authentication, development environment rewriting or upgrade. Unmanaged editor configuration is refused before it can be replaced. `MODULES` retains its upgrade meaning. Base-only databases fail the required API check; a healthy Odoo login alone is insufficient and `sol_demo` is never installed into existing data automatically.
@@ -58,7 +60,9 @@ The managed gateway publishes the loopback editor endpoint and forwards it to Do
 
 Network-facing Sync setup/verify/dev require the persisted worktree project and a uniquely running, correctly owned Odoo service publishing the saved local port before API calls. Offline build/test/lint/check remain backend-independent once dependencies are installed. Sync tasks preserve the selected base path and installed SQLite settings, queues and credential stores. Saved installed settings can override the build default. `sync:setup` installs frozen frontend dependencies, checks the exact locked Tauri CLI, fetches locked Cargo dependencies, builds the frontend and performs a real locked native Cargo check before API verification and endpoint metadata, without launching a GUI; `sync:build` creates native release packages with locked Cargo dependencies (NSIS on Windows; DEB/RPM on Linux), and `sync:clean` removes only fixed `dist`/project `target` outputs after rejecting links/junctions. A native GUI smoke test must use a separate disposable OS user/VM or independently verified private desktop/credential session; changing XDG directories alone does not isolate the keyring.
 
-Linux/Windows Task contracts and a Windows Server build are useful evidence but do not substitute for mandatory native Windows 11/Docker Desktop/GUI acceptance. An unavailable platform row stays unverified and incomplete in the Draft PR.
+Release builds do not derive their default Odoo URL from the selected local backend. An explicitly supplied `MEDILAB_SYNC_ODOO_URL` remains a build input for release CI.
+
+Linux/Windows Task contracts and a Windows Server build do not establish the required native Windows 11/Docker Desktop/GUI acceptance. A platform without that acceptance remains unverified.
 
 ## Related documents
 

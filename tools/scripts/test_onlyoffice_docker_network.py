@@ -16,6 +16,19 @@ import onlyoffice_network_report as report_output
 
 
 class DockerNetworkProofTest(unittest.TestCase):
+    def test_actual_proxy_fixture_uses_private_file_owner_without_dac_capabilities(
+        self,
+    ):
+        fixture = proof.Proof()
+        fixture.proxy_user = "1001:1002"
+        with patch.object(proof, "command") as command:
+            fixture.container("gateway", "owned-network", proof.GATEWAY)
+        arguments = command.call_args.args
+        self.assertIn("--cap-drop=ALL", arguments)
+        self.assertIn("--read-only", arguments)
+        self.assertIn("no-new-privileges", arguments)
+        self.assertEqual(arguments[arguments.index("--user") + 1], "1001:1002")
+
     @staticmethod
     def owned_directory(path):
         path = Path(path)

@@ -16,7 +16,7 @@ from pathlib import Path
 
 import demo_bootstrap as bootstrap
 import onlyoffice_tls
-from host_tools import assert_onlyoffice_engine
+from host_tools import assert_onlyoffice_engine, onlyoffice_proxy_user
 from onlyoffice_network_fixture import (
     BACKEND,
     BASELINE_PUBLIC,
@@ -30,7 +30,7 @@ from onlyoffice_network_fixture import (
     websocket,
 )
 from onlyoffice_network_report import FixedReport
-from onlyoffice_state import assert_network_policy, network_driver_options
+from onlyoffice_state import assert_network_policy, network_driver_options, protect
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -106,6 +106,7 @@ class Proof:
         self.project = "medilab-onlyoffice-proof-" + self.owner[:12]
         self.containers = []
         self.networks = []
+        self.proxy_user = "0:0"
         self.report = {
             "passed": False,
             "stage": "engine-preflight",
@@ -121,6 +122,18 @@ class Proof:
     def container(self, suffix, network, code, *options):
         name = self.project + "-" + suffix
         self.containers.append(name)
+        proxy_options = (
+            [
+                "--user",
+                self.proxy_user,
+                "--cap-drop=ALL",
+                "--security-opt",
+                "no-new-privileges",
+                "--read-only",
+            ]
+            if code in (GATEWAY, BASELINE_PUBLIC)
+            else []
+        )
         command(
             "run",
             "-d",
@@ -131,6 +144,7 @@ class Proof:
             "--network",
             network,
             *options,
+            *proxy_options,
             IMAGE,
             "python",
             "-B",
@@ -251,6 +265,7 @@ class Proof:
         version = info["ServerVersion"]
         self.report["server_version"] = version
         assert_onlyoffice_engine(info)
+        self.proxy_user = onlyoffice_proxy_user(info)
         self.report["stage"] = "create-synthetic-topology"
         command("image", "pull", IMAGE)
         base = self.network("base")
@@ -472,6 +487,7 @@ def main():
                     }
                 )
             )
+            protect(directory / RUNTIME_FILE)
             try:
                 proof.report.update(proof.run(directory, host.server_port))
             except (

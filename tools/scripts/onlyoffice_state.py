@@ -374,6 +374,25 @@ def material_fingerprints(directory):
     }
 
 
+def runtime_proxy_user():
+    if os.name == "nt":
+        return "0:0"
+    from host_tools import HostError, onlyoffice_proxy_user, run
+
+    try:
+        result = run(
+            ["docker", "info", "--format", "{{json .}}"],
+            cwd=ROOT,
+            capture_output=True,
+            timeout=30,
+        )
+        return onlyoffice_proxy_user(json.loads(result.stdout))
+    except (HostError, ValueError, OSError, subprocess.SubprocessError):
+        raise OnlyofficeError(
+            "The local proxy file-owner identity could not be verified; inspect the selected engine before retrying."
+        ) from None
+
+
 def runtime_environment(state, environment):
     directory = state_directory(state["project"], state.get("base_owner"))
     checked_path(directory / "jwt", private=True)
@@ -408,6 +427,7 @@ def runtime_environment(state, environment):
     return {
         **environment,
         **state["config"],
+        "ONLYOFFICE_PROXY_USER": runtime_proxy_user(),
         "ONLYOFFICE_PORT": state["config"]["MEDILAB_ONLYOFFICE_PORT"],
         "ONLYOFFICE_STATE_DIR": directory.as_posix(),
         "ONLYOFFICE_SOURCE_ROOT": ROOT.as_posix(),

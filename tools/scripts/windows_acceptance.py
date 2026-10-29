@@ -291,7 +291,15 @@ def failure_snapshot(report, evidence, project, owner, baseline):
         )
         if baseline is not None:
             report["failure_integrity_unchanged"] = current == baseline
-    except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
+    except (
+        OSError,
+        ValueError,
+        RuntimeError,
+        subprocess.SubprocessError,
+        LookupError,
+        TypeError,
+        AttributeError,
+    ) as error:
         result["error_type"] = type(error).__name__
     report["failure_snapshot"] = result
     try:

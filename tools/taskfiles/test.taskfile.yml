@@ -83,6 +83,7 @@ tasks:
       - python tools/scripts/local_compose.py up -d --wait postgres
       - python tools/scripts/core_test_guard.py prepare
       - defer: { task: test:core:clean }
+      - python tools/scripts/local_private_paths.py {{.TEST_COVERAGE_DIR}}
       - 'uv pip install --target {{.TEST_COVERAGE_DIR}} --python-version 3.12 --python-platform linux --no-deps --only-binary :all: coverage==7.10.7'
       - python tools/scripts/local_compose.py run --rm -T garage-setup
       - . {{.LOG}} && log_step "Splitting the test classes into {{.TOTAL_SHARDS}} shards"
@@ -173,7 +174,7 @@ tasks:
   test:onlyoffice:coverage:
     desc: "Test the deployed ONLYOFFICE runtime helpers and report Python and signing-hook coverage"
     cmds:
-      - mkdir -p .local/onlyoffice-coverage
+      - python tools/scripts/local_private_paths.py .local/onlyoffice-coverage
       - "{{.UV}} run --with coverage==7.10.7 python -m coverage run --branch --source=infra/cluster/onlyoffice,infra/cluster/onlyoffice-monitor --data-file=.local/onlyoffice-coverage/.coverage -m unittest discover -s tools/infrastructure/onlyoffice -p 'test_*.py'"
       - "{{.UV}} run --with coverage==7.10.7 python -m coverage xml --data-file=.local/onlyoffice-coverage/.coverage -o .local/onlyoffice-coverage/coverage.xml"
       - "{{.UV}} run python -m unittest discover -s tools/onlyoffice_integration -t . -p 'test_*.py'"

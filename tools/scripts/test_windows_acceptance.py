@@ -413,15 +413,18 @@ class AcceptanceTests(unittest.TestCase):
         self.assertEqual(report["failure_snapshot"]["snapshot"], report["baseline"])
 
     def test_failed_snapshot_read_does_not_mask_original_command_nonzero(self):
-        report, commands, _frozen, error = self.run_flow(
-            codes=[0, 23],
-            captures=[acceptance.snapshots.SnapshotError("private probe failed")],
-        )
-        self.assertEqual(commands.call_count, 2)
-        self.assertIn("command failed", str(error))
-        self.assertEqual(report["stages"][-1]["exit"], 23)
-        self.assertEqual(report["failure_snapshot"]["error_type"], "SnapshotError")
-        self.assertNotIn("private probe failed", json.dumps(report))
+        for exception in (acceptance.snapshots.SnapshotError, KeyError, TypeError):
+            with self.subTest(exception=exception):
+                report, commands, _frozen, error = self.run_flow(
+                    codes=[0, 23], captures=[exception("private probe failed")]
+                )
+                self.assertEqual(commands.call_count, 2)
+                self.assertIn("command failed", str(error))
+                self.assertEqual(report["stages"][-1]["exit"], 23)
+                self.assertEqual(
+                    report["failure_snapshot"]["error_type"], exception.__name__
+                )
+                self.assertNotIn("private probe failed", json.dumps(report))
 
     def test_failed_command_retains_actual_snapshot_and_failed_evidence_write_preserves_original_exit(
         self,

@@ -2,7 +2,9 @@ import contextlib
 import errno
 import io
 import json
+import os
 import pathlib
+import stat
 import subprocess
 import tempfile
 import unittest
@@ -13,6 +15,16 @@ from host_tools import HostError
 
 
 class SyncTasksTest(unittest.TestCase):
+    @unittest.skipIf(os.name == "nt", "POSIX umask contract")
+    def test_saved_endpoint_keeps_the_local_root_usable_by_owned_setup(self):
+        previous = os.umask(0o002)
+        try:
+            sync.save_endpoint("http://localhost:28169/lab")
+        finally:
+            os.umask(previous)
+        self.assertEqual(stat.S_IMODE(self.metadata.parent.stat().st_mode), 0o700)
+        sync.guard_local_path(self.root, self.root / ".local/demo-bootstrap.json")
+
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory(prefix="sync contracts ")
         self.addCleanup(self.temporary.cleanup)
@@ -264,6 +276,28 @@ class SyncTasksTest(unittest.TestCase):
                 bun.call_args.args[0],
                 ["run", "tauri", "build", "--bundles", bundles, "--", "--locked"],
             )
+
+    def test_release_build_uses_only_an_explicit_build_url_not_selected_local_settings(
+        self,
+    ):
+        for configured in (
+            {},
+            {"MEDILAB_SYNC_ODOO_URL": "https://service.example/lab"},
+        ):
+            with (
+                self.subTest(configured=configured),
+                patch.dict(sync.os.environ, configured, clear=True),
+                patch.object(sync, "doctor", return_value={}),
+                patch.object(
+                    sync,
+                    "selected_odoo_url",
+                    return_value="http://localhost:28999/private-base",
+                ),
+                patch.object(sync, "_locked_cli"),
+                patch.object(sync, "_bun") as bun,
+            ):
+                sync.execute("build")
+            self.assertEqual(bun.call_args.args[1], configured)
 
     def test_dev_launches_tauri_after_gui_and_port_checks(self):
         order = []

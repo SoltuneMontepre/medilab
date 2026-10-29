@@ -107,11 +107,27 @@ def run(argv, *, cwd=None, env=None, check=True, capture_output=False, timeout=N
         ) from error
 
 
+def onlyoffice_proxy_user(document):
+    assert_onlyoffice_engine(document)
+    if os.name == "nt":
+        return "0:0"
+    if "host" in document:
+        rootless = document["host"].get("security", {}).get("rootless", True)
+    else:
+        rootless = any(
+            option.split(",", 1)[0] in {"name=rootless", "rootless"}
+            for option in document.get("SecurityOptions", [])
+        )
+    return "0:0" if rootless else f"{os.getuid()}:{os.getgid()}"
+
+
 def binding_matches(binding, port, hostname):
     if str(binding.get("HostPort")) != str(port):
         return False
     addresses = {"127.0.0.1", "::1"} if hostname == "localhost" else {hostname}
     published = binding.get("HostIp")
+    if published == "":
+        return True
     for address in addresses:
         if published == address:
             return True

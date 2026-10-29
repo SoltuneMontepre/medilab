@@ -129,6 +129,10 @@ jobs:
               - "tools/scripts/host_tools.py"
               - "tools/scripts/local_private_paths.py"
               - "tools/scripts/test_local_private_paths.py"
+              - "tools/scripts/test_local_state_creators.py"
+              - "tools/scripts/core_test_guard.py"
+              - "tools/scripts/test_core_guard.py"
+              - "tools/scripts/test_openapi.py"
               - "tools/scripts/test_private_state_writers.py"
               - "tools/scripts/*acceptance*.py"
               - "tools/scripts/windows_acceptance.ps1"
@@ -243,6 +247,10 @@ jobs:
         if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         run: task test:setup
 
+      - name: Local state creator permission contracts
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: uv run --locked --no-build --project src/core python tools/scripts/test_local_state_creators.py
+
       - name: ONLYOFFICE local setup contracts
         if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         run: uv run --locked --no-build --project src/core python -m unittest discover -s tools/scripts -p 'test_onlyoffice*.py'
@@ -293,10 +301,10 @@ jobs:
 
       - name: Initialize sanitized Docker fixture evidence
         if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
-        run: >-
+        run: |
+          python tools/scripts/local_private_paths.py .local
           python -c "import json; from pathlib import Path;
           report=Path('.local/onlyoffice-docker-network.json');
-          report.parent.mkdir(parents=True,exist_ok=True);
           report.write_text(json.dumps({'status':'not_run','stage':'environment-preparation','server_version':None,'checks':{}},indent=2),encoding='utf-8')"
 
       - name: Set up uv for the locked synthetic TLS fixture

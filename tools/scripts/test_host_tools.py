@@ -13,6 +13,30 @@ import host_tools
 
 
 class HostToolsTests(unittest.TestCase):
+    def test_proxy_identity_matches_host_files_and_preserves_rootless_mappings(self):
+        cases = (
+            ({"ServerVersion": "28.0.0", "SecurityOptions": []}, "1001:1002"),
+            ({"ServerVersion": "28.0.0", "SecurityOptions": ["name=rootless"]}, "0:0"),
+            ({"host": {"security": {"rootless": True}}}, "0:0"),
+            ({"host": {"security": {"rootless": False}}}, "1001:1002"),
+        )
+        for info, expected in cases:
+            for system in ("posix", "nt"):
+                with (
+                    self.subTest(info=info, system=system),
+                    patch.object(host_tools.os, "name", system),
+                    patch.object(
+                        host_tools.os, "getuid", return_value=1001, create=True
+                    ),
+                    patch.object(
+                        host_tools.os, "getgid", return_value=1002, create=True
+                    ),
+                ):
+                    self.assertEqual(
+                        host_tools.onlyoffice_proxy_user(info),
+                        "0:0" if system == "nt" else expected,
+                    )
+
     def test_editor_requires_actual_docker_server_28_and_preserves_podman_support(self):
         for document in (
             {"ServerVersion": "28.0.0"},
@@ -232,6 +256,16 @@ class HostToolsTests(unittest.TestCase):
         self.assertFalse(
             host_tools.binding_matches({**binding, "HostIp": "::"}, 28169, "127.0.0.1")
         )
+
+    def test_podman_empty_binding_serves_loopback_but_requires_the_selected_port(self):
+        binding = {"HostPort": "28169", "HostIp": ""}
+        for hostname in ("localhost", "127.0.0.1", "::1"):
+            with self.subTest(hostname=hostname):
+                self.assertTrue(host_tools.binding_matches(binding, 28169, hostname))
+                self.assertFalse(host_tools.binding_matches(binding, 28170, hostname))
+                self.assertFalse(
+                    host_tools.binding_matches({"HostPort": "28169"}, 28169, hostname)
+                )
 
     def test_saved_selected_port_and_base_path_are_preserved(self):
         values = {

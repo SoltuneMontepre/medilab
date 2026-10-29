@@ -3,6 +3,7 @@
 import os
 import stat
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -12,6 +13,30 @@ import local_private_paths as private
 
 
 class LocalPrivatePathsTest(unittest.TestCase):
+    @unittest.skipIf(os.name == "nt", "POSIX umask contract")
+    def test_command_creates_private_ancestors_with_a_permissive_umask(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            previous = os.umask(0o002)
+            try:
+                result = subprocess.run(
+                    [
+                        sys.executable,
+                        private.__file__,
+                        "--root",
+                        str(root),
+                        ".local/coverage",
+                    ],
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+            finally:
+                os.umask(previous)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            for path in (root / ".local", root / ".local/coverage"):
+                self.assertEqual(stat.S_IMODE(path.stat().st_mode), 0o700)
+
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory(prefix="private paths kiểm tra ")
         self.addCleanup(self.temporary.cleanup)
