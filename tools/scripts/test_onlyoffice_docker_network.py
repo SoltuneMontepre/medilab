@@ -51,6 +51,53 @@ class DockerNetworkProofTest(unittest.TestCase):
                 "synthetic-private-value", report.read_text() + output.getvalue()
             )
 
+    def test_diagnostics_read_only_labeled_synthetic_peers_with_bounded_logs(self):
+        fixture = proof.Proof()
+        gateway = fixture.project + "-gateway"
+        fixture.containers = [gateway, "foreign"]
+        peers = [
+            {
+                "Config": {
+                    "Labels": {proof.LABEL: fixture.owner},
+                    "Env": ["NOT_FOR_REPORT=synthetic-private-value"],
+                },
+                "State": {"Status": "running", "ExitCode": 0},
+                "NetworkSettings": {"Ports": {}},
+            },
+            {"Config": {"Labels": {proof.LABEL: "other-owner"}}},
+        ]
+        outputs = [
+            subprocess.CompletedProcess([], 0, "x" * 4000, ""),
+            subprocess.CompletedProcess(
+                [], 0, '{"dns_resolved":true,"healthy":true,"status":200}', ""
+            ),
+        ]
+        with (
+            patch.object(proof, "inspect_optional", side_effect=peers),
+            patch.object(proof, "command", side_effect=outputs) as command,
+        ):
+            fixture.diagnostics()
+        self.assertEqual(len(fixture.report["synthetic_peers"]), 1)
+        self.assertEqual(
+            len(fixture.report["synthetic_peers"][0]["synthetic_log_tail"]), 2000
+        )
+        self.assertEqual(fixture.report["gateway_private_tls_probe"]["status"], 200)
+        self.assertNotIn("synthetic-private-value", json.dumps(fixture.report))
+        self.assertEqual(command.call_count, 2)
+        self.assertTrue(all(gateway in call.args for call in command.call_args_list))
+
+    def test_public_health_distinguishes_transport_and_http_failure(self):
+        fixture = proof.Proof()
+        with patch.object(
+            proof, "host_get", side_effect=[None, (502, b""), (200, b"true")]
+        ):
+            self.assertFalse(fixture.public_health(12345))
+            self.assertIsNone(fixture.report["candidate_public_http_status"])
+            self.assertFalse(fixture.public_health(12345))
+            self.assertEqual(fixture.report["candidate_public_http_status"], 502)
+            self.assertTrue(fixture.public_health(12345))
+            self.assertEqual(fixture.report["candidate_public_http_status"], 200)
+
     def test_cleanup_refuses_foreign_label_and_continues_other_owned_resources(self):
         fixture = proof.Proof()
         fixture.containers = ["owned", "foreign"]

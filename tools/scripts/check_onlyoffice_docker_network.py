@@ -127,6 +127,48 @@ class Proof:
             ).stdout
         )
 
+    def diagnostics(self):
+        peers = []
+        for name in self.containers:
+            try:
+                value = inspect_optional("container", name)
+                if not value or value["Config"]["Labels"].get(LABEL) != self.owner:
+                    continue
+                logs = command("logs", "--tail", "8", name, check=False, timeout=10)
+                peers.append(
+                    {
+                        "role": name.removeprefix(self.project + "-"),
+                        "status": value.get("State", {}).get("Status"),
+                        "exit_code": value.get("State", {}).get("ExitCode"),
+                        "published": value.get("NetworkSettings", {}).get("Ports"),
+                        "synthetic_log_tail": (logs.stdout + logs.stderr)[-2000:],
+                    }
+                )
+                if name == self.project + "-gateway":
+                    script = "import json,http.client,ssl,socket;d={}\ntry:\n d['dns_resolved']=bool(socket.getaddrinfo('onlyoffice',443));c=http.client.HTTPSConnection('onlyoffice',443,timeout=3,context=ssl.create_default_context(cafile='/run/onlyoffice-ca/ca.crt'));c.request('GET','/healthcheck');r=c.getresponse();d.update(status=r.status,healthy=r.read()==b'true')\nexcept OSError as e:d.update(error_type=type(e).__name__,errno=e.errno,verify_code=getattr(e,'verify_code',None))\nprint(json.dumps(d))"
+                    probe = command(
+                        "exec", name, "python", "-c", script, check=False, timeout=10
+                    )
+                    self.report["gateway_private_tls_probe"] = (
+                        json.loads(probe.stdout)
+                        if probe.returncode == 0
+                        else {"exec_exit": probe.returncode}
+                    )
+            except (
+                OSError,
+                RuntimeError,
+                ValueError,
+                KeyError,
+                subprocess.SubprocessError,
+            ):
+                self.report["diagnostic_unavailable"] = True
+        self.report["synthetic_peers"] = peers
+
+    def public_health(self, port):
+        response = host_get(port)
+        self.report["candidate_public_http_status"] = response[0] if response else None
+        return response == (200, b"true")
+
     def cleanup(self):
         failures = 0
         for kind, names in (("container", self.containers), ("network", self.networks)):
@@ -296,7 +338,29 @@ class Proof:
         (directory / "runtime.json").write_text(json.dumps(config))
         # Restart only our synthetic proxy after its host port is known.
         command("restart", gateway)
-        wait(lambda: host_get(public_port) == (200, b"true"))
+        after_port = int(
+            inspect("container", gateway)["NetworkSettings"]["Ports"]["8080/tcp"][0][
+                "HostPort"
+            ]
+        )
+        self.report.update(
+            public_port_before_restart=public_port, public_port_after_restart=after_port
+        )
+        if after_port != public_port:
+            self.report["stage"] = "candidate-public-port-reallocated"
+            old = host_get(public_port)
+            self.report["old_public_http_status"] = old[0] if old else None
+            wait(
+                lambda: (
+                    host_get(after_port, authority=f"localhost:{public_port}")
+                    == (200, b"true")
+                )
+            )
+            self.report["reallocated_endpoint_healthy_with_configured_authority"] = True
+            raise RuntimeError(
+                "Docker reallocated the synthetic gateway's randomly requested host port on restart"
+            )
+        wait(lambda: self.public_health(public_port))
         public_denied = host_get(public_port, "/ConvertService.ashx") == (400, b"")
         targets = [(backend_ip, p) for p in (3900, 3903, 5432, 8069, 8978)] + [
             (base_gateway, listener_port),
@@ -415,6 +479,17 @@ def main():
             )
             try:
                 proof.report.update(proof.run(directory, host.server_port))
+            except (
+                OSError,
+                RuntimeError,
+                ValueError,
+                KeyError,
+                TypeError,
+                subprocess.SubprocessError,
+                http.client.HTTPException,
+            ):
+                proof.diagnostics()
+                raise
             finally:
                 previous = proof.report["stage"]
                 proof.report["stage"] = "owned-fixture-cleanup"
