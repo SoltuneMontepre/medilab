@@ -29,6 +29,7 @@ from onlyoffice_network_fixture import (
     host_get,
     websocket,
 )
+from onlyoffice_network_report import FixedReport
 from onlyoffice_state import assert_network_policy, network_driver_options
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -433,6 +434,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--report", type=Path)
     arguments = parser.parse_args()
+    report = None
     proof = Proof()
     host = None
     failure = False
@@ -447,6 +449,8 @@ def main():
             self.wfile.write(proof.owner.encode())
 
     try:
+        if arguments.report is not None:
+            report = FixedReport(ROOT, arguments.report)
         bootstrap._assert_local_engine()
         host = ThreadingHTTPServer(("0.0.0.0", 0), Host)
         threading.Thread(target=host.serve_forever, daemon=True).start()
@@ -506,12 +510,16 @@ def main():
         if host:
             host.shutdown()
             host.server_close()
-        if arguments.report:
-            arguments.report.parent.mkdir(parents=True, exist_ok=True)
-            arguments.report.write_text(
-                json.dumps(proof.report, sort_keys=True, indent=2) + "\n",
-                encoding="utf-8",
-            )
+        if report is not None:
+            try:
+                report.write(proof.report)
+            except (OSError, RuntimeError, subprocess.SubprocessError):
+                failure = True
+                proof.report.update(passed=False, failure_type="ReportWriteError")
+                print(
+                    "The fixed Docker proof report could not be written safely.",
+                    file=sys.stderr,
+                )
         print(json.dumps(proof.report, sort_keys=True))
     raise SystemExit(1 if failure else 0)
 

@@ -2,6 +2,7 @@
 
 import io
 import json
+import os
 import subprocess
 import tempfile
 import unittest
@@ -11,9 +12,17 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 import check_onlyoffice_docker_network as proof
+import onlyoffice_network_report as report_output
 
 
 class DockerNetworkProofTest(unittest.TestCase):
+    @staticmethod
+    def owned_directory(path):
+        path = Path(path)
+        path.mkdir(exist_ok=True)
+        report_output.protect(path)
+        return path
+
     def test_failure_report_is_sanitized_and_cleanup_still_runs(self):
         fake_host = SimpleNamespace(
             server_port=10000,
@@ -22,9 +31,11 @@ class DockerNetworkProofTest(unittest.TestCase):
             server_close=lambda: None,
         )
         with tempfile.TemporaryDirectory() as temporary:
-            report = Path(temporary) / "result.json"
+            root = self.owned_directory(temporary)
+            report = root / ".local" / "onlyoffice-docker-network.json"
             output = io.StringIO()
             with (
+                patch.object(proof, "ROOT", root),
                 patch.object(proof.sys, "argv", ["proof.py", "--report", str(report)]),
                 patch.object(proof.bootstrap, "_assert_local_engine"),
                 patch.object(proof, "ThreadingHTTPServer", return_value=fake_host),
@@ -50,6 +61,145 @@ class DockerNetworkProofTest(unittest.TestCase):
             self.assertNotIn(
                 "synthetic-private-value", report.read_text() + output.getvalue()
             )
+
+    def refused_report(self, root, target):
+        output = io.StringIO()
+        with (
+            patch.object(proof, "ROOT", root),
+            patch.object(proof.sys, "argv", ["proof.py", "--report", str(target)]),
+            patch.object(proof.bootstrap, "_assert_local_engine") as engine,
+            patch.object(proof, "ThreadingHTTPServer") as host,
+            patch.object(proof.Proof, "run") as run,
+            redirect_stdout(output),
+            redirect_stderr(output),
+            self.assertRaises(SystemExit) as result,
+        ):
+            proof.main()
+        self.assertEqual(result.exception.code, 1)
+        engine.assert_not_called()
+        host.assert_not_called()
+        run.assert_not_called()
+        self.assertNotIn(str(target), output.getvalue())
+
+    def test_foreign_report_argument_is_rejected_before_engine_without_overwrite(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = self.owned_directory(temporary)
+            victim = root / "victim.json"
+            victim.write_bytes(b"preserve foreign report")
+            self.refused_report(root, victim)
+            self.assertEqual(victim.read_bytes(), b"preserve foreign report")
+            self.assertFalse((root / ".local").exists())
+
+    def test_linked_report_parent_is_rejected_without_touching_victim(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            base = Path(temporary)
+            root = self.owned_directory(base / "checkout")
+            victim = base / "victim"
+            victim.mkdir()
+            target = victim / "onlyoffice-docker-network.json"
+            target.write_bytes(b"preserve linked report")
+            if os.name == "nt":
+                subprocess.run(
+                    [
+                        "cmd.exe",
+                        "/d",
+                        "/c",
+                        "mklink",
+                        "/J",
+                        str(root / ".local"),
+                        str(victim),
+                    ],
+                    capture_output=True,
+                    check=True,
+                )
+            else:
+                (root / ".local").symlink_to(victim, target_is_directory=True)
+            self.refused_report(root, root / ".local" / target.name)
+            self.assertEqual(target.read_bytes(), b"preserve linked report")
+            if os.name == "nt":
+                (root / ".local").rmdir()
+
+    def test_nonregular_or_foreign_owned_report_is_rejected_before_engine(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = self.owned_directory(temporary)
+            local = self.owned_directory(root / ".local")
+            target = local / "onlyoffice-docker-network.json"
+            target.mkdir()
+            self.refused_report(root, target)
+            target.rmdir()
+            target.write_bytes(b"preserve foreign owner")
+            with patch.object(
+                report_output.FixedReport,
+                "owned",
+                side_effect=RuntimeError("foreign owner"),
+            ):
+                self.refused_report(root, target)
+            self.assertEqual(target.read_bytes(), b"preserve foreign owner")
+
+    def test_owner_guard_refuses_foreign_posix_and_windows_owners(self):
+        target = Path("owned-report.json")
+        with (
+            patch.object(report_output.os, "name", "posix"),
+            patch.object(report_output.os, "getuid", return_value=123, create=True),
+            self.assertRaises(RuntimeError),
+        ):
+            report_output.FixedReport.owned(target, SimpleNamespace(st_uid=124))
+        with (
+            patch.object(report_output.os, "name", "nt"),
+            patch.object(
+                report_output.subprocess,
+                "run",
+                return_value=subprocess.CompletedProcess([], 1),
+            ) as run,
+            self.assertRaises(RuntimeError),
+        ):
+            report_output.FixedReport.owned(target, None)
+        self.assertEqual(
+            run.call_args.kwargs["env"]["MEDILAB_REPORT_OWNER_PATH"], str(target)
+        )
+        self.assertIn("-EncodedCommand", run.call_args.args[0])
+        self.assertNotIn(str(target), run.call_args.args[0])
+
+    def test_fixed_report_atomic_overwrite_and_failed_replace_preserve_old_bytes(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = self.owned_directory(temporary)
+            target = root / ".local" / "onlyoffice-docker-network.json"
+            writer = report_output.FixedReport(root, target)
+            target.write_text('{"status":"not_run"}')
+            report_output.protect(target)
+            writer.write({"passed": True, "owned_cleanup": True})
+            self.assertEqual(
+                json.loads(target.read_text()), {"passed": True, "owned_cleanup": True}
+            )
+            previous = target.read_bytes()
+            with (
+                patch.object(
+                    report_output.os, "replace", side_effect=OSError("replace failed")
+                ),
+                self.assertRaises(OSError),
+            ):
+                writer.write({"passed": False})
+            self.assertEqual(target.read_bytes(), previous)
+            self.assertEqual(list(target.parent.iterdir()), [target])
+
+    def test_report_link_introduced_after_reservation_is_not_followed(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = self.owned_directory(temporary)
+            target = root / ".local" / "onlyoffice-docker-network.json"
+            writer = report_output.FixedReport(root, target)
+            victim = root / "victim.json"
+            victim.write_bytes(b"preserve victim")
+            metadata = victim.stat()
+            linked = SimpleNamespace(st_mode=0o120777)
+            original = Path.lstat
+
+            def changed(path):
+                return linked if path == target else original(path)
+
+            with patch.object(Path, "lstat", changed), self.assertRaises(RuntimeError):
+                writer.write({"passed": True})
+            self.assertEqual(victim.read_bytes(), b"preserve victim")
+            self.assertEqual(victim.stat(), metadata)
 
     def test_diagnostics_read_only_labeled_synthetic_peers_with_bounded_logs(self):
         fixture = proof.Proof()
