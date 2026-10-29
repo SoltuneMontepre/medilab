@@ -18,8 +18,9 @@ class Task(models.Model):
                 raise UserError(self.env._("%s is already claimed.", task.name))
             if not task._claimable_by(person):
                 raise UserError(self.env._("%s waits in a queue you do not belong to.", task.name))
-        # Claiming the order gives its task to the same salesperson.
-        self.env[MODEL_SALE_ORDER].browse(quotations.sudo().mapped("document_id")).action_claim()
+        if quotations:
+            # Claiming the order gives its task to the same salesperson.
+            self.env[MODEL_SALE_ORDER].browse(quotations.sudo().mapped("document_id")).action_claim()
         others = self - quotations
         if others:
             return super(Task, others).action_claim()

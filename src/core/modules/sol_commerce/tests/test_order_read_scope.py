@@ -60,16 +60,20 @@ class TestOrderReadScope(OrderCase):
             opened.action_request_approval()
         self.assertEqual(order.approval_status, "none")
 
-    def test_the_form_is_locked_for_readers(self):
+    def _nodes(self, path):
         arch = etree.fromstring(self.env[MODEL_SALE_ORDER].get_view(view_type="form")["arch"])
+        found = arch.xpath(path)
+        assert isinstance(found, list)
+        return [node for node in found if isinstance(node, etree._Element)]
 
-        for button in arch.xpath("//header/button[@name='action_send_quotation' or @name='action_sales_cancel']"):
+    def test_the_form_is_locked_for_readers(self):
+        for button in self._nodes("//header/button[@name='action_send_quotation' or @name='action_sales_cancel']"):
             with self.subTest(button=button.get("name")):
-                self.assertIn("not order_can_edit", button.get("invisible"))
-        claim = arch.xpath("//header/button[@name='action_claim']")[0]
-        self.assertNotIn("order_can_edit", claim.get("invisible"))
-        customer = arch.xpath("//sheet//field[@name='customer_id']")[0]
-        self.assertIn("not order_can_edit", customer.get("readonly"))
+                self.assertIn("not order_can_edit", button.get("invisible") or "")
+        claim = self._nodes("//header/button[@name='action_claim']")[0]
+        self.assertNotIn("order_can_edit", claim.get("invisible") or "")
+        customer = self._nodes("//sheet//field[@name='customer_id']")[0]
+        self.assertIn("not order_can_edit", customer.get("readonly") or "")
 
     def test_the_head_of_sales_edits_every_order(self):
         order = self.make_quotable_order()
