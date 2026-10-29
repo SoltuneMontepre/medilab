@@ -130,7 +130,7 @@ class TestComposeEnv(unittest.TestCase):
                     {
                         "project": "medilab-bootstrap-test-01",
                         "selected_project": True,
-                        "worktree": str(root),
+                        "worktree": str(root.resolve()),
                         "config": {"COMPOSE_PROJECT_NAME": "medilab-bootstrap-test-01"},
                     }
                 ),
