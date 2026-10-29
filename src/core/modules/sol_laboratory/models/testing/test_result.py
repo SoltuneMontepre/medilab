@@ -312,15 +312,28 @@ class TestResult(models.Model):
 
     def _approval_check_actor(self, rejecting=False):
         level = super()._approval_check_actor(rejecting)
-        if not rejecting and level != self._approval_sending_level() and self.entered_by_id == self.env.user:
-            raise UserError(self.env._("You entered this result, so another person must approve it."))
+        if (
+            not rejecting
+            and self.entered_by_id == self.env.user
+            and level not in self._approval_sending_level() | self._approval_final_level()
+        ):
+            raise UserError(self.env._("You entered this result, so another person must sign this level."))
         return level
+
+    def _approval_signs_again(self, level):
+        # The head of department who entered and sent a result also approves it at the last level.
+        return self.entered_by_id == self.env.user and level == self._approval_final_level()
 
     @api.model
     def _approval_sending_level(self):
         """The first level of a chain with more than one level: signing it sends the result, any other approves it."""
         levels = self._approval_chain().level_ids.sorted("sequence")
         return levels[:1] if len(levels) > 1 else levels.browse()
+
+    @api.model
+    def _approval_final_level(self):
+        """The last level of the chain, the head of department's: its signer may approve a result they entered."""
+        return self._approval_chain().level_ids.sorted("sequence")[-1:]
 
     def _approval_department(self):
         # The department that tested it, also once its testing task is done, for the change requests on it.
