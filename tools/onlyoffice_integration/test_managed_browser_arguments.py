@@ -1,14 +1,14 @@
 """Browser callers cannot inject switches or select a foreign profile."""
 
 import unittest
-from pathlib import Path
+from pathlib import PurePosixPath
 
 from .managed_browser_arguments import CHROMIUM_ARGUMENTS, browser_arguments
 
 
 class TestManagedBrowserArguments(unittest.TestCase):
     def setUp(self):
-        self.directory = Path("/owned/attempt")
+        self.directory = PurePosixPath("/owned/attempt")
         self.arguments = [
             *CHROMIUM_ARGUMENTS,
             "--user-data-dir=/owned/attempt/browser-profile",

@@ -600,6 +600,26 @@ exit $LASTEXITCODE
                 + os.pathsep
                 + os.environ["PATH"],
             }
+            probe = subprocess.run(
+                [
+                    sys.executable,
+                    "-B",
+                    "-X",
+                    "utf8",
+                    str(scripts / "windows_acceptance.py"),
+                    "--shell-version",
+                    "5.1",
+                ],
+                cwd=root,
+                env=environment,
+                text=True,
+                encoding="utf-8",
+                capture_output=True,
+                timeout=30,
+                check=False,
+            )
+            self.assertEqual(probe.returncode, 2, probe.stderr)
+            self.assertIn("host", json.loads(probe.stdout))
             for name in ("powershell.exe", "pwsh.exe"):
                 shell = shutil.which(name)
                 self.assertIsNotNone(
@@ -628,6 +648,7 @@ exit $LASTEXITCODE
                         report = json.loads(result.stdout)
                         self.assertEqual(report["status"], "blocked")
                         self.assertEqual(report["acceptance"], "unverified")
+                        self.assertIn("host", report, repr(report))
                         self.assertFalse(report["host"]["windows11"])
                         self.assertEqual(
                             sorted(

@@ -40,6 +40,7 @@ TOOLS = ROOT / ".local/onlyoffice-tools"
 FIXTURE = ROOT / ".local/odoo-source/odoo/addons/base/tests/files/file.docx"
 VERSION = "1.56.1"
 ACTOR = "demo.tester"
+DOCX_BODY = b"<w:body>"
 
 
 def digest(content):
@@ -61,9 +62,6 @@ def write_json(path, value):
         os.replace(temporary, path)
     finally:
         temporary.unlink(missing_ok=True)
-
-
-DOCX_BODY = b"<w:body>"
 
 
 def unique_fixture(nonce):
