@@ -481,15 +481,17 @@ class TestReport(models.Model):
     def _print_signers(self):
         """Who approved the results, then who signed the report; testers who only sent a result are left out."""
         report = self.sudo()
+        sending = {result.id: result._approval_sending_level() for result in report.result_ids}
         rows = self.env[MODEL_SIGNATURE].sudo().search(
             [
                 ("document_model", "=", MODEL_TEST_RESULT),
                 ("document_id", "in", report.result_ids.ids),
                 ("decision", "=", DECISION_SIGNED),
                 ("withdrawn_at", "=", False),
-                ("level_id", "not in", self.env[MODEL_TEST_RESULT]._approval_sending_level().ids),
             ]
-        ) + report._approval_open_rows().filtered(lambda row: row.decision == DECISION_SIGNED).sorted("id")
+        ).filtered(lambda row: row.level_id != sending[row.document_id]) + report._approval_open_rows().filtered(
+            lambda row: row.decision == DECISION_SIGNED
+        ).sorted("id")
         signers = {
             (row.signer_id.id, row.level_id.id): {
                 "name": row.signer_name,

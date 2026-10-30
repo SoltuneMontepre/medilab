@@ -248,7 +248,7 @@ msgid "<span>Due</span>"
 msgstr "<span>Hạn</span>"
 
 #. module: sol_laboratory
-#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_approval_level_sequence_unique
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_approval_level_active_sequence_unique
 msgid "A chain cannot have two levels in the same position."
 msgstr "Một chuỗi không thể có hai cấp ở cùng một vị trí."
 
@@ -339,12 +339,6 @@ msgstr "Nhóm đã có chỉ tiêu không thể có nhóm con: %s."
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_scheduled_job_key_unique
 msgid "A job with this key already exists."
 msgstr "Đã có tác vụ định kỳ với khóa này."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/system/approval_level.py:0
-msgid "A level with signatures cannot be deleted. Signatures: %s"
-msgstr "Không thể xóa cấp đã có chữ ký. Chữ ký: %s"
 
 #. module: sol_laboratory
 #: model:mail.message.subtype,description:sol_laboratory.event_location_booking_reminder
@@ -623,6 +617,7 @@ msgstr "Giao diện của hành động cửa sổ"
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_file_lock__status__active
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_lock_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__active
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__active
 msgid "Active"
 msgstr "Đang hoạt động"
 
@@ -1965,6 +1960,8 @@ msgstr "Tạo từ máy tính"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__create_uid
 msgid "Created by"
 msgstr "Người tạo"
 
@@ -2037,6 +2034,8 @@ msgstr "Người tạo"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__create_date
 msgid "Created on"
 msgstr "Ngày tạo"
 
@@ -2590,6 +2589,8 @@ msgstr "Hiển thị báo cáo PDF mẫu hóa đơn"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -2617,6 +2618,7 @@ msgstr "Đã hủy mẫu"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__document_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__document_name
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_list
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__document_id
 msgid "Document"
 msgstr "Chứng từ"
 
@@ -2646,6 +2648,7 @@ msgstr "Model Chứng Từ"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__document_model
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__document_model
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__document_model
 msgid "Document Type"
 msgstr "Loại Chứng Từ"
 
@@ -2657,6 +2660,7 @@ msgstr "Loại Chứng Từ"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__document_version
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signature__document_version
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signing_mixin__document_version
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__document_version
 msgid "Document Version"
 msgstr "Phiên Bản Chứng Từ"
 
@@ -3665,6 +3669,8 @@ msgstr "Hr trạng thái hiện diện"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__id
 msgid "ID"
 msgstr "ID"
 
@@ -4354,6 +4360,8 @@ msgstr "Hoạt động gần nhất"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__write_uid
 msgid "Last Updated by"
 msgstr "Cập nhật lần cuối bởi"
 
@@ -4426,6 +4434,8 @@ msgstr "Cập nhật lần cuối bởi"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__write_date
 msgid "Last Updated on"
 msgstr "Cập nhật lần cuối vào"
 
@@ -4460,6 +4470,7 @@ msgstr "Tên Cấp"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__level_ids
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_approval_chain_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__level_ids
 msgid "Levels"
 msgstr "Các cấp"
 
@@ -5171,12 +5182,6 @@ msgstr "Chỉ nhiệm vụ đã giao mới có thể bắt đầu."
 #: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
 msgid "Only people of the department that did the work can act at this level."
 msgstr "Chỉ nhân sự thuộc phòng ban đã thực hiện công việc mới có thể thao tác ở cấp này."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
-msgid "Only people with the role %s can act at this level."
-msgstr "Chỉ nhân sự có vai trò %s mới có thể thao tác ở cấp này."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -6338,6 +6343,7 @@ msgstr "Quyền"
 #: model:ir.model,name:sol_laboratory.model_medilab_person
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__person_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__person_id
 msgid "Person"
 msgstr "Nhân Sự"
 
@@ -6952,6 +6958,7 @@ msgstr "Thu hồi lúc"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__role_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.verify_page
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder_member__role
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__role_id
 msgid "Role"
 msgstr "Vai Trò"
 
@@ -14691,3 +14698,120 @@ msgid ""
 msgstr ""
 "Kết quả của thầu phụ cho %s đang chờ gửi; hãy gửi hoặc cho từ chối kết quả "
 "đó trước khi nhập kết quả khác."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/role_grant.py:0
+msgid "%(person)s already holds the role %(role)s."
+msgstr "%(person)s đã giữ vai trò %(role)s."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_signing_process_version_unique
+msgid "A document version has one signing process."
+msgstr "Mỗi phiên bản chứng từ chỉ có một quy trình ký."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/role_grant.py:0
+msgid "A role is given until today or a later day."
+msgstr "Vai trò chỉ được giao đến hôm nay hoặc một ngày sau đó."
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_role_grant_create_all
+msgid "Create roles until a date"
+msgstr "Tạo vai trò có hạn"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_role_grant_delete_all
+msgid "Delete roles until a date"
+msgstr "Xóa vai trò có hạn"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_role_grant_edit_all
+msgid "Edit roles until a date"
+msgstr "Sửa vai trò có hạn"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
+msgid ""
+"Only people with the role %s, or the role of a later level, can act at this "
+"level."
+msgstr ""
+"Chỉ người có vai trò %s, hoặc vai trò của một cấp sau, mới được thao tác ở "
+"cấp này."
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_role_grant_create_all
+msgid "Permission: role.grant.create.all"
+msgstr "Quyền: role.grant.create.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_role_grant_delete_all
+msgid "Permission: role.grant.delete.all"
+msgstr "Quyền: role.grant.delete.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_role_grant_edit_all
+msgid "Permission: role.grant.edit.all"
+msgstr "Quyền: role.grant.edit.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_role_grant_read_all
+msgid "Permission: role.grant.read.all"
+msgstr "Quyền: role.grant.read.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_signing_process_read_all
+msgid "Permission: signing.process.read.all"
+msgstr "Quyền: signing.process.read.all"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_role_grant_read_all
+msgid "Read roles until a date"
+msgstr "Xem vai trò có hạn"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_signing_process_read_all
+msgid "Read signing processes"
+msgstr "Xem quy trình ký"
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_role_grants_expire_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_role_grants_expire
+msgid "Remove roles at the end of their date"
+msgstr "Gỡ vai trò khi hết hạn"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/role_grant.py:0
+msgid ""
+"Remove the role and give it again to change who holds it or which role it "
+"is."
+msgstr "Hãy gỡ vai trò rồi giao lại để đổi người giữ hoặc đổi vai trò."
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_role_grant
+msgid "Role Until a Date"
+msgstr "Vai Trò Có Hạn"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__role_grant_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_person_form
+msgid "Roles Until a Date"
+msgstr "Vai Trò Có Hạn"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_signing_process
+msgid "Signing Process"
+msgstr "Quy Trình Ký"
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_role_grant_role_unique
+msgid "The person is already given this role until a date."
+msgstr "Người này đã được giao vai trò này có hạn."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__date_end
+msgid "Until"
+msgstr "Đến ngày"
