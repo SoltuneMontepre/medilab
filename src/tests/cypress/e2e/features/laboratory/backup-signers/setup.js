@@ -14,20 +14,17 @@ export function today() {
 
 // Takes every role the deputy head holds until a date away, so each test gives the head's role again.
 export function clearBackup() {
-  return refAs(ADMINISTRATOR, BACKUP_PERSON).then(({ id }) =>
-    callAs(ADMINISTRATOR, "medilab.role.grant", "search", [[["person_id", "=", id]]]).then(
-      (ids) => ids.length && callAs(ADMINISTRATOR, "medilab.role.grant", "unlink", [ids]),
-    ),
-  );
+  return refAs(ADMINISTRATOR, BACKUP_PERSON)
+    .then(({ id }) => callAs(ADMINISTRATOR, "medilab.role.grant", "search", [[["person_id", "=", id]]]))
+    .then((ids) => ids.length && callAs(ADMINISTRATOR, "medilab.role.grant", "unlink", [ids]));
 }
 
 // The administrator gives the deputy head the head of department's role until today.
 export function giveBackup() {
-  return refAs(ADMINISTRATOR, BACKUP_PERSON).then((person) =>
-    refAs(ADMINISTRATOR, HEAD_ROLE).then((role) =>
-      callAs(ADMINISTRATOR, "medilab.role.grant", "create", [{ person_id: person.id, role_id: role.id, date_end: today() }]),
-    ),
-  );
+  const ids = {};
+  refAs(ADMINISTRATOR, BACKUP_PERSON).then(({ id }) => (ids.person = id));
+  refAs(ADMINISTRATOR, HEAD_ROLE).then(({ id }) => (ids.role = id));
+  return cy.then(() => callAs(ADMINISTRATOR, "medilab.role.grant", "create", [{ person_id: ids.person, role_id: ids.role, date_end: today() }]));
 }
 
 // A lead result the tester entered on a received bottled water sample, which Chemistry tests; sent when `sent`.

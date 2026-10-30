@@ -20,13 +20,12 @@ describe("Backup signers", () => {
       cy.get(".o_field_widget[name=date_end] input").clear().type(shownToday());
       save();
       cy.contains(".o_field_widget[name=role_grant_ids] .o_data_row", "Head of department");
-      refAs(ADMINISTRATOR, BACKUP_PERSON).then((person) =>
-        refAs(ADMINISTRATOR, HEAD_ROLE).then((role) =>
-          callAs(ADMINISTRATOR, "medilab.person", "read", [[person.id], ["role_ids"]]).then(([read]) =>
-            expect(read.role_ids, "roles of the backup").to.include(role.id),
-          ),
-        ),
-      );
+      const ids = {};
+      refAs(ADMINISTRATOR, BACKUP_PERSON).then(({ id }) => (ids.person = id));
+      refAs(ADMINISTRATOR, HEAD_ROLE).then(({ id }) => (ids.role = id));
+      cy.then(() => callAs(ADMINISTRATOR, "medilab.person", "read", [[ids.person], ["role_ids"]]))
+        .its("0.role_ids")
+        .then((roles) => expect(roles, "roles of the backup").to.include(ids.role));
 
       cy.signInAs("backup_signer");
       cy.openRecord(result);
