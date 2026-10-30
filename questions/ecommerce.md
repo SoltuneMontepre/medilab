@@ -17,6 +17,7 @@
 - **Quotation and posting task deadlines.** A quotation task is due 24 elapsed hours after the order is submitted, and an invoice posting task 24 elapsed hours after the invoice is drafted, as for support requests. Are these the right defaults, and should only working hours count? (blocks US-S01, US-A02)
 - **Quotation task for sales orders.** An order sales creates on behalf of a customer is claimed at once and gets no quotation task. Should it get one in its salesperson's to-do list, so every unsent quotation is a task? (blocks US-S02)
 - **Orders already in the queue.** Orders submitted before quotation tasks existed have no task. Should the upgrade create one for each order still waiting in the queue or claimed and not quoted yet? (blocks US-S01)
+- **Reorder of an order in progress.** The portal offers Reorder on every order except a draft, which is still the cart, as Reorder's source rule allows any order that is not completed. Should an order still in progress, submitted, quoted or in testing, also not offer it, so only completed and cancelled orders do? (US-C10)
 - **Other waiting steps as tasks.** Which of these become tasks, for whom, when are they done, and with what deadline and schedule? (blocks SH-10)
   - A cash or transfer payment sales recorded, waiting for the accountant to confirm or reject it (US-A08).
   - An order whose approval sales requested, waiting for the Head of Sales to sign or reject it (US-S13).

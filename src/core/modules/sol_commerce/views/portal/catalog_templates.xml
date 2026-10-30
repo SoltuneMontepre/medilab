@@ -51,31 +51,33 @@
     </template>
 
     <template id="catalog_products">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th class="text-end">Price</th>
-                    <th />
-                </tr>
-            </thead>
-            <tbody>
-                <t t-foreach="products" t-as="product">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
                     <tr>
-                        <td t-out="product.name" />
-                        <td class="text-end" t-out="product.list_price" />
-                        <td class="text-end">
-                            <form action="/catalog/add" method="post" class="d-flex justify-content-end gap-2">
-                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
-                                <input type="hidden" name="product_tmpl_id" t-att-value="product.id" />
-                                <input type="number" name="quantity" value="1" min="1" class="form-control" style="width: 5rem" />
-                                <button type="submit" class="btn btn-primary">Add</button>
-                            </form>
-                        </td>
+                        <th>Name</th>
+                        <th class="text-end">Price</th>
+                        <th />
                     </tr>
-                </t>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <t t-foreach="products" t-as="product">
+                        <tr>
+                            <td t-out="product.name" />
+                            <td class="text-end" t-out="product.list_price" t-options="{'widget': 'monetary', 'display_currency': product.currency_id}" />
+                            <td class="text-end">
+                                <form action="/catalog/add" method="post" class="d-flex justify-content-end gap-2">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                                    <input type="hidden" name="product_tmpl_id" t-att-value="product.id" />
+                                    <input type="number" name="quantity" value="1" min="1" class="form-control" style="width: 5rem" />
+                                    <button type="submit" class="btn btn-primary">Add</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </t>
+                </tbody>
+            </table>
+        </div>
     </template>
 
     <template id="cart_page" name="Cart">
@@ -83,43 +85,55 @@
             <div class="container py-4">
                 <h1>Cart</h1>
                 <p t-if="error" class="text-danger" t-out="error" />
-                <p t-if="message" t-out="message" />
                 <t t-if="not lines">
                     <p>The cart is empty. <a href="/catalog">Browse the catalog</a>.</p>
                 </t>
-                <table t-if="lines" class="table">
-                    <thead>
-                        <tr>
-                            <th>Item</th>
-                            <th class="text-end">Price</th>
-                            <th class="text-end">Quantity</th>
-                            <th class="text-end">Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <t t-foreach="lines" t-as="line">
+                <div class="table-responsive" t-if="lines">
+                    <table class="table">
+                        <thead>
                             <tr>
-                                <td t-out="line.product_id.display_name" />
-                                <td class="text-end" t-out="line.price_unit" />
-                                <td class="text-end">
-                                    <form action="/cart/line" method="post" class="d-flex justify-content-end gap-2">
-                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
-                                        <input type="hidden" name="line_id" t-att-value="line.id" />
-                                        <input type="number" name="quantity" t-att-value="line.product_uom_qty" min="0" class="form-control" style="width: 5rem" />
-                                        <button type="submit" class="btn btn-secondary">Update</button>
-                                    </form>
-                                </td>
-                                <td class="text-end" t-out="line.price_unit * line.product_uom_qty" />
+                                <th>Item</th>
+                                <th class="text-end">Price</th>
+                                <th class="text-end">Quantity</th>
+                                <th class="text-end">Amount</th>
                             </tr>
-                        </t>
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <th colspan="3">Total excluding VAT</th>
-                            <th class="text-end" t-out="order.catalog_total" />
-                        </tr>
-                    </tfoot>
-                </table>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="lines" t-as="line">
+                                <t t-set="quantity" t-value="int(line.product_uom_qty)" />
+                                <tr>
+                                    <td t-out="line.product_id.display_name" />
+                                    <td class="text-end" t-out="line.price_unit" t-options="{'widget': 'monetary', 'display_currency': order.currency_id}" />
+                                    <td>
+                                        <div class="d-flex flex-wrap justify-content-end gap-2">
+                                            <form action="/cart/line" method="post">
+                                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                                                <input type="hidden" name="line_id" t-att-value="line.id" />
+                                                <div class="btn-group" role="group">
+                                                    <button type="submit" name="quantity" t-att-value="quantity - 1" class="btn btn-secondary" t-att-disabled="quantity &lt;= 1" title="Decrease the quantity" aria-label="Decrease the quantity">−</button>
+                                                    <span class="btn btn-light disabled text-body" t-out="quantity" />
+                                                    <button type="submit" name="quantity" t-att-value="quantity + 1" class="btn btn-secondary" title="Increase the quantity" aria-label="Increase the quantity">+</button>
+                                                </div>
+                                            </form>
+                                            <form action="/cart/line" method="post">
+                                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                                                <input type="hidden" name="line_id" t-att-value="line.id" />
+                                                <button type="submit" name="quantity" value="0" class="btn btn-danger">Remove</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                    <td class="text-end text-nowrap" t-out="line.price_unit * line.product_uom_qty" t-options="{'widget': 'monetary', 'display_currency': order.currency_id}" />
+                                </tr>
+                            </t>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="3">Total excluding VAT</th>
+                                <th class="text-end text-nowrap" t-out="order.catalog_total" t-options="{'widget': 'monetary', 'display_currency': order.currency_id}" />
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
                 <form t-if="lines" action="/cart/submit" method="post" class="mt-3">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
                     <div t-if="public" class="row g-2 mb-3">
@@ -141,9 +155,11 @@
                             </t>
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                    <button type="submit" class="btn btn-secondary" formaction="/cart/save">Save as draft</button>
-                    <a class="btn btn-secondary" href="/catalog">Continue</a>
+                    <div class="d-flex flex-wrap gap-2">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                        <button type="submit" class="btn btn-secondary" formaction="/cart/save">Save as draft</button>
+                        <a class="btn btn-secondary" href="/catalog">Continue</a>
+                    </div>
                 </form>
             </div>
         </t>
@@ -162,51 +178,83 @@
     <template id="order_list" name="Orders">
         <t t-call="portal.frontend_layout">
             <div class="container py-4">
-                <div class="d-flex justify-content-between mb-3">
-                    <h1>Orders</h1>
-                    <div>
-                        <a class="btn btn-secondary me-2" href="/support">Support</a>
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                    <h1 class="mb-0">Orders</h1>
+                    <div class="d-flex gap-2">
+                        <a class="btn btn-secondary" href="/support">Support</a>
                         <a class="btn btn-secondary" href="/catalog">Catalog</a>
                     </div>
                 </div>
+                <div t-if="saved" class="alert alert-success" role="status">
+                    Your draft is saved. It is listed here as Draft and stays in the cart until you submit it.
+                </div>
                 <t t-call="sol_commerce.order_table" />
+                <div t-if="pager['page_count'] &gt; 1" class="mt-3">
+                    <t t-call="portal.pager" />
+                </div>
             </div>
         </t>
     </template>
 
     <template id="order_page" name="Order">
         <t t-call="portal.frontend_layout">
+            <t t-set="cancel_mode" t-value="order.customer_cancel_mode()" />
+            <t t-set="open_request" t-value="order.open_cancellation_request()" />
+            <t t-set="quotation" t-value="order._latest_quotation()" />
             <div class="container py-4">
                 <p t-if="request.params.get('error')" class="text-danger" t-out="request.params.get('error')" />
-                <h1 t-out="order.name" />
-                <p>Status: <span t-field="order.customer_status" /></p>                <p t-if="order._latest_quotation()"><a t-att-href="'/orders/%s/quotation' % order.id">View quotation</a></p>
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                    <h1 class="mb-0" t-out="order.name" />
+                    <t t-call="sol_commerce.order_status" />
+                </div>
+                <dl id="order_dates" class="row mb-2">
+                    <t t-if="order.submitted_at">
+                        <dt class="col-sm-3">Submitted</dt>
+                        <dd class="col-sm-9" t-out="order.submitted_at" t-options="{'widget': 'datetime'}" />
+                    </t>
+                    <t t-else="">
+                        <dt class="col-sm-3">Created</dt>
+                        <dd class="col-sm-9" t-out="order.create_date" t-options="{'widget': 'datetime'}" />
+                    </t>
+                    <t t-if="quotation and order.payment_deadline">
+                        <dt class="col-sm-3">Quotation deadline</dt>
+                        <dd class="col-sm-9" t-out="order.payment_deadline" t-options="{'widget': 'datetime'}" />
+                    </t>
+                    <t t-if="order.expected_result_date">
+                        <dt class="col-sm-3">Expected results</dt>
+                        <dd class="col-sm-9" t-out="order.expected_result_date" t-options="{'widget': 'date'}" />
+                    </t>
+                </dl>
+                <p t-if="quotation"><a t-att-href="'/orders/%s/quotation' % order.id">View quotation</a></p>
                 <p t-if="order.reorder_note" t-out="order.reorder_note" />
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Item</th>
-                            <th class="text-end">Price</th>
-                            <th class="text-end">Quantity</th>
-                            <th class="text-end">Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <t t-foreach="lines" t-as="line">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
                             <tr>
-                                <td t-out="line.product_id.display_name" />
-                                <td class="text-end" t-out="line.price_unit" />
-                                <td class="text-end" t-out="line.product_uom_qty" />
-                                <td class="text-end" t-out="line.price_unit * line.product_uom_qty" />
+                                <th>Item</th>
+                                <th class="text-end">Price</th>
+                                <th class="text-end">Quantity</th>
+                                <th class="text-end">Amount</th>
                             </tr>
-                        </t>
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <th colspan="3">Total excluding VAT</th>
-                            <th class="text-end" t-out="order.catalog_total" />
-                        </tr>
-                    </tfoot>
-                </table>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="lines" t-as="line">
+                                <tr>
+                                    <td t-out="line.product_id.display_name" />
+                                    <td class="text-end" t-out="line.price_unit" t-options="{'widget': 'monetary', 'display_currency': order.currency_id}" />
+                                    <td class="text-end" t-out="int(line.product_uom_qty)" />
+                                    <td class="text-end" t-out="line.price_unit * line.product_uom_qty" t-options="{'widget': 'monetary', 'display_currency': order.currency_id}" />
+                                </tr>
+                            </t>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="3">Total excluding VAT</th>
+                                <th class="text-end" t-out="order.catalog_total" t-options="{'widget': 'monetary', 'display_currency': order.currency_id}" />
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
                 <t t-foreach="requests" t-as="cancellation">
                     <div class="border rounded p-3 mb-3">
                         <p>Cancellation: <t t-out="cancellation.status" /></p>
@@ -214,24 +262,56 @@
                         <p t-if="cancellation.reply">Reply: <t t-out="cancellation.reply" /></p>
                     </div>
                 </t>
-                <form t-if="order.customer_cancel_mode() == 'cancel'" t-att-action="'/orders/%s/cancel' % order.id" method="post">
-                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
-                    <button type="submit" class="btn btn-danger">Cancel</button>
-                </form>
-                <form t-if="order.customer_cancel_mode() == 'request' and not order.open_cancellation_request()" t-att-action="'/orders/%s/cancellation' % order.id" method="post" class="mt-3">
-                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
-                    <p class="text-muted">If an advance was paid, it stays on the invoice and is settled outside the system.</p>
-                    <textarea name="reason" class="form-control mb-2" placeholder="Reason" required="required" />
-                    <button type="submit" class="btn btn-danger">Request cancellation</button>
-                </form>
-                <form t-if="order.open_cancellation_request()" t-att-action="'/orders/%s/cancellation/withdraw' % order.id" method="post">
-                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
-                    <button type="submit" class="btn btn-secondary">Withdraw request</button>
-                </form>
-                <form t-att-action="'/orders/%s/reorder' % order.id" method="post" class="mt-3">
-                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
-                    <button type="submit" class="btn btn-primary">Reorder</button>
-                </form>
+                <div id="order_actions" class="d-flex flex-wrap gap-2 mb-4">
+                    <button t-if="cancel_mode == 'cancel'" type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#order_cancel_dialog">Cancel</button>
+                    <button t-if="cancel_mode == 'request' and not open_request" type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#order_cancellation_dialog">Request cancellation</button>
+                    <form t-if="open_request" t-att-action="'/orders/%s/cancellation/withdraw' % order.id" method="post">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                        <button type="submit" class="btn btn-secondary">Withdraw request</button>
+                    </form>
+                    <form t-if="order.can_reorder()" t-att-action="'/orders/%s/reorder' % order.id" method="post">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                        <button type="submit" class="btn btn-primary">Reorder</button>
+                    </form>
+                </div>
+                <div t-if="cancel_mode == 'cancel'" class="modal fade" id="order_cancel_dialog" tabindex="-1" aria-labelledby="order_cancel_title" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <form class="modal-content" t-att-action="'/orders/%s/cancel' % order.id" method="post">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                            <div class="modal-header">
+                                <h2 class="modal-title fs-5" id="order_cancel_title">Cancel <t t-out="order.name" />?</h2>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" />
+                            </div>
+                            <div class="modal-body">
+                                <p class="mb-0">The order is cancelled and the laboratory will not work on it. This cannot be undone.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Keep the order</button>
+                                <button type="submit" class="btn btn-danger">Cancel the order</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div t-if="cancel_mode == 'request' and not open_request" class="modal fade" id="order_cancellation_dialog" tabindex="-1" aria-labelledby="order_cancellation_title" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <form class="modal-content" t-att-action="'/orders/%s/cancellation' % order.id" method="post">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                            <div class="modal-header">
+                                <h2 class="modal-title fs-5" id="order_cancellation_title">Request the cancellation of <t t-out="order.name" /></h2>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" />
+                            </div>
+                            <div class="modal-body">
+                                <p>Sales decides on the request. Testing continues until the request is accepted.</p>
+                                <p class="text-muted">If an advance was paid, it stays on the invoice and is settled outside the system.</p>
+                                <textarea name="reason" class="form-control" placeholder="Reason" required="required" />
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-danger">Request cancellation</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
                 <h2 class="mt-4">Support</h2>
                 <t t-set="statuses" t-value="dict(support_requests._fields['status']._description_selection(support_requests.env))" />
                 <ul t-if="support_requests">
