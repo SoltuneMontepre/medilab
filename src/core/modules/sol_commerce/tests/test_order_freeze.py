@@ -64,6 +64,8 @@ class TestOrderFreeze(OrderCase):
                 order.write({"state": state})
         with self.assertRaises(UserError):
             order._catalog_lines().write({"is_downpayment": True})
+        with self.assertRaises(UserError):
+            order.with_context(medilab_status_change=True).write({"order_status": "claimed"})
 
     def test_a_completed_order_stays_frozen(self):
         order = self.make_confirmed_order()

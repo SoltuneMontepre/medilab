@@ -338,7 +338,9 @@ class SaleOrder(models.Model):
         return self._cancel_order()
 
     def action_cancel(self):
-        """Odoo's own cancellation goes through the same checks as the order's."""
+        """Odoo's own cancellation goes through the same checks as the order's, after Odoo's own lock."""
+        if any(order.locked for order in self):
+            raise UserError(self.env._("You cannot cancel a locked order. Please unlock it first."))
         return self.action_sales_cancel()
 
     def _cancel_order(self):

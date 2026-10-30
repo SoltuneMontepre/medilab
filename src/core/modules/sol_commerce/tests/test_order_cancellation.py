@@ -76,6 +76,10 @@ class TestOrderCancellation(OrderCase):
             collected.with_user(self.sales).action_sales_cancel()
         with self.assertRaisesRegex(UserError, "change request"):
             collected.with_user(self.sales).action_cancel()
+        waiting.sudo().locked = True
+        with self.assertRaisesRegex(UserError, "locked"):
+            waiting.with_user(self.sales).action_cancel()
+        waiting.sudo().locked = False
         waiting.with_user(self.sales).action_sales_cancel()
 
         self.assertEqual(collected.order_status, "confirmed")

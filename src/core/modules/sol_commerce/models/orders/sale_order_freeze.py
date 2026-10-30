@@ -4,6 +4,7 @@ from odoo.exceptions import UserError
 from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
 from odoo.addons.sol_commerce.constants.orders import (
     ADVANCE_FIELDS,
+    FINISHED_STATUSES,
     FROZEN_ORDER_FIELDS,
     FROZEN_STATUSES,
     QUOTATION_FROZEN_STATUSES,
@@ -15,7 +16,10 @@ class SaleOrderFreeze(models.Model):
     _inherit = MODEL_SALE_ORDER
 
     def write(self, vals):
-        reopening = vals.get("state") in ("draft", "sent")
+        # A confirmed order only moves on to completed or cancelled; any other status or state would unfreeze it.
+        reopening = vals.get("state") in ("draft", "sent") or (
+            "order_status" in vals and vals["order_status"] not in FINISHED_STATUSES
+        )
         if (FROZEN_ORDER_FIELDS & set(vals) or reopening) and self._frozen_by_confirmation():
             raise UserError(self.env._("A confirmed order cannot be changed."))
         if ADVANCE_FIELDS & set(vals) and self._frozen_by_quotation():
