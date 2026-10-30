@@ -27,6 +27,7 @@
   - A support request about no order, waiting in the queue until a salesperson takes it (US-S20).
   - An account flagged as a possible duplicate, waiting for sales to clear or merge it (US-S04).
   - A day of PayOS transactions, waiting for the accountant to reconcile and lock it (US-A13).
+- **Whole quantities on orders.** An order template line is a whole number of parameters or packages, but the order form and the cart only refuse a quantity below 1, so an order can still carry 1.5 tests and cannot then be saved as a template. Must an order line also be a whole number? (US-S09)
 
 - **Head of Sales approving their own quotation.** Who approves a quotation above the thresholds when the only Head of Sales prepared it? Proposed answer, not decided: another salesperson asks for the approval, or the administrator sets a substitute approver in the chain.
 - **Measuring approval thresholds.** Is the discount threshold measured per line or on the whole quotation, and before or after VAT? Proposed answer, not decided: the discount share is (catalog total − total after every discount) / catalog total before VAT, worked out for the whole quotation and for each line, taking the larger; the amount threshold is compared with the total after discounts, VAT included.

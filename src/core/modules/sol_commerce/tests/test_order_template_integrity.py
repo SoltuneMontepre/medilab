@@ -39,7 +39,7 @@ class TestOrderTemplateIntegrity(TemplateCase):
     def test_invalid_initial_product_rolls_back_headers_lines_and_audit(self):
         source = self.template_source()
         ordinary = self.env["product.template"].create({"name": "Non-catalog service", "type": "service"})
-        valid = Command.create({"product_id": self.lead_product.id, "quantity": 1.5})
+        valid = Command.create({"product_id": self.lead_product.id, "quantity": 2})
         invalid = Command.create({"product_id": ordinary.id, "quantity": 2})
         before = self.record_counts()
         with self.assertRaises(ValidationError):
@@ -53,7 +53,7 @@ class TestOrderTemplateIntegrity(TemplateCase):
 
     def test_invalid_initial_quantity_rolls_back_headers_lines_and_audit(self):
         source = self.template_source()
-        for quantity in (0, None, "invalid", float("nan"), float("inf"), -float("inf")):
+        for quantity in (0, 1.5, None, "invalid", float("nan"), float("inf"), -float("inf")):
             with self.subTest(quantity=quantity):
                 before = self.record_counts()
                 with self.assertRaises(ValidationError):
@@ -61,7 +61,7 @@ class TestOrderTemplateIntegrity(TemplateCase):
                         self.template_values(
                             source,
                             line_ids=[
-                                Command.create({"product_id": self.lead_product.id, "quantity": 1.5}),
+                                Command.create({"product_id": self.lead_product.id, "quantity": 2}),
                                 Command.create({"product_id": self.package_product.id, "quantity": quantity}),
                             ],
                         )
@@ -86,7 +86,7 @@ class TestOrderTemplateIntegrity(TemplateCase):
                 self.assertEqual(self.record_counts(), before)
 
     def test_direct_line_delete_and_reparent_cannot_empty_source_template(self):
-        source = self.template_source([(self.lead_product, 1.5)])
+        source = self.template_source([(self.lead_product, 2)])
         template = self.save_template(source)
         target = self.save_template()
         line = template.line_ids
@@ -110,12 +110,12 @@ class TestOrderTemplateIntegrity(TemplateCase):
             {
                 "line_ids": [
                     Command.clear(),
-                    Command.create({"product_id": self.lead_product.id, "quantity": 1.25}),
+                    Command.create({"product_id": self.lead_product.id, "quantity": 4}),
                 ]
             }
         )
         self.assertEqual(template.line_ids.product_id, self.lead_product)
-        self.assertEqual(template.line_ids.quantity, 1.25)
+        self.assertEqual(template.line_ids.quantity, 4)
 
     def test_invalid_replacement_rolls_back_parent_selections_and_audit(self):
         template = self.save_template()
@@ -127,7 +127,7 @@ class TestOrderTemplateIntegrity(TemplateCase):
                     "name": "Should roll back",
                     "line_ids": [
                         Command.clear(),
-                        Command.create({"product_id": ordinary.id, "quantity": 1.5}),
+                        Command.create({"product_id": ordinary.id, "quantity": 2}),
                     ],
                 }
             )
@@ -158,9 +158,9 @@ class TestOrderTemplateIntegrity(TemplateCase):
         self.lead_price.action_archive()
         self.package.action_archive()
         template.with_user(self.sales).write({"name": "Retired selections"})
-        lines.with_user(self.sales).write({"quantity": 2.25})
+        lines.with_user(self.sales).write({"quantity": 4})
         historical = self.save_template(source)
         self.assertEqual(historical.line_ids.product_id, lines.product_id)
-        self.assertEqual(historical.line_ids.mapped("quantity"), [1.5, 2.25])
+        self.assertEqual(historical.line_ids.mapped("quantity"), [2, 3])
         with self.assertRaises(ValidationError):
             self.reuse(template)

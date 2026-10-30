@@ -24,6 +24,7 @@ from . import (
     sale_order_line_lists,
     sale_order_task,
     sale_order_template,
+    sale_order_totals,
     task,
     test_report,
     test_request,
