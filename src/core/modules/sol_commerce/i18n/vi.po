@@ -33,6 +33,7 @@ msgstr "<span class=\"text-muted\">Báo Giá</span>"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_template_form
 msgid "Add a parameter or package"
 msgstr "Thêm chỉ tiêu hoặc nhóm dịch vụ"
 
@@ -1428,6 +1429,7 @@ msgstr "Nhóm chỉ tiêu"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_template_form
 msgid "Parameter or package"
 msgstr "Chỉ tiêu hoặc nhóm dịch vụ"
 
@@ -2262,6 +2264,12 @@ msgstr "Báo giá này đã được gửi. Hãy sửa đổi để gửi bản 
 #: code:addons/sol_commerce/models/orders/cancellation_request.py:0
 msgid "This request has already been decided."
 msgstr "Yêu cầu này đã được quyết định."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_totals.py:0
+msgid "Total Advantage"
+msgstr "Tổng ưu đãi"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
@@ -4183,10 +4191,22 @@ msgstr "<strong>Các lựa chọn không có trong danh mục</strong>"
 
 #. module: sol_commerce
 #. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_template.py:0
+msgid ""
+"A template orders whole quantities. Change the quantity of these lines to a "
+"whole number:\n"
+"%s"
+msgstr ""
+"Đơn hàng mẫu chỉ đặt số lượng nguyên. Hãy đổi số lượng của các dòng này "
+"thành số nguyên:\n"
+"%s"
+
+#. module: sol_commerce
+#. odoo-python
 #: code:addons/sol_commerce/models/orders/order_template_line.py:0
 #: model:ir.model.constraint,message:sol_commerce.constraint_medilab_order_template_line_quantity_minimum
-msgid "A template selection needs a quantity of at least 1."
-msgstr "Số lượng của một lựa chọn trong đơn hàng mẫu phải từ 1 trở lên."
+msgid "A template selection needs a whole quantity of at least 1."
+msgstr "Số lượng của một lựa chọn trong đơn hàng mẫu phải là số nguyên từ 1 trở lên."
 
 #. module: sol_commerce
 #. odoo-python

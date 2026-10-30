@@ -20,7 +20,7 @@ class TestOrderTemplateAvailability(TemplateCase):
         order = self.reuse(template)
         package = order._catalog_lines().filtered(lambda line: line.product_id.product_tmpl_id == self.package_product)
         self.assertEqual(package.linked_line_ids.product_id.product_tmpl_id, self.lead_product)
-        self.assertEqual(package.linked_line_ids.product_uom_qty, 2.25)
+        self.assertEqual(package.linked_line_ids.product_uom_qty, 3)
         self.assertEqual(package.linked_line_ids.price_unit, 0)
 
     def test_partial_unavailability_is_persisted_on_order(self):

@@ -3,7 +3,6 @@ import math
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 from odoo.fields import Command, Domain
-from odoo.tools import float_compare
 
 from odoo.addons.sol_commerce.constants.models import (
     MODEL_ORDER_TEMPLATE,
@@ -11,6 +10,9 @@ from odoo.addons.sol_commerce.constants.models import (
     MODEL_PRODUCT_TEMPLATE,
 )
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_PERMISSION_MIXIN
+
+# The largest quantity the integer column holds.
+MAX_QUANTITY = 2**31 - 1
 
 
 # Dòng Đơn Hàng Mẫu
@@ -25,11 +27,11 @@ class OrderTemplateLine(models.Model):
     template_id = fields.Many2one(MODEL_ORDER_TEMPLATE, required=True, ondelete="cascade", index=True)
     # The parameter or whole-package product, before resolving its current variant.
     product_id = fields.Many2one(MODEL_PRODUCT_TEMPLATE, required=True, ondelete="restrict")
-    # How many units to order, preserving fractional sale-line quantities.
-    quantity = fields.Float(required=True, default=1, digits="Product Unit")
+    # How many times the parameter or package is ordered, a whole number.
+    quantity = fields.Integer(required=True, default=1)
 
     _quantity_minimum = models.Constraint(
-        "CHECK(quantity >= 1)", "A template selection needs a quantity of at least 1."
+        "CHECK(quantity >= 1)", "A template selection needs a whole quantity of at least 1."
     )
 
     @api.constrains("quantity")
@@ -39,17 +41,18 @@ class OrderTemplateLine(models.Model):
 
     @api.model
     def _check_quantity_value(self, quantity):
-        precision = self.env["decimal.precision"].precision_get("Product Unit")
         try:
             quantity = float(quantity)
         except (TypeError, ValueError, OverflowError):
             quantity = None
+        # An Integer field truncates a fraction, so a fraction is refused before it is stored.
         if (
             quantity is None
             or not math.isfinite(quantity)
-            or float_compare(quantity, 1, precision_digits=precision) < 0
+            or not quantity.is_integer()
+            or not 1 <= quantity <= MAX_QUANTITY
         ):
-            raise ValidationError(self.env._("A template selection needs a quantity of at least 1."))
+            raise ValidationError(self.env._("A template selection needs a whole quantity of at least 1."))
 
     @api.model
     def _check_product_identity(self, product_id):

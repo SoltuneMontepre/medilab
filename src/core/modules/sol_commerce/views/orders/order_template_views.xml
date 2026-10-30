@@ -33,7 +33,10 @@
                     </group>
                     <field name="line_ids" required="1">
                         <list editable="bottom">
-                            <field name="product_id" domain="['|', ('parameter_id', '!=', False), ('service_package_id', '!=', False)]" options="{'no_create': True}" />
+                            <control>
+                                <create string="Add a parameter or package" />
+                            </control>
+                            <field name="product_id" string="Parameter or package" domain="['|', ('parameter_id', '!=', False), ('service_package_id', '!=', False)]" options="{'no_create': True}" />
                             <field name="quantity" />
                         </list>
                     </field>

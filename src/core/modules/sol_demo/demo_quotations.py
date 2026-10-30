@@ -35,17 +35,17 @@ def seed_quotations(env):
     expired = _quotable_order(env, lead, vat8)
     revised = _quotable_order(env, lead, vat10, quantity=3, advance_method="none")
     for order in (sent, accepted, declined, expired):
-        order.with_user(sales).action_send_quotation()
+        _as(order, sales).action_send_quotation()
     _pay_advance(env, accepted)
     declined._latest_quotation().action_decline("The price is above our budget this quarter.")
     expired.payment_deadline = fields.Datetime.now() - timedelta(days=1)
     env[MODEL_QUOTATION]._flag_expired()
-    revised.with_user(head).action_send_quotation()
+    _as(revised, head).action_send_quotation()
     revised.with_user(sales).action_revise_quotation()
     env[DISCOUNT_WIZARD].create(
         {"sale_order_id": revised.id, "discount_type": "so_discount", "discount_percentage": 0.05}
     ).action_apply_discount()
-    revised.with_user(head).action_send_quotation()
+    _as(revised, head).action_send_quotation()
 
     requested = _confirmed_order(env, lead, vat10, sales, head)
     approved = _confirmed_order(env, package, vat8, sales, head)
@@ -68,6 +68,11 @@ def seed_quotations(env):
         ("demo_sale_order_approval_rejected", rejected),
     ):
         _xml_id(env, xml_id, record)
+
+
+def _as(order, user):
+    """The order as the user works on it, in the user's language as in their session."""
+    return order.with_user(user).with_context(lang=user.lang)
 
 
 def _sales_tax(env, rate):
@@ -156,7 +161,7 @@ def _quotable_order(
 def _confirmed_order(env, product, tax, sales, head):
     """An order the Head of Sales quoted without an advance, the customer accepted and sales confirmed."""
     order = _quotable_order(env, product, tax, advance_method="none")
-    order.with_user(head).action_send_quotation()
+    _as(order, head).action_send_quotation()
     order._latest_quotation()._accept()
     order.with_user(sales).action_confirm_order()
     return order
