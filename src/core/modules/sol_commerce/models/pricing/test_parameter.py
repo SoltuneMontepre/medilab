@@ -7,7 +7,7 @@ from odoo.addons.sol_laboratory.constants.models import MODEL_TEST_PARAMETER
 # Chỉ Tiêu
 class TestParameter(models.Model):
     _inherit = MODEL_TEST_PARAMETER
-    _audit_children = ("method_ids", "price_ids")
+    _audit_children = ("method_ids", "applicability_ids", "price_ids")
 
     # The parameter's catalog price; at most one.
     price_ids = fields.One2many(MODEL_PARAMETER_PRICE, "parameter_id", string="Price")
