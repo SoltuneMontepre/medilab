@@ -20,9 +20,8 @@ class TestCartPage(PortalCase):
         row = self.find(self.tree("/cart"), f"//tr[.//input[@name='line_id'][@value='{self.line.id}']]")
         self.assertEqual(len(row), 1)
         forms = self.find(row[0], ".//form[@action='/cart/line']")
-        return {
-            button.get("value"): button for form in forms for button in self.find(form, ".//button[@name='quantity']")
-        }
+        self.assertEqual(len(forms), 1)
+        return {button.get("value"): button for button in self.find(forms[0], ".//button[@name='quantity']")}
 
     def test_each_line_offers_remove_and_one_step_quantity_buttons(self):
         buttons = self.line_buttons()

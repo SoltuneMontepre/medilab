@@ -105,22 +105,16 @@
                                     <td t-out="line.product_id.display_name" />
                                     <td class="text-end" t-out="line.price_unit" t-options="{'widget': 'monetary', 'display_currency': order.currency_id}" />
                                     <td>
-                                        <div class="d-flex flex-wrap justify-content-end gap-2">
-                                            <form action="/cart/line" method="post">
-                                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
-                                                <input type="hidden" name="line_id" t-att-value="line.id" />
-                                                <div class="btn-group" role="group">
-                                                    <button type="submit" name="quantity" t-att-value="quantity - 1" class="btn btn-secondary" t-att-disabled="quantity &lt;= 1" title="Decrease the quantity" aria-label="Decrease the quantity">−</button>
-                                                    <span class="btn btn-light disabled text-body" t-out="quantity" />
-                                                    <button type="submit" name="quantity" t-att-value="quantity + 1" class="btn btn-secondary" title="Increase the quantity" aria-label="Increase the quantity">+</button>
-                                                </div>
-                                            </form>
-                                            <form action="/cart/line" method="post">
-                                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
-                                                <input type="hidden" name="line_id" t-att-value="line.id" />
-                                                <button type="submit" name="quantity" value="0" class="btn btn-danger">Remove</button>
-                                            </form>
-                                        </div>
+                                        <form action="/cart/line" method="post" class="d-flex flex-wrap justify-content-end gap-2">
+                                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                                            <input type="hidden" name="line_id" t-att-value="line.id" />
+                                            <div class="btn-group" role="group">
+                                                <button type="submit" name="quantity" t-att-value="quantity - 1" class="btn btn-secondary" t-att-disabled="quantity &lt;= 1" title="Decrease the quantity" aria-label="Decrease the quantity">−</button>
+                                                <span class="btn btn-light disabled text-body" t-out="quantity" />
+                                                <button type="submit" name="quantity" t-att-value="quantity + 1" class="btn btn-secondary" title="Increase the quantity" aria-label="Increase the quantity">+</button>
+                                            </div>
+                                            <button type="submit" name="quantity" value="0" class="btn btn-danger">Remove</button>
+                                        </form>
                                     </td>
                                     <td class="text-end text-nowrap" t-out="line.price_unit * line.product_uom_qty" t-options="{'widget': 'monetary', 'display_currency': order.currency_id}" />
                                 </tr>
