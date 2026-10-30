@@ -52,6 +52,10 @@ The customer is an external user of the laboratory. A customer has an account li
 - If the identity matches an existing profile, the account is flagged for sales to review instead of being merged automatically.
 - The account page shows contact details, tax and identity information, and additional addresses.
 - Order history is a single list of every quotation and order of the customer, with a customer-facing status: Draft for the cart, Submitted once sent to sales, Quoted once a quotation is sent, then the labels of [Tracking and results](#4-tracking-and-results-us-c18-us-c19).
+- Each row of the order history names the order's first parameters and packages and its date, submitted or created. The list is paged, newest first, and the account page shows the latest orders with a link to the whole list.
+- The portal home's **Your Orders** card opens the order history. Odoo's own sales order and quotation cards are not offered, and their addresses lead to the order history and the order page.
+- Prices, amounts and totals are shown as money in the customer's currency and language, and quantities as whole numbers.
+- The order page shows the status next to the order number, when the order was submitted or created, the quotation deadline and the expected results date. Its actions sit in one row.
 - Tax and identity information already submitted is shown, not asked again; a missing citizen ID is asked once.
 
 #### Password reset (US-C04)
@@ -135,6 +139,7 @@ Parameters are grouped by kind of analysis. The catalog shows the group and its 
 
 - **Price per parameter.** Every parameter has its own specific price in the catalog; the group only organises the catalog and does not set a price.
 - **Total = sum of the selected parameters' and packages' prices.** A package line uses the package price, not the sum of its parameters. For a parameter ordered in a quantity, the price is multiplied by the quantity. The cart shows each parameter's price and a running total as parameters are added or removed.
+- **Cart lines.** Each cart line is removed, or its quantity raised or lowered by one, in one click. **Save as draft** keeps the cart and leads to the order history, which confirms the draft was saved and lists it as Draft.
 - **Prices exclude VAT.** Tax is added on the quotation and the invoice, not in the cart.
 - **The cart total matches the quotation.** The prices come from the catalog, so the quotation uses the same prices unless sales adjusts them (for example a discount) before sending.
 
@@ -159,7 +164,7 @@ stateDiagram-v2
 | Requested date | The customer may give the date they want the results, kept as the order's requested date. |
 | Priority request | The customer may mark the order as priority and request an earlier date. Sales accepts or declines priority on the quotation after the feasibility check; the request itself does not promise the date. |
 | Submit is not confirm | Submitting only puts the order in the sales queue. Sales then prepares the quotation.                                                  |
-| Cancel                | The customer can cancel until the order is confirmed; after that the customer can only [request cancellation](#request-cancel-us-c12). |
+| Cancel                | The customer can cancel until the order is confirmed; after that the customer can only [request cancellation](#request-cancel-us-c12). Cancel asks for confirmation first, saying the order is cancelled for good. |
 | Reorder               | See [Reorder](#reorder-us-c10).                                                                                                        |
 
 #### Reorder (US-C10)
@@ -168,7 +173,7 @@ The customer opens a past order in the order history and chooses **Reorder**. Th
 
 | Rule                         | Description                                                                                                                                                                                        |
 | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Source                       | Any order of the customer's own partner; it does not have to be completed.                                                                                                                         |
+| Source                       | Any order of the customer's own partner; it does not have to be completed. A draft is not reordered: it is still the cart and is changed there.                                                     |
 | New draft                    | The result is always a new draft, never submitted automatically. The original order does not change.                                                                                               |
 | Current prices               | Prices come from the current catalog, not from the original quotation, so the total can differ. Parameters and packages that are no longer in the catalog are not copied and the customer is told which ones. |
 | No payment or results copied | Invoices, payments, approvals, sample data and results stay with the original order.                                                                                                               |

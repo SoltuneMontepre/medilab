@@ -11,6 +11,11 @@ STATUS_COMPLETED = "completed"
 STATUS_CANCELLED = "cancelled"
 
 CUSTOMER_CANCELLABLE = (STATUS_DRAFT, STATUS_SUBMITTED, STATUS_CLAIMED)
+PORTAL_ORDERS_PER_PAGE = 20
+# The latest orders the account page lists before linking to the order history.
+ACCOUNT_RECENT_ORDERS = 5
+# How many catalog items an order history row names before it counts the rest.
+PORTAL_SUMMARY_ITEMS = 3
 FINISHED_STATUSES = (STATUS_COMPLETED, STATUS_CANCELLED)
 NOTIFIED_STATUSES = (STATUS_SUBMITTED, STATUS_CLAIMED, STATUS_CANCELLED)
 

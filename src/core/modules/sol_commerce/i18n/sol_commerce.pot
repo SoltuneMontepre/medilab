@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 20.0\n"
+"Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-29 13:10+0000\n"
-"PO-Revision-Date: 2026-10-29 13:10+0000\n"
+"POT-Creation-Date: 2026-10-30 10:44+0000\n"
+"PO-Revision-Date: 2026-10-30 10:44+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -19,6 +19,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/order_template.py:0
 msgid "%(item)s: %(reason)s"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_customer.py:0
+msgid "%(items)s and %(count)s more"
 msgstr ""
 
 #. module: sol_commerce
@@ -212,6 +218,12 @@ msgstr ""
 
 #. module: sol_commerce
 #. odoo-python
+#: code:addons/sol_commerce/controllers/catalog.py:0
+msgid "A catalog line needs a whole number of tests."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order.py:0
 msgid "A confirmed order cannot be cancelled directly."
 msgstr ""
@@ -229,6 +241,12 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.constraint,message:sol_commerce.constraint_medilab_reconciliation_day_day_unique
 msgid "A day is reconciled once."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "A draft is changed in the cart, not reordered."
 msgstr ""
 
 #. module: sol_commerce
@@ -565,6 +583,7 @@ msgstr ""
 
 #. module: sol_commerce
 #: model:res.groups,name:sol_commerce.group_all_orders
+#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
 msgid "All orders"
 msgstr ""
 
@@ -830,6 +849,11 @@ msgid "Cancel"
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid "Cancel the order"
+msgstr ""
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 msgid "Cancel this order?"
 msgstr ""
@@ -989,6 +1013,7 @@ msgid "Claimed At"
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_support_request_form
 msgid "Close"
 msgstr ""
@@ -1199,6 +1224,11 @@ msgid "Create taxes"
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid "Created"
+msgstr ""
+
+#. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_cancellation_request__create_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_customer_sales_terms__create_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_invoice_adjustment__create_uid
@@ -1333,6 +1363,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_cash_flow_report__date
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_receivable_report__date
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_revenue_report__date
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_table
 msgid "Date"
 msgstr ""
 
@@ -1404,6 +1435,11 @@ msgstr ""
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__quotation_follow_up__declined
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_cancellation_request_search
 msgid "Declined"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
+msgid "Decrease the quantity"
 msgstr ""
 
 #. module: sol_commerce
@@ -1729,6 +1765,11 @@ msgid "Expected Result Date"
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid "Expected results"
+msgstr ""
+
+#. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_quotation__status__expired
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__quotation_follow_up__expired
 msgid "Expired"
@@ -1798,6 +1839,11 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.actions.server,name:sol_commerce.cron_flag_expired_quotations_ir_actions_server
 msgid "Flag expired quotations"
+msgstr ""
+
+#. module: sol_commerce
+#: model:portal.entry,description:sol_commerce.portal_entry_orders
+msgid "Follow your orders and quotations"
 msgstr ""
 
 #. module: sol_commerce
@@ -1951,6 +1997,11 @@ msgid "In the portal"
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
+msgid "Increase the quantity"
+msgstr ""
+
+#. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_receivable_report__name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_revenue_report__name
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__downpayment_invoice_id
@@ -2051,6 +2102,11 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_account_move
 msgid "Journal Entry"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid "Keep the order"
 msgstr ""
 
 #. module: sol_commerce
@@ -3104,6 +3160,11 @@ msgid "Quotation Follow Up"
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid "Quotation deadline"
+msgstr ""
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_search
 msgid "Quotation declined"
 msgstr ""
@@ -3390,6 +3451,7 @@ msgid "Rejection Reason"
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
 msgid "Remove"
 msgstr ""
@@ -3449,6 +3511,11 @@ msgstr ""
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
 msgid "Request cancellation"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid "Request the cancellation of"
 msgstr ""
 
 #. module: sol_commerce
@@ -3527,6 +3594,13 @@ msgstr ""
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_customer_form_sales
 msgid "Sales Terms"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid ""
+"Sales decides on the request. Testing continues until the request is "
+"accepted."
 msgstr ""
 
 #. module: sol_commerce
@@ -3733,7 +3807,6 @@ msgid "Status"
 msgstr ""
 
 #. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.support_page
 msgid "Status:"
@@ -3766,6 +3839,7 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__customer_status__submitted
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__order_status__submitted
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
 msgid "Submitted"
 msgstr ""
 
@@ -4003,6 +4077,13 @@ msgstr ""
 msgid ""
 "The order has signatures; withdraw them before changing its lines or "
 "samples."
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid ""
+"The order is cancelled and the laboratory will not work on it. This cannot "
+"be undone."
 msgstr ""
 
 #. module: sol_commerce
@@ -4324,11 +4405,6 @@ msgid "Untaxed amount"
 msgstr ""
 
 #. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
-msgid "Update"
-msgstr ""
-
-#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
 msgid "Upload"
 msgstr ""
@@ -4434,6 +4510,11 @@ msgid "You may only read this order, so you cannot sign or reject it."
 msgstr ""
 
 #. module: sol_commerce
+#: model:portal.entry,name:sol_commerce.portal_entry_orders
+msgid "Your Orders"
+msgstr ""
+
+#. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/cancellation_request.py:0
 msgid "Your cancellation request was accepted. The order is cancelled."
@@ -4443,6 +4524,13 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/cancellation_request.py:0
 msgid "Your cancellation request was declined: %s"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
+msgid ""
+"Your draft is saved. It is listed here as Draft and stays in the cart until "
+"you submit it."
 msgstr ""
 
 #. module: sol_commerce

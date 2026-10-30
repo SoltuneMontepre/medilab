@@ -98,35 +98,48 @@
         </div>
         <h3 class="mt-4">Order history</h3>
         <t t-call="sol_commerce.order_table" orders="customer_orders" />
+        <p t-if="customer_orders"><a href="/orders">All orders</a></p>
+    </template>
+
+    <template id="order_status" name="Order status">
+        <t t-set="status_classes" t-value="{'submitted': 'text-bg-warning', 'quoted': 'text-bg-warning', 'waiting': 'text-bg-warning', 'testing': 'text-bg-info', 'completed': 'text-bg-success', 'cancelled': 'text-bg-danger'}" />
+        <span t-attf-class="badge #{status_classes.get(order.customer_status, 'text-bg-secondary')}" t-field="order.customer_status" />
     </template>
 
     <template id="order_table" name="Order history">
         <p t-if="not orders">No orders yet. <a href="/catalog">Browse the catalog</a>.</p>
-        <table t-else="" class="table">
-            <thead>
-                <tr>
-                    <th>Order</th>
-                    <th>Status</th>
-                    <th class="text-end">Total excluding VAT</th>
-                    <th />
-                </tr>
-            </thead>
-            <tbody>
-                <t t-foreach="orders" t-as="order">
+        <div t-else="" class="table-responsive">
+            <table class="table align-middle">
+                <thead>
                     <tr>
-                        <td><a t-att-href="'/orders/%s' % order.id" t-out="order.name" /></td>
-                        <td><span t-field="order.customer_status" /></td>
-                        <td class="text-end" t-out="order.catalog_total" />
-                        <td class="text-end">
-                            <form t-att-action="'/orders/%s/reorder' % order.id" method="post">
-                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
-                                <button type="submit" class="btn btn-primary">Reorder</button>
-                            </form>
-                        </td>
+                        <th>Order</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th class="text-end">Total excluding VAT</th>
+                        <th />
                     </tr>
-                </t>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <t t-foreach="orders" t-as="order">
+                        <tr>
+                            <td>
+                                <a t-att-href="'/orders/%s' % order.id" t-out="order.name" />
+                                <div class="small text-muted" t-out="order.portal_summary()" />
+                            </td>
+                            <td class="text-nowrap" t-out="order.submitted_at or order.create_date" t-options="{'widget': 'date'}" />
+                            <td><t t-call="sol_commerce.order_status" /></td>
+                            <td class="text-end text-nowrap" t-out="order.catalog_total" t-options="{'widget': 'monetary', 'display_currency': order.currency_id}" />
+                            <td class="text-end">
+                                <form t-if="order.can_reorder()" t-att-action="'/orders/%s/reorder' % order.id" method="post">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                                    <button type="submit" class="btn btn-primary">Reorder</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </t>
+                </tbody>
+            </table>
+        </div>
     </template>
 
     <template id="contact_list" name="Contacts">
