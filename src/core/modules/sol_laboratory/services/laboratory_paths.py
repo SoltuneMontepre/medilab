@@ -46,6 +46,13 @@ def normal_text(text):
     return unicodedata.normalize("NFC", text) if text else text
 
 
+def normal_pattern(kind, pattern):
+    """A sync rule's pattern as a rule of the kind keeps it: in one Unicode form, and an extension without its dot and
+    in lowercase."""
+    pattern = normal_text(pattern)
+    return normal_extension(pattern) if kind == "extension" and pattern else pattern
+
+
 def path_key(path):
     """What makes two paths one file: the same path in one Unicode form, whatever the letter case."""
     return normal_text(path).casefold()

@@ -22,7 +22,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_RES_USERS,
 )
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
-from odoo.addons.sol_laboratory.services.laboratory_paths import normal_text
+from odoo.addons.sol_laboratory.services.laboratory_paths import normal_pattern, normal_text
 
 # The logger of the queries a unique key refuses, which a save point catches and answers itself.
 SQL_LOGGER = "odoo.sql_db"
@@ -125,7 +125,7 @@ class LaboratoryFolderApi(models.Model):
         found keeps its own flags, which a change of the rule sets. Two additions at once make one rule."""
         self.ensure_one()
         rules = self.env[MODEL_LABORATORY_SYNC_RULE].sudo()
-        pattern = rules._normal_pattern(kind, pattern)
+        pattern = normal_pattern(kind, pattern)
         rule = rules.search([("folder_id", "=", self.id), ("kind", "=", kind), ("pattern", "=", pattern)])
         if rule:
             return rule
