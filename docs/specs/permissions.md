@@ -89,7 +89,9 @@ The administrator person delegates to the employee of Odoo's default administrat
 
 A person delegates to an Odoo employee, so the person form shows and writes the employee's fields. Their details are the employee's work contact, which Odoo's `hr` app keeps; their login is the employee's Odoo user. A person created for a user who already has an employee delegates to that employee. When a person is saved with a login and has no user yet, the Odoo user is created as an internal user and linked to the employee. A login belongs to one person, and the login of a person who signs in cannot be emptied; the person is archived instead. Passwords are set by Odoo administrators from the user form, which the person form opens.
 
-Internal users are created only through people. Administrators see the internal users that no person links to, to link each one to a person or archive it.
+Internal users are created only through people. A person creates their user and makes a linked user internal with full rights; creating an internal user, or making a portal user internal, with the caller's own rights is refused, also through RPC and from a group's users. Odoo's screens that would create one are hidden: New and Duplicate on the users screens, inviting users in the settings, and inviting or creating a user from an employee; an employee's invitation is also refused, because Odoo creates that user with full rights.
+
+Administrators see the internal users that no person links to, archived people's users excepted, under Unlinked Users in the Employees app, to link each one to a person or archive it. Linking to a chosen person without a login gives them the user; linking without a person creates one from the user, which delegates to the user's employee when it has one. A user who has an employee is linked only that way, because an Odoo user has one employee per company.
 
 An administrator can give a person a role until a date, such as a backup signer while no holder of an approval chain's top level is available. The role is removed when that date ends, and both changes are recorded in the audit trail.
 
@@ -138,7 +140,7 @@ A way of testing names the department that tests it in-house, or a subcontractor
 | ----------------------- | ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | Shipped with the module | Permissions, the administrator role, the administrator person | The module, on every install. Users choose among them and assign them; they cannot delete them on the screen.  |
 | User data               | Departments, people, roles other than the administrator       | Administrators and the people they give the permissions to.                                                    |
-| Demo data               | Departments, people with their users, roles                   | Only the `sol_demo` module. It assigns shipped permissions to its roles and people and never creates a permission. |
+| Demo data               | Departments, people with their users, roles, an internal user no person links to | Only the `sol_demo` module. It assigns shipped permissions to its roles and people and never creates a permission. |
 
 ### Lifecycle
 

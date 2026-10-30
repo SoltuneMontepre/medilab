@@ -25,6 +25,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MAIL_NOTIFICATION,
     MODEL_PUSH_DELIVERY,
     MODEL_REGULATION,
+    MODEL_RES_GROUPS,
     MODEL_RES_USERS,
     MODEL_SIGNATURE,
 )
@@ -82,8 +83,8 @@ class TestAuditAccess(AuditCase):
         # content, which the versions and uploads holding it describe. Failed sign-ins of laboratory files are counted,
         # not audited, as Odoo's log records them.
         # Users keep their personal data on their contact and get their access from their person's roles. Views,
-        # menus and reports change when modules are installed, accesses follow from permissions, and the mail server
-        # comes from the environment.
+        # menus and reports change when modules are installed, accesses follow from permissions, groups from roles and
+        # permissions, and the mail server comes from the environment.
         unaudited = {
             MODEL_AUDIT_ENTRY,
             MODEL_AUDIT_CHANGE,
@@ -100,6 +101,7 @@ class TestAuditAccess(AuditCase):
             MODEL_MAIL_NOTIFICATION,
             MODEL_MAIL_MAIL,
             MODEL_RES_USERS,
+            MODEL_RES_GROUPS,
             MODEL_IR_UI_VIEW,
             MODEL_IR_UI_MENU,
             MODEL_IR_ACCESS,

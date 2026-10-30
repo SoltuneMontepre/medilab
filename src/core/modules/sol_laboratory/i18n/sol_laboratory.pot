@@ -1933,6 +1933,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__create_uid
 msgid "Created by"
 msgstr ""
 
@@ -2005,6 +2006,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__create_date
 msgid "Created on"
 msgstr ""
 
@@ -2429,6 +2431,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_reject_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_raise_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_reject_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_user_link_form
 msgid "Discard"
 msgstr ""
 
@@ -2550,6 +2553,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -3603,6 +3607,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__id
 msgid "ID"
 msgstr ""
 
@@ -4278,6 +4283,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__write_uid
 msgid "Last Updated by"
 msgstr ""
 
@@ -4350,6 +4356,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__write_date
 msgid "Last Updated on"
 msgstr ""
 
@@ -6231,6 +6238,7 @@ msgstr ""
 #: model:ir.model,name:sol_laboratory.model_medilab_person
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__person_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__person_id
 msgid "Person"
 msgstr ""
 
@@ -8417,6 +8425,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__user_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__user_id
 msgid "User"
 msgstr ""
 
@@ -14474,4 +14483,80 @@ msgstr ""
 msgid ""
 "The subcontractor's result of %s waits to be sent; send it, or have it "
 "rejected, before entering another."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/user_link.py:0
+msgid ""
+"%(user)s already has the employee %(employee)s; leave the person empty to "
+"create a person from that employee."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/user_link.py:0
+msgid "%s already signs in as another user."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/res_users.py:0
+msgid ""
+"%s can be an internal user only through a person: give a person a login, or "
+"link the user to a person from Unlinked Users."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/user_link.py:0
+msgid "%s is already linked to a person."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_users__has_person
+msgid "Has Person"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_user_link_form
+msgid "Link"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_user_link
+msgid "Link a User to a Person"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_res_users_unlinked_list
+msgid "Link to Person"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_user_link
+msgid "Link to a Person"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_user_link_form
+msgid "New person from the user"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_res_users_unlinked
+#: model:ir.ui.menu,name:sol_laboratory.menu_unlinked_users
+msgid "Unlinked Users"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/hr_employee.py:0
+msgid ""
+"Users are created from people: give the person a login in People instead."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_res_groups
+msgid "Access Groups"
 msgstr ""

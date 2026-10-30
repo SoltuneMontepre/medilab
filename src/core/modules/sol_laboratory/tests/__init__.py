@@ -42,6 +42,7 @@ from . import (
     test_editing_service_urls,
     test_filestore_bucket,
     test_handover_record,
+    test_internal_users,
     test_is_accredited,
     test_job_claim_commit,
     test_job_claim_timeout,
