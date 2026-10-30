@@ -14738,8 +14738,8 @@ msgid ""
 "Only people with the role %s, or the role of a later level, can act at this "
 "level."
 msgstr ""
-"Chỉ người có vai trò %s, hoặc vai trò của một cấp sau, mới được thao tác ở "
-"cấp này."
+"Chỉ nhân sự có vai trò %s, hoặc vai trò của một cấp sau, mới có thể thao "
+"tác ở cấp này."
 
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_role_grant_create_all

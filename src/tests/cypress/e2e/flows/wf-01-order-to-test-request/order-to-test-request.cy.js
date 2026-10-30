@@ -289,7 +289,7 @@ describe("WF-01 Order to approved test request", () => {
       cy.get(".o_statusbar_buttons button[name=action_sign]").should("not.exist");
       callRefused("sale.order", "action_sign", [[order.id]]).should(
         "eq",
-        "Chỉ nhân sự có vai trò Trưởng Phòng Kinh Doanh mới có thể thao tác ở cấp này.",
+        "Chỉ nhân sự có vai trò Trưởng Phòng Kinh Doanh, hoặc vai trò của một cấp sau, mới có thể thao tác ở cấp này.",
       );
       callRefused("sale.order", "write", [[order.id], { validity_date: "2099-12-31" }]).should(
         "eq",
