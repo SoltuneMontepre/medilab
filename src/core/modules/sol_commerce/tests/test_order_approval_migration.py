@@ -19,8 +19,8 @@ class TestOrderApprovalMigration(OrderCase):
 
     def migrate(self):
         self.env.flush_all()
-        load_script(str(MIGRATIONS / "20.0.1.7.0" / "post-migrate.py"), "order_approval_post").migrate(
-            self.env.cr, "20.0.1.6.0"
+        load_script(str(MIGRATIONS / "20.0.1.8.0" / "post-migrate.py"), "order_approval_post").migrate(
+            self.env.cr, "20.0.1.7.0"
         )
         self.env.invalidate_all()
 

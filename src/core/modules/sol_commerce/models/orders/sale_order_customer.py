@@ -1,8 +1,10 @@
 from odoo import api, fields, models
 from odoo.exceptions import UserError
+from odoo.tools import format_list
 
 from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
 from odoo.addons.sol_commerce.constants.orders import (
+    PORTAL_SUMMARY_ITEMS,
     STATUS_CANCELLED,
     STATUS_COMPLETED,
     STATUS_CONFIRMED,
@@ -60,14 +62,39 @@ class SaleOrderCustomer(models.Model):
             return REQUEST_STATUS_TO_CUSTOMER.get(self.sudo().test_request_id.status, "waiting")
         return "quoted" if self.sudo().quotation_ids else "submitted"
 
+    def _compute_access_url(self):
+        result = super()._compute_access_url()
+        for order in self:
+            order.access_url = f"/orders/{order.id}"
+        return result
+
     @api.model
-    def _portal_orders(self, user):
-        """Every quotation and order of the portal user's customer, newest first."""
+    def _portal_orders_domain(self, user):
         commercial = user.partner_id.commercial_partner_id
-        return self.sudo().search(
-            ["|", ("customer_id", "child_of", commercial.id), ("partner_id", "child_of", commercial.id)],
-            order="id desc",
-        )
+        return ["|", ("customer_id", "child_of", commercial.id), ("partner_id", "child_of", commercial.id)]
+
+    @api.model
+    def _portal_orders(self, user, limit=None, offset=0):
+        """Every quotation and order of the portal user's customer, newest first."""
+        return self.sudo().search(self._portal_orders_domain(user), order="id desc", limit=limit, offset=offset)
+
+    @api.model
+    def _portal_order_count(self, user):
+        return self.sudo().search_count(self._portal_orders_domain(user))
+
+    def portal_summary(self):
+        """The first catalog items of the order, and how many more it has."""
+        self.ensure_one()
+        names = self._catalog_lines().product_id.mapped("display_name")
+        shown = format_list(self.env, names[:PORTAL_SUMMARY_ITEMS])
+        if len(names) > PORTAL_SUMMARY_ITEMS:
+            return self.env._("%(items)s and %(count)s more", items=shown, count=len(names) - PORTAL_SUMMARY_ITEMS)
+        return shown
+
+    def can_reorder(self):
+        """A draft is still the cart; any other order of the customer can be reordered."""
+        self.ensure_one()
+        return self.order_status != STATUS_DRAFT
 
     def _customer_record(self):
         self.ensure_one()
