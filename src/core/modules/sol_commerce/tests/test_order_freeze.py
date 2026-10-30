@@ -20,6 +20,7 @@ class TestOrderFreeze(OrderCase):
             {"partner_id": self.other_person.work_contact_id.id},
             {"payment_deadline": fields.Datetime.now() + timedelta(days=9)},
             {"validity_date": fields.Date.today() + timedelta(days=9)},
+            {"test_request_id": False},
         )
 
         for values in changes:
@@ -31,6 +32,7 @@ class TestOrderFreeze(OrderCase):
             {"discount": 10},
             {"tax_ids": False},
             {"sample_id": False},
+            {"linked_line_id": line.id},
         ):
             with self.subTest(values=values), self.assertRaises(UserError):
                 line.write(values)

@@ -77,8 +77,9 @@ class TestOrderCancellation(OrderCase):
         with self.assertRaisesRegex(UserError, "change request"):
             collected.with_user(self.sales).action_cancel()
         waiting.sudo().locked = True
-        with self.assertRaisesRegex(UserError, "locked"):
-            waiting.with_user(self.sales).action_cancel()
+        for action in ("action_cancel", "action_sales_cancel"):
+            with self.subTest(action=action), self.assertRaisesRegex(UserError, "locked"):
+                getattr(waiting.with_user(self.sales), action)()
         waiting.sudo().locked = False
         waiting.with_user(self.sales).action_sales_cancel()
 
