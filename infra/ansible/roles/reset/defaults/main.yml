@@ -1,0 +1,4 @@
+reset_namespace: medilab
+reset_cluster: medilab-db
+reset_database: medilab
+reset_application: odoo

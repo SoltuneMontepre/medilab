@@ -1,7 +1,7 @@
 from odoo import api, fields, models
 from odoo.tools import clean_context
 
-from odoo.addons.sol_laboratory.constants.models import MODEL_RES_CONFIG_SETTINGS
+from odoo.addons.sol_laboratory.constants.models import MODEL_RES_CONFIG_SETTINGS, MODEL_ROLE
 from odoo.addons.sol_laboratory.constants.settings import (
     DEFAULT_REMINDER_LEAD_MINUTES,
     DEFAULT_SAFETY_MARGIN_DAYS,
@@ -9,6 +9,7 @@ from odoo.addons.sol_laboratory.constants.settings import (
     DEFAULT_URGENCY_HOURS,
     REMINDER_LEAD_PARAMETER,
     SAFETY_MARGIN_PARAMETER,
+    SAMPLE_DELIVERY_ROLE_PARAMETER,
     SAMPLE_RETENTION_REMINDER_PARAMETER,
     URGENCY_HOURS_PARAMETER,
 )
@@ -48,6 +49,13 @@ class ResConfigSettings(models.TransientModel):
         config_parameter=SAMPLE_RETENTION_REMINDER_PARAMETER,
         default=DEFAULT_SAMPLE_RETENTION_REMINDER_DAYS,
         help="Days before a sample's retention ends when testers are reminded to dispose of it.",
+    )
+    # The role whose people carry dispatches to subcontractors.
+    sample_delivery_role_id = fields.Many2one(
+        MODEL_ROLE,
+        string="Sample Delivery Staff Role",
+        config_parameter=SAMPLE_DELIVERY_ROLE_PARAMETER,
+        help="Only people holding this role can carry a dispatch to a subcontractor.",
     )
     # Hours before its due date when a sample test becomes urgent and is scheduled before the others.
     urgency_hours = fields.Integer(

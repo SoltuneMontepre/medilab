@@ -46,7 +46,7 @@ These are the default ports for an ordinary local stack. A selected fresh demo u
 | Service     | URL                   | Notes                                                                                                                           |
 | ----------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | Odoo        | http://localhost:8069 | port `MEDILAB_ODOO_PORT`                                                                                                        |
-| Postgres    | `localhost:15432`     | port `MEDILAB_DB_PORT`; see [Environment](#environment)                                                                         |
+| Postgres    | `localhost:15432`     | port `MEDILAB_DB_PORT`; see [worktree port configuration](#a-second-stack-from-a-worktree)                                                                         |
 | CloudBeaver | http://localhost:8978 | port `MEDILAB_CLOUDBEAVER_PORT`; `medilab` / `admin` unless overridden                                                          |
 | Garage      | http://localhost:3900 | the laboratory files bucket, port `MEDILAB_GARAGE_PORT`; its admin API is on `127.0.0.1:3903`, port `MEDILAB_GARAGE_ADMIN_PORT` |
 
