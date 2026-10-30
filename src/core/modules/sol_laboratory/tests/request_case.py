@@ -17,6 +17,7 @@ class RequestCase(MasterDataCase):
         super().setUpClass()
         cls.customer = cls.env[MODEL_CUSTOMER].create({"name": "An Phu Beverage Co., Ltd.", "is_company": True})
         cls.sample_type = cls.env[MODEL_SAMPLE_TYPE].create({"name": "Bottled drinking water"})
+        cls.applicability = cls.offer(cls.parameter, cls.sample_type)
         cls.request = cls.create_request()
         cls.sample = cls.request.sample_ids
 

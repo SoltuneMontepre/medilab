@@ -21,10 +21,12 @@ model TestParameter {
   main_group   ParameterGroup            @relation("MainGroup", fields: [main_group_id], references: [id], onDelete: Restrict)
   /// Groups the parameter belongs to.
   groups       TestParameterGroup[]
-  /// Sample types the parameter can be tested on.
+  /// Sample types the parameter is offered on: those an active way of testing applies to; worked out, never set by hand.
   sample_types TestParameterSampleType[]
   /// Ways the parameter can be tested.
   methods      ParameterMethod[]
+  /// The sample types each way of testing applies to, with their unit, detection limits and default.
+  applicabilities ParameterMethodSampleType[]
   /// Limits regulations set for the parameter.
   regulation_limits RegulationLimit[]
   /// Sample tests of this parameter.
@@ -98,8 +100,10 @@ model SampleType {
   children    SampleType[]              @relation("SampleTypeTree")
   /// Unit of the minimum amount.
   minimum_quantity_unit    MeasurementUnit?          @relation(fields: [minimum_quantity_unit_id], references: [id], onDelete: Restrict)
-  /// Parameters that can be tested on this sample type.
+  /// Parameters offered on this sample type.
   parameters  TestParameterSampleType[]
+  /// Ways of testing that apply to this sample type.
+  ways        ParameterMethodSampleType[]
   /// Samples of this type.
   samples     Sample[]
   /// Regulations that apply to this sample type.
@@ -390,8 +394,8 @@ model MeasurementUnit {
   active            Boolean           @default(true)
   /// The kind of quantity the unit measures.
   category          UnitCategory      @relation(fields: [category_id], references: [id], onDelete: Restrict)
-  /// Parameter and method pairs whose results use this unit.
-  parameter_methods ParameterMethod[]
+  /// Sample types of ways of testing whose results use this unit.
+  applicabilities   ParameterMethodSampleType[]
   /// Sample types whose minimum amount uses this unit.
   sample_types      SampleType[]
   /// Regulation limits expressed in this unit.
@@ -429,32 +433,20 @@ model ParameterMethod {
   parameter_id     Int
   /// The method used to test it.
   method_id        Int
-  /// The unit the result is expressed in.
-  unit_id          Int
   /// The subcontractor that tests it; empty when the laboratory tests it in-house.
   subcontractor_id Int?
   /// The department that tests it in-house; empty when a subcontractor tests it.
   department_id    Int?
   /// True while this in-house way of testing's method is on an accreditation certificate valid that day; worked out, never set by hand.
   is_accredited    Boolean         @default(false)
-  /// Limit of detection: the lowest value this method can detect, in the row's unit.
-  lod              Decimal? @db.Decimal
-  /// Limit of quantification: the lowest value this method can measure reliably, in the row's unit.
-  loq              Decimal? @db.Decimal
-  /// Decimals a result of this way of testing shows, such as 2 for 0.50; results copy it.
-  result_decimals  Int?
   /// True when its results may be negative, such as a redox potential or a temperature in °C.
   allows_negative  Boolean         @default(false)
-  /// True for the way the parameter is normally tested.
-  is_default       Boolean         @default(false)
   /// False when this way of testing is archived.
   active           Boolean         @default(true)
   /// The parameter being tested.
   parameter        TestParameter   @relation(fields: [parameter_id], references: [id], onDelete: Restrict)
   /// The method used to test it.
   method           TestingMethod   @relation(fields: [method_id], references: [id], onDelete: Restrict)
-  /// The unit the result is expressed in.
-  unit             MeasurementUnit @relation(fields: [unit_id], references: [id], onDelete: Restrict)
   /// The subcontractor that tests it.
   subcontractor    Subcontractor?  @relation(fields: [subcontractor_id], references: [id], onDelete: Restrict)
   /// The department that tests it in-house.
@@ -465,9 +457,10 @@ model ParameterMethod {
   registrations    QualityRegistrationParameterMethod[]
   /// Sample tests done this way.
   sample_tests     SampleTest[]
+  /// The sample types it applies to.
+  sample_types     ParameterMethodSampleType[]
 
   @@index([method_id])
-  @@index([unit_id])
   @@index([subcontractor_id])
   @@index([department_id])
   @@map("medilab_parameter_method")
@@ -558,7 +551,7 @@ model TestParameterGroup {
   @@map("medilab_test_parameter_group_rel")
 }
 
-/// Links parameters to the sample types they can be tested on.
+/// Links parameters to the sample types they are offered on, worked out from the sample types of their active ways of testing.
 model TestParameterSampleType {
   /// The parameter.
   parameter_id   Int
@@ -659,6 +652,42 @@ model ParameterMethodMachine {
   @@unique([parameter_method_id, machine_id])
   @@index([machine_id])
   @@map("medilab_parameter_method_machine")
+}
+
+/// The sample type a way of testing applies to, with the result unit, detection limits and decimals there; a narrower or broader type shares none of it. Unique on (parameter_method_id, sample_type_id); one default per parameter and sample type.
+model ParameterMethodSampleType {
+  /// Row identifier.
+  id                  Int             @id @default(autoincrement())
+  /// The parameter the way of testing tests, so each parameter and sample type keeps one default.
+  parameter_id        Int
+  /// The way of testing that applies to the sample type.
+  parameter_method_id Int
+  /// The sample type the way applies to; its narrower and broader types do not share it.
+  sample_type_id      Int
+  /// The unit results of the way are expressed in on this sample type.
+  unit_id             Int
+  /// Limit of detection, the lowest value the way detects, in the unit; empty when the way states none, which is not zero.
+  lod                 Decimal?        @db.Decimal
+  /// Limit of quantification, the lowest value the way measures reliably, in the unit; empty when the way states none.
+  loq                 Decimal?        @db.Decimal
+  /// Decimals a result shows, such as 2 for 0.50; results copy it.
+  result_decimals     Int?
+  /// True for the way the parameter is normally tested on this sample type.
+  is_default          Boolean         @default(false)
+  /// The parameter.
+  parameter           TestParameter   @relation(fields: [parameter_id], references: [id], onDelete: Cascade)
+  /// The way of testing.
+  parameter_method    ParameterMethod @relation(fields: [parameter_method_id], references: [id], onDelete: Cascade)
+  /// The sample type.
+  sample_type         SampleType      @relation(fields: [sample_type_id], references: [id], onDelete: Restrict)
+  /// The result unit.
+  unit                MeasurementUnit @relation(fields: [unit_id], references: [id], onDelete: Restrict)
+
+  @@unique([parameter_method_id, sample_type_id])
+  @@index([parameter_id])
+  @@index([sample_type_id])
+  @@index([unit_id])
+  @@map("medilab_parameter_method_sample_type")
 }
 
 /// A chemical substance the laboratory keeps and uses for testing. Stock, expiry and suppliers are kept by Inventory. Trigram indexes on code, name and CAS number serve search.

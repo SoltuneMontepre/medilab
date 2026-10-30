@@ -92,10 +92,10 @@ class TestMachineScheduling(SchedulingCase):
             {
                 "parameter_id": self.parameter.id,
                 "method_id": self.method.id,
-                "unit_id": self.unit.id,
                 "subcontractor_id": subcontractor_id,
             }
         )
+        self.offer(self.parameter, self.sample_type, outside)
         test = self.new_test(MONDAY + timedelta(minutes=30))
         self.testing_task(test, self.tester)
         self.assertTrue(test.outsourcing_suggested)

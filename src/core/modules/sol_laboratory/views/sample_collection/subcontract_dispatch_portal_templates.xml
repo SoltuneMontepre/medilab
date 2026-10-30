@@ -103,7 +103,7 @@
                                         placeholder="Value"
                                         aria-label="Value"
                                     />
-                                    <span class="input-group-text" t-out="test.parameter_method_id.unit_id.name" />
+                                    <span class="input-group-text" t-out="test.unit_id.name" />
                                 </div>
                                 <input
                                     type="text"

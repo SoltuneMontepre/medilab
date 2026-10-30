@@ -39,6 +39,14 @@
         <field name="performed_by">Memmert service partner</field>
         <field name="note">Temperature drifts by 2 °C; controller board sent for repair.</field>
     </record>
+    <record id="demo_machine_service_incubator_2_calibration" model="medilab.machine.service">
+        <field name="machine_id" ref="demo_machine_incubator_2" />
+        <field name="kind">calibration</field>
+        <field name="service_date" eval="(DateTime.today() - relativedelta(months=3)).strftime('%Y-%m-%d')" />
+        <field name="next_due_date" eval="(DateTime.today() + relativedelta(months=9)).strftime('%Y-%m-%d')" />
+        <field name="performed_by">Quality Assurance and Testing Centre</field>
+        <field name="reference">HC-2026-0311</field>
+    </record>
     <record id="demo_machine_service_aas_2_calibration" model="medilab.machine.service">
         <field name="machine_id" ref="demo_machine_aas_2" />
         <field name="kind">calibration</field>

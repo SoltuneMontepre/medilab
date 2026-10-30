@@ -612,6 +612,21 @@
         <field name="document_model">medilab.parameter.method.machine</field>
         <field name="action">delete</field>
     </record>
+    <record id="permission_parameter_method_sample_type_create_all" model="medilab.permission">
+        <field name="name">Create sample types of ways of testing</field>
+        <field name="document_model">medilab.parameter.method.sample.type</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_parameter_method_sample_type_edit_all" model="medilab.permission">
+        <field name="name">Edit sample types of ways of testing</field>
+        <field name="document_model">medilab.parameter.method.sample.type</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_parameter_method_sample_type_delete_all" model="medilab.permission">
+        <field name="name">Delete sample types of ways of testing</field>
+        <field name="document_model">medilab.parameter.method.sample.type</field>
+        <field name="action">delete</field>
+    </record>
     <record id="permission_quality_registration_create_all" model="medilab.permission">
         <field name="name">Create quality registrations</field>
         <field name="document_model">medilab.quality.registration</field>

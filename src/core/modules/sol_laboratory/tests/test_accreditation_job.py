@@ -166,7 +166,6 @@ class TestAccreditationJob(MasterDataCase):
                 {
                     "parameter_id": self.parameter.id,
                     "method_id": method.id,
-                    "unit_id": self.unit.id,
                     "department_id": self.department.id,
                 }
             )
@@ -205,7 +204,6 @@ class TestAccreditationJob(MasterDataCase):
                 {
                     "parameter_id": self.parameter.id,
                     "method_id": method.id,
-                    "unit_id": self.unit.id,
                     "department_id": self.department.id,
                 }
             )
@@ -262,7 +260,6 @@ class TestAccreditationJob(MasterDataCase):
             {
                 "parameter_id": self.parameter.id,
                 "method_id": other.id,
-                "unit_id": self.unit.id,
                 "department_id": self.department.id,
             }
         )
@@ -292,7 +289,6 @@ class TestAccreditationJob(MasterDataCase):
                 {
                     "parameter_id": self.parameter.id,
                     "method_id": method.id,
-                    "unit_id": self.unit.id,
                     "department_id": self.department.id,
                 }
             )

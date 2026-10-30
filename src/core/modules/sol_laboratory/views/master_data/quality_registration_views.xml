@@ -44,7 +44,6 @@
                                     <field name="parameter_id" />
                                     <field name="method_id" />
                                     <field name="subcontractor_id" />
-                                    <field name="unit_id" />
                                 </list>
                             </field>
                         </page>

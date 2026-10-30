@@ -11,6 +11,7 @@ from . import (
     parameter_group,
     parameter_method,
     parameter_method_machine,
+    parameter_method_sample_type,
     quality_registration,
     regulation,
     regulation_limit,

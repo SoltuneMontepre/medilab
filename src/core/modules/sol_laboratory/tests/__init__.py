@@ -178,6 +178,8 @@ from . import (
     test_sample_reception,
     test_sample_test_cancellation,
     test_sample_test_due_date,
+    test_sample_type_applicability,
+    test_sample_type_applicability_migration,
     test_saved_documents,
     test_settings,
     test_signed_pdf_verification,
