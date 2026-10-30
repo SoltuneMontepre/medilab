@@ -33,11 +33,15 @@ class TestOrderFreeze(OrderCase):
             {"tax_ids": False},
             {"sample_id": False},
             {"linked_line_id": line.id},
+            {"order_id": self.make_quotable_order().id},
         ):
             with self.subTest(values=values), self.assertRaises(UserError):
                 line.write(values)
         with self.assertRaises(UserError):
             line.unlink()
+        draft_line = self.make_quotable_order()._catalog_lines()
+        with self.assertRaises(UserError):
+            draft_line.write({"order_id": order.id})
         with self.assertRaises(UserError):
             self.env["sale.order.line"].create(
                 {"order_id": order.id, "product_id": self.lead_product.product_variant_ids.id}

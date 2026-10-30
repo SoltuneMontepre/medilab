@@ -69,6 +69,7 @@ FROZEN_LINE_FIELDS = frozenset(
         "sample_id",
         "is_downpayment",
         "linked_line_id",
+        "order_id",
     }
 )
 

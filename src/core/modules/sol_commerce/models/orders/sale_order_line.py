@@ -83,6 +83,9 @@ class SaleOrderLine(models.Model):
             raise AccessError(self.env._("You cannot change the price of an order."))
         if FROZEN_LINE_FIELDS & set(vals):
             self._content_lines().order_id._check_content_freeze()
+        if vals.get("order_id") and self._content_lines():
+            # A line moved onto another order changes that order's content too.
+            self.env[MODEL_SALE_ORDER].browse(vals["order_id"])._check_content_freeze()
         result = super().write(vals)
         if "product_uom_qty" in vals:
             self._sync_package_part_quantities()
