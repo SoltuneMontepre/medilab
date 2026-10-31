@@ -83,7 +83,7 @@ Only supported `.docx`, `.xlsx` and `.pptx` working/result or uncategorized file
 
 ## Event cadence and delta IPC
 
-Progress events contain only `{jobId, done, total}` and update the relevant job. Lifecycle changes emit a status snapshot. File-list changes emit a revision invalidation; the frontend coalesces refreshes with at most one request in flight. Multipart progress does not repeatedly reload the full file list.
+Progress events contain only `{jobId, done, total}` and update the relevant job. Lifecycle changes emit a status snapshot. File-list changes emit a revision invalidation; the frontend coalesces refreshes with at most one request in flight. Effect cleanup and logout discard pending results and suspend refreshes until a successful session restore or sign-in. A request from the previous session cannot publish results or errors after resuming, and must settle before the next request starts. Multipart progress does not repeatedly reload the full file list.
 
 ## Related documents
 

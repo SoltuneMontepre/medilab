@@ -69,8 +69,17 @@ class TestVietnameseAccounting(TransactionCase):
         self.assertEqual(self.company.currency_id, self.usd)
         self.assertFalse(hasattr(self.env.registry, PENDING_CHART))
 
-    def test_a_company_on_the_vietnamese_chart_is_left_as_it_is(self):
+    def test_a_company_on_the_vietnamese_chart_keeps_its_chart(self):
         self.use_vietnamese_accounting(existing_accounting=False)
 
         self.assertEqual(self.company.chart_template, "vn")
         self.assertFalse(hasattr(self.env.registry, PENDING_CHART))
+
+    def test_a_company_on_the_vietnamese_chart_moves_its_price_lists_to_vnd(self):
+        pricelist = self.env["product.pricelist"].create(
+            {"name": "Default", "company_id": self.company.id, "currency_id": self.usd.id}
+        )
+
+        self.use_vietnamese_accounting(existing_accounting=False)
+
+        self.assertEqual(pricelist.currency_id, self.vnd)
