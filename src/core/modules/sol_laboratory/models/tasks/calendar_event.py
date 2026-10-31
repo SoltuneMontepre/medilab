@@ -11,11 +11,13 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TASK,
     MODEL_TESTING_METHOD_STEP,
 )
+from odoo.addons.sol_laboratory.constants.scheduling import CALENDAR_SYNC_CONTEXT, CALENDAR_SYNC_TOKEN
 from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_GROUP
 
-SKIP_SYNC = "medilab_skip_calendar_sync"
 # Fields that move a location booking or change the location it books.
 BOOKING_FIELDS = frozenset({"start", "stop", "start_date", "stop_date", "allday", "duration", "location_id"})
+SCHEDULE_LINK_FIELDS = frozenset({"medilab_task_id", "medilab_booking_ids", "machine_booking_id", "step_id"})
+RESERVATION_FIELDS = frozenset({"user_id", "partner_ids", "alarm_ids", "location_id"})
 
 
 # Lịch
@@ -90,6 +92,8 @@ class CalendarEvent(models.Model):
     def create(self, vals_list):
         booking = False
         for vals in vals_list:
+            if any(vals.get(name, self.env.context.get(f"default_{name}")) for name in SCHEDULE_LINK_FIELDS):
+                self._check_schedule_links()
             location_id = vals.get("location_id", self.env.context.get("default_location_id"))
             if location_id:
                 booking = True
@@ -99,18 +103,23 @@ class CalendarEvent(models.Model):
         return super().create(vals_list)
 
     def write(self, vals):
-        if BOOKING_FIELDS & set(vals) or vals.get("active") is False:
+        cancelling = "active" in vals and not vals["active"]
+        if SCHEDULE_LINK_FIELDS & set(vals):
+            self._check_schedule_links()
+        if BOOKING_FIELDS & set(vals):
+            self._check_not_scheduled(rooms_only=True)
+        if RESERVATION_FIELDS & set(vals) or cancelling:
             self._check_not_scheduled()
         bookings = self if vals.get("location_id") else self.filtered("location_id")
         if bookings and BOOKING_FIELDS & set(vals):
             bookings._check_organiser()
             self._flush_bookings()
-        if vals.get("active") is False:
+        if cancelling:
             bookings._check_organiser(cancelling=True)
         if "location_id" in vals:
             vals = {**vals, **self._booking_values(vals["location_id"])}
         result = super().write(vals)
-        if not self.env.context.get(SKIP_SYNC) and {"start", "stop"} & set(vals):
+        if self.env.context.get(CALENDAR_SYNC_CONTEXT) is not CALENDAR_SYNC_TOKEN and BOOKING_FIELDS & set(vals):
             self._copy_times_to_tasks()
             self._move_bookings()
         return result
@@ -128,10 +137,16 @@ class CalendarEvent(models.Model):
         location = self.env[MODEL_LOCATION].browse(location_id)
         return {"alarm_ids": [Command.clear()], "location": location.display_name}
 
-    def _check_not_scheduled(self):
-        """The scheduler moves and cancels the room bookings of a machine booking with it."""
-        scheduled = self.filtered("machine_booking_id")
-        if scheduled and not self.env.context.get(SKIP_SYNC):
+    def _check_schedule_links(self):
+        if self.env.context.get(CALENDAR_SYNC_CONTEXT) is not CALENDAR_SYNC_TOKEN:
+            raise UserError(self.env._("Calendar links are managed by their task or machine booking."))
+
+    def _check_not_scheduled(self, *, rooms_only=False):
+        """Only the scheduler changes reservations; a main calendar event can request a guarded move."""
+        scheduled = self.sudo().filtered(
+            lambda event: event.machine_booking_id or (not rooms_only and event.medilab_booking_ids)
+        )
+        if scheduled and self.env.context.get(CALENDAR_SYNC_CONTEXT) is not CALENDAR_SYNC_TOKEN:
             raise UserError(self.env._("Move or cancel the machine booking of %s instead.", scheduled[0].display_name))
 
     def _check_organiser(self, cancelling=False):
@@ -150,7 +165,7 @@ class CalendarEvent(models.Model):
 
     def _copy_times_to_tasks(self):
         for event in self.filtered("medilab_task_id"):
-            event.medilab_task_id.with_context(**{SKIP_SYNC: True}).write(
+            event.medilab_task_id.with_context(**{CALENDAR_SYNC_CONTEXT: CALENDAR_SYNC_TOKEN}).write(
                 {"planned_start": event.start, "planned_end": event.stop}
             )
 
@@ -162,7 +177,7 @@ class CalendarEvent(models.Model):
     def unlink(self):
         self._check_not_scheduled()
         self.filtered("location_id")._check_organiser(cancelling=True)
-        tasks = self.medilab_task_id.with_context(**{SKIP_SYNC: True})
+        tasks = self.medilab_task_id.with_context(**{CALENDAR_SYNC_CONTEXT: CALENDAR_SYNC_TOKEN})
         result = super().unlink()
         tasks.write({"planned_start": False, "planned_end": False})
         return result

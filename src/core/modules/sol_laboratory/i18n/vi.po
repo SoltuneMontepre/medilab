@@ -13190,7 +13190,6 @@ msgstr "Báo tôi khi có thể sửa"
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/document_lock.py:0
-#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_lock.py
 msgid "Only an active lock can be released."
 msgstr "Chỉ có thể mở khóa đang hiệu lực."
 
@@ -13265,7 +13264,6 @@ msgstr "Đã lưu"
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/document_lock.py:0
-#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_locking.py
 msgid "Someone else has just locked %s."
 msgstr "Người khác vừa khóa %s."
 
@@ -14641,6 +14639,12 @@ msgstr "Hồ sơ đăng ký chất lượng %(name)s hết hạn hôm nay, ngày
 #: code:addons/sol_laboratory/models/system/quality_registration_scheduled_job.py:0
 msgid "The quality registration %(name)s expires on %(date)s. Renew it before then, or its mark is no longer printed on reports."
 msgstr "Hồ sơ đăng ký chất lượng %(name)s hết hạn ngày %(date)s. Hãy gia hạn trước ngày đó, nếu không ký hiệu của hồ sơ sẽ không còn được in trên phiếu kết quả."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/calendar_event.py:0
+msgid "Calendar links are managed by their task or machine booking."
+msgstr "Liên kết lịch được quản lý bởi nhiệm vụ hoặc lịch đặt máy."
 
 #. module: sol_laboratory
 #. odoo-python
