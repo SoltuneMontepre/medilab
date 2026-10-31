@@ -26,7 +26,7 @@ Each module also has every app its own apps depend on: `mail`, `bus` and `resour
 
 Laboratory scheduling uses Time Off (`hr_holidays`) for approved employee leave and reacts when leave is approved. The scheduler implementation must declare this dependency in the Laboratory manifest.
 
-Installing E-commerce gives the main company Vietnam, VND, VND price lists and the `vn` chart of `l10n_vn`, since Odoo otherwise loads its generic chart in USD for a company without a country. A company that already has journal items keeps its chart and currency, which Odoo no longer lets change, and the upgrade logs a warning.
+Installing E-commerce gives the main company Vietnam, VND, VND price lists and the `vn` chart of `l10n_vn`, since Odoo otherwise loads its generic chart in USD for a company without a country. Upgrading it moves every price list to VND, whatever the company's chart, and the orders priced in another currency with them. A company that already has journal items keeps its chart and currency, which Odoo no longer lets change, and the upgrade logs a warning.
 
 ### What each concept is built on
 
