@@ -10,7 +10,6 @@ How an open feature issue is implemented, checked in the browser and opened as a
    - [AGENTS.md](../../AGENTS.md), the [docs index](../readme.md) and the conventions it links to.
    - The issue, its spec if it has one, and every document, diagram and file it references.
    - `questions/<topic>.md` for the issue's topic only.
-   - The Trello cards about the feature, when a Trello connection is available ([Trello](creating-issue.md#trello)).
    - The existing code the issue touches.
 4. **Branch** from an up-to-date `main`: `feat/<issue number>-<short-description>`, following [Git](../conventions/git.md).
 5. **Plan.** Turn each checklist item and acceptance criterion into the models, views, data and tests to write. Ask the owner when the documents do not answer something; add what stays undecided to `questions/<topic>.md`. Do not guess.

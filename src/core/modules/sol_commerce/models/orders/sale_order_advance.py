@@ -66,27 +66,28 @@ class SaleOrderAdvance(models.Model):
         return invoice
 
     def _notify_quotation_sent(self, quotation, invoice):
-        """Tell the order's contact about the quotation, with its PDF attached."""
+        """Tell the order's contact about the quotation in the contact's language, with its PDF attached."""
         self.ensure_one()
-        deadline = format_datetime(self.env, self.payment_deadline)
+        order = self.with_context(lang=self._get_lang())
+        deadline = format_datetime(order.env, order.payment_deadline)
         if invoice:
-            body = self.env._(
+            body = order.env._(
                 "Quotation %(code)s is ready. Pay the advance of %(amount)s before %(deadline)s.",
                 code=quotation.code,
-                amount=self.currency_id.format(invoice.amount_total),
+                amount=order.currency_id.format(invoice.amount_total),
                 deadline=deadline,
             )
         else:
-            body = self.env._(
+            body = order.env._(
                 "Quotation %(code)s is ready. Accept it before %(deadline)s.",
                 code=quotation.code,
                 deadline=deadline,
             )
-        self.env[MODEL_MAIL_MESSAGE].raise_event(
+        order.env[MODEL_MAIL_MESSAGE].raise_event(
             EVENT_QUOTATION_SENT,
-            self.sudo(),
+            order.sudo(),
             f"quotation:{quotation.id}:sent",
             body,
-            partners=self.partner_id,
+            partners=order.partner_id,
             attachments=quotation.attachment_id,
         )

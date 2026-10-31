@@ -44,6 +44,14 @@ class SaleOrderTemplate(models.Model):
         lines = self._catalog_lines()
         if not lines:
             raise ValidationError(self.env._("Add at least one catalog selection before saving a template."))
+        fractional = lines.filtered(lambda line: not float(line.product_uom_qty).is_integer())
+        if fractional:
+            raise ValidationError(
+                self.env._(
+                    "A template orders whole quantities. Change the quantity of these lines to a whole number:\n%s",
+                    "\n".join(fractional.mapped("product_id.display_name")),
+                )
+            )
         return templates.create(
             {
                 "name": name,
