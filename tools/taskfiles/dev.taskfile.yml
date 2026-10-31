@@ -95,11 +95,17 @@ tasks:
           exit "$status"
         fi
 
-  typecheck:
-    desc: "Type check the modules with pyright"
+  typecheck:prepare:
+    desc: "Prepare registry types from the pinned Odoo image in an isolated database"
     cmds:
       - task: dev:odoo-links
-      - "{{.UV}} run python {{.TYPECHECK_DIR}}/typecheck.py"
+      - "{{.UV}} run --locked python {{.TYPECHECK_DIR}}/prepare_types.py"
+
+  typecheck:
+    desc: "Check all Python modules and tests with zero errors and warnings"
+    cmds:
+      - task: typecheck:prepare
+      - "{{.UV}} run --locked python {{.TYPECHECK_DIR}}/typecheck.py --report-dir .local/typecheck/report {{.CLI_ARGS}}"
 
   lint:
     desc: "Ruff check and pylint-odoo on the addons"

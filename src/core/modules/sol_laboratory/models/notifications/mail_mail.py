@@ -1,10 +1,17 @@
+from typing import TYPE_CHECKING
+
 from odoo import models
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_ENTRY, MODEL_MAIL_MAIL
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_mail_mail as MailMailBase
+else:
+    MailMailBase = object
+
 
 # Email Gửi Đi
-class MailMail(models.Model):
+class MailMail(models.Model, MailMailBase):
     _inherit = MODEL_MAIL_MAIL
 
     def _postprocess_sent_message(self, success_pids, success_emails, failure_reason=False, failure_type=None):

@@ -19,6 +19,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_PERSON, LABORATORY_FILES_GROUP
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 def save(file, content):
@@ -45,8 +46,6 @@ class TestLaboratoryFileVersionSigningConcurrency(LaboratoryFilesConcurrencyCase
         self.last_content_id = self.last_content(env)
         env.cr.execute("SELECT COALESCE(MAX(id), 0) FROM medilab_signature")
         self.last_signature_id = env.cr.fetchone()[0]
-        env.cr.execute("SELECT COALESCE(MAX(id), 0) FROM medilab_signing_process")
-        self.last_process_id = env.cr.fetchone()[0]
         env.cr.execute("SELECT COALESCE(MAX(id), 0) FROM medilab_document_lock")
         self.last_lock_id = env.cr.fetchone()[0]
         chain = env[MODEL_APPROVAL_CHAIN].search(
@@ -96,7 +95,6 @@ class TestLaboratoryFileVersionSigningConcurrency(LaboratoryFilesConcurrencyCase
         # Signatures, files, versions and changes refuse deletion, so the data these tests committed is removed with SQL.
         cr = env.cr
         cr.execute("DELETE FROM medilab_signature WHERE id > %s", [self.last_signature_id])
-        cr.execute("DELETE FROM medilab_signing_process WHERE id > %s", [self.last_process_id])
         cr.execute(
             "DELETE FROM medilab_audit_change WHERE entry_id IN (SELECT id FROM medilab_audit_entry WHERE id > %s)",
             [self.last_entry_id],
@@ -173,7 +171,7 @@ class TestLaboratoryFileVersionSigningConcurrency(LaboratoryFilesConcurrencyCase
 
         self.assertEqual(attempts, 1)
         self.assertIsInstance(refusal, LaboratoryFileError)
-        self.assertEqual(refusal.code, NOT_FOUND)
+        self.assertEqual(assert_instance(refusal, LaboratoryFileError).code, NOT_FOUND)
         self.assertEqual(self.state(), ([(1, STATE_NONE), (2, STATE_NONE)], 0))
 
     def test_signing_twice_at_once_records_one_signature(self):

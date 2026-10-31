@@ -1,4 +1,5 @@
 import logging
+from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.exceptions import AccessError, UserError
@@ -8,6 +9,12 @@ from odoo.addons.sol_commerce.constants.models import MODEL_ACCOUNT_PAYMENT
 from odoo.addons.sol_commerce.constants.notifications import EVENT_PAYMENT_RECEIPT, EVENT_PAYMENT_REJECTED
 from odoo.addons.sol_commerce.models.invoicing.account_move import ADMINISTRATOR_GROUP, BILLING_GROUP
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN
+from odoo.addons.sol_laboratory.services.record_id import persisted_ids
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_account_payment as AccountPaymentBase
+else:
+    AccountPaymentBase = object
 
 _logger = logging.getLogger(__name__)
 
@@ -19,21 +26,22 @@ JOURNAL_TYPE = {"online": "bank", "bank_transfer": "bank", "cash": "cash"}
 
 
 # Phiếu thu
-class AccountPayment(models.Model):
+class AccountPayment(models.Model, AccountPaymentBase):
     # _name is required to add a mixin to an Odoo model. The audit mixin comes first so it wraps Odoo's write.
     _name = MODEL_ACCOUNT_PAYMENT
     _inherit = [MODEL_AUDIT_MIXIN, MODEL_ACCOUNT_PAYMENT]
 
-    # online, bank_transfer or cash.
-    method = fields.Selection(METHOD_SELECTION, string="Collection Method")
-    # The accountant who confirmed or rejected the payment.
-    reviewed_by_id = fields.Many2one("res.users", string="Reviewed By", readonly=True, copy=False)
-    # When it was confirmed or rejected.
-    reviewed_at = fields.Datetime(readonly=True, copy=False)
-    # Why the accountant rejected it.
-    rejection_reason = fields.Text(copy=False)
-    # The PayOS amount was more than the invoice still owed. The invoice keeps Odoo's payment status.
-    exceeds_residual = fields.Boolean(readonly=True, copy=False)
+    if not TYPE_CHECKING:
+        # online, bank_transfer or cash.
+        method = fields.Selection(METHOD_SELECTION, string="Collection Method")
+        # The accountant who confirmed or rejected the payment.
+        reviewed_by_id = fields.Many2one("res.users", string="Reviewed By", readonly=True, copy=False)
+        # When it was confirmed or rejected.
+        reviewed_at = fields.Datetime(readonly=True, copy=False)
+        # Why the accountant rejected it.
+        rejection_reason = fields.Text(copy=False)
+        # The PayOS amount was more than the invoice still owed. The invoice keeps Odoo's payment status.
+        exceeds_residual = fields.Boolean(readonly=True, copy=False)
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -214,7 +222,7 @@ class AccountPayment(models.Model):
             "currency_id": invoice.currency_id.id,
             "journal_id": journal.id,
             "method": method,
-            "invoice_ids": [Command.set(invoice.ids)],
+            "invoice_ids": [Command.set(persisted_ids(invoice))],
             "memo": invoice.name,
         }
 

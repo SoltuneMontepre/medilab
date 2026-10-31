@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import fields, models
 from odoo.tools import SQL
 
@@ -16,6 +18,11 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_RES_PARTNER,
     MODEL_TEST_PARAMETER,
 )
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_revenue_report as RevenueReportBase
+else:
+    RevenueReportBase = object
 
 # A parameter product sells its parameter whole. A package line is spread over the package's parameters by their own
 # prices times quantities, as the package's price of its parts counts them, or by quantities when none has a price.
@@ -72,7 +79,7 @@ SELECT lines.id, lines.name, lines.date, lines.partner_id, lines.currency_id, li
 
 
 # Báo Cáo Doanh Thu
-class RevenueReport(models.Model):
+class RevenueReport(models.Model, RevenueReportBase):
     _name = MODEL_REVENUE_REPORT
     _inherit = [MODEL_PERMISSION_MIXIN]
     _description = "Revenue"
@@ -99,22 +106,23 @@ class RevenueReport(models.Model):
         MODEL_TEST_PARAMETER: ["main_group_id"],
     }
 
-    # Number of the invoice or credit note.
-    name = fields.Char(string="Invoice", readonly=True)
-    # Date of the invoice; the period the revenue counts in.
-    date = fields.Date(readonly=True)
-    # The customer billed.
-    partner_id = fields.Many2one(MODEL_RES_PARTNER, string="Customer", readonly=True)
-    # Currency of the company.
-    currency_id = fields.Many2one("res.currency", readonly=True)
-    # The parameter the revenue is for; empty for an advance, its deduction and an adjustment.
-    parameter_id = fields.Many2one(MODEL_TEST_PARAMETER, readonly=True)
-    # Main group of the parameter.
-    group_id = fields.Many2one(MODEL_PARAMETER_GROUP, string="Main Group", readonly=True)
-    # Invoiced amount excluding VAT; negative on a credit note and on the advance deducted from a final invoice.
-    invoiced = fields.Monetary(readonly=True)
-    # The share of the invoiced amount that confirmed payments have settled.
-    collected = fields.Monetary(readonly=True)
+    if not TYPE_CHECKING:
+        # Number of the invoice or credit note.
+        name = fields.Char(string="Invoice", readonly=True)
+        # Date of the invoice; the period the revenue counts in.
+        date = fields.Date(readonly=True)
+        # The customer billed.
+        partner_id = fields.Many2one(MODEL_RES_PARTNER, string="Customer", readonly=True)
+        # Currency of the company.
+        currency_id = fields.Many2one("res.currency", readonly=True)
+        # The parameter the revenue is for; empty for an advance, its deduction and an adjustment.
+        parameter_id = fields.Many2one(MODEL_TEST_PARAMETER, readonly=True)
+        # Main group of the parameter.
+        group_id = fields.Many2one(MODEL_PARAMETER_GROUP, string="Main Group", readonly=True)
+        # Invoiced amount excluding VAT; negative on a credit note and on the advance deducted from a final invoice.
+        invoiced = fields.Monetary(readonly=True)
+        # The share of the invoiced amount that confirmed payments have settled.
+        collected = fields.Monetary(readonly=True)
 
     @property
     def _table_sql(self):

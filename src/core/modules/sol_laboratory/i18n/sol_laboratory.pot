@@ -490,7 +490,6 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_approval_level_sequence_unique
-#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_approval_level_active_sequence_unique
 msgid "A chain cannot have two levels in the same position."
 msgstr ""
 
@@ -670,6 +669,12 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_scheduled_job_key_unique
 msgid "A job with this key already exists."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/approval_level.py:0
+msgid "A level with signatures cannot be deleted. Signatures: %s"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1164,7 +1169,6 @@ msgstr ""
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_file_lock__status__active
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_lock_search
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__active
 msgid "Active"
 msgstr ""
 
@@ -3254,8 +3258,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__create_uid
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__create_uid
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__create_uid
 msgid "Created by"
 msgstr ""
@@ -3336,8 +3338,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__create_date
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__create_date
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__create_date
 msgid "Created on"
 msgstr ""
@@ -4126,8 +4126,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_partner__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_users__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_users_apikeys__display_name
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__display_name
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__display_name
 msgid "Display Name"
 msgstr ""
@@ -4177,7 +4175,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.verify_page
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_list
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__document_id
 msgid "Document"
 msgstr ""
 
@@ -4237,7 +4234,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_permission_search
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__document_model
 msgid "Document Type"
 msgstr ""
 
@@ -4250,7 +4246,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__document_version
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__document_version
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__document_version
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__document_version
 msgid "Document Version"
 msgstr ""
 
@@ -5853,8 +5848,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_partner__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_users__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_users_apikeys__id
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__id
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__id
 msgid "ID"
 msgstr ""
@@ -6653,8 +6646,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__write_uid
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__write_uid
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__write_uid
 msgid "Last Updated by"
 msgstr ""
@@ -6735,8 +6726,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__write_date
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__write_date
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__write_date
 msgid "Last Updated on"
 msgstr ""
@@ -6778,7 +6767,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__level_ids
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_approval_chain_form
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__level_ids
 msgid "Levels"
 msgstr ""
 
@@ -8026,6 +8014,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
 msgid "Only people of the department that did the work can act at this level."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
+msgid "Only people with the role %s can act at this level."
 msgstr ""
 
 #. module: sol_laboratory
@@ -10244,7 +10238,6 @@ msgstr ""
 #: model:ir.model,name:sol_laboratory.model_medilab_person
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__person_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__person_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__person_id
 msgid "Person"
 msgstr ""
@@ -11490,7 +11483,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__role_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.verify_page
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_form_signing
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__role_id
 msgid "Role"
 msgstr ""
 
@@ -14913,160 +14905,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:mail.template,subject:sol_laboratory.mail_template_task_reminder
 msgid "{{ object.name }}"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/system/permission.py:0
-msgid ""
-"%s does not tell editing from archiving yet, so it has no edit or archive "
-"permission."
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_customer_form
-msgid "Contacts"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_department
-#: model:ir.ui.menu,name:sol_laboratory.menu_department
-msgid "Departments"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.ui.menu,name:sol_laboratory.menu_sample_collection_root
-msgid "Sample Collection"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_person_partner_unique
-msgid "This contact is already a person."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_person_user_unique
-msgid "This user already belongs to another person."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__is_replaced
-msgid "Is Replaced"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/system/role_grant.py:0
-msgid "%(person)s already holds the role %(role)s."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_signing_process_version_unique
-msgid "A document version has one signing process."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/system/role_grant.py:0
-msgid "A role is given until today or a later day."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_role_grant_create_all
-msgid "Create roles until a date"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_role_grant_delete_all
-msgid "Delete roles until a date"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_role_grant_edit_all
-msgid "Edit roles until a date"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
-msgid ""
-"Only people with the role %s, or the role of a later level, can act at this "
-"level."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_role_grant_create_all
-msgid "Permission: role.grant.create.all"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_role_grant_delete_all
-msgid "Permission: role.grant.delete.all"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_role_grant_edit_all
-msgid "Permission: role.grant.edit.all"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_role_grant_read_all
-msgid "Permission: role.grant.read.all"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_signing_process_read_all
-msgid "Permission: signing.process.read.all"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_role_grant_read_all
-msgid "Read roles until a date"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_signing_process_read_all
-msgid "Read signing processes"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.actions.server,name:sol_laboratory.ir_cron_role_grants_expire_ir_actions_server
-#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_role_grants_expire
-msgid "Remove roles at the end of their date"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/system/role_grant.py:0
-msgid ""
-"Remove the role and give it again to change who holds it or which role it "
-"is."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model,name:sol_laboratory.model_medilab_role_grant
-msgid "Role Until a Date"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__role_grant_ids
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_person_form
-msgid "Roles Until a Date"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model,name:sol_laboratory.model_medilab_signing_process
-msgid "Signing Process"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_role_grant_role_unique
-msgid "The person is already given this role until a date."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__date_end
-msgid "Until"
 msgstr ""
 
 #. module: sol_laboratory

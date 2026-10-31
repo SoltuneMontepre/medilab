@@ -1,6 +1,7 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import AccessError, UserError
-from odoo.fields import Command
 
 from odoo.addons.sol_laboratory.constants.approvals import (
     APPROVAL_SYSTEM_CONTEXT,
@@ -18,27 +19,34 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_DEPARTMENT,
     MODEL_DOCUMENT_LOCK,
+    MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
     MODEL_SIGNATURE,
-    MODEL_SIGNING_PROCESS,
 )
+from odoo.addons.sol_laboratory.services.model_lookup import record_as
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_approval_mixin as ApprovalMixinBase
+else:
+    ApprovalMixinBase = object
 
 
 # Phê duyệt bằng chữ ký
-class ApprovalMixin(models.AbstractModel):
+class ApprovalMixin(models.AbstractModel, ApprovalMixinBase):
     _name = MODEL_APPROVAL_MIXIN
     # Every signed document is audited, and its signatures are entries of its own.
     _inherit = [MODEL_AUDIT_MIXIN]
     _description = "Approval by Signatures"
 
-    # Version of the document that the next signature records; it grows when every signature is withdrawn.
-    document_version = fields.Integer(default=1, copy=False)
-    # True when the current user may sign the document now.
-    approval_can_sign = fields.Boolean(compute="_compute_approval_actions")
-    # True when the current user may reject the document now.
-    approval_can_reject = fields.Boolean(compute="_compute_approval_actions")
-    # True when the current user may withdraw their latest signature or rejection now.
-    approval_can_withdraw = fields.Boolean(compute="_compute_approval_actions")
+    if not TYPE_CHECKING:
+        # Version of the document that the next signature records; it grows when every signature is withdrawn.
+        document_version = fields.Integer(default=1, copy=False)
+        # True when the current user may sign the document now.
+        approval_can_sign = fields.Boolean(compute="_compute_approval_actions")
+        # True when the current user may reject the document now.
+        approval_can_reject = fields.Boolean(compute="_compute_approval_actions")
+        # True when the current user may withdraw their latest signature or rejection now.
+        approval_can_withdraw = fields.Boolean(compute="_compute_approval_actions")
 
     def write(self, vals):
         content_fields = set(vals) & (self._approval_content_fields() | {"document_version"})
@@ -63,7 +71,7 @@ class ApprovalMixin(models.AbstractModel):
         level = self._approval_check_actor()
         self._approval_record(level, DECISION_SIGNED)
         self._audit("sign", level.name)
-        is_last = not self._approval_levels().filtered(lambda other: other.sequence > level.sequence)
+        is_last = not level.chain_id.level_ids.filtered(lambda other: other.sequence > level.sequence)
         if is_last:
             self._audit("approve", level.chain_id.name)
         self.sudo()._approval_set_state(STATE_APPROVED if is_last else STATE_REQUESTED)
@@ -71,7 +79,7 @@ class ApprovalMixin(models.AbstractModel):
     def action_reject(self, reason):
         self.ensure_one()
         level = self._approval_check_actor(rejecting=True)
-        if not (reason or "").strip():
+        if not ((reason or "").strip()):
             raise UserError(self.env._("A rejection needs a reason."))
         self._approval_record(level, DECISION_REJECTED, reason)
         self._audit("reject", f"{level.name}: {reason}")
@@ -106,40 +114,6 @@ class ApprovalMixin(models.AbstractModel):
             .sudo()
             .search([("document_model", "=", self._name), ("purpose", "=", purpose)], limit=1)
         )
-
-    def _approval_process(self):
-        # The signing process of the document's current version; empty until its first signature or rejection.
-        self.ensure_one()
-        return (
-            self.env[MODEL_SIGNING_PROCESS]
-            .sudo()
-            .search(
-                [
-                    ("document_model", "=", self._name),
-                    ("document_id", "=", self.id),
-                    ("document_version", "=", self.document_version),
-                ],
-                limit=1,
-            )
-        )
-
-    def _approval_levels(self):
-        """The levels the document is signed at, in order: those its chain had when its signing process started, or
-        the chain's current ones until it starts."""
-        process = self._approval_process()
-        return process._levels() if process else self._approval_chain().level_ids.sorted("sequence")
-
-    def _approval_start(self):
-        # The first signature or rejection of a version fixes the levels it is signed at.
-        if not self._approval_process():
-            self.env[MODEL_SIGNING_PROCESS].sudo().create(
-                {
-                    "document_model": self._name,
-                    "document_id": self.id,
-                    "document_version": self.document_version,
-                    "level_ids": [Command.set(self._approval_chain().level_ids.ids)],
-                }
-            )
 
     def _approval_requester(self):
         return self.env[MODEL_PERSON].browse()
@@ -176,8 +150,9 @@ class ApprovalMixin(models.AbstractModel):
         pass
 
     def _approval_notify_rejected(self, reason):
-        if hasattr(self, "message_post"):
-            self.message_post(body=self.env._("The document was rejected: %s", reason))
+        message_post = getattr(self, "message_post", None)
+        if callable(message_post):
+            message_post(body=self.env._("The document was rejected: %s", reason))
 
     def _approval_open_rows(self):
         # Signatures and rejections of the document that are not withdrawn.
@@ -226,23 +201,19 @@ class ApprovalMixin(models.AbstractModel):
     def _approval_check_actor(self, rejecting=False):
         # The level the current user signs or rejects at now; refuses when they cannot.
         self.ensure_one()
-        if not self._approval_process() and not self._approval_chain():
+        chain = self._approval_chain()
+        if not chain:
             raise UserError(self.env._("This document type has no approval chain."))
         rows = self._approval_open_rows()
         if rows.filtered(lambda row: row.decision == DECISION_REJECTED):
             raise UserError(self.env._("The document was rejected; withdraw the rejection first."))
-        level = self._approval_next_level(rows)
+        level = self._approval_next_level(chain, rows)
         if not level:
             raise UserError(self.env._("Every level has already signed."))
         person = self.env[MODEL_PERSON]._current()
-        if not self._approval_signer_role(level, person):
-            raise UserError(
-                self.env._(
-                    "Only people with the role %s, or the role of a later level, can act at this level.",
-                    level.role_id.name,
-                )
-            )
-        self._check_permission("sign")
+        if level.role_id not in person.role_ids:
+            raise UserError(self.env._("Only people with the role %s can act at this level.", level.role_id.name))
+        record_as(self, self.env[MODEL_PERMISSION_MIXIN])._check_permission("sign")
         department = self._approval_department()
         if level.same_department and (not department or person.department_id != department):
             raise UserError(self.env._("Only people of the department that did the work can act at this level."))
@@ -252,16 +223,9 @@ class ApprovalMixin(models.AbstractModel):
             raise UserError(self.env._("This level cannot reject."))
         return level
 
-    def _approval_next_level(self, rows):
-        # The first level of the document that has not signed yet.
-        return self._approval_levels().filtered(lambda other: other not in rows.level_id)[:1]
-
-    def _approval_signer_role(self, level, person):
-        """The role the person acts with at the level: its own, or else the role of the nearest later level of the
-        document they hold, as a higher level signs a lower one in their own name. Empty when they hold neither."""
-        later = self._approval_levels().filtered(lambda other: other.sequence > level.sequence)
-        roles = person.sudo().role_ids
-        return (level | later).filtered(lambda other: other.role_id in roles)[:1].role_id
+    def _approval_next_level(self, chain, rows):
+        # The first level of the chain that has not signed yet.
+        return chain.level_ids.filtered(lambda other: other not in rows.level_id).sorted("sequence")[:1]
 
     def _approval_own_row(self):
         # The latest signature or rejection of the current user that is not withdrawn.
@@ -279,8 +243,6 @@ class ApprovalMixin(models.AbstractModel):
 
     def _approval_record(self, level, decision, reason=False):
         person = self.env[MODEL_PERSON]._current()
-        role = self._approval_signer_role(level, person)
-        self._approval_start()
         self.env[MODEL_SIGNATURE].sudo().create(
             {
                 "document_model": self._name,
@@ -290,7 +252,7 @@ class ApprovalMixin(models.AbstractModel):
                 "level_id": level.id,
                 "signer_id": person.id,
                 "signer_name": person.name,
-                "signer_role": role.name,
+                "signer_role": level.role_id.name,
                 "level_name": level.name,
                 "decision": decision,
                 "reason": reason,

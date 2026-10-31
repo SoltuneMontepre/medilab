@@ -1,7 +1,11 @@
+import datetime as _datetime_types
+
 from odoo.exceptions import AccessError, ValidationError
 from odoo.tests import tagged
 
 from .template_case import TemplateCase
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -106,7 +110,7 @@ class TestOrderTemplate(TemplateCase):
             self.assertFalse(order[field], field)
         self.assertEqual(order._catalog_lines().mapped("discount"), [0, 0])
         self.assertEqual(order.quotation_sent_count, 0)
-        self.assertEqual(counts, {model: self.env[model].search_count([]) for model in counts})
+        self.assertEqual(counts, {model: dynamic_model(self.env, model).search_count([]) for model in counts})
         self.assertEqual(source._catalog_lines().mapped("discount"), [20, 20])
 
     def test_new_order_continues_through_the_normal_quotation_workflow(self):
@@ -167,5 +171,5 @@ class TestOrderTemplate(TemplateCase):
         result = template.action_create_order()
         order = self.env["sale.order"].browse(result["res_id"])
         self.assertEqual(order.state, "draft")
-        self.assertGreater(order.date_order.year, 2020)
+        self.assertGreater(assert_instance(order.date_order, _datetime_types.date).year, 2020)
         self.assertFalse(order.advance_method or order.expected_result_date or order.payment_deadline)

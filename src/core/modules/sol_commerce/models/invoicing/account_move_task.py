@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import models
 
 from odoo.addons.sol_commerce.constants.models import MODEL_ACCOUNT_MOVE
@@ -5,11 +7,16 @@ from odoo.addons.sol_commerce.constants.tasks import AUTO_POST_CONTEXT, POSTING_
 from odoo.addons.sol_commerce.models.invoicing.account_move import ADMINISTRATOR_GROUP, BILLING_GROUP
 from odoo.addons.sol_laboratory.constants.models import MODEL_TASK
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_account_move as AccountMoveBase
+else:
+    AccountMoveBase = object
+
 POSTED_KINDS = ("advance", "final")
 
 
 # Hóa đơn: the posting task of an invoice drafted by someone who cannot post it.
-class AccountMove(models.Model):
+class AccountMove(models.Model, AccountMoveBase):
     _inherit = MODEL_ACCOUNT_MOVE
 
     def write(self, vals):

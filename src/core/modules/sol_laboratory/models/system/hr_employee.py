@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import fields, models
 from odoo.exceptions import UserError
 
@@ -9,12 +11,17 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PERSON,
 )
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_hr_employee as HrEmployeeBase
+else:
+    HrEmployeeBase = object
+
 # How to reach the employee at work, which the trail keeps only in part, as it does their private details.
 PERSONAL_FIELDS = frozenset({"work_email", "work_phone", "mobile_phone"})
 
 
 # Nhân Viên
-class HrEmployee(models.Model):
+class HrEmployee(models.Model, HrEmployeeBase):
     # _name is required to add mixins to an Odoo model. The audit mixin comes first so that it wraps Odoo's write,
     # which writes the fields of the employee's version after its own.
     _name = MODEL_EMPLOYEE
@@ -22,12 +29,13 @@ class HrEmployee(models.Model):
     # Odoo's links between the employee, its versions and its resource, and the bookkeeping of its versions.
     _audit_exclude = ("current_version_id", "employee_id", "last_modified_date", "last_modified_uid", "resource_id")
 
-    # Employee name, searched with the person.
-    name = fields.Char(index="trigram")
-    # Work email, searched with the person.
-    work_email = fields.Char(index="trigram")
-    # Team of the employee's person, which own-team accesses read from the user's employee.
-    person_team_id = fields.Many2one(MODEL_DEPARTMENT, compute="_compute_person_team_id", compute_sudo=True)
+    if not TYPE_CHECKING:
+        # Employee name, searched with the person.
+        name = fields.Char(index="trigram")
+        # Work email, searched with the person.
+        work_email = fields.Char(index="trigram")
+        # Team of the employee's person, which own-team accesses read from the user's employee.
+        person_team_id = fields.Many2one(MODEL_DEPARTMENT, compute="_compute_person_team_id", compute_sudo=True)
 
     def _compute_person_team_id(self):
         teams = {person.employee_id.id: person.team_id for person in self._people()}

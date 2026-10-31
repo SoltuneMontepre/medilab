@@ -11,14 +11,19 @@ from concurrent.futures import ThreadPoolExecutor
 from copy import deepcopy
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from typing import TYPE_CHECKING
 from urllib.parse import parse_qs, urlsplit
 
 import jwt
 import requests
+from requests.structures import CaseInsensitiveDict
 
 from .editing_service import SECRET
 from odoo.addons.sol_laboratory.constants.laboratory_editing import CALLBACK_PREFIX, JWT_HEADER
 from odoo.addons.sol_laboratory.services.onlyoffice_jwt import EditingCallbackRefused, sign, verify_callback
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 PLUGIN_GUID = "asc.{6F817117-1710-4E04-8031-171000000004}"
 
@@ -39,7 +44,7 @@ class OnlyofficeRealRelay:
         self.failures = 0
         self.negative_control = False
         self.unavailable = False
-        self.on_final = None
+        self.on_final: Callable[[], object] | None = None
         self.parallel_copies = 1
         self.forward_timeout = 90
         relay = self
@@ -188,7 +193,7 @@ window.editor = new DocsAPI.DocEditor('editor', config);
         )
 
     def deliver(self, body, headers):
-        headers = requests.structures.CaseInsensitiveDict(headers)
+        headers = CaseInsensitiveDict(headers)
         fields = json.loads(body)
         final = fields.get("status") == 2
         event = {

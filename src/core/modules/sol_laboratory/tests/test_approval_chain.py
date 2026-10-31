@@ -1,3 +1,5 @@
+from typing import Literal
+
 from psycopg2 import IntegrityError
 
 from odoo.exceptions import UserError, ValidationError
@@ -44,11 +46,13 @@ class TestApprovalChain(PeopleCase):
         )
 
     @classmethod
-    def sign(cls, person, level, decision=DECISION_SIGNED, reason=False, document_id=1):
+    def sign(cls, person, level, decision=DECISION_SIGNED, reason: str | Literal[False] = False, document_id=1):
         return cls.env[MODEL_SIGNATURE].create(cls.signature_vals(person, level, decision, reason, document_id))
 
     @classmethod
-    def signature_vals(cls, person, level, decision=DECISION_SIGNED, reason=False, document_id=1):
+    def signature_vals(
+        cls, person, level, decision=DECISION_SIGNED, reason: str | Literal[False] = False, document_id=1
+    ):
         return {
             "document_model": DOCUMENT_MODEL,
             "document_id": document_id,

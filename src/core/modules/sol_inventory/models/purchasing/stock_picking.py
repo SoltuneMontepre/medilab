@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.tools import format_list
@@ -7,19 +9,25 @@ from odoo.addons.sol_inventory.constants.stock import CANCELLED, DONE, RECEIPT_C
 from odoo.addons.sol_inventory.constants.xml_ids import CONTAINER_LABEL_REPORT, SMALL_CONTAINER_LABEL_REPORT
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_PERMISSION_MIXIN
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_stock_picking as StockPickingBase
+else:
+    StockPickingBase = object
+
 
 # Phiếu Nhập Kho
-class StockPicking(models.Model):
+class StockPicking(models.Model, StockPickingBase):
     # _name is required to add mixins to an Odoo model.
     _name = MODEL_STOCK_PICKING
     _inherit = [MODEL_AUDIT_MIXIN, MODEL_STOCK_PICKING, MODEL_PERMISSION_MIXIN]
     _permission_actions = ("read", "create", "edit", "delete")
     _audit_children = ("move_line_ids",)
 
-    # The containers the receipt put its bottles and vials in.
-    container_ids = fields.Many2many(MODEL_STOCK_PACKAGE, string="Containers", compute="_compute_container_ids")
-    # How many containers the receipt made.
-    container_count = fields.Integer(string="Container Count", compute="_compute_container_ids")
+    if not TYPE_CHECKING:
+        # The containers the receipt put its bottles and vials in.
+        container_ids = fields.Many2many(MODEL_STOCK_PACKAGE, string="Containers", compute="_compute_container_ids")
+        # How many containers the receipt made.
+        container_count = fields.Integer(string="Container Count", compute="_compute_container_ids")
 
     @api.depends("move_line_ids.result_package_id")
     def _compute_container_ids(self):
@@ -90,7 +98,9 @@ class StockPicking(models.Model):
                 continue
             currency = receipt.company_id.currency_id
             for move in receipt.move_ids.filtered(
-                lambda move: move.state == DONE and move.product_id.item_kind and not currency.is_zero(move.price_unit)
+                lambda move: bool(
+                    move.state == DONE and move.product_id.item_kind and not currency.is_zero(move.price_unit)
+                )
             ):
                 supplier_items._record_last_price(supplier, move.product_id, move.price_unit)
 

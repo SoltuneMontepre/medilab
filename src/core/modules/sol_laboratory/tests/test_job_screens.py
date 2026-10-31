@@ -5,6 +5,7 @@ from odoo.tests import tagged
 
 from .people_case import PeopleCase
 from odoo.addons.sol_laboratory.constants.models import MODEL_JOB_ITEM, MODEL_JOB_RUN, MODEL_SCHEDULED_JOB
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
 
 SCREENS = {
     "sol_laboratory.menu_scheduled_job": MODEL_SCHEDULED_JOB,
@@ -32,7 +33,9 @@ class TestJobScreens(PeopleCase):
 
         self.assertEqual(self.visible_menus(self.chemist.user_id), set(SCREENS))
         for model in SCREENS.values():
-            views = self.as_person(self.env[model], self.chemist).get_views([(False, "list"), (False, "form")])["views"]
+            views = self.as_person(dynamic_model(self.env, model), self.chemist).get_views(
+                [(False, "list"), (False, "form")]
+            )["views"]
             for view_type, view in views.items():
                 root = etree.fromstring(view["arch"])
                 with self.subTest(model=model, view=view_type):

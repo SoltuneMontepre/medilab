@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
 
 from odoo import api, fields, models
@@ -9,6 +10,12 @@ from odoo.addons.sol_commerce.constants.models import MODEL_ACCOUNT_MOVE, MODEL_
 from odoo.addons.sol_commerce.constants.notifications import EVENT_INVOICE_SENT
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN
 from odoo.addons.sol_laboratory.constants.notifications import VIETNAM_ZONE
+from odoo.addons.sol_laboratory.services.record_id import persisted_ids
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_account_move as AccountMoveBase
+else:
+    AccountMoveBase = object
 
 BILLING_GROUP = "account.group_account_invoice"
 ADMINISTRATOR_GROUP = "base.group_system"
@@ -16,30 +23,33 @@ VIETNAM = ZoneInfo(VIETNAM_ZONE)
 
 
 # Hóa đơn
-class AccountMove(models.Model):
+class AccountMove(models.Model, AccountMoveBase):
     # _name is required to add a mixin to an Odoo model. The audit mixin comes first so it wraps Odoo's write.
     _name = MODEL_ACCOUNT_MOVE
     _inherit = [MODEL_AUDIT_MIXIN, MODEL_ACCOUNT_MOVE]
 
-    # advance, final or adjustment; empty on journal entries that are not laboratory invoices.
-    invoice_kind = fields.Selection(
-        [("advance", "Advance"), ("final", "Final"), ("adjustment", "Adjustment")],
-        string="Invoice Kind",
-    )
-    # The order this invoice bills. Empty until orders are installed; the sale lines still link the invoice.
-    order_id = fields.Many2one(MODEL_SALE_ORDER, string="Order", index=True, ondelete="restrict")
-    # The posted invoice a raising adjustment adds to.
-    adjusted_invoice_id = fields.Many2one(
-        MODEL_ACCOUNT_MOVE, string="Adjusted Invoice", ondelete="restrict", index=True
-    )
-    # Raising adjustments of this invoice.
-    raising_adjustment_ids = fields.One2many(MODEL_ACCOUNT_MOVE, "adjusted_invoice_id", string="Raising Adjustments")
-    # What is still owed: the residual, minus posted lowering adjustments, plus posted raising ones.
-    amount_owed = fields.Monetary(compute="_compute_amount_owed", currency_field="currency_id")
-    # Posted advance or final invoice whose due date in Vietnam has passed and that is not fully paid.
-    is_overdue = fields.Boolean(compute="_compute_is_overdue", search="_search_is_overdue")
-    # When the invoice first went to the customer: by email, or with its quotation for an advance invoice.
-    sent_at = fields.Datetime(compute="_compute_sent_at", store=True, copy=False)
+    if not TYPE_CHECKING:
+        # advance, final or adjustment; empty on journal entries that are not laboratory invoices.
+        invoice_kind = fields.Selection(
+            [("advance", "Advance"), ("final", "Final"), ("adjustment", "Adjustment")],
+            string="Invoice Kind",
+        )
+        # The order this invoice bills. Empty until orders are installed; the sale lines still link the invoice.
+        order_id = fields.Many2one(MODEL_SALE_ORDER, string="Order", index=True, ondelete="restrict")
+        # The posted invoice a raising adjustment adds to.
+        adjusted_invoice_id = fields.Many2one(
+            MODEL_ACCOUNT_MOVE, string="Adjusted Invoice", ondelete="restrict", index=True
+        )
+        # Raising adjustments of this invoice.
+        raising_adjustment_ids = fields.One2many(
+            MODEL_ACCOUNT_MOVE, "adjusted_invoice_id", string="Raising Adjustments"
+        )
+        # What is still owed: the residual, minus posted lowering adjustments, plus posted raising ones.
+        amount_owed = fields.Monetary(compute="_compute_amount_owed", currency_field="currency_id")
+        # Posted advance or final invoice whose due date in Vietnam has passed and that is not fully paid.
+        is_overdue = fields.Boolean(compute="_compute_is_overdue", search="_search_is_overdue")
+        # When the invoice first went to the customer: by email, or with its quotation for an advance invoice.
+        sent_at = fields.Datetime(compute="_compute_sent_at", store=True, copy=False)
 
     @api.depends("is_move_sent", "state", "invoice_kind")
     def _compute_sent_at(self):
@@ -63,7 +73,7 @@ class AccountMove(models.Model):
                 move.amount_owed = move.amount_residual
                 continue
             lowering = move.reversal_move_ids.filtered(
-                lambda refund: (
+                lambda refund: bool(
                     refund.state == "posted" and refund.invoice_kind == "adjustment" and refund.amount_residual
                 )
             )
@@ -135,7 +145,7 @@ class AccountMove(models.Model):
         )
 
     def button_draft(self):
-        locked = self.filtered(lambda move: move.invoice_kind and move.state == "posted")
+        locked = self.filtered(lambda move: bool(move.invoice_kind and move.state == "posted"))
         if self.env.context.get("medilab_cancel_unpaid_advance"):
             locked = locked.filtered(lambda move: move.payment_state != "not_paid")
         if locked:
@@ -256,5 +266,5 @@ class AccountMove(models.Model):
             "name": self.env._("Adjustment of %s", self.name or self.env._("invoice")),
             "quantity": 1,
             "price_unit": amount,
-            "tax_ids": [Command.set(taxes.ids)],
+            "tax_ids": [Command.set(persisted_ids(taxes))],
         }

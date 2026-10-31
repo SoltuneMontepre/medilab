@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.api import SUPERUSER_ID
 from odoo.exceptions import AccessError, UserError
@@ -17,9 +19,14 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PERMISSION_MIXIN,
 )
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_quotation as QuotationBase
+else:
+    QuotationBase = object
+
 
 # Báo Giá
-class Quotation(models.Model):
+class Quotation(models.Model, QuotationBase):
     _name = MODEL_QUOTATION
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_CODE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Quotation"
@@ -27,39 +34,42 @@ class Quotation(models.Model):
     _rec_name = "code"
     _permission_actions = ("read", "create", "edit", "delete")
 
-    # Unique quotation number in the format the administrator configures, such as 0001 26/BG-VTT; filled from a sequence.
-    code = fields.Char(required=True, copy=False, readonly=True)
-    # The order quoted.
-    order_id = fields.Many2one(MODEL_SALE_ORDER, required=True, ondelete="restrict")
-    # Revision number, 1 for the first quotation of the order.
-    revision = fields.Integer(required=True, default=1)
-    # The revision this one replaces; empty for revision 1.
-    replaces_id = fields.Many2one(MODEL_QUOTATION, ondelete="restrict", copy=False)
-    # sent, accepted, declined, expired or replaced.
-    status = fields.Selection(
-        [
-            (QUOTATION_SENT, "Sent"),
-            (QUOTATION_ACCEPTED, "Accepted"),
-            (QUOTATION_DECLINED, "Declined"),
-            (QUOTATION_EXPIRED, "Expired"),
-            (QUOTATION_REPLACED, "Replaced"),
-        ],
-        required=True,
-        default=QUOTATION_SENT,
-        index=True,
-    )
-    # When the quotation was sent.
-    sent_at = fields.Datetime(required=True, default=fields.Datetime.now)
-    # The currency of the order.
-    currency_id = fields.Many2one(related="order_id.currency_id")
-    # Total including VAT, as sent.
-    amount_total = fields.Monetary(required=True)
-    # The customer's reason for declining.
-    decline_reason = fields.Text()
-    # The advance invoice sent with the quotation; empty when it was sent without an advance.
-    advance_invoice_id = fields.Many2one(MODEL_ACCOUNT_MOVE, ondelete="restrict", copy=False, index="btree_not_null")
-    # The PDF sent to the customer.
-    attachment_id = fields.Many2one("ir.attachment", required=True, ondelete="restrict")
+    if not TYPE_CHECKING:
+        # Unique quotation number in the format the administrator configures, such as 0001 26/BG-VTT; filled from a sequence.
+        code = fields.Char(required=True, copy=False, readonly=True)
+        # The order quoted.
+        order_id = fields.Many2one(MODEL_SALE_ORDER, required=True, ondelete="restrict")
+        # Revision number, 1 for the first quotation of the order.
+        revision = fields.Integer(required=True, default=1)
+        # The revision this one replaces; empty for revision 1.
+        replaces_id = fields.Many2one(MODEL_QUOTATION, ondelete="restrict", copy=False)
+        # sent, accepted, declined, expired or replaced.
+        status = fields.Selection(
+            [
+                (QUOTATION_SENT, "Sent"),
+                (QUOTATION_ACCEPTED, "Accepted"),
+                (QUOTATION_DECLINED, "Declined"),
+                (QUOTATION_EXPIRED, "Expired"),
+                (QUOTATION_REPLACED, "Replaced"),
+            ],
+            required=True,
+            default=QUOTATION_SENT,
+            index=True,
+        )
+        # When the quotation was sent.
+        sent_at = fields.Datetime(required=True, default=fields.Datetime.now)
+        # The currency of the order.
+        currency_id = fields.Many2one(related="order_id.currency_id")
+        # Total including VAT, as sent.
+        amount_total = fields.Monetary(required=True)
+        # The customer's reason for declining.
+        decline_reason = fields.Text()
+        # The advance invoice sent with the quotation; empty when it was sent without an advance.
+        advance_invoice_id = fields.Many2one(
+            MODEL_ACCOUNT_MOVE, ondelete="restrict", copy=False, index="btree_not_null"
+        )
+        # The PDF sent to the customer.
+        attachment_id = fields.Many2one("ir.attachment", required=True, ondelete="restrict")
 
     _code_unique = models.Constraint("UNIQUE(code)", "The number of a quotation must be unique.")
     _revision_unique = models.Constraint(

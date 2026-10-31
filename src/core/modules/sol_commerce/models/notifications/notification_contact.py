@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
@@ -8,20 +10,26 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PERMISSION_MIXIN,
 )
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_notification_contact as NotificationContactBase
+else:
+    NotificationContactBase = object
+
 
 # Người Nhận Thông Báo Của Khách Hàng
-class NotificationContact(models.Model):
+class NotificationContact(models.Model, NotificationContactBase):
     _name = MODEL_NOTIFICATION_CONTACT
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Customer Notification Contact"
     _permission_actions = ("read", "create", "edit", "delete")
 
-    # The business customer.
-    partner_id = fields.Many2one("res.partner", required=True, ondelete="cascade", index=True)
-    # The event.
-    event_id = fields.Many2one(MODEL_MAIL_MESSAGE_SUBTYPE, required=True, ondelete="cascade", index=True)
-    # The contact of the business who receives the event instead of the contact the document names.
-    contact_id = fields.Many2one("res.partner", required=True, ondelete="cascade")
+    if not TYPE_CHECKING:
+        # The business customer.
+        partner_id = fields.Many2one("res.partner", required=True, ondelete="cascade", index=True)
+        # The event.
+        event_id = fields.Many2one(MODEL_MAIL_MESSAGE_SUBTYPE, required=True, ondelete="cascade", index=True)
+        # The contact of the business who receives the event instead of the contact the document names.
+        contact_id = fields.Many2one("res.partner", required=True, ondelete="cascade")
 
     _partner_event_unique = models.Constraint(
         "UNIQUE(partner_id, event_id)",

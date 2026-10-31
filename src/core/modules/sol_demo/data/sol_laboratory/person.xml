@@ -73,13 +73,6 @@
         <field name="team_id" ref="demo_hr_department_pesticide_residues" />
         <field name="role_ids" eval="[Command.set([ref('demo_role_tester')])]" />
     </record>
-    <!-- The deputy head of Chemistry holds no role of their own and backs up the head while the head is away. -->
-    <record id="demo_person_backup_signer" model="medilab.person">
-        <field name="name">Phan Thi Thu</field>
-        <field name="user_id" ref="demo_res_users_backup_signer" />
-        <field name="work_contact_id" ref="demo_res_partner_backup_signer" />
-        <field name="department_id" ref="demo_hr_department_chemistry" />
-    </record>
     <record id="demo_hr_department_chemistry" model="hr.department">
         <field
             name="manager_id"

@@ -1,11 +1,18 @@
+from typing import TYPE_CHECKING
+
 from odoo import models
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_FILE_VERSION
 from odoo.addons.sol_laboratory.services.laboratory_api import api_datetime
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_laboratory_file_version as LaboratoryFileVersionApiBase
+else:
+    LaboratoryFileVersionApiBase = object
+
 
 # Phiên Bản Tệp: a version as the laboratory files API gives it, once the person's access to its file is checked.
-class LaboratoryFileVersionApi(models.Model):
+class LaboratoryFileVersionApi(models.Model, LaboratoryFileVersionApiBase):
     _inherit = MODEL_LABORATORY_FILE_VERSION
 
     def _laboratory_api_values(self):

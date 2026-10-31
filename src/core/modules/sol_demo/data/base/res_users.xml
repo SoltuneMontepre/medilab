@@ -49,12 +49,6 @@
         <field name="partner_id" ref="demo_res_partner_chemistry_tester" />
         <field name="group_ids" eval="[Command.set([ref('base.group_user')])]" />
     </record>
-    <record id="demo_res_users_backup_signer" model="res.users">
-        <field name="login">demo.backup_signer</field>
-        <field name="tz">Asia/Ho_Chi_Minh</field>
-        <field name="partner_id" ref="demo_res_partner_backup_signer" />
-        <field name="group_ids" eval="[Command.set([ref('base.group_user')])]" />
-    </record>
     <record id="demo_res_users_microbiology_tester" model="res.users">
         <field name="login">demo.microbiology_tester</field>
         <field name="tz">Asia/Ho_Chi_Minh</field>

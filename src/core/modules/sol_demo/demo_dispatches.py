@@ -7,11 +7,14 @@ from .demo_orders import _xml_id
 from .demo_results import _enter
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_SAMPLE_TEST,
+    MODEL_SAMPLE_TYPE,
     MODEL_SUBCONTRACT_DISPATCH,
     MODEL_TASK,
+    MODEL_TEST_PARAMETER,
     MODEL_TEST_REQUEST,
 )
 from odoo.addons.sol_laboratory.constants.settings import SAMPLE_DELIVERY_ROLE_PARAMETER
+from odoo.addons.sol_laboratory.services.model_lookup import reference_as
 
 WATER_SAMPLES = ("Nước giếng khoan hộ gia đình Phú Hòa", "Nước giếng khoan trường tiểu học Phú Hòa")
 CABBAGE_SAMPLES = ("Cải bắp chợ Bình Điền lô 1003", "Cải bắp chợ Bình Điền lô 1004")
@@ -78,10 +81,18 @@ def _received_tests(env, customer, kind, parameter, names, quantity):
                 Command.create(
                     {
                         "customer_sample_name": name,
-                        "sample_type_id": env.ref(f"sol_demo.demo_sample_type_{kind[0]}").id,
+                        "sample_type_id": reference_as(
+                            env[MODEL_SAMPLE_TYPE], f"sol_demo.demo_sample_type_{kind[0]}"
+                        ).id,
                         "physical_state": kind[1],
                         "test_ids": [
-                            Command.create({"parameter_id": env.ref(f"sol_demo.demo_test_parameter_{parameter}").id})
+                            Command.create(
+                                {
+                                    "parameter_id": reference_as(
+                                        env[MODEL_TEST_PARAMETER], f"sol_demo.demo_test_parameter_{parameter}"
+                                    ).id
+                                }
+                            )
                         ],
                     }
                 )

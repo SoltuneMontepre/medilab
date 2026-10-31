@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from lxml import etree
 
 from odoo import api, models
@@ -8,12 +10,18 @@ from odoo.tools.safe_eval import safe_eval
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_PERMISSION, MODEL_PERMISSION_MIXIN
 from odoo.addons.sol_laboratory.constants.permissions import SCOPE_DOMAINS
+from odoo.addons.sol_laboratory.services.type_values import value_as
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_permission_mixin as PermissionMixinBase
+else:
+    PermissionMixinBase = object
 
 EDITABLE_VIEW_TYPES = ("form", "list", "kanban")
 
 
 # Permission checks shared by document models.
-class PermissionMixin(models.AbstractModel):
+class PermissionMixin(models.AbstractModel, PermissionMixinBase):
     _name = MODEL_PERMISSION_MIXIN
     _description = "Permission Checks"
     # The actions a document type has permissions for; a signed document type adds sign.
@@ -61,7 +69,9 @@ class PermissionMixin(models.AbstractModel):
         if self.env.su:
             return Domain.TRUE
         eval_context = self.env["ir.access"]._eval_context()
-        return Domain.OR(Domain(safe_eval(SCOPE_DOMAINS[scope], eval_context)) for scope in self._user_scopes(action))
+        return Domain.OR(
+            Domain(safe_eval(SCOPE_DOMAINS[value_as(scope, str)], eval_context)) for scope in self._user_scopes(action)
+        )
 
     def _check_permission(self, action):
         if self.env.su or not self or "all" in self._user_scopes(action):

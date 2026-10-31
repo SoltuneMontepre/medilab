@@ -1,4 +1,5 @@
 from datetime import timedelta
+from typing import TYPE_CHECKING
 
 from psycopg2 import IntegrityError
 
@@ -14,29 +15,36 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_RES_CONFIG_SETTINGS,
     MODEL_SCHEDULED_JOB,
 )
+from odoo.addons.sol_laboratory.services.record_id import persisted_ids
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_payment_transaction as PaymentTransactionBase
+else:
+    PaymentTransactionBase = object
 
 # How to reach the payer, which the trail keeps only in part.
 PERSONAL_FIELDS = frozenset({"partner_email", "partner_phone", "partner_address", "partner_zip", "partner_city"})
 
 
 # Giao dịch thanh toán
-class PaymentTransaction(models.Model):
+class PaymentTransaction(models.Model, PaymentTransactionBase):
     _name = MODEL_PAYMENT_TRANSACTION
     _inherit = [MODEL_AUDIT_MIXIN, MODEL_PAYMENT_TRANSACTION]
 
-    # The bank reference of this transfer. Empty until PayOS reports one.
-    payos_bank_reference = fields.Char(copy=False, index=True)
-    # The PayOS checkout page for the link. Empty until the call succeeds.
-    payos_checkout_url = fields.Char(copy=False)
-    # When PayOS says the bank transfer happened, stored in UTC.
-    payos_transferred_at = fields.Datetime(copy=False)
-    # PayOS reported this transfer after its Vietnam day was locked.
-    recorded_after_lock = fields.Boolean(copy=False)
-    # exact, partial or over, from the payment against the invoice.
-    payos_settlement = fields.Selection(
-        [("exact", "Exact"), ("partial", "Partial"), ("over", "Over")],
-        compute="_compute_payos_settlement",
-    )
+    if not TYPE_CHECKING:
+        # The bank reference of this transfer. Empty until PayOS reports one.
+        payos_bank_reference = fields.Char(copy=False, index=True)
+        # The PayOS checkout page for the link. Empty until the call succeeds.
+        payos_checkout_url = fields.Char(copy=False)
+        # When PayOS says the bank transfer happened, stored in UTC.
+        payos_transferred_at = fields.Datetime(copy=False)
+        # PayOS reported this transfer after its Vietnam day was locked.
+        recorded_after_lock = fields.Boolean(copy=False)
+        # exact, partial or over, from the payment against the invoice.
+        payos_settlement = fields.Selection(
+            [("exact", "Exact"), ("partial", "Partial"), ("over", "Over")],
+            compute="_compute_payos_settlement",
+        )
 
     _payos_transfer_unique = models.Constraint(
         "UNIQUE(payos_bank_reference)",
@@ -95,7 +103,9 @@ class PaymentTransaction(models.Model):
     def _payos_expired(self):
         self.ensure_one()
         hours = self.env[MODEL_RES_CONFIG_SETTINGS]._get_parameter("payos_expiry_hours") or DEFAULT_PAYOS_EXPIRY_HOURS
-        return fields.Datetime.now() > self.create_date + timedelta(hours=hours)
+        created_at = self.create_date
+        assert created_at is not False
+        return fields.Datetime.now() > created_at + timedelta(hours=hours)
 
     @api.model
     def _payos_apply_webhook(self, data):
@@ -188,7 +198,7 @@ class PaymentTransaction(models.Model):
                 "payos_bank_reference": bank_reference,
                 "payos_transferred_at": transferred_at,
                 "recorded_after_lock": recorded_after_lock,
-                "invoice_ids": [Command.set(link.invoice_ids.ids)],
+                "invoice_ids": [Command.set(persisted_ids(link.invoice_ids))],
             }
         )
 
@@ -216,7 +226,7 @@ class PaymentTransaction(models.Model):
                 "currency_id": invoice.currency_id.id,
                 "partner_id": invoice.partner_id.id,
                 "operation": "online_redirect",
-                "invoice_ids": [Command.set(invoice.ids)],
+                "invoice_ids": [Command.set(persisted_ids(invoice))],
             }
         )
         return transaction.action_payos_checkout()

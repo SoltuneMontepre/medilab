@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from odoo import fields
 from odoo.tests import tagged
@@ -17,6 +17,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_RES_USERS,
     MODEL_RES_USERS_APIKEYS,
 )
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -116,4 +117,4 @@ class TestLaboratoryDeviceSignIn(LaboratoryFilesCase):
 
         device.sudo().last_seen_at = fields.Datetime.now() - timedelta(minutes=2)
         self.device_of(key)
-        self.assertGreater(device.last_seen_at, recently)
+        self.assertGreater(assert_instance(device.last_seen_at, datetime), recently)

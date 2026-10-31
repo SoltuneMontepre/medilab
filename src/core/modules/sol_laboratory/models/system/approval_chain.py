@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.tools import format_list
@@ -13,9 +15,14 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_SIGNATURE,
 )
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_approval_chain as ApprovalChainBase
+else:
+    ApprovalChainBase = object
+
 
 # Chuỗi Phê Duyệt
-class ApprovalChain(models.Model):
+class ApprovalChain(models.Model, ApprovalChainBase):
     _name = MODEL_APPROVAL_CHAIN
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Approval Chain"
@@ -23,18 +30,19 @@ class ApprovalChain(models.Model):
     _permission_actions = ("read", "create", "edit", "archive", "delete")
     _audit_children = ("level_ids",)
 
-    # Technical name of the model of the document the chain signs, such as medilab.test.result.
-    document_model = fields.Char(string="Document Type", required=True)
-    # Whether the chain signs the document itself or the change requests on it.
-    purpose = fields.Selection(
-        [(PURPOSE_SIGNING, "Signing"), (PURPOSE_CHANGE_REQUEST, "Change request")], required=True
-    )
-    # Chain name in each language.
-    name = fields.Char(required=True, translate=True)
-    # False when the chain is archived.
-    active = fields.Boolean(default=True)
-    # Levels of the chain, in signing order.
-    level_ids = fields.One2many(MODEL_APPROVAL_LEVEL, "chain_id", string="Levels")
+    if not TYPE_CHECKING:
+        # Technical name of the model of the document the chain signs, such as medilab.test.result.
+        document_model = fields.Char(string="Document Type", required=True)
+        # Whether the chain signs the document itself or the change requests on it.
+        purpose = fields.Selection(
+            [(PURPOSE_SIGNING, "Signing"), (PURPOSE_CHANGE_REQUEST, "Change request")], required=True
+        )
+        # Chain name in each language.
+        name = fields.Char(required=True, translate=True)
+        # False when the chain is archived.
+        active = fields.Boolean(default=True)
+        # Levels of the chain, in signing order.
+        level_ids = fields.One2many(MODEL_APPROVAL_LEVEL, "chain_id", string="Levels")
 
     _purpose_unique = models.Constraint(
         "UNIQUE(document_model, purpose)", "A document type cannot have two chains for the same purpose."
@@ -42,13 +50,7 @@ class ApprovalChain(models.Model):
 
     @api.ondelete(at_uninstall=False)
     def _unlink_except_signed(self):
-        # Levels replaced since they were signed are archived and still count.
-        signatures = (
-            self.env[MODEL_SIGNATURE]
-            .sudo()
-            .with_context(active_test=False)
-            .search([("level_id.chain_id", "in", self.ids)])
-        )
+        signatures = self.env[MODEL_SIGNATURE].sudo().search([("level_id.chain_id", "in", self.ids)])
         if signatures:
             raise UserError(
                 self.env._(

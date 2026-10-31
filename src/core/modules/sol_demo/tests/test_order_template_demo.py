@@ -16,7 +16,7 @@ class TestOrderTemplateDemo(TransactionCase):
         self.assertEqual((order.state, order.order_status, order.source), ("draft", "claimed", "sales"))
         self.assertEqual(order.customer_id, template.customer_id.partner_id)
         self.assertEqual(order._catalog_lines().mapped("product_uom_qty"), template.line_ids.mapped("quantity"))
-        lead = template.line_ids.filtered(lambda line: line.product_id.parameter_id)
+        lead = template.line_ids.filtered(lambda line: bool(line.product_id.parameter_id))
         self.assertEqual(lead.quantity, 2)
         self.assertTrue(
             all(float(quantity).is_integer() for quantity in order._catalog_lines().mapped("product_uom_qty"))

@@ -3,6 +3,7 @@ import os
 import re
 import tempfile
 from datetime import UTC, datetime, timedelta
+from typing import TYPE_CHECKING
 
 from odoo import api, models
 from odoo.tools import config
@@ -15,13 +16,18 @@ from odoo.addons.sol_laboratory.constants.laboratory_bucket import (
 from odoo.addons.sol_laboratory.constants.models import MODEL_IR_ATTACHMENT
 from odoo.addons.sol_laboratory.services import laboratory_bucket
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_ir_attachment as IrAttachmentBase
+else:
+    IrAttachmentBase = object
+
 STORED_FILE = re.compile(r"[0-9a-f]{2}/[0-9a-f]+")
 
 _logger = logging.getLogger(__name__)
 
 
 # Tệp Đính Kèm
-class IrAttachment(models.Model):
+class IrAttachment(models.Model, IrAttachmentBase):
     _inherit = MODEL_IR_ATTACHMENT
 
     @api.model

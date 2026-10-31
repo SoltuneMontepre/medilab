@@ -13,6 +13,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TESTING_FIELD,
     MODEL_TESTING_METHOD,
 )
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -63,7 +64,7 @@ class TestAccreditationImport(MasterDataCase):
             method = existing.filtered(lambda m, c=code: m.code == c)
             self.assertEqual(method.name, existing_names[code])
             self.assertEqual(method.field_id.id, existing_fields[code])
-        created = linked.filtered(lambda m: m.code.startswith("NEW-"))
+        created = linked.filtered(lambda m: assert_instance(m.code, str).startswith("NEW-"))
         self.assertEqual(len(created), 25)
         self.assertTrue(all(method.field_id == other_field for method in created))
 

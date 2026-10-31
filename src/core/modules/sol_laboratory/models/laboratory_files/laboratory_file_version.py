@@ -1,4 +1,5 @@
 import posixpath
+from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
@@ -16,6 +17,11 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 from odoo.addons.sol_laboratory.fields.big_integer import BigInteger
 from odoo.addons.sol_laboratory.services import laboratory_bucket
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_laboratory_file_version as LaboratoryFileVersionBase
+else:
+    LaboratoryFileVersionBase = object
 
 # A version's number, content and origin never change once it is stored. Other fields, such as the signing state a
 # later feature adds, may.
@@ -35,7 +41,7 @@ PROTECTED_FIELDS = (
 
 
 # Phiên Bản Tệp
-class LaboratoryFileVersion(models.Model):
+class LaboratoryFileVersion(models.Model, LaboratoryFileVersionBase):
     _name = MODEL_LABORATORY_FILE_VERSION
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN, MODEL_LABORATORY_IDEMPOTENCY_MIXIN]
     _description = "Laboratory File Version"
@@ -43,36 +49,39 @@ class LaboratoryFileVersion(models.Model):
     # Versions are stored by saving a file and are never changed or deleted.
     _permission_actions = ("read",)
 
-    # The file.
-    file_id = fields.Many2one(MODEL_LABORATORY_FILE, string="File", required=True, ondelete="restrict", readonly=True)
-    # Version number within the file, never reused.
-    number = fields.Integer(required=True, readonly=True)
-    # The version that was current when this one was made.
-    parent_version_id = fields.Many2one(
-        MODEL_LABORATORY_FILE_VERSION, string="Parent Version", ondelete="restrict", readonly=True
-    )
-    # The version a restore copied.
-    restored_from_id = fields.Many2one(
-        MODEL_LABORATORY_FILE_VERSION, string="Restored From", ondelete="restrict", readonly=True
-    )
-    # synced, conflict, restored or edited_online.
-    source = fields.Selection(
-        [(SYNCED, "Synced"), (CONFLICT, "Conflict"), (RESTORED, "Restored"), (EDITED_ONLINE, "Edited Online")],
-        required=True,
-        readonly=True,
-    )
-    # Size of the content in bytes, as the server computed it.
-    size = BigInteger(required=True, readonly=True)
-    # SHA-256 of the content, in hexadecimal, as the server computed it.
-    sha256 = fields.Char(string="SHA-256", required=True, readonly=True)
-    # The verified content the version holds; versions with the same content share it.
-    content_id = fields.Many2one(
-        MODEL_LABORATORY_CONTENT, string="Content", required=True, ondelete="restrict", readonly=True, index=True
-    )
-    # The user who saved the version.
-    user_id = fields.Many2one(MODEL_RES_USERS, string="Saved By", required=True, ondelete="restrict", readonly=True)
-    # The device it came from; empty for a version made online or by a restore in the back office.
-    device_id = fields.Many2one(MODEL_LABORATORY_DEVICE, string="Computer", ondelete="restrict", readonly=True)
+    if not TYPE_CHECKING:
+        # The file.
+        file_id = fields.Many2one(
+            MODEL_LABORATORY_FILE, string="File", required=True, ondelete="restrict", readonly=True
+        )
+        # Version number within the file, never reused.
+        number = fields.Integer(required=True, readonly=True)
+        # The version that was current when this one was made.
+        parent_version_id = fields.Many2one(
+            MODEL_LABORATORY_FILE_VERSION, string="Parent Version", ondelete="restrict", readonly=True
+        )
+        # The version a restore copied.
+        restored_from_id = fields.Many2one(
+            MODEL_LABORATORY_FILE_VERSION, string="Restored From", ondelete="restrict", readonly=True
+        )
+        # synced, conflict, restored or edited_online.
+        source = fields.Selection(
+            [(SYNCED, "Synced"), (CONFLICT, "Conflict"), (RESTORED, "Restored"), (EDITED_ONLINE, "Edited Online")],
+            required=True,
+            readonly=True,
+        )
+        # Size of the content in bytes, as the server computed it.
+        size = BigInteger(required=True, readonly=True)
+        # SHA-256 of the content, in hexadecimal, as the server computed it.
+        sha256 = fields.Char(string="SHA-256", required=True, readonly=True)
+        # The verified content the version holds; versions with the same content share it.
+        content_id = fields.Many2one(
+            MODEL_LABORATORY_CONTENT, string="Content", required=True, ondelete="restrict", readonly=True, index=True
+        )
+        # The user who saved the version.
+        user_id = fields.Many2one(MODEL_RES_USERS, string="Saved By", required=True, ondelete="restrict", readonly=True)
+        # The device it came from; empty for a version made online or by a restore in the back office.
+        device_id = fields.Many2one(MODEL_LABORATORY_DEVICE, string="Computer", ondelete="restrict", readonly=True)
 
     _file_number_unique = models.Constraint("UNIQUE(file_id, number)", "A file has one version of each number.")
     _device_idempotency_key_unique = models.UniqueIndex(
@@ -105,7 +114,7 @@ class LaboratoryFileVersion(models.Model):
         checks first that the person may read the file."""
         self.ensure_one()
         version = self.sudo()
-        name = posixpath.basename(version.file_id.path)
+        name = posixpath.basename(version.file_id.path or "")
         return laboratory_bucket.read_address(version.content_id.object_key, seconds, name)
 
     def write(self, vals):

@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 
@@ -7,19 +9,25 @@ from odoo.addons.sol_laboratory.constants.settings import (
     QUALITY_REGISTRATION_WARNING_PARAMETER,
 )
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_res_config_settings as ResConfigSettingsBase
+else:
+    ResConfigSettingsBase = object
+
 
 # Cài Đặt
-class ResConfigSettings(models.TransientModel):
+class ResConfigSettings(models.TransientModel, ResConfigSettingsBase):
     _inherit = MODEL_RES_CONFIG_SETTINGS
 
-    # Days before a quality registration expires when administrators are warned.
-    quality_registration_warning_days = fields.Integer(
-        string="Expiry Warning (days)",
-        config_parameter=QUALITY_REGISTRATION_WARNING_PARAMETER,
-        default=DEFAULT_QUALITY_REGISTRATION_WARNING_DAYS,
-        help="Days before a quality registration expires when administrators are warned. They are warned again on "
-        "its last valid day.",
-    )
+    if not TYPE_CHECKING:
+        # Days before a quality registration expires when administrators are warned.
+        quality_registration_warning_days = fields.Integer(
+            string="Expiry Warning (days)",
+            config_parameter=QUALITY_REGISTRATION_WARNING_PARAMETER,
+            default=DEFAULT_QUALITY_REGISTRATION_WARNING_DAYS,
+            help="Days before a quality registration expires when administrators are warned. They are warned again on "
+            "its last valid day.",
+        )
 
     @api.constrains("quality_registration_warning_days")
     def _check_quality_registration_warning(self):
