@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.fields import Domain
 from odoo.tools import format_list
@@ -11,23 +13,29 @@ from odoo.addons.sol_commerce.constants.models import (
 )
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_PERMISSION_MIXIN, MODEL_TEST_PARAMETER
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_parameter_price as ParameterPriceBase
+else:
+    ParameterPriceBase = object
+
 
 # Giá Chỉ Tiêu
-class ParameterPrice(models.Model):
+class ParameterPrice(models.Model, ParameterPriceBase):
     _name = MODEL_PARAMETER_PRICE
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_VND_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Parameter Price"
     _order = "parameter_id"
     _rec_name = "parameter_id"
 
-    # The parameter the price is for.
-    parameter_id = fields.Many2one(MODEL_TEST_PARAMETER, required=True, ondelete="cascade")
-    # Price of one test, excluding VAT.
-    list_price = fields.Monetary(string="Price", required=True)
-    # The tax added to the price on quotations and invoices.
-    tax_id = fields.Many2one(MODEL_TAX, required=True, ondelete="restrict", index=True)
-    # False when the price is archived and the parameter is no longer sold.
-    active = fields.Boolean(default=True)
+    if not TYPE_CHECKING:
+        # The parameter the price is for.
+        parameter_id = fields.Many2one(MODEL_TEST_PARAMETER, required=True, ondelete="cascade")
+        # Price of one test, excluding VAT.
+        list_price = fields.Monetary(string="Price", required=True)
+        # The tax added to the price on quotations and invoices.
+        tax_id = fields.Many2one(MODEL_TAX, required=True, ondelete="restrict", index=True)
+        # False when the price is archived and the parameter is no longer sold.
+        active = fields.Boolean(default=True)
 
     _parameter_unique = models.Constraint(
         "UNIQUE(parameter_id)", "A test parameter has only one price, archived prices included."

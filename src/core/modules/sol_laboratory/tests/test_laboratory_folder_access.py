@@ -22,6 +22,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_LABORATORY_SYNC_RULE,
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import LABORATORY_FILES_GROUP
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 
 @tagged("post_install", "-at_install")
@@ -71,7 +72,7 @@ class TestLaboratoryFolderAccess(LaboratoryFilesCase):
         self.assertRefused(NOT_FOUND, self.folder.with_user(self.outsider)._check_folder_access, FOLDER_SHARE)
 
     def test_losing_the_permission_stops_a_member_and_keeps_the_membership(self):
-        self.member.group_ids = [Command.unlink(self.env.ref(LABORATORY_FILES_GROUP).id)]
+        self.member.group_ids = [Command.unlink(persisted_id(self.env.ref(LABORATORY_FILES_GROUP)))]
 
         self.assertRefused(PERMISSION_DENIED, self.folder.with_user(self.member)._check_folder_access, FOLDER_READ)
         self.assertIn(self.member, self.folder.member_ids.user_id)

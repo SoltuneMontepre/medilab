@@ -1,23 +1,31 @@
+from typing import TYPE_CHECKING
+
 from odoo import fields, models
 
 from odoo.addons.sol_commerce.constants.models import MODEL_ACCOUNT_MOVE, MODEL_INVOICE_ADJUSTMENT
 from odoo.addons.sol_laboratory.constants.models import MODEL_PERMISSION_MIXIN
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_invoice_adjustment as InvoiceAdjustmentBase
+else:
+    InvoiceAdjustmentBase = object
+
 
 # Điều chỉnh hóa đơn
-class InvoiceAdjustment(models.TransientModel):
+class InvoiceAdjustment(models.TransientModel, InvoiceAdjustmentBase):
     _name = MODEL_INVOICE_ADJUSTMENT
     _inherit = [MODEL_PERMISSION_MIXIN]
     _description = "Invoice Adjustment"
     # The accountant enters the difference; the wizard does not keep it.
     _permission_actions = ("read", "create", "edit", "delete")
 
-    # The posted invoice being corrected.
-    move_id = fields.Many2one(MODEL_ACCOUNT_MOVE, required=True)
-    # Signed difference added to what is owed. Negative lowers the invoice.
-    difference = fields.Monetary(required=True)
-    # Currency of the invoice.
-    currency_id = fields.Many2one(related="move_id.currency_id")
+    if not TYPE_CHECKING:
+        # The posted invoice being corrected.
+        move_id = fields.Many2one(MODEL_ACCOUNT_MOVE, required=True)
+        # Signed difference added to what is owed. Negative lowers the invoice.
+        difference = fields.Monetary(required=True)
+        # Currency of the invoice.
+        currency_id = fields.Many2one(related="move_id.currency_id")
 
     def action_adjust(self):
         self.ensure_one()

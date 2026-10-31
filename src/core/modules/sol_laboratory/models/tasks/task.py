@@ -1,4 +1,5 @@
 from datetime import UTC, datetime, time, timedelta
+from typing import TYPE_CHECKING, Literal
 from zoneinfo import ZoneInfo
 
 from odoo import api, fields, models
@@ -19,7 +20,17 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TASK_TYPE,
     MODEL_TESTING_METHOD_STEP,
 )
+from odoo.addons.sol_laboratory.constants.scheduling import CALENDAR_SYNC_CONTEXT, CALENDAR_SYNC_TOKEN
 from odoo.addons.sol_laboratory.constants.tasks import FINAL_STATUSES, MANUAL_TRIGGER, TESTING_ACTION
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from medilab_model_types import Model_medilab_task as TaskBase
+else:
+    TaskBase = object
 
 TASK_ACTION_CONTEXT = "medilab_task_action"
 OPEN_STATUSES = ("assigned", "in_progress")
@@ -32,73 +43,74 @@ LINKED_BY_SYSTEM = "linked_by_system"
 
 
 # Nhiệm Vụ
-class Task(models.Model):
+class Task(models.Model, TaskBase):
     _name = MODEL_TASK
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Task"
     _order = "deadline, id"
     _permission_actions = ("read", "create", "edit", "delete")
 
-    # The kind of task.
-    type_id = fields.Many2one(MODEL_TASK_TYPE, string="Type", required=True, ondelete="restrict", index=True)
-    # Short description of the work, such as "Test lead on sample PTN-0042".
-    name = fields.Char(required=True)
-    # Details of the work.
-    note = fields.Text()
-    # Technical name of the document the task opens.
-    document_model = fields.Char(string="Document Type")
-    # Id of the document the task opens.
-    document_id = fields.Many2oneReference(model_field="document_model", string="Document")
-    # Action the task opens on the document, such as enter_result or sign.
-    action = fields.Char()
-    # True when the system created the task with its type and document and nobody changed them since; only such tasks
-    # act on their document with full rights.
-    linked_by_system = fields.Boolean(readonly=True, copy=False)
-    # Department whose queue holds the task until someone is assigned.
-    department_id = fields.Many2one(MODEL_DEPARTMENT, ondelete="restrict", domain=DEPARTMENT_DOMAIN)
-    # Person who does the task; empty while it waits in a queue.
-    assignee_id = fields.Many2one(MODEL_PERSON, string="Assignee", ondelete="restrict")
-    # Person who assigned the task; the assignee themselves when they claimed it.
-    assigned_by_id = fields.Many2one(MODEL_PERSON, string="Assigned By", ondelete="restrict", readonly=True)
-    # Why the task was last moved to another person or department.
-    reassign_reason = fields.Text(readonly=True)
-    # When the task must be done.
-    deadline = fields.Datetime(index=True)
-    # Planned start on the assignee's schedule.
-    planned_start = fields.Datetime()
-    # Planned end on the assignee's schedule.
-    planned_end = fields.Datetime()
-    # Open, assigned, in progress, done or cancelled.
-    status = fields.Selection(
-        [
-            ("open", "Open"),
-            ("assigned", "Assigned"),
-            ("in_progress", "In progress"),
-            ("done", "Done"),
-            ("cancelled", "Cancelled"),
-        ],
-        required=True,
-        default="open",
-        readonly=True,
-    )
-    # When the task was done.
-    done_at = fields.Datetime(readonly=True)
-    # Machine bookings made for the task.
-    booking_ids = fields.One2many(MODEL_MACHINE_BOOKING, "task_id", string="Bookings")
-    # Steps of the testing method of a testing task's sample test; empty for any other task.
-    method_step_ids = fields.Many2many(
-        MODEL_TESTING_METHOD_STEP, compute="_compute_sample_test_details", string="Method Steps"
-    )
-    # The location a testing task's sample was taken from; empty for any other task.
-    sampling_location_id = fields.Many2one(
-        MODEL_LOCATION, compute="_compute_sample_test_details", string="Sampling Location"
-    )
-    # True when the system closes the task once its work is done, rather than the assignee.
-    closed_by_system = fields.Boolean(compute="_compute_closed_by_system")
-    # True when the current user is the assignee.
-    is_mine = fields.Boolean(compute="_compute_is_mine", search="_search_is_mine")
-    # True when the task waits in a queue the current user can claim from.
-    in_my_queue = fields.Boolean(compute="_compute_in_my_queue", search="_search_in_my_queue")
+    if not TYPE_CHECKING:
+        # The kind of task.
+        type_id = fields.Many2one(MODEL_TASK_TYPE, string="Type", required=True, ondelete="restrict", index=True)
+        # Short description of the work, such as "Test lead on sample PTN-0042".
+        name = fields.Char(required=True)
+        # Details of the work.
+        note = fields.Text()
+        # Technical name of the document the task opens.
+        document_model = fields.Char(string="Document Type")
+        # Id of the document the task opens.
+        document_id = fields.Many2oneReference(model_field="document_model", string="Document")
+        # Action the task opens on the document, such as enter_result or sign.
+        action = fields.Char()
+        # True when the system created the task with its type and document and nobody changed them since; only such tasks
+        # act on their document with full rights.
+        linked_by_system = fields.Boolean(readonly=True, copy=False)
+        # Department whose queue holds the task until someone is assigned.
+        department_id = fields.Many2one(MODEL_DEPARTMENT, ondelete="restrict", domain=DEPARTMENT_DOMAIN)
+        # Person who does the task; empty while it waits in a queue.
+        assignee_id = fields.Many2one(MODEL_PERSON, string="Assignee", ondelete="restrict")
+        # Person who assigned the task; the assignee themselves when they claimed it.
+        assigned_by_id = fields.Many2one(MODEL_PERSON, string="Assigned By", ondelete="restrict", readonly=True)
+        # Why the task was last moved to another person or department.
+        reassign_reason = fields.Text(readonly=True)
+        # When the task must be done.
+        deadline = fields.Datetime(index=True)
+        # Planned start on the assignee's schedule.
+        planned_start = fields.Datetime()
+        # Planned end on the assignee's schedule.
+        planned_end = fields.Datetime()
+        # Open, assigned, in progress, done or cancelled.
+        status = fields.Selection(
+            [
+                ("open", "Open"),
+                ("assigned", "Assigned"),
+                ("in_progress", "In progress"),
+                ("done", "Done"),
+                ("cancelled", "Cancelled"),
+            ],
+            required=True,
+            default="open",
+            readonly=True,
+        )
+        # When the task was done.
+        done_at = fields.Datetime(readonly=True)
+        # Machine bookings made for the task.
+        booking_ids = fields.One2many(MODEL_MACHINE_BOOKING, "task_id", string="Bookings")
+        # Steps of the testing method of a testing task's sample test; empty for any other task.
+        method_step_ids = fields.Many2many(
+            MODEL_TESTING_METHOD_STEP, compute="_compute_sample_test_details", string="Method Steps"
+        )
+        # The location a testing task's sample was taken from; empty for any other task.
+        sampling_location_id = fields.Many2one(
+            MODEL_LOCATION, compute="_compute_sample_test_details", string="Sampling Location"
+        )
+        # True when the system closes the task once its work is done, rather than the assignee.
+        closed_by_system = fields.Boolean(compute="_compute_closed_by_system")
+        # True when the current user is the assignee.
+        is_mine = fields.Boolean(compute="_compute_is_mine", search="_search_is_mine")
+        # True when the task waits in a queue the current user can claim from.
+        in_my_queue = fields.Boolean(compute="_compute_in_my_queue", search="_search_in_my_queue")
 
     _assignee_status_idx = models.Index("(assignee_id, status)")
     _department_status_idx = models.Index("(department_id, status)")
@@ -116,13 +128,13 @@ class Task(models.Model):
         testing = self.filtered_domain(self._testing_domain())
         tests = self.env[MODEL_SAMPLE_TEST].sudo().browse(testing.mapped("document_id")).exists()
         steps_by_test = {test.id: test.parameter_method_id.method_id.step_ids.ids for test in tests}
-        location_by_test = {test.id: test.sample_id.sampling_location_id.id for test in tests}
+        location_by_test = {test.id: test.sample_id.sampling_location_id.ids for test in tests}
         steps = self.env[MODEL_TESTING_METHOD_STEP]
         locations = self.env[MODEL_LOCATION]
         for task in self:
             test_id = task.document_id if task in testing else 0
             task.method_step_ids = steps.browse(steps_by_test.get(test_id, []))
-            task.sampling_location_id = locations.browse(location_by_test.get(test_id))
+            task.sampling_location_id = locations.browse(location_by_test.get(test_id) or [])
 
     @api.model
     def _testing_domain(self):
@@ -218,7 +230,7 @@ class Task(models.Model):
         if "assignee_id" in vals:
             self.env[MODEL_SAMPLE_TEST]._follow_assignment(self)
             self.env[MODEL_MACHINE_BOOKING]._follow_assignment(self)
-        if not self.env.context.get("medilab_skip_calendar_sync") and {
+        if self.env.context.get(CALENDAR_SYNC_CONTEXT) is not CALENDAR_SYNC_TOKEN and {
             "planned_start",
             "planned_end",
             "assignee_id",
@@ -245,12 +257,13 @@ class Task(models.Model):
             raise UserError(self.env._("%s is not in the task's department.", assignee.name))
 
     def _check_reassign(self, vals):
+        has_reason = bool(str(vals.get("reassign_reason") or "").strip())
         for task in self:
             if task.status in FINAL_STATUSES:
                 raise UserError(self.env._("%s is finished and cannot be assigned again.", task.name))
             moves_person = task.assignee_id and vals.get("assignee_id", task.assignee_id.id) != task.assignee_id.id
             moves_department = vals.get("department_id", task.department_id.id) != task.department_id.id
-            if (moves_person or moves_department) and not vals.get("reassign_reason"):
+            if (moves_person or moves_department) and not has_reason:
                 raise UserError(self.env._("Give a reason for moving %s to another person or department.", task.name))
 
     def _claimable_by(self, person):
@@ -297,7 +310,7 @@ class Task(models.Model):
 
     def _sync_calendar_event(self):
         """Keep one calendar event on a planned task. The event has no alarm, so Odoo does not also remind."""
-        if self.env.context.get("medilab_skip_calendar_sync"):
+        if self.env.context.get(CALENDAR_SYNC_CONTEXT) is CALENDAR_SYNC_TOKEN:
             return
         events = self.env["calendar.event"].sudo()
         for task in self:
@@ -307,7 +320,7 @@ class Task(models.Model):
             planned_by_bookings = task.sudo().booking_ids.calendar_event_id
             if task.status in FINAL_STATUSES or not task.planned_start or not user or planned_by_bookings:
                 if event:
-                    event.with_context(medilab_skip_calendar_sync=True).unlink()
+                    event.with_context(**{CALENDAR_SYNC_CONTEXT: CALENDAR_SYNC_TOKEN}).unlink()
                 continue
             stop = task.planned_end or task.planned_start + timedelta(hours=1)
             values = {
@@ -315,14 +328,16 @@ class Task(models.Model):
                 "start": task.planned_start,
                 "stop": stop,
                 "user_id": user.id,
-                "partner_ids": [Command.set([user.partner_id.id])],
+                "partner_ids": [Command.set([persisted_id(user.partner_id)])],
                 "alarm_ids": [Command.clear()],
                 "location": task.sampling_location_id.display_name or False,
             }
             if event:
-                event.with_context(medilab_skip_calendar_sync=True).write(values)
+                event.with_context(**{CALENDAR_SYNC_CONTEXT: CALENDAR_SYNC_TOKEN}).write(values)
             else:
-                events.with_context(medilab_skip_calendar_sync=True).create({**values, "medilab_task_id": task.id})
+                events.with_context(**{CALENDAR_SYNC_CONTEXT: CALENDAR_SYNC_TOKEN}).create(
+                    {**values, "medilab_task_id": task.id}
+                )
 
     def action_assign_sample(self):
         """Open the assign wizard on every unfinished testing task of the task's sample in its department."""
@@ -343,9 +358,12 @@ class Task(models.Model):
         self.ensure_one()
         if not self.document_model or not self.document_id or self.document_model not in self.env:
             return self._get_records_action()
-        document = self.env[self.document_model].browse(self.document_id)
-        if hasattr(document, "_get_task_action"):
-            return document._get_task_action(self.action)
+        document = dynamic_model(self.env, self.document_model).browse(self.document_id)
+        get_action: Callable[[str | Literal[False]], dict[str, object]] | None = getattr(
+            document, "_get_task_action", None
+        )
+        if callable(get_action):
+            return get_action(self.action)
         return document._get_records_action(context={TASK_ACTION_CONTEXT: self.action})
 
     def _own_tasks(self):

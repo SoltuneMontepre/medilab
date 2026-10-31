@@ -1,10 +1,17 @@
+from typing import TYPE_CHECKING
+
 from odoo import models
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_DEVICE, MODEL_RES_USERS_APIKEYS
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_res_users_apikeys as ResUsersApikeysBase
+else:
+    ResUsersApikeysBase = object
+
 
 # Khóa API: removing the key of a signed-in computer signs the computer out, wherever the key is removed from.
-class ResUsersApikeys(models.Model):
+class ResUsersApikeys(models.Model, ResUsersApikeysBase):
     _inherit = MODEL_RES_USERS_APIKEYS
 
     def unlink(self):

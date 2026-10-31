@@ -21,6 +21,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_LABORATORY_EDITING_SESSION,
     MODEL_LABORATORY_FILE,
 )
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -44,7 +45,10 @@ class TestLaboratoryEditingSessionRecords(LaboratoryEditingCase):
         token = session._callback_token()
 
         self.assertEqual(token, database_hmac(self.env(su=True), CALLBACK_TOKEN_SCOPE, session.document_key))
-        self.assertNotEqual(token, hmac.new(secret.encode(), session.document_key.encode(), hashlib.sha256).hexdigest())
+        self.assertNotEqual(
+            token,
+            hmac.new(secret.encode(), assert_instance(session.document_key, str).encode(), hashlib.sha256).hexdigest(),
+        )
         self.assertNotEqual(token, database_hmac(self.env(su=True), "sol_laboratory.other", session.document_key))
 
     def test_everyone_in_a_session_gets_its_token_and_each_session_has_its_own(self):

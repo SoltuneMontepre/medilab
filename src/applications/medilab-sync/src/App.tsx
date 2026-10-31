@@ -340,6 +340,7 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
         // Không ghi đè URL người dùng đã gõ hoặc chọn trong lúc chờ restoreSession.
         setOdooUrl((typed) => typed || current.odoo_url || currentSettings.odoo_url);
         if (current.logged_in) {
+          refreshController.resume();
           void refreshController.invalidate();
         }
       } catch (err) {
@@ -408,7 +409,10 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
     if (next) {
       setStatus((prev) => mergeStatusSnapshot(prev, next));
       setOdooUrlHistory(rememberOdooUrl(odooUrl));
-      void refreshRemoteFiles();
+      if (next.logged_in) {
+        refreshController.resume();
+        void refreshRemoteFiles();
+      }
     }
   }
 
@@ -569,6 +573,10 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
             void run(() => restoreSession()).then((next) => {
               if (next) {
                 setStatus((prev) => mergeStatusSnapshot(prev, next));
+                if (next.logged_in) {
+                  refreshController.resume();
+                  void refreshRemoteFiles();
+                }
               }
             })
           }

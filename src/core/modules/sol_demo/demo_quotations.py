@@ -10,6 +10,7 @@ from odoo.addons.sol_commerce.constants.models import (
     MODEL_QUOTATION,
     MODEL_SALE_ORDER,
 )
+from odoo.addons.sol_laboratory.services.record_id import persisted_ids
 
 DISCOUNT_WIZARD = "sale.order.discount"
 PAYMENT_WIZARD = "account.payment.register"
@@ -47,14 +48,7 @@ def seed_quotations(env):
     ).action_apply_discount()
     _as(revised, head).action_send_quotation()
 
-    requested = _confirmed_order(env, lead, vat10, sales, head)
-    approved = _confirmed_order(env, package, vat8, sales, head)
-    rejected = _confirmed_order(env, lead, vat8, sales, head)
-    requested.with_user(sales).action_request_approval()
-    approved.with_user(sales).action_request_approval()
-    approved.with_user(head).action_sign()
-    rejected.with_user(sales).action_request_approval()
-    rejected.with_user(head).action_reject("The discount agreed with the customer is not on the order.")
+    confirmed = _confirmed_order(env, package, vat8, sales, head)
 
     for xml_id, record in (
         ("demo_sale_order_quotation_draft", draft),
@@ -63,9 +57,7 @@ def seed_quotations(env):
         ("demo_sale_order_quotation_declined", declined),
         ("demo_sale_order_quotation_expired", expired),
         ("demo_sale_order_quotation_revised", revised),
-        ("demo_sale_order_approval_requested", requested),
-        ("demo_sale_order_approval_approved", approved),
-        ("demo_sale_order_approval_rejected", rejected),
+        ("demo_sale_order_quotation_confirmed", confirmed),
     ):
         _xml_id(env, xml_id, record)
 
@@ -146,7 +138,7 @@ def _quotable_order(
         }
     )
     line = order._catalog_lines()
-    line.write({"tax_ids": [Command.set(tax.ids)], "discount": discount})
+    line.write({"tax_ids": [Command.set(persisted_ids(tax))], "discount": discount})
     line.sample_id = env[MODEL_ORDER_SAMPLE].create(
         {
             "order_id": order.id,

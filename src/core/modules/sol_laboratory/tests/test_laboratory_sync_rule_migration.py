@@ -6,7 +6,7 @@ from psycopg2 import IntegrityError
 from odoo.exceptions import UserError
 from odoo.modules.module import load_script
 from odoo.tests import tagged
-from odoo.tools import mute_logger
+from odoo.tools import SQL, mute_logger
 
 from .laboratory_files_case import LaboratoryFilesCase
 from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_SYNC_RULE
@@ -24,14 +24,11 @@ class TestLaboratorySyncRuleMigration(LaboratoryFilesCase):
         # the upgrade ran.
         cr = self.env.cr
         cr.execute(
-            """
-            SELECT conname, pg_get_constraintdef(oid) FROM pg_constraint
-             WHERE conrelid = 'medilab_laboratory_sync_rule'::regclass AND contype = 'u'
-            """
+            "SELECT conname FROM pg_constraint WHERE conrelid = 'medilab_laboratory_sync_rule'::regclass AND contype = 'u'"
         )
-        self.unique_keys = cr.fetchall()
-        for name, _definition in self.unique_keys:
-            cr.execute(f'ALTER TABLE medilab_laboratory_sync_rule DROP CONSTRAINT "{name}"')
+        self.unique_keys = [name for (name,) in cr.fetchall()]
+        for name in self.unique_keys:
+            cr.execute(SQL("ALTER TABLE medilab_laboratory_sync_rule DROP CONSTRAINT %s", SQL.identifier(name)))
 
     def insert_rules(self, *rows):
         ids = []
@@ -59,8 +56,13 @@ class TestLaboratorySyncRuleMigration(LaboratoryFilesCase):
         return self.env.cr.fetchall()
 
     def add_unique_keys(self):
-        for name, definition in self.unique_keys:
-            self.env.cr.execute(f'ALTER TABLE medilab_laboratory_sync_rule ADD CONSTRAINT "{name}" {definition}')
+        for name in self.unique_keys:
+            self.env.cr.execute(
+                SQL(
+                    "ALTER TABLE medilab_laboratory_sync_rule ADD CONSTRAINT %s UNIQUE (folder_id, kind, pattern)",
+                    SQL.identifier(name),
+                )
+            )
 
     def test_upgrade_keeps_the_oldest_of_rules_that_are_one_rule_with_the_same_flags_and_logs_the_others(self):
         ids = self.insert_rules(

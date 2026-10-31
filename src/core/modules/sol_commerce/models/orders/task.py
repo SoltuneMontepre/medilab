@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import models
 from odoo.exceptions import UserError
 
@@ -5,9 +7,14 @@ from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
 from odoo.addons.sol_commerce.constants.tasks import QUOTATION_ACTION, QUOTATION_TRIGGER
 from odoo.addons.sol_laboratory.constants.models import MODEL_PERSON, MODEL_TASK
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_task as TaskBase
+else:
+    TaskBase = object
+
 
 # Nhiệm Vụ: claiming the quotation task of an order claims the order.
-class Task(models.Model):
+class Task(models.Model, TaskBase):
     _inherit = MODEL_TASK
 
     def action_claim(self):

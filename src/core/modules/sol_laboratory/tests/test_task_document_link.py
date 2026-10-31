@@ -9,6 +9,7 @@ from .scheduling_case import MONDAY
 from .task_link_case import TaskLinkCase
 from odoo.addons.sol_laboratory.constants.models import MODEL_SAMPLE_TEST, MODEL_TASK
 from odoo.addons.sol_laboratory.constants.tasks import TESTING_ACTION
+from odoo.addons.sol_laboratory.services.model_lookup import record_as
 
 
 @freeze_time(MONDAY)
@@ -77,7 +78,7 @@ class TestTaskDocumentLink(TaskLinkCase):
             form.name = "Collect water at the An Phu plant"
             form.assignee_id = self.planner
             form.deadline = MONDAY + timedelta(days=1)
-        task = form.record
+        task = record_as(form.record, self.env[MODEL_TASK])
 
         self.assertEqual([task.action, task.document_id], [collection.action, 0])
         self.assertFalse(task.method_step_ids)

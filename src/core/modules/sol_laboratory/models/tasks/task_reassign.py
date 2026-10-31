@@ -1,31 +1,40 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 
 from odoo.addons.sol_laboratory.constants.departments import DEPARTMENT_DOMAIN
 from odoo.addons.sol_laboratory.constants.models import MODEL_DEPARTMENT, MODEL_PERSON, MODEL_TASK, MODEL_TASK_REASSIGN
+from odoo.addons.sol_laboratory.services.record_id import persisted_ids
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_task_reassign as TaskReassignBase
+else:
+    TaskReassignBase = object
 
 
 # Assigns tasks to a person or moves them to another department's queue, with the reason for a move.
-class TaskReassign(models.TransientModel):
+class TaskReassign(models.TransientModel, TaskReassignBase):
     _name = MODEL_TASK_REASSIGN
     _description = "Assign Tasks"
 
-    # The tasks to assign or move.
-    task_ids = fields.Many2many(MODEL_TASK, string="Tasks", required=True)
-    # Department whose queue holds the tasks.
-    department_id = fields.Many2one(MODEL_DEPARTMENT, domain=DEPARTMENT_DOMAIN)
-    # Person who does the tasks; empty to leave them in the department's queue.
-    assignee_id = fields.Many2one(MODEL_PERSON, string="Assignee")
-    # Why the tasks move to another person or department.
-    reason = fields.Text()
-    # True when a task moves away from its person or department, so a reason is needed.
-    reason_required = fields.Boolean(compute="_compute_reason_required")
+    if not TYPE_CHECKING:
+        # The tasks to assign or move.
+        task_ids = fields.Many2many(MODEL_TASK, string="Tasks", required=True)
+        # Department whose queue holds the tasks.
+        department_id = fields.Many2one(MODEL_DEPARTMENT, domain=DEPARTMENT_DOMAIN)
+        # Person who does the tasks; empty to leave them in the department's queue.
+        assignee_id = fields.Many2one(MODEL_PERSON, string="Assignee")
+        # Why the tasks move to another person or department.
+        reason = fields.Text()
+        # True when a task moves away from its person or department, so a reason is needed.
+        reason_required = fields.Boolean(compute="_compute_reason_required")
 
     @api.model
     def default_get(self, fields_list):
         values = super().default_get(fields_list)
         tasks = self.env[MODEL_TASK].browse(self.env.context.get("active_ids", []))
-        values["task_ids"] = [fields.Command.set(tasks.ids)]
+        values["task_ids"] = [fields.Command.set(persisted_ids(tasks))]
         if len(tasks.department_id) == 1:
             values["department_id"] = tasks.department_id.id
         if len(tasks.assignee_id) == 1 and all(tasks.mapped("assignee_id")):

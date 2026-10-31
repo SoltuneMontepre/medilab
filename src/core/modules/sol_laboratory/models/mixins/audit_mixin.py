@@ -1,5 +1,6 @@
 import json
 from collections import defaultdict
+from typing import TYPE_CHECKING
 
 from lxml import etree
 
@@ -9,6 +10,13 @@ from odoo.fields import Command, Domain
 from odoo.addons.sol_laboratory.constants.audit import MASK_PERSONAL, MASK_SECRET
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_ENTRY, MODEL_AUDIT_MIXIN
 from odoo.addons.sol_laboratory.constants.xml_ids import AUDIT_READ_GROUP
+from odoo.addons.sol_laboratory.services.model_lookup import record_as
+from odoo.addons.sol_laboratory.services.type_values import value_as
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_audit_mixin as AuditMixinBase
+else:
+    AuditMixinBase = object
 
 # Odoo's bookkeeping fields and the technical path of trees say nothing about the document.
 UNAUDITED_FIELDS = frozenset({"id", "create_uid", "create_date", "write_uid", "write_date", "parent_path"})
@@ -76,7 +84,7 @@ def _audit_value(field, value):
 
 
 # Writes an audit entry for every create, edit, archive and delete of a document.
-class AuditMixin(models.AbstractModel):
+class AuditMixin(models.AbstractModel, AuditMixinBase):
     _name = MODEL_AUDIT_MIXIN
     _description = "Audit Trail"
     # Stored fields left out of the trail besides Odoo's bookkeeping fields.
@@ -179,14 +187,14 @@ class AuditMixin(models.AbstractModel):
     def _audit_part_fields(self):
         """For each model whose records are parts of a document through the _audit_children of the document's model,
         the field on the part that names the document."""
-        mixin = self.env.registry[MODEL_AUDIT_MIXIN]
+        mixin = type(self.env[MODEL_AUDIT_MIXIN])
         parts = {}
         for model in self.env.registry.values():
             if model._abstract or not issubclass(model, mixin):
                 continue
             for relation in model._audit_children:
                 field = model._fields[relation]
-                if field.type == "one2many":
+                if isinstance(field, fields.One2many):
                     parts.setdefault(field.comodel_name, field.inverse_name)
         return parts
 
@@ -204,7 +212,9 @@ class AuditMixin(models.AbstractModel):
         # writable, is the document's own, unless that record is audited and records it itself.
         if not (field.inherited or (field.related and not field.readonly)) or not field.related_field.base_field.store:
             return False
-        return not self._audit_is_audited(self._fields[field.related.split(".")[0]].comodel_name)
+        relation = self._fields[field.related.split(".")[0]]
+        assert isinstance(relation, (fields.Many2one, fields.One2many, fields.Many2many))
+        return not self._audit_is_audited(relation.comodel_name)
 
     @api.model
     def _audit_is_audited(self, model_name):
@@ -262,7 +272,7 @@ class AuditMixin(models.AbstractModel):
     def _audit_history_domain(self):
         # The entries of the documents and, through _audit_relations, of every record under them.
         documents = defaultdict(set)
-        pending = [self.sudo().with_context(active_test=False)]
+        pending: list[models.BaseModel] = [self.sudo().with_context(active_test=False)]
         while pending:
             records = pending.pop()
             records = records.browse(set(records.ids) - documents[records._name])
@@ -270,7 +280,10 @@ class AuditMixin(models.AbstractModel):
                 continue
             documents[records._name].update(records.ids)
             if self._audit_is_audited(records._name):
-                pending.extend(records.mapped(relation) for relation in records._audit_relations())
+                audited = record_as(records, self.env[MODEL_AUDIT_MIXIN])
+                pending.extend(
+                    value_as(records.mapped(relation), models.BaseModel) for relation in audited._audit_relations()
+                )
         # The parts whose entries name these documents, such as their files and parts deleted since, and their own parts.
         entries = self.env[MODEL_AUDIT_ENTRY].sudo()
         found = documents

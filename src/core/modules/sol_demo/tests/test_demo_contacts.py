@@ -1,13 +1,14 @@
 from odoo.tests import TransactionCase, tagged
 
 from odoo.addons.sol_commerce.constants.models import MODEL_NOTIFICATION_CONTACT, MODEL_SALE_ORDER
-from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER
+from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER, MODEL_RES_PARTNER
+from odoo.addons.sol_laboratory.services.model_lookup import reference_as
 
 
 @tagged("post_install", "-at_install")
 class TestDemoContacts(TransactionCase):
     def customer(self, xml_id):
-        return self.env.ref(f"sol_demo.{xml_id}")
+        return reference_as(self.env[MODEL_CUSTOMER], f"sol_demo.{xml_id}")
 
     def test_a_business_has_several_complete_contacts_and_a_default(self):
         customer = self.customer("demo_customer_nuoc_sach")
@@ -66,4 +67,4 @@ class TestDemoContacts(TransactionCase):
     def test_the_contacts_who_sign_in_use_english_screens(self):
         for xml_id in ("demo_res_partner_hoa", "demo_res_partner_tai"):
             with self.subTest(partner=xml_id):
-                self.assertEqual(self.env.ref(f"sol_demo.{xml_id}").lang, "en_US")
+                self.assertEqual(reference_as(self.env[MODEL_RES_PARTNER], f"sol_demo.{xml_id}").lang, "en_US")

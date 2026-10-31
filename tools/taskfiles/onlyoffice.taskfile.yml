@@ -1,0 +1,40 @@
+version: "3"
+
+tasks:
+  onlyoffice:setup:
+    desc: "Prepare owned local ONLYOFFICE, preserve its data and verify actual conversion"
+    preconditions:
+      - sh: python -c "import sys; sys.exit(sys.version_info < (3,12))"
+        msg: "Python 3.12 or later is required. Install Python from python.org on Windows or your Linux package manager, then reopen the terminal."
+      - sh: python -c "import shutil,sys; sys.exit(shutil.which('uv') is None)"
+        msg: "uv is required. Install it from https://docs.astral.sh/uv/getting-started/installation/ and reopen the terminal."
+    cmds:
+      - uv --project src/core run --locked python tools/scripts/onlyoffice.py setup
+  onlyoffice:up:
+    desc: "Start the prepared local editor without replacing its identities"
+    cmds:
+      - python tools/scripts/onlyoffice.py up
+  onlyoffice:down:
+    desc: "Drain and remove only local editor containers, retaining all editor data"
+    cmds:
+      - python tools/scripts/onlyoffice.py down
+  onlyoffice:restart:
+    desc: "Drain and restart the owned local editor"
+    cmds:
+      - python tools/scripts/onlyoffice.py restart
+  onlyoffice:status:
+    desc: "Read the selected editor's ownership and setup status"
+    cmds:
+      - python tools/scripts/onlyoffice.py status
+  onlyoffice:logs:
+    desc: "Read bounded redacted logs from the owned editor services"
+    cmds:
+      - python tools/scripts/onlyoffice.py logs
+  onlyoffice:verify:
+    desc: "Verify real editing-service conversion, authentication and network isolation"
+    cmds:
+      - python tools/scripts/onlyoffice.py verify
+  onlyoffice:config:check:
+    desc: "Check editor configuration and ownership without creating state"
+    cmds:
+      - python tools/scripts/onlyoffice.py config-check

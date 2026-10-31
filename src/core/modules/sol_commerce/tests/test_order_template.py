@@ -1,7 +1,11 @@
+import datetime as _datetime_types
+
 from odoo.exceptions import AccessError, ValidationError
 from odoo.tests import tagged
 
 from .template_case import TemplateCase
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -93,7 +97,7 @@ class TestOrderTemplate(TemplateCase):
             "submitted_at",
             "quoted_at",
             "accepted_at",
-            "approved_at",
+            "confirmed_at",
             "payment_deadline",
             "expected_result_date",
             "quotation_ids",
@@ -106,8 +110,7 @@ class TestOrderTemplate(TemplateCase):
             self.assertFalse(order[field], field)
         self.assertEqual(order._catalog_lines().mapped("discount"), [0, 0])
         self.assertEqual(order.quotation_sent_count, 0)
-        self.assertEqual(order.approval_status, "none")
-        self.assertEqual(counts, {model: self.env[model].search_count([]) for model in counts})
+        self.assertEqual(counts, {model: dynamic_model(self.env, model).search_count([]) for model in counts})
         self.assertEqual(source._catalog_lines().mapped("discount"), [20, 20])
 
     def test_new_order_continues_through_the_normal_quotation_workflow(self):
@@ -119,14 +122,14 @@ class TestOrderTemplate(TemplateCase):
         self.assertEqual(len(order.invoice_ids), 1)
         self.assertEqual(order.state, "sent")
 
-    def test_signed_source_is_only_read_and_does_not_freeze_template_edits(self):
-        source = self.approved_order()
+    def test_confirmed_source_is_only_read_and_does_not_freeze_template_edits(self):
+        source = self.make_confirmed_order()
         template = self.save_template(source)
         template.with_user(self.sales).write({"name": "Updated selection"})
         template.line_ids.with_user(self.sales).write({"quantity": 3})
         order = self.reuse(template)
         self.assertEqual(order._catalog_lines().product_uom_qty, 3)
-        self.assertEqual(source.approval_status, "approved")
+        self.assertEqual(source.order_status, "confirmed")
         self.assertEqual(source._catalog_lines().product_uom_qty, 1)
 
     def test_archived_template_cannot_be_reused(self):
@@ -168,5 +171,5 @@ class TestOrderTemplate(TemplateCase):
         result = template.action_create_order()
         order = self.env["sale.order"].browse(result["res_id"])
         self.assertEqual(order.state, "draft")
-        self.assertGreater(order.date_order.year, 2020)
+        self.assertGreater(assert_instance(order.date_order, _datetime_types.date).year, 2020)
         self.assertFalse(order.advance_method or order.expected_result_date or order.payment_deadline)

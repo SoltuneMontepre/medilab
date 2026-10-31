@@ -4,12 +4,15 @@ from odoo.fields import Command
 from odoo.addons.sol_commerce.constants.models import MODEL_PRODUCT_TEMPLATE, MODEL_SALE_ORDER
 from odoo.addons.sol_commerce.constants.xml_ids import ALL_ORDERS_GROUP
 from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 
 def seed_orders(env):
     if env.ref("sol_demo.demo_sale_order_draft", raise_if_not_found=False):
         return
-    env.ref("sol_demo.demo_res_users_head_of_sales").write({"group_ids": [Command.link(env.ref(ALL_ORDERS_GROUP).id)]})
+    env.ref("sol_demo.demo_res_users_head_of_sales").write(
+        {"group_ids": [Command.link(persisted_id(env.ref(ALL_ORDERS_GROUP)))]}
+    )
     company = env.ref("sol_demo.demo_res_partner_nuoc_sach")
     hoa = env.ref("sol_demo.demo_res_partner_hoa")
     khoa = env.ref("sol_demo.demo_res_partner_khoa")

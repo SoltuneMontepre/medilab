@@ -13,6 +13,8 @@ from odoo.tests import HttpCase, tagged
 from .invoicing_case import InvoicingCase
 from odoo.addons.sol_commerce.services.payos_client import PayosClient
 from odoo.addons.sol_laboratory.constants.models import MODEL_SCHEDULED_JOB
+from odoo.addons.sol_laboratory.services.record_id import persisted_ids
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 from odoo.addons.sol_laboratory.tests.audit_case import AuditLookup
 
 PAID_STATES = ("partial", "in_payment", "paid")
@@ -100,12 +102,16 @@ class TestPayments(InvoicingCase):
         self.assertEqual(self.invoice.payment_state, "not_paid")
         activity = self.env["mail.activity"].search([("res_model", "=", payment._name), ("res_id", "=", payment.id)])
         self.assertEqual(activity.user_id, self.invoice.invoice_user_id)
-        self.assertIn("never arrived", activity.note)
+        self.assertIn("never arrived", (activity.note or ""))
 
     def test_a_clerk_cannot_confirm_a_payment(self):
         payment = self.pay(1_000_000)
         clerk = self.env["res.users"].create(
-            {"name": "Clerk", "login": "payment.clerk", "group_ids": [Command.set(self.env.ref("base.group_user").ids)]}
+            {
+                "name": "Clerk",
+                "login": "payment.clerk",
+                "group_ids": [Command.set(persisted_ids(self.env.ref("base.group_user")))],
+            }
         )
 
         with self.assertRaises(AccessError):
@@ -132,14 +138,14 @@ class TestPayments(InvoicingCase):
         html = self.env["ir.actions.report"]._render_qweb_html("account.action_report_payment_receipt", payment.ids)[0]
 
         self.assertIn(b"medilab_payment_method", html)
-        self.assertIn(payment.name.encode(), html)
+        self.assertIn(assert_instance(payment.name, str).encode(), html)
 
     def test_the_invoice_pdf_uses_the_localisation_qr(self):
         invoice_report = self.env.ref("account.report_invoice_document").arch_db
         laboratory = self.env.ref("sol_commerce.report_invoice_document_laboratory").arch_db
 
-        self.assertIn("_generate_qr_code", invoice_report)
-        self.assertNotIn("qr", laboratory.lower())
+        self.assertIn("_generate_qr_code", (invoice_report or ""))
+        self.assertNotIn("qr", assert_instance(laboratory, str).lower())
 
     def test_a_missing_payos_payment_is_posted_from_the_day_and_the_day_then_locks(self):
         self.env.ref("sol_commerce.payment_provider_payos").is_published = True

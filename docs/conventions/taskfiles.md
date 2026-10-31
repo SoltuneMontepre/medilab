@@ -5,13 +5,17 @@ How the [Task](https://taskfile.dev) commands in this repository are written, an
 ## File structure
 
 ```text
-taskfile.yml                    entrypoint: includes the taskfiles, defines setup
+taskfile.yml                    entrypoint: includes the taskfiles and delegates unified setup
 tools/
 ├── ansible/                    Ansible image, its compose file and the entrypoint that loads the SSH key
+├── cloud/                      template of the Claude Code cloud environment variables that ai:env fills
 ├── odoo-intelligence/          Shared OdooLS MCP bridge, local installer, Serena launcher and tests
 ├── taskfiles/
-│   ├── ai.taskfile.yml         AI tooling: local Serena, OdooLS, source mirror, verification and isolated Cursor setup
+│   ├── ai.taskfile.yml         AI tooling: local Serena, OdooLS, source mirror, verification, cloud environment variables and isolated Cursor setup
 │   ├── ansible.taskfile.yml    Ansible in a container: ping, inspect, check, apply, kubeconfig, lint
+│   ├── setup.taskfile.yml      Guarded fresh-demo selection, switching and recovery
+│   ├── onlyoffice.taskfile.yml Owned local ONLYOFFICE lifecycle and verification
+│   ├── sync.taskfile.yml       Native Sync development and verification
 │   ├── app.taskfile.yml        run the app: up, stop, restart, logs, upgrade, reset
 │   ├── dev.taskfile.yml        developer setup and checks: doppler, venv, Odoo source, lint, typecheck
 │   ├── test.taskfile.yml       tests: core, uninstall, typecheck, e2e, apps
@@ -21,6 +25,7 @@ tools/
     ├── log.sh                  output helpers sourced by the tasks
     ├── doppler.sh              Doppler login helper sourced by the tasks
     ├── ai_setup.sh             ai:setup prerequisites and environment
+    ├── ai_env.sh               ai:env: cloud environment variables from Doppler
     ├── odoo_source.sh          dev:odoo-source download and sparse checkout
     ├── compose_env.py          dev:compose-env: this checkout's compose project in tools/infrastructure/.env
     ├── test_apps.sh            test:apps
@@ -44,12 +49,13 @@ tools/
 - Set `interactive: true` on a task that reads input.
 - Give a task that can be skipped when already done a `status` check, as `doppler` has.
 - Prefer a long, readable name with a short alias: `reset` with `aliases: [wipe]`.
-- Keep `setup` for the existing local application and module-upgrade flow. `setup:fresh:select PROJECT=medilab-bootstrap-<name>` selects a new, empty project for this worktree and saves its owner, ports, image, and volume names before creation. `setup:fresh` is an explicit, isolated fresh-demo bootstrap and must not authenticate through Doppler or reuse credentials from the caller's environment. A failed attempt is never retried in place; use `setup:fresh:recover` only after verifying the displayed owner and resource list, then run `setup:fresh` to create a new isolated environment.
+- `setup` diagnoses host prerequisites, selects the existing guarded fresh bootstrap only for an empty worktree, and prepares/verifies Odoo, ONLYOFFICE and native Sync dependencies. Existing ordinary environments retain authentication/tooling/installed-module upgrades and `MODULES` semantics. Fresh child tasks use sanitized environments and the internal empty-dotenv override rather than reloading caller credentials. Keep native toolchain requirements scoped to setup/new namespaces; listing/logs/up/upgrade/infrastructure commands remain independent. `setup:fresh:select PROJECT=medilab-bootstrap-<name>` selects a new, empty project for this worktree and saves its owner, ports, image, and volume names before creation. `setup:fresh` is an explicit, isolated fresh-demo bootstrap and must not authenticate through Doppler or reuse credentials from the caller's environment. A failed attempt is never retried in place; use `setup:fresh:recover` only after verifying the displayed owner and resource list, then run `setup:fresh` to create a new isolated environment.
 - Route local application and test Compose commands through `tools/scripts/local_compose.py`; it accepts the supported Task operations and rejects project or file overrides and `down` options. Completed fresh demo environments must retain their saved project, image, persistent volume names and ports. `task logs` presents Odoo severity labels from the running container without changing its stored log. `reset` must require verified bootstrap ownership and an explicit owner confirmation before removing resources; it also discards a completed environment whose persistent volumes are missing. Selected host ports stay below the dynamic port ranges of the operating system. `setup:fresh:switch` changes the selected local project only after checking the completed current owner and either an empty new identity or a saved completed owner. Archived owner generations remain separate; an interrupted switch blocks Compose operations until `setup:fresh:switch:recover` verifies the journal and selection.
 
 ## Shell
 
 - Task runs commands in its built-in shell, which understands Bash syntax on every platform, including Windows without Git Bash. Do not rely on programs that are missing from a plain Windows install.
+- New host orchestration uses thin Task commands with `env`/`dir` and Python argument-array subprocess calls. Resolve native executables and Windows launchers explicitly; never add a shared dependency on Bash, Unix utilities, shell aliases or a new runtime manager. Existing sourced Task scripts can remain only when their complete invoked chain is tested in native PowerShell without external Bash.
 - A program started through a wrapper such as `doppler run -- <program>` runs directly, not in a shell, so shell builtins and Unix tools like `env` fail on Windows. Set its environment with the taskfile's `env:` block.
 - Use `printf`, not `echo -e`; it behaves the same in every shell.
 - A multi-line command starts with `set -e` when a failed step must stop the task.

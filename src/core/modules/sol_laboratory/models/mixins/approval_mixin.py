@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import AccessError, UserError
 
@@ -17,26 +19,34 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_DEPARTMENT,
     MODEL_DOCUMENT_LOCK,
+    MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
     MODEL_SIGNATURE,
 )
+from odoo.addons.sol_laboratory.services.model_lookup import record_as
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_approval_mixin as ApprovalMixinBase
+else:
+    ApprovalMixinBase = object
 
 
 # Phê duyệt bằng chữ ký
-class ApprovalMixin(models.AbstractModel):
+class ApprovalMixin(models.AbstractModel, ApprovalMixinBase):
     _name = MODEL_APPROVAL_MIXIN
     # Every signed document is audited, and its signatures are entries of its own.
     _inherit = [MODEL_AUDIT_MIXIN]
     _description = "Approval by Signatures"
 
-    # Version of the document that the next signature records; it grows when every signature is withdrawn.
-    document_version = fields.Integer(default=1, copy=False)
-    # True when the current user may sign the document now.
-    approval_can_sign = fields.Boolean(compute="_compute_approval_actions")
-    # True when the current user may reject the document now.
-    approval_can_reject = fields.Boolean(compute="_compute_approval_actions")
-    # True when the current user may withdraw their latest signature or rejection now.
-    approval_can_withdraw = fields.Boolean(compute="_compute_approval_actions")
+    if not TYPE_CHECKING:
+        # Version of the document that the next signature records; it grows when every signature is withdrawn.
+        document_version = fields.Integer(default=1, copy=False)
+        # True when the current user may sign the document now.
+        approval_can_sign = fields.Boolean(compute="_compute_approval_actions")
+        # True when the current user may reject the document now.
+        approval_can_reject = fields.Boolean(compute="_compute_approval_actions")
+        # True when the current user may withdraw their latest signature or rejection now.
+        approval_can_withdraw = fields.Boolean(compute="_compute_approval_actions")
 
     def write(self, vals):
         content_fields = set(vals) & (self._approval_content_fields() | {"document_version"})
@@ -69,7 +79,7 @@ class ApprovalMixin(models.AbstractModel):
     def action_reject(self, reason):
         self.ensure_one()
         level = self._approval_check_actor(rejecting=True)
-        if not (reason or "").strip():
+        if not ((reason or "").strip()):
             raise UserError(self.env._("A rejection needs a reason."))
         self._approval_record(level, DECISION_REJECTED, reason)
         self._audit("reject", f"{level.name}: {reason}")
@@ -140,8 +150,9 @@ class ApprovalMixin(models.AbstractModel):
         pass
 
     def _approval_notify_rejected(self, reason):
-        if hasattr(self, "message_post"):
-            self.message_post(body=self.env._("The document was rejected: %s", reason))
+        message_post = getattr(self, "message_post", None)
+        if callable(message_post):
+            message_post(body=self.env._("The document was rejected: %s", reason))
 
     def _approval_open_rows(self):
         # Signatures and rejections of the document that are not withdrawn.
@@ -202,7 +213,7 @@ class ApprovalMixin(models.AbstractModel):
         person = self.env[MODEL_PERSON]._current()
         if level.role_id not in person.role_ids:
             raise UserError(self.env._("Only people with the role %s can act at this level.", level.role_id.name))
-        self._check_permission("sign")
+        record_as(self, self.env[MODEL_PERMISSION_MIXIN])._check_permission("sign")
         department = self._approval_department()
         if level.same_department and (not department or person.department_id != department):
             raise UserError(self.env._("Only people of the department that did the work can act at this level."))

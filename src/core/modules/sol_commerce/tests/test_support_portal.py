@@ -63,7 +63,7 @@ class TestSupportPortal(HttpCase, SupportCase):
             (request.subject, request.handled_by_id, request.opened_by_id),
             (SUBJECT, self.sales, self.portal),
         )
-        message = request.message_ids.filtered(lambda item: "Please help." in item.body)
+        message = request.message_ids.filtered(lambda item: "Please help." in (item.body or ""))
         self.assertEqual(message.attachment_ids.mapped("name"), ["notes.txt"])
         page = self.url_open(f"/support/{request.id}")
         self.assertEqual(page.status_code, 200)

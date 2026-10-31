@@ -75,7 +75,7 @@ class Catalog(http.Controller):
     @http.route("/cart/line", type="http", auth="public", methods=["POST"])
     def update_line(self, line_id, quantity="1", **kwargs):
         order = self._cart()
-        line = order._catalog_lines().filtered(lambda item: item.id == int(line_id))[:1]
+        line = order._catalog_lines().filtered(lambda item: bool(item.id == int(line_id)))[:1]
         if not line:
             return request.redirect(CART_PATH)
         try:
@@ -126,7 +126,7 @@ class Catalog(http.Controller):
         return grouped
 
     def _cart(self):
-        order = request_env()[MODEL_SALE_ORDER].sudo().browse(request.session.get(CART_SESSION)).exists()
+        order = request_env()[MODEL_SALE_ORDER].sudo().browse(request.session.get(CART_SESSION) or []).exists()
         user = request_env().user
         if order and order.order_status == STATUS_DRAFT and order.source == SOURCE_PORTAL:
             if user._is_public() or order._owned_by(user):

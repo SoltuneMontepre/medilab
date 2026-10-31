@@ -11,6 +11,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_SUBCONTRACTOR,
     MODEL_TESTING_METHOD,
 )
+from odoo.addons.sol_laboratory.services.record_id import persisted_ids
 
 POST_MIGRATE = Path(__file__).resolve().parents[1] / "migrations" / "20.0.1.7.0" / "post-migrate.py"
 
@@ -19,7 +20,7 @@ POST_MIGRATE = Path(__file__).resolve().parents[1] / "migrations" / "20.0.1.7.0"
 class TestAccreditationMigration(MasterDataCase):
     def test_upgrade_keeps_only_accreditation_a_certificate_supports(self):
         self.env[MODEL_ACCREDITATION_CERTIFICATE].create(
-            {"code": "VILAS-MIG", "method_ids": [Command.set(self.method.ids)]}
+            {"code": "VILAS-MIG", "method_ids": [Command.set(persisted_ids(self.method))]}
         )
         uncertified_method = self.env[MODEL_TESTING_METHOD].create(
             {"code": "MIG-NONE", "name": "Not on a certificate", "field_id": self.testing_field.id}

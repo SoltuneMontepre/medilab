@@ -9,6 +9,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_LABORATORY_FOLDER,
     MODEL_LABORATORY_FOLDER_MEMBER,
 )
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model, reference_as
 
 MENUS = ("folder", "folder_member", "sync_rule", "device")
 
@@ -16,7 +17,9 @@ MENUS = ("folder", "folder_member", "sync_rule", "device")
 @tagged("post_install", "-at_install")
 class TestLaboratoryFilesBackOffice(LaboratoryFilesCase):
     def test_the_documents_menu_shows_to_people_with_the_laboratory_files_permission(self):
-        menus = [self.env.ref(f"sol_laboratory.menu_laboratory_{name}").id for name in MENUS]
+        menus = [
+            reference_as(self.env[MODEL_IR_UI_MENU], f"sol_laboratory.menu_laboratory_{name}").id for name in MENUS
+        ]
         documents = self.env.ref("sol_laboratory.menu_laboratory_documents").id
 
         for user in (self.tester, self.administrator):
@@ -31,7 +34,9 @@ class TestLaboratoryFilesBackOffice(LaboratoryFilesCase):
             (MODEL_LABORATORY_DEVICE, "action_revoke"),
         ):
             arches = {
-                user: self.env[model].with_user(user).get_views([(False, "form")])["views"]["form"]["arch"]
+                user: dynamic_model(self.env, model)
+                .with_user(user)
+                .get_views([(False, "form")])["views"]["form"]["arch"]
                 for user in (self.administrator, self.tester)
             }
             with self.subTest(model=model):

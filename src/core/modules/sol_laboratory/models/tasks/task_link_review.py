@@ -1,7 +1,9 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, models
 from odoo.fields import Domain
 
-from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_CHANGE, MODEL_AUDIT_ENTRY, MODEL_TASK
+from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_CHANGE, MODEL_AUDIT_ENTRY, MODEL_SAMPLE, MODEL_TASK
 from odoo.addons.sol_laboratory.constants.tasks import (
     LINK_CHANGED,
     LINK_NOT_OF_TYPE,
@@ -9,10 +11,16 @@ from odoo.addons.sol_laboratory.constants.tasks import (
     MANUAL_TRIGGER,
 )
 from odoo.addons.sol_laboratory.models.tasks.task import DOCUMENT_LINK_FIELDS, LINKED_BY_SYSTEM
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model, record_as
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_task as TaskBase
+else:
+    TaskBase = object
 
 
 # Nhiệm Vụ
-class Task(models.Model):
+class Task(models.Model, TaskBase):
     _inherit = MODEL_TASK
 
     @api.model
@@ -39,7 +47,9 @@ class Task(models.Model):
         rows = []
         for task in tasks.filtered(lambda task: task.id in findings):
             model = task.document_model
-            document = self.env[model].sudo().browse(task.document_id).exists() if model in self.env else None
+            document = (
+                dynamic_model(self.env, model).sudo().browse(task.document_id).exists() if model in self.env else None
+            )
             rows.append(
                 {
                     "task_id": task.id,
@@ -50,7 +60,9 @@ class Task(models.Model):
                     "document_model": task.document_model,
                     "document_id": task.document_id,
                     "document": document.display_name if document else False,
-                    "sample": document.sample_id.code if document and "sample_id" in document._fields else False,
+                    "sample": record_as(document["sample_id"], self.env[MODEL_SAMPLE]).code
+                    if document and "sample_id" in document._fields
+                    else False,
                 }
             )
         return rows

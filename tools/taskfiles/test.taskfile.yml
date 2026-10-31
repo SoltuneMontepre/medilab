@@ -83,6 +83,7 @@ tasks:
       - python tools/scripts/local_compose.py up -d --wait postgres
       - python tools/scripts/core_test_guard.py prepare
       - defer: { task: test:core:clean }
+      # Odoo reads this cache as its container user; prepare keeps the host .local parent private.
       - 'uv pip install --target {{.TEST_COVERAGE_DIR}} --python-version 3.12 --python-platform linux --no-deps --only-binary :all: coverage==7.10.7'
       - python tools/scripts/local_compose.py run --rm -T garage-setup
       - . {{.LOG}} && log_step "Splitting the test classes into {{.TOTAL_SHARDS}} shards"
@@ -162,15 +163,24 @@ tasks:
     cmds:
       - python tools/scripts/core_test_guard.py clean
 
+  test:setup:
+    desc: "Test local setup security and platform acceptance helpers"
+    silent: true
+    cmds:
+      - python -B -m unittest discover -s tools/scripts -p test_local_private_paths.py
+      - python -B -m unittest discover -s tools/scripts -p test_private_state_writers.py
+      - python -B -m unittest discover -s tools/scripts -p 'test_*acceptance*.py'
+
   test:onlyoffice:coverage:
     desc: "Test the deployed ONLYOFFICE runtime helpers and report Python and signing-hook coverage"
     cmds:
-      - mkdir -p .local/onlyoffice-coverage
+      - python tools/scripts/local_private_paths.py .local/onlyoffice-coverage
       - "{{.UV}} run --with coverage==7.10.7 python -m coverage run --branch --source=infra/cluster/onlyoffice,infra/cluster/onlyoffice-monitor --data-file=.local/onlyoffice-coverage/.coverage -m unittest discover -s tools/infrastructure/onlyoffice -p 'test_*.py'"
       - "{{.UV}} run --with coverage==7.10.7 python -m coverage xml --data-file=.local/onlyoffice-coverage/.coverage -o .local/onlyoffice-coverage/coverage.xml"
       - "{{.UV}} run python -m unittest discover -s tools/onlyoffice_integration -t . -p 'test_*.py'"
       - node tools/onlyoffice_integration/test_loopback_proxy.cjs
       - node tools/onlyoffice_integration/test_frame_diagnostics.cjs
+      - node --test tools/onlyoffice_integration/test_managed_frame.cjs
       - node tools/onlyoffice_integration/test_editor_lifecycle.cjs
       - node tools/onlyoffice_integration/test_garage_tls.cjs
       - node tools/infrastructure/onlyoffice/test_retention_fixture.cjs
@@ -201,9 +211,9 @@ tasks:
       - . {{.LOG}} && log_ok "Uninstall test passed."
 
   test:typecheck:
-    desc: "Check that task typecheck resolves the module imports and still fails on missing names and type errors"
+    desc: "Test the typecheck runner, registry generator and typing contracts"
     cmds:
-      - task: dev:odoo-links
+      - task: typecheck:prepare
       - "{{.UV}} run python -m unittest discover -s {{.TYPECHECK_DIR}}"
 
   test:openapi:

@@ -7,6 +7,7 @@ from .request_case import RequestCase
 from odoo.addons.sol_laboratory.constants.laboratory_files import MEMBER_ROLE, RESULT
 from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_EDITING_SESSION, MODEL_LABORATORY_FOLDER
 from odoo.addons.sol_laboratory.constants.xml_ids import FOLDER_ADMINISTRATION_GROUP
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 SAMPLE_READER_GROUP = "sol_laboratory.group_permission_sample_read_all"
 
@@ -48,6 +49,6 @@ class TestLaboratoryEditingSampleFolder(LaboratoryEditingCase, RequestCase):
                 with self.assertRaises(AccessError):
                     self.of_sample.with_user(user).read(["display_name"])
 
-            user.group_ids = [Command.link(self.env.ref(SAMPLE_READER_GROUP).id)]
+            user.group_ids = [Command.link(persisted_id(self.env.ref(SAMPLE_READER_GROUP)))]
             with self.subTest(user=user.login, sees_sample=True):
                 self.assertEqual(self.visible(user), self.of_sample | self.of_no_sample)

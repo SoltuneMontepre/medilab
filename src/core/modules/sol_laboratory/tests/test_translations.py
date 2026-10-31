@@ -9,6 +9,7 @@ from odoo.tools.misc import file_path
 from odoo.tools.translate import TranslationModuleReader
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_ROLE
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 MODULE_PREFIX = "sol_"
 VIETNAMESE_PO = os.path.join("i18n", "vi.po")
@@ -40,7 +41,9 @@ class TestTranslations(TransactionCase):
         modules = cls.env["ir.module.module"].search(
             [("name", "=like", f"{MODULE_PREFIX}%"), ("state", "=", "installed")]
         )
-        cls.po_paths = {name: os.path.join(file_path(name), VIETNAMESE_PO) for name in modules.mapped("name")}
+        cls.po_paths = {
+            name: os.path.join(file_path(assert_instance(name, str)), VIETNAMESE_PO) for name in modules.mapped("name")
+        }
 
     def test_every_module_translates_its_strings_to_vietnamese(self):
         missing = untranslated_terms(self.env, self.po_paths)
