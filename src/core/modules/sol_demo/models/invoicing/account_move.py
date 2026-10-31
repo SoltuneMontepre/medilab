@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
 
 from odoo import api, fields, models
@@ -6,6 +7,12 @@ from odoo.fields import Command
 
 from odoo.addons.sol_commerce.models.orders.sale_order_confirmation import CONFIRMING_ORDER_IDS
 from odoo.addons.sol_laboratory.constants.notifications import VIETNAM_ZONE
+from odoo.addons.sol_laboratory.services.record_id import persisted_ids
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_account_move as AccountMoveBase
+else:
+    AccountMoveBase = object
 
 MARKER = "sol_demo.demo_account_move_advance"
 PARTNER_AN_PHU = "sol_demo.demo_res_partner_an_phu"
@@ -19,7 +26,7 @@ VAT_EIGHT = "VAT 8%"
 PAYMENT_JOURNALS = {"cash": ("Cash", "Tiền mặt"), "bank": ("Bank", "Ngân hàng")}
 
 
-class AccountMove(models.Model):
+class AccountMove(models.Model, AccountMoveBase):
     _inherit = "account.move"
 
     @api.model
@@ -114,7 +121,7 @@ class AccountMove(models.Model):
                             "product_id": product.id,
                             "product_uom_qty": 1,
                             "price_unit": 5_000_000,
-                            "tax_ids": [Command.set(tax.ids)],
+                            "tax_ids": [Command.set(persisted_ids(tax))],
                         }
                     )
                 ],
@@ -140,7 +147,7 @@ class AccountMove(models.Model):
                             "product_id": product.id,
                             "quantity": 1,
                             "price_unit": 1_000_000,
-                            "tax_ids": [Command.set(tax.ids)],
+                            "tax_ids": [Command.set(persisted_ids(tax))],
                         }
                     )
                 ],
@@ -222,7 +229,7 @@ class AccountMove(models.Model):
                     "name": partner.name,
                     "login": login,
                     "partner_id": partner.id,
-                    "group_ids": [Command.set(portal.ids)],
+                    "group_ids": [Command.set(persisted_ids(portal))],
                 }
             )
             self._remember({xml_id: user})
@@ -269,7 +276,7 @@ class AccountMove(models.Model):
                             "product_id": product.id,
                             "quantity": 1,
                             "price_unit": 1_000_000,
-                            "tax_ids": [Command.set(vat8.ids)],
+                            "tax_ids": [Command.set(persisted_ids(vat8))],
                         }
                     ),
                     Command.create(
@@ -277,7 +284,7 @@ class AccountMove(models.Model):
                             "product_id": product.id,
                             "quantity": 1,
                             "price_unit": 2_000_000,
-                            "tax_ids": [Command.set(vat10.ids)],
+                            "tax_ids": [Command.set(persisted_ids(vat10))],
                         }
                     ),
                 ],

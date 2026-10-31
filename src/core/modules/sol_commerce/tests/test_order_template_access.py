@@ -1,15 +1,22 @@
+from typing import TYPE_CHECKING
+
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.fields import Command
 from odoo.tests import tagged
 
 from .template_case import TemplateCase
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
+
+if TYPE_CHECKING:
+    from odoo.orm.types import DomainType
 
 
 @tagged("post_install", "-at_install")
 class TestOrderTemplateAccess(TemplateCase):
     def assert_hidden(self, template, user):
         records = self.env["medilab.order.template"].with_user(user)
-        domain = [("id", "=", template.id)]
+        domain: DomainType = [("id", "=", template.id)]
         self.assertFalse(records.search(domain))
         self.assertEqual(records.search_count(domain), 0)
         self.assertFalse(records.search_read(domain, ["name"]))
@@ -180,7 +187,7 @@ class TestOrderTemplateAccess(TemplateCase):
         template = self.save_template()
         self.sales_person.role_ids = False
         self.sales_person.permission_ids = self.sales_person.permission_ids.filtered(
-            lambda permission: not permission.document_model.startswith("medilab.order.template")
+            lambda permission: not assert_instance(permission.document_model, str).startswith("medilab.order.template")
         )
         with self.assertRaises(AccessError):
             template.with_user(self.sales).read(["name"])
@@ -217,7 +224,7 @@ class TestOrderTemplateAccess(TemplateCase):
         self.sales_person.role_ids = False
         self.sales_person.permission_ids = self.sales_person.permission_ids.filtered(
             lambda permission: (
-                not permission.document_model.startswith("medilab.order.template")
+                not assert_instance(permission.document_model, str).startswith("medilab.order.template")
                 or permission.action in ("read", "create")
             )
         )
@@ -233,7 +240,7 @@ class TestOrderTemplateAccess(TemplateCase):
                     "name": "Linked selection",
                     "source_order_id": source.id,
                     "customer_id": self.customer_record.id,
-                    "line_ids": [Command.link(template.line_ids[0].id)],
+                    "line_ids": [Command.link(persisted_id(template.line_ids[0]))],
                 }
             )
 

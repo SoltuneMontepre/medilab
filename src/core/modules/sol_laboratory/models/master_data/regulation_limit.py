@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 from odoo.fields import Domain
@@ -12,33 +14,39 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TEST_PARAMETER,
 )
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_regulation_limit as RegulationLimitBase
+else:
+    RegulationLimitBase = object
+
 
 # Giới Hạn Quy Chuẩn
-class RegulationLimit(models.Model):
+class RegulationLimit(models.Model, RegulationLimitBase):
     _name = MODEL_REGULATION_LIMIT
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Regulation Limit"
     _order = "regulation_id, id"
     _permission_actions = ("create", "edit", "delete")
 
-    # The regulation that sets the limit.
-    regulation_id = fields.Many2one(MODEL_REGULATION, required=True, ondelete="cascade")
-    # The parameter the limit applies to.
-    parameter_id = fields.Many2one(MODEL_TEST_PARAMETER, required=True, ondelete="restrict", index=True)
-    # The unit of the minimum and maximum; empty for a text-only limit.
-    unit_id = fields.Many2one(MODEL_MEASUREMENT_UNIT, ondelete="restrict", index=True)
-    # True when a minimum is set. The minimum itself may be 0.
-    min_set = fields.Boolean(string="Has a minimum")
-    # Lowest allowed value, including 0. Meaningful when a minimum is set.
-    min_value = fields.Float(string="Minimum", digits=0)
-    # True when a maximum is set. The maximum itself may be 0.
-    max_set = fields.Boolean(string="Has a maximum")
-    # Highest allowed value, including 0. Meaningful when a maximum is set.
-    max_value = fields.Float(string="Maximum", digits=0)
-    # Decimals the limit shows on the report, such as 2 for 0.50.
-    decimals = fields.Integer()
-    # The limit as printed on the report when it is not a number, such as "Not detected", in each language.
-    limit_text = fields.Char(translate=True)
+    if not TYPE_CHECKING:
+        # The regulation that sets the limit.
+        regulation_id = fields.Many2one(MODEL_REGULATION, required=True, ondelete="cascade")
+        # The parameter the limit applies to.
+        parameter_id = fields.Many2one(MODEL_TEST_PARAMETER, required=True, ondelete="restrict", index=True)
+        # The unit of the minimum and maximum; empty for a text-only limit.
+        unit_id = fields.Many2one(MODEL_MEASUREMENT_UNIT, ondelete="restrict", index=True)
+        # True when a minimum is set. The minimum itself may be 0.
+        min_set = fields.Boolean(string="Has a minimum")
+        # Lowest allowed value, including 0. Meaningful when a minimum is set.
+        min_value = fields.Float(string="Minimum", digits=0)
+        # True when a maximum is set. The maximum itself may be 0.
+        max_set = fields.Boolean(string="Has a maximum")
+        # Highest allowed value, including 0. Meaningful when a maximum is set.
+        max_value = fields.Float(string="Maximum", digits=0)
+        # Decimals the limit shows on the report, such as 2 for 0.50.
+        decimals = fields.Integer()
+        # The limit as printed on the report when it is not a number, such as "Not detected", in each language.
+        limit_text = fields.Char(translate=True)
 
     _regulation_parameter_unique = models.Constraint(
         "UNIQUE(regulation_id, parameter_id)", "A regulation sets at most one limit per parameter."

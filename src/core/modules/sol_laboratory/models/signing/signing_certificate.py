@@ -1,6 +1,7 @@
 import base64
 import hashlib
 from datetime import UTC, timedelta
+from typing import TYPE_CHECKING
 
 from asn1crypto import x509
 
@@ -25,13 +26,18 @@ from odoo.addons.sol_laboratory.constants.signing import (
 from odoo.addons.sol_laboratory.services.pdf_signing import pem_chain
 from odoo.addons.sol_laboratory.services.viettel_sign_client import ViettelSignError, viettel_sign_client
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_signing_certificate as SigningCertificateBase
+else:
+    SigningCertificateBase = object
+
 # What Viettel Sign reports for a certificate and a key that can sign.
 PROVIDER_VALID_CERTIFICATE = "valid"
 PROVIDER_ENABLED_KEY = "enabled"
 
 
 # Chứng Thư Số
-class SigningCertificate(models.Model):
+class SigningCertificate(models.Model, SigningCertificateBase):
     _name = MODEL_SIGNING_CERTIFICATE
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Signing Certificate"
@@ -41,33 +47,34 @@ class SigningCertificate(models.Model):
     # Every reading of the certificates moves when Viettel Sign last reported them, which changes nothing else.
     _audit_exclude = ("checked_at",)
 
-    # Name of the holder of the certificate, from its subject.
-    name = fields.Char(required=True, readonly=True)
-    # Viettel Sign's id of the certificate, which each signing names.
-    credential_id = fields.Char(string="Credential ID", required=True, readonly=True)
-    # Serial number the certificate authority gave the certificate, in hexadecimal.
-    serial_number = fields.Char(readonly=True)
-    # Whom the certificate was issued to.
-    subject = fields.Char(readonly=True)
-    # The certificate authority that issued the certificate.
-    issuer = fields.Char(readonly=True)
-    # When the validity of the certificate starts.
-    valid_from = fields.Datetime(readonly=True)
-    # When the validity of the certificate ends.
-    valid_to = fields.Datetime(required=True, readonly=True)
-    # Whether the certificate can sign: valid, expired, or revoked as Viettel Sign reports.
-    status = fields.Selection(
-        [(CERTIFICATE_VALID, "Valid"), (CERTIFICATE_EXPIRED, "Expired"), (CERTIFICATE_REVOKED, "Revoked")],
-        required=True,
-        default=CERTIFICATE_VALID,
-        readonly=True,
-    )
-    # The certificate and the authorities that issued it, in PEM, the certificate first.
-    certificate_chain = fields.Text(required=True, readonly=True)
-    # SHA-256 of the certificate itself, which finds it from the signature of a PDF.
-    fingerprint = fields.Char(string="SHA-256 Fingerprint", required=True, readonly=True, index=True)
-    # When Viettel Sign last reported the certificate.
-    checked_at = fields.Datetime(string="Last Checked", readonly=True)
+    if not TYPE_CHECKING:
+        # Name of the holder of the certificate, from its subject.
+        name = fields.Char(required=True, readonly=True)
+        # Viettel Sign's id of the certificate, which each signing names.
+        credential_id = fields.Char(string="Credential ID", required=True, readonly=True)
+        # Serial number the certificate authority gave the certificate, in hexadecimal.
+        serial_number = fields.Char(readonly=True)
+        # Whom the certificate was issued to.
+        subject = fields.Char(readonly=True)
+        # The certificate authority that issued the certificate.
+        issuer = fields.Char(readonly=True)
+        # When the validity of the certificate starts.
+        valid_from = fields.Datetime(readonly=True)
+        # When the validity of the certificate ends.
+        valid_to = fields.Datetime(required=True, readonly=True)
+        # Whether the certificate can sign: valid, expired, or revoked as Viettel Sign reports.
+        status = fields.Selection(
+            [(CERTIFICATE_VALID, "Valid"), (CERTIFICATE_EXPIRED, "Expired"), (CERTIFICATE_REVOKED, "Revoked")],
+            required=True,
+            default=CERTIFICATE_VALID,
+            readonly=True,
+        )
+        # The certificate and the authorities that issued it, in PEM, the certificate first.
+        certificate_chain = fields.Text(required=True, readonly=True)
+        # SHA-256 of the certificate itself, which finds it from the signature of a PDF.
+        fingerprint = fields.Char(string="SHA-256 Fingerprint", required=True, readonly=True, index=True)
+        # When Viettel Sign last reported the certificate.
+        checked_at = fields.Datetime(string="Last Checked", readonly=True)
 
     _credential_unique = models.Constraint("UNIQUE(credential_id)", "Viettel Sign reports each certificate once.")
 

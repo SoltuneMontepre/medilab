@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 from odoo.fields import Domain
@@ -6,22 +8,28 @@ from odoo.tools import format_date
 from odoo.addons.sol_commerce.constants.models import MODEL_TAX, MODEL_TAX_RATE
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_PERMISSION_MIXIN
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_tax_rate as TaxRateBase
+else:
+    TaxRateBase = object
+
 
 # Thuế Suất
-class TaxRate(models.Model):
+class TaxRate(models.Model, TaxRateBase):
     _name = MODEL_TAX_RATE
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Tax Rate"
     _order = "tax_id, valid_from"
 
-    # The tax.
-    tax_id = fields.Many2one(MODEL_TAX, required=True, ondelete="cascade")
-    # Rate in percent, such as 8 or 10; 0 for a tax that adds nothing.
-    rate = fields.Float(string="Rate (%)", required=True, digits=0)
-    # First day the rate applies.
-    valid_from = fields.Date(required=True)
-    # Last day the rate applies; empty when it applies until further notice.
-    valid_until = fields.Date()
+    if not TYPE_CHECKING:
+        # The tax.
+        tax_id = fields.Many2one(MODEL_TAX, required=True, ondelete="cascade")
+        # Rate in percent, such as 8 or 10; 0 for a tax that adds nothing.
+        rate = fields.Float(string="Rate (%)", required=True, digits=0)
+        # First day the rate applies.
+        valid_from = fields.Date(required=True)
+        # Last day the rate applies; empty when it applies until further notice.
+        valid_until = fields.Date()
 
     _tax_valid_from_index = models.Index("(tax_id, valid_from)")
     _rate_positive = models.Constraint("CHECK(rate >= 0)", "A tax rate cannot be negative.")

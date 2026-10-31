@@ -1,13 +1,20 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, models
 
 from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_sale_order as SaleOrderTotalsBase
+else:
+    SaleOrderTotalsBase = object
 
 # The label Odoo's Sales gives the discount total under the order totals.
 ADVANTAGE_LABEL = "Total Advantage"
 
 
 # Đơn Hàng: the totals shown under the order lines.
-class SaleOrderTotals(models.Model):
+class SaleOrderTotals(models.Model, SaleOrderTotalsBase):
     _inherit = MODEL_SALE_ORDER
 
     @api.depends_context("lang")
@@ -17,6 +24,8 @@ class SaleOrderTotals(models.Model):
         label = self.env._("Total Advantage")
         for order in self:
             groups = order.extra_total_fields or []
+            if not isinstance(groups, list):
+                raise TypeError("Extra total groups must be a list.")
             if not any(line.get("label") == ADVANTAGE_LABEL for group in groups for line in group.get("lines", [])):
                 continue
             order.extra_total_fields = [

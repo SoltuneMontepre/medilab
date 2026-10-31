@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, models
 from odoo.exceptions import UserError
 from odoo.fields import Domain
@@ -5,9 +7,14 @@ from odoo.tools import format_list
 
 from odoo.addons.sol_inventory.constants.models import MODEL_PRODUCT, MODEL_RECIPE
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_product_product as ProductProductBase
+else:
+    ProductProductBase = object
+
 
 # Vật Tư
-class ProductProduct(models.Model):
+class ProductProduct(models.Model, ProductProductBase):
     _inherit = MODEL_PRODUCT
 
     @api.constrains("item_kind", "tracking", "track_containers")

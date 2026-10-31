@@ -1,11 +1,12 @@
 import hashlib
 import socket
 import urllib.parse
+from typing import TYPE_CHECKING
 
 import requests
 
 from odoo.tests import TransactionCase
-from odoo.tests.common import _super_send
+from odoo.tests.common import BaseCase, _super_send
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_CONTENT
 from odoo.addons.sol_laboratory.services import laboratory_bucket
@@ -30,7 +31,13 @@ def remove_written_objects(case):
     case.addCleanup(remove)
 
 
-class LaboratoryBucketTools:
+if TYPE_CHECKING:
+    BucketToolsBase = BaseCase
+else:
+    BucketToolsBase = object
+
+
+class LaboratoryBucketTools(BucketToolsBase):
     """What tests against the laboratory files bucket of local development and CI use, in any kind of test case. What
     they write to it is theirs to remove."""
 

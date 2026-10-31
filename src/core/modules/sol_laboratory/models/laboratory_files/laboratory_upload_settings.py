@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 
@@ -8,19 +10,25 @@ from odoo.addons.sol_laboratory.constants.settings import (
     LIFECYCLE_ABORT_HOURS,
 )
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_res_config_settings as ResConfigSettingsBase
+else:
+    ResConfigSettingsBase = object
+
 
 # Cài Đặt
-class ResConfigSettings(models.TransientModel):
+class ResConfigSettings(models.TransientModel, ResConfigSettingsBase):
     _inherit = MODEL_RES_CONFIG_SETTINGS
 
-    # Hours a computer has to upload a file and finalize it before the upload expires.
-    laboratory_upload_hours = fields.Integer(
-        string="Unfinished Uploads (hours)",
-        config_parameter=LABORATORY_UPLOAD_PARAMETER,
-        default=DEFAULT_LABORATORY_UPLOAD_HOURS,
-        help="Hours a computer has to upload a laboratory file and finalize it; an upload not finalized by then expires "
-        "and its parts are removed.",
-    )
+    if not TYPE_CHECKING:
+        # Hours a computer has to upload a file and finalize it before the upload expires.
+        laboratory_upload_hours = fields.Integer(
+            string="Unfinished Uploads (hours)",
+            config_parameter=LABORATORY_UPLOAD_PARAMETER,
+            default=DEFAULT_LABORATORY_UPLOAD_HOURS,
+            help="Hours a computer has to upload a laboratory file and finalize it; an upload not finalized by then expires "
+            "and its parts are removed.",
+        )
 
     @api.constrains("laboratory_upload_hours")
     def _check_laboratory_upload_hours(self):

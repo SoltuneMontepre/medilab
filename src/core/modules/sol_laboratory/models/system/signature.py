@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Domain
@@ -11,9 +13,14 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_SIGNATURE,
 )
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_signature as SignatureBase
+else:
+    SignatureBase = object
+
 
 # Chữ Ký
-class Signature(models.Model):
+class Signature(models.Model, SignatureBase):
     _name = MODEL_SIGNATURE
     _inherit = [MODEL_PERMISSION_MIXIN]
     _description = "Signature"
@@ -21,37 +28,38 @@ class Signature(models.Model):
     # Signatures are given through the approval mixin and never edited or deleted on the screen.
     _permission_actions = ("read",)
 
-    # Technical name of the model of the signed document, such as sale.order.
-    document_model = fields.Char(string="Document Type", required=True)
-    # Id of the signed document.
-    document_id = fields.Integer(string="Document", required=True)
-    # Version of the document that was signed.
-    document_version = fields.Integer(required=True, default=1)
-    # SHA-256 of the content signed, for a document type whose content has one, such as a laboratory file version.
-    document_hash = fields.Char(string="Document Hash")
-    # The level signed at.
-    level_id = fields.Many2one(MODEL_APPROVAL_LEVEL, string="Level", required=True, ondelete="restrict")
-    # The person who signed.
-    signer_id = fields.Many2one(MODEL_PERSON, string="Signer", required=True, ondelete="restrict")
-    # Name of the signer at the time of signing.
-    signer_name = fields.Char(required=True)
-    # Name of the signer's role at the time of signing.
-    signer_role = fields.Char(required=True)
-    # Name of the level at the time of signing.
-    level_name = fields.Char(required=True)
-    # Whether the signer signed or rejected the document.
-    decision = fields.Selection([(DECISION_SIGNED, "Signed"), (DECISION_REJECTED, "Rejected")], required=True)
-    # Reason the signer gave for a rejection.
-    reason = fields.Text()
-    # When the signer withdrew the signature; empty while it stands.
-    withdrawn_at = fields.Datetime()
+    if not TYPE_CHECKING:
+        # Technical name of the model of the signed document, such as sale.order.
+        document_model = fields.Char(string="Document Type", required=True)
+        # Id of the signed document.
+        document_id = fields.Integer(string="Document", required=True)
+        # Version of the document that was signed.
+        document_version = fields.Integer(required=True, default=1)
+        # SHA-256 of the content signed, for a document type whose content has one, such as a laboratory file version.
+        document_hash = fields.Char(string="Document Hash")
+        # The level signed at.
+        level_id = fields.Many2one(MODEL_APPROVAL_LEVEL, string="Level", required=True, ondelete="restrict")
+        # The person who signed.
+        signer_id = fields.Many2one(MODEL_PERSON, string="Signer", required=True, ondelete="restrict")
+        # Name of the signer at the time of signing.
+        signer_name = fields.Char(required=True)
+        # Name of the signer's role at the time of signing.
+        signer_role = fields.Char(required=True)
+        # Name of the level at the time of signing.
+        level_name = fields.Char(required=True)
+        # Whether the signer signed or rejected the document.
+        decision = fields.Selection([(DECISION_SIGNED, "Signed"), (DECISION_REJECTED, "Rejected")], required=True)
+        # Reason the signer gave for a rejection.
+        reason = fields.Text()
+        # When the signer withdrew the signature; empty while it stands.
+        withdrawn_at = fields.Datetime()
 
     _document_idx = models.Index("(document_model, document_id)")
 
     @api.constrains("decision", "reason")
     def _check_rejection_reason(self):
         for signature in self:
-            if signature.decision == DECISION_REJECTED and not (signature.reason or "").strip():
+            if signature.decision == DECISION_REJECTED and not ((signature.reason or "").strip()):
                 raise ValidationError(self.env._("A rejection needs a reason."))
 
     @api.depends("signer_name", "level_name")

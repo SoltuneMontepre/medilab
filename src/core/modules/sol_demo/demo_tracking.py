@@ -6,7 +6,8 @@ from .demo_orders import _product, _xml_id
 from .demo_quotations import _pay_advance, _quotable_order, _sales_tax
 from .demo_reports import _approve_all
 from .demo_results import _enter, _receive
-from odoo.addons.sol_laboratory.constants.models import MODEL_TEST_REPORT
+from odoo.addons.sol_laboratory.constants.models import MODEL_RES_USERS, MODEL_TEST_REPORT
+from odoo.addons.sol_laboratory.services.model_lookup import reference_as
 
 # Orders of each salesperson over the last two months: how many days ago they were claimed, how far they got, and the
 # days each step they reached took after the one before.
@@ -53,7 +54,7 @@ def seed_tracking(env):
     _xml_id(env, "demo_sale_order_tracking_released", released)
 
     for name, orders in HISTORY.items():
-        salesperson = env.ref(f"sol_demo.demo_res_users_{name}")
+        salesperson = reference_as(env[MODEL_RES_USERS], f"sol_demo.demo_res_users_{name}")
         for number, (days_ago, outcome, steps) in enumerate(orders, start=1):
             order = _history_order(env, salesperson, head, lead_product, tax, outcome)
             _backdate(order, days_ago, steps)

@@ -8,6 +8,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_SUBCONTRACTOR,
 )
 from odoo.addons.sol_laboratory.constants.settings import SAMPLE_DELIVERY_ROLE_PARAMETER
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 DISPATCH_PERMISSIONS = (
     "subcontract_dispatch.read.all",
@@ -58,7 +59,7 @@ class DispatchCase(ResultCase):
             {
                 "login": login,
                 "partner_id": contact.id,
-                "group_ids": [Command.set([cls.env.ref("base.group_portal").id])],
+                "group_ids": [Command.set([persisted_id(cls.env.ref("base.group_portal"))])],
             }
         )
 

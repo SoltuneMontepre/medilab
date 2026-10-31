@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 
@@ -16,11 +18,16 @@ from odoo.addons.sol_laboratory.services.laboratory_paths import (
     normal_text,
 )
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_laboratory_sync_rule as LaboratorySyncRuleBase
+else:
+    LaboratorySyncRuleBase = object
+
 PATTERN_CHECKS = {"prefix": is_name_prefix, "glob": is_name_pattern, "extension": is_extension}
 
 
 # Quy Tắc Đồng Bộ
-class LaboratorySyncRule(models.Model):
+class LaboratorySyncRule(models.Model, LaboratorySyncRuleBase):
     _name = MODEL_LABORATORY_SYNC_RULE
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Laboratory Sync Rule"
@@ -29,20 +36,23 @@ class LaboratorySyncRule(models.Model):
     # A rule that is no longer wanted is removed or turned off.
     _permission_actions = ("read", "create", "edit", "delete")
 
-    # The folder the rule limits.
-    folder_id = fields.Many2one(MODEL_LABORATORY_FOLDER, string="Folder", required=True, ondelete="cascade", index=True)
-    # prefix, glob or extension.
-    kind = fields.Selection(
-        [("prefix", "Name Prefix"), ("glob", "Name Pattern"), ("extension", "Extension")],
-        required=True,
-        default="prefix",
-    )
-    # The name prefix, pattern with * or extension the file must match; an extension without its dot, in lowercase.
-    pattern = fields.Char(required=True)
-    # True when files in subfolders count too.
-    recursive = fields.Boolean(string="Include Subfolders", default=True)
-    # False when the rule is turned off.
-    enabled = fields.Boolean(default=True)
+    if not TYPE_CHECKING:
+        # The folder the rule limits.
+        folder_id = fields.Many2one(
+            MODEL_LABORATORY_FOLDER, string="Folder", required=True, ondelete="cascade", index=True
+        )
+        # prefix, glob or extension.
+        kind = fields.Selection(
+            [("prefix", "Name Prefix"), ("glob", "Name Pattern"), ("extension", "Extension")],
+            required=True,
+            default="prefix",
+        )
+        # The name prefix, pattern with * or extension the file must match; an extension without its dot, in lowercase.
+        pattern = fields.Char(required=True)
+        # True when files in subfolders count too.
+        recursive = fields.Boolean(string="Include Subfolders", default=True)
+        # False when the rule is turned off.
+        enabled = fields.Boolean(default=True)
 
     _folder_kind_pattern_unique = models.Constraint(
         "UNIQUE(folder_id, kind, pattern)", "The folder already has this sync rule."
@@ -83,7 +93,7 @@ class LaboratorySyncRule(models.Model):
     def _check_pattern(self):
         for rule in self:
             pattern = rule.pattern or ""
-            if PATTERN_CHECKS[rule.kind](pattern):
+            if PATTERN_CHECKS[rule.kind or ""](pattern):
                 continue
             if rule.kind == "prefix":
                 message = self.env._(

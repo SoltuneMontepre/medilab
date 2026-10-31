@@ -16,6 +16,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TESTING_METHOD,
     MODEL_TESTING_METHOD_STEP,
 )
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 
 @freeze_time(MONDAY)
@@ -180,9 +181,9 @@ class TestMethodStepsInTesting(SchedulingCase):
             for record in (task, booking):
                 with self.subTest(person=person.name, model=record._name), self.assertRaises(AccessError):
                     self.as_person(record, person).write(
-                        {"method_step_ids": [Command.update(step.id, {"instruction": "Changed."})]}
+                        {"method_step_ids": [Command.update(persisted_id(step), {"instruction": "Changed."})]}
                     )
-        for command in (Command.create(new_step), Command.delete(step.id)):
+        for command in (Command.create(new_step), Command.delete(persisted_id(step))):
             with self.subTest(command=command[0]), self.assertRaises(AccessError):
                 self.as_person(task, self.head).write({"method_step_ids": [command]})
             self.as_person(booking, self.head).write({"method_step_ids": [command]})

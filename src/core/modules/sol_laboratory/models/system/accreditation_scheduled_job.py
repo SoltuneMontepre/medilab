@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import models
 
 from odoo.addons.sol_laboratory.constants.models import (
@@ -6,6 +8,11 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PARAMETER_METHOD,
     MODEL_SCHEDULED_JOB,
 )
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_scheduled_job as ScheduledJobBase
+else:
+    ScheduledJobBase = object
 
 ACCREDITATION_REFRESH_JOB = "accreditation.refresh"
 # Progress of today's pair discovery: ir.config_parameter key suffix is the laboratory date.
@@ -28,7 +35,7 @@ _ELIGIBLE_PAIR_SQL = """
 
 
 # Tác Vụ Định Kỳ
-class ScheduledJob(models.Model):
+class ScheduledJob(models.Model, ScheduledJobBase):
     _inherit = MODEL_SCHEDULED_JOB
 
     def _run_batch(self):

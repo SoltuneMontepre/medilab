@@ -47,12 +47,12 @@ The harness requires context `kind-medilab-286-review`, a loopback API server an
 
 ## Type checking tests
 
-- `task test:typecheck` checks that every module is linked into the Odoo source and that an import of a module's constant resolves.
-- It checks that a missing name, a missing module, a type error and a wrong call fail, and that the Odoo patterns behind the [relaxed rules](python.md#relaxed-rules) pass.
-- Each case is a file the test writes to a temporary folder, so no failing code is committed.
-- `test_link_addons.py` runs the linking in a temporary folder. It checks that owned links stay as they are, links to a moved, removed or new module are updated, matching unowned links remain unmanaged, other links and all real folders are kept, and the linked folders never change. A record cannot name a link outside `odoo/addons`.
-- `test_pyright_report.py` feeds `typecheck.py` controlled pyright results: failed runs, invalid or incomplete reports, inconsistent diagnostic counts and runs that checked no files must fail. Startup and output-decoding failures must produce exit code 2 and an explanation.
-- The `ci-core` tooling job runs these safety tests on Linux and Windows. Windows exercises real junction creation, replacement and cleanup, including preservation of target files and unmanaged junctions.
+- `task test:typecheck` prepares the real installed registry and checks source imports, merged extensions, delegated and multi-level relations, recordset chaining, Selection and both assertion call styles.
+- Temporary positive and negative fixtures verify model/field/method names, imports, argument types and field value types. An invalid source method body must fail while generated typing is enabled. No failing fixture is committed as checked source.
+- Generator tests check deterministic output, stable signature metadata, unsupported field/relation refusal, stale inputs, changed/missing artifacts, failed installation, publication rollback and exclusive owner locks. Registry export reads metadata without executing business methods or default functions.
+- `test_link_addons.py` checks owned link updates and preservation of unrelated links, junctions and target folders. The cross-platform `ci-tools` job exercises these link tests and the report policy on Linux and Windows; `ci-core` runs the installed registry and typing integration tests on Linux.
+- The report tests require every warning to fail, preserve original severity and counts, and reject execution/decoding failures, malformed or inconsistent reports and zero checked files. Reports survive a failed analysis.
+- Runtime behavior changes require an Odoo regression test. Type generation installs the real module schema; it does not replace the module tests or use an application database.
 
 ## Pipeline
 

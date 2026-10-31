@@ -4,6 +4,7 @@ from odoo.tests import HttpCase, tagged
 
 from .support_case import SupportCase
 from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER, MODEL_SUPPORT_REQUEST
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 PASSWORD = "portal-security-pass-1"
 
@@ -120,7 +121,7 @@ class TestSupportPortalSecurity(HttpCase, SupportCase):
         self.assertTrue(feedback.exists())
         self.assertEqual((feedback.rating, feedback.feedback), (4, "Fast results."))
         self.assertIn("Fast results.", message.body)
-        self.assertEqual(self.env[MODEL_SALE_ORDER].browse(order.id).feedback_rating, 4)
+        self.assertEqual(self.env[MODEL_SALE_ORDER].browse(persisted_id(order)).feedback_rating, 4)
 
     def test_requests_are_not_read_through_the_generic_record_routes(self):
         self.authenticate(self.other_portal.login, PASSWORD)

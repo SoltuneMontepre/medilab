@@ -7,6 +7,7 @@ from .request_case import RequestCase
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_DEPARTMENT,
     MODEL_PARAMETER_METHOD,
+    MODEL_PERMISSION,
     MODEL_PERSON,
     MODEL_ROLE,
     MODEL_SAMPLE_HANDOVER,
@@ -15,6 +16,8 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TASK,
 )
 from odoo.addons.sol_laboratory.constants.tasks import SAMPLE_COLLECTION_CODE, SAMPLE_TEST_CODE
+from odoo.addons.sol_laboratory.services.model_lookup import reference_as
+from odoo.addons.sol_laboratory.services.record_id import persisted_id, persisted_ids
 
 
 @tagged("post_install", "-at_install")
@@ -31,7 +34,7 @@ class TestSampleReception(RequestCase):
                 "permission_ids": [
                     Command.set(
                         [
-                            cls.env.ref(permission.format(name)).id
+                            persisted_id(cls.env.ref(permission.format(name)))
                             for name in (
                                 "sample_read_all",
                                 "sample_handover_read_own_department",
@@ -49,7 +52,7 @@ class TestSampleReception(RequestCase):
                 "name": name,
                 "login": login,
                 "department_id": department.id,
-                "role_ids": [Command.set(self.scanner_role.ids)],
+                "role_ids": [Command.set(persisted_ids(self.scanner_role))],
             }
         )
 
@@ -217,7 +220,7 @@ class TestSampleReception(RequestCase):
                 "permission_ids": [
                     Command.set(
                         [
-                            self.env.ref(f"sol_laboratory.permission_{name}").id
+                            persisted_id(reference_as(self.env[MODEL_PERMISSION], f"sol_laboratory.permission_{name}"))
                             for name in ("sample_read_all", "sample_handover_read_all", "sample_handover_edit_all")
                         ]
                     )

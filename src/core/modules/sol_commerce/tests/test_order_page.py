@@ -28,7 +28,7 @@ class TestOrderPage(PortalCase):
         actions = self.find(self.tree(f"/orders/{order.id}"), "//div[@id='order_actions']")
 
         self.assertEqual(len(actions), 1)
-        self.assertIn("d-flex", actions[0].get("class"))
+        self.assertIn("d-flex", (actions[0].get("class") or ""))
         self.assertTrue(self.find(actions[0], ".//button[@data-bs-toggle='modal']"))
         self.assertTrue(self.find(actions[0], f".//form[@action='/orders/{order.id}/reorder']"))
 

@@ -3,6 +3,7 @@ from odoo.fields import Command
 from .order_case import OrderCase
 from odoo.addons.sol_commerce.constants.models import MODEL_SUPPORT_REQUEST
 from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER, MODEL_PERMISSION, MODEL_TASK
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 SUPPORT_PERMISSIONS = ("support.request.read.all", "support.request.create.all", "support.request.edit.all")
 COMMENT = "comment"
@@ -29,7 +30,7 @@ class SupportCase(OrderCase):
                     "name": "Le Thi Khac",
                     "login": "portal.khac",
                     "partner_id": cls.other_contact.id,
-                    "group_ids": [Command.set([cls.env.ref("base.group_portal").id])],
+                    "group_ids": [Command.set([persisted_id(cls.env.ref("base.group_portal"))])],
                 }
             )
         )

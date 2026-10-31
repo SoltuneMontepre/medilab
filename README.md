@@ -158,7 +158,9 @@ For AI authoring and live debugging, use `task test:e2e:tap:open` and the [Cypre
 | `task dev:lock`            | Re-resolve `uv.lock` after editing dependencies in `pyproject.toml`                                                                               |
 | `task lint`                | Run ruff and pylint-odoo on `src/core/modules`                                                                                                    |
 | `task format`              | Format `src/core/modules` with ruff                                                                                                               |
-| `task typecheck`           | Type check the modules with pyright                                                                                                               |
+| `task typecheck`           | Prepare registry types and check all Python modules/tests with zero errors and warnings                                                                                                               |
+
+`task typecheck` requires Docker for its isolated registry preparation. See [Type checking](docs/workflows/type-checking.md) for the cache, reports and `task typecheck:prepare`.
 
 Ordinary tasks load `src/core/.env.local`. Fresh setup passes sanitized child environments and an empty dotenv override. To run a tool outside Task: `uv run --project src/core --env-file src/core/.env.local <command>`.
 
@@ -189,6 +191,6 @@ medilab/
     dockerfiles/                # prod.dockerfile
     infrastructure/             # docker-compose.yml, the CloudBeaver config and the Garage setup
     taskfiles/                  # app.taskfile.yml, dev.taskfile.yml
-    typecheck/                  # pyright runner and the links into the Odoo source
+    typecheck/                  # Registry typing, Pyright runner and addon links
   .github/                      # CI workflow and odoo-lint action
 ```

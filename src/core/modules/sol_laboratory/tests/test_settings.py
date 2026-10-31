@@ -6,6 +6,7 @@ from odoo.tools.safe_eval import safe_eval
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_RES_CONFIG_SETTINGS
 from odoo.addons.sol_laboratory.constants.settings import DEFAULT_SAFETY_MARGIN_DAYS, SAFETY_MARGIN_PARAMETER
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 SETTINGS_MENU = "sol_laboratory.menu_settings"
 CONFIGURATION_MENU = "sol_laboratory.menu_laboratory_configuration"
@@ -80,4 +81,4 @@ class TestSettings(TransactionCase):
         sequences = self.env["ir.sequence"].search(safe_eval(action.domain))
 
         self.assertTrue(sequences)
-        self.assertTrue(all(code.startswith("medilab.") for code in sequences.mapped("code")))
+        self.assertTrue(all(assert_instance(code, str).startswith("medilab.") for code in sequences.mapped("code")))

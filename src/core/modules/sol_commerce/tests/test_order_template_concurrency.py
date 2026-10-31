@@ -11,6 +11,8 @@ from odoo.modules.registry import Registry
 from odoo.tests import BaseCase, tagged
 from odoo.tests.common import get_db_name
 
+from odoo.addons.sol_laboratory.services.record_id import persisted_id, persisted_ids
+
 
 @tagged("post_install", "-at_install")
 class TestOrderTemplateConcurrency(BaseCase):
@@ -52,7 +54,11 @@ class TestOrderTemplateConcurrency(BaseCase):
             env = api.Environment(cr, SUPERUSER_ID, {})
             group = env["medilab.parameter.group"].create({"name": f"Template race {key}"})
             parameter = env["medilab.test.parameter"].create(
-                {"name": f"Race lead {key}", "main_group_id": group.id, "group_ids": [Command.set(group.ids)]}
+                {
+                    "name": f"Race lead {key}",
+                    "main_group_id": group.id,
+                    "group_ids": [Command.set(persisted_ids(group))],
+                }
             )
             tax = env["medilab.tax"].create({"name": f"Race tax {key}", "code": key})
             price = env["medilab.parameter.price"].create(
@@ -87,7 +93,7 @@ class TestOrderTemplateConcurrency(BaseCase):
             )
             source._set_status("completed")
             template = source._save_as_template(f"Race template {key}")
-            template_id, price_id, package_id = template.id, price.id, package.id
+            template_id, price_id, package_id = persisted_id(template), persisted_id(price), persisted_id(package)
         return registry, template_id, price_id, package_id
 
     def test_concurrent_catalog_change_uses_one_snapshot_and_later_reuse_sees_the_change(self):
@@ -109,7 +115,7 @@ class TestOrderTemplateConcurrency(BaseCase):
             order = template._create_order()
             self.assertEqual(order.amount_untaxed, 160000)
             self.assertEqual(len(order._catalog_lines()), 1)
-            self.assertIn("Race package", order.template_omission_note)
+            self.assertIn("Race package", (order.template_omission_note or ""))
 
     def test_concurrent_line_deletions_cannot_empty_template(self):
         registry, template_id, _price_id, _package_id = self.template_fixture()

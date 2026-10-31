@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.fields import Domain
@@ -18,6 +20,11 @@ from odoo.addons.sol_inventory.constants.models import (
 )
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_CHEMICAL, MODEL_PERMISSION_MIXIN
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_product_product as ProductProductBase
+else:
+    ProductProductBase = object
+
 STOCK_ITEM_SEQUENCE = "medilab.stock.item"
 PRODUCT_MANAGER_GROUP = "product.group_product_manager"
 # The parts of an item edited on its form, which their own permissions govern.
@@ -27,7 +34,7 @@ TRACKING_FIELDS = ("tracking", "track_containers", "item_tracking", "is_storable
 
 
 # Vật Tư
-class ProductProduct(models.Model):
+class ProductProduct(models.Model, ProductProductBase):
     # _name is required to add mixins to an Odoo model.
     _name = MODEL_PRODUCT
     _inherit = [MODEL_AUDIT_MIXIN, MODEL_PRODUCT, MODEL_PERMISSION_MIXIN]
@@ -36,36 +43,37 @@ class ProductProduct(models.Model):
     # An item's permissions govern its template too, which Odoo lets only product managers change.
     _check_inherits_access = False
 
-    # Unique code of the product; filled from a sequence for a stock item left without one.
-    default_code = fields.Char(copy=False)
-    # chemical, consumable, spare_part or solution; empty for a product that is not a stock item.
-    item_kind = fields.Selection(
-        [
-            (KIND_CHEMICAL, "Chemical or Reagent"),
-            ("consumable", "Consumable"),
-            ("spare_part", "Spare Part"),
-            (KIND_SOLUTION, "Prepared Solution"),
-        ],
-        string="Item Kind",
-        index=True,
-    )
-    # True when each bottle or vial of the item is a container with its own code.
-    track_containers = fields.Boolean(string="Track Containers", copy=False)
-    # How the item is counted: by container, by lot or by quantity only; sets Odoo's tracking and track_containers.
-    item_tracking = fields.Selection(
-        [(TRACKING_CONTAINER, "By Container"), (TRACKING_LOT, "By Lot"), (TRACKING_QUANTITY, "By Quantity")],
-        string="Item Tracking",
-        compute="_compute_item_tracking",
-        inverse="_inverse_item_tracking",
-    )
-    # The Laboratory chemical the item stocks; set only for a chemical.
-    chemical_id = fields.Many2one(MODEL_CHEMICAL, string="Chemical", ondelete="restrict", copy=False)
-    # Days an opened container stays usable; 0 when opening does not shorten its life.
-    shelf_life_after_opening_days = fields.Integer(string="Shelf Life After Opening (Days)")
-    # The vendor prices of the item, one per supplier.
-    supplier_item_ids = fields.One2many(MODEL_SUPPLIER_INFO, "product_id", string="Suppliers")
-    # How much of the item one test of each method uses.
-    consumption_ids = fields.One2many(MODEL_METHOD_CONSUMPTION, "product_id", string="Use per Test")
+    if not TYPE_CHECKING:
+        # Unique code of the product; filled from a sequence for a stock item left without one.
+        default_code = fields.Char(copy=False)
+        # chemical, consumable, spare_part or solution; empty for a product that is not a stock item.
+        item_kind = fields.Selection(
+            [
+                (KIND_CHEMICAL, "Chemical or Reagent"),
+                ("consumable", "Consumable"),
+                ("spare_part", "Spare Part"),
+                (KIND_SOLUTION, "Prepared Solution"),
+            ],
+            string="Item Kind",
+            index=True,
+        )
+        # True when each bottle or vial of the item is a container with its own code.
+        track_containers = fields.Boolean(string="Track Containers", copy=False)
+        # How the item is counted: by container, by lot or by quantity only; sets Odoo's tracking and track_containers.
+        item_tracking = fields.Selection(
+            [(TRACKING_CONTAINER, "By Container"), (TRACKING_LOT, "By Lot"), (TRACKING_QUANTITY, "By Quantity")],
+            string="Item Tracking",
+            compute="_compute_item_tracking",
+            inverse="_inverse_item_tracking",
+        )
+        # The Laboratory chemical the item stocks; set only for a chemical.
+        chemical_id = fields.Many2one(MODEL_CHEMICAL, string="Chemical", ondelete="restrict", copy=False)
+        # Days an opened container stays usable; 0 when opening does not shorten its life.
+        shelf_life_after_opening_days = fields.Integer(string="Shelf Life After Opening (Days)")
+        # The vendor prices of the item, one per supplier.
+        supplier_item_ids = fields.One2many(MODEL_SUPPLIER_INFO, "product_id", string="Suppliers")
+        # How much of the item one test of each method uses.
+        consumption_ids = fields.One2many(MODEL_METHOD_CONSUMPTION, "product_id", string="Use per Test")
 
     _default_code_unique = models.Constraint("UNIQUE(default_code)", "Another product already has this code.")
     _chemical_unique = models.Constraint("UNIQUE(chemical_id)", "Another item already stocks this chemical.")

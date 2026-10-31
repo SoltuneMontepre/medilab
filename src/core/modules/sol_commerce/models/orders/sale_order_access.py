@@ -1,7 +1,16 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 
 from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
 from odoo.addons.sol_commerce.constants.xml_ids import ALL_ORDERS_GROUP
+from odoo.addons.sol_laboratory.constants.models import MODEL_IR_ACCESS
+from odoo.addons.sol_laboratory.services.model_lookup import reference_as
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_sale_order as SaleOrderBase
+else:
+    SaleOrderBase = object
 
 HIDDEN = ("1", "True")
 ALL_RECORDS = "[(1, '=', 1)]"
@@ -30,11 +39,12 @@ READER_ACTIONS = ("action_claim",)
 
 
 # Đơn Hàng: a salesperson who may read another salesperson's order opens it read-only.
-class SaleOrder(models.Model):
+class SaleOrder(models.Model, SaleOrderBase):
     _inherit = MODEL_SALE_ORDER
 
-    # True when the current user may change the order: they own it, edit every order or see all orders.
-    order_can_edit = fields.Boolean(compute="_compute_order_can_edit")
+    if not TYPE_CHECKING:
+        # True when the current user may change the order: they own it, edit every order or see all orders.
+        order_can_edit = fields.Boolean(compute="_compute_order_can_edit")
 
     @api.depends("user_id")
     @api.depends_context("uid")
@@ -61,7 +71,7 @@ class SaleOrder(models.Model):
     def _scope_permission_accesses(self):
         """Set the domains of the generated order accesses, which Odoo does not update on upgrade."""
         for code, domain in PERMISSION_ACCESS_DOMAINS.items():
-            self.env.ref(f"sol_laboratory.access_permission_{code}").sudo().domain = domain
+            reference_as(self.env[MODEL_IR_ACCESS], f"sol_laboratory.access_permission_{code}").sudo().domain = domain
 
     @api.model
     def _get_view(self, view_id=None, view_type="form", **options):

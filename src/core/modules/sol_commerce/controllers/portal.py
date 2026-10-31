@@ -14,6 +14,7 @@ from odoo.addons.sol_commerce.constants.models import (
 from odoo.addons.sol_commerce.constants.xml_ids import PAYMENT_RECEIPT_REPORT
 from odoo.addons.sol_laboratory.constants.models import MODEL_IR_ACTIONS_REPORT, MODEL_JOB_ITEM
 from odoo.addons.sol_laboratory.constants.routes import FRONTEND_PAGE
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 from odoo.addons.sol_laboratory.services.request_env import request_env
 
 _logger = logging.getLogger(__name__)
@@ -58,8 +59,8 @@ class InvoicePortal(PortalAccount):
             return request.redirect(transaction.payos_checkout_url, local=False)
         if transaction.payos_checkout_url:
             return self._payos_page(invoice, failed=True, message=self._invalid_link_message())
-        transaction_id = transaction.id
-        invoice_id = invoice.id
+        transaction_id = persisted_id(transaction)
+        invoice_id = persisted_id(invoice)
         # The invoice row lock ends with this commit. PayOS is called only after that, on the claimed job item.
         request_env().cr.commit()
         transaction = request_env()[MODEL_PAYMENT_TRANSACTION].sudo().browse(transaction_id)

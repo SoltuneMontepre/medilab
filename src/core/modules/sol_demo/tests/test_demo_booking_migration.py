@@ -1,18 +1,19 @@
 from datetime import timedelta
 from pathlib import Path
-from types import SimpleNamespace
 from unittest.mock import patch
 
 from freezegun import freeze_time
 
 from odoo.modules.migration import MigrationManager
 from odoo.modules.module import load_script
+from odoo.modules.module_graph import ModuleGraph
 from odoo.tests import tagged
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MACHINE_BOOKING,
     MODEL_PARAMETER_METHOD_MACHINE,
 )
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 from odoo.addons.sol_laboratory.tests.scheduling_case import SchedulingCase
 
 MIGRATIONS = Path(__file__).resolve().parents[1] / "migrations"
@@ -41,7 +42,7 @@ class TestDemoBookingMigration(SchedulingCase):
             }
         )
         self.xml_id = self.env["ir.model.data"].search([("module", "=", "sol_demo"), ("name", "=", BOOKING_XML_ID)])
-        self.xml_id.res_id = self.booking.id
+        self.xml_id.res_id = persisted_id(self.booking)
         self.env.flush_all()
 
     def pre_migrate(self):
@@ -55,10 +56,12 @@ class TestDemoBookingMigration(SchedulingCase):
         calibration = self.env.ref("sol_demo.demo_machine_service_aas_calibration")
         with patch.object(type(self.booking), "_process_queue"):
             calibration.unlink()
-        package = SimpleNamespace(
-            name="sol_demo", load_state="to upgrade", load_version="20.0.1.9.0", manifest={"version": "20.0.1.11.0"}
-        )
-        manager = MigrationManager(self.env.cr, [package])
+        graph = ModuleGraph(self.env.cr)
+        graph.extend(["sol_demo"])
+        package = graph["sol_demo"]
+        package.load_state = "to upgrade"
+        package.load_version = "20.0.1.9.0"
+        manager = MigrationManager(self.env.cr, graph)
         with (
             freeze_time(self.now),
             patch.object(type(self.booking), "_working_time", return_value=[(self.now, self.now + timedelta(days=1))]),
@@ -134,14 +137,16 @@ class TestDemoBookingMigration(SchedulingCase):
         self.assertEqual((self.test.due_date, self.test.outsourcing_suggested, self.booking.task_id.deadline), original)
 
     def test_a_fresh_install_does_not_run_upgrade_migrations(self):
-        package = SimpleNamespace(
-            name="sol_demo", load_state="to install", load_version=False, manifest={"version": "20.0.1.11.0"}
-        )
+        graph = ModuleGraph(self.env.cr)
+        graph.extend(["sol_demo"])
+        package = graph["sol_demo"]
+        package.load_state = "to install"
+        package.load_version = None
         original = (self.test.due_date, self.test.outsourcing_suggested, self.booking.task_id.deadline)
 
         # Odoo removes this installation-only registry state before running post-install tests.
         with patch.object(self.env.registry, "_force_upgrade_scripts", set(), create=True):
-            manager = MigrationManager(self.env.cr, [package])
+            manager = MigrationManager(self.env.cr, graph)
             manager.migrate_module(package, "pre")
             manager.migrate_module(package, "post")
 

@@ -1,5 +1,5 @@
 import re
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from odoo import fields
 from odoo.exceptions import UserError
@@ -7,6 +7,7 @@ from odoo.tests import tagged
 
 from .order_case import OrderCase
 from odoo.addons.sol_commerce.constants.models import MODEL_QUOTATION
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -57,10 +58,12 @@ class TestQuotationSend(OrderCase):
         self.assertEqual(quotation.status, "sent")
         self.assertEqual(quotation.revision, 1)
         self.assertEqual(quotation.amount_total, order.amount_total)
-        self.assertRegex(quotation.code, r"^\d{4} \d{2}/BG-VTT$")
+        self.assertRegex(assert_instance(quotation.code, str), r"^\d{4} \d{2}/BG-VTT$")
         self.assertTrue(quotation.attachment_id.raw)
         self.assertEqual(quotation.attachment_id.res_id, quotation.id)
-        self.assertGreaterEqual(order.payment_deadline, before + timedelta(days=3) - timedelta(seconds=1))
+        self.assertGreaterEqual(
+            assert_instance(order.payment_deadline, datetime), before + timedelta(days=3) - timedelta(seconds=1)
+        )
         self.assertEqual(order.order_status, "claimed")
         self.assertEqual(order.quotation_follow_up, "unpaid")
 
@@ -107,7 +110,7 @@ class TestQuotationSend(OrderCase):
         self.assertEqual(second.replaces_id, first)
         self.assertEqual(second.status, "sent")
         self.assertNotEqual(first.code, second.code)
-        self.assertTrue(re.match(r"^\d{4} \d{2}/BG-VTT$", second.code))
+        self.assertTrue(re.match(r"^\d{4} \d{2}/BG-VTT$", assert_instance(second.code, str)))
         with self.assertRaises(UserError):
             first.write({"status": "sent"})
         self.assertEqual(len(order.quotation_ids), 2)

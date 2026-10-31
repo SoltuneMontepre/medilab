@@ -3,6 +3,7 @@ from odoo.tests import tagged
 
 from .invoicing_case import InvoicingCase
 from odoo.addons.sol_laboratory.constants.models import MODEL_PERSON, MODEL_ROLE, MODEL_TASK
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 POSTING_TASK_TYPE = "sol_commerce.task_type_invoice_posting"
 
@@ -17,7 +18,7 @@ class TestInvoiceTasks(InvoicingCase):
         accountant = cls.env[MODEL_PERSON].create({"name": "Vo Thi Lan", "login": "posting.accountant"})
         accountant.role_ids = role
         cls.accountant = accountant.user_id
-        cls.accountant.write({"group_ids": [Command.link(cls.env.ref("account.group_account_invoice").id)]})
+        cls.accountant.write({"group_ids": [Command.link(persisted_id(cls.env.ref("account.group_account_invoice")))]})
         cls.sales = cls.env[MODEL_PERSON].create({"name": "Nguyen Thi Thu", "login": "posting.sales"}).user_id
 
     def task_of(self, invoice):
