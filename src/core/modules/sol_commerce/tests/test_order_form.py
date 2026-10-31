@@ -74,6 +74,13 @@ class TestOrderForm(OrderCase):
                 hidden = node.get("invisible") in HIDDEN or (parent is not None and parent.get("invisible") in HIDDEN)
                 self.assertTrue(hidden)
 
+    def test_form_shows_no_delivery_date(self):
+        nodes = self._nodes("//sheet//*[@for='commitment_date' or @name='commitment_date_div']")
+        self.assertTrue(nodes)
+        for node in nodes:
+            with self.subTest(tag=node.tag, string=node.get("string")):
+                self.assertIn(node.get("invisible"), HIDDEN)
+
     def test_customer_and_contact_cannot_be_created_from_the_order(self):
         for name in ("customer_id", "partner_id"):
             with self.subTest(name=name):
