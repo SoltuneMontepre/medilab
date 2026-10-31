@@ -32,6 +32,9 @@ class TestPortalLanguage(PortalCase):
             with self.subTest(path=path):
                 self.assertEqual(self.languages(path), {ENGLISH, VIETNAMESE})
 
+    def test_the_header_is_the_only_language_switcher(self):
+        self.assertFalse(self.find(self.tree("/my"), "//*[contains(@class, 'js_language_selector')]"))
+
     def test_the_account_page_offers_the_language_saved_on_the_profile(self):
         self.portal.lang = VIETNAMESE
         tree = self.tree("/my/account")
