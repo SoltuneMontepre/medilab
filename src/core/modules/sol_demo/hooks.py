@@ -50,7 +50,6 @@ def seed_demo(env):
     from .demo_reports import seed_reports
     from .demo_results import seed_results
     from .demo_signing import seed_signing
-    from .demo_signing_levels import seed_signing_levels
     from .demo_support import seed_support
     from .demo_tracking import seed_tracking
 
@@ -75,4 +74,3 @@ def seed_demo(env):
     seed_laboratory_editing(env)
     seed_cleanup(env)
     seed_support(env)
-    seed_signing_levels(env)

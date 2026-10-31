@@ -137,7 +137,7 @@ class DigitalSigningMixin(models.AbstractModel):
         """True when every level of the document's chain stands signed; a host that keeps its own status says it from
         there."""
         self.ensure_one()
-        levels = self._approval_levels()
+        levels = self._approval_chain().level_ids
         signed = self._approval_open_rows().filtered(lambda row: row.decision == DECISION_SIGNED)
         return bool(levels) and not (levels - signed.level_id)
 

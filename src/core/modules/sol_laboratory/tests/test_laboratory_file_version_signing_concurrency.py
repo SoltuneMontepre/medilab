@@ -45,8 +45,6 @@ class TestLaboratoryFileVersionSigningConcurrency(LaboratoryFilesConcurrencyCase
         self.last_content_id = self.last_content(env)
         env.cr.execute("SELECT COALESCE(MAX(id), 0) FROM medilab_signature")
         self.last_signature_id = env.cr.fetchone()[0]
-        env.cr.execute("SELECT COALESCE(MAX(id), 0) FROM medilab_signing_process")
-        self.last_process_id = env.cr.fetchone()[0]
         env.cr.execute("SELECT COALESCE(MAX(id), 0) FROM medilab_document_lock")
         self.last_lock_id = env.cr.fetchone()[0]
         chain = env[MODEL_APPROVAL_CHAIN].search(
@@ -96,7 +94,6 @@ class TestLaboratoryFileVersionSigningConcurrency(LaboratoryFilesConcurrencyCase
         # Signatures, files, versions and changes refuse deletion, so the data these tests committed is removed with SQL.
         cr = env.cr
         cr.execute("DELETE FROM medilab_signature WHERE id > %s", [self.last_signature_id])
-        cr.execute("DELETE FROM medilab_signing_process WHERE id > %s", [self.last_process_id])
         cr.execute(
             "DELETE FROM medilab_audit_change WHERE entry_id IN (SELECT id FROM medilab_audit_entry WHERE id > %s)",
             [self.last_entry_id],

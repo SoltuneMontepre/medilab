@@ -51,10 +51,6 @@
         <field name="name">Ly Van Hung</field>
         <field name="email">ly.van.hung@medilab.example</field>
     </record>
-    <record id="demo_res_partner_backup_signer" model="res.partner">
-        <field name="name">Phan Thi Thu</field>
-        <field name="email">phan.thi.thu@medilab.example</field>
-    </record>
     <record id="demo_res_partner_auditor" model="res.partner">
         <field name="name">Vo Thi Hanh</field>
         <field name="email">vo.thi.hanh@medilab.example</field>

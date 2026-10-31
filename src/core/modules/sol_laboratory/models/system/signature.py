@@ -35,8 +35,7 @@ class Signature(models.Model):
     signer_id = fields.Many2one(MODEL_PERSON, string="Signer", required=True, ondelete="restrict")
     # Name of the signer at the time of signing.
     signer_name = fields.Char(required=True)
-    # Name of the role the signer signed with at the time: the level's own, or a later level's that signed it in the
-    # signer's own name.
+    # Name of the signer's role at the time of signing.
     signer_role = fields.Char(required=True)
     # Name of the level at the time of signing.
     level_name = fields.Char(required=True)

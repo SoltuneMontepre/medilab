@@ -66,18 +66,6 @@
                             </field>
                         </page>
                         <page
-                            string="Roles Until a Date"
-                            name="role_grants"
-                            groups="sol_laboratory.group_role_administrator"
-                        >
-                            <field name="role_grant_ids">
-                                <list editable="bottom">
-                                    <field name="role_id" readonly="id" options="{'no_create': True}" />
-                                    <field name="date_end" />
-                                </list>
-                            </field>
-                        </page>
-                        <page
                             string="Direct Permissions"
                             name="permissions"
                             groups="sol_laboratory.group_role_administrator"
