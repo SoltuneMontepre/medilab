@@ -128,7 +128,7 @@
                 <thead>
                     <tr>
                         <th>Order</th>
-                        <th>Date</th>
+                        <th class="d-none d-md-table-cell">Date</th>
                         <th>Status</th>
                         <th class="text-end">Total excluding VAT</th>
                         <th />
@@ -140,14 +140,15 @@
                             <td>
                                 <a t-att-href="'/orders/%s' % order.id" t-out="order.name" />
                                 <div class="small text-muted" t-out="order.portal_summary()" />
+                                <div class="small text-muted d-md-none" t-out="order.submitted_at or order.create_date" t-options="{'widget': 'date'}" />
                             </td>
-                            <td class="text-nowrap" t-out="order.submitted_at or order.create_date" t-options="{'widget': 'date'}" />
+                            <td class="text-nowrap d-none d-md-table-cell" t-out="order.submitted_at or order.create_date" t-options="{'widget': 'date'}" />
                             <td><t t-call="sol_commerce.order_status" /></td>
                             <td class="text-end text-nowrap" t-out="order.catalog_total" t-options="{'widget': 'monetary', 'display_currency': order.currency_id}" />
                             <td class="text-end">
                                 <form t-if="order.can_reorder()" t-att-action="'/orders/%s/reorder' % order.id" method="post">
                                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
-                                    <button type="submit" class="btn btn-primary"><iconify-icon icon="mdi:repeat" class="me-1" aria-hidden="true" />Reorder</button>
+                                    <button type="submit" class="btn btn-secondary btn-sm text-nowrap"><iconify-icon icon="mdi:repeat" class="me-1" aria-hidden="true" />Reorder</button>
                                 </form>
                             </td>
                         </tr>

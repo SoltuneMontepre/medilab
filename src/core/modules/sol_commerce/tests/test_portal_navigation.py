@@ -20,8 +20,9 @@ class TestPortalNavigation(PortalCase):
                 self.assertEqual(self.links(path), SECTIONS)
 
     def test_the_current_section_is_marked(self):
-        active = self.find(self.tree("/orders"), f"{NAVIGATION}//a[contains(@class, 'active')]/@href")
-        self.assertEqual(active, ["/orders"])
+        tree = self.tree("/orders")
+        self.assertEqual(self.find(tree, f"{NAVIGATION}//a[contains(@class, 'active')]/@href"), ["/orders"])
+        self.assertEqual(self.find(tree, f"{NAVIGATION}//a[@aria-current='page']/@href"), ["/orders"])
 
     def test_a_visitor_sees_only_the_catalog(self):
         self.authenticate(None, None)
@@ -32,8 +33,12 @@ class TestPortalNavigation(PortalCase):
         buttons = self.find(tree, "//main//a[contains(@class, 'btn')]/@href")
         self.assertNotIn("/support", buttons)
 
-    def test_the_portal_home_has_a_support_card(self):
-        self.assertIn('href="/support"', self.page("/my"))
+    def test_the_portal_home_shows_a_support_card(self):
+        cards = self.find(
+            self.tree("/my"),
+            "//div[contains(@class, 'o_portal_index_card') and not(contains(@class, 'd-none'))]/a/@href",
+        )
+        self.assertIn("/support", cards)
 
     def test_an_empty_catalog_filter_offers_every_value(self):
         tree = self.tree("/catalog")
