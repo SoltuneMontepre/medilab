@@ -5,13 +5,9 @@ from odoo.addons.sol_commerce.constants.models import (
     MODEL_ORDER_SAMPLE,
     MODEL_PARAMETER_PRICE,
     MODEL_PRODUCT_TEMPLATE,
-    MODEL_SALE_ORDER,
 )
 from odoo.addons.sol_commerce.constants.xml_ids import ALL_ORDERS_GROUP
-from odoo.addons.sol_laboratory.constants.approvals import PURPOSE_SIGNING
 from odoo.addons.sol_laboratory.constants.models import (
-    MODEL_APPROVAL_CHAIN,
-    MODEL_APPROVAL_LEVEL,
     MODEL_CUSTOMER,
     MODEL_PERMISSION,
     MODEL_PERSON,
@@ -30,7 +26,6 @@ ORDER_PERMISSIONS = (
     "order.sample.edit.all",
     "order.sample.delete.all",
     "quotation.read.all",
-    "order.sign.all",
     "customer.sales.terms.read.all",
     "customer.sales.terms.create.all",
     "customer.sales.terms.edit.all",
@@ -81,36 +76,15 @@ class OrderCase(PricingCase):
         cls.head = cls.head_person.user_id
         cls.head.write({"group_ids": [Command.link(cls.env.ref(ALL_ORDERS_GROUP).id)]})
         cls.customer_record = cls.env[MODEL_CUSTOMER].create({"partner_id": cls.customer.id})
-        cls.setup_signing_chain()
+        cls.setup_roles()
 
     @classmethod
-    def setup_signing_chain(cls):
-        """Sales signs first and cannot reject; the Head of Sales signs last. The demo data may have made the chain."""
-        chain = cls.env[MODEL_APPROVAL_CHAIN].search(
-            [("document_model", "=", MODEL_SALE_ORDER), ("purpose", "=", PURPOSE_SIGNING)]
-        )
-        if not chain:
-            chain = cls.env[MODEL_APPROVAL_CHAIN].create(
-                {"document_model": MODEL_SALE_ORDER, "purpose": PURPOSE_SIGNING, "name": "Order signing"}
-            )
-            for sequence, name, code, can_reject in (
-                (10, "Sales", "qo_sales", False),
-                (20, "Head of Sales", "qo_head", True),
-            ):
-                role = cls.env[MODEL_ROLE].create({"code": code, "name": name})
-                cls.env[MODEL_APPROVAL_LEVEL].create(
-                    {
-                        "chain_id": chain.id,
-                        "sequence": sequence,
-                        "name": name,
-                        "role_id": role.id,
-                        "can_reject": can_reject,
-                    }
-                )
-        sales_level, head_level = chain.level_ids.sorted("sequence")
-        cls.sales_person.role_ids = sales_level.role_id
-        cls.other_person.role_ids = sales_level.role_id
-        cls.head_person.role_ids = head_level.role_id
+    def setup_roles(cls):
+        """Both salespeople hold a Sales role and the Head of Sales theirs; neither role grants a permission."""
+        sales_role = cls.env[MODEL_ROLE].create({"code": "qo_sales", "name": "Sales"})
+        cls.sales_person.role_ids = sales_role
+        cls.other_person.role_ids = sales_role
+        cls.head_person.role_ids = cls.env[MODEL_ROLE].create({"code": "qo_head", "name": "Head of Sales"})
 
     def make_order(self, lines, status="draft", **vals):
         return self.env["sale.order"].create(
@@ -171,16 +145,4 @@ class OrderCase(PricingCase):
         """A quotable order whose quotation sales sent."""
         order = self.make_quotable_order()
         order.with_user(self.sales).action_send_quotation()
-        return order
-
-    def requested_order(self):
-        """A confirmed order whose approval sales requested."""
-        order = self.make_confirmed_order()
-        order.with_user(self.sales).action_request_approval()
-        return order
-
-    def approved_order(self):
-        """A requested order the Head of Sales approved."""
-        order = self.requested_order()
-        order.with_user(self.head).action_sign()
         return order

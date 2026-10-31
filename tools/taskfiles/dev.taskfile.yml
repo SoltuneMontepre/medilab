@@ -64,7 +64,7 @@ tasks:
           log_error "uv not found. Install: https://docs.astral.sh/uv/getting-started/installation/"
           exit 1
         fi
-        {{.UV}} sync
+        {{.UV}} sync --locked
         log_ok "{{.PROJECT_DIR}}/.venv ready. Select it as the interpreter in your editor."
 
   dev:lock:
@@ -76,6 +76,7 @@ tasks:
     desc: "Fetch the pinned Odoo 20 source (no Docker) and link the addons and modules into it, so the editor and pyright resolve odoo imports"
     silent: true
     cmds:
+      - python tools/scripts/local_private_paths.py .local
       - . tools/scripts/odoo_source.sh {{.ODOO_SOURCE_DIR}} {{.ODOO_SOURCE_REVISION}} {{.ODOO_ADDONS | join " "}}
       - task: dev:odoo-links
       - . {{.LOG}} && log_ok "Odoo source ready in {{.ODOO_SOURCE_DIR}}."
