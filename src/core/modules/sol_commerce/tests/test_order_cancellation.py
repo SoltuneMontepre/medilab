@@ -83,7 +83,7 @@ class TestOrderCancellation(OrderCase):
                 getattr(waiting.with_user(self.sales), action)()
         with self.assertRaisesRegex(UserError, "locked"):
             locked_request.with_user(self.sales).action_accept()
-        locked_request.with_user(self.portal).action_withdraw()
+        locked_request.sudo().action_withdraw()
         waiting.sudo().locked = False
         waiting.with_user(self.sales).action_sales_cancel()
 
