@@ -25,7 +25,12 @@ PIPELINE_STAGES = [
     ("approved", "Approved"),
 ]
 # The stage of a claimed order whose quotation is out, by where the quotation stands; a declined one leaves the pipeline.
-CLAIMED_STAGES = {FOLLOW_UP_UNPAID: "sent", QUOTATION_EXPIRED: "sent", FOLLOW_UP_PAID: "accepted"}
+CLAIMED_STAGES = {
+    FOLLOW_UP_UNPAID: "sent",
+    QUOTATION_EXPIRED: "sent",
+    FOLLOW_UP_PAID: "accepted",
+    QUOTATION_ACCEPTED: "accepted",
+}
 # The stage of a confirmed order by its approval; not requested yet or rejected, it is still accepted.
 CONFIRMED_STAGES = {STATE_REQUESTED: "awaiting_approval", APPROVAL_APPROVED: "approved"}
 # The steps each duration runs between.

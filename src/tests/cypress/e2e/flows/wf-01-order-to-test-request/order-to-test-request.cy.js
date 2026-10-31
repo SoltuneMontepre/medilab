@@ -226,6 +226,7 @@ describe("WF-01 Order to approved test request", () => {
       cy.visit(`/orders/${order.id}/quotation`);
       cy.get("form[action$='/quotation/accept'] button").click();
       cy.contains("Status: Accepted");
+      cy.readRecord(order, ["quotation_follow_up"]).its("quotation_follow_up").should("eq", "accepted");
 
       cy.signInAs("sales");
       cy.openRecord(order);
