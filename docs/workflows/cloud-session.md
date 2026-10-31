@@ -16,44 +16,64 @@ Do this once per cloud environment, in its settings: the environment menu in the
 
 1. On your own machine, run `task ai:env`. It logs Doppler in if needed and writes `.local/cloud.env` from the template `tools/cloud/cloud.env.example`, filling each variable from Doppler `medilab` `dev`.
 2. Paste the contents of `.local/cloud.env` under Environment variables, then delete the file. Never paste it into a chat or commit it.
-3. Paste this under Setup script. It installs the Doppler CLI and `task`, sends Docker Hub pulls through Google's mirror and starts Docker. When the repository is already cloned, it also runs `task ai:setup`, pre-installs the `postgres` MCP server and starts the database, so that server connects at session start.
+3. Paste this under Setup script. It installs the Doppler CLI and `task`, sends Docker Hub pulls through Google's mirror and starts Docker. When the repository is already cloned, it also runs `task ai:setup`, pre-installs the `postgres` MCP server and starts the database, so that server connects at session start. A step that fails prints what to fix and the others still run; the script then exits with an error.
 
    ```bash
    #!/bin/bash
-   set -euo pipefail
+   set -uo pipefail
 
-   # Doppler CLI from its signed apt repository
-   curl -sLf --retry 3 'https://packages.doppler.com/public/cli/gpg.DE2A7741A397C129.key' \
-     | gpg --dearmor --yes -o /usr/share/keyrings/doppler-archive-keyring.gpg
-   echo "deb [signed-by=/usr/share/keyrings/doppler-archive-keyring.gpg] https://packages.doppler.com/public/cli/deb/debian any-version main" \
-     > /etc/apt/sources.list.d/doppler-cli.list
-   apt-get update -o Dir::Etc::sourcelist=sources.list.d/doppler-cli.list -o Dir::Etc::sourceparts=- -qq
-   apt-get install -y -qq doppler
-
-   # Task runner for the repository's taskfiles
-   uv tool install go-task-bin
+   failed=0
+   warn() { printf 'setup: %s\n' "$*" >&2; failed=1; }
    export PATH="$HOME/.local/bin:$PATH"
 
+   # Doppler CLI from its signed apt repository
+   install_doppler() {
+     local key
+     key=$(mktemp) &&
+       curl -fsSL --retry 3 -o "$key" 'https://packages.doppler.com/public/cli/gpg.DE2A7741A397C129.key' &&
+       gpg --dearmor --yes -o /usr/share/keyrings/doppler-archive-keyring.gpg "$key" &&
+       echo "deb [signed-by=/usr/share/keyrings/doppler-archive-keyring.gpg] https://packages.doppler.com/public/cli/deb/debian any-version main" \
+         > /etc/apt/sources.list.d/doppler-cli.list &&
+       apt-get update -o Dir::Etc::sourcelist=sources.list.d/doppler-cli.list -o Dir::Etc::sourceparts=- -qq &&
+       apt-get install -y -qq doppler
+   }
+   install_doppler || warn "Doppler CLI not installed. Allow packages.doppler.com and api.doppler.com under Network access."
+
+   # Task runner for the repository's taskfiles
+   uv tool install go-task-bin || warn "task not installed."
+
    # Docker Hub through Google's mirror, which has no anonymous pull limit
-   mkdir -p /etc/docker
-   printf '{"registry-mirrors":["https://mirror.gcr.io"]}\n' > /etc/docker/daemon.json
-   nohup dockerd > /tmp/dockerd.log 2>&1 &
-   for _ in $(seq 1 30); do docker info > /dev/null 2>&1 && break; sleep 1; done
+   start_docker() {
+     docker info > /dev/null 2>&1 && return
+     mkdir -p /etc/docker &&
+       printf '{"registry-mirrors":["https://mirror.gcr.io"]}\n' > /etc/docker/daemon.json || return 1
+     nohup dockerd > /tmp/dockerd.log 2>&1 &
+     for _ in $(seq 1 30); do docker info > /dev/null 2>&1 && return; sleep 1; done
+     return 1
+   }
+   start_docker || warn "Docker did not start. See /tmp/dockerd.log."
 
    repo=/home/user/medilab
-   if [ -d "$repo" ]; then
+   if [ -d "$repo" ] && command -v task > /dev/null; then
      cd "$repo"
-     task ai:setup
+     task ai:setup || warn "task ai:setup failed."
      uvx --python 3.13 --overrides tools/odoo-intelligence/postgres-overrides.txt \
-       --with "mcp<2" postgres-mcp==0.3.0 --help > /dev/null
-     task dev:compose-env
-     docker compose -f tools/infrastructure/docker-compose.yml up -d --wait postgres
+       --with "mcp<2" postgres-mcp==0.3.0 --help > /dev/null || warn "postgres MCP server not installed."
+     if docker info > /dev/null 2>&1; then
+       { task dev:compose-env &&
+         docker compose -f tools/infrastructure/docker-compose.yml up -d --wait postgres; } ||
+         warn "Database did not start."
+     fi
    fi
+
+   exit "$failed"
    ```
 
-4. Under Network access, add the hosts of the plugin MCP servers you use to Allowed domains, one per line:
+4. Under Network access, add these hosts to Allowed domains, one per line. The Doppler hosts serve the CLI and the secrets; the others are the plugin MCP servers you use:
 
    ```text
+   packages.doppler.com
+   api.doppler.com
    mcp.asana.com
    mcp.atlassian.com
    mcp.datadoghq.com
