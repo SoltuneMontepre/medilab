@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_header_navigation" inherit_id="portal.frontend_layout" name="Portal header navigation">
+        <xpath expr="//ul[@id='top_menu']" position="before">
+            <t t-call="sol_commerce.portal_navigation" />
+        </xpath>
+    </template>
+
+    <template id="portal_navigation" name="Portal navigation">
+        <t t-set="current_path" t-value="request.httprequest.path" />
+        <t t-set="signed_in" t-value="not request.env.user._is_public()" />
+        <ul class="nav navbar-nav ms-3 o_medilab_portal_navigation">
+            <li class="nav-item">
+                <a href="/catalog" t-attf-class="nav-link #{'active' if current_path.startswith(('/catalog', '/cart')) else ''}">
+                    <iconify-icon icon="mdi:flask" class="me-1" aria-hidden="true" />Catalog
+                </a>
+            </li>
+            <li t-if="signed_in" class="nav-item">
+                <a href="/orders" t-attf-class="nav-link #{'active' if current_path.startswith('/orders') else ''}">
+                    <iconify-icon icon="mdi:format-list-bulleted" class="me-1" aria-hidden="true" />My orders
+                </a>
+            </li>
+            <li t-if="signed_in" class="nav-item">
+                <a href="/support" t-attf-class="nav-link #{'active' if current_path.startswith('/support') else ''}">
+                    <iconify-icon icon="mdi:lifebuoy" class="me-1" aria-hidden="true" />Support
+                </a>
+            </li>
+            <li t-if="signed_in" class="nav-item">
+                <a href="/my/account" t-attf-class="nav-link #{'active' if current_path.startswith(('/my/account', '/my/contacts', '/my/addresses')) else ''}">
+                    <iconify-icon icon="mdi:account" class="me-1" aria-hidden="true" />Account
+                </a>
+            </li>
+        </ul>
+    </template>
+</odoo>

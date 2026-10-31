@@ -6,8 +6,6 @@ from odoo.exceptions import AccessError, UserError
 from odoo.http import request
 
 from odoo.addons.portal.controllers.portal import CustomerPortal
-from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
-from odoo.addons.sol_commerce.constants.orders import ACCOUNT_RECENT_ORDERS
 from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER
 from odoo.addons.sol_laboratory.constants.routes import FRONTEND_PAGE
 from odoo.addons.sol_laboratory.services.request_env import request_env
@@ -17,17 +15,11 @@ CONTACTS_PATH = "/my/contacts"
 
 
 class CustomerAccount(CustomerPortal):
-    """The customer's profile on Odoo's account page: identity, logo, order history and the people of a business."""
+    """The customer's profile on Odoo's account page: identity, language, logo and the people of a business."""
 
     def _prepare_my_account_rendering_values(self, *args, **kwargs):
         values = super()._prepare_my_account_rendering_values(*args, **kwargs)
-        customer = self._customer()
-        values["medilab_customer"] = customer
-        values["customer_orders"] = (
-            request_env()[MODEL_SALE_ORDER]._portal_orders(request_env().user, limit=ACCOUNT_RECENT_ORDERS)
-            if customer
-            else []
-        )
+        values["medilab_customer"] = self._customer()
         return values
 
     def _prepare_address_form_values(self, partner_sudo, *args, **kwargs):
