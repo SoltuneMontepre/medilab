@@ -32,8 +32,7 @@ class SaleOrderApproval(models.Model):
 
     def _approval_waiting_level(self):
         self.ensure_one()
-        chain = self._approval_chain()
-        return self._approval_next_level(chain, self._approval_open_rows()) if chain else False
+        return self._approval_next_level(self._approval_open_rows())
 
     def action_request_approval(self):
         """Sign the first level, which asks the next levels to approve the confirmed order."""

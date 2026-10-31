@@ -26,12 +26,14 @@ from . import (
     res_config_settings,
     res_partner,
     role,
+    role_grant,
     scheduled_job,
     signature,
+    signing_process,
 )
 
-# Accreditation, laboratory content, laboratory file lock, editing session, upload and quality registration job
-# handlers inherit medilab.scheduled.job; load after the base model.
+# Accreditation, laboratory content, laboratory file lock, editing session, upload, quality registration and role
+# grant job handlers inherit medilab.scheduled.job; load after the base model.
 # isort: split
 from . import (
     accreditation_scheduled_job,
@@ -40,4 +42,5 @@ from . import (
     laboratory_file_lock_scheduled_job,
     laboratory_upload_scheduled_job,
     quality_registration_scheduled_job,
+    role_grant_scheduled_job,
 )
