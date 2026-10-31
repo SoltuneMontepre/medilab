@@ -45,8 +45,20 @@
             <attribute name="t-if">not medilab_customer</attribute>
         </xpath>
         <xpath expr="//div[hasclass('o_customer_address_fill')]" position="after">
+            <t t-call="sol_commerce.account_language" />
             <t t-if="medilab_customer" t-call="sol_commerce.customer_account" />
         </xpath>
+    </template>
+
+    <template id="account_language" name="Account language">
+        <h3 class="mt-4">Language</h3>
+        <form action="/my/language" method="post" class="d-flex gap-2 col-md-6">
+            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+            <select name="lang" class="form-select" aria-label="Language">
+                <option t-foreach="languages" t-as="language" t-att-value="language[0]" t-att-selected="language[0] == request.env.user.lang" t-out="language[1]" />
+            </select>
+            <button type="submit" class="btn btn-secondary">Save</button>
+        </form>
     </template>
 
     <template id="customer_account" name="Customer account">

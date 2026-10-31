@@ -1151,6 +1151,11 @@ msgid "Laboratory Status"
 msgstr "Trạng Thái Phòng Thí Nghiệm"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.account_language
+msgid "Language"
+msgstr "Ngôn ngữ"
+
+#. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_cancellation_request__write_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_customer_sales_terms__write_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_invoice_adjustment__write_uid

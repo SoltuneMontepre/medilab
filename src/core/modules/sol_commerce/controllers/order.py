@@ -8,11 +8,12 @@ from odoo.addons.portal.controllers.portal import pager as portal_pager
 from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
 from odoo.addons.sol_commerce.constants.orders import PORTAL_ORDERS_PER_PAGE
 from odoo.addons.sol_commerce.controllers.catalog import CART_SESSION, ORDERS_PATH
+from odoo.addons.sol_laboratory.constants.routes import FRONTEND_PAGE
 from odoo.addons.sol_laboratory.services.request_env import request_env
 
 
 class CustomerOrder(http.Controller):
-    @http.route([ORDERS_PATH, f"{ORDERS_PATH}/page/<int:page>"], type="http", auth="user")
+    @http.route([ORDERS_PATH, f"{ORDERS_PATH}/page/<int:page>"], type="http", auth="user", **FRONTEND_PAGE)
     def orders(self, page=1, saved=None, **kwargs):
         orders = request_env()[MODEL_SALE_ORDER]
         user = request_env().user
@@ -28,7 +29,7 @@ class CustomerOrder(http.Controller):
             },
         )
 
-    @http.route("/orders/<int:order_id>", type="http", auth="user")
+    @http.route("/orders/<int:order_id>", type="http", auth="user", **FRONTEND_PAGE)
     def order(self, order_id, **kwargs):
         order = self._order(order_id)
         if not order:
@@ -43,7 +44,7 @@ class CustomerOrder(http.Controller):
             },
         )
 
-    @http.route("/orders/<int:order_id>/cancel", type="http", auth="user", methods=["POST"])
+    @http.route("/orders/<int:order_id>/cancel", type="http", auth="user", methods=["POST"], **FRONTEND_PAGE)
     def cancel(self, order_id, **kwargs):
         order = self._order(order_id)
         if not order:
@@ -54,7 +55,7 @@ class CustomerOrder(http.Controller):
             return request.redirect(f"/orders/{order.id}?error={quote(str(error))}")
         return request.redirect(f"/orders/{order.id}")
 
-    @http.route("/orders/<int:order_id>/reorder", type="http", auth="user", methods=["POST"])
+    @http.route("/orders/<int:order_id>/reorder", type="http", auth="user", methods=["POST"], **FRONTEND_PAGE)
     def reorder(self, order_id, **kwargs):
         order = self._order(order_id)
         if not order:
@@ -66,7 +67,7 @@ class CustomerOrder(http.Controller):
         request.session[CART_SESSION] = new.id
         return request.redirect(f"/orders/{new.id}")
 
-    @http.route("/orders/<int:order_id>/cancellation", type="http", auth="user", methods=["POST"])
+    @http.route("/orders/<int:order_id>/cancellation", type="http", auth="user", methods=["POST"], **FRONTEND_PAGE)
     def cancellation(self, order_id, reason=None, **kwargs):
         order = self._order(order_id)
         if not order:
@@ -77,7 +78,9 @@ class CustomerOrder(http.Controller):
             return request.redirect(f"/orders/{order.id}?error={quote(str(error))}")
         return request.redirect(f"/orders/{order.id}")
 
-    @http.route("/orders/<int:order_id>/cancellation/withdraw", type="http", auth="user", methods=["POST"])
+    @http.route(
+        "/orders/<int:order_id>/cancellation/withdraw", type="http", auth="user", methods=["POST"], **FRONTEND_PAGE
+    )
     def withdraw(self, order_id, **kwargs):
         order = self._order(order_id)
         request_ = order.open_cancellation_request() if order else None
@@ -89,7 +92,7 @@ class CustomerOrder(http.Controller):
             return request.redirect(f"/orders/{order.id}?error={quote(str(error))}")
         return request.redirect(f"/orders/{order.id}")
 
-    @http.route("/orders/<int:order_id>/feedback", type="http", auth="user", methods=["POST"])
+    @http.route("/orders/<int:order_id>/feedback", type="http", auth="user", methods=["POST"], **FRONTEND_PAGE)
     def feedback(self, order_id, rating=None, comment=None, **kwargs):
         order = self._order(order_id)
         if not order:
@@ -100,7 +103,7 @@ class CustomerOrder(http.Controller):
             return request.redirect(f"/orders/{order.id}?error={quote(str(error))}")
         return request.redirect(f"/orders/{order.id}")
 
-    @http.route("/orders/<int:order_id>/quotation", type="http", auth="user")
+    @http.route("/orders/<int:order_id>/quotation", type="http", auth="user", **FRONTEND_PAGE)
     def quotation(self, order_id, **kwargs):
         order = self._order(order_id)
         current = order._latest_quotation() if order else None
@@ -117,7 +120,7 @@ class CustomerOrder(http.Controller):
             },
         )
 
-    @http.route("/orders/<int:order_id>/quotation/accept", type="http", auth="user", methods=["POST"])
+    @http.route("/orders/<int:order_id>/quotation/accept", type="http", auth="user", methods=["POST"], **FRONTEND_PAGE)
     def accept_quotation(self, order_id, **kwargs):
         order = self._order(order_id)
         current = order._latest_quotation() if order else None
@@ -129,7 +132,7 @@ class CustomerOrder(http.Controller):
             return request.redirect(f"/orders/{order.id}/quotation?error={quote(str(error))}")
         return request.redirect(f"/orders/{order.id}/quotation")
 
-    @http.route("/orders/<int:order_id>/quotation/decline", type="http", auth="user", methods=["POST"])
+    @http.route("/orders/<int:order_id>/quotation/decline", type="http", auth="user", methods=["POST"], **FRONTEND_PAGE)
     def decline_quotation(self, order_id, reason=None, **kwargs):
         order = self._order(order_id)
         current = order._latest_quotation() if order else None
@@ -141,7 +144,7 @@ class CustomerOrder(http.Controller):
             return request.redirect(f"/orders/{order.id}/quotation?error={quote(str(error))}")
         return request.redirect(f"/orders/{order.id}/quotation")
 
-    @http.route("/orders/<int:order_id>/quotation/<int:quotation_id>/pdf", type="http", auth="user")
+    @http.route("/orders/<int:order_id>/quotation/<int:quotation_id>/pdf", type="http", auth="user", **FRONTEND_PAGE)
     def quotation_pdf(self, order_id, quotation_id, **kwargs):
         order = self._order(order_id)
         sent = order.quotation_ids.filtered(lambda item: item.id == quotation_id) if order else None

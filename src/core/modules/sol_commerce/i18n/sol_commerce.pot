@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-30 10:44+0000\n"
-"PO-Revision-Date: 2026-10-30 10:44+0000\n"
+"POT-Creation-Date: 2026-10-31 16:21+0000\n"
+"PO-Revision-Date: 2026-10-31 16:21+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -2115,6 +2115,11 @@ msgid "Laboratory Status"
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.account_language
+msgid "Language"
+msgstr ""
+
+#. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_cancellation_request__write_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_customer_sales_terms__write_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_invoice_adjustment__write_uid
@@ -3643,6 +3648,7 @@ msgid "Samples"
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.account_language
 #: model_terms:ir.ui.view,arch_db:sol_commerce.contact_form
 #: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
 #: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification_preferences

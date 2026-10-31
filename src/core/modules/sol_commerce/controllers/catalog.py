@@ -8,6 +8,7 @@ from odoo.addons.sol_commerce.constants.models import MODEL_PRODUCT_TEMPLATE, MO
 from odoo.addons.sol_commerce.constants.orders import SOURCE_PORTAL, STATUS_DRAFT
 from odoo.addons.sol_commerce.constants.xml_ids import PUBLIC_PARTNER
 from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER
+from odoo.addons.sol_laboratory.constants.routes import FRONTEND_PAGE
 from odoo.addons.sol_laboratory.services.request_env import request_env
 
 CART_SESSION = "medilab_cart_id"
@@ -16,7 +17,7 @@ ORDERS_PATH = "/orders"
 
 
 class Catalog(http.Controller):
-    @http.route("/catalog", type="http", auth="public")
+    @http.route("/catalog", type="http", auth="public", **FRONTEND_PAGE)
     def catalog(self, sample_type=None, group=None, name=None, price_min=None, price_max=None, **kwargs):
         products = request_env()[MODEL_PRODUCT_TEMPLATE]
         sample_types = products.catalog_filters()["sample_types"]
@@ -43,7 +44,7 @@ class Catalog(http.Controller):
             },
         )
 
-    @http.route("/catalog/add", type="http", auth="public", methods=["POST"])
+    @http.route("/catalog/add", type="http", auth="public", methods=["POST"], **FRONTEND_PAGE)
     def add(self, product_tmpl_id, quantity="1", **kwargs):
         product = request_env()[MODEL_PRODUCT_TEMPLATE].sudo().browse(int(product_tmpl_id)).exists()
         try:
@@ -52,7 +53,7 @@ class Catalog(http.Controller):
             return request.redirect(f"/catalog?error={quote(str(error))}")
         return request.redirect(CART_PATH)
 
-    @http.route(CART_PATH, type="http", auth="public")
+    @http.route(CART_PATH, type="http", auth="public", **FRONTEND_PAGE)
     def cart(self, error=None, **kwargs):
         order = self._cart()
         contacts = order._contact_choices() if order else request_env()["res.partner"]
@@ -72,7 +73,7 @@ class Catalog(http.Controller):
             },
         )
 
-    @http.route("/cart/line", type="http", auth="public", methods=["POST"])
+    @http.route("/cart/line", type="http", auth="public", methods=["POST"], **FRONTEND_PAGE)
     def update_line(self, line_id, quantity="1", **kwargs):
         order = self._cart()
         line = order._catalog_lines().filtered(lambda item: item.id == int(line_id))[:1]
@@ -89,7 +90,7 @@ class Catalog(http.Controller):
             line._lock_catalog_price()
         return request.redirect(CART_PATH)
 
-    @http.route("/cart/save", type="http", auth="public", methods=["POST"])
+    @http.route("/cart/save", type="http", auth="public", methods=["POST"], **FRONTEND_PAGE)
     def save(self, contact_id=None, **kwargs):
         order = self._cart()
         if not order:
@@ -100,7 +101,7 @@ class Catalog(http.Controller):
             return request.redirect(f"/cart?error={quote(str(error))}")
         return request.redirect(f"{ORDERS_PATH}?saved=1")
 
-    @http.route("/cart/submit", type="http", auth="public", methods=["POST"])
+    @http.route("/cart/submit", type="http", auth="public", methods=["POST"], **FRONTEND_PAGE)
     def submit(self, name=None, email=None, phone=None, contact_id=None, **kwargs):
         order = self._get_or_create_cart()
         try:

@@ -51,6 +51,7 @@ The customer is an external user of the laboratory. A customer has an account li
 - A business also gives its company name. The company becomes the customer, and the person who registers becomes its contact, who logs in and is its default contact. An individual is their own contact.
 - If the identity matches an existing profile, the account is flagged for sales to review instead of being merged automatically.
 - The account page shows contact details, tax and identity information, and additional addresses.
+- The account page also offers the installed languages ([SH-08](../../shared.md#sh-08-multiple-languages)). The language a customer saves applies at once to every portal page and is kept on their account, so later visits, e-mails and documents use it.
 - Order history is a single list of every quotation and order of the customer, with a customer-facing status: Draft for the cart, Submitted once sent to sales, Quoted once a quotation is sent, then the labels of [Tracking and results](#4-tracking-and-results-us-c18-us-c19).
 - Each row of the order history names the order's first parameters and packages and its date, submitted or created. The list is paged, newest first, and the account page shows the latest orders with a link to the whole list.
 - The portal home's **Your Orders** card opens the order history. Odoo's own sales order and quotation cards are not offered, and their addresses lead to the order history and the order page.
