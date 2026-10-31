@@ -1,16 +1,17 @@
 """Render field descriptors and relational mapped paths from registry metadata."""
 
-from type_names import model_type
+from type_names import OVERLOAD, model_type
 
+TEXT_VALUE = "str | Literal[False]"
 SCALAR = {
     "boolean": "bool",
     "integer": "int",
     "float": "float",
     "monetary": "float",
-    "char": "str | Literal[False]",
-    "text": "str | Literal[False]",
-    "html": "str | Literal[False]",
-    "selection": "str | Literal[False]",
+    "char": TEXT_VALUE,
+    "text": TEXT_VALUE,
+    "html": TEXT_VALUE,
+    "selection": TEXT_VALUE,
     "date": "_datetime.date | Literal[False]",
     "datetime": "_datetime.datetime | Literal[False]",
     "binary": "BinaryValue",
@@ -55,17 +56,46 @@ def field_map(name, model, field_keys):
             )
             lines.extend(
                 [
-                    "    @overload",
+                    OVERLOAD,
                     f"    def __getitem__(self, key: Literal[{key!r}], /) -> _native_fields.{native}: ...",
                 ]
             )
         lines.extend(
             [
-                "    @overload",
+                OVERLOAD,
                 "    def __getitem__(self, key: str, /) -> Field: ...",
             ]
         )
     return lines, keys
+
+
+def field_value(name, key, field, registry):
+    comodel = field["comodel"]
+    if comodel:
+        if comodel == "_unknown" or comodel not in registry:
+            raise ValueError(f"Unknown relation target: {name}.{key} -> {comodel}")
+        return model_type(comodel)
+    try:
+        return SCALAR[field["type"]]
+    except KeyError as error:
+        raise ValueError(
+            f"Unsupported field type: {name}.{key}: {field['type']}"
+        ) from error
+
+
+def field_write_value(key, field, value):
+    write = value + " | None"
+    if field["type"] == "many2one":
+        write += " | int | Literal[False]"
+    elif field["type"] in ("one2many", "many2many"):
+        write += " | Iterable[CommandValue] | Iterable[int] | Literal[False]"
+    elif field["type"] in ("date", "datetime", "binary"):
+        write += " | str"
+        if field["type"] == "binary":
+            write += " | Literal[False]"
+            if key == "raw":
+                write += " | bytes"
+    return write
 
 
 def field_members(name, model, registry):
@@ -73,47 +103,31 @@ def field_members(name, model, registry):
     for key, field in sorted(model["fields"].items()):
         if not key.isidentifier() or key == "id":
             continue
-        comodel = field["comodel"]
-        if comodel:
-            if comodel == "_unknown" or comodel not in registry:
-                raise ValueError(f"Unknown relation target: {name}.{key} -> {comodel}")
-            value = model_type(comodel)
-        else:
-            try:
-                value = SCALAR[field["type"]]
-            except KeyError as error:
-                raise ValueError(
-                    f"Unsupported field type: {name}.{key}: {field['type']}"
-                ) from error
-        write = value + " | None"
-        if field["type"] == "many2one":
-            write += " | int | Literal[False]"
-        elif field["type"] in ("one2many", "many2many"):
-            write += " | Iterable[CommandValue] | Iterable[int] | Literal[False]"
-        elif field["type"] in ("date", "datetime", "binary"):
-            write += " | str"
-            if field["type"] == "binary":
-                write += " | Literal[False]"
-                if key == "raw":
-                    write += " | bytes"
+        value = field_value(name, key, field, registry)
+        write = field_write_value(key, field, value)
         members.append(f"    {key}: _RegistryField[{value}, {write}]")
     return members
+
+
+def mapped_field(model, path, registry):
+    current = model
+    parts = path.split(".")
+    for position, part in enumerate(parts):
+        field = current["fields"].get(part)
+        if field is None:
+            return None
+        if position == len(parts) - 1:
+            return field
+        if not field["comodel"]:
+            return None
+        current = registry[field["comodel"]]
+    return None
 
 
 def mapped_members(model, mapped_paths, registry):
     members = []
     for path in sorted(set(mapped_paths)):
-        current = model
-        final = None
-        for position, part in enumerate(path.split(".")):
-            final = current["fields"].get(part)
-            if final is None:
-                break
-            if position < len(path.split(".")) - 1:
-                if not final["comodel"]:
-                    final = None
-                    break
-                current = registry[final["comodel"]]
+        final = mapped_field(model, path, registry)
         if final is None:
             continue
         target = model_type(final["comodel"]) if final["comodel"] else None
@@ -127,12 +141,12 @@ def mapped_members(model, mapped_paths, registry):
             )
         members.extend(
             [
-                "    @overload",
+                OVERLOAD,
                 f"    def mapped(self, func: Literal[{path!r}]) -> {result}: ...",
             ]
         )
     if any("def mapped(" in member for member in members):
-        members.append("    @overload")
+        members.append(OVERLOAD)
     members.append(
         "    def mapped(self, func: str | Callable[[Self], R]) -> list[R] | BaseModel: ..."
     )

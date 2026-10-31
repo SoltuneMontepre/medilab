@@ -9,6 +9,8 @@ from framework_annotations import apply
 from generate_types import core_model_methods, model_type, write_package
 from link_addons import is_link
 
+MODULES_PATH = "src/core/modules"
+
 
 def environment_source(source, registry, external_ids=None):
     tree = ast.parse(source)
@@ -96,15 +98,9 @@ def environment_source(source, registry, external_ids=None):
     return result
 
 
-def prepare(root, registry_directory, destination, published_path=None):
-    destination = destination.resolve()
-    if published_path is not None:
-        published_path = published_path.resolve()
-    registry = json.loads(
-        (registry_directory / "registry.json").read_text(encoding="utf-8")
-    )
+def source_literals(root):
     strings, mapped_paths, field_keys = set(), set(), set()
-    for source in (root / "src/core/modules").rglob("*.py"):
+    for source in (root / MODULES_PATH).rglob("*.py"):
         tree = ast.parse(source.read_text(encoding="utf-8"))
         strings.update(
             node.value
@@ -130,6 +126,17 @@ def prepare(root, registry_directory, destination, published_path=None):
             and isinstance(node.slice, ast.Constant)
             and isinstance(node.slice.value, str)
         )
+    return strings, mapped_paths, field_keys
+
+
+def prepare(root, registry_directory, destination, published_path=None):
+    destination = destination.resolve()
+    if published_path is not None:
+        published_path = published_path.resolve()
+    registry = json.loads(
+        (registry_directory / "registry.json").read_text(encoding="utf-8")
+    )
+    strings, mapped_paths, field_keys = source_literals(root)
     xmlids = json.loads(
         (registry_directory / "xmlids.json").read_text(encoding="utf-8")
     )
@@ -183,14 +190,12 @@ def prepare(root, registry_directory, destination, published_path=None):
     config.update(
         {
             "include": [
-                os.path.relpath(root / "src/core/modules", visible),
+                os.path.relpath(root / MODULES_PATH, visible),
                 "medilab_model_types/**/*.pyi",
             ],
             "exclude": [
                 os.path.relpath(path, visible)
-                for path in sorted(
-                    (root / "src/core/modules").glob("*/__manifest__.py")
-                )
+                for path in sorted((root / MODULES_PATH).glob("*/__manifest__.py"))
             ],
             "extraPaths": [str(visible / "odoo-source"), str(visible)],
             "venvPath": str(root / "src/core"),

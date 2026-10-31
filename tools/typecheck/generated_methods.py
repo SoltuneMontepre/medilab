@@ -1,5 +1,7 @@
 """Bind source method signatures without replacing or omitting their bodies."""
 
+from type_names import OVERLOAD
+
 
 def method_contracts(name, model):
     members = []
@@ -19,9 +21,9 @@ def method_contracts(name, model):
             overrides.add(getter)
             members.extend(
                 [
-                    "    @overload",
+                    OVERLOAD,
                     f"    def {getter}(self, key: str) -> {value_type}: ...",
-                    "    @overload",
+                    OVERLOAD,
                     f"    def {getter}[T](self, key: str, default: T) -> {value_type} | T: ...",
                 ]
             )
@@ -52,13 +54,13 @@ def method_contracts(name, model):
                 result += f" | {default}"
             members.extend(
                 [
-                    "    @overload",
+                    OVERLOAD,
                     f"    def _get_parameter(self, field_name: Literal[{key!r}]) -> {result}: ...",
                 ]
             )
         members.extend(
             [
-                "    @overload",
+                OVERLOAD,
                 "    def _get_parameter(self, field_name: str) -> object: ...",
             ]
         )

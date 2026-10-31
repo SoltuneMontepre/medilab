@@ -34,6 +34,53 @@ def stable_signature(signature):
     return str(signature.replace(parameters=parameters))
 
 
+def method_metadata(base, value):
+    binding = "instance"
+    if isinstance(value, (classmethod, staticmethod)):
+        binding = "class" if isinstance(value, classmethod) else "static"
+        value = value.__func__
+    if not inspect.isfunction(value):
+        return None
+    try:
+        inspected_signature = inspect.signature(value)
+        signature = stable_signature(inspected_signature)
+        returns_self = (
+            inspected_signature.return_annotation is Self
+            or inspected_signature.return_annotation in ("Self", "typing.Self")
+        )
+        source = inspect.getsourcefile(inspect.unwrap(value))
+    except (TypeError, ValueError):
+        signature, source, returns_self = None, None, False
+    return {
+        "signature": signature,
+        "source": source,
+        "class": base.__name__,
+        "module": base.__module__,
+        "binding": binding,
+        "returnsSelf": returns_self,
+    }
+
+
+def export_members(model):
+    methods = {}
+    attributes = {}
+    for base in reversed(type(model).__mro__):
+        for key, value in sorted(vars(base).items()):
+            if (
+                key in ("_permission_actions", "_audit_children")
+                and base.__module__.startswith("odoo.addons.")
+                and base.__name__.isidentifier()
+            ):
+                attributes[key] = {
+                    "module": base.__module__,
+                    "class": base.__name__,
+                }
+            metadata = method_metadata(base, value)
+            if metadata is not None:
+                methods[key] = metadata
+    return methods, attributes
+
+
 def export_registry(environment):
     result = {}
     for name in sorted(environment.registry):
@@ -48,44 +95,7 @@ def export_registry(environment):
             }
             for key, field in sorted(model._fields.items())
         }
-        methods = {}
-        attributes = {}
-        for base in reversed(type(model).__mro__):
-            for key, value in sorted(vars(base).items()):
-                if (
-                    key in ("_permission_actions", "_audit_children")
-                    and base.__module__.startswith("odoo.addons.")
-                    and base.__name__.isidentifier()
-                ):
-                    attributes[key] = {
-                        "module": base.__module__,
-                        "class": base.__name__,
-                    }
-                binding = "instance"
-                if isinstance(value, (classmethod, staticmethod)):
-                    binding = "class" if isinstance(value, classmethod) else "static"
-                    value = value.__func__
-                if not inspect.isfunction(value):
-                    continue
-                try:
-                    inspected_signature = inspect.signature(value)
-                    signature = stable_signature(inspected_signature)
-                    returns_self = (
-                        inspected_signature.return_annotation is Self
-                        or inspected_signature.return_annotation
-                        in ("Self", "typing.Self")
-                    )
-                    source = inspect.getsourcefile(inspect.unwrap(value))
-                except (TypeError, ValueError):
-                    signature, source, returns_self = None, None, False
-                methods[key] = {
-                    "signature": signature,
-                    "source": source,
-                    "class": base.__name__,
-                    "module": base.__module__,
-                    "binding": binding,
-                    "returnsSelf": returns_self,
-                }
+        methods, attributes = export_members(model)
         bases = [
             {
                 "module": base.__module__,

@@ -10,6 +10,54 @@ from generated_header import preamble
 from generated_methods import method_contracts, method_members
 from type_names import model_type
 
+RUNTIME_GUARD = 'raise RuntimeError("Registry types are for TYPE_CHECKING only.")\n'
+
+
+def mapped_relations(model, mapped_paths, registry):
+    related = set()
+    for path in mapped_paths:
+        current = model
+        for part in path.split("."):
+            metadata = current["fields"].get(part)
+            if not metadata or not metadata["comodel"]:
+                break
+            target = metadata["comodel"]
+            related.add(target)
+            current = registry[target]
+    return related
+
+
+def related_models(chosen, mapped_paths, registry):
+    related = {
+        field["comodel"]
+        for model in chosen.values()
+        for field in model["fields"].values()
+        if field["comodel"]
+    }
+    for model in chosen.values():
+        related.update(mapped_relations(model, mapped_paths, registry))
+    return related - chosen.keys()
+
+
+def model_members(name, model, registry, imports, mapped_paths, core_methods, keys):
+    members = [f"    _name: ClassVar[Literal[{name!r}]]"]
+    if model.get("originalModule") is not None:
+        members.append(
+            f"    _original_module: ClassVar[Literal[{model['originalModule']!r}]]"
+        )
+    for key, attribute in sorted(model.get("attributes", {}).items()):
+        members.append(
+            f"    {key} = {imports[attribute['module']]}.{attribute['class']}.{key}"
+        )
+    if keys:
+        members.append(f"    _fields: ClassVar[_Fields_{model_type(name)}]")
+    contracts, overrides = method_contracts(name, model)
+    members.extend(contracts)
+    members.extend(field_members(name, model, registry))
+    members.extend(mapped_members(model, mapped_paths, registry))
+    members.extend(method_members(model, imports, core_methods, overrides))
+    return members
+
 
 def render(registry, selected=None, mapped_paths=(), core_methods=(), field_keys=()):
     chosen = (
@@ -37,23 +85,7 @@ def render(registry, selected=None, mapped_paths=(), core_methods=(), field_keys
     imports = {owner: f"_source_{index}" for index, owner in enumerate(owners)}
     lines = preamble(imports)
     if selected is not None:
-        related = {
-            field["comodel"]
-            for model in chosen.values()
-            for field in model["fields"].values()
-            if field["comodel"] and field["comodel"] not in chosen
-        }
-        for model in chosen.values():
-            for path in mapped_paths:
-                current = model
-                for part in path.split("."):
-                    metadata = current["fields"].get(part)
-                    if not metadata or not metadata["comodel"]:
-                        break
-                    target = metadata["comodel"]
-                    if target not in chosen:
-                        related.add(target)
-                    current = registry[target]
+        related = related_models(chosen, mapped_paths, registry)
         if related:
             lines.append("if TYPE_CHECKING:")
             lines.extend(
@@ -64,22 +96,9 @@ def render(registry, selected=None, mapped_paths=(), core_methods=(), field_keys
         field_lines, keys = field_map(name, model, field_keys)
         lines.extend(field_lines)
         lines.append(f"class {model_type(name)}(BaseModel):")
-        members = [f"    _name: ClassVar[Literal[{name!r}]]"]
-        if model.get("originalModule") is not None:
-            members.append(
-                f"    _original_module: ClassVar[Literal[{model['originalModule']!r}]]"
-            )
-        for key, attribute in sorted(model.get("attributes", {}).items()):
-            members.append(
-                f"    {key} = {imports[attribute['module']]}.{attribute['class']}.{key}"
-            )
-        if keys:
-            members.append(f"    _fields: ClassVar[_Fields_{model_type(name)}]")
-        contracts, overrides = method_contracts(name, model)
-        members.extend(contracts)
-        members.extend(field_members(name, model, registry))
-        members.extend(mapped_members(model, mapped_paths, registry))
-        members.extend(method_members(model, imports, core_methods, overrides))
+        members = model_members(
+            name, model, registry, imports, mapped_paths, core_methods, keys
+        )
         lines.extend(members or ["    pass"])
     return "\n".join(lines) + "\n"
 
@@ -108,7 +127,7 @@ def write_package(registry, directory, mapped_paths=(), core_methods=(), field_k
             encoding="utf-8",
         )
         (directory / f"_{symbol.lower()}.py").write_text(
-            'raise RuntimeError("Registry types are for TYPE_CHECKING only.")\n',
+            RUNTIME_GUARD,
             encoding="utf-8",
         )
         exports.append(f"from ._{symbol.lower()} import {symbol} as {symbol}")
@@ -117,7 +136,7 @@ def write_package(registry, directory, mapped_paths=(), core_methods=(), field_k
         encoding="utf-8",
     )
     (directory / "_lookup.py").write_text(
-        'raise RuntimeError("Registry types are for TYPE_CHECKING only.")\n',
+        RUNTIME_GUARD,
         encoding="utf-8",
     )
     exports.append("from ._lookup import DynamicModelName as DynamicModelName")
@@ -150,7 +169,7 @@ def write_package(registry, directory, mapped_paths=(), core_methods=(), field_k
     )
     (directory / "__init__.pyi").write_text("\n".join(exports) + "\n", encoding="utf-8")
     (directory / "__init__.py").write_text(
-        'raise RuntimeError("Registry types are for TYPE_CHECKING only.")\n',
+        RUNTIME_GUARD,
         encoding="utf-8",
     )
 

@@ -7,6 +7,7 @@ No host ports or application volumes are used. Every run owns a distinct Postgre
 import argparse
 import hashlib
 import json
+import secrets
 import subprocess
 import time
 import uuid
@@ -108,6 +109,7 @@ def verify_method_sources(output):
 
 def prepare(image, output):
     owner = uuid.uuid4().hex
+    database_password = secrets.token_urlsafe(32)
     prefix = f"medilab-typecheck-{owner}"
     network, postgres = f"{prefix}-net", f"{prefix}-db"
     image_id = run(
@@ -141,7 +143,7 @@ def prepare(image, output):
             "--label",
             f"{OWNER_LABEL}={owner}",
             "--env",
-            "POSTGRES_PASSWORD=typecheck",
+            f"POSTGRES_PASSWORD={database_password}",
             "--env",
             "POSTGRES_USER=typecheck",
             "--env",
@@ -149,7 +151,7 @@ def prepare(image, output):
             "postgres:18.4",
         )
         created.append(("container", postgres))
-        for attempt in range(60):
+        for _ in range(60):
             ready = subprocess.run(
                 [
                     "docker",
@@ -202,11 +204,11 @@ def prepare(image, output):
             "--db_user",
             "typecheck",
             "--db_password",
-            "typecheck",
+            database_password,
             "--database",
             "typecheck",
             "--data-dir",
-            "/tmp/typecheck-data",
+            "/var/lib/odoo/typecheck-data",
             "--stop-after-init",
             "--without-demo",
             "True",

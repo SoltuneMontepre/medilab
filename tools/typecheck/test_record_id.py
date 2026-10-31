@@ -20,12 +20,14 @@ class TestRecordId(unittest.TestCase):
 
     def test_non_database_identifiers_are_rejected(self):
         for value in (False, True, 0, -1, "7", None, object()):
+            record = SimpleNamespace(id=value)
             with self.subTest(value=value), self.assertRaises(ValueError):
-                MODULE.persisted_id(SimpleNamespace(id=value))
+                MODULE.persisted_id(record)
 
     def test_a_collection_cannot_hide_an_unsaved_record(self):
+        records = [SimpleNamespace(id=7), SimpleNamespace(id=False)]
         with self.assertRaises(ValueError):
-            MODULE.persisted_ids([SimpleNamespace(id=7), SimpleNamespace(id=False)])
+            MODULE.persisted_ids(records)
 
 
 if __name__ == "__main__":

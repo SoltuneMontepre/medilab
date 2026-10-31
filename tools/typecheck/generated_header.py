@@ -1,5 +1,7 @@
 """Generic descriptors used by each generated model interface."""
 
+from type_names import OVERLOAD
+
 
 def preamble(imports):
     lines = [
@@ -18,9 +20,9 @@ def preamble(imports):
         "ReadT = TypeVar('ReadT', covariant=True)",
         "WriteT = TypeVar('WriteT', contravariant=True)",
         "class _RegistryField(Generic[ReadT, WriteT]):",
-        "    @overload",
+        OVERLOAD,
         "    def __get__(self, instance: None, owner: type[BaseModel]) -> Field[ReadT]: ...",
-        "    @overload",
+        OVERLOAD,
         "    def __get__(self, instance: BaseModel, owner: type | None = None) -> ReadT: ...",
         "    def __set__(self, instance: BaseModel, value: WriteT) -> None: ...",
         *[f"import {owner} as {alias}" for owner, alias in imports.items()],
@@ -29,15 +31,15 @@ def preamble(imports):
         "R = TypeVar('R')",
         "OwnerT = TypeVar('OwnerT', bound=BaseModel)",
         "class _Method(Generic[P, R]):",
-        "    @overload",
+        OVERLOAD,
         "    def __get__(self, instance: None, owner: type[OwnerT]) -> Callable[Concatenate[OwnerT, P], R]: ...",
-        "    @overload",
+        OVERLOAD,
         "    def __get__(self, instance: BaseModel, owner: type | None = None) -> Callable[P, R]: ...",
         "def _method(fn: Callable[Concatenate[S, P], R]) -> _Method[P, R]: ...",
         "class _SelfMethod(Generic[P]):",
-        "    @overload",
+        OVERLOAD,
         "    def __get__(self, instance: None, owner: type[OwnerT]) -> Callable[Concatenate[OwnerT, P], OwnerT]: ...",
-        "    @overload",
+        OVERLOAD,
         "    def __get__(self, instance: OwnerT, owner: type[OwnerT] | None = None) -> Callable[P, OwnerT]: ...",
         "def _self_method(fn: Callable[Concatenate[S, P], S]) -> _SelfMethod[P]: ...",
     ]
