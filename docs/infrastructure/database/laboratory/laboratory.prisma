@@ -443,6 +443,8 @@ model ParameterMethod {
   loq              Decimal? @db.Decimal
   /// Decimals a result of this way of testing shows, such as 2 for 0.50; results copy it.
   result_decimals  Int?
+  /// True when its results may be negative, such as a redox potential or a temperature in °C.
+  allows_negative  Boolean         @default(false)
   /// True for the way the parameter is normally tested.
   is_default       Boolean         @default(false)
   /// False when this way of testing is archived.

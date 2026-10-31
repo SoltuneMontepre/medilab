@@ -11206,8 +11206,8 @@ msgstr "Rút chữ ký"
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/test_result.py:0
-msgid "You entered this result, so another person must approve it."
-msgstr "Bạn đã nhập kết quả này nên người khác phải phê duyệt."
+msgid "You entered this result, so another person must sign this level."
+msgstr "Bạn đã nhập kết quả này nên người khác phải ký ở cấp này."
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_test_result_decimals_range
@@ -11269,7 +11269,7 @@ msgstr ", dự kiến có kết quả trước ngày"
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_result.py:0
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
 msgid ""
 "A result is entered only for a received sample while %s is waiting, "
 "assigned, in testing or outsourced."
@@ -11533,7 +11533,7 @@ msgstr "Gửi"
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_result.py:0
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
 msgid "Send %s to its subcontractor before entering its result."
 msgstr "Gửi %s cho thầu phụ trước khi nhập kết quả."
 
@@ -13181,7 +13181,6 @@ msgstr "Báo tôi khi có thể sửa"
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/document_lock.py:0
-#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_lock.py
 msgid "Only an active lock can be released."
 msgstr "Chỉ có thể mở khóa đang hiệu lực."
 
@@ -13256,7 +13255,6 @@ msgstr "Đã lưu"
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/document_lock.py:0
-#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_locking.py
 msgid "Someone else has just locked %s."
 msgstr "Người khác vừa khóa %s."
 
@@ -14632,3 +14630,68 @@ msgstr "Hồ sơ đăng ký chất lượng %(name)s hết hạn hôm nay, ngày
 #: code:addons/sol_laboratory/models/system/quality_registration_scheduled_job.py:0
 msgid "The quality registration %(name)s expires on %(date)s. Renew it before then, or its mark is no longer printed on reports."
 msgstr "Hồ sơ đăng ký chất lượng %(name)s hết hạn ngày %(date)s. Hãy gia hạn trước ngày đó, nếu không ký hiệu của hồ sơ sẽ không còn được in trên phiếu kết quả."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/calendar_event.py:0
+msgid "Calendar links are managed by their task or machine booking."
+msgstr "Liên kết lịch được quản lý bởi nhiệm vụ hoặc lịch đặt máy."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result.py:0
+msgid ""
+"%s cannot be negative; enter a measurement below the LOD as a text, such as "
+"\"< LOD\"."
+msgstr "%s không được âm; kết quả đo dưới LOD hãy nhập dạng chữ, ví dụ \"< LOD\"."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch.py:0
+msgid ""
+"%s does not hold the sample delivery staff role named in the Laboratory "
+"settings."
+msgstr ""
+"%s không giữ vai trò nhân viên giao nhận mẫu được chọn trong cài đặt Phòng "
+"thí nghiệm."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__can_enter_result
+msgid "Can Enter Result"
+msgstr "Có thể nhập kết quả"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__courier_choice_ids
+msgid "Sample Delivery Staff to Choose"
+msgstr "Nhân viên giao nhận mẫu có thể chọn"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__allows_negative
+msgid "Negative Results"
+msgstr "Cho phép kết quả âm"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__sample_delivery_role_id
+msgid "Only people holding this role can carry a dispatch to a subcontractor."
+msgstr ""
+"Chỉ người giữ vai trò này mới được mang phiếu gửi thầu phụ đến thầu phụ."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatch
+msgid "Rejected:"
+msgstr "Bị từ chối:"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__sample_delivery_role_id
+msgid "Sample Delivery Staff Role"
+msgstr "Vai trò nhân viên giao nhận mẫu"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid ""
+"The subcontractor's result of %s waits to be sent; send it, or have it "
+"rejected, before entering another."
+msgstr ""
+"Kết quả của thầu phụ cho %s đang chờ gửi; hãy gửi hoặc cho từ chối kết quả "
+"đó trước khi nhập kết quả khác."

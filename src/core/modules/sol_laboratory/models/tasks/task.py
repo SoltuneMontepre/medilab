@@ -19,6 +19,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TASK_TYPE,
     MODEL_TESTING_METHOD_STEP,
 )
+from odoo.addons.sol_laboratory.constants.scheduling import CALENDAR_SYNC_CONTEXT, CALENDAR_SYNC_TOKEN
 from odoo.addons.sol_laboratory.constants.tasks import FINAL_STATUSES, MANUAL_TRIGGER, TESTING_ACTION
 
 TASK_ACTION_CONTEXT = "medilab_task_action"
@@ -218,7 +219,7 @@ class Task(models.Model):
         if "assignee_id" in vals:
             self.env[MODEL_SAMPLE_TEST]._follow_assignment(self)
             self.env[MODEL_MACHINE_BOOKING]._follow_assignment(self)
-        if not self.env.context.get("medilab_skip_calendar_sync") and {
+        if self.env.context.get(CALENDAR_SYNC_CONTEXT) is not CALENDAR_SYNC_TOKEN and {
             "planned_start",
             "planned_end",
             "assignee_id",
@@ -245,12 +246,13 @@ class Task(models.Model):
             raise UserError(self.env._("%s is not in the task's department.", assignee.name))
 
     def _check_reassign(self, vals):
+        has_reason = bool(str(vals.get("reassign_reason") or "").strip())
         for task in self:
             if task.status in FINAL_STATUSES:
                 raise UserError(self.env._("%s is finished and cannot be assigned again.", task.name))
             moves_person = task.assignee_id and vals.get("assignee_id", task.assignee_id.id) != task.assignee_id.id
             moves_department = vals.get("department_id", task.department_id.id) != task.department_id.id
-            if (moves_person or moves_department) and not vals.get("reassign_reason"):
+            if (moves_person or moves_department) and not has_reason:
                 raise UserError(self.env._("Give a reason for moving %s to another person or department.", task.name))
 
     def _claimable_by(self, person):
@@ -297,7 +299,7 @@ class Task(models.Model):
 
     def _sync_calendar_event(self):
         """Keep one calendar event on a planned task. The event has no alarm, so Odoo does not also remind."""
-        if self.env.context.get("medilab_skip_calendar_sync"):
+        if self.env.context.get(CALENDAR_SYNC_CONTEXT) is CALENDAR_SYNC_TOKEN:
             return
         events = self.env["calendar.event"].sudo()
         for task in self:
@@ -307,7 +309,7 @@ class Task(models.Model):
             planned_by_bookings = task.sudo().booking_ids.calendar_event_id
             if task.status in FINAL_STATUSES or not task.planned_start or not user or planned_by_bookings:
                 if event:
-                    event.with_context(medilab_skip_calendar_sync=True).unlink()
+                    event.with_context(**{CALENDAR_SYNC_CONTEXT: CALENDAR_SYNC_TOKEN}).unlink()
                 continue
             stop = task.planned_end or task.planned_start + timedelta(hours=1)
             values = {
@@ -320,9 +322,11 @@ class Task(models.Model):
                 "location": task.sampling_location_id.display_name or False,
             }
             if event:
-                event.with_context(medilab_skip_calendar_sync=True).write(values)
+                event.with_context(**{CALENDAR_SYNC_CONTEXT: CALENDAR_SYNC_TOKEN}).write(values)
             else:
-                events.with_context(medilab_skip_calendar_sync=True).create({**values, "medilab_task_id": task.id})
+                events.with_context(**{CALENDAR_SYNC_CONTEXT: CALENDAR_SYNC_TOKEN}).create(
+                    {**values, "medilab_task_id": task.id}
+                )
 
     def action_assign_sample(self):
         """Open the assign wizard on every unfinished testing task of the task's sample in its department."""
