@@ -27,6 +27,7 @@ src/tests/
         sf-08-laboratory-setup/
         sf-09-support-feedback/
       features/
+        laboratory/backup-signers/
         onboarding/master-data-staging/
         inventory/solution-preparation/
         theme/chatter-resize/
@@ -78,6 +79,7 @@ Start test titles with the issue's `TC-WF…`, `TC-SF…` or `TC-F…` ID. Map f
 | Prepare a solution from scanned bottles; verify the resulting stock movements and container. | [#181](https://github.com/SoltuneMontepre/medilab/issues/181) | `features/inventory/solution-preparation/` | `solution-preparation.cy.js` |
 | Resize and collapse the chatter that sits beside a form, and keep its width and state. | [#282](https://github.com/SoltuneMontepre/medilab/issues/282) | `features/theme/chatter-resize/` | `chatter-resize.cy.js` |
 | Move the menu bar sections that do not fit a narrow window into the More menu, in every app. | [#393](https://github.com/SoltuneMontepre/medilab/issues/393) | `features/theme/navbar-more-menu/` | `navbar-more-menu.cy.js` |
+| Give a backup the head of department's role until a date, who approves a result or sends one at a lower level in their own name. | [#430](https://github.com/SoltuneMontepre/medilab/issues/430) | `features/laboratory/backup-signers/` | `backup-signers.cy.js` |
 | Link an internal user that no person links to, and refuse creating one outside a person. | [#438](https://github.com/SoltuneMontepre/medilab/issues/438) | `features/laboratory/unlinked-users/` | `unlinked-users.cy.js` |
 
 Onboarding and solution-preparation scenarios follow their approved feature documents and demo starting data. Reserving a directory does not settle the open requirements in those issues.
