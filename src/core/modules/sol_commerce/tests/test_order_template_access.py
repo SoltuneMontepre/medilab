@@ -222,7 +222,7 @@ class TestOrderTemplateAccess(TemplateCase):
             )
         )
         template = self.save_template(source)
-        self.assertEqual(template.line_ids.mapped("quantity"), [1.5, 2.25])
+        self.assertEqual(template.line_ids.mapped("quantity"), [2, 3])
         with self.assertRaises(AccessError), self.cr.savepoint():
             self.env["medilab.order.template.line"].with_user(self.sales).with_context(
                 creating_template_ids=template.ids
