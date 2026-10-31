@@ -53,7 +53,6 @@
         <p t-if="request.params.get('error')" class="alert alert-danger" t-out="request.params.get('error')" />
         <div class="row mt-4">
             <div class="col-md-9">
-                <h3>Customer</h3>
                 <dl class="row">
                     <dt class="col-sm-4">Customer code</dt>
                     <dd class="col-sm-8" t-out="medilab_customer.code" />
@@ -91,6 +90,8 @@
                 <p>
                     <a href="/my/addresses">Addresses</a>
                     <t t-if="medilab_customer.is_company"> · <a href="/my/contacts">Contacts</a></t>
+                    · <a href="/my/notifications">Notification preferences</a>
+                    · <a href="/orders">My orders</a>
                 </p>
             </div>
             <div class="col-md-3">
@@ -105,7 +106,7 @@
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
                     <input type="file" name="logo" accept="image/png,image/jpeg" class="form-control mb-1" required="required" />
                     <small class="form-text text-muted d-block mb-2">PNG or JPEG, up to 2 MB.</small>
-                    <button type="submit" class="btn btn-secondary">Upload</button>
+                    <button type="submit" class="btn btn-secondary"><iconify-icon icon="mdi:upload" class="me-1" aria-hidden="true" />Upload</button>
                 </form>
                 <form t-if="medilab_customer.image_128" action="/my/logo/remove" method="post" class="mt-2">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
@@ -113,9 +114,6 @@
                 </form>
             </div>
         </div>
-        <h3 class="mt-4">Order history</h3>
-        <t t-call="sol_commerce.order_table" orders="customer_orders" />
-        <p t-if="customer_orders"><a href="/orders">All orders</a></p>
     </template>
 
     <template id="order_status" name="Order status">
@@ -149,7 +147,7 @@
                             <td class="text-end">
                                 <form t-if="order.can_reorder()" t-att-action="'/orders/%s/reorder' % order.id" method="post">
                                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
-                                    <button type="submit" class="btn btn-primary">Reorder</button>
+                                    <button type="submit" class="btn btn-primary"><iconify-icon icon="mdi:repeat" class="me-1" aria-hidden="true" />Reorder</button>
                                 </form>
                             </td>
                         </tr>

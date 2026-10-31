@@ -27,6 +27,11 @@ msgid "<span class=\"text-muted\">Quotation</span>"
 msgstr "<span class=\"text-muted\">Báo Giá</span>"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_navigation
+msgid "Account"
+msgstr "Tài khoản"
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_template_form
 msgid "Add a parameter or package"
@@ -49,6 +54,21 @@ msgstr "%s đã có người nhận."
 #: code:addons/sol_commerce/models/orders/task.py:0
 msgid "%s waits in a queue you do not belong to."
 msgstr "%s đang chờ trong hàng đợi mà bạn không thuộc về."
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_page
+msgid "All parameter groups"
+msgstr "Tất cả nhóm chỉ tiêu"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_page
+msgid "All sample types"
+msgstr "Tất cả loại mẫu"
+
+#. module: sol_commerce
+#: model:portal.entry,description:sol_commerce.portal_entry_support
+msgid "Ask the laboratory for help and follow the conversation"
+msgstr "Nhờ phòng thí nghiệm hỗ trợ và theo dõi trao đổi"
 
 #. module: sol_commerce
 #: model:medilab.permission,name:sol_commerce.permission_order_edit_own
@@ -307,7 +327,6 @@ msgstr "Giá Trị Tạm Ứng"
 
 #. module: sol_commerce
 #: model:res.groups,name:sol_commerce.group_all_orders
-#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
 msgid "All orders"
 msgstr "Tất cả đơn hàng"
 
@@ -472,6 +491,7 @@ msgstr "Tiền mặt"
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_navigation
 msgid "Catalog"
 msgstr "Danh mục"
 
@@ -703,7 +723,6 @@ msgstr "Tiền tệ"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_revenue_report__partner_id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__customer_id
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__customer_id
-#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_cash_flow_report_search
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_receivable_report_search
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_revenue_report_search
@@ -1165,6 +1184,13 @@ msgid "Min"
 msgstr "Tối thiểu"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_navigation
+msgid "My orders"
+msgstr "Đơn hàng của tôi"
+
+#. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_template__name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_template_save__name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package__name
@@ -1338,9 +1364,6 @@ msgstr "Đã gửi đơn hàng"
 #. module: sol_commerce
 #: model:ir.actions.act_window,name:sol_commerce.action_medilab_sale_order
 #: model:ir.ui.menu,name:sol_commerce.menu_sale_order
-#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_page
-#: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
-#: model_terms:ir.ui.view,arch_db:sol_commerce.support_list
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_customer_form_sales
 msgid "Orders"
 msgstr "Đơn Hàng"
@@ -3247,11 +3270,6 @@ msgid "No orders yet."
 msgstr "Chưa có đơn hàng."
 
 #. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
-msgid "Order history"
-msgstr "Lịch sử đơn hàng"
-
-#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.contact_form
 #: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
 msgid "Position"
@@ -3685,8 +3703,9 @@ msgid "Subject"
 msgstr "Tiêu đề"
 
 #. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
+#: model:portal.entry,name:sol_commerce.portal_entry_support
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_navigation
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_support
 msgid "Support"
 msgstr "Hỗ trợ"
@@ -4053,6 +4072,7 @@ msgstr "Chưa có thông báo."
 
 #. module: sol_commerce
 #: model:portal.entry,name:sol_commerce.portal_entry_notifications
+#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
 #: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification_preferences
 msgid "Notification preferences"
 msgstr "Tuỳ chọn thông báo"

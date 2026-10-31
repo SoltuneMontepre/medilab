@@ -30,3 +30,12 @@ html:root {
 a.btn-secondary {
     color: $ml-secondary !important;
 }
+
+// A catalog filter with nothing picked reads as a placeholder, while the options of its open list keep the body colour.
+.o_medilab_catalog_filter:has(option[value=""]:checked) {
+    color: $ml-text-muted;
+}
+
+.o_medilab_catalog_filter option {
+    color: $ml-text;
+}
