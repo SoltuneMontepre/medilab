@@ -1052,6 +1052,8 @@ model Person {
   team          Department?  @relation("PersonTeam", fields: [team_id], references: [id], onDelete: Restrict)
   /// Roles the person holds.
   roles         PersonRole[]
+  /// Roles the person holds until a date.
+  role_grants   RoleGrant[]
   /// Tasks assigned to the person.
   tasks         Task[]           @relation("TaskAssignee")
   /// Tasks the person assigned.
@@ -1192,6 +1194,8 @@ model Role {
   group           Group            @relation("RoleGroup", fields: [group_id], references: [id], onDelete: Restrict)
   /// People who hold the role.
   people          PersonRole[]
+  /// People who hold the role until a date.
+  grants          RoleGrant[]
   /// Permissions the role contains.
   permissions     RolePermission[]
   /// Approval levels the role signs.
@@ -1218,6 +1222,26 @@ model PersonRole {
   @@id([person_id, role_id])
   @@index([role_id])
   @@map("medilab_person_role_rel")
+}
+
+/// A role given to a person until a date, such as a backup signer's while no holder of a chain's top level is available. The role is also one of the person's roles; a scheduled job removes both once the date ends in the laboratory. Unique on (person_id, role_id).
+model RoleGrant {
+  /// Row identifier.
+  id        Int      @id @default(autoincrement())
+  /// The person who holds the role until the date.
+  person_id Int
+  /// The role given to the person.
+  role_id   Int
+  /// Last day the person holds the role.
+  date_end  DateTime @db.Date
+  /// The person.
+  person    Person   @relation(fields: [person_id], references: [id], onDelete: Cascade)
+  /// The role.
+  role      Role     @relation(fields: [role_id], references: [id], onDelete: Cascade)
+
+  @@unique([person_id, role_id])
+  @@index([person_id])
+  @@map("medilab_role_grant")
 }
 
 /// One action on one document type, within a scope. Granted to people through roles or directly.
@@ -1300,7 +1324,7 @@ model ApprovalChain {
   @@map("medilab_approval_chain")
 }
 
-/// One level of an approval chain. Unique on (chain_id, sequence).
+/// One level of an approval chain. Unique on (chain_id, sequence) among active levels. A level that documents sign at is never changed or deleted: changing who signs it archives it and adds a copy with the new values, and removing it archives it.
 model ApprovalLevel {
   /// Row identifier.
   id              Int           @id @default(autoincrement())
@@ -1316,15 +1340,51 @@ model ApprovalLevel {
   same_department Boolean       @default(false)
   /// True when the signer may reject instead of signing.
   can_reject      Boolean       @default(true)
+  /// False once the level was replaced or removed while documents sign at it.
+  active          Boolean       @default(true)
   /// The chain the level belongs to.
   chain           ApprovalChain @relation(fields: [chain_id], references: [id], onDelete: Cascade)
   /// The role a person needs to sign at this level.
   role            Role          @relation(fields: [role_id], references: [id], onDelete: Restrict)
   /// Signatures given at this level.
   signatures      Signature[]
+  /// Signing processes that sign at this level.
+  processes       SigningProcessLevel[]
 
-  @@unique([chain_id, sequence])
   @@map("medilab_approval_level")
+}
+
+/// The signing of one version of a document, started by its first signature or rejection, with the chain levels it had then. Unique on (document_model, document_id, document_version).
+model SigningProcess {
+  /// Row identifier.
+  id               Int                   @id @default(autoincrement())
+  /// Technical name of the signed document's model, such as medilab.test.result.
+  document_model   String                @db.VarChar
+  /// Id of the signed document.
+  document_id      Int
+  /// Version of the document the process signs.
+  document_version Int
+  /// Levels of the chain when the process started.
+  levels           SigningProcessLevel[]
+
+  @@unique([document_model, document_id, document_version])
+  @@map("medilab_signing_process")
+}
+
+/// Links a signing process to the chain levels it signs at.
+model SigningProcessLevel {
+  /// The signing process.
+  process_id Int
+  /// A level the process signs at.
+  level_id   Int
+  /// The signing process.
+  process    SigningProcess @relation(fields: [process_id], references: [id], onDelete: Cascade)
+  /// The level.
+  level      ApprovalLevel  @relation(fields: [level_id], references: [id], onDelete: Restrict)
+
+  @@id([process_id, level_id])
+  @@index([level_id])
+  @@map("medilab_signing_process_level_rel")
 }
 
 /// One signature or rejection on one version of a document. Records are never deleted or changed; a withdrawal sets withdrawn_at once.
@@ -1347,7 +1407,7 @@ model Signature {
   signer_id        Int
   /// Signer's name at the time of signing.
   signer_name      String        @db.VarChar
-  /// Signer's role at the time of signing.
+  /// Name of the role the signer signed with at the time: the level's own, or a later level's that signed it in the signer's own name.
   signer_role      String        @db.VarChar
   /// Level name at the time of signing.
   level_name       String        @db.VarChar

@@ -60,6 +60,26 @@
         <field name="document_model">medilab.role</field>
         <field name="action">delete</field>
     </record>
+    <record id="permission_role_grant_read_all" model="medilab.permission">
+        <field name="name">Read roles until a date</field>
+        <field name="document_model">medilab.role.grant</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_role_grant_create_all" model="medilab.permission">
+        <field name="name">Create roles until a date</field>
+        <field name="document_model">medilab.role.grant</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_role_grant_edit_all" model="medilab.permission">
+        <field name="name">Edit roles until a date</field>
+        <field name="document_model">medilab.role.grant</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_role_grant_delete_all" model="medilab.permission">
+        <field name="name">Delete roles until a date</field>
+        <field name="document_model">medilab.role.grant</field>
+        <field name="action">delete</field>
+    </record>
     <record id="permission_person_read_all" model="medilab.permission">
         <field name="name">Read people</field>
         <field name="document_model">medilab.person</field>
@@ -861,6 +881,11 @@
     <record id="permission_signature_read_all" model="medilab.permission">
         <field name="name">Read signatures</field>
         <field name="document_model">medilab.signature</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_signing_process_read_all" model="medilab.permission">
+        <field name="name">Read signing processes</field>
+        <field name="document_model">medilab.signing.process</field>
         <field name="action">read</field>
     </record>
     <record id="permission_signing_certificate_read_all" model="medilab.permission">

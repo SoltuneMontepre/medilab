@@ -319,16 +319,15 @@ class TestResult(models.Model):
         # The head of department who entered and sent a result also approves it at the last level.
         return self.entered_by_id == self.env.user and level == self._approval_final_level()
 
-    @api.model
     def _approval_sending_level(self):
-        """The first level of a chain with more than one level: signing it sends the result, any other approves it."""
-        levels = self._approval_chain().level_ids.sorted("sequence")
+        """The first level of a result signed at more than one level: signing it sends the result, any other approves
+        it."""
+        levels = self._approval_levels()
         return levels[:1] if len(levels) > 1 else levels.browse()
 
-    @api.model
     def _approval_final_level(self):
-        """The last level of the chain, the head of department's: its signer may approve a result they entered."""
-        return self._approval_chain().level_ids.sorted("sequence")[-1:]
+        """The last level of the result, the head of department's: its signer may approve a result they entered."""
+        return self._approval_levels()[-1:]
 
     def _approval_department(self):
         # The department that tested it, also once its testing task is done, for the change requests on it.
