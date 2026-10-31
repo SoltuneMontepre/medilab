@@ -16,7 +16,7 @@ Do this once per cloud environment, in its settings: the environment menu in the
 
 1. On your own machine, run `task ai:env`. It logs Doppler in if needed and writes `.local/cloud.env` from the template `tools/cloud/cloud.env.example`, filling each variable from Doppler `medilab` `dev`.
 2. Paste the contents of `.local/cloud.env` under Environment variables, then delete the file. Never paste it into a chat or commit it.
-3. Paste this under Setup script. It installs the Doppler CLI and `task`, sends Docker Hub pulls through Google's mirror and starts Docker. When the repository is already cloned, it also runs `task ai:setup`, pre-installs the `postgres` MCP server and starts the database, so that server connects at session start. A step that fails prints what to fix and the others still run; the script then exits with an error.
+3. Paste this under Setup script. It installs the Doppler CLI and `task`, sends Docker Hub pulls through Google's mirror and starts Docker. When the repository is already cloned, it also runs `task ai:setup`, makes the Odoo image available with `task ai:image`, pre-installs the `postgres` MCP server and starts the database, so that server connects at session start. A step that fails prints what to fix and the others still run; the script then exits with an error.
 
    ```bash
    #!/bin/bash
@@ -57,6 +57,7 @@ Do this once per cloud environment, in its settings: the environment menu in the
    if [ -d "$repo" ] && command -v task > /dev/null; then
      cd "$repo"
      task ai:setup || warn "task ai:setup failed."
+     task ai:image || warn "Odoo image not available."
      uvx --python 3.13 --overrides tools/odoo-intelligence/postgres-overrides.txt \
        --with "mcp<2" postgres-mcp==0.3.0 --help > /dev/null || warn "postgres MCP server not installed."
      if docker info > /dev/null 2>&1; then
@@ -69,7 +70,7 @@ Do this once per cloud environment, in its settings: the environment menu in the
    exit "$failed"
    ```
 
-4. Under Network access, add these hosts to Allowed domains, one per line. The Doppler hosts serve the CLI and the secrets, `pkg-containers.githubusercontent.com` serves the layers of the `MEDILAB_ODOO_IMAGE` image; the others are the plugin MCP servers you use:
+4. Under Network access, add these hosts to Allowed domains, one per line. The Doppler hosts serve the CLI and the secrets; without them `task up` still runs, but the `doppler`, `sonarqube` and `context7` MCP servers, which start through `doppler run`, do not connect. `pkg-containers.githubusercontent.com` serves the layers of the published Odoo image; without it `task ai:image` builds the image instead. The others are the plugin MCP servers you use:
 
    ```text
    packages.doppler.com
@@ -86,7 +87,7 @@ Do this once per cloud environment, in its settings: the environment menu in the
    mcp.slack.com
    ```
 
-`DOPPLER_TOKEN` is the read-only service token of `dev`; `doppler run` reads the other secrets through it, so the cloud environment holds no other credential. `MEDILAB_ODOO_IMAGE` makes `task up` run the image that `cd-core` publishes instead of building one: the build fails in a session, because its container does not trust the proxy's certificate. The image carries the Python packages of `main`; the modules come from the checkout. The setup script cannot read the environment variables; the Doppler CLI reads `DOPPLER_TOKEN` later, in the session. Install tools from package registries: `curl ... | sh` installers are refused in a session.
+`DOPPLER_TOKEN` is the read-only service token of `dev`; `doppler run` reads the other secrets through it, so the cloud environment holds no other credential. `MEDILAB_ODOO_IMAGE` makes `task up` run the image that `cd-core` publishes instead of building one. The production build fails in a session: the proxy passes only HTTPS, signs it with a certificate the build container does not trust, and refuses the layers of `ghcr.io` images when `pkg-containers.githubusercontent.com` is not allowed. `task ai:image` pulls the published image; when the pull is refused, it builds `tools/dockerfiles/cloud.dockerfile` under the same name: the Odoo base of the production Dockerfile from Docker Hub, the Python packages of `uv.lock`, `apt` over HTTPS and the proxy's certificate as a build secret that stays out of the image. Either image carries only the Python packages; the modules and config come from the checkout. The setup script cannot read the environment variables; the Doppler CLI reads `DOPPLER_TOKEN` later, in the session. Install tools from package registries: `curl ... | sh` installers are refused in a session.
 
 ## Start a session
 
@@ -98,7 +99,8 @@ Do this once per cloud environment, in its settings: the environment menu in the
 ## Run the app
 
 1. If `docker info` fails, the setup script did not start Docker: run the Docker lines of the setup script.
-2. Run `task up`. It starts the database, Garage, CloudBeaver and Odoo at `http://localhost:8069`, which the built-in Chromium opens. A new database holds no modules until they are installed.
+2. If the setup script printed `Odoo image not available.`, run `task ai:image`.
+3. Run `task up`. It starts the database, Garage, CloudBeaver and Odoo at `http://localhost:8069`, which the built-in Chromium opens. A new database holds no modules until they are installed.
 
 The database listens on `localhost:15432` with user and password `root`. When it was not up at session start, the `postgres` MCP server has already failed; query the database with `PGPASSWORD=root psql -h localhost -p 15432 -U root -d medilab`.
 

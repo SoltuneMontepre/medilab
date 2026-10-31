@@ -11,7 +11,7 @@ tools/
 ├── cloud/                      template of the Claude Code cloud environment variables that ai:env fills
 ├── odoo-intelligence/          Shared OdooLS MCP bridge, local installer, Serena launcher and tests
 ├── taskfiles/
-│   ├── ai.taskfile.yml         AI tooling: local Serena, OdooLS, source mirror, verification, cloud environment variables and isolated Cursor setup
+│   ├── ai.taskfile.yml         AI tooling: local Serena, OdooLS, source mirror, verification, cloud environment variables and Odoo image, isolated Cursor setup
 │   ├── ansible.taskfile.yml    Ansible in a container: ping, inspect, check, apply, kubeconfig, lint
 │   ├── app.taskfile.yml        run the app: up, stop, restart, logs, upgrade, reset
 │   ├── dev.taskfile.yml        developer setup and checks: doppler, venv, Odoo source, lint, typecheck
@@ -23,6 +23,7 @@ tools/
     ├── doppler.sh              Doppler login helper sourced by the tasks
     ├── ai_setup.sh             ai:setup prerequisites and environment
     ├── ai_env.sh               ai:env: cloud environment variables from Doppler
+    ├── ai_image.sh             ai:image: pull or build the Odoo image of a cloud session
     ├── odoo_source.sh          dev:odoo-source download and sparse checkout
     ├── compose_env.py          dev:compose-env: this checkout's compose project in tools/infrastructure/.env
     ├── test_apps.sh            test:apps
