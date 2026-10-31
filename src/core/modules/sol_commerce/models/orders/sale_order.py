@@ -15,8 +15,6 @@ from odoo.addons.sol_commerce.constants.models import (
 from odoo.addons.sol_commerce.constants.notifications import EVENT_ORDER_UPDATED
 from odoo.addons.sol_commerce.constants.orders import (
     ADVANCE_PAID_STATES,
-    APPROVAL_APPROVED,
-    APPROVAL_NONE,
     CUSTOMER_CANCELLABLE,
     FINISHED_STATUSES,
     FOLLOW_UP_BY_QUOTATION_STATUS,
@@ -41,7 +39,7 @@ from odoo.addons.sol_commerce.constants.orders import (
 )
 from odoo.addons.sol_commerce.constants.settings import DEFAULT_PAYMENT_DEADLINE_DAYS, PAYMENT_DEADLINE_PARAMETER
 from odoo.addons.sol_commerce.constants.xml_ids import QUOTATION_REPORT
-from odoo.addons.sol_laboratory.constants.models import MODEL_MAIL_MESSAGE, MODEL_PERMISSION_MIXIN
+from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_MAIL_MESSAGE, MODEL_PERMISSION_MIXIN
 
 _logger = logging.getLogger(__name__)
 
@@ -49,8 +47,9 @@ _logger = logging.getLogger(__name__)
 # Đơn Hàng
 class SaleOrder(models.Model):
     _name = MODEL_SALE_ORDER
-    _inherit = [MODEL_SALE_ORDER, MODEL_PERMISSION_MIXIN]
-    _permission_actions = ("read", "create", "edit", "delete", "sign")
+    _inherit = [MODEL_SALE_ORDER, MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
+    _permission_actions = ("read", "create", "edit", "delete")
+    _audit_children = ("order_line", "quotation_ids", "sample_ids", "cancellation_request_ids", "support_request_ids")
 
     # The customer who orders: the company, or the individual when they order for themselves.
     customer_id = fields.Many2one("res.partner", string="Customer", ondelete="restrict", index=True)
@@ -89,17 +88,6 @@ class SaleOrder(models.Model):
     reorder_ids = fields.One2many(MODEL_SALE_ORDER, "reordered_from_id")
     # Catalog items left out of this reorder because they are no longer sold.
     reorder_note = fields.Text(copy=False)
-    # none, requested, approved or rejected. Approved means the approval is signed.
-    approval_status = fields.Selection(
-        [
-            (APPROVAL_NONE, "Not requested"),
-            ("requested", "Requested"),
-            (APPROVAL_APPROVED, "Approved"),
-            ("rejected", "Rejected"),
-        ],
-        required=True,
-        default=APPROVAL_NONE,
-    )
     # Total of the catalog prices times their quantities, excluding VAT.
     catalog_total = fields.Monetary(compute="_compute_catalog_total")
     # Cancellation requests on the order.
@@ -340,7 +328,9 @@ class SaleOrder(models.Model):
         return self.sudo()._cancel_order()
 
     def action_sales_cancel(self):
-        """Cancel an order sales owns, including a confirmed one the laboratory has not finished."""
+        """Cancel an order sales owns, including a confirmed one the laboratory has not finished, unless Odoo locked it."""
+        if any(order.locked for order in self):
+            raise UserError(self.env._("You cannot cancel a locked order. Please unlock it first."))
         for order in self:
             if order.order_status in FINISHED_STATUSES:
                 raise UserError(self.env._("This order cannot be cancelled."))
@@ -348,6 +338,10 @@ class SaleOrder(models.Model):
             if message:
                 raise UserError(message)
         return self._cancel_order()
+
+    def action_cancel(self):
+        """Odoo's own cancellation goes through the same checks as the order's."""
+        return self.action_sales_cancel()
 
     def _cancel_order(self):
         self._cancel_laboratory_documents()
@@ -369,16 +363,23 @@ class SaleOrder(models.Model):
         self.ensure_one()
         return "approved" in self.sudo().test_request_id.sample_ids.test_ids.mapped("status")
 
-    def _cancellation_block_message(self):
+    def _samples_collected(self):
+        """True once the laboratory received a sample of the order's request."""
         self.ensure_one()
-        if self.approval_status == APPROVAL_APPROVED:
-            return self.env._(
-                "The approval is signed, so this order cannot be cancelled. The laboratory will contact you."
-            )
+        return any(self.sudo().test_request_id.sample_ids.mapped("received_at"))
+
+    def _cancellation_block_message(self):
+        """Why sales cannot cancel the order on their own; empty when they can."""
+        self.ensure_one()
         if self.order_status == STATUS_COMPLETED or self._laboratory_blocks_cancellation():
             return self.env._(
                 "Testing is completed or results are released, so this order cannot be cancelled. "
                 "The laboratory will contact you."
+            )
+        if self._samples_collected():
+            return self.env._(
+                "The samples of this order are collected, so cancelling it needs a change request "
+                "the Head of Sales approves."
             )
         return False
 

@@ -1,3 +1,4 @@
+from odoo import fields
 from odoo.exceptions import UserError
 from odoo.tests import tagged
 
@@ -63,15 +64,28 @@ class TestOrderCancellation(OrderCase):
         self.assertEqual(order.order_status, "confirmed")
         self.assertFalse(order.open_cancellation_request())
 
-    def test_a_signed_approval_refuses_cancellation(self):
-        signed = self.make_order([(self.lead_product, 1)], status="confirmed", user_id=self.sales.id)
-        signed.approval_status = "approved"
-        signed_request = signed.with_user(self.portal).action_request_cancellation("Please cancel")
+    def test_sales_decides_alone_until_the_samples_are_collected(self):
+        waiting = self.make_confirmed_order()
+        collected = self.make_confirmed_order()
+        collected.test_request_id.sample_ids[:1].sudo().received_at = fields.Datetime.now()
+        request = collected.with_user(self.portal).action_request_cancellation("Please cancel")
 
-        with self.assertRaises(UserError):
-            signed_request.with_user(self.sales).action_accept()
+        with self.assertRaisesRegex(UserError, "change request"):
+            request.with_user(self.sales).action_accept()
+        with self.assertRaisesRegex(UserError, "change request"):
+            collected.with_user(self.sales).action_sales_cancel()
+        with self.assertRaisesRegex(UserError, "change request"):
+            collected.with_user(self.sales).action_cancel()
+        waiting.sudo().locked = True
+        for action in ("action_cancel", "action_sales_cancel"):
+            with self.subTest(action=action), self.assertRaisesRegex(UserError, "locked"):
+                getattr(waiting.with_user(self.sales), action)()
+        waiting.sudo().locked = False
+        waiting.with_user(self.sales).action_sales_cancel()
 
-        self.assertEqual(signed.order_status, "confirmed")
+        self.assertEqual(collected.order_status, "confirmed")
+        self.assertEqual(request.status, "requested")
+        self.assertEqual(waiting.order_status, "cancelled")
 
     def test_sales_can_cancel_a_confirmed_order_that_testing_has_not_finished(self):
         order = self.make_order([(self.lead_product, 1)], status="confirmed", user_id=self.sales.id)
