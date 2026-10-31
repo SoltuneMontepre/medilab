@@ -5,23 +5,20 @@
             <div class="container py-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h1>Catalog</h1>
-                    <div>
-                        <a t-if="not request.env.user._is_public()" class="btn btn-secondary me-2" href="/orders">Orders</a>
-                        <a class="btn btn-primary" href="/cart">Cart (<t t-out="cart_quantity" />)</a>
-                    </div>
+                    <a class="btn btn-primary" href="/cart"><iconify-icon icon="mdi:cart-outline" class="me-1" aria-hidden="true" />Cart (<t t-out="cart_quantity" />)</a>
                 </div>
                 <form method="get" action="/catalog" class="row g-2 mb-4">
                     <div class="col-md-3">
-                        <select name="sample_type" class="form-select">
-                            <option value="">Sample type</option>
+                        <select name="sample_type" class="form-select o_medilab_catalog_filter" aria-label="Sample type">
+                            <option value="">All sample types</option>
                             <t t-foreach="sample_types" t-as="sample">
                                 <option t-att-value="sample.id" t-att-selected="str(sample.id) == str(sample_type)" t-out="sample.name" />
                             </t>
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <select name="group" class="form-select">
-                            <option value="">Parameter group</option>
+                        <select name="group" class="form-select o_medilab_catalog_filter" aria-label="Parameter group">
+                            <option value="">All parameter groups</option>
                             <t t-foreach="parameter_groups" t-as="parameter_group">
                                 <option t-att-value="parameter_group.id" t-att-selected="str(parameter_group.id) == str(group)" t-out="parameter_group.name" />
                             </t>
@@ -37,7 +34,7 @@
                         <input type="number" name="price_max" class="form-control" placeholder="Max" min="0" t-att-value="price_max" />
                     </div>
                     <div class="col-md-2">
-                        <button type="submit" class="btn btn-secondary">Filter</button>
+                        <button type="submit" class="btn btn-secondary"><iconify-icon icon="mdi:filter-outline" class="me-1" aria-hidden="true" />Filter</button>
                     </div>
                 </form>
                 <t t-foreach="groups" t-as="entry">
@@ -52,25 +49,25 @@
 
     <template id="catalog_products">
         <div class="table-responsive">
-            <table class="table">
+            <table class="table align-middle">
                 <thead>
                     <tr>
                         <th>Name</th>
-                        <th class="text-end">Price</th>
-                        <th />
+                        <th class="text-end o_medilab_shrink">Price</th>
+                        <th class="o_medilab_shrink" />
                     </tr>
                 </thead>
                 <tbody>
                     <t t-foreach="products" t-as="product">
                         <tr>
                             <td t-out="product.name" />
-                            <td class="text-end" t-out="product.list_price" t-options="{'widget': 'monetary', 'display_currency': product.currency_id}" />
-                            <td class="text-end">
+                            <td class="text-end o_medilab_shrink" t-out="product.list_price" t-options="{'widget': 'monetary', 'display_currency': product.currency_id}" />
+                            <td class="text-end o_medilab_shrink">
                                 <form action="/catalog/add" method="post" class="d-flex justify-content-end gap-2">
                                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
                                     <input type="hidden" name="product_tmpl_id" t-att-value="product.id" />
                                     <input type="number" name="quantity" value="1" min="1" class="form-control" style="width: 5rem" />
-                                    <button type="submit" class="btn btn-primary">Add</button>
+                                    <button type="submit" class="btn btn-primary"><iconify-icon icon="mdi:cart-plus" class="me-1" aria-hidden="true" />Add</button>
                                 </form>
                             </td>
                         </tr>
@@ -150,8 +147,8 @@
                         </select>
                     </div>
                     <div class="d-flex flex-wrap gap-2">
-                        <button type="submit" class="btn btn-primary">Submit</button>
-                        <button type="submit" class="btn btn-secondary" formaction="/cart/save">Save as draft</button>
+                        <button type="submit" class="btn btn-primary"><iconify-icon icon="mdi:send" class="me-1" aria-hidden="true" />Submit</button>
+                        <button type="submit" class="btn btn-secondary" formaction="/cart/save"><iconify-icon icon="mdi:content-save-outline" class="me-1" aria-hidden="true" />Save as draft</button>
                         <a class="btn btn-secondary" href="/catalog">Continue</a>
                     </div>
                 </form>
@@ -173,11 +170,8 @@
         <t t-call="portal.frontend_layout">
             <div class="container py-4">
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-                    <h1 class="mb-0">Orders</h1>
-                    <div class="d-flex gap-2">
-                        <a class="btn btn-secondary" href="/support">Support</a>
-                        <a class="btn btn-secondary" href="/catalog">Catalog</a>
-                    </div>
+                    <h1 class="mb-0">My orders</h1>
+                    <a class="btn btn-secondary" href="/catalog"><iconify-icon icon="mdi:flask" class="me-1" aria-hidden="true" />Catalog</a>
                 </div>
                 <div t-if="saved" class="alert alert-success" role="status">
                     Your draft is saved. It is listed here as Draft and stays in the cart until you submit it.
@@ -265,7 +259,7 @@
                     </form>
                     <form t-if="order.can_reorder()" t-att-action="'/orders/%s/reorder' % order.id" method="post">
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
-                        <button type="submit" class="btn btn-primary">Reorder</button>
+                        <button type="submit" class="btn btn-primary"><iconify-icon icon="mdi:repeat" class="me-1" aria-hidden="true" />Reorder</button>
                     </form>
                 </div>
                 <div t-if="cancel_mode == 'cancel'" class="modal fade" id="order_cancel_dialog" tabindex="-1" aria-labelledby="order_cancel_title" aria-hidden="true">

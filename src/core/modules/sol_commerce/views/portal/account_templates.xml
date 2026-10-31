@@ -53,7 +53,6 @@
         <p t-if="request.params.get('error')" class="alert alert-danger" t-out="request.params.get('error')" />
         <div class="row mt-4">
             <div class="col-md-9">
-                <h3>Customer</h3>
                 <dl class="row">
                     <dt class="col-sm-4">Customer code</dt>
                     <dd class="col-sm-8" t-out="medilab_customer.code" />
@@ -70,10 +69,29 @@
                             </form>
                         </dd>
                     </t>
+                    <dt class="col-sm-4">Language</dt>
+                    <dd class="col-sm-8">
+                        <form action="/my/language" method="post" class="d-flex gap-2">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                            <input type="hidden" name="redirect" value="/my/account" />
+                            <select name="lang" class="form-select" aria-label="Language">
+                                <option
+                                    t-foreach="frontend_languages.values()"
+                                    t-as="language"
+                                    t-att-value="language.code"
+                                    t-att-selected="language.code == request.env.user.lang"
+                                    t-out="language.name.split('/')[-1].strip()"
+                                />
+                            </select>
+                            <button type="submit" class="btn btn-secondary">Save</button>
+                        </form>
+                    </dd>
                 </dl>
                 <p>
                     <a href="/my/addresses">Addresses</a>
                     <t t-if="medilab_customer.is_company"> · <a href="/my/contacts">Contacts</a></t>
+                    · <a href="/my/notifications">Notification preferences</a>
+                    · <a href="/orders">My orders</a>
                 </p>
             </div>
             <div class="col-md-3">
@@ -88,7 +106,7 @@
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
                     <input type="file" name="logo" accept="image/png,image/jpeg" class="form-control mb-1" required="required" />
                     <small class="form-text text-muted d-block mb-2">PNG or JPEG, up to 2 MB.</small>
-                    <button type="submit" class="btn btn-secondary">Upload</button>
+                    <button type="submit" class="btn btn-secondary"><iconify-icon icon="mdi:upload" class="me-1" aria-hidden="true" />Upload</button>
                 </form>
                 <form t-if="medilab_customer.image_128" action="/my/logo/remove" method="post" class="mt-2">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
@@ -96,9 +114,6 @@
                 </form>
             </div>
         </div>
-        <h3 class="mt-4">Order history</h3>
-        <t t-call="sol_commerce.order_table" orders="customer_orders" />
-        <p t-if="customer_orders"><a href="/orders">All orders</a></p>
     </template>
 
     <template id="order_status" name="Order status">
@@ -113,7 +128,7 @@
                 <thead>
                     <tr>
                         <th>Order</th>
-                        <th>Date</th>
+                        <th class="d-none d-md-table-cell">Date</th>
                         <th>Status</th>
                         <th class="text-end">Total excluding VAT</th>
                         <th />
@@ -125,14 +140,15 @@
                             <td>
                                 <a t-att-href="'/orders/%s' % order.id" t-out="order.name" />
                                 <div class="small text-muted" t-out="order.portal_summary()" />
+                                <div class="small text-muted d-md-none" t-out="order.submitted_at or order.create_date" t-options="{'widget': 'date'}" />
                             </td>
-                            <td class="text-nowrap" t-out="order.submitted_at or order.create_date" t-options="{'widget': 'date'}" />
+                            <td class="text-nowrap d-none d-md-table-cell" t-out="order.submitted_at or order.create_date" t-options="{'widget': 'date'}" />
                             <td><t t-call="sol_commerce.order_status" /></td>
                             <td class="text-end text-nowrap" t-out="order.catalog_total" t-options="{'widget': 'monetary', 'display_currency': order.currency_id}" />
                             <td class="text-end">
                                 <form t-if="order.can_reorder()" t-att-action="'/orders/%s/reorder' % order.id" method="post">
                                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
-                                    <button type="submit" class="btn btn-primary">Reorder</button>
+                                    <button type="submit" class="btn btn-secondary btn-sm text-nowrap"><iconify-icon icon="mdi:repeat" class="me-1" aria-hidden="true" />Reorder</button>
                                 </form>
                             </td>
                         </tr>

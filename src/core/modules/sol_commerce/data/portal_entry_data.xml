@@ -17,6 +17,15 @@
             <field name="category">client_category</field>
             <field name="sequence" eval="50" />
         </record>
+        <record id="portal_entry_support" model="portal.entry">
+            <field name="name">Support</field>
+            <field name="description">Ask the laboratory for help and follow the conversation</field>
+            <field name="url">/support</field>
+            <field name="image" type="bytes" file="sol_commerce/static/src/img/portal-support.svg" />
+            <field name="is_config_card" eval="True" />
+            <field name="category">client_category</field>
+            <field name="sequence" eval="60" />
+        </record>
     </data>
     <!-- Customers follow their orders on /orders, so Odoo's sales cards are not offered. -->
     <record id="sale.portal_quotations_to_review" model="portal.entry">

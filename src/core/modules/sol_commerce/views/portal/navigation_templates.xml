@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_header_navigation" inherit_id="portal.frontend_layout" name="Portal header navigation">
+        <xpath expr="//ul[@id='top_menu']" position="before">
+            <t t-call="sol_commerce.portal_navigation" />
+        </xpath>
+    </template>
+
+    <template id="portal_navigation" name="Portal navigation">
+        <t t-set="current_path" t-value="request.httprequest.path" />
+        <t t-set="signed_in" t-value="not request.env.user._is_public()" />
+        <ul class="nav navbar-nav o_medilab_portal_navigation">
+            <t t-call="sol_commerce.portal_navigation_link" url="'/catalog'" icon="'mdi:flask'" paths="('/catalog', '/cart')">Catalog</t>
+            <t t-if="signed_in">
+                <t t-call="sol_commerce.portal_navigation_link" url="'/orders'" icon="'mdi:format-list-bulleted'" paths="('/orders',)">My orders</t>
+                <t t-call="sol_commerce.portal_navigation_link" url="'/support'" icon="'mdi:lifebuoy'" paths="('/support',)">Support</t>
+                <t t-call="sol_commerce.portal_navigation_link" url="'/my/account'" icon="'mdi:account'" paths="('/my/account', '/my/contacts', '/my/addresses')">Account</t>
+            </t>
+        </ul>
+    </template>
+
+    <template id="portal_navigation_link" name="Portal navigation link">
+        <t t-set="current" t-value="current_path.startswith(paths)" />
+        <li class="nav-item">
+            <a t-att-href="url" t-attf-class="nav-link text-nowrap #{'active' if current else ''}" t-att-aria-current="'page' if current else None">
+                <iconify-icon t-att-icon="icon" class="me-1" aria-hidden="true" /><t t-out="0" />
+            </a>
+        </li>
+    </template>
+</odoo>
