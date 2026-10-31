@@ -6,7 +6,6 @@ from odoo.tools import SQL
 
 from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
 from odoo.addons.sol_commerce.constants.orders import (
-    APPROVAL_APPROVED,
     FOLLOW_UP_PAID,
     FOLLOW_UP_UNPAID,
     QUOTATION_ACCEPTED,
@@ -16,7 +15,6 @@ from odoo.addons.sol_commerce.constants.orders import (
     STATUS_CONFIRMED,
     STATUS_SUBMITTED,
 )
-from odoo.addons.sol_laboratory.constants.approvals import STATE_REQUESTED
 from odoo.addons.sol_laboratory.services.type_values import value_as
 
 if TYPE_CHECKING:
@@ -30,18 +28,15 @@ PIPELINE_STAGES = [
     ("draft", "Draft"),
     ("sent", "Sent and unpaid"),
     ("accepted", "Accepted"),
-    ("awaiting_approval", "Awaiting approval"),
-    ("approved", "Approved"),
+    ("confirmed", "Confirmed"),
 ]
 # The stage of a claimed order whose quotation is out, by where the quotation stands; a declined one leaves the pipeline.
 CLAIMED_STAGES = {FOLLOW_UP_UNPAID: "sent", QUOTATION_EXPIRED: "sent", FOLLOW_UP_PAID: "accepted"}
-# The stage of a confirmed order by its approval; not requested yet or rejected, it is still accepted.
-CONFIRMED_STAGES = {STATE_REQUESTED: "awaiting_approval", APPROVAL_APPROVED: "approved"}
 # The steps each duration runs between.
 DURATION_STEPS = {
     "days_to_quote": ("claimed_at", "quoted_at"),
     "days_to_payment": ("quoted_at", "accepted_at"),
-    "days_to_approval": ("accepted_at", "approved_at"),
+    "days_to_confirmation": ("accepted_at", "confirmed_at"),
 }
 
 
@@ -58,8 +53,7 @@ class SaleOrderAnalysis(models.Model, SaleOrderAnalysisBase):
     _inherit = MODEL_SALE_ORDER
 
     if not TYPE_CHECKING:
-        # unclaimed, draft, sent, accepted, awaiting_approval or approved; empty for a cart and for declined, completed and
-        # cancelled orders.
+        # unclaimed, draft, sent, accepted or confirmed; empty for a cart and for declined, completed and cancelled orders.
         pipeline_stage = fields.Selection(
             PIPELINE_STAGES, compute="_compute_pipeline_stage", store=True, index="btree_not_null"
         )
@@ -67,8 +61,8 @@ class SaleOrderAnalysis(models.Model, SaleOrderAnalysisBase):
         quoted_at = fields.Datetime(compute="_compute_quoted_at", store=True)
         # When the customer accepted the quotation, by paying the advance or accepting one sent without.
         accepted_at = fields.Datetime(readonly=True, copy=False)
-        # When the Head of Sales approved the order; empty while it is not approved.
-        approved_at = fields.Datetime(readonly=True, copy=False)
+        # When sales confirmed the order; empty until it is confirmed.
+        confirmed_at = fields.Datetime(readonly=True, copy=False)
         # Days from the claim to the first quotation.
         days_to_quote = fields.Float(
             "Days to Quote",
@@ -85,11 +79,11 @@ class SaleOrderAnalysis(models.Model, SaleOrderAnalysisBase):
             compute_sudo=False,
             aggregator="avg",
         )
-        # Days from the customer's acceptance to the approval.
-        days_to_approval = fields.Float(
-            "Days to Approval",
+        # Days from the customer's acceptance to the confirmation.
+        days_to_confirmation = fields.Float(
+            "Days to Confirmation",
             compute="_compute_durations",
-            compute_sql=_sql_days("days_to_approval"),
+            compute_sql=_sql_days("days_to_confirmation"),
             compute_sudo=False,
             aggregator="avg",
         )
@@ -106,7 +100,7 @@ class SaleOrderAnalysis(models.Model, SaleOrderAnalysisBase):
         # Total excluding VAT once the order is confirmed; 0 before and once it is cancelled.
         revenue = fields.Monetary(compute="_compute_revenue", store=True)
 
-    @api.depends("order_status", "state", "quotation_follow_up", "approval_status")
+    @api.depends("order_status", "state", "quotation_follow_up")
     def _compute_pipeline_stage(self):
         for order in self:
             order.pipeline_stage = order._pipeline_stage()
@@ -119,7 +113,7 @@ class SaleOrderAnalysis(models.Model, SaleOrderAnalysisBase):
             # A claimed order is draft until its quotation is sent, and again while sales revises it.
             return "draft" if self.state == "draft" else CLAIMED_STAGES.get((self.quotation_follow_up or ""), False)
         if self.order_status == STATUS_CONFIRMED:
-            return CONFIRMED_STAGES.get((self.approval_status or ""), "accepted")
+            return "confirmed"
         return False
 
     @api.depends("quotation_ids.sent_at")
@@ -128,7 +122,7 @@ class SaleOrderAnalysis(models.Model, SaleOrderAnalysisBase):
             sent_at = [value_as(sent, datetime) for sent in order.quotation_ids.mapped("sent_at")]
             order.quoted_at = min(sent_at) if sent_at else False
 
-    @api.depends("claimed_at", "quoted_at", "accepted_at", "approved_at")
+    @api.depends("claimed_at", "quoted_at", "accepted_at", "confirmed_at")
     def _compute_durations(self):
         for order in self:
             for name, (start, end) in DURATION_STEPS.items():

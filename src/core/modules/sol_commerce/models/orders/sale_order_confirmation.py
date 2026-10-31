@@ -97,4 +97,12 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
                 report_recipient=self.partner_id if self.partner_id != self.customer_id else False,
             )
         )
-        self._set_status(STATUS_CONFIRMED, {"test_request_id": request.id})
+        self._set_status(STATUS_CONFIRMED, {"test_request_id": request.id, "confirmed_at": fields.Datetime.now()})
+
+    def action_start_sample_collection(self):
+        """Refuse until the order is confirmed; the collection itself is not part of the order."""
+        self.check_access("write")
+        for order in self:
+            if order.order_status != STATUS_CONFIRMED:
+                raise UserError(self.env._("The order must be confirmed before the samples are collected."))
+        return True

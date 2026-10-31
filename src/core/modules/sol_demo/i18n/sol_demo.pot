@@ -447,11 +447,6 @@ msgid "Order change request"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_order_signing
-msgid "Order signing"
-msgstr ""
-
-#. module: sol_demo
 #: model:medilab.parameter.group,name:sol_demo.demo_parameter_group_organophosphates
 msgid "Organophosphates"
 msgstr ""

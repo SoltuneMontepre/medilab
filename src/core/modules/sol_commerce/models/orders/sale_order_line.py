@@ -10,7 +10,7 @@ from odoo.addons.sol_commerce.constants.models import (
     MODEL_SALE_ORDER,
     MODEL_SALE_ORDER_LINE,
 )
-from odoo.addons.sol_commerce.constants.orders import APPROVAL_FROZEN_LINE_FIELDS, PORTAL_LOCKED_LINE_FIELDS
+from odoo.addons.sol_commerce.constants.orders import FROZEN_LINE_FIELDS, PORTAL_LOCKED_LINE_FIELDS
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN
 from odoo.addons.sol_laboratory.services.record_id import persisted_ids
 
@@ -71,8 +71,8 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
             if line.sample_id.order_id != line.order_id:
                 raise ValidationError(self.env._("A line can only be tested on a sample of its own order."))
 
-    def _signed_lines(self):
-        # The lines of a down payment are Odoo's own bookkeeping and follow the invoice, signed or not.
+    def _content_lines(self):
+        # The lines of a down payment are Odoo's own bookkeeping and follow the invoice, confirmed or not.
         return self.filtered(lambda line: not line.is_downpayment)
 
     @api.model_create_multi
@@ -84,14 +84,19 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
         return lines
 
     def unlink(self):
-        self._signed_lines().order_id._check_content_freeze()
+        self._content_lines().order_id._check_content_freeze()
         return super().unlink()
 
     def write(self, vals):
         if PORTAL_LOCKED_LINE_FIELDS & set(vals) and self.env.user.share and not self.env.su:
             raise AccessError(self.env._("You cannot change the price of an order."))
-        if APPROVAL_FROZEN_LINE_FIELDS & set(vals):
-            self._signed_lines().order_id._check_content_freeze()
+        if FROZEN_LINE_FIELDS & set(vals):
+            # A down payment that would become content counts as content too.
+            lines = self if "is_downpayment" in vals else self._content_lines()
+            lines.order_id._check_content_freeze()
+        if vals.get("order_id") and self._content_lines():
+            # A line moved onto another order changes that order's content too.
+            self.env[MODEL_SALE_ORDER].browse(vals["order_id"])._check_content_freeze()
         result = super().write(vals)
         if "product_uom_qty" in vals:
             self._sync_package_part_quantities()

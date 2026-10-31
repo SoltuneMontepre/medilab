@@ -52,14 +52,12 @@ class TestOrderReadScope(OrderCase):
             opened.sample_ids.write({"customer_sample_name": "Changed sample"})
         self.assertEqual(order.order_status, "claimed")
 
-    def test_a_reader_cannot_request_or_sign_the_approval(self):
+    def test_a_reader_cannot_start_the_sample_collection(self):
         order = self.make_confirmed_order()
-        opened = order.with_user(self.other_sales)
 
-        self.assertFalse(opened.approval_can_sign)
         with self.assertRaises(AccessError):
-            opened.action_request_approval()
-        self.assertEqual(order.approval_status, "none")
+            order.with_user(self.other_sales).action_start_sample_collection()
+        self.assertTrue(order.with_user(self.sales).action_start_sample_collection())
 
     def _nodes(self, path):
         arch = etree.fromstring(self.env[MODEL_SALE_ORDER].get_view(view_type="form")["arch"])

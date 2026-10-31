@@ -29,7 +29,7 @@ class Signature(models.Model, SignatureBase):
     _permission_actions = ("read",)
 
     if not TYPE_CHECKING:
-        # Technical name of the model of the signed document, such as sale.order.
+        # Technical name of the model of the signed document, such as medilab.test.result.
         document_model = fields.Char(string="Document Type", required=True)
         # Id of the signed document.
         document_id = fields.Integer(string="Document", required=True)

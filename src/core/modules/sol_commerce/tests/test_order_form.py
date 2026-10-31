@@ -199,25 +199,14 @@ class TestOrderForm(OrderCase):
     def test_each_status_has_its_label(self):
         labels = {
             name: self._nodes("//div[hasclass('oe_title')]//div[field[@name=$name]]/span[1]", name=name)[0].text
-            for name in ("customer_status", "quotation_follow_up", "approval_status")
+            for name in ("customer_status", "quotation_follow_up")
         }
-        self.assertEqual(
-            labels,
-            {"customer_status": "Customer sees", "quotation_follow_up": "Quotation", "approval_status": "Approval"},
-        )
-
-    def test_a_requested_approval_names_the_role_it_waits_for(self):
-        order = self.requested_order()
-        head_role = self.head_person.role_ids
-
-        self.assertEqual(order.with_user(self.sales).approval_waiting_for, head_role.name)
-        order.with_user(self.head).action_sign()
-        self.assertFalse(order.approval_waiting_for)
+        self.assertEqual(labels, {"customer_status": "Customer sees", "quotation_follow_up": "Quotation"})
 
     def test_vietnamese_form_translates_its_headings_and_labels(self):
         arch = self.env[MODEL_SALE_ORDER].with_context(lang="vi_VN").get_view(view_type="form")["arch"]
 
-        for text in ("Các khoản tạm ứng", "Khách hàng thấy", "đang chờ", "Thêm chỉ tiêu hoặc nhóm dịch vụ"):
+        for text in ("Các khoản tạm ứng", "Khách hàng thấy", "Thêm chỉ tiêu hoặc nhóm dịch vụ"):
             with self.subTest(text=text):
                 self.assertIn(text, arch)
         self.assertNotIn("Advance payments", arch)

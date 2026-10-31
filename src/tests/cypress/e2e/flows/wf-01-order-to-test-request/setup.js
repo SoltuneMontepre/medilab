@@ -17,7 +17,7 @@ export const CUSTOMERS = {
   },
 };
 
-const STAGES = ["submitted", "claimed", "sent", "accepted", "confirmed", "requested", "approved"];
+const STAGES = ["submitted", "claimed", "sent", "accepted", "confirmed"];
 
 // The catalog product of a parameter that sol_demo seeds.
 export function parameterProduct(xmlId) {
@@ -139,12 +139,6 @@ export function orderAt(stage, { customer = CUSTOMERS.nuocSach, advance = true, 
   }
   if (reached("confirmed")) {
     step(SALES, "action_confirm_order");
-  }
-  if (reached("requested")) {
-    step(SALES, "action_request_approval");
-  }
-  if (reached("approved")) {
-    step(HEAD_OF_SALES, "action_sign");
   }
   return cy.then(() => order);
 }

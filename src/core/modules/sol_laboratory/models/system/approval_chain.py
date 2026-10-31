@@ -31,7 +31,7 @@ class ApprovalChain(models.Model, ApprovalChainBase):
     _audit_children = ("level_ids",)
 
     if not TYPE_CHECKING:
-        # Technical name of the model of the document the chain signs, such as sale.order.
+        # Technical name of the model of the document the chain signs, such as medilab.test.result.
         document_model = fields.Char(string="Document Type", required=True)
         # Whether the chain signs the document itself or the change requests on it.
         purpose = fields.Selection(
