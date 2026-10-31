@@ -23,7 +23,7 @@ class ApprovalChain(models.Model):
     _permission_actions = ("read", "create", "edit", "archive", "delete")
     _audit_children = ("level_ids",)
 
-    # Technical name of the model of the document the chain signs, such as sale.order.
+    # Technical name of the model of the document the chain signs, such as medilab.test.result.
     document_model = fields.Char(string="Document Type", required=True)
     # Whether the chain signs the document itself or the change requests on it.
     purpose = fields.Selection(
