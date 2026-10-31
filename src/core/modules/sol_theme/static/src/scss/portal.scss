@@ -8,3 +8,25 @@ html:root {
 .pagination .page-item.active > .page-link {
     color: $ml-text-on-primary !important;
 }
+
+// Secondary buttons look as in the back office: white and outlined with navy text, instead of the beige of Odoo's
+// frontend palette, which also sets them inside each colour combination.
+.btn-secondary {
+    --btn-bg: #{$ml-surface} !important;
+    --btn-border-color: #{$ml-border-control} !important;
+    --btn-color: #{$ml-secondary} !important;
+    --btn-hover-bg: #{$ml-secondary-light} !important;
+    --btn-hover-border-color: #{$ml-border-control} !important;
+    --btn-hover-color: #{$ml-secondary} !important;
+    --btn-active-bg: #{$ml-secondary-light} !important;
+    --btn-active-border-color: #{$ml-border-control} !important;
+    --btn-active-color: #{$ml-secondary} !important;
+    --btn-disabled-bg: #{$ml-surface} !important;
+    --btn-disabled-border-color: #{$ml-border-control} !important;
+    --btn-disabled-color: #{$ml-text-muted} !important;
+}
+
+// Odoo's portal colours every link with !important; a link styled as a secondary button keeps the button's colour.
+a.btn-secondary {
+    color: $ml-secondary !important;
+}
