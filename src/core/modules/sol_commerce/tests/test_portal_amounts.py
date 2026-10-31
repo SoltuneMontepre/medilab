@@ -3,6 +3,7 @@ import re
 from odoo.tests import tagged
 
 from .portal_case import PortalCase
+from odoo.addons.sol_commerce.hooks import use_vietnamese_accounting
 
 
 @tagged("post_install", "-at_install")
@@ -25,6 +26,19 @@ class TestPortalAmounts(PortalCase):
         self.make_order([(self.lead_product, 3)], status="submitted")
 
         self.assert_money(self.page("/orders"), 450000)
+
+    def test_an_order_priced_while_its_price_list_was_in_usd(self):
+        usd = self.env.ref("base.USD")
+        pricelist = self.env["product.pricelist"].create({"name": "Default", "currency_id": usd.id})
+        order = self.make_order([(self.lead_product, 3)], status="submitted", pricelist_id=pricelist.id)
+
+        use_vietnamese_accounting(self.env)
+
+        self.assertEqual(order.order_line.currency_id, self.env.ref("base.VND"))
+
+        text = self.page("/orders")
+        self.assert_money(text, 450000)
+        self.assertNotRegex(text, re.compile(re.escape(usd.symbol) + r"\s*450"))
 
     def test_the_order_page(self):
         order = self.make_order([(self.lead_product, 3)], status="submitted")
