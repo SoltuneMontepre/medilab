@@ -6,10 +6,6 @@ vars:
   LOG: tools/scripts/log.sh
   CLOUD_ENV_TEMPLATE: tools/cloud/cloud.env.example
   CLOUD_ENV_FILE: .local/cloud.env
-  CLOUD_ODOO_IMAGE: '{{.MEDILAB_ODOO_IMAGE | default "ghcr.io/soltunemontepre/medilab:latest"}}'
-  CLOUD_DOCKERFILE: tools/dockerfiles/cloud.dockerfile
-  PROD_DOCKERFILE: tools/dockerfiles/prod.dockerfile
-  PROXY_CA: /root/.ccr/ca-bundle.crt
 
 tasks:
   ai:setup:
@@ -56,12 +52,6 @@ tasks:
     cmds:
       - task: doppler
       - . tools/scripts/ai_env.sh {{.CLOUD_ENV_TEMPLATE}} {{.CLOUD_ENV_FILE}} {{.DOPPLER_PROJECT}} {{.DOPPLER_CONFIG}}
-
-  ai:image:
-    desc: "Pull the Odoo image of a cloud session, or build it through the session's proxy when the pull is refused"
-    silent: true
-    cmds:
-      - . tools/scripts/ai_image.sh {{.CLOUD_ODOO_IMAGE}} {{.PROD_DOCKERFILE}} {{.CLOUD_DOCKERFILE}} {{.PROJECT_DIR}} {{.PROXY_CA}}
 
   ai:cursor-setup:
     desc: "Install the official Odoo extension into an isolated Cursor profile in this worktree"
