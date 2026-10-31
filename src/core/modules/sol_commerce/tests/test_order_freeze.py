@@ -5,6 +5,7 @@ from odoo.exceptions import UserError
 from odoo.tests import tagged
 
 from .order_case import OrderCase
+from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER_LINE
 from odoo.addons.sol_laboratory.constants.models import MODEL_SAMPLE_TYPE
 
 
@@ -29,6 +30,7 @@ class TestOrderFreeze(OrderCase):
         for values in (
             {"price_unit": 1},
             {"product_uom_qty": 5},
+            {"product_uom_id": line.product_uom_id.id},
             {"discount": 10},
             {"tax_ids": False},
             {"sample_id": False},
@@ -43,7 +45,7 @@ class TestOrderFreeze(OrderCase):
         with self.assertRaises(UserError):
             draft_line.write({"order_id": order.id})
         with self.assertRaises(UserError):
-            self.env["sale.order.line"].create(
+            self.env[MODEL_SALE_ORDER_LINE].create(
                 {"order_id": order.id, "product_id": self.lead_product.product_variant_ids.id}
             )
         sample = order.sample_ids
@@ -70,6 +72,8 @@ class TestOrderFreeze(OrderCase):
                 order.write({"state": state})
         with self.assertRaises(UserError):
             order._catalog_lines().write({"is_downpayment": True})
+        with self.assertRaises(UserError):
+            order.sudo().order_line.filtered("is_downpayment").write({"is_downpayment": False})
         with self.assertRaises(UserError):
             order.with_context(medilab_status_change=True).write({"order_status": "claimed"})
 

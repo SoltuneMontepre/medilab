@@ -63,6 +63,7 @@ FROZEN_LINE_FIELDS = frozenset(
     {
         "product_id",
         "product_uom_qty",
+        "product_uom_id",
         "price_unit",
         "discount",
         "tax_ids",

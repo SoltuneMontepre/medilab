@@ -82,7 +82,9 @@ class SaleOrderLine(models.Model):
         if PORTAL_LOCKED_LINE_FIELDS & set(vals) and self.env.user.share and not self.env.su:
             raise AccessError(self.env._("You cannot change the price of an order."))
         if FROZEN_LINE_FIELDS & set(vals):
-            self._content_lines().order_id._check_content_freeze()
+            # A down payment that would become content counts as content too.
+            lines = self if "is_downpayment" in vals else self._content_lines()
+            lines.order_id._check_content_freeze()
         if vals.get("order_id") and self._content_lines():
             # A line moved onto another order changes that order's content too.
             self.env[MODEL_SALE_ORDER].browse(vals["order_id"])._check_content_freeze()

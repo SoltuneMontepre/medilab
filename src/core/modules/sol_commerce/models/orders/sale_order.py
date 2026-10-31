@@ -328,9 +328,7 @@ class SaleOrder(models.Model):
         return self.sudo()._cancel_order()
 
     def action_sales_cancel(self):
-        """Cancel an order sales owns, including a confirmed one the laboratory has not finished, unless Odoo locked it."""
-        if any(order.locked for order in self):
-            raise UserError(self.env._("You cannot cancel a locked order. Please unlock it first."))
+        """Cancel an order sales owns, including a confirmed one the laboratory has not finished."""
         for order in self:
             if order.order_status in FINISHED_STATUSES:
                 raise UserError(self.env._("This order cannot be cancelled."))
@@ -344,6 +342,9 @@ class SaleOrder(models.Model):
         return self.action_sales_cancel()
 
     def _cancel_order(self):
+        # Every cancellation, by sales or by accepting a request, respects Odoo's lock.
+        if any(order.locked for order in self):
+            raise UserError(self.env._("You cannot cancel a locked order. Please unlock it first."))
         self._cancel_laboratory_documents()
         self._set_status(STATUS_CANCELLED)
         cancellable = self.filtered(lambda order: order.state != "cancel")
