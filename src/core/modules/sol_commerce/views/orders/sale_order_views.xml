@@ -218,6 +218,16 @@
             <xpath expr="//group[@name='order_details']/div[field[@name='pricelist_id']]" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
+            <!-- An order has no delivery: its date is the expected result date. -->
+            <xpath expr="//group[@name='order_details']/label[@for='commitment_date'][1]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//group[@name='order_details']/label[@for='commitment_date'][2]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//group[@name='order_details']/div[@name='commitment_date_div']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
             <!-- Prices are in VND, excluding VAT, so the tax-included switch does not apply. -->
             <xpath expr="//field[@id='document_tax_mode']" position="attributes">
                 <attribute name="invisible">1</attribute>
