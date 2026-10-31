@@ -16,7 +16,7 @@ Do this once per cloud environment, in its settings: the environment menu in the
 
 1. On your own machine, run `task ai:env`. It logs Doppler in if needed and writes `.local/cloud.env` from the template `tools/cloud/cloud.env.example`, filling each variable from Doppler `medilab` `dev`.
 2. Paste the contents of `.local/cloud.env` under Environment variables, then delete the file. Never paste it into a chat or commit it.
-3. Paste this under Setup script. It installs the Doppler CLI and `task`, and when the repository is already cloned, runs `task ai:setup` and pre-installs the `postgres` MCP server so it starts within its 30-second limit.
+3. Paste this under Setup script. It installs the Doppler CLI and `task`, sends Docker Hub pulls through Google's mirror and starts Docker. When the repository is already cloned, it also runs `task ai:setup`, pre-installs the `postgres` MCP server and starts the database, so that server connects at session start.
 
    ```bash
    #!/bin/bash
@@ -34,18 +34,38 @@ Do this once per cloud environment, in its settings: the environment menu in the
    uv tool install go-task-bin
    export PATH="$HOME/.local/bin:$PATH"
 
+   # Docker Hub through Google's mirror, which has no anonymous pull limit
+   mkdir -p /etc/docker
+   printf '{"registry-mirrors":["https://mirror.gcr.io"]}\n' > /etc/docker/daemon.json
+   nohup dockerd > /tmp/dockerd.log 2>&1 &
+   for _ in $(seq 1 30); do docker info > /dev/null 2>&1 && break; sleep 1; done
+
    repo=/home/user/medilab
    if [ -d "$repo" ]; then
      cd "$repo"
      task ai:setup
      uvx --python 3.13 --overrides tools/odoo-intelligence/postgres-overrides.txt \
        --with "mcp<2" postgres-mcp==0.3.0 --help > /dev/null
+     task dev:compose-env
+     docker compose -f tools/infrastructure/docker-compose.yml up -d --wait postgres
    fi
    ```
 
-4. Under Network access, allow `pkg-containers.githubusercontent.com` so the Odoo image build can pull `ghcr.io/astral-sh/uv`, and the hosts of any plugin MCP server you use.
+4. Under Network access, add the hosts of the plugin MCP servers you use to Allowed domains, one per line:
 
-`DOPPLER_TOKEN` is the read-only service token of `dev`; `doppler run` reads the other secrets through it, so the cloud environment holds no other credential. The setup script cannot read the environment variables; the Doppler CLI reads `DOPPLER_TOKEN` later, in the session. Install tools from package registries: `curl ... | sh` installers are refused in a session.
+   ```text
+   mcp.asana.com
+   mcp.atlassian.com
+   mcp.datadoghq.com
+   mcp.figma.com
+   mcp.intercom.com
+   mcp.linear.app
+   mcp.notion.com
+   mcp.pagerduty.com
+   mcp.slack.com
+   ```
+
+`DOPPLER_TOKEN` is the read-only service token of `dev`; `doppler run` reads the other secrets through it, so the cloud environment holds no other credential. `MEDILAB_ODOO_IMAGE` makes `task up` run the image that `cd-core` publishes instead of building one: the build fails in a session, because its container does not trust the proxy's certificate. The image carries the Python packages of `main`; the modules come from the checkout. The setup script cannot read the environment variables; the Doppler CLI reads `DOPPLER_TOKEN` later, in the session. Install tools from package registries: `curl ... | sh` installers are refused in a session.
 
 ## Start a session
 
@@ -56,10 +76,10 @@ Do this once per cloud environment, in its settings: the environment menu in the
 
 ## Run the app
 
-1. Start the Docker daemon, which is installed but not running: `dockerd > /tmp/dockerd.log 2>&1 &`, then check with `docker info`.
-2. Run `task dev:compose-env`, then `cd tools/infrastructure && docker compose up -d postgres` for the database alone. It listens on `localhost:15432` with user and password `root`. Add `garage garage-setup odoo` and `--build` for the app at `http://localhost:8069`, which the built-in Chromium opens.
+1. If `docker info` fails, the setup script did not start Docker: run the Docker lines of the setup script.
+2. Run `task up`. It starts the database, Garage, CloudBeaver and Odoo at `http://localhost:8069`, which the built-in Chromium opens. A new database holds no modules until they are installed.
 
-Docker Hub can answer `429 Too Many Requests`; retry after 15 to 30 seconds. The `postgres` MCP server connects only when the database is up at session start, which it is not in a new container; query the database with `PGPASSWORD=root psql -h localhost -p 15432 -U root -d medilab` instead.
+The database listens on `localhost:15432` with user and password `root`. When it was not up at session start, the `postgres` MCP server has already failed; query the database with `PGPASSWORD=root psql -h localhost -p 15432 -U root -d medilab`.
 
 ## Limits
 
