@@ -52,6 +52,7 @@
         "views/orders/res_config_settings_views.xml",
         "views/orders/sale_order_report.xml",
         "views/portal/account_templates.xml",
+        "views/portal/language_templates.xml",
         "views/support/support_request_views.xml",
         "views/support/sale_order_views.xml",
         "views/support/rating_rating_views.xml",
