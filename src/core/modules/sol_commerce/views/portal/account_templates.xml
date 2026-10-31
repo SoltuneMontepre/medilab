@@ -70,6 +70,23 @@
                             </form>
                         </dd>
                     </t>
+                    <dt class="col-sm-4">Language</dt>
+                    <dd class="col-sm-8">
+                        <form action="/my/language" method="post" class="d-flex gap-2">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                            <input type="hidden" name="redirect" value="/my/account" />
+                            <select name="lang" class="form-select" aria-label="Language">
+                                <option
+                                    t-foreach="frontend_languages.values()"
+                                    t-as="language"
+                                    t-att-value="language.code"
+                                    t-att-selected="language.code == request.env.user.lang"
+                                    t-out="language.name.split('/')[-1].strip()"
+                                />
+                            </select>
+                            <button type="submit" class="btn btn-secondary">Save</button>
+                        </form>
+                    </dd>
                 </dl>
                 <p>
                     <a href="/my/addresses">Addresses</a>
