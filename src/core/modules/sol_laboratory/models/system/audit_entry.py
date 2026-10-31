@@ -1,4 +1,5 @@
 import threading
+from typing import TYPE_CHECKING
 from urllib.parse import urlsplit
 
 from odoo import api, fields, models
@@ -17,6 +18,11 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_RES_USERS,
 )
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_audit_entry as AuditEntryBase
+else:
+    AuditEntryBase = object
+
 # Odoo's external APIs, the session route external applications sign in with, and the routes the Laboratory serves to
 # other systems: the mobile app and the Brevo webhook.
 API_PATH_PREFIXES = ("/xmlrpc", "/jsonrpc", "/json/", "/web/session/authenticate", "/medilab/")
@@ -26,7 +32,7 @@ POSITIVE_SEARCH_OPERATORS = ("in", "like", "ilike", "=like", "=ilike")
 
 
 # Mục Nhật Ký Hoạt Động
-class AuditEntry(models.Model):
+class AuditEntry(models.Model, AuditEntryBase):
     _name = MODEL_AUDIT_ENTRY
     _inherit = [MODEL_PERMISSION_MIXIN]
     _description = "Audit Entry"
@@ -34,50 +40,53 @@ class AuditEntry(models.Model):
     # Entries are only read: nobody edits or deletes them.
     _permission_actions = ("read",)
 
-    # The Odoo user who acted; empty when the system or someone not signed in acted.
-    user_id = fields.Many2one(MODEL_RES_USERS, readonly=True, ondelete="restrict")
-    # Where the action came from: a screen, the API, a scheduled job or the system installing or upgrading a module.
-    source = fields.Selection(
-        [("screen", "Screen"), ("api", "API"), ("job", "Scheduled Job"), ("system", "System")],
-        required=True,
-        readonly=True,
-    )
-    # The action recorded.
-    action = fields.Selection(
-        [
-            ("create", "Create"),
-            ("edit", "Edit"),
-            ("archive", "Archive"),
-            ("delete", "Delete"),
-            ("approve", "Approve"),
-            ("reject", "Reject"),
-            ("sign", "Sign"),
-            ("withdraw", "Withdraw"),
-            ("download", "Download"),
-            ("unlock", "Unlock"),
-            ("job", "Job Run"),
-            ("integration", "Integration"),
-            ("error", "Error"),
-        ],
-        required=True,
-        readonly=True,
-    )
-    # Technical name of the document acted on.
-    document_model = fields.Selection(selection="_selection_document_model", string="Document Type", readonly=True)
-    # Id of the document acted on.
-    document_id = fields.Integer(string="Document ID", readonly=True)
-    # Technical name of the document the one acted on is a part of, such as the test request of a sample.
-    parent_model = fields.Selection(selection="_selection_document_model", string="Parent Document Type", readonly=True)
-    # Id of the document the one acted on is a part of.
-    parent_id = fields.Integer(string="Parent Document ID", readonly=True)
-    # The job run that acted, when the source is a job.
-    job_run_id = fields.Many2one(MODEL_JOB_RUN, readonly=True, ondelete="restrict", index="btree_not_null")
-    # What happened, for actions without field changes, such as the name of a deleted document.
-    note = fields.Text(readonly=True)
-    # Field changes of the entry.
-    change_ids = fields.One2many(MODEL_AUDIT_CHANGE, "entry_id", string="Changes", readonly=True)
-    # Name of the document acted on, or the name its delete entry keeps once it is deleted.
-    document_name = fields.Char(string="Document", compute="_compute_document_name", search="_search_document_name")
+    if not TYPE_CHECKING:
+        # The Odoo user who acted; empty when the system or someone not signed in acted.
+        user_id = fields.Many2one(MODEL_RES_USERS, readonly=True, ondelete="restrict")
+        # Where the action came from: a screen, the API, a scheduled job or the system installing or upgrading a module.
+        source = fields.Selection(
+            [("screen", "Screen"), ("api", "API"), ("job", "Scheduled Job"), ("system", "System")],
+            required=True,
+            readonly=True,
+        )
+        # The action recorded.
+        action = fields.Selection(
+            [
+                ("create", "Create"),
+                ("edit", "Edit"),
+                ("archive", "Archive"),
+                ("delete", "Delete"),
+                ("approve", "Approve"),
+                ("reject", "Reject"),
+                ("sign", "Sign"),
+                ("withdraw", "Withdraw"),
+                ("download", "Download"),
+                ("unlock", "Unlock"),
+                ("job", "Job Run"),
+                ("integration", "Integration"),
+                ("error", "Error"),
+            ],
+            required=True,
+            readonly=True,
+        )
+        # Technical name of the document acted on.
+        document_model = fields.Selection(selection="_selection_document_model", string="Document Type", readonly=True)
+        # Id of the document acted on.
+        document_id = fields.Integer(string="Document ID", readonly=True)
+        # Technical name of the document the one acted on is a part of, such as the test request of a sample.
+        parent_model = fields.Selection(
+            selection="_selection_document_model", string="Parent Document Type", readonly=True
+        )
+        # Id of the document the one acted on is a part of.
+        parent_id = fields.Integer(string="Parent Document ID", readonly=True)
+        # The job run that acted, when the source is a job.
+        job_run_id = fields.Many2one(MODEL_JOB_RUN, readonly=True, ondelete="restrict", index="btree_not_null")
+        # What happened, for actions without field changes, such as the name of a deleted document.
+        note = fields.Text(readonly=True)
+        # Field changes of the entry.
+        change_ids = fields.One2many(MODEL_AUDIT_CHANGE, "entry_id", string="Changes", readonly=True)
+        # Name of the document acted on, or the name its delete entry keeps once it is deleted.
+        document_name = fields.Char(string="Document", compute="_compute_document_name", search="_search_document_name")
 
     _document_index = models.Index("(document_model, document_id)")
     _parent_index = models.Index("(parent_model, parent_id) WHERE parent_id IS NOT NULL")
@@ -142,7 +151,7 @@ class AuditEntry(models.Model):
     def _compute_display_name(self):
         actions = dict(self._fields["action"]._description_selection(self.env))
         for entry in self:
-            parts = (actions.get(entry.action), entry.document_name or entry.note)
+            parts = (actions.get(entry.action or ""), entry.document_name or entry.note)
             entry.display_name = " ".join(part for part in parts if part)
 
     def write(self, vals):

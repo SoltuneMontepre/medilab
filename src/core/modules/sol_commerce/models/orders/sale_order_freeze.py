@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import models
 from odoo.exceptions import UserError
 
@@ -10,9 +12,14 @@ from odoo.addons.sol_commerce.constants.orders import (
     QUOTATION_FROZEN_STATUSES,
 )
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_sale_order as SaleOrderFreezeBase
+else:
+    SaleOrderFreezeBase = object
+
 
 # Đơn Hàng: what the customer was quoted and what the confirmed order holds stays as it was.
-class SaleOrderFreeze(models.Model):
+class SaleOrderFreeze(models.Model, SaleOrderFreezeBase):
     _inherit = MODEL_SALE_ORDER
 
     def write(self, vals):

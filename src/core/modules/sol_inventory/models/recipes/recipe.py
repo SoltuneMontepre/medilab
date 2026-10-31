@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 from odoo.fields import Domain
@@ -12,12 +14,17 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PERMISSION_MIXIN,
 )
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_recipe as RecipeBase
+else:
+    RecipeBase = object
+
 # The recipes saving their ingredients, which their own constraints check once they are all saved.
 SAVING_LINES = "medilab_recipe_saving_lines"
 
 
 # Công Thức Pha Chế
-class Recipe(models.Model):
+class Recipe(models.Model, RecipeBase):
     _name = MODEL_RECIPE
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_CODE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Recipe"
@@ -26,26 +33,27 @@ class Recipe(models.Model):
     _permission_actions = ("create", "edit", "archive", "delete")
     _audit_children = ("line_ids",)
 
-    # Unique code of the recipe, such as CTPC.0001; filled from a sequence when left empty.
-    code = fields.Char(required=True, copy=False, index="trigram")
-    # The prepared solution the recipe makes.
-    solution_item_id = fields.Many2one(
-        MODEL_PRODUCT,
-        string="Solution",
-        required=True,
-        ondelete="restrict",
-        domain=[("item_kind", "=", KIND_SOLUTION)],
-    )
-    # Quantity one preparation makes, in the solution's unit.
-    yield_quantity = fields.Float(string="Yield per Preparation", digits="Product Unit", required=True)
-    # The unit the yield is in: the solution's.
-    uom_id = fields.Many2one(related="solution_item_id.uom_id")
-    # Days the solution stays usable after it is prepared.
-    shelf_life_days = fields.Integer(string="Shelf Life (Days)", required=True)
-    # The ingredients and the amount of each that one preparation uses.
-    line_ids = fields.One2many(MODEL_RECIPE_LINE, "recipe_id", string="Ingredients")
-    # False when the recipe is archived.
-    active = fields.Boolean(default=True)
+    if not TYPE_CHECKING:
+        # Unique code of the recipe, such as CTPC.0001; filled from a sequence when left empty.
+        code = fields.Char(required=True, copy=False, index="trigram")
+        # The prepared solution the recipe makes.
+        solution_item_id = fields.Many2one(
+            MODEL_PRODUCT,
+            string="Solution",
+            required=True,
+            ondelete="restrict",
+            domain=[("item_kind", "=", KIND_SOLUTION)],
+        )
+        # Quantity one preparation makes, in the solution's unit.
+        yield_quantity = fields.Float(string="Yield per Preparation", digits="Product Unit", required=True)
+        # The unit the yield is in: the solution's.
+        uom_id = fields.Many2one(related="solution_item_id.uom_id")
+        # Days the solution stays usable after it is prepared.
+        shelf_life_days = fields.Integer(string="Shelf Life (Days)", required=True)
+        # The ingredients and the amount of each that one preparation uses.
+        line_ids = fields.One2many(MODEL_RECIPE_LINE, "recipe_id", string="Ingredients")
+        # False when the recipe is archived.
+        active = fields.Boolean(default=True)
 
     _code_unique = models.Constraint("UNIQUE(code)", "The code of a recipe must be unique.")
     _solution_unique = models.Constraint("UNIQUE(solution_item_id)", "Another recipe already makes this solution.")

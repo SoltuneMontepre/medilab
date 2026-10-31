@@ -10,6 +10,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ACCREDITATION_CERTIFICATE,
     MODEL_TESTING_METHOD,
 )
+from odoo.addons.sol_laboratory.services.record_id import persisted_id, persisted_ids
 
 REL = "medilab_accreditation_certificate_method_rel"
 
@@ -26,7 +27,7 @@ class TestAccreditationCertificate(MasterDataCase):
                 "code": "VILAS-FK",
                 "valid_from": cls.today - timedelta(days=1),
                 "valid_until": cls.today + timedelta(days=30),
-                "method_ids": [Command.set(cls.method.ids)],
+                "method_ids": [Command.set(persisted_ids(cls.method))],
             }
         )
 
@@ -49,7 +50,7 @@ class TestAccreditationCertificate(MasterDataCase):
         self.assertIn("ON DELETE RESTRICT", fks["method_id"])
 
     def test_deleting_certificate_does_not_delete_methods(self):
-        method_id = self.method.id
+        method_id = persisted_id(self.method)
         self.certificate.unlink()
         self.assertTrue(self.env[MODEL_TESTING_METHOD].browse(method_id).exists())
 
@@ -58,7 +59,9 @@ class TestAccreditationCertificate(MasterDataCase):
             self.method.unlink()
 
     def test_multiple_certificates_can_cover_the_same_method(self):
-        second = self.Certificate.create({"code": "VILAS-FK-2", "method_ids": [Command.link(self.method.id)]})
+        second = self.Certificate.create(
+            {"code": "VILAS-FK-2", "method_ids": [Command.link(persisted_id(self.method))]}
+        )
         self.assertEqual(self.method.certificate_ids, self.certificate | second)
 
     def test_expired_active_certificate_does_not_confer_accreditation(self):

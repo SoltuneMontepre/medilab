@@ -14,6 +14,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ROLE,
     MODEL_SAMPLE_TYPE,
 )
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 ORDER_PERMISSIONS = (
     "order.read.own",
@@ -59,7 +60,7 @@ class OrderCase(PricingCase):
                     "name": "Pham Thi Hoa",
                     "login": "portal.hoa",
                     "partner_id": cls.contact.id,
-                    "group_ids": [Command.set([cls.env.ref("base.group_portal").id])],
+                    "group_ids": [Command.set([persisted_id(cls.env.ref("base.group_portal"))])],
                 }
             )
         )
@@ -72,7 +73,7 @@ class OrderCase(PricingCase):
         cls.sales = cls.sales_person.user_id
         cls.other_sales = cls.other_person.user_id
         cls.head = cls.head_person.user_id
-        cls.head.write({"group_ids": [Command.link(cls.env.ref(ALL_ORDERS_GROUP).id)]})
+        cls.head.write({"group_ids": [Command.link(persisted_id(cls.env.ref(ALL_ORDERS_GROUP)))]})
         cls.customer_record = cls.env[MODEL_CUSTOMER].create({"partner_id": cls.customer.id})
         cls.setup_roles()
 

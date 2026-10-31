@@ -4,6 +4,7 @@ from odoo.exceptions import ValidationError
 from odoo.tests import tagged
 
 from .template_case import TemplateCase
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -28,8 +29,8 @@ class TestOrderTemplateAvailability(TemplateCase):
         self.package.action_archive()
         order = self.reuse(template)
         self.assertEqual(order._catalog_lines().product_id.product_tmpl_id, self.lead_product)
-        self.assertIn(self.package_product.name, order.template_omission_note)
-        self.assertTrue(order.template_omission_note.split(":")[-1].strip())
+        self.assertIn(self.package_product.name, (order.template_omission_note or ""))
+        self.assertTrue(assert_instance(order.template_omission_note, str).split(":")[-1].strip())
         order.invalidate_recordset()
         self.assertIn(
             self.package_product.name,
@@ -42,8 +43,8 @@ class TestOrderTemplateAvailability(TemplateCase):
         order = self.reuse(template)
         self.assertEqual(order._catalog_lines().product_id.product_tmpl_id, self.lead_product)
         self.assertFalse(order.order_line.linked_line_id)
-        self.assertIn(self.package.name, order.template_omission_note)
-        self.assertIn(self.other.name, order.template_omission_note)
+        self.assertIn(self.package.name, (order.template_omission_note or ""))
+        self.assertIn(self.other.name, (order.template_omission_note or ""))
 
     def test_all_unavailable_creates_no_order(self):
         template = self.retired_source()
@@ -101,4 +102,4 @@ class TestOrderTemplateAvailability(TemplateCase):
         order = self.reuse(template)
         self.assertEqual(order._catalog_lines().product_id.product_tmpl_id, self.lead_product)
         self.assertFalse(order.order_line.linked_line_id)
-        self.assertIn(self.other.name, order.template_omission_note)
+        self.assertIn(self.other.name, (order.template_omission_note or ""))

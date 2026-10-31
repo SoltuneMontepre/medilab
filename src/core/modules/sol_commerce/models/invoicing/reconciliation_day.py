@@ -1,4 +1,5 @@
-from datetime import UTC, datetime, time, timedelta
+from datetime import UTC, date, datetime, time, timedelta
+from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
 
 from odoo import api, fields, models
@@ -6,12 +7,18 @@ from odoo.exceptions import UserError
 
 from odoo.addons.sol_commerce.constants.models import MODEL_PAYMENT_TRANSACTION, MODEL_RECONCILIATION_DAY
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_PERMISSION_MIXIN
+from odoo.addons.sol_laboratory.services.type_values import value_as
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_reconciliation_day as ReconciliationDayBase
+else:
+    ReconciliationDayBase = object
 
 VIETNAM = ZoneInfo("Asia/Ho_Chi_Minh")
 
 
 # Ngày đối soát
-class ReconciliationDay(models.Model):
+class ReconciliationDay(models.Model, ReconciliationDayBase):
     _name = MODEL_RECONCILIATION_DAY
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Reconciliation Day"
@@ -19,36 +26,37 @@ class ReconciliationDay(models.Model):
     # The accountant opens a day, posts what is missing and locks it. A locked day stays locked.
     _permission_actions = ("read", "create", "edit")
 
-    # The Vietnam calendar day being reconciled.
-    day = fields.Date(required=True)
-    # open until the accountant locks it.
-    status = fields.Selection([("open", "Open"), ("locked", "Locked")], default="open", required=True)
-    # The accountant who locked the day.
-    locked_by_id = fields.Many2one("res.users", readonly=True, copy=False)
-    # When the day was locked.
-    locked_at = fields.Datetime(readonly=True, copy=False)
-    # The accountant accepts overpayments or amount differences and may then lock the day.
-    discrepancies_acknowledged = fields.Boolean(copy=False)
-    # PayOS transactions whose transfer time in Vietnam falls on this day.
-    transaction_ids = fields.Many2many(MODEL_PAYMENT_TRANSACTION, compute="_compute_transaction_ids")
-    # Confirmed PayOS transactions of the day that have no payment yet.
-    missing_payment_count = fields.Integer(compute="_compute_transaction_ids")
-    # Payments whose amount is not the transfer, or that are more than the invoice.
-    mismatch_count = fields.Integer(compute="_compute_transaction_ids")
-    # Company currency of the printed totals.
-    currency_id = fields.Many2one("res.currency", default=lambda self: self.env.company.currency_id)
-    # Sum of confirmed PayOS transfers on this day.
-    transfer_total = fields.Monetary(
-        string="Transfer total", compute="_compute_transaction_ids", currency_field="currency_id"
-    )
-    # Sum of the payments recorded for those transfers.
-    payment_total = fields.Monetary(
-        string="Payment total", compute="_compute_transaction_ids", currency_field="currency_id"
-    )
-    # Confirmed transfers minus the payments recorded for them.
-    difference_total = fields.Monetary(
-        string="Difference", compute="_compute_transaction_ids", currency_field="currency_id"
-    )
+    if not TYPE_CHECKING:
+        # The Vietnam calendar day being reconciled.
+        day = fields.Date(required=True)
+        # open until the accountant locks it.
+        status = fields.Selection([("open", "Open"), ("locked", "Locked")], default="open", required=True)
+        # The accountant who locked the day.
+        locked_by_id = fields.Many2one("res.users", readonly=True, copy=False)
+        # When the day was locked.
+        locked_at = fields.Datetime(readonly=True, copy=False)
+        # The accountant accepts overpayments or amount differences and may then lock the day.
+        discrepancies_acknowledged = fields.Boolean(copy=False)
+        # PayOS transactions whose transfer time in Vietnam falls on this day.
+        transaction_ids = fields.Many2many(MODEL_PAYMENT_TRANSACTION, compute="_compute_transaction_ids")
+        # Confirmed PayOS transactions of the day that have no payment yet.
+        missing_payment_count = fields.Integer(compute="_compute_transaction_ids")
+        # Payments whose amount is not the transfer, or that are more than the invoice.
+        mismatch_count = fields.Integer(compute="_compute_transaction_ids")
+        # Company currency of the printed totals.
+        currency_id = fields.Many2one("res.currency", default=lambda self: self.env.company.currency_id)
+        # Sum of confirmed PayOS transfers on this day.
+        transfer_total = fields.Monetary(
+            string="Transfer total", compute="_compute_transaction_ids", currency_field="currency_id"
+        )
+        # Sum of the payments recorded for those transfers.
+        payment_total = fields.Monetary(
+            string="Payment total", compute="_compute_transaction_ids", currency_field="currency_id"
+        )
+        # Confirmed transfers minus the payments recorded for them.
+        difference_total = fields.Monetary(
+            string="Difference", compute="_compute_transaction_ids", currency_field="currency_id"
+        )
 
     _day_unique = models.Constraint("UNIQUE(day)", "A day is reconciled once.")
 
@@ -118,7 +126,7 @@ class ReconciliationDay(models.Model):
         return super().write(vals)
 
     def _start(self):
-        return datetime.combine(self.day, time.min, tzinfo=VIETNAM).astimezone(UTC).replace(tzinfo=None)
+        return datetime.combine(value_as(self.day, date), time.min, tzinfo=VIETNAM).astimezone(UTC).replace(tzinfo=None)
 
     def _end(self):
         return self._start() + timedelta(days=1)

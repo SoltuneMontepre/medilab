@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from psycopg2 import IntegrityError
 
 from odoo import api, fields, models
@@ -8,17 +10,23 @@ from odoo.addons.sol_commerce.constants.models import MODEL_RATING, MODEL_SALE_O
 from odoo.addons.sol_commerce.constants.orders import STATUS_COMPLETED
 from odoo.addons.sol_commerce.constants.support import FEEDBACK_CONTEXT, FEEDBACK_MAX, FEEDBACK_MIN
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_sale_order as SaleOrderBase
+else:
+    SaleOrderBase = object
+
 
 # Đơn Hàng: the support requests about the order and the customer's feedback on it.
-class SaleOrder(models.Model):
+class SaleOrder(models.Model, SaleOrderBase):
     _inherit = MODEL_SALE_ORDER
 
-    # Support requests about the order.
-    support_request_ids = fields.One2many(MODEL_SUPPORT_REQUEST, "order_id", string="Support Requests")
-    # The rating the customer gave, from 1 to 5; 0 while the order has no feedback.
-    feedback_rating = fields.Integer(compute="_compute_feedback", compute_sudo=True)
-    # The customer's comment with the rating.
-    feedback_comment = fields.Text(compute="_compute_feedback", compute_sudo=True)
+    if not TYPE_CHECKING:
+        # Support requests about the order.
+        support_request_ids = fields.One2many(MODEL_SUPPORT_REQUEST, "order_id", string="Support Requests")
+        # The rating the customer gave, from 1 to 5; 0 while the order has no feedback.
+        feedback_rating = fields.Integer(compute="_compute_feedback", compute_sudo=True)
+        # The customer's comment with the rating.
+        feedback_comment = fields.Text(compute="_compute_feedback", compute_sudo=True)
 
     @api.depends("rating_ids.rating", "rating_ids.feedback", "rating_ids.consumed")
     def _compute_feedback(self):
@@ -69,7 +77,7 @@ class SaleOrder(models.Model):
         try:
             with mute_logger("odoo.sql_db"), self.env.cr.savepoint():
                 return order.with_context(**{FEEDBACK_CONTEXT: True}).rating_apply(
-                    value, rating=rating, feedback=(comment or "").strip() or False
+                    value, rating=rating, feedback=((comment or "").strip()) or False
                 )
         except IntegrityError:
             # Another feedback on the order was saved meanwhile.

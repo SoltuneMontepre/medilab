@@ -1,6 +1,7 @@
 import hashlib
 import socket
 import urllib.parse
+from typing import TYPE_CHECKING
 
 import requests
 
@@ -30,7 +31,21 @@ def remove_written_objects(case):
     case.addCleanup(remove)
 
 
-class LaboratoryBucketTools:
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    class BucketToolsBase:
+        def addCleanup[**Params](
+            self, function: Callable[Params, object], /, *args: Params.args, **kwargs: Params.kwargs
+        ) -> None: ...
+
+        @classmethod
+        def _request_handler(cls, s: requests.Session, r: requests.PreparedRequest, /, **kw) -> requests.Response: ...
+else:
+    BucketToolsBase = object
+
+
+class LaboratoryBucketTools(BucketToolsBase):
     """What tests against the laboratory files bucket of local development and CI use, in any kind of test case. What
     they write to it is theirs to remove."""
 

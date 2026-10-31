@@ -17,7 +17,7 @@ FIELDS = {"key": "Khirz6zTPdfd7", "status": 2, "url": "http://onlyoffice/output.
 
 @tagged("post_install", "-at_install")
 class TestOnlyofficeJwt(BaseCase):
-    def assertRefused(self, body, header, secret=SECRET):
+    def assertRefused(self, body, header, secret: str | None = SECRET):
         with self.assertRaises(EditingCallbackRefused) as refusal:
             verify_callback(body, header, secret)
         # A refusal never repeats a token or the secret.
@@ -48,7 +48,7 @@ class TestOnlyofficeJwt(BaseCase):
         )
         claims = {"payload": FIELDS, "exp": int(time.time()) + 300}
         for token in (
-            jwt.encode(claims, None, algorithm="none"),
+            jwt.encode(claims, "", algorithm="none"),
             jwt.encode(claims, SECRET, algorithm="HS384"),
             jwt.encode(claims, SECRET, algorithm="HS512"),
             jwt.encode(claims, pem, algorithm="RS256"),

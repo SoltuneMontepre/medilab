@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 
@@ -15,9 +16,14 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_SAMPLE,
 )
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_machine as MachineBase
+else:
+    MachineBase = object
+
 
 # Máy
-class Machine(models.Model):
+class Machine(models.Model, MachineBase):
     _name = MODEL_MACHINE
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Machine"
@@ -26,38 +32,39 @@ class Machine(models.Model):
     _permission_actions = ("create", "edit", "archive", "delete")
     _audit_children = ("service_ids", "parameter_method_ids")
 
-    # Unique code of the machine.
-    code = fields.Char(required=True, copy=False, index="trigram")
-    # Name of the machine, such as "HPLC 1".
-    name = fields.Char(required=True, index="trigram")
-    # Model of the machine, as named by the manufacturer.
-    model = fields.Char()
-    # Company that made the machine.
-    manufacturer = fields.Char()
-    # Serial number given by the manufacturer.
-    serial_number = fields.Char(index="trigram")
-    # The location the machine stands in, such as a bench.
-    location_id = fields.Many2one(MODEL_LOCATION, string="Location", ondelete="restrict", index=True)
-    # Whether the machine is in use, under repair or retired.
-    status = fields.Selection(
-        [("in_use", "In use"), ("under_repair", "Under repair"), ("retired", "Retired")],
-        required=True,
-        default="in_use",
-    )
-    # Date the next calibration is due, taken from the latest calibration record; the machine cannot be used after it.
-    next_calibration_date = fields.Date(compute="_compute_next_service_dates", store=True, index=True)
-    # Days between two maintenance visits; empty when the machine has no schedule.
-    maintenance_interval_days = fields.Integer()
-    # Date the next maintenance is due, from the latest maintenance record and the interval.
-    next_maintenance_date = fields.Date(compute="_compute_next_service_dates", store=True)
-    # Calibration, maintenance and repair records of the machine.
-    service_ids = fields.One2many(MODEL_MACHINE_SERVICE, "machine_id", string="Service History")
-    # Parameter and method pairs the machine can run, with the run time of each.
-    parameter_method_ids = fields.One2many(MODEL_PARAMETER_METHOD_MACHINE, "machine_id", string="Ways of Testing")
-    # Bookings of the machine.
-    booking_ids = fields.One2many(MODEL_MACHINE_BOOKING, "machine_id", string="Bookings")
-    # False when the machine is archived.
-    active = fields.Boolean(default=True)
+    if not TYPE_CHECKING:
+        # Unique code of the machine.
+        code = fields.Char(required=True, copy=False, index="trigram")
+        # Name of the machine, such as "HPLC 1".
+        name = fields.Char(required=True, index="trigram")
+        # Model of the machine, as named by the manufacturer.
+        model = fields.Char()
+        # Company that made the machine.
+        manufacturer = fields.Char()
+        # Serial number given by the manufacturer.
+        serial_number = fields.Char(index="trigram")
+        # The location the machine stands in, such as a bench.
+        location_id = fields.Many2one(MODEL_LOCATION, string="Location", ondelete="restrict", index=True)
+        # Whether the machine is in use, under repair or retired.
+        status = fields.Selection(
+            [("in_use", "In use"), ("under_repair", "Under repair"), ("retired", "Retired")],
+            required=True,
+            default="in_use",
+        )
+        # Date the next calibration is due, taken from the latest calibration record; the machine cannot be used after it.
+        next_calibration_date = fields.Date(compute="_compute_next_service_dates", store=True, index=True)
+        # Days between two maintenance visits; empty when the machine has no schedule.
+        maintenance_interval_days = fields.Integer()
+        # Date the next maintenance is due, from the latest maintenance record and the interval.
+        next_maintenance_date = fields.Date(compute="_compute_next_service_dates", store=True)
+        # Calibration, maintenance and repair records of the machine.
+        service_ids = fields.One2many(MODEL_MACHINE_SERVICE, "machine_id", string="Service History")
+        # Parameter and method pairs the machine can run, with the run time of each.
+        parameter_method_ids = fields.One2many(MODEL_PARAMETER_METHOD_MACHINE, "machine_id", string="Ways of Testing")
+        # Bookings of the machine.
+        booking_ids = fields.One2many(MODEL_MACHINE_BOOKING, "machine_id", string="Bookings")
+        # False when the machine is archived.
+        active = fields.Boolean(default=True)
 
     _code_unique = models.Constraint("UNIQUE(code)", "The code of a machine must be unique.")
 
@@ -72,7 +79,7 @@ class Machine(models.Model):
             machine.next_calibration_date = calibration.next_due_date
             machine.next_maintenance_date = (
                 maintenance.service_date + timedelta(days=machine.maintenance_interval_days)
-                if maintenance and machine.maintenance_interval_days
+                if maintenance and maintenance.service_date and machine.maintenance_interval_days
                 else False
             )
 

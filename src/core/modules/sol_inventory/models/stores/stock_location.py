@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING, Literal
+
 from lxml import etree
 
 from odoo import api, fields, models
@@ -26,37 +28,47 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_GROUP
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_stock_location as StockLocationBase
+
+    from odoo.orm.identifiers import IdType
+else:
+    StockLocationBase = object
+
 # Fields that set up the stores; only administrators write them, the storekeeper maintains the other locations.
 STORE_FIELDS = ("is_store", "holder_id", "manager_id")
 
 
 # Vị Trí Kho
-class StockLocation(models.Model):
+class StockLocation(models.Model, StockLocationBase):
     # _name is required to add mixins to an Odoo model.
     _name = MODEL_STOCK_LOCATION
     _inherit = [MODEL_AUDIT_MIXIN, MODEL_STOCK_LOCATION, MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN]
 
-    # Storage conditions of the location, such as "2-8 °C".
-    conditions = fields.Char(string="Storage Conditions")
-    # True when the location is a store.
-    is_store = fields.Boolean(string="Store", copy=False)
-    # The department or team that holds the store; empty for the central store and for locations inside a store.
-    holder_id = fields.Many2one(MODEL_DEPARTMENT, string="Holder", ondelete="restrict", copy=False)
-    # The person who manages the store.
-    manager_id = fields.Many2one(MODEL_EMPLOYEE, string="Manager", ondelete="restrict", copy=False)
-    # The location of the company's premises the stock location is in, such as the room a store is in or the bench a
-    # fridge stands on; empty while it is not placed.
-    place_id = fields.Many2one(
-        MODEL_LOCATION, string="Premises Location", ondelete="restrict", index="btree_not_null", copy=False
-    )
-    # The nearest store the location is inside; empty for the central store.
-    parent_store_id = fields.Many2one(MODEL_STOCK_LOCATION, string="Store Above", compute="_compute_parent_store_id")
-    # Code of the cost centre of the department or team that holds the store; empty while it has none.
-    cost_centre_code = fields.Char(string="Cost Centre", compute="_compute_cost_centre")
-    # True when a department or team holds the store but has no cost centre yet.
-    cost_centre_missing = fields.Boolean(
-        string="Without Cost Centre", compute="_compute_cost_centre", search="_search_cost_centre_missing"
-    )
+    if not TYPE_CHECKING:
+        # Storage conditions of the location, such as "2-8 °C".
+        conditions = fields.Char(string="Storage Conditions")
+        # True when the location is a store.
+        is_store = fields.Boolean(string="Store", copy=False)
+        # The department or team that holds the store; empty for the central store and for locations inside a store.
+        holder_id = fields.Many2one(MODEL_DEPARTMENT, string="Holder", ondelete="restrict", copy=False)
+        # The person who manages the store.
+        manager_id = fields.Many2one(MODEL_EMPLOYEE, string="Manager", ondelete="restrict", copy=False)
+        # The location of the company's premises the stock location is in, such as the room a store is in or the bench a
+        # fridge stands on; empty while it is not placed.
+        place_id = fields.Many2one(
+            MODEL_LOCATION, string="Premises Location", ondelete="restrict", index="btree_not_null", copy=False
+        )
+        # The nearest store the location is inside; empty for the central store.
+        parent_store_id = fields.Many2one(
+            MODEL_STOCK_LOCATION, string="Store Above", compute="_compute_parent_store_id"
+        )
+        # Code of the cost centre of the department or team that holds the store; empty while it has none.
+        cost_centre_code = fields.Char(string="Cost Centre", compute="_compute_cost_centre")
+        # True when a department or team holds the store but has no cost centre yet.
+        cost_centre_missing = fields.Boolean(
+            string="Without Cost Centre", compute="_compute_cost_centre", search="_search_cost_centre_missing"
+        )
 
     @api.depends("location_id")
     def _compute_parent_store_id(self):
@@ -65,9 +77,15 @@ class StockLocation(models.Model):
 
     @api.depends("holder_id")
     def _compute_cost_centre(self):
-        codes = {centre.department_id.id: centre.code for centre in self._cost_centres(self.holder_id)}
+        codes: dict[IdType | Literal[False], str | Literal[False]] = {
+            centre.department_id.id: centre.code for centre in self._cost_centres(self.holder_id)
+        }
         for location in self:
-            location.cost_centre_code = codes.get(location.holder_id.id, False)
+            code = codes.get(location.holder_id.id)
+            if code is None:
+                location.cost_centre_code = False
+            else:
+                location.cost_centre_code = code
             location.cost_centre_missing = bool(location.holder_id) and not location.cost_centre_code
 
     def _search_cost_centre_missing(self, operator, value):

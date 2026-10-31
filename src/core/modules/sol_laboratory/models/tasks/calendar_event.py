@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Command, Domain
@@ -14,6 +16,11 @@ from odoo.addons.sol_laboratory.constants.models import (
 from odoo.addons.sol_laboratory.constants.scheduling import CALENDAR_SYNC_CONTEXT, CALENDAR_SYNC_TOKEN
 from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_GROUP
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_calendar_event as CalendarEventBase
+else:
+    CalendarEventBase = object
+
 # Fields that move a location booking or change the location it books.
 BOOKING_FIELDS = frozenset({"start", "stop", "start_date", "stop_date", "allday", "duration", "location_id"})
 SCHEDULE_LINK_FIELDS = frozenset({"medilab_task_id", "medilab_booking_ids", "machine_booking_id", "step_id"})
@@ -21,28 +28,29 @@ RESERVATION_FIELDS = frozenset({"user_id", "partner_ids", "alarm_ids", "location
 
 
 # Lịch
-class CalendarEvent(models.Model):
+class CalendarEvent(models.Model, CalendarEventBase):
     _name = MODEL_CALENDAR_EVENT
     _inherit = [MODEL_AUDIT_MIXIN, MODEL_CALENDAR_EVENT]
 
-    # The planned task this event keeps in step with.
-    medilab_task_id = fields.Many2one(MODEL_TASK, ondelete="cascade", index=True)
-    # The machine booking whose slot the event shows.
-    medilab_booking_ids = fields.One2many(MODEL_MACHINE_BOOKING, "calendar_event_id", string="Machine Bookings")
-    # The bookable location the event books.
-    location_id = fields.Many2one(
-        MODEL_LOCATION,
-        string="Booked Location",
-        ondelete="restrict",
-        index="btree_not_null",
-        domain="[('is_bookable', '=', True)]",
-    )
-    # The machine booking whose step the location booking is for; empty for a booking people made.
-    machine_booking_id = fields.Many2one(
-        MODEL_MACHINE_BOOKING, ondelete="cascade", index="btree_not_null", readonly=True, copy=False
-    )
-    # The method step the location booking is for.
-    step_id = fields.Many2one(MODEL_TESTING_METHOD_STEP, string="Method Step", ondelete="restrict", readonly=True)
+    if not TYPE_CHECKING:
+        # The planned task this event keeps in step with.
+        medilab_task_id = fields.Many2one(MODEL_TASK, ondelete="cascade", index=True)
+        # The machine booking whose slot the event shows.
+        medilab_booking_ids = fields.One2many(MODEL_MACHINE_BOOKING, "calendar_event_id", string="Machine Bookings")
+        # The bookable location the event books.
+        location_id = fields.Many2one(
+            MODEL_LOCATION,
+            string="Booked Location",
+            ondelete="restrict",
+            index="btree_not_null",
+            domain="[('is_bookable', '=', True)]",
+        )
+        # The machine booking whose step the location booking is for; empty for a booking people made.
+        machine_booking_id = fields.Many2one(
+            MODEL_MACHINE_BOOKING, ondelete="cascade", index="btree_not_null", readonly=True, copy=False
+        )
+        # The method step the location booking is for.
+        step_id = fields.Many2one(MODEL_TESTING_METHOD_STEP, string="Method Step", ondelete="restrict", readonly=True)
 
     _location_no_overlap = models.Constraint(
         "EXCLUDE USING gist (location_id WITH =, tsrange(start, stop) WITH &&, id WITH <>) "
@@ -58,7 +66,7 @@ class CalendarEvent(models.Model):
     @api.model
     def _overlap_message(self, diagnostics):
         # PostgreSQL ends the detail of an overlap with the id of the booking already there, as in "..., 12).".
-        overlapped = (getattr(diagnostics, "message_detail", None) or "").rstrip(".)").rpartition(" ")[2]
+        overlapped = ((getattr(diagnostics, "message_detail", None) or "").rstrip(".)").rpartition(" "))[2]
         booking = self.browse(int(overlapped)).exists() if overlapped.isdigit() else self
         if not booking:
             return self.env._("The location is already booked at that time.")
@@ -79,7 +87,7 @@ class CalendarEvent(models.Model):
         # The form leaves a location booking read-only to anyone but its organiser; an administrator opens it to cancel.
         if self.env.user.has_group(ADMINISTRATOR_GROUP):
             return
-        for event in self.filtered(lambda event: event.location_id and not event.machine_booking_id):
+        for event in self.filtered(lambda event: bool(event.location_id and not event.machine_booking_id)):
             event.user_can_edit = event.user_can_edit and event.user_id == self.env.user
 
     @api.constrains("location_id")
@@ -144,7 +152,7 @@ class CalendarEvent(models.Model):
     def _check_not_scheduled(self, *, rooms_only=False):
         """Only the scheduler changes reservations; a main calendar event can request a guarded move."""
         scheduled = self.sudo().filtered(
-            lambda event: event.machine_booking_id or (not rooms_only and event.medilab_booking_ids)
+            lambda event: bool(event.machine_booking_id or (not rooms_only and event.medilab_booking_ids))
         )
         if scheduled and self.env.context.get(CALENDAR_SYNC_CONTEXT) is not CALENDAR_SYNC_TOKEN:
             raise UserError(self.env._("Move or cancel the machine booking of %s instead.", scheduled[0].display_name))

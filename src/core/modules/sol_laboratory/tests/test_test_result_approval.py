@@ -121,7 +121,7 @@ class TestTestResultApproval(ResultCase):
         self.assertEqual(self.task.status, "assigned")
         message = self.env["mail.message"].search([("model", "=", result._name), ("res_id", "=", result.id)])
         self.assertEqual(message.subtype_id, self.env.ref("sol_laboratory.event_test_result_rejected"))
-        self.assertIn("The blank read above the limit of detection.", message.body)
+        self.assertIn("The blank read above the limit of detection.", (message.body or ""))
         self.assertEqual(message.notification_ids.res_partner_id, self.tester.user_id.partner_id)
         retest = self.enter(value=0.009)
         self.assertTrue(retest.is_reported)

@@ -4,7 +4,9 @@ from odoo.tests import new_test_user, tagged
 
 from .common import MasterDataCase
 from .people_case import PeopleCase
-from odoo.addons.sol_laboratory.constants.models import MODEL_TESTING_METHOD_STEP
+from odoo.addons.sol_laboratory.constants.models import MODEL_PERMISSION, MODEL_RES_GROUPS, MODEL_TESTING_METHOD_STEP
+from odoo.addons.sol_laboratory.services.model_lookup import reference_as
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 STEP_PERMISSIONS = ("create", "edit", "delete")
 
@@ -50,9 +52,9 @@ class TestMethodStepAccess(MasterDataCase, PeopleCase):
                 {"step_ids": [Command.create({"sequence": 3, "duration_minutes": 5, "instruction": "Ash it."})]}
             ),
             "write through the method": lambda: method.write(
-                {"step_ids": [Command.update(self.step.id, {"duration_minutes": 20})]}
+                {"step_ids": [Command.update(persisted_id(self.step), {"duration_minutes": 20})]}
             ),
-            "delete through the method": lambda: method.write({"step_ids": [Command.delete(self.step.id)]}),
+            "delete through the method": lambda: method.write({"step_ids": [Command.delete(persisted_id(self.step))]}),
         }
 
     def assert_refused(self, user):
@@ -131,9 +133,13 @@ class TestMethodStepAccess(MasterDataCase, PeopleCase):
         administrator = self.env.ref("sol_laboratory.role_administrator")
         for action in STEP_PERMISSIONS:
             with self.subTest(action=action):
-                permission = self.env.ref(f"sol_laboratory.permission_testing_method_step_{action}_all")
+                permission = reference_as(
+                    self.env[MODEL_PERMISSION], f"sol_laboratory.permission_testing_method_step_{action}_all"
+                )
                 self.assertIn(permission, administrator.permission_ids)
                 self.assertEqual(
                     permission.group_id,
-                    self.env.ref(f"sol_laboratory.group_permission_testing_method_step_{action}_all"),
+                    reference_as(
+                        self.env[MODEL_RES_GROUPS], f"sol_laboratory.group_permission_testing_method_step_{action}_all"
+                    ),
                 )

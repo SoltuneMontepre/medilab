@@ -60,7 +60,7 @@ class TestLaboratoryDeviceRevocation(LaboratoryFilesCase):
         )
         self.assertEqual((sign_out.action, sign_out.user_id), ("edit", self.tester))
         self.assertEqual(sign_out.change_ids.mapped("field_name"), ["api_key_id"])
-        self.assertIn(f"#{key.id}", sign_out.change_ids.old_value)
+        self.assertIn(f"#{key.id}", (sign_out.change_ids.old_value or ""))
         device, new_key = self.sign_in(self.tester, "lost-laptop")
         self.assertEqual(self.device_of(new_key), device)
 

@@ -4,6 +4,7 @@ from odoo.tests import tagged
 
 from .people_case import PeopleCase
 from odoo.addons.sol_laboratory.constants.models import MODEL_DEPARTMENT, MODEL_ROLE
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 
 @tagged("post_install", "-at_install")
@@ -21,7 +22,7 @@ class TestPeopleDeletion(PeopleCase):
         self.assertIn(self.chemist.name, str(refusal.exception))
 
     def test_role_removed_from_people_can_be_deleted(self):
-        self.chemist.role_ids = [Command.unlink(self.tester.id)]
+        self.chemist.role_ids = [Command.unlink(persisted_id(self.tester))]
 
         self.tester.unlink()
 

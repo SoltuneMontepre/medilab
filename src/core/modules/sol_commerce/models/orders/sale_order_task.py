@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import models
 
 from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
@@ -5,9 +7,14 @@ from odoo.addons.sol_commerce.constants.orders import STATUS_CANCELLED, STATUS_S
 from odoo.addons.sol_commerce.constants.tasks import QUOTATION_ACTION, QUOTATION_TRIGGER
 from odoo.addons.sol_laboratory.constants.models import MODEL_PERSON, MODEL_TASK
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_sale_order as SaleOrderBase
+else:
+    SaleOrderBase = object
+
 
 # Đơn Hàng: the quotation task that follows an order from the sales queue to its first quotation.
-class SaleOrder(models.Model):
+class SaleOrder(models.Model, SaleOrderBase):
     _inherit = MODEL_SALE_ORDER
 
     def write(self, vals):

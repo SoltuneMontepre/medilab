@@ -74,7 +74,7 @@ class TestOrderCart(OrderCase):
         self.assertEqual(new.reordered_from_id, order)
         self.assertEqual(new._catalog_lines().price_unit, original_price + 5000)
         self.assertEqual(new._catalog_lines().product_id.product_tmpl_id, self.lead_product)
-        self.assertIn(self.package.name, new.reorder_note)
+        self.assertIn(self.package.name, (new.reorder_note or ""))
 
     def test_archiving_a_price_on_an_open_order_is_refused(self):
         self.make_order([(self.lead_product, 1)])

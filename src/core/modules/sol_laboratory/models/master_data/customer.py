@@ -1,4 +1,5 @@
 import base64
+from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.exceptions import AccessError, UserError
@@ -19,6 +20,11 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import CUSTOMER_EDITOR_GROUP
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_customer as CustomerBase
+else:
+    CustomerBase = object
+
 RES_PARTNER = "res.partner"
 PARTNER_MERGE = "base.partner.merge.automatic.wizard"
 LOGO_MIMETYPES = ("image/png", "image/jpeg")
@@ -30,7 +36,7 @@ CHILD_KEYS = frozenset({"type", "name", "function", "email", "phone", "street", 
 
 
 # Khách Hàng
-class Customer(models.Model):
+class Customer(models.Model, CustomerBase):
     _name = MODEL_CUSTOMER
     _inherit = [
         MODEL_PERMISSION_MIXIN,
@@ -61,27 +67,30 @@ class Customer(models.Model):
         "child_ids",
     )
 
-    # Unique code of the customer, such as KH.0001; filled from a sequence when left empty.
-    code = fields.Char(required=True, copy=False)
-    # The contact holding the customer's details: name, address, email, phone, and for a company its people.
-    partner_id = fields.Many2one(RES_PARTNER, required=True, ondelete="restrict")
-    # Citizen ID of an individual: personal data, read only by those who maintain customers.
-    citizen_id = fields.Char(string="Citizen ID", copy=False, groups=CUSTOMER_EDITOR_GROUP, audit_mask=MASK_PERSONAL)
-    # The person of a business the laboratory contacts by default; empty for an individual, who is their own contact.
-    default_contact_id = fields.Many2one(
-        RES_PARTNER,
-        ondelete="set null",
-        index="btree_not_null",
-        domain="[('parent_id', '=', partner_id), ('type', '=', 'contact')]",
-    )
-    # The existing customer a self-registered account matched on tax code or citizen ID; empty when not flagged or once sales reviewed it.
-    duplicate_of_id = fields.Many2one(
-        MODEL_CUSTOMER, string="Possible Duplicate Of", ondelete="set null", index="btree_not_null", readonly=True
-    )
-    # Self-registered accounts flagged as possible duplicates of this customer.
-    possible_duplicate_ids = fields.One2many(MODEL_CUSTOMER, "duplicate_of_id", string="Possible Duplicates")
-    # False when the customer is archived.
-    active = fields.Boolean(default=True)
+    if not TYPE_CHECKING:
+        # Unique code of the customer, such as KH.0001; filled from a sequence when left empty.
+        code = fields.Char(required=True, copy=False)
+        # The contact holding the customer's details: name, address, email, phone, and for a company its people.
+        partner_id = fields.Many2one(RES_PARTNER, required=True, ondelete="restrict")
+        # Citizen ID of an individual: personal data, read only by those who maintain customers.
+        citizen_id = fields.Char(
+            string="Citizen ID", copy=False, groups=CUSTOMER_EDITOR_GROUP, audit_mask=MASK_PERSONAL
+        )
+        # The person of a business the laboratory contacts by default; empty for an individual, who is their own contact.
+        default_contact_id = fields.Many2one(
+            RES_PARTNER,
+            ondelete="set null",
+            index="btree_not_null",
+            domain="[('parent_id', '=', partner_id), ('type', '=', 'contact')]",
+        )
+        # The existing customer a self-registered account matched on tax code or citizen ID; empty when not flagged or once sales reviewed it.
+        duplicate_of_id = fields.Many2one(
+            MODEL_CUSTOMER, string="Possible Duplicate Of", ondelete="set null", index="btree_not_null", readonly=True
+        )
+        # Self-registered accounts flagged as possible duplicates of this customer.
+        possible_duplicate_ids = fields.One2many(MODEL_CUSTOMER, "duplicate_of_id", string="Possible Duplicates")
+        # False when the customer is archived.
+        active = fields.Boolean(default=True)
 
     _code_unique = models.Constraint("UNIQUE(code)", "The code of a customer must be unique.")
     _partner_unique = models.Constraint("UNIQUE(partner_id)", "This contact is already a customer.")
@@ -123,14 +132,14 @@ class Customer(models.Model):
             required["company_name"] = self.env._("Company name")
         else:
             required["citizen_id"] = self.env._("Citizen ID")
-        missing = [label for key, label in required.items() if not (details.get(key) or "").strip()]
+        missing = [label for key, label in required.items() if not ((details.get(key) or "").strip())]
         if missing:
             raise UserError(self.env._("Fill in: %s", format_list(self.env, missing)))
 
     @api.model
     def _create_from_signup(self, user, details):
         """Create the customer of a self-registered user, flagged when its identity matches an existing customer."""
-        details = {key: (details.get(key) or "").strip() for key in SIGNUP_KEYS}
+        details = {key: ((details.get(key) or "").strip()) for key in SIGNUP_KEYS}
         match = self._identity_match(details["vat"], details["citizen_id"])
         address = {
             "phone": details["phone"],
@@ -198,7 +207,7 @@ class Customer(models.Model):
     def save_contact(self, values, contact=None):
         """Add a person of the business, or change one."""
         self.ensure_one()
-        values = {key: (values.get(key) or "").strip() for key in CONTACT_PERSON_KEYS}
+        values = {key: ((values.get(key) or "").strip()) for key in CONTACT_PERSON_KEYS}
         if not values["name"]:
             raise UserError(self.env._("Enter the contact's name."))
         if contact:

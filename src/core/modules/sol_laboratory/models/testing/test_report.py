@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.fields import Domain
@@ -30,6 +32,11 @@ from odoo.addons.sol_laboratory.constants.signing import VERIFY_PATH
 from odoo.addons.sol_laboratory.constants.tasks import REPORT_DRAFTED_TRIGGER
 from odoo.addons.sol_laboratory.constants.xml_ids import TEST_REPORT_REPORT, TEST_RESULT_READER_GROUP
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_test_report as TestReportBase
+else:
+    TestReportBase = object
+
 # The languages a report prints in, by the request's report language; a bilingual report puts them side by side.
 PRINT_LANGS = {"vi": ("vi_VN",), "en": ("en_US",), "bilingual": ("vi_VN", "en_US")}
 # The action of the lab head's signing task.
@@ -41,7 +48,7 @@ UNREPORTED_SAMPLE_STATUSES = ("cancelled", "rejected")
 
 
 # Phiếu Kết Quả
-class TestReport(models.Model):
+class TestReport(models.Model, TestReportBase):
     _name = MODEL_TEST_REPORT
     # Locked while edited. Signed through its approval chain, which the digital signing mixin brings, and issued
     # as a signed PDF.
@@ -52,55 +59,56 @@ class TestReport(models.Model):
     _permission_actions = ("read", "edit", "sign")
     _digital_signing_report = TEST_REPORT_REPORT
 
-    # Unique report number from a sequence, such as PKQ.2026.0001; given when the report is issued.
-    code = fields.Char(string="Report Number", readonly=True, copy=False)
-    # The test request reported.
-    request_id = fields.Many2one(
-        MODEL_TEST_REQUEST, string="Test Request", required=True, readonly=True, ondelete="restrict"
-    )
-    # The customer of the test request.
-    customer_id = fields.Many2one(related="request_id.customer_id")
-    # Version of the report, 1 for the first and one higher for each version a change request creates.
-    version = fields.Integer(required=True, default=1, readonly=True, copy=False)
-    # The version this report replaces; empty for version 1.
-    replaces_id = fields.Many2one(MODEL_TEST_REPORT, readonly=True, copy=False, ondelete="restrict")
-    # Where the report is in its signing.
-    status = fields.Selection(
-        [("draft", "Draft"), ("signing", "Signing"), ("issued", "Issued"), ("replaced", "Replaced")],
-        required=True,
-        default="draft",
-        readonly=True,
-        copy=False,
-        index=True,
-    )
-    # Language the report is issued in, taken from the request: Vietnamese, English or both side by side.
-    language = fields.Selection(
-        [("vi", "Vietnamese"), ("en", "English"), ("bilingual", "Bilingual")], required=True, readonly=True
-    )
-    # When the report was issued.
-    issued_at = fields.Datetime(readonly=True, copy=False)
-    # The PDF of the issued report.
-    attachment_id = fields.Many2one("ir.attachment", string="PDF", readonly=True, copy=False, ondelete="restrict")
-    # How the report reaches the customer, as the request says.
-    delivery_method = fields.Selection(related="request_id.delivery_method")
-    # How to deliver when the method is other, or details such as the postal address.
-    delivery_note = fields.Text(related="request_id.delivery_note")
-    # The contact who receives the report: the request's recipient, or else the customer.
-    recipient_id = fields.Many2one("res.partner", string="Recipient", compute="_compute_recipient_id")
-    # When the report was delivered to the customer.
-    delivered_at = fields.Datetime(readonly=True, copy=False)
-    # Person who recorded the delivery.
-    delivered_by_id = fields.Many2one(
-        MODEL_PERSON, string="Delivered By", readonly=True, copy=False, ondelete="restrict"
-    )
-    # The reported results the report prints: those of the request's tests that are not cancelled.
-    result_ids = fields.Many2many(
-        MODEL_TEST_RESULT,
-        string="Results",
-        compute="_compute_result_ids",
-        compute_sudo=True,
-        groups=TEST_RESULT_READER_GROUP,
-    )
+    if not TYPE_CHECKING:
+        # Unique report number from a sequence, such as PKQ.2026.0001; given when the report is issued.
+        code = fields.Char(string="Report Number", readonly=True, copy=False)
+        # The test request reported.
+        request_id = fields.Many2one(
+            MODEL_TEST_REQUEST, string="Test Request", required=True, readonly=True, ondelete="restrict"
+        )
+        # The customer of the test request.
+        customer_id = fields.Many2one(related="request_id.customer_id")
+        # Version of the report, 1 for the first and one higher for each version a change request creates.
+        version = fields.Integer(required=True, default=1, readonly=True, copy=False)
+        # The version this report replaces; empty for version 1.
+        replaces_id = fields.Many2one(MODEL_TEST_REPORT, readonly=True, copy=False, ondelete="restrict")
+        # Where the report is in its signing.
+        status = fields.Selection(
+            [("draft", "Draft"), ("signing", "Signing"), ("issued", "Issued"), ("replaced", "Replaced")],
+            required=True,
+            default="draft",
+            readonly=True,
+            copy=False,
+            index=True,
+        )
+        # Language the report is issued in, taken from the request: Vietnamese, English or both side by side.
+        language = fields.Selection(
+            [("vi", "Vietnamese"), ("en", "English"), ("bilingual", "Bilingual")], required=True, readonly=True
+        )
+        # When the report was issued.
+        issued_at = fields.Datetime(readonly=True, copy=False)
+        # The PDF of the issued report.
+        attachment_id = fields.Many2one("ir.attachment", string="PDF", readonly=True, copy=False, ondelete="restrict")
+        # How the report reaches the customer, as the request says.
+        delivery_method = fields.Selection(related="request_id.delivery_method")
+        # How to deliver when the method is other, or details such as the postal address.
+        delivery_note = fields.Text(related="request_id.delivery_note")
+        # The contact who receives the report: the request's recipient, or else the customer.
+        recipient_id = fields.Many2one("res.partner", string="Recipient", compute="_compute_recipient_id")
+        # When the report was delivered to the customer.
+        delivered_at = fields.Datetime(readonly=True, copy=False)
+        # Person who recorded the delivery.
+        delivered_by_id = fields.Many2one(
+            MODEL_PERSON, string="Delivered By", readonly=True, copy=False, ondelete="restrict"
+        )
+        # The reported results the report prints: those of the request's tests that are not cancelled.
+        result_ids = fields.Many2many(
+            MODEL_TEST_RESULT,
+            string="Results",
+            compute="_compute_result_ids",
+            compute_sudo=True,
+            groups=TEST_RESULT_READER_GROUP,
+        )
 
     _code_unique = models.Constraint("UNIQUE(code)", "The number of a test report must be unique.")
     _version_unique = models.Constraint("UNIQUE(request_id, version)", "A test request has one report per version.")
@@ -334,7 +342,7 @@ class TestReport(models.Model):
         return Domain("status", "=", "issued") & Domain("request_id.customer_id", "=", customer.id)
 
     def _print_langs(self):
-        return PRINT_LANGS[self.language]
+        return PRINT_LANGS[self.language or ""]
 
     def _files_locked(self):
         """True when a report's PDF can no longer change: it is issued."""

@@ -6,6 +6,7 @@ from .laboratory_files_case import PASSWORD
 from odoo.addons.sol_laboratory.constants.laboratory_files import INVALID_KEY, PERMISSION_DENIED
 from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_DEVICE, MODEL_RES_USERS_APIKEYS
 from odoo.addons.sol_laboratory.constants.xml_ids import LABORATORY_FILES_GROUP
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 
 @tagged("post_install", "-at_install")
@@ -74,7 +75,7 @@ class TestLaboratoryApiKeys(LaboratoryApiCase):
         self.assertEqual(self.second.status, "signed_in")
 
     def test_a_person_who_lost_the_laboratory_files_permission_lists_nothing_and_still_signs_out_and_revokes(self):
-        self.tester.write({"group_ids": [Command.unlink(self.env.ref(LABORATORY_FILES_GROUP).id)]})
+        self.tester.write({"group_ids": [Command.unlink(persisted_id(self.env.ref(LABORATORY_FILES_GROUP)))]})
 
         self.assertApiRefused(PERMISSION_DENIED, self.api("GET", "/devices", key=self.key))
         self.assertEqual(self.api("POST", f"/devices/{self.second.id}/revoke", key=self.key).status_code, 200)

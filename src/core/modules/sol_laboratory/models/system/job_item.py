@@ -1,4 +1,5 @@
 from datetime import timedelta
+from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError
@@ -9,10 +10,16 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PERMISSION_MIXIN,
     MODEL_SCHEDULED_JOB,
 )
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_job_item as JobItemBase
+else:
+    JobItemBase = object
 
 
 # Mục Tác Vụ
-class JobItem(models.Model):
+class JobItem(models.Model, JobItemBase):
     _name = MODEL_JOB_ITEM
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN]
     _description = "Job Item"
@@ -20,41 +27,42 @@ class JobItem(models.Model):
     # Items are queued by features; administrators retry or cancel them.
     _permission_actions = ("read", "edit")
 
-    # The job the item is queued for.
-    job_id = fields.Many2one(
-        MODEL_SCHEDULED_JOB, string="Scheduled Job", required=True, ondelete="restrict", index=True
-    )
-    # Key of the work within the job, such as delivery:812.
-    item_key = fields.Char(required=True)
-    # Technical name of the document the work is about.
-    document_model = fields.Char()
-    # Id of the document the work is about.
-    document_id = fields.Integer()
-    # Data the job needs to do the work.
-    payload = fields.Json()
-    # pending, running, done, failed or cancelled.
-    status = fields.Selection(
-        [
-            ("pending", "Pending"),
-            ("running", "Running"),
-            ("done", "Done"),
-            ("failed", "Failed"),
-            ("cancelled", "Cancelled"),
-        ],
-        required=True,
-        default="pending",
-        index=True,
-    )
-    # When a run took the item; a running item claimed longer ago than the job's claim timeout goes back to pending.
-    claimed_at = fields.Datetime()
-    # Attempts made so far.
-    attempts = fields.Integer(default=0)
-    # Earliest time the item is tried again.
-    next_attempt_at = fields.Datetime(required=True, default=fields.Datetime.now)
-    # Error of the last failed attempt.
-    last_error = fields.Text()
-    # When the item was done.
-    done_at = fields.Datetime()
+    if not TYPE_CHECKING:
+        # The job the item is queued for.
+        job_id = fields.Many2one(
+            MODEL_SCHEDULED_JOB, string="Scheduled Job", required=True, ondelete="restrict", index=True
+        )
+        # Key of the work within the job, such as delivery:812.
+        item_key = fields.Char(required=True)
+        # Technical name of the document the work is about.
+        document_model = fields.Char()
+        # Id of the document the work is about.
+        document_id = fields.Integer()
+        # Data the job needs to do the work.
+        payload = fields.Json()
+        # pending, running, done, failed or cancelled.
+        status = fields.Selection(
+            [
+                ("pending", "Pending"),
+                ("running", "Running"),
+                ("done", "Done"),
+                ("failed", "Failed"),
+                ("cancelled", "Cancelled"),
+            ],
+            required=True,
+            default="pending",
+            index=True,
+        )
+        # When a run took the item; a running item claimed longer ago than the job's claim timeout goes back to pending.
+        claimed_at = fields.Datetime()
+        # Attempts made so far.
+        attempts = fields.Integer(default=0)
+        # Earliest time the item is tried again.
+        next_attempt_at = fields.Datetime(required=True, default=fields.Datetime.now)
+        # Error of the last failed attempt.
+        last_error = fields.Text()
+        # When the item was done.
+        done_at = fields.Datetime()
 
     _key_unique = models.Constraint("UNIQUE(job_id, item_key)", "This work is already queued for the job.")
     _due_index = models.Index("(job_id, next_attempt_at) WHERE status IN ('pending', 'running')")
@@ -70,7 +78,7 @@ class JobItem(models.Model):
 
     def _document(self):
         self.ensure_one()
-        return self.env[self.document_model].browse(self.document_id) if self.document_model else None
+        return dynamic_model(self.env, self.document_model).browse(self.document_id) if self.document_model else None
 
     def action_retry(self):
         if any(item.status != "failed" for item in self):

@@ -1,3 +1,6 @@
+from datetime import datetime
+from typing import TYPE_CHECKING, Literal
+
 from odoo import api, fields, models
 from odoo.tools import SQL
 
@@ -12,6 +15,12 @@ from odoo.addons.sol_commerce.constants.orders import (
     STATUS_CONFIRMED,
     STATUS_SUBMITTED,
 )
+from odoo.addons.sol_laboratory.services.type_values import value_as
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_sale_order as SaleOrderAnalysisBase
+else:
+    SaleOrderAnalysisBase = object
 
 SECONDS_PER_DAY = 86400
 PIPELINE_STAGES = [
@@ -40,64 +49,69 @@ def _sql_days(name):
 
 
 # Đơn Hàng: where the order stands in the sales pipeline, and what it counts for its salesperson's performance.
-class SaleOrderAnalysis(models.Model):
+class SaleOrderAnalysis(models.Model, SaleOrderAnalysisBase):
     _inherit = MODEL_SALE_ORDER
 
-    # unclaimed, draft, sent, accepted or confirmed; empty for a cart and for declined, completed and cancelled orders.
-    pipeline_stage = fields.Selection(
-        PIPELINE_STAGES, compute="_compute_pipeline_stage", store=True, index="btree_not_null"
-    )
-    # When the first quotation of the order was sent.
-    quoted_at = fields.Datetime(compute="_compute_quoted_at", store=True)
-    # When the customer accepted the quotation, by paying the advance or accepting one sent without.
-    accepted_at = fields.Datetime(readonly=True, copy=False)
-    # When sales confirmed the order; empty until it is confirmed.
-    confirmed_at = fields.Datetime(readonly=True, copy=False)
-    # Days from the claim to the first quotation.
-    days_to_quote = fields.Float(
-        "Days to Quote",
-        compute="_compute_durations",
-        compute_sql=_sql_days("days_to_quote"),
-        compute_sudo=False,
-        aggregator="avg",
-    )
-    # Days from the first quotation to the customer's acceptance.
-    days_to_payment = fields.Float(
-        "Days to Payment",
-        compute="_compute_durations",
-        compute_sql=_sql_days("days_to_payment"),
-        compute_sudo=False,
-        aggregator="avg",
-    )
-    # Days from the customer's acceptance to the confirmation.
-    days_to_confirmation = fields.Float(
-        "Days to Confirmation",
-        compute="_compute_durations",
-        compute_sql=_sql_days("days_to_confirmation"),
-        compute_sudo=False,
-        aggregator="avg",
-    )
-    # Quotations sent for the order, revisions included.
-    quotation_sent_count = fields.Integer("Quotations Sent", compute="_compute_quotation_counts", store=True)
-    # Quotations the customer accepted.
-    quotation_accepted_count = fields.Integer("Quotations Accepted", compute="_compute_quotation_counts", store=True)
-    # Quotations the customer declined, including those a revision replaced since.
-    quotation_declined_count = fields.Integer("Quotations Declined", compute="_compute_quotation_counts", store=True)
-    # Total excluding VAT once the order is confirmed; 0 before and once it is cancelled.
-    revenue = fields.Monetary(compute="_compute_revenue", store=True)
+    if not TYPE_CHECKING:
+        # unclaimed, draft, sent, accepted or confirmed; empty for a cart and for declined, completed and cancelled orders.
+        pipeline_stage = fields.Selection(
+            PIPELINE_STAGES, compute="_compute_pipeline_stage", store=True, index="btree_not_null"
+        )
+        # When the first quotation of the order was sent.
+        quoted_at = fields.Datetime(compute="_compute_quoted_at", store=True)
+        # When the customer accepted the quotation, by paying the advance or accepting one sent without.
+        accepted_at = fields.Datetime(readonly=True, copy=False)
+        # When sales confirmed the order; empty until it is confirmed.
+        confirmed_at = fields.Datetime(readonly=True, copy=False)
+        # Days from the claim to the first quotation.
+        days_to_quote = fields.Float(
+            "Days to Quote",
+            compute="_compute_durations",
+            compute_sql=_sql_days("days_to_quote"),
+            compute_sudo=False,
+            aggregator="avg",
+        )
+        # Days from the first quotation to the customer's acceptance.
+        days_to_payment = fields.Float(
+            "Days to Payment",
+            compute="_compute_durations",
+            compute_sql=_sql_days("days_to_payment"),
+            compute_sudo=False,
+            aggregator="avg",
+        )
+        # Days from the customer's acceptance to the confirmation.
+        days_to_confirmation = fields.Float(
+            "Days to Confirmation",
+            compute="_compute_durations",
+            compute_sql=_sql_days("days_to_confirmation"),
+            compute_sudo=False,
+            aggregator="avg",
+        )
+        # Quotations sent for the order, revisions included.
+        quotation_sent_count = fields.Integer("Quotations Sent", compute="_compute_quotation_counts", store=True)
+        # Quotations the customer accepted.
+        quotation_accepted_count = fields.Integer(
+            "Quotations Accepted", compute="_compute_quotation_counts", store=True
+        )
+        # Quotations the customer declined, including those a revision replaced since.
+        quotation_declined_count = fields.Integer(
+            "Quotations Declined", compute="_compute_quotation_counts", store=True
+        )
+        # Total excluding VAT once the order is confirmed; 0 before and once it is cancelled.
+        revenue = fields.Monetary(compute="_compute_revenue", store=True)
 
     @api.depends("order_status", "state", "quotation_follow_up")
     def _compute_pipeline_stage(self):
         for order in self:
             order.pipeline_stage = order._pipeline_stage()
 
-    def _pipeline_stage(self):
+    def _pipeline_stage(self) -> str | Literal[False]:
         self.ensure_one()
         if self.order_status == STATUS_SUBMITTED:
             return "unclaimed"
         if self.order_status == STATUS_CLAIMED:
             # A claimed order is draft until its quotation is sent, and again while sales revises it.
-            return "draft" if self.state == "draft" else CLAIMED_STAGES.get(self.quotation_follow_up, False)
+            return "draft" if self.state == "draft" else CLAIMED_STAGES.get((self.quotation_follow_up or ""), False)
         if self.order_status == STATUS_CONFIRMED:
             return "confirmed"
         return False
@@ -105,7 +119,8 @@ class SaleOrderAnalysis(models.Model):
     @api.depends("quotation_ids.sent_at")
     def _compute_quoted_at(self):
         for order in self:
-            order.quoted_at = min(order.quotation_ids.mapped("sent_at"), default=False)
+            sent_at = [value_as(sent, datetime) for sent in order.quotation_ids.mapped("sent_at")]
+            order.quoted_at = min(sent_at) if sent_at else False
 
     @api.depends("claimed_at", "quoted_at", "accepted_at", "confirmed_at")
     def _compute_durations(self):

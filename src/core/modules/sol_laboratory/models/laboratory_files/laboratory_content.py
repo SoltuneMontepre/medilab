@@ -1,5 +1,6 @@
 import functools
 import logging
+from typing import TYPE_CHECKING
 
 from psycopg2 import IntegrityError, errorcodes
 
@@ -18,6 +19,11 @@ from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_CONTENT
 from odoo.addons.sol_laboratory.fields.big_integer import BigInteger
 from odoo.addons.sol_laboratory.services import laboratory_bucket
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_laboratory_content as LaboratoryContentBase
+else:
+    LaboratoryContentBase = object
+
 _logger = logging.getLogger(__name__)
 
 # What the server computed of the content, which only settling it sets.
@@ -26,24 +32,25 @@ COMPUTED_FIELDS = ("state", "size", "sha256")
 
 # Nội Dung Lưu Trữ: one object in the laboratory files bucket, with the size and SHA-256 the server computed of it. Only
 # full rights reach it, and its life is recorded through the versions and uploads that use it.
-class LaboratoryContent(models.Model):
+class LaboratoryContent(models.Model, LaboratoryContentBase):
     _name = MODEL_LABORATORY_CONTENT
     _description = "Laboratory Content"
     _rec_name = "object_key"
 
-    # Key of the object in the bucket: 32 hexadecimal digits the server made, which tell nothing about the content.
-    object_key = fields.Char(required=True, readonly=True, copy=False)
-    # pending, verified, duplicate or failed.
-    state = fields.Selection(
-        [(PENDING, "Pending"), (VERIFIED, "Verified"), (DUPLICATE, "Duplicate"), (FAILED, "Failed")],
-        required=True,
-        default=PENDING,
-        readonly=True,
-    )
-    # Size of the content in bytes, as the server computed it; empty while pending.
-    size = BigInteger(readonly=True)
-    # SHA-256 of the content in hexadecimal, as the server computed it; empty while pending.
-    sha256 = fields.Char(string="SHA-256", readonly=True)
+    if not TYPE_CHECKING:
+        # Key of the object in the bucket: 32 hexadecimal digits the server made, which tell nothing about the content.
+        object_key = fields.Char(required=True, readonly=True, copy=False)
+        # pending, verified, duplicate or failed.
+        state = fields.Selection(
+            [(PENDING, "Pending"), (VERIFIED, "Verified"), (DUPLICATE, "Duplicate"), (FAILED, "Failed")],
+            required=True,
+            default=PENDING,
+            readonly=True,
+        )
+        # Size of the content in bytes, as the server computed it; empty while pending.
+        size = BigInteger(readonly=True)
+        # SHA-256 of the content in hexadecimal, as the server computed it; empty while pending.
+        sha256 = fields.Char(string="SHA-256", readonly=True)
 
     _object_key_unique = models.Constraint("UNIQUE(object_key)", "Each object of the bucket is one content.")
     _object_key_format = models.Constraint(

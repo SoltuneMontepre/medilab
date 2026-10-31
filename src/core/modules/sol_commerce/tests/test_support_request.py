@@ -9,6 +9,7 @@ from .support_case import SupportCase
 from odoo.addons.sol_commerce.constants.models import MODEL_SUPPORT_REQUEST
 from odoo.addons.sol_commerce.constants.xml_ids import SUPPORT_READ_ACCESS
 from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER, MODEL_PERMISSION, MODEL_PERSON
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 from odoo.addons.sol_laboratory.tests.audit_case import AuditLookup
 
 
@@ -22,7 +23,7 @@ class TestSupportRequest(AuditLookup, SupportCase):
         self.assertEqual(
             (request.status, request.handled_by_id, request.opened_by_id), ("open", self.sales, self.portal)
         )
-        self.assertTrue(request.code.startswith("HT."))
+        self.assertTrue(assert_instance(request.code, str).startswith("HT."))
         self.assertEqual(request.customer_id, self.customer_record)
         self.assertIn(request, order.with_user(self.sales).support_request_ids)
         task = self.tasks_of(request)
@@ -33,7 +34,7 @@ class TestSupportRequest(AuditLookup, SupportCase):
         self.assertNotIn(task, self.todo(self.other_sales))
         self.assertIn(self.contact, request.message_partner_ids)
         self.assertIn(self.sales.partner_id, request.message_partner_ids)
-        self.assertEqual(len(request.message_ids.filtered(lambda message: "Please help." in message.body)), 1)
+        self.assertEqual(len(request.message_ids.filtered(lambda message: "Please help." in (message.body or ""))), 1)
 
     def test_request_about_no_order_waits_until_a_salesperson_takes_it(self):
         request = self.open_request(subject="Export certificate")

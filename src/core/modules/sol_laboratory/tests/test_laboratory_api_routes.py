@@ -9,6 +9,7 @@ from odoo.addons.sol_laboratory.constants.laboratory_files import DEVICE_KEY_SCO
 from odoo.addons.sol_laboratory.constants.models import MODEL_IR_HTTP
 from odoo.addons.sol_laboratory.services import openapi_document
 from odoo.addons.sol_laboratory.services.laboratory_api import is_api_path
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 # The routes that cannot take a computer's key: signing in, which gives it, and the health checks.
 WITHOUT_KEY = {("POST", "/sign-in"): "public", ("GET", "/health"): "none", ("GET", "/ready"): "none"}
@@ -23,8 +24,8 @@ class TestLaboratoryApiRoutes(LaboratoryApiCase):
             if not rule.rule.startswith(API_PREFIX + "/") or not is_api_path(rule.rule):
                 continue
             path = re.sub(r"<(?:[^:<>]+:)?([^:<>]+)>", r"{\1}", rule.rule.removeprefix(API_PREFIX))
-            for method in rule.endpoint.routing["methods"]:
-                routes[method, path] = rule.endpoint.routing
+            for method in assert_instance(getattr(rule.endpoint, "routing"), dict)["methods"]:
+                routes[method, path] = assert_instance(getattr(rule.endpoint, "routing"), dict)
         return routes
 
     def test_every_route_takes_only_a_computers_key_without_csrf_or_session(self):

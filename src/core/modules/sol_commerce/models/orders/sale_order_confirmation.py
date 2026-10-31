@@ -1,4 +1,5 @@
 from contextvars import ContextVar
+from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError
@@ -13,21 +14,27 @@ from odoo.addons.sol_commerce.constants.orders import (
 )
 from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER, MODEL_TEST_REQUEST
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_sale_order as SaleOrderConfirmationBase
+else:
+    SaleOrderConfirmationBase = object
+
 # Ids of the orders that passed the checks and whose Odoo confirmation is running now. Only the code below fills it,
 # so a caller cannot ask for the confirmation to skip the checks the way a context key would allow.
 CONFIRMING_ORDER_IDS = ContextVar("medilab_confirming_order_ids", default=frozenset())
 
 
 # Đơn Hàng: confirming the order creates its test request.
-class SaleOrderConfirmation(models.Model):
+class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
     _inherit = MODEL_SALE_ORDER
 
-    # The test request the confirmed order produced.
-    test_request_id = fields.Many2one(
-        MODEL_TEST_REQUEST, string="Test Request", ondelete="restrict", copy=False, index="btree_not_null"
-    )
-    # True when no invoice of the order is paid; confirming the order is still allowed.
-    show_unpaid_warning = fields.Boolean(compute="_compute_show_unpaid_warning")
+    if not TYPE_CHECKING:
+        # The test request the confirmed order produced.
+        test_request_id = fields.Many2one(
+            MODEL_TEST_REQUEST, string="Test Request", ondelete="restrict", copy=False, index="btree_not_null"
+        )
+        # True when no invoice of the order is paid; confirming the order is still allowed.
+        show_unpaid_warning = fields.Boolean(compute="_compute_show_unpaid_warning")
 
     @api.depends("invoice_ids.payment_state")
     def _compute_show_unpaid_warning(self):

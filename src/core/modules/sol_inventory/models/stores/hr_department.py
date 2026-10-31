@@ -1,15 +1,23 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 
 from odoo.addons.sol_inventory.constants.models import MODEL_STOCK_LOCATION
 from odoo.addons.sol_laboratory.constants.models import MODEL_DEPARTMENT
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_hr_department as HrDepartmentBase
+else:
+    HrDepartmentBase = object
+
 
 # Phòng Ban
-class HrDepartment(models.Model):
+class HrDepartment(models.Model, HrDepartmentBase):
     _inherit = MODEL_DEPARTMENT
 
-    # Stores the department or team holds.
-    store_ids = fields.One2many(MODEL_STOCK_LOCATION, "holder_id", string="Stores")
+    if not TYPE_CHECKING:
+        # Stores the department or team holds.
+        store_ids = fields.One2many(MODEL_STOCK_LOCATION, "holder_id", string="Stores")
 
     @api.constrains("parent_id")
     def _check_held_stores(self):
