@@ -16,6 +16,9 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PERSON,
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import MODULE
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 PREFIX = "medilab."
 OTHER_MODULES = ("sol_commerce", "sol_inventory")
@@ -64,9 +67,11 @@ def test_uninstalling_other_modules_keeps_laboratory_data(env):
         codes = _permission_codes(env, name)
         module.button_immediate_uninstall()
         env = api.Environment(env.cr, SUPERUSER_ID, {})
-        assert env["ir.module.module"].browse(module.id).state == "uninstalled", f"{name} is still installed"
+        assert env["ir.module.module"].browse(persisted_id(module)).state == "uninstalled", f"{name} is still installed"
         for model, count in trail.items():
-            assert env[model].search_count([]) >= count, f"uninstalling {name} removed records of {model}"
+            assert dynamic_model(env, model).search_count([]) >= count, (
+                f"uninstalling {name} removed records of {model}"
+            )
         after = _laboratory_counts(env)
         changed = {
             key: (before.get(key), after.get(key))
@@ -79,7 +84,11 @@ def test_uninstalling_other_modules_keeps_laboratory_data(env):
         assert not env["ir.model.data"].search([("module", "=", name)]), f"{name} left external ids behind"
         group_names = [f"Permission: {code}" for code in codes]
         assert not env["res.groups"].search([("name", "in", group_names)]), f"{name} left permission groups behind"
-        generated = [f"{kind}_permission_{code.replace('.', '_')}" for code in codes for kind in ("group", "access")]
+        generated = [
+            f"{kind}_permission_{assert_instance(code, str).replace('.', '_')}"
+            for code in codes
+            for kind in ("group", "access")
+        ]
         assert not env["ir.model.data"].search([("module", "=", MODULE), ("name", "in", generated)]), (
             f"{name} left generated external ids behind"
         )

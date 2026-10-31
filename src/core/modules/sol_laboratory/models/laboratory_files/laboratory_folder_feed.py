@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import models
 
 from odoo.addons.sol_laboratory.constants.models import (
@@ -6,10 +8,15 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_LABORATORY_FOLDER,
 )
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_laboratory_folder as LaboratoryFolderFeedBase
+else:
+    LaboratoryFolderFeedBase = object
+
 
 # Thư Mục Phòng Thí Nghiệm: what a computer reads of a folder to sync it, once the person may read the folder: its files
 # with their current versions, and the changes to them after the last one the computer saw.
-class LaboratoryFolderFeed(models.Model):
+class LaboratoryFolderFeed(models.Model, LaboratoryFolderFeedBase):
     _inherit = MODEL_LABORATORY_FOLDER
 
     def _files_after(self, after, limit):

@@ -3,6 +3,7 @@ import json
 from collections import defaultdict
 from datetime import datetime, timedelta
 from hashlib import sha256
+from typing import TYPE_CHECKING
 
 from dateutil.relativedelta import relativedelta
 
@@ -17,10 +18,16 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_JOB_RUN,
     MODEL_PERMISSION_MIXIN,
 )
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_archive_file as ArchiveFileBase
+else:
+    ArchiveFileBase = object
 
 
 # Tệp Lưu Trữ
-class ArchiveFile(models.Model):
+class ArchiveFile(models.Model, ArchiveFileBase):
     _name = MODEL_ARCHIVE_FILE
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Archive File"
@@ -28,22 +35,23 @@ class ArchiveFile(models.Model):
     # Archives are written by the cleanup job; administrators list and download them, and never change them.
     _permission_actions = ("read",)
 
-    # Kind of records archived, such as audit_entry.
-    kind = fields.Selection([(AUDIT_KIND, "Audit Entries")], required=True, readonly=True)
-    # First day of the period archived.
-    period_start = fields.Date(required=True, readonly=True)
-    # Last day of the period archived.
-    period_end = fields.Date(required=True, readonly=True)
-    # Number of records in the file.
-    row_count = fields.Integer(required=True, readonly=True)
-    # The Odoo attachment holding the file in object storage.
-    attachment_id = fields.Many2one("ir.attachment", required=True, readonly=True, ondelete="restrict")
-    # SHA-256 of the file, checked before the archived records are removed.
-    checksum = fields.Char(string="SHA-256", required=True, readonly=True)
-    # Size of the file in bytes.
-    size_bytes = fields.Integer(string="Size (bytes)", required=True, readonly=True)
-    # The cleanup run that wrote the file.
-    job_run_id = fields.Many2one(MODEL_JOB_RUN, string="Job Run", required=True, readonly=True, ondelete="restrict")
+    if not TYPE_CHECKING:
+        # Kind of records archived, such as audit_entry.
+        kind = fields.Selection([(AUDIT_KIND, "Audit Entries")], required=True, readonly=True)
+        # First day of the period archived.
+        period_start = fields.Date(required=True, readonly=True)
+        # Last day of the period archived.
+        period_end = fields.Date(required=True, readonly=True)
+        # Number of records in the file.
+        row_count = fields.Integer(required=True, readonly=True)
+        # The Odoo attachment holding the file in object storage.
+        attachment_id = fields.Many2one("ir.attachment", required=True, readonly=True, ondelete="restrict")
+        # SHA-256 of the file, checked before the archived records are removed.
+        checksum = fields.Char(string="SHA-256", required=True, readonly=True)
+        # Size of the file in bytes.
+        size_bytes = fields.Integer(string="Size (bytes)", required=True, readonly=True)
+        # The cleanup run that wrote the file.
+        job_run_id = fields.Many2one(MODEL_JOB_RUN, string="Job Run", required=True, readonly=True, ondelete="restrict")
 
     _period_unique = models.Constraint(
         "UNIQUE(kind, period_start, period_end)", "This period of records is already archived."
@@ -116,7 +124,7 @@ class ArchiveFile(models.Model):
                 "job_run_id": self.env.context.get(JOB_RUN_CONTEXT),
             }
         )
-        attachment.res_id = archive.id
+        attachment.res_id = persisted_id(archive)
         attachment.invalidate_recordset(["raw"])
         if sha256(bytes(attachment.raw)).hexdigest() != checksum:
             raise UserError(self.env._("The archive file of %s does not match its checksum.", archive.display_name))

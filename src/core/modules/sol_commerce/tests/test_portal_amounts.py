@@ -4,6 +4,7 @@ from odoo.tests import tagged
 
 from .portal_case import PortalCase
 from odoo.addons.sol_commerce.hooks import use_vietnamese_accounting
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -38,7 +39,7 @@ class TestPortalAmounts(PortalCase):
 
         text = self.page("/orders")
         self.assert_money(text, 450000)
-        self.assertNotRegex(text, re.compile(re.escape(usd.symbol) + r"\s*450"))
+        self.assertNotRegex(text, re.compile(re.escape(assert_instance(usd.symbol, str)) + r"\s*450"))
 
     def test_the_order_page(self):
         order = self.make_order([(self.lead_product, 3)], status="submitted")

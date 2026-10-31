@@ -1,7 +1,10 @@
+from datetime import datetime
+
 from odoo.tests import tagged
 from odoo.tools import mute_logger
 
 from .jobs_case import JOB_LOGGER, JobsCase
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -16,11 +19,14 @@ class TestJobClaimTimeout(JobsCase):
         self.run_pass()
 
         self.assertEqual((stale.status, stale.attempts), ("pending", 1))
-        self.assertIn("claim timeout", stale.last_error)
-        self.assertGreater(stale.next_attempt_at, stale.claimed_at or stale.create_date)
+        self.assertIn("claim timeout", (stale.last_error or ""))
+        self.assertGreater(
+            assert_instance(stale.next_attempt_at, datetime),
+            assert_instance(stale.claimed_at or stale.create_date, datetime),
+        )
         self.assertEqual((fresh.status, fresh.attempts), ("running", 0))
         self.assertEqual(handled, [])
-        self.assertIn("abandoned claim released", self.job.run_ids.log)
+        self.assertIn("abandoned claim released", (self.job.run_ids.log or ""))
 
     def test_a_released_item_is_done_by_a_later_pass(self):
         handled = self.record_handler()

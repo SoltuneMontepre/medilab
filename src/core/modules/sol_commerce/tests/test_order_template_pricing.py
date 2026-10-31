@@ -2,6 +2,7 @@ from odoo.fields import Command
 from odoo.tests import tagged
 
 from .template_case import TemplateCase
+from odoo.addons.sol_laboratory.services.record_id import persisted_ids
 
 
 @tagged("post_install", "-at_install")
@@ -64,8 +65,8 @@ class TestOrderTemplatePricing(TemplateCase):
                 "name": "Mapped VAT 8",
                 "amount": 8,
                 "type_tax_use": "sale",
-                "original_tax_ids": [Command.set(original.ids)],
-                "fiscal_position_ids": [Command.set(position.ids)],
+                "original_tax_ids": [Command.set(persisted_ids(original))],
+                "fiscal_position_ids": [Command.set(persisted_ids(position))],
             }
         )
         self.lead_product.taxes_id = original

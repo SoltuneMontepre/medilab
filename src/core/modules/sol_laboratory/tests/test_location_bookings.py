@@ -15,6 +15,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MAIL_MESSAGE,
     MODEL_SCHEDULED_JOB,
 )
+from odoo.addons.sol_laboratory.services.record_id import persisted_ids
 
 REMIND = "notifications.remind"
 
@@ -35,7 +36,7 @@ class TestLocationBookings(PeopleCase, LocationCase):
             location,
             start or self.start,
             user=user or self.chemist.user_id,
-            partner_ids=[Command.set(attendees.ids)],
+            partner_ids=[Command.set(persisted_ids(attendees))],
             **vals,
         )
 

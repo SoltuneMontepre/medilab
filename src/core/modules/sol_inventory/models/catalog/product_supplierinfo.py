@@ -1,19 +1,27 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.fields import Domain
 
 from odoo.addons.sol_inventory.constants.models import MODEL_SUPPLIER_INFO
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_PERMISSION_MIXIN
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_product_supplierinfo as ProductSupplierinfoBase
+else:
+    ProductSupplierinfoBase = object
+
 
 # Mặt Hàng Nhà Cung Cấp
-class ProductSupplierinfo(models.Model):
+class ProductSupplierinfo(models.Model, ProductSupplierinfoBase):
     # _name is required to add mixins to an Odoo model.
     _name = MODEL_SUPPLIER_INFO
     _inherit = [MODEL_AUDIT_MIXIN, MODEL_SUPPLIER_INFO, MODEL_PERMISSION_MIXIN]
     _permission_actions = ("create", "edit", "delete")
 
-    # The item sold; its supplier lines are looked up by it.
-    product_id = fields.Many2one(index=True)
+    if not TYPE_CHECKING:
+        # The item sold; its supplier lines are looked up by it.
+        product_id = fields.Many2one(index=True)
 
     _supplier_item_unique = models.Constraint(
         "UNIQUE(partner_id, product_id)", "The supplier already sells this item; change its line instead."

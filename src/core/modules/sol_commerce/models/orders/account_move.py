@@ -1,10 +1,17 @@
+from typing import TYPE_CHECKING
+
 from odoo import models
 
 from odoo.addons.sol_commerce.constants.models import MODEL_ACCOUNT_MOVE, MODEL_QUOTATION
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_account_move as AccountMoveBase
+else:
+    AccountMoveBase = object
+
 
 # Hóa Đơn: paying the advance invoice accepts the quotation.
-class AccountMove(models.Model):
+class AccountMove(models.Model, AccountMoveBase):
     _inherit = MODEL_ACCOUNT_MOVE
 
     def _invoice_paid_hook(self):

@@ -1,4 +1,5 @@
 import logging
+from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.tools import SQL
@@ -24,6 +25,11 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 from odoo.addons.sol_laboratory.services import laboratory_bucket
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_laboratory_content as LaboratoryContentBase
+else:
+    LaboratoryContentBase = object
+
 _logger = logging.getLogger(__name__)
 
 # The method that acts on each kind of finding.
@@ -38,7 +44,7 @@ HANDLERS = {
 
 
 # Nội Dung Lưu Trữ: the daily comparison of the bucket with the stored content.
-class LaboratoryContent(models.Model):
+class LaboratoryContent(models.Model, LaboratoryContentBase):
     _inherit = MODEL_LABORATORY_CONTENT
 
     @api.model

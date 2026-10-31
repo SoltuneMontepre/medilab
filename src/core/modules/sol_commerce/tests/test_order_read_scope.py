@@ -7,6 +7,7 @@ from odoo.tests import tagged
 from .order_case import OrderCase
 from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
 from odoo.addons.sol_laboratory.constants.models import MODEL_PERMISSION
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 
 @tagged("post_install", "-at_install")
@@ -17,7 +18,7 @@ class TestOrderReadScope(OrderCase):
     def setUpClass(cls):
         super().setUpClass()
         read_all = cls.env[MODEL_PERMISSION].search([("code", "=", "order.read.all")])
-        cls.other_person.permission_ids = [Command.link(read_all.id)]
+        cls.other_person.permission_ids = [Command.link(persisted_id(read_all))]
 
     def test_without_read_all_another_salespersons_order_cannot_be_opened(self):
         order = self.make_quotable_order()

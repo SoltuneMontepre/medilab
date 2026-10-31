@@ -2,6 +2,7 @@ import hashlib
 import hmac
 import secrets
 from datetime import timedelta
+from typing import TYPE_CHECKING
 
 from psycopg2 import IntegrityError, errorcodes
 
@@ -37,6 +38,11 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_laboratory_editing_session as LaboratoryEditingSessionBase
+else:
+    LaboratoryEditingSessionBase = object
+
 # A session edits one version of one file for the person who opened it, under keys that never change.
 IDENTITY_FIELDS = ("file_id", "base_version_id", "document_key", "callback_token", "opened_by_id")
 # Bytes of randomness of a document key; its text stays within the 128 characters the editing service takes.
@@ -44,7 +50,7 @@ DOCUMENT_KEY_BYTES = 24
 
 
 # Phiên Chỉnh Sửa Trực Tuyến
-class LaboratoryEditingSession(models.Model):
+class LaboratoryEditingSession(models.Model, LaboratoryEditingSessionBase):
     _name = MODEL_LABORATORY_EDITING_SESSION
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Laboratory Editing Session"
@@ -54,43 +60,46 @@ class LaboratoryEditingSession(models.Model):
     # Every call of the editing service moves it.
     _audit_exclude = ("last_activity_at",)
 
-    # The file edited.
-    file_id = fields.Many2one(MODEL_LABORATORY_FILE, string="File", required=True, ondelete="restrict", readonly=True)
-    # The version the session opened; everyone in the session edits it.
-    base_version_id = fields.Many2one(
-        MODEL_LABORATORY_FILE_VERSION, string="Base Version", required=True, ondelete="restrict", readonly=True
-    )
-    # Key the editing service identifies the document by; new for every session.
-    document_key = fields.Char(required=True, readonly=True, copy=False)
-    # SHA-256 of the secret token in the address the editing service calls back on save; the token is never stored.
-    callback_token = fields.Char(required=True, readonly=True, copy=False, audit_mask=MASK_SECRET)
-    # open, saving, committed, conflict, closed, expired or error.
-    status = fields.Selection(
-        [
-            (OPEN, "Open"),
-            (SAVING, "Saving"),
-            (COMMITTED, "Committed"),
-            (SESSION_CONFLICT, "Conflict"),
-            (CLOSED, "Closed"),
-            (EXPIRED, "Expired"),
-            (ERROR, "Error"),
-        ],
-        required=True,
-        default=OPEN,
-        readonly=True,
-    )
-    # The user who opened the session.
-    opened_by_id = fields.Many2one(
-        MODEL_RES_USERS, string="Opened By", required=True, ondelete="restrict", readonly=True
-    )
-    # The version the session saved: edited online, or a conflict; empty while open and when it saved nothing.
-    committed_version_id = fields.Many2one(
-        MODEL_LABORATORY_FILE_VERSION, string="Saved Version", ondelete="restrict", readonly=True, copy=False
-    )
-    # When someone last worked in the session; a session idle for the idle period expires.
-    last_activity_at = fields.Datetime(
-        string="Last Activity", required=True, default=fields.Datetime.now, readonly=True
-    )
+    if not TYPE_CHECKING:
+        # The file edited.
+        file_id = fields.Many2one(
+            MODEL_LABORATORY_FILE, string="File", required=True, ondelete="restrict", readonly=True
+        )
+        # The version the session opened; everyone in the session edits it.
+        base_version_id = fields.Many2one(
+            MODEL_LABORATORY_FILE_VERSION, string="Base Version", required=True, ondelete="restrict", readonly=True
+        )
+        # Key the editing service identifies the document by; new for every session.
+        document_key = fields.Char(required=True, readonly=True, copy=False)
+        # SHA-256 of the secret token in the address the editing service calls back on save; the token is never stored.
+        callback_token = fields.Char(required=True, readonly=True, copy=False, audit_mask=MASK_SECRET)
+        # open, saving, committed, conflict, closed, expired or error.
+        status = fields.Selection(
+            [
+                (OPEN, "Open"),
+                (SAVING, "Saving"),
+                (COMMITTED, "Committed"),
+                (SESSION_CONFLICT, "Conflict"),
+                (CLOSED, "Closed"),
+                (EXPIRED, "Expired"),
+                (ERROR, "Error"),
+            ],
+            required=True,
+            default=OPEN,
+            readonly=True,
+        )
+        # The user who opened the session.
+        opened_by_id = fields.Many2one(
+            MODEL_RES_USERS, string="Opened By", required=True, ondelete="restrict", readonly=True
+        )
+        # The version the session saved: edited online, or a conflict; empty while open and when it saved nothing.
+        committed_version_id = fields.Many2one(
+            MODEL_LABORATORY_FILE_VERSION, string="Saved Version", ondelete="restrict", readonly=True, copy=False
+        )
+        # When someone last worked in the session; a session idle for the idle period expires.
+        last_activity_at = fields.Datetime(
+            string="Last Activity", required=True, default=fields.Datetime.now, readonly=True
+        )
 
     _document_key_unique = models.Constraint("UNIQUE(document_key)", "Each editing session has its own document key.")
     _callback_token_unique = models.Constraint(
@@ -110,14 +119,17 @@ class LaboratoryEditingSession(models.Model):
         statuses = dict(self._fields["status"]._description_selection(self.env))
         for session in self:
             session.display_name = self.env._(
-                "%(path)s, %(status)s", path=session.file_id.path or "", status=statuses.get(session.status, "")
+                "%(path)s, %(status)s",
+                path=session.file_id.path or "",
+                status=statuses.get((session.status or ""), ""),
             )
 
     def write(self, vals):
         if set(IDENTITY_FIELDS) & set(vals):
             raise UserError(self.env._("An editing session keeps its file, its base version, its keys and its opener."))
         if "status" in vals and any(
-            vals["status"] != session.status and vals["status"] not in NEXT_STATUSES[session.status] for session in self
+            vals["status"] != session.status and vals["status"] not in NEXT_STATUSES[session.status or ""]
+            for session in self
         ):
             raise UserError(self.env._("An editing session that has ended cannot be opened again."))
         if vals.get("committed_version_id") and any(session.committed_version_id for session in self):

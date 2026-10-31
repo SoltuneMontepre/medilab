@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
@@ -11,11 +13,16 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 from odoo.addons.sol_laboratory.constants.tasks import MANUAL_TRIGGER
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_task_type as TaskTypeBase
+else:
+    TaskTypeBase = object
+
 EDITABLE_FIELDS = {"route", "role_id", "deadline_hours"}
 
 
 # Loại Nhiệm Vụ
-class TaskType(models.Model):
+class TaskType(models.Model, TaskTypeBase):
     _name = MODEL_TASK_TYPE
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Task Type"
@@ -23,28 +30,29 @@ class TaskType(models.Model):
     _rec_names_search = ("name", "code")
     _permission_actions = ("edit",)
 
-    # Unique code of the task type.
-    code = fields.Char(required=True, readonly=True, copy=False, index="trigram")
-    # Task type name in each language.
-    name = fields.Char(required=True, readonly=True, translate=True, index="trigram")
-    # Event that creates its tasks, such as sample_received; manual for tasks people create.
-    trigger = fields.Char(required=True, readonly=True, default=MANUAL_TRIGGER)
-    # Technical name of the document its tasks open, such as medilab.sample.test.
-    document_model = fields.Char(string="Document Type", readonly=True)
-    # Action its tasks open on the document, such as enter_result or sign.
-    action = fields.Char(readonly=True)
-    # Where a new task goes: the department that does the work, the holders of a role, or a person.
-    route = fields.Selection(
-        [("department", "Department queue"), ("role", "Holders of a role"), ("person", "A person")],
-        required=True,
-        default="department",
-    )
-    # The role whose holders receive the task when the route is role.
-    role_id = fields.Many2one(MODEL_ROLE, ondelete="restrict", index="btree_not_null")
-    # Hours from creation to the deadline, when the document gives no due date.
-    deadline_hours = fields.Integer(string="Default Deadline (Hours)")
-    # Tasks of this type.
-    task_ids = fields.One2many(MODEL_TASK, "type_id", string="Tasks")
+    if not TYPE_CHECKING:
+        # Unique code of the task type.
+        code = fields.Char(required=True, readonly=True, copy=False, index="trigram")
+        # Task type name in each language.
+        name = fields.Char(required=True, readonly=True, translate=True, index="trigram")
+        # Event that creates its tasks, such as sample_received; manual for tasks people create.
+        trigger = fields.Char(required=True, readonly=True, default=MANUAL_TRIGGER)
+        # Technical name of the document its tasks open, such as medilab.sample.test.
+        document_model = fields.Char(string="Document Type", readonly=True)
+        # Action its tasks open on the document, such as enter_result or sign.
+        action = fields.Char(readonly=True)
+        # Where a new task goes: the department that does the work, the holders of a role, or a person.
+        route = fields.Selection(
+            [("department", "Department queue"), ("role", "Holders of a role"), ("person", "A person")],
+            required=True,
+            default="department",
+        )
+        # The role whose holders receive the task when the route is role.
+        role_id = fields.Many2one(MODEL_ROLE, ondelete="restrict", index="btree_not_null")
+        # Hours from creation to the deadline, when the document gives no due date.
+        deadline_hours = fields.Integer(string="Default Deadline (Hours)")
+        # Tasks of this type.
+        task_ids = fields.One2many(MODEL_TASK, "type_id", string="Tasks")
 
     _code_unique = models.Constraint("UNIQUE(code)", "A task type with this code already exists.")
     _deadline_hours_positive = models.Constraint(

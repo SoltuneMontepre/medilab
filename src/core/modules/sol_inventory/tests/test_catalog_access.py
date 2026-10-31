@@ -7,6 +7,9 @@ from odoo.tools.safe_eval import safe_eval
 
 from .catalog_case import CATALOG_PERMISSIONS, CatalogCase
 from odoo.addons.sol_inventory.constants.models import MODEL_PRODUCT
+from odoo.addons.sol_laboratory.constants.models import MODEL_IR_ACTIONS_ACT_WINDOW
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model, reference_as
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 CATALOG_ACTIONS = (
     "sol_inventory.action_medilab_stock_item",
@@ -84,14 +87,17 @@ class TestCatalogAccess(CatalogCase):
         # Reading every field a screen shows catches a field whose compute needs rights the user lacks.
         for user in (self.storekeeper.user_id, self.chemist.user_id):
             for xml_id in CATALOG_ACTIONS:
-                action = self.env.ref(xml_id)
-                records = self.env[action.res_model].with_user(user)
+                action = reference_as(self.env[MODEL_IR_ACTIONS_ACT_WINDOW], xml_id)
+                records = dynamic_model(self.env, action.res_model).with_user(user)
                 views = records.get_views(
                     [(view.view_id.id, view.view_mode) for view in action.view_ids]
                     or [(False, "list"), (False, "form")]
                 )
                 for view_type, view in views["views"].items():
-                    names = {node.get("name") for node in etree.fromstring(view["arch"]).iterfind(".//field")}
+                    names = {
+                        assert_instance(node.get("name"), str)
+                        for node in etree.fromstring(view["arch"]).iterfind(".//field")
+                    }
                     with self.subTest(user=user.login, action=xml_id, view=view_type):
                         records.search(safe_eval(action.domain or "[]"), limit=5).read(
                             sorted(names & set(records._fields))

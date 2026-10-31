@@ -43,7 +43,7 @@ def legacy_refusal():
         "message": "Install the current MediLab Sync release. Keep application data and sign in again.",
     }
     download = os.environ.get(DOWNLOAD_VARIABLE)
-    if sync_releases.safe_download_url(download):
+    if download is not None and sync_releases.safe_download_url(download):
         error["download_url"] = download
     return answer({"error": error}, 410)
 

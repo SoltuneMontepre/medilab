@@ -12,6 +12,7 @@ from odoo.addons.sol_laboratory.constants.laboratory_files import (
 )
 from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_DEVICE, MODEL_LABORATORY_FOLDER
 from odoo.addons.sol_laboratory.constants.xml_ids import LABORATORY_FILES_GROUP
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 
 @tagged("post_install", "-at_install")
@@ -90,7 +91,7 @@ class TestLaboratoryApiFolders(LaboratoryApiCase):
         self.assertEqual(self.folder.name, "HPLC")
 
     def test_a_person_without_the_laboratory_files_permission_gets_no_folder(self):
-        self.tester.write({"group_ids": [Command.unlink(self.env.ref(LABORATORY_FILES_GROUP).id)]})
+        self.tester.write({"group_ids": [Command.unlink(persisted_id(self.env.ref(LABORATORY_FILES_GROUP)))]})
 
         for method, path in (("GET", "/folders"), ("GET", f"/folders/{self.folder.id}")):
             with self.subTest(path=path):

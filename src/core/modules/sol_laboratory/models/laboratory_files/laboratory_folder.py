@@ -1,4 +1,5 @@
 from datetime import timedelta
+from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
@@ -36,9 +37,14 @@ from odoo.addons.sol_laboratory.constants.xml_ids import FOLDER_ADMINISTRATION_G
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
 from odoo.addons.sol_laboratory.services.laboratory_paths import is_name, normal_text
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_laboratory_folder as LaboratoryFolderBase
+else:
+    LaboratoryFolderBase = object
+
 
 # Thư Mục Phòng Thí Nghiệm
-class LaboratoryFolder(models.Model):
+class LaboratoryFolder(models.Model, LaboratoryFolderBase):
     _name = MODEL_LABORATORY_FOLDER
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Laboratory Folder"
@@ -47,43 +53,44 @@ class LaboratoryFolder(models.Model):
     _permission_actions = ("read", "create", "edit")
     _audit_children = ("member_ids", "rule_ids", "file_ids")
 
-    # Name people see.
-    name = fields.Char(required=True)
-    # Name of the folder, unique for its owner; it is the name the folder was created with and never changes.
-    root = fields.Char(required=True, readonly=True)
-    # The user who owns the folder.
-    owner_id = fields.Many2one(
-        MODEL_RES_USERS, string="Owner", required=True, ondelete="restrict", default=lambda self: self.env.user
-    )
-    # The sample the folder belongs to; empty for a folder of no sample.
-    sample_id = fields.Many2one(MODEL_SAMPLE, ondelete="restrict", index=True)
-    # raw, working, result or report; empty for a folder of no sample.
-    category = fields.Selection(
-        [(RAW_DATA, "Raw Data"), ("working", "Working Documents"), ("result", "Results"), ("report", "Reports")],
-        string="Folder Category",
-    )
-    # upload_only sends local changes and never writes to the computer; two_way also downloads others' versions.
-    sync_mode = fields.Selection(
-        [(UPLOAD_ONLY, "Upload Only"), (TWO_WAY, "Two-Way")], required=True, default=UPLOAD_ONLY
-    )
-    # False when an administrator turned the folder off; uploads are refused and reading goes on.
-    enabled = fields.Boolean(default=True)
-    # When the folder was archived; empty while in use.
-    archived_at = fields.Datetime(readonly=True)
-    # Date until which an archived folder keeps its files.
-    retention_until = fields.Date(readonly=True)
-    # The device the folder was created from, for the audit.
-    created_by_device_id = fields.Many2one(MODEL_LABORATORY_DEVICE, ondelete="set null", readonly=True)
-    # People who can read and write the folder, the owner included.
-    member_ids = fields.One2many(MODEL_LABORATORY_FOLDER_MEMBER, "folder_id", string="Members")
-    # Which files of a bound local folder are synced.
-    rule_ids = fields.One2many(MODEL_LABORATORY_SYNC_RULE, "folder_id", string="Sync Rules")
-    # Files in the folder.
-    file_ids = fields.One2many(MODEL_LABORATORY_FILE, "folder_id", string="Files")
-    # in_use, turned_off by an administrator, or archived for good.
-    status = fields.Selection(
-        [("in_use", "In Use"), ("turned_off", "Turned Off"), ("archived", "Archived")], compute="_compute_status"
-    )
+    if not TYPE_CHECKING:
+        # Name people see.
+        name = fields.Char(required=True)
+        # Name of the folder, unique for its owner; it is the name the folder was created with and never changes.
+        root = fields.Char(required=True, readonly=True)
+        # The user who owns the folder.
+        owner_id = fields.Many2one(
+            MODEL_RES_USERS, string="Owner", required=True, ondelete="restrict", default=lambda self: self.env.user
+        )
+        # The sample the folder belongs to; empty for a folder of no sample.
+        sample_id = fields.Many2one(MODEL_SAMPLE, ondelete="restrict", index=True)
+        # raw, working, result or report; empty for a folder of no sample.
+        category = fields.Selection(
+            [(RAW_DATA, "Raw Data"), ("working", "Working Documents"), ("result", "Results"), ("report", "Reports")],
+            string="Folder Category",
+        )
+        # upload_only sends local changes and never writes to the computer; two_way also downloads others' versions.
+        sync_mode = fields.Selection(
+            [(UPLOAD_ONLY, "Upload Only"), (TWO_WAY, "Two-Way")], required=True, default=UPLOAD_ONLY
+        )
+        # False when an administrator turned the folder off; uploads are refused and reading goes on.
+        enabled = fields.Boolean(default=True)
+        # When the folder was archived; empty while in use.
+        archived_at = fields.Datetime(readonly=True)
+        # Date until which an archived folder keeps its files.
+        retention_until = fields.Date(readonly=True)
+        # The device the folder was created from, for the audit.
+        created_by_device_id = fields.Many2one(MODEL_LABORATORY_DEVICE, ondelete="set null", readonly=True)
+        # People who can read and write the folder, the owner included.
+        member_ids = fields.One2many(MODEL_LABORATORY_FOLDER_MEMBER, "folder_id", string="Members")
+        # Which files of a bound local folder are synced.
+        rule_ids = fields.One2many(MODEL_LABORATORY_SYNC_RULE, "folder_id", string="Sync Rules")
+        # Files in the folder.
+        file_ids = fields.One2many(MODEL_LABORATORY_FILE, "folder_id", string="Files")
+        # in_use, turned_off by an administrator, or archived for good.
+        status = fields.Selection(
+            [("in_use", "In Use"), ("turned_off", "Turned Off"), ("archived", "Archived")], compute="_compute_status"
+        )
 
     _owner_root_unique = models.Constraint(
         "UNIQUE(owner_id, root)", "The owner already has a folder with this name; choose another name."

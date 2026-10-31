@@ -140,8 +140,8 @@ class TestJobClaimCommit(LaboratoryFilesConcurrencyCase):
         status, attempts, _claimed_at = self.item()
         error, next_attempt_at, _payload, _item_keys, log = self.failure()
         self.assertEqual((status, attempts), ("pending", 1))
-        self.assertIn("the bucket is unreachable", error)
-        self.assertIn("the bucket is unreachable", log)
+        self.assertIn("the bucket is unreachable", (error or ""))
+        self.assertIn("the bucket is unreachable", (log or ""))
         retry_delay = self.committed(lambda env: env[MODEL_SCHEDULED_JOB].browse(self.job_id).retry_delay_minutes)
         self.assertAlmostEqual(
             next_attempt_at, fields.Datetime.now() + timedelta(minutes=retry_delay), delta=timedelta(minutes=1)

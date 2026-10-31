@@ -6,6 +6,7 @@ from odoo.tests import tagged
 from .report_case import ReportCase
 from odoo.addons.sol_laboratory.constants.models import MODEL_APPROVAL_LEVEL, MODEL_TASK
 from odoo.addons.sol_laboratory.constants.xml_ids import TEST_REPORT_REPORT
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -36,7 +37,7 @@ class TestTestReportSigning(ReportCase):
         self.sign(report)
 
         self.assertEqual(report.status, "issued")
-        self.assertTrue(report.code.startswith("PKQ."))
+        self.assertTrue(assert_instance(report.code, str).startswith("PKQ."))
         self.assertTrue(report.issued_at)
         self.assertEqual(report.attachment_id.name, f"{report.code}.pdf")
         self.assertEqual((self.request.status, self.sample.status), ("reported", "reported"))

@@ -102,7 +102,7 @@ jobs:
   lint:
     needs: changes
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 25
     steps:
       - name: Checkout
         if: needs.changes.outputs.lint == 'true'
@@ -132,8 +132,17 @@ jobs:
         run: task dev:setup
 
       - name: Typecheck
+        id: typecheck
         if: needs.changes.outputs.lint == 'true'
         run: task typecheck
+
+      - name: Upload typecheck diagnostics
+        if: always() && steps.typecheck.outcome != 'skipped'
+        uses: actions/upload-artifact@v7
+        with:
+          name: typecheck-diagnostics
+          path: .local/typecheck/report/
+          if-no-files-found: ignore
 
       - name: Typecheck tests
         if: needs.changes.outputs.lint == 'true'

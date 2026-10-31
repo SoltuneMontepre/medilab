@@ -122,7 +122,7 @@ class TestLaboratoryContentReconcile(LaboratoryUploadCase):
         self.reconcile(days_later=3)
 
         self.assertEqual(len(self.errors(content.object_key)), 1)
-        self.assertIn("is missing", self.errors(content.object_key).note)
+        self.assertIn("is missing", (self.errors(content.object_key).note or ""))
 
     def test_a_verified_object_of_another_size_is_recorded(self):
         content = self.stored()
@@ -130,7 +130,7 @@ class TestLaboratoryContentReconcile(LaboratoryUploadCase):
 
         self.reconcile(days_later=0)
 
-        self.assertIn(f"has 11 bytes instead of {content.size}", self.errors(content.object_key).note)
+        self.assertIn(f"has 11 bytes instead of {content.size}", (self.errors(content.object_key).note or ""))
 
     def test_pending_content_of_no_open_upload_is_recorded_once_a_day_old(self):
         content = self.contents._new_pending()
@@ -139,7 +139,7 @@ class TestLaboratoryContentReconcile(LaboratoryUploadCase):
         self.assertFalse(self.errors(content.object_key))
         self.reconcile()
 
-        self.assertIn("is still pending", self.errors(content.object_key).note)
+        self.assertIn("is still pending", (self.errors(content.object_key).note or ""))
 
     def test_the_content_and_multipart_upload_of_an_open_upload_are_left_alone(self):
         prepared = self.record(self.prepare(self.unique_bytes()).json()["upload"])
@@ -162,7 +162,7 @@ class TestLaboratoryContentReconcile(LaboratoryUploadCase):
         self.reconcile()
 
         self.assertFalse(list(laboratory_bucket.multipart_uploads()))
-        self.assertIn("is still pending", self.errors(upload.content_id.object_key).note)
+        self.assertIn("is still pending", (self.errors(upload.content_id.object_key).note or ""))
 
     def test_a_multipart_upload_of_no_upload_is_aborted_once_a_day_old(self):
         upload_id = laboratory_bucket.create_upload(laboratory_bucket.new_object_key())

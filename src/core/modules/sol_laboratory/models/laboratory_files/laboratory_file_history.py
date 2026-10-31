@@ -1,4 +1,5 @@
 from datetime import timedelta
+from typing import TYPE_CHECKING
 
 from odoo import fields, models
 
@@ -16,9 +17,14 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_laboratory_file as LaboratoryFileHistoryBase
+else:
+    LaboratoryFileHistoryBase = object
+
 
 # Tệp Phòng Thí Nghiệm: a file's history, downloading its versions and restoring one.
-class LaboratoryFileHistory(models.Model):
+class LaboratoryFileHistory(models.Model, LaboratoryFileHistoryBase):
     _inherit = MODEL_LABORATORY_FILE
 
     def _not_a_version(self):

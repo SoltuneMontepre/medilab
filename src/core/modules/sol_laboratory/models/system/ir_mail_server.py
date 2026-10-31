@@ -1,5 +1,6 @@
 import logging
 import os
+from typing import TYPE_CHECKING
 
 from odoo import models
 from odoo.exceptions import UserError
@@ -12,6 +13,11 @@ from odoo.addons.sol_laboratory.constants.notifications import (
     BREVO_SMTP_USER,
 )
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_ir_mail_server as IrMailServerBase
+else:
+    IrMailServerBase = object
+
 _logger = logging.getLogger(__name__)
 
 STARTTLS_PORT = 587
@@ -19,7 +25,7 @@ IMPLICIT_SSL_PORT = 465
 
 
 # Máy Chủ Thư
-class IrMailServer(models.Model):
+class IrMailServer(models.Model, IrMailServerBase):
     _inherit = MODEL_IR_MAIL_SERVER
 
     def _connect__(  # ruff: ignore[bad-dunder-method-name]

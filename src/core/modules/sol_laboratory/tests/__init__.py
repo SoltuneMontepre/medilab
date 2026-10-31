@@ -1,4 +1,5 @@
 from . import (
+    assertions,
     test_accreditation_certificate,
     test_accreditation_import,
     test_accreditation_import_concurrency,
@@ -150,6 +151,7 @@ from . import (
     test_method_step_access,
     test_method_steps,
     test_method_steps_in_testing,
+    test_model_lookup,
     test_module_boundaries,
     test_negative_results,
     test_notifications,

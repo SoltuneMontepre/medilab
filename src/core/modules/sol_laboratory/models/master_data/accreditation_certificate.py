@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
 
 from odoo import api, fields, models
@@ -15,9 +16,14 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TESTING_METHOD,
 )
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_accreditation_certificate as AccreditationCertificateBase
+else:
+    AccreditationCertificateBase = object
+
 
 # Giấy Chứng Nhận Công Nhận
-class AccreditationCertificate(models.Model):
+class AccreditationCertificate(models.Model, AccreditationCertificateBase):
     _name = MODEL_ACCREDITATION_CERTIFICATE
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Accreditation Certificate"
@@ -26,25 +32,26 @@ class AccreditationCertificate(models.Model):
     _rec_names_search = ("code", "issuing_body")
     _permission_actions = ("create", "edit", "archive", "delete")
 
-    # Certificate number, such as VILAS 123.
-    code = fields.Char(required=True, copy=False, index="trigram")
-    # The body that issued the certificate.
-    issuing_body = fields.Char()
-    # First day the certificate is valid; empty means valid from any date.
-    valid_from = fields.Date()
-    # Last day the certificate is valid; empty means valid until any date.
-    valid_until = fields.Date()
-    # Testing methods in the scope of the certificate.
-    method_ids = fields.Many2many(
-        MODEL_TESTING_METHOD,
-        "medilab_accreditation_certificate_method_rel",
-        "certificate_id",
-        "method_id",
-        ondelete="restrict",
-        string="Testing Methods",
-    )
-    # False when the certificate is archived.
-    active = fields.Boolean(default=True)
+    if not TYPE_CHECKING:
+        # Certificate number, such as VILAS 123.
+        code = fields.Char(required=True, copy=False, index="trigram")
+        # The body that issued the certificate.
+        issuing_body = fields.Char()
+        # First day the certificate is valid; empty means valid from any date.
+        valid_from = fields.Date()
+        # Last day the certificate is valid; empty means valid until any date.
+        valid_until = fields.Date()
+        # Testing methods in the scope of the certificate.
+        method_ids = fields.Many2many(
+            MODEL_TESTING_METHOD,
+            "medilab_accreditation_certificate_method_rel",
+            "certificate_id",
+            "method_id",
+            ondelete="restrict",
+            string="Testing Methods",
+        )
+        # False when the certificate is archived.
+        active = fields.Boolean(default=True)
 
     _code_unique = models.Constraint("UNIQUE(code)", "The number of an accreditation certificate must be unique.")
 

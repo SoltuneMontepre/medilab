@@ -1,14 +1,21 @@
-from odoo import api, models
+from typing import TYPE_CHECKING
+
+from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.fields import Domain
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_ARCHIVE_MIXIN
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_archive_mixin as ArchiveMixinBase
+else:
+    ArchiveMixinBase = object
+
 LISTED_REFERENCES = 10
 
 
 # Refuses archiving or deleting a record that other records still refer to, listing them.
-class ArchiveMixin(models.AbstractModel):
+class ArchiveMixin(models.AbstractModel, ArchiveMixinBase):
     _name = MODEL_ARCHIVE_MIXIN
     _description = "Archiving and Deleting Rules"
 
@@ -44,7 +51,7 @@ class ArchiveMixin(models.AbstractModel):
             for model in self.env.registry.values()
             if not model._abstract and not model._transient and model._auto
             for field in model._fields.values()
-            if field.type in ("many2one", "many2many")
+            if isinstance(field, (fields.Many2one, fields.Many2many))
             and field.store
             and field.comodel_name == self._name
             and field.ondelete != "cascade"

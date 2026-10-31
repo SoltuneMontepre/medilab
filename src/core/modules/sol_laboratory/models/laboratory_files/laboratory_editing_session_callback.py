@@ -1,5 +1,6 @@
 import hmac
 import posixpath
+from typing import TYPE_CHECKING
 
 from odoo import api, models
 
@@ -30,6 +31,12 @@ from odoo.addons.sol_laboratory.services.saved_documents import (
     SavedDocumentUnavailable,
     saved_document,
 )
+from odoo.addons.sol_laboratory.services.type_values import value_as
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_laboratory_editing_session as LaboratoryEditingSessionBase
+else:
+    LaboratoryEditingSessionBase = object
 
 # The editor of each Office extension.
 DOCUMENT_TYPES = {"docx": "word", "xlsx": "cell", "pptx": "slide"}
@@ -38,7 +45,7 @@ ACTIVITY_STATUSES = (CALLBACK_EDITING, CALLBACK_FORCE_SAVED, CALLBACK_FORCE_SAVE
 
 
 # Phiên Chỉnh Sửa Trực Tuyến
-class LaboratoryEditingSession(models.Model):
+class LaboratoryEditingSession(models.Model, LaboratoryEditingSessionBase):
     _inherit = MODEL_LABORATORY_EDITING_SESSION
 
     @api.model
@@ -63,6 +70,7 @@ class LaboratoryEditingSession(models.Model):
         lifetime_seconds = self.env[MODEL_RES_CONFIG_SETTINGS]._get_parameter("laboratory_file_url_minutes") * 60
         document_url = session.base_version_id._read_address(lifetime_seconds)
         path = session.file_id.path
+        assert path is not False
         extension = posixpath.splitext(path)[1].removeprefix(".").lower()
         config = {
             "document": {
@@ -96,7 +104,7 @@ class LaboratoryEditingSession(models.Model):
             key_bytes = key.encode()
         except UnicodeEncodeError:
             raise EditingCallbackRefused("The callback's document key is not valid UTF-8.") from None
-        if not hmac.compare_digest(session.document_key.encode(), key_bytes):
+        if not hmac.compare_digest(value_as(session.document_key, str).encode(), key_bytes):
             raise EditingCallbackRefused("The callback's document key is not its session's.")
         return session, fields
 

@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from lxml import etree
 
 from odoo import api, fields, models
@@ -10,6 +12,12 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_IR_ATTACHMENT,
     MODEL_PERMISSION_MIXIN,
 )
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_stock_lot as StockLotBase
+else:
+    StockLotBase = object
 
 # Stat buttons of Odoo's lot form and the model of the documents each counts.
 DOCUMENT_BUTTONS = {
@@ -21,21 +29,22 @@ DOCUMENT_BUTTONS = {
 
 
 # Lô
-class StockLot(models.Model):
+class StockLot(models.Model, StockLotBase):
     # _name is required to add mixins to an Odoo model.
     _name = MODEL_STOCK_LOT
     _inherit = [MODEL_AUDIT_MIXIN, MODEL_STOCK_LOT, MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN]
     # Receipts create lots; the storekeeper corrects them or adds their certificate later.
     _permission_actions = ("edit",)
 
-    # available, expired or disposed. An expired lot cannot be used.
-    status = fields.Selection(
-        [(LOT_AVAILABLE, "Available"), (LOT_EXPIRED, "Expired"), (LOT_DISPOSED, "Disposed")],
-        required=True,
-        default=LOT_AVAILABLE,
-    )
-    # The manufacturer's certificate that came with the lot.
-    certificate_id = fields.Many2one(MODEL_IR_ATTACHMENT, string="Manufacturer's Certificate", ondelete="set null")
+    if not TYPE_CHECKING:
+        # available, expired or disposed. An expired lot cannot be used.
+        status = fields.Selection(
+            [(LOT_AVAILABLE, "Available"), (LOT_EXPIRED, "Expired"), (LOT_DISPOSED, "Disposed")],
+            required=True,
+            default=LOT_AVAILABLE,
+        )
+        # The manufacturer's certificate that came with the lot.
+        certificate_id = fields.Many2one(MODEL_IR_ATTACHMENT, string="Manufacturer's Certificate", ondelete="set null")
 
     _status_expiry_idx = models.Index("(status, expiration_date)")
 
@@ -50,7 +59,7 @@ class StockLot(models.Model):
         hidden = {
             method
             for method, model in DOCUMENT_BUTTONS.items()
-            if model in self.env and not self.env[model].has_access("read")
+            if model in self.env and not dynamic_model(self.env, model).has_access("read")
         }
         if view_type == "form" and hidden:
             root = etree.fromstring(result["arch"])

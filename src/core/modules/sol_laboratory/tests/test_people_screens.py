@@ -7,6 +7,8 @@ from odoo.tests import tagged
 from .people_case import PeopleCase
 from odoo.addons.sol_laboratory.constants.models import MODEL_DEPARTMENT, MODEL_PERMISSION, MODEL_PERSON, MODEL_ROLE
 from odoo.addons.sol_laboratory.constants.xml_ids import DEPARTMENTS_MENU
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model, reference_as
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 SCREENS = {
     "sol_laboratory.menu_person": MODEL_PERSON,
@@ -22,13 +24,15 @@ class TestPeopleScreens(PeopleCase):
         return {xml_id for xml_id in (DEPARTMENTS_MENU, *SCREENS) if self.env.ref(xml_id).id in shown}
 
     def listed_departments(self, user):
-        domain = literal_eval(self.env.ref("hr.hr_department_kanban_action").domain)
+        domain = literal_eval(assert_instance(self.env.ref("hr.hr_department_kanban_action").domain, str))
         return self.env[MODEL_DEPARTMENT].with_user(user).search(domain)
 
     def test_people_menus_are_in_odoos_employees_app(self):
         for xml_id in SCREENS:
             with self.subTest(menu=xml_id):
-                self.assertEqual(self.env.ref(xml_id).parent_id, self.env.ref("hr.menu_hr_root"))
+                self.assertEqual(
+                    reference_as(self.env["ir.ui.menu"], xml_id).parent_id, self.env.ref("hr.menu_hr_root")
+                )
 
     def test_person_without_permission_sees_no_people_menus(self):
         self.assertEqual(self.visible_menus(self.chemist.user_id), set())
@@ -46,7 +50,9 @@ class TestPeopleScreens(PeopleCase):
     def test_readers_get_read_only_screens(self):
         self.grant(self.chemist, "department.read.all", "person.read.all", "role.read.all", "permission.read.all")
         for model in (MODEL_DEPARTMENT, *SCREENS.values()):
-            views = self.as_person(self.env[model], self.chemist).get_views([(False, "list"), (False, "form")])["views"]
+            views = self.as_person(dynamic_model(self.env, model), self.chemist).get_views(
+                [(False, "list"), (False, "form")]
+            )["views"]
             for view_type, view in views.items():
                 root = etree.fromstring(view["arch"])
                 with self.subTest(model=model, view=view_type):

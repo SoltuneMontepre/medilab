@@ -37,6 +37,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_UNIT_CATEGORY,
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_PERSON
+from odoo.addons.sol_laboratory.services.record_id import persisted_id, persisted_ids
 
 QUIET = {"tracking_disable": True, "mail_create_nolog": True, "mail_notrack": True}
 PASSWORD = "scheduling-transaction-test"
@@ -115,7 +116,7 @@ class SchedulingCommittedCase(TransactionCase):
                     "name": f"Scheduling actor {number} {self.token}",
                     "login": f"scheduling.{self.token}.{number}",
                     "password": PASSWORD,
-                    "group_ids": [Command.set(env.ref("base.group_user").ids)],
+                    "group_ids": [Command.set(persisted_ids(env.ref("base.group_user")))],
                 }
                 for number in (1, 2)
             ],
@@ -128,7 +129,9 @@ class SchedulingCommittedCase(TransactionCase):
                     "department_id": department.id,
                     "user_id": users[number - 1].id,
                     "tz": "UTC",
-                    "permission_ids": [Command.set([env.ref("sol_laboratory.permission_sample_test_read_all").id])],
+                    "permission_ids": [
+                        Command.set([persisted_id(env.ref("sol_laboratory.permission_sample_test_read_all"))])
+                    ],
                 }
                 for number in (1, 2)
             ],

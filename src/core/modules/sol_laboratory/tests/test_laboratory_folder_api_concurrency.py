@@ -12,6 +12,8 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_RES_USERS,
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import LABORATORY_FILES_GROUP
+from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -89,7 +91,7 @@ class TestLaboratoryFolderApiConcurrency(LaboratoryFilesConcurrencyCase):
         attempts, refusal = self.race(self.create_folder(None), self.create_folder(None))
 
         self.assertEqual(attempts, 2)
-        self.assertEqual(refusal.code, FOLDER_EXISTS)
+        self.assertEqual(assert_instance(refusal, LaboratoryFileError).code, FOLDER_EXISTS)
 
     def test_two_additions_of_one_member_at_once_make_one_membership(self):
         def add(env):
