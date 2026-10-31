@@ -69,11 +69,12 @@ Do this once per cloud environment, in its settings: the environment menu in the
    exit "$failed"
    ```
 
-4. Under Network access, add these hosts to Allowed domains, one per line. The Doppler hosts serve the CLI and the secrets; the others are the plugin MCP servers you use:
+4. Under Network access, add these hosts to Allowed domains, one per line. The Doppler hosts serve the CLI and the secrets, `pkg-containers.githubusercontent.com` serves the layers of the `MEDILAB_ODOO_IMAGE` image; the others are the plugin MCP servers you use:
 
    ```text
    packages.doppler.com
    api.doppler.com
+   pkg-containers.githubusercontent.com
    mcp.asana.com
    mcp.atlassian.com
    mcp.datadoghq.com
