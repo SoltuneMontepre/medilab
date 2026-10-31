@@ -211,9 +211,9 @@ tasks:
       - . {{.LOG}} && log_ok "Uninstall test passed."
 
   test:typecheck:
-    desc: "Check that task typecheck resolves the module imports and still fails on missing names and type errors"
+    desc: "Test the typecheck runner, registry generator and typing contracts"
     cmds:
-      - task: dev:odoo-links
+      - task: typecheck:prepare
       - "{{.UV}} run python -m unittest discover -s {{.TYPECHECK_DIR}}"
 
   test:openapi:

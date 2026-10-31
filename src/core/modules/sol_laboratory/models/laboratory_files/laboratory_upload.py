@@ -1,4 +1,5 @@
 import math
+from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError
@@ -28,6 +29,11 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_RES_USERS,
 )
 from odoo.addons.sol_laboratory.fields.big_integer import BigInteger
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_laboratory_upload as LaboratoryUploadBase
+else:
+    LaboratoryUploadBase = object
 
 # What the computer asked to upload, and the object it uploads to, which never change.
 IDENTITY_FIELDS = (
@@ -59,7 +65,7 @@ MAX_SIZE = 5 * 1024**3
 
 # Tải Lên Tệp: a computer uploading a file's content straight to the bucket, in the parts of a multipart upload the
 # server made, from the version the computer's file was based on.
-class LaboratoryUpload(models.Model):
+class LaboratoryUpload(models.Model, LaboratoryUploadBase):
     _name = MODEL_LABORATORY_UPLOAD
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN, MODEL_LABORATORY_IDEMPOTENCY_MIXIN]
     _description = "Laboratory Upload"
@@ -68,58 +74,61 @@ class LaboratoryUpload(models.Model):
     # Computers make uploads through the laboratory files API, and the server moves them on; they are never deleted.
     _permission_actions = ("read",)
 
-    # The folder uploaded to.
-    folder_id = fields.Many2one(
-        MODEL_LABORATORY_FOLDER, string="Folder", required=True, ondelete="restrict", readonly=True
-    )
-    # The file, once known; empty for a new path until its version is stored.
-    file_id = fields.Many2one(MODEL_LABORATORY_FILE, string="File", ondelete="restrict", readonly=True)
-    # Path of the file relative to the folder, in Unicode NFC.
-    path = fields.Char(required=True, readonly=True)
-    # The version the computer's file was based on; empty for a new file.
-    base_version_id = fields.Many2one(
-        MODEL_LABORATORY_FILE_VERSION, string="Base Version", ondelete="restrict", readonly=True
-    )
-    # Size of the content in bytes, as the computer claims it.
-    claimed_size = BigInteger(required=True, readonly=True)
-    # SHA-256 of the content in hexadecimal, as the computer claims it.
-    claimed_sha256 = fields.Char(string="Claimed SHA-256", required=True, readonly=True)
-    # The content of the upload's own object; empty when the file already had the content and nothing was uploaded.
-    content_id = fields.Many2one(MODEL_LABORATORY_CONTENT, string="Content", ondelete="restrict", readonly=True)
-    # The bucket's id of the multipart upload; empty when nothing was uploaded in parts.
-    multipart_id = fields.Char(readonly=True, copy=False)
-    # prepared, verifying, completed, conflict, unchanged, refused, failed or expired.
-    status = fields.Selection(
-        [
-            (PREPARED, "Prepared"),
-            (VERIFYING, "Verifying"),
-            (COMPLETED, "Completed"),
-            (UPLOAD_CONFLICT, "Conflict"),
-            (UNCHANGED, "Unchanged"),
-            (REFUSED, "Refused"),
-            (UPLOAD_FAILED, "Failed"),
-            (UPLOAD_EXPIRED, "Expired"),
-        ],
-        required=True,
-        default=PREPARED,
-        readonly=True,
-    )
-    # Why the upload failed or was refused, as the code a computer acts on.
-    failure_code = fields.Char(readonly=True)
-    # The version the upload stored.
-    version_id = fields.Many2one(
-        MODEL_LABORATORY_FILE_VERSION, string="Version", ondelete="restrict", readonly=True, copy=False
-    )
-    # The user uploading.
-    user_id = fields.Many2one(MODEL_RES_USERS, string="Uploaded By", required=True, ondelete="restrict", readonly=True)
-    # The computer uploading.
-    device_id = fields.Many2one(
-        MODEL_LABORATORY_DEVICE, string="Computer", required=True, ondelete="restrict", readonly=True
-    )
-    # When an upload not finalized by then expires and its parts are removed.
-    expires_at = fields.Datetime(required=True, readonly=True)
-    # When the computer last finalized the upload.
-    finalized_at = fields.Datetime(readonly=True, copy=False)
+    if not TYPE_CHECKING:
+        # The folder uploaded to.
+        folder_id = fields.Many2one(
+            MODEL_LABORATORY_FOLDER, string="Folder", required=True, ondelete="restrict", readonly=True
+        )
+        # The file, once known; empty for a new path until its version is stored.
+        file_id = fields.Many2one(MODEL_LABORATORY_FILE, string="File", ondelete="restrict", readonly=True)
+        # Path of the file relative to the folder, in Unicode NFC.
+        path = fields.Char(required=True, readonly=True)
+        # The version the computer's file was based on; empty for a new file.
+        base_version_id = fields.Many2one(
+            MODEL_LABORATORY_FILE_VERSION, string="Base Version", ondelete="restrict", readonly=True
+        )
+        # Size of the content in bytes, as the computer claims it.
+        claimed_size = BigInteger(required=True, readonly=True)
+        # SHA-256 of the content in hexadecimal, as the computer claims it.
+        claimed_sha256 = fields.Char(string="Claimed SHA-256", required=True, readonly=True)
+        # The content of the upload's own object; empty when the file already had the content and nothing was uploaded.
+        content_id = fields.Many2one(MODEL_LABORATORY_CONTENT, string="Content", ondelete="restrict", readonly=True)
+        # The bucket's id of the multipart upload; empty when nothing was uploaded in parts.
+        multipart_id = fields.Char(readonly=True, copy=False)
+        # prepared, verifying, completed, conflict, unchanged, refused, failed or expired.
+        status = fields.Selection(
+            [
+                (PREPARED, "Prepared"),
+                (VERIFYING, "Verifying"),
+                (COMPLETED, "Completed"),
+                (UPLOAD_CONFLICT, "Conflict"),
+                (UNCHANGED, "Unchanged"),
+                (REFUSED, "Refused"),
+                (UPLOAD_FAILED, "Failed"),
+                (UPLOAD_EXPIRED, "Expired"),
+            ],
+            required=True,
+            default=PREPARED,
+            readonly=True,
+        )
+        # Why the upload failed or was refused, as the code a computer acts on.
+        failure_code = fields.Char(readonly=True)
+        # The version the upload stored.
+        version_id = fields.Many2one(
+            MODEL_LABORATORY_FILE_VERSION, string="Version", ondelete="restrict", readonly=True, copy=False
+        )
+        # The user uploading.
+        user_id = fields.Many2one(
+            MODEL_RES_USERS, string="Uploaded By", required=True, ondelete="restrict", readonly=True
+        )
+        # The computer uploading.
+        device_id = fields.Many2one(
+            MODEL_LABORATORY_DEVICE, string="Computer", required=True, ondelete="restrict", readonly=True
+        )
+        # When an upload not finalized by then expires and its parts are removed.
+        expires_at = fields.Datetime(required=True, readonly=True)
+        # When the computer last finalized the upload.
+        finalized_at = fields.Datetime(readonly=True, copy=False)
 
     _device_idempotency_key_unique = models.UniqueIndex(
         "(device_id, idempotency_key) WHERE idempotency_key IS NOT NULL",
@@ -139,7 +148,7 @@ class LaboratoryUpload(models.Model):
         statuses = dict(self._fields["status"]._description_selection(self.env))
         for upload in self:
             upload.display_name = self.env._(
-                "%(path)s, %(status)s", path=upload.path or "", status=statuses.get(upload.status, "")
+                "%(path)s, %(status)s", path=upload.path or "", status=statuses.get((upload.status or ""), "")
             )
 
     def write(self, vals):
@@ -148,7 +157,8 @@ class LaboratoryUpload(models.Model):
         if "file_id" in vals and any(upload.file_id for upload in self):
             raise UserError(self.env._("An upload keeps its file."))
         if "status" in vals and any(
-            vals["status"] != upload.status and vals["status"] not in NEXT_STATUSES[upload.status] for upload in self
+            vals["status"] != upload.status and vals["status"] not in NEXT_STATUSES[upload.status or ""]
+            for upload in self
         ):
             raise UserError(self.env._("An upload moves on only as the server verifies and stores it."))
         return super().write(vals)

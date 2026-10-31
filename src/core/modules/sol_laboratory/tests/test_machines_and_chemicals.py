@@ -1,5 +1,6 @@
 from datetime import date
 
+from odoo.fields import Command
 from odoo.tests import tagged
 
 from .common import MasterDataCase
@@ -8,6 +9,15 @@ from odoo.addons.sol_laboratory.constants.models import MODEL_CHEMICAL, MODEL_MA
 
 @tagged("post_install", "-at_install")
 class TestMachinesAndChemicals(MasterDataCase):
+    def test_an_unset_service_date_has_no_next_maintenance_date(self):
+        machine = self.env[MODEL_MACHINE].new(
+            {
+                "maintenance_interval_days": 30,
+                "service_ids": [Command.create({"kind": "maintenance", "service_date": False})],
+            }
+        )
+        self.assertFalse(machine.next_maintenance_date)
+
     def test_method_and_chemical_show_each_other(self):
         chemical = self.env[MODEL_CHEMICAL].create({"code": "HC-901", "name": "Nitric acid"})
 

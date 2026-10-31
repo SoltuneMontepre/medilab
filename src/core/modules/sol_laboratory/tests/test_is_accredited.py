@@ -1,4 +1,5 @@
-from datetime import timedelta
+import datetime as _datetime_types
+from datetime import date, timedelta
 from unittest.mock import patch
 
 from freezegun import freeze_time
@@ -13,6 +14,8 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_SUBCONTRACTOR,
     MODEL_TESTING_METHOD,
 )
+from odoo.addons.sol_laboratory.services.record_id import persisted_id, persisted_ids
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -27,7 +30,7 @@ class TestIsAccredited(MasterDataCase):
                 "code": "VILAS-A",
                 "valid_from": cls.today - timedelta(days=10),
                 "valid_until": cls.today + timedelta(days=10),
-                "method_ids": [Command.set(cls.method.ids)],
+                "method_ids": [Command.set(persisted_ids(cls.method))],
             }
         )
         cls.subcontractor = cls.env[MODEL_SUBCONTRACTOR].create({"name": "Northern Lab"})
@@ -47,7 +50,7 @@ class TestIsAccredited(MasterDataCase):
         self.assertFalse(pair.is_accredited)
 
     def test_day_after_valid_until_is_not_accredited(self):
-        after = self.certificate.valid_until + timedelta(days=1)
+        after = assert_instance(self.certificate.valid_until, date) + timedelta(days=1)
         with (
             freeze_time(f"{after.isoformat()} 10:00:00"),
             patch.object(type(self.env.company), "tz", "Asia/Ho_Chi_Minh"),
@@ -60,7 +63,7 @@ class TestIsAccredited(MasterDataCase):
         self.pair._recompute_is_accredited()
         self.assertFalse(self.pair.is_accredited)
         on_day = self.certificate.valid_from
-        with freeze_time(f"{on_day.isoformat()} 10:00:00"):
+        with freeze_time(f"{assert_instance(on_day, _datetime_types.date).isoformat()} 10:00:00"):
             self.pair._recompute_is_accredited()
             self.assertTrue(self.pair.is_accredited)
 
@@ -83,14 +86,14 @@ class TestIsAccredited(MasterDataCase):
                 "code": "VILAS-B",
                 "valid_from": self.today - timedelta(days=1),
                 "valid_until": self.today + timedelta(days=1),
-                "method_ids": [Command.link(self.method.id)],
+                "method_ids": [Command.link(persisted_id(self.method))],
             }
         )
         self.certificate.valid_until = self.today - timedelta(days=1)
         self.assertTrue(self.pair.is_accredited)
 
     def test_unlinking_method_clears_accreditation(self):
-        self.certificate.method_ids = [Command.unlink(self.method.id)]
+        self.certificate.method_ids = [Command.unlink(persisted_id(self.method))]
         self.assertFalse(self.pair.is_accredited)
 
     def test_archiving_certificate_clears_accreditation_and_keeps_links(self):

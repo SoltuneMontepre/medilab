@@ -1,3 +1,4 @@
+from odoo import fields
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests import tagged
 
@@ -9,6 +10,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PERSON,
     MODEL_TASK,
 )
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -90,7 +92,7 @@ class TestTeams(PeopleCase):
         with self.assertRaises(UserError) as refusal:
             department.unlink()
 
-        self.assertEqual(str(refusal.exception).count(team.name), 1)
+        self.assertEqual(str(refusal.exception).count(assert_instance(team.name, str)), 1)
 
     def test_a_team_has_no_teams_of_its_own(self):
         with self.assertRaises(ValidationError):
@@ -104,4 +106,6 @@ class TestTeams(PeopleCase):
         for model_name in (MODEL_PERSON, MODEL_PARAMETER_METHOD, MODEL_TASK, MODEL_DEPARTMENT):
             field_name = "parent_id" if model_name == MODEL_DEPARTMENT else "department_id"
             with self.subTest(model=model_name):
-                self.assertEqual(self.env[model_name]._fields[field_name].domain, DEPARTMENT_DOMAIN)
+                self.assertEqual(
+                    assert_instance(self.env[model_name]._fields[field_name], fields.Many2one).domain, DEPARTMENT_DOMAIN
+                )

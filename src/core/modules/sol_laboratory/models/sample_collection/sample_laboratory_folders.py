@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from psycopg2 import IntegrityError, errorcodes
 
 from odoo import api, fields, models
@@ -8,18 +10,24 @@ from odoo.addons.sol_laboratory.constants.laboratory_files import PERMISSION_DEN
 from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_FOLDER, MODEL_SAMPLE
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_sample as SampleLaboratoryFoldersBase
+else:
+    SampleLaboratoryFoldersBase = object
+
 # The folders creating a sample's folders adds: its raw data and its results.
 SAMPLE_FOLDER_CATEGORIES = (RAW_DATA, RESULT)
 
 
 # Mẫu: the sample's laboratory folders.
-class SampleLaboratoryFolders(models.Model):
+class SampleLaboratoryFolders(models.Model, SampleLaboratoryFoldersBase):
     _inherit = MODEL_SAMPLE
 
-    # Number of the sample's laboratory folders the user sees.
-    laboratory_folder_count = fields.Integer(compute="_compute_laboratory_folder_count")
-    # True while the sample lacks its raw-data or result folder, whoever can see them.
-    laboratory_folders_missing = fields.Boolean(compute="_compute_laboratory_folders_missing")
+    if not TYPE_CHECKING:
+        # Number of the sample's laboratory folders the user sees.
+        laboratory_folder_count = fields.Integer(compute="_compute_laboratory_folder_count")
+        # True while the sample lacks its raw-data or result folder, whoever can see them.
+        laboratory_folders_missing = fields.Boolean(compute="_compute_laboratory_folders_missing")
 
     @api.depends_context("uid")
     def _compute_laboratory_folder_count(self):

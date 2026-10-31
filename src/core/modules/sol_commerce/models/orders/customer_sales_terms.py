@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import AccessError
 
@@ -5,19 +7,25 @@ from odoo.addons.sol_commerce.constants.models import MODEL_CUSTOMER_SALES_TERMS
 from odoo.addons.sol_commerce.constants.xml_ids import ALL_ORDERS_GROUP
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_CUSTOMER, MODEL_PERMISSION_MIXIN
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_customer_sales_terms as CustomerSalesTermsBase
+else:
+    CustomerSalesTermsBase = object
+
 
 # Điều Khoản Bán Hàng
-class CustomerSalesTerms(models.Model):
+class CustomerSalesTerms(models.Model, CustomerSalesTermsBase):
     _name = MODEL_CUSTOMER_SALES_TERMS
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Customer Sales Terms"
     _rec_name = "customer_id"
     _permission_actions = ("read", "create", "edit", "delete")
 
-    # The customer.
-    customer_id = fields.Many2one(MODEL_CUSTOMER, required=True, ondelete="cascade", index=True)
-    # True when the customer may proceed without payment, so the request of their order is confirmed unpaid.
-    allow_credit = fields.Boolean(default=False)
+    if not TYPE_CHECKING:
+        # The customer.
+        customer_id = fields.Many2one(MODEL_CUSTOMER, required=True, ondelete="cascade", index=True)
+        # True when the customer may proceed without payment, so the request of their order is confirmed unpaid.
+        allow_credit = fields.Boolean(default=False)
 
     _customer_unique = models.Constraint("UNIQUE(customer_id)", "A customer has only one set of sales terms.")
 

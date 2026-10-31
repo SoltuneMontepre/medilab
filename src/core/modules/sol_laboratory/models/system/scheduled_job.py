@@ -1,6 +1,7 @@
 import logging
 import traceback
 from datetime import datetime, timedelta
+from typing import TYPE_CHECKING
 
 from psycopg2 import IntegrityError
 
@@ -22,6 +23,13 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_RES_CONFIG_SETTINGS,
     MODEL_SCHEDULED_JOB,
 )
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model, is_cleanup_document
+from odoo.addons.sol_laboratory.services.type_values import value_as
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_scheduled_job as ScheduledJobBase
+else:
+    ScheduledJobBase = object
 
 _logger = logging.getLogger(__name__)
 
@@ -38,7 +46,7 @@ class PermanentJobError(Exception):
 
 
 # Tác Vụ Định Kỳ
-class ScheduledJob(models.Model):
+class ScheduledJob(models.Model, ScheduledJobBase):
     _name = MODEL_SCHEDULED_JOB
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_AUDIT_MIXIN, "mail.thread", "mail.activity.mixin"]
     _description = "Scheduled Job"
@@ -48,56 +56,57 @@ class ScheduledJob(models.Model):
     # The job entry of each run records who ran it by hand.
     _audit_exclude = ("run_requested_by_id", "run_requested_at")
 
-    # Unique key of the job, such as notifications.send or payos.poll; the handler is named after it.
-    key = fields.Char(required=True)
-    # Job name in each language.
-    name = fields.Char(required=True, translate=True)
-    # The Odoo cron that runs the job; its schedule is the job's schedule.
-    cron_id = fields.Many2one(MODEL_IR_CRON, required=True, ondelete="restrict", copy=False)
-    # Most items handled in one batch.
-    batch_size = fields.Integer(default=100, required=True)
-    # Attempts before an item is marked failed and an administrator is told.
-    max_attempts = fields.Integer(default=5, required=True)
-    # Minutes after which an item still running is treated as abandoned.
-    claim_timeout_minutes = fields.Integer(default=30, required=True)
-    # Minutes before the first retry; each later retry waits twice as long.
-    retry_delay_minutes = fields.Integer(default=5, required=True)
-    # Items queued for the job.
-    item_ids = fields.One2many(MODEL_JOB_ITEM, "job_id", string="Items")
-    # Runs of the job.
-    run_ids = fields.One2many(MODEL_JOB_RUN, "job_id", string="Runs")
-    # Administrator who asked for the next run by hand; cleared when that run starts.
-    run_requested_by_id = fields.Many2one("res.users", readonly=True, copy=False)
-    # When the run by hand was asked for.
-    run_requested_at = fields.Datetime(readonly=True, copy=False)
-    # How many interval units pass between two scheduled runs; kept on the cron.
-    interval_number = fields.Integer(related="cron_id.interval_number", readonly=False)
-    # Unit of the interval; kept on the cron.
-    interval_type = fields.Selection(related="cron_id.interval_type", readonly=False)
-    # When the next scheduled run starts; kept on the cron.
-    nextcall = fields.Datetime(related="cron_id.nextcall", readonly=False, string="Next Run")
-    # When the last scheduled run started; kept on the cron.
-    lastcall = fields.Datetime(related="cron_id.lastcall", string="Last Scheduled Run")
-    # False when the schedule is off: items wait until it is on again or the job is run by hand; kept on the cron.
-    cron_active = fields.Boolean(related="cron_id.active", readonly=False, string="Active")
-    # The most recent run.
-    last_run_id = fields.Many2one(MODEL_JOB_RUN, compute="_compute_last_run")
-    # Result of the most recent run.
-    last_run_status = fields.Selection(
-        selection=lambda model: model.env[MODEL_JOB_RUN]._fields["status"]._description_selection(model.env),
-        compute="_compute_last_run_status",
-        string="Last Run Status",
-    )
-    # Seconds the most recent run took.
-    last_run_duration = fields.Float(compute="_compute_last_run_duration", string="Last Run Duration")
-    # Items waiting to be done.
-    pending_count = fields.Integer(compute="_compute_counts")
-    # Items that failed their last attempt.
-    failed_count = fields.Integer(compute="_compute_counts")
-    # Items done in the current cron batch, from Odoo's cron progress.
-    progress_done = fields.Integer(compute="_compute_progress")
-    # Items left for the current cron pass, from Odoo's cron progress.
-    progress_remaining = fields.Integer(compute="_compute_progress")
+    if not TYPE_CHECKING:
+        # Unique key of the job, such as notifications.send or payos.poll; the handler is named after it.
+        key = fields.Char(required=True)
+        # Job name in each language.
+        name = fields.Char(required=True, translate=True)
+        # The Odoo cron that runs the job; its schedule is the job's schedule.
+        cron_id = fields.Many2one(MODEL_IR_CRON, required=True, ondelete="restrict", copy=False)
+        # Most items handled in one batch.
+        batch_size = fields.Integer(default=100, required=True)
+        # Attempts before an item is marked failed and an administrator is told.
+        max_attempts = fields.Integer(default=5, required=True)
+        # Minutes after which an item still running is treated as abandoned.
+        claim_timeout_minutes = fields.Integer(default=30, required=True)
+        # Minutes before the first retry; each later retry waits twice as long.
+        retry_delay_minutes = fields.Integer(default=5, required=True)
+        # Items queued for the job.
+        item_ids = fields.One2many(MODEL_JOB_ITEM, "job_id", string="Items")
+        # Runs of the job.
+        run_ids = fields.One2many(MODEL_JOB_RUN, "job_id", string="Runs")
+        # Administrator who asked for the next run by hand; cleared when that run starts.
+        run_requested_by_id = fields.Many2one("res.users", readonly=True, copy=False)
+        # When the run by hand was asked for.
+        run_requested_at = fields.Datetime(readonly=True, copy=False)
+        # How many interval units pass between two scheduled runs; kept on the cron.
+        interval_number = fields.Integer(related="cron_id.interval_number", readonly=False)
+        # Unit of the interval; kept on the cron.
+        interval_type = fields.Selection(related="cron_id.interval_type", readonly=False)
+        # When the next scheduled run starts; kept on the cron.
+        nextcall = fields.Datetime(related="cron_id.nextcall", readonly=False, string="Next Run")
+        # When the last scheduled run started; kept on the cron.
+        lastcall = fields.Datetime(related="cron_id.lastcall", string="Last Scheduled Run")
+        # False when the schedule is off: items wait until it is on again or the job is run by hand; kept on the cron.
+        cron_active = fields.Boolean(related="cron_id.active", readonly=False, string="Active")
+        # The most recent run.
+        last_run_id = fields.Many2one(MODEL_JOB_RUN, compute="_compute_last_run")
+        # Result of the most recent run.
+        last_run_status = fields.Selection(
+            selection=lambda model: model.env[MODEL_JOB_RUN]._fields["status"]._description_selection(model.env),
+            compute="_compute_last_run_status",
+            string="Last Run Status",
+        )
+        # Seconds the most recent run took.
+        last_run_duration = fields.Float(compute="_compute_last_run_duration", string="Last Run Duration")
+        # Items waiting to be done.
+        pending_count = fields.Integer(compute="_compute_counts")
+        # Items that failed their last attempt.
+        failed_count = fields.Integer(compute="_compute_counts")
+        # Items done in the current cron batch, from Odoo's cron progress.
+        progress_done = fields.Integer(compute="_compute_progress")
+        # Items left for the current cron pass, from Odoo's cron progress.
+        progress_remaining = fields.Integer(compute="_compute_progress")
 
     _key_unique = models.Constraint("UNIQUE(key)", "A job with this key already exists.")
     _cron_unique = models.Constraint("UNIQUE(cron_id)", "Each job has its own cron.")
@@ -170,7 +179,7 @@ class ScheduledJob(models.Model):
         return job
 
     def _handler_name(self):
-        return HANDLER_PREFIX + self.key.replace(".", "_")
+        return HANDLER_PREFIX + value_as(self.key, str).replace(".", "_")
 
     def _in_cron(self):
         return self.env.context.get(CRON_PROGRESS_KEY) is not None
@@ -260,7 +269,7 @@ class ScheduledJob(models.Model):
         if current:
             return current
         # A job that finds its own work, such as stale locks, queues it in _queue_<key> once, as its run starts.
-        finder = getattr(self, QUEUE_PREFIX + self.key.replace(".", "_"), None)
+        finder = getattr(self, QUEUE_PREFIX + value_as(self.key, str).replace(".", "_"), None)
         if finder:
             finder()
         run = self.env[MODEL_JOB_RUN].create(
@@ -381,8 +390,10 @@ class ScheduledJob(models.Model):
             self.env[MODEL_ARCHIVE_FILE]._archive_audit_month(fields.Date.to_date(item.payload["month"]))
             return
         model, retention = CLEANUP_KINDS[kind]
-        days = self.env[MODEL_RES_CONFIG_SETTINGS]._get_parameter(retention)
-        records = self.env[model].sudo().with_context(active_test=False)
+        days = value_as(self.env[MODEL_RES_CONFIG_SETTINGS]._get_parameter(retention), int)
+        records = dynamic_model(self.env, model).sudo().with_context(active_test=False)
+        if not is_cleanup_document(records):
+            raise TypeError(f"{model} does not support cleanup.")
         # ponytail: one unlink per kind and day; remove in chunks if a backlog makes it too long for one transaction.
         records.search(records._cleanup_domain(fields.Datetime.now() - timedelta(days=days))).unlink()
 

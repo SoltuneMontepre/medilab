@@ -19,6 +19,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_PERSON, LABORATORY_FILES_GROUP
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 def save(file, content):
@@ -170,7 +171,7 @@ class TestLaboratoryFileVersionSigningConcurrency(LaboratoryFilesConcurrencyCase
 
         self.assertEqual(attempts, 1)
         self.assertIsInstance(refusal, LaboratoryFileError)
-        self.assertEqual(refusal.code, NOT_FOUND)
+        self.assertEqual(assert_instance(refusal, LaboratoryFileError).code, NOT_FOUND)
         self.assertEqual(self.state(), ([(1, STATE_NONE), (2, STATE_NONE)], 0))
 
     def test_signing_twice_at_once_records_one_signature(self):

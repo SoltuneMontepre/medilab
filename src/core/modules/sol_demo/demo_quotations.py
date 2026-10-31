@@ -10,6 +10,7 @@ from odoo.addons.sol_commerce.constants.models import (
     MODEL_QUOTATION,
     MODEL_SALE_ORDER,
 )
+from odoo.addons.sol_laboratory.services.record_id import persisted_ids
 
 DISCOUNT_WIZARD = "sale.order.discount"
 PAYMENT_WIZARD = "account.payment.register"
@@ -146,7 +147,7 @@ def _quotable_order(
         }
     )
     line = order._catalog_lines()
-    line.write({"tax_ids": [Command.set(tax.ids)], "discount": discount})
+    line.write({"tax_ids": [Command.set(persisted_ids(tax))], "discount": discount})
     line.sample_id = env[MODEL_ORDER_SAMPLE].create(
         {
             "order_id": order.id,

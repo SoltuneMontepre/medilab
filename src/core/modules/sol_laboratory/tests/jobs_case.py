@@ -1,10 +1,14 @@
 from datetime import timedelta
+from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 from odoo import fields
 from odoo.tests import TransactionCase
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_JOB_ITEM, MODEL_SCHEDULED_JOB
+
+if TYPE_CHECKING:
+    from odoo.orm.types import DomainType
 
 JOB_KEY = "test.echo"
 HANDLER = "_handle_test_echo"
@@ -49,7 +53,7 @@ class JobsCase(TransactionCase):
         self.env.invalidate_all()
 
     def items(self, status=None):
-        domain = [("job_id", "=", self.job.id)]
+        domain: DomainType = [("job_id", "=", self.job.id)]
         if status:
             domain.append(("status", "=", status))
         return self.env[MODEL_JOB_ITEM].search(domain, order="id")

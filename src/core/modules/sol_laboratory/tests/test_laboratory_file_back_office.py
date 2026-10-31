@@ -8,12 +8,16 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_LABORATORY_FILE_VERSION,
     MODEL_LABORATORY_FOLDER,
 )
+from odoo.addons.sol_laboratory.services.model_lookup import reference_as
 
 
 @tagged("post_install", "-at_install")
 class TestLaboratoryFileBackOffice(LaboratoryFilesCase):
     def test_files_and_versions_show_under_documents_to_people_with_the_laboratory_files_permission(self):
-        menus = {self.env.ref(f"sol_laboratory.menu_laboratory_{name}").id for name in ("file", "file_version")}
+        menus = {
+            reference_as(self.env[MODEL_IR_UI_MENU], f"sol_laboratory.menu_laboratory_{name}").id
+            for name in ("file", "file_version")
+        }
 
         for user in (self.tester, self.administrator):
             with self.subTest(user=user.login):

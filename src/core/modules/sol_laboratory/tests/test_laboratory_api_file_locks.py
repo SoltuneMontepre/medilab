@@ -27,6 +27,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_LABORATORY_FILE_LOCK,
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import LABORATORY_FILES_GROUP
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 
 @tagged("post_install", "-at_install")
@@ -135,7 +136,7 @@ class TestLaboratoryApiFileLocks(LaboratoryApiCase, LaboratoryFileLocksCase):
                 self.assertApiRefused(NOT_FOUND, self.api("POST", f"{path}/renew", key=key))
 
     def test_a_person_without_the_laboratory_files_permission_locks_nothing(self):
-        self.tester.write({"group_ids": [Command.unlink(self.env.ref(LABORATORY_FILES_GROUP).id)]})
+        self.tester.write({"group_ids": [Command.unlink(persisted_id(self.env.ref(LABORATORY_FILES_GROUP)))]})
 
         self.assertApiRefused(PERMISSION_DENIED, self.lock())
         self.assertFalse(self.active_locks())

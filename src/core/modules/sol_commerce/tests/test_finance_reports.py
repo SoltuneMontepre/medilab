@@ -15,9 +15,19 @@ from odoo.addons.sol_commerce.constants.models import (
     MODEL_ACCOUNT_PAYMENT,
     MODEL_PARAMETER_PRICE,
     MODEL_PRODUCT_TEMPLATE,
+    MODEL_RECEIVABLE_REPORT,
 )
 from odoo.addons.sol_commerce.models.invoicing.account_move import VIETNAM
-from odoo.addons.sol_laboratory.constants.models import MODEL_PARAMETER_GROUP, MODEL_PERMISSION, MODEL_PERSON
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_IR_ACTIONS_ACT_WINDOW,
+    MODEL_IR_UI_MENU,
+    MODEL_PARAMETER_GROUP,
+    MODEL_PERMISSION,
+    MODEL_PERSON,
+)
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model, record_as, reference_as
+from odoo.addons.sol_laboratory.services.record_id import persisted_ids
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 REPORTS = ("revenue", "outstanding", "cash_flow", "collection", "pending_payment")
 REPORT_PERMISSIONS = ("revenue.report.read.all", "receivable.report.read.all", "cash.flow.report.read.all")
@@ -79,8 +89,8 @@ class TestFinanceReports(InvoicingCase, PricingCase):
 
     def report(self, name):
         """The report records the action shows, and its domain."""
-        action = self.env.ref(f"sol_commerce.action_medilab_{name}_report")
-        return self.env[action.res_model], literal_eval(action.domain or "[]")
+        action = reference_as(self.env[MODEL_IR_ACTIONS_ACT_WINDOW], f"sol_commerce.action_medilab_{name}_report")
+        return dynamic_model(self.env, action.res_model), literal_eval(action.domain or "[]")
 
     def test_a_package_line_is_spread_over_its_parameters_and_the_groups_add_up_to_the_invoice(self):
         invoice = self.invoice([(self.package_product, 1, 100001), (self.lead_product, 2, 150000)])
@@ -117,7 +127,9 @@ class TestFinanceReports(InvoicingCase, PricingCase):
         self.pay(paid, 150000)
         outstanding, domain = self.report("outstanding")
 
-        rows = outstanding.search(domain + [("partner_id", "=", self.partner.id)])
+        rows = record_as(outstanding, self.env[MODEL_RECEIVABLE_REPORT]).search(
+            domain + [("partner_id", "=", self.partner.id)]
+        )
 
         self.assertEqual(
             {row.name: (row.days_overdue, row.age) for row in rows},
@@ -138,7 +150,7 @@ class TestFinanceReports(InvoicingCase, PricingCase):
         collection, domain = self.report("collection")
         domain += [("partner_id", "=", self.partner.id)]
 
-        rows = collection.search(domain)
+        rows = record_as(collection, self.env[MODEL_RECEIVABLE_REPORT]).search(domain)
         [(days_to_pay, paid_on_time)] = collection._read_group(domain, [], ["days_to_pay:avg", "paid_on_time:avg"])
 
         self.assertEqual(
@@ -163,13 +175,13 @@ class TestFinanceReports(InvoicingCase, PricingCase):
 
     def test_each_report_filters_by_period_and_customer_and_has_a_pivot_to_download(self):
         for name in REPORTS:
-            action = self.env.ref(f"sol_commerce.action_medilab_{name}_report")
-            search = etree.fromstring(self.env[action.res_model].get_view(view_type="search")["arch"])
+            action = reference_as(self.env[MODEL_IR_ACTIONS_ACT_WINDOW], f"sol_commerce.action_medilab_{name}_report")
+            search = etree.fromstring(dynamic_model(self.env, action.res_model).get_view(view_type="search")["arch"])
             with self.subTest(report=name):
                 self.assertTrue(search.xpath("//filter[@date]"))
                 self.assertTrue(search.xpath("//field[@name='partner_id']"))
                 # The pivot downloads as a spreadsheet as shown, without Odoo's export right.
-                self.assertIn("pivot", action.view_mode.split(","))
+                self.assertIn("pivot", assert_instance(action.view_mode, str).split(","))
 
     def test_the_reports_are_in_the_sales_reporting_menu_for_their_permission_holders_only(self):
         invoice = self.invoice([(self.package_product, 1, 100001)])
@@ -177,12 +189,16 @@ class TestFinanceReports(InvoicingCase, PricingCase):
         accountant = (
             self.env[MODEL_PERSON]
             .create(
-                {"name": "Le Thi Hanh", "login": "accountant.reports", "permission_ids": [Command.set(permissions.ids)]}
+                {
+                    "name": "Le Thi Hanh",
+                    "login": "accountant.reports",
+                    "permission_ids": [Command.set(persisted_ids(permissions))],
+                }
             )
             .user_id
         )
         clerk = self.env[MODEL_PERSON].create({"name": "Hoang Van Duc", "login": "clerk.no.reports"}).user_id
-        menus = {self.env.ref(f"sol_commerce.menu_{name}_report").id for name in REPORTS}
+        menus = {reference_as(self.env[MODEL_IR_UI_MENU], f"sol_commerce.menu_{name}_report").id for name in REPORTS}
         revenue, domain = self.report("revenue")
 
         self.assertEqual(len(permissions), len(REPORT_PERMISSIONS))

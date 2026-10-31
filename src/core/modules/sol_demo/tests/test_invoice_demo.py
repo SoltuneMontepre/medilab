@@ -1,5 +1,7 @@
 from odoo.tests import TransactionCase, tagged
 
+from odoo.addons.sol_laboratory.services.model_lookup import reference_as
+
 
 @tagged("post_install", "-at_install")
 class TestDemoInvoiceSeed(TransactionCase):
@@ -40,8 +42,8 @@ class TestDemoInvoiceSeed(TransactionCase):
 
         cash, transfer, pending, rejected = moves._demo_payments(advance, final)
 
-        cash_journal = self.env.ref("sol_demo.demo_account_journal_cash")
-        bank_journal = self.env.ref("sol_demo.demo_account_journal_bank")
+        cash_journal = reference_as(self.env["account.journal"], "sol_demo.demo_account_journal_cash")
+        bank_journal = reference_as(self.env["account.journal"], "sol_demo.demo_account_journal_bank")
         self.assertEqual((cash | rejected).journal_id, cash_journal)
         self.assertEqual((transfer | pending).journal_id, bank_journal)
         self.assertEqual(cash_journal.type, "cash")

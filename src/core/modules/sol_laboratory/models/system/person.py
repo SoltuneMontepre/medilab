@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Command
@@ -17,10 +19,16 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_SIGNATURE,
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_GROUP, ADMINISTRATOR_PERSON, ADMINISTRATOR_ROLE
+from odoo.addons.sol_laboratory.services.record_id import persisted_ids
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_person as PersonBase
+else:
+    PersonBase = object
 
 
 # Nhân Sự
-class Person(models.Model):
+class Person(models.Model, PersonBase):
     _name = MODEL_PERSON
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
     _inherits = {MODEL_EMPLOYEE: "employee_id"}
@@ -29,49 +37,52 @@ class Person(models.Model):
     _description = "Person"
     _rec_names_search = ("name", "work_email")
 
-    # The Odoo employee the person delegates to, holding their name, user, work contact and department.
-    employee_id = fields.Many2one(MODEL_EMPLOYEE, required=True, ondelete="cascade", copy=False)
-    # The Odoo user the person logs in as; empty for people who never sign in.
-    user_id = fields.Many2one(related="employee_id.user_id", inherited=True, readonly=False, groups=ADMINISTRATOR_GROUP)
-    # The contact holding the person's details: name, email, phone, address.
-    work_contact_id = fields.Many2one(
-        related="employee_id.work_contact_id", inherited=True, readonly=False, groups=ADMINISTRATOR_GROUP
-    )
-    # Department of the person. Odoo keeps it, like every field of the employee's version, where only employee
-    # officers read; re-declared, it is read with full rights.
-    department_id = fields.Many2one(
-        related="employee_id.department_id", inherited=True, readonly=False, domain=DEPARTMENT_DOMAIN
-    )
-    # Team of the person, one of the teams of their department; empty when they belong to no team.
-    team_id = fields.Many2one(
-        MODEL_DEPARTMENT,
-        domain="[('parent_id', '!=', False), ('parent_id', '=', department_id)]",
-        ondelete="restrict",
-        index=True,
-    )
-    # False when the person is archived.
-    active = fields.Boolean(default=True)
-    # Roles the person holds.
-    role_ids = fields.Many2many(
-        MODEL_ROLE,
-        "medilab_person_role_rel",
-        "person_id",
-        "role_id",
-        ondelete="restrict",
-        string="Roles",
-        groups=ADMINISTRATOR_GROUP,
-    )
-    # Permissions given to the person directly, on top of their roles.
-    permission_ids = fields.Many2many(
-        MODEL_PERMISSION,
-        "medilab_person_permission_rel",
-        "person_id",
-        "permission_id",
-        string="Direct Permissions",
-        groups=ADMINISTRATOR_GROUP,
-    )
-    # The login of the person's Odoo user; filling it on a person without a user creates the user.
-    login = fields.Char(related="user_id.login", readonly=False, groups=ADMINISTRATOR_GROUP)
+    if not TYPE_CHECKING:
+        # The Odoo employee the person delegates to, holding their name, user, work contact and department.
+        employee_id = fields.Many2one(MODEL_EMPLOYEE, required=True, ondelete="cascade", copy=False)
+        # The Odoo user the person logs in as; empty for people who never sign in.
+        user_id = fields.Many2one(
+            related="employee_id.user_id", inherited=True, readonly=False, groups=ADMINISTRATOR_GROUP
+        )
+        # The contact holding the person's details: name, email, phone, address.
+        work_contact_id = fields.Many2one(
+            related="employee_id.work_contact_id", inherited=True, readonly=False, groups=ADMINISTRATOR_GROUP
+        )
+        # Department of the person. Odoo keeps it, like every field of the employee's version, where only employee
+        # officers read; re-declared, it is read with full rights.
+        department_id = fields.Many2one(
+            related="employee_id.department_id", inherited=True, readonly=False, domain=DEPARTMENT_DOMAIN
+        )
+        # Team of the person, one of the teams of their department; empty when they belong to no team.
+        team_id = fields.Many2one(
+            MODEL_DEPARTMENT,
+            domain="[('parent_id', '!=', False), ('parent_id', '=', department_id)]",
+            ondelete="restrict",
+            index=True,
+        )
+        # False when the person is archived.
+        active = fields.Boolean(default=True)
+        # Roles the person holds.
+        role_ids = fields.Many2many(
+            MODEL_ROLE,
+            "medilab_person_role_rel",
+            "person_id",
+            "role_id",
+            ondelete="restrict",
+            string="Roles",
+            groups=ADMINISTRATOR_GROUP,
+        )
+        # Permissions given to the person directly, on top of their roles.
+        permission_ids = fields.Many2many(
+            MODEL_PERMISSION,
+            "medilab_person_permission_rel",
+            "person_id",
+            "permission_id",
+            string="Direct Permissions",
+            groups=ADMINISTRATOR_GROUP,
+        )
+        # The login of the person's Odoo user; filling it on a person without a user creates the user.
+        login = fields.Char(related="user_id.login", readonly=False, groups=ADMINISTRATOR_GROUP)
 
     _employee_unique = models.Constraint("UNIQUE(employee_id)", "This employee is already a person.")
 
@@ -136,7 +147,7 @@ class Person(models.Model):
 
     def _outside_their_department(self):
         # People whose team is not one of the teams of their department.
-        return self.filtered(lambda person: person.team_id and person.team_id.parent_id != person.department_id)
+        return self.filtered(lambda person: bool(person.team_id and person.team_id.parent_id != person.department_id))
 
     def _check_team(self):
         for person in self.sudo()._outside_their_department():
@@ -260,7 +271,7 @@ class Person(models.Model):
                 {
                     "login": login,
                     "partner_id": person.work_contact_id.id,
-                    "group_ids": [Command.set(self.env.ref("base.group_user").ids)],
+                    "group_ids": [Command.set(persisted_ids(self.env.ref("base.group_user")))],
                 }
             )
         )

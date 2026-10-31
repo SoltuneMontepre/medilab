@@ -12,6 +12,7 @@ from odoo.addons.sol_laboratory.constants.settings import DIGITAL_SIGNING_PARAME
 from odoo.addons.sol_laboratory.constants.signing import CERTIFICATE_REVOKED, SIGNING_CERTIFICATES_JOB
 from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_PERSON
 from odoo.addons.sol_laboratory.services.viettel_sign_client import ViettelSignClient, ViettelSignError
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 ALERT_EVENT = "sol_laboratory.event_signing_certificate_alert"
 
@@ -62,7 +63,7 @@ class TestSigningCertificates(TransactionCase):
             certificate.valid_to, fields.Datetime.now() + timedelta(days=20), delta=timedelta(minutes=5)
         )
         self.assertTrue(certificate.checked_at)
-        self.assertTrue(certificate.certificate_chain.startswith("-----BEGIN CERTIFICATE-----"))
+        self.assertTrue(assert_instance(certificate.certificate_chain, str).startswith("-----BEGIN CERTIFICATE-----"))
         self.assertNotIn(ACCOUNT["VIETTEL_SIGN_CLIENT_SECRET"], str(certificate.read()))
 
         self.viettel.certificate_status = "revoked"
@@ -118,12 +119,12 @@ class TestSigningCertificates(TransactionCase):
         self.certificates._alert()
 
         self.assertEqual(certificate.status, "expired")
-        self.assertIn("expired", self.alerts(certificate)[:1].body)
+        self.assertIn("expired", (self.alerts(certificate)[:1].body or ""))
 
         certificate.status = "revoked"
         self.certificates._alert()
 
-        self.assertIn("revoked", self.alerts(certificate)[:1].body)
+        self.assertIn("revoked", (self.alerts(certificate)[:1].body or ""))
 
     def test_a_renewed_certificate_silences_the_expiry_alert_of_the_old_one(self):
         self.certificates._refresh()

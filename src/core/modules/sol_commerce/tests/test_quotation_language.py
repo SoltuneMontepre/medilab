@@ -2,6 +2,7 @@ from odoo.tests import tagged
 
 from .order_case import OrderCase
 from odoo.addons.sol_commerce.constants.notifications import EVENT_QUOTATION_SENT
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -26,14 +27,14 @@ class TestQuotationLanguage(OrderCase):
         order = self.send("vi_VN", self.sales)
 
         notice = self.notice(order)
-        self.assertIn("đã sẵn sàng", notice.body)
-        self.assertNotIn("is ready", notice.body)
+        self.assertIn("đã sẵn sàng", (notice.body or ""))
+        self.assertNotIn("is ready", assert_instance(notice.body, str))
 
     def test_an_english_customer_reads_it_in_english_when_sales_works_in_vietnamese(self):
         self.sales.lang = "vi_VN"
         order = self.send("en_US", self.sales)
 
-        self.assertIn("is ready", self.notice(order).body)
+        self.assertIn("is ready", (self.notice(order).body or ""))
 
     def test_the_notice_without_an_advance_follows_the_customer_language(self):
         order = self.make_quotable_order()
@@ -41,12 +42,12 @@ class TestQuotationLanguage(OrderCase):
         self.head.lang = "en_US"
         self.send("vi_VN", self.head, order)
 
-        self.assertIn("Hãy chấp nhận trước", self.notice(order).body)
+        self.assertIn("Hãy chấp nhận trước", (self.notice(order).body or ""))
 
     def test_the_internal_down_payment_note_stays_in_the_salesperson_language(self):
         self.sales.lang = "vi_VN"
         order = self.send("en_US", self.sales)
 
         bodies = (order.message_ids - self.notice(order)).mapped("body")
-        self.assertTrue(any("Hoá đơn khoản trả trước" in body for body in bodies), bodies)
-        self.assertIn("is ready", self.notice(order).body)
+        self.assertTrue(any("Hoá đơn khoản trả trước" in (body or "") for body in bodies), bodies)
+        self.assertIn("is ready", (self.notice(order).body or ""))

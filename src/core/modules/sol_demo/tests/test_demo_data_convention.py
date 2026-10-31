@@ -5,6 +5,8 @@ from odoo.tests import TransactionCase, tagged
 from odoo.tools.misc import file_path
 
 from odoo.addons.sol_commerce.constants.models import MODEL_ACCOUNT_MOVE
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 # Odoo names these itself: the reflection of models and fields, and the server action behind each cron.
 GENERATED_MODELS = ("ir.model", "ir.model.fields", "ir.actions.server")
@@ -20,12 +22,12 @@ class TestDemoDataConvention(TransactionCase):
         declared = set()
         for path in get_manifest("sol_demo")["data"]:
             for node in etree.parse(file_path(f"sol_demo/{path}")).iter("record", "function"):
-                model = node.get("model")
+                model = assert_instance(node.get("model"), str)
                 record_id = node.get("id")
                 # Records of another module, or declared in an earlier file, are only completed here.
                 if record_id and ("." in record_id or record_id in declared):
                     continue
-                expected = f"data/{self.env[model]._original_module}/{short_name(model)}.xml"
+                expected = f"data/{dynamic_model(self.env, model)._original_module}/{short_name(model)}.xml"
                 self.assertEqual(path, expected, record_id or model)
                 declared.add(record_id)
 
@@ -36,7 +38,13 @@ class TestDemoDataConvention(TransactionCase):
         models = dict(zip(xml_ids.mapped("name"), xml_ids.mapped("model"), strict=True))
         for xml_id in xml_ids:
             # Odoo names the parent it creates for a delegated record after the record, such as a product's template.
-            child = models.get(xml_id.name.removesuffix(f"_{xml_id.model.replace('.', '_')}"))
-            if child and xml_id.model in self.env[child]._inherits:
+            child = models.get(
+                assert_instance(xml_id.name, str).removesuffix(
+                    f"_{assert_instance(xml_id.model, str).replace('.', '_')}"
+                )
+            )
+            if child and xml_id.model in dynamic_model(self.env, child)._inherits:
                 continue
-            self.assertTrue(xml_id.name.startswith(f"demo_{short_name(xml_id.model)}_"), xml_id.name)
+            self.assertTrue(
+                assert_instance(xml_id.name, str).startswith(f"demo_{short_name(xml_id.model)}_"), xml_id.name
+            )

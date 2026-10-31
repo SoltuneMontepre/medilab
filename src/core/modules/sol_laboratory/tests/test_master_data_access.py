@@ -26,6 +26,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TESTING_METHOD_STEP,
     MODEL_UNIT_CATEGORY,
 )
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
 
 MASTER_DATA_MODELS = [
     MODEL_CHEMICAL,
@@ -112,7 +113,7 @@ class TestMasterDataAccess(MasterDataCase, PeopleCase):
 
     def test_non_administrator_sees_no_actions(self):
         for model in MASTER_DATA_MODELS:
-            records = self.env[model].with_user(self.tester)
+            records = dynamic_model(self.env, model).with_user(self.tester)
             views = records.get_views([(False, "list"), (False, "form")])["views"]
             for view_type, view in views.items():
                 root = etree.fromstring(view["arch"])

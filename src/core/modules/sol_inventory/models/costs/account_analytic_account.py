@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 
@@ -10,15 +12,21 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PERMISSION_MIXIN,
 )
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_account_analytic_account as AccountAnalyticAccountBase
+else:
+    AccountAnalyticAccountBase = object
+
 
 # Trung Tâm Chi Phí
-class AccountAnalyticAccount(models.Model):
+class AccountAnalyticAccount(models.Model, AccountAnalyticAccountBase):
     # _name is required to add mixins to an Odoo model.
     _name = MODEL_ANALYTIC_ACCOUNT
     _inherit = [MODEL_AUDIT_MIXIN, MODEL_ANALYTIC_ACCOUNT, MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN]
 
-    # The department or team whose stock is charged to the cost centre.
-    department_id = fields.Many2one(MODEL_DEPARTMENT, string="Department or Team", ondelete="restrict")
+    if not TYPE_CHECKING:
+        # The department or team whose stock is charged to the cost centre.
+        department_id = fields.Many2one(MODEL_DEPARTMENT, string="Department or Team", ondelete="restrict")
 
     _code_unique = models.Constraint("UNIQUE(code)", "The code of a cost centre or analytic account must be unique.")
     _department_unique = models.Constraint(

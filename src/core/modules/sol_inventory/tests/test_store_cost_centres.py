@@ -4,6 +4,7 @@ from odoo.tests import tagged
 from .stores_case import StoresCase
 from odoo.addons.sol_inventory.constants.models import MODEL_ANALYTIC_ACCOUNT, MODEL_STOCK_LOCATION
 from odoo.addons.sol_inventory.constants.xml_ids import COST_CENTRE_PLAN
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 
 @tagged("post_install", "-at_install")
@@ -40,7 +41,9 @@ class TestStoreCostCentres(StoresCase):
         self.assertEqual(self.stores_without_cost_centre(), self.chemistry_store)
 
     def test_the_stores_screen_shows_the_cost_centre_to_those_who_cannot_open_cost_centres(self):
-        self.storekeeper.permission_ids = [Command.link(self.env.ref("sol_inventory.permission_location_read_all").id)]
+        self.storekeeper.permission_ids = [
+            Command.link(persisted_id(self.env.ref("sol_inventory.permission_location_read_all")))
+        ]
 
         store = self.chemistry_store.with_user(self.storekeeper.user_id)
 

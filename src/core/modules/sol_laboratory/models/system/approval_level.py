@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.tools import format_list
@@ -12,27 +14,33 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_SIGNATURE,
 )
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_approval_level as ApprovalLevelBase
+else:
+    ApprovalLevelBase = object
+
 
 # Cấp Phê Duyệt
-class ApprovalLevel(models.Model):
+class ApprovalLevel(models.Model, ApprovalLevelBase):
     _name = MODEL_APPROVAL_LEVEL
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Approval Level"
     _order = "chain_id, sequence"
     _permission_actions = ("read", "create", "edit", "delete")
 
-    # The chain the level belongs to.
-    chain_id = fields.Many2one(MODEL_APPROVAL_CHAIN, string="Chain", required=True, ondelete="cascade")
-    # Position in the chain; lower levels sign first.
-    sequence = fields.Integer(required=True)
-    # Level name in each language, such as "Head of department".
-    name = fields.Char(required=True, translate=True)
-    # The role a person needs to sign at this level.
-    role_id = fields.Many2one(MODEL_ROLE, string="Role", required=True, ondelete="restrict")
-    # True when the signer must belong to the department that did the work.
-    same_department = fields.Boolean()
-    # True when the signer may reject instead of signing.
-    can_reject = fields.Boolean(default=True)
+    if not TYPE_CHECKING:
+        # The chain the level belongs to.
+        chain_id = fields.Many2one(MODEL_APPROVAL_CHAIN, string="Chain", required=True, ondelete="cascade")
+        # Position in the chain; lower levels sign first.
+        sequence = fields.Integer(required=True)
+        # Level name in each language, such as "Head of department".
+        name = fields.Char(required=True, translate=True)
+        # The role a person needs to sign at this level.
+        role_id = fields.Many2one(MODEL_ROLE, string="Role", required=True, ondelete="restrict")
+        # True when the signer must belong to the department that did the work.
+        same_department = fields.Boolean()
+        # True when the signer may reject instead of signing.
+        can_reject = fields.Boolean(default=True)
 
     _sequence_unique = models.Constraint(
         "UNIQUE(chain_id, sequence)", "A chain cannot have two levels in the same position."

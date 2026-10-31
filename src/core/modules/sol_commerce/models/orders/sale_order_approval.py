@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import AccessError, UserError
 
@@ -11,18 +13,26 @@ from odoo.addons.sol_commerce.constants.orders import (
 from odoo.addons.sol_laboratory.constants.approvals import STATE_REQUESTED
 from odoo.addons.sol_laboratory.constants.models import MODEL_APPROVAL_MIXIN, MODEL_PERSON
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_sale_order as SaleOrderApprovalBase
+else:
+    SaleOrderApprovalBase = object
+
 # What the customer and sales agreed: edits stop once a signature stands.
 APPROVAL_CONTENT_FIELDS = frozenset({"customer_id", "partner_id", "payment_deadline", "validity_date"})
 
 
 # Đơn Hàng: the order is approved by signatures.
-class SaleOrderApproval(models.Model):
+class SaleOrderApproval(models.Model, SaleOrderApprovalBase):
     _name = MODEL_SALE_ORDER
     _inherit = [MODEL_SALE_ORDER, MODEL_APPROVAL_MIXIN]
     _audit_children = ("order_line", "quotation_ids", "sample_ids", "cancellation_request_ids", "support_request_ids")
 
-    # The role whose signature a requested approval waits for; empty when no approval is requested.
-    approval_waiting_for = fields.Char(string="Waiting for", compute="_compute_approval_waiting_for", compute_sudo=True)
+    if not TYPE_CHECKING:
+        # The role whose signature a requested approval waits for; empty when no approval is requested.
+        approval_waiting_for = fields.Char(
+            string="Waiting for", compute="_compute_approval_waiting_for", compute_sudo=True
+        )
 
     @api.depends("approval_status")
     def _compute_approval_waiting_for(self):

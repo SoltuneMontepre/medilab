@@ -1,11 +1,18 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, models
 
 from odoo.addons.sol_commerce.constants.models import MODEL_NOTIFICATION_CONTACT
 from odoo.addons.sol_laboratory.constants.models import MODEL_MAIL_MESSAGE
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_mail_message as MailMessageBase
+else:
+    MailMessageBase = object
+
 
 # Thông Báo
-class MailMessage(models.Model):
+class MailMessage(models.Model, MailMessageBase):
     _inherit = MODEL_MAIL_MESSAGE
 
     @api.model
@@ -19,7 +26,7 @@ class MailMessage(models.Model):
             .sudo()
             .search([("event_id", "=", event.id), ("partner_id", "in", collected.commercial_partner_id.ids)])
         )
-        for route in routes.filtered(lambda route: route.contact_id.active and route.contact_id.email):
+        for route in routes.filtered(lambda route: bool(route.contact_id.active and route.contact_id.email)):
             replaced = collected.filtered(
                 lambda partner, route=route: partner.commercial_partner_id == route.partner_id
             )

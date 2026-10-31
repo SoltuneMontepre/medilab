@@ -15,6 +15,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_LABORATORY_FILE_VERSION,
 )
 from odoo.addons.sol_laboratory.models.laboratory_files.laboratory_file_version import PROTECTED_FIELDS
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 FIVE_GIB = 5 * 2**30
 
@@ -100,7 +101,7 @@ class TestLaboratoryFileVersionImmutability(LaboratoryFilesCase):
         [(file, total)] = versions._read_group([("id", "=", version.id)], ["file_id"], ["size:sum"])
         self.assertEqual((file, total), (self.file, FIVE_GIB))
         grouped = versions.web_read_group([("id", "=", version.id)], ["file_id"], ["size:sum"])
-        self.assertEqual(grouped["groups"][0]["size:sum"], FIVE_GIB)
+        self.assertEqual(assert_instance(assert_instance(grouped["groups"], list)[0], dict)["size:sum"], FIVE_GIB)
 
     def test_the_changes_of_a_folder_are_never_changed_or_deleted(self):
         change = self.env[MODEL_LABORATORY_FILE_CHANGE].create(
