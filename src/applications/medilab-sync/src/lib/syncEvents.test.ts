@@ -198,7 +198,7 @@ test("refresh controller: cancel hủy bỏ việc tiếp nhận kết quả và
   const loadedList: RemoteFileRow[][] = [];
 
   const controller = createRemoteFilesRefreshController({
-    fetcher: async () => {
+    fetcher: () => {
       fetchCount += 1;
       return deferred.promise;
     },
@@ -214,7 +214,9 @@ test("refresh controller: cancel hủy bỏ việc tiếp nhận kết quả và
   // Hủy controller trước khi response trả về
   controller.cancel();
 
+  expect(controller.isInFlight()).toBe(true);
   deferred.resolve([]);
+  await deferred.promise;
   await p1;
 
   expect(loadedList).toHaveLength(0);
@@ -423,3 +425,105 @@ test("mergeFolders và mergeJobs trả về mảng gốc nếu toàn bộ phần
 
 
 
+
+test("refresh controller resumes after StrictMode cleanup and authenticated restore", async () => {
+  let fetches = 0;
+  const loaded: RemoteFileRow[][] = [];
+  const files = createRemoteFilesFixture();
+  const controller = createRemoteFilesRefreshController({
+    fetcher: async () => { fetches++; return files; },
+    onLoaded: (next) => loaded.push(next),
+  });
+  controller.cancel();
+  await controller.invalidate();
+  expect(fetches).toBe(0);
+  controller.resume();
+  await controller.invalidate();
+  expect(fetches).toBe(1);
+  expect(loaded).toEqual([files]);
+});
+
+test("refresh controller suppresses logged-out events and refreshes after relogin", async () => {
+  let fetches = 0;
+  let files = createRemoteFilesFixture();
+  let displayed: RemoteFileRow[] = [];
+  const controller = createRemoteFilesRefreshController({
+    fetcher: async () => { fetches++; return files; },
+    onLoaded: (next) => { displayed = mergeRemoteFiles(displayed, next); },
+  });
+  await controller.invalidate(1);
+  expect(displayed).toEqual(files);
+  controller.cancel();
+  displayed = [];
+  await controller.invalidate(2);
+  expect(fetches).toBe(1);
+  expect(displayed).toEqual([]);
+  controller.resume();
+  expect(fetches).toBe(1);
+  await controller.invalidate(3);
+  expect(displayed).toEqual(files);
+  files = [];
+  await controller.invalidate(4);
+  expect(displayed).toEqual([]);
+});
+
+for (const staleOutcome of ["success", "error"] as const) {
+  test(`refresh controller resumes behind a cancelled in-flight ${staleOutcome} without overlapping requests`, async () => {
+    const stale = createDeferred<RemoteFileRow[]>();
+    const fresh = createDeferred<RemoteFileRow[]>();
+    const loaded: RemoteFileRow[][] = [];
+    const errors: unknown[] = [];
+    let fetches = 0;
+    const controller = createRemoteFilesRefreshController({
+      fetcher: () => ++fetches === 1 ? stale.promise : fresh.promise,
+      onLoaded: (next) => loaded.push(next),
+      onError: (err) => errors.push(err),
+    });
+    const old = controller.invalidate(1);
+    const cancelledFollowup = controller.invalidate(2);
+    controller.cancel();
+    await Promise.all([old, cancelledFollowup]);
+    expect(controller.isInFlight()).toBe(true);
+    expect(controller.isQueued()).toBe(false);
+    controller.resume();
+    const completion = controller.invalidate(3);
+    const repeated = controller.invalidate(3);
+    expect(fetches).toBe(1);
+    expect(controller.isQueued()).toBe(true);
+    if (staleOutcome === "success") stale.resolve(createRemoteFilesFixture());
+    else stale.reject(new Error("stale account error"));
+    await stale.promise.catch(() => {});
+    expect(fetches).toBe(2);
+    expect(controller.isInFlight()).toBe(true);
+    expect(loaded).toEqual([]);
+    expect(errors).toEqual([]);
+    const files = createRemoteFilesFixture().map((file) => ({ ...file, remote_version_id: 999 }));
+    fresh.resolve(files);
+    await Promise.all([completion, repeated]);
+    expect(loaded).toEqual([files]);
+    expect(fetches).toBe(2);
+    expect(controller.isInFlight()).toBe(false);
+    expect(controller.isQueued()).toBe(false);
+  });
+}
+
+test("refresh controller reports a current request error and permits a later retry", async () => {
+  let attempts = 0;
+  const error = new Error("list unavailable");
+  const errors: unknown[] = [];
+  const loaded: RemoteFileRow[][] = [];
+  const controller = createRemoteFilesRefreshController({
+    fetcher: async () => {
+      if (++attempts === 1) throw error;
+      return createRemoteFilesFixture();
+    },
+    onLoaded: (files) => loaded.push(files),
+    onError: (err) => errors.push(err),
+  });
+  await controller.invalidate();
+  expect(errors).toEqual([error]);
+  expect(loaded).toEqual([]);
+  await controller.invalidate();
+  expect(loaded).toEqual([createRemoteFilesFixture()]);
+  expect(controller.isInFlight()).toBe(false);
+});

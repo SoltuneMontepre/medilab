@@ -232,11 +232,6 @@
         <field name="document_model">medilab.quotation</field>
         <field name="action">delete</field>
     </record>
-    <record id="permission_order_sign_all" model="medilab.permission">
-        <field name="name">Sign orders</field>
-        <field name="document_model">sale.order</field>
-        <field name="action">sign</field>
-    </record>
     <record id="permission_customer_sales_terms_read_all" model="medilab.permission">
         <field name="name">Read customer sales terms</field>
         <field name="document_model">medilab.customer.sales.terms</field>

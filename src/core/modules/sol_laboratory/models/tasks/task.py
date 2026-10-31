@@ -246,12 +246,13 @@ class Task(models.Model):
             raise UserError(self.env._("%s is not in the task's department.", assignee.name))
 
     def _check_reassign(self, vals):
+        has_reason = bool(str(vals.get("reassign_reason") or "").strip())
         for task in self:
             if task.status in FINAL_STATUSES:
                 raise UserError(self.env._("%s is finished and cannot be assigned again.", task.name))
             moves_person = task.assignee_id and vals.get("assignee_id", task.assignee_id.id) != task.assignee_id.id
             moves_department = vals.get("department_id", task.department_id.id) != task.department_id.id
-            if (moves_person or moves_department) and not vals.get("reassign_reason"):
+            if (moves_person or moves_department) and not has_reason:
                 raise UserError(self.env._("Give a reason for moving %s to another person or department.", task.name))
 
     def _claimable_by(self, person):

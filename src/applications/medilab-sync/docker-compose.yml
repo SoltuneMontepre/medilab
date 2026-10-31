@@ -7,7 +7,7 @@ services:
     command: []
     entrypoint: ["/bin/bash", "/opt/medilab/onlyoffice/start.sh"]
     ports:
-      - "127.0.0.1:${ONLYOFFICE_PORT:-29843}:443"
+      - "127.0.0.1:${ONLYOFFICE_PORT:-29843}:${ONLYOFFICE_CONTAINER_PORT:-443}"
     environment:
       JWT_SECRET: ${ONLYOFFICE_JWT_SECRET:?Set an isolated random JWT secret of at least 32 base64url characters}
       JWT_ENABLED: "true"

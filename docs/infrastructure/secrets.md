@@ -1,12 +1,16 @@
 # Secrets
 
-Doppler is the only store for credentials. Terraform in `infra/` reads the `dev` config and publishes secrets to the GitHub repository's Actions secrets.
+Doppler is the source of truth for shared development and deployment credentials. Terraform in `infra/` reads the `dev` config and publishes secrets to the GitHub repository's Actions secrets. Isolated local credentials and a user's Sync credentials have the separate ownership described below.
 
 ## Local development
 
 `task doppler` logs the Doppler CLI in and selects `medilab` `dev` for the repository. The login is stored by the CLI, so nothing is written to the shell or the user environment, and the same steps work on Windows, Linux and macOS.
 
-Every local program that needs a secret is started through `doppler run --project medilab --config dev -- <program>`: the `task tf:*` commands, and the `doppler`, `sonarqube` and `context7` MCP servers in `.mcp.json`. `doppler run` injects the secrets of `dev`, including `DOPPLER_TOKEN`, into that program only.
+Programs that need shared credentials start through `doppler run --project medilab --config dev -- <program>`: the `task tf:*` commands, and the `doppler`, `sonarqube` and `context7` MCP servers in `.mcp.json`. `doppler run` injects the secrets of `dev`, including `DOPPLER_TOKEN`, into that program only.
+
+`task setup` in an empty worktree creates an isolated demo without Doppler or inherited application credentials. Managed local ONLYOFFICE generates its own JWT and private certificate authority beneath the ignored `.local/onlyoffice` directory, protected by private filesystem permissions or Windows ACLs. The public CA is mounted only where the owned containers need it; setup does not change the host trust store. Preserve this material with its owned persistent state across reruns and recovery. Do not copy it into deployment configs, Git, logs or chat. See [local setup](../workflows/setting-up.md#local-demo-setup).
+
+The native Sync app uses the operating system credential store for each user's API credential; its existing explicitly enabled file-fallback policy remains unchanged. Setup neither imports that credential from Doppler nor changes the installed app's profile or keyring. Development endpoint metadata contains no API credential. Use an isolated OS account or verified private credential-store session for desktop acceptance tests.
 
 The only credential a Claude Code cloud environment holds is `DOPPLER_TOKEN`, an environment variable that `task ai:env` writes to `.local/cloud.env` for pasting into its settings; `doppler run` reads the other secrets through it. See [Working in a cloud session](../workflows/cloud-session.md).
 
@@ -42,7 +46,7 @@ The only credential a Claude Code cloud environment holds is `DOPPLER_TOKEN`, an
 
 ## ONLYOFFICE
 
-Before enabling online editing, seed `ONLYOFFICE_JWT_SECRET` in `infra` with at least 32 random base64url characters. The candidate `onlyoffice-jwt` ExternalSecret shares its `jwt-secret` key with Document Server and Odoo. Rotation needs a coordinated drained rollout; no secret value enters Git or logs. `ONLYOFFICE_ALERT_WEBHOOK` separately reaches Grafana through the candidate `onlyoffice-alerting` ExternalSecret in `monitoring`, after operator routing is selected. Internal TLS is issued by cert-manager; clients receive only its public CA. The [ONLYOFFICE runbook](onlyoffice.md) defines the deployment and licence gates.
+Before enabling deployed online editing, seed `ONLYOFFICE_JWT_SECRET` in `infra` with at least 32 random base64url characters. The candidate `onlyoffice-jwt` ExternalSecret shares its `jwt-secret` key with Document Server and Odoo. Rotation needs a coordinated drained rollout; no secret value enters Git or logs. `ONLYOFFICE_ALERT_WEBHOOK` separately reaches Grafana through the candidate `onlyoffice-alerting` ExternalSecret in `monitoring`, after operator routing is selected. Internal TLS is issued by cert-manager; clients receive only its public CA. The [ONLYOFFICE runbook](onlyoffice.md) defines the deployment and licence gates.
 
 ## Published to GitHub
 

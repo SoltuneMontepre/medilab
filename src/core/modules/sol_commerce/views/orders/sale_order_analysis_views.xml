@@ -37,7 +37,7 @@
                 <field name="revenue" type="measure" />
                 <field name="days_to_quote" type="measure" />
                 <field name="days_to_payment" type="measure" />
-                <field name="days_to_approval" type="measure" />
+                <field name="days_to_confirmation" type="measure" />
             </pivot>
         </field>
     </record>

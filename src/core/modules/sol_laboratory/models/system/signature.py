@@ -21,7 +21,7 @@ class Signature(models.Model):
     # Signatures are given through the approval mixin and never edited or deleted on the screen.
     _permission_actions = ("read",)
 
-    # Technical name of the model of the signed document, such as sale.order.
+    # Technical name of the model of the signed document, such as medilab.test.result.
     document_model = fields.Char(string="Document Type", required=True)
     # Id of the signed document.
     document_id = fields.Integer(string="Document", required=True)

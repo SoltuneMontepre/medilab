@@ -5,6 +5,8 @@ import os
 import tempfile
 from pathlib import Path
 
+from .local_paths import ensure_directory
+
 PACKAGE_ROOT = Path(__file__).resolve().parents[1]
 RELEASE = json.loads(Path(__file__).with_name("release.json").read_text())
 
@@ -41,7 +43,7 @@ class Workspace:
 
     def session_directory(self) -> Path:
         logs = self.local / "logs"
-        logs.mkdir(parents=True, exist_ok=True)
+        ensure_directory(self.root, logs)
         return Path(tempfile.mkdtemp(prefix=f"session-{os.getpid()}-", dir=logs))
 
     def addon_snapshot(self) -> dict[str, tuple[int, int]]:
