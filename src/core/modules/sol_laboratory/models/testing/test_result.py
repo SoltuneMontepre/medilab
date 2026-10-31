@@ -14,6 +14,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MACHINE,
     MODEL_MAIL_MESSAGE,
     MODEL_MEASUREMENT_UNIT,
+    MODEL_PARAMETER_METHOD_SAMPLE_TYPE,
     MODEL_PERMISSION_MIXIN,
     MODEL_SAMPLE_TEST,
     MODEL_TEST_RESULT,
@@ -170,12 +171,12 @@ class TestResult(models.Model):
     @api.depends("sample_test_id")
     def _compute_unit(self):
         for result in self:
-            result.unit_id = (result.replaces_id or result._way_of_testing()).unit_id
+            result.unit_id = result.replaces_id.unit_id if result.replaces_id else result._applicability().unit_id
 
     @api.depends("sample_test_id")
     def _compute_value_decimals(self):
         for result in self:
-            result.value_decimals = result._way_of_testing().result_decimals
+            result.value_decimals = result._applicability().result_decimals
 
     @api.depends("sample_test_id")
     def _compute_limit(self):
@@ -290,10 +291,18 @@ class TestResult(models.Model):
         return limits.filtered(lambda limit: limit.parameter_id == test.parameter_id)[:1]
 
     def _way_of_testing(self):
-        # The way of testing chosen for the test, or else the parameter's default one.
+        # The way of testing chosen for the test, or else the parameter's default one on the sample's type.
         self.ensure_one()
         test = self.sample_test_id
-        return test.parameter_method_id or test.parameter_id.method_ids.filtered("is_default")[:1]
+        return test.parameter_method_id or test.parameter_id._default_way(test.sudo().sample_id.sample_type_id)
+
+    def _applicability(self):
+        # The unit and decimals of the way of testing on the sample's type; empty when it does not apply to it.
+        self.ensure_one()
+        way = self._way_of_testing()
+        if not way:
+            return self.env[MODEL_PARAMETER_METHOD_SAMPLE_TYPE]
+        return way._applicability(self.sample_test_id.sudo().sample_id.sample_type_id)
 
     def _copy_limit_translations(self):
         # The computed copy holds one language; the report needs the limit text in each.

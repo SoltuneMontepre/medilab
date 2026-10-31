@@ -4619,3 +4619,8 @@ msgid ""
 "Your draft is saved. It is listed here as Draft and stays in the cart until "
 "you submit it."
 msgstr "Bản nháp đã được lưu. Bản nháp có trong danh sách này với trạng thái Nháp và vẫn nằm trong giỏ hàng cho đến khi bạn gửi."
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__default_way_notice
+msgid "Default Way"
+msgstr "Cách thử mặc định"

@@ -323,7 +323,6 @@ describe("WF-05 feature acceptance criteria", () => {
       cy.openRecord(parameter);
       cy.get(".o_field_widget[name=method_ids] .o_field_x2many_list_row_add button").click();
       pick("method_id", "ISO 17294-2");
-      pick("unit_id", "µg/L");
       // With nothing typed, the suggestions start from the first subcontractor codes, the seeded ones.
       cy.get(".o_selected_row .o_field_widget[name=subcontractor_id] input").click();
       cy.get(".o-autocomplete--dropdown-menu").should("contain", "Northern").and("not.contain", "Coastal").and("not.contain", "Mekong");
@@ -336,19 +335,19 @@ describe("WF-05 feature acceptance criteria", () => {
   });
 
   it("TC-F37-02 keeps a way's subcontractor after its accreditation expires, and renewing it makes it selectable again", () => {
-    wayParts().then(({ methodId, unitId }) =>
+    wayParts().then(({ methodId }) =>
       newSubcontractor().then((subcontractor) =>
         newParameter().then((first) =>
           newParameter().then((second) => {
-            const way = (parameter) => ({ parameter_id: parameter.id, method_id: methodId, unit_id: unitId, subcontractor_id: subcontractor.id });
+            const way = (parameter) => ({ parameter_id: parameter.id, method_id: methodId, subcontractor_id: subcontractor.id });
             callAs(ADMINISTRATOR, "medilab.parameter.method", "create", [way(first)]).then((id) => {
               const kept = { model: "medilab.parameter.method", id };
               callAs(ADMINISTRATOR, "medilab.subcontractor", "write", [[subcontractor.id], { accreditation_expiry: inDays(-1) }]);
               cy.signInAs("administrator");
-              call(kept.model, "write", [[id], { lod: 0.07 }]);
-              cy.readRecord(kept, ["subcontractor_id", "lod"]).should((read) => {
+              call(kept.model, "write", [[id], { allows_negative: true }]);
+              cy.readRecord(kept, ["subcontractor_id", "allows_negative"]).should((read) => {
                 expect(read.subcontractor_id[0]).to.equal(subcontractor.id);
-                expect(read.lod).to.equal(0.07);
+                expect(read.allows_negative).to.equal(true);
               });
               callRefused(kept.model, "create", [way(second)]).should(
                 "match",
@@ -369,9 +368,9 @@ describe("WF-05 feature acceptance criteria", () => {
   });
 
   it("TC-F37-03 refuses to choose an archived subcontractor, or one whose accreditation expired", () => {
-    wayParts().then(({ methodId, unitId }) =>
+    wayParts().then(({ methodId }) =>
       newParameter().then((parameter) => {
-        const way = (subcontractor) => ({ parameter_id: parameter.id, method_id: methodId, unit_id: unitId, subcontractor_id: subcontractor.id });
+        const way = (subcontractor) => ({ parameter_id: parameter.id, method_id: methodId, subcontractor_id: subcontractor.id });
         cy.signInAs("administrator");
         refAs(ADMINISTRATOR, EXPIRED_SUBCONTRACTOR).then((expired) =>
           callRefused("medilab.parameter.method", "create", [way(expired)]).should(

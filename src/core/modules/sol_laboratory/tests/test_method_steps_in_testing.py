@@ -85,7 +85,6 @@ class TestMethodStepsInTesting(SchedulingCase):
             {
                 "parameter_id": cadmium.id,
                 "method_id": self.method.id,
-                "unit_id": self.unit.id,
                 "department_id": self.department.id,
             }
         )
@@ -102,7 +101,6 @@ class TestMethodStepsInTesting(SchedulingCase):
             {
                 "parameter_id": self.parameter.id,
                 "method_id": self.stepless.id,
-                "unit_id": self.unit.id,
                 "department_id": self.department.id,
             }
         )
@@ -160,7 +158,6 @@ class TestMethodStepsInTesting(SchedulingCase):
             {
                 "parameter_id": self.parameter.id,
                 "method_id": self.stepless.id,
-                "unit_id": self.unit.id,
                 "department_id": self.department.id,
             }
         )

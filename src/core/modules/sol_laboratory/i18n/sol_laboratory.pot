@@ -943,11 +943,6 @@ msgid "A task type with this code already exists."
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_method_one_default
-msgid "A test parameter has only one default way of testing."
-msgstr ""
-
-#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/test_report.py:0
 msgid "A test report changes only through its signing and delivery."
@@ -3258,6 +3253,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__create_uid
 msgid "Created by"
 msgstr ""
 
@@ -3337,6 +3333,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__create_date
 msgid "Created on"
 msgstr ""
 
@@ -3615,7 +3612,7 @@ msgid "Decision"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__is_default
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__is_default
 msgid "Default"
 msgstr ""
 
@@ -4123,6 +4120,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_partner__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_users__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_users_apikeys__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -4757,6 +4755,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__lock_message
 msgid "Editing Lock"
 msgstr ""
 
@@ -5844,6 +5843,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_partner__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_users__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_users_apikeys__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__id
 msgid "ID"
 msgstr ""
 
@@ -6346,12 +6346,12 @@ msgid "Kind"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__lod
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__lod
 msgid "LOD"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__loq
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__loq
 msgid "LOQ"
 msgstr ""
 
@@ -6641,6 +6641,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__write_uid
 msgid "Last Updated by"
 msgstr ""
 
@@ -6720,6 +6721,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__write_date
 msgid "Last Updated on"
 msgstr ""
 
@@ -8285,6 +8287,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__parameter_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__parameter_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatch
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__parameter_id
 msgid "Parameter"
 msgstr ""
 
@@ -11347,7 +11350,7 @@ msgid "Result %(result)s was rejected: %(reason)s"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__result_decimals
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__result_decimals
 msgid "Result Decimals"
 msgstr ""
 
@@ -11767,6 +11770,7 @@ msgstr ""
 #: model:ir.model,name:sol_laboratory.model_medilab_sample_type
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__sample_type_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatch
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__sample_type_id
 msgid "Sample Type"
 msgstr ""
 
@@ -11775,6 +11779,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation__sample_type_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__sample_type_ids
 #: model:ir.ui.menu,name:sol_laboratory.menu_sample_type
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__applicability_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_parameter_form
 msgid "Sample Types"
 msgstr ""
 
@@ -14176,9 +14182,10 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/test_report.py:0
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__unit_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__unit_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__unit_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__unit_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__unit_id
 msgid "Unit"
 msgstr ""
 
@@ -14574,6 +14581,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__lock_watched
 msgid "Watching Lock"
 msgstr ""
 
@@ -14583,6 +14591,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__parameter_method_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__parameter_method_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__parameter_method_id
 msgid "Way of Testing"
 msgstr ""
 
@@ -14896,4 +14905,137 @@ msgstr ""
 #. module: sol_laboratory
 #: model:mail.template,subject:sol_laboratory.mail_template_task_reminder
 msgid "{{ object.name }}"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/test_parameter.py:0
+msgid ""
+"%(parameter)s cannot be ordered on %(sample_type)s: its default way of "
+"testing is unavailable and no other way is. %(reason)s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/test_parameter.py:0
+msgid "%(parameter)s is not offered on %(sample_type)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/parameter_method_sample_type.py:0
+msgid "%(way)s tests another parameter than %(parameter)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/parameter_method_sample_type.py:0
+msgid "%s is archived and cannot be the default way of testing."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/parameter_method.py:0
+msgid "%s is archived."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/parameter_method_sample_type.py:0
+msgid "%s: LOD and LOQ cannot be negative."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/parameter_method_sample_type.py:0
+msgid "%s: LOD cannot be greater than LOQ."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_method_sample_type_one_default
+msgid "A parameter has only one default way of testing for each sample type."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/parameter_method.py:0
+msgid ""
+"Choose another default way of testing, or stop offering the parameter on the"
+" sample type, before archiving the default: %s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/test_parameter.py:0
+msgid "Choose one default way of testing for each sample type: %s."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_sample_type_create_all
+msgid "Create sample types of ways of testing"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_sample_type_delete_all
+msgid "Delete sample types of ways of testing"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_sample_type_edit_all
+msgid "Edit sample types of ways of testing"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/parameter_method.py:0
+msgid "No machine that runs it is in use with a valid calibration."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_sample_type_create_all
+msgid "Permission: parameter.method.sample.type.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_sample_type_delete_all
+msgid "Permission: parameter.method.sample.type.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_sample_type_edit_all
+msgid "Permission: parameter.method.sample.type.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_parameter_method_sample_type
+msgid "Sample Type of a Way of Testing"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__applicability_ids
+msgid "Sample Types of the Ways of Testing"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/parameter_method.py:0
+msgid "The accreditation of %(subcontractor)s expired on %(date)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/test_parameter.py:0
+msgid ""
+"The default way of testing %(parameter)s on %(sample_type)s is unavailable. "
+"%(reason)s Choose one of: %(ways)s."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_method_sample_type_way_sample_type_unique
+msgid "The way of testing already applies to this sample type."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_parameter_search
+msgid "Ways without sample types"
 msgstr ""

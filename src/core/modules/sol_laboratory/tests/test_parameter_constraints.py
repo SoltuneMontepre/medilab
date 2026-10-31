@@ -1,6 +1,7 @@
 from psycopg2 import IntegrityError
 
 from odoo.exceptions import ValidationError
+from odoo.fields import Command
 from odoo.tests import tagged
 from odoo.tools import mute_logger
 
@@ -68,67 +69,21 @@ class TestParameterConstraints(MasterDataCase):
             "Cadmium (Cd)",
             groups[0],
             group_ids=groups.ids,
-            sample_type_ids=sample_types.ids,
             method_ids=[
-                (
-                    0,
-                    0,
-                    {
-                        "method_id": self.method.id,
-                        "unit_id": self.unit.id,
-                        "department_id": self.department.id,
-                        "is_default": True,
-                    },
-                ),
-                (
-                    0,
-                    0,
-                    {"method_id": self.icp_ms.id, "unit_id": self.unit.id, "department_id": self.department.id},
-                ),
+                Command.create({"method_id": self.method.id, "department_id": self.department.id}),
+                Command.create({"method_id": self.icp_ms.id, "department_id": self.department.id}),
             ],
         )
+        for sample_type in sample_types:
+            self.offer(parameter, sample_type)
 
         self.assertEqual(parameter.group_ids, groups)
         self.assertEqual(parameter.sample_type_ids, sample_types)
         self.assertEqual(parameter.method_ids.method_id, self.method | self.icp_ms)
 
-    def test_new_default_way_of_testing_replaces_the_previous_one(self):
-        alternative = self.env[MODEL_PARAMETER_METHOD].create(
-            {
-                "parameter_id": self.parameter.id,
-                "method_id": self.icp_ms.id,
-                "unit_id": self.unit.id,
-                "department_id": self.department.id,
-            }
-        )
-
-        alternative.is_default = True
-
-        self.assertFalse(self.pair.is_default)
-        self.assertEqual(self.parameter.method_ids.filtered("is_default"), alternative)
-
-    def test_two_defaults_at_once_are_refused(self):
-        parameter = self.create_parameter("Cadmium (Cd)", self.group)
-
-        with self.assertRaises(IntegrityError), mute_logger("odoo.sql_db"), self.env.cr.savepoint():
-            self.env[MODEL_PARAMETER_METHOD].create(
-                [
-                    {
-                        "parameter_id": parameter.id,
-                        "method_id": method.id,
-                        "unit_id": self.unit.id,
-                        "department_id": self.department.id,
-                        "is_default": True,
-                    }
-                    for method in self.method | self.icp_ms
-                ]
-            )
-
     def test_an_in_house_way_of_testing_without_a_department_is_refused(self):
         with self.assertRaisesRegex(ValidationError, "needs the department that tests it, or a subcontractor"):
-            self.env[MODEL_PARAMETER_METHOD].create(
-                {"parameter_id": self.parameter.id, "method_id": self.icp_ms.id, "unit_id": self.unit.id}
-            )
+            self.env[MODEL_PARAMETER_METHOD].create({"parameter_id": self.parameter.id, "method_id": self.icp_ms.id})
 
     def test_a_way_of_testing_cannot_lose_its_department(self):
         with self.assertRaisesRegex(ValidationError, "needs the department that tests it, or a subcontractor"):

@@ -28,6 +28,7 @@ class TestSubcontractDispatch(DispatchCase):
         self.assertEqual(dispatch.subcontractor_id, self.northern)
         self.assertEqual(dispatch.sample_test_ids, self.test)
         other_way = self.northern_way.copy({"parameter_id": other.parameter_id.id})
+        self.offer(other.parameter_id, self.sample_type, other_way)
         self.assertEqual(self.outsource(other, other_way), dispatch)
         self.assertEqual(dispatch.sample_test_ids, self.test | other)
 
@@ -94,6 +95,7 @@ class TestSubcontractDispatch(DispatchCase):
         other = self.add_test()
         other.outsourcing_suggested = True
         southern_way = self.southern_way.copy({"parameter_id": other.parameter_id.id})
+        self.offer(other.parameter_id, self.sample_type, southern_way)
 
         southern = self.send_dispatch(self.outsource(other, southern_way))
 

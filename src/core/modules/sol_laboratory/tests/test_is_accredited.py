@@ -40,7 +40,6 @@ class TestIsAccredited(MasterDataCase):
             {
                 "parameter_id": self.parameter.id,
                 "method_id": self.method.id,
-                "unit_id": self.unit.id,
                 "subcontractor_id": self.subcontractor.id,
             }
         )
@@ -122,7 +121,6 @@ class TestIsAccredited(MasterDataCase):
             {
                 "parameter_id": self.parameter.id,
                 "method_id": other_method.id,
-                "unit_id": self.unit.id,
                 "department_id": self.department.id,
             }
         )

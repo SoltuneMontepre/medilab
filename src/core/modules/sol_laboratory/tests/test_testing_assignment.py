@@ -25,15 +25,14 @@ class TestTestingAssignment(SchedulingCase):
 
     def test_assigning_a_sample_assigns_all_its_testing_tasks_in_the_department(self):
         copper = self.create_parameter("Copper (Cu)", self.group)
-        self.env[MODEL_PARAMETER_METHOD].create(
+        way = self.env[MODEL_PARAMETER_METHOD].create(
             {
                 "parameter_id": copper.id,
                 "method_id": self.method.id,
-                "unit_id": self.unit.id,
                 "department_id": self.department.id,
-                "is_default": True,
             }
         )
+        self.offer(copper, self.sample_type, way)
         second = self.env[MODEL_SAMPLE_TEST].create({"sample_id": self.sample.id, "parameter_id": copper.id})
         lead_task, copper_task = self.testing_task(self.test), self.testing_task(second)
         self.assign_sample(lead_task, self.tester)
@@ -70,11 +69,10 @@ class TestTestingAssignment(SchedulingCase):
             {
                 "parameter_id": coliforms.id,
                 "method_id": self.method.id,
-                "unit_id": self.unit.id,
                 "department_id": self.microbiology.id,
-                "is_default": True,
             }
         )
+        self.offer(coliforms, self.sample_type, way)
         incubator = self.env[MODEL_MACHINE].create({"code": "INC-1", "name": "Incubator 1"})
         self.env[MODEL_PARAMETER_METHOD_MACHINE].create(
             {"parameter_method_id": way.id, "machine_id": incubator.id, "run_minutes": 60}
