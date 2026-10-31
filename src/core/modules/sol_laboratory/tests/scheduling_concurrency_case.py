@@ -41,7 +41,10 @@ class SchedulingConcurrencyCase(SchedulingCommittedCase):
         With commits_first, the other thread then waits until that one has committed or been refused, so a chosen
         transaction commits while the other is open past its boundary. self.race_evidence keeps how the race ran.
         """
-        boundaries = boundaries or dict.fromkeys(NAMES, (model, method, boundary))
+        if boundaries is None:
+            if boundary is None:
+                raise ValueError("A race needs one boundary for both threads or one per thread")
+            boundaries = dict.fromkeys(NAMES, (model, method, boundary))
         gate = threading.Barrier(2, timeout=WAIT_SECONDS)
         loser_checked = threading.Event()
         finished = {name: threading.Event() for name in NAMES}
