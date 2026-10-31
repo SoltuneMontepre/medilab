@@ -50,6 +50,30 @@ class TestTaskReassigning(TaskCase):
         self.assign(task, department_id=self.chemistry.id, assignee_id=self.colleague.id, reason="An is on leave")
         self.assertEqual((task.assignee_id, task.reassign_reason), (self.colleague, "An is on leave"))
 
+    def test_whitespace_is_not_a_reason_for_reassignment_through_the_wizard(self):
+        task = self.create_by_hand(self.chemist, department_id=self.chemistry.id)
+        fields = ["assignee_id", "department_id", "status", "reassign_reason", "assigned_by_id", "write_date"]
+        before = task.read(fields)
+        for reason in ("   ", "\n\t"):
+            with self.subTest(reason=repr(reason)):
+                with self.assertRaisesRegex(UserError, "Give a reason for moving"), self.env.cr.savepoint():
+                    self.assign(task, department_id=self.chemistry.id, assignee_id=self.colleague.id, reason=reason)
+                self.assertEqual(task.read(fields), before)
+        self.assign(task, department_id=self.chemistry.id, assignee_id=self.colleague.id, reason="An is on leave")
+        self.assertEqual((task.assignee_id, task.reassign_reason), (self.colleague, "An is on leave"))
+
+    def test_whitespace_is_not_a_reason_for_a_direct_reassignment(self):
+        task = self.create_by_hand(self.chemist, department_id=self.chemistry.id)
+        fields = ["assignee_id", "department_id", "status", "reassign_reason", "assigned_by_id", "write_date"]
+        before = task.read(fields)
+        for reason in ("   ", "\n\t"):
+            with self.subTest(reason=repr(reason)):
+                with self.assertRaisesRegex(UserError, "Give a reason for moving"), self.env.cr.savepoint():
+                    self.as_person(task, self.head).write({"assignee_id": self.colleague.id, "reassign_reason": reason})
+                self.assertEqual(task.read(fields), before)
+        self.as_person(task, self.head).write({"assignee_id": self.colleague.id, "reassign_reason": "An is on leave"})
+        self.assertEqual((task.assignee_id, task.reassign_reason), (self.colleague, "An is on leave"))
+
     def test_moving_to_another_department_needs_a_reason(self):
         task = self.receive_sample(self.chemistry)
 

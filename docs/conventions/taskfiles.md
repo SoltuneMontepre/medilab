@@ -8,9 +8,10 @@ How the [Task](https://taskfile.dev) commands in this repository are written, an
 taskfile.yml                    entrypoint: includes the taskfiles and delegates unified setup
 tools/
 ├── ansible/                    Ansible image, its compose file and the entrypoint that loads the SSH key
+├── cloud/                      template of the Claude Code cloud environment variables that ai:env fills
 ├── odoo-intelligence/          Shared OdooLS MCP bridge, local installer, Serena launcher and tests
 ├── taskfiles/
-│   ├── ai.taskfile.yml         AI tooling: local Serena, OdooLS, source mirror, verification and isolated Cursor setup
+│   ├── ai.taskfile.yml         AI tooling: local Serena, OdooLS, source mirror, verification, cloud environment variables and isolated Cursor setup
 │   ├── ansible.taskfile.yml    Ansible in a container: ping, inspect, check, apply, kubeconfig, lint
 │   ├── setup.taskfile.yml      Guarded fresh-demo selection, switching and recovery
 │   ├── onlyoffice.taskfile.yml Owned local ONLYOFFICE lifecycle and verification
@@ -24,6 +25,7 @@ tools/
     ├── log.sh                  output helpers sourced by the tasks
     ├── doppler.sh              Doppler login helper sourced by the tasks
     ├── ai_setup.sh             ai:setup prerequisites and environment
+    ├── ai_env.sh               ai:env: cloud environment variables from Doppler
     ├── odoo_source.sh          dev:odoo-source download and sparse checkout
     ├── compose_env.py          dev:compose-env: this checkout's compose project in tools/infrastructure/.env
     ├── test_apps.sh            test:apps

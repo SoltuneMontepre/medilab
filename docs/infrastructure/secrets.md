@@ -12,6 +12,8 @@ Programs that need shared credentials start through `doppler run --project medil
 
 The native Sync app uses the operating system credential store for each user's API credential; its existing explicitly enabled file-fallback policy remains unchanged. Setup neither imports that credential from Doppler nor changes the installed app's profile or keyring. Development endpoint metadata contains no API credential. Use an isolated OS account or verified private credential-store session for desktop acceptance tests.
 
+The only credential a Claude Code cloud environment holds is `DOPPLER_TOKEN`, an environment variable that `task ai:env` writes to `.local/cloud.env` for pasting into its settings; `doppler run` reads the other secrets through it. See [Working in a cloud session](../workflows/cloud-session.md).
+
 ## Doppler config
 
 | Project   | Config  | Contains                                                                                                                                                                                                                                                                                                                                                                                                                     | Read by                                                                         |

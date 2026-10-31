@@ -151,6 +151,7 @@ When `BUCKET_FILESTORE=1` and the laboratory bucket settings are present, `ir.at
 - Writing an attachment (`_file_write`) writes the file to the local filestore first, then uploads it to `filestore/<database>/<store_fname>` when the object is not in the bucket yet.
 - Reading (`_file_read`) or streaming (`_to_http_stream`) an attachment checks the local filestore first; when the file is missing locally, it downloads the object into a temporary file in the target folder, marks it read-only (`0444`), and replaces the target path before Odoo reads it.  A file in neither place reads as empty, and the read logs a warning with the file name.
 - At the end of a module install or update (`_register_hook` when `init` or `update` is set), every attachment file already in the local filestore—including files Odoo wrote before `sol_laboratory` loaded—is uploaded to the bucket if missing.
+- Files the bucket held when it was mounted as the filestore, at `<database>/<store_fname>` in its root, are moved under `filestore/<database>/` by the `sol_laboratory` upgrade (`_move_mounted_files`): each one is read and written to its new key unless that key already has it, then removed from the root. Other objects under `<database>/`, such as Odoo's `checklist` files, are left as they are.
 - Odoo's daily autovacuum (`_gc_filestore_bucket`) lists `filestore/<database>/` and deletes objects older than 24 hours that no `ir.attachment` row references, leaving newer objects that an in-flight transaction may still be creating.
 
 ### File locks

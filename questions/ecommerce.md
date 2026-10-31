@@ -17,6 +17,7 @@
 - **Quotation and posting task deadlines.** A quotation task is due 24 elapsed hours after the order is submitted, and an invoice posting task 24 elapsed hours after the invoice is drafted, as for support requests. Are these the right defaults, and should only working hours count? (blocks US-S01, US-A02)
 - **Quotation task for sales orders.** An order sales creates on behalf of a customer is claimed at once and gets no quotation task. Should it get one in its salesperson's to-do list, so every unsent quotation is a task? (blocks US-S02)
 - **Orders already in the queue.** Orders submitted before quotation tasks existed have no task. Should the upgrade create one for each order still waiting in the queue or claimed and not quoted yet? (blocks US-S01)
+- **Reorder of an order in progress.** The portal offers Reorder on every order except a draft, which is still the cart, as Reorder's source rule allows any order that is not completed. Should an order still in progress, submitted, quoted or in testing, also not offer it, so only completed and cancelled orders do? (US-C10)
 - **Other waiting steps as tasks.** Which of these become tasks, for whom, when are they done, and with what deadline and schedule? (blocks SH-10)
   - A cash or transfer payment sales recorded, waiting for the accountant to confirm or reject it (US-A08).
   - A quotation above the Head of Sales's thresholds, waiting for them to approve it before it is sent (US-S07).
@@ -26,6 +27,7 @@
   - A support request about no order, waiting in the queue until a salesperson takes it (US-S20).
   - An account flagged as a possible duplicate, waiting for sales to clear or merge it (US-S04).
   - A day of PayOS transactions, waiting for the accountant to reconcile and lock it (US-A13).
+- **Whole quantities on orders.** An order template line is a whole number of parameters or packages, but the order form and the cart only refuse a quantity below 1, so an order can still carry 1.5 tests and cannot then be saved as a template. Must an order line also be a whole number? (US-S09)
 
 - **Head of Sales approving their own quotation.** Who approves a quotation above the thresholds when the only Head of Sales prepared it? Proposed answer, not decided: another salesperson asks for the approval, or the administrator sets a substitute approver in the chain.
 - **Measuring approval thresholds.** Is the discount threshold measured per line or on the whole quotation, and before or after VAT? Proposed answer, not decided: the discount share is (catalog total − total after every discount) / catalog total before VAT, worked out for the whole quotation and for each line, taking the larger; the amount threshold is compared with the total after discounts, VAT included.

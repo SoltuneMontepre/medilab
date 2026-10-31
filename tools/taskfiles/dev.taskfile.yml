@@ -5,7 +5,7 @@ vars:
   UV: uv --project {{.PROJECT_DIR}}
   ODOO_SOURCE_DIR: .local/odoo-source
   ODOO_SOURCE_REVISION: 7434faa93558d4f46fdda77acd1be4dfc663ea7c
-  ODOO_ADDONS: [web, account, auth_signup, portal]
+  ODOO_ADDONS: [web, account, auth_signup, payment, portal, sale]
   MODULES_DIR: src/core/modules
   LINT_TARGET: "{{.MODULES_DIR}}"
   TYPECHECK_DIR: tools/typecheck
