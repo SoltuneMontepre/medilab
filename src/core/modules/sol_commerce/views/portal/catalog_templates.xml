@@ -49,20 +49,20 @@
 
     <template id="catalog_products">
         <div class="table-responsive">
-            <table class="table">
+            <table class="table align-middle">
                 <thead>
                     <tr>
                         <th>Name</th>
-                        <th class="text-end">Price</th>
-                        <th />
+                        <th class="text-end o_medilab_shrink">Price</th>
+                        <th class="o_medilab_shrink" />
                     </tr>
                 </thead>
                 <tbody>
                     <t t-foreach="products" t-as="product">
                         <tr>
                             <td t-out="product.name" />
-                            <td class="text-end" t-out="product.list_price" t-options="{'widget': 'monetary', 'display_currency': product.currency_id}" />
-                            <td class="text-end">
+                            <td class="text-end o_medilab_shrink" t-out="product.list_price" t-options="{'widget': 'monetary', 'display_currency': product.currency_id}" />
+                            <td class="text-end o_medilab_shrink">
                                 <form action="/catalog/add" method="post" class="d-flex justify-content-end gap-2">
                                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
                                     <input type="hidden" name="product_tmpl_id" t-att-value="product.id" />

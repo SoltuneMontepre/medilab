@@ -22,6 +22,7 @@
             <field name="description">Ask the laboratory for help and follow the conversation</field>
             <field name="url">/support</field>
             <field name="image" type="bytes" file="sol_commerce/static/src/img/portal-support.svg" />
+            <field name="is_config_card" eval="True" />
             <field name="category">client_category</field>
             <field name="sequence" eval="60" />
         </record>

@@ -8,31 +8,41 @@
                     <a class="btn btn-primary" href="/support/new"><iconify-icon icon="mdi:plus" class="me-1" aria-hidden="true" />New request</a>
                 </div>
                 <p t-if="not requests">You have not asked for help yet.</p>
-                <table t-if="requests" class="table">
-                    <thead>
-                        <tr>
-                            <th>Request</th>
-                            <th>Subject</th>
-                            <th>Order</th>
-                            <th>Status</th>
-                            <th>Opened</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <t t-set="statuses" t-value="dict(requests._fields['status']._description_selection(requests.env))" />
-                        <tr t-foreach="requests" t-as="support_request">
-                            <td><a t-att-href="'/support/%s' % support_request.id" t-out="support_request.code" /></td>
-                            <td t-out="support_request.subject" />
-                            <td>
-                                <a t-if="support_request.order_id" t-att-href="'/orders/%s' % support_request.order_id.id" t-out="support_request.order_id.name" />
-                            </td>
-                            <td t-out="statuses[support_request.status]" />
-                            <td t-out="support_request.create_date" t-options="{'widget': 'datetime'}" />
-                        </tr>
-                    </tbody>
-                </table>
+                <div t-if="requests" class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Request</th>
+                                <th>Subject</th>
+                                <th>Order</th>
+                                <th>Status</th>
+                                <th class="d-none d-md-table-cell">Opened</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-set="statuses" t-value="dict(requests._fields['status']._description_selection(requests.env))" />
+                            <tr t-foreach="requests" t-as="support_request">
+                                <td><a t-att-href="'/support/%s' % support_request.id" t-out="support_request.code" /></td>
+                                <td>
+                                    <t t-out="support_request.subject" />
+                                    <div class="small text-muted d-md-none" t-out="support_request.create_date" t-options="{'widget': 'datetime'}" />
+                                </td>
+                                <td>
+                                    <a t-if="support_request.order_id" t-att-href="'/orders/%s' % support_request.order_id.id" t-out="support_request.order_id.name" />
+                                </td>
+                                <td><t t-call="sol_commerce.support_status" /></td>
+                                <td class="d-none d-md-table-cell" t-out="support_request.create_date" t-options="{'widget': 'datetime'}" />
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </t>
+    </template>
+
+    <template id="support_status" name="Support request status">
+        <t t-set="status_classes" t-value="{'open': 'text-bg-warning', 'answered': 'text-bg-info', 'closed': 'text-bg-light border'}" />
+        <span t-attf-class="badge #{status_classes.get(support_request.status, 'text-bg-secondary')}" t-out="statuses[support_request.status]" />
     </template>
 
     <template id="support_new" name="New support request">
@@ -76,7 +86,8 @@
             <div class="container py-4">
                 <p><a href="/support">Back to the support requests</a></p>
                 <h1><t t-out="support_request.code" /> <t t-out="support_request.subject" /></h1>
-                <p>Status: <t t-out="dict(support_request._fields['status']._description_selection(support_request.env))[support_request.status]" /></p>
+                <t t-set="statuses" t-value="dict(support_request._fields['status']._description_selection(support_request.env))" />
+                <p>Status: <t t-call="sol_commerce.support_status" /></p>
                 <p t-if="support_request.order_id">
                     Order: <a t-att-href="'/orders/%s' % support_request.order_id.id" t-out="support_request.order_id.name" />
                 </p>

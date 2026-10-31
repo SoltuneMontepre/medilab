@@ -39,3 +39,45 @@ a.btn-secondary {
 .o_medilab_catalog_filter option {
     color: $ml-text;
 }
+
+// The portal's section links: the current one is underlined, and below the large breakpoint they take their own row
+// under the logo, side by side, scrolling sideways when they do not fit.
+.o_medilab_portal_navigation {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: map-get($spacers, 3);
+    margin-left: map-get($spacers, 3);
+
+    .nav-link.active {
+        font-weight: $font-weight-semibold;
+        box-shadow: inset 0 -2px 0 currentColor;
+    }
+}
+
+@include media-breakpoint-down(lg) {
+    .navbar > .container:has(.o_medilab_portal_navigation) {
+        flex-wrap: wrap;
+    }
+
+    .o_medilab_portal_navigation {
+        order: 3;
+        width: 100%;
+        margin-left: 0;
+        gap: 0;
+        justify-content: space-between;
+        overflow-x: auto;
+    }
+}
+
+// On a phone the section links drop their icons, so the four of them fit in Vietnamese too.
+@include media-breakpoint-down(sm) {
+    .o_medilab_portal_navigation iconify-icon {
+        display: none;
+    }
+}
+
+// A column sized to its content, so the columns after the first line up across tables.
+.o_medilab_shrink {
+    width: 1%;
+    white-space: nowrap;
+}
