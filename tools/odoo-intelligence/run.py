@@ -39,14 +39,22 @@ mode = sys.argv[1] if len(sys.argv) == 2 else None
 if mode in GIT_MESSAGE_HOOKS:
     script = str(project.parents[1] / ".claude/hooks/check_git_message.py")
     raise SystemExit(subprocess.call([sys.executable, script, *GIT_MESSAGE_HOOKS[mode]]))
-uv = shutil.which("uv")
-if uv is None:
-    raise SystemExit("uv not found. Install https://docs.astral.sh/uv/ and run task ai:setup.")
 arguments = COMMANDS.get(mode)
 if arguments is None:
     raise SystemExit(f"run.py takes one of: {', '.join([*COMMANDS, *GIT_MESSAGE_HOOKS])}.")
-command = [uv, "run", "--locked", "--project", str(project), "medilab-odoo", *arguments]
+# Hooks run before every tool call, so they skip uv's lock check and use the environment the servers keep in sync.
+# Windows environments keep it in Scripts, others in bin; which() adds the platform's executable suffix.
+environment = os.pathsep.join(str(project / ".venv" / folder) for folder in ("Scripts", "bin"))
+python = shutil.which("python", path=environment) if mode.startswith("hook-") else None
+if python is not None:
+    executable = python
+    command = [executable, "-P", "-m", "odoo_intelligence.cli", *arguments]
+else:
+    executable = shutil.which("uv")
+    if executable is None:
+        raise SystemExit("uv not found. Install https://docs.astral.sh/uv/ and run task ai:setup.")
+    command = [executable, "run", "--locked", "--project", str(project), "medilab-odoo", *arguments]
 # On Windows os.execv starts a separate process and exits, which closes the client's stdio pipes.
 if os.name == "nt":
     raise SystemExit(subprocess.call(command))
-os.execv(uv, command)
+os.execv(executable, command)

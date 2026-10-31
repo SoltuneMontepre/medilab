@@ -47,6 +47,7 @@
                                     <field name="lod" />
                                     <field name="loq" />
                                     <field name="result_decimals" />
+                                    <field name="allows_negative" optional="hide" />
                                     <field name="is_accredited" readonly="1" />
                                     <field name="active" widget="boolean_toggle" />
                                 </list>

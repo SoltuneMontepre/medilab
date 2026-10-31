@@ -47,7 +47,7 @@ def seed_order_templates(env):
                         Command.create(
                             {
                                 "product_id": product.product_variant_ids.id,
-                                "product_uom_qty": 1.5 if product.parameter_id else 1,
+                                "product_uom_qty": 2 if product.parameter_id else 1,
                             }
                         )
                         for product in products

@@ -26,9 +26,19 @@ class MailMessageSubtype(models.Model):
     _code_unique = models.UniqueIndex("(code) WHERE code IS NOT NULL", "An event with this code already exists.")
 
     def write(self, vals):
-        if vals.get("enabled") is False and any(event.mandatory for event in self):
+        required = self.filtered("mandatory")
+        disabling = "enabled" in vals and not vals["enabled"]
+        changes_rule = ("mandatory" in vals and not vals["mandatory"]) or (
+            "code" in vals and any(event.code != vals["code"] for event in required)
+        )
+        if required and (disabling or (changes_rule and not self.env.su)):
             raise UserError(self.env._("A mandatory event cannot be turned off."))
         return super().write(vals)
+
+    def unlink(self):
+        if not self.env.su and any(event.mandatory for event in self):
+            raise UserError(self.env._("A mandatory event cannot be turned off."))
+        return super().unlink()
 
     @api.model
     def _event(self, code):

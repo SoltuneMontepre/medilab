@@ -71,6 +71,23 @@ class IrAttachment(models.Model):
                 laboratory_bucket.delete(key)
 
     @api.model
+    def _move_mounted_files(self):
+        """Move the files the bucket held when it was mounted as the filestore, at `<database>/<store_fname>`, to their
+        key under the filestore prefix. The object is read and written again, as server-side copies are limited."""
+        if not laboratory_bucket.filestore_enabled():
+            return
+        prefix = f"{self.env.cr.dbname}/"
+        for key, _modified in list(laboratory_bucket.keys(prefix)):
+            fname = key.removeprefix(prefix)
+            if not STORED_FILE.fullmatch(fname):
+                continue
+            target = self._bucket_key(fname)
+            if laboratory_bucket.object_size(target) is None:
+                with laboratory_bucket.read(key) as chunks:
+                    laboratory_bucket.write(target, chunks)
+            laboratory_bucket.delete(key)
+
+    @api.model
     def _upload_file(self, fname):
         key = self._bucket_key(fname)
         if laboratory_bucket.object_size(key) is not None:

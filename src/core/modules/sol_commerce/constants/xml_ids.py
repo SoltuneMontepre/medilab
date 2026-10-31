@@ -6,6 +6,8 @@ MAIN_COMPANY = "base.main_company"
 PAYMENT_RECEIPT_REPORT = "account.action_report_payment_receipt"
 PUBLIC_PARTNER = "base.public_partner"
 QUOTATION_REPORT = "sale.action_report_saleorder"
+# Odoo's portal home cards of sales orders and quotations, which customers do not use.
+SALE_PORTAL_ENTRIES = ("sale.portal_quotations_to_review", "sale.portal_your_orders")
 SUPPORT_TASK_TYPE = "sol_commerce.task_type_support_request"
 # The generated accesses that a salesperson's support request permissions give.
 SUPPORT_READ_ACCESS = "sol_laboratory.access_permission_support_request_read_all"

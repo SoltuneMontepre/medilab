@@ -5,6 +5,7 @@ from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.fields import Command, Domain
 
+from odoo.addons.sol_laboratory.constants.approvals import STATE_NONE
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_LOCK_MIXIN,
@@ -22,9 +23,14 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TEST_RESULT,
 )
 from odoo.addons.sol_laboratory.constants.tasks import SAMPLE_RECEIVED_TRIGGER, TESTING_ACTION
+from odoo.addons.sol_laboratory.models.sample_collection.subcontract_dispatch import SENT_STATUSES
 
 # The statuses of a test still open for work: it can be measured, scheduled or cancelled.
 OPEN_STATUSES = ("waiting", "assigned", "testing")
+# The statuses of a sample while results can be entered for its tests.
+OPEN_SAMPLE_STATUSES = ("received", "testing")
+# The statuses of a sample test while a result can be entered for it: open, or sent to a subcontractor.
+MEASURABLE_STATUSES = (*OPEN_STATUSES, "outsourced")
 FINISHED_STATUSES = ("approved", "cancelled")
 END_OF_DAY = time(23, 59, 59)
 
@@ -100,6 +106,8 @@ class SampleTest(models.Model):
     # True when the current person belongs to the department of the test's testing task, which may outsource it
     # straight away.
     tested_by_my_department = fields.Boolean(compute="_compute_tested_by_my_department")
+    # True when a result can be entered for the test now.
+    can_enter_result = fields.Boolean(compute="_compute_can_enter_result")
     # The subcontractor that tests it; empty when the laboratory tests it in-house.
     subcontractor_id = fields.Many2one(related="parameter_method_id.subcontractor_id")
     # Dispatches that send the test to a subcontractor.
@@ -161,6 +169,42 @@ class SampleTest(models.Model):
         person = self.env[MODEL_PERSON]._current()
         for test in self:
             test.tested_by_my_department = test._tested_by_department_of(person)
+
+    @api.depends(
+        "status",
+        "sample_id.status",
+        "dispatch_ids.status",
+        "result_ids.is_reported",
+        "result_ids.status",
+    )
+    def _compute_can_enter_result(self):
+        for test in self:
+            test.can_enter_result = not test._result_refusal()
+
+    def _result_refusal(self):
+        """Why no result can be entered for the test now; empty when one can. An outsourced test takes results once
+        its dispatch is sent, and its subcontractor's result waiting to be sent comes before any other."""
+        self.ensure_one()
+        test = self.sudo()
+        if test.status not in MEASURABLE_STATUSES or test.sample_id.status not in OPEN_SAMPLE_STATUSES:
+            return self.env._(
+                "A result is entered only for a received sample while %s is waiting, assigned, in testing "
+                "or outsourced.",
+                test.display_name,
+            )
+        if test.status != "outsourced":
+            return ""
+        if not test.dispatch_ids.filtered(lambda dispatch: dispatch.status in SENT_STATUSES):
+            return self.env._("Send %s to its subcontractor before entering its result.", test.display_name)
+        if test.result_ids.filtered(
+            lambda result: result.is_reported and result.status == STATE_NONE and result.entered_by_id.share
+        ):
+            return self.env._(
+                "The subcontractor's result of %s waits to be sent; send it, or have it rejected, before entering "
+                "another.",
+                test.display_name,
+            )
+        return ""
 
     def _compute_recommendation(self):
         bookings = self.env[MODEL_MACHINE_BOOKING]
