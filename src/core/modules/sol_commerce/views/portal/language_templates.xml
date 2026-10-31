@@ -6,6 +6,11 @@
         </xpath>
     </template>
 
+    <!-- Odoo's footer switcher changes only the page's language; the header one also saves the customer's choice. -->
+    <template id="portal_footer_language" inherit_id="portal.footer_language_selector" name="No footer language switcher">
+        <xpath expr="//t[@id='language_selector_call']" position="replace" />
+    </template>
+
     <template id="language_switcher" name="Language switcher">
         <t t-set="active_language" t-value="frontend_languages.get(request.env.lang)" />
         <li t-if="len(frontend_languages) &gt; 1" class="nav-item dropdown o_medilab_language_switcher">
