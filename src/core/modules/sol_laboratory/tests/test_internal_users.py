@@ -3,8 +3,15 @@ from odoo.fields import Command
 from odoo.tests import tagged
 
 from .people_case import PeopleCase
-from odoo.addons.sol_laboratory.constants.models import MODEL_EMPLOYEE, MODEL_PERSON, MODEL_RES_USERS, MODEL_USER_LINK
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_EMPLOYEE,
+    MODEL_PERSON,
+    MODEL_RES_GROUPS,
+    MODEL_RES_USERS,
+    MODEL_USER_LINK,
+)
 from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_ROLE
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 
 @tagged("post_install", "-at_install")
@@ -60,20 +67,24 @@ class TestInternalUsers(PeopleCase):
 
         with self.assertRaisesRegex(UserError, "only through a person"):
             self.as_administrator(self.portal).write(
-                {"group_ids": [Command.unlink(portal.id), Command.link(internal.id)]}
+                {"group_ids": [Command.unlink(persisted_id(portal)), Command.link(persisted_id(internal))]}
             )
         # Taken out of the portal group first, the user is added to the internal one from the group.
-        self.as_administrator(portal).write({"user_ids": [Command.unlink(self.portal.id)]})
+        self.as_administrator(portal).write({"user_ids": [Command.unlink(persisted_id(self.portal))]})
         with self.assertRaisesRegex(UserError, "only through a person"):
-            self.as_administrator(internal).write({"user_ids": [Command.link(self.portal.id)]})
+            self.as_administrator(internal).write({"user_ids": [Command.link(persisted_id(self.portal))]})
         self.assertTrue(self.portal.share)
 
     def test_a_group_cannot_make_its_archived_portal_users_internal(self):
-        group = self.env["res.groups"].create({"name": "Visitors", "user_ids": [Command.link(self.portal.id)]})
+        group = self.env[MODEL_RES_GROUPS].create(
+            {"name": "Visitors", "user_ids": [Command.link(persisted_id(self.portal))]}
+        )
         self.portal.action_archive()
 
         with self.assertRaisesRegex(UserError, "only through a person"):
-            self.as_administrator(group).write({"implied_ids": [Command.link(self.env.ref("base.group_user").id)]})
+            self.as_administrator(group).write(
+                {"implied_ids": [Command.link(persisted_id(self.env.ref("base.group_user")))]}
+            )
         self.assertTrue(self.portal.share)
 
     def test_administrator_creates_an_internal_user_by_giving_a_person_a_login(self):
