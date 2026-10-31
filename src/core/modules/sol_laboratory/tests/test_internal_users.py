@@ -68,6 +68,14 @@ class TestInternalUsers(PeopleCase):
             self.as_administrator(internal).write({"user_ids": [Command.link(self.portal.id)]})
         self.assertTrue(self.portal.share)
 
+    def test_a_group_cannot_make_its_archived_portal_users_internal(self):
+        group = self.env["res.groups"].create({"name": "Visitors", "user_ids": [Command.link(self.portal.id)]})
+        self.portal.action_archive()
+
+        with self.assertRaisesRegex(UserError, "only through a person"):
+            self.as_administrator(group).write({"implied_ids": [Command.link(self.env.ref("base.group_user").id)]})
+        self.assertTrue(self.portal.share)
+
     def test_administrator_creates_an_internal_user_by_giving_a_person_a_login(self):
         person = self.as_administrator(self.env[MODEL_PERSON]).create({"name": "Do Van Khoa", "login": "khoa.do"})
 
