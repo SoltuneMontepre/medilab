@@ -80,6 +80,14 @@
         <field name="interval_number">1</field>
         <field name="interval_type">days</field>
     </record>
+    <record id="ir_cron_role_grants_expire" model="ir.cron">
+        <field name="name">Remove roles at the end of their date</field>
+        <field name="model_id" ref="model_medilab_scheduled_job" />
+        <field name="state">code</field>
+        <field name="code">model._run_key("role_grants.expire")</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">hours</field>
+    </record>
     <record id="ir_cron_laboratory_file_locks_expire" model="ir.cron">
         <field name="name">Expire laboratory file locks</field>
         <field name="model_id" ref="model_medilab_scheduled_job" />

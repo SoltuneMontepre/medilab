@@ -7,7 +7,7 @@ from odoo.tools.sql import column_exists
 from .common import MasterDataCase
 from odoo.addons.sol_laboratory.constants.models import MODEL_PARAMETER_METHOD, MODEL_SAMPLE_TYPE, MODEL_TESTING_METHOD
 
-POST_MIGRATE = Path(__file__).resolve().parents[1] / "migrations" / "20.0.1.22.0" / "post-migrate.py"
+POST_MIGRATE = Path(__file__).resolve().parents[1] / "migrations" / "20.0.1.24.0" / "post-migrate.py"
 
 
 @tagged("post_install", "-at_install")
