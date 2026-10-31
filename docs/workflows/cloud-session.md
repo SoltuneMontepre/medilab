@@ -86,7 +86,7 @@ Do this once per cloud environment, in its settings: the environment menu in the
    mcp.slack.com
    ```
 
-`DOPPLER_TOKEN` is the read-only service token of `dev`; `doppler run` reads the other secrets through it, so the cloud environment holds no other credential. `MEDILAB_ODOO_IMAGE` makes `task up` run the image that `cd-core` publishes instead of building one: the build fails in a session, because its container does not trust the proxy's certificate. The image carries the Python packages of `main`; the modules come from the checkout. The setup script cannot read the environment variables; the Doppler CLI reads `DOPPLER_TOKEN` later, in the session. Install tools from package registries: `curl ... | sh` installers are refused in a session.
+`DOPPLER_TOKEN` is the read-only service token of `dev`; `doppler run` reads the other secrets through it, so the cloud environment holds no other credential. `MEDILAB_ODOO_IMAGE` makes `task up` run the image that `cd-core` publishes instead of building one: the production build fails in a session, for the reasons in [Cloud network](../conventions/cloud_network.md). The image carries the Python packages of `main`; the modules come from the checkout. The setup script cannot read the environment variables; the Doppler CLI reads `DOPPLER_TOKEN` later, in the session. Write scripts and Dockerfiles for a session by [Cloud network](../conventions/cloud_network.md).
 
 ## Start a session
 
@@ -116,6 +116,7 @@ The database listens on `localhost:15432` with user and password `root`. When it
 
 ## Related documents
 
+- [Cloud network](../conventions/cloud_network.md)
 - [Secrets](../infrastructure/secrets.md)
 - [Odoo intelligence](odoo-intelligence.md)
 - [Taskfile conventions](../conventions/taskfiles.md)
