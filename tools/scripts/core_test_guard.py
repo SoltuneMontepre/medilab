@@ -13,6 +13,7 @@ import sys
 
 from demo_bootstrap import ROOT
 from local_compose import _resolve
+from local_private_paths import LocalPrivatePathError, ensure_local_directory
 
 MARKERS = ROOT / ".local/core-test-runs"
 
@@ -151,7 +152,10 @@ def prepare():
         raise CoreTestError(
             "The Odoo test directory already exists; refusing to overwrite it."
         )
-    path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        ensure_local_directory(ROOT, path.parent)
+    except LocalPrivatePathError as error:
+        raise CoreTestError(str(error)) from None
     with path.open("x", encoding="utf-8") as output:
         json.dump(state, output, indent=2, sort_keys=True)
         output.write("\n")
