@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 import requests
 
 from odoo.tests import TransactionCase
-from odoo.tests.common import BaseCase, _super_send
+from odoo.tests.common import _super_send
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_CONTENT
 from odoo.addons.sol_laboratory.services import laboratory_bucket
@@ -32,7 +32,15 @@ def remove_written_objects(case):
 
 
 if TYPE_CHECKING:
-    BucketToolsBase = BaseCase
+    from collections.abc import Callable
+
+    class BucketToolsBase:
+        def addCleanup[**Params](
+            self, function: Callable[Params, object], /, *args: Params.args, **kwargs: Params.kwargs
+        ) -> None: ...
+
+        @classmethod
+        def _request_handler(cls, s: requests.Session, r: requests.PreparedRequest, /, **kw) -> requests.Response: ...
 else:
     BucketToolsBase = object
 

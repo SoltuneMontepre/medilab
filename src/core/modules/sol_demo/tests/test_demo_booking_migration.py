@@ -45,6 +45,14 @@ class TestDemoBookingMigration(SchedulingCase):
         self.xml_id.res_id = persisted_id(self.booking)
         self.env.flush_all()
 
+    def migration_graph(self):
+        # Odoo removes this installation state before post-install tests.
+        self.enterContext(patch.object(self.env.registry, "_force_upgrade_scripts", set(), create=True))
+        graph = ModuleGraph(self.env.cr)
+        installed = self.env["ir.module.module"].search([("state", "=", "installed")])
+        graph.extend([name for name in installed.mapped("name") if name is not False])
+        return graph
+
     def pre_migrate(self):
         load_script(str(MIGRATIONS / "20.0.1.10.0" / "pre-migrate.py"), "demo_booking_pre").migrate(
             self.env.cr, "20.0.1.9.0"
@@ -56,8 +64,7 @@ class TestDemoBookingMigration(SchedulingCase):
         calibration = self.env.ref("sol_demo.demo_machine_service_aas_calibration")
         with patch.object(type(self.booking), "_process_queue"):
             calibration.unlink()
-        graph = ModuleGraph(self.env.cr)
-        graph.extend(["sol_demo"])
+        graph = self.migration_graph()
         package = graph["sol_demo"]
         package.load_state = "to upgrade"
         package.load_version = "20.0.1.9.0"
@@ -137,17 +144,14 @@ class TestDemoBookingMigration(SchedulingCase):
         self.assertEqual((self.test.due_date, self.test.outsourcing_suggested, self.booking.task_id.deadline), original)
 
     def test_a_fresh_install_does_not_run_upgrade_migrations(self):
-        graph = ModuleGraph(self.env.cr)
-        graph.extend(["sol_demo"])
+        graph = self.migration_graph()
         package = graph["sol_demo"]
         package.load_state = "to install"
         package.load_version = None
         original = (self.test.due_date, self.test.outsourcing_suggested, self.booking.task_id.deadline)
 
-        # Odoo removes this installation-only registry state before running post-install tests.
-        with patch.object(self.env.registry, "_force_upgrade_scripts", set(), create=True):
-            manager = MigrationManager(self.env.cr, graph)
-            manager.migrate_module(package, "pre")
-            manager.migrate_module(package, "post")
+        manager = MigrationManager(self.env.cr, graph)
+        manager.migrate_module(package, "pre")
+        manager.migrate_module(package, "post")
 
         self.assertEqual((self.test.due_date, self.test.outsourcing_suggested, self.booking.task_id.deadline), original)
