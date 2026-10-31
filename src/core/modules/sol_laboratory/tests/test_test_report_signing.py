@@ -100,6 +100,19 @@ class TestTestReportSigning(ReportCase):
         self.assertIn(self.parameter.name, printed)
         self.assertNotIn(arsenic.parameter_id.name, printed)
 
+    def test_a_report_with_a_result_the_head_approved_themself_waits_for_the_lab_head(self):
+        result = self.enter(person=self.head)
+        self.send(result, self.head)
+        self.approve(result)
+        report = self.report()
+
+        self.assertEqual(report.status, "draft")
+        self.assertFalse(report.code)
+        self.sign(report)
+
+        self.assertEqual(report.status, "issued")
+        self.assertEqual([signer["name"] for signer in report._print_signers()], [self.head.name, self.lab_head.name])
+
     def test_only_the_lab_head_signs_and_an_issued_report_is_locked(self):
         self.complete()
         report = self.report()

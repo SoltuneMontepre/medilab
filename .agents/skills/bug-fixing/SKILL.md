@@ -1,6 +1,6 @@
 ---
 name: bug-fixing
-description: Fix the lowest-numbered open MediLab bug issue: reproduce it, prove it with a failing test, fix the cause, check it in the browser and open its pull request. Use for /bug-fixing or when asked to fix the next bug. A bug number given by the user replaces the lowest one.
+description: "Fix the lowest-numbered open MediLab bug issue: reproduce it, prove it with a failing test, fix the cause, check it in the browser and open its pull request. Use for /bug-fixing or when asked to fix the next bug. A bug number given by the user replaces the lowest one."
 ---
 
 # Bug fixing

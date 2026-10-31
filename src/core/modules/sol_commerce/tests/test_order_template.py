@@ -10,7 +10,7 @@ class TestOrderTemplate(TemplateCase):
         self.assertIn("medilab.order.template", self.env)
         self.assertIn("medilab.order.template.line", self.env)
 
-    def test_save_preserves_catalog_selections_and_fractional_quantities(self):
+    def test_save_preserves_catalog_selections_and_quantities(self):
         source = self.template_source()
         source._catalog_lines().discount = 15
         template = self.save_template(source)
@@ -18,23 +18,38 @@ class TestOrderTemplate(TemplateCase):
         self.assertEqual(template.source_order_id, source)
         self.assertEqual(
             [(line.product_id.id, line.quantity) for line in template.line_ids],
-            [(self.lead_product.id, 1.5), (self.package_product.id, 2.25)],
+            [(self.lead_product.id, 2), (self.package_product.id, 3)],
         )
         self.assertEqual(len(source.order_line), 4)
         self.assertNotIn("price_unit", template.line_ids._fields)
 
     def test_valid_and_invalid_quantities_in_both_workflows(self):
-        for quantity in (1, 1.5, 2.25):
+        for quantity in (1, 2, 3.0):
             with self.subTest(quantity=quantity):
                 template = self.save_template(self.template_source([(self.lead_product, quantity)]))
                 self.assertEqual(template.line_ids.quantity, quantity)
                 self.assertEqual(self.reuse(template)._catalog_lines().product_uom_qty, quantity)
         template = self.save_template(self.template_source([(self.lead_product, 1)]))
-        for quantity in (0.5, 0, -1):
+        for quantity in (1.5, 2.25, 0.5, 0, -1, 2**31):
             with self.subTest(quantity=quantity), self.assertRaises(ValidationError), self.cr.savepoint():
                 template.line_ids.write({"quantity": quantity})
+            self.assertEqual(template.line_ids.quantity, 1)
+        for quantity in (0.5, 0, -1):
             with self.subTest(source_quantity=quantity), self.assertRaises(ValidationError), self.cr.savepoint():
                 self.template_source([(self.lead_product, quantity)])
+
+    def test_an_order_with_a_fractional_quantity_cannot_be_saved_as_a_template(self):
+        source = self.template_source([(self.lead_product, 1.5)])
+        with self.assertRaises(ValidationError) as refusal, self.cr.savepoint():
+            self.save_template(source)
+        self.assertIn(self.lead_product.name, str(refusal.exception))
+        self.assertFalse(self.env["medilab.order.template"].search([("source_order_id", "=", source.id)]))
+
+    def test_the_selections_use_the_names_of_the_order_form(self):
+        view = self.env["medilab.order.template"].get_view(view_type="form")["arch"]
+        self.assertIn('string="Parameter or package"', view)
+        self.assertIn('string="Add a parameter or package"', view)
+        self.assertNotIn("Add a line", view)
 
     def test_blank_name_and_empty_order_are_rejected(self):
         source = self.template_source()
@@ -108,9 +123,9 @@ class TestOrderTemplate(TemplateCase):
         source = self.approved_order()
         template = self.save_template(source)
         template.with_user(self.sales).write({"name": "Updated selection"})
-        template.line_ids.with_user(self.sales).write({"quantity": 2.25})
+        template.line_ids.with_user(self.sales).write({"quantity": 3})
         order = self.reuse(template)
-        self.assertEqual(order._catalog_lines().product_uom_qty, 2.25)
+        self.assertEqual(order._catalog_lines().product_uom_qty, 3)
         self.assertEqual(source.approval_status, "approved")
         self.assertEqual(source._catalog_lines().product_uom_qty, 1)
 

@@ -576,8 +576,8 @@ model OrderTemplateLine {
   template_id Int
   /// The parameter or package product.
   product_id  Int
-  /// How many times it is ordered; at least 1.
-  quantity    Float         @default(1)
+  /// How many times it is ordered; a whole number of at least 1.
+  quantity    Int           @default(1)
   /// The template.
   template    OrderTemplate @relation(fields: [template_id], references: [id], onDelete: Cascade)
   /// The parameter or package product.

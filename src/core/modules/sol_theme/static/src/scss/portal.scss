@@ -3,3 +3,8 @@ html:root {
     --portal-primary-color: #{$ml-primary};
     --portal-text-color: #{$ml-text-on-primary};
 }
+
+// That link colour is set with !important, so the current page of a pager would read primary on primary.
+.pagination .page-item.active > .page-link {
+    color: $ml-text-on-primary !important;
+}

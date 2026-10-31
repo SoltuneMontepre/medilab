@@ -386,6 +386,8 @@ class SaleOrder(models.Model):
         """Create a draft with the same parameters and packages at current prices."""
         self.ensure_one()
         self._check_customer_owner()
+        if not self.can_reorder():
+            raise UserError(self.env._("A draft is changed in the cart, not reordered."))
         omitted = []
         commands = []
         for line in self._catalog_lines():

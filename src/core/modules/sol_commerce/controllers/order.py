@@ -4,16 +4,29 @@ from odoo import http
 from odoo.exceptions import UserError
 from odoo.http import request
 
+from odoo.addons.portal.controllers.portal import pager as portal_pager
 from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
-from odoo.addons.sol_commerce.controllers.catalog import CART_SESSION
+from odoo.addons.sol_commerce.constants.orders import PORTAL_ORDERS_PER_PAGE
+from odoo.addons.sol_commerce.controllers.catalog import CART_SESSION, ORDERS_PATH
 from odoo.addons.sol_laboratory.services.request_env import request_env
 
 
 class CustomerOrder(http.Controller):
-    @http.route("/orders", type="http", auth="user")
-    def orders(self, **kwargs):
-        orders = request_env()[MODEL_SALE_ORDER]._portal_orders(request_env().user)
-        return request.render("sol_commerce.order_list", {"orders": orders})
+    @http.route([ORDERS_PATH, f"{ORDERS_PATH}/page/<int:page>"], type="http", auth="user")
+    def orders(self, page=1, saved=None, **kwargs):
+        orders = request_env()[MODEL_SALE_ORDER]
+        user = request_env().user
+        pager = portal_pager(
+            url=ORDERS_PATH, total=orders._portal_order_count(user), page=page, step=PORTAL_ORDERS_PER_PAGE
+        )
+        return request.render(
+            "sol_commerce.order_list",
+            {
+                "orders": orders._portal_orders(user, limit=PORTAL_ORDERS_PER_PAGE, offset=pager["offset"]),
+                "pager": pager,
+                "saved": bool(saved),
+            },
+        )
 
     @http.route("/orders/<int:order_id>", type="http", auth="user")
     def order(self, order_id, **kwargs):
@@ -46,7 +59,10 @@ class CustomerOrder(http.Controller):
         order = self._order(order_id)
         if not order:
             return request.not_found()
-        new = order.action_reorder()
+        try:
+            new = order.action_reorder()
+        except UserError as error:
+            return request.redirect(f"/orders/{order.id}?error={quote(str(error))}")
         request.session[CART_SESSION] = new.id
         return request.redirect(f"/orders/{new.id}")
 
