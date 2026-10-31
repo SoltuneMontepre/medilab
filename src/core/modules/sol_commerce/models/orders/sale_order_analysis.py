@@ -31,7 +31,12 @@ PIPELINE_STAGES = [
     ("confirmed", "Confirmed"),
 ]
 # The stage of a claimed order whose quotation is out, by where the quotation stands; a declined one leaves the pipeline.
-CLAIMED_STAGES = {FOLLOW_UP_UNPAID: "sent", QUOTATION_EXPIRED: "sent", FOLLOW_UP_PAID: "accepted"}
+CLAIMED_STAGES = {
+    FOLLOW_UP_UNPAID: "sent",
+    QUOTATION_EXPIRED: "sent",
+    FOLLOW_UP_PAID: "accepted",
+    QUOTATION_ACCEPTED: "accepted",
+}
 # The steps each duration runs between.
 DURATION_STEPS = {
     "days_to_quote": ("claimed_at", "quoted_at"),

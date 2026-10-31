@@ -115,11 +115,13 @@ class SaleOrder(models.Model, SaleOrderBase):
         sample_ids = fields.One2many(MODEL_ORDER_SAMPLE, "order_id", string="Samples")
         # Quotations sent for the order, one per revision.
         quotation_ids = fields.One2many(MODEL_QUOTATION, "order_id", string="Quotations")
-        # Where the latest quotation stands: unpaid until the advance is paid, declined or expired; empty when none was sent.
+        # Where the latest quotation stands: unpaid until the advance is paid or, sent without an advance, accepted;
+        # declined or expired; empty when none was sent.
         quotation_follow_up = fields.Selection(
             [
                 (FOLLOW_UP_UNPAID, "Unpaid"),
                 (FOLLOW_UP_PAID, "Paid"),
+                (QUOTATION_ACCEPTED, "Accepted"),
                 (QUOTATION_DECLINED, "Declined"),
                 (QUOTATION_EXPIRED, "Expired"),
             ],
@@ -444,12 +446,14 @@ class SaleOrder(models.Model, SaleOrderBase):
             .create({"order_id": self.id, "reason": text, "requested_by_id": self.env.uid})
         )
 
-    @api.depends("quotation_ids.status", "quotation_ids.revision")
+    @api.depends("quotation_ids.status", "quotation_ids.revision", "quotation_ids.advance_invoice_id")
     def _compute_quotation_follow_up(self):
         for order in self:
-            order.quotation_follow_up = FOLLOW_UP_BY_QUOTATION_STATUS.get(
-                (order._latest_quotation().status or ""), False
-            )
+            quotation = order._latest_quotation()
+            if quotation.status == QUOTATION_ACCEPTED and not quotation.advance_invoice_id:
+                order.quotation_follow_up = QUOTATION_ACCEPTED
+            else:
+                order.quotation_follow_up = FOLLOW_UP_BY_QUOTATION_STATUS.get((quotation.status or ""), False)
 
     def _latest_quotation(self):
         self.ensure_one()

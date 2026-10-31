@@ -28,7 +28,7 @@
                 <field
                     name="quotation_follow_up"
                     widget="badge"
-                    decoration-success="quotation_follow_up == 'paid'"
+                    decoration-success="quotation_follow_up in ('paid', 'accepted')"
                     decoration-warning="quotation_follow_up == 'unpaid'"
                     decoration-danger="quotation_follow_up in ('declined', 'expired')"
                 />
@@ -79,7 +79,7 @@
                     type="object"
                     string="Send quotation"
                     class="btn-primary"
-                    invisible="order_status in ('draft', 'submitted', 'completed', 'cancelled') or quotation_follow_up in ('unpaid', 'paid') and state != 'draft'"
+                    invisible="order_status in ('draft', 'submitted', 'completed', 'cancelled') or quotation_follow_up in ('unpaid', 'paid', 'accepted') and state != 'draft'"
                 />
                 <button
                     name="action_revise_quotation"
@@ -93,7 +93,7 @@
                     type="object"
                     string="Confirm order"
                     class="btn-success"
-                    invisible="order_status != 'claimed' or quotation_follow_up != 'paid'"
+                    invisible="order_status != 'claimed' or quotation_follow_up not in ('paid', 'accepted')"
                 />
                 <button
                     name="action_start_sample_collection"
@@ -178,7 +178,7 @@
                             name="quotation_follow_up"
                             widget="badge"
                             decoration-warning="quotation_follow_up == 'unpaid'"
-                            decoration-success="quotation_follow_up == 'paid'"
+                            decoration-success="quotation_follow_up in ('paid', 'accepted')"
                             decoration-danger="quotation_follow_up in ('declined', 'expired')"
                         />
                     </div>
@@ -415,6 +415,7 @@
                 <separator />
                 <filter name="unpaid" string="Quotation unpaid" domain="[('quotation_follow_up', '=', 'unpaid')]" />
                 <filter name="paid" string="Quotation paid" domain="[('quotation_follow_up', '=', 'paid')]" />
+                <filter name="quotation_accepted" string="Quotation accepted" domain="[('quotation_follow_up', '=', 'accepted')]" />
                 <filter name="quotation_declined" string="Quotation declined" domain="[('quotation_follow_up', '=', 'declined')]" />
                 <filter name="quotation_expired" string="Quotation expired" domain="[('quotation_follow_up', '=', 'expired')]" />
                 <separator />
