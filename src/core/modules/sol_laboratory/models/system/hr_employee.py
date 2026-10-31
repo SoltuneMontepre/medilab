@@ -1,4 +1,5 @@
 from odoo import fields, models
+from odoo.exceptions import UserError
 
 from odoo.addons.sol_laboratory.constants.audit import MASK_PERSONAL
 from odoo.addons.sol_laboratory.constants.models import (
@@ -57,6 +58,13 @@ class HrEmployee(models.Model):
             # Own-department accesses are evaluated from the user's employee and cached per user.
             self.env.transaction.invalidate_ormcache()
         return result
+
+    def action_send_invitation(self):
+        # Odoo creates the invited user with full rights, which would make an internal user without a person.
+        self.ensure_one()
+        if not self.user_id:
+            raise UserError(self.env._("Users are created from people: give the person a login in People instead."))
+        return super().action_send_invitation()
 
     def unlink(self):
         # Deleting an employee deletes its person, whose permission and rules apply first.

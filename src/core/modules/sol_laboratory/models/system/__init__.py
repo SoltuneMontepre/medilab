@@ -24,10 +24,13 @@ from . import (
     permission,
     person,
     res_config_settings,
+    res_groups,
     res_partner,
+    res_users,
     role,
     scheduled_job,
     signature,
+    user_link,
 )
 
 # Accreditation, laboratory content, laboratory file lock, editing session, upload and quality registration job

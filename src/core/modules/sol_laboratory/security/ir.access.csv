@@ -43,3 +43,4 @@ access_medilab_change_request_requester,medilab.change.request requester,medilab
 access_medilab_change_request_raise_user,medilab.change.request.raise user,medilab.change.request.raise,base.group_user,crud,
 access_medilab_change_request_reject_user,medilab.change.request.reject user,medilab.change.request.reject,base.group_user,crud,
 access_medilab_laboratory_file_version_reject_user,medilab.laboratory.file.version.reject user,medilab.laboratory.file.version.reject,base.group_user,crud,
+access_medilab_user_link_administrator,medilab.user.link administrator,medilab.user.link,group_role_administrator,crud,
