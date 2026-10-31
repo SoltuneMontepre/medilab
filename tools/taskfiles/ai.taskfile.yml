@@ -4,6 +4,8 @@ vars:
   AI_PROJECT: tools/odoo-intelligence
   AI_RUN: uv run --locked --project {{.AI_PROJECT}} medilab-odoo
   LOG: tools/scripts/log.sh
+  CLOUD_ENV_TEMPLATE: tools/cloud/cloud.env.example
+  CLOUD_ENV_FILE: .local/cloud.env
 
 tasks:
   ai:setup:
@@ -43,6 +45,13 @@ tasks:
     desc: "Verify core and custom Odoo model and field navigation through MCP"
     cmds:
       - "{{.AI_RUN}} verify"
+
+  ai:env:
+    desc: "Write the variables of a Claude Code cloud environment to {{.CLOUD_ENV_FILE}} from Doppler, ready to paste"
+    silent: true
+    cmds:
+      - task: doppler
+      - . tools/scripts/ai_env.sh {{.CLOUD_ENV_TEMPLATE}} {{.CLOUD_ENV_FILE}} {{.DOPPLER_PROJECT}} {{.DOPPLER_CONFIG}}
 
   ai:cursor-setup:
     desc: "Install the official Odoo extension into an isolated Cursor profile in this worktree"

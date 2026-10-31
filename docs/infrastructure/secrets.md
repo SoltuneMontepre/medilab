@@ -8,6 +8,8 @@ Doppler is the only store for credentials. Terraform in `infra/` reads the `dev`
 
 Every local program that needs a secret is started through `doppler run --project medilab --config dev -- <program>`: the `task tf:*` commands, and the `doppler`, `sonarqube` and `context7` MCP servers in `.mcp.json`. `doppler run` injects the secrets of `dev`, including `DOPPLER_TOKEN`, into that program only.
 
+The only credential a Claude Code cloud environment holds is `DOPPLER_TOKEN`, an environment variable that `task ai:env` writes to `.local/cloud.env` for pasting into its settings; `doppler run` reads the other secrets through it. See [Working in a cloud session](../workflows/cloud-session.md).
+
 ## Doppler config
 
 | Project   | Config  | Contains                                                                                                                                                                                                                                                                                                                                                                                                                     | Read by                                                                         |
