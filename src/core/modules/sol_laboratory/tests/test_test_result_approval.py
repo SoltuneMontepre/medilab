@@ -47,9 +47,10 @@ class TestTestResultApproval(ResultCase):
         rows = self.env[MODEL_SIGNATURE].search(
             [("document_model", "=", result._name), ("document_id", "=", result.id)], order="id"
         )
-        return [(row.signer_id, row.level_id.name) for row in rows]
+        return [(row.signer_id, row.level_id) for row in rows]
 
     def test_a_head_approves_a_result_they_entered_that_another_person_sent(self):
+        tester_level, head_level = self.signing_chain().level_ids.sorted("sequence")
         result = self.enter(person=self.head)
         self.send(result, self.other_tester)
 
@@ -57,9 +58,10 @@ class TestTestResultApproval(ResultCase):
         self.approve(result)
 
         self.assertEqual(result.status, "approved")
-        self.assertEqual(self.signers(result), [(self.other_tester, "Tester"), (self.head, "Head")])
+        self.assertEqual(self.signers(result), [(self.other_tester, tester_level), (self.head, head_level)])
 
     def test_a_head_who_is_the_only_signer_sends_then_approves_their_own_result(self):
+        tester_level, head_level = self.signing_chain().level_ids.sorted("sequence")
         result = self.enter(person=self.head)
         self.assertEqual(result.status, "none")
 
@@ -68,7 +70,7 @@ class TestTestResultApproval(ResultCase):
         self.approve(result)
 
         self.assertEqual(result.status, "approved")
-        self.assertEqual(self.signers(result), [(self.head, "Tester"), (self.head, "Head")])
+        self.assertEqual(self.signers(result), [(self.head, tester_level), (self.head, head_level)])
 
     def test_a_tester_cannot_approve_a_result_they_entered(self):
         result = self.enter()
