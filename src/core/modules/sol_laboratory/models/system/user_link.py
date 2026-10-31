@@ -1,18 +1,26 @@
+from typing import TYPE_CHECKING
+
 from odoo import fields, models
 from odoo.exceptions import UserError
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_PERSON, MODEL_RES_USERS, MODEL_USER_LINK
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_user_link as UserLinkBase
+else:
+    UserLinkBase = object
+
 
 # Gắn Tài Khoản Với Nhân Sự
-class UserLink(models.TransientModel):
+class UserLink(models.TransientModel, UserLinkBase):
     _name = MODEL_USER_LINK
     _description = "Link a User to a Person"
 
-    # The internal user no person links to.
-    user_id = fields.Many2one(MODEL_RES_USERS, required=True, ondelete="cascade", domain=[("share", "=", False)])
-    # The person who signs in as the user from now on; empty to create a person from the user.
-    person_id = fields.Many2one(MODEL_PERSON, domain=[("user_id", "=", False)])
+    if not TYPE_CHECKING:
+        # The internal user no person links to.
+        user_id = fields.Many2one(MODEL_RES_USERS, required=True, ondelete="cascade", domain=[("share", "=", False)])
+        # The person who signs in as the user from now on; empty to create a person from the user.
+        person_id = fields.Many2one(MODEL_PERSON, domain=[("user_id", "=", False)])
 
     def action_link(self):
         self.ensure_one()

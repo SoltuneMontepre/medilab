@@ -1,11 +1,18 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, models
 from odoo.fields import Command
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_RES_GROUPS, MODEL_RES_USERS
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_res_groups as ResGroupsBase
+else:
+    ResGroupsBase = object
+
 
 # Nhóm Quyền: adding a portal user to a group of internal users makes it internal, which only a person does.
-class ResGroups(models.Model):
+class ResGroups(models.Model, ResGroupsBase):
     _inherit = MODEL_RES_GROUPS
 
     @api.model_create_multi

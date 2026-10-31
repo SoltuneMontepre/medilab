@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.fields import Domain
@@ -5,13 +7,19 @@ from odoo.tools import format_list
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_PERSON, MODEL_RES_USERS
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_res_users as ResUsersBase
+else:
+    ResUsersBase = object
+
 
 # Tài Khoản: internal users are created and made internal only through people.
-class ResUsers(models.Model):
+class ResUsers(models.Model, ResUsersBase):
     _inherit = MODEL_RES_USERS
 
-    # Whether a person signs in as the user, archived people included.
-    has_person = fields.Boolean(compute="_compute_has_person", search="_search_has_person")
+    if not TYPE_CHECKING:
+        # Whether a person signs in as the user, archived people included.
+        has_person = fields.Boolean(compute="_compute_has_person", search="_search_has_person")
 
     def _compute_has_person(self):
         linked = set(self._linked_user_ids())
