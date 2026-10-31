@@ -195,23 +195,23 @@
                     <h1 class="mb-0" t-out="order.name" />
                     <t t-call="sol_commerce.order_status" />
                 </div>
-                <dl id="order_dates" class="row mb-2">
-                    <t t-if="order.submitted_at">
-                        <dt class="col-sm-3">Submitted</dt>
-                        <dd class="col-sm-9" t-out="order.submitted_at" t-options="{'widget': 'datetime'}" />
-                    </t>
-                    <t t-else="">
-                        <dt class="col-sm-3">Created</dt>
-                        <dd class="col-sm-9" t-out="order.create_date" t-options="{'widget': 'datetime'}" />
-                    </t>
-                    <t t-if="quotation and order.payment_deadline">
-                        <dt class="col-sm-3">Quotation deadline</dt>
-                        <dd class="col-sm-9" t-out="order.payment_deadline" t-options="{'widget': 'datetime'}" />
-                    </t>
-                    <t t-if="order.expected_result_date">
-                        <dt class="col-sm-3">Expected results</dt>
-                        <dd class="col-sm-9" t-out="order.expected_result_date" t-options="{'widget': 'date'}" />
-                    </t>
+                <dl id="order_dates" class="d-flex flex-wrap column-gap-4 row-gap-1 mb-3">
+                    <div t-if="order.submitted_at" class="d-flex gap-2">
+                        <dt class="fw-normal text-muted">Submitted</dt>
+                        <dd class="mb-0" t-out="order.submitted_at" t-options="{'widget': 'datetime'}" />
+                    </div>
+                    <div t-else="" class="d-flex gap-2">
+                        <dt class="fw-normal text-muted">Created</dt>
+                        <dd class="mb-0" t-out="order.create_date" t-options="{'widget': 'datetime'}" />
+                    </div>
+                    <div t-if="quotation and order.payment_deadline" class="d-flex gap-2">
+                        <dt class="fw-normal text-muted">Quotation deadline</dt>
+                        <dd class="mb-0" t-out="order.payment_deadline" t-options="{'widget': 'datetime'}" />
+                    </div>
+                    <div t-if="order.expected_result_date" class="d-flex gap-2">
+                        <dt class="fw-normal text-muted">Expected results</dt>
+                        <dd class="mb-0" t-out="order.expected_result_date" t-options="{'widget': 'date'}" />
+                    </div>
                 </dl>
                 <p t-if="quotation"><a t-att-href="'/orders/%s/quotation' % order.id">View quotation</a></p>
                 <p t-if="order.reorder_note" t-out="order.reorder_note" />
