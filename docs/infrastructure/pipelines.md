@@ -6,11 +6,12 @@ What each GitHub Actions workflow in `.github/workflows/` does. How workflows ar
 
 | Workflow        | Runs on                                                                                 | Does                                                                                                               |
 | --------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `ci-core`       | every pull request and every push to `main`                                             | Lints, builds and tests the Odoo modules, runs the browser tests, then SonarQube Cloud.                            |
-| `ci-infra`      | every pull request                                                                      | Checks Terraform, Ansible, origin isolation, ONLYOFFICE contracts and CloudBeaver when their paths change.         |
-| `ci-tools`      | every pull request                                                                      | Runs the AI tooling tests, Ruff and the typecheck tooling tests when that tooling changes.                         |
-| `ci-sync-app`   | every pull request                                                                      | Checks the format, lints, tests and builds the sync app when it changes.                                           |
-| `ci-mobile-app` | every pull request                                                                      | Type-checks, lints and tests the mobile app, and builds it for Android and iOS, when it changes.                   |
+| `ci-core`       | every pull request, every merge group and every push to `main`                          | Lints, builds and tests the Odoo modules, runs the browser tests, then SonarQube Cloud.                            |
+| `ci-infra`      | every pull request and merge group                                                      | Checks Terraform, Ansible, origin isolation, ONLYOFFICE contracts and CloudBeaver when their paths change.         |
+| `ci-tools`      | every pull request and merge group                                                      | Runs the AI tooling tests, Ruff and the typecheck tooling tests when that tooling changes.                         |
+| `ci-sync-app`   | every pull request and merge group                                                      | Checks the format, lints, tests and builds the sync app when it changes.                                           |
+| `ci-mobile-app` | every pull request and merge group                                                      | Type-checks, lints and tests the mobile app, and builds it for Android and iOS, when it changes.                   |
+| `ci-external`   | every merge group                                                                       | Passes the GitGuardian and naming conventions checks, whose apps do not run on merge groups.                       |
 | `cd-core`       | a push to `main` that changes `src/core` or the Dockerfile, and hourly in `window` mode | Publishes the image, releases it through Argo CD at once or in the maintenance window, and rolls back if it fails. |
 | `cd-infra`      | a push to `main` that changes `infra/`                                                  | Runs `terraform apply`.                                                                                            |
 | `cd-ansible`    | a manual run on `main`                                                                  | Runs the Ansible playbooks against the nodes: `ping`, `inspect`, `check` or `apply`.                               |
@@ -18,7 +19,14 @@ What each GitHub Actions workflow in `.github/workflows/` does. How workflows ar
 | `cd-sync-app`   | a `filesync-v*` tag                                                                     | Builds the sync app's Windows, macOS and Linux packages and publishes them as a GitHub release.                    |
 | `cd-cleanup`    | a closed pull request, merged or not, or a finished `cd-core`                           | Deletes the branch, artifacts and build caches of closed pull requests, and old images.                            |
 
-Every workflow can also be started by hand.
+Every workflow except `ci-external` can also be started by hand.
+
+## Merge queue
+
+The merge queue tests approved pull requests in groups on `gh-readonly-queue/main/*` branches, each on the result it produces with `main` and the pull requests ahead of it; see [Git](../conventions/git.md#merging).
+
+- The `ci-*` workflows run on a merge group as on a pull request. Their change detection compares the group with the commit it is built on, so a group that does not touch a workflow's paths passes its checks at once.
+- GitGuardian (app `46505`) and the naming conventions app (`17675`) do not run on queue branches, so `ci-external` reports their checks on a merge group: `GitGuardian Security Checks`, `Naming conventions / Branch` and `Naming conventions / Pull request` pass at once, since the apps checked the pull request.
 
 ## ci-core
 
@@ -34,6 +42,7 @@ flowchart LR
 
 - `changes` decides whether the pull request touches the core: `src/core` except Markdown, the Dockerfile, `pyrightconfig.json`, `tools/typecheck`, the dev and test taskfiles, `tools/scripts`, the Docker Compose file and the Garage setup of `tools/infrastructure/garage`, the lint action or the workflow. It also decides whether to scan: on core changes, runtime changes under the ONLYOFFICE deployment/monitor and verification tools, or changes to `tools/odoo-intelligence`, the AI taskfile or `ci-tools`. The browser tests run on core changes and on changes to `src/tests`.
 - A push to `main` skips `lint` and `e2e`, which already passed on the pull request. When the merge changes anything SonarQube scans, it runs `build`, the test runners, `coverage` and `sonarqube`, so SonarQube Cloud analyses all of `main` with full coverage after each merge; otherwise it runs nothing. That analysis is the project's overall view: its issues, coverage and quality gate on `main`, against which pull requests are compared.
+- A merge group runs the jobs a pull request runs. `sonarqube` checks the coverage jobs but does not scan: SonarQube Cloud analysed the pull request and analyses `main` after the merge.
 - A manual run ignores what `changes` decides and runs every job.
 - `lint` runs `task typecheck` and `task test:typecheck`, then `task test:openapi`, then pylint-odoo inside the Odoo image. Typing preparation uses the pinned image and an owned temporary PostgreSQL database. Every type error or warning fails it; the original JSON and diagnostic counts are uploaded even after failure. See [Python](../conventions/python.md#type-checking).
 - `task test:openapi` lints the OpenAPI document of the laboratory files API with `openapi-spec-validator`, then compares it with the document on `main` with oasdiff, in its image pinned by digest. A change that breaks the document, such as removing a field or a route, fails unless it gives the document a new `info.version`. The tests of the routes check their answers against the same document; see [Testing](../conventions/testing.md#odoo-module-tests).
