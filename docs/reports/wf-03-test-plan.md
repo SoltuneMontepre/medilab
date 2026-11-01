@@ -38,7 +38,7 @@ Every scenario carries one **group** and one or more **kinds**.
 | **DF** defect reproduction | Shows a suspected violation of a CT or spec rule | Evidence for a bug report. Never committed asserting the defect, and never as `expectedFailure` |
 | **TG** target acceptance | Expected behaviour of #405 | Written with its issue |
 
-An existing test that asserts a CH outcome is listed under "Impact on existing tests" in Section 4. One example is `tests/test_sample_test_due_date.py:24`, which asserts that an override is overwritten.
+An existing test that asserts a CH outcome is listed under "Impact on existing tests" in Section 4.
 
 ---
 
@@ -243,7 +243,7 @@ Every recommendation is **provisional**, not a business approval. **All 16 rows 
 | Q13 Running booking on reassignment | Wizard forces the task to `assigned`. Back to the queue: the running booking loses its person and calendar event | Running bookings are never moved; the system never reassigns by itself | `business-flows.md:686`; `scheduling.md:78` | Do not silently unassign or transfer an in-progress booking. Require a defined handover or a refusal | None directly. `test_task_reassigning.py:103` covers an unchanged wizard only | ASG-012/013, CON-016 |
 | Q14 Unavailable room | Archived or unbookable step locations are skipped | An unavailable room blocks the booking | `tester.md:73`; T07 | An unbookable step location books nothing (keep `test_step_room_bookings.py:131`). An archived location named by a step blocks | `test_step_room_bookings.py:131` stays | SCH-017 |
 | Q15 Archive a machine | Refused while any booking (even done or cancelled) or active link exists, so a machine with history can never be archived. The requeue-on-archive branch is unreachable | Cannot archive with queued, scheduled or running bookings | `business-flows.md:494` | Refuse only with open bookings; allow history. Verify against `docs/business/archiving-and-deleting.md` | None today (no archive test) | SCH-010, SCH-034 |
-| Q16 Due-date override | Recomputed when the expected date changes | Override stays until cleared; conflicts are reported | `scheduling.md:56`; `testing-schedule.md` | Preserve overrides (SF-07 scope) | **`test_sample_test_due_date.py:24` asserts the overwrite** and must change with a fix | DAT-005 |
+| Q16 Due-date override | Kept when the expected date changes; one later than the new automatic date is flagged as a conflict | Override stays until cleared; conflicts are reported | `scheduling.md:56`; `testing-schedule.md` | Decided | None | DAT-005 |
 | Q17 Claim vs head assignment | Depends on order: (1) claim commits first: a wizard without a reason is refused, one with a reason overwrites the claim; (2) the wizard holds the row: the claim says "already claimed" even before the wizard commits | Only claim vs claim is specified ("second claimer is told it is already claimed") | `shared.md:218` | No assumption that the head wins. Candidate rule for the owner: the first committed assignment wins, and the later actor is refused with a clear message, unless the head deliberately reassigns with a reason under the normal reassign rule | None | CON-005, CON-019 |
 
 ### 4.1 Q3 conflict handling, characterized
@@ -322,12 +322,12 @@ Evidence stays out of the repository; Section 5.1 writes out each confirmed defe
 | DC-03 | Booking `create` bypasses the scheduler | R06–R08 | Head RPC `create` with `status=scheduled` and times outside working hours, an unlinked machine, and a test that already has an open booking | Record created | STA-009 | Q4 |
 | DC-04 | Active booking with NULL times blocks the machine for ever | R10 intent | Through DC-02: `status=scheduled` with no times; then schedule another test on the machine | Exclusion conflict against an unbounded range; SQL query (DAT-002) returns rows | DAT-002 | Q4 |
 | DC-05 | Assignee outside the department by direct write | `task_reassign.py:49`, `task.py:245` | Head (own-department task edit) RPC `write({"assignee_id": microbiologist, "reassign_reason": "x"})` | Accepted | ASG-007 | – |
-| DC-06 | Another department's head edits a test | `head-of-department.md:68` | F2 Microbiology head writes a Chemistry test's `due_date` and `parameter_method_id` | Accepted | SEC-002 | Q5 |
+| DC-06 | Another department's head edits a test | `head-of-department.md:68` | F2 Microbiology head writes a Chemistry test's `due_date` and `parameter_method_id` | Accepted for `parameter_method_id`; refused for `due_date` | SEC-002 | Q5 |
 | DC-07 | Write skew: machine unusable vs scheduling | R15, SF-05, `admin.md:139` | FC race: `machine.write({"status":"under_repair"})` vs `action_schedule` onto it. Boundaries at `machine.write` entry, after the repair has read the machine, and `_set(status=scheduled)`; foreign queued bookings parked | **Confirmed.** 60 of 60 races commit a scheduled booking on the machine under repair; the calibration-record path (CON-012) also 60 of 60 | CON-011, CON-012 | – |
 | DC-08 | False "already claimed" | R03 message, `shared.md:218,230` | FC: the head's note on the queued task is written (row held) and not yet committed; the tester claims | **Confirmed.** 40 of 40 races: the claim is refused "already claimed" and the task stays open and unassigned, whether the note commits or rolls back | CON-019 | – |
 | DC-09 | Running booking loses person and event | Q13; R18 | Booking `in_progress`; wizard returns the task to the queue with a reason | `person_id` empty, event deleted, test `testing` | ASG-013 | Q13 |
 | DC-10 | Never-calibrated machine bookable | SF-05-A1 | Machine with no calibration record | Recommended and booked | SCH-012 | Q7 / #424 |
-| DC-11 | Override lost | `scheduling.md:56` | Manual due date, then the expected date changes | Recomputed | DAT-005 | Q16 |
+| DC-11 | Override lost | `scheduling.md:56` | Manual due date, then the expected date changes | Kept | DAT-005 | Q16 |
 | DC-12 | A slot ending at a working day's local midnight is never placed or accepted | R08 (end inclusive); `shared.md:250` | Lab and person in +7, Mon–Fri 22:00–24:00 local. Frozen 16:15 UTC (23:15 local), run 40 (45), `slow` under repair. Then move a 22:00 booking to 23:15 local | **Confirmed.** The slot goes to the next day, and the move is refused | – | – |
 | DC-13 | A clash with a private room booking names the room "False" | The refusal names the location (`calendar_event.py`, `_overlap_message`) | A person books the room with a private event; another person books an overlapping time in the room | **Confirmed** (Section 4.1): "False is already booked from … to …: Busy." `_overlap_message` reads the location of an event whose fields Odoo blanks for others; the requester already knows the room, so the message can name it from the clashing values | – | Q3 |
 
@@ -748,7 +748,7 @@ One class per file, named after the file, tagged `post_install`/`-at_install` (`
 | SCH-016 | Room busy, or step ends after due | – | Covered | U, P1, Cov, A |
 | SCH-017 | Archived step room | – | **CH:** booked without the room. Pending Q14 | U, P1, Miss, C |
 | SCH-018 | Tester double-booked | DC-01 | **CT (Q2 provisional):** test B starts ≥ A's end. **DF:** both at 08:00 | U, P0, Miss, B (+Q2) |
-| SCH-019 | Working-time sources | Office-hours fixture calendar (08:00–12:00, 13:00–17:00 UTC). (a) personal `resource.calendar.leaves` 08:00–12:00 Monday; (b) leave on the whole calendar for Monday; (c) employee with no calendar | **CT:** (a) first slot 13:00, while another tester on the same calendar still gets 08:00; (b) Tuesday 08:00. (c) is unreachable: an employee's calendar cannot be emptied (`hr_version.resource_calendar_id` NOT NULL), so it is not tested. The holiday *source* question (`questions/laboratory.md:3`) does not block the mechanism | U, P0, Part, A |
+| SCH-019 | Working-time sources | Office-hours fixture calendar (08:00–12:00, 13:00–17:00 UTC). (a) personal `resource.calendar.leaves` 08:00–12:00 Monday; (b) leave on the whole calendar for Monday; (c) employee with no calendar | **CT:** (a) first slot 13:00, while another tester on the same calendar still gets 08:00; (b) Tuesday 08:00. (c) is unreachable: an employee's calendar cannot be emptied (`hr_version.resource_calendar_id` NOT NULL), so it is not tested. | U, P0, Part, A |
 | SCH-020 | Run longer than one interval | Run 300 min, office-hours fixture calendar (4 h intervals) | **CH:** never placed, suggestion set. Pending Q9 | U, P1, Miss, C |
 | SCH-021 | Queue order | – | **CT (AS-IS):** covered; add the id tiebreak (TIM-013). **TG** T04 (#422) | U, P0, Cov, A (+D) |
 | SCH-022 | Cancelling frees the slot | – | Add: cancelled booking `status == 'cancelled'` | U, P1, Part, A |
@@ -780,7 +780,7 @@ One class per file, named after the file, tagged `post_install`/`-at_install` (`
 | TIM-009 | Calibration cutoff in +7 | **F3-UTC-evening**, `next_calibration_date` = 2026-10-12, so the limit is 2026-10-13 00:00 local = 2026-10-12 17:00 UTC. Frozen 15:00 UTC, run 40 (45), `slow` under repair | **CT:** `fast` busy until 16:15 UTC gives 16:15–17:00 booked (end = limit, inclusive). A scheduled booking ending exactly 17:00 is **not** requeued when the calibration is re-saved (`ends_at > limit`, `machine_booking.py:340`). `fast` busy until 16:30 gives no slot (16:30–17:15 > limit); moving the calibration to 2026-10-13 gives 16:30–17:15 | U, P0, Cov, A |
 | TIM-010 | Urgency boundary | Due = now + 24 h; + 24 h + 1 s; urgency set to 0 | **CT:** urgent; not urgent; with 0, only tests due ≤ now are urgent. Queue order follows | U, P1, Miss, A |
 | TIM-011 | Week rollover | F0 frozen Fri 2026-10-16 16:30 UTC, run 40, due in 2 weeks | **CT:** Mon 2026-10-19 08:00 | U, P1, Miss, A |
-| TIM-012 | Holiday marked as a working day | – | Blocked by `questions/laboratory.md:3-4`; no mechanism found in code | U, P1, Miss, C |
+| TIM-012 | Holiday marked as a working day | Company-wide time off counted as working time | **CT:** a booking takes that day (`test_schedule_recommendation.py`), and a due date on it is accepted (`test_sample_test_due_date_change.py`) | U, P1, Cov, A |
 | TIM-013 | Equal `queued_at` | Two bookings under one frozen instant | **CT:** lower id first | U, P2, Miss, A |
 | – | DST | Not applicable: +7 has no DST. Add only if Q18 adds a zone with DST | – | – |
 
@@ -830,7 +830,7 @@ The UTC conversions above were checked once more: +7 local `HH:MM` = UTC `HH−7
 | DAT-002 | Active booking with NULL times | DC-04. **CT (Q4):** impossible. **DF:** possible | U, P0, Miss, B |
 | DAT-003 | Deletes | Booking unlink gives `AccessError` (**CT**). Unlinking a way-machine link with active bookings: **CH**, pending | U, P1, Miss, C |
 | DAT-004 | Way changed with an open booking | **CH:** booking keeps the old machine and length. Pending Q6/Q5 | U, P0, Miss, C |
-| DAT-005 | Due date changed after scheduling; override lost | DC-11. (a) **CH:** no requeue or flag (Q10, T10 #179). (b) **CH/DF:** recomputed (Q16; affects `test_sample_test_due_date.py:24`) | U, P1, Miss, C |
+| DAT-005 | Due date changed after scheduling; override lost | DC-11. (a) **CH:** no requeue or flag (Q10, T10 #179). (b) **CT:** the override is kept and a later one is flagged (`test_sample_test_due_date_change.py`) | U, P1, Part, C |
 | DAT-006 | Invariants over demo data | Mandatory invariants must hold. Conditional ones are report-only | U, P1, Miss, A |
 | DAT-007 | Malformed `starts_at` over RPC | `"garbage"`, `"2026-13-01 00:00:00"`, a tz-suffixed string. **CT:** a clean error, unchanged, no 500 | H, P1, Part, A |
 | DAT-008 | Multi-company | Unknown; pending Q18 | –, P2, Miss, C |
@@ -1133,7 +1133,6 @@ The WF-03 classes are the classes of Section 9.2. Run each new race at least 20 
 | Q25 (time zone of working hours) | TIM-008's CH sub-case; the F3-UTC-evening fixture of TIM-007b and TIM-009 if the answer changes | Answer Q25 |
 | Epic #405 issues | 7 group D rows plus the TARGET variants | Implementation by those issues |
 | PR #373 merge | SCH-026 runner cell, SEC-001 tester-move cell, ASG-012/013 re-check; the WF-03 classes rerun after it | Merge, then approve the rebase |
-| `questions/laboratory.md:3-4` (holiday source, non-working due day) | TIM-012 | Answer the existing questions |
 | Q18 (multi-company and other zones), Q19 (performance targets) | DAT-008, DST tests, PRF acceptance | Provide scope and targets |
 | `.gitignore` additions (Section 13.4) | Safe artifact handling during implementation | Approve in the implementation change |
 

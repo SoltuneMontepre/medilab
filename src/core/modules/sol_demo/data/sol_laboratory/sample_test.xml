@@ -65,4 +65,22 @@
         <field name="status">assigned</field>
         <field name="parameter_method_id" ref="demo_parameter_method_lead_icpms" />
     </record>
+    <!-- The head of Chemistry changed two due dates by hand. The customer then brought the expected date forward: the
+         automatic coliforms date followed it, and the pH date is now later than it, a conflict. -->
+    <record id="demo_sample_test_due_date_lead" model="medilab.sample.test">
+        <field name="sample_id" ref="demo_sample_due_date" />
+        <field name="parameter_id" ref="demo_test_parameter_lead" />
+        <field name="due_date" eval="(DateTime.today() + relativedelta(days=5, hour=3, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="due_date_reason">Máy AAS-01 bảo trì định kỳ từ hôm sau, cần đo xong trước đó.</field>
+    </record>
+    <record id="demo_sample_test_due_date_ph" model="medilab.sample.test">
+        <field name="sample_id" ref="demo_sample_due_date" />
+        <field name="parameter_id" ref="demo_test_parameter_ph" />
+        <field name="due_date" eval="(DateTime.today() + relativedelta(days=7, hour=3, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="due_date_reason">Chờ hiệu chuẩn lại máy đo pH.</field>
+    </record>
+    <record id="demo_sample_test_due_date_coliforms" model="medilab.sample.test">
+        <field name="sample_id" ref="demo_sample_due_date" />
+        <field name="parameter_id" ref="demo_test_parameter_coliforms" />
+    </record>
 </odoo>

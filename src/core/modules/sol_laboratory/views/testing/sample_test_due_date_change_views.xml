@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_sample_test_due_date_change_form" model="ir.ui.view">
+        <field name="name">medilab.sample.test.due.date.change.form</field>
+        <field name="model">medilab.sample.test.due.date.change</field>
+        <field name="arch" type="xml">
+            <form>
+                <div class="alert alert-warning" role="alert" invisible="not due_on_non_working_day">
+                    This day is not a working day of the company calendar.
+                </div>
+                <group>
+                    <field name="sample_test_id" invisible="1" />
+                    <field name="due_on_non_working_day" invisible="1" />
+                    <field name="due_date" />
+                    <field name="reason" />
+                </group>
+                <footer>
+                    <button name="action_change" type="object" string="Change Due Date" class="btn-primary" />
+                    <button special="cancel" string="Discard" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_medilab_sample_test_due_date_change" model="ir.actions.act_window">
+        <field name="name">Change the Due Date</field>
+        <field name="res_model">medilab.sample.test.due.date.change</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>
