@@ -204,6 +204,7 @@ from . import (
     test_signed_pdf_verification,
     test_signing_certificates,
     test_signing_levels,
+    test_signing_process_migration,
     test_step_room_bookings,
     test_subcontract_dispatch,
     test_subcontractor,
