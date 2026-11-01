@@ -93,7 +93,7 @@ Internal users are created only through people. A person creates their user and 
 
 Administrators see the internal users that no person links to, archived people's users excepted, under Unlinked Users in the Employees app, to link each one to a person or archive it. Linking to a chosen person without a login gives them the user; linking without a person creates one from the user, which delegates to the user's employee when it has one. A user who has an employee is linked only that way, because an Odoo user has one employee per company.
 
-An administrator can give a person a role until a date, such as a backup signer while no holder of an approval chain's top level is available. The role is removed when that date ends, and both changes are recorded in the audit trail.
+An administrator can give a person a role until a date, such as a backup signer while no holder of an approval chain's top level is available. Each role until a date is a line on the person's Roles Until a Date page: a role the person does not hold yet and its last day, today or later in the laboratory's time zone. Adding the line adds the role to the person's roles; the hourly `role_grants.expire` job removes the line, and with it the role, once that last day has ended. Removing the line takes the role away, and taking the role away removes the line. The lines are written as the administrator, so giving a role until a date needs the same administrator rights as giving a role. The lines and the person's roles are audited, the lines in the person's history, so giving and removing the role are both in the audit trail.
 
 The effective permissions of a person are those of their roles plus their direct permissions. Whenever a person is created, changes roles, direct permissions or user, or is deleted, including when an administrator changes or deletes their employee in Odoo's Employees app, the Odoo user's groups are set to the internal user group, the groups of the person's roles and the groups of their direct permissions. Only groups that belong to a role or a permission are added or removed; any other group of the user is left as it is. The synchronisation runs with full rights, because the authorisation that matters is the permission on the person record itself.
 
@@ -154,6 +154,7 @@ Installing the module loads its permissions and generates their objects. Shipped
 | Person        | read, create, edit, archive, delete | all, own_department, own_team |
 | Role          | read, create, edit, delete          | all                 |
 | Permission    | read, edit                          | all                 |
+| Role until a date | read, create, edit, delete      | all                 |
 
 ## Related documents
 
