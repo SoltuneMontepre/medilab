@@ -5,6 +5,7 @@ locals {
     mail        = "mail.${var.cloudflare_zone_name}"
     cloudbeaver = "cloudbeaver.${var.cloudflare_zone_name}"
     grafana     = "grafana.${var.cloudflare_zone_name}"
+    office      = "office.${var.cloudflare_zone_name}"
   }
 }
 

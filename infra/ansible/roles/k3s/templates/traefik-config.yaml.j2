@@ -8,4 +8,26 @@ metadata:
 spec:
   valuesContent: |-
     service:
-      type: ClusterIP
+      spec:
+        type: ClusterIP
+    ports:
+      websecure:
+        port: 9443
+      onlyofficecallback:
+        port: 8443
+        expose:
+          default: false
+        protocol: TCP
+        transport:
+          respondingTimeouts:
+            readTimeout: 22m
+            writeTimeout: 22m
+            idleTimeout: 22m
+        observability:
+          accessLogs: false
+          tracing: false
+    logs:
+      general:
+        filePath: /dev/null
+      access:
+        enabled: false

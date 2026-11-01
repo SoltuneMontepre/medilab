@@ -3,6 +3,7 @@
 import base64
 import hashlib
 import hmac
+import ipaddress
 import json
 import os
 import re
@@ -20,16 +21,26 @@ IMAGE = "docker.io/onlyoffice/documentserver:9.4.0.1@sha256:3ab6ebc7c605e5a32b7a
 
 
 def render(path):
-    result = subprocess.run(["kubectl", "kustomize", str(ROOT / path)], check=True, capture_output=True, text=True)
+    result = subprocess.run(
+        ["kubectl", "kustomize", str(ROOT / path)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
     return list(yaml.safe_load_all(result.stdout))
 
 
 def named(resources, kind, name):
-    return next(r for r in resources if r["kind"] == kind and r["metadata"]["name"] == name)
+    return next(
+        r for r in resources if r["kind"] == kind and r["metadata"]["name"] == name
+    )
 
 
 def matches(selector, labels):
-    return all(labels.get(key) == value for key, value in selector.get("matchLabels", {}).items())
+    return all(
+        labels.get(key) == value
+        for key, value in selector.get("matchLabels", {}).items()
+    )
 
 
 class TestDeployment(unittest.TestCase):
@@ -47,7 +58,8 @@ class TestDeployment(unittest.TestCase):
                 continue
             for peer in rule["to"]:
                 if matches(peer.get("podSelector", {}), destination) and matches(
-                    peer.get("namespaceSelector", {}), {"kubernetes.io/metadata.name": namespace}
+                    peer.get("namespaceSelector", {}),
+                    {"kubernetes.io/metadata.name": namespace},
                 ):
                     return True
         return False
@@ -70,9 +82,16 @@ class TestDeployment(unittest.TestCase):
             )
             binary.chmod(0o700)
             source = (ROOT / "infra/cluster/onlyoffice/worker.sh").read_text()
-            source = source.replace("/opt/medilab/onlyoffice/settings.json", str(config))
-            source = source.replace("/var/www/onlyoffice/documentserver/server/DocService/docservice", str(binary))
-            source = source.replace("/opt/medilab/onlyoffice/worker-bootstrap.cjs", str(bootstrap))
+            source = source.replace(
+                "/opt/medilab/onlyoffice/settings.json", str(config)
+            )
+            source = source.replace(
+                "/var/www/onlyoffice/documentserver/server/DocService/docservice",
+                str(binary),
+            )
+            source = source.replace(
+                "/opt/medilab/onlyoffice/worker-bootstrap.cjs", str(bootstrap)
+            )
             script.write_text(source, encoding="utf-8")
             arguments = ["argument with spaces", "literal $(not-a-command)"]
             result = subprocess.run(
@@ -85,7 +104,11 @@ class TestDeployment(unittest.TestCase):
             )
             self.assertEqual(
                 json.loads(result.stdout),
-                {"config": expected, "pkg": str(binary), "args": [str(bootstrap), *arguments]},
+                {
+                    "config": expected,
+                    "pkg": str(binary),
+                    "args": [str(bootstrap), *arguments],
+                },
             )
             self.assertEqual(result.stderr, "")
         start = (ROOT / "infra/cluster/onlyoffice/start.sh").read_text()
@@ -116,7 +139,9 @@ class TestDeployment(unittest.TestCase):
                 self.assertEqual(result.stdout + result.stderr, "")
 
     def test_routing_allows_only_selected_callback_and_dns(self):
-        self.assertTrue(self.permits({"app.kubernetes.io/name": "traefik"}, "kube-system", 8443))
+        self.assertTrue(
+            self.permits({"app.kubernetes.io/name": "traefik"}, "kube-system", 8443)
+        )
         self.assertTrue(self.permits({"k8s-app": "kube-dns"}, "kube-system", 53))
         for labels, namespace, port in [
             ({"app.kubernetes.io/name": "odoo"}, "medilab", 8069),
@@ -141,20 +166,30 @@ class TestDeployment(unittest.TestCase):
         ingress = named(self.odoo, "IngressRoute", "onlyoffice-callback")["spec"]
         self.assertEqual(ingress["entryPoints"], ["onlyofficecallback"])
         route = ingress["routes"][0]
-        self.assertIn("PathPrefix(`/medilab/laboratory-files/callback/`)", route["match"])
+        self.assertIn(
+            "PathPrefix(`/medilab/laboratory-files/callback/`)", route["match"]
+        )
         self.assertIn("Method(`POST`)", route["match"])
         base = named(render("infra/cluster/odoo"), "NetworkPolicy", "odoo-from-traefik")
         self.assertEqual(base, named(self.odoo, "NetworkPolicy", "odoo-from-traefik"))
         public = named(self.odoo, "IngressRoute", "odoo")["spec"]["routes"][-1]
-        self.assertIn("!PathPrefix(`/medilab/laboratory-files/callback/`)", public["match"])
+        self.assertIn(
+            "!PathPrefix(`/medilab/laboratory-files/callback/`)", public["match"]
+        )
 
     def test_readiness_independent_of_document_server(self):
-        base = named(render("infra/cluster/odoo"), "Deployment", "odoo")["spec"]["template"]["spec"]
+        base = named(render("infra/cluster/odoo"), "Deployment", "odoo")["spec"][
+            "template"
+        ]["spec"]
         derived = named(self.odoo, "Deployment", "odoo")["spec"]["template"]["spec"]
-        self.assertEqual(derived["initContainers"][0]["image"], derived["containers"][0]["image"])
+        self.assertEqual(
+            derived["initContainers"][0]["image"], derived["containers"][0]["image"]
+        )
         for key in ["readinessProbe", "livenessProbe", "startupProbe"]:
             self.assertEqual(base["containers"][0][key], derived["containers"][0][key])
-        monitor = named(self.monitor, "Deployment", "onlyoffice-monitor")["spec"]["template"]["spec"]
+        monitor = named(self.monitor, "Deployment", "onlyoffice-monitor")["spec"][
+            "template"
+        ]["spec"]
         self.assertFalse(monitor["automountServiceAccountToken"])
         self.assertNotIn("odoo", json.dumps(monitor))
 
@@ -167,7 +202,9 @@ class TestDeployment(unittest.TestCase):
         self.assertFalse(pod["automountServiceAccountToken"])
         container = pod["containers"][0]
         self.assertEqual(container["image"], IMAGE)
-        paths = {m["mountPath"] for m in container["volumeMounts"] if m["name"] == "state"}
+        paths = {
+            m["mountPath"] for m in container["volumeMounts"] if m["name"] == "state"
+        }
         self.assertEqual(
             paths,
             {
@@ -181,47 +218,85 @@ class TestDeployment(unittest.TestCase):
 
     def test_jwt_references_and_protocol(self):
         secret = named(self.server, "ExternalSecret", "onlyoffice-jwt")["spec"]
-        self.assertEqual(secret["secretStoreRef"], {"kind": "ClusterSecretStore", "name": "doppler"})
-        self.assertEqual(secret["data"], [{"secretKey": "jwt-secret", "remoteRef": {"key": "ONLYOFFICE_JWT_SECRET"}}])
+        self.assertEqual(
+            secret["secretStoreRef"], {"kind": "ClusterSecretStore", "name": "doppler"}
+        )
+        self.assertEqual(
+            secret["data"],
+            [
+                {
+                    "secretKey": "jwt-secret",
+                    "remoteRef": {"key": "ONLYOFFICE_JWT_SECRET"},
+                }
+            ],
+        )
         references = []
         for resources, name in [(self.server, "onlyoffice"), (self.odoo, "odoo")]:
-            container = named(resources, "Deployment", name)["spec"]["template"]["spec"]["containers"][0]
+            container = named(resources, "Deployment", name)["spec"]["template"][
+                "spec"
+            ]["containers"][0]
             references += [
                 e["valueFrom"]["secretKeyRef"]
                 for e in container["env"]
                 if e["name"] in ("JWT_SECRET", "ONLYOFFICE_JWT_SECRET")
             ]
-        self.assertEqual(references, [{"name": "onlyoffice-jwt", "key": "jwt-secret"}] * 2)
-        settings = json.loads((ROOT / "infra/cluster/onlyoffice/settings.json").read_text())["services"]["CoAuthoring"]
+        self.assertEqual(
+            references, [{"name": "onlyoffice-jwt", "key": "jwt-secret"}] * 2
+        )
+        settings = json.loads(
+            (ROOT / "infra/cluster/onlyoffice/settings.json").read_text()
+        )["services"]["CoAuthoring"]
         self.assertTrue(settings["token"]["enable"]["browser"])
         self.assertEqual(settings["token"]["outbox"]["expires"], "5m")
         self.assertEqual(settings["token"]["outbox"]["urlExclusionRegex"], "")
         self.assertEqual(settings["callbackBackoffOptions"]["retries"], 3)
         self.assertEqual(
-            settings["server"]["callbackRequestTimeout"], {"connectionAndInactivity": "21m", "wholeCycle": "21m"}
+            settings["server"]["callbackRequestTimeout"],
+            {"connectionAndInactivity": "21m", "wholeCycle": "21m"},
         )
 
     def test_trust_without_ca_private_key_or_insecure_override(self):
         pod = named(self.server, "Deployment", "onlyoffice")["spec"]["template"]["spec"]
-        self.assertFalse(any(v.get("secret", {}).get("secretName") == "onlyoffice-ca" for v in pod["volumes"]))
+        self.assertFalse(
+            any(
+                v.get("secret", {}).get("secretName") == "onlyoffice-ca"
+                for v in pod["volumes"]
+            )
+        )
         transport = named(self.server, "ServersTransport", "onlyoffice-tls")["spec"]
         self.assertEqual(transport["rootCAsSecrets"], ["onlyoffice-tls"])
         self.assertNotIn("insecureSkipVerify", transport)
-        settings = json.loads((ROOT / "infra/cluster/onlyoffice/settings.json").read_text())
-        self.assertTrue(settings["services"]["CoAuthoring"]["requestDefaults"]["rejectUnauthorized"])
-        self.assertFalse(settings["services"]["CoAuthoring"]["request-filtering-agent"]["allowMetaIPAddress"])
+        settings = json.loads(
+            (ROOT / "infra/cluster/onlyoffice/settings.json").read_text()
+        )
+        self.assertTrue(
+            settings["services"]["CoAuthoring"]["requestDefaults"]["rejectUnauthorized"]
+        )
+        self.assertFalse(
+            settings["services"]["CoAuthoring"]["request-filtering-agent"][
+                "allowMetaIPAddress"
+            ]
+        )
 
     def test_local_parity_and_no_shared_container_name(self):
-        compose = yaml.safe_load((ROOT / "src/applications/medilab-sync/docker-compose.yml").read_text())
+        compose = yaml.safe_load(
+            (ROOT / "src/applications/medilab-sync/docker-compose.yml").read_text()
+        )
         service = compose["services"]["onlyoffice"]
         self.assertEqual(service["image"], IMAGE)
         self.assertNotIn("container_name", service)
         self.assertTrue(compose["networks"]["onlyoffice"]["internal"])
         self.assertTrue(service["ports"][0].startswith("127.0.0.1:"))
-        mount = next(value for value in service["volumes"] if ":/opt/medilab/onlyoffice:ro" in value)
+        mount = next(
+            value
+            for value in service["volumes"]
+            if ":/opt/medilab/onlyoffice:ro" in value
+        )
         mounted = (ROOT / "tools/infrastructure" / mount.split(":", 1)[0]).resolve()
         self.assertEqual(mounted, ROOT / "infra/cluster/onlyoffice")
-        config_map = next(resource for resource in self.server if resource["kind"] == "ConfigMap")
+        config_map = next(
+            resource for resource in self.server if resource["kind"] == "ConfigMap"
+        )
         for name, content in config_map["data"].items():
             self.assertEqual((mounted / name).read_text(), content)
 
@@ -229,29 +304,42 @@ class TestDeployment(unittest.TestCase):
         deployment = named(self.server, "Deployment", "onlyoffice")["spec"]
         pod = deployment["template"]["spec"]
         container = pod["containers"][0]
-        self.assertGreaterEqual(pod["terminationGracePeriodSeconds"], 30 + 1.5 * (300 + 900) + 60)
-        self.assertGreaterEqual(deployment["progressDeadlineSeconds"], pod["terminationGracePeriodSeconds"] + 600)
+        self.assertGreaterEqual(
+            pod["terminationGracePeriodSeconds"], 30 + 1.5 * (300 + 900) + 60
+        )
+        self.assertGreaterEqual(
+            deployment["progressDeadlineSeconds"],
+            pod["terminationGracePeriodSeconds"] + 600,
+        )
         command = ["/bin/bash", "/opt/medilab/onlyoffice/healthcheck.sh"]
         for name in ["startupProbe", "readinessProbe"]:
             self.assertEqual(container[name]["exec"]["command"], command)
             self.assertGreaterEqual(container[name]["timeoutSeconds"], 8)
         # Storage failure must refuse editing without automatically killing in-memory editing state.
         self.assertEqual(container["livenessProbe"]["tcpSocket"], {"port": "https"})
-        compose = yaml.safe_load((ROOT / "src/applications/medilab-sync/docker-compose.yml").read_text())
+        compose = yaml.safe_load(
+            (ROOT / "src/applications/medilab-sync/docker-compose.yml").read_text()
+        )
         local = compose["services"]["onlyoffice"]
-        self.assertEqual(local["stop_grace_period"], str(pod["terminationGracePeriodSeconds"]) + "s")
+        self.assertEqual(
+            local["stop_grace_period"], str(pod["terminationGracePeriodSeconds"]) + "s"
+        )
         self.assertEqual(local["healthcheck"]["test"], ["CMD", *command])
 
     def test_runtime_drops_raw_sockets_and_keeps_secret_file_private(self):
         pod = named(self.server, "Deployment", "onlyoffice")["spec"]["template"]["spec"]
         for container in [*pod["containers"], *pod["initContainers"]]:
             self.assertFalse(container["securityContext"]["allowPrivilegeEscalation"])
-            self.assertIn("NET_RAW", container["securityContext"]["capabilities"]["drop"])
+            self.assertIn(
+                "NET_RAW", container["securityContext"]["capabilities"]["drop"]
+            )
         script = (ROOT / "infra/cluster/onlyoffice/start.sh").read_text()
         self.assertIn("chmod 0600 /etc/onlyoffice/documentserver/local.json", script)
         self.assertIn('sudo -u ds test -r "$NODE_EXTRA_CA_CERTS"', script)
         self.assertIn("private_dir=/var/www/onlyoffice/Data/.private", script)
-        self.assertIn('secure_link_file="$private_dir/medilab-secure-link-secret"', script)
+        self.assertIn(
+            'secure_link_file="$private_dir/medilab-secure-link-secret"', script
+        )
         self.assertIn('export SECURE_LINK_SECRET="$(cat "$secure_link_file")"', script)
 
     def test_health_body_and_required_process_failures_are_private(self):
@@ -275,7 +363,9 @@ class TestDeployment(unittest.TestCase):
                 ("true", "0", "0", "1", 1),
             ]
             for body, process_exit, curl_exit, policy_exit, expected in cases:
-                with self.subTest(body=body, process_exit=process_exit, curl_exit=curl_exit):
+                with self.subTest(
+                    body=body, process_exit=process_exit, curl_exit=curl_exit
+                ):
                     env = dict(
                         os.environ,
                         PATH=str(directory) + os.pathsep + os.environ["PATH"],
@@ -299,9 +389,16 @@ class TestDeployment(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             directory = Path(folder)
             curl = directory / "curl"
-            curl.write_text('#!/bin/sh\nprintf "%s" "$MOCK_BODY"\nexit "$MOCK_CURL_EXIT"\n', encoding="utf-8")
+            curl.write_text(
+                '#!/bin/sh\nprintf "%s" "$MOCK_BODY"\nexit "$MOCK_CURL_EXIT"\n',
+                encoding="utf-8",
+            )
             curl.chmod(0o700)
-            for body, curl_exit, expected in [("true", "0", 0), ("false", "0", 1), ("true", "28", 1)]:
+            for body, curl_exit, expected in [
+                ("true", "0", 0),
+                ("false", "0", 1),
+                ("true", "28", 1),
+            ]:
                 with self.subTest(body=body, curl_exit=curl_exit):
                     env = dict(
                         os.environ,
@@ -322,20 +419,114 @@ class TestDeployment(unittest.TestCase):
         self.assertIn("--max-time 1860", script)
         self.assertIn("--noproxy '*'", script)
 
-    def test_no_automatic_activation(self):
+    def test_demo_activation_keeps_document_server_manually_synced(self):
         root = yaml.safe_load((ROOT / "infra/cluster/kustomization.yaml").read_text())
         for name in ["onlyoffice", "onlyoffice-monitor"]:
-            self.assertNotIn(f"applications/{name}.yaml", root["resources"])
-            application = yaml.safe_load((ROOT / f"infra/cluster/applications/{name}.yaml").read_text())
+            self.assertIn(f"applications/{name}.yaml", root["resources"])
+            application = yaml.safe_load(
+                (ROOT / f"infra/cluster/applications/{name}.yaml").read_text()
+            )
             self.assertNotIn("automated", application["spec"]["syncPolicy"])
             self.assertTrue((ROOT / application["spec"]["source"]["path"]).is_dir())
 
+    def test_demo_bucket_egress_is_public_and_limited_to_https(self):
+        resources = render("infra/cluster/onlyoffice-demo")
+        policy = named(resources, "NetworkPolicy", "onlyoffice-demo-bucket")["spec"]
+        self.assertEqual(
+            policy["podSelector"],
+            {"matchLabels": {"app.kubernetes.io/name": "onlyoffice"}},
+        )
+        self.assertEqual(policy["policyTypes"], ["Egress"])
+        self.assertEqual(len(policy["egress"]), 1)
+        rule = policy["egress"][0]
+        self.assertEqual(rule["ports"], [{"protocol": "TCP", "port": 443}])
+        self.assertTrue(rule["to"])
+        for peer in rule["to"]:
+            network = ipaddress.ip_network(peer["ipBlock"]["cidr"])
+            self.assertTrue(network.is_global)
+            self.assertEqual(network.num_addresses, 1)
+        container = named(resources, "Deployment", "onlyoffice")["spec"]["template"][
+            "spec"
+        ]["containers"][0]
+        self.assertEqual(container["resources"]["requests"]["memory"], "3Gi")
+        self.assertEqual(container["resources"]["limits"]["memory"], "4Gi")
+
+    def test_demo_odoo_rollouts_fit_without_a_surge_pod(self):
+        resources = render("infra/cluster/onlyoffice-demo-odoo")
+        deployment = named(resources, "Deployment", "odoo")["spec"]
+        self.assertEqual(deployment["replicas"], 1)
+        self.assertEqual(
+            deployment["strategy"]["rollingUpdate"],
+            {"maxSurge": 0, "maxUnavailable": 1},
+        )
+        env = deployment["template"]["spec"]["containers"][0]["env"]
+        self.assertIn("ONLYOFFICE_JWT_SECRET", [item["name"] for item in env])
+        source = yaml.safe_load(
+            (ROOT / "infra/cluster/applications/odoo.yaml").read_text()
+        )["spec"]["source"]
+        self.assertEqual(source["path"], "infra/cluster/onlyoffice-demo-odoo")
+
+    def test_managed_traefik_configuration_matches_callback_policy(self):
+        text = (
+            ROOT / "infra/ansible/roles/k3s/templates/traefik-config.yaml.j2"
+        ).read_text()
+        managed = yaml.safe_load(yaml.safe_load(text)["spec"]["valuesContent"])
+        candidate = yaml.safe_load(
+            (ROOT / "infra/cluster/onlyoffice-edge/traefik-values.yaml").read_text()
+        )
+        self.assertEqual(
+            managed["ports"]["onlyofficecallback"],
+            candidate["ports"]["onlyofficecallback"],
+        )
+        self.assertEqual(managed["ports"]["websecure"]["port"], 9443)
+        self.assertNotEqual(
+            managed["ports"]["websecure"]["port"],
+            managed["ports"]["onlyofficecallback"]["port"],
+        )
+        self.assertEqual(managed["logs"], candidate["logs"])
+        self.assertEqual(managed["service"]["spec"]["type"], "ClusterIP")
+
+    def test_edge_policy_preserves_tunnel_access_without_a_baseline_policy(self):
+        policy = named(self.edge, "NetworkPolicy", "traefik-onlyoffice-callback")[
+            "spec"
+        ]
+        self.assertEqual(
+            policy["podSelector"],
+            {"matchLabels": {"app.kubernetes.io/name": "traefik"}},
+        )
+        allowed = {}
+        for rule in policy["ingress"]:
+            for peer in rule["from"]:
+                self.assertEqual(
+                    peer["namespaceSelector"]["matchLabels"],
+                    {"kubernetes.io/metadata.name": "medilab"},
+                )
+                caller = peer["podSelector"]["matchLabels"]["app.kubernetes.io/name"]
+                allowed[caller] = rule["ports"]
+        self.assertEqual(
+            allowed,
+            {
+                "cloudflared": [{"protocol": "TCP", "port": "web"}],
+                "onlyoffice": [{"protocol": "TCP", "port": 8443}],
+            },
+        )
+
     def test_private_routes_have_no_trace_or_access_logs(self):
-        for resources, name in [(self.server, "onlyoffice"), (self.odoo, "onlyoffice-callback")]:
+        for resources, name in [
+            (self.server, "onlyoffice"),
+            (self.odoo, "onlyoffice-callback"),
+        ]:
             route = named(resources, "IngressRoute", name)["spec"]["routes"][0]
-            self.assertEqual(route["observability"], {"accessLogs": False, "tracing": False})
+            self.assertEqual(
+                route["observability"], {"accessLogs": False, "tracing": False}
+            )
         script = (ROOT / "infra/cluster/onlyoffice/start.sh").read_text()
-        for setting in ["DS_LOG_LEVEL=OFF", "NGINX_ACCESS_LOG=false", "error_log /dev/null crit", ">/dev/null 2>&1"]:
+        for setting in [
+            "DS_LOG_LEVEL=OFF",
+            "NGINX_ACCESS_LOG=false",
+            "error_log /dev/null crit",
+            ">/dev/null 2>&1",
+        ]:
             self.assertIn(setting, script)
 
     def test_public_route_excludes_command_aliases(self):
@@ -349,12 +540,18 @@ class TestDeployment(unittest.TestCase):
             "/9.4.0-129/coauthoring/CommandService.ashx",
         ]:
             self.assertIsNotNone(re.search(pattern, path), path)
-        for path in ["/healthcheck", "/web-apps/apps/api/documents/api.js", "/9.4.0-129/doc/session/c"]:
+        for path in [
+            "/healthcheck",
+            "/web-apps/apps/api/documents/api.js",
+            "/9.4.0-129/doc/session/c",
+        ]:
             self.assertIsNone(re.search(pattern, path), path)
 
     def test_recovery_only_uses_matching_https_origin(self):
         origin = "https://onlyoffice.medilab.svc.cluster.local"
-        self.assertTrue(recover.same_origin(origin + "/cache/output.docx?token=sentinel", origin))
+        self.assertTrue(
+            recover.same_origin(origin + "/cache/output.docx?token=sentinel", origin)
+        )
         for url in [
             "http://onlyoffice.medilab.svc.cluster.local/a",
             "https://metadata/a",
@@ -380,7 +577,10 @@ class TestDeployment(unittest.TestCase):
         claims = json.loads(decode(signed[1]))
         self.assertEqual(claims["payload"], body)
         self.assertEqual(claims["exp"] - claims["iat"], 300)
-        self.assertEqual(decode(signed[2]), hmac.digest(secret, ".".join(signed[:2]).encode(), hashlib.sha256))
+        self.assertEqual(
+            decode(signed[2]),
+            hmac.digest(secret, ".".join(signed[:2]).encode(), hashlib.sha256),
+        )
 
 
 if __name__ == "__main__":

@@ -1,6 +1,10 @@
-# Merge into Ansible's traefik-config.yaml.j2 valuesContent before enabling the callback route.
-# Keep this candidate out of the root Application until its acceptance gates pass.
+# Ansible's HelmChartConfig includes these callback settings.
+service:
+  spec:
+    type: ClusterIP
 ports:
+  websecure:
+    port: 9443
   onlyofficecallback:
     port: 8443
     expose:
