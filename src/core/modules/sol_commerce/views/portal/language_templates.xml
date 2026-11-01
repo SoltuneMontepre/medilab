@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_header_language" inherit_id="portal.frontend_layout" name="Portal header language switcher">
+        <xpath expr="//ul[@id='top_menu']/t[@t-call='portal.user_dropdown']" position="before">
+            <t t-call="sol_commerce.language_switcher" />
+        </xpath>
+    </template>
+
+    <!-- Odoo's footer switcher changes only the page's language; the header one also saves the customer's choice. -->
+    <template id="portal_footer_language" inherit_id="portal.footer_language_selector" name="No footer language switcher">
+        <xpath expr="//t[@id='language_selector_call']" position="replace" />
+    </template>
+
+    <template id="language_switcher" name="Language switcher">
+        <t t-set="active_language" t-value="frontend_languages.get(request.env.lang)" />
+        <li t-if="len(frontend_languages) &gt; 1" class="nav-item dropdown o_medilab_language_switcher">
+            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false">
+                <i class="oi me-1" data-icon="translate" role="img" aria-label="Language" title="Language" />
+                <span t-if="active_language" t-out="active_language.name.split('/')[-1].strip()" />
+            </a>
+            <div class="dropdown-menu dropdown-menu-end" role="menu">
+                <form t-foreach="frontend_languages.values()" t-as="language" action="/my/language" method="post">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                    <input type="hidden" name="lang" t-att-value="language.code" />
+                    <input type="hidden" name="redirect" t-att-value="request.httprequest.full_path.rstrip('?')" />
+                    <button
+                        type="submit"
+                        role="menuitem"
+                        t-attf-class="dropdown-item #{'active' if language.code == request.env.lang else ''}"
+                        t-out="language.name.split('/')[-1].strip()"
+                    />
+                </form>
+            </div>
+        </li>
+    </template>
+</odoo>

@@ -41,6 +41,7 @@ from . import (
     test_payos,
     test_portal_amounts,
     test_portal_home,
+    test_portal_language,
     test_pricing_access,
     test_quotation_advance,
     test_quotation_decline,
