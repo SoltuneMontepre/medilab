@@ -33,6 +33,13 @@ class PortalCase(HttpCase, OrderCase):
             self.fail(f"{path} matches no elements.")
         return [assert_instance(element, html.HtmlElement) for element in found]
 
+    def texts(self, node: html.HtmlElement, path: str) -> list[str]:
+        """The attribute values or texts an XPath matches."""
+        found = node.xpath(path)
+        if not isinstance(found, list):
+            self.fail(f"{path} matches no values.")
+        return [str(assert_instance(value, str)) for value in found]
+
     def csrf_token(self, path):
         match = re.search(r'name="csrf_token" value="([^"]+)"', self.page(path))
         if match is None:

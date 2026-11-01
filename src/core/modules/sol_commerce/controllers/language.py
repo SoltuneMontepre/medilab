@@ -23,8 +23,8 @@ class PortalLanguage(http.Controller):
         if not env.user._is_public():
             env.user.write({"lang": code})
             # Pages that are not frontend pages take the language the session got at sign-in.
-            request.session.context = {**request.session.context, "lang": code}
-        request.future_response.set_cookie(LANGUAGE_COOKIE, code)
+            request.session.context = {**(request.session.context or {}), "lang": code}
+        response.set_cookie(LANGUAGE_COOKIE, code)
         return response
 
     def _back(self, redirect):

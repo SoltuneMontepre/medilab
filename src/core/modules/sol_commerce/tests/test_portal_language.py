@@ -24,7 +24,7 @@ class TestPortalLanguage(PortalCase):
 
     def languages(self, path):
         tree = self.tree(path)
-        languages = self.find(tree, f"{SWITCHER}//input[@name='lang']/@value")
+        languages = self.texts(tree, f"{SWITCHER}//input[@name='lang']/@value")
         return set(languages)
 
     def test_the_header_offers_every_language(self):
@@ -38,7 +38,7 @@ class TestPortalLanguage(PortalCase):
     def test_the_account_page_offers_the_language_saved_on_the_profile(self):
         self.portal.lang = VIETNAMESE
         tree = self.tree("/my/account")
-        selected = self.find(tree, "//form[@action='/my/language']//select[@name='lang']/option[@selected]/@value")
+        selected = self.texts(tree, "//form[@action='/my/language']//select[@name='lang']/option[@selected]/@value")
         self.assertEqual(selected, [VIETNAMESE])
 
     def test_switching_saves_the_language_and_returns_to_the_page(self):
@@ -51,7 +51,7 @@ class TestPortalLanguage(PortalCase):
         self.assertEqual(self.portal.partner_id.lang, VIETNAMESE)
         for path in ("/my/account", "/orders"):
             with self.subTest(path=path):
-                active = self.find(self.tree(path), f"{SWITCHER}/a/span/text()")
+                active = self.texts(self.tree(path), f"{SWITCHER}/a/span/text()")
                 self.assertEqual(active, ["Tiếng Việt"])
 
     def test_switching_drops_the_language_prefix_of_the_page(self):
