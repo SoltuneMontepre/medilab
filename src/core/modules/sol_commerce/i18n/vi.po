@@ -1023,7 +1023,6 @@ msgstr "Bỏ qua"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_vnd_mixin__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_payment_provider__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_payment_transaction__display_name
-#: model:ir.model.fields,field_description:sol_commerce.field_portal_entry__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_product_template__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_rating_rating__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_res_company__display_name
@@ -1204,7 +1203,6 @@ msgstr "Gán mẫu cho các mục sau trước khi gửi báo giá:\n%s"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_vnd_mixin__id
 #: model:ir.model.fields,field_description:sol_commerce.field_payment_provider__id
 #: model:ir.model.fields,field_description:sol_commerce.field_payment_transaction__id
-#: model:ir.model.fields,field_description:sol_commerce.field_portal_entry__id
 #: model:ir.model.fields,field_description:sol_commerce.field_product_template__id
 #: model:ir.model.fields,field_description:sol_commerce.field_rating_rating__id
 #: model:ir.model.fields,field_description:sol_commerce.field_res_company__id
@@ -1641,11 +1639,6 @@ msgstr "Giai đoạn phễu bán hàng"
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__source__portal
 msgid "Portal"
 msgstr "Cổng thông tin"
-
-#. module: sol_commerce
-#: model:ir.model,name:sol_commerce.model_portal_entry
-msgid "Portal Entry"
-msgstr "Thẻ Cổng Khách Hàng"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_parameter_price__list_price

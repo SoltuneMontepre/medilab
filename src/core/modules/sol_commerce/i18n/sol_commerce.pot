@@ -1699,7 +1699,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_vnd_mixin__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_payment_provider__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_payment_transaction__display_name
-#: model:ir.model.fields,field_description:sol_commerce.field_portal_entry__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_product_template__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_rating_rating__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_res_company__display_name
@@ -2069,7 +2068,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_vnd_mixin__id
 #: model:ir.model.fields,field_description:sol_commerce.field_payment_provider__id
 #: model:ir.model.fields,field_description:sol_commerce.field_payment_transaction__id
-#: model:ir.model.fields,field_description:sol_commerce.field_portal_entry__id
 #: model:ir.model.fields,field_description:sol_commerce.field_product_template__id
 #: model:ir.model.fields,field_description:sol_commerce.field_rating_rating__id
 #: model:ir.model.fields,field_description:sol_commerce.field_res_company__id
@@ -3147,11 +3145,6 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__access_url
 msgid "Portal Access URL"
-msgstr ""
-
-#. module: sol_commerce
-#: model:ir.model,name:sol_commerce.model_portal_entry
-msgid "Portal Entry"
 msgstr ""
 
 #. module: sol_commerce
