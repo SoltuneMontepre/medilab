@@ -11,18 +11,24 @@ from odoo.tools import SQL
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_ENTRY,
     MODEL_CALENDAR_EVENT,
+    MODEL_CALENDAR_USER,
     MODEL_CUSTOMER,
     MODEL_DEPARTMENT,
+    MODEL_EMPLOYEE,
     MODEL_IR_ATTACHMENT,
     MODEL_LABORATORY_FOLDER,
     MODEL_LOCATION,
     MODEL_MACHINE,
     MODEL_MACHINE_BOOKING,
+    MODEL_MAIL_MESSAGE,
     MODEL_MEASUREMENT_UNIT,
     MODEL_PARAMETER_GROUP,
     MODEL_PARAMETER_METHOD,
     MODEL_PARAMETER_METHOD_MACHINE,
     MODEL_PERSON,
+    MODEL_RES_PARTNER,
+    MODEL_RES_USERS,
+    MODEL_RESOURCE,
     MODEL_SAMPLE,
     MODEL_SAMPLE_HANDOVER,
     MODEL_SAMPLE_TEST,
@@ -110,7 +116,7 @@ class SchedulingCommittedCase(TransactionCase):
         department = create(MODEL_DEPARTMENT, {"name": f"Scheduling {self.token}"})
         self.department_id = department.id
         users = create(
-            "res.users",
+            MODEL_RES_USERS,
             [
                 {
                     "name": f"Scheduling actor {number} {self.token}",
@@ -139,10 +145,10 @@ class SchedulingCommittedCase(TransactionCase):
         self.person_ids, self.user_ids = people.ids, people.user_id.ids
         self.partner_ids = [person.user_id.partner_id.id for person in people]
         self.logins = people.user_id.mapped("login")
-        self.owned.setdefault("hr.employee", []).extend(people.employee_id.ids)
-        self.owned.setdefault("resource.resource", []).extend(people.employee_id.resource_id.ids)
-        self.owned.setdefault("res.users", []).extend(people.user_id.ids)
-        self.owned.setdefault("res.partner", []).extend((people.user_id.partner_id | people.work_contact_id).ids)
+        self.owned.setdefault(MODEL_EMPLOYEE, []).extend(people.employee_id.ids)
+        self.owned.setdefault(MODEL_RESOURCE, []).extend(people.employee_id.resource_id.ids)
+        self.owned.setdefault(MODEL_RES_USERS, []).extend(people.user_id.ids)
+        self.owned.setdefault(MODEL_RES_PARTNER, []).extend((people.user_id.partner_id | people.work_contact_id).ids)
         category = create(MODEL_UNIT_CATEGORY, {"name": f"Scheduling unit {self.token}"})
         unit = create(MODEL_MEASUREMENT_UNIT, {"name": f"mg/L {self.token}", "category_id": category.id})
         field = create(MODEL_TESTING_FIELD, {"code": self.token, "name": "Scheduling"})
@@ -184,7 +190,7 @@ class SchedulingCommittedCase(TransactionCase):
             },
         )
         customer = create(MODEL_CUSTOMER, {"name": f"Scheduling customer {self.token}", "is_company": True})
-        self.owned["res.partner"].extend(customer.partner_id.ids)
+        self.owned[MODEL_RES_PARTNER].extend(customer.partner_id.ids)
         sample_type = create(MODEL_SAMPLE_TYPE, {"name": f"Scheduling sample type {self.token}"})
         request = create(
             MODEL_TEST_REQUEST,
@@ -251,7 +257,7 @@ class SchedulingCommittedCase(TransactionCase):
             "events": events.read(
                 ["start", "stop", "user_id", "partner_ids", "machine_booking_id", "location_id", "write_date"]
             ),
-            "messages": env["mail.message"].search_read(
+            "messages": env[MODEL_MAIL_MESSAGE].search_read(
                 [("model", "=", MODEL_TASK), ("res_id", "in", self.task_ids)],
                 ["res_id", "notification_ids"],
                 order="id",
@@ -431,7 +437,7 @@ class SchedulingCommittedCase(TransactionCase):
 
         def remove(env):
             # Every fixture this test prepared, not only the last one, which the ids on self name.
-            user_ids = self.owned["res.users"]
+            user_ids = self.owned[MODEL_RES_USERS]
             bookings = env[MODEL_MACHINE_BOOKING].search([("sample_test_id", "in", self.owned[MODEL_SAMPLE_TEST])])
             self.owned[MODEL_MACHINE_BOOKING] = bookings.ids
             # With the events a test recorded before production code deleted them, whose audit rows go below.
@@ -446,16 +452,16 @@ class SchedulingCommittedCase(TransactionCase):
             # Receiving made the handovers; they go with their samples, and their audit rows go below.
             handovers = env[MODEL_SAMPLE_HANDOVER].search([("sample_id", "in", self.owned[MODEL_SAMPLE])])
             self.owned[MODEL_SAMPLE_HANDOVER] = handovers.ids
-            self.owned["calendar.user"] = env["calendar.user"].search([("user_id", "in", user_ids)]).ids
+            self.owned[MODEL_CALENDAR_USER] = env[MODEL_CALENDAR_USER].search([("user_id", "in", user_ids)]).ids
             messages = Domain.OR(
                 [Domain("model", "=", model) & Domain("res_id", "in", ids) for model, ids in self.owned.items() if ids]
                 + [
-                    Domain("author_id", "in", self.owned["res.partner"]),
-                    Domain("partner_ids", "in", self.owned["res.partner"]),
-                    Domain("notification_ids.res_partner_id", "in", self.owned["res.partner"]),
+                    Domain("author_id", "in", self.owned[MODEL_RES_PARTNER]),
+                    Domain("partner_ids", "in", self.owned[MODEL_RES_PARTNER]),
+                    Domain("notification_ids.res_partner_id", "in", self.owned[MODEL_RES_PARTNER]),
                 ]
             )
-            self.owned["mail.message"] = env["mail.message"].search(messages).ids
+            self.owned[MODEL_MAIL_MESSAGE] = env[MODEL_MAIL_MESSAGE].search(messages).ids
             # These documents forbid ordinary deletion. Remove only this fixture's exact committed IDs and audit rows,
             # with the rows its own users wrote about documents already deleted, such as a cancelled booking's events.
             owned = SQL(" OR ").join(
@@ -481,7 +487,7 @@ class SchedulingCommittedCase(TransactionCase):
             env[MODEL_IR_ATTACHMENT].browse([row[0] for row in env.cr.fetchall()]).unlink()
             for model in (
                 MODEL_TASK_REASSIGN,
-                "mail.message",
+                MODEL_MAIL_MESSAGE,
                 MODEL_CALENDAR_EVENT,
                 MODEL_MACHINE_BOOKING,
                 MODEL_TASK,
@@ -503,11 +509,11 @@ class SchedulingCommittedCase(TransactionCase):
                 MODEL_MACHINE,
                 MODEL_LOCATION,
                 MODEL_PERSON,
-                "hr.employee",
-                "resource.resource",
-                "calendar.user",
-                "res.users",
-                "res.partner",
+                MODEL_EMPLOYEE,
+                MODEL_RESOURCE,
+                MODEL_CALENDAR_USER,
+                MODEL_RES_USERS,
+                MODEL_RES_PARTNER,
                 MODEL_DEPARTMENT,
             ):
                 if ids := self.owned.get(model):

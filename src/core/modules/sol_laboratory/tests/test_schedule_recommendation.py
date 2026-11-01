@@ -30,7 +30,7 @@ BOOKING_FIELDS = ["status", "machine_id", "person_id", "starts_at", "ends_at", "
 @tagged("post_install", "-at_install")
 class TestScheduleRecommendation(CrossDepartmentCase, LocationCase):
     def test_the_machine_that_finishes_first_wins_over_the_one_that_starts_first(self):
-        (self.fast | self.slow).status = "under_repair"
+        (self.fast | self.slow).write({"status": "under_repair"})
         long_run, short_run = self.env[MODEL_MACHINE].create(
             [{"code": "AAS-120", "name": "AAS 120"}, {"code": "AAS-40", "name": "AAS 40"}]
         )
@@ -246,7 +246,7 @@ class TestScheduleRecommendation(CrossDepartmentCase, LocationCase):
         office_hours = self.create_calendar(
             "Office hours in UTC", [(day, 8, 12) for day in WEEKDAYS] + [(day, 13, 17) for day in WEEKDAYS]
         )
-        (self.tester | self.other_tester).resource_calendar_id = office_hours
+        (self.tester | self.other_tester).write({"resource_calendar_id": office_hours.id})
         leaves = self.env["resource.calendar.leaves"]
         other = self.new_test()
         with self.subTest(leave="personal, Monday morning"), self.rolled_back():

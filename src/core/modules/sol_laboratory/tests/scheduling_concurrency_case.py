@@ -116,15 +116,10 @@ class SchedulingConcurrencyCase(SchedulingCommittedCase):
             finally:
                 finished[name].set()
 
-        def loaded_registry(db_name):
-            if db_name != self.registry.db_name:
-                raise AssertionError("A scheduling race tried to open another database")
-            return self.registry
-
         diagnosis = []
         with ExitStack() as stack:
             # retrying() commits and resets its transaction. Resolve that same registry without taking the suite's lock.
-            stack.enter_context(patch("odoo.orm.environments.Registry", loaded_registry))
+            stack.enter_context(patch("odoo.orm.environments.Registry", self.loaded_registry))
             stack.enter_context(mute_logger("odoo.sql_db", "odoo.http"))
             for target in {boundary_[:2] for boundary_ in boundaries.values()}:
                 model_class = type(dynamic_model(self.env, target[0]))
@@ -162,6 +157,12 @@ class SchedulingConcurrencyCase(SchedulingCommittedCase):
         self.assertEqual(set(outcomes), set(NAMES))
         self.assertEqual(passed, set(NAMES), ("Both transactions must pass the barrier at their boundary", reached))
         return outcomes
+
+    def loaded_registry(self, db_name):
+        """The suite's loaded registry, which a request resolves without taking the registry lock the suite holds."""
+        if db_name != self.registry.db_name:
+            raise AssertionError("A scheduling transaction tried to open another database")
+        return self.registry
 
     @staticmethod
     def values(argument):
@@ -217,7 +218,7 @@ class SchedulingConcurrencyCase(SchedulingCommittedCase):
             return result
 
         with (
-            patch("odoo.orm.environments.Registry", lambda _db_name: self.registry),
+            patch("odoo.orm.environments.Registry", self.loaded_registry),
             mute_logger("odoo.sql_db", "odoo.http"),
             sql_db.db_connect(self.registry.db_name).cursor() as cursor,
         ):
