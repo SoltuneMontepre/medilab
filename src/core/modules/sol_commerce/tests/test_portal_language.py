@@ -82,6 +82,10 @@ class TestPortalLanguage(PortalCase):
         self.assertEqual(self.opener.cookies.get("frontend_lang"), VIETNAMESE)
         self.assertEqual(public.lang, public_lang)
         self.assertEqual(self.portal.lang, ENGLISH)
+        for path in ("/catalog", "/cart"):
+            with self.subTest(path=path):
+                active = self.texts(self.tree(path), f"{SWITCHER}/a/span/text()")
+                self.assertEqual(active, ["Tiếng Việt"])
 
     def test_an_unchanged_language_is_not_written(self):
         users = type(self.env[MODEL_RES_USERS])
