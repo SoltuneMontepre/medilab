@@ -1,5 +1,6 @@
 import math
 from datetime import UTC, timedelta
+from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
 
 from odoo import api, fields, models
@@ -26,6 +27,12 @@ from odoo.addons.sol_laboratory.constants.scheduling import (
     SCHEDULING_TOKEN,
 )
 from odoo.addons.sol_laboratory.models.testing.sample_test import OPEN_STATUSES as OPEN_TEST_STATUSES
+from odoo.addons.sol_laboratory.services.record_id import persisted_ids
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_machine_booking as MachineBookingBase
+else:
+    MachineBookingBase = object
 
 SLOT_MINUTES = 15
 ACTIVE_STATUSES = ("scheduled", "in_progress")
@@ -65,7 +72,7 @@ def _room_clash(start, rooms, room_busy):
 
 
 # Lịch Đặt Máy
-class MachineBooking(models.Model):
+class MachineBooking(models.Model, MachineBookingBase):
     _name = MODEL_MACHINE_BOOKING
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Machine Booking"
@@ -73,48 +80,51 @@ class MachineBooking(models.Model):
     # A booking is cancelled, never deleted.
     _permission_actions = ("read", "create", "edit")
 
-    # The machine booked.
-    machine_id = fields.Many2one(MODEL_MACHINE, required=True, ondelete="restrict", readonly=True)
-    # The sample test run on the machine.
-    sample_test_id = fields.Many2one(MODEL_SAMPLE_TEST, required=True, ondelete="restrict", readonly=True, index=True)
-    # The testing task the booking belongs to.
-    task_id = fields.Many2one(MODEL_TASK, ondelete="restrict", readonly=True, index=True)
-    # The department of the testing task, whose head sees and adjusts the booking.
-    department_id = fields.Many2one(related="task_id.department_id", store=True, index=True)
-    # Person who runs the test.
-    person_id = fields.Many2one(MODEL_PERSON, ondelete="restrict", readonly=True)
-    # Due date of the sample test, copied so the queue is ordered without a join.
-    due_date = fields.Datetime(related="sample_test_id.due_date", store=True)
-    # When the booking joined the machine's queue; earlier bookings come first among equally urgent ones.
-    queued_at = fields.Datetime(required=True, default=fields.Datetime.now, readonly=True)
-    # Start of the slot; empty while the booking waits in the queue.
-    starts_at = fields.Datetime(string="Start")
-    # End of the slot: the start plus the run time, rounded up to whole slots.
-    ends_at = fields.Datetime(string="End", readonly=True)
-    # Queued, scheduled, in progress, done or cancelled.
-    status = fields.Selection(
-        [
-            ("queued", "Queued"),
-            ("scheduled", "Scheduled"),
-            ("in_progress", "In progress"),
-            ("done", "Done"),
-            ("cancelled", "Cancelled"),
-        ],
-        required=True,
-        default="queued",
-        readonly=True,
-        index=True,
-    )
-    # The calendar event showing the booking on the person's schedule; empty while the booking waits in the queue.
-    calendar_event_id = fields.Many2one("calendar.event", ondelete="set null", readonly=True, copy=False)
-    # True when the due date is within the urgency threshold, so the booking goes first in the queue.
-    is_urgent = fields.Boolean(related="sample_test_id.is_urgent")
-    # Steps of the testing method of the sample test's way of testing, which the person follows.
-    method_step_ids = fields.One2many(
-        related="sample_test_id.parameter_method_id.method_id.step_ids", string="Method Steps"
-    )
-    # Calendar events booking the locations of the method's steps for this booking.
-    room_event_ids = fields.One2many(MODEL_CALENDAR_EVENT, "machine_booking_id", string="Room Bookings")
+    if not TYPE_CHECKING:
+        # The machine booked.
+        machine_id = fields.Many2one(MODEL_MACHINE, required=True, ondelete="restrict", readonly=True)
+        # The sample test run on the machine.
+        sample_test_id = fields.Many2one(
+            MODEL_SAMPLE_TEST, required=True, ondelete="restrict", readonly=True, index=True
+        )
+        # The testing task the booking belongs to.
+        task_id = fields.Many2one(MODEL_TASK, ondelete="restrict", readonly=True, index=True)
+        # The department of the testing task, whose head sees and adjusts the booking.
+        department_id = fields.Many2one(related="task_id.department_id", store=True, index=True)
+        # Person who runs the test.
+        person_id = fields.Many2one(MODEL_PERSON, ondelete="restrict", readonly=True)
+        # Due date of the sample test, copied so the queue is ordered without a join.
+        due_date = fields.Datetime(related="sample_test_id.due_date", store=True)
+        # When the booking joined the machine's queue; earlier bookings come first among equally urgent ones.
+        queued_at = fields.Datetime(required=True, default=fields.Datetime.now, readonly=True)
+        # Start of the slot; empty while the booking waits in the queue.
+        starts_at = fields.Datetime(string="Start")
+        # End of the slot: the start plus the run time, rounded up to whole slots.
+        ends_at = fields.Datetime(string="End", readonly=True)
+        # Queued, scheduled, in progress, done or cancelled.
+        status = fields.Selection(
+            [
+                ("queued", "Queued"),
+                ("scheduled", "Scheduled"),
+                ("in_progress", "In progress"),
+                ("done", "Done"),
+                ("cancelled", "Cancelled"),
+            ],
+            required=True,
+            default="queued",
+            readonly=True,
+            index=True,
+        )
+        # The calendar event showing the booking on the person's schedule; empty while the booking waits in the queue.
+        calendar_event_id = fields.Many2one("calendar.event", ondelete="set null", readonly=True, copy=False)
+        # True when the due date is within the urgency threshold, so the booking goes first in the queue.
+        is_urgent = fields.Boolean(related="sample_test_id.is_urgent")
+        # Steps of the testing method of the sample test's way of testing, which the person follows.
+        method_step_ids = fields.One2many(
+            related="sample_test_id.parameter_method_id.method_id.step_ids", string="Method Steps"
+        )
+        # Calendar events booking the locations of the method's steps for this booking.
+        room_event_ids = fields.One2many(MODEL_CALENDAR_EVENT, "machine_booking_id", string="Room Bookings")
 
     _machine_start_idx = models.Index("(machine_id, starts_at)")
     _person_start_idx = models.Index("(person_id, starts_at)")
@@ -240,7 +250,7 @@ class MachineBooking(models.Model):
                 "stop": booking.ends_at,
                 "allday": False,
                 "user_id": user.id,
-                "partner_ids": [Command.set(user.partner_id.ids)],
+                "partner_ids": [Command.set(persisted_ids(user.partner_id))],
                 "alarm_ids": [Command.clear()],
                 "location": booking.sample_test_id.sample_id.sampling_location_id.display_name or False,
             }
@@ -249,7 +259,7 @@ class MachineBooking(models.Model):
             else:
                 booking._set({"calendar_event_id": events.create(values).id})
         for task in self.sudo().task_id:
-            slots = task.booking_ids.filtered(lambda booking: booking.status != "cancelled" and booking.starts_at)
+            slots = task.booking_ids.filtered(lambda booking: bool(booking.status != "cancelled" and booking.starts_at))
             # Writing the planned time also drops the task's own event: the bookings' events show it.
             task.write(
                 {
@@ -270,7 +280,7 @@ class MachineBooking(models.Model):
                 events.unlink()
             return
         user = self.person_id.user_id
-        attendees = {"user_id": user.id, "partner_ids": [Command.set(user.partner_id.ids)]}
+        attendees = {"user_id": user.id, "partner_ids": [Command.set(persisted_ids(user.partner_id))]}
         planned = [
             (step, events.filtered(lambda event, step=step: event.step_id == step)[:1], self.starts_at + offset, length)
             for step, offset, length in self._room_steps(self.sample_test_id.parameter_method_id)

@@ -14,9 +14,13 @@ from odoo.addons.sol_laboratory.constants.laboratory_files import (
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_DEPARTMENT,
     MODEL_LABORATORY_FOLDER,
+    MODEL_PERMISSION,
     MODEL_PERSON,
     MODEL_SAMPLE,
 )
+from odoo.addons.sol_laboratory.services.model_lookup import reference_as
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -37,7 +41,12 @@ class TestLaboratorySampleFolders(LaboratoryFilesCase, RequestCase):
                 "login": login,
                 "department_id": cls.department.id,
                 "permission_ids": [
-                    Command.set([cls.env.ref(f"sol_laboratory.permission_{code}").id for code in permissions])
+                    Command.set(
+                        [
+                            persisted_id(reference_as(cls.env[MODEL_PERMISSION], f"sol_laboratory.permission_{code}"))
+                            for code in permissions
+                        ]
+                    )
                 ],
             }
         )
@@ -63,9 +72,9 @@ class TestLaboratorySampleFolders(LaboratoryFilesCase, RequestCase):
 
         for folder in self.folders_of(self.sample):
             with self.subTest(category=folder.category):
-                self.assertTrue(folder.name.startswith(self.sample.code))
+                self.assertTrue(assert_instance(folder.name, str).startswith(assert_instance(self.sample.code, str)))
                 self.assertEqual(folder.root, f"{self.sample.code}-{folder.category}")
-                self.assertNotIn(self.sample.customer_sample_name, folder.name)
+                self.assertNotIn(self.sample.customer_sample_name, assert_instance(folder.name, str))
 
     def test_creating_the_folders_twice_adds_no_second_folder_of_a_category(self):
         self.sample.with_user(self.head).action_create_laboratory_folders()

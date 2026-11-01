@@ -9,6 +9,8 @@ from odoo.tests import tagged
 from .dispatch_case import DispatchCase
 from .scheduling_case import MONDAY
 from odoo.addons.sol_laboratory.constants.models import MODEL_SUBCONTRACT_DISPATCH, MODEL_TEST_RESULT
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @freeze_time(MONDAY)
@@ -67,7 +69,9 @@ class TestSubcontractDispatch(DispatchCase):
 
     def test_a_sent_dispatch_appears_on_the_outsourcing_schedule_with_its_expected_date(self):
         dispatch = self.outsource()
-        schedule = literal_eval(self.env.ref("sol_laboratory.action_medilab_subcontract_dispatch_schedule").domain)
+        schedule = literal_eval(
+            assert_instance(self.env.ref("sol_laboratory.action_medilab_subcontract_dispatch_schedule").domain, str)
+        )
         dispatches = self.env[MODEL_SUBCONTRACT_DISPATCH]
         self.assertNotIn(dispatch, dispatches.search(schedule))
 
@@ -79,7 +83,9 @@ class TestSubcontractDispatch(DispatchCase):
     def test_sample_delivery_staff_see_the_dispatches_they_carry_with_the_subcontractor_and_date_sent(self):
         dispatch = self.send_dispatch(self.outsource())
 
-        to_carry = literal_eval(self.env.ref("sol_laboratory.action_medilab_subcontract_dispatch_carry").domain)
+        to_carry = literal_eval(
+            assert_instance(self.env.ref("sol_laboratory.action_medilab_subcontract_dispatch_carry").domain, str)
+        )
         carried = self.as_person(self.env[MODEL_SUBCONTRACT_DISPATCH], self.courier).search(to_carry)
 
         self.assertEqual(carried, dispatch)
@@ -155,7 +161,7 @@ class TestSubcontractDispatch(DispatchCase):
         in_house = self.add_test()
 
         with self.assertRaises(UserError):
-            self.as_person(in_house, self.head).write({"dispatch_ids": [Command.link(dispatch.id)]})
+            self.as_person(in_house, self.head).write({"dispatch_ids": [Command.link(persisted_id(dispatch))]})
         with self.assertRaises(ValidationError):
             self.as_person(self.test, self.head).write({"parameter_method_id": self.southern_way.id})
         self.assertEqual(dispatch.sample_test_ids, self.test)

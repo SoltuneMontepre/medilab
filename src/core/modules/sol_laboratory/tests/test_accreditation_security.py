@@ -10,6 +10,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_SUBCONTRACTOR,
     MODEL_TESTING_METHOD,
 )
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 
 @tagged("post_install", "-at_install")
@@ -33,10 +34,10 @@ class TestAccreditationSecurity(MasterDataCase):
     def test_method_editor_cannot_mutate_certificate_ids(self):
         method = self.method.with_user(self.method_editor)
         for commands in (
-            [Command.link(self.certificate.id)],
-            [Command.unlink(self.certificate.id)],
+            [Command.link(persisted_id(self.certificate))],
+            [Command.unlink(persisted_id(self.certificate))],
             [Command.clear()],
-            [Command.set([self.certificate.id])],
+            [Command.set([persisted_id(self.certificate)])],
         ):
             with self.subTest(commands=commands):
                 with self.assertRaises(UserError):
@@ -49,16 +50,16 @@ class TestAccreditationSecurity(MasterDataCase):
                     "code": "SEC-NEW",
                     "name": "Secured",
                     "field_id": self.testing_field.id,
-                    "certificate_ids": [Command.link(self.certificate.id)],
+                    "certificate_ids": [Command.link(persisted_id(self.certificate))],
                 }
             )
 
     def test_sales_user_cannot_edit_certificate_scope(self):
         with self.assertRaises((AccessError, UserError)):
-            self.certificate.with_user(self.sales).write({"method_ids": [Command.link(self.method.id)]})
+            self.certificate.with_user(self.sales).write({"method_ids": [Command.link(persisted_id(self.method))]})
 
     def test_certificate_editor_can_link_methods(self):
-        self.certificate.with_user(self.editor).write({"method_ids": [Command.link(self.method.id)]})
+        self.certificate.with_user(self.editor).write({"method_ids": [Command.link(persisted_id(self.method))]})
         self.assertIn(self.method, self.certificate.method_ids)
 
     def test_certificate_scope_change_is_audited(self):
@@ -66,7 +67,7 @@ class TestAccreditationSecurity(MasterDataCase):
         before = Audit.search_count(
             [("document_model", "=", MODEL_ACCREDITATION_CERTIFICATE), ("document_id", "=", self.certificate.id)]
         )
-        self.certificate.write({"method_ids": [Command.link(self.method.id)]})
+        self.certificate.write({"method_ids": [Command.link(persisted_id(self.method))]})
         after = Audit.search_count(
             [("document_model", "=", MODEL_ACCREDITATION_CERTIFICATE), ("document_id", "=", self.certificate.id)]
         )
@@ -107,7 +108,7 @@ class TestAccreditationSecurity(MasterDataCase):
         )
         with self.assertRaises(UserError):
             subcontracted.write({"is_accredited": True})
-        self.certificate.write({"method_ids": [Command.link(self.method.id)]})
+        self.certificate.write({"method_ids": [Command.link(persisted_id(self.method))]})
         from datetime import timedelta
 
         today = self.env[MODEL_ACCREDITATION_CERTIFICATE]._laboratory_today()

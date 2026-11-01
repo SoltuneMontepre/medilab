@@ -1,4 +1,5 @@
 from contextvars import ContextVar
+from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.exceptions import AccessError, ValidationError
@@ -14,32 +15,40 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PERMISSION_MIXIN,
 )
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_order_template as OrderTemplateBase
+else:
+    OrderTemplateBase = object
+
 NOT_IN_OPERATOR = "not in"
 EDITING_TEMPLATE_IDS = ContextVar("editing_order_template_ids", default=frozenset())
 
 
 # Đơn Hàng Mẫu
-class OrderTemplate(models.Model):
+class OrderTemplate(models.Model, OrderTemplateBase):
     _name = MODEL_ORDER_TEMPLATE
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Order Template"
     _order = "name, id"
     _audit_children = ("line_ids",)
 
-    # The customer whose selections were saved.
-    customer_id = fields.Many2one(MODEL_CUSTOMER, required=True, ondelete="cascade", index=True, readonly=True)
-    # The original order; its current assignment and read access authorize template operations.
-    source_order_id = fields.Many2one(MODEL_SALE_ORDER, required=True, ondelete="restrict", index=True, readonly=True)
-    # The name Sales gives the reusable selection.
-    name = fields.Char(required=True, index="trigram")
-    # False when the template is archived.
-    active = fields.Boolean(default=True)
-    # The parameters and whole packages to order again.
-    line_ids = fields.One2many(MODEL_ORDER_TEMPLATE_LINE, "template_id", string="Selections")
-    # Whether the source still belongs to the saved customer; searched against live database relationships.
-    source_customer_matches = fields.Boolean(
-        compute="_compute_source_customer_matches", search="_search_source_customer_matches"
-    )
+    if not TYPE_CHECKING:
+        # The customer whose selections were saved.
+        customer_id = fields.Many2one(MODEL_CUSTOMER, required=True, ondelete="cascade", index=True, readonly=True)
+        # The original order; its current assignment and read access authorize template operations.
+        source_order_id = fields.Many2one(
+            MODEL_SALE_ORDER, required=True, ondelete="restrict", index=True, readonly=True
+        )
+        # The name Sales gives the reusable selection.
+        name = fields.Char(required=True, index="trigram")
+        # False when the template is archived.
+        active = fields.Boolean(default=True)
+        # The parameters and whole packages to order again.
+        line_ids = fields.One2many(MODEL_ORDER_TEMPLATE_LINE, "template_id", string="Selections")
+        # Whether the source still belongs to the saved customer; searched against live database relationships.
+        source_customer_matches = fields.Boolean(
+            compute="_compute_source_customer_matches", search="_search_source_customer_matches"
+        )
 
     @api.depends("source_order_id.customer_id", "customer_id.partner_id")
     def _compute_source_customer_matches(self):
@@ -95,7 +104,7 @@ class OrderTemplate(models.Model):
                 raise ValidationError(self.env._("Choose an active customer belonging to the source order."))
             if not commands:
                 raise ValidationError(self.env._("An order template needs at least one selection."))
-            if not (vals.get("name") or "").strip():
+            if not ((vals.get("name") or "").strip()):
                 raise ValidationError(self.env._("Give the template a name."))
             vals["name"] = vals["name"].strip()
         with self.env.cr.savepoint():
@@ -123,7 +132,7 @@ class OrderTemplate(models.Model):
         if {"customer_id", "source_order_id"} & vals.keys():
             raise AccessError(self.env._("The customer and source order of a template cannot be changed."))
         if "name" in vals:
-            if not (vals["name"] or "").strip():
+            if not ((vals["name"] or "").strip()):
                 raise ValidationError(self.env._("Give the template a name."))
             vals = {**vals, "name": vals["name"].strip()}
         if "line_ids" not in vals:

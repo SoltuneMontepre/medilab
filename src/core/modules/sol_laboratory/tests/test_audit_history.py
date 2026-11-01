@@ -1,7 +1,9 @@
+from odoo import fields
 from odoo.tests import tagged
 
 from .audit_case import AuditCase
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_REGULATION, MODEL_REGULATION_LIMIT
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -30,13 +32,13 @@ class TestAuditHistory(AuditCase):
         self.assertEqual(set(self.entries(self.limit).mapped("parent_id")), {self.regulation.id})
 
     def test_each_kind_of_part_belongs_to_one_kind_of_document(self):
-        mixin = self.env.registry[MODEL_AUDIT_MIXIN]
+        mixin = type(self.env[MODEL_AUDIT_MIXIN])
         parents = {}
         for name, model in self.env.registry.items():
             if model._abstract or not issubclass(model, mixin):
                 continue
             for relation in model._audit_children:
-                field = model._fields[relation]
+                field = assert_instance(model._fields[relation], fields.One2many)
                 parents.setdefault(field.comodel_name, set()).add(name)
 
         self.assertFalse({part: names for part, names in parents.items() if len(names) > 1})

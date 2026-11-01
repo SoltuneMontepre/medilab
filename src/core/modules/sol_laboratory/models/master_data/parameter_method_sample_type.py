@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 from odoo.fields import Domain
@@ -15,40 +17,46 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 from odoo.addons.sol_laboratory.fields.nullable_float import NullableFloat
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_parameter_method_sample_type as ParameterMethodSampleTypeBase
+else:
+    ParameterMethodSampleTypeBase = object
+
 
 # Cấu Hình Áp Dụng Theo Loại Mẫu
-class ParameterMethodSampleType(models.Model):
+class ParameterMethodSampleType(models.Model, ParameterMethodSampleTypeBase):
     _name = MODEL_PARAMETER_METHOD_SAMPLE_TYPE
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Sample Type of a Way of Testing"
     _order = "parameter_id, sample_type_id, is_default desc, id"
     _permission_actions = ("create", "edit", "delete")
 
-    # The parameter the way of testing tests, so each parameter and sample type keeps one default.
-    parameter_id = fields.Many2one(MODEL_TEST_PARAMETER, required=True, ondelete="cascade", index=True)
-    # The way of testing that applies to the sample type.
-    parameter_method_id = fields.Many2one(
-        MODEL_PARAMETER_METHOD,
-        required=True,
-        ondelete="cascade",
-        index=True,
-        string="Way of Testing",
-        domain="[('parameter_id', '=', parameter_id)]",
-    )
-    # The sample type the way applies to; its narrower and broader types do not share it.
-    sample_type_id = fields.Many2one(MODEL_SAMPLE_TYPE, required=True, ondelete="restrict", index=True)
-    # The unit results of the way are expressed in on this sample type.
-    unit_id = fields.Many2one(MODEL_MEASUREMENT_UNIT, required=True, ondelete="restrict", index=True)
-    # Limit of detection, the lowest value the way detects, in the unit; empty when the way states none.
-    lod = NullableFloat(string="LOD", min_display_digits=1)
-    # Limit of quantification, the lowest value the way measures reliably, in the unit; empty when the way states none.
-    loq = NullableFloat(string="LOQ", min_display_digits=1)
-    # Decimals a result shows, such as 2 for 0.50; results copy it.
-    result_decimals = fields.Integer()
-    # True for the way the parameter is normally tested on this sample type.
-    is_default = fields.Boolean(string="Default")
-    # False when the way of testing is archived, so the row is not offered.
-    way_active = fields.Boolean(related="parameter_method_id.active")
+    if not TYPE_CHECKING:
+        # The parameter the way of testing tests, so each parameter and sample type keeps one default.
+        parameter_id = fields.Many2one(MODEL_TEST_PARAMETER, required=True, ondelete="cascade", index=True)
+        # The way of testing that applies to the sample type.
+        parameter_method_id = fields.Many2one(
+            MODEL_PARAMETER_METHOD,
+            required=True,
+            ondelete="cascade",
+            index=True,
+            string="Way of Testing",
+            domain="[('parameter_id', '=', parameter_id)]",
+        )
+        # The sample type the way applies to; its narrower and broader types do not share it.
+        sample_type_id = fields.Many2one(MODEL_SAMPLE_TYPE, required=True, ondelete="restrict", index=True)
+        # The unit results of the way are expressed in on this sample type.
+        unit_id = fields.Many2one(MODEL_MEASUREMENT_UNIT, required=True, ondelete="restrict", index=True)
+        # Limit of detection, the lowest value the way detects, in the unit; empty when the way states none.
+        lod = NullableFloat(string="LOD", min_display_digits=1)
+        # Limit of quantification, the lowest value the way measures reliably, in the unit; empty when the way states none.
+        loq = NullableFloat(string="LOQ", min_display_digits=1)
+        # Decimals a result shows, such as 2 for 0.50; results copy it.
+        result_decimals = fields.Integer()
+        # True for the way the parameter is normally tested on this sample type.
+        is_default = fields.Boolean(string="Default")
+        # False when the way of testing is archived, so the row is not offered.
+        way_active = fields.Boolean(related="parameter_method_id.active")
 
     _way_sample_type_unique = models.Constraint(
         "UNIQUE(parameter_method_id, sample_type_id)", "The way of testing already applies to this sample type."

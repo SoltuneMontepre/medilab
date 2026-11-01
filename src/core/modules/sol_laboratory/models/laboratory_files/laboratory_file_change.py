@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 
@@ -9,9 +11,14 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PERMISSION_MIXIN,
 )
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_laboratory_file_change as LaboratoryFileChangeBase
+else:
+    LaboratoryFileChangeBase = object
+
 
 # Thay Đổi Tệp
-class LaboratoryFileChange(models.Model):
+class LaboratoryFileChange(models.Model, LaboratoryFileChangeBase):
     _name = MODEL_LABORATORY_FILE_CHANGE
     _inherit = [MODEL_PERMISSION_MIXIN]
     _description = "Laboratory File Change"
@@ -20,16 +27,19 @@ class LaboratoryFileChange(models.Model):
     # Changes are only added, as files get new current versions.
     _permission_actions = ("read",)
 
-    # The folder of the file.
-    folder_id = fields.Many2one(
-        MODEL_LABORATORY_FOLDER, string="Folder", required=True, ondelete="restrict", readonly=True
-    )
-    # The file whose current version changed.
-    file_id = fields.Many2one(MODEL_LABORATORY_FILE, string="File", required=True, ondelete="restrict", readonly=True)
-    # The new current version.
-    version_id = fields.Many2one(
-        MODEL_LABORATORY_FILE_VERSION, string="Version", required=True, ondelete="restrict", readonly=True
-    )
+    if not TYPE_CHECKING:
+        # The folder of the file.
+        folder_id = fields.Many2one(
+            MODEL_LABORATORY_FOLDER, string="Folder", required=True, ondelete="restrict", readonly=True
+        )
+        # The file whose current version changed.
+        file_id = fields.Many2one(
+            MODEL_LABORATORY_FILE, string="File", required=True, ondelete="restrict", readonly=True
+        )
+        # The new current version.
+        version_id = fields.Many2one(
+            MODEL_LABORATORY_FILE_VERSION, string="Version", required=True, ondelete="restrict", readonly=True
+        )
 
     _folder_change_index = models.Index("(folder_id, id)")
 

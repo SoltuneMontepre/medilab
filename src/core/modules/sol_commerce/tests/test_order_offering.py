@@ -6,6 +6,7 @@ from odoo.tests import tagged
 
 from .order_case import OrderCase
 from odoo.addons.sol_laboratory.constants.models import MODEL_PARAMETER_METHOD, MODEL_SAMPLE_TYPE, MODEL_SUBCONTRACTOR
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -58,7 +59,7 @@ class TestOrderOffering(OrderCase):
 
         order._catalog_lines().sample_id = self.cabbage_sample(order)
 
-        notice = order._catalog_lines().default_way_notice
+        notice = assert_instance(order._catalog_lines().default_way_notice, str)
         self.assertIn("is unavailable", notice)
         self.assertIn(self.pair.display_name, notice)
         self.assertFalse(self.make_quotable_order()._catalog_lines().default_way_notice)

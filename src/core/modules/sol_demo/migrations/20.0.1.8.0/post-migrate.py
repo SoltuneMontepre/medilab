@@ -5,6 +5,7 @@ from odoo.api import SUPERUSER_ID
 from odoo.fields import Command
 
 from odoo.addons.sol_demo.hooks import DEFAULT_DEMO_PASSWORD, DEMO_PASSWORD_VARIABLE
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 
 def migrate(cr, _version):
@@ -18,4 +19,6 @@ def migrate(cr, _version):
     # Sample delivery staff choose the person who took the samples on a handover record.
     role = env.ref("sol_demo.demo_role_sample_delivery_staff", raise_if_not_found=False)
     if role:
-        role.permission_ids = [Command.link(env.ref("sol_laboratory.permission_person_read_own_department").id)]
+        role.permission_ids = [
+            Command.link(persisted_id(env.ref("sol_laboratory.permission_person_read_own_department")))
+        ]

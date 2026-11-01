@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, models
 from odoo.exceptions import UserError
 from odoo.fields import Domain
@@ -9,9 +11,14 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import TEST_REQUEST_READER_GROUP
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_ir_attachment as IrAttachmentBase
+else:
+    IrAttachmentBase = object
+
 
 # Tệp Đính Kèm
-class IrAttachment(models.Model):
+class IrAttachment(models.Model, IrAttachmentBase):
     _name = MODEL_IR_ATTACHMENT
     _inherit = [MODEL_AUDIT_MIXIN, MODEL_IR_ATTACHMENT]
     # Where Odoo stores the file and the text it extracts from it, which say nothing the checksum does not.
@@ -30,7 +37,7 @@ class IrAttachment(models.Model):
         # Only the files of audited documents are recorded, not Odoo's own files, such as web assets or the stored
         # values of image fields.
         files = self.sudo().filtered(
-            lambda file: (
+            lambda file: bool(
                 file.res_id
                 and not file.res_field
                 and file.res_model in self.env

@@ -1,4 +1,5 @@
 import hashlib
+from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError
@@ -19,13 +20,18 @@ from odoo.addons.sol_laboratory.constants.signing import DIGITAL_SIGNING_JOB, UN
 from odoo.addons.sol_laboratory.services.pdf_signing import certificate_chain, check_pdf, sign_pdf
 from odoo.addons.sol_laboratory.services.viettel_sign_client import ViettelSignError, viettel_sign_client
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_digital_signing_mixin as DigitalSigningMixinBase
+else:
+    DigitalSigningMixinBase = object
+
 # Statuses of a signing job item that still waits: to be tried, being tried, or given up until someone retries it.
 QUEUED_STATUSES = ("pending", "running", "failed")
 NOT_IN_OPERATOR = "not in"
 
 
 # Ký số: a fully signed document prints as the PDF Viettel Sign signed.
-class DigitalSigningMixin(models.AbstractModel):
+class DigitalSigningMixin(models.AbstractModel, DigitalSigningMixinBase):
     _name = MODEL_DIGITAL_SIGNING_MIXIN
     # Only a document signed through an approval chain is digitally signed.
     _inherit = [MODEL_APPROVAL_MIXIN]
@@ -33,21 +39,22 @@ class DigitalSigningMixin(models.AbstractModel):
     # External id of the report whose PDF Viettel Sign signs once the document is fully signed.
     _digital_signing_report = None
 
-    # The digital signature of the document's current version; empty until Viettel Sign signed its PDF.
-    digital_signature_id = fields.Many2one(
-        MODEL_DIGITAL_SIGNATURE,
-        compute="_compute_digital_signature",
-        compute_sudo=True,
-        search="_search_digital_signature_id",
-    )
-    # When Viettel Sign signed the PDF of the current version.
-    digital_signed_at = fields.Datetime(
-        related="digital_signature_id.signed_at",
-        depends=["digital_signature_id.signed_at"],
-        string="Digitally Signed At",
-    )
-    # True when the signing of the document's PDF waits in the signing job's queue.
-    digital_signing_pending = fields.Boolean(compute="_compute_digital_signature", compute_sudo=True)
+    if not TYPE_CHECKING:
+        # The digital signature of the document's current version; empty until Viettel Sign signed its PDF.
+        digital_signature_id = fields.Many2one(
+            MODEL_DIGITAL_SIGNATURE,
+            compute="_compute_digital_signature",
+            compute_sudo=True,
+            search="_search_digital_signature_id",
+        )
+        # When Viettel Sign signed the PDF of the current version.
+        digital_signed_at = fields.Datetime(
+            related="digital_signature_id.signed_at",
+            depends=["digital_signature_id.signed_at"],
+            string="Digitally Signed At",
+        )
+        # True when the signing of the document's PDF waits in the signing job's queue.
+        digital_signing_pending = fields.Boolean(compute="_compute_digital_signature", compute_sudo=True)
 
     @api.depends("document_version")
     def _compute_digital_signature(self):
@@ -137,7 +144,7 @@ class DigitalSigningMixin(models.AbstractModel):
         """True when every level of the document's chain stands signed; a host that keeps its own status says it from
         there."""
         self.ensure_one()
-        levels = self._approval_levels()
+        levels = self._approval_chain().level_ids
         signed = self._approval_open_rows().filtered(lambda row: row.decision == DECISION_SIGNED)
         return bool(levels) and not (levels - signed.level_id)
 

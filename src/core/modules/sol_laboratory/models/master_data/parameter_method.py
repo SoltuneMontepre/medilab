@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import format_date, format_list
@@ -20,9 +22,14 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TESTING_METHOD,
 )
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_parameter_method as ParameterMethodBase
+else:
+    ParameterMethodBase = object
+
 
 # Cách Thử
-class ParameterMethod(models.Model):
+class ParameterMethod(models.Model, ParameterMethodBase):
     _name = MODEL_PARAMETER_METHOD
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Way of Testing"
@@ -31,37 +38,38 @@ class ParameterMethod(models.Model):
     # Ways of testing are archived, never deleted, so they have no delete permission.
     _permission_actions = ("create", "edit", "archive")
 
-    # The parameter being tested.
-    parameter_id = fields.Many2one(MODEL_TEST_PARAMETER, required=True, ondelete="restrict")
-    # The method used to test it.
-    method_id = fields.Many2one(
-        MODEL_TESTING_METHOD, required=True, ondelete="restrict", index=True, string="Testing Method"
-    )
-    # The subcontractor that tests it; empty when the laboratory tests it in-house. Only an active subcontractor with a
-    # valid accreditation is offered, also where the list disables the active test to show archived ways of testing.
-    subcontractor_id = fields.Many2one(
-        MODEL_SUBCONTRACTOR,
-        ondelete="restrict",
-        index=True,
-        domain=[("active", "=", True), ("accreditation_expired", "=", False)],
-    )
-    # The department that tests it in-house; empty when a subcontractor tests it.
-    department_id = fields.Many2one(MODEL_DEPARTMENT, ondelete="restrict", index=True, domain=DEPARTMENT_DOMAIN)
-    # True while this in-house way of testing's method is on an accreditation certificate valid that day.
-    is_accredited = fields.Boolean(
-        string="Accredited",
-        compute="_compute_is_accredited",
-        store=True,
-        readonly=True,
-    )
-    # True when its results may be negative, such as a redox potential or a temperature in °C.
-    allows_negative = fields.Boolean(string="Negative Results")
-    # The sample types the way applies to, with the unit, detection limits and default on each.
-    applicability_ids = fields.One2many(
-        MODEL_PARAMETER_METHOD_SAMPLE_TYPE, "parameter_method_id", string="Sample Types"
-    )
-    # False when this way of testing is archived.
-    active = fields.Boolean(default=True)
+    if not TYPE_CHECKING:
+        # The parameter being tested.
+        parameter_id = fields.Many2one(MODEL_TEST_PARAMETER, required=True, ondelete="restrict")
+        # The method used to test it.
+        method_id = fields.Many2one(
+            MODEL_TESTING_METHOD, required=True, ondelete="restrict", index=True, string="Testing Method"
+        )
+        # The subcontractor that tests it; empty when the laboratory tests it in-house. Only an active subcontractor with a
+        # valid accreditation is offered, also where the list disables the active test to show archived ways of testing.
+        subcontractor_id = fields.Many2one(
+            MODEL_SUBCONTRACTOR,
+            ondelete="restrict",
+            index=True,
+            domain=[("active", "=", True), ("accreditation_expired", "=", False)],
+        )
+        # The department that tests it in-house; empty when a subcontractor tests it.
+        department_id = fields.Many2one(MODEL_DEPARTMENT, ondelete="restrict", index=True, domain=DEPARTMENT_DOMAIN)
+        # True while this in-house way of testing's method is on an accreditation certificate valid that day.
+        is_accredited = fields.Boolean(
+            string="Accredited",
+            compute="_compute_is_accredited",
+            store=True,
+            readonly=True,
+        )
+        # True when its results may be negative, such as a redox potential or a temperature in °C.
+        allows_negative = fields.Boolean(string="Negative Results")
+        # The sample types the way applies to, with the unit, detection limits and default on each.
+        applicability_ids = fields.One2many(
+            MODEL_PARAMETER_METHOD_SAMPLE_TYPE, "parameter_method_id", string="Sample Types"
+        )
+        # False when this way of testing is archived.
+        active = fields.Boolean(default=True)
 
     _parameter_method_unique = models.UniqueIndex(
         "(parameter_id, method_id, COALESCE(subcontractor_id, 0)) WHERE active",

@@ -1,3 +1,6 @@
+from datetime import date
+from typing import TYPE_CHECKING, Literal
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.fields import Command, Domain
@@ -16,6 +19,11 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import SAMPLE_LABEL_REPORT, TEST_REPORT_READER_GROUP
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_test_request as TestRequestBase
+else:
+    TestRequestBase = object
+
 # The statuses each status can move to.
 TRANSITIONS = {
     "draft": ("confirmed", "cancelled"),
@@ -32,7 +40,7 @@ FINISHED_STATUSES = ("reported", "cancelled")
 
 
 # Yêu Cầu Thử Nghiệm
-class TestRequest(models.Model):
+class TestRequest(models.Model, TestRequestBase):
     _name = MODEL_TEST_REQUEST
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_CODE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Test Request"
@@ -42,62 +50,63 @@ class TestRequest(models.Model):
     _permission_actions = ("read", "create", "edit")
     _audit_children = ("sample_ids",)
 
-    # Unique code of the request, such as YC.2026.0001; filled from a sequence when left empty.
-    code = fields.Char(required=True, copy=False)
-    # The customer who asks for the tests.
-    customer_id = fields.Many2one(MODEL_CUSTOMER, required=True, ondelete="restrict", index=True)
-    # Date the request was made.
-    request_date = fields.Date(required=True, default=fields.Date.context_today, index=True)
-    # Date sales promised the customer the results.
-    expected_date = fields.Date()
-    # Language the customer wants the report in.
-    report_language = fields.Selection(
-        [("vi", "Vietnamese"), ("en", "English"), ("bilingual", "Bilingual")], required=True, default="bilingual"
-    )
-    # How the report reaches the customer.
-    delivery_method = fields.Selection(
-        [("in_person", "In Person"), ("post", "By Post"), ("email", "By Email"), ("other", "Other")],
-        required=True,
-        default="in_person",
-    )
-    # How to deliver when the delivery method is other, or details such as the postal address.
-    delivery_note = fields.Text()
-    # The contact who receives the report; the customer's own contact when empty.
-    report_recipient_id = fields.Many2one("res.partner", ondelete="restrict", index="btree_not_null")
-    # Where the request is in its lifecycle.
-    status = fields.Selection(
-        [
-            ("draft", "Draft"),
-            ("confirmed", "Confirmed"),
-            ("paid", "Paid"),
-            ("sample_received", "Sample Received"),
-            ("testing", "Testing"),
-            ("awaiting_approval", "Awaiting Approval"),
-            ("completed", "Completed"),
-            ("reported", "Reported"),
-            ("cancelled", "Cancelled"),
-        ],
-        required=True,
-        default="draft",
-        readonly=True,
-        copy=False,
-        index=True,
-    )
-    # Free notes about the request.
-    note = fields.Text()
-    # Samples of the request.
-    sample_ids = fields.One2many(MODEL_SAMPLE, "request_id", string="Samples")
-    # Sample tests the laboratory cancelled with a reason; the report leaves them out.
-    cancelled_test_ids = fields.Many2many(
-        MODEL_SAMPLE_TEST, string="Cancelled Tests", compute="_compute_cancelled_test_ids"
-    )
-    # Reports of the request, one per version.
-    report_ids = fields.One2many(
-        MODEL_TEST_REPORT,
-        "request_id",
-        string="Test Reports",
-        groups=TEST_REPORT_READER_GROUP,
-    )
+    if not TYPE_CHECKING:
+        # Unique code of the request, such as YC.2026.0001; filled from a sequence when left empty.
+        code = fields.Char(required=True, copy=False)
+        # The customer who asks for the tests.
+        customer_id = fields.Many2one(MODEL_CUSTOMER, required=True, ondelete="restrict", index=True)
+        # Date the request was made.
+        request_date = fields.Date(required=True, default=fields.Date.context_today, index=True)
+        # Date sales promised the customer the results.
+        expected_date = fields.Date()
+        # Language the customer wants the report in.
+        report_language = fields.Selection(
+            [("vi", "Vietnamese"), ("en", "English"), ("bilingual", "Bilingual")], required=True, default="bilingual"
+        )
+        # How the report reaches the customer.
+        delivery_method = fields.Selection(
+            [("in_person", "In Person"), ("post", "By Post"), ("email", "By Email"), ("other", "Other")],
+            required=True,
+            default="in_person",
+        )
+        # How to deliver when the delivery method is other, or details such as the postal address.
+        delivery_note = fields.Text()
+        # The contact who receives the report; the customer's own contact when empty.
+        report_recipient_id = fields.Many2one("res.partner", ondelete="restrict", index="btree_not_null")
+        # Where the request is in its lifecycle.
+        status = fields.Selection(
+            [
+                ("draft", "Draft"),
+                ("confirmed", "Confirmed"),
+                ("paid", "Paid"),
+                ("sample_received", "Sample Received"),
+                ("testing", "Testing"),
+                ("awaiting_approval", "Awaiting Approval"),
+                ("completed", "Completed"),
+                ("reported", "Reported"),
+                ("cancelled", "Cancelled"),
+            ],
+            required=True,
+            default="draft",
+            readonly=True,
+            copy=False,
+            index=True,
+        )
+        # Free notes about the request.
+        note = fields.Text()
+        # Samples of the request.
+        sample_ids = fields.One2many(MODEL_SAMPLE, "request_id", string="Samples")
+        # Sample tests the laboratory cancelled with a reason; the report leaves them out.
+        cancelled_test_ids = fields.Many2many(
+            MODEL_SAMPLE_TEST, string="Cancelled Tests", compute="_compute_cancelled_test_ids"
+        )
+        # Reports of the request, one per version.
+        report_ids = fields.One2many(
+            MODEL_TEST_REPORT,
+            "request_id",
+            string="Test Reports",
+            groups=TEST_REPORT_READER_GROUP,
+        )
 
     _code_unique = models.Constraint("UNIQUE(code)", "The code of a test request must be unique.")
 
@@ -114,11 +123,11 @@ class TestRequest(models.Model):
         self,
         customer,
         samples,
-        expected_date=False,
+        expected_date: date | str | Literal[False] = False,
         report_language="bilingual",
         delivery_method="in_person",
         delivery_note=False,
-        report_recipient=False,
+        report_recipient: models.BaseModel | Literal[False] = False,
     ):
         # E-commerce calls this when an order is confirmed, with one entry per sample on the quotation.
         return self.create(
@@ -209,7 +218,7 @@ class TestRequest(models.Model):
 
     def _next_statuses(self):
         self.ensure_one()
-        statuses = TRANSITIONS[self.status]
+        statuses = TRANSITIONS[self.status or ""]
         if self.status == "confirmed":
             # A request awaiting payment must go through the paid step; any other request skips it.
             skipped = "sample_received" if self._awaits_payment() else "paid"
@@ -226,7 +235,7 @@ class TestRequest(models.Model):
                     self.env._(
                         "Test request %(code)s cannot go from %(current)s to %(next)s.",
                         code=request.code,
-                        current=labels[request.status],
+                        current=labels[request.status or ""],
                         next=labels[status],
                     )
                 )

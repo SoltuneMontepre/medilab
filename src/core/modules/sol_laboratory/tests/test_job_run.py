@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from freezegun import freeze_time
 
@@ -9,6 +9,7 @@ from odoo.tools import mute_logger
 
 from .jobs_case import JOB_KEY, JOB_LOGGER, JobsCase
 from odoo.addons.sol_laboratory.constants.models import MODEL_IR_CRON_TRIGGER, MODEL_JOB_RUN
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -65,7 +66,7 @@ class TestJobRun(JobsCase):
         self.assertEqual(len(self.job.run_ids), 1)
         run = self.job.run_ids
         self.assertEqual((run.status, run.done_count, run.failed_count), ("succeeded", 5, 0))
-        self.assertEqual(run.log.count(": done"), 5)
+        self.assertEqual(assert_instance(run.log, str).count(": done"), 5)
 
     def test_the_items_the_finder_queues_are_done_in_the_same_run(self):
         handled = self.record_handler()
@@ -90,7 +91,7 @@ class TestJobRun(JobsCase):
         self.run_pass()
 
         self.assertEqual((item.status, item.attempts, item.next_attempt_at), ("pending", 0, later))
-        self.assertIn("deferred", self.job.run_ids.log)
+        self.assertIn("deferred", (self.job.run_ids.log or ""))
 
     def test_a_pass_without_due_items_succeeds(self):
         self.record_handler()
@@ -106,7 +107,7 @@ class TestJobRun(JobsCase):
             self.run_pass()
 
         self.assertEqual(self.job.run_ids.status, "failed")
-        self.assertIn("_handle_test_echo", self.job.run_ids.log)
+        self.assertIn("_handle_test_echo", (self.job.run_ids.log or ""))
         self.assertEqual(item.status, "pending")
 
     def test_run_now_triggers_the_cron_and_the_next_pass_records_who_asked(self):
@@ -117,7 +118,7 @@ class TestJobRun(JobsCase):
 
         trigger = self.env[MODEL_IR_CRON_TRIGGER].search([("cron_id", "=", self.job.cron_id.id)])
         self.assertTrue(trigger)
-        self.assertLessEqual(trigger.call_at, fields.Datetime.now())
+        self.assertLessEqual(assert_instance(trigger.call_at, datetime), fields.Datetime.now())
         self.assertEqual(self.job.run_requested_by_id, self.env.user)
 
         self.run_pass()

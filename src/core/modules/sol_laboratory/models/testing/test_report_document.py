@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, models
 
 from odoo.addons.sol_laboratory.constants.models import (
@@ -7,9 +9,14 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 from odoo.addons.sol_laboratory.models.testing.test_report import OPEN_STATUSES
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_report_sol_laboratory_report_test_report as TestReportDocumentBase
+else:
+    TestReportDocumentBase = object
+
 
 # Bản In Phiếu Kết Quả
-class TestReportDocument(models.AbstractModel):
+class TestReportDocument(models.AbstractModel, TestReportDocumentBase):
     _name = MODEL_TEST_REPORT_DOCUMENT
     _description = "Test Report Document"
 

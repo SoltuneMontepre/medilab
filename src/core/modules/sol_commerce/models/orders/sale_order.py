@@ -1,5 +1,6 @@
 import logging
 from datetime import timedelta
+from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.exceptions import AccessError, UserError
@@ -41,83 +42,91 @@ from odoo.addons.sol_commerce.constants.settings import DEFAULT_PAYMENT_DEADLINE
 from odoo.addons.sol_commerce.constants.xml_ids import QUOTATION_REPORT
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_MAIL_MESSAGE, MODEL_PERMISSION_MIXIN
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_sale_order as SaleOrderBase
+else:
+    SaleOrderBase = object
+
 _logger = logging.getLogger(__name__)
 
 
 # Đơn Hàng
-class SaleOrder(models.Model):
+class SaleOrder(models.Model, SaleOrderBase):
     _name = MODEL_SALE_ORDER
     _inherit = [MODEL_SALE_ORDER, MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
     _permission_actions = ("read", "create", "edit", "delete")
     _audit_children = ("order_line", "quotation_ids", "sample_ids", "cancellation_request_ids", "support_request_ids")
 
-    # The customer who orders: the company, or the individual when they order for themselves.
-    customer_id = fields.Many2one("res.partner", string="Customer", ondelete="restrict", index=True)
-    # The contact sales reaches about this order.
-    partner_id = fields.Many2one(string="Contact")
-    # portal when the customer built it, or sales when a salesperson created it for the customer.
-    source = fields.Selection(
-        [(SOURCE_PORTAL, "Portal"), (SOURCE_SALES, "Sales")],
-        string="Order Source",
-        required=True,
-        default=SOURCE_PORTAL,
-    )
-    # draft, submitted, claimed, confirmed, completed or cancelled.
-    order_status = fields.Selection(
-        [
-            (STATUS_DRAFT, "Draft"),
-            (STATUS_SUBMITTED, "Submitted"),
-            (STATUS_CLAIMED, "Claimed"),
-            (STATUS_CONFIRMED, "Confirmed"),
-            (STATUS_COMPLETED, "Completed"),
-            (STATUS_CANCELLED, "Cancelled"),
-        ],
-        required=True,
-        default=STATUS_DRAFT,
-        index=True,
-    )
-    # When the customer submitted the order.
-    submitted_at = fields.Datetime()
-    # When a salesperson claimed the order.
-    claimed_at = fields.Datetime()
-    # The date the customer expects the results.
-    expected_result_date = fields.Date()
-    # The order this one was reordered from.
-    reordered_from_id = fields.Many2one(MODEL_SALE_ORDER, ondelete="set null", index=True)
-    # Orders reordered from this one.
-    reorder_ids = fields.One2many(MODEL_SALE_ORDER, "reordered_from_id")
-    # Catalog items left out of this reorder because they are no longer sold.
-    reorder_note = fields.Text(copy=False)
-    # Total of the catalog prices times their quantities, excluding VAT.
-    catalog_total = fields.Monetary(compute="_compute_catalog_total")
-    # Cancellation requests on the order.
-    cancellation_request_ids = fields.One2many(MODEL_CANCELLATION_REQUEST, "order_id")
-    # When the advance must be paid; 3 days after sending by default, set by sales.
-    payment_deadline = fields.Datetime(copy=False)
-    # online, bank_transfer, cash, or none when the Head of Sales sends without an advance.
-    advance_method = fields.Selection(
-        [("online", "Online"), ("bank_transfer", "Bank transfer"), ("cash", "Cash"), ("none", "No advance")]
-    )
-    # full, percentage or fixed.
-    advance_mode = fields.Selection([("full", "Full amount"), ("percentage", "Percentage"), ("fixed", "Fixed amount")])
-    # The percentage or fixed amount of the advance, depending on the advance mode.
-    advance_value = fields.Float()
-    # Samples the customer will send.
-    sample_ids = fields.One2many(MODEL_ORDER_SAMPLE, "order_id", string="Samples")
-    # Quotations sent for the order, one per revision.
-    quotation_ids = fields.One2many(MODEL_QUOTATION, "order_id", string="Quotations")
-    # Where the latest quotation stands: unpaid until the advance is paid, declined or expired; empty when none was sent.
-    quotation_follow_up = fields.Selection(
-        [
-            (FOLLOW_UP_UNPAID, "Unpaid"),
-            (FOLLOW_UP_PAID, "Paid"),
-            (QUOTATION_DECLINED, "Declined"),
-            (QUOTATION_EXPIRED, "Expired"),
-        ],
-        compute="_compute_quotation_follow_up",
-        store=True,
-        index="btree_not_null",
-    )
+    if not TYPE_CHECKING:
+        # The customer who orders: the company, or the individual when they order for themselves.
+        customer_id = fields.Many2one("res.partner", string="Customer", ondelete="restrict", index=True)
+        # The contact sales reaches about this order.
+        partner_id = fields.Many2one(string="Contact")
+        # portal when the customer built it, or sales when a salesperson created it for the customer.
+        source = fields.Selection(
+            [(SOURCE_PORTAL, "Portal"), (SOURCE_SALES, "Sales")],
+            string="Order Source",
+            required=True,
+            default=SOURCE_PORTAL,
+        )
+        # draft, submitted, claimed, confirmed, completed or cancelled.
+        order_status = fields.Selection(
+            [
+                (STATUS_DRAFT, "Draft"),
+                (STATUS_SUBMITTED, "Submitted"),
+                (STATUS_CLAIMED, "Claimed"),
+                (STATUS_CONFIRMED, "Confirmed"),
+                (STATUS_COMPLETED, "Completed"),
+                (STATUS_CANCELLED, "Cancelled"),
+            ],
+            required=True,
+            default=STATUS_DRAFT,
+            index=True,
+        )
+        # When the customer submitted the order.
+        submitted_at = fields.Datetime()
+        # When a salesperson claimed the order.
+        claimed_at = fields.Datetime()
+        # The date the customer expects the results.
+        expected_result_date = fields.Date()
+        # The order this one was reordered from.
+        reordered_from_id = fields.Many2one(MODEL_SALE_ORDER, ondelete="set null", index=True)
+        # Orders reordered from this one.
+        reorder_ids = fields.One2many(MODEL_SALE_ORDER, "reordered_from_id")
+        # Catalog items left out of this reorder because they are no longer sold.
+        reorder_note = fields.Text(copy=False)
+        # Total of the catalog prices times their quantities, excluding VAT.
+        catalog_total = fields.Monetary(compute="_compute_catalog_total")
+        # Cancellation requests on the order.
+        cancellation_request_ids = fields.One2many(MODEL_CANCELLATION_REQUEST, "order_id")
+        # When the advance must be paid; 3 days after sending by default, set by sales.
+        payment_deadline = fields.Datetime(copy=False)
+        # online, bank_transfer, cash, or none when the Head of Sales sends without an advance.
+        advance_method = fields.Selection(
+            [("online", "Online"), ("bank_transfer", "Bank transfer"), ("cash", "Cash"), ("none", "No advance")]
+        )
+        # full, percentage or fixed.
+        advance_mode = fields.Selection(
+            [("full", "Full amount"), ("percentage", "Percentage"), ("fixed", "Fixed amount")]
+        )
+        # The percentage or fixed amount of the advance, depending on the advance mode.
+        advance_value = fields.Float()
+        # Samples the customer will send.
+        sample_ids = fields.One2many(MODEL_ORDER_SAMPLE, "order_id", string="Samples")
+        # Quotations sent for the order, one per revision.
+        quotation_ids = fields.One2many(MODEL_QUOTATION, "order_id", string="Quotations")
+        # Where the latest quotation stands: unpaid until the advance is paid, declined or expired; empty when none was sent.
+        quotation_follow_up = fields.Selection(
+            [
+                (FOLLOW_UP_UNPAID, "Unpaid"),
+                (FOLLOW_UP_PAID, "Paid"),
+                (QUOTATION_DECLINED, "Declined"),
+                (QUOTATION_EXPIRED, "Expired"),
+            ],
+            compute="_compute_quotation_follow_up",
+            store=True,
+            index="btree_not_null",
+        )
     _customer_status_idx = models.Index("(customer_id, order_status)")
     _status_submitted_idx = models.Index("(order_status, submitted_at)")
     _salesperson_status_idx = models.Index("(user_id, order_status)")
@@ -257,7 +266,7 @@ class SaleOrder(models.Model):
         if others:
             raise AccessError(self.env._("This order is not yours."))
 
-    def add_catalog_product(self, product, quantity=1):
+    def add_catalog_product(self, product, quantity: float = 1):
         """Add a parameter or package to the cart, or raise its quantity."""
         self.ensure_one()
         if self.order_status != STATUS_DRAFT:
@@ -301,7 +310,7 @@ class SaleOrder(models.Model):
         partner = (
             self.env["res.partner"]
             .sudo()
-            .create({"name": name, "email": email, "phone": (visitor.get("phone") or "").strip()})
+            .create({"name": name, "email": email, "phone": ((visitor.get("phone") or "").strip())})
         )
         self.with_context(medilab_status_change=True).write({"partner_id": partner.id, "customer_id": partner.id})
 
@@ -438,7 +447,9 @@ class SaleOrder(models.Model):
     @api.depends("quotation_ids.status", "quotation_ids.revision")
     def _compute_quotation_follow_up(self):
         for order in self:
-            order.quotation_follow_up = FOLLOW_UP_BY_QUOTATION_STATUS.get(order._latest_quotation().status, False)
+            order.quotation_follow_up = FOLLOW_UP_BY_QUOTATION_STATUS.get(
+                (order._latest_quotation().status or ""), False
+            )
 
     def _latest_quotation(self):
         self.ensure_one()
@@ -465,7 +476,7 @@ class SaleOrder(models.Model):
             raise UserError(
                 self.env._(
                     "Give these items a sample before sending the quotation:\n%s",
-                    "\n".join(unassigned.mapped("product_id.display_name")),
+                    "\n".join(name or "" for name in unassigned.mapped("product_id.display_name")),
                 )
             )
         latest = self._latest_quotation()

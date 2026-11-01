@@ -18,7 +18,7 @@ import logging
 import os
 import secrets
 
-import boto3
+from boto3.session import Session
 from botocore.config import Config
 from botocore.exceptions import (
     ClientError,
@@ -89,7 +89,7 @@ def settings():
             REGION_VARIABLE,
         )
     ]
-    return Settings(*values) if all(values) else None
+    return Settings(*(value for value in values if value is not None)) if all(values) else None
 
 
 def filestore_enabled():
@@ -108,7 +108,7 @@ def _client(bucket, endpoint, timeouts, attempts):
         retries={"mode": "standard", "max_attempts": attempts},
         **dict(timeouts),
     )
-    return boto3.session.Session().client(
+    return Session().client(
         "s3",
         endpoint_url=endpoint,
         region_name=bucket.region,

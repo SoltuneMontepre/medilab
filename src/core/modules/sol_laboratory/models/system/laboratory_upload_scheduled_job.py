@@ -1,12 +1,19 @@
+from typing import TYPE_CHECKING
+
 from odoo import fields, models
 
 from odoo.addons.sol_laboratory.constants.laboratory_uploads import VERIFY_JOB
 from odoo.addons.sol_laboratory.constants.models import MODEL_JOB_RUN, MODEL_LABORATORY_UPLOAD, MODEL_SCHEDULED_JOB
 from odoo.addons.sol_laboratory.models.system.scheduled_job import CRON_PASS_KEY
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_scheduled_job as ScheduledJobBase
+else:
+    ScheduledJobBase = object
+
 
 # Tác Vụ Định Kỳ
-class ScheduledJob(models.Model):
+class ScheduledJob(models.Model, ScheduledJobBase):
     _inherit = MODEL_SCHEDULED_JOB
 
     def _run_batch(self):

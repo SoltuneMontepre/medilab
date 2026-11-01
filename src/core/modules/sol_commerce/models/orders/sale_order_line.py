@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.fields import Command
@@ -10,18 +12,25 @@ from odoo.addons.sol_commerce.constants.models import (
 )
 from odoo.addons.sol_commerce.constants.orders import FROZEN_LINE_FIELDS, PORTAL_LOCKED_LINE_FIELDS
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN
+from odoo.addons.sol_laboratory.services.record_id import persisted_ids
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_sale_order_line as SaleOrderLineBase
+else:
+    SaleOrderLineBase = object
 
 
 # Dòng Đơn Hàng
-class SaleOrderLine(models.Model):
+class SaleOrderLine(models.Model, SaleOrderLineBase):
     _name = MODEL_SALE_ORDER_LINE
     _inherit = [MODEL_AUDIT_MIXIN, MODEL_SALE_ORDER_LINE]
 
-    # The sample the line is tested on.
-    sample_id = fields.Many2one(MODEL_ORDER_SAMPLE, ondelete="restrict", index="btree_not_null", copy=False)
-    # Why the default way of testing of the line's parameters on the sample's type is unavailable, and the ways to
-    # choose instead; empty when every default is available.
-    default_way_notice = fields.Char(string="Default Way", compute="_compute_default_way_notice")
+    if not TYPE_CHECKING:
+        # The sample the line is tested on.
+        sample_id = fields.Many2one(MODEL_ORDER_SAMPLE, ondelete="restrict", index="btree_not_null", copy=False)
+        # Why the default way of testing of the line's parameters on the sample's type is unavailable, and the ways to
+        # choose instead; empty when every default is available.
+        default_way_notice = fields.Char(string="Default Way", compute="_compute_default_way_notice")
 
     def _is_catalog_line(self):
         template = self.product_id.product_tmpl_id
@@ -38,7 +47,7 @@ class SaleOrderLine(models.Model):
         """
         saved = self.filtered(lambda line: isinstance(line.id, int))
         quoted = saved.order_id.sudo().filtered("quotation_ids")
-        return saved.filtered(lambda line: line.linked_line_id or line.order_id in quoted)
+        return saved.filtered(lambda line: bool(line.linked_line_id or line.order_id in quoted))
 
     def _compute_price_unit(self):
         return super(SaleOrderLine, self - self._frozen_lines())._compute_price_unit()
@@ -72,7 +81,7 @@ class SaleOrderLine(models.Model):
             notices = (
                 [parameter._default_way_notice(sample_type) for parameter in line._parameters()] if sample_type else []
             )
-            line.default_way_notice = " ".join(notice for notice in notices if notice) or False
+            line.default_way_notice = " ".join(notice for notice in notices if isinstance(notice, str)) or False
 
     @api.constrains("sample_id", "product_id")
     def _check_offered_on_sample(self):
@@ -187,7 +196,7 @@ class SaleOrderLine(models.Model):
                     "price_unit": line.price_unit,
                     "technical_price_unit": line.technical_price_unit,
                     "discount": line.discount,
-                    "tax_ids": [Command.set(line.tax_ids.ids)],
+                    "tax_ids": [Command.set(persisted_ids(line.tax_ids))],
                     "sequence": line.sequence,
                 }
                 for line in self

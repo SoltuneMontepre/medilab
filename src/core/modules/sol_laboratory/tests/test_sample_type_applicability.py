@@ -7,6 +7,7 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.tests import tagged
 from odoo.tools import mute_logger
 
+from .assertions import assert_instance
 from .common import MasterDataCase
 from .result_case import ResultCase
 from odoo.addons.sol_laboratory.constants.models import (
@@ -48,7 +49,7 @@ class TestSampleTypeApplicability(MasterDataCase):
         self.assertEqual(self.parameter._default_way(self.cabbage), self.pair)
         for sample_type in (self.lettuce, self.vegetables):
             self.assertFalse(self.parameter._default_way(sample_type))
-            self.assertIn("is not offered on", self.parameter._order_refusal(sample_type))
+            self.assertIn("is not offered on", assert_instance(self.parameter._order_refusal(sample_type), str))
 
     def test_one_way_applies_to_two_sample_types_in_different_units(self):
         cabbage = self.offer(self.parameter, self.cabbage, self.icp_ms)
@@ -186,7 +187,7 @@ class TestSampleTypeApplicability(MasterDataCase):
         self.offer(self.parameter, self.cabbage, self.icp_ms)
         subcontractor.accreditation_expiry = fields.Date.today() - timedelta(days=1)
 
-        notice = self.parameter._default_way_notice(self.cabbage)
+        notice = assert_instance(self.parameter._default_way_notice(self.cabbage), str)
         self.assertIn("is unavailable", notice)
         self.assertIn("The accreditation of Northern Testing Laboratory expired", notice)
         self.assertIn(self.icp_ms.display_name, notice)
@@ -194,7 +195,7 @@ class TestSampleTypeApplicability(MasterDataCase):
         self.assertEqual(self.parameter._default_way(self.cabbage), outside)
 
         self.icp_ms.applicability_ids.unlink()
-        self.assertIn("no other way is", self.parameter._order_refusal(self.cabbage))
+        self.assertIn("no other way is", assert_instance(self.parameter._order_refusal(self.cabbage), str))
 
     def test_a_machine_way_without_a_fit_machine_is_unavailable(self):
         machine = self.env[MODEL_MACHINE].create({"code": "AAS-1", "name": "AAS 1"})
@@ -212,7 +213,7 @@ class TestSampleTypeApplicability(MasterDataCase):
             }
         )
 
-        self.assertIn("No machine that runs it", self.pair._unavailable_reason())
+        self.assertIn("No machine that runs it", assert_instance(self.pair._unavailable_reason(), str))
 
 
 @tagged("post_install", "-at_install")

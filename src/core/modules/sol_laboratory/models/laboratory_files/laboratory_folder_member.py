@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.fields import Domain
@@ -13,9 +15,14 @@ from odoo.addons.sol_laboratory.constants.models import (
 from odoo.addons.sol_laboratory.constants.xml_ids import LABORATORY_FILES_GROUP
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_laboratory_folder_member as LaboratoryFolderMemberBase
+else:
+    LaboratoryFolderMemberBase = object
+
 
 # Links a folder to a person who can read and write it.
-class LaboratoryFolderMember(models.Model):
+class LaboratoryFolderMember(models.Model, LaboratoryFolderMemberBase):
     _name = MODEL_LABORATORY_FOLDER_MEMBER
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Laboratory Folder Member"
@@ -25,12 +32,13 @@ class LaboratoryFolderMember(models.Model):
     # Members are added and removed; a role changes only with the folder's owner.
     _permission_actions = ("read", "create", "delete")
 
-    # The folder.
-    folder_id = fields.Many2one(MODEL_LABORATORY_FOLDER, string="Folder", required=True, ondelete="cascade")
-    # The member.
-    user_id = fields.Many2one(MODEL_RES_USERS, string="Member", required=True, ondelete="cascade")
-    # owner or member; the owner's row cannot be removed.
-    role = fields.Selection([(OWNER_ROLE, "Owner"), (MEMBER_ROLE, "Member")], required=True, default=MEMBER_ROLE)
+    if not TYPE_CHECKING:
+        # The folder.
+        folder_id = fields.Many2one(MODEL_LABORATORY_FOLDER, string="Folder", required=True, ondelete="cascade")
+        # The member.
+        user_id = fields.Many2one(MODEL_RES_USERS, string="Member", required=True, ondelete="cascade")
+        # owner or member; the owner's row cannot be removed.
+        role = fields.Selection([(OWNER_ROLE, "Owner"), (MEMBER_ROLE, "Member")], required=True, default=MEMBER_ROLE)
 
     _folder_user_unique = models.Constraint(
         "UNIQUE(folder_id, user_id)", "This person is already a member of the folder."

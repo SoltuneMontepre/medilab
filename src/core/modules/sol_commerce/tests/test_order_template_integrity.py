@@ -3,6 +3,7 @@ from odoo.fields import Command
 from odoo.tests import tagged
 
 from .template_case import TemplateCase
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 
 @tagged("post_install", "-at_install")
@@ -76,8 +77,8 @@ class TestOrderTemplateIntegrity(TemplateCase):
                 commands = {
                     "clear": [Command.clear()],
                     "set": [Command.set([])],
-                    "delete": [Command.delete(line.id) for line in lines],
-                    "unlink": [Command.unlink(line.id) for line in lines],
+                    "delete": [Command.delete(persisted_id(line)) for line in lines],
+                    "unlink": [Command.unlink(persisted_id(line)) for line in lines],
                 }[operation]
                 with self.assertRaises(ValidationError):
                     template.with_user(self.sales).write({"name": "Should roll back", "line_ids": commands})

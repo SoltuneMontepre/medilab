@@ -16,6 +16,8 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_RES_USERS,
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import LABORATORY_FILES_GROUP
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 # Failed sign-ins of a login, and the delay its next one waits after the last failure.
 DELAYS = {5: 1, 6: 2, 7: 4, 8: 8, 9: 16, 10: 32, 11: 60, 12: 60}
@@ -96,7 +98,7 @@ class TestLaboratoryApiSignInLimits(LaboratoryApiCase):
 
     def test_a_right_password_refused_for_another_reason_also_clears_the_count(self):
         self.fail_sign_ins(2)
-        self.tester.write({"group_ids": [Command.unlink(self.env.ref(LABORATORY_FILES_GROUP).id)]})
+        self.tester.write({"group_ids": [Command.unlink(persisted_id(self.env.ref(LABORATORY_FILES_GROUP)))]})
 
         self.assertApiRefused(PERMISSION_DENIED, self.api_sign_in(self.tester, "installation"))
         self.assertFalse(self.attempt())
@@ -120,7 +122,7 @@ class TestLaboratoryApiSignInLimits(LaboratoryApiCase):
 
     def test_odoos_cooldown_of_the_address_is_answered_as_too_many_attempts(self):
         self.env[MODEL_IR_CONFIG_PARAMETER].set_int("base.login_cooldown_after", 5)
-        self.registry._login_failures[TEST_ADDRESS] = (5, datetime.datetime.now())
+        assert_instance(getattr(self.registry, "_login_failures"), dict)[TEST_ADDRESS] = (5, datetime.datetime.now())
         checked = len(self.checked)
 
         response = self.api_sign_in(self.tester, "installation")

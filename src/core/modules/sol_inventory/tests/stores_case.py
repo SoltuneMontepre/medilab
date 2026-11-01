@@ -1,6 +1,9 @@
 from odoo.fields import Command
 
 from odoo.addons.sol_inventory.constants.models import MODEL_STOCK_LOCATION
+from odoo.addons.sol_laboratory.constants.models import MODEL_PERMISSION
+from odoo.addons.sol_laboratory.services.model_lookup import reference_as
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 from odoo.addons.sol_laboratory.tests.people_case import PeopleCase
 
 
@@ -32,5 +35,10 @@ class StoresCase(PeopleCase):
     def grant_inventory(cls, person, *codes):
         """Give the person the Inventory permissions named by their codes, such as stock_item.create.all."""
         person.permission_ids = [
-            Command.link(cls.env.ref(f"sol_inventory.permission_{code.replace('.', '_')}").id) for code in codes
+            Command.link(
+                persisted_id(
+                    reference_as(cls.env[MODEL_PERMISSION], f"sol_inventory.permission_{code.replace('.', '_')}")
+                )
+            )
+            for code in codes
         ]

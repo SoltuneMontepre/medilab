@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Domain
@@ -15,10 +17,17 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_CODE_MIXIN,
     MODEL_CUSTOMER,
+    MODEL_IR_ACCESS,
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
     MODEL_TASK,
 )
+from odoo.addons.sol_laboratory.services.model_lookup import reference_as
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_support_request as SupportRequestBase
+else:
+    SupportRequestBase = object
 
 COMMENT = "comment"
 # Messages people write: on the portal or in the back office, and by e-mail reply.
@@ -30,7 +39,7 @@ HANDLER_DOMAIN = "['|', ('handled_by_id', '=', user.id), ('handled_by_id', '=', 
 
 
 # Yêu Cầu Hỗ Trợ
-class SupportRequest(models.Model):
+class SupportRequest(models.Model, SupportRequestBase):
     _name = MODEL_SUPPORT_REQUEST
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_CODE_MIXIN, MODEL_AUDIT_MIXIN, "mail.thread", "portal.mixin"]
     _description = "Support Request"
@@ -40,31 +49,32 @@ class SupportRequest(models.Model):
     # The customer writes on the request from the portal's chatter with read access only.
     _mail_post_access = "read"
 
-    # Unique code of the request, such as HT.0001; filled from a sequence when it is opened.
-    code = fields.Char(required=True, copy=False)
-    # The customer who asks for help.
-    customer_id = fields.Many2one(MODEL_CUSTOMER, string="Customer", required=True, ondelete="restrict", index=True)
-    # The contact holding the customer's details, which the customer's orders name.
-    customer_partner_id = fields.Many2one(related="customer_id.partner_id", string="Customer Contact")
-    # The order the request is about; empty when it is about none.
-    order_id = fields.Many2one(MODEL_SALE_ORDER, string="Order", ondelete="restrict", index="btree_not_null")
-    # Short subject of the request.
-    subject = fields.Char(required=True)
-    # open, answered once support has replied and the customer has not written since, or closed.
-    status = fields.Selection(
-        [(SUPPORT_OPEN, "Open"), (SUPPORT_ANSWERED, "Answered"), (SUPPORT_CLOSED, "Closed")],
-        required=True,
-        default=SUPPORT_OPEN,
-        index=True,
-    )
-    # The Odoo user who opened the request: the customer from the portal, or sales on their behalf.
-    opened_by_id = fields.Many2one(
-        "res.users", string="Opened By", required=True, ondelete="restrict", default=lambda self: self.env.user
-    )
-    # The salesperson handling the request: the order's salesperson, or whoever takes it; empty until then.
-    handled_by_id = fields.Many2one("res.users", string="Handled By", ondelete="restrict", index="btree_not_null")
-    # When the request was closed.
-    closed_at = fields.Datetime(readonly=True)
+    if not TYPE_CHECKING:
+        # Unique code of the request, such as HT.0001; filled from a sequence when it is opened.
+        code = fields.Char(required=True, copy=False)
+        # The customer who asks for help.
+        customer_id = fields.Many2one(MODEL_CUSTOMER, string="Customer", required=True, ondelete="restrict", index=True)
+        # The contact holding the customer's details, which the customer's orders name.
+        customer_partner_id = fields.Many2one(related="customer_id.partner_id", string="Customer Contact")
+        # The order the request is about; empty when it is about none.
+        order_id = fields.Many2one(MODEL_SALE_ORDER, string="Order", ondelete="restrict", index="btree_not_null")
+        # Short subject of the request.
+        subject = fields.Char(required=True)
+        # open, answered once support has replied and the customer has not written since, or closed.
+        status = fields.Selection(
+            [(SUPPORT_OPEN, "Open"), (SUPPORT_ANSWERED, "Answered"), (SUPPORT_CLOSED, "Closed")],
+            required=True,
+            default=SUPPORT_OPEN,
+            index=True,
+        )
+        # The Odoo user who opened the request: the customer from the portal, or sales on their behalf.
+        opened_by_id = fields.Many2one(
+            "res.users", string="Opened By", required=True, ondelete="restrict", default=lambda self: self.env.user
+        )
+        # The salesperson handling the request: the order's salesperson, or whoever takes it; empty until then.
+        handled_by_id = fields.Many2one("res.users", string="Handled By", ondelete="restrict", index="btree_not_null")
+        # When the request was closed.
+        closed_at = fields.Datetime(readonly=True)
 
     _code_unique = models.Constraint("UNIQUE(code)", "The code of a support request must be unique.")
     _customer_status_idx = models.Index("(customer_id, status)")
@@ -208,7 +218,7 @@ class SupportRequest(models.Model):
         Generated accesses are not updated on upgrade, so the module's data calls this on install and on upgrade.
         """
         for xml_id in (SUPPORT_READ_ACCESS, SUPPORT_EDIT_ACCESS):
-            access = self.env.ref(xml_id, raise_if_not_found=False)
+            access = reference_as(self.env[MODEL_IR_ACCESS], xml_id, raise_if_not_found=False)
             if access and access.domain != HANDLER_DOMAIN:
                 access.sudo().write({"domain": HANDLER_DOMAIN})
 

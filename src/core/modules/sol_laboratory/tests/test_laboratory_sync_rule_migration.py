@@ -2,6 +2,7 @@ from pathlib import Path
 
 from odoo.modules.module import load_script
 from odoo.tests import tagged
+from odoo.tools import SQL
 
 from .laboratory_files_case import LaboratoryFilesCase
 
@@ -17,7 +18,7 @@ class TestLaboratorySyncRuleMigration(LaboratoryFilesCase):
             "SELECT conname FROM pg_constraint WHERE conrelid = 'medilab_laboratory_sync_rule'::regclass AND contype = 'u'"
         )
         for (name,) in cr.fetchall():
-            cr.execute(f'ALTER TABLE medilab_laboratory_sync_rule DROP CONSTRAINT "{name}"')
+            cr.execute(SQL("ALTER TABLE medilab_laboratory_sync_rule DROP CONSTRAINT %s", SQL.identifier(name)))
         rows = [("prefix", "run-", True, True), ("prefix", "run-", False, True), ("prefix", "run-", True, False)]
         rows.append(("extension", "csv", True, True))
         ids = []

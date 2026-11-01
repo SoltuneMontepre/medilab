@@ -8,7 +8,8 @@ from odoo.addons.sol_commerce.constants.models import (
     MODEL_SALE_ORDER,
 )
 from odoo.addons.sol_commerce.constants.xml_ids import ALL_ORDERS_GROUP
-from odoo.addons.sol_laboratory.constants.models import MODEL_PERMISSION
+from odoo.addons.sol_laboratory.constants.models import MODEL_PERMISSION, MODEL_ROLE
+from odoo.addons.sol_laboratory.services.model_lookup import reference_as
 
 
 def _template_line_xml_ids(env, template, name):
@@ -22,7 +23,7 @@ def seed_order_templates(env):
         [("document_model", "in", [MODEL_ORDER_TEMPLATE, MODEL_ORDER_TEMPLATE_LINE])]
     )
     for role_name in ("sales", "head_of_sales"):
-        role = env.ref(f"sol_demo.demo_role_{role_name}")
+        role = reference_as(env[MODEL_ROLE], f"sol_demo.demo_role_{role_name}")
         role.permission_ids |= permissions
     head = env.ref("sol_demo.demo_res_users_head_of_sales")
     head.group_ids |= env.ref(ALL_ORDERS_GROUP)

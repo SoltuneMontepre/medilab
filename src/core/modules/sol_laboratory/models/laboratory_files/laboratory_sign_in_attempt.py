@@ -1,5 +1,6 @@
 import datetime
 import math
+from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.tools import SQL
@@ -18,20 +19,26 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_laboratory_sign_in_attempt as LaboratorySignInAttemptBase
+else:
+    LaboratorySignInAttemptBase = object
+
 
 # Lượt Đăng Nhập Sai: the failed sign-ins of a login through the laboratory files API, which slow its next ones. Only
 # full rights reach it; the account itself is never locked.
-class LaboratorySignInAttempt(models.Model):
+class LaboratorySignInAttempt(models.Model, LaboratorySignInAttemptBase):
     _name = MODEL_LABORATORY_SIGN_IN_ATTEMPT
     _description = "Laboratory Sign-in Attempt"
     _log_access = False
 
-    # The login the failed sign-ins were made with, as it was sent; it need not be anyone's.
-    login = fields.Char(required=True, readonly=True)
-    # Failed sign-ins of the login since its failures were last forgotten.
-    failures = fields.Integer(required=True, readonly=True)
-    # When the last failed sign-in was made, to the microsecond.
-    failed_at = fields.Datetime(required=True, readonly=True)
+    if not TYPE_CHECKING:
+        # The login the failed sign-ins were made with, as it was sent; it need not be anyone's.
+        login = fields.Char(required=True, readonly=True)
+        # Failed sign-ins of the login since its failures were last forgotten.
+        failures = fields.Integer(required=True, readonly=True)
+        # When the last failed sign-in was made, to the microsecond.
+        failed_at = fields.Datetime(required=True, readonly=True)
 
     _login_unique = models.Constraint("UNIQUE(login)", "A login has one count of failed sign-ins.")
 

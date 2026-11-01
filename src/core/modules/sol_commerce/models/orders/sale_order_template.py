@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Command
@@ -5,16 +7,22 @@ from odoo.fields import Command
 from odoo.addons.sol_commerce.constants.models import MODEL_ORDER_TEMPLATE, MODEL_ORDER_TEMPLATE_SAVE, MODEL_SALE_ORDER
 from odoo.addons.sol_commerce.constants.xml_ids import ALL_ORDERS_GROUP
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_sale_order as SaleOrderTemplateBase
+else:
+    SaleOrderTemplateBase = object
+
 
 # Đơn Hàng: saves catalog selections and keeps the unavailable selections of template reuse.
-class SaleOrderTemplate(models.Model):
+class SaleOrderTemplate(models.Model, SaleOrderTemplateBase):
     _inherit = MODEL_SALE_ORDER
 
-    # Names and reasons of template selections omitted when this order was created.
-    template_omission_note = fields.Text(readonly=True, copy=False, groups="base.group_user")
+    if not TYPE_CHECKING:
+        # Names and reasons of template selections omitted when this order was created.
+        template_omission_note = fields.Text(readonly=True, copy=False, groups="base.group_user")
 
-    # Whether the current user can save this assigned order as a template.
-    can_save_order_template = fields.Boolean(compute="_compute_can_save_order_template")
+        # Whether the current user can save this assigned order as a template.
+        can_save_order_template = fields.Boolean(compute="_compute_can_save_order_template")
 
     @api.depends("user_id", "customer_id")
     @api.depends_context("uid")
@@ -49,7 +57,7 @@ class SaleOrderTemplate(models.Model):
             raise ValidationError(
                 self.env._(
                     "A template orders whole quantities. Change the quantity of these lines to a whole number:\n%s",
-                    "\n".join(fractional.mapped("product_id.display_name")),
+                    "\n".join(name or "" for name in fractional.mapped("product_id.display_name")),
                 )
             )
         return templates.create(

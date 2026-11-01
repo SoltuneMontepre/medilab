@@ -1,4 +1,5 @@
 from datetime import UTC, datetime, time, timedelta
+from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
 
 from odoo import api, fields, models
@@ -30,6 +31,12 @@ from odoo.addons.sol_laboratory.constants.tasks import (
     SAMPLE_TEST_CODE,
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import TEST_REQUEST_READER_GROUP
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_sample as SampleBase
+else:
+    SampleBase = object
 
 CANCELLABLE_STATUSES = ("expected", "received", "testing")
 FINISHED_STATUSES = ("rejected", "reported", "retained", "disposed", "cancelled")
@@ -52,7 +59,7 @@ def _progress(statuses, sent, done):
 
 
 # Mẫu
-class Sample(models.Model):
+class Sample(models.Model, SampleBase):
     _name = MODEL_SAMPLE
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_CODE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Sample"
@@ -62,98 +69,103 @@ class Sample(models.Model):
     _permission_actions = ("read", "create", "edit")
     _audit_children = ("test_ids", "handover_ids")
 
-    # Unique laboratory code (mã PTN) from a sequence, such as PTN.2026.0001; the only name testers see.
-    code = fields.Char(string="Lab Code", required=True, copy=False, readonly=True)
-    # The test request the sample belongs to.
-    request_id = fields.Many2one(
-        MODEL_TEST_REQUEST, string="Test Request", required=True, ondelete="cascade", index=True
-    )
-    # Name the customer gives the sample, such as "Lavie bottled water 1 L"; hidden from testers.
-    customer_sample_name = fields.Char(
-        string="Customer's Sample Name", required=True, index="trigram", groups=TEST_REQUEST_READER_GROUP
-    )
-    # The sample type (nền mẫu), such as bottled drinking water.
-    sample_type_id = fields.Many2one(MODEL_SAMPLE_TYPE, required=True, ondelete="restrict", index=True)
-    # Whether the sample is solid, liquid, gas or semi-solid.
-    physical_state = fields.Selection(
-        [("solid", "Solid"), ("liquid", "Liquid"), ("gas", "Gas"), ("semi_solid", "Semi-solid")], required=True
-    )
-    # Form the sample comes in, such as "whole bottle".
-    sample_form = fields.Char(string="Form")
-    # Container the sample comes in, such as "1 L bottle".
-    container_type = fields.Char(string="Container")
-    # The regulation the sample's results are compared with; empty when none.
-    regulation_id = fields.Many2one(MODEL_REGULATION, ondelete="restrict", index="btree_not_null")
-    # Free notes about the sample.
-    note = fields.Text()
-    # Where the sample is in its lifecycle.
-    status = fields.Selection(
-        [
-            ("expected", "Expected"),
-            ("received", "Received"),
-            ("on_hold", "On Hold"),
-            ("rejected", "Rejected"),
-            ("testing", "Testing"),
-            ("awaiting_approval", "Awaiting Approval"),
-            ("completed", "Completed"),
-            ("reported", "Reported"),
-            ("retained", "Retained"),
-            ("disposed", "Disposed"),
-            ("cancelled", "Cancelled"),
-        ],
-        required=True,
-        default="expected",
-        readonly=True,
-        copy=False,
-        index=True,
-    )
-    # When the laboratory received the sample.
-    received_at = fields.Datetime(readonly=True, copy=False)
-    # Person who received the sample.
-    received_by_id = fields.Many2one(MODEL_PERSON, string="Received By", readonly=True, copy=False, ondelete="restrict")
-    # Amount received, such as "2 bottles of 1 L".
-    received_quantity = fields.Char(string="Amount Received")
-    # Condition on arrival: good, damaged or insufficient.
-    condition = fields.Selection(CONDITIONS)
-    # What was wrong with the sample on arrival.
-    condition_note = fields.Text(string="Condition Note")
-    # Where the sample is stored, such as "Fridge 2, shelf B".
-    storage_location = fields.Char(string="Storage Location")
-    # The location the sample was taken from, such as a sampling point.
-    sampling_location_id = fields.Many2one(
-        MODEL_LOCATION, string="Sampling Location", ondelete="restrict", index="btree_not_null"
-    )
-    # When the head of department asked for the sample to be collected again.
-    recollection_requested_at = fields.Datetime(readonly=True, copy=False)
-    # Head of department who asked for the sample to be collected again.
-    recollection_requested_by_id = fields.Many2one(
-        MODEL_PERSON,
-        string="Recollection Requested By",
-        readonly=True,
-        copy=False,
-        ondelete="restrict",
-    )
-    # Last day the sample is kept: the report date plus the sample type's retention days.
-    retained_until = fields.Date(readonly=True, copy=False)
-    # When the sample was disposed of.
-    disposed_at = fields.Datetime(readonly=True, copy=False)
-    # Person who disposed of the sample.
-    disposed_by_id = fields.Many2one(MODEL_PERSON, string="Disposed By", readonly=True, copy=False, ondelete="restrict")
-    # How the sample was disposed of.
-    disposal_note = fields.Text(string="Disposal Method")
-    # Parameters tested on the sample.
-    test_ids = fields.One2many(MODEL_SAMPLE_TEST, "sample_id", string="Tests")
-    # Handovers of the sample to the departments that test it.
-    handover_ids = fields.One2many(MODEL_SAMPLE_HANDOVER, "sample_id", string="Handovers")
-    # Photos of the sample taken when it was collected or received; hidden from testers.
-    photo_ids = fields.Many2many(
-        "ir.attachment",
-        "medilab_sample_photo_rel",
-        "sample_id",
-        "attachment_id",
-        string="Photos",
-        groups=TEST_REQUEST_READER_GROUP,
-    )
+    if not TYPE_CHECKING:
+        # Unique laboratory code (mã PTN) from a sequence, such as PTN.2026.0001; the only name testers see.
+        code = fields.Char(string="Lab Code", required=True, copy=False, readonly=True)
+        # The test request the sample belongs to.
+        request_id = fields.Many2one(
+            MODEL_TEST_REQUEST, string="Test Request", required=True, ondelete="cascade", index=True
+        )
+        # Name the customer gives the sample, such as "Lavie bottled water 1 L"; hidden from testers.
+        customer_sample_name = fields.Char(
+            string="Customer's Sample Name", required=True, index="trigram", groups=TEST_REQUEST_READER_GROUP
+        )
+        # The sample type (nền mẫu), such as bottled drinking water.
+        sample_type_id = fields.Many2one(MODEL_SAMPLE_TYPE, required=True, ondelete="restrict", index=True)
+        # Whether the sample is solid, liquid, gas or semi-solid.
+        physical_state = fields.Selection(
+            [("solid", "Solid"), ("liquid", "Liquid"), ("gas", "Gas"), ("semi_solid", "Semi-solid")], required=True
+        )
+        # Form the sample comes in, such as "whole bottle".
+        sample_form = fields.Char(string="Form")
+        # Container the sample comes in, such as "1 L bottle".
+        container_type = fields.Char(string="Container")
+        # The regulation the sample's results are compared with; empty when none.
+        regulation_id = fields.Many2one(MODEL_REGULATION, ondelete="restrict", index="btree_not_null")
+        # Free notes about the sample.
+        note = fields.Text()
+        # Where the sample is in its lifecycle.
+        status = fields.Selection(
+            [
+                ("expected", "Expected"),
+                ("received", "Received"),
+                ("on_hold", "On Hold"),
+                ("rejected", "Rejected"),
+                ("testing", "Testing"),
+                ("awaiting_approval", "Awaiting Approval"),
+                ("completed", "Completed"),
+                ("reported", "Reported"),
+                ("retained", "Retained"),
+                ("disposed", "Disposed"),
+                ("cancelled", "Cancelled"),
+            ],
+            required=True,
+            default="expected",
+            readonly=True,
+            copy=False,
+            index=True,
+        )
+        # When the laboratory received the sample.
+        received_at = fields.Datetime(readonly=True, copy=False)
+        # Person who received the sample.
+        received_by_id = fields.Many2one(
+            MODEL_PERSON, string="Received By", readonly=True, copy=False, ondelete="restrict"
+        )
+        # Amount received, such as "2 bottles of 1 L".
+        received_quantity = fields.Char(string="Amount Received")
+        # Condition on arrival: good, damaged or insufficient.
+        condition = fields.Selection(CONDITIONS)
+        # What was wrong with the sample on arrival.
+        condition_note = fields.Text(string="Condition Note")
+        # Where the sample is stored, such as "Fridge 2, shelf B".
+        storage_location = fields.Char(string="Storage Location")
+        # The location the sample was taken from, such as a sampling point.
+        sampling_location_id = fields.Many2one(
+            MODEL_LOCATION, string="Sampling Location", ondelete="restrict", index="btree_not_null"
+        )
+        # When the head of department asked for the sample to be collected again.
+        recollection_requested_at = fields.Datetime(readonly=True, copy=False)
+        # Head of department who asked for the sample to be collected again.
+        recollection_requested_by_id = fields.Many2one(
+            MODEL_PERSON,
+            string="Recollection Requested By",
+            readonly=True,
+            copy=False,
+            ondelete="restrict",
+        )
+        # Last day the sample is kept: the report date plus the sample type's retention days.
+        retained_until = fields.Date(readonly=True, copy=False)
+        # When the sample was disposed of.
+        disposed_at = fields.Datetime(readonly=True, copy=False)
+        # Person who disposed of the sample.
+        disposed_by_id = fields.Many2one(
+            MODEL_PERSON, string="Disposed By", readonly=True, copy=False, ondelete="restrict"
+        )
+        # How the sample was disposed of.
+        disposal_note = fields.Text(string="Disposal Method")
+        # Parameters tested on the sample.
+        test_ids = fields.One2many(MODEL_SAMPLE_TEST, "sample_id", string="Tests")
+        # Handovers of the sample to the departments that test it.
+        handover_ids = fields.One2many(MODEL_SAMPLE_HANDOVER, "sample_id", string="Handovers")
+        # Photos of the sample taken when it was collected or received; hidden from testers.
+        photo_ids = fields.Many2many(
+            "ir.attachment",
+            "medilab_sample_photo_rel",
+            "sample_id",
+            "attachment_id",
+            string="Photos",
+            groups=TEST_REQUEST_READER_GROUP,
+        )
 
     _code_unique = models.Constraint("UNIQUE(code)", "The lab code of a sample must be unique.")
 
@@ -336,7 +348,7 @@ class Sample(models.Model):
         attachment = self.env["ir.attachment"].create(
             {"name": name, "raw": photo, "res_model": self._name, "res_id": self.id}
         )
-        self.write({"photo_ids": [Command.link(attachment.id)]})
+        self.write({"photo_ids": [Command.link(persisted_id(attachment))]})
         return attachment
 
     def _disposal_allowed(self):

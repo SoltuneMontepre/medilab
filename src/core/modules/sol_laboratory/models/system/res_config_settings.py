@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 
@@ -14,56 +16,62 @@ from odoo.addons.sol_laboratory.constants.settings import (
     NOTIFICATION_RETENTION_PARAMETER,
 )
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_res_config_settings as ResConfigSettingsBase
+else:
+    ResConfigSettingsBase = object
+
 
 # Cài Đặt
-class ResConfigSettings(models.TransientModel):
+class ResConfigSettings(models.TransientModel, ResConfigSettingsBase):
     _inherit = MODEL_RES_CONFIG_SETTINGS
 
-    # Days audit entries are kept before the cleanup job archives and removes them; 0 keeps them for ever.
-    audit_retention_days = fields.Integer(
-        config_parameter=AUDIT_RETENTION_PARAMETER,
-        help="Days audit entries are kept before the cleanup job writes them to an archive file and removes them. "
-        "0 keeps them for ever.",
-    )
-    # Minutes without activity after which an editing lock is released.
-    lock_timeout_minutes = fields.Integer(
-        string="Lock Timeout (minutes)",
-        config_parameter=LOCK_TIMEOUT_PARAMETER,
-        default=DEFAULT_LOCK_TIMEOUT_MINUTES,
-        help="Minutes without activity after which a document locked for editing is free again, so a closed browser "
-        "does not block it.",
-    )
+    if not TYPE_CHECKING:
+        # Days audit entries are kept before the cleanup job archives and removes them; 0 keeps them for ever.
+        audit_retention_days = fields.Integer(
+            config_parameter=AUDIT_RETENTION_PARAMETER,
+            help="Days audit entries are kept before the cleanup job writes them to an archive file and removes them. "
+            "0 keeps them for ever.",
+        )
+        # Minutes without activity after which an editing lock is released.
+        lock_timeout_minutes = fields.Integer(
+            string="Lock Timeout (minutes)",
+            config_parameter=LOCK_TIMEOUT_PARAMETER,
+            default=DEFAULT_LOCK_TIMEOUT_MINUTES,
+            help="Minutes without activity after which a document locked for editing is free again, so a closed browser "
+            "does not block it.",
+        )
 
-    # Days finished job items and job runs are kept before the cleanup job removes them.
-    job_retention_days = fields.Integer(
-        string="Job History (days)",
-        config_parameter=JOB_RETENTION_PARAMETER,
-        default=DEFAULT_RETENTION_DAYS,
-        help="Days done and cancelled job items and ended job runs are kept before the cleanup job removes them. "
-        "A run that audit entries or archive files name stays as long as they do.",
-    )
-    # Days released and expired document locks and laboratory file locks are kept before the cleanup job removes them.
-    lock_retention_days = fields.Integer(
-        string="Lock History (days)",
-        config_parameter=LOCK_RETENTION_PARAMETER,
-        default=DEFAULT_RETENTION_DAYS,
-        help="Days released and expired document locks and laboratory file locks are kept before the cleanup job "
-        "removes them.",
-    )
-    # Days read notifications are kept before the cleanup job removes them with their pushes.
-    notification_retention_days = fields.Integer(
-        string="Read Notifications (days)",
-        config_parameter=NOTIFICATION_RETENTION_PARAMETER,
-        default=DEFAULT_RETENTION_DAYS,
-        help="Days read notifications are kept before the cleanup job removes them with their pushes.",
-    )
-    # Days turned-off mobile devices are kept before the cleanup job removes them.
-    device_retention_days = fields.Integer(
-        string="Turned-off Devices (days)",
-        config_parameter=DEVICE_RETENTION_PARAMETER,
-        default=DEFAULT_RETENTION_DAYS,
-        help="Days mobile devices that were turned off are kept before the cleanup job removes them.",
-    )
+        # Days finished job items and job runs are kept before the cleanup job removes them.
+        job_retention_days = fields.Integer(
+            string="Job History (days)",
+            config_parameter=JOB_RETENTION_PARAMETER,
+            default=DEFAULT_RETENTION_DAYS,
+            help="Days done and cancelled job items and ended job runs are kept before the cleanup job removes them. "
+            "A run that audit entries or archive files name stays as long as they do.",
+        )
+        # Days released and expired document locks and laboratory file locks are kept before the cleanup job removes them.
+        lock_retention_days = fields.Integer(
+            string="Lock History (days)",
+            config_parameter=LOCK_RETENTION_PARAMETER,
+            default=DEFAULT_RETENTION_DAYS,
+            help="Days released and expired document locks and laboratory file locks are kept before the cleanup job "
+            "removes them.",
+        )
+        # Days read notifications are kept before the cleanup job removes them with their pushes.
+        notification_retention_days = fields.Integer(
+            string="Read Notifications (days)",
+            config_parameter=NOTIFICATION_RETENTION_PARAMETER,
+            default=DEFAULT_RETENTION_DAYS,
+            help="Days read notifications are kept before the cleanup job removes them with their pushes.",
+        )
+        # Days turned-off mobile devices are kept before the cleanup job removes them.
+        device_retention_days = fields.Integer(
+            string="Turned-off Devices (days)",
+            config_parameter=DEVICE_RETENTION_PARAMETER,
+            default=DEFAULT_RETENTION_DAYS,
+            help="Days mobile devices that were turned off are kept before the cleanup job removes them.",
+        )
 
     @api.constrains("lock_timeout_minutes")
     def _check_lock_timeout(self):

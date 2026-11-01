@@ -1,10 +1,17 @@
+from typing import TYPE_CHECKING
+
 from odoo import models
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_FILE_VERSION
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_laboratory_file_version as LaboratoryFileVersionDownloadBase
+else:
+    LaboratoryFileVersionDownloadBase = object
+
 
 # Phiên Bản Tệp: downloading a version from the back office.
-class LaboratoryFileVersionDownload(models.Model):
+class LaboratoryFileVersionDownload(models.Model, LaboratoryFileVersionDownloadBase):
     _inherit = MODEL_LABORATORY_FILE_VERSION
 
     def action_download(self):

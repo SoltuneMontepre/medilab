@@ -1,4 +1,5 @@
 from datetime import UTC, datetime, time, timedelta
+from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
 
 from odoo import api, fields, models
@@ -25,6 +26,12 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 from odoo.addons.sol_laboratory.constants.tasks import SAMPLE_RECEIVED_TRIGGER, TESTING_ACTION
 from odoo.addons.sol_laboratory.models.sample_collection.subcontract_dispatch import SENT_STATUSES
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_sample_test as SampleTestBase
+else:
+    SampleTestBase = object
 
 # The statuses of a test still open for work: it can be measured, scheduled or cancelled.
 OPEN_STATUSES = ("waiting", "assigned", "testing")
@@ -37,7 +44,7 @@ END_OF_DAY = time(23, 59, 59)
 
 
 # Chỉ Tiêu Của Mẫu
-class SampleTest(models.Model):
+class SampleTest(models.Model, SampleTestBase):
     _name = MODEL_SAMPLE_TEST
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_AUDIT_MIXIN]
     _audit_children = ("booking_ids",)
@@ -47,89 +54,90 @@ class SampleTest(models.Model):
     # A sample test is cancelled, never archived or deleted.
     _permission_actions = ("read", "create", "edit")
 
-    # The sample tested.
-    sample_id = fields.Many2one(MODEL_SAMPLE, required=True, ondelete="cascade", index=True)
-    # The parameter tested.
-    parameter_id = fields.Many2one(MODEL_TEST_PARAMETER, required=True, ondelete="restrict", index=True)
-    # How many times the parameter is tested on the sample; at least 1.
-    quantity = fields.Integer(required=True, default=1)
-    # Where the test is in its lifecycle.
-    status = fields.Selection(
-        [
-            ("waiting", "Waiting"),
-            ("assigned", "Assigned"),
-            ("testing", "Testing"),
-            ("outsourced", "Outsourced"),
-            ("result_entered", "Result Entered"),
-            ("approved", "Approved"),
-            ("cancelled", "Cancelled"),
-        ],
-        required=True,
-        default="waiting",
-        readonly=True,
-        copy=False,
-        index=True,
-    )
-    # When the laboratory plans to finish the test. The default is the end of the day, in the company's time zone, a
-    # safety margin before the request's expected date; it can be changed, and is worked out again when that date changes.
-    due_date = fields.Datetime(compute="_compute_due_date", store=True, readonly=False)
-    # The way of testing chosen for it; empty until the scheduler or the laboratory chooses.
-    parameter_method_id = fields.Many2one(
-        MODEL_PARAMETER_METHOD,
-        string="Way of Testing",
-        ondelete="restrict",
-        index=True,
-        domain="[('parameter_id', '=', parameter_id)]",
-    )
-    # True when no machine can finish the test before its due date, so the scheduler suggests outsourcing it.
-    outsourcing_suggested = fields.Boolean(readonly=True, copy=False, index=True)
-    # Why the head of department outsourced the test straight away instead of from an outsourcing suggestion.
-    emergency_outsource_reason = fields.Text(readonly=True, copy=False)
-    # Machine bookings for the test.
-    booking_ids = fields.One2many(MODEL_MACHINE_BOOKING, "sample_test_id", string="Bookings")
-    # Results of the test, one per attempt.
-    result_ids = fields.One2many(MODEL_TEST_RESULT, "sample_test_id", string="Results")
-    # Why the test was cancelled, such as the parameter cannot be tested on this sample.
-    cancel_reason = fields.Text(readonly=True, copy=False)
-    # Head of department who cancelled the test.
-    cancelled_by_id = fields.Many2one(
-        MODEL_PERSON, string="Cancelled By", readonly=True, copy=False, ondelete="restrict"
-    )
-    # When the test was cancelled.
-    cancelled_at = fields.Datetime(readonly=True, copy=False)
-    # True when the due date is within the urgency threshold.
-    is_urgent = fields.Boolean(string="Urgent", compute="_compute_is_urgent")
-    # The parameter's subcontracted ways of testing whose subcontractor can be chosen, through which an outsourcing
-    # suggestion sends the test.
-    subcontracted_method_ids = fields.Many2many(
-        MODEL_PARAMETER_METHOD, string="Subcontracted Ways", compute="_compute_subcontracted_method_ids"
-    )
-    # True when the current person belongs to the department of the test's testing task, which may outsource it
-    # straight away.
-    tested_by_my_department = fields.Boolean(compute="_compute_tested_by_my_department")
-    # True when a result can be entered for the test now.
-    can_enter_result = fields.Boolean(compute="_compute_can_enter_result")
-    # The subcontractor that tests it; empty when the laboratory tests it in-house.
-    subcontractor_id = fields.Many2one(related="parameter_method_id.subcontractor_id")
-    # The unit results of its way of testing are expressed in on the sample's type.
-    unit_id = fields.Many2one(MODEL_MEASUREMENT_UNIT, compute="_compute_unit")
-    # Dispatches that send the test to a subcontractor.
-    dispatch_ids = fields.Many2many(
-        MODEL_SUBCONTRACT_DISPATCH,
-        "medilab_subcontract_dispatch_test_rel",
-        "sample_test_id",
-        "dispatch_id",
-        string="Dispatches",
-        readonly=True,
-    )
-    # The way of testing the scheduler recommends to the assignee of the test's testing task.
-    recommended_method_id = fields.Many2one(MODEL_PARAMETER_METHOD, compute="_compute_recommendation")
-    # The machine the scheduler recommends.
-    recommended_machine_id = fields.Many2one(MODEL_MACHINE, compute="_compute_recommendation")
-    # Start of the free slot the scheduler recommends.
-    recommended_start = fields.Datetime(compute="_compute_recommendation")
-    # End of the free slot the scheduler recommends.
-    recommended_end = fields.Datetime(compute="_compute_recommendation")
+    if not TYPE_CHECKING:
+        # The sample tested.
+        sample_id = fields.Many2one(MODEL_SAMPLE, required=True, ondelete="cascade", index=True)
+        # The parameter tested.
+        parameter_id = fields.Many2one(MODEL_TEST_PARAMETER, required=True, ondelete="restrict", index=True)
+        # How many times the parameter is tested on the sample; at least 1.
+        quantity = fields.Integer(required=True, default=1)
+        # Where the test is in its lifecycle.
+        status = fields.Selection(
+            [
+                ("waiting", "Waiting"),
+                ("assigned", "Assigned"),
+                ("testing", "Testing"),
+                ("outsourced", "Outsourced"),
+                ("result_entered", "Result Entered"),
+                ("approved", "Approved"),
+                ("cancelled", "Cancelled"),
+            ],
+            required=True,
+            default="waiting",
+            readonly=True,
+            copy=False,
+            index=True,
+        )
+        # When the laboratory plans to finish the test. The default is the end of the day, in the company's time zone, a
+        # safety margin before the request's expected date; it can be changed, and is worked out again when that date changes.
+        due_date = fields.Datetime(compute="_compute_due_date", store=True, readonly=False)
+        # The way of testing chosen for it; empty until the scheduler or the laboratory chooses.
+        parameter_method_id = fields.Many2one(
+            MODEL_PARAMETER_METHOD,
+            string="Way of Testing",
+            ondelete="restrict",
+            index=True,
+            domain="[('parameter_id', '=', parameter_id)]",
+        )
+        # True when no machine can finish the test before its due date, so the scheduler suggests outsourcing it.
+        outsourcing_suggested = fields.Boolean(readonly=True, copy=False, index=True)
+        # Why the head of department outsourced the test straight away instead of from an outsourcing suggestion.
+        emergency_outsource_reason = fields.Text(readonly=True, copy=False)
+        # Machine bookings for the test.
+        booking_ids = fields.One2many(MODEL_MACHINE_BOOKING, "sample_test_id", string="Bookings")
+        # Results of the test, one per attempt.
+        result_ids = fields.One2many(MODEL_TEST_RESULT, "sample_test_id", string="Results")
+        # Why the test was cancelled, such as the parameter cannot be tested on this sample.
+        cancel_reason = fields.Text(readonly=True, copy=False)
+        # Head of department who cancelled the test.
+        cancelled_by_id = fields.Many2one(
+            MODEL_PERSON, string="Cancelled By", readonly=True, copy=False, ondelete="restrict"
+        )
+        # When the test was cancelled.
+        cancelled_at = fields.Datetime(readonly=True, copy=False)
+        # True when the due date is within the urgency threshold.
+        is_urgent = fields.Boolean(string="Urgent", compute="_compute_is_urgent")
+        # The parameter's subcontracted ways of testing whose subcontractor can be chosen, through which an outsourcing
+        # suggestion sends the test.
+        subcontracted_method_ids = fields.Many2many(
+            MODEL_PARAMETER_METHOD, string="Subcontracted Ways", compute="_compute_subcontracted_method_ids"
+        )
+        # True when the current person belongs to the department of the test's testing task, which may outsource it
+        # straight away.
+        tested_by_my_department = fields.Boolean(compute="_compute_tested_by_my_department")
+        # True when a result can be entered for the test now.
+        can_enter_result = fields.Boolean(compute="_compute_can_enter_result")
+        # The subcontractor that tests it; empty when the laboratory tests it in-house.
+        subcontractor_id = fields.Many2one(related="parameter_method_id.subcontractor_id")
+        # The unit results of its way of testing are expressed in on the sample's type.
+        unit_id = fields.Many2one(MODEL_MEASUREMENT_UNIT, compute="_compute_unit")
+        # Dispatches that send the test to a subcontractor.
+        dispatch_ids = fields.Many2many(
+            MODEL_SUBCONTRACT_DISPATCH,
+            "medilab_subcontract_dispatch_test_rel",
+            "sample_test_id",
+            "dispatch_id",
+            string="Dispatches",
+            readonly=True,
+        )
+        # The way of testing the scheduler recommends to the assignee of the test's testing task.
+        recommended_method_id = fields.Many2one(MODEL_PARAMETER_METHOD, compute="_compute_recommendation")
+        # The machine the scheduler recommends.
+        recommended_machine_id = fields.Many2one(MODEL_MACHINE, compute="_compute_recommendation")
+        # Start of the free slot the scheduler recommends.
+        recommended_start = fields.Datetime(compute="_compute_recommendation")
+        # End of the free slot the scheduler recommends.
+        recommended_end = fields.Datetime(compute="_compute_recommendation")
 
     _quantity_positive = models.Constraint("CHECK(quantity >= 1)", "A parameter is tested at least once on a sample.")
 
@@ -176,7 +184,7 @@ class SampleTest(models.Model):
             sample_type = test.sudo().sample_id.sample_type_id
             test.subcontracted_method_ids = test.parameter_id.method_ids.filtered(
                 lambda way, sample_type=sample_type: (
-                    way.subcontractor_id._can_be_chosen() and way._applicability(sample_type)
+                    way.subcontractor_id._can_be_chosen() and bool(way._applicability(sample_type))
                 )
             )
 
@@ -229,11 +237,17 @@ class SampleTest(models.Model):
             task = test._testing_task() if test.status in OPEN_STATUSES else None
             if task and task.assignee_id and not test.sudo().booking_ids._open():
                 found = bookings._recommend(test, task.assignee_id, task.department_id)
-            way, machine, start, length = found or (False, False, False, False)
+            if not found:
+                test.recommended_method_id = False
+                test.recommended_machine_id = False
+                test.recommended_start = False
+                test.recommended_end = False
+                continue
+            way, machine, start, length = found
             test.recommended_method_id = way
             test.recommended_machine_id = machine
             test.recommended_start = start
-            test.recommended_end = start and start + length
+            test.recommended_end = start + length
 
     def _testing_task(self):
         self.ensure_one()
@@ -312,7 +326,7 @@ class SampleTest(models.Model):
         """The department testing a waiting or assigned test sends it to the subcontractor of the way of testing straight
         away in an emergency, with a reason, without an outsourcing suggestion."""
         self.ensure_one()
-        if not (reason or "").strip():
+        if not ((reason or "").strip()):
             raise UserError(self.env._("Give a reason for outsourcing the test straight away."))
         self._check_permission("edit")
         if self.status not in ("waiting", "assigned"):
@@ -359,12 +373,12 @@ class SampleTest(models.Model):
         dispatch = dispatches.search(
             [("subcontractor_id", "=", way.subcontractor_id.id), ("status", "=", "draft")], order="id", limit=1
         ) or dispatches.create({"subcontractor_id": way.subcontractor_id.id})
-        dispatch.sample_test_ids = [Command.link(self.id)]
+        dispatch.sample_test_ids = [Command.link(persisted_id(self))]
         return dispatch
 
     def action_cancel(self, reason):
         """The department doing the tests cancels them with a reason; the report leaves them out."""
-        if not (reason or "").strip():
+        if not ((reason or "").strip()):
             raise UserError(self.env._("Give a reason for cancelling the test."))
         self._check_permission("edit")
         person = self.env[MODEL_PERSON]._current()

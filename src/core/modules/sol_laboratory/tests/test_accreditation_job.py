@@ -23,6 +23,8 @@ from odoo.addons.sol_laboratory.models.system.accreditation_scheduled_job import
     DISCOVERY_DONE,
     DISCOVERY_PARAM_PREFIX,
 )
+from odoo.addons.sol_laboratory.services.record_id import persisted_id, persisted_ids
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -37,7 +39,7 @@ class TestAccreditationJob(MasterDataCase):
             {
                 "code": "VILAS-JOB",
                 "valid_until": cls.today,
-                "method_ids": [Command.set(cls.method.ids)],
+                "method_ids": [Command.set(persisted_ids(cls.method))],
             }
         )
 
@@ -128,13 +130,13 @@ class TestAccreditationJob(MasterDataCase):
         item.status = "pending"
         self.certificate.valid_until = self.today
         self.assertTrue(self.pair.is_accredited)
-        self.env[MODEL_SCHEDULED_JOB].browse(self.job.id)._handle_accreditation_refresh(item)
+        self.env[MODEL_SCHEDULED_JOB].browse(persisted_id(self.job))._handle_accreditation_refresh(item)
         self.assertTrue(self.pair.is_accredited)
-        self.assertTrue(item.item_key.startswith(f"date:{yesterday.isoformat()}"))
+        self.assertTrue(assert_instance(item.item_key, str).startswith(f"date:{yesterday.isoformat()}"))
 
     def _queue_accreditation_refresh(self):
         """Run discovery pages until today's catalog is queued."""
-        job = self.env[MODEL_SCHEDULED_JOB].browse(self.job.id)
+        job = self.env[MODEL_SCHEDULED_JOB].browse(persisted_id(self.job))
         icp = self.env["ir.config_parameter"].sudo()
         param_key = job._accreditation_discovery_param_key()
         icp.set_str(param_key, "0")
@@ -170,7 +172,7 @@ class TestAccreditationJob(MasterDataCase):
                 }
             )
             created_pairs |= pair
-            self.certificate.write({"method_ids": [Command.link(method.id)]})
+            self.certificate.write({"method_ids": [Command.link(persisted_id(method))]})
 
         self.env["ir.config_parameter"].sudo().set_str(f"{DISCOVERY_PARAM_PREFIX}{self.today.isoformat()}", "0")
         self.run_one_batch()
@@ -207,7 +209,7 @@ class TestAccreditationJob(MasterDataCase):
                     "department_id": self.department.id,
                 }
             )
-            self.certificate.write({"method_ids": [Command.link(method.id)]})
+            self.certificate.write({"method_ids": [Command.link(persisted_id(method))]})
 
         self.env["ir.config_parameter"].sudo().set_str(f"{DISCOVERY_PARAM_PREFIX}{self.today.isoformat()}", "0")
         queue_calls = {"n": 0}
@@ -263,12 +265,12 @@ class TestAccreditationJob(MasterDataCase):
                 "department_id": self.department.id,
             }
         )
-        self.certificate.write({"method_ids": [Command.link(other.id)]})
+        self.certificate.write({"method_ids": [Command.link(persisted_id(other))]})
         self.assertTrue(other_pair.is_accredited)
 
         # Queue today's work, then unlink the method before the handler runs for that pair.
         self._queue_accreditation_refresh()
-        self.certificate.write({"method_ids": [Command.unlink(other.id)]})
+        self.certificate.write({"method_ids": [Command.unlink(persisted_id(other))]})
         self.assertFalse(other_pair.is_accredited)
 
         self.run_job()
@@ -293,7 +295,7 @@ class TestAccreditationJob(MasterDataCase):
                 }
             )
             pairs |= pair
-            self.certificate.write({"method_ids": [Command.link(method.id)]})
+            self.certificate.write({"method_ids": [Command.link(persisted_id(method))]})
         return pairs
 
     def test_cron_drains_catalog_larger_than_batch(self):
@@ -364,7 +366,7 @@ class TestAccreditationJob(MasterDataCase):
         queries = []
         real_execute = Cursor.execute
 
-        def recording_execute(cr, query, params=None, log_exceptions=None):
+        def recording_execute(cr, query, params=None, log_exceptions=True):
             queries.append(str(query))
             return real_execute(cr, query, params, log_exceptions)
 

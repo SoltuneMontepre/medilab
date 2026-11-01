@@ -3,8 +3,12 @@ from pathlib import Path
 
 from lxml import etree
 
+from odoo import fields
 from odoo.tests import TransactionCase, tagged
+from odoo.tools.binary import BinaryValue
 from odoo.tools.misc import file_open
+
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -26,6 +30,6 @@ class TestDemoBinaryData(TransactionCase):
                 with file_open(f"sol_demo/static/img/{file_name}", "rb") as expected_file:
                     expected = expected_file.read()
                 record = self.env.ref(f"sol_demo.{record_id}")
-                field = record._fields[field_name]
+                field = assert_instance(record._fields[field_name], fields.Image)
                 processed = field._image_process(b64encode(expected).decode(), record.env)
-                self.assertEqual(record[field_name].content, processed.content)
+                self.assertEqual(record[field_name].content, assert_instance(processed, BinaryValue).content)

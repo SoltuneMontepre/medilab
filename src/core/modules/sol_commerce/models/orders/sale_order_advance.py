@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import models
 from odoo.api import SUPERUSER_ID
 from odoo.exceptions import AccessError, UserError
@@ -9,10 +11,16 @@ from odoo.addons.sol_commerce.constants.notifications import EVENT_QUOTATION_SEN
 from odoo.addons.sol_commerce.constants.orders import ADVANCE_FIXED, ADVANCE_FULL, ADVANCE_NONE, ADVANCE_PERCENTAGE
 from odoo.addons.sol_commerce.constants.xml_ids import ALL_ORDERS_GROUP
 from odoo.addons.sol_laboratory.constants.models import MODEL_MAIL_MESSAGE
+from odoo.addons.sol_laboratory.services.record_id import persisted_ids
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_sale_order as SaleOrderAdvanceBase
+else:
+    SaleOrderAdvanceBase = object
 
 
 # Đơn Hàng: the advance invoice and the notice that go out with a quotation.
-class SaleOrderAdvance(models.Model):
+class SaleOrderAdvance(models.Model, SaleOrderAdvanceBase):
     _inherit = MODEL_SALE_ORDER
 
     def _check_quotation_can_be_sent(self):
@@ -57,7 +65,7 @@ class SaleOrderAdvance(models.Model):
             self.env[MODEL_ADVANCE_PAYMENT_INV]
             .with_user(SUPERUSER_ID)
             .with_context(active_model=MODEL_SALE_ORDER, active_ids=order.ids)
-            .create({**values, "sale_order_ids": [Command.set(order.ids)]})
+            .create({**values, "sale_order_ids": [Command.set(persisted_ids(order))]})
         )
         wizard._check_amount_is_positive()
         invoice = wizard._create_invoices(order)
