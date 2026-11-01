@@ -479,6 +479,8 @@ class SaleOrder(models.Model, SaleOrderBase):
                     "\n".join(name or "" for name in unassigned.mapped("product_id.display_name")),
                 )
             )
+        # The catalog may have stopped offering a parameter on a sample type since the line got its sample.
+        lines._check_offered_on_sample()
         latest = self._latest_quotation()
         if latest.status == QUOTATION_REPLACED:
             raise UserError(self.env._("A replaced quotation cannot be sent. Send the current revision instead."))

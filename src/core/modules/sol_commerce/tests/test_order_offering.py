@@ -45,6 +45,13 @@ class TestOrderOffering(OrderCase):
         with self.assertRaisesRegex(ValidationError, "is not offered on Cabbage"):
             sample.sample_type_id = self.cabbage
 
+    def test_sending_a_quotation_checks_its_lines_again(self):
+        order = self.make_quotable_order()
+        self.parameter.applicability_ids.filtered(lambda row: row.sample_type_id == self.sample_type).unlink()
+
+        with self.assertRaisesRegex(ValidationError, "is not offered on Bottled water"):
+            order.with_user(self.sales).action_send_quotation()
+
     def test_an_unavailable_default_is_explained_on_the_line(self):
         subcontractor = self.env[MODEL_SUBCONTRACTOR].create(
             {"name": "Northern Testing Laboratory", "accreditation_expiry": fields.Date.today() + timedelta(days=30)}

@@ -14934,3 +14934,9 @@ msgstr "Cách thử đã áp dụng cho loại mẫu này."
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_parameter_search
 msgid "Ways without sample types"
 msgstr "Cách thử chưa có loại mẫu"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "%(way)s does not apply to %(sample_type)s."
+msgstr "%(way)s không áp dụng cho %(sample_type)s."

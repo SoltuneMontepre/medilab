@@ -121,10 +121,20 @@ class ParameterMethodSampleType(models.Model, ParameterMethodSampleTypeBase):
 
     def write(self, vals):
         before = self._pairs()
-        if vals.get("is_default"):
-            self._unset_defaults(
-                {(applicability.parameter_id.id, applicability.sample_type_id.id) for applicability in self}, self.ids
-            )
+        if "is_default" in vals:
+            defaults = self if vals["is_default"] else self.browse()
+        else:
+            defaults = self.filtered("is_default") if {"parameter_id", "sample_type_id"} & set(vals) else self.browse()
+        self._unset_defaults(
+            {
+                (
+                    vals.get("parameter_id", applicability.parameter_id.id),
+                    vals.get("sample_type_id", applicability.sample_type_id.id),
+                )
+                for applicability in defaults
+            },
+            self.ids,
+        )
         result = super().write(vals)
         self._offering_changed(before)
         return result

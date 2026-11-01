@@ -89,6 +89,17 @@ class TestSampleTypeApplicability(MasterDataCase):
         self.assertEqual(self.parameter._default_way(self.cabbage), self.icp_ms)
         self.assertEqual(self.parameter._default_way(self.water), self.pair)
 
+    def test_a_default_moved_to_another_sample_type_replaces_the_default_there(self):
+        water = self.offer(self.parameter, self.water)
+        moved = self.offer(self.parameter, self.cabbage, self.icp_ms)
+
+        moved.sample_type_id = self.water
+
+        self.assertFalse(water.is_default)
+        self.assertTrue(moved.is_default)
+        self.assertEqual(self.parameter._default_way(self.water), self.icp_ms)
+        self.assertFalse(self.parameter._default_way(self.cabbage))
+
     def test_two_defaults_at_once_are_refused(self):
         with self.assertRaises(IntegrityError), mute_logger("odoo.sql_db"), self.env.cr.savepoint():
             self.parameter.write(
@@ -233,3 +244,18 @@ class TestResultSnapshotOfApplicability(ResultCase):
 
         self.assertEqual(result.unit_id, self.unit)
         self.assertEqual(result.value_decimals, 3)
+
+    def test_a_test_refuses_a_way_that_does_not_apply_to_its_sample_type(self):
+        method = self.env[MODEL_TESTING_METHOD].create(
+            {"code": "TCVN 6193:1996", "name": "Flame AAS", "field_id": self.testing_field.id}
+        )
+        way = self.env[MODEL_PARAMETER_METHOD].create(
+            {"parameter_id": self.parameter.id, "method_id": method.id, "department_id": self.department.id}
+        )
+
+        with self.assertRaisesRegex(ValidationError, "does not apply to"), self.env.cr.savepoint():
+            self.test.parameter_method_id = way
+        self.offer(self.parameter, self.sample_type, way)
+        self.test.parameter_method_id = way
+
+        self.assertEqual(self.test.parameter_method_id, way)

@@ -400,6 +400,7 @@ class MachineBooking(models.Model, MachineBookingBase):
             .sudo()
             .search(
                 Domain("parameter_method_id.parameter_id", "=", test.parameter_id.id)
+                & Domain("parameter_method_id.active", "=", True)
                 & Domain(
                     "parameter_method_id.applicability_ids.sample_type_id", "=", test.sudo().sample_id.sample_type_id.id
                 )

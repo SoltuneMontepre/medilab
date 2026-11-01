@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
 
 from odoo import api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Command, Domain
 
 from odoo.addons.sol_laboratory.constants.approvals import STATE_NONE
@@ -168,6 +168,19 @@ class SampleTest(models.Model, SampleTestBase):
         until = self.env[MODEL_MACHINE_BOOKING]._urgent_until()
         for test in self:
             test.is_urgent = bool(test.due_date) and test.due_date <= until
+
+    @api.constrains("parameter_method_id", "sample_id")
+    def _check_way_applies(self):
+        for test in self.filtered("parameter_method_id"):
+            sample_type = test.sudo().sample_id.sample_type_id
+            if not test.parameter_method_id.sudo()._applicability(sample_type):
+                raise ValidationError(
+                    self.env._(
+                        "%(way)s does not apply to %(sample_type)s.",
+                        way=test.parameter_method_id.display_name,
+                        sample_type=sample_type.display_name,
+                    )
+                )
 
     @api.depends("parameter_method_id", "sample_id.sample_type_id")
     def _compute_unit(self):
