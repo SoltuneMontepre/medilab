@@ -17,9 +17,173 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_invoice_pay
+msgid "<i class=\"oi me-1\" data-icon=\"account_balance\" aria-hidden=\"true\"/>Bank transfer"
+msgstr "<i class=\"oi me-1\" data-icon=\"account_balance\" aria-hidden=\"true\"/>Chuyển khoản"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.support_list
+msgid "<i class=\"oi me-1\" data-icon=\"add\" aria-hidden=\"true\"/>New request"
+msgstr "<i class=\"oi me-1\" data-icon=\"add\" aria-hidden=\"true\"/>Yêu cầu mới"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_products
+msgid "<i class=\"oi me-1\" data-icon=\"add_shopping_cart\" aria-hidden=\"true\"/>Add"
+msgstr "<i class=\"oi me-1\" data-icon=\"add_shopping_cart\" aria-hidden=\"true\"/>Thêm"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_payos_pending
+msgid "<i class=\"oi me-1\" data-icon=\"arrow_forward\" aria-hidden=\"true\"/>Continue"
+msgstr "<i class=\"oi me-1\" data-icon=\"arrow_forward\" aria-hidden=\"true\"/>Tiếp tục"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid "<i class=\"oi me-1\" data-icon=\"cancel\" aria-hidden=\"true\"/>Cancel"
+msgstr "<i class=\"oi me-1\" data-icon=\"cancel\" aria-hidden=\"true\"/>Hủy"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid "<i class=\"oi me-1\" data-icon=\"cancel\" aria-hidden=\"true\"/>Cancel the order"
+msgstr "<i class=\"oi me-1\" data-icon=\"cancel\" aria-hidden=\"true\"/>Hủy đơn hàng"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid "<i class=\"oi me-1\" data-icon=\"cancel\" aria-hidden=\"true\"/>Request cancellation"
+msgstr "<i class=\"oi me-1\" data-icon=\"cancel\" aria-hidden=\"true\"/>Yêu cầu hủy"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+msgid "<i class=\"oi me-1\" data-icon=\"check\" aria-hidden=\"true\"/>Accept quotation"
+msgstr "<i class=\"oi me-1\" data-icon=\"check\" aria-hidden=\"true\"/>Chấp nhận báo giá"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.support_new
+msgid "<i class=\"oi me-1\" data-icon=\"close\" aria-hidden=\"true\"/>Cancel"
+msgstr "<i class=\"oi me-1\" data-icon=\"close\" aria-hidden=\"true\"/>Hủy"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+msgid "<i class=\"oi me-1\" data-icon=\"close\" aria-hidden=\"true\"/>Decline quotation"
+msgstr "<i class=\"oi me-1\" data-icon=\"close\" aria-hidden=\"true\"/>Từ chối báo giá"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_form
+msgid "<i class=\"oi me-1\" data-icon=\"close\" aria-hidden=\"true\"/>Discard"
+msgstr "<i class=\"oi me-1\" data-icon=\"close\" aria-hidden=\"true\"/>Bỏ qua"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+msgid "<i class=\"oi me-1\" data-icon=\"credit_card\" aria-hidden=\"true\"/>Pay the advance"
+msgstr "<i class=\"oi me-1\" data-icon=\"credit_card\" aria-hidden=\"true\"/>Thanh toán tạm ứng"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_invoice_pay
+msgid "<i class=\"oi me-1\" data-icon=\"credit_card\" aria-hidden=\"true\"/>PayOS"
+msgstr "<i class=\"oi me-1\" data-icon=\"credit_card\" aria-hidden=\"true\"/>PayOS"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
+msgid "<i class=\"oi me-1\" data-icon=\"delete\" aria-hidden=\"true\"/>Remove"
+msgstr "<i class=\"oi me-1\" data-icon=\"delete\" aria-hidden=\"true\"/>Xóa"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
+msgid "<i class=\"oi me-1\" data-icon=\"delete\" aria-hidden=\"true\"/>Remove the logo"
+msgstr "<i class=\"oi me-1\" data-icon=\"delete\" aria-hidden=\"true\"/>Xóa logo"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
+msgid "<i class=\"oi me-1\" data-icon=\"edit\" aria-hidden=\"true\"/>Edit"
+msgstr "<i class=\"oi me-1\" data-icon=\"edit\" aria-hidden=\"true\"/>Sửa"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_page
+msgid "<i class=\"oi me-1\" data-icon=\"filter_alt\" aria-hidden=\"true\"/>Filter"
+msgstr "<i class=\"oi me-1\" data-icon=\"filter_alt\" aria-hidden=\"true\"/>Lọc"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
+msgid "<i class=\"oi me-1\" data-icon=\"person_add\" aria-hidden=\"true\"/>Add a contact"
+msgstr "<i class=\"oi me-1\" data-icon=\"person_add\" aria-hidden=\"true\"/>Thêm người liên hệ"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_table
+msgid "<i class=\"oi me-1\" data-icon=\"repeat\" aria-hidden=\"true\"/>Reorder"
+msgstr "<i class=\"oi me-1\" data-icon=\"repeat\" aria-hidden=\"true\"/>Đặt lại"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_form
+#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification_preferences
+msgid "<i class=\"oi me-1\" data-icon=\"save\" aria-hidden=\"true\"/>Save"
+msgstr "<i class=\"oi me-1\" data-icon=\"save\" aria-hidden=\"true\"/>Lưu"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
+msgid "<i class=\"oi me-1\" data-icon=\"save\" aria-hidden=\"true\"/>Save as draft"
+msgstr "<i class=\"oi me-1\" data-icon=\"save\" aria-hidden=\"true\"/>Lưu nháp"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_submitted
+msgid "<i class=\"oi me-1\" data-icon=\"science\" aria-hidden=\"true\"/>Back to the catalog"
+msgstr "<i class=\"oi me-1\" data-icon=\"science\" aria-hidden=\"true\"/>Quay lại danh mục"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
+msgid "<i class=\"oi me-1\" data-icon=\"science\" aria-hidden=\"true\"/>Catalog"
+msgstr "<i class=\"oi me-1\" data-icon=\"science\" aria-hidden=\"true\"/>Danh mục"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
+msgid "<i class=\"oi me-1\" data-icon=\"science\" aria-hidden=\"true\"/>Continue"
+msgstr "<i class=\"oi me-1\" data-icon=\"science\" aria-hidden=\"true\"/>Tiếp tục"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.support_new
+msgid "<i class=\"oi me-1\" data-icon=\"send\" aria-hidden=\"true\"/>Send"
+msgstr "<i class=\"oi me-1\" data-icon=\"send\" aria-hidden=\"true\"/>Gửi"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid "<i class=\"oi me-1\" data-icon=\"send\" aria-hidden=\"true\"/>Send feedback"
+msgstr "<i class=\"oi me-1\" data-icon=\"send\" aria-hidden=\"true\"/>Gửi phản hồi"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
+msgid "<i class=\"oi me-1\" data-icon=\"send\" aria-hidden=\"true\"/>Submit"
+msgstr "<i class=\"oi me-1\" data-icon=\"send\" aria-hidden=\"true\"/>Gửi"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_page
+msgid "<i class=\"oi me-1\" data-icon=\"shopping_cart\" aria-hidden=\"true\"/>Cart ("
+msgstr "<i class=\"oi me-1\" data-icon=\"shopping_cart\" aria-hidden=\"true\"/>Giỏ hàng ("
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
+msgid "<i class=\"oi me-1\" data-icon=\"star\" aria-hidden=\"true\"/>Make default"
+msgstr "<i class=\"oi me-1\" data-icon=\"star\" aria-hidden=\"true\"/>Đặt làm mặc định"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid "<i class=\"oi me-1\" data-icon=\"support\" aria-hidden=\"true\"/>Ask for help about this order"
+msgstr "<i class=\"oi me-1\" data-icon=\"support\" aria-hidden=\"true\"/>Yêu cầu hỗ trợ về đơn hàng này"
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.language_switcher
 msgid "<i class=\"oi me-1\" data-icon=\"translate\" role=\"img\" aria-label=\"Language\" title=\"Language\"/>"
 msgstr "<i class=\"oi me-1\" data-icon=\"translate\" role=\"img\" aria-label=\"Ngôn ngữ\" title=\"Ngôn ngữ\"/>"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid "<i class=\"oi me-1\" data-icon=\"undo\" aria-hidden=\"true\"/>Withdraw request"
+msgstr "<i class=\"oi me-1\" data-icon=\"undo\" aria-hidden=\"true\"/>Rút lại yêu cầu"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
+msgid "<i class=\"oi me-1\" data-icon=\"upload\" aria-hidden=\"true\"/>Upload"
+msgstr "<i class=\"oi me-1\" data-icon=\"upload\" aria-hidden=\"true\"/>Tải lên"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
@@ -250,11 +414,6 @@ msgstr "Chấp nhận"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
-msgid "Accept quotation"
-msgstr "Chấp nhận báo giá"
-
-#. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 msgid "Accept the quotation before"
 msgstr "Hãy chấp nhận báo giá trước"
 
@@ -285,11 +444,6 @@ msgstr "Chấp nhận sẽ hủy đơn hàng. Khoản tạm ứng đã thanh to�
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax__active
 msgid "Active"
 msgstr "Đang hoạt động"
-
-#. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_products
-msgid "Add"
-msgstr "Thêm"
 
 #. module: sol_commerce
 #. odoo-python
@@ -411,11 +565,6 @@ msgid "Attachment"
 msgstr "Tệp Đính Kèm"
 
 #. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.order_submitted
-msgid "Back to the catalog"
-msgstr "Quay lại danh mục"
-
-#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 msgid "Back to the order"
 msgstr "Quay lại đơn hàng"
@@ -424,7 +573,6 @@ msgstr "Quay lại đơn hàng"
 #: model:ir.model.fields.selection,name:sol_commerce.selection__account_payment__method__bank_transfer
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_cash_flow_report__method__bank_transfer
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__advance_method__bank_transfer
-#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_invoice_pay
 msgid "Bank transfer"
 msgstr "Chuyển khoản"
 
@@ -436,7 +584,6 @@ msgstr "Xem danh mục"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
-#: model_terms:ir.ui.view,arch_db:sol_commerce.support_new
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_template_save_form
 msgid "Cancel"
@@ -482,11 +629,6 @@ msgid "Cart"
 msgstr "Giỏ hàng"
 
 #. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_page
-msgid "Cart ("
-msgstr "Giỏ hàng ("
-
-#. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__account_payment__method__cash
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_cash_flow_report__method__cash
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__advance_method__cash
@@ -495,7 +637,6 @@ msgstr "Tiền mặt"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_page
-#: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
 #: model_terms:ir.ui.view,arch_db:sol_commerce.portal_navigation
 msgid "Catalog"
 msgstr "Danh mục"
@@ -592,12 +733,6 @@ msgstr "Đã xác nhận"
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_queue
 msgid "Contact"
 msgstr "Liên Hệ"
-
-#. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
-#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_payos_pending
-msgid "Continue"
-msgstr "Tiếp tục"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
@@ -788,11 +923,6 @@ msgid "Decline Reason"
 msgstr "Lý Do Từ Chối"
 
 #. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
-msgid "Decline quotation"
-msgstr "Từ chối báo giá"
-
-#. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_cancellation_request__status__declined
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_quotation__status__declined
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__quotation_follow_up__declined
@@ -856,7 +986,6 @@ msgid "Delete taxes"
 msgstr "Xóa thuế"
 
 #. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_form
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_invoice_adjustment_form
 msgid "Discard"
 msgstr "Bỏ qua"
@@ -894,10 +1023,12 @@ msgstr "Bỏ qua"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_vnd_mixin__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_payment_provider__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_payment_transaction__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_portal_entry__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_product_template__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_rating_rating__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_res_company__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_advance_payment_inv__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__display_name
 msgid "Display Name"
@@ -1001,11 +1132,6 @@ msgid "Expired"
 msgstr "Hết hạn"
 
 #. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_page
-msgid "Filter"
-msgstr "Lọc"
-
-#. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__advance_mode__fixed
 msgid "Fixed amount"
 msgstr "Số tiền cố định"
@@ -1078,10 +1204,12 @@ msgstr "Gán mẫu cho các mục sau trước khi gửi báo giá:\n%s"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_vnd_mixin__id
 #: model:ir.model.fields,field_description:sol_commerce.field_payment_provider__id
 #: model:ir.model.fields,field_description:sol_commerce.field_payment_transaction__id
+#: model:ir.model.fields,field_description:sol_commerce.field_portal_entry__id
 #: model:ir.model.fields,field_description:sol_commerce.field_product_template__id
 #: model:ir.model.fields,field_description:sol_commerce.field_rating_rating__id
 #: model:ir.model.fields,field_description:sol_commerce.field_res_company__id
 #: model:ir.model.fields,field_description:sol_commerce.field_res_config_settings__id
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_advance_payment_inv__id
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__id
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__id
 msgid "ID"
@@ -1441,11 +1569,6 @@ msgstr "Thanh toán tạm ứng trước"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
-msgid "Pay the advance"
-msgstr "Thanh toán tạm ứng"
-
-#. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 msgid "Advance invoice"
 msgstr "Hóa đơn tạm ứng"
 
@@ -1518,6 +1641,11 @@ msgstr "Giai đoạn phễu bán hàng"
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__source__portal
 msgid "Portal"
 msgstr "Cổng thông tin"
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_portal_entry
+msgid "Portal Entry"
+msgstr "Thẻ Cổng Khách Hàng"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_parameter_price__list_price
@@ -1742,8 +1870,6 @@ msgstr "Từ chối"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__reorder_ids
-#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
-#: model_terms:ir.ui.view,arch_db:sol_commerce.order_table
 msgid "Reorder"
 msgstr "Đặt lại"
 
@@ -1776,11 +1902,6 @@ msgstr "Phản Hồi"
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
 msgid "Reply:"
 msgstr "Phản hồi:"
-
-#. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
-msgid "Request cancellation"
-msgstr "Yêu cầu hủy"
 
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_cancellation_request__status__requested
@@ -1865,11 +1986,6 @@ msgstr "Mẫu:"
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 msgid "Samples"
 msgstr "Mẫu"
-
-#. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
-msgid "Save as draft"
-msgstr "Lưu nháp"
 
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_order_sample__physical_state__semi_solid
@@ -1977,11 +2093,6 @@ msgstr "Chi Phí Thầu Phụ"
 #: model:ir.ui.menu,name:sol_commerce.menu_subcontract_cost
 msgid "Subcontract Costs"
 msgstr "Chi Phí Thầu Phụ"
-
-#. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
-msgid "Submit"
-msgstr "Gửi"
 
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__customer_status__submitted
@@ -2302,11 +2413,6 @@ msgid ""
 msgstr ""
 "Với giá này, các nhóm dịch vụ sau có giá cao hơn tổng giá các chỉ "
 "tiêu khi mua lẻ: %s"
-
-#. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
-msgid "Withdraw request"
-msgstr "Rút lại yêu cầu"
 
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_cancellation_request__status__withdrawn
@@ -2656,7 +2762,6 @@ msgstr "Một phần"
 #: model:ir.model.fields,field_description:sol_commerce.field_res_config_settings__payos_enabled
 #: model:ir.model.fields.selection,name:sol_commerce.selection__payment_provider__code__payos
 #: model:payment.provider,name:sol_commerce.payment_provider_payos
-#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_invoice_pay
 #: model_terms:ir.ui.view,arch_db:sol_commerce.res_config_settings_view_form
 msgid "PayOS"
 msgstr "PayOS"
@@ -3158,7 +3263,6 @@ msgstr "Doanh nghiệp"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.contact_form
-#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
 msgid "Add a contact"
 msgstr "Thêm người liên hệ"
 
@@ -3237,11 +3341,6 @@ msgid "Default"
 msgstr "Mặc định"
 
 #. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
-msgid "Edit"
-msgstr "Sửa"
-
-#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.contact_form
 msgid "Edit a contact"
 msgstr "Sửa người liên hệ"
@@ -3264,11 +3363,6 @@ msgid "Logo"
 msgstr "Logo"
 
 #. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
-msgid "Make default"
-msgstr "Đặt làm mặc định"
-
-#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_table
 msgid "No orders yet."
 msgstr "Chưa có đơn hàng."
@@ -3285,25 +3379,11 @@ msgid "Quoted"
 msgstr "Đã báo giá"
 
 #. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
-#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
-msgid "Remove"
-msgstr "Xóa"
-
-#. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
-msgid "Remove the logo"
-msgstr "Xóa logo"
-
-#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_customer_form_sales
 msgid "Sales Terms"
 msgstr "Điều Khoản Bán Hàng"
 
 #. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_form
-#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
-#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification_preferences
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_template_save_form
 msgid "Save"
 msgstr "Lưu"
@@ -3325,11 +3405,6 @@ msgid ""
 "The laboratory reaches the default contact about your orders unless you "
 "choose another one."
 msgstr "Phòng thí nghiệm liên hệ với người liên hệ mặc định về đơn hàng của bạn, trừ khi bạn chọn người khác."
-
-#. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
-msgid "Upload"
-msgstr "Tải lên"
 
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__customer_status__waiting
@@ -3420,11 +3495,6 @@ msgstr "Mỗi đơn hàng chỉ có tối đa một phản hồi."
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_support_request_search
 msgid "Answered"
 msgstr "Đã trả lời"
-
-#. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
-msgid "Ask for help about this order"
-msgstr "Yêu cầu hỗ trợ về đơn hàng này"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__message_attachment_count
@@ -3592,11 +3662,6 @@ msgid "Mine"
 msgstr "Của tôi"
 
 #. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.support_list
-msgid "New request"
-msgstr "Yêu cầu mới"
-
-#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.support_new
 msgid "New support request"
 msgstr "Yêu cầu hỗ trợ mới"
@@ -3687,16 +3752,6 @@ msgstr "Lỗi gửi SMS"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__access_token
 msgid "Security Token"
 msgstr "Token bảo mật"
-
-#. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.support_new
-msgid "Send"
-msgstr "Gửi"
-
-#. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
-msgid "Send feedback"
-msgstr "Gửi phản hồi"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__subject
@@ -4462,11 +4517,6 @@ msgstr "Một dòng danh mục cần số lượng là số nguyên."
 #: code:addons/sol_commerce/models/orders/sale_order.py:0
 msgid "A draft is changed in the cart, not reordered."
 msgstr "Bản nháp được chỉnh sửa trong giỏ hàng, không đặt lại."
-
-#. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
-msgid "Cancel the order"
-msgstr "Hủy đơn hàng"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
