@@ -1,5 +1,6 @@
 # Every sync backs up the database, upgrades the modules, then rolls out Odoo; see odoo/.
-# No retry: a failed release is rolled back by cd-core, not synced again.
+# No retry: a failed release is rolled back by cd-core, not synced again. Argo CD retries an automated sync 5 times
+# unless the application sets its own retry, so it sets a limit of 0.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -22,3 +23,5 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+    retry:
+      limit: 0

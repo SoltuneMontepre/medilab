@@ -24,7 +24,7 @@ What Argo CD deploys from `infra/cluster/` onto the cluster in [Architecture](ar
 | `grafana-dashboards`  | The Grafana dashboards                                                     | `infra/cluster/grafana-dashboards` | `monitoring`       | 1    |
 
 - The root application syncs the applications wave by wave and waits until every application of a wave is healthy before the next. Argo CD has no health check for an `Application` by default; the `argocd` role adds one.
-- Every application syncs automatically, prunes what was removed from Git and reverts changes made by hand. Every application except `odoo` retries a failed sync five times, so the first install settles while operators and their CRDs come up.
+- Every application syncs automatically, prunes what was removed from Git and reverts changes made by hand. Every application except `odoo` retries a failed sync five times, so the first install settles while operators and their CRDs come up. `odoo` sets a retry limit of 0, as Argo CD otherwise retries an automated sync five times on its own: a failed release is rolled back by `cd-core`, not synced again.
 - The `database` application never prunes or deletes the `Cluster`, even when it is removed from Git.
 
 ## Versions
