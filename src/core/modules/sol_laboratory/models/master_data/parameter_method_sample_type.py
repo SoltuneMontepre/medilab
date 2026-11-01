@@ -158,17 +158,19 @@ class ParameterMethodSampleType(models.Model, ParameterMethodSampleTypeBase):
         return result
 
     def _is_used(self):
-        # Results copy the unit when they are entered, so the configuration is used once one is.
+        # Results copy the unit when they are entered, so the configuration is used once one is: a result of a test of
+        # the way on the sample type, or, for the default, of a test of the parameter whose way is not chosen yet.
         self.ensure_one()
+        tests = Domain("sample_test_id.parameter_method_id", "=", self.parameter_method_id.id)
+        if self.is_default:
+            tests |= Domain("sample_test_id.parameter_method_id", "=", False) & Domain(
+                "sample_test_id.parameter_id", "=", self.parameter_id.id
+            )
         return bool(
             self.env[MODEL_TEST_RESULT]
             .sudo()
             .search_count(
-                [
-                    ("sample_test_id.parameter_method_id", "=", self.parameter_method_id.id),
-                    ("sample_test_id.sample_id.sample_type_id", "=", self.sample_type_id.id),
-                ],
-                limit=1,
+                tests & Domain("sample_test_id.sample_id.sample_type_id", "=", self.sample_type_id.id), limit=1
             )
         )
 
