@@ -54,7 +54,7 @@ _logger = logging.getLogger(__name__)
 class SaleOrder(models.Model, SaleOrderBase):
     _name = MODEL_SALE_ORDER
     _inherit = [MODEL_SALE_ORDER, MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
-    _permission_actions = ("read", "create", "edit", "delete")
+    _permission_actions = ("read", "create", "edit", "delete", "invoice")
     _audit_children = ("order_line", "quotation_ids", "sample_ids", "cancellation_request_ids", "support_request_ids")
 
     if not TYPE_CHECKING:
@@ -384,10 +384,7 @@ class SaleOrder(models.Model, SaleOrderBase):
         """Why sales cannot cancel the order on their own; empty when they can."""
         self.ensure_one()
         if self.order_status == STATUS_COMPLETED or self._laboratory_blocks_cancellation():
-            return self.env._(
-                "Testing is completed or results are released, so this order cannot be cancelled. "
-                "The laboratory will contact you."
-            )
+            return self.env._("Testing is completed or results are released, so this order cannot be cancelled.")
         if self._samples_collected():
             return self.env._(
                 "The samples of this order are collected, so cancelling it needs a change request "

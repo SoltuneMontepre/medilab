@@ -3922,6 +3922,11 @@ msgid "Interval Unit"
 msgstr "Đơn Vị Khoảng"
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__invoice
+msgid "Invoice"
+msgstr "Tạo hóa đơn"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__invoice_edi_format_store
 msgid "Invoice Edi Format Store"
 msgstr "Lưu trữ định dạng hóa đơn Edi"
@@ -5885,6 +5890,10 @@ msgstr "Quyền: order.edit.all"
 #. module: sol_laboratory
 msgid "Permission: order.edit.own"
 msgstr "Quyền: order.edit.own"
+
+#. module: sol_laboratory
+msgid "Permission: order.invoice.all"
+msgstr "Quyền: order.invoice.all"
 
 #. module: sol_laboratory
 msgid "Permission: order.read.all"

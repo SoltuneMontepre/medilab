@@ -6141,6 +6141,11 @@ msgid "Invite to Portal"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__invoice
+msgid "Invoice"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__invoice_edi_format_store
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__invoice_edi_format_store
 msgid "Invoice Edi Format Store"
@@ -9244,6 +9249,11 @@ msgstr ""
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_order_edit_own
 msgid "Permission: order.edit.own"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_invoice_all
+msgid "Permission: order.invoice.all"
 msgstr ""
 
 #. module: sol_laboratory

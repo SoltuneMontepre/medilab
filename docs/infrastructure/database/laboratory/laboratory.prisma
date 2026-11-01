@@ -1295,7 +1295,7 @@ model Permission {
   name           Json
   /// Technical name of the document type, such as medilab.sample; cannot change once the permission exists.
   document_model String             @db.VarChar
-  /// read, create, edit, archive, delete or sign; cannot change once the permission exists.
+  /// read, create, edit, archive, delete, sign or invoice; cannot change once the permission exists.
   action         String             @db.VarChar
   /// all for every record, own_department for records of the person's department only, own_team for records of the person's team only, or own for the records whose user is the person; cannot change once the permission exists.
   scope          String             @db.VarChar
