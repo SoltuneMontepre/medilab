@@ -2,7 +2,7 @@ from ast import literal_eval
 
 from lxml import etree
 
-from odoo.tests import Form, tagged
+from odoo.tests import Form, new_test_user, tagged
 from odoo.tests.form import O2MProxy
 
 from .order_case import OrderCase
@@ -46,6 +46,18 @@ class TestOrderForm(OrderCase):
             for button in self._nodes("//header/button[@name=$name]", name=name):
                 with self.subTest(name=name, string=button.get("string")):
                     self.assertIn(button.get("invisible"), HIDDEN)
+
+    def test_create_invoice_follows_the_invoice_permission(self):
+        accountant = new_test_user(
+            self.env, login="form_accountant", groups="base.group_user,account.group_account_invoice"
+        )
+        self.other_person.permission_ids |= self.env.ref("sol_commerce.permission_order_invoice_all")
+        for user, expected in ((self.sales, 0), (self.other_sales, 2), (accountant, 2)):
+            with self.subTest(user=user.login):
+                arch = etree.fromstring(self.env[MODEL_SALE_ORDER].with_user(user).get_view(view_type="form")["arch"])
+                buttons = arch.xpath("//header/button[@id='create_invoice' or @id='create_invoice_percentage']")
+                assert isinstance(buttons, list)
+                self.assertEqual(len(buttons), expected)
 
     def test_header_shows_one_status_bar(self):
         bars = self._nodes("//header/field[@widget='statusbar']")

@@ -1159,6 +1159,14 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
         self.assertEqual(environment["MEDILAB_DEMO_BOOTSTRAP_OWNER"], "owner-id")
         self.assertEqual(environment["MEDILAB_ODOO_PORT"], "18069")
 
+    def test_compose_environment_keeps_the_docker_plugin_folders(self):
+        folders = {"PROGRAMDATA": r"C:\ProgramData", "PROGRAMFILES": r"C:\Program Files"}
+        with patch.dict(os.environ, folders, clear=False):
+            environment = _compose_environment("medilab-local-test", "owner-id")
+
+        for name, folder in folders.items():
+            self.assertEqual(environment[name], folder)
+
     def test_compose_environment_keeps_system_drive(self):
         # Windows resolves %SystemDrive% paths relative to the working directory without it.
         with patch.dict(os.environ, {"SYSTEMDRIVE": "C:"}):
