@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
 
 from odoo import api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Command, Domain
 
 from odoo.addons.sol_laboratory.constants.approvals import STATE_NONE
@@ -12,6 +12,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_LOCK_MIXIN,
     MODEL_MACHINE,
     MODEL_MACHINE_BOOKING,
+    MODEL_MEASUREMENT_UNIT,
     MODEL_PARAMETER_METHOD,
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
@@ -118,6 +119,8 @@ class SampleTest(models.Model, SampleTestBase):
         can_enter_result = fields.Boolean(compute="_compute_can_enter_result")
         # The subcontractor that tests it; empty when the laboratory tests it in-house.
         subcontractor_id = fields.Many2one(related="parameter_method_id.subcontractor_id")
+        # The unit results of its way of testing are expressed in on the sample's type.
+        unit_id = fields.Many2one(MODEL_MEASUREMENT_UNIT, compute="_compute_unit")
         # Dispatches that send the test to a subcontractor.
         dispatch_ids = fields.Many2many(
             MODEL_SUBCONTRACT_DISPATCH,
@@ -166,10 +169,36 @@ class SampleTest(models.Model, SampleTestBase):
         for test in self:
             test.is_urgent = bool(test.due_date) and test.due_date <= until
 
+    @api.constrains("parameter_method_id", "sample_id")
+    def _check_way_applies(self):
+        for test in self.filtered("parameter_method_id"):
+            sample_type = test.sudo().sample_id.sample_type_id
+            if not test.parameter_method_id.sudo()._applicability(sample_type):
+                raise ValidationError(
+                    self.env._(
+                        "%(way)s does not apply to %(sample_type)s.",
+                        way=test.parameter_method_id.display_name,
+                        sample_type=sample_type.display_name,
+                    )
+                )
+
+    @api.depends("parameter_method_id", "sample_id.sample_type_id")
+    def _compute_unit(self):
+        for test in self:
+            test.unit_id = (
+                test.parameter_method_id._applicability(test.sudo().sample_id.sample_type_id).unit_id
+                if test.parameter_method_id
+                else False
+            )
+
     def _compute_subcontracted_method_ids(self):
         for test in self:
+            # Only ways that explicitly apply to the sample's type are offered.
+            sample_type = test.sudo().sample_id.sample_type_id
             test.subcontracted_method_ids = test.parameter_id.method_ids.filtered(
-                lambda way: way.subcontractor_id._can_be_chosen()
+                lambda way, sample_type=sample_type: (
+                    way.subcontractor_id._can_be_chosen() and bool(way._applicability(sample_type))
+                )
             )
 
     @api.depends_context("uid")

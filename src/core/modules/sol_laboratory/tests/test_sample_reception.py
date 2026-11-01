@@ -64,15 +64,14 @@ class TestSampleReception(RequestCase):
     def test_good_receipt_creates_a_testing_task_for_each_in_house_test(self):
         subcontractor_id, _name = self.env[MODEL_SUBCONTRACTOR].name_create("Outside Lab")
         outside = self.create_parameter("Arsenic (As)", self.group)
-        self.env[MODEL_PARAMETER_METHOD].create(
+        way = self.env[MODEL_PARAMETER_METHOD].create(
             {
                 "parameter_id": outside.id,
                 "method_id": self.method.id,
-                "unit_id": self.unit.id,
                 "subcontractor_id": subcontractor_id,
-                "is_default": True,
             }
         )
+        self.offer(outside, self.sample_type, way)
         self.env[MODEL_SAMPLE_TEST].create({"sample_id": self.sample.id, "parameter_id": outside.id})
 
         sample = self.receive("2 bottles of 1 L", "good", storage_location="Fridge 2, shelf B")
@@ -176,15 +175,14 @@ class TestSampleReception(RequestCase):
     def test_two_handovers_show_which_department_received_the_sample(self):
         microbiology = self.env[MODEL_DEPARTMENT].create({"name": "Microbiology"})
         parameter = self.create_parameter("Coliforms", self.group)
-        self.env[MODEL_PARAMETER_METHOD].create(
+        way = self.env[MODEL_PARAMETER_METHOD].create(
             {
                 "parameter_id": parameter.id,
                 "method_id": self.method.id,
-                "unit_id": self.unit.id,
                 "department_id": microbiology.id,
-                "is_default": True,
             }
         )
+        self.offer(parameter, self.sample_type, way)
         self.env[MODEL_SAMPLE_TEST].create({"sample_id": self.sample.id, "parameter_id": parameter.id})
         chemist = self.department_person("Nguyen Van An", "an.scan", self.department)
         sample = self.receive("1 L", "good")

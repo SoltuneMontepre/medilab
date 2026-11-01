@@ -28,6 +28,9 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
     if not TYPE_CHECKING:
         # The sample the line is tested on.
         sample_id = fields.Many2one(MODEL_ORDER_SAMPLE, ondelete="restrict", index="btree_not_null", copy=False)
+        # Why the default way of testing of the line's parameters on the sample's type is unavailable, and the ways to
+        # choose instead; empty when every default is available.
+        default_way_notice = fields.Char(string="Default Way", compute="_compute_default_way_notice")
 
     def _is_catalog_line(self):
         template = self.product_id.product_tmpl_id
@@ -70,6 +73,30 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
         for line in self.filtered("sample_id"):
             if line.sample_id.order_id != line.order_id:
                 raise ValidationError(self.env._("A line can only be tested on a sample of its own order."))
+
+    @api.depends("product_id", "sample_id.sample_type_id")
+    def _compute_default_way_notice(self):
+        for line in self:
+            sample_type = line.sample_id.sample_type_id
+            notices = (
+                [parameter._default_way_notice(sample_type) for parameter in line._parameters()] if sample_type else []
+            )
+            line.default_way_notice = " ".join(notice for notice in notices if isinstance(notice, str)) or False
+
+    @api.constrains("sample_id", "product_id")
+    def _check_offered_on_sample(self):
+        for line in self._catalog_lines().filtered("sample_id"):
+            sample_type = line.sample_id.sample_type_id
+            refusals = [parameter._order_refusal(sample_type) for parameter in line._parameters()]
+            refusals = [refusal for refusal in refusals if refusal]
+            if refusals:
+                raise ValidationError(" ".join(refusals))
+
+    def _parameters(self):
+        # The parameter of a parameter line, or the parameters a package includes; read from the shared catalog.
+        self.ensure_one()
+        template = self.product_id.product_tmpl_id.sudo()
+        return template.parameter_id or template.service_package_id.line_ids.parameter_id
 
     def _content_lines(self):
         # The lines of a down payment are Odoo's own bookkeeping and follow the invoice, confirmed or not.

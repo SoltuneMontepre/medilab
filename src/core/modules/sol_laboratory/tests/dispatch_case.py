@@ -37,12 +37,13 @@ class DispatchCase(ResultCase):
                 {
                     "parameter_id": cls.parameter.id,
                     "method_id": cls.method.id,
-                    "unit_id": cls.unit.id,
                     "subcontractor_id": subcontractor.id,
                 }
                 for subcontractor in (cls.northern, cls.southern, cls.coastal)
             ]
         )
+        for way in (cls.northern_way, cls.southern_way, cls.coastal_way):
+            cls.offer(cls.parameter, cls.sample_type, way)
         cls.coastal.accreditation_expiry = "2026-01-31"
         cls.grant(cls.head, *DISPATCH_PERMISSIONS)
         cls.delivery_role = cls.env[MODEL_ROLE].create({"code": "dispatch_courier", "name": "Sample delivery staff"})

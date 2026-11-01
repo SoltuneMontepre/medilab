@@ -31,7 +31,6 @@ class TestSubcontractorSelection(MasterDataCase):
             {
                 "parameter_id": self.parameter.id,
                 "method_id": self.method.id,
-                "unit_id": self.unit.id,
                 "subcontractor_id": subcontractor.id,
             }
         )
@@ -79,11 +78,11 @@ class TestSubcontractorSelection(MasterDataCase):
         pair = self.choose(self.accredited)
 
         self.accredited.accreditation_expiry = self.today - ONE_DAY
-        pair.write({"lod": 0.5})
+        pair.write({"allows_negative": True})
 
         self.assertTrue(self.accredited.accreditation_expired)
         self.assertEqual(pair.subcontractor_id, self.accredited)
-        self.assertEqual(pair.lod, 0.5)
+        self.assertTrue(pair.allows_negative)
 
     def test_archived_subcontractor_is_refused_with_a_message_naming_it(self):
         with self.assertRaises(ValidationError) as refusal:

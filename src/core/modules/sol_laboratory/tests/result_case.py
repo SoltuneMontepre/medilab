@@ -3,7 +3,6 @@ from odoo.addons.sol_laboratory.constants.approvals import PURPOSE_SIGNING
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_APPROVAL_CHAIN,
     MODEL_APPROVAL_LEVEL,
-    MODEL_PARAMETER_METHOD,
     MODEL_REGULATION,
     MODEL_REGULATION_LIMIT,
     MODEL_ROLE,
@@ -37,7 +36,7 @@ class ResultCase(SchedulingCase):
                 "max_value": 0.01,
             }
         )
-        cls.pair.result_decimals = 3
+        cls.applicability.result_decimals = 3
         cls.request.status = "sample_received"
         cls.sample.write({"status": "received", "regulation_id": regulation.id})
         cls.task = cls.testing_task(cls.test, cls.tester)
@@ -78,15 +77,7 @@ class ResultCase(SchedulingCase):
     def add_test(cls):
         """An arsenic test on the same sample, tested by the same department and assigned to the tester."""
         arsenic = cls.create_parameter("Arsenic (As)", cls.group)
-        cls.env[MODEL_PARAMETER_METHOD].create(
-            {
-                "parameter_id": arsenic.id,
-                "method_id": cls.method.id,
-                "unit_id": cls.unit.id,
-                "department_id": cls.department.id,
-                "is_default": True,
-            }
-        )
+        cls.offer(arsenic, cls.sample_type)
         test = cls.env[MODEL_SAMPLE_TEST].create({"sample_id": cls.sample.id, "parameter_id": arsenic.id})
         cls.testing_task(test, cls.tester)
         return test

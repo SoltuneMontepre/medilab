@@ -23,6 +23,7 @@ from . import (
     test_order_form,
     test_order_freeze,
     test_order_history,
+    test_order_offering,
     test_order_page,
     test_order_read_scope,
     test_order_samples,

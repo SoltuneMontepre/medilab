@@ -7,6 +7,7 @@ access_medilab_measurement_unit_user,medilab.measurement.unit user,medilab.measu
 access_medilab_parameter_group_user,medilab.parameter.group user,medilab.parameter.group,base.group_user,r,
 access_medilab_parameter_method_user,medilab.parameter.method user,medilab.parameter.method,base.group_user,r,
 access_medilab_parameter_method_machine_user,medilab.parameter.method.machine user,medilab.parameter.method.machine,base.group_user,r,
+access_medilab_parameter_method_sample_type_user,medilab.parameter.method.sample.type user,medilab.parameter.method.sample.type,base.group_user,r,
 access_medilab_quality_registration_user,medilab.quality.registration user,medilab.quality.registration,base.group_user,r,
 access_medilab_accreditation_certificate_user,medilab.accreditation.certificate user,medilab.accreditation.certificate,base.group_user,r,
 access_medilab_accreditation_certificate_import_user,medilab.accreditation.certificate.import user,medilab.accreditation.certificate.import,base.group_user,crud,

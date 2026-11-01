@@ -53,7 +53,10 @@ class OrderSample(models.Model, OrderSampleBase):
     def write(self, vals):
         if FROZEN_SAMPLE_FIELDS & set(vals):
             self.order_id._check_content_freeze()
-        return super().write(vals)
+        result = super().write(vals)
+        if "sample_type_id" in vals:
+            self.line_ids._check_offered_on_sample()
+        return result
 
     def unlink(self):
         self.order_id._check_content_freeze()

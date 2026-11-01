@@ -20,10 +20,10 @@ class CrossDepartmentCase(ScheduleInvariantsCase):
             {
                 "parameter_id": cls.parameter.id,
                 "method_id": method.id,
-                "unit_id": cls.unit.id,
                 "department_id": cls.microbiology.id,
             }
         )
+        cls.offer(cls.parameter, cls.sample_type, cls.microbiology_way)
         cls.microbiology_head = cls.create_person(
             "Do Thi Giang",
             cls.microbiology,

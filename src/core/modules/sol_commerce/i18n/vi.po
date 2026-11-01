@@ -4497,3 +4497,8 @@ msgstr "Đơn hàng phải được xác nhận trước khi thu mẫu."
 #: code:addons/sol_commerce/models/orders/sale_order.py:0
 msgid "You cannot cancel a locked order. Please unlock it first."
 msgstr "Không thể hủy đơn hàng đã khóa. Hãy mở khóa trước."
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__default_way_notice
+msgid "Default Way"
+msgstr "Cách thử mặc định"

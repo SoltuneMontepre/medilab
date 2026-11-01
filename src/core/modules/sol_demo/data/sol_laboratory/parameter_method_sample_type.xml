@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Lead uses ICP-MS on two sample types in different units; pH and microbiology state no LOD or LOQ. -->
+    <record id="demo_parameter_method_sample_type_lead_aas_cabbage" model="medilab.parameter.method.sample.type">
+        <field name="parameter_id" ref="demo_test_parameter_lead" />
+        <field name="parameter_method_id" ref="demo_parameter_method_lead_aas" />
+        <field name="sample_type_id" ref="demo_sample_type_cabbage" />
+        <field name="unit_id" ref="demo_measurement_unit_mg_kg" />
+        <field name="lod">0.01</field>
+        <field name="loq">0.03</field>
+        <field name="result_decimals">3</field>
+        <field name="is_default" eval="True" />
+    </record>
+    <record id="demo_parameter_method_sample_type_lead_icpms_cabbage" model="medilab.parameter.method.sample.type">
+        <field name="parameter_id" ref="demo_test_parameter_lead" />
+        <field name="parameter_method_id" ref="demo_parameter_method_lead_icpms" />
+        <field name="sample_type_id" ref="demo_sample_type_cabbage" />
+        <field name="unit_id" ref="demo_measurement_unit_mg_kg" />
+        <field name="lod">0.005</field>
+        <field name="loq">0.015</field>
+        <field name="result_decimals">3</field>
+    </record>
+    <record id="demo_parameter_method_sample_type_lead_aas_bottled_water" model="medilab.parameter.method.sample.type">
+        <field name="parameter_id" ref="demo_test_parameter_lead" />
+        <field name="parameter_method_id" ref="demo_parameter_method_lead_aas" />
+        <field name="sample_type_id" ref="demo_sample_type_bottled_water" />
+        <field name="unit_id" ref="demo_measurement_unit_mg_l" />
+        <field name="lod">0.005</field>
+        <field name="loq">0.015</field>
+        <field name="result_decimals">3</field>
+        <field name="is_default" eval="True" />
+    </record>
+    <record id="demo_parameter_method_sample_type_lead_icpms_bottled_water" model="medilab.parameter.method.sample.type">
+        <field name="parameter_id" ref="demo_test_parameter_lead" />
+        <field name="parameter_method_id" ref="demo_parameter_method_lead_icpms" />
+        <field name="sample_type_id" ref="demo_sample_type_bottled_water" />
+        <field name="unit_id" ref="demo_measurement_unit_ug_l" />
+        <field name="lod">0.1</field>
+        <field name="loq">0.3</field>
+        <field name="result_decimals">2</field>
+    </record>
+    <record id="demo_parameter_method_sample_type_lead_subcontracted_bottled_water" model="medilab.parameter.method.sample.type">
+        <field name="parameter_id" ref="demo_test_parameter_lead" />
+        <field name="parameter_method_id" ref="demo_parameter_method_lead_subcontracted" />
+        <field name="sample_type_id" ref="demo_sample_type_bottled_water" />
+        <field name="unit_id" ref="demo_measurement_unit_ug_l" />
+        <field name="lod">0.05</field>
+        <field name="loq">0.15</field>
+        <field name="result_decimals">2</field>
+    </record>
+    <record id="demo_parameter_method_sample_type_lead_aas_surface_water" model="medilab.parameter.method.sample.type">
+        <field name="parameter_id" ref="demo_test_parameter_lead" />
+        <field name="parameter_method_id" ref="demo_parameter_method_lead_aas" />
+        <field name="sample_type_id" ref="demo_sample_type_surface_water" />
+        <field name="unit_id" ref="demo_measurement_unit_mg_l" />
+        <field name="lod">0.005</field>
+        <field name="loq">0.015</field>
+        <field name="result_decimals">3</field>
+        <field name="is_default" eval="True" />
+    </record>
+    <record id="demo_parameter_method_sample_type_lead_subcontracted_surface_water" model="medilab.parameter.method.sample.type">
+        <field name="parameter_id" ref="demo_test_parameter_lead" />
+        <field name="parameter_method_id" ref="demo_parameter_method_lead_subcontracted" />
+        <field name="sample_type_id" ref="demo_sample_type_surface_water" />
+        <field name="unit_id" ref="demo_measurement_unit_ug_l" />
+        <field name="lod">0.05</field>
+        <field name="loq">0.15</field>
+        <field name="result_decimals">2</field>
+    </record>
+    <record id="demo_parameter_method_sample_type_coliforms_mpn_bottled_water" model="medilab.parameter.method.sample.type">
+        <field name="parameter_id" ref="demo_test_parameter_coliforms" />
+        <field name="parameter_method_id" ref="demo_parameter_method_coliforms_mpn" />
+        <field name="sample_type_id" ref="demo_sample_type_bottled_water" />
+        <field name="unit_id" ref="demo_measurement_unit_mpn_100ml" />
+        <field name="result_decimals">0</field>
+        <field name="is_default" eval="True" />
+    </record>
+    <record id="demo_parameter_method_sample_type_coliforms_mpn_surface_water" model="medilab.parameter.method.sample.type">
+        <field name="parameter_id" ref="demo_test_parameter_coliforms" />
+        <field name="parameter_method_id" ref="demo_parameter_method_coliforms_mpn" />
+        <field name="sample_type_id" ref="demo_sample_type_surface_water" />
+        <field name="unit_id" ref="demo_measurement_unit_mpn_100ml" />
+        <field name="result_decimals">0</field>
+        <field name="is_default" eval="True" />
+    </record>
+    <record id="demo_parameter_method_sample_type_coliforms_colony_bottled_water" model="medilab.parameter.method.sample.type">
+        <field name="parameter_id" ref="demo_test_parameter_coliforms" />
+        <field name="parameter_method_id" ref="demo_parameter_method_coliforms_colony" />
+        <field name="sample_type_id" ref="demo_sample_type_bottled_water" />
+        <field name="unit_id" ref="demo_measurement_unit_cfu_100ml" />
+        <field name="result_decimals">0</field>
+    </record>
+    <record id="demo_parameter_method_sample_type_e_coli_membrane_bottled_water" model="medilab.parameter.method.sample.type">
+        <field name="parameter_id" ref="demo_test_parameter_e_coli" />
+        <field name="parameter_method_id" ref="demo_parameter_method_e_coli_membrane" />
+        <field name="sample_type_id" ref="demo_sample_type_bottled_water" />
+        <field name="unit_id" ref="demo_measurement_unit_cfu_100ml" />
+        <field name="result_decimals">0</field>
+        <field name="is_default" eval="True" />
+    </record>
+    <record id="demo_parameter_method_sample_type_e_coli_membrane_surface_water" model="medilab.parameter.method.sample.type">
+        <field name="parameter_id" ref="demo_test_parameter_e_coli" />
+        <field name="parameter_method_id" ref="demo_parameter_method_e_coli_membrane" />
+        <field name="sample_type_id" ref="demo_sample_type_surface_water" />
+        <field name="unit_id" ref="demo_measurement_unit_cfu_100ml" />
+        <field name="result_decimals">0</field>
+        <field name="is_default" eval="True" />
+    </record>
+    <record id="demo_parameter_method_sample_type_e_coli_colony_cabbage" model="medilab.parameter.method.sample.type">
+        <field name="parameter_id" ref="demo_test_parameter_e_coli" />
+        <field name="parameter_method_id" ref="demo_parameter_method_e_coli_colony" />
+        <field name="sample_type_id" ref="demo_sample_type_cabbage" />
+        <field name="unit_id" ref="demo_measurement_unit_cfu_g" />
+        <field name="result_decimals">0</field>
+        <field name="is_default" eval="True" />
+    </record>
+    <record id="demo_parameter_method_sample_type_ph_water_bottled_water" model="medilab.parameter.method.sample.type">
+        <field name="parameter_id" ref="demo_test_parameter_ph" />
+        <field name="parameter_method_id" ref="demo_parameter_method_ph_water" />
+        <field name="sample_type_id" ref="demo_sample_type_bottled_water" />
+        <field name="unit_id" ref="demo_measurement_unit_ph" />
+        <field name="result_decimals">1</field>
+        <field name="is_default" eval="True" />
+    </record>
+    <record id="demo_parameter_method_sample_type_ph_water_surface_water" model="medilab.parameter.method.sample.type">
+        <field name="parameter_id" ref="demo_test_parameter_ph" />
+        <field name="parameter_method_id" ref="demo_parameter_method_ph_water" />
+        <field name="sample_type_id" ref="demo_sample_type_surface_water" />
+        <field name="unit_id" ref="demo_measurement_unit_ph" />
+        <field name="result_decimals">1</field>
+        <field name="is_default" eval="True" />
+    </record>
+    <record id="demo_parameter_method_sample_type_chlorpyrifos_quechers_cabbage" model="medilab.parameter.method.sample.type">
+        <field name="parameter_id" ref="demo_test_parameter_chlorpyrifos" />
+        <field name="parameter_method_id" ref="demo_parameter_method_chlorpyrifos_quechers" />
+        <field name="sample_type_id" ref="demo_sample_type_cabbage" />
+        <field name="unit_id" ref="demo_measurement_unit_mg_kg" />
+        <field name="lod">0.003</field>
+        <field name="loq">0.01</field>
+        <field name="result_decimals">3</field>
+        <field name="is_default" eval="True" />
+    </record>
+    <record id="demo_parameter_method_sample_type_chlorpyrifos_ug_cabbage" model="medilab.parameter.method.sample.type">
+        <field name="parameter_id" ref="demo_test_parameter_chlorpyrifos" />
+        <field name="parameter_method_id" ref="demo_parameter_method_chlorpyrifos_ug" />
+        <field name="sample_type_id" ref="demo_sample_type_cabbage" />
+        <field name="unit_id" ref="demo_measurement_unit_ug_kg" />
+        <field name="lod">1</field>
+        <field name="loq">3</field>
+        <field name="result_decimals">1</field>
+    </record>
+    <record id="demo_parameter_method_sample_type_chromium_vi_colorimetry_bottled_water" model="medilab.parameter.method.sample.type">
+        <field name="parameter_id" ref="demo_test_parameter_chromium_vi" />
+        <field name="parameter_method_id" ref="demo_parameter_method_chromium_vi_colorimetry" />
+        <field name="sample_type_id" ref="demo_sample_type_bottled_water" />
+        <field name="unit_id" ref="demo_measurement_unit_mg_l" />
+        <field name="result_decimals">3</field>
+        <field name="is_default" eval="True" />
+    </record>
+    <record id="demo_parameter_method_sample_type_chromium_vi_colorimetry_surface_water" model="medilab.parameter.method.sample.type">
+        <field name="parameter_id" ref="demo_test_parameter_chromium_vi" />
+        <field name="parameter_method_id" ref="demo_parameter_method_chromium_vi_colorimetry" />
+        <field name="sample_type_id" ref="demo_sample_type_surface_water" />
+        <field name="unit_id" ref="demo_measurement_unit_mg_l" />
+        <field name="result_decimals">3</field>
+        <field name="is_default" eval="True" />
+    </record>
+</odoo>

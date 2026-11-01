@@ -16,7 +16,7 @@ The tester, also called lab QA, runs assigned tests with a machine when the way 
 
 ### Results
 
-- **US-T05** As a tester, I want to enter a result as a number in the unit of the way of testing or as a text, so that the measurement is recorded as it was made.
+- **US-T05** As a tester, I want to enter a result as a number in the unit the way of testing has on the sample's type or as a text, so that the measurement is recorded as it was made.
 - **US-T06** As a tester, I want to assess requested regulation comparisons as pass, fail or insufficient basis, so that the report states only what its evidence supports.
 - **US-T07** As a tester, I want to send my result for approval and sign it, so that the head of department can review it.
 - **US-T08** As a tester, I want to retest when a result is rejected, so that the reported result is correct, while the rejected one stays on record.

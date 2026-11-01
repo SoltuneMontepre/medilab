@@ -17,7 +17,8 @@ class TestTreeFilters(MasterDataCase):
         cls.food = cls.env[MODEL_SAMPLE_TYPE].create({"name": "Food"})
         cls.vegetables = cls.env[MODEL_SAMPLE_TYPE].create({"name": "Vegetables", "parent_id": cls.food.id})
         cls.cabbage = cls.env[MODEL_SAMPLE_TYPE].create({"name": "Cabbage", "parent_id": cls.vegetables.id})
-        cls.chlorpyrifos = cls.create_parameter("Chlorpyrifos", cls.organophosphates, sample_type_ids=[cls.cabbage.id])
+        cls.chlorpyrifos = cls.create_parameter("Chlorpyrifos", cls.organophosphates)
+        cls.offer(cls.chlorpyrifos, cls.cabbage)
 
     def test_parameter_of_sub_group_is_found_by_parent_group(self):
         found = self.env[MODEL_TEST_PARAMETER].search([("group_ids", "child_of", self.pesticides.id)])

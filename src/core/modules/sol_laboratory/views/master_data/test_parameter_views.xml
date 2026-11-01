@@ -39,17 +39,27 @@
                         <page string="Ways of Testing" name="methods">
                             <field name="method_ids" context="{'active_test': False}">
                                 <list editable="bottom" delete="0" decoration-muted="not active">
-                                    <field name="is_default" widget="exclusive_boolean" />
                                     <field name="method_id" />
-                                    <field name="unit_id" />
                                     <field name="department_id" invisible="subcontractor_id" required="not subcontractor_id" />
                                     <field name="subcontractor_id" invisible="department_id" />
-                                    <field name="lod" />
-                                    <field name="loq" />
-                                    <field name="result_decimals" />
                                     <field name="allows_negative" optional="hide" />
                                     <field name="is_accredited" readonly="1" />
                                     <field name="active" widget="boolean_toggle" />
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Sample Types" name="sample_types">
+                            <field name="applicability_ids">
+                                <list editable="bottom" decoration-muted="not way_active">
+                                    <field name="parameter_id" column_invisible="1" />
+                                    <field name="way_active" column_invisible="1" />
+                                    <field name="sample_type_id" />
+                                    <field name="parameter_method_id" options="{'no_create': True}" />
+                                    <field name="unit_id" />
+                                    <field name="lod" widget="nullable_float" />
+                                    <field name="loq" widget="nullable_float" />
+                                    <field name="result_decimals" />
+                                    <field name="is_default" />
                                 </list>
                             </field>
                         </page>
@@ -69,6 +79,11 @@
                 <field name="sample_type_ids" operator="child_of" />
                 <field name="method_ids" />
                 <filter name="inactive" string="Archived" domain="[('active', '=', False)]" />
+                <filter
+                    name="incomplete_ways"
+                    string="Ways without sample types"
+                    domain="[('method_ids', 'any', [('active', '=', True), ('applicability_ids', '=', False)])]"
+                />
                 <filter name="group_by_main_group" string="Main Group" context="{'group_by': 'main_group_id'}" />
             </search>
         </field>

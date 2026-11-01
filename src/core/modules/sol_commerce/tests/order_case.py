@@ -48,6 +48,8 @@ class OrderCase(PricingCase):
         cls.lead_product = products.search([("parameter_id", "=", cls.parameter.id)], limit=1)
         cls.package_product = products.search([("service_package_id", "=", cls.package.id)], limit=1)
         cls.sample_type = cls.env[MODEL_SAMPLE_TYPE].create({"name": "Bottled water", "code": "LM-QUOTE"})
+        cls.offer(cls.parameter, cls.sample_type)
+        cls.offer(cls.other, cls.sample_type)
         cls.customer = cls.env["res.partner"].create({"name": "Cong ty Nuoc Sach", "is_company": True})
         cls.contact = cls.env["res.partner"].create(
             {"name": "Pham Thi Hoa", "parent_id": cls.customer.id, "email": "hoa@nuocsach.example"}

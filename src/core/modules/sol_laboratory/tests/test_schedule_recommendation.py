@@ -159,10 +159,10 @@ class TestScheduleRecommendation(CrossDepartmentCase, LocationCase):
             {
                 "parameter_id": arsenic.id,
                 "method_id": self.method.id,
-                "unit_id": self.unit.id,
                 "subcontractor_id": subcontractor_id,
             }
         )
+        self.offer(arsenic, self.sample_type, outside)
         test = self.env[MODEL_SAMPLE_TEST].create({"sample_id": self.sample.id, "parameter_id": arsenic.id})
         self.testing_task(test, self.tester)
         self.assertEqual(self.recommendation(test), (self.env[MODEL_MACHINE], False, False))
@@ -182,11 +182,10 @@ class TestScheduleRecommendation(CrossDepartmentCase, LocationCase):
             {
                 "parameter_id": copper.id,
                 "method_id": self.method.id,
-                "unit_id": self.unit.id,
                 "department_id": self.department.id,
-                "is_default": True,
             }
         )
+        self.offer(copper, self.sample_type, copper_way)
         self.env[MODEL_PARAMETER_METHOD_MACHINE].create(
             {"parameter_method_id": copper_way.id, "machine_id": self.fast.id, "run_minutes": 25}
         )

@@ -93,7 +93,7 @@ class TestOrderCart(OrderCase):
 
     def test_catalog_filters_by_name_price_and_sample_type(self):
         sample = self.env[MODEL_SAMPLE_TYPE].create({"name": "Bottled water", "code": "LM-CART"})
-        self.parameter.sample_type_ids = sample
+        self.offer(self.parameter, sample)
         products = self.env[MODEL_PRODUCT_TEMPLATE]
 
         found = products.search(

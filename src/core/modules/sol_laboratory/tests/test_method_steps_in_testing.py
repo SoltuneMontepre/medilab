@@ -44,10 +44,17 @@ class TestMethodStepsInTesting(SchedulingCase):
             {"code": "TCVN 9996:2026", "name": "Lead by ICP-MS", "field_id": cls.testing_field.id}
         )
 
+    def use(self, test, way):
+        """Choose the way of testing for the test, applying it to the test's sample type first."""
+        sample_type = test.sample_id.sample_type_id
+        if not way._applicability(sample_type):
+            self.offer(way.parameter_id, sample_type, way)
+        test.parameter_method_id = way
+
     def run_test(self, way=None):
         """A test with its way of testing chosen, its testing task assigned to the runner and a booking for them."""
         test = self.new_test()
-        test.parameter_method_id = way or self.pair
+        self.use(test, way or self.pair)
         task = self.testing_task(test, self.runner)
         booking = self.env[MODEL_MACHINE_BOOKING].create(
             {
@@ -86,7 +93,6 @@ class TestMethodStepsInTesting(SchedulingCase):
             {
                 "parameter_id": cadmium.id,
                 "method_id": self.method.id,
-                "unit_id": self.unit.id,
                 "department_id": self.department.id,
             }
         )
@@ -103,7 +109,6 @@ class TestMethodStepsInTesting(SchedulingCase):
             {
                 "parameter_id": self.parameter.id,
                 "method_id": self.stepless.id,
-                "unit_id": self.unit.id,
                 "department_id": self.department.id,
             }
         )
@@ -161,12 +166,11 @@ class TestMethodStepsInTesting(SchedulingCase):
             {
                 "parameter_id": self.parameter.id,
                 "method_id": self.stepless.id,
-                "unit_id": self.unit.id,
                 "department_id": self.department.id,
             }
         )
 
-        test.parameter_method_id = way
+        self.use(test, way)
 
         self.assertEqual(booking.method_step_ids, self.stepless.step_ids)
         self.assertEqual(

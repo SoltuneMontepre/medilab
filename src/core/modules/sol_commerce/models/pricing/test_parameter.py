@@ -14,7 +14,7 @@ else:
 # Chỉ Tiêu
 class TestParameter(models.Model, TestParameterBase):
     _inherit = MODEL_TEST_PARAMETER
-    _audit_children = ("method_ids", "price_ids")
+    _audit_children = ("method_ids", "applicability_ids", "price_ids")
 
     if not TYPE_CHECKING:
         # The parameter's catalog price; at most one.
