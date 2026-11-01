@@ -53,7 +53,6 @@
         <p t-if="request.params.get('error')" class="alert alert-danger" t-out="request.params.get('error')" />
         <div class="row mt-4">
             <div class="col-md-9">
-                <h3>Customer</h3>
                 <dl class="row">
                     <dt class="col-sm-4">Customer code</dt>
                     <dd class="col-sm-8" t-out="medilab_customer.code" />
@@ -66,7 +65,7 @@
                             <form t-else="" action="/my/identity" method="post" class="d-flex gap-2">
                                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
                                 <input type="text" name="citizen_id" class="form-control" required="required" />
-                                <button type="submit" class="btn btn-secondary">Save</button>
+                                <button type="submit" class="btn btn-secondary"><i class="oi me-1" data-icon="save" aria-hidden="true" />Save</button>
                             </form>
                         </dd>
                     </t>
@@ -84,13 +83,15 @@
                                     t-out="language.name.split('/')[-1].strip()"
                                 />
                             </select>
-                            <button type="submit" class="btn btn-secondary">Save</button>
+                            <button type="submit" class="btn btn-secondary"><i class="oi me-1" data-icon="save" aria-hidden="true" />Save</button>
                         </form>
                     </dd>
                 </dl>
                 <p>
                     <a href="/my/addresses">Addresses</a>
                     <t t-if="medilab_customer.is_company"> · <a href="/my/contacts">Contacts</a></t>
+                    · <a href="/my/notifications">Notification preferences</a>
+                    · <a href="/orders">My orders</a>
                 </p>
             </div>
             <div class="col-md-3">
@@ -105,17 +106,14 @@
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
                     <input type="file" name="logo" accept="image/png,image/jpeg" class="form-control mb-1" required="required" />
                     <small class="form-text text-muted d-block mb-2">PNG or JPEG, up to 2 MB.</small>
-                    <button type="submit" class="btn btn-secondary">Upload</button>
+                    <button type="submit" class="btn btn-secondary"><i class="oi me-1" data-icon="upload" aria-hidden="true" />Upload</button>
                 </form>
                 <form t-if="medilab_customer.image_128" action="/my/logo/remove" method="post" class="mt-2">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
-                    <button type="submit" class="btn btn-link text-danger p-0">Remove the logo</button>
+                    <button type="submit" class="btn btn-link text-danger p-0"><i class="oi me-1" data-icon="delete" aria-hidden="true" />Remove the logo</button>
                 </form>
             </div>
         </div>
-        <h3 class="mt-4">Order history</h3>
-        <t t-call="sol_commerce.order_table" orders="customer_orders" />
-        <p t-if="customer_orders"><a href="/orders">All orders</a></p>
     </template>
 
     <template id="order_status" name="Order status">
@@ -130,7 +128,7 @@
                 <thead>
                     <tr>
                         <th>Order</th>
-                        <th>Date</th>
+                        <th class="d-none d-md-table-cell">Date</th>
                         <th>Status</th>
                         <th class="text-end">Total excluding VAT</th>
                         <th />
@@ -142,14 +140,15 @@
                             <td>
                                 <a t-att-href="'/orders/%s' % order.id" t-out="order.name" />
                                 <div class="small text-muted" t-out="order.portal_summary()" />
+                                <div class="small text-muted d-md-none" t-out="order.submitted_at or order.create_date" t-options="{'widget': 'date'}" />
                             </td>
-                            <td class="text-nowrap" t-out="order.submitted_at or order.create_date" t-options="{'widget': 'date'}" />
+                            <td class="text-nowrap d-none d-md-table-cell" t-out="order.submitted_at or order.create_date" t-options="{'widget': 'date'}" />
                             <td><t t-call="sol_commerce.order_status" /></td>
                             <td class="text-end text-nowrap" t-out="order.catalog_total" t-options="{'widget': 'monetary', 'display_currency': order.currency_id}" />
                             <td class="text-end">
                                 <form t-if="order.can_reorder()" t-att-action="'/orders/%s/reorder' % order.id" method="post">
                                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
-                                    <button type="submit" class="btn btn-primary">Reorder</button>
+                                    <button type="submit" class="btn btn-secondary btn-sm text-nowrap"><i class="oi me-1" data-icon="repeat" aria-hidden="true" />Reorder</button>
                                 </form>
                             </td>
                         </tr>
@@ -164,7 +163,7 @@
             <div class="container py-4">
                 <div class="d-flex justify-content-between mb-3">
                     <h1>Contacts</h1>
-                    <a class="btn btn-primary" href="/my/contacts/new">Add a contact</a>
+                    <a class="btn btn-primary" href="/my/contacts/new"><i class="oi me-1" data-icon="person_add" aria-hidden="true" />Add a contact</a>
                 </div>
                 <p t-if="error" class="alert alert-danger" t-out="error" />
                 <p class="text-muted">The laboratory reaches the default contact about your orders unless you choose another one.</p>
@@ -190,14 +189,14 @@
                                 <td t-out="contact.phone" />
                                 <td class="text-end">
                                     <div class="d-flex justify-content-end gap-2">
-                                        <a class="btn btn-secondary" t-att-href="'/my/contacts/%s' % contact.id">Edit</a>
+                                        <a class="btn btn-secondary" t-att-href="'/my/contacts/%s' % contact.id"><i class="oi me-1" data-icon="edit" aria-hidden="true" />Edit</a>
                                         <form t-if="contact != customer.default_contact_id" t-att-action="'/my/contacts/%s/default' % contact.id" method="post">
                                             <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
-                                            <button type="submit" class="btn btn-secondary">Make default</button>
+                                            <button type="submit" class="btn btn-secondary"><i class="oi me-1" data-icon="star" aria-hidden="true" />Make default</button>
                                         </form>
                                         <form t-att-action="'/my/contacts/%s/remove' % contact.id" method="post">
                                             <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
-                                            <button type="submit" class="btn btn-danger">Remove</button>
+                                            <button type="submit" class="btn btn-danger"><i class="oi me-1" data-icon="delete" aria-hidden="true" />Remove</button>
                                         </form>
                                     </div>
                                 </td>
@@ -236,8 +235,8 @@
                         <input type="tel" name="phone" id="phone" t-att-value="contact.phone" class="form-control" />
                     </div>
                     <div class="col-12 d-flex gap-2">
-                        <button type="submit" class="btn btn-primary">Save</button>
-                        <a class="btn btn-secondary" href="/my/contacts">Discard</a>
+                        <button type="submit" class="btn btn-primary"><i class="oi me-1" data-icon="save" aria-hidden="true" />Save</button>
+                        <a class="btn btn-secondary" href="/my/contacts"><i class="oi me-1" data-icon="close" aria-hidden="true" />Discard</a>
                     </div>
                 </form>
             </div>

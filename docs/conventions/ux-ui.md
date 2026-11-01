@@ -22,6 +22,7 @@ Rules every screen follows, so the interface reads as one product. Colors by mea
 
 ## User flow
 
+- **Icons on portal actions.** In the customer portal every action button and button-styled link shows an Odoo icon (`<i class="oi" data-icon="…">`) before its label, and the same action keeps the same icon and look on every page. A button that only closes a dialog and the cart's quantity steppers have none.
 - **Action beside its content.** A button sits next to the data it changes: row actions on the row, section actions in the section header.
 - **Show the outcome first.** Totals, counts and the effect of an action update as the user edits, and a confirmation dialog states what will change before it is confirmed.
 - **Sticky controls.** The status bar, the main action buttons and a list's column headers stay visible while the page scrolls.

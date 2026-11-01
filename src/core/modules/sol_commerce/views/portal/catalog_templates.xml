@@ -5,23 +5,20 @@
             <div class="container py-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h1>Catalog</h1>
-                    <div>
-                        <a t-if="not request.env.user._is_public()" class="btn btn-secondary me-2" href="/orders">Orders</a>
-                        <a class="btn btn-primary" href="/cart">Cart (<t t-out="cart_quantity" />)</a>
-                    </div>
+                    <a class="btn btn-primary" href="/cart"><i class="oi me-1" data-icon="shopping_cart" aria-hidden="true" />Cart (<t t-out="cart_quantity" />)</a>
                 </div>
                 <form method="get" action="/catalog" class="row g-2 mb-4">
                     <div class="col-md-3">
-                        <select name="sample_type" class="form-select">
-                            <option value="">Sample type</option>
+                        <select name="sample_type" class="form-select o_medilab_catalog_filter" aria-label="Sample type">
+                            <option value="">All sample types</option>
                             <t t-foreach="sample_types" t-as="sample">
                                 <option t-att-value="sample.id" t-att-selected="str(sample.id) == str(sample_type)" t-out="sample.name" />
                             </t>
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <select name="group" class="form-select">
-                            <option value="">Parameter group</option>
+                        <select name="group" class="form-select o_medilab_catalog_filter" aria-label="Parameter group">
+                            <option value="">All parameter groups</option>
                             <t t-foreach="parameter_groups" t-as="parameter_group">
                                 <option t-att-value="parameter_group.id" t-att-selected="str(parameter_group.id) == str(group)" t-out="parameter_group.name" />
                             </t>
@@ -37,7 +34,7 @@
                         <input type="number" name="price_max" class="form-control" placeholder="Max" min="0" t-att-value="price_max" />
                     </div>
                     <div class="col-md-2">
-                        <button type="submit" class="btn btn-secondary">Filter</button>
+                        <button type="submit" class="btn btn-secondary"><i class="oi me-1" data-icon="filter_alt" aria-hidden="true" />Filter</button>
                     </div>
                 </form>
                 <t t-foreach="groups" t-as="entry">
@@ -52,25 +49,25 @@
 
     <template id="catalog_products">
         <div class="table-responsive">
-            <table class="table">
+            <table class="table align-middle">
                 <thead>
                     <tr>
                         <th>Name</th>
-                        <th class="text-end">Price</th>
-                        <th />
+                        <th class="text-end o_medilab_shrink">Price</th>
+                        <th class="o_medilab_shrink" />
                     </tr>
                 </thead>
                 <tbody>
                     <t t-foreach="products" t-as="product">
                         <tr>
                             <td t-out="product.name" />
-                            <td class="text-end" t-out="product.list_price" t-options="{'widget': 'monetary', 'display_currency': product.currency_id}" />
-                            <td class="text-end">
+                            <td class="text-end o_medilab_shrink" t-out="product.list_price" t-options="{'widget': 'monetary', 'display_currency': product.currency_id}" />
+                            <td class="text-end o_medilab_shrink">
                                 <form action="/catalog/add" method="post" class="d-flex justify-content-end gap-2">
                                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
                                     <input type="hidden" name="product_tmpl_id" t-att-value="product.id" />
                                     <input type="number" name="quantity" value="1" min="1" class="form-control" style="width: 5rem" />
-                                    <button type="submit" class="btn btn-primary">Add</button>
+                                    <button type="submit" class="btn btn-primary"><i class="oi me-1" data-icon="add_shopping_cart" aria-hidden="true" />Add</button>
                                 </form>
                             </td>
                         </tr>
@@ -113,7 +110,7 @@
                                                 <span class="btn btn-light disabled text-body" t-out="quantity" />
                                                 <button type="submit" name="quantity" t-att-value="quantity + 1" class="btn btn-secondary" title="Increase the quantity" aria-label="Increase the quantity">+</button>
                                             </div>
-                                            <button type="submit" name="quantity" value="0" class="btn btn-danger">Remove</button>
+                                            <button type="submit" name="quantity" value="0" class="btn btn-danger"><i class="oi me-1" data-icon="delete" aria-hidden="true" />Remove</button>
                                         </form>
                                     </td>
                                     <td class="text-end text-nowrap" t-out="line.price_unit * line.product_uom_qty" t-options="{'widget': 'monetary', 'display_currency': order.currency_id}" />
@@ -150,9 +147,9 @@
                         </select>
                     </div>
                     <div class="d-flex flex-wrap gap-2">
-                        <button type="submit" class="btn btn-primary">Submit</button>
-                        <button type="submit" class="btn btn-secondary" formaction="/cart/save">Save as draft</button>
-                        <a class="btn btn-secondary" href="/catalog">Continue</a>
+                        <button type="submit" class="btn btn-primary"><i class="oi me-1" data-icon="send" aria-hidden="true" />Submit</button>
+                        <button type="submit" class="btn btn-secondary" formaction="/cart/save"><i class="oi me-1" data-icon="save" aria-hidden="true" />Save as draft</button>
+                        <a class="btn btn-secondary" href="/catalog"><i class="oi me-1" data-icon="science" aria-hidden="true" />Continue</a>
                     </div>
                 </form>
             </div>
@@ -164,7 +161,7 @@
             <div class="container py-4">
                 <h1>Order submitted</h1>
                 <p>Your order <t t-out="order.name" /> is in the sales queue.</p>
-                <a class="btn btn-secondary" href="/catalog">Back to the catalog</a>
+                <a class="btn btn-secondary" href="/catalog"><i class="oi me-1" data-icon="science" aria-hidden="true" />Back to the catalog</a>
             </div>
         </t>
     </template>
@@ -173,11 +170,8 @@
         <t t-call="portal.frontend_layout">
             <div class="container py-4">
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-                    <h1 class="mb-0">Orders</h1>
-                    <div class="d-flex gap-2">
-                        <a class="btn btn-secondary" href="/support">Support</a>
-                        <a class="btn btn-secondary" href="/catalog">Catalog</a>
-                    </div>
+                    <h1 class="mb-0">My orders</h1>
+                    <a class="btn btn-secondary" href="/catalog"><i class="oi me-1" data-icon="science" aria-hidden="true" />Catalog</a>
                 </div>
                 <div t-if="saved" class="alert alert-success" role="status">
                     Your draft is saved. It is listed here as Draft and stays in the cart until you submit it.
@@ -201,23 +195,23 @@
                     <h1 class="mb-0" t-out="order.name" />
                     <t t-call="sol_commerce.order_status" />
                 </div>
-                <dl id="order_dates" class="row mb-2">
-                    <t t-if="order.submitted_at">
-                        <dt class="col-sm-3">Submitted</dt>
-                        <dd class="col-sm-9" t-out="order.submitted_at" t-options="{'widget': 'datetime'}" />
-                    </t>
-                    <t t-else="">
-                        <dt class="col-sm-3">Created</dt>
-                        <dd class="col-sm-9" t-out="order.create_date" t-options="{'widget': 'datetime'}" />
-                    </t>
-                    <t t-if="quotation and order.payment_deadline">
-                        <dt class="col-sm-3">Quotation deadline</dt>
-                        <dd class="col-sm-9" t-out="order.payment_deadline" t-options="{'widget': 'datetime'}" />
-                    </t>
-                    <t t-if="order.expected_result_date">
-                        <dt class="col-sm-3">Expected results</dt>
-                        <dd class="col-sm-9" t-out="order.expected_result_date" t-options="{'widget': 'date'}" />
-                    </t>
+                <dl id="order_dates" class="d-flex flex-wrap column-gap-4 row-gap-1 mb-3">
+                    <div t-if="order.submitted_at" class="d-flex gap-2">
+                        <dt class="fw-normal text-muted">Submitted</dt>
+                        <dd class="mb-0" t-out="order.submitted_at" t-options="{'widget': 'datetime'}" />
+                    </div>
+                    <div t-else="" class="d-flex gap-2">
+                        <dt class="fw-normal text-muted">Created</dt>
+                        <dd class="mb-0" t-out="order.create_date" t-options="{'widget': 'datetime'}" />
+                    </div>
+                    <div t-if="quotation and order.payment_deadline" class="d-flex gap-2">
+                        <dt class="fw-normal text-muted">Quotation deadline</dt>
+                        <dd class="mb-0" t-out="order.payment_deadline" t-options="{'widget': 'datetime'}" />
+                    </div>
+                    <div t-if="order.expected_result_date" class="d-flex gap-2">
+                        <dt class="fw-normal text-muted">Expected results</dt>
+                        <dd class="mb-0" t-out="order.expected_result_date" t-options="{'widget': 'date'}" />
+                    </div>
                 </dl>
                 <p t-if="quotation"><a t-att-href="'/orders/%s/quotation' % order.id">View quotation</a></p>
                 <p t-if="order.reorder_note" t-out="order.reorder_note" />
@@ -257,15 +251,15 @@
                     </div>
                 </t>
                 <div id="order_actions" class="d-flex flex-wrap gap-2 mb-4">
-                    <button t-if="cancel_mode == 'cancel'" type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#order_cancel_dialog">Cancel</button>
-                    <button t-if="cancel_mode == 'request' and not open_request" type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#order_cancellation_dialog">Request cancellation</button>
+                    <button t-if="cancel_mode == 'cancel'" type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#order_cancel_dialog"><i class="oi me-1" data-icon="cancel" aria-hidden="true" />Cancel</button>
+                    <button t-if="cancel_mode == 'request' and not open_request" type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#order_cancellation_dialog"><i class="oi me-1" data-icon="cancel" aria-hidden="true" />Request cancellation</button>
                     <form t-if="open_request" t-att-action="'/orders/%s/cancellation/withdraw' % order.id" method="post">
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
-                        <button type="submit" class="btn btn-secondary">Withdraw request</button>
+                        <button type="submit" class="btn btn-secondary"><i class="oi me-1" data-icon="undo" aria-hidden="true" />Withdraw request</button>
                     </form>
                     <form t-if="order.can_reorder()" t-att-action="'/orders/%s/reorder' % order.id" method="post">
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
-                        <button type="submit" class="btn btn-primary">Reorder</button>
+                        <button type="submit" class="btn btn-secondary"><i class="oi me-1" data-icon="repeat" aria-hidden="true" />Reorder</button>
                     </form>
                 </div>
                 <div t-if="cancel_mode == 'cancel'" class="modal fade" id="order_cancel_dialog" tabindex="-1" aria-labelledby="order_cancel_title" aria-hidden="true">
@@ -281,7 +275,7 @@
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Keep the order</button>
-                                <button type="submit" class="btn btn-danger">Cancel the order</button>
+                                <button type="submit" class="btn btn-danger"><i class="oi me-1" data-icon="cancel" aria-hidden="true" />Cancel the order</button>
                             </div>
                         </form>
                     </div>
@@ -301,7 +295,7 @@
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button type="submit" class="btn btn-danger">Request cancellation</button>
+                                <button type="submit" class="btn btn-danger"><i class="oi me-1" data-icon="cancel" aria-hidden="true" />Request cancellation</button>
                             </div>
                         </form>
                     </div>
@@ -311,10 +305,10 @@
                 <ul t-if="support_requests">
                     <li t-foreach="support_requests" t-as="support_request">
                         <a t-att-href="'/support/%s' % support_request.id" t-out="support_request.code" />
-                        <t t-out="support_request.subject" /> (<t t-out="statuses[support_request.status]" />)
+                        <t t-out="support_request.subject" /> <t t-call="sol_commerce.support_status" />
                     </li>
                 </ul>
-                <p><a class="btn btn-secondary" t-att-href="'/support/new?order_id=%s' % order.id">Ask for help about this order</a></p>
+                <p><a class="btn btn-secondary" t-att-href="'/support/new?order_id=%s' % order.id"><i class="oi me-1" data-icon="support" aria-hidden="true" />Ask for help about this order</a></p>
                 <h2 class="mt-4" t-if="order.feedback_rating or order.can_give_feedback()">Feedback</h2>
                 <div t-if="order.feedback_rating" class="border rounded p-3 mb-3">
                     <p>Your rating: <t t-out="order.feedback_rating" />/5</p>
@@ -331,7 +325,7 @@
                         </t>
                     </div>
                     <textarea name="comment" class="form-control mb-2" placeholder="Comment" />
-                    <button type="submit" class="btn btn-success">Send feedback</button>
+                    <button type="submit" class="btn btn-success"><i class="oi me-1" data-icon="send" aria-hidden="true" />Send feedback</button>
                 </form>
             </div>
         </t>
