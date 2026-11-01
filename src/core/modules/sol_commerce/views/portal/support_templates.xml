@@ -5,7 +5,7 @@
             <div class="container py-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h1>Support requests</h1>
-                    <a class="btn btn-primary" href="/support/new"><iconify-icon icon="mdi:plus" class="me-1" aria-hidden="true" />New request</a>
+                    <a class="btn btn-primary" href="/support/new"><i class="oi me-1" data-icon="add" aria-hidden="true" />New request</a>
                 </div>
                 <p t-if="not requests">You have not asked for help yet.</p>
                 <div t-if="requests" class="table-responsive">
@@ -74,8 +74,8 @@
                         <label class="form-label" for="attachments">Files</label>
                         <input type="file" id="attachments" name="attachments" class="form-control" multiple="multiple" />
                     </div>
-                    <button type="submit" class="btn btn-primary"><iconify-icon icon="mdi:send" class="me-1" aria-hidden="true" />Send</button>
-                    <a class="btn btn-secondary" href="/support">Cancel</a>
+                    <button type="submit" class="btn btn-primary"><i class="oi me-1" data-icon="send" aria-hidden="true" />Send</button>
+                    <a class="btn btn-secondary" href="/support"><i class="oi me-1" data-icon="close" aria-hidden="true" />Cancel</a>
                 </form>
             </div>
         </t>

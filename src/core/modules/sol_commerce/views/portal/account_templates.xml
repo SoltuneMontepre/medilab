@@ -65,7 +65,7 @@
                             <form t-else="" action="/my/identity" method="post" class="d-flex gap-2">
                                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
                                 <input type="text" name="citizen_id" class="form-control" required="required" />
-                                <button type="submit" class="btn btn-secondary">Save</button>
+                                <button type="submit" class="btn btn-secondary"><i class="oi me-1" data-icon="save" aria-hidden="true" />Save</button>
                             </form>
                         </dd>
                     </t>
@@ -83,7 +83,7 @@
                                     t-out="language.name.split('/')[-1].strip()"
                                 />
                             </select>
-                            <button type="submit" class="btn btn-secondary">Save</button>
+                            <button type="submit" class="btn btn-secondary"><i class="oi me-1" data-icon="save" aria-hidden="true" />Save</button>
                         </form>
                     </dd>
                 </dl>
@@ -106,11 +106,11 @@
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
                     <input type="file" name="logo" accept="image/png,image/jpeg" class="form-control mb-1" required="required" />
                     <small class="form-text text-muted d-block mb-2">PNG or JPEG, up to 2 MB.</small>
-                    <button type="submit" class="btn btn-secondary"><iconify-icon icon="mdi:upload" class="me-1" aria-hidden="true" />Upload</button>
+                    <button type="submit" class="btn btn-secondary"><i class="oi me-1" data-icon="upload" aria-hidden="true" />Upload</button>
                 </form>
                 <form t-if="medilab_customer.image_128" action="/my/logo/remove" method="post" class="mt-2">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
-                    <button type="submit" class="btn btn-link text-danger p-0">Remove the logo</button>
+                    <button type="submit" class="btn btn-link text-danger p-0"><i class="oi me-1" data-icon="delete" aria-hidden="true" />Remove the logo</button>
                 </form>
             </div>
         </div>
@@ -148,7 +148,7 @@
                             <td class="text-end">
                                 <form t-if="order.can_reorder()" t-att-action="'/orders/%s/reorder' % order.id" method="post">
                                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
-                                    <button type="submit" class="btn btn-secondary btn-sm text-nowrap"><iconify-icon icon="mdi:repeat" class="me-1" aria-hidden="true" />Reorder</button>
+                                    <button type="submit" class="btn btn-secondary btn-sm text-nowrap"><i class="oi me-1" data-icon="repeat" aria-hidden="true" />Reorder</button>
                                 </form>
                             </td>
                         </tr>
@@ -163,7 +163,7 @@
             <div class="container py-4">
                 <div class="d-flex justify-content-between mb-3">
                     <h1>Contacts</h1>
-                    <a class="btn btn-primary" href="/my/contacts/new">Add a contact</a>
+                    <a class="btn btn-primary" href="/my/contacts/new"><i class="oi me-1" data-icon="person_add" aria-hidden="true" />Add a contact</a>
                 </div>
                 <p t-if="error" class="alert alert-danger" t-out="error" />
                 <p class="text-muted">The laboratory reaches the default contact about your orders unless you choose another one.</p>
@@ -189,14 +189,14 @@
                                 <td t-out="contact.phone" />
                                 <td class="text-end">
                                     <div class="d-flex justify-content-end gap-2">
-                                        <a class="btn btn-secondary" t-att-href="'/my/contacts/%s' % contact.id">Edit</a>
+                                        <a class="btn btn-secondary" t-att-href="'/my/contacts/%s' % contact.id"><i class="oi me-1" data-icon="edit" aria-hidden="true" />Edit</a>
                                         <form t-if="contact != customer.default_contact_id" t-att-action="'/my/contacts/%s/default' % contact.id" method="post">
                                             <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
-                                            <button type="submit" class="btn btn-secondary">Make default</button>
+                                            <button type="submit" class="btn btn-secondary"><i class="oi me-1" data-icon="star" aria-hidden="true" />Make default</button>
                                         </form>
                                         <form t-att-action="'/my/contacts/%s/remove' % contact.id" method="post">
                                             <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
-                                            <button type="submit" class="btn btn-danger">Remove</button>
+                                            <button type="submit" class="btn btn-danger"><i class="oi me-1" data-icon="delete" aria-hidden="true" />Remove</button>
                                         </form>
                                     </div>
                                 </td>
@@ -235,8 +235,8 @@
                         <input type="tel" name="phone" id="phone" t-att-value="contact.phone" class="form-control" />
                     </div>
                     <div class="col-12 d-flex gap-2">
-                        <button type="submit" class="btn btn-primary">Save</button>
-                        <a class="btn btn-secondary" href="/my/contacts">Discard</a>
+                        <button type="submit" class="btn btn-primary"><i class="oi me-1" data-icon="save" aria-hidden="true" />Save</button>
+                        <a class="btn btn-secondary" href="/my/contacts"><i class="oi me-1" data-icon="close" aria-hidden="true" />Discard</a>
                     </div>
                 </form>
             </div>

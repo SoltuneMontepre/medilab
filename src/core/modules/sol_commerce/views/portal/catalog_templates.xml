@@ -5,7 +5,7 @@
             <div class="container py-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h1>Catalog</h1>
-                    <a class="btn btn-primary" href="/cart"><iconify-icon icon="mdi:cart-outline" class="me-1" aria-hidden="true" />Cart (<t t-out="cart_quantity" />)</a>
+                    <a class="btn btn-primary" href="/cart"><i class="oi me-1" data-icon="shopping_cart" aria-hidden="true" />Cart (<t t-out="cart_quantity" />)</a>
                 </div>
                 <form method="get" action="/catalog" class="row g-2 mb-4">
                     <div class="col-md-3">
@@ -34,7 +34,7 @@
                         <input type="number" name="price_max" class="form-control" placeholder="Max" min="0" t-att-value="price_max" />
                     </div>
                     <div class="col-md-2">
-                        <button type="submit" class="btn btn-secondary"><iconify-icon icon="mdi:filter-outline" class="me-1" aria-hidden="true" />Filter</button>
+                        <button type="submit" class="btn btn-secondary"><i class="oi me-1" data-icon="filter_alt" aria-hidden="true" />Filter</button>
                     </div>
                 </form>
                 <t t-foreach="groups" t-as="entry">
@@ -67,7 +67,7 @@
                                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
                                     <input type="hidden" name="product_tmpl_id" t-att-value="product.id" />
                                     <input type="number" name="quantity" value="1" min="1" class="form-control" style="width: 5rem" />
-                                    <button type="submit" class="btn btn-primary"><iconify-icon icon="mdi:cart-plus" class="me-1" aria-hidden="true" />Add</button>
+                                    <button type="submit" class="btn btn-primary"><i class="oi me-1" data-icon="add_shopping_cart" aria-hidden="true" />Add</button>
                                 </form>
                             </td>
                         </tr>
@@ -110,7 +110,7 @@
                                                 <span class="btn btn-light disabled text-body" t-out="quantity" />
                                                 <button type="submit" name="quantity" t-att-value="quantity + 1" class="btn btn-secondary" title="Increase the quantity" aria-label="Increase the quantity">+</button>
                                             </div>
-                                            <button type="submit" name="quantity" value="0" class="btn btn-danger">Remove</button>
+                                            <button type="submit" name="quantity" value="0" class="btn btn-danger"><i class="oi me-1" data-icon="delete" aria-hidden="true" />Remove</button>
                                         </form>
                                     </td>
                                     <td class="text-end text-nowrap" t-out="line.price_unit * line.product_uom_qty" t-options="{'widget': 'monetary', 'display_currency': order.currency_id}" />
@@ -147,9 +147,9 @@
                         </select>
                     </div>
                     <div class="d-flex flex-wrap gap-2">
-                        <button type="submit" class="btn btn-primary"><iconify-icon icon="mdi:send" class="me-1" aria-hidden="true" />Submit</button>
-                        <button type="submit" class="btn btn-secondary" formaction="/cart/save"><iconify-icon icon="mdi:content-save-outline" class="me-1" aria-hidden="true" />Save as draft</button>
-                        <a class="btn btn-secondary" href="/catalog">Continue</a>
+                        <button type="submit" class="btn btn-primary"><i class="oi me-1" data-icon="send" aria-hidden="true" />Submit</button>
+                        <button type="submit" class="btn btn-secondary" formaction="/cart/save"><i class="oi me-1" data-icon="save" aria-hidden="true" />Save as draft</button>
+                        <a class="btn btn-secondary" href="/catalog"><i class="oi me-1" data-icon="science" aria-hidden="true" />Continue</a>
                     </div>
                 </form>
             </div>
@@ -161,7 +161,7 @@
             <div class="container py-4">
                 <h1>Order submitted</h1>
                 <p>Your order <t t-out="order.name" /> is in the sales queue.</p>
-                <a class="btn btn-secondary" href="/catalog">Back to the catalog</a>
+                <a class="btn btn-secondary" href="/catalog"><i class="oi me-1" data-icon="science" aria-hidden="true" />Back to the catalog</a>
             </div>
         </t>
     </template>
@@ -171,7 +171,7 @@
             <div class="container py-4">
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                     <h1 class="mb-0">My orders</h1>
-                    <a class="btn btn-secondary" href="/catalog"><iconify-icon icon="mdi:flask" class="me-1" aria-hidden="true" />Catalog</a>
+                    <a class="btn btn-secondary" href="/catalog"><i class="oi me-1" data-icon="science" aria-hidden="true" />Catalog</a>
                 </div>
                 <div t-if="saved" class="alert alert-success" role="status">
                     Your draft is saved. It is listed here as Draft and stays in the cart until you submit it.
@@ -251,15 +251,15 @@
                     </div>
                 </t>
                 <div id="order_actions" class="d-flex flex-wrap gap-2 mb-4">
-                    <button t-if="cancel_mode == 'cancel'" type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#order_cancel_dialog">Cancel</button>
-                    <button t-if="cancel_mode == 'request' and not open_request" type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#order_cancellation_dialog">Request cancellation</button>
+                    <button t-if="cancel_mode == 'cancel'" type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#order_cancel_dialog"><i class="oi me-1" data-icon="cancel" aria-hidden="true" />Cancel</button>
+                    <button t-if="cancel_mode == 'request' and not open_request" type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#order_cancellation_dialog"><i class="oi me-1" data-icon="cancel" aria-hidden="true" />Request cancellation</button>
                     <form t-if="open_request" t-att-action="'/orders/%s/cancellation/withdraw' % order.id" method="post">
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
-                        <button type="submit" class="btn btn-secondary">Withdraw request</button>
+                        <button type="submit" class="btn btn-secondary"><i class="oi me-1" data-icon="undo" aria-hidden="true" />Withdraw request</button>
                     </form>
                     <form t-if="order.can_reorder()" t-att-action="'/orders/%s/reorder' % order.id" method="post">
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
-                        <button type="submit" class="btn btn-primary"><iconify-icon icon="mdi:repeat" class="me-1" aria-hidden="true" />Reorder</button>
+                        <button type="submit" class="btn btn-secondary"><i class="oi me-1" data-icon="repeat" aria-hidden="true" />Reorder</button>
                     </form>
                 </div>
                 <div t-if="cancel_mode == 'cancel'" class="modal fade" id="order_cancel_dialog" tabindex="-1" aria-labelledby="order_cancel_title" aria-hidden="true">
@@ -275,7 +275,7 @@
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Keep the order</button>
-                                <button type="submit" class="btn btn-danger">Cancel the order</button>
+                                <button type="submit" class="btn btn-danger"><i class="oi me-1" data-icon="cancel" aria-hidden="true" />Cancel the order</button>
                             </div>
                         </form>
                     </div>
@@ -295,7 +295,7 @@
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button type="submit" class="btn btn-danger">Request cancellation</button>
+                                <button type="submit" class="btn btn-danger"><i class="oi me-1" data-icon="cancel" aria-hidden="true" />Request cancellation</button>
                             </div>
                         </form>
                     </div>
@@ -305,10 +305,10 @@
                 <ul t-if="support_requests">
                     <li t-foreach="support_requests" t-as="support_request">
                         <a t-att-href="'/support/%s' % support_request.id" t-out="support_request.code" />
-                        <t t-out="support_request.subject" /> (<t t-out="statuses[support_request.status]" />)
+                        <t t-out="support_request.subject" /> <t t-call="sol_commerce.support_status" />
                     </li>
                 </ul>
-                <p><a class="btn btn-secondary" t-att-href="'/support/new?order_id=%s' % order.id">Ask for help about this order</a></p>
+                <p><a class="btn btn-secondary" t-att-href="'/support/new?order_id=%s' % order.id"><i class="oi me-1" data-icon="support" aria-hidden="true" />Ask for help about this order</a></p>
                 <h2 class="mt-4" t-if="order.feedback_rating or order.can_give_feedback()">Feedback</h2>
                 <div t-if="order.feedback_rating" class="border rounded p-3 mb-3">
                     <p>Your rating: <t t-out="order.feedback_rating" />/5</p>
@@ -325,7 +325,7 @@
                         </t>
                     </div>
                     <textarea name="comment" class="form-control mb-2" placeholder="Comment" />
-                    <button type="submit" class="btn btn-success">Send feedback</button>
+                    <button type="submit" class="btn btn-success"><i class="oi me-1" data-icon="send" aria-hidden="true" />Send feedback</button>
                 </form>
             </div>
         </t>

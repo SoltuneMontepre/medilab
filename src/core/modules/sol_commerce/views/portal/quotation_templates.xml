@@ -21,7 +21,7 @@
                     </div>
                     <p t-else="" class="mb-0">Advance invoice <t t-out="advance.name" /> is paid.</p>
                     <!-- Paying accepts only a sent quotation, so a declined or expired one offers no payment. -->
-                    <a t-if="advance.amount_residual and quotation.status == 'sent'" class="btn btn-primary" t-att-href="advance_url">Pay the advance</a>
+                    <a t-if="advance.amount_residual and quotation.status == 'sent'" class="btn btn-primary" t-att-href="advance_url"><i class="oi me-1" data-icon="credit_card" aria-hidden="true" />Pay the advance</a>
                 </div>
                 <p t-if="order.payment_deadline and not quotation.advance_invoice_id">Accept the quotation before <t t-out="order.payment_deadline" t-options="{'widget': 'datetime'}" />.</p>
                 <div class="table-responsive">
@@ -61,12 +61,12 @@
                 <p t-if="quotation.decline_reason">Reason for declining: <t t-out="quotation.decline_reason" /></p>
                 <form t-if="quotation.status == 'sent' and not quotation.advance_invoice_id and not revising" t-att-action="'/orders/%s/quotation/accept' % order.id" method="post" class="mb-4">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
-                    <button type="submit" class="btn btn-success">Accept quotation</button>
+                    <button type="submit" class="btn btn-success"><i class="oi me-1" data-icon="check" aria-hidden="true" />Accept quotation</button>
                 </form>
                 <form t-if="quotation.status == 'sent'" t-att-action="'/orders/%s/quotation/decline' % order.id" method="post" class="mb-4">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
                     <textarea name="reason" class="form-control mb-2" placeholder="Reason" required="required" />
-                    <button type="submit" class="btn btn-danger">Decline quotation</button>
+                    <button type="submit" class="btn btn-danger"><i class="oi me-1" data-icon="close" aria-hidden="true" />Decline quotation</button>
                 </form>
                 <h2>Revisions</h2>
                 <div class="table-responsive">
