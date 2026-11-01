@@ -3,14 +3,7 @@ from odoo.tests import tagged
 
 from .order_case import OrderCase
 from odoo.addons.sol_commerce.constants.models import MODEL_CUSTOMER_SALES_TERMS
-from odoo.addons.sol_laboratory.constants.models import (
-    MODEL_PERSON,
-    MODEL_ROLE,
-    MODEL_TASK,
-    MODEL_TASK_TYPE,
-    MODEL_TEST_REQUEST,
-)
-from odoo.addons.sol_laboratory.constants.tasks import SAMPLE_COLLECTION_CODE
+from odoo.addons.sol_laboratory.constants.models import MODEL_TEST_REQUEST
 
 
 @tagged("post_install", "-at_install")
@@ -22,20 +15,6 @@ class TestOrderConfirmation(OrderCase):
         order._latest_quotation()._accept()
         order.with_user(self.sales).action_confirm_order()
         return order
-
-    def route_collection_to_delivery_staff(self):
-        """Route the sample collection task type to a role of sample delivery staff and return its holder."""
-        role = self.env[MODEL_ROLE].create({"code": "qo_delivery", "name": "Sample delivery staff"})
-        self.collection_type().write({"route": "role", "role_id": role.id})
-        return self.env[MODEL_PERSON].create({"name": "Vo Van Tai", "login": "sales.delivery", "role_ids": role.ids})
-
-    def collection_type(self):
-        return self.env[MODEL_TASK_TYPE].search([("code", "=", SAMPLE_COLLECTION_CODE)], limit=1)
-
-    def collection_tasks(self, order):
-        return self.env[MODEL_TASK].search(
-            [("document_model", "=", MODEL_TEST_REQUEST), ("document_id", "=", order.test_request_id.id)]
-        )
 
     def test_confirming_creates_the_test_request_from_the_samples(self):
         order = self.make_quotable_order([(self.lead_product, 2), (self.package_product, 1)])

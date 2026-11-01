@@ -53,11 +53,14 @@ class TestOrderReadScope(OrderCase):
         self.assertEqual(order.order_status, "claimed")
 
     def test_a_reader_cannot_start_the_sample_collection(self):
+        self.route_collection_to_delivery_staff()
         order = self.make_confirmed_order()
 
         with self.assertRaises(AccessError):
             order.with_user(self.other_sales).action_start_sample_collection()
-        self.assertTrue(order.with_user(self.sales).action_start_sample_collection())
+        self.assertFalse(self.collection_tasks(order))
+        order.with_user(self.sales).action_start_sample_collection()
+        self.assertEqual(len(self.collection_tasks(order)), 1)
 
     def _nodes(self, path):
         arch = etree.fromstring(self.env[MODEL_SALE_ORDER].get_view(view_type="form")["arch"])
