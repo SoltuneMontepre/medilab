@@ -297,9 +297,9 @@
                         <list editable="bottom">
                             <field name="sequence" widget="handle" />
                             <field name="customer_sample_name" />
-                            <field name="sample_type_id" />
+                            <field name="sample_type_id" options="{'no_create': True}" />
                             <field name="physical_state" />
-                            <field name="regulation_id" />
+                            <field name="regulation_id" options="{'no_create': True}" />
                             <button name="action_copy_sample" type="object" string="Copy" class="btn-secondary" />
                         </list>
                     </field>
