@@ -1960,6 +1960,7 @@ msgstr "Tạo từ máy tính"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__create_uid
 msgid "Created by"
 msgstr "Người tạo"
@@ -2033,6 +2034,7 @@ msgstr "Người tạo"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__create_date
 msgid "Created on"
 msgstr "Ngày tạo"
@@ -2466,6 +2468,7 @@ msgstr "Cấp dưới trực tiếp"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_reject_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_raise_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_reject_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_user_link_form
 msgid "Discard"
 msgstr "Hủy"
 
@@ -2587,6 +2590,7 @@ msgstr "Hiển thị báo cáo PDF mẫu hóa đơn"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
@@ -3663,6 +3667,7 @@ msgstr "Hr trạng thái hiện diện"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__id
 msgid "ID"
 msgstr "ID"
@@ -4353,6 +4358,7 @@ msgstr "Hoạt động gần nhất"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__write_uid
 msgid "Last Updated by"
 msgstr "Cập nhật lần cuối bởi"
@@ -4426,6 +4432,7 @@ msgstr "Cập nhật lần cuối bởi"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__write_date
 msgid "Last Updated on"
 msgstr "Cập nhật lần cuối vào"
@@ -6340,6 +6347,7 @@ msgstr "Quyền"
 #: model:ir.model,name:sol_laboratory.model_medilab_person
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__person_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__person_id
 msgid "Person"
 msgstr "Nhân Sự"
 
@@ -8585,6 +8593,7 @@ msgstr "Dùng để đăng nhập vào hệ thống"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__user_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__user_id
 msgid "User"
 msgstr "Tài Khoản"
 
@@ -14704,6 +14713,87 @@ msgid ""
 msgstr ""
 "Kết quả của thầu phụ cho %s đang chờ gửi; hãy gửi hoặc cho từ chối kết quả "
 "đó trước khi nhập kết quả khác."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/user_link.py:0
+msgid ""
+"%(user)s already has the employee %(employee)s; leave the person empty to "
+"create a person from that employee."
+msgstr ""
+"%(user)s đã có nhân viên %(employee)s; để trống nhân sự để tạo nhân sự từ "
+"nhân viên đó."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/user_link.py:0
+msgid "%s already signs in as another user."
+msgstr "%s đã đăng nhập bằng một tài khoản khác."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/res_users.py:0
+msgid ""
+"%s can be an internal user only through a person: give a person a login, or "
+"link the user to a person from Unlinked Users."
+msgstr ""
+"%s chỉ có thể là tài khoản nội bộ qua một nhân sự: hãy đặt đăng nhập cho một"
+" nhân sự, hoặc gắn tài khoản với một nhân sự ở Tài Khoản Chưa Gắn Nhân Sự."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/user_link.py:0
+msgid "%s is already linked to a person."
+msgstr "%s đã được gắn với một nhân sự."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_users__has_person
+msgid "Has Person"
+msgstr "Có Nhân Sự"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_user_link_form
+msgid "Link"
+msgstr "Gắn"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_user_link
+msgid "Link a User to a Person"
+msgstr "Gắn Tài Khoản Với Nhân Sự"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_res_users_unlinked_list
+msgid "Link to Person"
+msgstr "Gắn Với Nhân Sự"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_user_link
+msgid "Link to a Person"
+msgstr "Gắn Với Nhân Sự"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_user_link_form
+msgid "New person from the user"
+msgstr "Nhân sự mới từ tài khoản"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_res_users_unlinked
+#: model:ir.ui.menu,name:sol_laboratory.menu_unlinked_users
+msgid "Unlinked Users"
+msgstr "Tài Khoản Chưa Gắn Nhân Sự"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/hr_employee.py:0
+msgid ""
+"Users are created from people: give the person a login in People instead."
+msgstr ""
+"Tài khoản được tạo từ nhân sự: hãy đặt đăng nhập cho nhân sự ở mục Nhân Sự."
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_res_groups
+msgid "Access Groups"
+msgstr "Nhóm Quyền"
 
 #. module: sol_laboratory
 #. odoo-python

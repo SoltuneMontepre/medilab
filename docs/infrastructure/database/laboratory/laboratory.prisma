@@ -1113,6 +1113,8 @@ model Person {
   signatures    Signature[]
   /// Wizards that assign tasks to the person.
   task_reassigns TaskReassign[]
+  /// Wizards that link a user to the person.
+  user_links     UserLink[]
 
   @@index([team_id])
   @@map("medilab_person")
@@ -1189,6 +1191,8 @@ model User {
   file_locks         LaboratoryFileLock[]       @relation("FileLockHolder")
   /// Laboratory file locks the user released as an administrator.
   released_file_locks LaboratoryFileLock[]      @relation("FileLockReleaser")
+  /// Wizards that link the user to a person.
+  person_links       UserLink[]
 
   @@map("res_users")
 }
@@ -1541,6 +1545,22 @@ model Task {
   @@index([document_model, document_id])
   @@index([deadline])
   @@map("medilab_task")
+}
+
+/// Links an internal user no person links to with a person, or creates a person from it. Odoo keeps the wizard only while it is open.
+model UserLink {
+  /// Row identifier.
+  id        Int     @id @default(autoincrement())
+  /// The internal user no person links to.
+  user_id   Int
+  /// The person who signs in as the user from now on; empty to create a person from the user.
+  person_id Int?
+  /// The internal user no person links to.
+  user      User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  /// The person who signs in as the user from now on.
+  person    Person? @relation(fields: [person_id], references: [id], onDelete: SetNull)
+
+  @@map("medilab_user_link")
 }
 
 /// Assigns tasks to a person or moves them to another department's queue. Odoo keeps the wizard only while it is open.
