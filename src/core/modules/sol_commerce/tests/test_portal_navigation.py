@@ -11,7 +11,7 @@ class TestPortalNavigation(PortalCase):
     """The portal keeps the catalog, the orders, support and the account apart, one click away from every page."""
 
     def links(self, path):
-        return self.find(self.tree(path), f"{NAVIGATION}//a/@href")
+        return self.texts(self.tree(path), f"{NAVIGATION}//a/@href")
 
     def test_every_portal_page_links_to_each_section(self):
         order = self.make_order([(self.lead_product, 1)], status="submitted")
@@ -21,8 +21,8 @@ class TestPortalNavigation(PortalCase):
 
     def test_the_current_section_is_marked(self):
         tree = self.tree("/orders")
-        self.assertEqual(self.find(tree, f"{NAVIGATION}//a[contains(@class, 'active')]/@href"), ["/orders"])
-        self.assertEqual(self.find(tree, f"{NAVIGATION}//a[@aria-current='page']/@href"), ["/orders"])
+        self.assertEqual(self.texts(tree, f"{NAVIGATION}//a[contains(@class, 'active')]/@href"), ["/orders"])
+        self.assertEqual(self.texts(tree, f"{NAVIGATION}//a[@aria-current='page']/@href"), ["/orders"])
 
     def test_a_visitor_sees_only_the_catalog(self):
         self.authenticate(None, None)
@@ -30,11 +30,11 @@ class TestPortalNavigation(PortalCase):
 
     def test_the_orders_page_offers_no_support_button(self):
         tree = self.tree("/orders")
-        buttons = self.find(tree, "//main//a[contains(@class, 'btn')]/@href")
+        buttons = self.texts(tree, "//main//a[contains(@class, 'btn')]/@href")
         self.assertNotIn("/support", buttons)
 
     def test_the_portal_home_shows_a_support_card(self):
-        cards = self.find(
+        cards = self.texts(
             self.tree("/my"),
             "//div[contains(@class, 'o_portal_index_card') and not(contains(@class, 'd-none'))]/a/@href",
         )
@@ -46,7 +46,7 @@ class TestPortalNavigation(PortalCase):
             with self.subTest(name=name):
                 select = self.find(tree, f"//select[@name='{name}']")[0]
                 self.assertIn("o_medilab_catalog_filter", select.get("class"))
-                self.assertEqual(self.find(select, "./option[@value='']/text()"), [label])
+                self.assertEqual(self.texts(select, "./option[@value='']/text()"), [label])
 
     def test_portal_action_buttons_show_an_icon(self):
         self.post("/catalog/add", "/catalog", product_tmpl_id=self.lead_product.id, quantity=1)
