@@ -137,4 +137,6 @@ def migrate(cr, _version):
 
 
 def _invalid(lod, loq):
-    return (lod is not None and lod < 0) or (loq is not None and loq < 0) or (None not in (lod, loq) and lod > loq)
+    if lod is not None and loq is not None and lod > loq:
+        return True
+    return (lod is not None and lod < 0) or (loq is not None and loq < 0)
