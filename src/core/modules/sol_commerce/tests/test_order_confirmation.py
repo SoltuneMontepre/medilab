@@ -120,8 +120,8 @@ class TestOrderConfirmation(OrderCase):
         self.assertFalse(task.assignee_id)
         self.assertFalse(task.department_id)
         self.assertFalse(task.planned_start)
-        self.assertIn(order.name, task.name)
-        self.assertIn("12 Nguyen Hue", task.note)
+        self.assertIn(order.name, task.name or "")
+        self.assertIn("12 Nguyen Hue", task.note or "")
         self.assertTrue(task._claimable_by(staff))
         self.assertFalse(task._claimable_by(self.sales_person))
         with self.assertRaises(UserError):
