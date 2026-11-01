@@ -8,8 +8,11 @@ metadata:
 spec:
   valuesContent: |-
     service:
-      type: ClusterIP
+      spec:
+        type: ClusterIP
     ports:
+      websecure:
+        port: 9443
       onlyofficecallback:
         port: 8443
         expose:
