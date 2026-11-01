@@ -70,6 +70,17 @@ class TestQuotationPortal(AuditLookup, HttpCase, OrderCase):
         self.assertIn(self.quotation.sudo().advance_invoice_id.name, response.text)
         self.assertNotIn("Pay the advance", response.text)
 
+    def test_a_paid_advance_with_an_unpaid_raising_adjustment_shows_what_is_owed(self):
+        advance = self.quotation.sudo().advance_invoice_id
+        self.env["account.payment"].create_pending_payment(advance, advance.amount_residual, "cash").action_post()
+        advance.action_adjust(500_000)
+
+        response = self.page()
+
+        self.assertEqual((advance.amount_residual, advance.amount_owed), (0, 500_000))
+        self.assertIn(f"Advance invoice {advance.name}:", response.text)
+        self.assertNotIn(f"Advance invoice {advance.name} is paid.", response.text)
+
     def test_a_revision_shows_the_replaced_banner_and_the_list(self):
         self.order.with_user(self.sales).action_revise_quotation()
         self.order.with_user(self.sales).action_send_quotation()
