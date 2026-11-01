@@ -1,6 +1,8 @@
 import logging
 import threading
+from collections.abc import Callable, Mapping
 from contextlib import ExitStack
+from typing import Any
 from unittest.mock import patch
 
 import psycopg2
@@ -9,12 +11,16 @@ import psycopg2.errorcodes
 from odoo import sql_db
 from odoo.exceptions import ConcurrencyError, UserError
 from odoo.http.retrying import retrying
+from odoo.models import BaseModel
 from odoo.tools import SQL, mute_logger
 
 from .scheduling_committed_case import SchedulingCommittedCase
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
 
 _logger = logging.getLogger(__name__)
-NAMES = ("first", "second")
+NAMES: tuple[str, str] = ("first", "second")
+# Whether a call of the boundary method, given its records and positional arguments, is where a thread stops.
+BoundaryPredicate = Callable[[BaseModel, tuple[Any, ...]], bool]
 # The database conflicts after which request retrying runs a transaction again, as race evidence names them.
 RETRIED_CONFLICTS = frozenset({"SERIALIZATION_FAILURE", "DEADLOCK_DETECTED"})
 WAIT_SECONDS = 15
@@ -27,12 +33,12 @@ class SchedulingConcurrencyCase(SchedulingCommittedCase):
         self,
         first_action,
         second_action,
-        model=None,
-        method=None,
-        boundary=None,
+        model: str | None = None,
+        method: str | None = None,
+        boundary: BoundaryPredicate | None = None,
         *,
-        boundaries=None,
-        commits_first=None,
+        boundaries: Mapping[str, tuple[str, str, BoundaryPredicate]] | None = None,
+        commits_first: str | None = None,
     ):
         """Synchronize both real transactions at their production boundaries, then let request retrying resolve them.
 
@@ -42,7 +48,7 @@ class SchedulingConcurrencyCase(SchedulingCommittedCase):
         transaction commits while the other is open past its boundary. self.race_evidence keeps how the race ran.
         """
         if boundaries is None:
-            if boundary is None:
+            if model is None or method is None or boundary is None:
                 raise ValueError("A race needs one boundary for both threads or one per thread")
             boundaries = dict.fromkeys(NAMES, (model, method, boundary))
         gate = threading.Barrier(2, timeout=WAIT_SECONDS)
@@ -121,7 +127,7 @@ class SchedulingConcurrencyCase(SchedulingCommittedCase):
             stack.enter_context(patch("odoo.orm.environments.Registry", loaded_registry))
             stack.enter_context(mute_logger("odoo.sql_db", "odoo.http"))
             for target in {boundary_[:2] for boundary_ in boundaries.values()}:
-                model_class = type(self.env[target[0]])
+                model_class = type(dynamic_model(self.env, target[0]))
                 real_method = getattr(model_class, target[1])
                 stack.enter_context(patch.object(model_class, target[1], synchronized(target, real_method)))
             self.workers = [
