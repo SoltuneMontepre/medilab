@@ -15,7 +15,7 @@
         <t t-set="active_language" t-value="frontend_languages.get(request.env.lang)" />
         <li t-if="len(frontend_languages) &gt; 1" class="nav-item dropdown o_medilab_language_switcher">
             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false">
-                <iconify-icon icon="mdi:web" class="me-1" role="img" aria-label="Language" title="Language" />
+                <i class="oi me-1" data-icon="translate" role="img" aria-label="Language" title="Language" />
                 <span t-if="active_language" t-out="active_language.name.split('/')[-1].strip()" />
             </a>
             <div class="dropdown-menu dropdown-menu-end" role="menu">

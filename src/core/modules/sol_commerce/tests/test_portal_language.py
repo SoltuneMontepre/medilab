@@ -1,8 +1,10 @@
+from unittest.mock import patch
 from urllib.parse import urlsplit
 
 from odoo.tests import tagged
 
 from .portal_case import PortalCase
+from odoo.addons.sol_laboratory.constants.models import MODEL_RES_USERS
 
 ENGLISH = "en_US"
 VIETNAMESE = "vi_VN"
@@ -62,11 +64,38 @@ class TestPortalLanguage(PortalCase):
         self.assertEqual(self.portal.lang, ENGLISH)
 
     def test_switching_never_leaves_the_portal(self):
-        response = self.switch(VIETNAMESE, "https://elsewhere.example/my")
+        for redirect in ("https://elsewhere.example/my", "//elsewhere.example/my", "/\\elsewhere.example/my"):
+            with self.subTest(redirect=redirect):
+                location = self.switch(VIETNAMESE, redirect).headers["Location"]
+                self.assertNotEqual(urlsplit(location).netloc, "elsewhere.example")
+                self.assertFalse(urlsplit(location).path.startswith(("//", "/\\")))
 
-        location = urlsplit(response.headers["Location"])
-        self.assertNotEqual(location.netloc, "elsewhere.example")
-        self.assertEqual(location.path, "/my")
+    def test_a_visitor_keeps_the_choice_in_the_browser_only(self):
+        public = self.env.ref("base.public_user")
+        public_lang = public.lang
+        self.authenticate(None, None)
+
+        response = self.post("/my/language", "/catalog", lang=VIETNAMESE, redirect="/catalog")
+        self.env.invalidate_all()
+
+        self.assertEqual(response.status_code, 303)
+        self.assertEqual(self.opener.cookies.get("frontend_lang"), VIETNAMESE)
+        self.assertEqual(public.lang, public_lang)
+        self.assertEqual(self.portal.lang, ENGLISH)
+
+    def test_an_unchanged_language_is_not_written(self):
+        users = type(self.env[MODEL_RES_USERS])
+        write = users.write
+        written = []
+
+        def spy(records, vals):
+            written.append(vals)
+            return write(records, vals)
+
+        with patch.object(users, "write", spy):
+            self.switch(ENGLISH, "/my")
+
+        self.assertFalse([vals for vals in written if "lang" in vals])
 
     def test_an_unknown_language_changes_nothing(self):
         self.switch("xx_XX", "/my")
