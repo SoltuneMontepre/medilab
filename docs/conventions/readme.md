@@ -10,7 +10,7 @@ Code conventions for agents and the system.
 - [Database](database.md): model naming, fields, relationships, constraints
 - [Testing](testing.md): test layers, locations and the commands that run them
 - [Demo data](demo_data.md): the demo records every feature adds to the `sol_demo` module
-- [Git](git.md): branch names and pull request titles that CI accepts
+- [Git](git.md): branch names and pull request titles that CI accepts, and merging through the merge queue
 - [Pipelines](pipeline.md): how GitHub Actions workflows are written: names, change detection, jobs, images, secrets
 - [Cloud network](cloud_network.md): hosts, Docker builds and the setup script of a cloud session behind its proxy
 - [Taskfiles](taskfiles.md): task layout, shell rules, scripts, colored output helpers

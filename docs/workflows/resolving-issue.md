@@ -26,6 +26,7 @@ How an open feature issue is implemented, checked in the browser and opened as a
    - Commit and push. The title follows [Git](../conventions/git.md): `[feat] | #<issue number> <title>`.
    - The body summarises what was built, contains `Closes #<issue number>`, and says what was tested: the test run and the acceptance criteria checked in the browser.
    - Then follow [Creating a pull request](creating-pr.md) until the pipelines pass and SonarQube reports no issue.
+   - Once it is approved, select **Merge when ready**, as [Git](../conventions/git.md#merging) says; do not update the branch with `main` by hand.
 11. **Unblock the issues that wait for this one**, once the pull request is finished: pipelines pass, SonarQube reports no issue and the pull request is merged.
     - Find the open issues that name this issue in their `Depends on:` line: `gh issue list --state open --search "Depends on: #<issue number>" --json number,body`.
     - Remove `#<issue number>` from each one's `Depends on:` line, and remove the line when nothing is left. Update the issue with `gh issue edit <number> --body-file <file>`.
