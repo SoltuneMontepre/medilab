@@ -83,7 +83,7 @@ flowchart TD
 - **Starts from:** a confirmed order whose test request expects its samples.
 - **Main path:** The customer brings the samples; sample delivery staff adjust the calculated expected samples to the actual handover, record conditions and differences, obtain the customer's signature, print labels and hand samples to their departments.
 - **Alternative paths:**
-  - WF-02-A1: Sample delivery staff collect the samples at the customer's site from their collection task, take photos through the web interface and obtain the customer's confirmation signature. Collection feasibility includes the configurable travel buffer, 60 minutes by default.
+  - WF-02-A1: Sample delivery staff claim the collection task sales started on the confirmed order and collect the samples at the customer's site, take photos through the web interface and obtain the customer's confirmation signature. Collection feasibility includes the configurable travel buffer, 60 minutes by default.
   - WF-02-A2: Sample delivery staff create a test request at reception for a customer without an order; it skips the paid step.
   - WF-02-A3: A sample tested by two departments is handed to both, and each records its own receipt.
 - **Exceptions:**

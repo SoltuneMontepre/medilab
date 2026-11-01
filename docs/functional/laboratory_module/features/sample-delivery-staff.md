@@ -42,7 +42,7 @@ Sample collection tasks follow [SH-10](../../shared.md#sh-10-tasks-and-to-do-lis
 
 | Rule           | Description                                                                                                       |
 | -------------- | ----------------------------------------------------------------------------------------------------------------- |
-| Scheduled task | Sales schedules a sample collection task on an order. A head of department's request to collect a sample again schedules one too. |
+| Scheduled task | Sales schedules a sample collection task on a confirmed order with **Start sample collection**: one task of the order's test request, in the shared queue of sample delivery staff, with the customer's address as its place and no time. Sample delivery staff claim it and plan its time. An order has at most one open collection task. The administrator routes the Sample collection task type to the role of sample delivery staff. A head of department's request to collect a sample again schedules one too. |
 | Travel time | Reserve a configurable travel buffer between collection appointments, 60 minutes by default, when checking whether the staff member can take them. |
 | Done by hand   | The task is marked done once the samples are collected.                                                           |
 | Photos | Attach sample photos through the web interface when collecting or receiving a sample. Testers never see them. |
@@ -53,6 +53,7 @@ Sample collection tasks follow [SH-10](../../shared.md#sh-10-tasks-and-to-do-lis
 Acceptance criteria:
 
 - A collection task assigned to sample delivery staff appears on their personal schedule and in their to-do list.
+- Starting sample collection on a confirmed order queues one unassigned collection task for sample delivery staff, and starting it again while that task is open is refused.
 - A reminder arrives before the collection starts.
 - A collection task created by a request to collect again shows the sample it is for.
 - A photo attached at collection appears only to readers who may see the customer's sample name; testers cannot see it.

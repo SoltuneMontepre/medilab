@@ -180,7 +180,7 @@ stateDiagram-v2
 | Confirm        | Confirming does not wait for payment. An order with no payment shows a warning, because the customer may have an agreement. A confirmed order needs no approval. |
 | Credit gate    | The laboratory core cannot confirm the test request of an order that has no payment unless the customer is marked as allowed to order on credit. Only the Head of Sales sets that flag. |
 | Frozen content | From confirmation, the order's customer, prices, validity date, parameters and ways change only through a revised quotation the customer accepts. Once the order is completed, a [change request](../../shared.md#sh-07-signed-documents-are-locked) is needed. |
-| Collection     | **Start sample collection** is available once the order is confirmed. |
+| Collection     | **Start sample collection** is available once the order is confirmed. It queues one sample collection task of the order's test request for sample delivery staff, at the customer's address; they claim it and plan its time. An order has at most one open collection task. |
 
 Acceptance criteria:
 

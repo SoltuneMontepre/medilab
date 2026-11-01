@@ -25,6 +25,7 @@ from . import (
     test_order_history,
     test_order_offering,
     test_order_page,
+    test_order_paid_step_migration,
     test_order_read_scope,
     test_order_samples,
     test_order_tasks,

@@ -1284,6 +1284,12 @@ msgid "Order"
 msgstr "Đơn Hàng"
 
 #. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid "Order %s already has an open sample collection task."
+msgstr "Đơn hàng %s đã có một nhiệm vụ lấy mẫu đang mở."
+
+#. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__order_can_edit
 msgid "Order Can Edit"
 msgstr "Có thể sửa đơn hàng"
@@ -1763,6 +1769,12 @@ msgstr "Bản Sửa Đổi"
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 msgid "Revisions"
 msgstr "Các Bản Sửa Đổi"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid "Route the %s task type to the role of sample delivery staff first."
+msgstr "Hãy đặt nơi nhận của loại nhiệm vụ %s là vai trò nhân viên giao nhận mẫu trước."
 
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__source__sales
@@ -4491,6 +4503,13 @@ msgstr "Mẫu của đơn hàng này đã được thu, nên việc hủy đơn 
 #: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
 msgid "The order must be confirmed before the samples are collected."
 msgstr "Đơn hàng phải được xác nhận trước khi thu mẫu."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid ""
+"The sample collection task waits in the queue of sample delivery staff."
+msgstr "Nhiệm vụ lấy mẫu đang chờ trong hàng đợi của nhân viên giao nhận mẫu."
 
 #. module: sol_commerce
 #. odoo-python
