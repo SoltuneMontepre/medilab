@@ -15,7 +15,7 @@
                     This quotation is being revised. Its items are shown again when the new revision is sent.
                 </div>
                 <div t-if="advance and not revising" class="alert alert-info d-flex flex-wrap align-items-center justify-content-between gap-2" role="alert">
-                    <div t-if="advance.amount_residual">
+                    <div t-if="advance.amount_residual or advance.amount_owed &gt; 0">
                         <p class="mb-1">Advance invoice <t t-out="advance.name" />: <span t-field="advance.amount_owed" t-options='{"widget": "monetary", "display_currency": advance.currency_id}' /></p>
                         <p t-if="order.payment_deadline and quotation.status == 'sent'" class="mb-0">Pay the advance before <t t-out="order.payment_deadline" t-options="{'widget': 'datetime'}" />.</p>
                     </div>

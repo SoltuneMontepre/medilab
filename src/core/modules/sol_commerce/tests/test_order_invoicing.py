@@ -2,7 +2,7 @@ from odoo.exceptions import AccessError, UserError
 from odoo.tests import tagged
 
 from .order_case import OrderCase
-from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ADVANCE_PAYMENT_INV
+from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ADVANCE_PAYMENT_INV, MODEL_SALE_ORDER
 
 
 @tagged("post_install", "-at_install")
@@ -13,7 +13,7 @@ class TestOrderInvoicing(OrderCase):
         dialog = (
             self.env[MODEL_SALE_ADVANCE_PAYMENT_INV]
             .with_user(user)
-            .with_context(active_model="sale.order", active_ids=orders.ids)
+            .with_context(active_model=MODEL_SALE_ORDER, active_ids=orders.ids)
             .create(values or {"advance_payment_method": "percentage", "amount": 10})
         )
         return dialog.create_invoices()
