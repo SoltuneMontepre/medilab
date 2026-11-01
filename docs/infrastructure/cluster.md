@@ -82,7 +82,7 @@ External Secrets reads the Doppler `infra` config through the `doppler` `Cluster
 - Every sync of the `odoo` application runs, in order:
   1. A `PreSync` hook: the `medilab-db-pre-sync` on-demand `Backup`, which must complete.
   2. A `Sync` hook: the `odoo-upgrade` Job, which installs `sol_laboratory`, `sol_commerce`, `sol_inventory`, `sol_theme` and `sol_demo` when missing and upgrades every installed module. `MEDILAB_DEMO_PASSWORD` is not set, so the `demo.<role>` users keep the password `demo`. It does not retry; a failure fails the sync.
-  3. The rolling update of the `odoo` Deployment, one replica at a time, with `maxSurge: 1`, `maxUnavailable: 0` and a `progressDeadlineSeconds` of 10 minutes.
+  3. The update of the `odoo` Deployment with a `progressDeadlineSeconds` of 10 minutes. The base configuration uses `maxSurge: 1` and `maxUnavailable: 0`; the active editor demo overlay uses `maxSurge: 0` and `maxUnavailable: 1` to fit Server A, with a brief interruption during replacement.
 - Each hook is replaced at the next sync, so the last backup and Job stay readable until then.
 
 ## Mailpit
@@ -106,9 +106,9 @@ External Secrets reads the Doppler `infra` config through the `doppler` `Cluster
 - The PVC's live Argo CD annotations must contain `Prune=false,Delete=false`. Adding them to an existing bound claim must retain its UID; new claims receive them at creation. They protect Argo-managed prune/application deletion only after application, not manual/namespace deletion, storage loss, force/replace or unrelated controllers. Verify the installed Argo version and actual live annotations; keep independent backups.
 - `main` is watched by auto-sync with prune/self-heal, so merging is a deployment action. Use the reviewed Git reconciliation hold, cold backup, clone validation and staged rollout in [CloudBeaver recovery](../workflows/cloudbeaver-recovery.md) before merging the application change. Keep the claim name, class, mount and image version unchanged. Recovery Jobs do not belong in the normal application Kustomization.
 
-## ONLYOFFICE candidates
+## ONLYOFFICE
 
-The manual `applications/onlyoffice.yaml` and `applications/onlyoffice-monitor.yaml` are kept outside the root resource list until acceptance. `onlyoffice/` pins 9.4.0.1 by digest with a protected 40 GiB claim, TLS, ExternalSecret and restrictive policies. `onlyoffice-integration/` is the gated Odoo variant; `onlyoffice-edge/` defines the internal callback boundary. No unrestricted bucket egress is supplied. Follow [ONLYOFFICE deployment and recovery](onlyoffice.md) to validate and activate them together; Odoo readiness stays independent.
+The root registers manual `applications/onlyoffice.yaml` and `applications/onlyoffice-monitor.yaml` for demo data and automatically reconciles `onlyoffice-edge.yaml`. `onlyoffice/` pins 9.4.0.1 by digest with a protected 40 GiB claim, TLS, ExternalSecret and restrictive policies. The editor application uses `onlyoffice-demo/` for memory sizing and HTTPS egress to the configured bucket's current public IP. Odoo uses `onlyoffice-demo-odoo/`, deriving `onlyoffice-integration/` with a rollout that creates no surge pod. `onlyoffice-edge/` defines the internal callback boundary. Follow [ONLYOFFICE deployment and recovery](onlyoffice.md) for bootstrap order, manual sync and the gates before using real data; Odoo readiness stays independent.
 
 ## Logs
 

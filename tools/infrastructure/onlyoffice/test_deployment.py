@@ -3,6 +3,7 @@
 import base64
 import hashlib
 import hmac
+import ipaddress
 import json
 import os
 import re
@@ -322,13 +323,48 @@ class TestDeployment(unittest.TestCase):
         self.assertIn("--max-time 1860", script)
         self.assertIn("--noproxy '*'", script)
 
-    def test_no_automatic_activation(self):
+    def test_demo_activation_keeps_document_server_manually_synced(self):
         root = yaml.safe_load((ROOT / "infra/cluster/kustomization.yaml").read_text())
         for name in ["onlyoffice", "onlyoffice-monitor"]:
-            self.assertNotIn(f"applications/{name}.yaml", root["resources"])
+            self.assertIn(f"applications/{name}.yaml", root["resources"])
             application = yaml.safe_load((ROOT / f"infra/cluster/applications/{name}.yaml").read_text())
             self.assertNotIn("automated", application["spec"]["syncPolicy"])
             self.assertTrue((ROOT / application["spec"]["source"]["path"]).is_dir())
+
+    def test_demo_bucket_egress_is_public_and_limited_to_https(self):
+        resources = render("infra/cluster/onlyoffice-demo")
+        policy = named(resources, "NetworkPolicy", "onlyoffice-demo-bucket")["spec"]
+        self.assertEqual(policy["podSelector"], {"matchLabels": {"app.kubernetes.io/name": "onlyoffice"}})
+        self.assertEqual(policy["policyTypes"], ["Egress"])
+        self.assertEqual(len(policy["egress"]), 1)
+        rule = policy["egress"][0]
+        self.assertEqual(rule["ports"], [{"protocol": "TCP", "port": 443}])
+        self.assertTrue(rule["to"])
+        for peer in rule["to"]:
+            network = ipaddress.ip_network(peer["ipBlock"]["cidr"])
+            self.assertTrue(network.is_global)
+            self.assertEqual(network.num_addresses, 1)
+        container = named(resources, "Deployment", "onlyoffice")["spec"]["template"]["spec"]["containers"][0]
+        self.assertEqual(container["resources"]["requests"]["memory"], "3Gi")
+        self.assertEqual(container["resources"]["limits"]["memory"], "4Gi")
+
+    def test_demo_odoo_rollouts_fit_without_a_surge_pod(self):
+        resources = render("infra/cluster/onlyoffice-demo-odoo")
+        deployment = named(resources, "Deployment", "odoo")["spec"]
+        self.assertEqual(deployment["replicas"], 1)
+        self.assertEqual(deployment["strategy"]["rollingUpdate"], {"maxSurge": 0, "maxUnavailable": 1})
+        env = deployment["template"]["spec"]["containers"][0]["env"]
+        self.assertIn("ONLYOFFICE_JWT_SECRET", [item["name"] for item in env])
+        source = yaml.safe_load((ROOT / "infra/cluster/applications/odoo.yaml").read_text())["spec"]["source"]
+        self.assertEqual(source["path"], "infra/cluster/onlyoffice-demo-odoo")
+
+    def test_managed_traefik_configuration_matches_callback_policy(self):
+        text = (ROOT / "infra/ansible/roles/k3s/templates/traefik-config.yaml.j2").read_text()
+        managed = yaml.safe_load(yaml.safe_load(text)["spec"]["valuesContent"])
+        candidate = yaml.safe_load((ROOT / "infra/cluster/onlyoffice-edge/traefik-values.yaml").read_text())
+        self.assertEqual(managed["ports"]["onlyofficecallback"], candidate["ports"]["onlyofficecallback"])
+        self.assertEqual(managed["logs"], candidate["logs"])
+        self.assertEqual(managed["service"]["type"], "ClusterIP")
 
     def test_private_routes_have_no_trace_or_access_logs(self):
         for resources, name in [(self.server, "onlyoffice"), (self.odoo, "onlyoffice-callback")]:

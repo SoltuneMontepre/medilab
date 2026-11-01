@@ -12,7 +12,7 @@ spec:
   source:
     repoURL: https://github.com/SoltuneMontepre/medilab.git
     targetRevision: main
-    path: infra/cluster/odoo
+    path: infra/cluster/onlyoffice-demo-odoo
   destination:
     server: https://kubernetes.default.svc
     namespace: medilab
