@@ -1,3 +1,4 @@
+from typing import Any, cast
 from urllib.parse import urlsplit
 
 from odoo import http
@@ -27,7 +28,8 @@ class PortalLanguage(http.Controller):
             # Pages that are not frontend pages take the language the session got at sign-in.
             request.session.context = {**(request.session.context or {}), "lang": code}
         # The frontend sets this cookie to the page's language on the future response; set there, the choice wins.
-        request.future_response.set_cookie(LANGUAGE_COOKIE, code)
+        # Odoo copies werkzeug's signature onto FutureResponse.set_cookie, which the type checker reads as unbound.
+        cast("Any", request.future_response).set_cookie(LANGUAGE_COOKIE, code)
         return response
 
     def _back(self, redirect):
