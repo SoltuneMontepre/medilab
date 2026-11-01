@@ -17,6 +17,11 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.language_switcher
+msgid "<i class=\"oi me-1\" data-icon=\"translate\" role=\"img\" aria-label=\"Language\" title=\"Language\"/>"
+msgstr "<i class=\"oi me-1\" data-icon=\"translate\" role=\"img\" aria-label=\"Ngôn ngữ\" title=\"Ngôn ngữ\"/>"
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 msgid "<span class=\"text-muted\">Customer sees</span>"
 msgstr "<span class=\"text-muted\">Khách hàng thấy</span>"
@@ -3225,7 +3230,6 @@ msgstr "Tôi đăng ký với tư cách"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
-#: model_terms:ir.ui.view,arch_db:sol_commerce.language_switcher
 msgid "Language"
 msgstr "Ngôn ngữ"
 
