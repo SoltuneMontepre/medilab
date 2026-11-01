@@ -84,7 +84,7 @@ class TestOrderForm(OrderCase):
         for name in ("sample_type_id", "regulation_id"):
             with self.subTest(name=name):
                 field = self._nodes("//page[@name='samples']//field[@name=$name]", name=name)[0]
-                self.assertTrue(literal_eval(field.get("options")).get("no_create"))
+                self.assertTrue(literal_eval(assert_instance(field.get("options"), str)).get("no_create"))
 
     def test_vietnamese_tells_customer_and_contact_apart(self):
         fields = self.env[MODEL_SALE_ORDER].with_context(lang="vi_VN").fields_get(["customer_id", "partner_id"])
