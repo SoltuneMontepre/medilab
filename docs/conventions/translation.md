@@ -7,6 +7,7 @@
 - Vietnamese terms for domain concepts come from the [glossaries](../glossaries.md). Do not translate a glossary term differently in a module.
 - A change to a user-facing string updates `i18n/vi.po` in the same change. Regenerate the template with `odoo i18n export -d <db> -o <module>/i18n/<module>.pot <module>` inside the Odoo container, then fill in the Vietnamese `msgstr`.
 - `TestTranslations` in `sol_laboratory` lists every user-facing string of an installed `sol_` module that its `i18n/vi.po` does not translate, and fails. It runs with `task test:core`, so a missing translation fails CI.
+- A view string of an Odoo module that Odoo does not translate to Vietnamese is translated in `i18n_extra/vi.po` of the `sol_` module that depends on that Odoo module: `sol_laboratory` for `portal` and `auth_signup`, `sol_commerce` for `account` and `payment`. Odoo loads it with the module; each entry names the Odoo view it translates. Strings in Odoo's Python or JavaScript take translations only from their own module, so they cannot be translated this way.
 - Check a translation by upgrading the module and switching your language to Vietnamese in your preferences.
 - E-mails and reports are rendered in the recipient's language, as Odoo does: a template without a language uses its main recipient's contact language. A report sets `t-lang` to the customer's contact language.
 
