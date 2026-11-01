@@ -8,6 +8,7 @@ from odoo.addons.sol_commerce.constants.models import MODEL_PRODUCT_TEMPLATE, MO
 from odoo.addons.sol_commerce.constants.orders import SOURCE_PORTAL, STATUS_DRAFT
 from odoo.addons.sol_commerce.constants.xml_ids import PUBLIC_PARTNER
 from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER
+from odoo.addons.sol_laboratory.constants.routes import FRONTEND_PAGE
 from odoo.addons.sol_laboratory.services.request_env import request_env
 
 CART_SESSION = "medilab_cart_id"
@@ -16,7 +17,7 @@ ORDERS_PATH = "/orders"
 
 
 class Catalog(http.Controller):
-    @http.route("/catalog", type="http", auth="public")
+    @http.route("/catalog", type="http", auth="public", **FRONTEND_PAGE)
     def catalog(self, sample_type=None, group=None, name=None, price_min=None, price_max=None, **kwargs):
         products = request_env()[MODEL_PRODUCT_TEMPLATE]
         sample_types = products.catalog_filters()["sample_types"]
@@ -52,7 +53,7 @@ class Catalog(http.Controller):
             return request.redirect(f"/catalog?error={quote(str(error))}")
         return request.redirect(CART_PATH)
 
-    @http.route(CART_PATH, type="http", auth="public")
+    @http.route(CART_PATH, type="http", auth="public", **FRONTEND_PAGE)
     def cart(self, error=None, **kwargs):
         order = self._cart()
         contacts = order._contact_choices() if order else request_env()["res.partner"]
