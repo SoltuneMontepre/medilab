@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_resource_calendar_leaves_new_year" model="resource.calendar.leaves">
+        <field name="name">Tết Dương lịch</field>
+        <field name="date_from">2026-12-31 17:00:00</field>
+        <field name="date_to">2027-01-01 16:59:59</field>
+    </record>
+    <!-- The laboratory works on this public holiday, so it counts as working time. -->
+    <record id="demo_resource_calendar_leaves_reunification_day" model="resource.calendar.leaves">
+        <field name="name">Ngày Giải phóng miền Nam</field>
+        <field name="date_from">2027-04-29 17:00:00</field>
+        <field name="date_to">2027-04-30 16:59:59</field>
+        <field name="count_as">working_time</field>
+    </record>
+</odoo>

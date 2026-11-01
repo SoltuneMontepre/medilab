@@ -1318,6 +1318,11 @@ msgid "Callback Token"
 msgstr "Mã gọi lại"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__can_change_due_date
+msgid "Can Change Due Date"
+msgstr "Có Thể Đổi Hạn Hoàn Thành"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__can_reject
 msgid "Can Reject"
 msgstr "Được Từ Chối"
@@ -1382,9 +1387,31 @@ msgid "Chain"
 msgstr "Chuỗi"
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_due_date_change_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "Change Due Date"
+msgstr "Đổi hạn hoàn thành"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_sample_test_due_date_change
+msgid "Change a Sample Test's Due Date"
+msgstr "Đổi Hạn Hoàn Thành Của Chỉ Tiêu Của Mẫu"
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_approval_chain__purpose__change_request
 msgid "Change request"
 msgstr "Yêu cầu thay đổi"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_sample_test_due_date_change
+msgid "Change the Due Date"
+msgstr "Đổi hạn hoàn thành"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_due_date.py:0
+msgid "Change the due date of a sample test with Change Due Date."
+msgstr "Đổi hạn hoàn thành của chỉ tiêu bằng nút Đổi hạn hoàn thành."
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__channel_member_ids
@@ -1687,6 +1714,11 @@ msgid "Contract Template"
 msgstr "Hợp đồng mẫu"
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_resource_calendar_leaves_public_holiday_list
+msgid "Count As"
+msgstr "Tính là"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__message_bounce
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__message_bounce
 msgid "Counter of the number of bounced emails for this contact"
@@ -1918,6 +1950,7 @@ msgstr "Tạo từ máy tính"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__create_uid
@@ -1994,6 +2027,7 @@ msgstr "Người tạo"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__create_date
@@ -2463,6 +2497,7 @@ msgstr "Cấp dưới trực tiếp"
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_scan_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_cancel_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_due_date_change_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_reassign_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_reject_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_outsource_form
@@ -2541,6 +2576,7 @@ msgstr "Hiển thị báo cáo PDF mẫu hóa đơn"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__display_name
@@ -2730,8 +2766,25 @@ msgstr "Đến hạn %s"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__due_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__due_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__due_date
 msgid "Due Date"
 msgstr "Hạn hoàn thành"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__due_date_conflict
+msgid "Due Date Conflict"
+msgstr "Xung Đột Hạn Hoàn Thành"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__due_date_reason
+msgid "Due Date Reason"
+msgstr "Lý Do Đổi Hạn Hoàn Thành"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__due_on_non_working_day
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__due_on_non_working_day
+msgid "Due On Non Working Day"
+msgstr "Hạn Vào Ngày Nghỉ"
 
 #. module: sol_laboratory
 #. odoo-javascript
@@ -3429,6 +3482,12 @@ msgstr "Hãy cấp quyền cho vai trò từ vai trò, và cho nhân sự từ n
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_due_date.py:0
+msgid "Give a reason for changing the due date."
+msgstr "Nhập lý do đổi hạn hoàn thành."
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/tasks/task.py:0
 msgid "Give a reason for moving %s to another person or department."
 msgstr "Nhập lý do chuyển %s cho người hoặc phòng ban khác."
@@ -3623,6 +3682,7 @@ msgstr "Hr trạng thái hiện diện"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__id
@@ -4328,6 +4388,7 @@ msgstr "Hoạt động gần nhất"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__write_uid
@@ -4404,6 +4465,7 @@ msgstr "Cập nhật lần cuối bởi"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__write_date
@@ -5198,6 +5260,14 @@ msgstr "Chỉ nhân sự thuộc phòng ban đã thực hiện công việc mớ
 #: code:addons/sol_laboratory/models/tasks/task.py:0
 msgid "Only the assignee of %s can do this."
 msgstr "Chỉ người thực hiện %s mới có thể làm việc này."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_due_date.py:0
+msgid ""
+"Only the head of the department testing %s changes its due date, until its "
+"result is entered."
+msgstr "Chỉ trưởng phòng của phòng ban đang thử nghiệm %s mới đổi được hạn hoàn thành, cho đến khi nhập kết quả."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -6522,6 +6592,17 @@ msgid "Public Date of Birth"
 msgstr "Ngày sinh công khai"
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_resource_calendar_leaves_public_holiday_list
+msgid "Public Holiday"
+msgstr "Ngày lễ"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_public_holiday
+#: model:ir.ui.menu,name:sol_laboratory.menu_public_holiday
+msgid "Public Holidays"
+msgstr "Ngày Lễ"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__purchase_order_count
 msgid "Purchase Order Count"
 msgstr "Số đơn mua hàng"
@@ -6707,6 +6788,7 @@ msgstr "Xem quy tắc đồng bộ của mọi thư mục phòng thí nghiệm"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__reason
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__reason
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__reason
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__reason
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result_reject__reason
@@ -7122,6 +7204,7 @@ msgstr "Đã nhận mẫu"
 #: model:ir.model,name:sol_laboratory.model_medilab_sample_test
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__sample_test_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__sample_test_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__sample_test_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__sample_test_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_list
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_search
@@ -8004,6 +8087,18 @@ msgid "The document was rejected; withdraw the rejection first."
 msgstr "Chứng từ đã bị từ chối; hãy rút lại việc từ chối trước."
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "The due date is not a working day of the company calendar."
+msgstr "Hạn hoàn thành không phải là ngày làm việc theo lịch làm việc của công ty."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid ""
+"The due date was changed by hand and is now later than the date the "
+"request's expected date gives."
+msgstr "Hạn hoàn thành đã được đổi thủ công và nay muộn hơn hạn tính từ ngày hẹn trả kết quả của yêu cầu."
+
+#. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__legal_name
 msgid ""
 "The employee's official name as per government-issued or legal documents."
@@ -8288,6 +8383,11 @@ msgid "This currency will be used for purchases from the current partner"
 msgstr "Tiền tệ này sẽ được sử dụng để mua hàng từ nhà đối tác hiện tại"
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_due_date_change_form
+msgid "This day is not a working day of the company calendar."
+msgstr "Ngày này không phải là ngày làm việc theo lịch làm việc của công ty."
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
 msgid "This document type has no approval chain."
@@ -8567,6 +8667,11 @@ msgstr "Đơn vị"
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_folder__sync_mode__upload_only
 msgid "Upload Only"
 msgstr "Chỉ tải lên"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "Use Automatic Due Date"
+msgstr "Dùng hạn hoàn thành tự động"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__barcode

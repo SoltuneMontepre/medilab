@@ -9,6 +9,7 @@
     "data": [
         "data/hr/hr_department.xml",
         "data/base/res_company.xml",
+        "data/resource/resource_calendar_leaves.xml",
         "data/base/res_partner.xml",
         "data/base/res_users.xml",
         "data/sol_laboratory/location.xml",

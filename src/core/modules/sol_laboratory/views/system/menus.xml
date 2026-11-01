@@ -84,6 +84,12 @@
         <menuitem id="menu_laboratory_configuration" name="Configuration" sequence="100">
             <menuitem id="menu_settings" action="action_medilab_settings" sequence="0" groups="base.group_system" />
             <menuitem
+                id="menu_public_holiday"
+                action="action_medilab_public_holiday"
+                sequence="5"
+                groups="base.group_system"
+            />
+            <menuitem
                 id="menu_signing_certificate"
                 action="action_medilab_signing_certificate"
                 sequence="10"
