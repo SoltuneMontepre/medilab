@@ -3,6 +3,8 @@ import { HEAD, TESTER, inEnglish, leadTest } from "./setup";
 
 const REASON = "Máy AAS-01 bảo trì định kỳ; cần đo xong trước Tết Dương lịch.";
 const CHANGE = ".o_form_view .o_statusbar_buttons button:contains('Change Due Date')";
+// 10:00 on 1 January 2027 in the browser's time zone, which the form types dates in, as Odoo stores it.
+const NEW_YEAR = new Date(2027, 0, 1, 10).toISOString().replace("T", " ").slice(0, 19);
 
 describe("Result dates and priority orders", () => {
   inEnglish(HEAD, TESTER);
@@ -14,7 +16,7 @@ describe("Result dates and priority orders", () => {
       cy.openRecord(test);
       cy.get(CHANGE).should("have.length", 1).click();
       cy.get(".modal:visible").last().within(() => {
-        // Tết Dương lịch, a public holiday of the demo company calendar, at 10:00 in Vietnam.
+        // Tết Dương lịch, a public holiday of the demo company calendar.
         cy.get(".o_field_widget[name=due_date] input").clear().type("01/01/2027 10:00:00{enter}");
         cy.contains(".alert-warning", "not a working day").should("be.visible");
         cy.get(".o_field_widget[name=reason] textarea").type(REASON);
@@ -24,7 +26,7 @@ describe("Result dates and priority orders", () => {
       cy.contains(".o_form_view .alert-warning", "not a working day").should("be.visible");
       cy.contains(".o_field_widget[name=due_date_reason]", REASON);
       cy.readRecord(test, ["due_date", "due_date_reason"]).should("deep.include", {
-        due_date: "2027-01-01 03:00:00",
+        due_date: NEW_YEAR,
         due_date_reason: REASON,
       });
     });
