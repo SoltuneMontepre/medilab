@@ -16,6 +16,7 @@ import functools
 import hashlib
 import logging
 import os
+import re
 import secrets
 
 from boto3.session import Session
@@ -46,6 +47,7 @@ _logger = logging.getLogger(__name__)
 
 # Random bytes of an object key: 32 hexadecimal digits that tell nothing about the content.
 OBJECT_KEY_BYTES = 16
+OBJECT_KEY = re.compile(rf"[0-9a-f]{{{2 * OBJECT_KEY_BYTES}}}")
 # Seconds to connect, and to wait for each read, on calls that do work and on the readiness check.
 TIMEOUTS = {"connect_timeout": 10, "read_timeout": 120}
 READY_TIMEOUTS = {"connect_timeout": 2, "read_timeout": 3}
@@ -158,6 +160,12 @@ def _sha256_header(digest):
 def new_object_key():
     """A new random object key, which tells nothing about the content stored under it."""
     return secrets.token_hex(OBJECT_KEY_BYTES)
+
+
+def is_object_key(key):
+    """True for a key new_object_key makes. The bucket also holds other objects, such as Odoo's filestore under
+    `filestore/` when it is kept there, which are no laboratory content."""
+    return bool(OBJECT_KEY.fullmatch(key))
 
 
 def is_ready():
