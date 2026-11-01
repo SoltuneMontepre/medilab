@@ -106,7 +106,7 @@ class IrAttachment(models.Model, IrAttachmentBase):
             return
         modules = self.env["ir.module.module"].sudo().search([("state", "=", "installed")]).mapped("name")
         sources = module_files.by_checksum(
-            modules, {(attachment.file_size, attachment.checksum) for attachment in missing}
+            modules, {(attachment.file_size, attachment.checksum) for attachment in missing}, self._compute_checksum
         )
         restored = missing.browse()
         for attachment in missing:
