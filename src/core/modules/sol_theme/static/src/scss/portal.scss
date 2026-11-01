@@ -71,7 +71,7 @@ a.btn-secondary {
 
 // On a phone the section links drop their icons, so the four of them fit in Vietnamese too.
 @include media-breakpoint-down(sm) {
-    .o_medilab_portal_navigation iconify-icon {
+    .o_medilab_portal_navigation .oi {
         display: none;
     }
 }
