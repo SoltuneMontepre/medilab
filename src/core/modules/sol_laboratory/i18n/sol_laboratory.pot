@@ -3839,6 +3839,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__department_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_event_recipient__department_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__department_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__department_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__department_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__department_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__department_id
@@ -15129,4 +15130,40 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/sample_test.py:0
 msgid "%(way)s does not apply to %(sample_type)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/parameter_method_sample_type.py:0
+msgid "%s is used by entered results, so its unit, sample type and way of testing are locked."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_sample_type_create_own_department
+msgid "Create sample types of ways of testing of their department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_sample_type_create_own_department
+msgid "Permission: parameter.method.sample.type.create.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_sample_type_edit_own_department
+msgid "Edit sample types of ways of testing of their department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_sample_type_edit_own_department
+msgid "Permission: parameter.method.sample.type.edit.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_sample_type_delete_own_department
+msgid "Delete sample types of ways of testing of their department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_sample_type_delete_own_department
+msgid "Permission: parameter.method.sample.type.delete.own_department"
 msgstr ""

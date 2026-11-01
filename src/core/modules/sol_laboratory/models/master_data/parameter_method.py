@@ -5,7 +5,7 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.tools import format_date, format_list
 
 from odoo.addons.base.models.ir_model import MODULE_UNINSTALL_FLAG
-from odoo.addons.sol_laboratory.constants.catalog import DEFAULTS_CHECKED_BY_PARAMETER
+from odoo.addons.sol_laboratory.constants.catalog import DEFAULTS_CHECKED, DEFAULTS_CHECKED_BY_PARAMETER
 from odoo.addons.sol_laboratory.constants.departments import DEPARTMENT_DOMAIN
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ACCREDITATION_CERTIFICATE,
@@ -152,7 +152,7 @@ class ParameterMethod(models.Model, ParameterMethodBase):
         if "parameter_id" in vals and not vals["parameter_id"]:
             raise UserError(self._never_deleted_message())
         # Saved from the parameter, another way may become the default in the same save, so the parameter checks it.
-        if vals.get("active") is False and not self.env.context.get(DEFAULTS_CHECKED_BY_PARAMETER):
+        if vals.get("active") is False and self.env.context.get(DEFAULTS_CHECKED_BY_PARAMETER) is not DEFAULTS_CHECKED:
             self._refuse_archiving_defaults()
         result = super().write(vals)
         if "active" in vals:
@@ -160,7 +160,7 @@ class ParameterMethod(models.Model, ParameterMethodBase):
             # search through the sample types a parameter is offered on does not recompute them first.
             self.flush_recordset(["active"])
             self.parameter_id.flush_recordset(["sample_type_ids"])
-        if vals.get("active") and not self.env.context.get(DEFAULTS_CHECKED_BY_PARAMETER):
+        if vals.get("active") and self.env.context.get(DEFAULTS_CHECKED_BY_PARAMETER) is not DEFAULTS_CHECKED:
             # A restored way never becomes a default, so its sample types must already have another one.
             self.parameter_id._check_defaults(self.applicability_ids.sample_type_id)
         return result

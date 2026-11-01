@@ -183,6 +183,25 @@ class TestMasterDataAccess(MasterDataCase, PeopleCase):
         with self.assertRaises(AccessError):
             self.as_person(cadmium, self.chemist).write({"allows_negative": True})
 
+    def test_own_department_permission_edits_only_their_departments_sample_types_of_ways(self):
+        self.pair.department_id = self.chemistry
+        cadmium = self.env[MODEL_PARAMETER_METHOD].create(
+            {
+                "parameter_id": self.create_parameter("Cadmium (Cd)", self.group).id,
+                "method_id": self.method.id,
+                "department_id": self.microbiology.id,
+            }
+        )
+        water = self.env[MODEL_SAMPLE_TYPE].create({"name": "Bottled water"})
+        ours = self.offer(self.parameter, water, self.pair)
+        theirs = self.offer(cadmium.parameter_id, water, cadmium)
+        self.grant(self.chemist, "parameter_method_sample_type.edit.own_department")
+
+        self.as_person(ours, self.chemist).write({"lod": 0.01})
+        self.assertEqual(ours.lod, 0.01)
+        with self.assertRaises(AccessError):
+            self.as_person(theirs, self.chemist).write({"lod": 0.01})
+
     def test_administrator_keeps_every_action(self):
         administrator = self.env.ref("base.user_admin")
         categories = self.env[MODEL_UNIT_CATEGORY].with_user(administrator)

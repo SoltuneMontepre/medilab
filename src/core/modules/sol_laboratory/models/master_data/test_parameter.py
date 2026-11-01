@@ -4,7 +4,7 @@ from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 from odoo.tools import format_list
 
-from odoo.addons.sol_laboratory.constants.catalog import DEFAULTS_CHECKED_BY_PARAMETER
+from odoo.addons.sol_laboratory.constants.catalog import DEFAULTS_CHECKED, DEFAULTS_CHECKED_BY_PARAMETER
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
     MODEL_AUDIT_MIXIN,
@@ -79,13 +79,15 @@ class TestParameter(models.Model, TestParameterBase):
 
     @api.model_create_multi
     def create(self, vals_list):
-        parameters = super(TestParameter, self.with_context(**{DEFAULTS_CHECKED_BY_PARAMETER: True})).create(vals_list)
+        checked = self.with_context(**{DEFAULTS_CHECKED_BY_PARAMETER: DEFAULTS_CHECKED})
+        parameters = super(TestParameter, checked).create(vals_list)
         parameters = parameters.with_env(self.env)
         parameters._check_defaults()
         return parameters
 
     def write(self, vals):
-        result = super(TestParameter, self.with_context(**{DEFAULTS_CHECKED_BY_PARAMETER: True})).write(vals)
+        checked = self.with_context(**{DEFAULTS_CHECKED_BY_PARAMETER: DEFAULTS_CHECKED})
+        result = super(TestParameter, checked).write(vals)
         if {"method_ids", "applicability_ids"} & set(vals):
             self.with_context(active_test=False).method_ids.filtered(
                 lambda way: not way.active

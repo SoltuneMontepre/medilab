@@ -359,6 +359,8 @@ model Department {
   manager           Employee?         @relation("DepartmentManager", fields: [manager_id], references: [id], onDelete: SetNull)
   /// Parameter and method pairs the department tests in-house.
   parameter_methods ParameterMethod[]
+  /// Sample types of the department's ways of testing.
+  applicabilities   ParameterMethodSampleType[]
   /// Employees in the department.
   employees         Employee[]        @relation("EmployeeDepartment")
   /// People of the team.
@@ -674,6 +676,8 @@ model ParameterMethodSampleType {
   result_decimals     Int?
   /// True for the way the parameter is normally tested on this sample type.
   is_default          Boolean         @default(false)
+  /// The department that tests the way in-house, copied from the way so a permission can be limited to the person's department; empty for a subcontractor's way.
+  department_id       Int?
   /// The parameter.
   parameter           TestParameter   @relation(fields: [parameter_id], references: [id], onDelete: Cascade)
   /// The way of testing.
@@ -682,8 +686,11 @@ model ParameterMethodSampleType {
   sample_type         SampleType      @relation(fields: [sample_type_id], references: [id], onDelete: Restrict)
   /// The result unit.
   unit                MeasurementUnit @relation(fields: [unit_id], references: [id], onDelete: Restrict)
+  /// The department of the way.
+  department          Department?     @relation(fields: [department_id], references: [id], onDelete: Restrict)
 
   @@unique([parameter_method_id, sample_type_id])
+  @@index([department_id])
   @@index([parameter_id])
   @@index([sample_type_id])
   @@index([unit_id])

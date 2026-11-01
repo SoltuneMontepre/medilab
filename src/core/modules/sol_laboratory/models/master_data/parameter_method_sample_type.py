@@ -1,10 +1,10 @@
 from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Domain
 
-from odoo.addons.sol_laboratory.constants.catalog import DEFAULTS_CHECKED_BY_PARAMETER
+from odoo.addons.sol_laboratory.constants.catalog import DEFAULTS_CHECKED, DEFAULTS_CHECKED_BY_PARAMETER
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_LOCK_MIXIN,
@@ -14,6 +14,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PERMISSION_MIXIN,
     MODEL_SAMPLE_TYPE,
     MODEL_TEST_PARAMETER,
+    MODEL_TEST_RESULT,
 )
 from odoo.addons.sol_laboratory.fields.nullable_float import NullableFloat
 
@@ -57,6 +58,8 @@ class ParameterMethodSampleType(models.Model, ParameterMethodSampleTypeBase):
         is_default = fields.Boolean(string="Default")
         # False when the way of testing is archived, so the row is not offered.
         way_active = fields.Boolean(related="parameter_method_id.active")
+        # The department that tests the way in-house, so a permission can be limited to the person's department.
+        department_id = fields.Many2one(related="parameter_method_id.department_id", store=True, index="btree_not_null")
 
     _way_sample_type_unique = models.Constraint(
         "UNIQUE(parameter_method_id, sample_type_id)", "The way of testing already applies to this sample type."
@@ -120,6 +123,15 @@ class ParameterMethodSampleType(models.Model, ParameterMethodSampleTypeBase):
         return applicabilities
 
     def write(self, vals):
+        locked = [name for name in ("unit_id", "sample_type_id", "parameter_method_id") if name in vals]
+        for applicability in self:
+            if locked and any(applicability[name].id != vals[name] for name in locked) and applicability._is_used():
+                raise UserError(
+                    self.env._(
+                        "%s is used by entered results, so its unit, sample type and way of testing are locked.",
+                        applicability.display_name,
+                    )
+                )
         before = self._pairs()
         if "is_default" in vals:
             defaults = self if vals["is_default"] else self.browse()
@@ -145,6 +157,21 @@ class ParameterMethodSampleType(models.Model, ParameterMethodSampleTypeBase):
         self._offering_changed(pairs)
         return result
 
+    def _is_used(self):
+        # Results copy the unit when they are entered, so the configuration is used once one is.
+        self.ensure_one()
+        return bool(
+            self.env[MODEL_TEST_RESULT]
+            .sudo()
+            .search_count(
+                [
+                    ("sample_test_id.parameter_method_id", "=", self.parameter_method_id.id),
+                    ("sample_test_id.sample_id.sample_type_id", "=", self.sample_type_id.id),
+                ],
+                limit=1,
+            )
+        )
+
     def _in_use_domain(self):
         # A unit or sample type stays in use while the way of testing that applies it is active.
         return Domain("parameter_method_id.active", "=", True)
@@ -164,7 +191,7 @@ class ParameterMethodSampleType(models.Model, ParameterMethodSampleTypeBase):
         )
         previous = self.search(same_pair & Domain("is_default", "=", True)) - self.browse(keep)
         # The caller checks the defaults once the new one is saved.
-        previous.with_context(**{DEFAULTS_CHECKED_BY_PARAMETER: True}).is_default = False
+        previous.with_context(**{DEFAULTS_CHECKED_BY_PARAMETER: DEFAULTS_CHECKED}).is_default = False
         previous.flush_recordset(["is_default"])
 
     def _offering_changed(self, extra_pairs=()):
@@ -174,5 +201,5 @@ class ParameterMethodSampleType(models.Model, ParameterMethodSampleTypeBase):
         parameters = self.env[MODEL_TEST_PARAMETER].browse({parameter.id for parameter, _type in pairs})
         # A search through them, such as the portal catalog's, does not recompute them first.
         parameters.flush_recordset(["sample_type_ids"])
-        if not self.env.context.get(DEFAULTS_CHECKED_BY_PARAMETER):
+        if self.env.context.get(DEFAULTS_CHECKED_BY_PARAMETER) is not DEFAULTS_CHECKED:
             parameters._check_defaults({sample_type for _parameter, sample_type in pairs})

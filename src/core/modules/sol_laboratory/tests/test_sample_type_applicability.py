@@ -100,6 +100,22 @@ class TestSampleTypeApplicability(MasterDataCase):
         self.assertEqual(self.parameter._default_way(self.water), self.icp_ms)
         self.assertFalse(self.parameter._default_way(self.cabbage))
 
+    def test_an_unused_sample_type_of_a_way_changes_its_unit(self):
+        applicability = self.offer(self.parameter, self.water)
+
+        applicability.unit_id = self.micrograms
+
+        self.assertEqual(applicability.unit_id, self.micrograms)
+
+    def test_a_client_cannot_skip_the_default_checks_through_the_context(self):
+        default = self.offer(self.parameter, self.cabbage)
+        self.offer(self.parameter, self.cabbage, self.icp_ms)
+
+        with self.assertRaisesRegex(UserError, "before archiving the default"), self.env.cr.savepoint():
+            self.pair.with_context(medilab_defaults_checked_by_parameter=True).action_archive()
+        with self.assertRaisesRegex(ValidationError, "Choose one default way of testing"), self.env.cr.savepoint():
+            default.with_context(medilab_defaults_checked_by_parameter=True).is_default = False
+
     def test_two_defaults_at_once_are_refused(self):
         with self.assertRaises(IntegrityError), mute_logger("odoo.sql_db"), self.env.cr.savepoint():
             self.parameter.write(
@@ -235,11 +251,13 @@ class TestResultSnapshotOfApplicability(ResultCase):
         self.assertEqual(result.unit_id, self.unit)
         self.assertEqual(result.value_decimals, 3)
 
-    def test_catalog_edits_leave_entered_results_unchanged(self):
+    def test_catalog_edits_leave_entered_results_unchanged_and_the_unit_is_locked(self):
         result = self.enter()
         other_unit = self.env[MODEL_MEASUREMENT_UNIT].create({"name": "mg/kg", "category_id": self.category.id})
 
-        self.applicability.write({"unit_id": other_unit.id, "result_decimals": 1, "lod": 0.5})
+        with self.assertRaisesRegex(UserError, "are locked"), self.env.cr.savepoint():
+            self.applicability.unit_id = other_unit
+        self.applicability.write({"result_decimals": 1, "lod": 0.5})
         result.invalidate_recordset()
 
         self.assertEqual(result.unit_id, self.unit)
