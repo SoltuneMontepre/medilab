@@ -13,7 +13,11 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PERSON,
     MODEL_ROLE,
     MODEL_SAMPLE_TYPE,
+    MODEL_TASK,
+    MODEL_TASK_TYPE,
+    MODEL_TEST_REQUEST,
 )
+from odoo.addons.sol_laboratory.constants.tasks import SAMPLE_COLLECTION_CODE
 from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 ORDER_PERMISSIONS = (
@@ -147,3 +151,17 @@ class OrderCase(PricingCase):
         order = self.make_quotable_order()
         order.with_user(self.sales).action_send_quotation()
         return order
+
+    def route_collection_to_delivery_staff(self):
+        """Route the sample collection task type to a role of sample delivery staff and return its holder."""
+        role = self.env[MODEL_ROLE].create({"code": "qo_delivery", "name": "Sample delivery staff"})
+        self.collection_type().write({"route": "role", "role_id": role.id})
+        return self.env[MODEL_PERSON].create({"name": "Vo Van Tai", "login": "sales.delivery", "role_ids": role.ids})
+
+    def collection_type(self):
+        return self.env[MODEL_TASK_TYPE].search([("code", "=", SAMPLE_COLLECTION_CODE)], limit=1)
+
+    def collection_tasks(self, order):
+        return self.env[MODEL_TASK].search(
+            [("document_model", "=", MODEL_TEST_REQUEST), ("document_id", "=", order.test_request_id.id)]
+        )

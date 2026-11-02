@@ -77,4 +77,4 @@ class TestTestRequestFromOrder(RequestCase):
         )
 
         request.action_confirm()
-        self.assertEqual(request.status, "confirmed")
+        self.assertEqual(request.status, "paid")

@@ -27,7 +27,7 @@ else:
 # The statuses each status can move to.
 TRANSITIONS = {
     "draft": ("confirmed", "cancelled"),
-    "confirmed": ("paid", "sample_received", "cancelled"),
+    "confirmed": ("paid", "cancelled"),
     "paid": ("sample_received", "cancelled"),
     "sample_received": ("testing", "cancelled"),
     "testing": ("awaiting_approval", "completed", "cancelled"),
@@ -211,19 +211,9 @@ class TestRequest(models.Model, TestRequestBase):
         # Labels do not use the company's document layout, so printing never asks to configure it.
         return self.env.ref(SAMPLE_LABEL_REPORT).report_action(self.sample_ids, config=False)
 
-    def _awaits_payment(self):
-        # E-commerce makes the request of an order wait for its payment; a request without an order never does.
-        self.ensure_one()
-        return False
-
     def _next_statuses(self):
         self.ensure_one()
-        statuses = TRANSITIONS[self.status or ""]
-        if self.status == "confirmed":
-            # A request awaiting payment must go through the paid step; any other request skips it.
-            skipped = "sample_received" if self._awaits_payment() else "paid"
-            statuses = tuple(status for status in statuses if status != skipped)
-        return statuses
+        return TRANSITIONS[self.status or ""]
 
     def _set_status(self, status):
         if status == "confirmed":
@@ -240,6 +230,9 @@ class TestRequest(models.Model, TestRequestBase):
                     )
                 )
         self.status = status
+        if status == "confirmed":
+            # Confirmation waits for the payment or the credit of the request's order, so the request is paid at once.
+            self._set_status("paid")
         if status == "completed":
             self.env[MODEL_TEST_REPORT]._draft_for(self)
 

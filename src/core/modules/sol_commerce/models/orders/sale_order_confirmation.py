@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError
+from odoo.fields import Domain
 
 from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
 from odoo.addons.sol_commerce.constants.orders import (
@@ -12,7 +13,8 @@ from odoo.addons.sol_commerce.constants.orders import (
     STATUS_CLAIMED,
     STATUS_CONFIRMED,
 )
-from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER, MODEL_TEST_REQUEST
+from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER, MODEL_TASK, MODEL_TASK_TYPE, MODEL_TEST_REQUEST
+from odoo.addons.sol_laboratory.constants.tasks import SAMPLE_COLLECTION_CODE
 
 if TYPE_CHECKING:
     from medilab_model_types import Model_sale_order as SaleOrderConfirmationBase
@@ -24,7 +26,7 @@ else:
 CONFIRMING_ORDER_IDS = ContextVar("medilab_confirming_order_ids", default=frozenset())
 
 
-# Đơn Hàng: confirming the order creates its test request.
+# Đơn Hàng: confirming the order creates its test request, whose sample collection sales then start.
 class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
     _inherit = MODEL_SALE_ORDER
 
@@ -100,9 +102,37 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
         self._set_status(STATUS_CONFIRMED, {"test_request_id": request.id, "confirmed_at": fields.Datetime.now()})
 
     def action_start_sample_collection(self):
-        """Refuse until the order is confirmed; the collection itself is not part of the order."""
+        """Queue one unassigned sample collection task of the confirmed order's test request for sample delivery
+        staff, at the customer's address; they claim it and plan its time."""
         self.check_access("write")
         for order in self:
             if order.order_status != STATUS_CONFIRMED:
                 raise UserError(self.env._("The order must be confirmed before the samples are collected."))
-        return True
+        task_type = self.env[MODEL_TASK_TYPE].sudo().search([("code", "=", SAMPLE_COLLECTION_CODE)], limit=1)
+        if task_type.route != "role":
+            raise UserError(
+                self.env._("Route the %s task type to the role of sample delivery staff first.", task_type.name)
+            )
+        tasks = self.env[MODEL_TASK].sudo()
+        for order in self:
+            request = order.sudo().test_request_id
+            document = Domain("document_model", "=", request._name) & Domain("document_id", "=", request.id)
+            if tasks.search_count(document & Domain("type_id", "=", task_type.id) & tasks._in_use_domain(), limit=1):
+                raise UserError(self.env._("Order %s already has an open sample collection task.", order.name))
+            tasks.create(
+                {
+                    "type_id": task_type.id,
+                    "name": f"{task_type.name}: {order.name}, {order.customer_id.name}",
+                    "document_model": request._name,
+                    "document_id": request.id,
+                    "note": order.customer_id._display_address(),
+                }
+            )
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "type": "success",
+                "message": self.env._("The sample collection task waits in the queue of sample delivery staff."),
+            },
+        }
