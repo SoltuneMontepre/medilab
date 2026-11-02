@@ -81,7 +81,7 @@ External Secrets reads the Doppler `infra` config through the `doppler` `Cluster
 - With no outgoing mail server stored in Odoo and no Brevo settings in the environment, Odoo sends every e-mail to Mailpit on port 1025, without TLS.
 - Odoo and the upgrade Job get the `medilab-filestore` bucket credentials and endpoint from the `filestore-bucket` Secret as `BUCKET_LABORATORY_*`, with `BUCKET_LABORATORY_NAME=medilab-filestore`, `BUCKET_LABORATORY_REGION=us-east-1` and `BUCKET_FILESTORE=1`. Attachments are kept in the bucket and cached in the pod's `/var/lib/odoo` `emptyDir` alongside the sessions; see [Laboratory files](../specs/laboratory-files.md#filestore).
 - Odoo is an Argo Rollouts `Rollout` with the blue-green strategy. The `odoo` Service sends traffic to the active colour and `odoo-preview` to the colour being released; Argo Rollouts adds the colour's `rollouts-pod-template-hash` to each selector, which the `odoo` application ignores in its diff.
-- Traefik routes `lims.soltunemontepre.tech` to `odoo` and `lims-preview.soltunemontepre.tech` to `odoo-preview`, each with `/websocket` to the websocket port and the same middlewares, and tells Odoo the request came over HTTPS. Outside a release both hostnames reach the active colour.
+- Traefik routes `lims.soltunemontepre.tech` to `odoo` and `preview.soltunemontepre.tech` to `odoo-preview`, each with `/websocket` to the websocket port and the same middlewares, and tells Odoo the request came over HTTPS. Outside a release both hostnames reach the active colour.
 - Every sync of the `odoo` application runs, in order:
   1. A `PreSync` hook: the `medilab-db-pre-sync` on-demand `Backup`, which must complete.
   2. A `Sync` hook: the `odoo-upgrade` Job, which installs `sol_laboratory`, `sol_commerce`, `sol_inventory`, `sol_theme` and `sol_demo` when missing and upgrades every installed module. `MEDILAB_DEMO_PASSWORD` is not set, so the `demo.<role>` users keep the password `demo`. It does not retry; a failure fails the sync.
@@ -94,7 +94,7 @@ External Secrets reads the Doppler `infra` config through the `doppler` `Cluster
 - Both colours use the one `medilab` database, which the upgrade Job has already upgraded, so the old colour runs on the newer schema until it stops. Both run scheduled actions in that time; Odoo locks each job so it runs once.
 - Returning to the previous image within the 10 minutes reuses the old colour's running pod, so the switch back waits only for the analysis. Argo CD reverts changes made by hand, so a rollback goes through Git, as `cd-core` does; see [Pipelines](pipelines.md#cd-core).
 - While the old colour runs, two Odoo pods request 6 cores and 8 GiB.
-- Odoo saves the address of the first administrator login as `web.base.url`, so an administrator who signs in on `lims-preview.soltunemontepre.tech` changes the address in links Odoo sends.
+- Odoo saves the address of the first administrator login as `web.base.url`, so an administrator who signs in on `preview.soltunemontepre.tech` changes the address in links Odoo sends.
 - The `odoo` application removes what it prunes only after every other resource is healthy, so the Deployment the Rollout replaced kept serving until the Rollout was ready.
 
 ## Mailpit

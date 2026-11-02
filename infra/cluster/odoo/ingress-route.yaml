@@ -70,7 +70,7 @@ spec:
     - web
   routes:
     - kind: Rule
-      match: Host(`lims-preview.soltunemontepre.tech`) && PathPrefix(`/websocket`)
+      match: Host(`preview.soltunemontepre.tech`) && PathPrefix(`/websocket`)
       middlewares:
         - name: odoo-https
       services:
@@ -78,7 +78,7 @@ spec:
           port: websocket
     - kind: Rule
       match: >-
-        Host(`lims-preview.soltunemontepre.tech`) && (Path(`/medilab/api/v1/sign-in`) ||
+        Host(`preview.soltunemontepre.tech`) && (Path(`/medilab/api/v1/sign-in`) ||
         Path(`/medilab/brevo/webhook`) || Path(`/payment/payos/webhook`))
       middlewares:
         - name: odoo-https
@@ -87,7 +87,7 @@ spec:
         - name: odoo-preview
           port: http
     - kind: Rule
-      match: Host(`lims-preview.soltunemontepre.tech`)
+      match: Host(`preview.soltunemontepre.tech`)
       middlewares:
         - name: odoo-https
       services:
