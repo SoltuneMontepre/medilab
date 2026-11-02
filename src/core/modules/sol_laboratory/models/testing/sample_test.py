@@ -266,7 +266,7 @@ class SampleTest(models.Model, SampleTestBase):
         self.ensure_one()
         return self.env[MODEL_TASK]._system_tasks_of(self, TESTING_ACTION)[:1]
 
-    def _open_testing_task(self, department, note=False):
+    def _open_testing_task(self, department, note: str | bool = False):
         """Put a testing task for the test in the queue of the department that does the work."""
         self.ensure_one()
         return self.env[MODEL_TASK]._create_for_event(
