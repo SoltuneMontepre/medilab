@@ -21,7 +21,8 @@ from host_tools import (
 )
 
 ROOT = Path(__file__).resolve().parents[2]
-MIN_ENGINE_MEMORY = 8 * 1024**3
+# A 4 GiB engine setting reports slightly less after the VM kernel's reservation.
+MIN_ENGINE_MEMORY = int(3.5 * 1024**3)
 MIN_PYTHON = (3, 12)
 TOOL_ENVIRONMENT = (
     "APPDATA",
@@ -107,7 +108,7 @@ def check_engine_resources(information):
         sufficient = False
     if not sufficient:
         raise HostError(
-            "Allocate at least 4 CPUs and 8 GiB to the container engine: ONLYOFFICE needs 6 GiB plus backend capacity."
+            "Allocate at least 4 CPUs and 4 GiB to the container engine: ONLYOFFICE needs 2 GiB plus backend capacity."
         )
 
 

@@ -21,7 +21,7 @@ def diagnostic_script():
         "$identity=": "rule-identity",
         "$rule=": "rule",
         "$a.AddAccessRule": "add-rule",
-        "Set-Acl": "set-acl",
+        "(Get-Item": "set-acl",
         "$a=Get-Acl": "read-acl",
         "if(-not $a.AreAccessRulesProtected)": "verify-protection",
         "if($a.GetOwner": "verify-owner",
@@ -101,7 +101,7 @@ $a=Get-Acl -LiteralPath $p
 $identity=New-Object Security.Principal.SecurityIdentifier('S-1-1-0')
 $rule=New-Object Security.AccessControl.FileSystemAccessRule($identity,'Read','Allow')
 $a.AddAccessRule($rule)
-Set-Acl -LiteralPath $p -AclObject $a
+(Get-Item -LiteralPath $p -Force).SetAccessControl($a)
 """
             )
             result = invoke(

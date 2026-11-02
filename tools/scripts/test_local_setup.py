@@ -146,12 +146,18 @@ class LocalSetupTests(unittest.TestCase):
                     "memTotal": 12 * 1024**3,
                 }
             },
+            {
+                "OSType": "linux",
+                "Architecture": "amd64",
+                "NCPU": 4,
+                "MemTotal": 4163506176,
+            },
         ]:
             local_setup.check_engine_resources(local_setup.engine_information(document))
         for changed in [
             {"os": "windows"},
             {"architecture": "arm64"},
-            {"memory": 4 * 1024**3},
+            {"memory": 3 * 1024**3},
             {"cpus": 2},
         ]:
             values = {

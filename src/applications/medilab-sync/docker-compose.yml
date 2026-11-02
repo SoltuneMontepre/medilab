@@ -39,8 +39,8 @@ services:
       start_period: 120s
     stop_grace_period: 1890s
     cpus: 4
-    mem_limit: 6g
-    mem_reservation: 4g
+    mem_limit: 3g
+    mem_reservation: 2g
 
 networks:
   onlyoffice:

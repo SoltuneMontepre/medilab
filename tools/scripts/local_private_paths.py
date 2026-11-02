@@ -35,7 +35,7 @@ if($env:MEDILAB_ONLYOFFICE_ACL_PROTECT -eq '1') {
     $rule=New-Object Security.AccessControl.FileSystemAccessRule($identity,'FullControl',$flags,'None','Allow')
     $a.AddAccessRule($rule)
   }
-  Set-Acl -LiteralPath $p -AclObject $a
+  (Get-Item -LiteralPath $p -Force).SetAccessControl($a)
 }
 $a=Get-Acl -LiteralPath $p
 if(-not $a.AreAccessRulesProtected){exit 1}
@@ -48,7 +48,7 @@ WINDOWS_ANCESTORS = r"""
 $ErrorActionPreference='Stop'
 Import-Module -Name (Join-Path $PSHOME 'Modules\Microsoft.PowerShell.Security\Microsoft.PowerShell.Security.psd1') -ErrorAction Stop
 $u=[Security.Principal.WindowsIdentity]::GetCurrent().User.Value
-$trusted=@($u,'S-1-5-18','S-1-5-32-544')
+$trusted=@($u,'S-1-5-18','S-1-5-32-544','S-1-3-4')
 $mutation=2 -bor 4 -bor 16 -bor 64 -bor 256 -bor 65536 -bor 262144 -bor 524288 -bor 0x40000000 -bor 0x10000000
 foreach($p in (ConvertFrom-Json $env:MEDILAB_LOCAL_STATE_PATHS)) {
   $a=Get-Acl -LiteralPath $p
