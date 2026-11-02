@@ -222,7 +222,7 @@ Acceptance criteria:
 ### 3. Quotation, acceptance and payment (US-C13 to US-C17)
 
 - The quotation page shows the parameters, prices, the payment deadline, the advance invoice, the customer's requested date and the committed return date. Internal due dates are never shown to the customer.
-- **Acceptance is payment.**. Paying the advance invoice means the customer accepted.
+- **Acceptance is payment.** Paying the advance invoice means the customer accepted. A quotation sent without an advance is accepted on the portal with **Accept quotation**.
 - The customer can decline a sent quotation with a reason; the salesperson is notified and the order is not cancelled.
 - When sales creates a new revision of a quotation, the customer sees a banner and the list of revisions.
 - The invoice list shows posted invoices only, with payment status and the amount still owed. The customer can print or download the invoice and, after payment, the payment receipt.
@@ -256,7 +256,7 @@ The customer receives one notification per event, through the channels chosen in
 | Payment received                         | Payment receipt                             |
 | Results released                         | Results ready                               |
 
-The results of an order are released on the order, to the order's contact, once for each issued report. A test request the laboratory took without an order tells the customer on its report instead.
+The results of an order are released on the order, to the order's contact, once for each issued report.
 
 A notice of a mandatory event always stays visible in the portal, whatever happens to its email ([SH-11](../../shared.md#sh-11-schedules-and-reminders)). When an email to the customer bounces and Sales corrects the address, the new address receives a confirmation link; emails resume once the customer opens it, and until then the customer gets notices in the portal only.
 
