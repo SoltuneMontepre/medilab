@@ -108,7 +108,7 @@ External Secrets reads the Doppler `infra` config through the `doppler` `Cluster
 
 ## ONLYOFFICE
 
-The root registers manual `applications/onlyoffice.yaml` and `applications/onlyoffice-monitor.yaml` for demo data and automatically reconciles `onlyoffice-edge.yaml`. `onlyoffice/` pins 9.4.0.1 by digest with a protected 40 GiB claim, TLS, ExternalSecret and restrictive policies. The editor application uses `onlyoffice-demo/` for memory sizing and HTTPS egress to the configured bucket's current public IP. Odoo uses `onlyoffice-demo-odoo/`, deriving `onlyoffice-integration/` with a rollout that creates no surge pod. `onlyoffice-edge/` defines the internal callback boundary. Follow [ONLYOFFICE deployment and recovery](onlyoffice.md) for bootstrap order, manual sync and the gates before using real data; Odoo readiness stays independent.
+The root registers manual `applications/onlyoffice.yaml` and `applications/onlyoffice-monitor.yaml` for demo data and automatically reconciles `onlyoffice-edge.yaml`. `onlyoffice/` pins 9.4.0.1 by digest with a protected 40 GiB claim and restrictive policies. The editor application uses `onlyoffice-demo/` for memory sizing and HTTPS egress to the configured bucket's current public IP. Odoo uses `onlyoffice-demo-odoo/`, deriving `onlyoffice-integration/` with a rollout that creates no surge pod; it owns the JWT ExternalSecret and certificates of `onlyoffice-prerequisites/` and syncs them before its rollout. `onlyoffice-edge/` defines the internal callback boundary. Follow [ONLYOFFICE deployment and recovery](onlyoffice.md) for bootstrap order, manual sync and the gates before using real data; Odoo readiness stays independent.
 
 ## Logs
 

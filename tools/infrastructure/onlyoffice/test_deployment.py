@@ -17,6 +17,7 @@ import recover
 import yaml
 
 ROOT = Path(__file__).resolve().parents[3]
+SYNC_WAVE = "argocd.argoproj.io/sync-wave"
 IMAGE = "docker.io/onlyoffice/documentserver:9.4.0.1@sha256:3ab6ebc7c605e5a32b7ae3ff19daed4925090245acc8100ce2230bd766c88212"
 
 
@@ -217,7 +218,7 @@ class TestDeployment(unittest.TestCase):
         self.assertIn("Prune=false,Delete=false", str(pvc["metadata"]["annotations"]))
 
     def test_jwt_references_and_protocol(self):
-        secret = named(self.server, "ExternalSecret", "onlyoffice-jwt")["spec"]
+        secret = named(self.odoo, "ExternalSecret", "onlyoffice-jwt")["spec"]
         self.assertEqual(
             secret["secretStoreRef"], {"kind": "ClusterSecretStore", "name": "doppler"}
         )
@@ -465,6 +466,32 @@ class TestDeployment(unittest.TestCase):
             (ROOT / "infra/cluster/applications/odoo.yaml").read_text()
         )["spec"]["source"]
         self.assertEqual(source["path"], "infra/cluster/onlyoffice-demo-odoo")
+
+    def test_odoo_provisions_editor_secrets_before_its_rollout(self):
+        resources = render("infra/cluster/onlyoffice-demo-odoo")
+        waves = {
+            (r["kind"], r["metadata"]["name"]): int(
+                r["metadata"].get("annotations", {}).get(SYNC_WAVE, 0)
+            )
+            for r in resources
+        }
+        prerequisites = [
+            ("Issuer", "onlyoffice-bootstrap"),
+            ("Certificate", "onlyoffice-ca"),
+            ("Issuer", "onlyoffice-ca"),
+            ("Certificate", "onlyoffice-tls"),
+            ("ExternalSecret", "onlyoffice-jwt"),
+        ]
+        for key in prerequisites:
+            self.assertLess(waves[key], waves["Job", "odoo-upgrade"], key)
+        self.assertLess(
+            waves["Certificate", "onlyoffice-ca"], waves["Issuer", "onlyoffice-ca"]
+        )
+        self.assertLess(
+            waves["Issuer", "onlyoffice-ca"], waves["Certificate", "onlyoffice-tls"]
+        )
+        server = {(r["kind"], r["metadata"]["name"]) for r in self.server}
+        self.assertFalse(server.intersection(prerequisites))
 
     def test_managed_traefik_configuration_matches_callback_policy(self):
         text = (
