@@ -33,11 +33,11 @@ The core flows WF-01 to WF-06 carry a test request from order to report. The sup
 - **Starts from:** a catalog with priced parameters and packages, and demo customers.
 - **Main path:** A customer orders on the portal; sales claims it, confirms the selected ways and expected sampling needs, obtains Head of Sales approval if its discount or total exceeds a configured threshold, and sends it with an advance; the customer pays online; sales confirms the order, and sample collection can start.
 - **Alternative paths:**
-  - WF-01-A1: Sales creates the order for a customer who called, instead of the customer ordering on the portal.
+  - WF-01-A1: Sales creates the order for a customer who called or who brings samples to the laboratory, instead of the customer ordering on the portal. The samples wait at reception until the test request is paid.
   - WF-01-A2: A visitor who is not signed in submits a cart with their details and e-mail address.
   - WF-01-A3: A returning customer reorders a completed order, or sales creates the order from the customer's template.
   - WF-01-A4: The customer pays the advance by bank transfer or in cash; sales records it and the accountant confirms it.
-  - WF-01-A5: The Head of Sales sends a quotation without an advance to a customer allowed to order on credit; the order goes ahead unpaid.
+  - WF-01-A5: The Head of Sales sends a quotation without an advance to a customer allowed to order on credit; the customer accepts it on the portal and the order goes ahead unpaid.
 - **Exceptions:**
   - WF-01-E1: The customer declines the quotation with a reason; sales revises it and sends the new version, which the customer accepts.
   - WF-01-E2: The quotation passes its payment deadline and is flagged expired; sales extends it. The customer pays within the extended deadline.
@@ -78,13 +78,12 @@ flowchart TD
 
 - **Trigger:** samples arrive at the laboratory, or sample delivery staff collect them from the customer.
 - **Result:** every sample is coded, labelled and received, and its testing tasks wait in the queue of each department that tests it.
-- **Stories:** US-SD01, US-SD02, US-SD03, US-SD04, US-SD05, US-SD06, US-SD07, US-SD08, US-SD09, US-SD10, US-SD11, US-SD12, US-HD06, US-HD07.
+- **Stories:** US-SD01, US-SD02, US-SD03, US-SD04, US-SD05, US-SD07, US-SD08, US-SD09, US-SD10, US-SD11, US-SD12, US-HD06, US-HD07.
 - **States:** sample expected → received, or → on hold → received, or → rejected; test request paid → sample received.
-- **Starts from:** a confirmed order whose test request expects its samples.
+- **Starts from:** a confirmed order whose test request is paid and expects its samples.
 - **Main path:** The customer brings the samples; sample delivery staff adjust the calculated expected samples to the actual handover, record conditions and differences, obtain the customer's signature, print labels and hand samples to their departments.
 - **Alternative paths:**
-  - WF-02-A1: Sample delivery staff collect the samples at the customer's site from their collection task, take photos through the web interface and obtain the customer's confirmation signature. Collection feasibility includes the configurable travel buffer, 60 minutes by default.
-  - WF-02-A2: Sample delivery staff create a test request at reception for a customer without an order; it skips the paid step.
+  - WF-02-A1: Sample delivery staff claim the collection task sales started on the confirmed order and collect the samples at the customer's site, take photos through the web interface and obtain the customer's confirmation signature. Collection feasibility includes the configurable travel buffer, 60 minutes by default.
   - WF-02-A3: A sample tested by two departments is handed to both, and each records its own receipt.
 - **Exceptions:**
   - WF-02-E1: An insufficient sample goes on hold; the head of department asks for more; the collection task brings it back to received.

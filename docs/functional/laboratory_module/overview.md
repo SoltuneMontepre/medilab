@@ -58,8 +58,7 @@ Each document keeps its own status. Tasks keep their own generic lifecycle ([SH-
 stateDiagram-v2
     [*] --> draft
     draft --> confirmed: request confirmed
-    confirmed --> paid: payment received or customer allowed credit
-    confirmed --> sample_received: no payment step
+    confirmed --> paid: at once, as confirming needs the payment or credit
     paid --> sample_received: first sample received
     sample_received --> testing: first sample test started
     testing --> awaiting_approval: every remaining test has its reported result sent for approval
@@ -75,7 +74,8 @@ stateDiagram-v2
     testing --> cancelled
 ```
 
-- Only the request of an order goes through the paid step, which E-commerce sets. A request sample delivery staff create goes straight from confirmed to sample received.
+- With E-commerce, every test request comes from an order sales confirmed and goes through the paid step, which E-commerce sets: confirming it needs the order's advance paid in full or the customer allowed credit, so a confirmed request is paid at once.
+- Creating a test request directly, with the permission `test_request.create.all`, is a temporary shortcut for developers to set up flows. It is removed once every browser test and demo record creates its test requests from orders ([#485](https://github.com/SoltuneMontepre/medilab/issues/485)).
 
 ### Sample
 
@@ -234,7 +234,7 @@ flowchart LR
 | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | Testing tasks      | When a sample is received, the system creates a testing task for each sample test and puts it in the queue of the department that does the work. |
 | Assignment | Testing tasks queue by department, not by team. The Head of Department assigns a single task or all of a sample's tasks in that department to an authorized tester; authorized testers may claim unassigned tasks. Lab Head maintains the person-to-parameter authorization list, without start or end dates. Reassignment needs a reason. Scheduling checks membership of this list. |
-| Due date | The test request carries the customer's requested date and the committed return date. On a request without an order, the committed date defaults to the requested date when the laboratory can meet it, otherwise to the return estimate; only Sales changes it, with the customer's agreement. The customer never sees an internal due date. Each sample test's internal due date is that date minus a configurable safety margin (2 days by default), at the end of the company-local day, and is met when its result is submitted. A margin change does not rewrite existing due dates. |
+| Due date | The test request carries the customer's requested date and the committed return date; only Sales changes it, with the customer's agreement. The customer never sees an internal due date. Each sample test's internal due date is that date minus a configurable safety margin (2 days by default), at the end of the company-local day, and is met when its result is submitted. A margin change does not rewrite existing due dates. |
 | Method steps       | The person running a test sees the steps of the testing method of its way of testing, each with its number, how long it takes, what to do and its note. The steps are the same for the whole laboratory. |
 | Booking | A booking schedules one sample test, its sample, parameter and agreed way of testing, for one authorized tester and one interval, on a machine only when the way needs one, and reserves every bookable location its steps name. Scheduling does not choose another way. A sample test can be booked only once its sample is received by its department, is not held for the customer's agreement and is not cancelled. |
 | Duration | The machine-and-method link gives the booking duration, which covers preparation, measurement and time to repeat a failed measurement. A way needing no machine has its own duration and capacity, default capacity 1. Durations round up to 15-minute slots. The system does not count or limit measurement attempts. |
