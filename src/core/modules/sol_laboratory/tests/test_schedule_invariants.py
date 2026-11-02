@@ -71,6 +71,12 @@ class TestScheduleInvariants(ScheduleInvariantsCase, LocationCase):
             event = first.calendar_event_id.sudo().with_context(**{CALENDAR_SYNC_CONTEXT: CALENDAR_SYNC_TOKEN})
             event.write({"start": MONDAY + SLOT, "stop": MONDAY + 4 * SLOT})
 
+        def reopen_the_task_of_an_assigned_test():
+            task = self.test._testing_task()
+            self.env.cr.execute(
+                SQL("UPDATE %s SET status = 'open' WHERE id = %s", SQL.identifier(task._table), task.id)
+            )
+
         def end_after_the_calibration():
             self.env.cr.execute(
                 SQL(
@@ -82,21 +88,25 @@ class TestScheduleInvariants(ScheduleInvariantsCase, LocationCase):
             )
             self.fast.invalidate_recordset(["next_calibration_date"])
 
-        corruptions = {
-            "P1": overlap_on_one_machine,
-            "P2": overlap_in_one_room,
-            "P3": lambda: second._set({"starts_at": OFF_BOUNDARY, "ends_at": OFF_BOUNDARY + 3 * SLOT}),
-            "P4": lambda: self.env[MODEL_MACHINE_BOOKING].create(
-                {"machine_id": self.fast.id, "sample_test_id": self.test.id, "person_id": self.tester.id}
+        corruptions = [
+            ("P1", overlap_on_one_machine),
+            ("P2", overlap_in_one_room),
+            ("P3", lambda: second._set({"starts_at": OFF_BOUNDARY, "ends_at": OFF_BOUNDARY + 3 * SLOT})),
+            (
+                "P4",
+                lambda: self.env[MODEL_MACHINE_BOOKING].create(
+                    {"machine_id": self.fast.id, "sample_test_id": self.test.id, "person_id": self.tester.id}
+                ),
             ),
-            "P5": lambda: first._set({"person_id": self.other_tester.id}),
-            "P6": lambda: self.test.sudo().write({"status": "waiting"}),
-            "P7": unsync_the_calendar,
-            "P8": lambda: self.test.sudo().write({"status": "cancelled"}),
-            "P9": end_after_the_calibration,
-        }
-        for invariant, corrupt in corruptions.items():
-            with self.subTest(invariant=invariant):
+            ("P5", lambda: first._set({"person_id": self.other_tester.id})),
+            ("P6", lambda: self.test.sudo().write({"status": "waiting"})),
+            ("P6", reopen_the_task_of_an_assigned_test),
+            ("P7", unsync_the_calendar),
+            ("P8", lambda: self.test.sudo().write({"status": "cancelled"})),
+            ("P9", end_after_the_calibration),
+        ]
+        for invariant, corrupt in corruptions:
+            with self.subTest(invariant=invariant, corruption=corrupt.__name__):
                 with self.rolled_back():
                     corrupt()
                     with self.assertRaisesRegex(AssertionError, f"{invariant}:"):

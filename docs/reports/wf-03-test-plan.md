@@ -605,7 +605,7 @@ SELECT b.id FROM medilab_machine_booking b JOIN medilab_sample_test s ON s.id = 
 | P12 | No overlapping active bookings per person | **Pending Q2:** opt-in, off by default | DC-01 |
 | P13 | Booking lies within the person's working time | **Conditional:** at placement only | Leave added later is not reflected (T07) |
 
-**Self-test** (`test_schedule_invariants.py`): two valid bookings with a room step pass first. Then, for each of P1–P9, one rolled-back cell breaks the schedule and expects `assert_schedule_invariants` to fail with that invariant's ID:
+**Self-test** (`test_schedule_invariants.py`): two valid bookings with a room step pass first. Then, for each of P1–P9, a rolled-back cell (two for P6) breaks the schedule and expects `assert_schedule_invariants` to fail with that invariant's ID:
 
 | Invariant | How the cell breaks it |
 |---|---|
@@ -614,7 +614,7 @@ SELECT b.id FROM medilab_machine_booking b JOIN medilab_sample_test s ON s.id = 
 | P3 | Moves a booking off a 15-minute boundary |
 | P4 | Adds a second open booking for one test |
 | P5 | Gives a booking a person other than the task's assignee |
-| P6 | Sets the test back to waiting while its task stays assigned |
+| P6 | Sets the test back to waiting while its task stays assigned; separately, reopens the task of an assigned test while it keeps its assignee |
 | P7 | Moves the person event away from its booking |
 | P8 | Cancels the test while its booking stays open |
 | P9 | Sets the machine's calibration date before the booking, in SQL |
@@ -682,7 +682,7 @@ One class per file, named after the file, tagged `post_install`/`-at_install` (`
 - Level: U = TransactionCase, I = committed or concurrent, H = HTTP JSON-RPC, E = Cypress, P = performance.
 - Coverage: Cov / Part / Miss.
 - Group: A / B / C / D. Kind: CT / CH / DF / TG.
-- "Graph unchanged" = a before/after snapshot that includes `write_date`.
+- "Graph unchanged" = a before/after snapshot of the scheduling state. At level I and H it is the committed-state snapshot and includes `write_date`; at level U, `ScheduleInvariantsCase.graph()` leaves `write_date` out, because one transaction stamps every write with the same time.
 
 ### A. Workflow and state transitions (WF03-STA)
 
