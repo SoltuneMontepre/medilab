@@ -863,11 +863,6 @@ msgid "A sample test has one reported result."
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_test_result_attempt_unique
-msgid "A sample test has one result per attempt and version."
-msgstr ""
-
-#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch.py:0
 msgid "A sample test of %s is already in another dispatch."
@@ -1849,11 +1844,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_attachment_count
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_attachment_count
 msgid "Attachment Count"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__attempt
-msgid "Attempt"
 msgstr ""
 
 #. module: sol_laboratory
@@ -13626,8 +13616,7 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/test_result.py:0
-msgid ""
-"The system sets the sample test, attempt, entry and status of a result."
+msgid "The system sets the sample test, entry and status of a result."
 msgstr ""
 
 #. module: sol_laboratory

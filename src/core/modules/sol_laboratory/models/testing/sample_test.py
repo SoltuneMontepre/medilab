@@ -95,7 +95,7 @@ class SampleTest(models.Model, SampleTestBase):
         emergency_outsource_reason = fields.Text(readonly=True, copy=False)
         # Machine bookings for the test.
         booking_ids = fields.One2many(MODEL_MACHINE_BOOKING, "sample_test_id", string="Bookings")
-        # Results of the test, one per attempt.
+        # Results of the test, the latest entered first.
         result_ids = fields.One2many(MODEL_TEST_RESULT, "sample_test_id", string="Results")
         # Why the test was cancelled, such as the parameter cannot be tested on this sample.
         cancel_reason = fields.Text(readonly=True, copy=False)
@@ -286,11 +286,21 @@ class SampleTest(models.Model, SampleTestBase):
             if test.status in ("waiting", "assigned"):
                 test.status = "assigned" if task.assignee_id else "waiting"
 
-    def _tested_by(self):
-        """The department of the test's latest testing task, finished or not."""
+    def _latest_testing_task(self):
+        """The test's latest testing task, finished or not."""
         self.ensure_one()
         domain = self.env[MODEL_TASK]._testing_domain() & Domain("document_id", "=", self.id)
-        return self.env[MODEL_TASK].sudo().search(domain, order="id desc", limit=1).department_id
+        return self.env[MODEL_TASK].sudo().search(domain, order="id desc", limit=1)
+
+    def _tested_by(self):
+        """The department of the test's latest testing task, finished or not."""
+        return self._latest_testing_task().department_id
+
+    def _reopen_testing_task(self):
+        """Give the test's latest testing task back to its assignee, or to its queue, once it was done."""
+        task = self._latest_testing_task()
+        if task.status == "done":
+            task.write({"status": "assigned" if task.assignee_id else "open", "done_at": False})
 
     def action_schedule(self):
         """Queue each test for the machine the scheduler recommends, then give the queue its slots.
@@ -434,7 +444,8 @@ class SampleTest(models.Model, SampleTestBase):
     def _progress(self, status):
         tests = self.sudo()
         tests.status = status
-        if status == "approved":
+        # Submitting the result is the tester's work done; approving it is the head's.
+        if status in ("result_entered", "approved"):
             self.env[MODEL_TASK]._close_for_document(tests, TESTING_ACTION)
         tests.sample_id._follow_tests()
 

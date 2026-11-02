@@ -154,7 +154,8 @@ class TestSubcontractDispatch(DispatchCase):
             .sudo()
             .create({"sample_test_id": self.test.id, "value": 0.006})
         )
-        self.assertEqual(retest.attempt, 2)
+        self.assertTrue(retest.is_reported)
+        self.assertEqual(result.status, "rejected")
 
     def test_a_test_joins_a_dispatch_only_through_the_dispatch(self):
         dispatch = self.outsource()

@@ -980,7 +980,7 @@ model SampleTest {
   cancelled_by        Person?          @relation("SampleTestCanceller", fields: [cancelled_by_id], references: [id], onDelete: Restrict)
   /// Tester or head of department who marked the test urgent.
   marked_urgent_by    Person?          @relation("SampleTestUrgencyMarker", fields: [marked_urgent_by_id], references: [id], onDelete: Restrict)
-  /// Results of the test, one per attempt.
+  /// Results of the test, the latest entered first.
   results             TestResult[]
   /// Machine bookings for the test.
   bookings            MachineBooking[]
@@ -995,7 +995,7 @@ model SampleTest {
   @@map("medilab_sample_test")
 }
 
-/// One version of one attempt at measuring a sample test. Earlier attempts are kept; one per sample test is the reported result.
+/// One version of one measurement of a sample test. Retests add results without being counted; the earlier ones are kept, ordered by when they were entered, and one per sample test is the reported result.
 /// A change request on a result whose process is completed creates a new row with the next version that replaces it; the signed row stays unchanged and is marked as replaced.
 /// At most one reported result per sample test among rows not replaced (partial unique index on sample_test_id where is_reported and not is_replaced).
 model TestResult {
@@ -1003,8 +1003,6 @@ model TestResult {
   id             Int              @id @default(autoincrement())
   /// The sample test measured.
   sample_test_id Int
-  /// Attempt number, 1 for the first measurement and higher for retests.
-  attempt        Int              @default(1)
   /// True for the result reported to the customer: the latest one entered for the sample test.
   is_reported    Boolean          @default(false)
   /// Measured value, in unit_id, stored exactly; 0 for a text result, whose text is the result.
@@ -1041,7 +1039,7 @@ model TestResult {
   check_warning  String?          @db.Text
   /// pass or fail, set by the tester; empty when the sample has no regulation.
   conclusion     String?          @db.VarChar
-  /// none, requested, approved or rejected: where the result stands in its approval chain, kept in step with its signatures. Approved and rejected are final; only the lab head's rejection of the report sends an approved result back to none. Only the system writes it, with attempt, is_reported, entered_by_id, entered_at and the version fields.
+  /// none, requested, approved or rejected: where the result stands in its approval chain, kept in step with its signatures. Approved and rejected are final; only the lab head's rejection of the report sends an approved result back to none. Only the system writes it, with is_reported, entered_by_id, entered_at and the version fields.
   status         String           @default("none") @db.VarChar
   /// The version the next signature records; it grows when every signature is withdrawn.
   document_version Int            @default(1)
@@ -1066,7 +1064,6 @@ model TestResult {
   /// The version that replaces this row.
   replaced_by    TestResult?      @relation("ResultVersions")
 
-  @@unique([sample_test_id, attempt, version])
   @@index([sample_test_id])
   @@index([status])
   @@map("medilab_test_result")

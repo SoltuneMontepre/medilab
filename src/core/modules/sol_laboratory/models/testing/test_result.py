@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
-from odoo.tools import formatLang
+from odoo.tools import format_datetime, formatLang
 
 from odoo.addons.sol_laboratory.constants.approvals import (
     STATE_APPROVED,
@@ -31,7 +31,7 @@ else:
 
 # Fields only the system sets, so the approval chain and who entered the result cannot be bypassed.
 SYSTEM_FIELDS = frozenset(
-    {"attempt", "is_reported", "entered_by_id", "entered_at", "status", "version", "replaces_id", "is_replaced"}
+    {"is_reported", "entered_by_id", "entered_at", "status", "version", "replaces_id", "is_replaced"}
 )
 # The status of a sample test while its reported result is in each approval state.
 TEST_STATUS_BY_STATE = {
@@ -70,7 +70,7 @@ class TestResult(models.Model, TestResultBase):
     _name = MODEL_TEST_RESULT
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_APPROVAL_MIXIN]
     _description = "Test Result"
-    _order = "sample_test_id, attempt desc, version desc"
+    _order = "sample_test_id, entered_at desc, version desc, id desc"
     # A result is signed, never archived or deleted.
     _permission_actions = ("read", "create", "edit", "sign")
 
@@ -87,8 +87,6 @@ class TestResult(models.Model, TestResultBase):
         subcontractor_id = fields.Many2one(related="sample_test_id.subcontractor_id")
         # The regulation the sample's results are compared with; empty when none.
         regulation_id = fields.Many2one(related="sample_test_id.sample_id.regulation_id")
-        # Attempt number, 1 for the first measurement and higher for retests.
-        attempt = fields.Integer(required=True, default=1, readonly=True, copy=False)
         # True for the result reported to the customer: the latest one entered for the sample test.
         is_reported = fields.Boolean(string="Reported Result", readonly=True, copy=False)
         # Measured value in the unit, stored exactly; 0 for a text result.
@@ -161,9 +159,6 @@ class TestResult(models.Model, TestResultBase):
         # True when a newer version replaces this result.
         is_replaced = fields.Boolean(string="Replaced", readonly=True, copy=False)
 
-    _attempt_unique = models.Constraint(
-        "UNIQUE(sample_test_id, attempt, version)", "A sample test has one result per attempt and version."
-    )
     _replaces_unique = models.Constraint("UNIQUE(replaces_id)", "A result is replaced by one newer version.")
     _one_reported = models.UniqueIndex(
         "(sample_test_id) WHERE is_reported AND NOT is_replaced", "A sample test has one reported result."
@@ -172,11 +167,13 @@ class TestResult(models.Model, TestResultBase):
         "CHECK(value_decimals BETWEEN 0 AND 15)", "A result shows between 0 and 15 decimals."
     )
 
-    @api.depends("sample_test_id", "attempt")
+    @api.depends("sample_test_id", "entered_at")
+    @api.depends_context("tz", "lang")
     def _compute_display_name(self):
         for result in self:
             test = result.sudo().sample_test_id
-            result.display_name = f"{test.sample_id.code} – {test.parameter_id.name} #{result.attempt}"
+            entered = format_datetime(self.env, result.entered_at)
+            result.display_name = f"{test.sample_id.code} – {test.parameter_id.name} ({entered})"
 
     # The unit and the decimals are computed apart: the form sends the editable decimals, and Odoo then leaves
     # every field of the same compute method as it was given.
@@ -239,7 +236,6 @@ class TestResult(models.Model, TestResultBase):
             if refusal:
                 raise UserError(refusal)
             # A retest becomes the reported result; the earlier ones stay on record.
-            vals["attempt"] = max(test.result_ids.mapped("attempt"), default=0) + 1
             vals["is_reported"] = True
             reported = test.result_ids.filtered("is_reported")
             reported.is_reported = False
@@ -279,7 +275,7 @@ class TestResult(models.Model, TestResultBase):
     def write(self, vals):
         moves = "sample_test_id" in vals and any(result.sample_test_id.id != vals["sample_test_id"] for result in self)
         if not self.env.su and (moves or SYSTEM_FIELDS & set(vals)):
-            raise UserError(self.env._("The system sets the sample test, attempt, entry and status of a result."))
+            raise UserError(self.env._("The system sets the sample test, entry and status of a result."))
         return super().write(vals)
 
     def action_sign(self):
@@ -295,6 +291,13 @@ class TestResult(models.Model, TestResultBase):
             if self.regulation_id and not self.conclusion:
                 raise UserError(self.env._("Set the conclusion against the regulation before sending the result."))
         return super().action_sign()
+
+    def action_withdraw(self):
+        """A sent result taken back by its tester gives them their testing task again."""
+        withdrawn = super().action_withdraw()
+        if self.status == STATE_NONE and self.is_reported:
+            self.sudo().sample_test_id._reopen_testing_task()
+        return withdrawn
 
     def _regulation_limit(self):
         self.ensure_one()
@@ -378,7 +381,6 @@ class TestResult(models.Model, TestResultBase):
         result.flush_recordset(["is_replaced"])
         version = result.copy(
             {
-                "attempt": result.attempt,
                 "is_reported": result.is_reported,
                 "version": result.version + 1,
                 "replaces_id": result.id,
@@ -395,6 +397,13 @@ class TestResult(models.Model, TestResultBase):
             status = TEST_STATUS_BY_STATE[state]
             test = self.sample_test_id
             test._progress(test._work_status() if status == "testing" else status)
+            if state == STATE_REJECTED and not self.replaces_id:
+                # The rejected result stays on record, and a new testing task with the reason waits in the queue of
+                # the department that tested it, unless one is still open. A rejected correction is redone by a change
+                # request.
+                task = test._latest_testing_task()
+                if task.status == "done":
+                    test._open_testing_task(task.department_id, self._approval_rejection_reason())
 
     def _send_back(self, note):
         """The lab head sends approved results back to the department that tested them: their signatures are withdrawn,
