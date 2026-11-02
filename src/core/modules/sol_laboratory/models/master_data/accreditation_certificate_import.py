@@ -62,27 +62,7 @@ class AccreditationCertificateImport(models.TransientModel, AccreditationCertifi
         self.ensure_one()
         certificate = self.certificate_id
         certificate._check_permission("edit")
-        lines = self.line_ids
-        if not lines:
-            raise ValidationError(self.env._("Enter at least one scope line to import."))
-
-        parsed = []
-        titles = {}
-        for index, line in enumerate(lines, start=1):
-            code = (line.code or "").strip()
-            if not code:
-                raise ValidationError(self.env._("Row %(row)s has no code. Nothing was imported.", row=index))
-            if not line.parameter_ids or not line.sample_type_ids:
-                raise ValidationError(
-                    self.env._(
-                        "Row %(row)s needs at least one parameter and one sample type. Nothing was imported.",
-                        row=index,
-                    )
-                )
-            # A code listed on several rows takes the first title given; without any it takes its code.
-            if not titles.get(code):
-                titles[code] = (line.name or "").strip()
-            parsed.append((code, line.parameter_ids, line.sample_type_ids))
+        titles, rows = self._read_rows()
 
         methods = self.env[MODEL_TESTING_METHOD]
         existing = methods.with_context(active_test=False).search([("code", "in", list(titles))])
@@ -96,28 +76,58 @@ class AccreditationCertificateImport(models.TransientModel, AccreditationCertifi
             for code, title in titles.items():
                 if code not in by_code:
                     by_code[code] = self._create_method(code, title or code)
-            scope = {
-                (line.method_id.id, frozenset(line.parameter_ids.ids), frozenset(line.sample_type_ids.ids))
-                for line in certificate.scope_line_ids
-            }
-            commands = []
-            for code, parameters, sample_types in parsed:
-                key = (by_code[code].id, frozenset(parameters.ids), frozenset(sample_types.ids))
-                if key in scope:
-                    continue
-                scope.add(key)
-                commands.append(
-                    Command.create(
-                        {
-                            "method_id": key[0],
-                            "parameter_ids": [Command.set(persisted_ids(parameters))],
-                            "sample_type_ids": [Command.set(persisted_ids(sample_types))],
-                        }
-                    )
-                )
+            commands = self._new_line_commands(certificate, by_code, rows)
             if commands:
                 certificate.write({"scope_line_ids": commands})
         return {"type": "ir.actions.act_window_close"}
+
+    def _read_rows(self):
+        """Return the title of each code and the rows as (code, parameters, sample types); refuse the whole import
+        on an empty list or a row without a code, a parameter or a sample type."""
+        if not self.line_ids:
+            raise ValidationError(self.env._("Enter at least one scope line to import."))
+        titles = {}
+        rows = []
+        for index, line in enumerate(self.line_ids, start=1):
+            code = (line.code or "").strip()
+            if not code:
+                raise ValidationError(self.env._("Row %(row)s has no code. Nothing was imported.", row=index))
+            if not line.parameter_ids or not line.sample_type_ids:
+                raise ValidationError(
+                    self.env._(
+                        "Row %(row)s needs at least one parameter and one sample type. Nothing was imported.",
+                        row=index,
+                    )
+                )
+            # A code listed on several rows takes the first title given; without any it takes its code.
+            if not titles.get(code):
+                titles[code] = (line.name or "").strip()
+            rows.append((code, line.parameter_ids, line.sample_type_ids))
+        return titles, rows
+
+    @api.model
+    def _new_line_commands(self, certificate, by_code, rows):
+        """Commands creating a scope line for each row the certificate and the earlier rows do not already have."""
+        scope = {
+            (line.method_id.id, frozenset(line.parameter_ids.ids), frozenset(line.sample_type_ids.ids))
+            for line in certificate.scope_line_ids
+        }
+        commands = []
+        for code, parameters, sample_types in rows:
+            key = (by_code[code].id, frozenset(parameters.ids), frozenset(sample_types.ids))
+            if key in scope:
+                continue
+            scope.add(key)
+            commands.append(
+                Command.create(
+                    {
+                        "method_id": key[0],
+                        "parameter_ids": [Command.set(persisted_ids(parameters))],
+                        "sample_type_ids": [Command.set(persisted_ids(sample_types))],
+                    }
+                )
+            )
+        return commands
 
     def _create_method(self, code, title):
         methods = self.env[MODEL_TESTING_METHOD].with_context(lang=self.lang)
