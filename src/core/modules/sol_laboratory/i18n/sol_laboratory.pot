@@ -15329,3 +15329,19 @@ msgstr ""
 #: model:res.groups,name:sol_laboratory.group_permission_parameter_method_sample_type_delete_own_department
 msgid "Permission: parameter.method.sample.type.delete.own_department"
 msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__can_edit
+msgid "Can Edit"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__moved_out_by_ids
+msgid "Moved Out By"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "Only the system records who moved a task to another department."
+msgstr ""
