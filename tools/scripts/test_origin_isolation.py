@@ -26,7 +26,7 @@ if "run" in args:
     if scenario == "partial" and any(":8069/" in arg for arg in args):
         code = 0
     print(f"curl-exit={code}")
-elif "rollout" in args:
+elif "rollout" in args or "rollout/odoo" in args:
     if scenario == "unhealthy":
         sys.exit(1)
 elif "create" in args:

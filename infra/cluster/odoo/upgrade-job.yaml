@@ -1,4 +1,4 @@
-# Installs the missing modules and upgrades every installed one before the replicas roll out. A failure fails the sync.
+# Installs the missing modules and upgrades every installed one before the new colour starts. A failure fails the sync.
 apiVersion: batch/v1
 kind: Job
 metadata:

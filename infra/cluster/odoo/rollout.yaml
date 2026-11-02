@@ -1,7 +1,8 @@
-# One replica while the cluster runs on Server A alone. A release rolls out one replica at a time.
+# One replica while the cluster runs on Server A alone. A release starts the new image as the preview colour beside the
+# active one, checks it through odoo-preview, then switches odoo to it; the old colour stays up 10 minutes for a rollback.
 # Sessions and cached attachments live in the emptyDir; attachments are backed by the medilab-filestore bucket.
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
 metadata:
   name: odoo
   labels:
@@ -9,11 +10,19 @@ metadata:
 spec:
   replicas: 1
   progressDeadlineSeconds: 600
+  progressDeadlineAbort: true
   strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 0
+    blueGreen:
+      activeService: odoo
+      previewService: odoo-preview
+      autoPromotionEnabled: true
+      prePromotionAnalysis:
+        templates:
+          - templateName: odoo-health
+        args:
+          - name: service
+            value: odoo-preview
+      scaleDownDelaySeconds: 600
   selector:
     matchLabels:
       app.kubernetes.io/name: odoo

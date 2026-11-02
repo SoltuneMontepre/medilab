@@ -59,3 +59,37 @@ spec:
       services:
         - name: odoo
           port: http
+---
+# The colour being released, before the switch, with the same middlewares as lims.
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: odoo-preview
+spec:
+  entryPoints:
+    - web
+  routes:
+    - kind: Rule
+      match: Host(`lims-preview.soltunemontepre.tech`) && PathPrefix(`/websocket`)
+      middlewares:
+        - name: odoo-https
+      services:
+        - name: odoo-preview
+          port: websocket
+    - kind: Rule
+      match: >-
+        Host(`lims-preview.soltunemontepre.tech`) && (Path(`/medilab/api/v1/sign-in`) ||
+        Path(`/medilab/brevo/webhook`) || Path(`/payment/payos/webhook`))
+      middlewares:
+        - name: odoo-https
+        - name: odoo-rate-limit
+      services:
+        - name: odoo-preview
+          port: http
+    - kind: Rule
+      match: Host(`lims-preview.soltunemontepre.tech`)
+      middlewares:
+        - name: odoo-https
+      services:
+        - name: odoo-preview
+          port: http

@@ -1,5 +1,7 @@
-# Every sync backs up the database, upgrades the modules, then rolls out Odoo; see odoo/.
+# Every sync backs up the database, upgrades the modules, then releases Odoo blue-green; see odoo/.
 # No retry: a failed release is rolled back by cd-core, not synced again.
+# Argo Rollouts owns the colour in the Service selectors; the Deployment it replaced is removed only once the Rollout is
+# healthy.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -22,3 +24,9 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      - PruneLast=true
+      - RespectIgnoreDifferences=true
+  ignoreDifferences:
+    - kind: Service
+      jsonPointers:
+        - /spec/selector/rollouts-pod-template-hash

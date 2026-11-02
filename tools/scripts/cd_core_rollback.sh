@@ -86,7 +86,7 @@ done | sort -u | paste -sd, -)
   echo "## Odoo replicas"
   echo
   echo '```text'
-  argo app logs odoo --group apps --kind Deployment --name odoo --tail 30 2>&1 | tail -n 30 | cut -c 1-250 || true
+  argo app logs odoo --group argoproj.io --kind Rollout --name odoo --tail 30 2>&1 | tail -n 30 | cut -c 1-250 || true
   echo '```'
 } > /tmp/redeploy-body
 

@@ -1,0 +1,22 @@
+# Before the switch, the preview colour must answer /web/health with its database reachable three times in a row.
+# The Argo Rollouts controller makes the requests; one failure or error aborts the release and keeps the active colour.
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: odoo-health
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+spec:
+  args:
+    - name: service
+  metrics:
+    - name: health
+      count: 3
+      interval: 20s
+      failureLimit: 0
+      consecutiveErrorLimit: 0
+      successCondition: result.status == "pass"
+      provider:
+        web:
+          url: "http://{{args.service}}.medilab.svc.cluster.local:8069/web/health?db_server_status=1"
+          timeoutSeconds: 10
