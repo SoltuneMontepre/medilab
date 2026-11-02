@@ -45,7 +45,7 @@ def seed_demo(env):
     from .demo_laboratory_uploads import seed_laboratory_uploads
     from .demo_locks import seed_locks
     from .demo_order_templates import seed_order_templates
-    from .demo_orders import seed_orders
+    from .demo_orders import seed_orders, seed_request_orders
     from .demo_quotations import seed_quotations
     from .demo_reports import seed_reports
     from .demo_results import seed_results
@@ -76,3 +76,4 @@ def seed_demo(env):
     seed_cleanup(env)
     seed_support(env)
     seed_signing_levels(env)
+    seed_request_orders(env)
