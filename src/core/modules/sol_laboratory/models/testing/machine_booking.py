@@ -428,7 +428,8 @@ class MachineBooking(models.Model, MachineBookingBase):
 
     @api.model
     def _free_slot(self, machine, length, person, not_after, not_before=None, ignore=None, working=None, rooms=()):
-        """The earliest start of a free slot of the given length on the machine, within the person's working time.
+        """The earliest start of a free slot of the given length on the machine, within the person's working time and
+        clear of their other bookings.
 
         The slot starts on a slot boundary, not before not_before nor now, and ends by not_after while the machine is
         still fit to use. working gives the person's working intervals when the caller has them already. rooms are the
@@ -440,8 +441,11 @@ class MachineBooking(models.Model, MachineBookingBase):
         limit = min(not_after, machine._usable_until())
         if start_from + length > limit:
             return None
+        holders = Domain("machine_id", "=", machine.id)
+        if person:
+            holders |= Domain("person_id", "=", person.id)
         busy = self.sudo().search_fetch(
-            Domain("machine_id", "=", machine.id)
+            holders
             & Domain("status", "in", ACTIVE_STATUSES)
             & Domain("starts_at", "<", limit)
             & Domain("ends_at", ">", start_from)

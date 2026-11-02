@@ -165,6 +165,17 @@ class TestMachineScheduling(SchedulingCase):
         with self.assertRaisesRegex(UserError, "Only a scheduled booking can be moved"):
             own.write({"starts_at": MONDAY + timedelta(hours=4)})
 
+    def test_a_tester_is_never_booked_twice_at_the_same_time(self):
+        second_test = self.new_test()
+        self.testing_task(self.test, self.tester)
+        self.testing_task(second_test, self.tester)
+        first = self.schedule(self.test, self.tester)
+        second = self.schedule(second_test, self.tester)
+        self.assertGreaterEqual(second.starts_at, first.ends_at)
+
+        with self.assertRaisesRegex(UserError, "is not free"):
+            second.with_user(self.tester.user_id).write({"starts_at": first.starts_at})
+
     def test_moving_a_booking_respects_and_releases_the_edit_lock(self):
         self.testing_task(self.test, self.tester)
         booking = self.schedule(self.test, self.tester)
