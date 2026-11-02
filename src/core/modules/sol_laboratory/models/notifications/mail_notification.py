@@ -1,9 +1,15 @@
 import logging
+from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.exceptions import AccessError
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_MAIL_NOTIFICATION
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_mail_notification as MailNotificationBase
+else:
+    MailNotificationBase = object
 
 _logger = logging.getLogger(__name__)
 
@@ -33,11 +39,12 @@ EVENT_STATUS = {
 
 
 # Thông Báo
-class MailNotification(models.Model):
+class MailNotification(models.Model, MailNotificationBase):
     _inherit = MODEL_MAIL_NOTIFICATION
 
-    # Delivery status Brevo reported: sent, delivered, opened, bounced, failed or deferred.
-    brevo_status = fields.Char(readonly=True, copy=False)
+    if not TYPE_CHECKING:
+        # Delivery status Brevo reported: sent, delivered, opened, bounced, failed or deferred.
+        brevo_status = fields.Char(readonly=True, copy=False)
 
     @api.model
     def _cleanup_domain(self, cutoff):
@@ -76,7 +83,7 @@ class MailNotification(models.Model):
             _logger.info("Brevo event did not match a notification for that recipient")
             return self.browse()
         partner = notification.res_partner_id
-        if (partner.email or "").strip().lower() != email:
+        if ((partner.email or "").strip().lower()) != email:
             return self.browse()
         current = notification.brevo_status
         if current in TERMINAL or (
@@ -105,7 +112,7 @@ class MailNotification(models.Model):
             except ValueError:
                 return self.browse()
             notification = self.browse(notification_id).exists()
-            if notification and (notification.res_partner_id.email or "").strip().lower() == email:
+            if notification and ((notification.res_partner_id.email or "").strip().lower()) == email:
                 return notification
             return self.browse()
         message_id = str(event.get("message-id") or event.get("message_id") or "").strip().strip("<>")
@@ -118,4 +125,4 @@ class MailNotification(models.Model):
                 ("res_partner_id.email", "=ilike", email),
             ]
         )
-        return notifications.filtered(lambda item: (item.res_partner_id.email or "").strip().lower() == email)[:1]
+        return notifications.filtered(lambda item: ((item.res_partner_id.email or "").strip().lower()) == email)[:1]

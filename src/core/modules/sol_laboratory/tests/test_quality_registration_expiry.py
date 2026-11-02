@@ -60,7 +60,7 @@ class TestQualityRegistrationExpiry(TransactionCase):
 
         warning = self.warnings()
         self.assertEqual(len(warning), 1)
-        self.assertIn("expires on", warning.body)
+        self.assertIn("expires on", (warning.body or ""))
         self.assertIn(self.administrator.partner_id, warning.notification_ids.res_partner_id)
 
     def test_administrators_are_warned_again_on_the_last_valid_day(self):
@@ -70,7 +70,7 @@ class TestQualityRegistrationExpiry(TransactionCase):
         self.run_job()
 
         self.assertEqual(len(self.warnings()), 2)
-        self.assertIn("expires today", self.warnings()[:1].body)
+        self.assertIn("expires today", (self.warnings()[:1].body or ""))
 
     def test_no_warning_comes_before_the_warning_days_or_after_the_dossier_expired(self):
         for valid_until in (self.today + timedelta(days=8), self.today - timedelta(days=1)):

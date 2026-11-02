@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import fields, models
 from odoo.exceptions import UserError
 from odoo.fields import Domain
@@ -6,9 +8,14 @@ from odoo.tools import format_date
 from odoo.addons.sol_commerce.constants.models import MODEL_TAX, MODEL_TAX_RATE
 from odoo.addons.sol_laboratory.constants.models import MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN, MODEL_PERMISSION_MIXIN
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_tax as TaxBase
+else:
+    TaxBase = object
+
 
 # Thuế
-class Tax(models.Model):
+class Tax(models.Model, TaxBase):
     _name = MODEL_TAX
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Tax"
@@ -16,14 +23,15 @@ class Tax(models.Model):
     _rec_names_search = ("name", "code")
     _audit_children = ("rate_ids",)
 
-    # Unique code of the tax, such as VAT10 or KCT.
-    code = fields.Char(required=True, copy=False, index="trigram")
-    # Tax name as printed on quotations and invoices, in each language.
-    name = fields.Char(required=True, translate=True, index="trigram")
-    # False when the tax is archived.
-    active = fields.Boolean(default=True)
-    # The tax's rate over time.
-    rate_ids = fields.One2many(MODEL_TAX_RATE, "tax_id", string="Rates")
+    if not TYPE_CHECKING:
+        # Unique code of the tax, such as VAT10 or KCT.
+        code = fields.Char(required=True, copy=False, index="trigram")
+        # Tax name as printed on quotations and invoices, in each language.
+        name = fields.Char(required=True, translate=True, index="trigram")
+        # False when the tax is archived.
+        active = fields.Boolean(default=True)
+        # The tax's rate over time.
+        rate_ids = fields.One2many(MODEL_TAX_RATE, "tax_id", string="Rates")
 
     _code_unique = models.Constraint("UNIQUE(code)", "The code of a tax must be unique.")
 

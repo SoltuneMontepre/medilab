@@ -21,6 +21,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 from odoo.addons.sol_laboratory.constants.notifications import BREVO_WEBHOOK_TOKEN, CHANNEL_PUSH, EVENT_TASK_REMINDER
 from odoo.addons.sol_laboratory.services.firebase_client import FirebaseClient, PermanentTokenError
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 FIREBASE_FROM_ENV = "odoo.addons.sol_laboratory.models.notifications.scheduled_job.firebase_client_from_env"
 MAIL_SERVER = "odoo.addons.base.models.ir_mail_server.IrMail_Server"
@@ -86,7 +87,7 @@ class TestAuditIntegrations(AuditLookup, HttpCase):
         ):
             mail.send(raise_exception=False)
 
-        self.assertIn("Mailbox unavailable", self.entries(self.task, "error").note)
+        self.assertIn("Mailbox unavailable", assert_instance(self.entries(self.task, "error").note, str))
         self.assertFalse(self.entries(self.task, "integration"))
 
     def test_a_brevo_event_is_recorded_on_the_document_of_its_email(self):

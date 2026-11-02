@@ -40,6 +40,7 @@ The accountant is the laboratory's financial user. The accountant issues and tra
 | Adjustment invoice (hóa đơn điều chỉnh) | Accountant, from a posted invoice                            | Correct a posted invoice with only the difference, raising or lowering the amount        |
 
 - An advance invoice is posted automatically; the accountant does not need to create or post it.
+- **Posting task.** A draft advance or final invoice drafted by someone who cannot post it, such as a salesperson, puts a posting task in the queue of the Accountant role ([SH-10](../../shared.md#sh-10-tasks-and-to-do-list)); the administrator chooses the role on the task type. The task opens the invoice. It is done when the invoice is posted, and cancelled when the invoice is cancelled or deleted. It is due 24 elapsed hours after the invoice is drafted; the administrator changes this default on the task type.
 - The final invoice deducts the advance already paid, so the customer is never billed twice for the same parameters.
 - Invoices are sent by email with the PDF attached, and can be downloaded at any time. Customers see their posted invoices on the portal.
 - Tax follows the tax of each quotation line: the parameter's or package's tax, or the one sales set on the quotation. Prices in the catalog exclude VAT; the invoice shows net, tax and total separately.
@@ -48,6 +49,7 @@ The accountant is the laboratory's financial user. The accountant issues and tra
 Acceptance criteria:
 
 - Sending a quotation with an advance request creates one posted advance invoice.
+- A draft invoice a salesperson creates is a task in the accountants' queue; posting the invoice marks the task done.
 - The final invoice total equals the order total minus the advance.
 - An adjustment invoice of −500,000 VND on a 5,000,000 VND invoice leaves 4,500,000 VND owed, and the original invoice is unchanged.
 - A posted invoice cannot be edited; only an adjustment invoice changes what is owed.

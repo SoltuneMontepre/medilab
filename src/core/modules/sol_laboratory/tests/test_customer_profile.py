@@ -6,6 +6,7 @@ from odoo.tests import new_test_user, tagged
 
 from .request_case import RequestCase
 from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 PNG = base64.b64decode(
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
@@ -38,7 +39,7 @@ class TestCustomerProfile(RequestCase):
             {
                 "phone": "028 3750 1234",
                 "child_ids": [
-                    Command.update(self.hoa.id, {"function": "Quality manager"}),
+                    Command.update(persisted_id(self.hoa), {"function": "Quality manager"}),
                     Command.create({"name": "Le Van Nam", "function": "Buyer", "type": "contact"}),
                 ],
             }
@@ -48,7 +49,7 @@ class TestCustomerProfile(RequestCase):
         self.assertEqual(self.hoa.function, "Quality manager")
         self.assertIn("Le Van Nam", self.customer._contacts().mapped("name"))
         with self.assertRaises(AccessError):
-            customer.write({"child_ids": [Command.link(self.env.ref("base.partner_admin").id)]})
+            customer.write({"child_ids": [Command.link(persisted_id(self.env.ref("base.partner_admin")))]})
 
     def test_the_citizen_id_is_read_only_by_those_who_maintain_customers(self):
         self.customer.citizen_id = "079085001234"
@@ -83,13 +84,15 @@ class TestCustomerProfile(RequestCase):
         probe = {
             "login": "probe.admin",
             "name": "Probe",
-            "group_ids": [Command.link(self.env.ref("base.group_system").id)],
+            "group_ids": [Command.link(persisted_id(self.env.ref("base.group_system")))],
         }
 
         for command in (
             Command.create({"name": "Probe", "user_ids": [Command.create(probe)]}),
-            Command.update(self.hoa.id, {"user_ids": [Command.link(admin.id)]}),
-            Command.update(self.hoa.id, {"child_ids": [Command.link(self.env.ref("base.partner_admin").id)]}),
+            Command.update(persisted_id(self.hoa), {"user_ids": [Command.link(persisted_id(admin))]}),
+            Command.update(
+                persisted_id(self.hoa), {"child_ids": [Command.link(persisted_id(self.env.ref("base.partner_admin")))]}
+            ),
         ):
             with self.subTest(command=command), self.assertRaises(AccessError):
                 customer.write({"child_ids": [command]})

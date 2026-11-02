@@ -1,3 +1,4 @@
+from typing import TYPE_CHECKING
 from urllib.parse import urlencode
 
 from werkzeug.exceptions import HTTPException, MethodNotAllowed
@@ -10,9 +11,14 @@ from odoo.addons.sol_laboratory.constants.models import MODEL_IR_HTTP
 from odoo.addons.sol_laboratory.services.laboratory_editor_logging import install_editor_filter
 from odoo.addons.sol_laboratory.services.laboratory_editor_page import EDITOR_PATH, page_headers
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_ir_http as IrHttpBase
+else:
+    IrHttpBase = object
+
 
 # Định Tuyến HTTP: retain native session logout/rotation and sanitize the editor's login return path.
-class IrHttp(models.AbstractModel):
+class IrHttp(models.AbstractModel, IrHttpBase):
     _inherit = MODEL_IR_HTTP
 
     def _register_hook(self):
@@ -25,8 +31,9 @@ class IrHttp(models.AbstractModel):
             return super()._match(path_info)
         except MethodNotAllowed as error:
             if EDITOR_PATH.fullmatch(path_info):
-                error.error_response = page_headers(error.get_response())
-                error.error_response.headers["Allow"] = "GET, HEAD"
+                response = page_headers(error.get_response())
+                response.headers["Allow"] = "GET, HEAD"
+                setattr(error, "error_response", response)
             raise
 
     @classmethod

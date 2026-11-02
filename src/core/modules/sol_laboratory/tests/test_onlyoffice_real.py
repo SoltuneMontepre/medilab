@@ -78,7 +78,7 @@ class TestOnlyofficeReal(LaboratoryEditingHttpCase):
         }
         self.relay.config = {**configuration, "token": sign(configuration, SECRET, 900)}
 
-    def prepare(self, env):
+    def prepare(self: LaboratoryEditingHttpCase, env):
         env.cr.execute("SELECT COALESCE(MAX(id), 0) FROM medilab_audit_entry")
         self.last_entry_id = env.cr.fetchone()[0]
         self.last_content_id = self.last_content(env)

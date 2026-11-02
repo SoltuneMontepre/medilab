@@ -36,7 +36,9 @@ def create_link(link, target):
             check=False,
         )
         if result.returncode:
-            raise LinkError(f"Could not link {link} to {target}: {result.stderr or result.stdout}")
+            raise LinkError(
+                f"Could not link {link} to {target}: {result.stderr or result.stdout}"
+            )
     else:
         os.symlink(os.path.relpath(target, link.parent), link, target_is_directory=True)
 
@@ -65,7 +67,9 @@ def ask_to_replace(folder):
     """Ask whether to delete folder and link its name instead. Without a terminal, the answer is no."""
     if not sys.stdin.isatty():
         return False
-    answer = input(f"{folder} is a folder, not a link. Delete it and link the name instead? [y/N] ")
+    answer = input(
+        f"{folder} is a folder, not a link. Delete it and link the name instead? [y/N] "
+    )
     return answer.strip().lower() in ("y", "yes")
 
 
@@ -77,13 +81,26 @@ class Links:
         self.record = record
         self.confirm = confirm
         try:
-            self.made = json.loads(record.read_text(encoding="utf-8")) if record.exists() else {}
+            self.made = (
+                json.loads(record.read_text(encoding="utf-8"))
+                if record.exists()
+                else {}
+            )
         except (OSError, ValueError) as error:
-            raise LinkError(f"{record} cannot be read: {error}. Delete it and run again.") from error
+            raise LinkError(
+                f"{record} cannot be read: {error}. Delete it and run again."
+            ) from error
         if not isinstance(self.made, dict):
-            raise LinkError(f"{record} is not a record of links. Delete it and run again.")
-        if not all(valid_name(name) and isinstance(target, str) for name, target in self.made.items()):
-            raise LinkError(f"{record} contains an invalid link name or target; refusing to change links.")
+            raise LinkError(
+                f"{record} is not a record of links. Delete it and run again."
+            )
+        if not all(
+            valid_name(name) and isinstance(target, str)
+            for name, target in self.made.items()
+        ):
+            raise LinkError(
+                f"{record} contains an invalid link name or target; refusing to change links."
+            )
 
     def ours(self, link):
         """Whether link is a link this script made and nobody changed since."""
@@ -104,7 +121,9 @@ class Links:
             remove_link(link)
         elif link.exists():
             if not self.confirm(link):
-                raise LinkError(f"{link} is a folder, not a link. Delete it or confirm its replacement, and run again.")
+                raise LinkError(
+                    f"{link} is a folder, not a link. Delete it or confirm its replacement, and run again."
+                )
             shutil.rmtree(link)
         create_link(link, target)
         self.made[name] = os.readlink(link)
@@ -119,7 +138,10 @@ class Links:
 
     def save(self):
         content = json.dumps(self.made, indent=2, sort_keys=True) + "\n"
-        if not self.record.exists() or self.record.read_text(encoding="utf-8") != content:
+        if (
+            not self.record.exists()
+            or self.record.read_text(encoding="utf-8") != content
+        ):
             self.record.write_text(content, encoding="utf-8")
 
 
@@ -129,9 +151,15 @@ def link_addons(source, modules, addons, confirm=ask_to_replace):
     if not addons_folder.is_dir():
         raise LinkError(f"{addons_folder} not found. Run: task dev:odoo-source")
     if not all(valid_name(name) for name in addons):
-        raise LinkError("Addon names must be single directory names; refusing to change links.")
+        raise LinkError(
+            "Addon names must be single directory names; refusing to change links."
+        )
     targets = {name: source / "addons" / name for name in addons}
-    targets |= {path.name: path for path in sorted(modules.iterdir()) if (path / MANIFEST).is_file()}
+    targets |= {
+        path.name: path
+        for path in sorted(modules.iterdir())
+        if (path / MANIFEST).is_file()
+    }
     for target in targets.values():
         if not target.is_dir():
             raise LinkError(f"{target} not found. Run: task dev:odoo-source")
@@ -148,7 +176,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("source", type=Path, help="the Odoo source folder")
     parser.add_argument("modules", type=Path, help="the folder of the MediLab modules")
-    parser.add_argument("addons", nargs="*", help="the Odoo addons in <source>/addons to link")
+    parser.add_argument(
+        "addons", nargs="*", help="the Odoo addons in <source>/addons to link"
+    )
     args = parser.parse_args()
     try:
         link_addons(args.source, args.modules, args.addons)

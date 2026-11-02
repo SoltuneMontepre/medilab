@@ -38,6 +38,11 @@ class LaboratoryEditingHttpCase(LaboratoryBucketTools, LaboratoryEditingConcurre
     """A normal Odoo HTTP process, without HttpCase's shared TestCursor. Fixtures and assertions use independent
     committed transactions in the guarded test database. The document source is a fixture, not Document Server."""
 
+    path: str
+    marker: str
+    extension: str
+    initial_bytes: bytes
+
     HTTP_INTERFACE = "127.0.0.1"
     HTTP_LIMIT_TIME_REAL = None
     bucket_name = CALLBACK_BUCKET
@@ -172,7 +177,7 @@ class LaboratoryEditingHttpCase(LaboratoryBucketTools, LaboratoryEditingConcurre
                     keys.append(key)
         return keys
 
-    def fields(self, status=2, **values):
+    def fields(self, status: object = 2, **values):
         return {
             "key": self.document_key,
             "status": status,

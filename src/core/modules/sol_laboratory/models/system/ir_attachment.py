@@ -3,6 +3,7 @@ import os
 import re
 import tempfile
 from datetime import UTC, datetime, timedelta
+from typing import TYPE_CHECKING
 
 from odoo import api, models
 from odoo.tools import config
@@ -15,13 +16,18 @@ from odoo.addons.sol_laboratory.constants.laboratory_bucket import (
 from odoo.addons.sol_laboratory.constants.models import MODEL_IR_ATTACHMENT
 from odoo.addons.sol_laboratory.services import laboratory_bucket
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_ir_attachment as IrAttachmentBase
+else:
+    IrAttachmentBase = object
+
 STORED_FILE = re.compile(r"[0-9a-f]{2}/[0-9a-f]+")
 
 _logger = logging.getLogger(__name__)
 
 
 # Tệp Đính Kèm
-class IrAttachment(models.Model):
+class IrAttachment(models.Model, IrAttachmentBase):
     _inherit = MODEL_IR_ATTACHMENT
 
     @api.model
@@ -69,6 +75,23 @@ class IrAttachment(models.Model):
         for key, modified in list(laboratory_bucket.keys(prefix)):
             if key.removeprefix(prefix) not in kept and modified < limit:
                 laboratory_bucket.delete(key)
+
+    @api.model
+    def _move_mounted_files(self):
+        """Move the files the bucket held when it was mounted as the filestore, at `<database>/<store_fname>`, to their
+        key under the filestore prefix. The object is read and written again, as server-side copies are limited."""
+        if not laboratory_bucket.filestore_enabled():
+            return
+        prefix = f"{self.env.cr.dbname}/"
+        for key, _modified in list(laboratory_bucket.keys(prefix)):
+            fname = key.removeprefix(prefix)
+            if not STORED_FILE.fullmatch(fname):
+                continue
+            target = self._bucket_key(fname)
+            if laboratory_bucket.object_size(target) is None:
+                with laboratory_bucket.read(key) as chunks:
+                    laboratory_bucket.write(target, chunks)
+            laboratory_bucket.delete(key)
 
     @api.model
     def _upload_file(self, fname):

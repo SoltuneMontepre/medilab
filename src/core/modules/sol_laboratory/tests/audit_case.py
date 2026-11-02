@@ -1,3 +1,6 @@
+from typing import TYPE_CHECKING, ClassVar
+
+from odoo.api import Environment
 from odoo.fields import Command
 from odoo.tests import new_test_user
 
@@ -5,11 +8,16 @@ from .common import MasterDataCase
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_ENTRY, MODEL_AUDIT_MIXIN, MODEL_REGULATION
 from odoo.addons.sol_laboratory.constants.xml_ids import AUDIT_READ_GROUP
 
+if TYPE_CHECKING:
+    from odoo.orm.types import DomainType
+
 AUDITOR_GROUPS = f"base.group_user,{AUDIT_READ_GROUP}"
 
 
 class AuditLookup:
     """Finds the audit entries of records and the changes of an entry, for any test case."""
+
+    env: ClassVar[Environment]
 
     @classmethod
     def new_auditor(cls):
@@ -35,7 +43,7 @@ class AuditLookup:
 
     @classmethod
     def entries(cls, records, action=None):
-        domain = [("document_model", "=", records._name), ("document_id", "in", records.ids)]
+        domain: DomainType = [("document_model", "=", records._name), ("document_id", "in", records.ids)]
         if action:
             domain.append(("action", "=", action))
         return cls.env[MODEL_AUDIT_ENTRY].sudo().search(domain)

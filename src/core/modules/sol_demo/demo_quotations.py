@@ -10,6 +10,7 @@ from odoo.addons.sol_commerce.constants.models import (
     MODEL_QUOTATION,
     MODEL_SALE_ORDER,
 )
+from odoo.addons.sol_laboratory.services.record_id import persisted_ids
 
 DISCOUNT_WIZARD = "sale.order.discount"
 PAYMENT_WIZARD = "account.payment.register"
@@ -35,26 +36,19 @@ def seed_quotations(env):
     expired = _quotable_order(env, lead, vat8)
     revised = _quotable_order(env, lead, vat10, quantity=3, advance_method="none")
     for order in (sent, accepted, declined, expired):
-        order.with_user(sales).action_send_quotation()
+        _as(order, sales).action_send_quotation()
     _pay_advance(env, accepted)
     declined._latest_quotation().action_decline("The price is above our budget this quarter.")
     expired.payment_deadline = fields.Datetime.now() - timedelta(days=1)
     env[MODEL_QUOTATION]._flag_expired()
-    revised.with_user(head).action_send_quotation()
+    _as(revised, head).action_send_quotation()
     revised.with_user(sales).action_revise_quotation()
     env[DISCOUNT_WIZARD].create(
         {"sale_order_id": revised.id, "discount_type": "so_discount", "discount_percentage": 0.05}
     ).action_apply_discount()
-    revised.with_user(head).action_send_quotation()
+    _as(revised, head).action_send_quotation()
 
-    requested = _confirmed_order(env, lead, vat10, sales, head)
-    approved = _confirmed_order(env, package, vat8, sales, head)
-    rejected = _confirmed_order(env, lead, vat8, sales, head)
-    requested.with_user(sales).action_request_approval()
-    approved.with_user(sales).action_request_approval()
-    approved.with_user(head).action_sign()
-    rejected.with_user(sales).action_request_approval()
-    rejected.with_user(head).action_reject("The discount agreed with the customer is not on the order.")
+    confirmed = _confirmed_order(env, package, vat8, sales, head)
 
     for xml_id, record in (
         ("demo_sale_order_quotation_draft", draft),
@@ -63,11 +57,14 @@ def seed_quotations(env):
         ("demo_sale_order_quotation_declined", declined),
         ("demo_sale_order_quotation_expired", expired),
         ("demo_sale_order_quotation_revised", revised),
-        ("demo_sale_order_approval_requested", requested),
-        ("demo_sale_order_approval_approved", approved),
-        ("demo_sale_order_approval_rejected", rejected),
+        ("demo_sale_order_quotation_confirmed", confirmed),
     ):
         _xml_id(env, xml_id, record)
+
+
+def _as(order, user):
+    """The order as the user works on it, in the user's language as in their session."""
+    return order.with_user(user).with_context(lang=user.lang)
 
 
 def _sales_tax(env, rate):
@@ -141,7 +138,7 @@ def _quotable_order(
         }
     )
     line = order._catalog_lines()
-    line.write({"tax_ids": [Command.set(tax.ids)], "discount": discount})
+    line.write({"tax_ids": [Command.set(persisted_ids(tax))], "discount": discount})
     line.sample_id = env[MODEL_ORDER_SAMPLE].create(
         {
             "order_id": order.id,
@@ -156,7 +153,7 @@ def _quotable_order(
 def _confirmed_order(env, product, tax, sales, head):
     """An order the Head of Sales quoted without an advance, the customer accepted and sales confirmed."""
     order = _quotable_order(env, product, tax, advance_method="none")
-    order.with_user(head).action_send_quotation()
+    _as(order, head).action_send_quotation()
     order._latest_quotation()._accept()
     order.with_user(sales).action_confirm_order()
     return order

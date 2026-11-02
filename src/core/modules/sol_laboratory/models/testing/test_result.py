@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import formatLang
@@ -14,19 +16,19 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MACHINE,
     MODEL_MAIL_MESSAGE,
     MODEL_MEASUREMENT_UNIT,
+    MODEL_PARAMETER_METHOD_SAMPLE_TYPE,
     MODEL_PERMISSION_MIXIN,
     MODEL_SAMPLE_TEST,
     MODEL_TEST_RESULT,
 )
 from odoo.addons.sol_laboratory.constants.notifications import EVENT_TEST_RESULT_REJECTED
-from odoo.addons.sol_laboratory.models.sample_collection.subcontract_dispatch import SENT_STATUSES
 from odoo.addons.sol_laboratory.models.testing.machine_booking import ACTIVE_STATUSES
-from odoo.addons.sol_laboratory.models.testing.sample_test import OPEN_STATUSES
 
-# The statuses of a sample while results can be entered for its tests.
-OPEN_SAMPLE_STATUSES = ("received", "testing")
-# The statuses of a sample test while a result can be entered for it: open, or sent to a subcontractor.
-MEASURABLE_STATUSES = (*OPEN_STATUSES, "outsourced")
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_test_result as TestResultBase
+else:
+    TestResultBase = object
+
 # Fields only the system sets, so the approval chain and who entered the result cannot be bypassed.
 SYSTEM_FIELDS = frozenset(
     {"attempt", "is_reported", "entered_by_id", "entered_at", "status", "version", "replaces_id", "is_replaced"}
@@ -64,7 +66,7 @@ CONTENT_FIELDS = frozenset(
 
 
 # Kết Quả Thử Nghiệm
-class TestResult(models.Model):
+class TestResult(models.Model, TestResultBase):
     _name = MODEL_TEST_RESULT
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_APPROVAL_MIXIN]
     _description = "Test Result"
@@ -72,87 +74,92 @@ class TestResult(models.Model):
     # A result is signed, never archived or deleted.
     _permission_actions = ("read", "create", "edit", "sign")
 
-    # The sample test measured.
-    sample_test_id = fields.Many2one(MODEL_SAMPLE_TEST, required=True, ondelete="restrict", index=True, readonly=True)
-    # The sample measured, shown by its lab code.
-    sample_id = fields.Many2one(related="sample_test_id.sample_id")
-    # The parameter measured.
-    parameter_id = fields.Many2one(related="sample_test_id.parameter_id")
-    # The subcontractor that tested it; empty when the laboratory tested it in-house.
-    subcontractor_id = fields.Many2one(related="sample_test_id.subcontractor_id")
-    # The regulation the sample's results are compared with; empty when none.
-    regulation_id = fields.Many2one(related="sample_test_id.sample_id.regulation_id")
-    # Attempt number, 1 for the first measurement and higher for retests.
-    attempt = fields.Integer(required=True, default=1, readonly=True, copy=False)
-    # True for the result reported to the customer: the latest one entered for the sample test.
-    is_reported = fields.Boolean(string="Reported Result", readonly=True, copy=False)
-    # Measured value in the unit, stored exactly; 0 for a text result.
-    value = fields.Float(min_display_digits=1)
-    # Decimals the value shows, such as 3 for 0.010; copied from the way of testing and correctable by the tester.
-    value_decimals = fields.Integer(string="Decimals", compute="_compute_value_decimals", store=True, readonly=False)
-    # The result as text when it is not a number, such as "Not detected", in each language.
-    value_text = fields.Char(string="Text Result", translate=True)
-    # The result as shown: its text, or its value with its decimals.
-    value_display = fields.Char(string="Result", compute="_compute_value_display")
-    # The unit of the value, taken from the way of testing.
-    unit_id = fields.Many2one(
-        MODEL_MEASUREMENT_UNIT, string="Unit", compute="_compute_unit", store=True, ondelete="restrict"
-    )
-    # The unit of the copied minimum and maximum.
-    limit_unit_id = fields.Many2one(
-        MODEL_MEASUREMENT_UNIT, string="Limit Unit", compute="_compute_limit", store=True, ondelete="restrict"
-    )
-    # True when the copied limit has a minimum, which may be 0.
-    limit_min_set = fields.Boolean(compute="_compute_limit", store=True)
-    # Lowest allowed value, copied from the sample's regulation when the result is created.
-    limit_min = fields.Float(string="Minimum", compute="_compute_limit", store=True, min_display_digits=1)
-    # True when the copied limit has a maximum, which may be 0.
-    limit_max_set = fields.Boolean(compute="_compute_limit", store=True)
-    # Highest allowed value, copied from the sample's regulation when the result is created.
-    limit_max = fields.Float(string="Maximum", compute="_compute_limit", store=True, min_display_digits=1)
-    # Decimals the copied minimum and maximum show on the report, such as 2 for 0.50.
-    limit_decimals = fields.Integer(compute="_compute_limit", store=True)
-    # The limit as text, copied from the sample's regulation, in each language.
-    limit_text = fields.Char(string="Limit", compute="_compute_limit", store=True, translate=True)
-    # The Odoo user who entered the result: a lab QA, or a subcontractor's person for an outsourced test.
-    entered_by_id = fields.Many2one(
-        "res.users",
-        string="Entered By",
-        required=True,
-        readonly=True,
-        ondelete="restrict",
-        default=lambda self: self.env.user,
-    )
-    # When the result was entered, which is when the measurement counts as done.
-    entered_at = fields.Datetime(string="Entered At", required=True, readonly=True, default=fields.Datetime.now)
-    # The machine the measurement ran on, taken from the booking and correctable by the tester; empty when outsourced.
-    machine_id = fields.Many2one(
-        MODEL_MACHINE, compute="_compute_measurement", store=True, readonly=False, ondelete="restrict"
-    )
-    # When the measurement started, taken from the booking's start and correctable by the tester.
-    started_at = fields.Datetime(string="Started At", compute="_compute_measurement", store=True, readonly=False)
-    # Whether the sample passes its regulation for the parameter; set by the tester, empty without a regulation.
-    conclusion = fields.Selection([("pass", "Pass"), ("fail", "Fail")])
-    # Where the result is in its approval.
-    status = fields.Selection(
-        [
-            (STATE_NONE, "Draft"),
-            (STATE_REQUESTED, "Awaiting Approval"),
-            (STATE_APPROVED, "Approved"),
-            (STATE_REJECTED, "Rejected"),
-        ],
-        required=True,
-        default=STATE_NONE,
-        readonly=True,
-        copy=False,
-        index=True,
-    )
-    # Version of the result, 1 for the first and one higher for each version a change request creates.
-    version = fields.Integer(required=True, default=1, readonly=True, copy=False)
-    # The version this result replaces; empty for version 1.
-    replaces_id = fields.Many2one(MODEL_TEST_RESULT, readonly=True, copy=False, ondelete="restrict")
-    # True when a newer version replaces this result.
-    is_replaced = fields.Boolean(string="Replaced", readonly=True, copy=False)
+    if not TYPE_CHECKING:
+        # The sample test measured.
+        sample_test_id = fields.Many2one(
+            MODEL_SAMPLE_TEST, required=True, ondelete="restrict", index=True, readonly=True
+        )
+        # The sample measured, shown by its lab code.
+        sample_id = fields.Many2one(related="sample_test_id.sample_id")
+        # The parameter measured.
+        parameter_id = fields.Many2one(related="sample_test_id.parameter_id")
+        # The subcontractor that tested it; empty when the laboratory tested it in-house.
+        subcontractor_id = fields.Many2one(related="sample_test_id.subcontractor_id")
+        # The regulation the sample's results are compared with; empty when none.
+        regulation_id = fields.Many2one(related="sample_test_id.sample_id.regulation_id")
+        # Attempt number, 1 for the first measurement and higher for retests.
+        attempt = fields.Integer(required=True, default=1, readonly=True, copy=False)
+        # True for the result reported to the customer: the latest one entered for the sample test.
+        is_reported = fields.Boolean(string="Reported Result", readonly=True, copy=False)
+        # Measured value in the unit, stored exactly; 0 for a text result.
+        value = fields.Float(min_display_digits=1)
+        # Decimals the value shows, such as 3 for 0.010; copied from the way of testing and correctable by the tester.
+        value_decimals = fields.Integer(
+            string="Decimals", compute="_compute_value_decimals", store=True, readonly=False
+        )
+        # The result as text when it is not a number, such as "Not detected", in each language.
+        value_text = fields.Char(string="Text Result", translate=True)
+        # The result as shown: its text, or its value with its decimals.
+        value_display = fields.Char(string="Result", compute="_compute_value_display")
+        # The unit of the value, taken from the way of testing.
+        unit_id = fields.Many2one(
+            MODEL_MEASUREMENT_UNIT, string="Unit", compute="_compute_unit", store=True, ondelete="restrict"
+        )
+        # The unit of the copied minimum and maximum.
+        limit_unit_id = fields.Many2one(
+            MODEL_MEASUREMENT_UNIT, string="Limit Unit", compute="_compute_limit", store=True, ondelete="restrict"
+        )
+        # True when the copied limit has a minimum, which may be 0.
+        limit_min_set = fields.Boolean(compute="_compute_limit", store=True)
+        # Lowest allowed value, copied from the sample's regulation when the result is created.
+        limit_min = fields.Float(string="Minimum", compute="_compute_limit", store=True, min_display_digits=1)
+        # True when the copied limit has a maximum, which may be 0.
+        limit_max_set = fields.Boolean(compute="_compute_limit", store=True)
+        # Highest allowed value, copied from the sample's regulation when the result is created.
+        limit_max = fields.Float(string="Maximum", compute="_compute_limit", store=True, min_display_digits=1)
+        # Decimals the copied minimum and maximum show on the report, such as 2 for 0.50.
+        limit_decimals = fields.Integer(compute="_compute_limit", store=True)
+        # The limit as text, copied from the sample's regulation, in each language.
+        limit_text = fields.Char(string="Limit", compute="_compute_limit", store=True, translate=True)
+        # The Odoo user who entered the result: a lab QA, or a subcontractor's person for an outsourced test.
+        entered_by_id = fields.Many2one(
+            "res.users",
+            string="Entered By",
+            required=True,
+            readonly=True,
+            ondelete="restrict",
+            default=lambda self: self.env.user,
+        )
+        # When the result was entered, which is when the measurement counts as done.
+        entered_at = fields.Datetime(string="Entered At", required=True, readonly=True, default=fields.Datetime.now)
+        # The machine the measurement ran on, taken from the booking and correctable by the tester; empty when outsourced.
+        machine_id = fields.Many2one(
+            MODEL_MACHINE, compute="_compute_measurement", store=True, readonly=False, ondelete="restrict"
+        )
+        # When the measurement started, taken from the booking's start and correctable by the tester.
+        started_at = fields.Datetime(string="Started At", compute="_compute_measurement", store=True, readonly=False)
+        # Whether the sample passes its regulation for the parameter; set by the tester, empty without a regulation.
+        conclusion = fields.Selection([("pass", "Pass"), ("fail", "Fail")])
+        # Where the result is in its approval.
+        status = fields.Selection(
+            [
+                (STATE_NONE, "Draft"),
+                (STATE_REQUESTED, "Awaiting Approval"),
+                (STATE_APPROVED, "Approved"),
+                (STATE_REJECTED, "Rejected"),
+            ],
+            required=True,
+            default=STATE_NONE,
+            readonly=True,
+            copy=False,
+            index=True,
+        )
+        # Version of the result, 1 for the first and one higher for each version a change request creates.
+        version = fields.Integer(required=True, default=1, readonly=True, copy=False)
+        # The version this result replaces; empty for version 1.
+        replaces_id = fields.Many2one(MODEL_TEST_RESULT, readonly=True, copy=False, ondelete="restrict")
+        # True when a newer version replaces this result.
+        is_replaced = fields.Boolean(string="Replaced", readonly=True, copy=False)
 
     _attempt_unique = models.Constraint(
         "UNIQUE(sample_test_id, attempt, version)", "A sample test has one result per attempt and version."
@@ -176,12 +183,12 @@ class TestResult(models.Model):
     @api.depends("sample_test_id")
     def _compute_unit(self):
         for result in self:
-            result.unit_id = (result.replaces_id or result._way_of_testing()).unit_id
+            result.unit_id = result.replaces_id.unit_id if result.replaces_id else result._applicability().unit_id
 
     @api.depends("sample_test_id")
     def _compute_value_decimals(self):
         for result in self:
-            result.value_decimals = result._way_of_testing().result_decimals
+            result.value_decimals = result._applicability().result_decimals
 
     @api.depends("sample_test_id")
     def _compute_limit(self):
@@ -228,20 +235,9 @@ class TestResult(models.Model):
                 # A new version is the system's copy of the result it replaces, not a measurement.
                 continue
             test = self.env[MODEL_SAMPLE_TEST].browse(vals.get("sample_test_id")).sudo()
-            if test.status not in MEASURABLE_STATUSES or test.sample_id.status not in OPEN_SAMPLE_STATUSES:
-                raise UserError(
-                    self.env._(
-                        "A result is entered only for a received sample while %s is waiting, assigned, in testing "
-                        "or outsourced.",
-                        test.display_name,
-                    )
-                )
-            if test.status == "outsourced" and not test.dispatch_ids.filtered(
-                lambda dispatch: dispatch.status in SENT_STATUSES
-            ):
-                raise UserError(
-                    self.env._("Send %s to its subcontractor before entering its result.", test.display_name)
-                )
+            refusal = test._result_refusal()
+            if refusal:
+                raise UserError(refusal)
             # A retest becomes the reported result; the earlier ones stay on record.
             vals["attempt"] = max(test.result_ids.mapped("attempt"), default=0) + 1
             vals["is_reported"] = True
@@ -267,6 +263,18 @@ class TestResult(models.Model):
         for result in self:
             if result.machine_id and result.subcontractor_id:
                 raise ValidationError(self.env._("An outsourced result has no machine: %s", result.display_name))
+
+    @api.constrains("value", "value_text")
+    def _check_not_negative(self):
+        # A new version is the system's copy of a result already accepted, so it is not checked again.
+        for result in self.filtered(lambda result: not result.replaces_id):
+            if result.value < 0 and not result.value_text and not result.sudo()._way_of_testing().allows_negative:
+                raise ValidationError(
+                    self.env._(
+                        '%s cannot be negative; enter a measurement below the LOD as a text, such as "< LOD".',
+                        result.display_name,
+                    )
+                )
 
     def write(self, vals):
         moves = "sample_test_id" in vals and any(result.sample_test_id.id != vals["sample_test_id"] for result in self)
@@ -295,10 +303,18 @@ class TestResult(models.Model):
         return limits.filtered(lambda limit: limit.parameter_id == test.parameter_id)[:1]
 
     def _way_of_testing(self):
-        # The way of testing chosen for the test, or else the parameter's default one.
+        # The way of testing chosen for the test, or else the parameter's default one on the sample's type.
         self.ensure_one()
         test = self.sample_test_id
-        return test.parameter_method_id or test.parameter_id.method_ids.filtered("is_default")[:1]
+        return test.parameter_method_id or test.parameter_id._default_way(test.sudo().sample_id.sample_type_id)
+
+    def _applicability(self):
+        # The unit and decimals of the way of testing on the sample's type; empty when it does not apply to it.
+        self.ensure_one()
+        way = self._way_of_testing()
+        if not way:
+            return self.env[MODEL_PARAMETER_METHOD_SAMPLE_TYPE]
+        return way._applicability(self.sample_test_id.sudo().sample_id.sample_type_id)
 
     def _copy_limit_translations(self):
         # The computed copy holds one language; the report needs the limit text in each.
@@ -312,15 +328,27 @@ class TestResult(models.Model):
 
     def _approval_check_actor(self, rejecting=False):
         level = super()._approval_check_actor(rejecting)
-        if not rejecting and level != self._approval_sending_level() and self.entered_by_id == self.env.user:
-            raise UserError(self.env._("You entered this result, so another person must approve it."))
+        if (
+            not rejecting
+            and self.entered_by_id == self.env.user
+            and level not in self._approval_sending_level() | self._approval_final_level()
+        ):
+            raise UserError(self.env._("You entered this result, so another person must sign this level."))
         return level
 
-    @api.model
+    def _approval_signs_again(self, level):
+        # The head of department who entered and sent a result also approves it at the last level.
+        return self.entered_by_id == self.env.user and level == self._approval_final_level()
+
     def _approval_sending_level(self):
-        """The first level of a chain with more than one level: signing it sends the result, any other approves it."""
-        levels = self._approval_chain().level_ids.sorted("sequence")
+        """The first level of a result signed at more than one level: signing it sends the result, any other approves
+        it."""
+        levels = self._approval_levels()
         return levels[:1] if len(levels) > 1 else levels.browse()
+
+    def _approval_final_level(self):
+        """The last level of the result, the head of department's: its signer may approve a result they entered."""
+        return self._approval_levels()[-1:]
 
     def _approval_department(self):
         # The department that tested it, also once its testing task is done, for the change requests on it.

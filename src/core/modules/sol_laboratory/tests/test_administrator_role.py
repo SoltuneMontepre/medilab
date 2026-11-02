@@ -3,6 +3,8 @@ from odoo.fields import Command
 from odoo.tests import TransactionCase, new_test_user, tagged
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_PERMISSION, MODEL_PERMISSION_MIXIN, MODEL_TEST_PARAMETER
+from odoo.addons.sol_laboratory.services.model_lookup import model_as
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 
 @tagged("post_install", "-at_install")
@@ -41,7 +43,7 @@ class TestAdministratorRole(TransactionCase):
             lambda: self.administrator.write({"name": "Super user"}),
             lambda: self.administrator.write({"code": "admin"}),
             lambda: self.administrator.write(
-                {"permission_ids": [Command.unlink(self.administrator.permission_ids[0].id)]}
+                {"permission_ids": [Command.unlink(persisted_id(self.administrator.permission_ids[0]))]}
             ),
         )
         for action in refused:
@@ -52,7 +54,7 @@ class TestAdministratorRole(TransactionCase):
     def test_every_document_type_has_a_permission_for_each_action(self):
         # A document type without a permission for an action would lock out even the administrator.
         for model_name in self.env.registry[MODEL_PERMISSION_MIXIN]._inherit_children:
-            model = self.env[model_name]
+            model = model_as(self.env, model_name, self.env[MODEL_PERMISSION_MIXIN])
             if model._abstract:
                 continue
             actions = set(model._supported_permission_actions())
@@ -64,4 +66,9 @@ class TestAdministratorRole(TransactionCase):
         # Such as deleting ways of testing, which are archived, never deleted.
         for permission in self.env[MODEL_PERMISSION].search([]):
             with self.subTest(permission=permission.code):
-                self.assertIn(permission.action, self.env[permission.document_model]._supported_permission_actions())
+                self.assertIn(
+                    permission.action,
+                    model_as(
+                        self.env, permission.document_model, self.env[MODEL_PERMISSION_MIXIN]
+                    )._supported_permission_actions(),
+                )

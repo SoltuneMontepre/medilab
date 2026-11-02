@@ -70,7 +70,7 @@ class TestChangeRequestResult(ChangeRequestCase):
         self.assertFalse(self.env[MODEL_TEST_RESULT].search_count([("replaces_id", "=", result.id)]))
         message = self.messages(request)
         self.assertEqual(message.subtype_id, self.env.ref("sol_laboratory.event_change_request_rejected"))
-        self.assertIn("The worksheet confirms a dilution of 5.", message.body)
+        self.assertIn("The worksheet confirms a dilution of 5.", (message.body or ""))
         with self.assertRaises(UserError):
             self.as_person(request, self.lab_head).action_withdraw()
 

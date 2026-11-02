@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Users are created from people, so the employee form neither invites nor creates one. -->
+    <record id="view_employee_form_through_people" model="ir.ui.view">
+        <field name="name">hr.employee.form.inherit.sol_laboratory.people</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form" />
+        <field name="arch" type="xml">
+            <button name="action_send_invitation" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </button>
+            <field name="user_state" position="attributes">
+                <attribute name="invisible">not user_id</attribute>
+            </field>
+            <xpath expr="//page[@name='hr_settings']//field[@name='user_id']" position="attributes">
+                <attribute name="options">{'no_create': True}</attribute>
+            </xpath>
+            <xpath expr="//page[@name='hr_settings']//field[@name='user_id'][2]" position="attributes">
+                <attribute name="options">{'no_open': True, 'no_create': True}</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

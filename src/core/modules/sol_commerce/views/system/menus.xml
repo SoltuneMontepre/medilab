@@ -16,7 +16,7 @@
         name="Feedback"
         parent="sale.sale_menu_root"
         action="action_medilab_order_feedback"
-        groups="sol_laboratory.group_permission_order_read_all,group_all_orders"
+        groups="sol_laboratory.group_permission_order_read_all,sol_laboratory.group_permission_order_read_own,group_all_orders"
         sequence="19"
     />
 

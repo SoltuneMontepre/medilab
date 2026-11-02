@@ -16,6 +16,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TESTING_FIELD,
     MODEL_TESTING_METHOD,
 )
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 
 @tagged("post_install", "-at_install")
@@ -106,7 +107,7 @@ class TestAccreditationImportConcurrency(MasterDataCase):
             env = api.Environment(cursor, SUPERUSER_ID, {})
             field = env[MODEL_TESTING_FIELD].create({"code": f"F{uuid.uuid4().hex[:6]}", "name": "Concurrency field"})
             certificate = env[MODEL_ACCREDITATION_CERTIFICATE].create({"code": f"VILAS-{uuid.uuid4().hex[:8]}"})
-            return certificate.id, field.id
+            return persisted_id(certificate), persisted_id(field)
 
     def _commit_wizard(self, certificate_id, field_id, code):
         with sql_db.db_connect(self.registry.db_name).cursor() as cursor:
@@ -122,7 +123,7 @@ class TestAccreditationImportConcurrency(MasterDataCase):
                     ],
                 }
             )
-            return wizard.id
+            return persisted_id(wizard)
 
     def _remove_committed(self, certificate_id, field_id, codes):
         # Deleting the certificate also removes the wizard and its lines, and frees the methods.

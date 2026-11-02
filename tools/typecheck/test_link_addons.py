@@ -56,7 +56,9 @@ class TestLinkAddons(unittest.TestCase):
         try:
             link_addons.link_addons(self.source, modules, ODOO_ADDONS, confirm)
         finally:
-            self.assertEqual(snapshot(*linked), before, "linking changed a linked folder")
+            self.assertEqual(
+                snapshot(*linked), before, "linking changed a linked folder"
+            )
 
     def assert_linked(self, name, target):
         link = self.addons / name
@@ -77,9 +79,15 @@ class TestLinkAddons(unittest.TestCase):
 
     def test_running_again_changes_nothing(self):
         self.link()
-        before = {path.name: path.lstat() for path in [*self.addons.iterdir(), self.source / RECORD]}
+        before = {
+            path.name: path.lstat()
+            for path in [*self.addons.iterdir(), self.source / RECORD]
+        }
         self.link()
-        after = {path.name: path.lstat() for path in [*self.addons.iterdir(), self.source / RECORD]}
+        after = {
+            path.name: path.lstat()
+            for path in [*self.addons.iterdir(), self.source / RECORD]
+        }
         self.assertEqual(after.keys(), before.keys())
         for name, stat in before.items():
             with self.subTest(name=name):
@@ -203,7 +211,9 @@ class TestLinkAddons(unittest.TestCase):
     def test_a_record_cannot_remove_a_link_outside_the_addons_folder(self):
         outside = self.source / "odoo" / "outside"
         link_addons.create_link(outside, self.modules / "sol_a")
-        (self.source / RECORD).write_text(json.dumps({"../outside": os.readlink(outside)}), encoding="utf-8")
+        (self.source / RECORD).write_text(
+            json.dumps({"../outside": os.readlink(outside)}), encoding="utf-8"
+        )
         with self.assertRaises(LinkError):
             self.link()
         self.assertTrue(link_addons.is_link(outside))
@@ -220,10 +230,14 @@ class TestLinkAddons(unittest.TestCase):
             "...",
         ):
             with self.subTest(name=name):
-                (self.source / RECORD).write_text(json.dumps({name: "target"}), encoding="utf-8")
+                (self.source / RECORD).write_text(
+                    json.dumps({name: "target"}), encoding="utf-8"
+                )
                 with self.assertRaises(LinkError):
                     self.link()
-                self.assertEqual([path.name for path in self.addons.iterdir()], ["base"])
+                self.assertEqual(
+                    [path.name for path in self.addons.iterdir()], ["base"]
+                )
 
     def test_a_recorded_link_replaced_by_a_directory_is_kept(self):
         self.link()
@@ -231,7 +245,9 @@ class TestLinkAddons(unittest.TestCase):
         self.write(self.addons / "sol_b" / "mine.txt", "keep\n")
         shutil.rmtree(self.modules / "sol_b")
         self.link()
-        self.assertEqual((self.addons / "sol_b" / "mine.txt").read_text(encoding="utf-8"), "keep\n")
+        self.assertEqual(
+            (self.addons / "sol_b" / "mine.txt").read_text(encoding="utf-8"), "keep\n"
+        )
 
     def test_remove_link_refuses_a_real_directory(self):
         folder = self.root / "unmanaged"
@@ -277,7 +293,9 @@ class TestWindowsJunctions(unittest.TestCase):
             mock.patch.object(link_addons, "WINDOWS", True),
             mock.patch.object(link_addons.subprocess, "run", return_value=done) as run,
         ):
-            link_addons.create_link(Path("C:/odoo/addons/sol_a"), Path("C:/medilab/modules/sol_a"))
+            link_addons.create_link(
+                Path("C:/odoo/addons/sol_a"), Path("C:/medilab/modules/sol_a")
+            )
         command = run.call_args.args[0]
         self.assertEqual(command[:4], ["cmd", "/c", "mklink", "/J"])
         self.assertEqual(
@@ -286,13 +304,17 @@ class TestWindowsJunctions(unittest.TestCase):
         )
 
     def test_a_failed_junction_is_reported(self):
-        failed = subprocess.CompletedProcess([], 1, "", "Cannot create a file when that file already exists.\n")
+        failed = subprocess.CompletedProcess(
+            [], 1, "", "Cannot create a file when that file already exists.\n"
+        )
         with (
             mock.patch.object(link_addons, "WINDOWS", True),
             mock.patch.object(link_addons.subprocess, "run", return_value=failed),
             self.assertRaisesRegex(LinkError, "already exists"),
         ):
-            link_addons.create_link(Path("C:/odoo/addons/sol_a"), Path("C:/medilab/modules/sol_a"))
+            link_addons.create_link(
+                Path("C:/odoo/addons/sol_a"), Path("C:/medilab/modules/sol_a")
+            )
 
     def test_a_junction_counts_as_a_link(self):
         junction = mock.Mock(spec=Path)

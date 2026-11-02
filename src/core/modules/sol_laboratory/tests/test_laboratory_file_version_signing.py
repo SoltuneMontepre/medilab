@@ -14,6 +14,7 @@ from odoo.addons.sol_laboratory.constants.approvals import (
 from odoo.addons.sol_laboratory.constants.laboratory_files import NOT_FOUND
 from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_FILE_VERSION, MODEL_LABORATORY_FOLDER
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -198,4 +199,6 @@ class TestLaboratoryFileVersionSigning(AuditLookup, LaboratorySigningCase):
 
         self.assertLessEqual({"sign", "approve"}, set(self.entries(signed).mapped("action")))
         self.assertEqual(self.entries(signed, "sign").user_id, self.head.user_id)
-        self.assertIn("The blank is above the limit of detection.", self.entries(rejected, "reject").note)
+        self.assertIn(
+            "The blank is above the limit of detection.", assert_instance(self.entries(rejected, "reject").note, str)
+        )

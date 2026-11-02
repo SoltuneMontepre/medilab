@@ -5,7 +5,6 @@ access_medilab_service_package_line_user,medilab.service.package.line user,medil
 access_medilab_subcontract_cost_user,medilab.subcontract.cost user,medilab.subcontract.cost,base.group_user,r,
 access_medilab_tax_user,medilab.tax user,medilab.tax,base.group_user,r,
 access_medilab_tax_rate_user,medilab.tax.rate user,medilab.tax.rate,base.group_user,r,
-access_medilab_order_reject_user,medilab.order.reject user,medilab.order.reject,base.group_user,crud,
 access_medilab_notification_contact_user,medilab.notification.contact user,medilab.notification.contact,base.group_user,r,
 access_medilab_notification_contact_system,medilab.notification.contact system,medilab.notification.contact,base.group_system,crud,
 access_order_template_save_user,order template save,medilab.order.template.save,base.group_user,crud,

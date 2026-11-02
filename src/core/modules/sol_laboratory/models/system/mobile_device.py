@@ -1,4 +1,5 @@
 import logging
+from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.exceptions import AccessError, UserError
@@ -13,11 +14,16 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PERMISSION_MIXIN,
 )
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_mobile_device as MobileDeviceBase
+else:
+    MobileDeviceBase = object
+
 PLATFORMS = {"android", "ios"}
 
 
 # Thiết Bị Di Động
-class MobileDevice(models.Model):
+class MobileDevice(models.Model, MobileDeviceBase):
     _name = MODEL_MOBILE_DEVICE
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Mobile Device"
@@ -25,16 +31,17 @@ class MobileDevice(models.Model):
     # The app refreshes it each time it starts.
     _audit_exclude = ("last_seen_at",)
 
-    # The Odoo user signed in on the device.
-    user_id = fields.Many2one("res.users", required=True, ondelete="cascade", index=True)
-    # Registration token Firebase Cloud Messaging gives the app.
-    token = fields.Char(required=True, copy=False, audit_mask=MASK_SECRET)
-    # android or ios.
-    platform = fields.Selection([("android", "Android"), ("ios", "iOS")], required=True)
-    # When the app last refreshed the token.
-    last_seen_at = fields.Datetime(required=True, default=fields.Datetime.now)
-    # False when the user signed out or Firebase rejected the token.
-    active = fields.Boolean(default=True)
+    if not TYPE_CHECKING:
+        # The Odoo user signed in on the device.
+        user_id = fields.Many2one("res.users", required=True, ondelete="cascade", index=True)
+        # Registration token Firebase Cloud Messaging gives the app.
+        token = fields.Char(required=True, copy=False, audit_mask=MASK_SECRET)
+        # android or ios.
+        platform = fields.Selection([("android", "Android"), ("ios", "iOS")], required=True)
+        # When the app last refreshed the token.
+        last_seen_at = fields.Datetime(required=True, default=fields.Datetime.now)
+        # False when the user signed out or Firebase rejected the token.
+        active = fields.Boolean(default=True)
 
     _token_unique = models.Constraint("UNIQUE(token)", "This device token is already registered.")
 

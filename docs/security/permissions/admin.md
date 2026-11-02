@@ -14,6 +14,11 @@ The [global rules](../readme.md#global-rules) still hold for the administrator: 
 - Receives the expiry warnings of quality registrations and sets how many days before their expiry they come.
 - Cannot change a signed document.
 
+## People and signing
+
+- Sees the internal users that no person links to, and links each one to a person or archives it.
+- Gives a person a role until a date, as a backup signer when no holder of an approval chain's top level is available; the role is removed when that date ends, and both changes are audited.
+
 ## Laboratory files
 
 - Sees every computer signed in to the laboratory folders and revokes one; its person keeps their folders and other computers.

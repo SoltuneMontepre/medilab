@@ -30,11 +30,11 @@ class TestLaboratoryEditingLogging(TransactionCase):
             for name in ("odoo.http.server", "odoo.tools.misc"):
                 with self.subTest(depth=depth, logger=name):
                     record = logging.makeLogRecord({"name": name, "msg": "Thread (url:%s)", "args": (url,)})
-                    record.http_request_line = "GET " + url + " HTTP/1.1"
+                    setattr(record, "http_request_line", "GET " + url + " HTTP/1.1")
                     with patch.object(editing_callback_logging, "request", None):
                         self.assertTrue(EditingCallbackFilter().filter(record))
                     self.assertNotIn("secret-capability", record.getMessage())
-                    self.assertNotIn("secret-capability", record.http_request_line)
+                    self.assertNotIn("secret-capability", getattr(record, "http_request_line"))
             url = quote(url, safe="")
 
     def _encoded_references(self):
@@ -181,9 +181,9 @@ class TestLaboratoryEditingLogging(TransactionCase):
         )
         self.assertTrue(EditingCallbackFilter().filter(record))
         self.assertEqual(record.getMessage(), "ONLYOFFICE callback HTTP status=403")
-        self.assertEqual(record.colored_message, record.getMessage())
-        self.assertEqual(record.http_request_line, CALLBACK_PREFIX + "[redacted]")
-        self.assertEqual(record.http_headers, ())
+        self.assertEqual(getattr(record, "colored_message"), record.getMessage())
+        self.assertEqual(getattr(record, "http_request_line"), CALLBACK_PREFIX + "[redacted]")
+        self.assertEqual(getattr(record, "http_headers"), ())
         self.assertIsNone(record.exc_text)
         self.assertIsNone(record.stack_info)
 

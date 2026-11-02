@@ -24,7 +24,7 @@ README.md
 infra
 
 # --- Other apps  ---
-applications
+src/applications
 
 # --- Dev-only tooling  ---
 tools/dbeaver
@@ -34,9 +34,10 @@ tools/taskfiles
 src/reference
 src/docker-compose.yml
 src/modules.txt
-src/.env*
+**/.env*
 
 # --- Python ---
+**/.venv
 **/__pycache__
 **/*.py[cod]
 **/*.egg-info

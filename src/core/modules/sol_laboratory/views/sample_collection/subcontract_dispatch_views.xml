@@ -73,9 +73,12 @@
                             <field name="received_date" invisible="status != 'received'" />
                         </group>
                         <group string="Carrier">
+                            <field name="courier_choice_ids" invisible="1" />
                             <field
                                 name="courier_id"
                                 readonly="status not in ('draft', 'sent') or delivery_service"
+                                domain="[('id', 'in', courier_choice_ids)]"
+                                options="{'no_create': True}"
                             />
                             <field
                                 name="delivery_service"

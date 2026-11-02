@@ -113,6 +113,21 @@ It signs only getForgottenList/getForgotten, validates the returned origin, refu
 
 ## Released editor page
 
+### Managed local stack
+
+On Linux, `managed_page` exercises the stack selected by `task setup`, using normal `demo.tester` login, a new API device, a uniquely named folder and a unique DOCX. It never calls `run.py` or selects GitHub credentials. Its private browser cache must contain verified Playwright 1.56.1 and the complete Chromium bundle from the matching official image, with `.local/onlyoffice-tools/provenance/verified.json` recording every browser file hash and the source image digests. Missing or changed tooling fails before fixture creation.
+
+```bash
+uv run --locked --no-build --project src/core python -m tools.onlyoffice_integration.managed_page plan
+uv run --locked --no-build --project src/core python -m tools.onlyoffice_integration.managed_page run --manifest .local/onlyoffice-managed/<nonce>/manifest.json
+```
+
+Review the generated manifest before `run`: it binds the current owned project, endpoints, actor, fixture bytes and expected new records. The run types a distinct marker into the actual DOCX canvas, closes normally, then independently checks the committed callback session, version lineage, actor, SHA-256 and actual S3 DOCX XML. Opening the editor or showing “changes sent” alone cannot pass. Only the validated newly created device is revoked; the owned document and evidence remain. Failed manifests cannot be reused.
+
+The browser is automated headless Chromium with its sandbox and certificate checks enabled. The launcher accepts only the exact pinned Playwright launch arguments and its owned profile; extra switches, foreign profiles and URLs are refused before Chromium executes. Its actual command line is also recorded and checked for security bypasses. A private profile, XDG directories and D-Bus session isolate the browser while preserving the host `HOME`. Nonce-bound result files carry the verdict separately from child-process output; missing results and nonzero exits fail. The browser has a 180-second graceful deadline. A 210-second parent timeout or abnormal process exit records failure and forcibly stops only the kernel-identity-verified owned browser and launcher groups. A cancellation sentinel prevents a delayed wrapper from launching Chromium after cleanup. Protected screenshots contain only the owned editor page. This proves a browser save on the managed stack, not manual desktop interaction, Sync GUI behavior, restart recovery or staging acceptance.
+
+### Isolated acceptance stack
+
 After starting an owned runtime project, add the page browser and Document Server loopback storage proxy. The storage adapter requires the explicit `MEDILAB_ONLYOFFICE_STORAGE_FIXTURE=isolated-owned` opt-in and container runtime markers. Its verified TLS listener binds only `127.0.0.1:3900`, sends only owned bucket paths over TLS to the fixed Garage gateway, and forwards no caller credentials. The gateway forwards locally over a shared Unix socket; Garage exposes no plaintext S3 TCP listener. This transport remains a disposable fixture, separate from production storage. The environment and runtime markers record intended use; they do not authenticate ownership or prove isolation. Network/container inspection must establish the actual boundary:
 
 ```bash

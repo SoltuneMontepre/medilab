@@ -3,7 +3,9 @@ from ast import literal_eval
 from odoo.tests import new_test_user
 
 from .result_case import ResultCase
-from odoo.addons.sol_laboratory.constants.models import MODEL_TEST_REPORT
+from odoo.addons.sol_laboratory.constants.models import MODEL_IR_ACTIONS_ACT_WINDOW, MODEL_TEST_REPORT
+from odoo.addons.sol_laboratory.services.model_lookup import reference_as
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 class ReportCase(ResultCase):
@@ -52,5 +54,7 @@ class ReportCase(ResultCase):
 
     def waiting_for(self, action):
         """The reports an action of the Laboratory menu lists."""
-        domain = self.env.ref(f"sol_laboratory.action_medilab_test_report_{action}").domain
-        return self.env[MODEL_TEST_REPORT].search(literal_eval(domain))
+        domain = reference_as(
+            self.env[MODEL_IR_ACTIONS_ACT_WINDOW], f"sol_laboratory.action_medilab_test_report_{action}"
+        ).domain
+        return self.env[MODEL_TEST_REPORT].search(literal_eval(assert_instance(domain, str)))

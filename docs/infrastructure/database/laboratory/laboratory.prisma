@@ -21,10 +21,12 @@ model TestParameter {
   main_group   ParameterGroup            @relation("MainGroup", fields: [main_group_id], references: [id], onDelete: Restrict)
   /// Groups the parameter belongs to.
   groups       TestParameterGroup[]
-  /// Sample types the parameter can be tested on.
+  /// Sample types the parameter is offered on: those an active way of testing applies to; worked out, never set by hand.
   sample_types TestParameterSampleType[]
   /// Ways the parameter can be tested.
   methods      ParameterMethod[]
+  /// The sample types each way of testing applies to, with their unit, detection limits and default.
+  applicabilities ParameterMethodSampleType[]
   /// Limits regulations set for the parameter.
   regulation_limits RegulationLimit[]
   /// Sample tests of this parameter.
@@ -98,8 +100,10 @@ model SampleType {
   children    SampleType[]              @relation("SampleTypeTree")
   /// Unit of the minimum amount.
   minimum_quantity_unit    MeasurementUnit?          @relation(fields: [minimum_quantity_unit_id], references: [id], onDelete: Restrict)
-  /// Parameters that can be tested on this sample type.
+  /// Parameters offered on this sample type.
   parameters  TestParameterSampleType[]
+  /// Ways of testing that apply to this sample type.
+  ways        ParameterMethodSampleType[]
   /// Samples of this type.
   samples     Sample[]
   /// Regulations that apply to this sample type.
@@ -355,6 +359,8 @@ model Department {
   manager           Employee?         @relation("DepartmentManager", fields: [manager_id], references: [id], onDelete: SetNull)
   /// Parameter and method pairs the department tests in-house.
   parameter_methods ParameterMethod[]
+  /// Sample types of the department's ways of testing.
+  applicabilities   ParameterMethodSampleType[]
   /// Employees in the department.
   employees         Employee[]        @relation("EmployeeDepartment")
   /// People of the team.
@@ -390,8 +396,8 @@ model MeasurementUnit {
   active            Boolean           @default(true)
   /// The kind of quantity the unit measures.
   category          UnitCategory      @relation(fields: [category_id], references: [id], onDelete: Restrict)
-  /// Parameter and method pairs whose results use this unit.
-  parameter_methods ParameterMethod[]
+  /// Sample types of ways of testing whose results use this unit.
+  applicabilities   ParameterMethodSampleType[]
   /// Sample types whose minimum amount uses this unit.
   sample_types      SampleType[]
   /// Regulation limits expressed in this unit.
@@ -429,30 +435,20 @@ model ParameterMethod {
   parameter_id     Int
   /// The method used to test it.
   method_id        Int
-  /// The unit the result is expressed in.
-  unit_id          Int
   /// The subcontractor that tests it; empty when the laboratory tests it in-house.
   subcontractor_id Int?
   /// The department that tests it in-house; empty when a subcontractor tests it.
   department_id    Int?
   /// True while this in-house way of testing's method is on an accreditation certificate valid that day; worked out, never set by hand.
   is_accredited    Boolean         @default(false)
-  /// Limit of detection: the lowest value this method can detect, in the row's unit.
-  lod              Decimal? @db.Decimal
-  /// Limit of quantification: the lowest value this method can measure reliably, in the row's unit.
-  loq              Decimal? @db.Decimal
-  /// Decimals a result of this way of testing shows, such as 2 for 0.50; results copy it.
-  result_decimals  Int?
-  /// True for the way the parameter is normally tested.
-  is_default       Boolean         @default(false)
+  /// True when its results may be negative, such as a redox potential or a temperature in °C.
+  allows_negative  Boolean         @default(false)
   /// False when this way of testing is archived.
   active           Boolean         @default(true)
   /// The parameter being tested.
   parameter        TestParameter   @relation(fields: [parameter_id], references: [id], onDelete: Restrict)
   /// The method used to test it.
   method           TestingMethod   @relation(fields: [method_id], references: [id], onDelete: Restrict)
-  /// The unit the result is expressed in.
-  unit             MeasurementUnit @relation(fields: [unit_id], references: [id], onDelete: Restrict)
   /// The subcontractor that tests it.
   subcontractor    Subcontractor?  @relation(fields: [subcontractor_id], references: [id], onDelete: Restrict)
   /// The department that tests it in-house.
@@ -463,9 +459,10 @@ model ParameterMethod {
   registrations    QualityRegistrationParameterMethod[]
   /// Sample tests done this way.
   sample_tests     SampleTest[]
+  /// The sample types it applies to.
+  sample_types     ParameterMethodSampleType[]
 
   @@index([method_id])
-  @@index([unit_id])
   @@index([subcontractor_id])
   @@index([department_id])
   @@map("medilab_parameter_method")
@@ -556,7 +553,7 @@ model TestParameterGroup {
   @@map("medilab_test_parameter_group_rel")
 }
 
-/// Links parameters to the sample types they can be tested on.
+/// Links parameters to the sample types they are offered on, worked out from the sample types of their active ways of testing.
 model TestParameterSampleType {
   /// The parameter.
   parameter_id   Int
@@ -657,6 +654,47 @@ model ParameterMethodMachine {
   @@unique([parameter_method_id, machine_id])
   @@index([machine_id])
   @@map("medilab_parameter_method_machine")
+}
+
+/// The sample type a way of testing applies to, with the result unit, detection limits and decimals there; a narrower or broader type shares none of it. Unique on (parameter_method_id, sample_type_id); one default per parameter and sample type.
+model ParameterMethodSampleType {
+  /// Row identifier.
+  id                  Int             @id @default(autoincrement())
+  /// The parameter the way of testing tests, so each parameter and sample type keeps one default.
+  parameter_id        Int
+  /// The way of testing that applies to the sample type.
+  parameter_method_id Int
+  /// The sample type the way applies to; its narrower and broader types do not share it.
+  sample_type_id      Int
+  /// The unit results of the way are expressed in on this sample type.
+  unit_id             Int
+  /// Limit of detection, the lowest value the way detects, in the unit; empty when the way states none, which is not zero.
+  lod                 Decimal?        @db.Decimal
+  /// Limit of quantification, the lowest value the way measures reliably, in the unit; empty when the way states none.
+  loq                 Decimal?        @db.Decimal
+  /// Decimals a result shows, such as 2 for 0.50; results copy it.
+  result_decimals     Int?
+  /// True for the way the parameter is normally tested on this sample type.
+  is_default          Boolean         @default(false)
+  /// The department that tests the way in-house, copied from the way so a permission can be limited to the person's department; empty for a subcontractor's way.
+  department_id       Int?
+  /// The parameter.
+  parameter           TestParameter   @relation(fields: [parameter_id], references: [id], onDelete: Cascade)
+  /// The way of testing.
+  parameter_method    ParameterMethod @relation(fields: [parameter_method_id], references: [id], onDelete: Cascade)
+  /// The sample type.
+  sample_type         SampleType      @relation(fields: [sample_type_id], references: [id], onDelete: Restrict)
+  /// The result unit.
+  unit                MeasurementUnit @relation(fields: [unit_id], references: [id], onDelete: Restrict)
+  /// The department of the way.
+  department          Department?     @relation(fields: [department_id], references: [id], onDelete: Restrict)
+
+  @@unique([parameter_method_id, sample_type_id])
+  @@index([department_id])
+  @@index([parameter_id])
+  @@index([sample_type_id])
+  @@index([unit_id])
+  @@map("medilab_parameter_method_sample_type")
 }
 
 /// A chemical substance the laboratory keeps and uses for testing. Stock, expiry and suppliers are kept by Inventory. Trigram indexes on code, name and CAS number serve search.
@@ -1050,6 +1088,8 @@ model Person {
   team          Department?  @relation("PersonTeam", fields: [team_id], references: [id], onDelete: Restrict)
   /// Roles the person holds.
   roles         PersonRole[]
+  /// Roles the person holds until a date.
+  role_grants   RoleGrant[]
   /// Tasks assigned to the person.
   tasks         Task[]           @relation("TaskAssignee")
   /// Tasks the person assigned.
@@ -1084,6 +1124,8 @@ model Person {
   signatures    Signature[]
   /// Wizards that assign tasks to the person.
   task_reassigns TaskReassign[]
+  /// Wizards that link a user to the person.
+  user_links     UserLink[]
 
   @@index([team_id])
   @@map("medilab_person")
@@ -1160,6 +1202,8 @@ model User {
   file_locks         LaboratoryFileLock[]       @relation("FileLockHolder")
   /// Laboratory file locks the user released as an administrator.
   released_file_locks LaboratoryFileLock[]      @relation("FileLockReleaser")
+  /// Wizards that link the user to a person.
+  person_links       UserLink[]
 
   @@map("res_users")
 }
@@ -1192,6 +1236,8 @@ model Role {
   group           Group            @relation("RoleGroup", fields: [group_id], references: [id], onDelete: Restrict)
   /// People who hold the role.
   people          PersonRole[]
+  /// People who hold the role until a date.
+  grants          RoleGrant[]
   /// Permissions the role contains.
   permissions     RolePermission[]
   /// Approval levels the role signs.
@@ -1220,6 +1266,26 @@ model PersonRole {
   @@map("medilab_person_role_rel")
 }
 
+/// A role given to a person until a date, such as a backup signer's while no holder of a chain's top level is available. The role is also one of the person's roles; a scheduled job removes both once the date ends in the laboratory. Unique on (person_id, role_id).
+model RoleGrant {
+  /// Row identifier.
+  id        Int      @id @default(autoincrement())
+  /// The person who holds the role until the date.
+  person_id Int
+  /// The role given to the person.
+  role_id   Int
+  /// Last day the person holds the role.
+  date_end  DateTime @db.Date
+  /// The person.
+  person    Person   @relation(fields: [person_id], references: [id], onDelete: Cascade)
+  /// The role.
+  role      Role     @relation(fields: [role_id], references: [id], onDelete: Cascade)
+
+  @@unique([person_id, role_id])
+  @@index([person_id])
+  @@map("medilab_role_grant")
+}
+
 /// One action on one document type, within a scope. Granted to people through roles or directly.
 /// Unique on (document_model, action, scope).
 model Permission {
@@ -1233,7 +1299,7 @@ model Permission {
   document_model String             @db.VarChar
   /// read, create, edit, archive, delete or sign; cannot change once the permission exists.
   action         String             @db.VarChar
-  /// all for every record, own_department for records of the person's department only, or own_team for records of the person's team only; cannot change once the permission exists.
+  /// all for every record, own_department for records of the person's department only, own_team for records of the person's team only, or own for the records whose user is the person; cannot change once the permission exists.
   scope          String             @db.VarChar
   /// The Odoo group generated for the permission, which carries its access.
   group_id       Int                @unique
@@ -1300,7 +1366,7 @@ model ApprovalChain {
   @@map("medilab_approval_chain")
 }
 
-/// One level of an approval chain. Unique on (chain_id, sequence).
+/// One level of an approval chain. Unique on (chain_id, sequence) among active levels. A level that documents sign at is never changed or deleted: changing who signs it archives it and adds a copy with the new values, and removing it archives it.
 model ApprovalLevel {
   /// Row identifier.
   id              Int           @id @default(autoincrement())
@@ -1316,15 +1382,51 @@ model ApprovalLevel {
   same_department Boolean       @default(false)
   /// True when the signer may reject instead of signing.
   can_reject      Boolean       @default(true)
+  /// False once the level was replaced or removed while documents sign at it.
+  active          Boolean       @default(true)
   /// The chain the level belongs to.
   chain           ApprovalChain @relation(fields: [chain_id], references: [id], onDelete: Cascade)
   /// The role a person needs to sign at this level.
   role            Role          @relation(fields: [role_id], references: [id], onDelete: Restrict)
   /// Signatures given at this level.
   signatures      Signature[]
+  /// Signing processes that sign at this level.
+  processes       SigningProcessLevel[]
 
-  @@unique([chain_id, sequence])
   @@map("medilab_approval_level")
+}
+
+/// The signing of one version of a document, started by its first signature or rejection, with the chain levels it had then. Unique on (document_model, document_id, document_version).
+model SigningProcess {
+  /// Row identifier.
+  id               Int                   @id @default(autoincrement())
+  /// Technical name of the signed document's model, such as medilab.test.result.
+  document_model   String                @db.VarChar
+  /// Id of the signed document.
+  document_id      Int
+  /// Version of the document the process signs.
+  document_version Int
+  /// Levels of the chain when the process started.
+  levels           SigningProcessLevel[]
+
+  @@unique([document_model, document_id, document_version])
+  @@map("medilab_signing_process")
+}
+
+/// Links a signing process to the chain levels it signs at.
+model SigningProcessLevel {
+  /// The signing process.
+  process_id Int
+  /// A level the process signs at.
+  level_id   Int
+  /// The signing process.
+  process    SigningProcess @relation(fields: [process_id], references: [id], onDelete: Cascade)
+  /// The level.
+  level      ApprovalLevel  @relation(fields: [level_id], references: [id], onDelete: Restrict)
+
+  @@id([process_id, level_id])
+  @@index([level_id])
+  @@map("medilab_signing_process_level_rel")
 }
 
 /// One signature or rejection on one version of a document. Records are never deleted or changed; a withdrawal sets withdrawn_at once.
@@ -1347,7 +1449,7 @@ model Signature {
   signer_id        Int
   /// Signer's name at the time of signing.
   signer_name      String        @db.VarChar
-  /// Signer's role at the time of signing.
+  /// Name of the role the signer signed with at the time: the level's own, or a later level's that signed it in the signer's own name.
   signer_role      String        @db.VarChar
   /// Level name at the time of signing.
   level_name       String        @db.VarChar
@@ -1514,6 +1616,22 @@ model Task {
   @@index([document_model, document_id])
   @@index([deadline])
   @@map("medilab_task")
+}
+
+/// Links an internal user no person links to with a person, or creates a person from it. Odoo keeps the wizard only while it is open.
+model UserLink {
+  /// Row identifier.
+  id        Int     @id @default(autoincrement())
+  /// The internal user no person links to.
+  user_id   Int
+  /// The person who signs in as the user from now on; empty to create a person from the user.
+  person_id Int?
+  /// The internal user no person links to.
+  user      User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  /// The person who signs in as the user from now on.
+  person    Person? @relation(fields: [person_id], references: [id], onDelete: SetNull)
+
+  @@map("medilab_user_link")
 }
 
 /// Assigns tasks to a person or moves them to another department's queue. Odoo keeps the wizard only while it is open.

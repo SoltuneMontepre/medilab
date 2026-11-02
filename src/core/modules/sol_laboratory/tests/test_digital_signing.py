@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from odoo import fields
 from odoo.exceptions import UserError
 from odoo.tests import tagged
@@ -6,7 +8,9 @@ from .signing_case import CREDENTIAL, SigningCase, self_signed
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_ENTRY, MODEL_JOB_ITEM, MODEL_SIGNING_CERTIFICATE
 from odoo.addons.sol_laboratory.constants.settings import DIGITAL_SIGNING_PARAMETER
 from odoo.addons.sol_laboratory.constants.xml_ids import TEST_REPORT_REPORT
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
 from odoo.addons.sol_laboratory.services.pdf_signing import check_pdf
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 ISSUED_EVENT = "sol_laboratory.event_test_report_issued"
 SIGNING_JOB = "sol_laboratory.scheduled_job_digital_signing_sign"
@@ -62,14 +66,14 @@ class TestDigitalSigning(SigningCase):
         entries = self.env[MODEL_AUDIT_ENTRY].search(
             [("document_model", "=", report._name), ("document_id", "=", report.id), ("action", "=", "integration")]
         )
-        self.assertIn(signature.certificate_id.name, entries.note)
+        self.assertIn(signature.certificate_id.name, (entries.note or ""))
 
     def test_signed_timestamp_tracks_signature_state_and_related_updates(self):
         self.complete()
         report = self.report()
         self.assertFalse(report.digital_signature_id)
         self.assertFalse(report.digital_signed_at)
-        self.assertIn(report, self.env[report._name].search([("digital_signature_id", "=", False)]))
+        self.assertIn(report, dynamic_model(self.env, report._name).search([("digital_signature_id", "=", False)]))
 
         self.sign(report)
         self.print_pdf(report)
@@ -77,12 +81,18 @@ class TestDigitalSigning(SigningCase):
         signature = report.digital_signature_id
         self.assertTrue(signature)
         self.assertEqual(report.digital_signed_at, signature.signed_at)
-        self.assertEqual(self.env[report._name].search([("digital_signature_id", "=", signature.id)]), report)
-        self.assertEqual(self.env[report._name].search([("digital_signature_id", "in", [signature.id])]), report)
-        self.assertIn(report, self.env[report._name].search([("digital_signature_id", "!=", False)]))
-        self.assertNotIn(report, self.env[report._name].search([("digital_signature_id", "not in", [signature.id])]))
+        self.assertEqual(
+            dynamic_model(self.env, report._name).search([("digital_signature_id", "=", signature.id)]), report
+        )
+        self.assertEqual(
+            dynamic_model(self.env, report._name).search([("digital_signature_id", "in", [signature.id])]), report
+        )
+        self.assertIn(report, dynamic_model(self.env, report._name).search([("digital_signature_id", "!=", False)]))
+        self.assertNotIn(
+            report, dynamic_model(self.env, report._name).search([("digital_signature_id", "not in", [signature.id])])
+        )
 
-        changed_at = fields.Datetime.subtract(signature.signed_at, minutes=1)
+        changed_at = fields.Datetime.subtract(assert_instance(signature.signed_at, datetime), minutes=1)
         signature.sudo().write({"signed_at": changed_at})
 
         self.assertEqual(report.digital_signed_at, changed_at)
@@ -189,7 +199,7 @@ class TestDigitalSigning(SigningCase):
 
         item = self.signing_items(report)
         self.assertEqual((item.status, item.attempts), ("pending", 1))
-        self.assertIn("could not be reached", item.last_error)
+        self.assertIn("could not be reached", (item.last_error or ""))
         self.assertTrue(report.digital_signing_pending)
 
     def test_a_person_retries_the_signing_by_hand(self):

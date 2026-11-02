@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 
@@ -16,6 +18,11 @@ from odoo.addons.sol_laboratory.constants.models import (
 from odoo.addons.sol_laboratory.constants.notifications import EVENT_HANDOVER_RECORD_SIGNED
 from odoo.addons.sol_laboratory.constants.xml_ids import HANDOVER_RECORD_REPORT
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_handover_record as HandoverRecordBase
+else:
+    HandoverRecordBase = object
+
 # Fields only signing sets, so a record is signed only with the customer's signature, its PDF and its email.
 SIGNING_FIELDS = frozenset(
     {"status", "signed_at", "signature_attachment_id", "signed_device_id", "attachment_id", "sent_at"}
@@ -23,7 +30,7 @@ SIGNING_FIELDS = frozenset(
 
 
 # Biên Bản Giao Nhận Mẫu
-class HandoverRecord(models.Model):
+class HandoverRecord(models.Model, HandoverRecordBase):
     _name = MODEL_HANDOVER_RECORD
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_CODE_MIXIN, MODEL_AUDIT_MIXIN]
     _audit_children = ("sample_ids",)
@@ -33,38 +40,41 @@ class HandoverRecord(models.Model):
     # A signed record is never edited or deleted; a correction is a new record.
     _permission_actions = ("read", "create", "edit")
 
-    # Unique code of the record, such as BBGN.2026.0001; filled from a sequence when left empty.
-    code = fields.Char(required=True, copy=False, readonly=True)
-    # The test request whose samples are handed over.
-    request_id = fields.Many2one(
-        MODEL_TEST_REQUEST, string="Test Request", required=True, ondelete="restrict", index=True
-    )
-    # When the samples were handed over.
-    handed_over_at = fields.Datetime(required=True, default=fields.Datetime.now)
-    # Name of the customer's person who handed the samples over and signed.
-    handed_over_by_name = fields.Char(string="Handed Over By", required=True)
-    # Sample delivery staff who took the samples.
-    received_by_id = fields.Many2one(MODEL_PERSON, string="Received By", required=True, ondelete="restrict")
-    # Whether the customer has signed: draft or signed.
-    status = fields.Selection(
-        [("draft", "Draft"), ("signed", "Signed")], required=True, default="draft", readonly=True, copy=False
-    )
-    # When the customer signed.
-    signed_at = fields.Datetime(readonly=True, copy=False)
-    # Image of the customer's handwritten signature.
-    signature_attachment_id = fields.Many2one(
-        MODEL_IR_ATTACHMENT, string="Signature", readonly=True, copy=False, ondelete="restrict"
-    )
-    # The mobile device the customer signed on.
-    signed_device_id = fields.Many2one(
-        MODEL_MOBILE_DEVICE, string="Signed on Device", readonly=True, copy=False, ondelete="set null"
-    )
-    # The record's PDF.
-    attachment_id = fields.Many2one(MODEL_IR_ATTACHMENT, string="PDF", readonly=True, copy=False, ondelete="restrict")
-    # When the PDF was emailed to the customer.
-    sent_at = fields.Datetime(readonly=True, copy=False)
-    # Samples on the record, with the amount and condition handed over.
-    sample_ids = fields.One2many(MODEL_HANDOVER_RECORD_SAMPLE, "record_id", string="Samples")
+    if not TYPE_CHECKING:
+        # Unique code of the record, such as BBGN.2026.0001; filled from a sequence when left empty.
+        code = fields.Char(required=True, copy=False, readonly=True)
+        # The test request whose samples are handed over.
+        request_id = fields.Many2one(
+            MODEL_TEST_REQUEST, string="Test Request", required=True, ondelete="restrict", index=True
+        )
+        # When the samples were handed over.
+        handed_over_at = fields.Datetime(required=True, default=fields.Datetime.now)
+        # Name of the customer's person who handed the samples over and signed.
+        handed_over_by_name = fields.Char(string="Handed Over By", required=True)
+        # Sample delivery staff who took the samples.
+        received_by_id = fields.Many2one(MODEL_PERSON, string="Received By", required=True, ondelete="restrict")
+        # Whether the customer has signed: draft or signed.
+        status = fields.Selection(
+            [("draft", "Draft"), ("signed", "Signed")], required=True, default="draft", readonly=True, copy=False
+        )
+        # When the customer signed.
+        signed_at = fields.Datetime(readonly=True, copy=False)
+        # Image of the customer's handwritten signature.
+        signature_attachment_id = fields.Many2one(
+            MODEL_IR_ATTACHMENT, string="Signature", readonly=True, copy=False, ondelete="restrict"
+        )
+        # The mobile device the customer signed on.
+        signed_device_id = fields.Many2one(
+            MODEL_MOBILE_DEVICE, string="Signed on Device", readonly=True, copy=False, ondelete="set null"
+        )
+        # The record's PDF.
+        attachment_id = fields.Many2one(
+            MODEL_IR_ATTACHMENT, string="PDF", readonly=True, copy=False, ondelete="restrict"
+        )
+        # When the PDF was emailed to the customer.
+        sent_at = fields.Datetime(readonly=True, copy=False)
+        # Samples on the record, with the amount and condition handed over.
+        sample_ids = fields.One2many(MODEL_HANDOVER_RECORD_SAMPLE, "record_id", string="Samples")
 
     _code_unique = models.Constraint("UNIQUE(code)", "The code of a handover record must be unique.")
 

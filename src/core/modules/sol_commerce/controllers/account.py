@@ -7,6 +7,7 @@ from odoo.http import request
 
 from odoo.addons.portal.controllers.portal import CustomerPortal
 from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
+from odoo.addons.sol_commerce.constants.orders import ACCOUNT_RECENT_ORDERS
 from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER
 from odoo.addons.sol_laboratory.constants.routes import FRONTEND_PAGE
 from odoo.addons.sol_laboratory.services.request_env import request_env
@@ -23,7 +24,9 @@ class CustomerAccount(CustomerPortal):
         customer = self._customer()
         values["medilab_customer"] = customer
         values["customer_orders"] = (
-            request_env()[MODEL_SALE_ORDER]._portal_orders(request_env().user) if customer else []
+            request_env()[MODEL_SALE_ORDER]._portal_orders(request_env().user, limit=ACCOUNT_RECENT_ORDERS)
+            if customer
+            else []
         )
         return values
 

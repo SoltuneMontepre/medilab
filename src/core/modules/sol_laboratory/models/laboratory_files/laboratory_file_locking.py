@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from psycopg2 import IntegrityError
 
 from odoo import fields, models
@@ -18,19 +20,25 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_laboratory_file as LaboratoryFileBase
+else:
+    LaboratoryFileBase = object
+
 
 # Tệp Phòng Thí Nghiệm
-class LaboratoryFile(models.Model):
+class LaboratoryFile(models.Model, LaboratoryFileBase):
     _inherit = MODEL_LABORATORY_FILE
 
-    # Every lock taken on the file.
-    lock_ids = fields.One2many(MODEL_LABORATORY_FILE_LOCK, "file_id", string="Locks")
-    # The lock in force on the file; empty when nobody holds one or it expired.
-    lock_id = fields.Many2one(MODEL_LABORATORY_FILE_LOCK, string="Lock", compute="_compute_lock")
-    # The user holding the lock in force.
-    locked_by_id = fields.Many2one(MODEL_RES_USERS, string="Locked By", compute="_compute_lock")
-    # When the lock in force expires unless renewed.
-    locked_until = fields.Datetime(string="Locked Until", compute="_compute_lock")
+    if not TYPE_CHECKING:
+        # Every lock taken on the file.
+        lock_ids = fields.One2many(MODEL_LABORATORY_FILE_LOCK, "file_id", string="Locks")
+        # The lock in force on the file; empty when nobody holds one or it expired.
+        lock_id = fields.Many2one(MODEL_LABORATORY_FILE_LOCK, string="Lock", compute="_compute_lock")
+        # The user holding the lock in force.
+        locked_by_id = fields.Many2one(MODEL_RES_USERS, string="Locked By", compute="_compute_lock")
+        # When the lock in force expires unless renewed.
+        locked_until = fields.Datetime(string="Locked Until", compute="_compute_lock")
 
     def _compute_lock(self):
         # Computed together rather than related to the lock, which is not stored: a lock's expiry changes as it is

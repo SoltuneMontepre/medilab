@@ -1,8 +1,12 @@
+import datetime as _datetime_types
+
 from odoo.exceptions import AccessError, UserError
 from odoo.fields import Command
 from odoo.tests import HttpCase, new_test_user, tagged
 
 from .invoicing_case import InvoicingCase
+from odoo.addons.sol_laboratory.services.record_id import persisted_ids
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 from odoo.addons.sol_laboratory.tests.audit_case import AuditLookup
 
 # The password of the test accountant is its login.
@@ -20,7 +24,7 @@ class TestInvoices(InvoicingCase):
         self.assertEqual(advance.state, "posted")
         self.assertEqual(advance.amount_total, 1_000_000)
         self.assertEqual(advance.order_id, self.order)
-        self.assertIn(str(advance.invoice_date.year), advance.name)
+        self.assertIn(str(assert_instance(advance.invoice_date, _datetime_types.date).year), (advance.name or ""))
         self.assertEqual(final.invoice_kind, "final")
         self.assertEqual(final.amount_total, self.order.amount_total - advance.amount_total)
 
@@ -71,7 +75,7 @@ class TestInvoices(InvoicingCase):
                             "product_id": self.product.id,
                             "quantity": 1,
                             "price_unit": 1_000_000,
-                            "tax_ids": [Command.set(tax.ids)],
+                            "tax_ids": [Command.set(persisted_ids(tax))],
                         }
                     )
                 ],
@@ -129,7 +133,7 @@ class TestInvoices(InvoicingCase):
             {
                 "name": "Clerk",
                 "login": "invoice.clerk",
-                "group_ids": [Command.set(self.env.ref("base.group_user").ids)],
+                "group_ids": [Command.set(persisted_ids(self.env.ref("base.group_user")))],
             }
         )
 
@@ -160,7 +164,7 @@ class TestInvoices(InvoicingCase):
                             "product_id": self.product.id,
                             "quantity": 1,
                             "price_unit": 1_000_000,
-                            "tax_ids": [Command.set(vat8.ids)],
+                            "tax_ids": [Command.set(persisted_ids(vat8))],
                         }
                     ),
                     Command.create(
@@ -168,7 +172,7 @@ class TestInvoices(InvoicingCase):
                             "product_id": self.product.id,
                             "quantity": 1,
                             "price_unit": 2_000_000,
-                            "tax_ids": [Command.set(vat10.ids)],
+                            "tax_ids": [Command.set(persisted_ids(vat10))],
                         }
                     ),
                 ],
@@ -190,9 +194,9 @@ class TestInvoices(InvoicingCase):
         html = self.env["ir.actions.report"]._render_qweb_html("account.account_invoices", invoice.ids)[0]
 
         self.assertIn(b"medilab_laboratory_header", html)
-        self.assertIn(self.env.company.name.encode(), html)
-        self.assertIn(invoice.name.encode(), html)
-        self.assertIn(self.partner.name.encode(), html)
+        self.assertIn(assert_instance(self.env.company.name, str).encode(), html)
+        self.assertIn(assert_instance(invoice.name, str).encode(), html)
+        self.assertIn(assert_instance(self.partner.name, str).encode(), html)
         self.assertIn(b"medilab_invoice_kind", html)
         self.assertIn(b"Advance", html)
         self.assertIn(b"medilab_subtotal", html)

@@ -27,6 +27,7 @@ from odoo.addons.sol_laboratory.constants.laboratory_editing import (
 from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_EDITING_SESSION
 from odoo.addons.sol_laboratory.services import openapi_document
 from odoo.addons.sol_laboratory.services.onlyoffice_jwt import EditingCallbackRefused
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 from odoo.addons.sol_laboratory.services.request_env import request_env
 
 _logger = logging.getLogger(CALLBACK_LOGGER)
@@ -108,7 +109,7 @@ def serve_callback(callback_token):
                 outcome = "terminal_error"
             else:
                 outcome = session.status
-            session_id = session.id
+            session_id = persisted_id(session)
         elapsed = time.monotonic() - started
         # A response is not yet a committed outcome: a flush/commit conflict may still make Odoo retry the request.
         env.cr.postcommit.add(lambda: log_outcome(status, outcome, correlation, session_id, elapsed))

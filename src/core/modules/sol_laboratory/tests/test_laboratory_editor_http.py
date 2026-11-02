@@ -13,6 +13,7 @@ from .laboratory_editing_http_case import LaboratoryEditingHttpCase
 from odoo.addons.sol_laboratory.constants.laboratory_bucket import PUBLIC_ADDRESS_VARIABLE
 from odoo.addons.sol_laboratory.constants.laboratory_editing import EXPIRED, PUBLIC_URL_VARIABLE
 from odoo.addons.sol_laboratory.services.laboratory_editor_page import CALLBACK_ORIGIN_VARIABLE
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 ADMIN_PASSWORD = "admin"
 
@@ -42,7 +43,7 @@ class TestLaboratoryEditorHttp(LaboratoryEditingHttpCase):
         self.path = f"/medilab/laboratory-files/{self.file_id}/edit"
         self.client = self.login()
 
-    def login(self):
+    def login(self: LaboratoryEditingHttpCase):
         client = requests.Session()
         self.addCleanup(client.close)
         response = client.get(self.http_url + "/web/login", timeout=30)
@@ -66,7 +67,9 @@ class TestLaboratoryEditorHttp(LaboratoryEditingHttpCase):
         if status != 200:
             return {}
         return json.loads(
-            html.fromstring(response.content).get_element_by_id("laboratory-editor").get("data-editor-config")
+            assert_instance(html.fromstring(response.content), html.HtmlElement)
+            .get_element_by_id("laboratory-editor")
+            .get("data-editor-config")
         )
 
     def identity(self):

@@ -111,6 +111,47 @@ class TestFilestoreBucket(LaboratoryBucketCase):
 
         self.assertIsNotNone(laboratory_bucket.object_size(orphan))
 
+    def mounted_copy(self, attachment, content):
+        """Leave the file only where the bucket mounted as the filestore wrote it: at the root, under the database."""
+        key = f"{self.env.cr.dbname}/{attachment.store_fname}"
+        laboratory_bucket.write(key, [content])
+        self.addCleanup(laboratory_bucket.delete, key)
+        laboratory_bucket.delete(self.attachments._bucket_key(attachment.store_fname))
+        self.remove_local_copy(attachment)
+        return key
+
+    def test_a_file_the_mounted_bucket_wrote_is_moved_under_the_filestore_and_read(self):
+        content = os.urandom(5000)
+        attachment = self.new_attachment(content)
+        mounted = self.mounted_copy(attachment, content)
+
+        self.attachments._move_mounted_files()
+        attachment.invalidate_recordset(["raw"])
+
+        self.assertEqual(bytes(attachment.raw), content)
+        self.assertIsNone(laboratory_bucket.object_size(mounted))
+
+    def test_moving_keeps_a_file_already_under_the_filestore_and_removes_the_mounted_one(self):
+        content = os.urandom(100)
+        attachment = self.new_attachment(content)
+        mounted = f"{self.env.cr.dbname}/{attachment.store_fname}"
+        laboratory_bucket.write(mounted, [content])
+        self.addCleanup(laboratory_bucket.delete, mounted)
+
+        self.attachments._move_mounted_files()
+
+        self.assertEqual(laboratory_bucket.object_size(self.attachments._bucket_key(attachment.store_fname)), 100)
+        self.assertIsNone(laboratory_bucket.object_size(mounted))
+
+    def test_moving_leaves_objects_that_are_not_stored_files(self):
+        other = f"{self.env.cr.dbname}/checklist/ab/" + "a" * 40
+        laboratory_bucket.write(other, [b""])
+        self.addCleanup(laboratory_bucket.delete, other)
+
+        self.attachments._move_mounted_files()
+
+        self.assertIsNotNone(laboratory_bucket.object_size(other))
+
     def test_nothing_is_written_to_the_bucket_when_the_filestore_is_not_turned_on(self):
         with patch.dict(os.environ, {FILESTORE_VARIABLE: "0"}):
             attachment = self.new_attachment(os.urandom(100))

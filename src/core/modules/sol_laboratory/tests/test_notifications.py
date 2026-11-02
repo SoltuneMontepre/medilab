@@ -27,6 +27,7 @@ from odoo.addons.sol_laboratory.services.firebase_client import (
     PermanentTokenError,
     TemporaryFirebaseError,
 )
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 class _Response:
@@ -464,7 +465,7 @@ class TestNotifications(TransactionCase):
             )
         notification = message.notification_ids.filtered(lambda item: item.res_partner_id == self.user.partner_id)
         self.assertTrue(sent.called)
-        action = notification.with_user(self.user).action_open_document()
+        action = assert_instance(notification.with_user(self.user).action_open_document(), dict)
         self.assertTrue(notification.is_read)
         self.assertEqual((action["res_model"], action["res_id"]), (task._name, task.id))
         stranger = self.env["res.users"].create(

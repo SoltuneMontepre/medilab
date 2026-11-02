@@ -1,4 +1,5 @@
 from datetime import timedelta
+from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError
@@ -15,9 +16,14 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_RES_USERS,
 )
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_laboratory_file_lock as LaboratoryFileLockBase
+else:
+    LaboratoryFileLockBase = object
+
 
 # Khóa Tệp Phòng Thí Nghiệm
-class LaboratoryFileLock(models.Model):
+class LaboratoryFileLock(models.Model, LaboratoryFileLockBase):
     _name = MODEL_LABORATORY_FILE_LOCK
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Laboratory File Lock"
@@ -28,27 +34,30 @@ class LaboratoryFileLock(models.Model):
     # The trail records taking a lock and how it ended; renewing it only moves when it expires.
     _audit_exclude = ("expires_at",)
 
-    # The file locked.
-    file_id = fields.Many2one(MODEL_LABORATORY_FILE, string="File", required=True, ondelete="restrict", readonly=True)
-    # The folder of the file.
-    folder_id = fields.Many2one(related="file_id.folder_id", string="Folder")
-    # The user holding the lock.
-    user_id = fields.Many2one(MODEL_RES_USERS, string="Holder", required=True, ondelete="restrict", readonly=True)
-    # The device the lock was taken from.
-    device_id = fields.Many2one(MODEL_LABORATORY_DEVICE, string="Computer", ondelete="set null", readonly=True)
-    # active, released or expired; a file has at most one active lock.
-    status = fields.Selection(
-        [("active", "Active"), ("released", "Released"), ("expired", "Expired")],
-        required=True,
-        default="active",
-        readonly=True,
-    )
-    # When the lock expires unless renewed.
-    expires_at = fields.Datetime(string="Expires On", required=True, readonly=True)
-    # When the lock was released or expired.
-    released_at = fields.Datetime(string="Ended On", readonly=True)
-    # The administrator who released a lock someone left; empty when its holder released it.
-    released_by_id = fields.Many2one(MODEL_RES_USERS, string="Released By", ondelete="restrict", readonly=True)
+    if not TYPE_CHECKING:
+        # The file locked.
+        file_id = fields.Many2one(
+            MODEL_LABORATORY_FILE, string="File", required=True, ondelete="restrict", readonly=True
+        )
+        # The folder of the file.
+        folder_id = fields.Many2one(related="file_id.folder_id", string="Folder")
+        # The user holding the lock.
+        user_id = fields.Many2one(MODEL_RES_USERS, string="Holder", required=True, ondelete="restrict", readonly=True)
+        # The device the lock was taken from.
+        device_id = fields.Many2one(MODEL_LABORATORY_DEVICE, string="Computer", ondelete="set null", readonly=True)
+        # active, released or expired; a file has at most one active lock.
+        status = fields.Selection(
+            [("active", "Active"), ("released", "Released"), ("expired", "Expired")],
+            required=True,
+            default="active",
+            readonly=True,
+        )
+        # When the lock expires unless renewed.
+        expires_at = fields.Datetime(string="Expires On", required=True, readonly=True)
+        # When the lock was released or expired.
+        released_at = fields.Datetime(string="Ended On", readonly=True)
+        # The administrator who released a lock someone left; empty when its holder released it.
+        released_by_id = fields.Many2one(MODEL_RES_USERS, string="Released By", ondelete="restrict", readonly=True)
 
     _active_unique = models.UniqueIndex("(file_id) WHERE status = 'active'", "Someone else has just locked this file.")
     _file_status_index = models.Index("(file_id, status)")

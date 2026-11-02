@@ -7,6 +7,7 @@ from odoo.tests import TransactionCase
 from odoo.tools import mute_logger
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_CALENDAR_EVENT, MODEL_LOCATION
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
 
 FLOOR_PLAN = base64.b64encode(b'<svg xmlns="http://www.w3.org/2000/svg" width="100" height="60"/>').decode()
 
@@ -32,7 +33,7 @@ class LocationCase(TransactionCase):
         )
 
     @classmethod
-    def book(cls, location, start, hours=1, user=None, name="Method validation meeting", **vals):
+    def book(cls, location, start, hours: float = 1, user=None, name="Method validation meeting", **vals):
         """A calendar event that books the location, organised by the user."""
         events = cls.env[MODEL_CALENDAR_EVENT].with_user(user) if user else cls.env[MODEL_CALENDAR_EVENT]
         return events.create(
@@ -44,4 +45,4 @@ class LocationCase(TransactionCase):
         with self.assertRaises(IntegrityError) as refusal, mute_logger("odoo.sql_db"), self.env.cr.savepoint():
             change()
             self.env.flush_all()
-        return self.env[model]._sql_error_to_message(refusal.exception)
+        return dynamic_model(self.env, model)._sql_error_to_message(refusal.exception)

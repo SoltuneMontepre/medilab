@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import fields, models
 from odoo.exceptions import UserError
 
@@ -16,30 +18,36 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 from odoo.addons.sol_laboratory.constants.notifications import EVENT_LABORATORY_FILE_VERSION_REJECTED
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_laboratory_file_version as LaboratoryFileVersionSigningBase
+else:
+    LaboratoryFileVersionSigningBase = object
+
 
 # Phiên Bản Tệp: a version of a result file is signed through the approval chain of laboratory file versions.
-class LaboratoryFileVersionSigning(models.Model):
+class LaboratoryFileVersionSigning(models.Model, LaboratoryFileVersionSigningBase):
     _name = MODEL_LABORATORY_FILE_VERSION
     # The version inherits the audit mixin already, so the approval mixin, which inherits it too, comes first.
     _inherit = [MODEL_APPROVAL_MIXIN, MODEL_LABORATORY_FILE_VERSION]
     _permission_actions = ("read", "sign")
 
-    # Where the version is in its signing; only signing, rejecting and withdrawing set it.
-    approval_state = fields.Selection(
-        [
-            (STATE_NONE, "Not Signed"),
-            (STATE_REQUESTED, "Being Signed"),
-            (STATE_APPROVED, "Signed"),
-            (STATE_REJECTED, "Rejected"),
-        ],
-        string="Signing",
-        required=True,
-        default=STATE_NONE,
-        readonly=True,
-        copy=False,
-    )
-    # The signatures and rejections given on the version, withdrawn ones included.
-    signature_ids = fields.Many2many(MODEL_SIGNATURE, compute="_compute_signature_ids", string="Signatures")
+    if not TYPE_CHECKING:
+        # Where the version is in its signing; only signing, rejecting and withdrawing set it.
+        approval_state = fields.Selection(
+            [
+                (STATE_NONE, "Not Signed"),
+                (STATE_REQUESTED, "Being Signed"),
+                (STATE_APPROVED, "Signed"),
+                (STATE_REJECTED, "Rejected"),
+            ],
+            string="Signing",
+            required=True,
+            default=STATE_NONE,
+            readonly=True,
+            copy=False,
+        )
+        # The signatures and rejections given on the version, withdrawn ones included.
+        signature_ids = fields.Many2many(MODEL_SIGNATURE, compute="_compute_signature_ids", string="Signatures")
 
     def _compute_signature_ids(self):
         # The form lists them only to people who read signatures.

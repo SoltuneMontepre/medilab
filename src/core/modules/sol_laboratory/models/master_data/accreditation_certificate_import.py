@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from psycopg2 import errorcodes
 from psycopg2.errors import IntegrityError
 
@@ -13,29 +15,35 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TESTING_METHOD,
 )
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_accreditation_certificate_import as AccreditationCertificateImportBase
+else:
+    AccreditationCertificateImportBase = object
+
 
 # Nhập Phương Pháp Từ Giấy Chứng Nhận
-class AccreditationCertificateImport(models.TransientModel):
+class AccreditationCertificateImport(models.TransientModel, AccreditationCertificateImportBase):
     _name = MODEL_ACCREDITATION_CERTIFICATE_IMPORT
     _description = "Import Methods from an Accreditation Certificate"
 
-    # The certificate that receives the imported methods.
-    certificate_id = fields.Many2one(
-        MODEL_ACCREDITATION_CERTIFICATE,
-        required=True,
-        ondelete="cascade",
-        string="Accreditation Certificate",
-    )
-    # Testing field assigned to every newly created method in the list.
-    field_id = fields.Many2one(MODEL_TESTING_FIELD, required=True, string="Testing Field")
-    # Language of the titles in the list.
-    lang = fields.Selection(selection="_lang_selection", required=True)
-    # Rows of standard code and title to import.
-    line_ids = fields.One2many(
-        MODEL_ACCREDITATION_CERTIFICATE_IMPORT_LINE,
-        "import_id",
-        string="Methods",
-    )
+    if not TYPE_CHECKING:
+        # The certificate that receives the imported methods.
+        certificate_id = fields.Many2one(
+            MODEL_ACCREDITATION_CERTIFICATE,
+            required=True,
+            ondelete="cascade",
+            string="Accreditation Certificate",
+        )
+        # Testing field assigned to every newly created method in the list.
+        field_id = fields.Many2one(MODEL_TESTING_FIELD, required=True, string="Testing Field")
+        # Language of the titles in the list.
+        lang = fields.Selection(selection="_lang_selection", required=True)
+        # Rows of standard code and title to import.
+        line_ids = fields.One2many(
+            MODEL_ACCREDITATION_CERTIFICATE_IMPORT_LINE,
+            "import_id",
+            string="Methods",
+        )
 
     @api.model
     def _lang_selection(self):

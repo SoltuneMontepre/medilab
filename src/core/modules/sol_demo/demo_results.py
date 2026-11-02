@@ -14,12 +14,14 @@ SAMPLE_NAMES = (
     "Nước khoáng An Phú 500 mL lô 0925",
     "Nước uống đóng chai An Phú 1 L lô 0926",
     "Nước tinh khiết An Phú 19 L lô 0927",
+    "Nước khoáng An Phú 330 mL lô 0928",
 )
 
 
 def seed_results(env):
     """Results through their approval: a completed sample, a failed result awaiting approval beside a cancelled test,
-    and a rejected result followed by a text retest."""
+    a rejected result followed by a text retest, and a result the head of department entered and sent, awaiting their
+    own approval."""
     if env.ref("sol_demo.demo_test_request_results", raise_if_not_found=False):
         return
     tester = env.ref("sol_demo.demo_res_users_tester")
@@ -29,10 +31,10 @@ def seed_results(env):
     request = _received_request(
         env,
         env.ref("sol_demo.demo_customer_an_phu"),
-        zip(SAMPLE_NAMES, ((lead, ph), (lead, ph), (lead,)), strict=True),
+        zip(SAMPLE_NAMES, ((lead, ph), (lead, ph), (lead,), (lead,)), strict=True),
         expected_date=fields.Date.today() + timedelta(days=7),
     )
-    completed, waiting, retested = request.sample_ids.sorted("id")
+    completed, waiting, retested, by_head = request.sample_ids.sorted("id")
 
     for test, value in ((_test(completed, lead), 0.008), (_test(completed, ph), 7.2)):
         result = _enter(env, tester, test, value=value, conclusion="pass")
@@ -47,6 +49,7 @@ def seed_results(env):
     )
     retest = _enter(env, tester, _test(retested, lead), value_text="Not detected", conclusion="pass")
     retest.with_context(lang="vi_VN").value_text = "Không phát hiện"
+    _enter(env, head, _test(by_head, lead), value=0.006, conclusion="pass").with_user(head).action_sign()
 
     env["ir.model.data"]._update_xmlids(
         [

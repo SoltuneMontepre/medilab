@@ -1,4 +1,5 @@
 from datetime import UTC, datetime, timedelta
+from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
 
 from odoo import api, fields, models
@@ -22,11 +23,16 @@ from odoo.addons.sol_laboratory.services.firebase_client import (
     firebase_client_from_env,
 )
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_scheduled_job as ScheduledJobBase
+else:
+    ScheduledJobBase = object
+
 VIETNAM = ZoneInfo(VIETNAM_ZONE)
 
 
 # Tác Vụ Định Kỳ
-class ScheduledJob(models.Model):
+class ScheduledJob(models.Model, ScheduledJobBase):
     _inherit = MODEL_SCHEDULED_JOB
 
     def _run_batch(self):

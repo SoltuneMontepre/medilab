@@ -12,6 +12,7 @@ from odoo.addons.sol_laboratory.services.request_env import request_env
 
 CART_SESSION = "medilab_cart_id"
 CART_PATH = "/cart"
+ORDERS_PATH = "/orders"
 
 
 class Catalog(http.Controller):
@@ -38,7 +39,7 @@ class Catalog(http.Controller):
                 "name": name or "",
                 "price_min": price_min or "",
                 "price_max": price_max or "",
-                "cart_quantity": sum(self._cart()._catalog_lines().mapped("product_uom_qty")),
+                "cart_quantity": int(sum(self._cart()._catalog_lines().mapped("product_uom_qty"))),
             },
         )
 
@@ -52,7 +53,7 @@ class Catalog(http.Controller):
         return request.redirect(CART_PATH)
 
     @http.route(CART_PATH, type="http", auth="public")
-    def cart(self, error=None, message=None, **kwargs):
+    def cart(self, error=None, **kwargs):
         order = self._cart()
         contacts = order._contact_choices() if order else request_env()["res.partner"]
         # The order's contact stays chosen; otherwise the customer's default contact is preselected.
@@ -65,7 +66,6 @@ class Catalog(http.Controller):
                 "order": order,
                 "lines": order._catalog_lines(),
                 "error": error,
-                "message": message,
                 "public": request_env().user._is_public(),
                 "contacts": contacts,
                 "chosen_contact": chosen,
@@ -75,10 +75,13 @@ class Catalog(http.Controller):
     @http.route("/cart/line", type="http", auth="public", methods=["POST"])
     def update_line(self, line_id, quantity="1", **kwargs):
         order = self._cart()
-        line = order._catalog_lines().filtered(lambda item: item.id == int(line_id))[:1]
+        line = order._catalog_lines().filtered(lambda item: bool(item.id == int(line_id)))[:1]
         if not line:
             return request.redirect(CART_PATH)
-        qty = self._quantity(quantity, allow_zero=True)
+        try:
+            qty = self._quantity(quantity, allow_zero=True)
+        except UserError as error:
+            return request.redirect(f"{CART_PATH}?error={quote(str(error))}")
         if qty == 0:
             line.sudo().unlink()
         else:
@@ -95,7 +98,7 @@ class Catalog(http.Controller):
             self._choose_contact(order, contact_id)
         except UserError as error:
             return request.redirect(f"/cart?error={quote(str(error))}")
-        return request.redirect("/cart?message=Saved")
+        return request.redirect(f"{ORDERS_PATH}?saved=1")
 
     @http.route("/cart/submit", type="http", auth="public", methods=["POST"])
     def submit(self, name=None, email=None, phone=None, contact_id=None, **kwargs):
@@ -123,7 +126,7 @@ class Catalog(http.Controller):
         return grouped
 
     def _cart(self):
-        order = request_env()[MODEL_SALE_ORDER].sudo().browse(request.session.get(CART_SESSION)).exists()
+        order = request_env()[MODEL_SALE_ORDER].sudo().browse(request.session.get(CART_SESSION) or []).exists()
         user = request_env().user
         if order and order.order_status == STATUS_DRAFT and order.source == SOURCE_PORTAL:
             if user._is_public() or order._owned_by(user):
@@ -196,4 +199,6 @@ class Catalog(http.Controller):
             return 0
         if quantity < 1:
             raise UserError(request_env()._("A catalog line needs a quantity of at least 1."))
+        if not quantity.is_integer():
+            raise UserError(request_env()._("A catalog line needs a whole number of tests."))
         return quantity

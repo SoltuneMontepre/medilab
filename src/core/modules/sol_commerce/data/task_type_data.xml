@@ -17,4 +17,24 @@
         <field name="route">person</field>
         <field name="deadline_hours">24</field>
     </record>
+    <record id="task_type_order_quotation" model="medilab.task.type">
+        <field name="code">order_quotation</field>
+        <field name="name">Order quotation</field>
+        <field name="trigger">order_submitted</field>
+        <field name="document_model">sale.order</field>
+        <field name="action">quote</field>
+        <field name="route">role</field>
+        <field name="role_id" ref="sol_laboratory.role_administrator" />
+        <field name="deadline_hours">24</field>
+    </record>
+    <record id="task_type_invoice_posting" model="medilab.task.type">
+        <field name="code">invoice_posting</field>
+        <field name="name">Invoice posting</field>
+        <field name="trigger">invoice_drafted</field>
+        <field name="document_model">account.move</field>
+        <field name="action">post</field>
+        <field name="route">role</field>
+        <field name="role_id" ref="sol_laboratory.role_administrator" />
+        <field name="deadline_hours">24</field>
+    </record>
 </odoo>

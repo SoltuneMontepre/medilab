@@ -2,6 +2,7 @@ from odoo.fields import Command
 from odoo.tests import TransactionCase
 
 from odoo.addons.sol_commerce.models.orders.sale_order_confirmation import SaleOrderConfirmation
+from odoo.addons.sol_laboratory.services.record_id import persisted_ids
 
 
 class InvoicingCase(TransactionCase):
@@ -66,6 +67,6 @@ class InvoicingCase(TransactionCase):
                 "login": login,
                 "password": login,
                 "partner_id": partner.id,
-                "group_ids": [Command.set(cls.env.ref("base.group_portal").ids)],
+                "group_ids": [Command.set(persisted_ids(cls.env.ref("base.group_portal")))],
             }
         )

@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import AccessError, UserError
 
@@ -9,25 +11,31 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 from odoo.addons.sol_laboratory.constants.notifications import CHANNEL_EMAIL, CHANNEL_POPUP, CHANNELS
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_notification_preference as NotificationPreferenceBase
+else:
+    NotificationPreferenceBase = object
+
 
 # Tuỳ Chọn Thông Báo
-class NotificationPreference(models.Model):
+class NotificationPreference(models.Model, NotificationPreferenceBase):
     _name = MODEL_NOTIFICATION_PREFERENCE
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Notification Preference"
     _permission_actions = ("read", "create", "edit", "delete")
 
-    # The Odoo user.
-    user_id = fields.Many2one("res.users", required=True, ondelete="cascade", index=True)
-    # The event.
-    event_id = fields.Many2one("mail.message.subtype", required=True, ondelete="cascade", index=True)
-    # popup, email or push.
-    channel = fields.Selection(
-        [(CHANNEL_POPUP, "In the application"), (CHANNEL_EMAIL, "Email"), ("push", "Push")],
-        required=True,
-    )
-    # False when the user turned this channel off. Ignored for a mandatory event.
-    enabled = fields.Boolean(default=True)
+    if not TYPE_CHECKING:
+        # The Odoo user.
+        user_id = fields.Many2one("res.users", required=True, ondelete="cascade", index=True)
+        # The event.
+        event_id = fields.Many2one("mail.message.subtype", required=True, ondelete="cascade", index=True)
+        # popup, email or push.
+        channel = fields.Selection(
+            [(CHANNEL_POPUP, "In the application"), (CHANNEL_EMAIL, "Email"), ("push", "Push")],
+            required=True,
+        )
+        # False when the user turned this channel off. Ignored for a mandatory event.
+        enabled = fields.Boolean(default=True)
 
     _user_event_channel_unique = models.Constraint(
         "UNIQUE(user_id, event_id, channel)",

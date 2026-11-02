@@ -2,7 +2,8 @@ from ast import literal_eval
 
 from lxml import etree
 
-from odoo.tests import tagged
+from odoo.tests import Form, tagged
+from odoo.tests.form import O2MProxy
 
 from .order_case import OrderCase
 from odoo.addons.sol_commerce.constants.models import (
@@ -11,6 +12,8 @@ from odoo.addons.sol_commerce.constants.models import (
     MODEL_SALE_ORDER,
     MODEL_SALE_ORDER_LINE,
 )
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 # Odoo's own order actions that go around MediLab's quotation, confirmation and cancellation.
 ODOO_HEADER_ACTIONS = (
@@ -22,7 +25,8 @@ ODOO_HEADER_ACTIONS = (
     "action_draft",
 )
 HIDDEN = ("1", "True")
-LINE_FORM = "//field[@name='order_line']/form"
+LINES = "//page[@name='order_lines']/field[@name='product_line_ids']"
+LINE_FORM = f"{LINES}/form"
 
 
 @tagged("post_install", "-at_install")
@@ -74,7 +78,7 @@ class TestOrderForm(OrderCase):
         for name in ("customer_id", "partner_id"):
             with self.subTest(name=name):
                 field = self._nodes("//sheet//field[@name=$name]", name=name)[0]
-                self.assertTrue(literal_eval(field.get("options")).get("no_create"))
+                self.assertTrue(literal_eval(assert_instance(field.get("options"), str)).get("no_create"))
 
     def test_vietnamese_tells_customer_and_contact_apart(self):
         fields = self.env[MODEL_SALE_ORDER].with_context(lang="vi_VN").fields_get(["customer_id", "partner_id"])
@@ -84,7 +88,7 @@ class TestOrderForm(OrderCase):
     def test_lines_offer_no_section_note_or_odoo_catalog(self):
         for view in ("list", "kanban"):
             with self.subTest(view=view):
-                controls = self._nodes(f"//field[@name='order_line']/{view}/control/*")
+                controls = self._nodes(f"{LINES}/{view}/control/*")
                 self.assertEqual({control.get("name") for control in controls}, {"add_product_control"})
         self.assertFalse(self._nodes("//widget[@name='combo_menu']"))
 
@@ -94,8 +98,8 @@ class TestOrderForm(OrderCase):
         self.assertEqual(names, ["product_template_id"])
         product = shown[0]
         self.assertNotIn("optional", product.attrib)
-        self.assertIn("('parameter_id', '!=', False)", product.get("domain"))
-        self.assertIn("('service_package_id', '!=', False)", product.get("domain"))
+        self.assertIn("('parameter_id', '!=', False)", (product.get("domain") or ""))
+        self.assertIn("('service_package_id', '!=', False)", (product.get("domain") or ""))
         columns = [child.get("name") for child in self._nodes("//list[@name='sol_list']/*")]
         self.assertEqual(columns[columns.index("product_and_description") + 1], "sample_id")
         delivered = self._nodes("//list[@name='sol_list']/column[field[@name='qty_delivered']]")
@@ -109,18 +113,22 @@ class TestOrderForm(OrderCase):
         )
         for model, path, variant in cases:
             with self.subTest(model=model):
-                offered = self.env[model].search(literal_eval(self._nodes(path)[0].get("domain")))
+                offered = dynamic_model(self.env, model).search(
+                    literal_eval(assert_instance(self._nodes(path)[0].get("domain"), str))
+                )
                 self.assertIn(variant(self.lead_product), offered)
                 self.assertIn(variant(self.package_product), offered)
                 self.assertNotIn(variant(plain), offered)
-                self.assertFalse(offered.filtered(lambda p: not (p.parameter_id or p.service_package_id)))
+                self.assertFalse(offered.filtered(lambda p: not (p["parameter_id"] or p["service_package_id"])))
 
     def test_line_form_follows_the_list(self):
         product = self._nodes(f"{LINE_FORM}//field[@name='product_id']")[0]
-        self.assertEqual(literal_eval(product.get("options")), {"no_create": True, "no_open": True})
+        self.assertEqual(
+            literal_eval(assert_instance(product.get("options"), str)), {"no_create": True, "no_open": True}
+        )
         sample = self._nodes(f"{LINE_FORM}//field[@name='sample_id']")[0]
         self.assertEqual(sample.get("domain"), "[('order_id', '=', parent.id)]")
-        self.assertTrue(literal_eval(sample.get("options")).get("no_create"))
+        self.assertTrue(literal_eval(assert_instance(sample.get("options"), str)).get("no_create"))
         for path in (
             f"{LINE_FORM}/group/group/field[@name='name']",
             f"{LINE_FORM}//label[@for='qty_delivered']",
@@ -146,3 +154,59 @@ class TestOrderForm(OrderCase):
         order = self.env[MODEL_SALE_ORDER].create({"partner_id": self.env.user.partner_id.id})
         line = self.env[MODEL_SALE_ORDER_LINE].create({"order_id": order.id, "name": "Empty line"})
         self.assertFalse(line.tax_ids)
+
+    def test_order_lines_tab_edits_the_ordered_lines_only(self):
+        self.assertFalse(self._nodes("//field[@name='order_line']"))
+        self.assertEqual(len(self._nodes(LINES)), 1)
+        for view in ("list", "kanban"):
+            with self.subTest(view=view):
+                add = self._nodes(f"{LINES}/{view}/control/create[@name='add_product_control']")[0]
+                self.assertEqual(add.get("string"), "Add a parameter or package")
+
+    def test_down_payments_move_to_the_payment_tab(self):
+        order = self.sent_order()
+        advance = order.sudo().invoice_ids.filtered(lambda invoice: invoice.invoice_kind == "advance")
+        down_payments = order.order_line.filtered("is_downpayment")
+        self.assertTrue(down_payments, "Sending the quotation adds Odoo's down payment lines.")
+
+        self.assertEqual(order.product_line_ids, order.order_line - down_payments)
+        self.assertEqual(order.downpayment_line_ids, down_payments.filtered(lambda line: not line.display_type))
+        self.assertEqual(order.downpayment_line_ids.downpayment_invoice_id, advance)
+        self.assertFalse(order.product_line_ids.downpayment_invoice_id)
+        listed = self._nodes("//page[@name='payment']//field[@name='downpayment_line_ids']/list/field")
+        self.assertEqual(
+            [field.get("name") for field in listed], ["downpayment_invoice_id", "currency_id", "price_unit"]
+        )
+
+    def _total(self, form):
+        totals = form.tax_totals
+        assert isinstance(totals, dict)
+        return totals["total_amount_currency"]
+
+    def test_editing_the_ordered_lines_updates_the_totals(self):
+        order = self.make_order([(self.lead_product, 1)], status="claimed", user_id=self.sales.id)
+        with Form(order) as form:
+            before = self._total(form)
+            with assert_instance(form.product_line_ids, O2MProxy).new() as line:
+                line.product_template_id = self.package_product
+                # The browser's product widget picks the variant and its price; the server-side form does not.
+                line.price_unit = 100000
+            self.assertGreater(self._total(form), before)
+
+        self.assertEqual(len(order.order_line), 2)
+        self.assertEqual(order.product_line_ids, order.order_line)
+
+    def test_each_status_has_its_label(self):
+        labels = {
+            name: self._nodes("//div[hasclass('oe_title')]//div[field[@name=$name]]/span[1]", name=name)[0].text
+            for name in ("customer_status", "quotation_follow_up")
+        }
+        self.assertEqual(labels, {"customer_status": "Customer sees", "quotation_follow_up": "Quotation"})
+
+    def test_vietnamese_form_translates_its_headings_and_labels(self):
+        arch = self.env[MODEL_SALE_ORDER].with_context(lang="vi_VN").get_view(view_type="form")["arch"]
+
+        for text in ("Các khoản tạm ứng", "Khách hàng thấy", "Thêm chỉ tiêu hoặc nhóm dịch vụ"):
+            with self.subTest(text=text):
+                self.assertIn(text, arch)
+        self.assertNotIn("Advance payments", arch)

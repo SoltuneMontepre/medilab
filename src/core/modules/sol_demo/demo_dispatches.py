@@ -7,10 +7,14 @@ from .demo_orders import _xml_id
 from .demo_results import _enter
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_SAMPLE_TEST,
+    MODEL_SAMPLE_TYPE,
     MODEL_SUBCONTRACT_DISPATCH,
     MODEL_TASK,
+    MODEL_TEST_PARAMETER,
     MODEL_TEST_REQUEST,
 )
+from odoo.addons.sol_laboratory.constants.settings import SAMPLE_DELIVERY_ROLE_PARAMETER
+from odoo.addons.sol_laboratory.services.model_lookup import reference_as
 
 WATER_SAMPLES = ("Nước giếng khoan hộ gia đình Phú Hòa", "Nước giếng khoan trường tiểu học Phú Hòa")
 CABBAGE_SAMPLES = ("Cải bắp chợ Bình Điền lô 1003", "Cải bắp chợ Bình Điền lô 1004")
@@ -22,7 +26,10 @@ TRACKING = "Viettel Post, VTP 8402 1157 2210"
 def seed_dispatches(env):
     """Outsourced tests in each dispatch status: sent with sample delivery staff and with a delivery service, received
     with results entered by the subcontractor and by a tester, and an accepted suggestion and a test outsourced straight
-    away in a draft dispatch. A river water test with no suggestion is left for outsourcing straight away."""
+    away in a draft dispatch. A river water test with no suggestion is left for outsourcing straight away. The sample
+    delivery staff role is the one that carries dispatches."""
+    delivery_role = env.ref("sol_demo.demo_role_sample_delivery_staff")
+    env["ir.config_parameter"].sudo().set_int(SAMPLE_DELIVERY_ROLE_PARAMETER, delivery_role.id)
     if env.ref("sol_demo.demo_subcontract_dispatch_draft", raise_if_not_found=False):
         return
     head = env.ref("sol_demo.demo_res_users_head_of_department")
@@ -74,10 +81,18 @@ def _received_tests(env, customer, kind, parameter, names, quantity):
                 Command.create(
                     {
                         "customer_sample_name": name,
-                        "sample_type_id": env.ref(f"sol_demo.demo_sample_type_{kind[0]}").id,
+                        "sample_type_id": reference_as(
+                            env[MODEL_SAMPLE_TYPE], f"sol_demo.demo_sample_type_{kind[0]}"
+                        ).id,
                         "physical_state": kind[1],
                         "test_ids": [
-                            Command.create({"parameter_id": env.ref(f"sol_demo.demo_test_parameter_{parameter}").id})
+                            Command.create(
+                                {
+                                    "parameter_id": reference_as(
+                                        env[MODEL_TEST_PARAMETER], f"sol_demo.demo_test_parameter_{parameter}"
+                                    ).id
+                                }
+                            )
                         ],
                     }
                 )

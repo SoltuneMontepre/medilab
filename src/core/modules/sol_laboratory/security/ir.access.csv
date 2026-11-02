@@ -7,6 +7,7 @@ access_medilab_measurement_unit_user,medilab.measurement.unit user,medilab.measu
 access_medilab_parameter_group_user,medilab.parameter.group user,medilab.parameter.group,base.group_user,r,
 access_medilab_parameter_method_user,medilab.parameter.method user,medilab.parameter.method,base.group_user,r,
 access_medilab_parameter_method_machine_user,medilab.parameter.method.machine user,medilab.parameter.method.machine,base.group_user,r,
+access_medilab_parameter_method_sample_type_user,medilab.parameter.method.sample.type user,medilab.parameter.method.sample.type,base.group_user,r,
 access_medilab_quality_registration_user,medilab.quality.registration user,medilab.quality.registration,base.group_user,r,
 access_medilab_accreditation_certificate_user,medilab.accreditation.certificate user,medilab.accreditation.certificate,base.group_user,r,
 access_medilab_accreditation_certificate_import_user,medilab.accreditation.certificate.import user,medilab.accreditation.certificate.import,base.group_user,crud,
@@ -44,3 +45,4 @@ access_medilab_change_request_requester,medilab.change.request requester,medilab
 access_medilab_change_request_raise_user,medilab.change.request.raise user,medilab.change.request.raise,base.group_user,crud,
 access_medilab_change_request_reject_user,medilab.change.request.reject user,medilab.change.request.reject,base.group_user,crud,
 access_medilab_laboratory_file_version_reject_user,medilab.laboratory.file.version.reject user,medilab.laboratory.file.version.reject,base.group_user,crud,
+access_medilab_user_link_administrator,medilab.user.link administrator,medilab.user.link,group_role_administrator,crud,

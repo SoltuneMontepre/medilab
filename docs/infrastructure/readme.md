@@ -1,7 +1,7 @@
 # Infrastructure
 
 - [Architecture](architecture.md): production on two VPSes and an Azure witness, starting on Server A alone, Argo CD, database failover, object storage, backups, ingress through Cloudflare Tunnel and MQTT
-- Database diagrams, one Prisma schema per module:
+- Database diagrams draw Odoo tables, one Prisma schema per module; required business relationships are in the [conceptual model](../functional/conceptual-model.md):
   - [Laboratory](database/laboratory/laboratory.prisma): master data, test requests, samples, results, signing, tasks, scheduling and the shared platform tables
   - [E-commerce](database/ecommerce/ecommerce.prisma): prices, taxes, service packages, orders, quotations, invoices, payments, support and feedback
   - [Inventory](database/inventory/inventory.prisma): stock items, locations and stores, lots, containers, moves, use per test, recipes, requisitions and transfers, stock takes, cost centres, budgets, charges, suppliers, purchase orders and receipts

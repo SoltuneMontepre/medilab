@@ -21,8 +21,8 @@
                 <sheet>
                     <group>
                         <field name="name" />
-                        <field name="code" />
-                        <field name="mandatory" />
+                        <field name="code" readonly="mandatory" />
+                        <field name="mandatory" readonly="mandatory" />
                         <field name="enabled" readonly="mandatory" />
                         <field name="res_model" />
                     </group>

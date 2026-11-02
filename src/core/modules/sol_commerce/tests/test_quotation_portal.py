@@ -133,7 +133,7 @@ class TestQuotationPortal(AuditLookup, HttpCase, OrderCase):
         line = self.order._catalog_lines()
 
         self.assertLess(line.price_subtotal, line.price_unit * line.product_uom_qty)
-        self.assertIn(f"{line.price_subtotal}", self.page().text)
+        self.assertIn(f"{int(line.price_subtotal):,}", self.page().text)
 
     def test_declining_without_a_reason_redirects_with_an_error(self):
         response = self.post_decline("  ")

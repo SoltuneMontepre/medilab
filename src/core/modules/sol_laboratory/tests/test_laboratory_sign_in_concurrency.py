@@ -5,6 +5,8 @@ from odoo.tests import tagged
 from .laboratory_files_concurrency_case import LaboratoryFilesConcurrencyCase
 from odoo.addons.sol_laboratory.constants.laboratory_files import DEVICE_REVOKED
 from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_DEVICE, MODEL_LABORATORY_SIGN_IN_ATTEMPT
+from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 # The administrator of a new database, whose password Odoo sets to admin and who holds every permission.
 LOGIN = PASSWORD = "admin"
@@ -76,4 +78,4 @@ class TestLaboratorySignInConcurrency(LaboratoryFilesConcurrencyCase):
         attempts, refusal = self.race(revoke, self.sign_in)
 
         self.assertEqual(attempts, 2)
-        self.assertEqual(refusal.code, DEVICE_REVOKED)
+        self.assertEqual(assert_instance(refusal, LaboratoryFileError).code, DEVICE_REVOKED)

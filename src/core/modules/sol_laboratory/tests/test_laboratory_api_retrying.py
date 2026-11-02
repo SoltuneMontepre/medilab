@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 from types import SimpleNamespace
 
 from odoo import fields
@@ -15,6 +15,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_LABORATORY_DEVICE,
     MODEL_RES_USERS_APIKEYS,
 )
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -128,4 +129,6 @@ class TestLaboratoryApiRetrying(LaboratoryApiCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(runs), 1)
-        self.assertGreater(self.device.last_seen_at, fields.Datetime.now() - timedelta(minutes=1))
+        self.assertGreater(
+            assert_instance(self.device.last_seen_at, datetime), fields.Datetime.now() - timedelta(minutes=1)
+        )

@@ -16,7 +16,9 @@ from odoo.addons.sol_laboratory.constants.sync_updates import (
     METHODS,
 )
 from odoo.addons.sol_laboratory.services import openapi_document, sync_releases
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
 from odoo.addons.sol_laboratory.services.sync_update_http import is_public_sync_path
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -78,7 +80,7 @@ class TestLaboratorySyncUpdates(HttpCase):
 
     def test_legacy_all_paths_methods_and_credentials_refuse_without_mutation(self):
         models = ["medilab.laboratory.device", "medilab.laboratory.folder", "medilab.laboratory.file.version"]
-        before = [self.env[model].search_count([]) for model in models]
+        before = [dynamic_model(self.env, model).search_count([]) for model in models]
         for path in ["", "/", "/sign-in", "/folders/1/files/2", "/updates/linux/x86_64/0.1.0", "/unknown/deep/path"]:
             for method in [*METHODS, "PROPFIND"]:
                 response = self.url_open(
@@ -93,7 +95,7 @@ class TestLaboratorySyncUpdates(HttpCase):
                 self.assertNotIn("private-fixture-body", response.text)
                 if method != "HEAD":
                     self.assertEqual(response.json()["error"]["download_url"], os.environ[DOWNLOAD_VARIABLE])
-        self.assertEqual(before, [self.env[model].search_count([]) for model in models])
+        self.assertEqual(before, [dynamic_model(self.env, model).search_count([]) for model in models])
 
     def test_manifest_public_selection_signature_and_no_downgrade(self):
         self.write_catalog(
@@ -200,7 +202,7 @@ class TestLaboratorySyncUpdates(HttpCase):
             if not is_public_sync_path(rule.rule):
                 continue
             found.add(rule.rule)
-            routing = rule.endpoint.routing
+            routing = assert_instance(getattr(rule.endpoint, "routing"), dict)
             self.assertEqual(routing["auth"], "none")
             self.assertIs(routing["csrf"], False)
             self.assertIs(routing["save_session"], False)

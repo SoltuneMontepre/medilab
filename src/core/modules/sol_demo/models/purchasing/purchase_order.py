@@ -1,7 +1,14 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.fields import Command
 
 from odoo.addons.sol_inventory.constants.models import MODEL_PURCHASE_ORDER, MODEL_STOCK_PICKING, MODEL_STOCK_QUANT
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_purchase_order as PurchaseOrderBase
+else:
+    PurchaseOrderBase = object
 
 MARKER = "sol_demo.demo_purchase_order_draft"
 STOREKEEPER = "sol_demo.demo_res_users_storekeeper"
@@ -13,7 +20,7 @@ REJECTION_REASON = "Acetonitrile costs more than on the last order; ask Vietnam 
 
 
 # Đơn Mua Hàng
-class PurchaseOrder(models.Model):
+class PurchaseOrder(models.Model, PurchaseOrderBase):
     _inherit = MODEL_PURCHASE_ORDER
 
     @api.model

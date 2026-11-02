@@ -2,6 +2,7 @@ from odoo.fields import Command
 from odoo.tests import tagged
 
 from .template_case import TemplateCase
+from odoo.addons.sol_laboratory.services.record_id import persisted_ids
 
 
 @tagged("post_install", "-at_install")
@@ -32,7 +33,7 @@ class TestOrderTemplatePricing(TemplateCase):
         order = self.reuse(template)
         self.assertEqual(order._catalog_lines().mapped("price_unit"), [160000, 120000])
         self.assertEqual(order._catalog_lines().mapped("discount"), [0, 0])
-        self.assertEqual(order.amount_untaxed, 510000)
+        self.assertEqual(order.amount_untaxed, 680000)
         self.assertEqual(source._catalog_lines().mapped("price_unit"), [1, 1])
 
     def test_native_taxes_and_fiscal_positions_match_ordinary_sales(self):
@@ -40,7 +41,7 @@ class TestOrderTemplatePricing(TemplateCase):
             tax = self.env["account.tax"].create(
                 {"name": f"Current VAT {rate}", "amount": rate, "type_tax_use": "sale"}
             )
-            for product, quantity, untaxed in ((self.lead_product, 1.5, 225000), (self.package_product, 2.25, 225000)):
+            for product, quantity, untaxed in ((self.lead_product, 2, 300000), (self.package_product, 3, 300000)):
                 with self.subTest(rate=rate, product=product.name):
                     product.taxes_id = tax
                     fpos = self.env.company.domestic_fiscal_position_id
@@ -64,8 +65,8 @@ class TestOrderTemplatePricing(TemplateCase):
                 "name": "Mapped VAT 8",
                 "amount": 8,
                 "type_tax_use": "sale",
-                "original_tax_ids": [Command.set(original.ids)],
-                "fiscal_position_ids": [Command.set(position.ids)],
+                "original_tax_ids": [Command.set(persisted_ids(original))],
+                "fiscal_position_ids": [Command.set(persisted_ids(position))],
             }
         )
         self.lead_product.taxes_id = original

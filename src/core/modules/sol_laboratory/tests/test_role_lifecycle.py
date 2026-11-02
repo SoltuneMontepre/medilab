@@ -6,7 +6,14 @@ from odoo.tests import new_test_user, tagged
 from odoo.tools import mute_logger
 
 from .common import UnshippedPermissionCase
-from odoo.addons.sol_laboratory.constants.models import MODEL_PERMISSION, MODEL_ROLE, MODEL_TEST_PARAMETER
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_PERMISSION,
+    MODEL_RES_GROUPS,
+    MODEL_ROLE,
+    MODEL_TEST_PARAMETER,
+)
+from odoo.addons.sol_laboratory.services.model_lookup import reference_as
+from odoo.addons.sol_laboratory.services.record_id import persisted_id, persisted_ids
 
 
 @tagged("post_install", "-at_install")
@@ -21,11 +28,11 @@ class TestRoleLifecycle(UnshippedPermissionCase):
             ]
         )
         cls.role = cls.env[MODEL_ROLE].create(
-            {"code": "qa_tester", "name": "Tester", "permission_ids": [Command.set(cls.read.ids)]}
+            {"code": "qa_tester", "name": "Tester", "permission_ids": [Command.set(persisted_ids(cls.read))]}
         )
 
     def test_role_generates_its_group(self):
-        group = self.env.ref("sol_laboratory.group_role_qa_tester")
+        group = reference_as(self.env[MODEL_RES_GROUPS], "sol_laboratory.group_role_qa_tester")
 
         self.assertEqual(self.role.group_id, group)
         self.assertEqual(group.name, "Role: qa_tester")
@@ -36,9 +43,9 @@ class TestRoleLifecycle(UnshippedPermissionCase):
 
     def test_role_group_implies_exactly_its_permission_groups(self):
         export = self.env.ref("base.group_allow_export")
-        self.role.group_id.implied_ids = [Command.link(export.id)]
+        self.role.group_id.implied_ids = [Command.link(persisted_id(export))]
 
-        self.role.permission_ids = [Command.set(self.delete.ids)]
+        self.role.permission_ids = [Command.set(persisted_ids(self.delete))]
 
         implied = self.role.group_id.implied_ids
         self.assertEqual(implied & (self.read | self.delete).group_id, self.delete.group_id)
@@ -50,9 +57,9 @@ class TestRoleLifecycle(UnshippedPermissionCase):
         )
 
         self.assertIn(self.read.group_id, user.all_group_ids)
-        self.role.permission_ids = [Command.link(self.delete.id)]
+        self.role.permission_ids = [Command.link(persisted_id(self.delete))]
         self.assertIn(self.delete.group_id, user.all_group_ids)
-        self.role.permission_ids = [Command.unlink(self.read.id)]
+        self.role.permission_ids = [Command.unlink(persisted_id(self.read))]
         self.assertNotIn(self.read.group_id, user.all_group_ids)
 
     def test_role_cannot_be_archived(self):

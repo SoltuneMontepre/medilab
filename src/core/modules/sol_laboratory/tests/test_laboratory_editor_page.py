@@ -22,6 +22,9 @@ from odoo.addons.sol_laboratory.constants.laboratory_files import RAW_DATA, RESU
 from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_EDITING_SESSION
 from odoo.addons.sol_laboratory.services.laboratory_editor_page import CALLBACK_ORIGIN_VARIABLE
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -54,7 +57,9 @@ class TestLaboratoryEditorPage(HttpCase, LaboratoryEditingCase, LaboratorySample
 
     def config(self, response):
         return json.loads(
-            html.fromstring(response.content).get_element_by_id("laboratory-editor").get("data-editor-config")
+            assert_instance(html.fromstring(response.content), html.HtmlElement)
+            .get_element_by_id("laboratory-editor")
+            .get("data-editor-config")
         )
 
     def test_open_and_join_preserve_identity_and_signed_configuration(self):
@@ -78,7 +83,7 @@ class TestLaboratoryEditorPage(HttpCase, LaboratoryEditingCase, LaboratorySample
 
     def test_nonmember_missing_and_hidden_sample_do_not_disclose_metadata(self):
         self.authenticate(self.outsider.login, PASSWORD)
-        absent = self.env[self.file._name].browse(2147483647)
+        absent = dynamic_model(self.env, self.file._name).browse(2147483647)
         hidden = self.page(status=404)
         missing = self.page(absent, status=404)
         self.assertEqual(hidden.content, missing.content)
@@ -89,14 +94,16 @@ class TestLaboratoryEditorPage(HttpCase, LaboratoryEditingCase, LaboratorySample
         folder = self.folder_of_category(RESULT, name="Private sample")
         file = self.file_of("Secret.xlsx", folder)
         self.save(file, "secret")
-        self.tester.group_ids = [Command.unlink(self.env.ref("sol_laboratory.group_permission_sample_read_all").id)]
+        self.tester.group_ids = [
+            Command.unlink(persisted_id(self.env.ref("sol_laboratory.group_permission_sample_read_all")))
+        ]
         self.page(file, status=404)
         self.assertFalse(file.editing_session_ids)
 
     def test_missing_permission_returns_generic_403(self):
         self.authenticate(self.colleague.login, PASSWORD)
         response = self.page(status=403)
-        absent = self.env[self.file._name].browse(2147483647)
+        absent = dynamic_model(self.env, self.file._name).browse(2147483647)
         self.assertEqual(response.content, self.page(absent, status=403).content)
         self.assertNotIn(self.file.path, response.text)
         self.assertFalse(self.file.editing_session_ids)
@@ -179,7 +186,7 @@ class TestLaboratoryEditorPage(HttpCase, LaboratoryEditingCase, LaboratorySample
         self.tester.name = attack
         response = self.page()
         self.assertEqual(self.config(response)["editorConfig"]["user"]["name"], attack)
-        tree = html.fromstring(response.content)
+        tree = assert_instance(html.fromstring(response.content), html.HtmlElement)
         self.assertFalse(tree.xpath("//img | //script[not(@src)] | //*[@onerror]"))
         self.assertNotIn("<img src=x", response.text)
 
@@ -188,7 +195,7 @@ class TestLaboratoryEditorPage(HttpCase, LaboratoryEditingCase, LaboratorySample
         file = self.file_of(title)
         self.save(file, "results")
         response = self.page(file)
-        tree = html.fromstring(response.content)
+        tree = assert_instance(html.fromstring(response.content), html.HtmlElement)
         heading = tree.find(".//h1")
         if heading is None:
             self.fail("The editor did not display a heading.")
@@ -201,7 +208,7 @@ class TestLaboratoryEditorPage(HttpCase, LaboratoryEditingCase, LaboratorySample
         sessions = type(self.env[MODEL_LABORATORY_EDITING_SESSION])
         with patch.object(sessions, "_open_for", side_effect=LaboratoryFileError("not_editable", attack)):
             response = self.page(status=409)
-        tree = html.fromstring(response.content)
+        tree = assert_instance(html.fromstring(response.content), html.HtmlElement)
         self.assertEqual(tree.get_element_by_id("editor-status").text_content().strip(), attack.strip())
         self.assertFalse(tree.xpath("//img | //*[@onerror] | //script"))
         self.assertFalse(self.file.editing_session_ids)
@@ -226,7 +233,7 @@ class TestLaboratoryEditorPage(HttpCase, LaboratoryEditingCase, LaboratorySample
             response = self.page(status=405, method=method)
             self.assertEqual(response.headers["Allow"], "GET, HEAD")
         for value in (0, 2**63):
-            self.page(self.env[self.file._name].browse(value), status=404)
+            self.page(dynamic_model(self.env, self.file._name).browse(value), status=404)
         self.assertFalse(self.file.editing_session_ids)
 
     def test_idle_session_gets_a_new_key_on_explicit_reentry(self):
