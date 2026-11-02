@@ -40,12 +40,42 @@
                         invisible="status not in ('waiting', 'assigned', 'testing')"
                         groups="sol_laboratory.group_permission_sample_test_edit_all"
                     />
+                    <button
+                        name="%(action_medilab_sample_test_due_date_change)d"
+                        type="action"
+                        string="Change Due Date"
+                        context="{'default_sample_test_id': id, 'default_due_date': due_date}"
+                        invisible="not can_change_due_date"
+                    />
+                    <button
+                        name="action_clear_due_date"
+                        type="object"
+                        string="Use Automatic Due Date"
+                        invisible="not can_change_due_date or not due_date_reason"
+                    />
+                    <field name="can_change_due_date" invisible="1" />
                     <field name="status" widget="statusbar" />
                 </header>
                 <sheet>
                     <div class="alert alert-warning" role="alert" invisible="not outsourcing_suggested">
                         No machine can finish this test before its due date. Outsource it through a subcontracted way of testing.
                     </div>
+                    <div
+                        class="alert alert-warning"
+                        role="alert"
+                        invisible="not due_date_conflict or status not in ('waiting', 'assigned', 'testing', 'outsourced')"
+                    >
+                        The due date was changed by hand and is now later than the date the request's expected date gives.
+                    </div>
+                    <div
+                        class="alert alert-warning"
+                        role="alert"
+                        invisible="not due_on_non_working_day or status not in ('waiting', 'assigned', 'testing', 'outsourced')"
+                    >
+                        The due date is not a working day of the company calendar.
+                    </div>
+                    <field name="due_date_conflict" invisible="1" />
+                    <field name="due_on_non_working_day" invisible="1" />
                     <div class="oe_title">
                         <h1><field name="sample_id" readonly="1" /></h1>
                         <h2><field name="parameter_id" readonly="1" /></h2>
@@ -56,6 +86,7 @@
                         <group>
                             <field name="quantity" readonly="1" />
                             <field name="due_date" readonly="1" />
+                            <field name="due_date_reason" invisible="not due_date_reason" />
                             <field name="parameter_method_id" readonly="1" />
                         </group>
                         <group string="Recommendation" invisible="not recommended_machine_id">

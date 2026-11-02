@@ -950,8 +950,10 @@ model SampleTest {
   quantity            Int              @default(1)
   /// waiting, assigned, testing, outsourced, result_entered, approved or cancelled.
   status              String           @db.VarChar
-  /// When the laboratory plans to finish the test: the end of the day, in the company's time zone, the safety margin before the request's expected date, worked out when the sample test is created or that date changes and changeable afterwards. Changing the safety margin does not change due dates already worked out. A test whose due date is close is scheduled first.
+  /// When the laboratory plans to finish the test: the end of the day, in the company's time zone, the safety margin before the request's expected date, worked out when the sample test is created or that date changes, unless the head of department changed it by hand. Changing the safety margin does not change due dates already worked out. A test whose due date is close is scheduled first.
   due_date            DateTime?
+  /// Why the head of department changed the due date by hand; empty while it is worked out from the safety margin.
+  due_date_reason     String?          @db.Text
   /// Why the test was cancelled, such as the parameter cannot be tested on this sample.
   cancel_reason       String?          @db.Text
   /// Head of department who cancelled the test.
