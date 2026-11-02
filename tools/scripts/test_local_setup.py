@@ -172,6 +172,7 @@ class LocalSetupTests(unittest.TestCase):
     def test_low_or_unknown_engine_memory_only_warns(self):
         for memory, detail in [
             (4 * 1024**3, "has 4.0 GiB of memory"),
+            (4163506176, "has 3.9 GiB of memory"),
             (None, "did not report its memory"),
             ("unknown", "did not report its memory"),
         ]:
