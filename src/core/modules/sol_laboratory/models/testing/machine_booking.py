@@ -10,6 +10,7 @@ from odoo.fields import Command, Domain
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_CALENDAR_EVENT,
+    MODEL_DOCUMENT_LOCK,
     MODEL_LOCK_MIXIN,
     MODEL_MACHINE,
     MODEL_MACHINE_BOOKING,
@@ -165,7 +166,7 @@ class MachineBooking(models.Model, MachineBookingBase):
             vals = dict(vals)
             vals.pop("ends_at", None)
             # A move skips the lock mixin's write, so it checks and releases the edit lock itself.
-            locks = self.browse() if self.env.su else self._check_lock()
+            locks = self.env[MODEL_DOCUMENT_LOCK] if self.env.su else self._check_lock()
             if "starts_at" in vals:
                 start = fields.Datetime.to_datetime(vals.pop("starts_at"))
                 if not start:

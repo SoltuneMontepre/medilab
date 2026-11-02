@@ -250,7 +250,7 @@ class Task(models.Model, TaskBase):
         person = self.env[MODEL_PERSON]._current()
         if moved_out and person and not self.env.su:
             # Full rights: the person no longer changes a task that waits in another department's queue.
-            moved_out.sudo()[MOVED_OUT_BY] = [Command.link(person.id)]
+            moved_out.sudo()[MOVED_OUT_BY] = [Command.link(persisted_id(person))]
         if "assignee_id" in vals:
             self.env[MODEL_SAMPLE_TEST]._follow_assignment(self)
             self.env[MODEL_MACHINE_BOOKING]._follow_assignment(self)

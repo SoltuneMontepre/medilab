@@ -4,6 +4,7 @@ from odoo.tests import tagged
 
 from .task_case import TaskCase
 from odoo.addons.sol_laboratory.constants.models import MODEL_TASK_REASSIGN
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 
 @tagged("post_install", "-at_install")
@@ -99,7 +100,7 @@ class TestTaskReassigning(TaskCase):
         task = self.receive_sample(self.chemistry)
 
         with self.assertRaisesRegex(UserError, "Only the system records who moved"):
-            self.as_person(task, self.head).write({"moved_out_by_ids": [Command.link(self.colleague.id)]})
+            self.as_person(task, self.head).write({"moved_out_by_ids": [Command.link(persisted_id(self.colleague))]})
         self.assertFalse(task.moved_out_by_ids)
 
     def test_assignee_must_belong_to_the_department(self):

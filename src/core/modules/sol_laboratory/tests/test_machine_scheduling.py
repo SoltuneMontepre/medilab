@@ -183,7 +183,7 @@ class TestMachineScheduling(SchedulingCase):
         head = booking.with_user(self.head.user_id)
 
         self.assertEqual(head.lock_take(), {"taken": True})
-        with self.assertRaisesRegex(UserError, self.head.user_id.name):
+        with self.assertRaisesRegex(UserError, "is editing"):
             own.write({"starts_at": MONDAY + timedelta(hours=1)})
         head.lock_release("left")
 

@@ -73,14 +73,12 @@ export function schedulingFixture(count = 2, register = () => {}) {
     name: `Copper (Cu) ${fixture.tag}`,
     main_group_id: fixture.group,
     group_ids: [[6, 0, [fixture.group]]],
-    sample_type_ids: [[6, 0, [fixture.sampleType]]],
   })).then((id) => (fixture.parameter = id));
   cy.then(() => create(ADMIN, "medilab.parameter.method", {
     parameter_id: fixture.parameter,
     method_id: fixture.method,
-    unit_id: fixture.unit,
     department_id: fixture.department,
-    is_default: true,
+    applicability_ids: [[0, 0, { sample_type_id: fixture.sampleType, unit_id: fixture.unit, is_default: true }]],
   })).then((id) => (fixture.way = id));
   cy.then(() => create(ADMIN, "medilab.machine", {
     code: fixture.tag,
