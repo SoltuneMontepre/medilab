@@ -1,4 +1,4 @@
-# An on-demand base backup before every sync, so a release can be restored by hand. Retention on the ObjectStore removes it.
+# An on-demand base backup before every sync, after the upgrade rehearsal passed, so a release can be restored by hand. Retention on the ObjectStore removes it.
 apiVersion: postgresql.cnpg.io/v1
 kind: Backup
 metadata:

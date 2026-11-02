@@ -141,6 +141,11 @@ tasks:
         fi
         log_ok "Odoo module tests passed in shards {{trim .SHARD_NUMBERS}}. {{if .COVERAGE_DIR}}Coverage data in {{.COVERAGE_DIR}}{{else}}Coverage report in {{.COVERAGE_REPORT}}{{end}}."
 
+  test:upgrade:
+    desc: "Install the modules with the released image, then upgrade them with this checkout's image as a release does; BASE_IMAGE=<image> starts from another image"
+    cmds:
+      - python tools/scripts/test_upgrade.py
+
   test:core:coverage:
     desc: "Combine the coverage data that test:core runners saved in COVERAGE_DIR into the coverage report"
     silent: true

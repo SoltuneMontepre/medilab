@@ -40,6 +40,7 @@ Every chart and image is pinned and upgraded by changing it in `infra/cluster/`:
 | Argo Rollouts chart       | 2.43.8   | `applications/argo-rollouts.yaml`       |
 | Barman Cloud plugin chart | 0.8.1    | `applications/plugin-barman-cloud.yaml` |
 | Postgres image            | 18.4     | `imageName` in `database/cluster.yaml`  |
+| Rehearsal Postgres image  | 18.4     | `odoo/upgrade-rehearsal.yaml`           |
 | `cloudflared` image       | 2026.9.3 | `cloudflared/deployment.yaml`           |
 | Mailpit image             | v1.31.6  | `mailpit/deployment.yaml`               |
 | CloudBeaver image         | 26.2.2   | `cloudbeaver/deployment.yaml`           |
@@ -69,6 +70,7 @@ External Secrets reads the Doppler `infra` config through the `doppler` `Cluster
 ## Database
 
 - The `medilab-db` `Cluster` runs one instance on the `local-path` storage of its node, with 20 GiB, and creates the `medilab` database owned by the `medilab` user.
+- The `medilab-rehearsal` `Database` creates `medilab_rehearsal`, owned by `medilab`, in the same instance. Each release copies `medilab` into it to rehearse the upgrade; it is empty outside a release, or holds the copy of a failed rehearsal. While it holds a copy, the database takes about twice the disk of `medilab`, and the copy's WAL goes to the WAL archive.
 - The instance requests one core and 3 GiB, with its memory limit equal to the request. Its parameters are sized for that memory on SSD storage: `shared_buffers` 768 MB, `effective_cache_size` 2 GB, `work_mem` 8 MB, `maintenance_work_mem` 256 MB, `random_page_cost` 1.1, `effective_io_concurrency` 200 and `max_wal_size` 2 GB, with 200 connections.
 - The `backups` `ObjectStore` writes the WAL archive and the base backups to `s3://medilab-backups/postgres`, compressed, and keeps them for 30 days. The bucket endpoint reaches the plugin's sidecar as `AWS_ENDPOINT_URL`, since the object store can only take it as plain text. The sidecar sets `AWS_REQUEST_CHECKSUM_CALCULATION` and `AWS_RESPONSE_CHECKSUM_VALIDATION` to `when_required`, since the object storage refuses the checksums boto3 adds to multipart uploads by default.
 - The `medilab-db-daily` `ScheduledBackup` takes a base backup every day at 02:00 Asia/Ho_Chi_Minh, written as `0 0 19 * * *` because the operator reads the schedule in UTC.
@@ -77,15 +79,20 @@ External Secrets reads the Doppler `infra` config through the `doppler` `Cluster
 
 - `odoo.conf` comes from the `odoo-config` Secret, not the image: six workers, one cron thread, `proxy_mode`, no database manager and only the `medilab` database. Odoo reaches the database through the `medilab-db-rw` service with the user in `medilab-db-app`, with at most 8 connections per process.
 - Odoo and the database together get 8 GiB: the Odoo pod requests three cores and 4 GiB with a 5 GiB limit, and each worker is recycled above 576 MiB and killed above 896 MiB, so every process fits the limit at its soft memory limit. A worker is also recycled after 8192 requests. The pod has no CPU limit, so it uses the node's idle cores.
-- The upgrade Job requests three cores and 2 GiB with a 4 GiB limit, on top of those 8 GiB while it runs.
+- The upgrade Job, and the rehearsal's `upgrade` container, each request three cores and 2 GiB with a 4 GiB limit, on top of those 8 GiB while they run; they never run at the same time.
 - With no outgoing mail server stored in Odoo and no Brevo settings in the environment, Odoo sends every e-mail to Mailpit on port 1025, without TLS.
 - Odoo and the upgrade Job get the `medilab-filestore` bucket credentials and endpoint from the `filestore-bucket` Secret as `BUCKET_LABORATORY_*`, with `BUCKET_LABORATORY_NAME=medilab-filestore`, `BUCKET_LABORATORY_REGION=us-east-1` and `BUCKET_FILESTORE=1`. Attachments are kept in the bucket and cached in the pod's `/var/lib/odoo` `emptyDir` alongside the sessions; see [Laboratory files](../specs/laboratory-files.md#filestore).
 - Odoo is an Argo Rollouts `Rollout` with the blue-green strategy. The `odoo` Service sends traffic to the active colour and `odoo-preview` to the colour being released; Argo Rollouts adds the colour's `rollouts-pod-template-hash` to each selector, which the `odoo` application ignores in its diff.
 - Traefik routes `lims.soltunemontepre.tech` to `odoo` and `preview.soltunemontepre.tech` to `odoo-preview`, each with `/websocket` to the websocket port and the same middlewares, and tells Odoo the request came over HTTPS. Outside a release both hostnames reach the active colour.
 - Every sync of the `odoo` application runs, in order:
-  1. A `PreSync` hook: the `medilab-db-pre-sync` on-demand `Backup`, which must complete.
-  2. A `Sync` hook: the `odoo-upgrade` Job, which installs `sol_laboratory`, `sol_commerce`, `sol_inventory`, `sol_theme` and `sol_demo` when missing and upgrades every installed module. `MEDILAB_DEMO_PASSWORD` is not set, so the `demo.<role>` users keep the password `demo`. It does not retry; a failure fails the sync.
-  3. The blue-green release of the `odoo` Rollout:
+  1. A `PreSync` hook: the `odoo-upgrade-rehearsal` Job, which rehearses the upgrade on a copy of the database:
+     1. Its `copy` container empties the `medilab_rehearsal` database and copies `medilab` into it with `pg_dump` and `pg_restore`, without stopping Odoo.
+     2. Its `upgrade` container runs the release's image on `medilab_rehearsal` with the arguments of the `odoo-upgrade` Job. It has no bucket settings, so it neither reads nor writes the `medilab-filestore` bucket, and attachment files read as empty.
+     3. It does not retry and must finish within 30 minutes. A failure fails the sync before the backup, so `medilab` is untouched and the active colour keeps serving. The copy stays in `medilab_rehearsal` to inspect until the next sync empties it.
+  2. A `PreSync` hook: the `odoo-upgrade-rehearsal-cleanup` Job, which empties `medilab_rehearsal` once the rehearsal passed.
+  3. A `PreSync` hook: the `medilab-db-pre-sync` on-demand `Backup`, which must complete.
+  4. A `Sync` hook: the `odoo-upgrade` Job, which installs `sol_laboratory`, `sol_commerce`, `sol_inventory`, `sol_theme` and `sol_demo` when missing and upgrades every installed module. `MEDILAB_DEMO_PASSWORD` is not set, so the `demo.<role>` users keep the password `demo`. It does not retry; a failure fails the sync.
+  5. The blue-green release of the `odoo` Rollout:
      1. The new image starts as the preview colour beside the active one, which keeps serving `lims.soltunemontepre.tech`.
      2. Once the preview colour is ready, the `odoo-health` analysis has the Argo Rollouts controller request `/web/health?db_server_status=1` on `odoo-preview` three times, 20 seconds apart. Each answer must be `pass`; one failure or error aborts the release.
      3. Argo Rollouts switches `odoo` to the new colour without a human step, and scales the old colour down 10 minutes later.

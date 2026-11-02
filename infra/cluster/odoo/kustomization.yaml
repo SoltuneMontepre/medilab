@@ -5,6 +5,7 @@ namespace: medilab
 resources:
   - config.yaml
   - filestore.yaml
+  - upgrade-rehearsal.yaml
   - pre-sync-backup.yaml
   - upgrade-job.yaml
   - analysis-template.yaml

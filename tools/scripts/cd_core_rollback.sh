@@ -77,6 +77,13 @@ done | sort -u | paste -sd, -)
   echo '```'
   echo
   # The body of a pull request holds at most 65536 characters: each log is cut to its last lines, each line to 250.
+  echo "## Upgrade rehearsal"
+  echo
+  echo '```text'
+  argo app logs odoo --group batch --kind Job --name odoo-upgrade-rehearsal --container copy --tail 10 2>&1 | tail -n 10 | cut -c 1-250 || true
+  argo app logs odoo --group batch --kind Job --name odoo-upgrade-rehearsal --container upgrade --tail 50 2>&1 | tail -n 50 | cut -c 1-250 || true
+  echo '```'
+  echo
   echo "## Upgrade Job"
   echo
   echo '```text'
