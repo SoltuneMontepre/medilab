@@ -164,6 +164,8 @@ class MachineBooking(models.Model, MachineBookingBase):
             # People move a booking only to a slot the scheduler finds free; its length stays the run time.
             vals = dict(vals)
             vals.pop("ends_at", None)
+            # A move skips the lock mixin's write, so it checks and releases the edit lock itself.
+            locks = self.browse() if self.env.su else self._check_lock()
             if "starts_at" in vals:
                 start = fields.Datetime.to_datetime(vals.pop("starts_at"))
                 if not start:
@@ -171,6 +173,8 @@ class MachineBooking(models.Model, MachineBookingBase):
                 for booking in self:
                     booking._move(start)
             if not vals:
+                if locks:
+                    locks._own_edits()._release("saved")
                 return True
         result = super().write(vals)
         if {"status", "starts_at", "person_id", "machine_id"} & set(vals):

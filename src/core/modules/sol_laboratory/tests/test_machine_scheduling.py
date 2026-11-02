@@ -165,6 +165,21 @@ class TestMachineScheduling(SchedulingCase):
         with self.assertRaisesRegex(UserError, "Only a scheduled booking can be moved"):
             own.write({"starts_at": MONDAY + timedelta(hours=4)})
 
+    def test_moving_a_booking_respects_and_releases_the_edit_lock(self):
+        self.testing_task(self.test, self.tester)
+        booking = self.schedule(self.test, self.tester)
+        own = booking.with_user(self.tester.user_id)
+        head = booking.with_user(self.head.user_id)
+
+        self.assertEqual(head.lock_take(), {"taken": True})
+        with self.assertRaisesRegex(UserError, self.head.user_id.name):
+            own.write({"starts_at": MONDAY + timedelta(hours=1)})
+        head.lock_release("left")
+
+        self.assertEqual(own.lock_take(), {"taken": True})
+        own.write({"starts_at": MONDAY + timedelta(hours=1)})
+        self.assertEqual(head.lock_take(), {"taken": True})
+
     def test_only_the_person_running_a_test_and_their_head_adjust_its_booking(self):
         self.testing_task(self.test, self.tester)
         booking = self.schedule(self.test, self.tester)

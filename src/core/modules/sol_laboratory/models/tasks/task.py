@@ -40,6 +40,7 @@ CLAIMABLE_LIMIT = 3
 # Fields that say what a task is and which document it opens; only the system sets them.
 DOCUMENT_LINK_FIELDS = {"type_id", "document_model", "document_id", "action"}
 LINKED_BY_SYSTEM = "linked_by_system"
+MOVED_OUT_BY = "moved_out_by_ids"
 
 
 # Nhiệm Vụ
@@ -173,6 +174,7 @@ class Task(models.Model, TaskBase):
         person = self.env[MODEL_PERSON]._current()
         return Domain("assignee_id", "=", person.id) if person else Domain.FALSE
 
+    @api.depends("department_id", "assignee_id", "status", MOVED_OUT_BY)
     @api.depends_context("uid")
     def _compute_can_edit(self):
         editable = self.filtered("id")._filtered_access("write")
@@ -214,6 +216,7 @@ class Task(models.Model, TaskBase):
         for vals in vals_list:
             task_type = task_types.browse(vals.get("type_id"))
             if not self.env.su:
+                self._check_moved_out_by(vals)
                 self._check_created_by_hand(task_type, vals)
             else:
                 vals.setdefault(LINKED_BY_SYSTEM, True)
@@ -232,6 +235,8 @@ class Task(models.Model, TaskBase):
     def write(self, vals):
         if not self.env.su and (DOCUMENT_LINK_FIELDS | {LINKED_BY_SYSTEM}) & set(vals):
             raise UserError(self.env._("The type of a task and the document it opens cannot change."))
+        if not self.env.su:
+            self._check_moved_out_by(vals)
         if DOCUMENT_LINK_FIELDS & set(vals):
             # A task whose type or document changes is no longer the one the system linked, whatever the call says;
             # only a separate confirmation trusts it again.
@@ -245,7 +250,7 @@ class Task(models.Model, TaskBase):
         person = self.env[MODEL_PERSON]._current()
         if moved_out and person and not self.env.su:
             # Full rights: the person no longer changes a task that waits in another department's queue.
-            moved_out.sudo().moved_out_by_ids = [Command.link(person.id)]
+            moved_out.sudo()[MOVED_OUT_BY] = [Command.link(person.id)]
         if "assignee_id" in vals:
             self.env[MODEL_SAMPLE_TEST]._follow_assignment(self)
             self.env[MODEL_MACHINE_BOOKING]._follow_assignment(self)
@@ -258,6 +263,11 @@ class Task(models.Model, TaskBase):
         } & set(vals):
             self._sync_calendar_event()
         return result
+
+    def _check_moved_out_by(self, vals):
+        # Read access follows this relation, so only a move records it.
+        if MOVED_OUT_BY in vals:
+            raise UserError(self.env._("Only the system records who moved a task to another department."))
 
     def _check_created_by_hand(self, task_type, vals):
         if task_type.trigger != MANUAL_TRIGGER:

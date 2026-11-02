@@ -14626,7 +14626,7 @@ msgstr "Được sửa"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__moved_out_by_ids
 msgid "Moved Out By"
-msgstr "Người chuyển đi"
+msgstr "Người chuyển nhiệm vụ"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__quality_registration_warning_days
@@ -15112,3 +15112,9 @@ msgstr "Xóa cấu hình áp dụng theo loại mẫu của phòng ban mình"
 #: model:res.groups,name:sol_laboratory.group_permission_parameter_method_sample_type_delete_own_department
 msgid "Permission: parameter.method.sample.type.delete.own_department"
 msgstr "Quyền: parameter.method.sample.type.delete.own_department"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "Only the system records who moved a task to another department."
+msgstr "Chỉ hệ thống ghi nhận người đã chuyển nhiệm vụ sang phòng ban khác."

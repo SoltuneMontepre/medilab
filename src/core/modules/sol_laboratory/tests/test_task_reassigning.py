@@ -1,4 +1,5 @@
 from odoo.exceptions import AccessError, UserError
+from odoo.fields import Command
 from odoo.tests import tagged
 
 from .task_case import TaskCase
@@ -93,6 +94,13 @@ class TestTaskReassigning(TaskCase):
         with self.assertRaises(AccessError):
             moved.write({"note": "Back to chemistry"})
         self.assertFalse(self.as_person(task, self.colleague).has_access("read"))
+
+    def test_nobody_records_a_mover_by_hand(self):
+        task = self.receive_sample(self.chemistry)
+
+        with self.assertRaisesRegex(UserError, "Only the system records who moved"):
+            self.as_person(task, self.head).write({"moved_out_by_ids": [Command.link(self.colleague.id)]})
+        self.assertFalse(task.moved_out_by_ids)
 
     def test_assignee_must_belong_to_the_department(self):
         task = self.receive_sample(self.chemistry)
