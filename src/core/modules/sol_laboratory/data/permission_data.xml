@@ -706,6 +706,21 @@
         <field name="document_model">medilab.accreditation.certificate</field>
         <field name="action">delete</field>
     </record>
+    <record id="permission_accreditation_scope_line_create_all" model="medilab.permission">
+        <field name="name">Create accreditation scope lines</field>
+        <field name="document_model">medilab.accreditation.scope.line</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_accreditation_scope_line_edit_all" model="medilab.permission">
+        <field name="name">Edit accreditation scope lines</field>
+        <field name="document_model">medilab.accreditation.scope.line</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_accreditation_scope_line_delete_all" model="medilab.permission">
+        <field name="name">Delete accreditation scope lines</field>
+        <field name="document_model">medilab.accreditation.scope.line</field>
+        <field name="action">delete</field>
+    </record>
     <record id="permission_regulation_create_all" model="medilab.permission">
         <field name="name">Create regulations</field>
         <field name="document_model">medilab.regulation</field>
