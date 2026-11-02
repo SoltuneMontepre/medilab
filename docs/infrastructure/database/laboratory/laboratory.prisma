@@ -31,6 +31,8 @@ model TestParameter {
   regulation_limits RegulationLimit[]
   /// Sample tests of this parameter.
   sample_tests      SampleTest[]
+  /// Accreditation scope lines that name the parameter.
+  scope_lines       AccreditationScopeLineParameter[]
 
   @@index([main_group_id])
   @@map("medilab_test_parameter")
@@ -108,6 +110,8 @@ model SampleType {
   samples     Sample[]
   /// Regulations that apply to this sample type.
   regulations RegulationSampleType[]
+  /// Accreditation scope lines that name the sample type, which also cover its narrower types.
+  scope_lines AccreditationScopeLineSampleType[]
 
   @@index([parent_id])
   @@index([parent_path])
@@ -210,8 +214,8 @@ model TestingMethod {
   chemicals  ChemicalMethod[]
   /// Steps of the procedure, in step number order.
   steps      TestingMethodStep[]
-  /// Accreditation certificates whose scope lists the method.
-  certificates AccreditationCertificateMethod[]
+  /// Accreditation scope lines that name the method.
+  scope_lines AccreditationScopeLine[]
 
   @@index([field_id])
   @@map("medilab_testing_method")
@@ -299,28 +303,69 @@ model AccreditationCertificate {
   valid_from   DateTime?                       @db.Date
   /// Last day the certificate is valid; empty means valid until any date.
   valid_until  DateTime?                       @db.Date
-  /// False when the certificate is archived.
+  /// False when the certificate is archived; an archived certificate accredits nothing.
   active       Boolean                         @default(true)
-  /// Testing methods in the scope of the certificate.
-  methods      AccreditationCertificateMethod[]
+  /// Lines of the scope.
+  scope_lines  AccreditationScopeLine[]
 
   @@map("medilab_accreditation_certificate")
 }
 
-/// Links an accreditation certificate to the testing methods in its scope.
-model AccreditationCertificateMethod {
-  /// The certificate.
+/// A line of an accreditation certificate's scope (Dòng phạm vi công nhận): one testing method with the parameters and sample types it is accredited for. A sample type covers its narrower types.
+model AccreditationScopeLine {
+  /// Row identifier.
+  id             Int                                @id @default(autoincrement())
+  /// The certificate whose scope the line belongs to.
   certificate_id Int
-  /// A method in its scope.
+  /// The testing method the line accredits.
   method_id      Int
+  /// True while the line names no parameter or no sample type, so it accredits nothing until an administrator completes it, as the method-only lines of earlier certificates do; worked out, never set by hand.
+  to_confirm     Boolean                            @default(false)
   /// The certificate.
-  certificate    AccreditationCertificate @relation(fields: [certificate_id], references: [id], onDelete: Cascade)
+  certificate    AccreditationCertificate           @relation(fields: [certificate_id], references: [id], onDelete: Cascade)
   /// The testing method.
-  method         TestingMethod            @relation(fields: [method_id], references: [id], onDelete: Restrict)
+  method         TestingMethod                      @relation(fields: [method_id], references: [id], onDelete: Restrict)
+  /// Parameters the line accredits with its method.
+  parameters     AccreditationScopeLineParameter[]
+  /// Sample types the line accredits with its method.
+  sample_types   AccreditationScopeLineSampleType[]
 
-  @@id([certificate_id, method_id])
+  @@index([certificate_id])
   @@index([method_id])
-  @@map("medilab_accreditation_certificate_method_rel")
+  @@index([to_confirm])
+  @@map("medilab_accreditation_scope_line")
+}
+
+/// Links an accreditation scope line to the parameters it accredits.
+model AccreditationScopeLineParameter {
+  /// The scope line.
+  line_id      Int
+  /// A parameter it accredits.
+  parameter_id Int
+  /// The scope line.
+  line         AccreditationScopeLine @relation(fields: [line_id], references: [id], onDelete: Cascade)
+  /// The parameter.
+  parameter    TestParameter          @relation(fields: [parameter_id], references: [id], onDelete: Restrict)
+
+  @@id([line_id, parameter_id])
+  @@index([parameter_id])
+  @@map("medilab_accreditation_scope_line_parameter_rel")
+}
+
+/// Links an accreditation scope line to the sample types it accredits.
+model AccreditationScopeLineSampleType {
+  /// The scope line.
+  line_id        Int
+  /// A sample type it accredits, with its narrower types.
+  sample_type_id Int
+  /// The scope line.
+  line           AccreditationScopeLine @relation(fields: [line_id], references: [id], onDelete: Cascade)
+  /// The sample type.
+  sample_type    SampleType             @relation(fields: [sample_type_id], references: [id], onDelete: Restrict)
+
+  @@id([line_id, sample_type_id])
+  @@index([sample_type_id])
+  @@map("medilab_accreditation_scope_line_sample_type_rel")
 }
 
 /// A field of testing that classifies methods, such as Chemistry or Microbiology. Trigram indexes on code and name serve search.
@@ -439,8 +484,6 @@ model ParameterMethod {
   subcontractor_id Int?
   /// The department that tests it in-house; empty when a subcontractor tests it.
   department_id    Int?
-  /// True while this in-house way of testing's method is on an accreditation certificate valid that day; worked out, never set by hand.
-  is_accredited    Boolean         @default(false)
   /// True when its results may be negative, such as a redox potential or a temperature in °C.
   allows_negative  Boolean         @default(false)
   /// False when this way of testing is archived.
@@ -676,6 +719,8 @@ model ParameterMethodSampleType {
   result_decimals     Int?
   /// True for the way the parameter is normally tested on this sample type.
   is_default          Boolean         @default(false)
+  /// True while the way is in-house and a line of an active certificate valid that day, in the company time zone, covers its method, its parameter and the sample type or one of its ancestors; worked out, never set by hand.
+  is_accredited       Boolean         @default(false)
   /// The department that tests the way in-house, copied from the way so a permission can be limited to the person's department; empty for a subcontractor's way.
   department_id       Int?
   /// The parameter.
@@ -968,6 +1013,8 @@ model SampleTest {
   urgent_reason       String?          @db.Text
   /// Why the head of department outsourced the test straight away instead of from an outsourcing suggestion.
   emergency_outsource_reason String?   @db.Text
+  /// True while the test's way is in-house and a line of an active certificate valid that day, in the company time zone, covers its method, its parameter and its sample's type or one of that type's ancestors. Worked out again while the test is open; an approved or cancelled test keeps the mark it had then.
+  is_accredited       Boolean          @default(false)
   /// Tester or head of department who marked the test urgent.
   marked_urgent_by_id Int?
   /// The sample tested.

@@ -187,6 +187,8 @@ class Sample(models.Model, SampleBase):
         result = super().write(vals)
         if "photo_ids" in vals:
             self._link_photos()
+        if "sample_type_id" in vals:
+            self.test_ids._refresh_accreditation()
         return result
 
     def _cancel(self):
