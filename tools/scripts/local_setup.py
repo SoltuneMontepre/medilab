@@ -21,7 +21,8 @@ from host_tools import (
 )
 
 ROOT = Path(__file__).resolve().parents[2]
-MIN_ENGINE_MEMORY = 8 * 1024**3
+# ONLYOFFICE's 4 GiB limit plus Odoo, PostgreSQL and Garage; less only warns.
+RECOMMENDED_ENGINE_MEMORY = 6 * 1024**3
 MIN_PYTHON = (3, 12)
 TOOL_ENVIRONMENT = (
     "APPDATA",
@@ -99,16 +100,30 @@ def check_engine_resources(information):
             "The pinned local ONLYOFFICE image requires an amd64 Linux container engine."
         )
     try:
-        sufficient = (
-            int(information["cpus"]) >= 4
-            and int(information["memory"]) >= MIN_ENGINE_MEMORY
-        )
+        sufficient = int(information["cpus"]) >= 4
     except (TypeError, ValueError):
         sufficient = False
     if not sufficient:
         raise HostError(
-            "Allocate at least 4 CPUs and 8 GiB to the container engine: ONLYOFFICE needs 6 GiB plus backend capacity."
+            "Allocate at least 4 CPUs to the container engine: the local ONLYOFFICE service uses 4."
         )
+    check_engine_memory(information["memory"])
+
+
+def check_engine_memory(memory):
+    """Warn, without stopping setup, when the engine has less memory than recommended."""
+    try:
+        memory = int(memory)
+    except (TypeError, ValueError):
+        detail = "The container engine did not report its memory"
+    else:
+        if memory >= RECOMMENDED_ENGINE_MEMORY:
+            return
+        detail = f"The container engine has {memory / 1024**3:.1f} GiB of memory"
+    sys.stdout.write(
+        f"[WARNING] {detail}; {RECOMMENDED_ENGINE_MEMORY // 1024**3} GiB or more is recommended. Setup continues, but ONLYOFFICE or Odoo may be "
+        "slow or stopped for lack of memory. Allocate more memory to the container engine if that happens.\n"
+    )
 
 
 def check_engine_transport(document):

@@ -1,10 +1,12 @@
 """Exercise first-use selection, ordering, refusal and secret isolation of root setup."""
 
+import io
 import json
 import os
 import subprocess
 import tempfile
 import unittest
+from contextlib import redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
 
@@ -151,8 +153,8 @@ class LocalSetupTests(unittest.TestCase):
         for changed in [
             {"os": "windows"},
             {"architecture": "arm64"},
-            {"memory": 4 * 1024**3},
             {"cpus": 2},
+            {"cpus": None},
         ]:
             values = {
                 "os": "linux",
@@ -166,6 +168,62 @@ class LocalSetupTests(unittest.TestCase):
                 self.assertRaises(local_setup.HostError),
             ):
                 local_setup.check_engine_resources(values)
+
+    def test_low_or_unknown_engine_memory_only_warns(self):
+        for memory, detail in [
+            (4 * 1024**3, "has 4.0 GiB of memory"),
+            (None, "did not report its memory"),
+            ("unknown", "did not report its memory"),
+        ]:
+            output = io.StringIO()
+            with self.subTest(memory=memory), redirect_stdout(output):
+                local_setup.check_engine_resources(
+                    {
+                        "os": "linux",
+                        "architecture": "amd64",
+                        "cpus": 4,
+                        "memory": memory,
+                    }
+                )
+            self.assertIn(f"[WARNING] The container engine {detail}", output.getvalue())
+            self.assertIn("Setup continues", output.getvalue())
+        output = io.StringIO()
+        with redirect_stdout(output):
+            local_setup.check_engine_memory(local_setup.RECOMMENDED_ENGINE_MEMORY)
+        self.assertEqual(output.getvalue(), "")
+
+    def test_setup_continues_past_doctor_when_the_engine_has_little_memory(self):
+        document = {
+            "ServerVersion": "28.5.1",
+            "OSType": "linux",
+            "Architecture": "amd64",
+            "NCPU": 4,
+            "MemTotal": 2 * 1024**3,
+        }
+
+        def invoke(argv, **_kwargs):
+            if argv == ["node", "--version"]:
+                output = "v24.22.1"
+            elif argv[:3] == ["docker", "compose", "version"]:
+                output = "2.39.0"
+            else:
+                output = json.dumps(document)
+            return subprocess.CompletedProcess(argv, 0, output, "")
+
+        output = io.StringIO()
+        with (
+            patch.object(local_setup, "executable"),
+            patch.object(local_setup, "run", side_effect=invoke),
+            patch.object(local_setup.bootstrap, "_assert_local_engine"),
+            patch.object(local_setup, "classify", return_value=("ordinary", None)),
+            patch.object(local_setup, "prepare") as prepare,
+            redirect_stdout(output),
+        ):
+            local_setup.setup()
+        prepare.assert_called_once()
+        self.assertIn(
+            "[WARNING] The container engine has 2.0 GiB of memory", output.getvalue()
+        )
 
     def test_compose_required_feature_version_is_checked(self):
         for version in ["2.24.4", "v2.39.0", "5.6.1"]:
