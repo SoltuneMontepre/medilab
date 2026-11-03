@@ -175,6 +175,8 @@ from . import (
     test_person_user,
     test_quality_registration_expiry,
     test_regulation_constraints,
+    test_regulation_limit_migration,
+    test_regulation_selection,
     test_reminders,
     test_role_grants,
     test_role_lifecycle,
