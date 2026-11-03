@@ -4,6 +4,7 @@ Documents, diagrams and supporting material that belong to no other folder.
 
 - [Capstone proposal](proposal/FA26SE294_DESIGN_AND_DEVELOPMENT_OF_A_LABORATORY_I_hoangnt2.docx): the registration of capstone project FA26SE294, which binds the project's scope
 - [VILAS accreditation scopes](vilas/readme.md): the accredited tests of four VILAS laboratories from the BoA organisation search, as CSV, which ground the Laboratory catalog
+- [Context diagram](context-diagram/readme.md): the DFD level 0 diagram of the subsystem, with its 13 entities, 70 flows and the deviations from the capstone proposal
 - [Use case diagram](use-case-diagram/readme.md): the use cases of the Laboratory and E-commerce modules traced to their user stories, with the deviations from the proposal and the script that draws the diagram
 
 - [CloudBeaver initialization evidence](cloudbeaver-initialization.md): upstream lifecycle, comparison with the older implementation, regression coverage and production verification limits
