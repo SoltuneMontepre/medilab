@@ -36,9 +36,9 @@ The head of department runs the testing work of one department: they assign its 
 
 - **US-HD17** As a head of department, I want to assign my department's tasks and sign or reject its results on my phone, so that work and results do not wait while I am away from my desk.
 
-### Testing figures
+### Testing statistics
 
-- **US-HD18** As a head of department, I want testing figures for my department over a period, so that I can review turnaround, overdue work, retests and workload.
+- **US-HD18** As a head of department, I want testing statistics for my department over a period, so that I can review turnaround, overdue work, retests and workload.
 
 ## II. Feature details
 
@@ -149,11 +149,11 @@ Acceptance criteria:
 - Rejecting a result on the phone without a reason is refused.
 - A head may approve their own result on the phone, as on the web; the Lab Head reviews it when signing the final report.
 
-### 6. Testing figures (US-HD18)
+### 6. Testing statistics (US-HD18)
 
 | Rule | Description |
 | --- | --- |
-| Department figures | For the chosen period show completed sample tests, the share completed on time, average receipt-to-approval time, overdue sample tests, retests and workload per person. The head sees their department; the Lab Head sees all departments. |
+| Department statistics | For the chosen period show completed sample tests, the share completed on time, average receipt-to-approval time, overdue sample tests, retests and workload per person. The head sees their department; the Lab Head sees all departments. |
 
 Acceptance criteria:
 

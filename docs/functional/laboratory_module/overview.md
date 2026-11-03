@@ -336,7 +336,7 @@ stateDiagram-v2
 - [Sample delivery staff](features/sample-delivery-staff.md): collect, receive and hand over samples, and carry outsourced samples to subcontractors
 - [Tester](features/tester.md): schedules and runs tests, enters and signs results
 - [Head of department](features/head-of-department.md): assigns testing work, manages the department's schedule, approves results
-- [Lab head](features/lab-head.md): configures parameter authorizations, reviews results when signing reports and reviews laboratory-wide testing figures
+- [Lab head](features/lab-head.md): configures parameter authorizations, reviews results when signing reports and reviews laboratory-wide testing statistics
 - [Subcontractor](features/subcontractor.md): sees the tests sent to it and enters their results
 
 ## Related documents

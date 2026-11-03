@@ -254,7 +254,7 @@ Notifications (US-C07, US-C18) repeats stories of Account and profile and of Tra
 | Approve Report Change Requests | Manage Test Reports | US-LH03 |  |
 | Authorize Testers |  | US-LH04 | [Lab Head §2](../../functional/laboratory_module/features/lab-head.md#2-parameter-authorization-us-lh04) |
 | Review Self-Approved Results |  | US-LH05 | [Lab Head §3](../../functional/laboratory_module/features/lab-head.md#3-final-review-of-self-approved-results-us-lh05) |
-| View Laboratory Figures |  | US-LH06 | [Lab Head §4](../../functional/laboratory_module/features/lab-head.md#4-testing-figures-us-lh06) |
+| View Laboratory Statistics |  | US-LH06 | [Lab Head §4](../../functional/laboratory_module/features/lab-head.md#4-testing-statistics-us-lh06) |
 
 ### Head of Department
 
@@ -280,7 +280,7 @@ Notifications (US-C07, US-C18) repeats stories of Account and profile and of Tra
 | Manage Sample Files |  |  | [Head of Department §4](../../functional/laboratory_module/features/head-of-department.md#4-laboratory-files-us-hd15-us-hd16) |
 | Create Sample Folders | Manage Sample Files | US-HD15 |  |
 | Sign Result File Version | Manage Sample Files | US-HD16 |  |
-| View Department Figures |  | US-HD18 | [Head of Department §6](../../functional/laboratory_module/features/head-of-department.md#6-testing-figures-us-hd18) |
+| View Department Statistics |  | US-HD18 | [Head of Department §6](../../functional/laboratory_module/features/head-of-department.md#6-testing-statistics-us-hd18) |
 
 ### Tester
 
