@@ -134,7 +134,7 @@ class Regulation(models.Model, RegulationBase):
                         "%(regulation)s does not apply to the sample type of these limits: %(limits)s. Keep their "
                         "sample types in its scope or remove the limits first.",
                         regulation=regulation.code,
-                        limits=format_list(self.env, outside.mapped("display_name")),
+                        limits=format_list(self.env, [limit._label() for limit in outside]),
                     )
                 )
 
