@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1434" height="1171" viewBox="-162 16 1434 1171">
+<rect x="-162" y="16" width="1434" height="1171" fill="#ffffff"/>
+<rect x="220.0" y="40.0" width="670.0" height="1024.6" fill="none" stroke="#333333" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="17.0" fill="#111111" text-anchor="middle"><tspan x="555.0" y="64.3" font-weight="bold">MediLab: Orders, quotations and payments</tspan></text>
+<line x1="98.0" y1="364.0" x2="260.0" y2="110.0" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="98.0" y1="364.0" x2="260.0" y2="176.0" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="98.0" y1="364.0" x2="260.0" y2="242.0" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="98.0" y1="364.0" x2="260.0" y2="308.0" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="98.0" y1="364.0" x2="260.0" y2="374.0" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="98.0" y1="364.0" x2="260.0" y2="440.0" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="98.0" y1="364.0" x2="260.0" y2="506.0" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="98.0" y1="364.0" x2="260.0" y2="572.0" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="98.0" y1="364.0" x2="260.0" y2="638.0" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="98.0" y1="865.6" x2="260.0" y2="743.6" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="98.0" y1="865.6" x2="260.0" y2="809.6" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="98.0" y1="865.6" x2="260.0" y2="875.6" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="98.0" y1="865.6" x2="260.0" y2="941.6" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="98.0" y1="865.6" x2="260.0" y2="1007.6" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="1012.0" y1="166.0" x2="850.0" y2="110.0" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="1012.0" y1="166.0" x2="850.0" y2="176.0" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="1012.0" y1="166.0" x2="850.0" y2="242.0" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="1012.0" y1="634.6" x2="850.0" y2="347.6" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="1012.0" y1="634.6" x2="850.0" y2="413.6" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="1012.0" y1="634.6" x2="850.0" y2="479.6" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="1012.0" y1="634.6" x2="850.0" y2="545.6" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="1012.0" y1="634.6" x2="850.0" y2="611.6" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="1012.0" y1="634.6" x2="850.0" y2="677.6" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="1012.0" y1="634.6" x2="850.0" y2="743.6" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="1012.0" y1="634.6" x2="850.0" y2="809.6" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="1012.0" y1="634.6" x2="850.0" y2="875.6" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="1012.0" y1="634.6" x2="850.0" y2="941.6" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="155.0" y1="690.8" x2="260.0" y2="638.0" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="155.0" y1="690.8" x2="260.0" y2="743.6" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="555.0" y1="1106.6" x2="380.0" y2="1034.6" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="555.0" y1="1106.6" x2="730.0" y2="968.6" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="1030.0" y1="198.0" x2="1030.0" y2="602.6" stroke="#4A4A4A" stroke-width="1.2"/>
+<polygon points="1030.0,602.6 1022.3,585.8 1037.7,585.8" fill="#ffffff" stroke="#4A4A4A" stroke-width="1.2"/>
+<ellipse cx="380.0" cy="110.0" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="380.0" y="114.7" font-weight="normal">Manage account and profile</tspan></text>
+<ellipse cx="380.0" cy="176.0" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="380.0" y="180.7" font-weight="normal">Configure notifications</tspan></text>
+<ellipse cx="380.0" cy="242.0" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="380.0" y="246.7" font-weight="normal">Place order</tspan></text>
+<ellipse cx="380.0" cy="308.0" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="380.0" y="305.0" font-weight="normal">Cancel order or request</tspan><tspan x="380.0" y="320.3" font-weight="normal">cancellation</tspan></text>
+<ellipse cx="380.0" cy="374.0" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="380.0" y="378.7" font-weight="normal">Accept or decline quotation</tspan></text>
+<ellipse cx="380.0" cy="440.0" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="380.0" y="444.7" font-weight="normal">Track orders and download reports</tspan></text>
+<ellipse cx="380.0" cy="506.0" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="380.0" y="510.7" font-weight="normal">Download invoices and receipts</tspan></text>
+<ellipse cx="380.0" cy="572.0" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="380.0" y="576.7" font-weight="normal">Contact support and give feedback</tspan></text>
+<ellipse cx="380.0" cy="638.0" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="380.0" y="642.7" font-weight="normal">Pay online</tspan></text>
+<ellipse cx="380.0" cy="743.6" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="380.0" y="748.3" font-weight="normal">Reconcile online payments</tspan></text>
+<ellipse cx="380.0" cy="809.6" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="380.0" y="814.3" font-weight="normal">Confirm or reject recorded payment</tspan></text>
+<ellipse cx="380.0" cy="875.6" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="380.0" y="880.3" font-weight="normal">Track payment status</tspan></text>
+<ellipse cx="380.0" cy="941.6" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="380.0" y="946.3" font-weight="normal">View financial reports</tspan></text>
+<ellipse cx="380.0" cy="1007.6" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="380.0" y="1012.3" font-weight="normal">Manage invoices</tspan></text>
+<ellipse cx="730.0" cy="110.0" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="730.0" y="114.7" font-weight="normal">Approve quotation above threshold</tspan></text>
+<ellipse cx="730.0" cy="176.0" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="730.0" y="173.0" font-weight="normal">Approve cancellation after</tspan><tspan x="730.0" y="188.4" font-weight="normal">collection</tspan></text>
+<ellipse cx="730.0" cy="242.0" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="730.0" y="246.7" font-weight="normal">Set thresholds and credit terms</tspan></text>
+<ellipse cx="730.0" cy="347.6" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="730.0" y="352.3" font-weight="normal">Manage customers</tspan></text>
+<ellipse cx="730.0" cy="413.6" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="730.0" y="418.3" font-weight="normal">Claim or create order</tspan></text>
+<ellipse cx="730.0" cy="479.6" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="730.0" y="484.3" font-weight="normal">Estimate return date</tspan></text>
+<ellipse cx="730.0" cy="545.6" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="730.0" y="550.3" font-weight="normal">Manage order templates</tspan></text>
+<ellipse cx="730.0" cy="611.6" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="730.0" y="616.3" font-weight="normal">Confirm order and start collection</tspan></text>
+<ellipse cx="730.0" cy="677.6" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="730.0" y="682.3" font-weight="normal">Record customer payment</tspan></text>
+<ellipse cx="730.0" cy="743.6" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="730.0" y="748.3" font-weight="normal">Handle cancellation</tspan></text>
+<ellipse cx="730.0" cy="809.6" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="730.0" y="814.3" font-weight="normal">Track orders and performance</tspan></text>
+<ellipse cx="730.0" cy="875.6" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="730.0" y="880.3" font-weight="normal">Answer support requests</tspan></text>
+<ellipse cx="730.0" cy="941.6" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="730.0" y="946.3" font-weight="normal">Prepare and send quotation</tspan></text>
+<circle cx="80.0" cy="339.9" r="7.9" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<path d="M80.0,347.8 L80.0,374.2 M62.0,353.8 L98.0,353.8 M80.0,374.2 L62.0,396.0 M80.0,374.2 L98.0,396.0" fill="none" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="end"><tspan x="54.0" y="368.7" font-weight="bold">Customer</tspan></text>
+<circle cx="80.0" cy="841.5" r="7.9" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<path d="M80.0,849.4 L80.0,875.8 M62.0,855.4 L98.0,855.4 M80.0,875.8 L62.0,897.6 M80.0,875.8 L98.0,897.6" fill="none" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="end"><tspan x="54.0" y="870.3" font-weight="bold">Accountant</tspan></text>
+<circle cx="1030.0" cy="141.9" r="7.9" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<path d="M1030.0,149.8 L1030.0,176.2 M1012.0,155.8 L1048.0,155.8 M1030.0,176.2 L1012.0,198.0 M1030.0,176.2 L1048.0,198.0" fill="none" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="start"><tspan x="1056.0" y="170.7" font-weight="bold">Head of Sales</tspan></text>
+<circle cx="1030.0" cy="610.5" r="7.9" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<path d="M1030.0,618.4 L1030.0,644.8 M1012.0,624.4 L1048.0,624.4 M1030.0,644.8 L1012.0,666.6 M1030.0,644.8 L1048.0,666.6" fill="none" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="start"><tspan x="1056.0" y="639.3" font-weight="bold">Sales</tspan></text>
+<rect x="5.0" y="662.8" width="150.0" height="56.0" fill="#FFFFFF" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="80.0" y="687.8" font-weight="normal">«system»</tspan><tspan x="80.0" y="703.1" font-weight="bold">Payment Gateway</tspan></text>
+<rect x="480.0" y="1106.6" width="150.0" height="56.0" fill="#FFFFFF" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="555.0" y="1131.6" font-weight="normal">«system»</tspan><tspan x="555.0" y="1146.9" font-weight="bold">Email Service</tspan></text>
+</svg>

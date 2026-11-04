@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1434" height="835" viewBox="-162 16 1434 835">
+<rect x="-162" y="16" width="1434" height="835" fill="#ffffff"/>
+<rect x="220.0" y="40.0" width="670.0" height="787.0" fill="none" stroke="#333333" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="17.0" fill="#111111" text-anchor="middle"><tspan x="555.0" y="64.3" font-weight="bold">MediLab: Laboratory management and setup</tspan></text>
+<line x1="98.0" y1="199.0" x2="260.0" y2="110.0" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="98.0" y1="199.0" x2="260.0" y2="176.0" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="98.0" y1="199.0" x2="260.0" y2="242.0" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="98.0" y1="199.0" x2="260.0" y2="308.0" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="1012.0" y1="430.0" x2="850.0" y2="110.0" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="1012.0" y1="430.0" x2="850.0" y2="176.0" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="1012.0" y1="430.0" x2="850.0" y2="242.0" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="1012.0" y1="430.0" x2="850.0" y2="308.0" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="1012.0" y1="430.0" x2="850.0" y2="374.0" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="1012.0" y1="430.0" x2="850.0" y2="440.0" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="1012.0" y1="430.0" x2="850.0" y2="506.0" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="1012.0" y1="430.0" x2="850.0" y2="572.0" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="1012.0" y1="430.0" x2="850.0" y2="638.0" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="1012.0" y1="430.0" x2="850.0" y2="704.0" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="1012.0" y1="430.0" x2="850.0" y2="770.0" stroke="#4A4A4A" stroke-width="1.2"/>
+<line x1="155.0" y1="308.0" x2="260.0" y2="308.0" stroke="#4A4A4A" stroke-width="1.2"/>
+<ellipse cx="380.0" cy="110.0" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="380.0" y="114.7" font-weight="normal">Authorize testers per parameter</tspan></text>
+<ellipse cx="380.0" cy="176.0" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="380.0" y="180.7" font-weight="normal">Approve report change request</tspan></text>
+<ellipse cx="380.0" cy="242.0" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="380.0" y="246.7" font-weight="normal">View laboratory figures</tspan></text>
+<ellipse cx="380.0" cy="308.0" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="380.0" y="312.7" font-weight="normal">Sign or reject test report</tspan></text>
+<ellipse cx="730.0" cy="110.0" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="730.0" y="114.7" font-weight="normal">Manage testing catalog</tspan></text>
+<ellipse cx="730.0" cy="176.0" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="730.0" y="180.7" font-weight="normal">Manage regulations and limits</tspan></text>
+<ellipse cx="730.0" cy="242.0" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="730.0" y="239.0" font-weight="normal">Manage accreditations and</tspan><tspan x="730.0" y="254.4" font-weight="normal">dossiers</tspan></text>
+<ellipse cx="730.0" cy="308.0" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="730.0" y="312.7" font-weight="normal">Manage locations</tspan></text>
+<ellipse cx="730.0" cy="374.0" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="730.0" y="378.7" font-weight="normal">Manage machines and chemicals</tspan></text>
+<ellipse cx="730.0" cy="440.0" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="730.0" y="444.7" font-weight="normal">Manage subcontractors</tspan></text>
+<ellipse cx="730.0" cy="506.0" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="730.0" y="503.0" font-weight="normal">Manage people, roles and approval</tspan><tspan x="730.0" y="518.3" font-weight="normal">chains</tspan></text>
+<ellipse cx="730.0" cy="572.0" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="730.0" y="569.0" font-weight="normal">Manage prices, taxes and</tspan><tspan x="730.0" y="584.4" font-weight="normal">packages</tspan></text>
+<ellipse cx="730.0" cy="638.0" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="730.0" y="642.7" font-weight="normal">Administer folders and devices</tspan></text>
+<ellipse cx="730.0" cy="704.0" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="730.0" y="708.7" font-weight="normal">Manage report templates</tspan></text>
+<ellipse cx="730.0" cy="770.0" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="730.0" y="774.7" font-weight="normal">Configure settings</tspan></text>
+<circle cx="80.0" cy="174.9" r="7.9" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<path d="M80.0,182.8 L80.0,209.2 M62.0,188.8 L98.0,188.8 M80.0,209.2 L62.0,231.0 M80.0,209.2 L98.0,231.0" fill="none" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="end"><tspan x="54.0" y="203.7" font-weight="bold">Lab Head</tspan></text>
+<circle cx="1030.0" cy="405.9" r="7.9" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
+<path d="M1030.0,413.8 L1030.0,440.2 M1012.0,419.8 L1048.0,419.8 M1030.0,440.2 L1012.0,462.0 M1030.0,440.2 L1048.0,462.0" fill="none" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="start"><tspan x="1056.0" y="434.7" font-weight="bold">Administrator</tspan></text>
+<rect x="5.0" y="280.0" width="150.0" height="56.0" fill="#FFFFFF" stroke="#1F45B8" stroke-width="1.5"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="80.0" y="297.3" font-weight="normal">«system»</tspan><tspan x="80.0" y="312.7" font-weight="bold">Digital Signature</tspan><tspan x="80.0" y="328.0" font-weight="bold">Provider</tspan></text>
+</svg>
