@@ -168,8 +168,8 @@
 <text font-family="Helvetica,Arial,sans-serif" font-size="12.0" fill="#111111" text-anchor="middle"><tspan x="1775.0" y="158.3" font-weight="normal">Reports Awaiting Signature</tspan></text>
 <line x1="1513.9" y1="178.0" x2="2070.0" y2="178.0" stroke="#000000" stroke-width="1"/>
 <polygon points="2070.0,178.0 2060.4,182.4 2060.4,173.6" fill="#000000" stroke="#000000" stroke-width="1"/>
-<rect x="1716.0" y="170.2" width="152.0" height="15.6" fill="#ffffff"/>
-<text font-family="Helvetica,Arial,sans-serif" font-size="12.0" fill="#111111" text-anchor="middle"><tspan x="1792.0" y="182.3" font-weight="normal">Laboratory Testing Figures</tspan></text>
+<rect x="1712.1" y="170.2" width="159.7" height="15.6" fill="#ffffff"/>
+<text font-family="Helvetica,Arial,sans-serif" font-size="12.0" fill="#111111" text-anchor="middle"><tspan x="1792.0" y="182.3" font-weight="normal">Laboratory Testing Statistics</tspan></text>
 <line x1="2070.0" y1="240.0" x2="1582.8" y2="240.0" stroke="#000000" stroke-width="1"/>
 <polygon points="1582.8,240.0 1592.4,235.6 1592.4,244.4" fill="#000000" stroke="#000000" stroke-width="1"/>
 <rect x="1742.2" y="232.2" width="168.5" height="15.6" fill="#ffffff"/>

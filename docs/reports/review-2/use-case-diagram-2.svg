@@ -85,7 +85,7 @@
 <ellipse cx="730.0" cy="638.0" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
 <text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="730.0" y="642.7" font-weight="normal">Sign result file version</tspan></text>
 <ellipse cx="730.0" cy="704.0" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
-<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="730.0" y="708.7" font-weight="normal">View department figures</tspan></text>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="730.0" y="708.7" font-weight="normal">View department statistics</tspan></text>
 <ellipse cx="730.0" cy="809.6" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
 <text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="730.0" y="814.3" font-weight="normal">View dispatches</tspan></text>
 <ellipse cx="730.0" cy="875.6" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>

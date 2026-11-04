@@ -23,7 +23,7 @@
 <ellipse cx="380.0" cy="176.0" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
 <text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="380.0" y="180.7" font-weight="normal">Approve report change request</tspan></text>
 <ellipse cx="380.0" cy="242.0" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
-<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="380.0" y="246.7" font-weight="normal">View laboratory figures</tspan></text>
+<text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="380.0" y="246.7" font-weight="normal">View laboratory statistics</tspan></text>
 <ellipse cx="380.0" cy="308.0" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
 <text font-family="Helvetica,Arial,sans-serif" font-size="13.0" fill="#111111" text-anchor="middle"><tspan x="380.0" y="312.7" font-weight="normal">Sign or reject test report</tspan></text>
 <ellipse cx="730.0" cy="110.0" rx="120.0" ry="27.0" fill="#E8EEFC" stroke="#1F45B8" stroke-width="1.5"/>
