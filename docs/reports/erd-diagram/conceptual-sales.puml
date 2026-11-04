@@ -28,7 +28,7 @@ entity "ContactPerson\n<size:10><i>Người Liên Hệ</i></size>" as E10 {
 }
 entity "SaleOrder\n<size:10><i>Đơn Hàng</i></size>" as E11 {
 }
-entity "OrderLine\n<size:10><i>Dòng Đơn Hàng</i></size>" as E12 {
+entity "OrderLine\n<size:10><i>Dòng Đơn Hàng</i></size>" as E12 <<weak>> {
 }
 entity "OrderLineSelection\n<size:10><i>Lựa Chọn Cách Thử Trên Dòng Đơn</i></size>" as E13 {
 }
@@ -38,15 +38,17 @@ entity "ServicePackage\n<size:10><i>Nhóm Dịch Vụ</i></size>" as E15 {
 }
 entity "OrderTemplate\n<size:10><i>Đơn Thường Dùng</i></size>" as E16 {
 }
-entity "CancellationRequest\n<size:10><i>Yêu Cầu Hủy</i></size>" as E17 {
+entity "OrderTemplateLine\n<size:10><i>Dòng Đơn Thường Dùng</i></size>" as E17 <<weak>> {
 }
-entity "SupportRequest\n<size:10><i>Yêu Cầu Hỗ Trợ</i></size>" as E18 {
+entity "CancellationRequest\n<size:10><i>Yêu Cầu Hủy</i></size>" as E18 {
 }
-entity "Feedback\n<size:10><i>Đánh Giá</i></size>" as E19 {
+entity "SupportRequest\n<size:10><i>Yêu Cầu Hỗ Trợ</i></size>" as E19 {
 }
-entity "Invoice\n<size:10><i>Hóa Đơn</i></size>" as E20 <<ext>> {
+entity "Feedback\n<size:10><i>Đánh Giá</i></size>" as E20 <<weak>> {
 }
-entity "Tax\n<size:10><i>Thuế</i></size>" as E21 <<ext>> {
+entity "Invoice\n<size:10><i>Hóa Đơn</i></size>" as E21 <<ext>> {
+}
+entity "Tax\n<size:10><i>Thuế</i></size>" as E22 <<ext>> {
 }
 relationship "requests" as R1 <<rel>> {
 }
@@ -56,13 +58,11 @@ relationship "has" as R3 <<rel>> {
 }
 relationship "places" as R4 <<rel>> {
 }
-relationship "selects" as R5 <<rel>> {
+relationship "selects" as R5 <<identifying>> <<rel>> {
 }
 relationship "for" as R6 <<rel>> {
 }
-relationship "retains" as R7 <<rel>> {
-}
-relationship "for" as R8 <<rel>> {
+relationship "is saved as" as R8 <<rel>> {
 }
 relationship "chooses" as R9 <<rel>> {
 }
@@ -76,7 +76,7 @@ relationship "creates" as R13 <<rel>> {
 }
 relationship "reuses" as R14 <<rel>> {
 }
-relationship "receives" as R15 <<rel>> {
+relationship "receives" as R15 <<identifying>> <<rel>> {
 }
 relationship "is signed through" as R16 <<rel>> {
 }
@@ -98,61 +98,74 @@ relationship "is about" as R24 <<rel>> {
 }
 relationship "is salesperson of" as R25 <<rel>> {
 }
+relationship "retains" as R26 <<identifying>> <<rel>> {
+}
+relationship "for" as R27 <<rel>> {
+}
+relationship "for" as R28 <<rel>> {
+}
 E9 -1- R1
-R1 =N= E6
+R1 -M- E6
 E9 -1- R2
-R2 -N- E10
+R2 -M- E10
 E5 -1- R3
-R3 -N- E10
+R3 -M- E10
 E9 -1- R4
-R4 =N= E11
-E11 =1= R5
-R5 =N= E12
-E12 =N= R6
+R4 -M- E11
+E11 -1- R5
+R5 -M- E12
+E12 -M- R6
 R6 -1- E2
-E12 =1= R7
-R7 =N= E13
-E13 =N= R8
-R8 -1- E1
-E13 =N= R9
+E12 -- E13
+E13 -- E1
+E11 -1- R8
+R8 -M- E16
+E13 -M- R9
 R9 -1- E3
-E12 -N- R10
+E12 -M- R10
 R10 -1- E15
-E15 -N- R11
-R11 -N- E1
+E15 -M- R11
+R11 -M- E1
 E11 -1- R12
-R12 =N= E14
+R12 -M- E14
 E11 -1- R13
-R13 =1= E6
+R13 -1- E6
 E9 -1- R14
-R14 =N= E16
+R14 -M- E16
 E11 -1- R15
-R15 =1= E19
+R15 -1- E20
 E14 -1- R16
-R16 -N- E7
+R16 -M- E7
 E14 -1- R17
-R17 -N- E8
+R17 -M- E8
 E11 -1- R18
-R18 -N- E8
+R18 -M- E8
 E11 -1- R19
-R19 =N= E20
+R19 -M- E21
 E14 -1- R20
-R20 -1- E20
-E21 -1- R21
-R21 =N= E15
+R20 -1- E21
+E22 -1- R21
+R21 -M- E15
 E11 -1- R22
-R22 =N= E17
+R22 -M- E18
 E9 -1- R23
-R23 =N= E18
+R23 -M- E19
 E11 -1- R24
-R24 -N- E18
+R24 -M- E19
 E4 -1- R25
-R25 -N- E11
+R25 -M- E11
+E16 -1- R26
+R26 -M- E17
+E17 -M- R27
+R27 -1- E1
+E17 -M- R28
+R28 -1- E15
 legend right
 |= Notation |= Meaning |
-| Bold line | Total participation: every entity on that side takes part |
-| Thin line | Partial participation |
-| 1 / N | Largest number of that entity in the relationship |
+| 1 / M | Largest number of that entity in the relationship; M is many |
+| Double box | Weak entity: identified only within the entity it belongs to |
+| Double diamond | Supporting relationship of a weak entity and the entity it belongs to |
+| Diamond in a box | Composite (associative) entity: identified by the entities it links, each one-to-many |
 |<#E8E8E8> Grey box | Entity of another area |
 endlegend
 @endchen

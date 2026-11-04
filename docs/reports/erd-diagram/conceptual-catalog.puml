@@ -16,47 +16,53 @@ entity "ParameterMethod\n<size:10><i>Cách Thử</i></size>" as E4 {
 }
 entity "TestingMethod\n<size:10><i>Phương Pháp Thử</i></size>" as E5 {
 }
-entity "TestingField\n<size:10><i>Lĩnh Vực Thử Nghiệm</i></size>" as E6 {
+entity "TestingMethodStep\n<size:10><i>Bước Phương Pháp Thử</i></size>" as E6 <<weak>> {
 }
-entity "Chemical\n<size:10><i>Hóa Chất</i></size>" as E7 {
+entity "SamplingRequirement\n<size:10><i>Yêu Cầu Lấy Mẫu</i></size>" as E7 {
 }
-entity "MeasurementUnit\n<size:10><i>Đơn Vị Đo</i></size>" as E8 {
+entity "TestingField\n<size:10><i>Lĩnh Vực Thử Nghiệm</i></size>" as E8 {
 }
-entity "Regulation\n<size:10><i>Quy Chuẩn</i></size>" as E9 {
+entity "MeasurementUnit\n<size:10><i>Đơn Vị Đo</i></size>" as E9 {
 }
-entity "AccreditationCertificate\n<size:10><i>Giấy Chứng Nhận Công Nhận</i></size>" as E10 {
+entity "Regulation\n<size:10><i>Quy Chuẩn</i></size>" as E10 {
 }
-entity "AccreditationScopeLine\n<size:10><i>Dòng Phạm Vi Công Nhận</i></size>" as E11 {
+entity "RegulationLimit\n<size:10><i>Giới Hạn Quy Chuẩn</i></size>" as E11 {
 }
-entity "QualityRegistration\n<size:10><i>Hồ Sơ Đăng Ký Chất Lượng</i></size>" as E12 {
+entity "AccreditationCertificate\n<size:10><i>Giấy Chứng Nhận Công Nhận</i></size>" as E12 {
 }
-entity "Department\n<size:10><i>Phòng Ban</i></size>" as E13 <<ext>> {
+entity "AccreditationScopeLine\n<size:10><i>Dòng Phạm Vi Công Nhận</i></size>" as E13 <<weak>> {
 }
-entity "Person\n<size:10><i>Nhân Sự</i></size>" as E14 <<ext>> {
+entity "QualityRegistration\n<size:10><i>Hồ Sơ Đăng Ký Chất Lượng</i></size>" as E14 {
 }
-entity "Machine\n<size:10><i>Máy</i></size>" as E15 <<ext>> {
+entity "Department\n<size:10><i>Phòng Ban</i></size>" as E15 <<ext>> {
 }
-entity "Subcontractor\n<size:10><i>Thầu Phụ</i></size>" as E16 <<ext>> {
+entity "Person\n<size:10><i>Nhân Sự</i></size>" as E16 <<ext>> {
 }
-entity "Sample\n<size:10><i>Mẫu</i></size>" as E17 <<ext>> {
+entity "Machine\n<size:10><i>Máy</i></size>" as E17 <<ext>> {
 }
-entity "SampleTest\n<size:10><i>Chỉ Tiêu Của Mẫu</i></size>" as E18 <<ext>> {
+entity "Location\n<size:10><i>Vị Trí</i></size>" as E18 <<ext>> {
 }
-entity "OrderLine\n<size:10><i>Dòng Đơn Hàng</i></size>" as E19 <<ext>> {
+entity "Subcontractor\n<size:10><i>Thầu Phụ</i></size>" as E19 <<ext>> {
 }
-entity "OrderLineSelection\n<size:10><i>Lựa Chọn Cách Thử Trên Dòng Đơn</i></size>" as E20 <<ext>> {
+entity "Sample\n<size:10><i>Mẫu</i></size>" as E20 <<ext>> {
 }
-entity "ServicePackage\n<size:10><i>Nhóm Dịch Vụ</i></size>" as E21 <<ext>> {
+entity "SampleTest\n<size:10><i>Chỉ Tiêu Của Mẫu</i></size>" as E21 <<ext>> {
 }
-entity "Tax\n<size:10><i>Thuế</i></size>" as E22 <<ext>> {
+entity "OrderLine\n<size:10><i>Dòng Đơn Hàng</i></size>" as E22 <<weak>> <<ext>> {
+}
+entity "OrderLineSelection\n<size:10><i>Lựa Chọn Cách Thử Trên Dòng Đơn</i></size>" as E23 <<ext>> {
+}
+entity "ServicePackage\n<size:10><i>Nhóm Dịch Vụ</i></size>" as E24 <<ext>> {
+}
+entity "OrderTemplateLine\n<size:10><i>Dòng Đơn Thường Dùng</i></size>" as E25 <<weak>> <<ext>> {
+}
+entity "Tax\n<size:10><i>Thuế</i></size>" as E26 <<ext>> {
 }
 relationship "broadens" as R1 <<rel>> {
 }
 relationship "belongs to" as R2 <<rel>> {
 }
-relationship "has" as R3 <<rel>> {
-}
-relationship "uses" as R4 <<rel>> {
+relationship "has" as R4 <<identifying>> <<rel>> {
 }
 relationship "performed in-house by" as R5 <<rel>> {
 }
@@ -64,110 +70,115 @@ relationship "performed externally by" as R6 <<rel>> {
 }
 relationship "explicitly applies to" as R7 <<rel>> {
 }
-relationship "needs sampling of" as R8 <<rel>> {
+relationship "contains" as R9 <<identifying>> <<rel>> {
 }
-relationship "consumes" as R9 <<rel>> {
-}
-relationship "contains" as R10 <<rel>> {
+relationship "covers" as R10 <<rel>> {
 }
 relationship "covers" as R11 <<rel>> {
 }
 relationship "covers" as R12 <<rel>> {
 }
-relationship "covers" as R13 <<rel>> {
+relationship "applies to" as R13 <<rel>> {
 }
-relationship "applies to" as R14 <<rel>> {
+relationship "has type" as R15 <<rel>> {
 }
-relationship "limits" as R15 <<rel>> {
+relationship "optionally compares against" as R16 <<rel>> {
 }
-relationship "has type" as R16 <<rel>> {
+relationship "authorized by lab head for" as R18 <<rel>> {
 }
-relationship "optionally compares against" as R17 <<rel>> {
+relationship "has duration and capacity for" as R19 <<rel>> {
 }
-relationship "uses from creation" as R18 <<rel>> {
+relationship "for" as R20 <<rel>> {
 }
-relationship "authorized by lab head for" as R19 <<rel>> {
+relationship "chooses" as R22 <<rel>> {
 }
-relationship "has duration and capacity for" as R20 <<rel>> {
+relationship "contains" as R23 <<rel>> {
 }
-relationship "for" as R21 <<rel>> {
+relationship "applies to" as R24 <<rel>> {
 }
-relationship "for" as R22 <<rel>> {
+relationship "covers" as R25 <<rel>> {
 }
-relationship "chooses" as R23 <<rel>> {
+relationship "classifies" as R26 <<rel>> {
 }
-relationship "contains" as R24 <<rel>> {
+relationship "is done in" as R27 <<rel>> {
 }
-relationship "measured in" as R25 <<rel>> {
+relationship "for" as R28 <<rel>> {
 }
-relationship "applies to" as R26 <<rel>> {
+relationship "is reported under" as R29 <<rel>> {
 }
-relationship "covers" as R27 <<rel>> {
+relationship "contains" as R30 <<rel>> {
 }
-relationship "classifies" as R28 <<rel>> {
+relationship "minimum amount in" as R31 <<rel>> {
 }
 E3 -1- R1
-R1 -N- E3
-E1 -N- R2
-R2 -N- E2
-E1 -1- R3
-R3 =N= E4
-E4 =N= R4
-R4 -1- E5
-E4 -N- R5
-R5 -1- E13
-E4 -N- R6
-R6 -1- E16
-E4 -N- R7
-R7 -N- E3
-E5 -N- R8
-R8 -N- E3
-E5 -N- R9
-R9 -N- E7
-E10 =1= R10
-R10 =N= E11
-E11 =N= R11
-R11 -1- E5
-E11 =N= R12
-R12 -N- E1
-E11 =N= R13
-R13 -N- E3
-E9 -N- R14
-R14 -N- E3
-E9 -N- R15
-R15 -N- E1
-R15 -N- E3
-E17 =N= R16
-R16 -1- E3
-E17 -N- R17
-R17 -1- E9
-E18 =N= R18
-R18 -1- E4
-E14 -N- R19
-R19 -N- E1
-E15 -N- R20
-R20 -N- E5
-E19 =N= R21
-R21 -1- E3
-E20 =N= R22
-R22 -1- E1
-E20 =N= R23
-R23 -1- E4
-E21 -N- R24
-R24 -N- E1
-E7 =N= R25
-R25 -1- E8
-E22 -1- R26
-R26 =N= E1
-E12 -N- R27
-R27 -N- E4
-E6 -1- R28
-R28 =N= E5
+R1 -M- E3
+E1 -M- R2
+R2 -M- E2
+E1 -- E4
+E4 -- E5
+E5 -1- R4
+R4 -M- E6
+E4 -M- R5
+R5 -1- E15
+E4 -M- R6
+R6 -1- E19
+E4 -M- R7
+R7 -M- E3
+E5 -- E7
+E7 -- E3
+E12 -1- R9
+R9 -M- E13
+E13 -M- R10
+R10 -1- E5
+E13 -M- R11
+R11 -M- E1
+E13 -M- R12
+R12 -M- E3
+E10 -M- R13
+R13 -M- E3
+E10 -- E11
+E11 -- E1
+E11 -- E3
+E20 -M- R15
+R15 -1- E3
+E20 -M- R16
+R16 -1- E10
+E20 -- E21
+E21 -- E4
+E16 -M- R18
+R18 -M- E1
+E17 -M- R19
+R19 -M- E5
+E22 -M- R20
+R20 -1- E3
+E22 -- E23
+E23 -- E1
+E23 -M- R22
+R22 -1- E4
+E24 -M- R23
+R23 -M- E1
+E26 -1- R24
+R24 -M- E1
+E14 -M- R25
+R25 -M- E4
+E8 -1- R26
+R26 -M- E5
+E6 -M- R27
+R27 -1- E18
+E25 -M- R28
+R28 -1- E1
+E1 -M- R29
+R29 -1- E2
+E2 -1- R30
+R30 -M- E2
+E3 -M- R31
+R31 -1- E9
 legend right
 |= Notation |= Meaning |
-| Bold line | Total participation: every entity on that side takes part |
-| Thin line | Partial participation |
-| 1 / N | Largest number of that entity in the relationship |
+| 1 / M | Largest number of that entity in the relationship; M is many |
+| Double box | Weak entity: identified only within the entity it belongs to |
+| Double diamond | Supporting relationship of a weak entity and the entity it belongs to |
+| Diamond in a box | Composite (associative) entity: identified by the entities it links, each one-to-many |
 |<#E8E8E8> Grey box | Entity of another area |
 endlegend
 @endchen
