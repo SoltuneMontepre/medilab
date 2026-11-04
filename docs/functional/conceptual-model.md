@@ -14,7 +14,7 @@ Unit categories are part of MeasurementUnit, parameter prices part of TestParame
 erDiagram
     SAMPLE_TYPE o|--o{ SAMPLE_TYPE : broadens
     TEST_PARAMETER }o--o{ PARAMETER_GROUP : belongs_to
-    TEST_PARAMETER ||--o{ PARAMETER_METHOD : has
+    TEST_PARAMETER ||--|{ PARAMETER_METHOD : has
     PARAMETER_METHOD }o--|| TESTING_METHOD : uses
     PARAMETER_METHOD }o--o| DEPARTMENT : performed_in_house_by
     PARAMETER_METHOD }o--o| SUBCONTRACTOR : performed_externally_by
@@ -46,7 +46,7 @@ erDiagram
 
 | Relationship | Rule |
 | --- | --- |
-| Way and sample type | A way has one parameter, method and performing party. Explicit applicability gives the unit, optional LOD/LOQ and display precision for one sample type. Each offered parameter and sample type has one default. Technical applicability does not inherit. |
+| Way and sample type | A way has one parameter, method and performing party, and every parameter has at least one way. Explicit applicability gives the unit, optional LOD/LOQ and display precision for one sample type. Each offered parameter and sample type has one default. Technical applicability does not inherit. |
 | Sampling | A method's sample-type requirement gives amount, container and preservation. Compatible container and preservation groups share a physical sample and their amounts add. Expected objects per type are the largest line quantity; objects times groups gives expected samples. Collection records the actual handover and customer confirmation. |
 | Accreditation | A sample test is accredited only when its in-house way's method, parameter and sample type or ancestor match a valid certificate scope line. A method outside accreditation can still be used. |
 | Regulation | Comparison is optional. Scope includes descendants; limits are explicit per regulation, parameter and sample type and never inherited. The selected method, such as a TCVN, determines how to test; a QCVN determines requested comparisons. |
