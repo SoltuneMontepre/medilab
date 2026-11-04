@@ -1,6 +1,6 @@
 # Features of: Lab head
 
-The lab head configures parameter authorizations, reviews laboratory-wide testing figures, reviews approved results, including a Head of Department's self-approved entries, and signs reports.
+The lab head configures parameter authorizations, reviews laboratory-wide testing statistics, reviews approved results, including a Head of Department's self-approved entries, and signs reports.
 
 ## I. User stories
 
@@ -10,7 +10,7 @@ The lab head configures parameter authorizations, reviews laboratory-wide testin
 
 - **US-LH04** As a lab head, I want to configure the parameters each tester is authorized to test, so that only competent people are scheduled.
 - **US-LH05** As a lab head, I want to review results self-approved by a Head of Department when signing their report, so that those results receive final review before issue.
-- **US-LH06** As a lab head, I want testing figures for every department over a period, so that I can review the laboratory's workload and turnaround.
+- **US-LH06** As a lab head, I want testing statistics for every department over a period, so that I can review the laboratory's workload and turnaround.
 
 ## II. Feature details
 
@@ -74,11 +74,11 @@ Acceptance criteria:
 - A Head of Department's self-approved result can enter a draft report; the report cannot be issued before the Lab Head reviews and signs it.
 - Rejecting such a report returns the named results to the department queue under the report-rejection rules.
 
-### 4. Testing figures (US-LH06)
+### 4. Testing statistics (US-LH06)
 
 | Rule | Description |
 | --- | --- |
-| Laboratory figures | For a period and across all departments, show completed sample tests, on-time share, average receipt-to-approval time, overdue sample tests, retests and workload per person, using the same measures as [department figures](head-of-department.md#6-testing-figures-us-hd18). |
+| Laboratory statistics | For a period and across all departments, show completed sample tests, on-time share, average receipt-to-approval time, overdue sample tests, retests and workload per person, using the same measures as [department statistics](head-of-department.md#6-testing-statistics-us-hd18). |
 
 Acceptance criteria:
 

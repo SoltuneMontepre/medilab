@@ -1,0 +1,232 @@
+{
+ "positions": {
+  "TestParameter": [
+   5,
+   6
+  ],
+  "ParameterGroup": [
+   5,
+   7
+  ],
+  "SampleType": [
+   5,
+   5
+  ],
+  "ParameterMethod": [
+   2,
+   5
+  ],
+  "TestingMethod": [
+   0,
+   6
+  ],
+  "TestingField": [
+   1,
+   7
+  ],
+  "Chemical": [
+   0,
+   7
+  ],
+  "MeasurementUnit": [
+   0,
+   8
+  ],
+  "Regulation": [
+   7,
+   5
+  ],
+  "AccreditationCertificate": [
+   2,
+   7
+  ],
+  "AccreditationScopeLine": [
+   4,
+   6
+  ],
+  "QualityRegistration": [
+   1,
+   5
+  ],
+  "Department": [
+   6,
+   2
+  ],
+  "Person": [
+   8,
+   5
+  ],
+  "Machine": [
+   0,
+   4
+  ],
+  "MachineService": [
+   0,
+   3
+  ],
+  "Location": [
+   7,
+   2
+  ],
+  "Subcontractor": [
+   2,
+   2
+  ],
+  "MachineBooking": [
+   6,
+   1
+  ],
+  "PlanRevision": [
+   8,
+   1
+  ],
+  "OverTime": [
+   8,
+   6
+  ],
+  "SubcontractDispatch": [
+   3,
+   2
+  ],
+  "TestRequest": [
+   9,
+   1
+  ],
+  "SampleCollection": [
+   8,
+   4
+  ],
+  "Sample": [
+   5,
+   4
+  ],
+  "SampleTest": [
+   4,
+   3
+  ],
+  "TestResult": [
+   5,
+   1
+  ],
+  "SampleReturn": [
+   5,
+   3
+  ],
+  "TestReport": [
+   12,
+   3
+  ],
+  "ReportTemplate": [
+   11,
+   3
+  ],
+  "ApprovalChain": [
+   4,
+   0
+  ],
+  "ApprovalLevel": [
+   3,
+   0
+  ],
+  "Signature": [
+   2,
+   0
+  ],
+  "ChangeRequest": [
+   2,
+   1
+  ],
+  "Customer": [
+   10,
+   0
+  ],
+  "ContactPerson": [
+   3,
+   1
+  ],
+  "SaleOrder": [
+   10,
+   5
+  ],
+  "OrderLine": [
+   7,
+   7
+  ],
+  "OrderLineSelection": [
+   1,
+   8
+  ],
+  "Quotation": [
+   12,
+   6
+  ],
+  "ServicePackage": [
+   6,
+   8
+  ],
+  "OrderTemplate": [
+   11,
+   0
+  ],
+  "CancellationRequest": [
+   11,
+   4
+  ],
+  "SupportRequest": [
+   11,
+   2
+  ],
+  "Feedback": [
+   11,
+   5
+  ],
+  "Invoice": [
+   11,
+   6
+  ],
+  "AdjustmentInvoice": [
+   11,
+   7
+  ],
+  "Payment": [
+   10,
+   7
+  ],
+  "Tax": [
+   6,
+   7
+  ],
+  "Signature#60": [
+   7,
+   6
+  ],
+  "Signature#61": [
+   5,
+   0
+  ],
+  "Signature#62": [
+   12,
+   4
+  ],
+  "Signature#63": [
+   12,
+   5
+  ],
+  "ChangeRequest#65": [
+   4,
+   1
+  ],
+  "ChangeRequest#66": [
+   12,
+   2
+  ],
+  "ChangeRequest#67": [
+   12,
+   7
+  ],
+  "ChangeRequest#68": [
+   10,
+   6
+  ]
+ }
+}
