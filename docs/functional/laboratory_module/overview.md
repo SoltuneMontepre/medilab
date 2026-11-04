@@ -20,14 +20,14 @@ erDiagram
     SAMPLE_TEST }o--|| PARAMETER_METHOD : "is tested by"
     TEST_PARAMETER ||--|{ PARAMETER_METHOD : "is tested by"
     PARAMETER_METHOD }o--|| TESTING_METHOD : uses
-    TESTING_METHOD ||--o{ TESTING_METHOD_STEP : "is done in"
-    LOCATION ||--o{ LOCATION : contains
+    TESTING_METHOD ||--o{ TESTING_METHOD_STEP : has
+    LOCATION |o--o{ LOCATION : contains
     TESTING_METHOD_STEP }o--o| LOCATION : "is done in"
     SAMPLE }o--o| LOCATION : "is taken from"
     ACCREDITATION_CERTIFICATE ||--|{ ACCREDITATION_SCOPE_LINE : contains
     ACCREDITATION_SCOPE_LINE }o--|| TESTING_METHOD : covers
-    ACCREDITATION_SCOPE_LINE }o--o{ TEST_PARAMETER : covers
-    ACCREDITATION_SCOPE_LINE }o--o{ SAMPLE_TYPE : covers
+    ACCREDITATION_SCOPE_LINE }o--|{ TEST_PARAMETER : covers
+    ACCREDITATION_SCOPE_LINE }o--|{ SAMPLE_TYPE : covers
     SAMPLE_TEST ||--o{ TEST_RESULT : has
     SAMPLE_TEST ||--o{ MACHINE_BOOKING : "is booked in"
     MACHINE_BOOKING o|--o{ TEST_RESULT : measures
