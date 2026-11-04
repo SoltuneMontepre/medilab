@@ -8,7 +8,7 @@ All 17 activity diagrams of [Business flows](../../functional/business-flows.md)
 
 ![System activity diagram](system-activity-diagram.svg)
 
-The image draws the nodes and edges of the Mermaid source below in swimlanes; the [PDF](system-activity-diagram.pdf) keeps it sharp at any zoom.
+The image draws the nodes and edges of the Mermaid source below in swimlanes; the [PDF](system-activity-diagram.pdf) keeps it sharp at any zoom, and [system-activity-diagram.drawio](system-activity-diagram.drawio) is the same layout to edit in draw.io.
 
 ## Flow map
 
