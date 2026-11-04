@@ -326,7 +326,7 @@ Notifications (US-C07, US-C18) repeats stories of Account and profile and of Tra
 | --- | --- | --- |
 | Payment Gateway | Accept by Paying Advance, Pay Invoice Online, Auto-Match Online Payments, Reconcile Daily Payments, Check Pending Payments | [2. PayOS (payments)](../../functional/shared.md#2-payos-payments): PayOS |
 | Email Service | Every email the system sends, such as Send Quotation with Advance, Send and Download Invoices, Send Start Reminders and Remind of Overdue Invoices; Fix Bounced Email reacts to its delivery status | [1. Brevo (email)](../../functional/shared.md#1-brevo-email): Brevo |
-| Digital Signature Provider | Sign or Reject Test Report and every other fully signed document printed or exported, such as invoices and quotations; Warn of Expiring Certificate | [3. Viettel Sign (digital signature)](../../functional/shared.md#3-viettel-sign-digital-signature): Viettel Sign |
+| Digital Signature Provider | Sign or Reject Test Report and every other fully signed document printed or exported; Warn of Expiring Certificate | [3. Viettel Sign (digital signature)](../../functional/shared.md#3-viettel-sign-digital-signature): Viettel Sign |
 
 ## Deviations from the proposal
 
