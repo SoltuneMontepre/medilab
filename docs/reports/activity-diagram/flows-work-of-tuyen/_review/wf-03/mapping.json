@@ -1,0 +1,14 @@
+{"pairs": [
+  {"tuyen": "s", "mine": "f_WF03_in_queue", "same": false, "note": "Cùng điểm bắt đầu từ WF-02 Sample reception and handover; Tuyên ghi 'Sample received', business-flows.md ghi trigger là 'a testing task enters the queue of its department'."},
+  {"tuyen": "y1", "mine": "f_WF03_queue", "same": true, "note": ""},
+  {"tuyen": "t1", "mine": "f_WF03_t1", "same": false, "note": "Chỉ khác chữ: business-flows.md nói rõ task phải thuộc phòng và tester phải được ủy quyền."},
+  {"tuyen": "h1", "mine": "f_WF03_h1", "same": false, "note": "Chỉ khác chữ: 'Assign tester' ↔ 'Assign an authorized person'."},
+  {"tuyen": "t2", "mine": "f_WF03_t2", "same": false, "note": "Tuyên: tester mở gợi ý rồi hệ thống xếp hạng máy; business-flows.md: kế hoạch của phòng đề xuất booking cho cách thử đã thỏa thuận, tester xem đề xuất đó."},
+  {"tuyen": "d1", "mine": "f_WF03_t3", "same": false, "note": "Tuyên: hệ thống hỏi 'còn slot trước hạn?' (lane System); bản của bạn: tester hỏi 'booking khả thi trong sức chứa?' (lane Tester)."},
+  {"tuyen": "t3", "mine": "f_WF03_t4", "same": false, "note": "Tuyên: tester tự đặt slot; business-flows.md: tester (hoặc trưởng phòng) chấp nhận booking được đề xuất."},
+  {"tuyen": "h2", "mine": "f_WF03_h2", "same": false, "note": "Tuyên chỉ xét thuê ngoài; business-flows.md WF-03-E2: trưởng phòng xét nguồn lực và ngày khả thi, rồi SF-07 (ngày trả) hoặc WF-05 (thuê ngoài), hoặc ghi OverTime."},
+  {"tuyen": "e2", "mine": "f_WF03_outsource", "same": true, "note": ""},
+  {"tuyen": "y3", "mine": "f_WF03_reserve", "same": false, "note": "Tuyên chỉ giữ máy; business-flows.md WF-03-A2: giữ cùng lúc tester, phòng cần thiết và máy chỉ khi cần."},
+  {"tuyen": "n2", "mine": "f_WF03_t5", "same": false, "note": "Tuyên: thông báo nhắc tester (lane System); bản của bạn: tester nhận nhắc và đo (lane Tester)."},
+  {"tuyen": "e1", "mine": "f_WF03_wf04", "same": true, "note": ""}
+]}
