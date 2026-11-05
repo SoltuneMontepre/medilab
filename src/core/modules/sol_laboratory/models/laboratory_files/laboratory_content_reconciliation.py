@@ -82,7 +82,8 @@ class LaboratoryContent(models.Model, LaboratoryContentBase):
         rows = self._rows_by_key()
         row = next(rows, None)
         for key, size, modified in laboratory_bucket.objects():
-            if key == MARKER_KEY:
+            # Only content keys are compared: the marker and Odoo's filestore, when the bucket holds it, are no content.
+            if not laboratory_bucket.is_object_key(key):
                 continue
             while row and row[0] < key:
                 yield from self._row_without_object(row)
@@ -131,7 +132,7 @@ class LaboratoryContent(models.Model, LaboratoryContentBase):
     def _multipart_findings(self, cutoff):
         open_multiparts = set(self._open_uploads().mapped("multipart_id"))
         for key, upload_id, initiated in laboratory_bucket.multipart_uploads():
-            if initiated < cutoff and upload_id not in open_multiparts:
+            if laboratory_bucket.is_object_key(key) and initiated < cutoff and upload_id not in open_multiparts:
                 yield f"{MULTIPART}:{upload_id}", {"kind": MULTIPART, "key": key, "upload_id": upload_id}
 
     @api.model
