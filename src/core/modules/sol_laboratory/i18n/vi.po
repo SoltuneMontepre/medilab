@@ -10927,11 +10927,6 @@ msgid "A sample test has one reported result."
 msgstr "Một chỉ tiêu của mẫu chỉ có một kết quả báo cáo."
 
 #. module: sol_laboratory
-#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_test_result_attempt_unique
-msgid "A sample test has one result per attempt and version."
-msgstr "Mỗi lần thử và phiên bản của một chỉ tiêu của mẫu chỉ có một kết quả."
-
-#. module: sol_laboratory
 #: model:mail.message.subtype,description:sol_laboratory.event_test_result_rejected
 msgid "A test result you entered was rejected"
 msgstr "Một kết quả thử nghiệm bạn nhập đã bị từ chối"
@@ -10942,11 +10937,6 @@ msgstr "Một kết quả thử nghiệm bạn nhập đã bị từ chối"
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__approve
 msgid "Approve"
 msgstr "Phê Duyệt"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__attempt
-msgid "Attempt"
-msgstr "Lần thử"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__cancel_reason
@@ -11242,8 +11232,8 @@ msgstr "Kết quả hiển thị từ 0 đến 15 chữ số thập phân."
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/test_result.py:0
-msgid "The system sets the sample test, attempt, entry and status of a result."
-msgstr "Hệ thống tự đặt chỉ tiêu của mẫu, lần thử, thông tin nhập và trạng thái của kết quả."
+msgid "The system sets the sample test, entry and status of a result."
+msgstr "Hệ thống tự đặt chỉ tiêu của mẫu, thông tin nhập và trạng thái của kết quả."
 
 #. module: sol_laboratory
 #. odoo-python

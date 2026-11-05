@@ -72,7 +72,7 @@ class TestTestResultEntry(ResultCase):
         first = self.enter()
         second = self.enter(value=0.009)
 
-        self.assertEqual((first.attempt, second.attempt), (1, 2))
+        self.assertEqual(first.search([("sample_test_id", "=", self.test.id)]).ids, [second.id, first.id])
         self.assertFalse(first.is_reported)
         self.assertTrue(second.is_reported)
         with self.assertRaises(UserError):

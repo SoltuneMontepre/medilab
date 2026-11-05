@@ -210,7 +210,7 @@ describe("WF-05 Outsourced testing", () => {
       });
       cy.contains("tr", test.code).should("contain", "4.4");
       reportedResult(test).should((reported) => {
-        expect(reported.attempt).to.equal(2);
+        expect(reported.id).not.to.equal(result.id);
         expect(reported.status).to.equal("none");
       });
     });

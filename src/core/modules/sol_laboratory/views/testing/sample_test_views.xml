@@ -87,7 +87,6 @@
                         >
                             <field name="result_ids" readonly="1">
                                 <list decoration-muted="not is_reported">
-                                    <field name="attempt" />
                                     <field name="value_display" />
                                     <field name="unit_id" />
                                     <field name="conclusion" />
