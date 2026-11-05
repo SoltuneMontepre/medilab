@@ -13,9 +13,25 @@ Differences from `## WF-03 Testing assignment and scheduling` in `docs/functiona
 
 ## The system decides whether the booking is feasible
 
-- **Diagram:** the decision "Feasible booking before the due date?" is in the System lane, after the tester views the proposed booking: yes leads to accepting the booking, no to the head's review.
+- **Diagram:** the decision "Feasible booking before the due date?" is in the System lane, after the tester views the proposed booking: yes leads to the head's approval, no to the head's review.
 - **Concerns:** the mermaid of `## WF-03 Testing assignment and scheduling`, which puts `t3{Feasible booking within capacity?}` in the Tester lane. WF-03-E2 and the outsourcing rule of [Head of department](../../../../functional/laboratory_module/features/head-of-department.md) already say the scheduler finds no feasible slot before the due date.
-- **New text:** in the mermaid, move the decision out of the Tester subgraph, beside `queue` and `reserve`: `t2 --> feasible{Feasible booking before the due date?}`, with its `yes`, `yes, the head accepts` and `no` lines leaving `feasible`.
+- **New text:** in the mermaid, move the decision out of the Tester subgraph, beside `queue` and `reserve`: `t2 --> feasible{Feasible booking before the due date?}`, with `feasible -->|yes| approve` and `feasible -->|no| h2`.
+
+## The head approves every feasible booking
+
+- **Diagram:** after "Feasible booking before the due date?" answers yes, the head decides "Head approves the proposed booking?". Yes: the tester gets "Receive booking approval notification", then the system reserves the tester, required locations and machine if needed together. No: the head goes to "Review risk and feasible alternatives". Neither the tester nor the head accepts a proposed booking without this approval. The Demo scenarios page shows it in DS-03a and DS-03b: the head's "Approve the proposed booking", then the tester's "Receive booking approval notification".
+- **Concerns:**
+  - `## WF-03 Testing assignment and scheduling`: Main path ("the tester or head accepts it"), WF-03-E1 ("an authorized person accepts the booking") and the mermaid (`h4[Accept the proposed booking for the tester]`, `t4[Accept the proposed booking]`, `t3 -->|yes, the head accepts| h4`). SF-10's Paths in other flows ("WF-03 owns initial assignment and accepting bookings").
+  - [Tester](../../../../functional/laboratory_module/features/tester.md): US-T02 ("I want to accept a booking of the agreed way of testing from my department's proposed plan") and the rule "Accepting a booking checks that the tester, every required location and a machine when required are available".
+  - [Head of department](../../../../functional/laboratory_module/features/head-of-department.md): no story yet for approving a proposed booking.
+  - The mermaid of [Laboratory overview](../../../../functional/laboratory_module/overview.md) (`plan --> accept[Tester or head accepts the booking]`) and [Scheduling](../../../../specs/scheduling.md) ("Testers and heads accept proposed bookings to schedule them"; the Accepting row).
+  - The use case "Accept Proposed Booking" of US-T02 in [Use case diagram](../../../use-case-diagram/readme.md).
+- **New text:**
+  - Main path: "… the department's plan proposes a booking of the agreed way in priority order; when it is feasible before the due date, the head approves it, the tester is notified, and it receives a reminder."
+  - WF-03-E1: "… the head moves the task to another person or department with a reason, approves the proposed booking, and the new tester is notified."
+  - Mermaid: in the Head of department subgraph, replace `h4` with `approve{Approve the proposed booking?}`; in the Tester subgraph, replace `t4` with `t4[Receive booking approval notification]`; `approve -->|yes| t4 --> reserve`, `approve -->|no| h2`.
+  - US-T02 becomes "As a tester, I want to be notified when the head approves a booking of my task, so that I know when to test"; a new head-of-department story: "As a head of department, I want to approve a feasible proposed booking of my department, so that it is reserved before its due date."
+  - Scheduling: "Heads approve proposed bookings to schedule them; the tester is notified." The Accepting row becomes Approving: "Approving a booking reserves its tester, machine and locations together, or nothing when any of them is taken meanwhile."
 
 ## The reminder is the system's; measuring belongs to WF-04
 
