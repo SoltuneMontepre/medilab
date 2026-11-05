@@ -1,0 +1,16 @@
+{
+  "pairs": [
+    {"tuyen": "s", "mine": "f_WF02_in_c1", "same": false, "note": "Tuyên: “Test request paid (WF-01)”, nằm ở lane System; bản của bạn: “WF-01: Order confirmed; sample collection can start”, ở lane Customer. Tài liệu: bắt đầu từ đơn đã xác nhận có phiếu yêu cầu đã thanh toán và đang chờ mẫu."},
+    {"tuyen": "t1", "mine": "f_WF02_d8", "same": false, "note": "Tuyên: “Collect samples” dùng cho cả lần lấy mẫu đầu (WF-02-A1) lẫn lấy lại; bản của bạn: “Collect more sample” chỉ cho lấy lại (WF-02-E1)."},
+    {"tuyen": "t2", "mine": "f_WF02_d3", "same": false, "note": "Tuyên ghi nhận nhận mẫu trước rồi mới xét tình trạng; bản của bạn xét tình trạng trước, chỉ ghi nhận khi mẫu tốt, và ghi rõ thời gian, lượng, nơi lưu."},
+    {"tuyen": "d2", "mine": "f_WF02_d2", "same": false, "note": "Tuyên tách tình trạng thành hai quyết định (Damaged? rồi Enough sample?); bản của bạn dùng một quyết định “Condition?” ba nhánh good / unusable / insufficient."},
+    {"tuyen": "d1", "mine": "f_WF02_d2", "same": false, "note": "Như trên: “Damaged?” là nhánh unusable của “Condition?”."},
+    {"tuyen": "y2", "mine": "f_WF02_d6", "same": false, "note": "Tuyên: “Reject sample” do System làm; bản của bạn: Sample delivery staff “Reject with a condition note” (US-SD10)."},
+    {"tuyen": "y3", "mine": "f_WF02_d7", "same": false, "note": "Tuyên: “Hold sample” do System làm; bản của bạn: Sample delivery staff “Put on hold” (US-SD11)."},
+    {"tuyen": "h1", "mine": "f_WF02_h1", "same": true, "note": ""},
+    {"tuyen": "c1", "mine": "f_WF02_c2", "same": false, "note": "Tuyên: “Sign handover record” sau khi in nhãn; bản của bạn: “Confirm actual samples and sign the record” ngay sau khi ghi nhận nhận mẫu, trước khi in nhãn."},
+    {"tuyen": "t3", "mine": "f_WF02_d4", "same": false, "note": "Tuyên: chỉ “Print label”; bản của bạn: “Print label and hand accepted samples to departments”."},
+    {"tuyen": "h2", "mine": "f_WF02_h2", "same": false, "note": "Tuyên: “Scan label”; bản của bạn nói rõ mục đích: “Scan the label to record department receipt”."},
+    {"tuyen": "e2", "mine": "f_WF02_done", "same": false, "note": "Tuyên: “END: Tasks queued → WF-03”; bản của bạn: “Testing tasks in department queues → WF-03”. Cả hai thiếu tên luồng sau WF-03."}
+  ]
+}

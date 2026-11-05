@@ -1,0 +1,16 @@
+{
+  "pairs": [
+    {"tuyen": "s", "mine": "f_WF06_in_p1", "same": false, "note": "Tuyên: bắt đầu khi kết quả cuối được duyệt, chỉ từ WF-04; bản của bạn: vào từ WF-04 và WF-05, rồi Lab Head sửa bản nháp DOCX"},
+    {"tuyen": "l1", "mine": "f_WF06_l1", "same": false, "note": "Tuyên chỉ ghi 'Review report'; tài liệu: xem PDF đã chuẩn bị, kết quả đã duyệt và căn cứ quy chuẩn"},
+    {"tuyen": "d1", "mine": "f_WF06_l2", "same": false, "note": "Nhãn 'Report OK?' (nhánh no, name result) ↔ 'Approve the report?' (nhánh reject naming the results and the reason)"},
+    {"tuyen": "h1", "mine": "f_WF06_h1", "same": false, "note": "Tuyên: trưởng bộ phận duyệt lại rồi quay về Review report ngay; tài liệu (WF-06-E2): kết quả về hàng chờ chưa giao, đi lại WF-04, Lab Head nhận nhiệm vụ ký mới"},
+    {"tuyen": "l2", "mine": "f_WF06_approved", "same": false, "note": "Tuyên: Lab Head 'Sign report' sau khi chọn yes; tài liệu: chọn approve là phê duyệt nội bộ cuối, hệ thống giữ phê duyệt gắn với PDF đã xem"},
+    {"tuyen": "y2", "mine": "f_WF06_digital", "same": false, "note": "'Send to Viettel Sign' ↔ 'Digitally sign the reviewed PDF' (ký đúng PDF đã xem); bản của bạn chỉ ký khi ký số được bật"},
+    {"tuyen": "d2", "mine": "f_WF06_success", "same": true},
+    {"tuyen": "y3", "mine": "f_WF06_issued", "same": false, "note": "Tài liệu: phát hành làm số báo cáo đã giữ chỗ thành chính thức; Tuyên phát hành ngay sau khi ký, không có bước lưu PDF"},
+    {"tuyen": "n2", "mine": "f_WF06_c1", "same": false, "note": "Tuyên: thông báo ✉ ở lane System; bản của bạn: hoạt động của Customer 'Notified that the report is issued'"},
+    {"tuyen": "t1", "mine": "f_WF06_d2", "same": true},
+    {"tuyen": "n3", "mine": "f_WF06_d1", "same": false, "note": "Tuyên: luôn gửi email PDF sau khi ghi nhận giao; bản của bạn: giao trực tiếp, bưu điện hoặc email trước khi ghi nhận (WF-06-A1: giao trực tiếp/bưu điện không gửi email)"},
+    {"tuyen": "c1", "mine": "f_WF06_c2", "same": true}
+  ]
+}

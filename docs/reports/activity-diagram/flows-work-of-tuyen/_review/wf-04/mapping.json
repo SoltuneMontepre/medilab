@@ -1,0 +1,17 @@
+{
+  "pairs": [
+    {"tuyen": "s", "mine": "f_WF04_in_t1", "same": true, "note": "Cùng là điểm bắt đầu từ WF-03 Testing assignment and scheduling; ký hiệu đổi ở thay đổi 1."},
+    {"tuyen": "t1", "mine": "f_WF04_t1", "same": false, "note": "Tài liệu: làm theo phương pháp và đo trong lượt đặt (booking); bản Tuyên chỉ ghi 'Follow method steps'."},
+    {"tuyen": "t2", "mine": "f_WF04_f1", "same": false, "note": "Bản Tuyên: lưu tệp kết quả là bước bắt buộc trên luồng chính, trước khi nhập kết quả. Tài liệu: chỉ khi thử nghiệm sinh ra tệp (nhánh nét đứt 'testing produces files'), lưu vào thư mục của mẫu."},
+    {"tuyen": "y1", "mine": "f_WF04_version", "same": false, "note": "Bản Tuyên: luôn đồng bộ phiên bản rồi quay về nhập kết quả. Tài liệu: kiểm tra tệp có dựa trên phiên bản hiện tại không; có → phiên bản hiện tại mới, không → xung đột (WF-04-E4)."},
+    {"tuyen": "t3", "mine": "f_WF04_t2", "same": false, "note": "Tài liệu: ghi giá trị với đơn vị và LOD/LOQ đã chụp lại (snapshot)."},
+    {"tuyen": "t4", "mine": "f_WF04_t3", "same": false, "note": "Bản Tuyên: luôn nhập kết luận. Tài liệu: chỉ đánh giá đạt / không đạt / không đủ căn cứ khi có yêu cầu so sánh quy chuẩn (WF-04-A4)."},
+    {"tuyen": "d1", "mine": "f_WF04_t4", "same": false, "note": "Bản Tuyên: hệ thống xét kết quả bất thường SAU khi ký và gửi. Tài liệu (WF-04-E2): cảnh báo TRƯỚC khi gửi; người thử nghiệm xem lại rồi vẫn có thể gửi."},
+    {"tuyen": "t5", "mine": "f_WF04_t5", "same": true, "note": ""},
+    {"tuyen": "d2", "mine": "f_WF04_h1", "same": false, "note": "Tài liệu (WF-04-A3): trưởng bộ phận được duyệt cả kết quả do chính mình nhập; từ chối phải có lý do."},
+    {"tuyen": "y4", "mine": "f_WF04_t6", "same": false, "note": "Bản Tuyên: hệ thống mở lại thử nghiệm, quay về 'Follow method steps'. Tài liệu (WF-04-E1): mở nhiệm vụ thử nghiệm mới, thử lại là kết quả mới với lượt đặt mới, kết quả bị từ chối vẫn lưu."},
+    {"tuyen": "h2", "mine": "f_WF04_done", "same": true, "note": ""},
+    {"tuyen": "h3", "mine": "f_WF04_h2", "same": false, "note": "Bản Tuyên: ký phiên bản tệp nối tiếp ngay sau khi duyệt kết quả, không có nhánh từ chối. Tài liệu: ký phiên bản tệp là nhánh riêng sau khi có phiên bản mới; từ chối có lý do → lưu bản sửa (WF-04-E5); ký → phiên bản tệp được ký kèm mã băm."},
+    {"tuyen": "e1", "mine": "f_WF04_wf06", "same": false, "note": "Bản Tuyên: 'Sample completed → WF-06' sau 'All tests done?'. Bản của bạn: chuyển sang WF-06 khi mọi phép thử đã duyệt hoặc huỷ, và SF-01."}
+  ]
+}

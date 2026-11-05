@@ -14,12 +14,12 @@ The core flows WF-01 to WF-06 carry a test request from order to report. The sup
 | WF-06 | Report signing, release and delivery    | Lab head, Head of department, Sample delivery staff, Customer   |
 | SF-01 | Invoicing and payment collection        | Accountant, Sales, Customer                                     |
 | SF-02 | Order cancellation                      | Customer, Sales                                                 |
-| SF-03 | Change request on a signed document     | Requester, signers of the change-request chain                  |
+| SF-03 | Change request on a signed document     | Tester, Head of department, Lab head                            |
 | SF-04 | Sample retention, return and disposal   | Tester, Sample delivery staff                                   |
 | SF-05 | Machine calibration and unavailability  | Administrator, Head of department, Tester                       |
 | SF-06 | Accreditation and registration renewal  | Administrator                                                   |
 | SF-07 | Result dates and priority orders        | Customer, Sales, Head of department                            |
-| SF-08 | Laboratory setup                        | Administrator                                                   |
+| SF-08 | Laboratory setup                        | Administrator, Lab head                                         |
 | SF-09 | Customer support and feedback           | Customer, Sales                                                 |
 | SF-10 | Scheduling plan and revisions           | Tester, Head of department, Sales                              |
 | SF-11 | Laboratory file administration          | Head of department, Tester, Administrator                      |
@@ -28,7 +28,7 @@ The core flows WF-01 to WF-06 carry a test request from order to report. The sup
 
 - **Trigger:** a customer submits a cart on the portal, or sales creates an order for a customer.
 - **Result:** the order and its test request are confirmed, with expected samples and their selected ways calculated from the accepted order and sampling requirements, and sample collection can start.
-- **Stories:** US-C08, US-C09, US-C13, US-C14, US-C15, US-S01, US-S02, US-S05, US-S06, US-S07, US-S08, US-S10, US-S12, US-S15, US-A03, US-A06, US-A08.
+- **Stories:** US-C08, US-C09, US-C10, US-C13, US-C14, US-C15, US-S01, US-S02, US-S05, US-S06, US-S07, US-S08, US-S09, US-S10, US-S12, US-S15, US-A03, US-A06, US-A08.
 - **States:** quotation draft → sent → accepted; order submitted → claimed → confirmed; test request draft → confirmed → paid.
 - **Starts from:** a catalog with priced parameters and packages, and demo customers.
 - **Main path:** A customer orders on the portal; sales claims it, confirms the selected ways and expected sampling needs, obtains Head of Sales approval if its discount or total exceeds a configured threshold, and sends it with an advance; the customer pays online; sales confirms the order, and sample collection can start.
@@ -130,29 +130,33 @@ flowchart TD
   - WF-03-A3: The head records planned OverTime for a tester and an outside-hours interval with a reason, without a prerequisite HR overtime shift; the tester can then be booked in that interval.
 - **Exceptions:**
   - WF-03-E1: The assigned tester cannot do the work; the head moves the task to another person or department with a reason, and an authorized person accepts the booking.
-  - WF-03-E2: No feasible slot for the agreed way meets the due date; the head reviews viable resources and date options. SF-07 handles the committed return date, and WF-05 handles an agreed subcontracted alternative.
+  - WF-03-E2: No feasible slot for the agreed way meets the due date; the head reviews viable resources and date options. SF-07 handles the committed return date, and WF-05 handles outsourcing to a subcontractor with the same method.
 - **Acceptance criteria:** See [Tester](laboratory_module/features/tester.md), [Head of department](laboratory_module/features/head-of-department.md) and [SH-10](shared.md#sh-10-tasks-and-to-do-list). A second tester claiming the same task is told it is already claimed. Claiming another department's task or a parameter the tester is not authorized for is refused. Moving a task without a reason is refused. A schedule never silently changes the accepted way. Bookings share a machine only for the same method and interval, within its capacity. A sample test whose sample its department has not received cannot be booked.
-- **Paths in other flows:** WF-05 for an agreed subcontracted way; SF-05 for machine disruption; SF-07 for result dates and internal due-date changes; SF-10 for urgency, moving or cancelling bookings, reminders and plan revisions.
+- **Paths in other flows:** WF-05 for outsourcing; SF-05 for machine disruption; SF-07 for result dates and internal due-date changes; SF-10 for urgency, moving or cancelling bookings, reminders and plan revisions.
 
 ```mermaid
 flowchart TD
     subgraph lane8 ["Head of department"]
         h1[Assign an authorized person]
+        h4[Accept the proposed booking for the tester]
         h2[Review risk and feasible alternatives]
         h3[Record planned OverTime with a reason]
     end
     subgraph lane9 ["Tester"]
         t1[Claim an authorized department task]
         t2[View the proposed booking for the agreed way] --> t3{Feasible booking within capacity?}
-        t3 -->|yes| t4[Accept: reserve tester, locations and machine if needed]
-        t4 --> t5[Receive reminder and measure]
+        t3 -->|yes| t4[Accept the proposed booking]
+        t5[Receive reminder and measure]
     end
     queue([Department queue]) --> h1 --> t2
     queue --> t1 --> t2
+    t3 -->|yes, the head accepts| h4
+    t4 --> reserve[Reserve tester, required locations and machine if needed together]
+    h4 --> reserve --> t5
     t3 -->|no| h2
     h2 --> h3 --> t2
     h2 --> dates([SF-07 agrees a feasible customer date])
-    h2 --> outsource([WF-05 agrees any subcontracted alternative])
+    h2 --> outsource([WF-05 outsources to a subcontractor with the same method])
     t5 --> wf04([WF-04 Result entry and approval])
 ```
 
@@ -216,28 +220,27 @@ flowchart TD
 
 ## WF-05 Outsourced testing
 
-- **Trigger:** the agreed way is subcontracted, or a subcontracted alternative is proposed because in-house resources cannot meet the due date.
+- **Trigger:** the sample test's way is subcontracted, or a subcontracted way with the same method is proposed because in-house resources cannot meet the due date.
 - **Result:** the subcontractor's result is approved like any other result.
 - **Stories:** US-HD05, US-HD10, US-HD11, US-HD13, US-SD13, US-SUB01, US-SUB02, US-T09, US-HD08.
 - **States:** sample test waiting → outsourced → result entered → approved; dispatch draft → sent → received.
 - **Starts from:** sample tests with an outsourcing suggestion, and accredited subcontractors.
-- **Main path:** For the agreed subcontracted way, the head creates a dispatch of sample tests with sending date, due date and returned report; staff carry it, results are entered and independently approved. Changing an accepted way first needs customer agreement through a revised quotation.
+- **Main path:** For a subcontracted way, the head creates a dispatch of sample tests with sending date, due date and returned report; staff carry it, results are entered and independently approved. Outsourcing is internal: the subcontractor tests the parameter with the method the customer agreed, so the customer is neither told nor asked.
 - **Alternative paths:**
   - WF-05-A1: A dispatch goes by a delivery service with its tracking number.
   - WF-05-A2: A lab QA enters the results the subcontractor sent back.
-  - WF-05-A3: The head initiates an urgent outsourcing proposal with a reason; Sales obtains an agreed revised quotation before replacing an accepted way.
+  - WF-05-A3: The head outsources a waiting or assigned test straight away with a reason, to a subcontractor with the same method, without waiting for a suggestion.
 - **Exceptions:**
   - WF-05-E1: The head rejects the subcontractor's result; the test goes back to outsourced and a new result is entered.
   - WF-05-E2: A dispatch cannot proceed; it is cancelled before any result and its tests stay outsourced for another dispatch.
-- **Acceptance criteria:** See [Head of department](laboratory_module/features/head-of-department.md) and [Subcontractor](laboratory_module/features/subcontractor.md). A dispatch whose tests have results cannot be cancelled. A subcontractor user sees only its own dispatches and never a sample's customer. An emergency proposal needs a reason; a test already running cannot be outsourced directly, and an accepted way cannot change without customer agreement.
+- **Acceptance criteria:** See [Head of department](laboratory_module/features/head-of-department.md) and [Subcontractor](laboratory_module/features/subcontractor.md). A dispatch whose tests have results cannot be cancelled. A subcontractor user sees only its own dispatches and never a sample's customer. An emergency proposal needs a reason; a test already running cannot be outsourced directly. Only a subcontracted way with the test's parameter and method can be chosen. The customer never sees that a test is outsourced or which subcontractor tests it.
 - **Paths in other flows:** SF-06 for subcontractor accreditation expiry.
 
 ```mermaid
 flowchart TD
     subgraph lane12 ["Head of department"]
-        h1[Review the outsourcing suggestion] --> agreed{Already the agreed way?}
-        h0[Propose urgent outsourcing with a reason] --> agreed
-        h2[Put the sample tests in a dispatch]
+        h1[Review the outsourcing suggestion] --> h2[Put the sample tests in a dispatch]
+        h0[Propose urgent outsourcing with a reason] --> h2
         h3[Record when it is sent and the expected date]
         h4{Approve the result?}
     end
@@ -247,8 +250,6 @@ flowchart TD
     subgraph lane14 ["Subcontractor"]
         s1[See the dispatch and its tests] --> s2[Enter the results]
     end
-    agreed -->|yes| h2
-    agreed -->|no| revise[Sales obtains customer agreement through a revised quotation] --> h2
     h2 --> d1 --> h3 --> s1
     s2 --> h4
     h4 -->|reject| s2
@@ -262,7 +263,7 @@ flowchart TD
 - **Stories:** US-LH01, US-LH02, US-SD14, US-SD15, US-C07, US-C18, US-C19.
 - **States:** test report draft → signing → issued, where signing retains final internal approval while required digital signing is pending; test request completed → reported and order completed only on issue.
 - **Starts from:** test requests whose sample tests are all approved or cancelled, with their draft reports.
-- **Main path:** MediLab fills the draft from an available template version and approved business data. Authorized editors prepare layout and explanatory text in ONLYOFFICE, finish saving and prepare the PDF with its reserved number. The Lab Head reviews that PDF, its approved results and any requested regulation basis, then gives final internal approval. With digital signing enabled, MediLab digitally signs that same PDF and stores it before issuing the report. Issue makes the reserved number official, updates the request and order, and enables delivery and customer notification.
+- **Main path:** MediLab fills the draft from an available template version and approved business data. The Lab Head, through the report edit permission, prepares layout and explanatory text in ONLYOFFICE, finishes saving and prepares the PDF with its reserved number. The Lab Head reviews that PDF, its approved results and any requested regulation basis, then gives final internal approval. With digital signing enabled, MediLab digitally signs that same PDF and stores it before issuing the report. Issue makes the reserved number official, updates the request and order, and enables delivery and customer notification.
 - **Alternative paths:**
   - WF-06-A1: The report is delivered in person or by post; recording it sends no e-mail.
   - WF-06-A2: The request asks for an English, a Vietnamese or a bilingual report.
@@ -274,16 +275,14 @@ flowchart TD
   - WF-06-E1: Viettel Sign is unavailable or cannot complete signing: keep the internal approvals and the reviewed PDF, leave the report unissued and retry that same PDF. Issue and notify only after the signed PDF is stored; a replacement leaves the previous report current until then.
   - WF-06-E2: The lab head rejects the report naming results and a reason; the results go back to the head of department's queue, are approved again and the lab head signs the new task.
   - WF-06-E3: A regulation expires during testing: testing continues, but before issue the Lab Head confirms the comparison basis. Sales obtains customer agreement for a changed scope; no regulation is switched or dropped automatically.
-  - WF-06-E4: A pending or failed save, editing conflict, business-data mismatch or conversion outage blocks preparation. Editors resolve the save, content or service problem, prepare a new PDF and obtain fresh review. An unchanged prepared candidate can proceed without reopening ONLYOFFICE, and an outage does not block delivery of an already issued PDF.
+  - WF-06-E4: A pending or failed save, editing conflict, business-data mismatch or conversion outage blocks preparation. The Lab Head resolves the save, content or service problem, prepares a new PDF and reviews it again. An unchanged prepared candidate can proceed without reopening ONLYOFFICE, and an outage does not block delivery of an already issued PDF.
 - **Acceptance criteria:** See [Lab head](laboratory_module/features/lab-head.md), [Test reports](../specs/test-reports.md) and [Digital signing](../specs/digital-signing.md). Rejecting a report without a reason or without naming a result is refused. An unissued report cannot be delivered, and a customer downloads only their own reports. Final internal approval does not issue a report whose required digital signature is pending or failed. No customer notification, download, delivery or replacement of an earlier report occurs before issue. The full order lifecycle runs from the portal through reception, testing and approval to the issued report.
-- **Paths in other flows:** SF-03 for correcting results in an initial or replacement report and for a change request on an issued report; SF-04 for samples after issue.
+- **Paths in other flows:** SF-03 for correcting results in an initial or replacement report and for a change request on an issued report; SF-04 for samples after issue; SF-08 for report template versions.
 
 ```mermaid
 flowchart TD
-    subgraph report_editors ["Authorized report editors"]
-        p1[Edit the DOCX draft in ONLYOFFICE] --> p2[Finish saves, validate data, reserve number and prepare PDF]
-    end
     subgraph lane15 ["Lab head"]
+        p1["[report edit permission] Edit the DOCX draft in ONLYOFFICE"] --> p2[Finish saves, validate data, reserve number and prepare PDF]
         l1[Review the PDF, approved results and regulation basis] --> l2{Approve the report?}
     end
     subgraph lane16 ["Head of department"]
@@ -420,23 +419,28 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    subgraph lane24 ["Requester"]
+    subgraph lane24 ["Tester"]
         r1[Raise correction with changes and reason]
     end
-    subgraph lane25 ["Required approvers"]
-        s1{Approve the change request?}
+    subgraph lane25 ["Head of department"]
+        sr{"[result] Approve the change request?"}
         s2[Approve corrected results]
     end
-    r1 --> s1
+    subgraph lane73 ["Lab head"]
+        sp{"[report] Approve the change request?"}
+    end
+    r1 -->|result| sr
+    r1 -->|report| sp
     r1 -->|result in an issued report| link[Create or link the report change request]
     r1 -->|report awaiting internal or digital signing| stop[Stop pending signing and withdraw signatures before applying correction]
-    s1 -->|reject| kept([Signed version unchanged])
-    s1 -->|approve result correction| result[Create unsigned corrected result version] --> s2
-    stop --> s1
+    sr -->|reject| kept([Signed version unchanged])
+    sp -->|reject| kept
+    sr -->|approve| result[Create unsigned corrected result version] --> s2
+    stop --> sr
     s2 --> ready{All corrected results and report correction approved?}
     link --> ready
     ready -->|yes| draft[Prepare replacement draft and fresh signing task]
-    s1 -->|approve report-only correction| draft
+    sp -->|approve| draft
     draft --> release[WF-06: review, approve, digitally sign when enabled, store PDF and issue]
     release -.->|digital signing fails| pending[Approval stands; replacement unissued; earlier report stays current]
     pending -->|retry same reviewed PDF| release
@@ -488,10 +492,10 @@ flowchart TD
   - SF-05-A2: Separate windows warn 7 days before calibration, 7 days before maintenance and 7 days after repair by default; warnings do not override a block.
   - SF-05-A3: Planned maintenance reserves downtime; overdue maintenance blocks new bookings until recorded completion.
 - **Exceptions:**
-  - SF-05-E1: Without another machine linked to the same method, keep the work unplaced and notify its tester and head. Sales informs the customer if the committed return date is affected. A different way needs an agreed revised quotation.
+  - SF-05-E1: Without another machine linked to the same method, keep the work unplaced and notify its tester and head. Sales informs the customer if the committed return date is affected. The head may outsource the work to a subcontractor with the same method (WF-05); a different method needs an agreed revised quotation.
   - SF-05-E2: A breakdown or lost calibration interrupts a booking: the booking ends, its recorded data is kept as an interrupted result, and the head assesses it as usable, needing a retest or needing more sample. A retest is a new result with a new booking.
 - **Acceptance criteria:** See [Administrator](laboratory_module/features/admin.md) and [Head of department](laboratory_module/features/head-of-department.md). A machine with queued, scheduled or running bookings cannot be archived.
-- **Paths in other flows:** SF-10 owns queue order and rescheduling; WF-05 owns any customer-agreed change to a subcontracted way.
+- **Paths in other flows:** SF-10 owns queue order and rescheduling; WF-05 owns outsourcing to a subcontractor with the same method.
 
 ```mermaid
 flowchart TD
@@ -514,6 +518,7 @@ flowchart TD
     other -->|no| h2 --> wait[Stay unplaced; Sales handles customer impact]
     a2 --> fit{All booking conditions satisfied?}
     fit -->|yes| available[Machine can be booked]
+    fit -->|no| blocked[No new booking until every condition is satisfied] --> a2
 ```
 
 ## SF-06 Accreditation and registration renewal
@@ -570,7 +575,7 @@ flowchart TD
   - SF-07-E1: A committed return date becomes infeasible: Sales offers the earliest feasible replacement and records old date, new date and customer confirmation before changing it. If refused, Sales handles a cancellation request for the unfulfillable part; no automatic cancellation or way change.
   - SF-07-E2: The requested date is infeasible; Sales offers the earliest feasible date instead. Missing outsourced transport or processing turnaround prevents a complete estimate until those values are supplied; no incomplete estimate becomes a committed return date.
 - **Acceptance criteria:** See [Sales](ecommerce_module/features/sales.md), [Head of department](laboratory_module/features/head-of-department.md) and [SH-11](shared.md#sh-11-schedules-and-reminders). A date the laboratory cannot meet is not accepted as a committed return date; show the earliest feasible date. Missing outsourced turnaround means no complete estimate is available. An internal due-date override does not change the committed return date. A feasibility check reserves and moves no bookings. The customer sees the requested and committed dates, never an internal due date.
-- **Paths in other flows:** SF-10 owns priority order and plan revisions; WF-05 owns any agreed subcontracted alternative; SF-02 owns cancellation of an unfulfillable part.
+- **Paths in other flows:** SF-10 owns priority order and plan revisions; WF-05 owns outsourcing; SF-02 owns cancellation of an unfulfillable part.
 
 ```mermaid
 flowchart TD
@@ -601,8 +606,9 @@ flowchart TD
 ## SF-08 Laboratory setup
 
 - **Trigger:** a laboratory starts using MediLab, or its catalog, people or rules change.
-- **Result:** everything an order needs exists: the catalog with its ways of testing, prices and taxes, people and roles, approval chains and settings.
-- **Stories:** US-AD01, US-AD02, US-AD03, US-AD04, US-AD05, US-AD06, US-AD07, US-AD09, US-AD10, US-AD11, US-AD13, US-AD14, US-AD15, US-AD16, US-AD17, US-AD18, US-AD19, US-AD20, US-AD26, US-AD27, US-LH04, SH-03.
+- **Result:** everything an order and its report need exists: the catalog with its ways of testing, prices and taxes, people and roles, approval chains, available report templates and settings.
+- **Stories:** US-AD01, US-AD02, US-AD03, US-AD04, US-AD05, US-AD06, US-AD07, US-AD09, US-AD10, US-AD11, US-AD13, US-AD14, US-AD15, US-AD16, US-AD17, US-AD18, US-AD19, US-AD20, US-AD26, US-AD27, US-AD36, US-LH04, SH-03.
+- **States:** report template version draft → available → archived.
 - **Starts from:** an empty laboratory with the modules installed.
 - **Main path:** The administrator configures parameters, ways, explicit sample-type applicability, sampling requirements and prices. The Lab Head authorizes testers per parameter without validity dates. Regulation comparison limits are optional; the measurement-to-report flow works without them.
 - **Alternative paths:**
@@ -610,7 +616,8 @@ flowchart TD
   - SF-08-A2: The administrator gives a person a role; the person sees the menus of that role and no others.
   - SF-08-A3: A VAT rate changes from a date; quotations dated after it use the new rate.
   - SF-08-A4: The administrator sets the approval chain of a document type; its documents are signed level by level.
-- **Acceptance criteria:** See [Administrator](laboratory_module/features/admin.md). A parameter without a price and tax cannot be added to a cart. Archiving a record still in use is refused with the list of what uses it. A code that already exists is refused.
+  - SF-08-A5: The administrator edits a report template version in ONLYOFFICE, previews it with its data bindings and makes it available for its language. Editing an available version creates a new draft, and archiving a version stops new drafts from using it; reports already made keep their exact version.
+- **Acceptance criteria:** See [Administrator](laboratory_module/features/admin.md) and [Test reports](../specs/test-reports.md). A parameter without a price and tax cannot be added to a cart. Archiving a record still in use is refused with the list of what uses it. A code that already exists is refused. A template version missing required data bindings cannot be made available.
 
 ```mermaid
 flowchart TD
@@ -622,6 +629,7 @@ flowchart TD
         a3 -.-> optional[Optional regulations and limits per parameter and sample type]
         a6[People, roles and approval chains]
         a9[Settings: deadlines, travel buffer and warning windows]
+        a10[Report templates: edit, preview and make versions available]
     end
     subgraph lane45 ["Lab Head"]
         l1[Authorize each tester's parameters without expiry]
@@ -631,22 +639,25 @@ flowchart TD
     a5 --> ready
     l1 --> ready
     a9 --> ready
+    a10 --> ready
 ```
 
 ## SF-09 Customer support and feedback
 
-- **Trigger:** a customer registers, or contacts the laboratory through the portal.
-- **Result:** the customer's account and contacts are kept, their questions are answered, and a completed order can be rated.
-- **Stories:** US-C01, US-C02, US-C03, US-C04, US-C05, US-C06, US-C20, US-C21, US-S03, US-S04, US-S20.
-- **States:** support request open → answered → closed; order completed → rated.
-- **Starts from:** registered customers with completed and open orders.
+- **Trigger:** a customer registers, contacts the laboratory through the portal, or a mandatory e-mail to them bounces.
+- **Result:** the customer's account and contacts are kept, their questions are answered, a completed order can be rated, and a customer whose mandatory e-mail bounced still gets the notice.
+- **Stories:** US-C01, US-C02, US-C03, US-C04, US-C05, US-C06, US-C20, US-C21, US-S03, US-S04, US-S20, US-S24.
+- **States:** support request open → answered → closed; order completed → rated; e-mail address bounced → corrected → confirmed.
+- **Starts from:** registered customers with completed and open orders, one of them with an e-mail address that bounces.
 - **Main path:** A customer opens a support request about an order; the order's salesperson answers; the request is answered and the customer notified.
 - **Alternative paths:**
   - SF-09-A1: A support request about no order is visible to every salesperson until one takes it.
   - SF-09-A2: A customer registers, keeps their profile and contacts, and uploads a logo.
   - SF-09-A3: Sales invites a customer to the portal and merges a duplicate profile.
   - SF-09-A4: The customer rates a completed order.
-- **Acceptance criteria:** See [Customer](ecommerce_module/features/customer.md) and [Sales](ecommerce_module/features/sales.md). Rating an order that is not completed, or rating it twice, is refused. Another customer never sees the customer's support requests or feedback.
+- **Exceptions:**
+  - SF-09-E1: A mandatory e-mail bounces for good. The notice stays in the portal, and the salesperson of the order it is about, or the Sales queue, gets a task to contact the customer. The salesperson corrects the address; e-mails resume once the customer opens the confirmation link sent to it. The task is done when the customer sees the notice or the salesperson records how they reached the customer.
+- **Acceptance criteria:** See [Customer](ecommerce_module/features/customer.md), [Sales](ecommerce_module/features/sales.md) and [SH-11](shared.md#sh-11-schedules-and-reminders). Rating an order that is not completed, or rating it twice, is refused. Another customer never sees the customer's support requests or feedback. No automatic e-mail goes to a bounced or corrected address before the customer opens its confirmation link.
 
 ```mermaid
 flowchart TD
@@ -655,16 +666,20 @@ flowchart TD
         c3[Open a support request, optionally about an order]
         c4[Read the answer]
         c5[Rate a completed order once]
+        c6[Open the confirmation link sent to the corrected address]
     end
     subgraph lane37 ["Sales"]
         s1[Invite the customer and merge duplicate profiles]
         s2["Take the request: the order's salesperson, or anyone for no order"]
         s3[Answer]
+        s4["Contact task: the order's salesperson, or the Sales queue"] --> s5[Reach the customer and correct the address]
     end
     s1 --> c1
     c3 --> s2 --> s3 --> c4
     c4 --> closed([Request closed])
     c5 --> rated([Feedback visible to sales and management])
+    bounce(["Mandatory e-mail bounces; the notice stays in the portal"]) --> s4
+    s5 --> c6 --> resumed([E-mails resume to the confirmed address])
 ```
 
 ## SF-10 Scheduling plan and revisions
@@ -683,11 +698,11 @@ flowchart TD
   - SF-10-A5: Entering the result or marking the measurement finished frees the machine before the booking's end.
 - **Exceptions:**
   - SF-10-E1: Urgent work needs a slot that scheduled bookings hold: the recalculation becomes a plan revision listing every moved booking with its new slot, internal due date and committed return date. The head of each affected department approves the moves in their department, and their people are notified once applied; running bookings are never moved.
-  - SF-10-E2: A move would pass its internal due date and so miss a committed return date: it is held back and its booking keeps its slot until Sales records the customer's agreement to a new date (SF-07); the other moves are recalculated without it. The head may instead free capacity with planned OverTime or another machine linked to the same method. A proposed different way follows WF-05 and customer agreement.
+  - SF-10-E2: A move would pass its internal due date and so miss a committed return date: it is held back and its booking keeps its slot until Sales records the customer's agreement to a new date (SF-07); the other moves are recalculated without it. The head may instead free capacity with planned OverTime or another machine linked to the same method. Outsourcing to a subcontractor with the same method follows WF-05 and needs no customer agreement; a different method needs a revised quotation and customer agreement.
   - SF-10-E3: A sample test whose planned finish is after its internal due date, that no free slot lets finish by then, or whose booking overran sends an initial risk notice and daily consolidated summaries to its tester and head until resolved. Sales notifies the customer only when the committed return date is affected or at risk. An overrunning booking keeps its machine and flags the next bookings on it; entering the result clears it.
   - SF-10-E4: Approved leave or a room-unavailable interval returns overlapping not-started bookings to the plan for head assignment or authorized claiming.
 - **Acceptance criteria:** See [Tester](laboratory_module/features/tester.md), [Head of department](laboratory_module/features/head-of-department.md) and [SH-11](shared.md#sh-11-schedules-and-reminders). Marking a test urgent without a reason is refused. A tester cannot mark another person's task urgent. Running bookings, and bookings the head moved by hand, are never moved by a plan revision. Replanning preserves the accepted way and the bookings sharing a machine interval.
-- **Paths in other flows:** WF-03 owns initial assignment and accepting bookings; SF-05 owns machine faults and service availability; WF-05 owns agreed outsourcing; SF-07 owns changes to the committed return date and internal due dates.
+- **Paths in other flows:** WF-03 owns initial assignment and accepting bookings; SF-05 owns machine faults and service availability; WF-05 owns outsourcing; SF-07 owns changes to the committed return date and internal due dates.
 
 ```mermaid
 flowchart TD
@@ -718,7 +733,7 @@ flowchart TD
     schedule -.->|deadline risk or resource disruption| h4
     h4 --> slot
     h4 --> date
-    h4 --> outsource([WF-05 handles agreed outsourcing])
+    h4 --> outsource([WF-05 handles outsourcing])
 ```
 
 
@@ -746,8 +761,8 @@ flowchart TD
     subgraph lane70 ["Head of department"]
         h1[Create sample raw-data and result folders]
     end
-    subgraph lane71 ["Folder owner and tester"]
-        t1[Add folder members] --> t2[Bind authorized folders in Medilab Sync]
+    subgraph lane71 ["Tester"]
+        t1["[folder owner] Add folder members"] --> t2[Bind authorized folders in Medilab Sync]
         t3[Browse and download permitted files]
     end
     subgraph lane72 ["Administrator"]

@@ -62,7 +62,7 @@ The tables are drawn in [ecommerce.prisma](../../infrastructure/database/ecommer
 | Rule             | Description                                                                                                                                    |
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | Cart             | A customer's or visitor's draft order is their cart. Submitting it puts it in the sales queue; a visitor gives their details and e-mail address first. |
-| Order lines | An order line selects a parameter or whole service package, a sample type and a quantity. It retains the selected or resolved default way for each included parameter. Catalog membership and default changes do not rewrite accepted selections; sample tests use them, and changes require a revised quotation and customer agreement. |
+| Order lines | An order line selects a parameter or whole service package, a sample type and a quantity. It retains the selected or resolved default way for each included parameter. Catalog membership and default changes do not rewrite accepted selections; sample tests use them, and a different method requires a revised quotation and customer agreement. Outsourcing a sample test to a subcontracted way with the same method is internal. |
 | Order lifecycle  | An order is draft, submitted, claimed, confirmed, completed or cancelled. Confirming it creates its test request in the Laboratory module and freezes its content, which then changes only through a revised quotation the customer accepts; it is completed when that request's report is issued. |
 | Quotation lines  | When a quotation is priced, each line copies its catalog price, discount, tax and the tax rate in force on the quotation date, so a sent quotation never changes with the catalog. |
 | Samples | Sampling requirements determine the expected physical samples, containers and amounts shown when ordering. For each type, objects equal the largest line quantity, and expected samples equal objects times compatible sampling groups. Confirming creates these expected samples and their sample tests; collection staff record the actual handover for customer confirmation. Testing stays within the agreed scope: extra samples and excess material add no test. |
@@ -85,6 +85,6 @@ Each actor has its own feature document under `features/<actor>/`, listing the u
 | ----- | ------------------------ | -------- |
 | Customer | Places orders, pays, tracks progress and downloads results | [customer](features/customer.md) |
 | Sales | Claims orders, prepares and sends quotations, confirms orders | [sales](features/sales.md) |
-| Head of Sales | Approves quotations above the thresholds and cancellations of orders whose samples are collected, handles exceptions | Not written yet |
+| Head of Sales | Approves quotations above the thresholds and cancellations of orders whose samples are collected, allows customers to order on credit, handles exceptions | Not written yet |
 | Accountant | Records payments, manages invoices and reports | [accountant](features/accountant.md) |
 | Administrator | Manages accounts, prices, taxes, service packages and settings | [admin](features/admin.md) |
