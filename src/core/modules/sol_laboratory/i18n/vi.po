@@ -15118,3 +15118,24 @@ msgstr "Quyền: parameter.method.sample.type.delete.own_department"
 #: code:addons/sol_laboratory/models/tasks/task.py:0
 msgid "Only the system records who moved a task to another department."
 msgstr "Chỉ hệ thống ghi nhận người đã chuyển nhiệm vụ sang phòng ban khác."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid ""
+"%(parameter)s is tested by %(way)s, the way of testing the customer "
+"accepted; another way needs a revised quotation."
+msgstr ""
+"%(parameter)s được thử bằng %(way)s, cách thử khách hàng đã chấp nhận; muốn "
+"đổi cách thử cần một báo giá sửa đổi."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__accepted_method_id
+msgid "Accepted Way of Testing"
+msgstr "Cách Thử Đã Chấp Nhận"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "The accepted way of testing changes only through a revised quotation."
+msgstr "Cách thử đã chấp nhận chỉ thay đổi qua một báo giá sửa đổi."

@@ -89,6 +89,20 @@ class Catalog(http.Controller):
             line._lock_catalog_price()
         return request.redirect(CART_PATH)
 
+    @http.route("/cart/selection", type="http", auth="public", methods=["POST"])
+    def update_selection(self, line_id, sample_type_id=None, parameter_method_id=None, **kwargs):
+        catalog_lines = self._cart()._catalog_lines()
+        line = (catalog_lines | catalog_lines.linked_line_ids).filtered(lambda item: str(item.id) == line_id)[:1]
+        if not line:
+            return request.redirect(CART_PATH)
+        try:
+            line._set_cart_selection(
+                sample_type_id=self._id(sample_type_id), parameter_method_id=self._id(parameter_method_id)
+            )
+        except UserError as error:
+            return request.redirect(f"{CART_PATH}?error={quote(str(error))}")
+        return request.redirect(CART_PATH)
+
     @http.route("/cart/save", type="http", auth="public", methods=["POST"])
     def save(self, contact_id=None, **kwargs):
         order = self._cart()
@@ -189,6 +203,10 @@ class Catalog(http.Controller):
         except ValueError:
             return records.browse()
         return records.browse(record_id).exists()
+
+    def _id(self, value):
+        # A posted record id, or None when the field was not posted or is not a number.
+        return int(value) if value and value.isdigit() else None
 
     def _quantity(self, value, allow_zero=False):
         try:

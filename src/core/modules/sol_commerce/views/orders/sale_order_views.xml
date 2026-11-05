@@ -241,6 +241,7 @@
             </xpath>
             <xpath expr="//field[@name='order_line']/kanban//main/div[hasclass('text-muted')]" position="after">
                 <div class="text-muted" invisible="not sample_id">Sample: <field name="sample_id" /></div>
+                <div class="text-muted" invisible="not parameter_method_id">Way of testing: <field name="parameter_method_id" /></div>
                 <div class="text-warning" invisible="not default_way_notice"><field name="default_way_notice" /></div>
             </xpath>
             <xpath expr="//list[@name='sol_list']/column[@name='product_and_description']" position="attributes">
@@ -268,7 +269,9 @@
             </xpath>
             <xpath expr="//list[@name='sol_list']/column[@name='product_and_description']" position="after">
                 <field name="sample_id" domain="[('order_id', '=', parent.id)]" options="{'no_create': True}" />
-                <field name="default_way_notice" class="text-warning" optional="show" />
+                <field name="sample_type_id" readonly="sample_id or linked_line_id" options="{'no_create': True}" optional="show" />
+                <field name="offered_method_ids" column_invisible="1" />
+                <field name="parameter_method_id" readonly="not offered_method_ids" options="{'no_create': True}" />
             </xpath>
             <!-- The form of a line, used when the window is narrow, follows the list. -->
             <xpath expr="//field[@name='order_line']/form//label[@for='product_id']" position="attributes">
@@ -283,6 +286,9 @@
             </xpath>
             <xpath expr="//field[@name='order_line']/form/group/group/field[@name='name']" position="after">
                 <field name="sample_id" domain="[('order_id', '=', parent.id)]" options="{'no_create': True}" />
+                <field name="sample_type_id" readonly="sample_id or linked_line_id" options="{'no_create': True}" />
+                <field name="offered_method_ids" invisible="1" />
+                <field name="parameter_method_id" readonly="not offered_method_ids" options="{'no_create': True}" />
                 <field name="default_way_notice" class="text-warning" invisible="not default_way_notice" />
             </xpath>
             <xpath expr="//field[@name='order_line']/form//label[@for='qty_delivered']" position="attributes">

@@ -157,16 +157,17 @@ class TestRequest(models.Model, TestRequestBase):
 
     @api.model
     def _sample_tests_from_lines(self, lines):
-        # A package line carries the parameters of the package; any other line is one parameter.
-        tests = []
+        # A package line carries the parameters of the package; any other line is one parameter. A parameter with an
+        # accepted way of testing is tested by it.
+        parameters = []
         for line in lines:
-            if "parameters" in line:
-                tests.extend(
-                    {"parameter_id": parameter["parameter_id"], "quantity": parameter.get("quantity", 1)}
-                    for parameter in line["parameters"]
-                )
-            else:
-                tests.append({"parameter_id": line["parameter_id"], "quantity": line.get("quantity", 1)})
+            parameters.extend(line.get("parameters", [line]))
+        tests = []
+        for parameter in parameters:
+            test = {"parameter_id": parameter["parameter_id"], "quantity": parameter.get("quantity", 1)}
+            if parameter.get("parameter_method_id"):
+                test["parameter_method_id"] = test["accepted_method_id"] = parameter["parameter_method_id"]
+            tests.append(test)
         return tests
 
     def _credit_blocks_confirmation(self):

@@ -118,6 +118,40 @@
                                     </td>
                                     <td class="text-end text-nowrap" t-out="line.price_unit * line.product_uom_qty" t-options="{'widget': 'monetary', 'display_currency': order.currency_id}" />
                                 </tr>
+                                <tr>
+                                    <td colspan="4" class="border-top-0 pt-0">
+                                        <t t-set="sample_types" t-value="line._sample_type_choices()" />
+                                        <form action="/cart/selection" method="post" class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                                            <input type="hidden" name="line_id" t-att-value="line.id" />
+                                            <label class="form-label mb-0" t-att-for="'sample_type_%s' % line.id">Sample type</label>
+                                            <select name="sample_type_id" t-att-id="'sample_type_%s' % line.id" class="form-select w-auto" onchange="this.form.submit()">
+                                                <option value="" t-att-selected="not line.sample_type_id">Choose a sample type</option>
+                                                <t t-foreach="sample_types" t-as="sample_type">
+                                                    <option t-att-value="sample_type.id" t-att-selected="sample_type == line.sample_type_id" t-out="sample_type.name" />
+                                                </t>
+                                            </select>
+                                            <noscript><button type="submit" class="btn btn-secondary">Apply</button></noscript>
+                                        </form>
+                                        <t t-foreach="line.linked_line_ids or line" t-as="tested">
+                                            <form t-if="tested.sample_type_id" action="/cart/selection" method="post" class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                                                <input type="hidden" name="line_id" t-att-value="tested.id" />
+                                                <label class="form-label mb-0" t-att-for="'way_%s' % tested.id">
+                                                    Way of testing<t t-if="tested.linked_line_id"> for <t t-out="tested.product_id.display_name" /></t>
+                                                </label>
+                                                <select name="parameter_method_id" t-att-id="'way_%s' % tested.id" class="form-select w-auto" onchange="this.form.submit()">
+                                                    <option value="" t-att-selected="not tested.parameter_method_id">Choose a way of testing</option>
+                                                    <t t-foreach="tested.offered_method_ids" t-as="way">
+                                                        <option t-att-value="way.id" t-att-selected="way == tested.parameter_method_id" t-out="way.display_name" />
+                                                    </t>
+                                                </select>
+                                                <noscript><button type="submit" class="btn btn-secondary">Apply</button></noscript>
+                                            </form>
+                                        </t>
+                                        <p t-if="line.default_way_notice" class="text-warning mb-0" t-out="line.default_way_notice" />
+                                    </td>
+                                </tr>
                             </t>
                         </tbody>
                         <tfoot>

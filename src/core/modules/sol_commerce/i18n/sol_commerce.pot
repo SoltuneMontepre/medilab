@@ -6,14 +6,21 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-30 10:44+0000\n"
-"PO-Revision-Date: 2026-10-30 10:44+0000\n"
+"POT-Creation-Date: 2026-11-05 08:56+0000\n"
+"PO-Revision-Date: 2026-11-05 08:56+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_line.py:0
+msgid ""
+"%(item)s is tested on %(sample)s, so its sample type is %(sample_type)s."
+msgstr ""
 
 #. module: sol_commerce
 #. odoo-python
@@ -31,6 +38,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/pricing/tax.py:0
 msgid "%(tax)s has no rate on %(date)s."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_line.py:0
+msgid "%(way)s does not test %(item)s on %(sample_type)s."
 msgstr ""
 
 #. module: sol_commerce
@@ -221,6 +234,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order.py:0
 msgid "A confirmed order cannot be cancelled directly."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_freeze.py:0
+msgid "A confirmed order cannot be changed."
 msgstr ""
 
 #. module: sol_commerce
@@ -686,6 +705,11 @@ msgid "Answered"
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
+msgid "Apply"
+msgstr ""
+
+#. module: sol_commerce
 #: model:medilab.permission,name:sol_commerce.permission_order_template_archive_all
 msgid "Archive order template"
 msgstr ""
@@ -908,6 +932,24 @@ msgid "Choose a parameter or package from the catalog."
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
+msgid "Choose a sample type"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
+msgid "Choose a way of testing"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_line.py:0
+msgid ""
+"Choose a way of testing for these items before sending the quotation:\n"
+"%s"
+msgstr ""
+
+#. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/order_template.py:0
 msgid "Choose an active customer belonging to the source order."
@@ -918,6 +960,18 @@ msgstr ""
 #: code:addons/sol_commerce/models/orders/sale_order_advance.py:0
 msgid ""
 "Choose how the advance is paid, or no advance, before sending the quotation."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_line.py:0
+msgid "Choose one of the sample types offered for %s."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_line.py:0
+msgid "Choose one of the ways of testing offered for %s."
 msgstr ""
 
 #. module: sol_commerce
@@ -1043,9 +1097,14 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_cash_flow_report__status__confirmed
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__order_status__confirmed
-#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_search
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__pipeline_stage__confirmed
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_search
 msgid "Confirmed"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__confirmed_at
+msgid "Confirmed At"
 msgstr ""
 
 #. module: sol_commerce
@@ -1343,6 +1402,11 @@ msgid ""
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__days_to_confirmation
+msgid "Days to Confirmation"
+msgstr ""
+
+#. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__days_to_payment
 msgid "Days to Payment"
 msgstr ""
@@ -1393,6 +1457,11 @@ msgstr ""
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
 msgid "Default"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__default_way_notice
+msgid "Default Way"
 msgstr ""
 
 #. module: sol_commerce
@@ -2321,6 +2390,11 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields,help:sol_commerce.field_medilab_support_request__message_has_error_counter
 msgid "Number of messages with delivery error"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__offered_method_ids
+msgid "Offered Ways of Testing"
 msgstr ""
 
 #. module: sol_commerce
@@ -3525,10 +3599,12 @@ msgstr ""
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_sample__sample_type_id
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__sample_type_id
 msgid "Sample Type"
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_page
 msgid "Sample type"
 msgstr ""
@@ -3957,6 +4033,12 @@ msgstr ""
 
 #. module: sol_commerce
 #. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid "The order must be confirmed before the samples are collected."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_task.py:0
 msgid "The order's salesperson changed."
 msgstr ""
@@ -4036,6 +4118,14 @@ msgstr ""
 
 #. module: sol_commerce
 #. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid ""
+"The samples of this order are collected, so cancelling it needs a change "
+"request the Head of Sales approves."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
 #: code:addons/sol_commerce/models/orders/order_template.py:0
 msgid "The source order is not available."
 msgstr ""
@@ -4062,6 +4152,14 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order.py:0
 msgid "These items are no longer in the catalog and were left out: %s"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_line.py:0
+msgid ""
+"These ways of testing can no longer be offered; choose another before sending the quotation:\n"
+"%s"
 msgstr ""
 
 #. module: sol_commerce
@@ -4294,7 +4392,18 @@ msgstr ""
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_subcontract_cost__parameter_method_id
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__parameter_method_id
 msgid "Way of Testing"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
+msgid "Way of testing"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Way of testing:"
 msgstr ""
 
 #. module: sol_commerce
@@ -4337,6 +4446,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/support/support_request.py:0
 msgid "You are not registered as a customer yet. Contact the laboratory."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "You cannot cancel a locked order. Please unlock it first."
 msgstr ""
 
 #. module: sol_commerce
@@ -4427,6 +4542,11 @@ msgid "Your tax code is registered. Contact the laboratory to change it."
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
+msgid "for"
+msgstr ""
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.support_page
 msgid "if you need more help."
 msgstr ""
@@ -4444,41 +4564,6 @@ msgstr ""
 
 #. module: sol_commerce
 #. odoo-python
-#: code:addons/sol_commerce/models/orders/sale_order_freeze.py:0
-msgid "A confirmed order cannot be changed."
-msgstr ""
-
-#. module: sol_commerce
-#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__confirmed_at
-msgid "Confirmed At"
-msgstr ""
-
-#. module: sol_commerce
-#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__days_to_confirmation
-msgid "Days to Confirmation"
-msgstr ""
-
-#. module: sol_commerce
-#. odoo-python
-#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
-msgid "The order must be confirmed before the samples are collected."
-msgstr ""
-
-#. module: sol_commerce
-#. odoo-python
-#: code:addons/sol_commerce/models/orders/sale_order.py:0
-msgid ""
-"The samples of this order are collected, so cancelling it needs a change "
-"request the Head of Sales approves."
-msgstr ""
-
-#. module: sol_commerce
-#. odoo-python
-#: code:addons/sol_commerce/models/orders/sale_order.py:0
-msgid "You cannot cancel a locked order. Please unlock it first."
-msgstr ""
-
-#. module: sol_commerce
-#: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__default_way_notice
-msgid "Default Way"
+#: code:addons/sol_commerce/models/orders/sale_order_line.py:0
+msgid "no sample type"
 msgstr ""
