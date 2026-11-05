@@ -151,11 +151,12 @@ $a=Get-Acl -LiteralPath $p
 $id=New-Object Security.Principal.SecurityIdentifier($env:TEST_ACL_SID)
 $r=New-Object Security.AccessControl.FileSystemAccessRule($id,$env:TEST_ACL_RIGHT,'None','None','Allow')
 $a.AddAccessRule($r)
-Set-Acl -LiteralPath $p -AclObject $a
+(Get-Item -LiteralPath $p -Force).SetAccessControl($a)
 """
         for sid, right, allowed in (
             ("S-1-5-32-545", "ReadAndExecute", True),
             ("S-1-5-32-544", "FullControl", True),
+            ("S-1-3-4", "FullControl", True),
             ("S-1-5-32-545", "WriteData", False),
             ("S-1-5-32-545", "ChangePermissions", False),
             ("S-1-5-32-545", "TakeOwnership", False),
@@ -207,7 +208,7 @@ $u=[Security.Principal.WindowsIdentity]::GetCurrent().User.Value
 $a=Get-Acl -LiteralPath $p
 $sddl="D:P(A;;FA;;;$u)(A;;FA;;;SY)(A;;$($env:TEST_ACL_SDDL_RIGHT);;;BU)"
 $a.SetSecurityDescriptorSddlForm($sddl,[Security.AccessControl.AccessControlSections]::Access)
-Set-Acl -LiteralPath $p -AclObject $a
+(Get-Item -LiteralPath $p -Force).SetAccessControl($a)
 """
         for right, allowed in (
             ("GW", False),
