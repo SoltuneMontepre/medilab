@@ -5,7 +5,7 @@ diagram of flows-work-of-tuyen, with its Workflow and Demo scenarios pages; a su
 generated diagram of ../flows. Titles come from the headings of business-flows.md, and the flows each one comes
 from and leads to come from the lines of the map.
 ../final holds each diagram of the website as draw.io and SVG, and PNG for the core flows, named with its title;
-activity-diagrams-final.pdf holds them all, one page per diagram page, with a bookmark for each flow.
+activity-diagrams-final.pdf holds the map and the Workflow page of each flow, with a bookmark for each.
 Run: uv run --with pypdf python build.py, then deploy the folder with: vercel deploy --prod
 """
 
@@ -103,9 +103,15 @@ def for_web(svg_text):
 
 
 def export_page(source, number, out):
+    """Export one page to SVG; draw.io names each export with a random id, which is replaced by the file's name so
+    that an unchanged page exports the same file."""
     subprocess.run([drawio(), "-x", "-f", "svg", "-p", str(number), "-o", str(out), str(source)],
                    check=True, capture_output=True)
-    out.write_text(for_web(out.read_text(encoding="utf-8")), encoding="utf-8")
+    text = for_web(out.read_text(encoding="utf-8"))
+    random_id = re.search(r'id="(ge-svg-[^"]+)"', text)
+    if random_id:
+        text = text.replace(random_id.group(1), f"ge-svg-{out.stem}")
+    out.write_text(text, encoding="utf-8")
 
 
 def copy_svg(source, out):
@@ -318,31 +324,31 @@ def write_final(names, views):
 
 
 def write_pdf(names, views):
-    """Join the draw.io files of ../final into one PDF, with bookmarks for the map, each flow and each of its pages."""
+    """Join the draw.io files of ../final into one PDF, with a bookmark for the map and each flow. A core flow gives
+    only its Workflow page; its Demo scenarios stay in ../final and on the website."""
     from pypdf import PdfWriter
 
     writer = PdfWriter()
     with tempfile.TemporaryDirectory() as tmp:
-        def append(source):
+        def append(source, page):
             out = Path(tmp) / f"{len(writer.pages)}.pdf"
-            subprocess.run([drawio(), "-x", "-f", "pdf", "-a", "--crop", "-b", "16", "-o", str(out), str(source)],
-                           check=True, capture_output=True)
+            subprocess.run([drawio(), "-x", "-f", "pdf", "-p", str(page), "--crop", "-b", "16", "-o", str(out),
+                            str(source)], check=True, capture_output=True)
             start = len(writer.pages)
             writer.append(str(out))
             return start
 
-        writer.add_outline_item("System activity map", append(FINAL / "System activity map.drawio"))
+        writer.add_outline_item("System activity map", append(FINAL / "System activity map.drawio", 1))
         groups = {}
         for fid, title in names.items():
             folder = "Core flows" if fid.startswith("WF") else "Supporting flows"
             name = f"{fid} {title}"
-            start = append(FINAL / folder / f"{name}.drawio")
+            labels = [label for label, _ in views[fid]]
+            page = labels.index("Workflow") + 1 if "Workflow" in labels else 1
+            start = append(FINAL / folder / f"{name}.drawio", page)
             if folder not in groups:
                 groups[folder] = writer.add_outline_item(folder, start)
-            item = writer.add_outline_item(name, start, parent=groups[folder])
-            if len(views[fid]) > 1:
-                for offset, (label, _) in enumerate(views[fid]):
-                    writer.add_outline_item(label, start + offset, parent=item)
+            writer.add_outline_item(name, start, parent=groups[folder])
     writer.add_metadata({"/Title": "Medilab activity diagrams"})
     writer.page_mode = "/UseOutlines"
     with FINAL_PDF.open("wb") as file:
