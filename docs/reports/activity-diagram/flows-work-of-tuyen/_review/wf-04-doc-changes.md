@@ -26,7 +26,7 @@ Những điểm sơ đồ `[Flow] WF-04 Result entry and approval.drawio` đã �
 
 ## Báo trưởng bộ phận khi kết quả được gửi
 
-- **Sơ đồ thể hiện:** sau "Sign and send" và "Close testing task", System gửi "✉ Notify head", rồi trưởng bộ phận "Review result, including own entry".
+- **Sơ đồ thể hiện:** sau "Sign and send" và "Close testing task", System gửi "✉ Notify head", rồi trưởng bộ phận "Review result".
 - **Phần tài liệu liên quan:** Main path ("then sends and signs the result for Head of Department approval; submitting it completes the testing task") và mermaid (`t5 --> h1`).
 - **Câu chữ mới:**
   - Main path: "… then sends and signs the result for Head of Department approval, and the head is notified; submitting it completes the testing task."
