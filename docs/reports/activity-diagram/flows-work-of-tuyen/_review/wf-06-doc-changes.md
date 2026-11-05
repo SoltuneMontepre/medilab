@@ -29,11 +29,31 @@ Những điểm của sơ đồ `[Flow] WF-06 Report signing, release and delive
 ## 3. Các bước của hệ thống và đường giao báo cáo trong mermaid
 
 - **Sơ đồ thể hiện:**
-  - Ở đầu luồng, hệ thống "Create draft report" rồi "✉ Notify lab head", trước khi Lab Head sửa bản nháp.
+  - Ở đầu luồng, hệ thống "Create draft report", chuẩn bị PDF (mục 4) rồi "✉ Notify lab head", trước khi Lab Head xem báo cáo.
   - Sau khi phát hành, hệ thống "✉ Notify customer". Từ đó luồng tách hai nhánh: khách "Download report", nhân viên giao "Record delivery".
   - Sau "Record delivery", quyết định "Delivered by e-mail?": yes thì hệ thống "✉ Email report PDF", no thì không gửi e-mail. Cả hai cùng kết thúc ở "Report delivered".
 - **Phần liên quan:** mermaid của WF-06. Câu chữ đã khớp: Trigger ("the system creates the draft report and a signing task for the lab head"), Main path ("enables delivery and customer notification"), WF-06-A1, và dòng *Delivery* của `laboratory_module/features/sample-delivery-staff.md` ("A report sent by email is emailed to its recipient from the system"). Riêng mermaid chưa có các bước này, và đang vẽ giao trước rồi mới ghi nhận (`d1[Deliver in person, by post or by e-mail] --> d2[Record the delivery]`).
 - **Câu chữ mới cho mermaid:**
-  - Đầu luồng: `draft[Create the draft report] --> notifyLab[Notify the lab head] --> p1`, đặt ngoài các lane như các bước khác của hệ thống.
+  - Đầu luồng: `draft[Create the draft report] --> prepare[Validate data, reserve number and prepare PDF] --> notifyLab[Notify the lab head] --> l1`, đặt ngoài các lane như các bước khác của hệ thống (thay `p1` và `p2`, xem mục 4).
   - Thay `issued --> c1` và `issued --> d1` bằng `issued --> notifyCustomer[Notify the customer]`, `notifyCustomer --> c2`, `notifyCustomer --> d2`.
   - Bỏ `c1[Notified that the report is issued]` và `d1[Deliver in person, by post or by e-mail]`. Thêm `d2 --> email{Delivered by e-mail?}`, `email -->|yes| send[E-mail the report PDF]`.
+
+## 4. Báo cáo chỉ đọc: không ai sửa bản nháp
+
+- **Sơ đồ thể hiện:** hệ thống "Create draft report" rồi tự "Validate data, reserve number and prepare PDF", sau đó "✉ Notify lab head". Lab Head "Review report" chỉ xem, không có bước sửa bản nháp trong ONLYOFFICE và không có quyền sửa báo cáo. Trang Demo scenarios (DS-06a) đi cùng thứ tự này.
+- **Phần liên quan:**
+  - Main path của WF-06: "The Lab Head, through the report edit permission, prepares layout and explanatory text in ONLYOFFICE, finishes saving and prepares the PDF with its reserved number."
+  - WF-06-A5: "Editing an unsigned draft or choosing a different available template invalidates its prepared PDF and requires fresh review. …"
+  - WF-06-E4: "A pending or failed save, editing conflict, business-data mismatch or conversion outage blocks preparation. The Lab Head resolves the save, content or service problem, … An unchanged prepared candidate can proceed without reopening ONLYOFFICE, …"
+  - Mermaid của WF-06: `p1["[report edit permission] Edit the DOCX draft in ONLYOFFICE"] --> p2[Finish saves, validate data, reserve number and prepare PDF]` trong lane Lab head.
+  - `laboratory_module/features/lab-head.md`: các dòng *Authoring*, *Review and freeze*, *Draft correction*, và các tiêu chí chấp nhận về người sửa báo cáo, bản nháp chưa lưu và việc sửa làm mất hiệu lực PDF.
+  - `docs/specs/test-reports.md`: đoạn mở đầu ("authorized editors prepare it in the browser"), quyền "Editing a report draft requires permission to edit test reports", bước "Edit a draft version in ONLYOFFICE…" và quy tắc khi trình soạn thảo không dùng được.
+- **Câu chữ mới:**
+  - Main path: "MediLab fills the draft from an available template version and approved business data, validates it and prepares the read-only PDF with its reserved number. The Lab Head reviews that PDF, its approved results and any requested regulation basis, then gives final internal approval. …"
+  - WF-06-A5: "Choosing a different available template prepares a new PDF and requires fresh review. A draft with signatures must first follow the permitted withdrawal order."
+  - WF-06-E4: "A business-data mismatch or conversion outage blocks preparation. Once it is resolved, MediLab prepares a new PDF and the Lab Head reviews it again. An outage does not block delivery of an already issued PDF."
+  - Mermaid: bỏ `p1` và `p2` khỏi lane Lab head; xem câu mermaid đầu luồng ở mục 3.
+- **Cần quyết khi sửa tài liệu:**
+  - Ai chọn một phiên bản mẫu khác (WF-06-A5) khi không còn ai sửa bản nháp.
+  - Bỏ hẳn quyền sửa báo cáo và việc dùng ONLYOFFICE cho báo cáo, hay chỉ giữ ONLYOFFICE cho việc soạn mẫu báo cáo của quản trị viên (SF-08-A5, không bị ảnh hưởng).
+  - Lời giải thích trong báo cáo (explanatory text) do ai nhập, nếu báo cáo chỉ lấy từ mẫu và dữ liệu đã duyệt.
