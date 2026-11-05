@@ -101,7 +101,7 @@ stateDiagram-v2
 | Samples | Each line names its sample type and quantity. Expected physical samples, containers and amounts are calculated from the methods' sampling requirements and shown to the customer. The customer does not declare physical samples. Collection staff record the actual handover and obtain customer confirmation; testing stays within the agreed scope. |
 | Prices | Use catalog prices per parameter or package in VND. Discounts are percentages only: on a line, or a whole-quotation discount line calculated from a percentage. Fixed-amount discounts and separate customer price lists are not offered. |
 | Quotation approval | If the quotation discount or total exceeds a threshold set by the Head of Sales, their approval is required before Send. Below the thresholds Sales may send it alone. This is the only approval of an order; a confirmed order needs none. |
-| Selected ways | The customer may choose each parameter's way, and Sales may choose or change it before acceptance. Otherwise fill the unique default for the parameter and sample type. Offer only viable ways under the [catalog rules](../../laboratory_module/features/admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28). If the default is unavailable, show its reason and alternatives for explicit selection; with none, that pair cannot be ordered. After acceptance, a way changes only through a revised quotation and customer agreement. |
+| Selected ways | The customer may choose each parameter's way, and Sales may choose or change it before acceptance. Otherwise fill the unique default for the parameter and sample type. Offer only viable ways under the [catalog rules](../../laboratory_module/features/admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28). If the default is unavailable, show its reason and alternatives for explicit selection; with none, that pair cannot be ordered. After acceptance, a method changes only through a revised quotation and customer agreement; outsourcing to a subcontracted way with the same method is internal. The quotation shows each way by its method, never its performing party. |
 | Tax              | Each line takes the tax of its parameter or package, at the rate in force on the quotation date. Sales can change a line's tax, such as 0% for a foreign customer. The system adds the tax. |
 | Advance payment  | When sending, sales chooses the collection method (online, bank transfer, cash) and the amount (full, percentage, fixed). The system creates the advance invoice and sends it with the quotation. The invoice and the notice to the customer are written in the customer's language. |
 | Manager shortcut | The Head of Sales can send without an advance payment, for customers with an agreement.                                                                                                           |
@@ -122,7 +122,8 @@ Acceptance criteria:
 - Changing catalog defaults, package prices or package membership does not rewrite a sent quotation or an accepted order; sample tests use the retained selections.
 - Send is blocked above the Head of Sales's thresholds until they approve; below them Sales can send alone.
 - An unavailable default is explained and is never silently replaced.
-- An accepted way cannot be edited directly; its replacement needs a revised quotation and customer agreement.
+- An accepted way cannot be edited directly; a different method needs a revised quotation and customer agreement.
+- A quotation never names a subcontractor or shows that a test is outsourced.
 - A proposed later return date does not overwrite the committed return date before the customer agrees.
 - The customer sees the requested and committed dates and no internal due date.
 - Sending a quotation with an advance request creates exactly one advance invoice and one notification to the customer.
@@ -179,7 +180,7 @@ stateDiagram-v2
 | Agreed scope   | Testing stays within the agreed scope. Extra samples and excess material add no test and change no order; they stay with the sample and are [returned](../../laboratory_module/features/sample-delivery-staff.md#5-returning-samples-us-sd15) only when the customer asks. |
 | Confirm        | Confirming does not wait for payment. An order with no payment shows a warning, because the customer may have an agreement. A confirmed order needs no approval. |
 | Credit gate    | The laboratory core cannot confirm the test request of an order until its advance is paid in full, unless the customer is marked as allowed to order on credit. A payment sales records counts once the accountant confirms it. Only the Head of Sales sets that flag. |
-| Frozen content | From confirmation, the order's customer, prices, validity date, parameters and ways change only through a revised quotation the customer accepts. Once the order is completed, a [change request](../../shared.md#sh-07-signed-documents-are-locked) is needed. |
+| Frozen content | From confirmation, the order's customer, prices, validity date, parameters and methods change only through a revised quotation the customer accepts. Once the order is completed, a [change request](../../shared.md#sh-07-signed-documents-are-locked) is needed. |
 | Collection     | **Start sample collection** is available once the order is confirmed. It queues one sample collection task of the order's test request for sample delivery staff, at the customer's address; they claim it and plan its time. An order has at most one open collection task. |
 
 Acceptance criteria:

@@ -69,7 +69,7 @@ For example, GC-01 has two 4-hour intervals on Wednesday. Z holds the morning an
 
 ### Feasibility check
 
-The feasibility check only reads: it simulates in-house resources and outsourced turnaround, including transport and processing, and moves or reserves nothing. The latest branch finish plus the safety margin gives the return estimate. A missing outsourced turnaround marks the estimate incomplete. The check explains infeasibility and gives the earliest feasible date. A date the head keeps despite infeasibility stays flagged at risk and implies no reserved resources. While Sales waits for the customer's agreement to a changed date or way, the sample test is flagged at risk and keeps its accepted way; nothing is booked on an unapproved way or subcontractor.
+The feasibility check only reads: it simulates in-house resources and outsourced turnaround, including transport and processing, and moves or reserves nothing. The latest branch finish plus the safety margin gives the return estimate. A missing outsourced turnaround marks the estimate incomplete. The check explains infeasibility and gives the earliest feasible date. A date the head keeps despite infeasibility stays flagged at risk and implies no reserved resources. While Sales waits for the customer's agreement to a changed date or method, the sample test is flagged at risk and keeps its accepted way; nothing is booked on an unapproved method.
 
 ### Interruptions
 
