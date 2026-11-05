@@ -61,6 +61,12 @@ msgid "Invoice posting"
 msgstr "Phát hành hóa đơn"
 
 #. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/sale_advance_payment_inv.py:0
+msgid "Invoices are created only from confirmed orders."
+msgstr "Hóa đơn chỉ được tạo từ đơn hàng đã xác nhận."
+
+#. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_mail_message
 msgid "Message"
 msgstr "Tin nhắn"
@@ -1406,6 +1412,21 @@ msgid "Pay the advance before"
 msgstr "Thanh toán tạm ứng trước"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+msgid "Pay the advance"
+msgstr "Thanh toán tạm ứng"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+msgid "Advance invoice"
+msgstr "Hóa đơn tạm ứng"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+msgid "is paid."
+msgstr "đã được thanh toán."
+
+#. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/quotation.py:0
 msgid "Pay the advance invoice to accept this quotation."
@@ -1992,8 +2013,8 @@ msgstr "Yêu Cầu Thử Nghiệm"
 #: code:addons/sol_commerce/models/orders/sale_order.py:0
 msgid ""
 "Testing is completed or results are released, so this order cannot be "
-"cancelled. The laboratory will contact you."
-msgstr "Việc thử nghiệm đã hoàn tất hoặc kết quả đã được phát hành nên đơn hàng không hủy được. Phòng thí nghiệm sẽ liên hệ với bạn."
+"cancelled."
+msgstr "Việc thử nghiệm đã hoàn tất hoặc kết quả đã được phát hành nên đơn hàng không hủy được."
 
 #. module: sol_commerce
 #. odoo-python
@@ -4378,6 +4399,21 @@ msgid ""
 msgstr ""
 "Khách hàng của đơn hàng gốc đã thay đổi. Không thể dùng lại đơn hàng mẫu "
 "này. Hãy lưu trữ hoặc xóa rồi lưu đơn hàng mẫu mới từ đơn hàng phù hợp."
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_order_invoice_all
+msgid "Create invoices"
+msgstr "Tạo hóa đơn"
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_sale_advance_payment_inv
+msgid "Sales Advance Payment Invoice"
+msgstr "Hoá đơn tạm ứng bán hàng"
+
+#. module: sol_commerce
+#: model:ir.actions.act_window,name:sol_commerce.action_create_invoice
+msgid "Create invoice"
+msgstr "Tạo hóa đơn"
 
 #. module: sol_commerce
 #. odoo-python
