@@ -66,6 +66,7 @@
 ## Testing and results
 
 - **Subcontractor accreditation lapsing.** What happens when the subcontractor of an accepted quotation loses its accreditation before the dispatch? Proposed answer, not decided: as for a machine fault, no dispatch is made; the laboratory waits for the renewal, or sales tells the customer and the way of testing changes only through a revised quotation.
+- **Correcting a rejected result.** A rejected result opens a new testing task for the same sample test "for a correction or a new measurement" ([Tester](../docs/functional/laboratory_module/features/tester.md#2-results-us-t05-to-us-t09-us-t17-us-t18-us-t22)), but the [Laboratory overview](../docs/functional/laboratory_module/overview.md) and WF-04-E1 only describe a retest: a new result with a new booking. When the head rejects a result for a mistake in the entered data, such as a wrong unit or a typo, does the tester enter a corrected result from the same measurement, and does that result belong to the rejected result's booking? Or is every rejected result measured again in a new booking? For now WF-04 describes only the retest. (US-HD08, US-T05)
 - **Machines and departments.** Which department manages a machine and its bookings? Proposed answer, not decided: a machine names the department that manages it, so department permissions apply to it and its bookings.
 
 ## Reports and laboratory files

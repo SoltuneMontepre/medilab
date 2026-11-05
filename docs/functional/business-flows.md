@@ -19,7 +19,7 @@ The core flows WF-01 to WF-06 carry a test request from order to report. The sup
 | SF-05 | Machine calibration and unavailability  | Administrator, Head of department, Tester                       |
 | SF-06 | Accreditation and registration renewal  | Administrator                                                   |
 | SF-07 | Result dates and priority orders        | Customer, Sales, Head of department                            |
-| SF-08 | Laboratory setup                        | Administrator                                                   |
+| SF-08 | Laboratory setup                        | Administrator, Lab head                                         |
 | SF-09 | Customer support and feedback           | Customer, Sales                                                 |
 | SF-10 | Scheduling plan and revisions           | Tester, Head of department, Sales                              |
 | SF-11 | Laboratory file administration          | Head of department, Tester, Administrator                      |
@@ -28,7 +28,7 @@ The core flows WF-01 to WF-06 carry a test request from order to report. The sup
 
 - **Trigger:** a customer submits a cart on the portal, or sales creates an order for a customer.
 - **Result:** the order and its test request are confirmed, with expected samples and their selected ways calculated from the accepted order and sampling requirements, and sample collection can start.
-- **Stories:** US-C08, US-C09, US-C13, US-C14, US-C15, US-S01, US-S02, US-S05, US-S06, US-S07, US-S08, US-S10, US-S12, US-S15, US-A03, US-A06, US-A08.
+- **Stories:** US-C08, US-C09, US-C10, US-C13, US-C14, US-C15, US-S01, US-S02, US-S05, US-S06, US-S07, US-S08, US-S09, US-S10, US-S12, US-S15, US-A03, US-A06, US-A08.
 - **States:** quotation draft → sent → accepted; order submitted → claimed → confirmed; test request draft → confirmed → paid.
 - **Starts from:** a catalog with priced parameters and packages, and demo customers.
 - **Main path:** A customer orders on the portal; sales claims it, confirms the selected ways and expected sampling needs, obtains Head of Sales approval if its discount or total exceeds a configured threshold, and sends it with an advance; the customer pays online; sales confirms the order, and sample collection can start.
@@ -138,17 +138,21 @@ flowchart TD
 flowchart TD
     subgraph lane8 ["Head of department"]
         h1[Assign an authorized person]
+        h4[Accept the proposed booking for the tester]
         h2[Review risk and feasible alternatives]
         h3[Record planned OverTime with a reason]
     end
     subgraph lane9 ["Tester"]
         t1[Claim an authorized department task]
         t2[View the proposed booking for the agreed way] --> t3{Feasible booking within capacity?}
-        t3 -->|yes| t4[Accept: reserve tester, locations and machine if needed]
-        t4 --> t5[Receive reminder and measure]
+        t3 -->|yes| t4[Accept the proposed booking]
+        t5[Receive reminder and measure]
     end
     queue([Department queue]) --> h1 --> t2
     queue --> t1 --> t2
+    t3 -->|yes, the head accepts| h4
+    t4 --> reserve[Reserve tester, required locations and machine if needed together]
+    h4 --> reserve --> t5
     t3 -->|no| h2
     h2 --> h3 --> t2
     h2 --> dates([SF-07 agrees a feasible customer date])
@@ -276,7 +280,7 @@ flowchart TD
   - WF-06-E3: A regulation expires during testing: testing continues, but before issue the Lab Head confirms the comparison basis. Sales obtains customer agreement for a changed scope; no regulation is switched or dropped automatically.
   - WF-06-E4: A pending or failed save, editing conflict, business-data mismatch or conversion outage blocks preparation. Editors resolve the save, content or service problem, prepare a new PDF and obtain fresh review. An unchanged prepared candidate can proceed without reopening ONLYOFFICE, and an outage does not block delivery of an already issued PDF.
 - **Acceptance criteria:** See [Lab head](laboratory_module/features/lab-head.md), [Test reports](../specs/test-reports.md) and [Digital signing](../specs/digital-signing.md). Rejecting a report without a reason or without naming a result is refused. An unissued report cannot be delivered, and a customer downloads only their own reports. Final internal approval does not issue a report whose required digital signature is pending or failed. No customer notification, download, delivery or replacement of an earlier report occurs before issue. The full order lifecycle runs from the portal through reception, testing and approval to the issued report.
-- **Paths in other flows:** SF-03 for correcting results in an initial or replacement report and for a change request on an issued report; SF-04 for samples after issue.
+- **Paths in other flows:** SF-03 for correcting results in an initial or replacement report and for a change request on an issued report; SF-04 for samples after issue; SF-08 for report template versions.
 
 ```mermaid
 flowchart TD
@@ -514,6 +518,7 @@ flowchart TD
     other -->|no| h2 --> wait[Stay unplaced; Sales handles customer impact]
     a2 --> fit{All booking conditions satisfied?}
     fit -->|yes| available[Machine can be booked]
+    fit -->|no| blocked[No new booking until every condition is satisfied] --> a2
 ```
 
 ## SF-06 Accreditation and registration renewal
@@ -601,8 +606,9 @@ flowchart TD
 ## SF-08 Laboratory setup
 
 - **Trigger:** a laboratory starts using MediLab, or its catalog, people or rules change.
-- **Result:** everything an order needs exists: the catalog with its ways of testing, prices and taxes, people and roles, approval chains and settings.
-- **Stories:** US-AD01, US-AD02, US-AD03, US-AD04, US-AD05, US-AD06, US-AD07, US-AD09, US-AD10, US-AD11, US-AD13, US-AD14, US-AD15, US-AD16, US-AD17, US-AD18, US-AD19, US-AD20, US-AD26, US-AD27, US-LH04, SH-03.
+- **Result:** everything an order and its report need exists: the catalog with its ways of testing, prices and taxes, people and roles, approval chains, available report templates and settings.
+- **Stories:** US-AD01, US-AD02, US-AD03, US-AD04, US-AD05, US-AD06, US-AD07, US-AD09, US-AD10, US-AD11, US-AD13, US-AD14, US-AD15, US-AD16, US-AD17, US-AD18, US-AD19, US-AD20, US-AD26, US-AD27, US-AD36, US-LH04, SH-03.
+- **States:** report template version draft → available → archived.
 - **Starts from:** an empty laboratory with the modules installed.
 - **Main path:** The administrator configures parameters, ways, explicit sample-type applicability, sampling requirements and prices. The Lab Head authorizes testers per parameter without validity dates. Regulation comparison limits are optional; the measurement-to-report flow works without them.
 - **Alternative paths:**
@@ -610,7 +616,8 @@ flowchart TD
   - SF-08-A2: The administrator gives a person a role; the person sees the menus of that role and no others.
   - SF-08-A3: A VAT rate changes from a date; quotations dated after it use the new rate.
   - SF-08-A4: The administrator sets the approval chain of a document type; its documents are signed level by level.
-- **Acceptance criteria:** See [Administrator](laboratory_module/features/admin.md). A parameter without a price and tax cannot be added to a cart. Archiving a record still in use is refused with the list of what uses it. A code that already exists is refused.
+  - SF-08-A5: The administrator edits a report template version in ONLYOFFICE, previews it with its data bindings and makes it available for its language. Editing an available version creates a new draft, and archiving a version stops new drafts from using it; reports already made keep their exact version.
+- **Acceptance criteria:** See [Administrator](laboratory_module/features/admin.md) and [Test reports](../specs/test-reports.md). A parameter without a price and tax cannot be added to a cart. Archiving a record still in use is refused with the list of what uses it. A code that already exists is refused. A template version missing required data bindings cannot be made available.
 
 ```mermaid
 flowchart TD
@@ -622,6 +629,7 @@ flowchart TD
         a3 -.-> optional[Optional regulations and limits per parameter and sample type]
         a6[People, roles and approval chains]
         a9[Settings: deadlines, travel buffer and warning windows]
+        a10[Report templates: edit, preview and make versions available]
     end
     subgraph lane45 ["Lab Head"]
         l1[Authorize each tester's parameters without expiry]
@@ -631,22 +639,25 @@ flowchart TD
     a5 --> ready
     l1 --> ready
     a9 --> ready
+    a10 --> ready
 ```
 
 ## SF-09 Customer support and feedback
 
-- **Trigger:** a customer registers, or contacts the laboratory through the portal.
-- **Result:** the customer's account and contacts are kept, their questions are answered, and a completed order can be rated.
-- **Stories:** US-C01, US-C02, US-C03, US-C04, US-C05, US-C06, US-C20, US-C21, US-S03, US-S04, US-S20.
-- **States:** support request open → answered → closed; order completed → rated.
-- **Starts from:** registered customers with completed and open orders.
+- **Trigger:** a customer registers, contacts the laboratory through the portal, or a mandatory e-mail to them bounces.
+- **Result:** the customer's account and contacts are kept, their questions are answered, a completed order can be rated, and a customer whose mandatory e-mail bounced still gets the notice.
+- **Stories:** US-C01, US-C02, US-C03, US-C04, US-C05, US-C06, US-C20, US-C21, US-S03, US-S04, US-S20, US-S24.
+- **States:** support request open → answered → closed; order completed → rated; e-mail address bounced → corrected → confirmed.
+- **Starts from:** registered customers with completed and open orders, one of them with an e-mail address that bounces.
 - **Main path:** A customer opens a support request about an order; the order's salesperson answers; the request is answered and the customer notified.
 - **Alternative paths:**
   - SF-09-A1: A support request about no order is visible to every salesperson until one takes it.
   - SF-09-A2: A customer registers, keeps their profile and contacts, and uploads a logo.
   - SF-09-A3: Sales invites a customer to the portal and merges a duplicate profile.
   - SF-09-A4: The customer rates a completed order.
-- **Acceptance criteria:** See [Customer](ecommerce_module/features/customer.md) and [Sales](ecommerce_module/features/sales.md). Rating an order that is not completed, or rating it twice, is refused. Another customer never sees the customer's support requests or feedback.
+- **Exceptions:**
+  - SF-09-E1: A mandatory e-mail bounces for good. The notice stays in the portal, and the salesperson of the order it is about, or the Sales queue, gets a task to contact the customer. The salesperson corrects the address; e-mails resume once the customer opens the confirmation link sent to it. The task is done when the customer sees the notice or the salesperson records how they reached the customer.
+- **Acceptance criteria:** See [Customer](ecommerce_module/features/customer.md), [Sales](ecommerce_module/features/sales.md) and [SH-11](shared.md#sh-11-schedules-and-reminders). Rating an order that is not completed, or rating it twice, is refused. Another customer never sees the customer's support requests or feedback. No automatic e-mail goes to a bounced or corrected address before the customer opens its confirmation link.
 
 ```mermaid
 flowchart TD
@@ -655,16 +666,20 @@ flowchart TD
         c3[Open a support request, optionally about an order]
         c4[Read the answer]
         c5[Rate a completed order once]
+        c6[Open the confirmation link sent to the corrected address]
     end
     subgraph lane37 ["Sales"]
         s1[Invite the customer and merge duplicate profiles]
         s2["Take the request: the order's salesperson, or anyone for no order"]
         s3[Answer]
+        s4["Contact task: the order's salesperson, or the Sales queue"] --> s5[Reach the customer and correct the address]
     end
     s1 --> c1
     c3 --> s2 --> s3 --> c4
     c4 --> closed([Request closed])
     c5 --> rated([Feedback visible to sales and management])
+    bounce(["Mandatory e-mail bounces; the notice stays in the portal"]) --> s4
+    s5 --> c6 --> resumed([E-mails resume to the confirmed address])
 ```
 
 ## SF-10 Scheduling plan and revisions
