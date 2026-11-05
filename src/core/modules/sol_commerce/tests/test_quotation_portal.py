@@ -54,7 +54,7 @@ class TestQuotationPortal(AuditLookup, HttpCase, OrderCase):
 
         self.assertIn(advance.name, response.text)
         self.assertIn("Pay the advance</a>", response.text)
-        link = re.search(r'href="([^"]*)"[^>]*>Pay the advance</a>', response.text)
+        link = re.search(r'href="([^"]*)"[^>]*>(?:<i [^>]*/?>(?:</i>)?)?Pay the advance</a>', response.text)
         if link is None:
             self.fail("The quotation page has no link to pay the advance.")
         url = link.group(1).replace("&amp;", "&")
