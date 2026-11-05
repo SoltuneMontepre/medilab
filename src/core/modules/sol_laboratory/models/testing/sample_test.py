@@ -89,6 +89,11 @@ class SampleTest(models.Model, SampleTestBase):
             index=True,
             domain="[('parameter_id', '=', parameter_id)]",
         )
+        # The way of testing the customer accepted on the order's quotation; the test keeps to it. Empty for a test the
+        # laboratory chooses the way of.
+        accepted_method_id = fields.Many2one(
+            MODEL_PARAMETER_METHOD, string="Accepted Way of Testing", readonly=True, ondelete="restrict"
+        )
         # True when no machine can finish the test before its due date, so the scheduler suggests outsourcing it.
         outsourcing_suggested = fields.Boolean(readonly=True, copy=False, index=True)
         # Why the head of department outsourced the test straight away instead of from an outsourcing suggestion.
@@ -144,6 +149,8 @@ class SampleTest(models.Model, SampleTestBase):
     def write(self, vals):
         if "dispatch_ids" in vals and not self.env.su:
             raise UserError(self.env._("Add a sample test to a dispatch, or take it out, on the dispatch."))
+        if "accepted_method_id" in vals:
+            raise UserError(self.env._("The accepted way of testing changes only through a revised quotation."))
         result = super().write(vals)
         if "parameter_method_id" in vals:
             # The tests of a dispatch go to its subcontractor, whichever side changes.
@@ -179,6 +186,19 @@ class SampleTest(models.Model, SampleTestBase):
                         "%(way)s does not apply to %(sample_type)s.",
                         way=test.parameter_method_id.display_name,
                         sample_type=sample_type.display_name,
+                    )
+                )
+
+    @api.constrains("parameter_method_id", "accepted_method_id")
+    def _check_accepted_way(self):
+        for test in self.filtered("accepted_method_id"):
+            if test.parameter_method_id != test.accepted_method_id:
+                raise ValidationError(
+                    self.env._(
+                        "%(parameter)s is tested by %(way)s, the way of testing the customer accepted; another way needs "
+                        "a revised quotation.",
+                        parameter=test.parameter_id.display_name,
+                        way=test.accepted_method_id.display_name,
                     )
                 )
 

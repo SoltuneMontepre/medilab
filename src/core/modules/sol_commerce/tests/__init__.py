@@ -36,6 +36,7 @@ from . import (
     test_order_template_pricing,
     test_order_totals,
     test_order_tracking,
+    test_order_ways,
     test_payments,
     test_payos,
     test_portal_amounts,
