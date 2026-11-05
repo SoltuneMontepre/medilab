@@ -31,3 +31,11 @@ Những điểm sơ đồ `[Flow] WF-04 Result entry and approval.drawio` đã �
 - **Câu chữ mới:**
   - Main path: "… then sends and signs the result for Head of Department approval, and the head is notified; submitting it completes the testing task."
   - Mermaid: `t5 --> notify[Notify the head] --> h1`.
+
+## Hệ thống kiểm tra mọi test của mẫu đã được duyệt chưa
+
+- **Sơ đồ thể hiện:** sau "Approve result", **System** quyết định "Every test of the sample approved?". Nếu yes thì kết thúc ở ◉ "Sample completed → WF-06 Report signing, release and delivery; SF-01 Invoicing and payment collection", nếu no thì ở ◉ "Wait for other tests". Câu hỏi không nhắc tới test đã huỷ, giống WF-05 Outsourced testing.
+- **Phần tài liệu liên quan:** mermaid của `## WF-04 Result entry and approval` (`done --> wf06([WF-06 when every test is approved or cancelled])`) và mục **Result** ("the sample completes when all its tests do").
+- **Câu chữ mới:** mermaid: `done --> wf06([WF-06 when every test of the sample is approved])`.
+- **Cần quyết khi sửa tài liệu:** dòng *Progress* của `laboratory_module/overview.md` và WF-04-E3 vẫn nói một mẫu hoàn thành khi các test còn lại đã được duyệt, không tính test đã huỷ. Câu hỏi trên sơ đồ có cần nói rõ "remaining tests" không?
+

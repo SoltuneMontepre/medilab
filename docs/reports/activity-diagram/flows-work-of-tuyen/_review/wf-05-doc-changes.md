@@ -57,6 +57,19 @@ Những điểm của sơ đồ `[Flow] WF-05 Outsourced testing.drawio` khác v
 
 ## 5. Sau khi duyệt, chỉ chuyển sang WF-06 khi cả mẫu đã xong
 
-- **Sơ đồ thể hiện:** sau "Approve result", **System** quyết định "Every test of the sample approved or cancelled?". Nếu yes thì kết thúc ở ◉ "Sample completed → WF-06 Report signing, release and delivery; SF-01 Invoicing and payment collection". Nếu no thì kết thúc ở ◉ "Wait for other tests". Cách kết thúc này giống hệt WF-04 Result entry and approval.
+- **Sơ đồ thể hiện:** sau "Approve result", **System** quyết định "Every test of the sample approved?". Nếu yes thì kết thúc ở ◉ "Sample completed → WF-06 Report signing, release and delivery; SF-01 Invoicing and payment collection". Nếu no thì kết thúc ở ◉ "Wait for other tests". Cách kết thúc này giống WF-04 Result entry and approval.
 - **Phần liên quan:** mermaid của WF-05 kết thúc ở `h4 -->|approve| done([Outsourced test approved])` và không chuyển sang luồng nào. Mục **Result** ("the subcontractor's result is approved like any other result") và dòng *Progress* của `laboratory_module/overview.md` (một mẫu hoàn thành khi mọi test còn lại của nó đã được duyệt) đã khớp với sơ đồ.
-- **Câu chữ mới:** mermaid: `h4 -->|approve| done([Outsourced test approved])`, `done --> wf06([WF-06 when every test is approved or cancelled])`, giống như mermaid của WF-04.
+- **Câu chữ mới:** mermaid: `h4 -->|approve| done([Outsourced test approved])`, `done --> wf06([WF-06 when every test of the sample is approved])`.
+- **Cần quyết khi sửa tài liệu:** sơ đồ WF-04 cũng đã bỏ "or cancelled" (mục "Hệ thống kiểm tra mọi test của mẫu đã được duyệt chưa" của `wf-04-doc-changes.md`); dòng *Progress* của `overview.md` vẫn không tính các test đã huỷ.
+
+## 6. Giao cho thầu phụ thất bại thì quay về WF-02 để lấy lại mẫu
+
+- **Sơ đồ thể hiện:** sau "Carry the dispatch to the subcontractor", nhân viên giao mẫu quyết định "Delivered?". Nếu yes thì **System** ghi ngày gửi, người mang và ngày dự kiến như trước. Nếu no thì kết thúc ở ⊗ "Delivery failed → WF-02 Sample reception and handover"; ở WF-02, trưởng bộ phận yêu cầu lấy lại đúng mẫu đó (mục "Lấy lại đúng mẫu khi giao cho thầu phụ thất bại" của `wf-02-doc-changes.md`). Chú giải có thêm dòng "Flow final".
+- **Phần liên quan:** mục **Exceptions**, **Paths in other flows** và mermaid của WF-05 (`d1 --> h3`, không có bước kiểm tra giao hàng).
+- **Câu chữ mới:**
+  - Exceptions: "WF-05-E3: Delivery to the subcontractor fails; the sample is requested again through WF-02 Sample reception and handover."
+  - Paths in other flows: "SF-06 for subcontractor accreditation expiry; WF-02 for requesting a sample again after a failed delivery."
+  - Mermaid, lane "Sample delivery staff": `d1 --> delivered{Delivered?}`, `delivered -->|yes| sent`, `delivered -->|no| wf02([WF-02 requests the same sample again])`.
+- **Cần quyết khi sửa tài liệu:**
+  - Phiếu gửi bị huỷ như WF-05-E2 và các test vẫn ở trạng thái outsourced chờ phiếu gửi mới không?
+  - Khi mẫu được nhận lại ở WF-02, test quay về WF-05 để vào phiếu gửi mới, hay được xếp lại từ WF-03 Testing assignment and scheduling?

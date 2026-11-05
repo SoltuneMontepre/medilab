@@ -24,6 +24,16 @@ Những điểm sơ đồ `[Flow] WF-02 Sample reception and handover.drawio` đ
   - WF-02-E4: "… they add no test, change no order and stay with the sample until the customer asks for them back; SF-04 Sample retention, return and disposal owns the return."
   - Mermaid: `keep --> sf04([SF-04 Sample retention, return and disposal])`.
 
+### Lấy lại đúng mẫu khi giao cho thầu phụ thất bại
+
+- **Sơ đồ thể hiện:** điểm vào thứ hai ● "Delivery to the subcontractor failed (WF-05 Outsourced testing)" ở lane Head of department. Trưởng bộ phận "Request the same sample again", rồi **System** "Create collection task" và nhân viên giao mẫu đi lấy mẫu như đường lấy thêm mẫu ở WF-02-E1.
+- **Phần tài liệu liên quan:** mục **Trigger**, **Exceptions** và mermaid của `## WF-02 Sample reception and handover`; WF-02 chưa có đường nào nhận việc từ WF-05.
+- **Câu chữ mới:**
+  - Trigger: "samples arrive at the laboratory, sample delivery staff collect them from the customer, or a sample must be collected again after a failed delivery to a subcontractor (WF-05 Outsourced testing)."
+  - Exceptions: "WF-02-E5: A sample whose delivery to a subcontractor failed is requested again: the head of department asks for the same sample, and its collection task brings it back to received."
+  - Mermaid, lane "Head of department": `wf05([WF-05: delivery to the subcontractor failed]) --> h3[Request the same sample again] --> d8`.
+- **Cần quyết khi sửa tài liệu:** mẫu lấy lại giữ nguyên mã lab và các sample test cũ, hay là một mẫu mới? Trong lúc chờ, mẫu ở trạng thái on hold như mẫu thiếu không?
+
 ## Tài liệu khác mâu thuẫn với business-flows.md
 
 ### Thứ tự nhận mẫu và xét tình trạng
