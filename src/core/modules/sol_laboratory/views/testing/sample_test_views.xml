@@ -57,6 +57,7 @@
                             <field name="quantity" readonly="1" />
                             <field name="due_date" readonly="1" />
                             <field name="parameter_method_id" readonly="1" />
+                            <field name="accepted_method_id" invisible="not accepted_method_id" />
                         </group>
                         <group string="Recommendation" invisible="not recommended_machine_id">
                             <field name="recommended_method_id" string="Way of Testing" />

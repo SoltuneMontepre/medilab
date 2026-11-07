@@ -34,6 +34,7 @@ A permission is one action on one document type within one scope. Its code is de
 | `archive` | `u`; the shared mixin below limits it to the `active` field             |
 | `delete`  | `d`                                                                     |
 | `sign`    | none: the group alone marks who may sign; the signing feature checks it |
+| `invoice` | none: on orders only, the group marks who may create invoices from an order; the invoicing feature checks it |
 
 | Scope            | Domain of the access                                                                        |
 | ---------------- | ------------------------------------------------------------------------------------------- |

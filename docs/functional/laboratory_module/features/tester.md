@@ -62,7 +62,7 @@ Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling
 | Deadline risk | Notify the tester and Head of Department when risk first appears, then include unresolved risks in a daily summary. Show the flag on tasks and schedules. Sales contacts the customer only when the committed return date is affected or at risk. |
 | Machine heads-up | Warn within the separate calibration, maintenance or recent-repair windows, each defaulting to 7 days. Valid warnings allow booking only while calibration, maintenance and availability requirements are satisfied. |
 | Releasing the machine | Entering the result or marking the measurement finished frees the machine before the booking's end. A booking whose end passes without either keeps the machine, flags the next bookings on it at risk and notifies the tester and head. |
-| Adjusting | Move or cancel a not-started booking, keeping all required reservations synchronized under SH-11. Cancelling the booking returns its sample test to the plan without cancelling it. |
+| Adjusting | Move or cancel their own not-started booking, keeping all required reservations synchronized under SH-11. Cancelling the booking returns its sample test to the plan without cancelling it. A move is made from the booking's form or by dragging it on the machine schedule, only to a free slot. |
 
 Acceptance criteria:
 
