@@ -27,6 +27,7 @@ from . import (
     test_order_offering,
     test_order_page,
     test_order_read_scope,
+    test_order_sample_regulation,
     test_order_samples,
     test_order_tasks,
     test_order_template,

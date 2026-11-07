@@ -109,16 +109,19 @@ class TestResult(models.Model, TestResultBase):
         )
         # True when the copied limit has a minimum, which may be 0.
         limit_min_set = fields.Boolean(compute="_compute_limit", store=True)
-        # Lowest allowed value, copied from the sample's regulation when the result is created.
+        # Lowest allowed value, copied from the sample's regulation for the sample's type when the result is created.
         limit_min = fields.Float(string="Minimum", compute="_compute_limit", store=True, min_display_digits=1)
         # True when the copied limit has a maximum, which may be 0.
         limit_max_set = fields.Boolean(compute="_compute_limit", store=True)
-        # Highest allowed value, copied from the sample's regulation when the result is created.
+        # Highest allowed value, copied from the sample's regulation for the sample's type when the result is created.
         limit_max = fields.Float(string="Maximum", compute="_compute_limit", store=True, min_display_digits=1)
         # Decimals the copied minimum and maximum show on the report, such as 2 for 0.50.
         limit_decimals = fields.Integer(compute="_compute_limit", store=True)
         # The limit as text, copied from the sample's regulation, in each language.
         limit_text = fields.Char(string="Limit", compute="_compute_limit", store=True, translate=True)
+        # True when the sample has a regulation but no limit was copied: the regulation sets none for the parameter on
+        # the sample's exact type.
+        limit_missing = fields.Boolean(compute="_compute_limit_missing")
         # The Odoo user who entered the result: a lab QA, or a subcontractor's person for an outsourced test.
         entered_by_id = fields.Many2one(
             "res.users",
@@ -203,6 +206,13 @@ class TestResult(models.Model, TestResultBase):
             result.limit_max = limit.max_value
             result.limit_decimals = limit.decimals
             result.limit_text = limit.limit_text
+
+    @api.depends("regulation_id", "limit_min_set", "limit_max_set", "limit_text")
+    def _compute_limit_missing(self):
+        for result in self:
+            result.limit_missing = bool(result.regulation_id) and not (
+                result.limit_min_set or result.limit_max_set or result.limit_text
+            )
 
     @api.depends("sample_test_id")
     def _compute_measurement(self):
@@ -300,10 +310,14 @@ class TestResult(models.Model, TestResultBase):
         return withdrawn
 
     def _regulation_limit(self):
+        # Only the limit for the sample's exact type applies; a broader type's limit is never used.
         self.ensure_one()
-        test = self.sample_test_id
-        limits = test.sample_id.regulation_id.limit_ids
-        return limits.filtered(lambda limit: limit.parameter_id == test.parameter_id)[:1]
+        sample = self.sample_test_id.sample_id
+        return sample.regulation_id.limit_ids.filtered(
+            lambda limit: (
+                limit.parameter_id == self.sample_test_id.parameter_id and limit.sample_type_id == sample.sample_type_id
+            )
+        )
 
     def _way_of_testing(self):
         # The way of testing chosen for the test, or else the parameter's default one on the sample's type.

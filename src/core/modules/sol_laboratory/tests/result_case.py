@@ -26,11 +26,14 @@ class ResultCase(SchedulingCase):
         cls.grant(cls.head, "sample_test.edit.all")
         (cls.tester | cls.other_tester).role_ids = tester_level.role_id
         cls.head.role_ids = tester_level.role_id | head_level.role_id
-        regulation = cls.env[MODEL_REGULATION].create({"code": "QCVN 01-1:2018/BYT", "name": "Domestic water"})
+        regulation = cls.env[MODEL_REGULATION].create(
+            {"code": "QCVN 01-1:2018/BYT", "name": "Domestic water", "sample_type_ids": cls.sample_type.ids}
+        )
         cls.limit = cls.env[MODEL_REGULATION_LIMIT].create(
             {
                 "regulation_id": regulation.id,
                 "parameter_id": cls.parameter.id,
+                "sample_type_id": cls.sample_type.id,
                 "unit_id": cls.unit.id,
                 "max_set": True,
                 "max_value": 0.01,

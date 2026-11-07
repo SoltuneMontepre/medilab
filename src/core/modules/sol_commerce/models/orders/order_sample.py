@@ -39,16 +39,25 @@ class OrderSample(models.Model, OrderSampleBase):
         )
         # The regulation the sample's results are compared with; empty when none.
         regulation_id = fields.Many2one(MODEL_REGULATION, ondelete="restrict")
+        # Why the sample keeps a regulation that is no longer in force; empty while it is.
+        regulation_notice = fields.Char(string="Regulation Notice", compute="_compute_regulation_notice")
         # Position of the sample in the order.
         sequence = fields.Integer(default=10)
         # Lines tested on the sample.
         line_ids = fields.One2many(MODEL_SALE_ORDER_LINE, "sample_id", string="Lines")
 
+    @api.depends("regulation_id.valid_until")
+    def _compute_regulation_notice(self):
+        for sample in self:
+            sample.regulation_notice = sample.regulation_id._expiry_notice() if sample.regulation_id else False
+
     @api.model_create_multi
     def create(self, vals_list):
         orders = self.env[MODEL_SALE_ORDER].browse([vals["order_id"] for vals in vals_list if vals.get("order_id")])
         orders._check_content_freeze()
-        return super().create(vals_list)
+        samples = super().create(vals_list)
+        samples._check_regulation()
+        return samples
 
     def write(self, vals):
         if FROZEN_SAMPLE_FIELDS & set(vals):
@@ -56,7 +65,14 @@ class OrderSample(models.Model, OrderSampleBase):
         result = super().write(vals)
         if "sample_type_id" in vals:
             self.line_ids._check_offered_on_sample()
+        if {"regulation_id", "sample_type_id"} & set(vals):
+            self._check_regulation()
         return result
+
+    def _check_regulation(self):
+        # A regulation chosen for a sample, or a sample type chosen for a sample with one, is a new selection.
+        for sample in self.filtered("regulation_id"):
+            sample.regulation_id._check_selectable(sample.sample_type_id)
 
     def unlink(self):
         self.order_id._check_content_freeze()

@@ -331,7 +331,16 @@
                             <field name="customer_sample_name" />
                             <field name="sample_type_id" options="{'no_create': True}" />
                             <field name="physical_state" />
-                            <field name="regulation_id" options="{'no_create': True}" />
+                            <field
+                                name="regulation_id"
+                                options="{'no_create': True}"
+                                domain="[
+                                    ('sample_type_ids', 'parent_of', sample_type_id),
+                                    '|', ('valid_from', '=', False), ('valid_from', '&lt;=', context_today().strftime('%Y-%m-%d')),
+                                    '|', ('valid_until', '=', False), ('valid_until', '&gt;=', context_today().strftime('%Y-%m-%d')),
+                                ]"
+                            />
+                            <field name="regulation_notice" class="text-warning" optional="show" />
                             <button name="action_copy_sample" type="object" string="Copy" class="btn-secondary" />
                         </list>
                     </field>

@@ -80,9 +80,17 @@ class TestArchivingAndDeleting(MasterDataCase):
         self.assertFalse(sample_type.exists())
 
     def test_regulation_is_deleted_with_its_limits(self):
-        regulation = self.env[MODEL_REGULATION].create({"code": "QCVN 8-2:2011/BYT", "name": "Bottled water"})
+        sample_type = self.env[MODEL_SAMPLE_TYPE].create({"name": "Bottled water"})
+        regulation = self.env[MODEL_REGULATION].create(
+            {"code": "QCVN 8-2:2011/BYT", "name": "Bottled water", "sample_type_ids": sample_type.ids}
+        )
         limit = self.env[MODEL_REGULATION_LIMIT].create(
-            {"regulation_id": regulation.id, "parameter_id": self.parameter.id, "limit_text": "Not detected"}
+            {
+                "regulation_id": regulation.id,
+                "parameter_id": self.parameter.id,
+                "sample_type_id": sample_type.id,
+                "limit_text": "Not detected",
+            }
         )
 
         regulation.unlink()

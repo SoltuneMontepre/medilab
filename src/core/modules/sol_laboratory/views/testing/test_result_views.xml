@@ -107,6 +107,10 @@
                             <field name="limit_max" invisible="not limit_max_set" />
                             <field name="limit_text" invisible="not limit_text" />
                             <field name="limit_unit_id" invisible="not limit_unit_id" />
+                            <field name="limit_missing" invisible="1" />
+                            <div class="alert alert-warning mb-0" role="alert" colspan="2" invisible="not limit_missing">
+                                The regulation sets no limit for this parameter on the sample's type.
+                            </div>
                             <field name="conclusion" widget="radio" readonly="status != 'none'" />
                         </group>
                     </group>
