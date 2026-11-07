@@ -182,7 +182,7 @@ export function reportedResult(test) {
         ["is_reported", "=", true],
       ],
     ],
-    { fields: ["attempt", "status", "entered_by_id", "value"] },
+    { fields: ["status", "entered_by_id", "value"] },
   ).then(([result]) => ({ ...result, model: "medilab.test.result" }));
 }
 

@@ -20,8 +20,8 @@ SAMPLE_NAMES = (
 
 def seed_results(env):
     """Results through their approval: a completed sample, a failed result awaiting approval beside a cancelled test,
-    a rejected result followed by a text retest, and a result the head of department entered and sent, awaiting their
-    own approval."""
+    a rejected result followed by a text retest under the testing task its rejection opened, and a result the head of
+    department entered and sent, awaiting their own approval."""
     if env.ref("sol_demo.demo_test_request_results", raise_if_not_found=False):
         return
     tester = env.ref("sol_demo.demo_res_users_tester")
@@ -47,6 +47,7 @@ def seed_results(env):
     rejected.with_user(head).action_reject(
         "The calibration check standard read 15% high; recalibrate the AAS and measure again."
     )
+    _test(retested, lead)._testing_task().with_user(tester).action_claim()
     retest = _enter(env, tester, _test(retested, lead), value_text="Not detected", conclusion="pass")
     retest.with_context(lang="vi_VN").value_text = "Không phát hiện"
     _enter(env, head, _test(by_head, lead), value=0.006, conclusion="pass").with_user(head).action_sign()
