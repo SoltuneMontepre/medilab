@@ -884,7 +884,7 @@ msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
-msgid "Apply"
+msgid "<i class=\"oi me-1\" data-icon=\"check\" aria-hidden=\"true\"/>Apply"
 msgstr ""
 
 #. module: sol_commerce
