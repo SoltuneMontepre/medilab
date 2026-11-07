@@ -1,6 +1,6 @@
 # Creating a pull request
 
-What to do from opening a pull request until it is ready for review. A pull request is not finished when it is opened: wait for the pipelines and for SonarQube, and fix what they report.
+What to do from opening a pull request until it is merged. A pull request is not finished when it is opened: wait for the pipelines and for SonarQube, and fix what they report.
 
 ## Steps
 
@@ -10,6 +10,7 @@ What to do from opening a pull request until it is ready for review. A pull requ
 4. Fix every failed pipeline, push, and wait again.
 5. Check SonarQube for the pull request, as below.
 6. Fix, push, and repeat from step 3 until the pipelines pass and the quality gate is `OK`.
+7. Once it is approved, select **Merge when ready**, as [Git](../conventions/git.md#merging) says. Do not update the branch with `main` by hand; the merge queue tests it on the latest `main`.
 
 ## Checking SonarQube
 
@@ -29,6 +30,7 @@ SonarQube Cloud analyses a pull request in the `ci-core` pipeline, so check it o
 - Do not mark an issue accepted or false positive without the owner's approval; report it instead.
 - A pull request with an `ERROR` quality gate or an open issue is reported to the owner with what remains and why.
 - Say in the reply what was checked: which pipelines passed and what the quality gate and issue count were.
+- Never bypass the merge queue, such as with `gh pr merge --admin`.
 
 ## Related documents
 

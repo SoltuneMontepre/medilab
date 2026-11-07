@@ -1,6 +1,6 @@
 # Git
 
-How branches and pull requests are named. A branch or pull request that does not match fails CI.
+How branches and pull requests are named and merged. A branch or pull request whose name does not match fails CI.
 
 ## Branch names
 
@@ -52,7 +52,18 @@ The check is the pattern `^\[(feat|fix|chore|docs|refactor|test|style|perf|build
 
 For Claude Code, `.claude/settings.json` turns off its attribution lines. Claude Code and Cursor use those hook settings; Codex uses `.codex/hooks.json`. Both configurations run `.claude/hooks/check_git_message.py` to block a `git commit`, `gh pr create` or `gh pr edit` that breaks these rules.
 
+## Merging
+
+`main` merges through a merge queue, which tests each pull request together with the ones queued ahead of it.
+
+- Once the pull request is approved, select **Merge when ready**, or run `gh pr merge <pr>`.
+- Do not update the branch with `main` by hand; the queue tests it on the latest `main`. Update it only to resolve a conflict.
+- When its checks fail in the queue, the pull request leaves the queue. Fix it and select **Merge when ready** again.
+- Stacked pull requests (`gh stack`) are only for sub-issues joined by **blocked by**.
+
 ## Related documents
 
+- [Creating a pull request](../workflows/creating-pr.md)
+- [Pipelines](../infrastructure/pipelines.md#merge-queue)
 - [Taskfiles](taskfiles.md)
 - [Documentation](documentation.md)

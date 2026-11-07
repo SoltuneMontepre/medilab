@@ -13,3 +13,4 @@ In Claude Code:
 - Check the interface in the built-in browser: open `http://localhost:8069` with the preview or navigate tool, and read the page text or take screenshots for each acceptance criterion.
 - Run the code review and simplify skills on the finished change before opening the pull request.
 - After opening the pull request, bind it with the pull request tools and read its checks from there instead of polling; use the SonarQube tools for the quality gate.
+- Do not sync the branch with its base when it falls behind `main`, only when it conflicts; the merge queue tests it on the latest `main`.

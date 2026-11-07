@@ -7,9 +7,11 @@ How the GitHub Actions workflows in `.github/workflows/` are written.
 - One workflow per area and stage: `ci.<area>.yml` checks a change, `cd.<area>.yml` deploys it.
 - The workflow `name` is the file name without the extension and dots: `ci-core`, `cd-infra`.
 - The concurrency group is `medilab-<name>`, with `-${{ github.ref }}` for CI. CI sets `cancel-in-progress: true`; CD sets `false`, so a deployment is never cut off.
-- Every workflow can also be started by hand with `workflow_dispatch`.
+- Every workflow can also be started by hand with `workflow_dispatch`, except `ci-external`, which only stands in for checks on merge groups.
 
 ## Triggers and change detection
+
+A CI workflow triggers on `pull_request` and `merge_group`, so its required checks report on the pull request and on the merge queue's group. A required check whose app does not run on merge groups gets a job of the same name in `ci-external` that passes.
 
 A workflow only does work when its relevant paths change: its area's folders and the workflow file itself. There are two ways to skip the rest.
 
@@ -19,12 +21,12 @@ A workflow only does work when its relevant paths change: its area's folders and
 | A `paths:` filter | No job is a required check, as with CD on `main`.              | `cd-core`, `cd-infra` |
 | Neither           | The workflow is not about a set of files, such as cleanup.     | `cd-cleanup`          |
 
-A required check must always report, and a workflow that a `paths:` filter keeps from starting never reports, which blocks the pull request.
+A required check must always report, and a workflow that a `paths:` filter keeps from starting never reports, which blocks the pull request and the merge queue.
 
 ### Change detection
 
-- Do not filter the trigger with `paths:`; the workflow starts on every pull request.
-- Each job always starts. The first steps detect whether the change is relevant with `dorny/paths-filter`; every later step has `if: <relevant> || github.event_name == 'workflow_dispatch'`.
+- Do not filter the trigger with `paths:`; the workflow starts on every pull request and merge group.
+- Each job always starts. The first steps detect whether the change is relevant with `dorny/paths-filter`; every later step has `if: <relevant> || github.event_name == 'workflow_dispatch'`. On a merge group, `dorny/paths-filter` compares the group with the commit it is built on.
 - A change that is not relevant finishes green without doing anything. A manual run always does the work.
 - A job that is not a required check, such as a matrix runner whose result a required job collects, skips with a job-level `if:` instead.
 - When several jobs share the detection, or a rule needs more than path patterns, put it in a `changes` job and have the others depend on it with `needs`. `ci-core` does this to ignore Markdown under `src/core`.
