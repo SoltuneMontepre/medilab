@@ -4634,8 +4634,8 @@ msgstr "%(way)s không thử %(item)s trên %(sample_type)s."
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
-msgid "Apply"
-msgstr "Áp dụng"
+msgid "<i class=\"oi me-1\" data-icon=\"check\" aria-hidden=\"true\"/>Apply"
+msgstr "<i class=\"oi me-1\" data-icon=\"check\" aria-hidden=\"true\"/>Áp dụng"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page

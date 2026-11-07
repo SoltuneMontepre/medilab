@@ -128,7 +128,7 @@
                                                     <option t-att-value="sample_type.id" t-att-selected="sample_type == line.sample_type_id" t-out="sample_type.name" />
                                                 </t>
                                             </select>
-                                            <noscript><button type="submit" class="btn btn-secondary">Apply</button></noscript>
+                                            <noscript><button type="submit" class="btn btn-secondary"><i class="oi me-1" data-icon="check" aria-hidden="true" />Apply</button></noscript>
                                         </form>
                                         <t t-foreach="line.linked_line_ids or line" t-as="tested">
                                             <form t-if="tested.sample_type_id" action="/cart/selection" method="post" class="d-flex flex-wrap align-items-center gap-2 mb-2">
@@ -143,7 +143,7 @@
                                                         <option t-att-value="way.id" t-att-selected="way == tested.parameter_method_id" t-out="way.display_name" />
                                                     </t>
                                                 </select>
-                                                <noscript><button type="submit" class="btn btn-secondary">Apply</button></noscript>
+                                                <noscript><button type="submit" class="btn btn-secondary"><i class="oi me-1" data-icon="check" aria-hidden="true" />Apply</button></noscript>
                                             </form>
                                         </t>
                                         <p t-if="line.default_way_notice" class="text-warning mb-0" t-out="line.default_way_notice" />

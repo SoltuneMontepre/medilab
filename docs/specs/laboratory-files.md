@@ -460,7 +460,7 @@ A signed-in computer is a `medilab.laboratory.device` of its person, one per ins
   - A login nobody has is counted and slowed the same, so the answer does not tell whether it exists.
   - A right password clears the count, also when signing in is then refused with `permission_denied` or `device_revoked`.
   - The counts are in `medilab.laboratory.sign.in.attempt`, one row per login, so every worker shares them. Two failures of one login at once update one row: the second fails with a serialization error and Odoo runs its request again, so each is counted once. Only full rights reach it, failed sign-ins are not in the audit trail, as Odoo's log records them, and Odoo's daily autovacuum removes the counts already forgotten.
-- **Odoo's cooldown.** While Odoo's own login cooldown holds the client's address, signing in is refused with `too_many_attempts` and the seconds left of it, before the password is checked, never as `invalid_credentials`.
+- **Odoo's cooldown.** Odoo reads the client's address from the `X-Forwarded-For` that Traefik passes on from Cloudflare, so one client's failures do not cool down another's; see [Cluster](../infrastructure/cluster.md#ingress). While Odoo's own login cooldown holds the client's address, signing in is refused with `too_many_attempts` and the seconds left of it, before the password is checked, never as `invalid_credentials`.
 
 ### Sample folders
 
