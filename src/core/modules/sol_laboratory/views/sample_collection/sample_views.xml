@@ -122,6 +122,27 @@
                                 </list>
                             </field>
                         </page>
+                        <page
+                            string="Expected Sampling"
+                            name="expected_sampling"
+                            groups="sol_laboratory.group_permission_expected_sampling_read_all"
+                            invisible="not expected_sampling_ids"
+                        >
+                            <group>
+                                <field name="expected_sample_count" />
+                            </group>
+                            <field name="expected_sampling_ids" readonly="1">
+                                <list decoration-warning="not group_number">
+                                    <field name="group_number" />
+                                    <field name="objects" />
+                                    <field name="container_type" />
+                                    <field name="preservation" />
+                                    <field name="amount" invisible="not unit_id" />
+                                    <field name="unit_id" />
+                                    <field name="method_ids" widget="many2many_tags" />
+                                </list>
+                            </field>
+                        </page>
                         <page string="Handovers" name="handovers">
                             <field name="handover_ids">
                                 <list editable="bottom">

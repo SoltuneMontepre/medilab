@@ -19,6 +19,7 @@ from . import (
     res_partner,
     res_users,
     sample_type,
+    sampling_requirement,
     subcontractor,
     test_parameter,
     testing_field,

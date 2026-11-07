@@ -73,7 +73,7 @@ class OrderSample(models.Model, OrderSampleBase):
 
     def _test_request_values(self):
         """The sample as a test request takes it: a package carries its parameters, any other line is one parameter,
-        each with its accepted way of testing."""
+        each with its accepted way of testing, and the sampling kept with the accepted quotation."""
         self.ensure_one()
         lines = []
         for line in self.line_ids._catalog_lines():
@@ -87,6 +87,9 @@ class OrderSample(models.Model, OrderSampleBase):
             "physical_state": self.physical_state,
             "regulation_id": self.regulation_id.id,
             "lines": lines,
+            "sampling": self.order_id._latest_quotation().sampling_ids.filtered(
+                lambda row: row.order_sample_id == self
+            ),
         }
 
     def action_copy_sample(self):

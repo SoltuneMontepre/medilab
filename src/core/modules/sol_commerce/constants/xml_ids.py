@@ -2,6 +2,8 @@
 
 ALL_ORDERS_GROUP = "sol_commerce.group_all_orders"
 CANCELLATION_TASK_TYPE = "sol_commerce.task_type_order_cancellation"
+# The table of expected samples, containers and amounts that the order form, the portal and the quotation show.
+EXPECTED_SAMPLING_TEMPLATE = "sol_commerce.expected_sampling"
 MAIN_COMPANY = "base.main_company"
 PAYMENT_RECEIPT_REPORT = "account.action_report_payment_receipt"
 PUBLIC_PARTNER = "base.public_partner"

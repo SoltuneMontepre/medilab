@@ -6,6 +6,7 @@ from . import (
     test_catalog_page,
     test_customer_orders,
     test_customer_portal,
+    test_expected_sampling,
     test_feedback_access,
     test_feedback_portal,
     test_finance_reports,

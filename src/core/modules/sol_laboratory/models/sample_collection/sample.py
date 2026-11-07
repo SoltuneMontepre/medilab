@@ -11,6 +11,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_CODE_MIXIN,
     MODEL_DEPARTMENT,
+    MODEL_EXPECTED_SAMPLING,
     MODEL_LOCATION,
     MODEL_LOCK_MIXIN,
     MODEL_PARAMETER_METHOD_SAMPLE_TYPE,
@@ -67,7 +68,7 @@ class Sample(models.Model, SampleBase):
     _rec_name = "code"
     # A sample is cancelled, never archived or deleted.
     _permission_actions = ("read", "create", "edit")
-    _audit_children = ("test_ids", "handover_ids")
+    _audit_children = ("test_ids", "handover_ids", "expected_sampling_ids")
 
     if not TYPE_CHECKING:
         # Unique laboratory code (mã PTN) from a sequence, such as PTN.2026.0001; the only name testers see.
@@ -157,6 +158,10 @@ class Sample(models.Model, SampleBase):
         test_ids = fields.One2many(MODEL_SAMPLE_TEST, "sample_id", string="Tests")
         # Handovers of the sample to the departments that test it.
         handover_ids = fields.One2many(MODEL_SAMPLE_HANDOVER, "sample_id", string="Handovers")
+        # Containers, preservation and amounts expected for the sample, kept from the accepted quotation.
+        expected_sampling_ids = fields.One2many(MODEL_EXPECTED_SAMPLING, "sample_id", string="Expected Sampling")
+        # Number of physical samples expected: the objects times the sampling groups.
+        expected_sample_count = fields.Integer(string="Expected Samples", compute="_compute_expected_sample_count")
         # Photos of the sample taken when it was collected or received; hidden from testers.
         photo_ids = fields.Many2many(
             "ir.attachment",
@@ -168,6 +173,11 @@ class Sample(models.Model, SampleBase):
         )
 
     _code_unique = models.Constraint("UNIQUE(code)", "The lab code of a sample must be unique.")
+
+    @api.depends("expected_sampling_ids.objects", "expected_sampling_ids.group_number")
+    def _compute_expected_sample_count(self):
+        for sample in self:
+            sample.expected_sample_count = sample.expected_sampling_ids._expected_count()
 
     @api.model_create_multi
     def create(self, vals_list):

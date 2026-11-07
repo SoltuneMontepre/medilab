@@ -58,6 +58,12 @@
                         </tfoot>
                     </table>
                 </div>
+                <section t-if="not revising" class="mb-3">
+                    <h2 class="h4">Expected samples</h2>
+                    <t t-call="sol_commerce.expected_sampling">
+                        <t t-set="entries" t-value="quotation.sudo().sampling_ids._sampling_entries()" />
+                    </t>
+                </section>
                 <p t-if="quotation.decline_reason">Reason for declining: <t t-out="quotation.decline_reason" /></p>
                 <form t-if="quotation.status == 'sent' and not quotation.advance_invoice_id and not revising" t-att-action="'/orders/%s/quotation/accept' % order.id" method="post" class="mb-4">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />

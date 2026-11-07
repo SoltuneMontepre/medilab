@@ -187,6 +187,7 @@ from . import (
     test_sample_test_due_date,
     test_sample_type_applicability,
     test_sample_type_applicability_migration,
+    test_sampling_requirements,
     test_saved_documents,
     test_schedule_access_matrix,
     test_schedule_assignment_rules,

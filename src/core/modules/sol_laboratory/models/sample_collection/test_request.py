@@ -10,6 +10,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_CODE_MIXIN,
     MODEL_CUSTOMER,
+    MODEL_EXPECTED_SAMPLING,
     MODEL_LOCK_MIXIN,
     MODEL_PERMISSION_MIXIN,
     MODEL_SAMPLE,
@@ -129,8 +130,9 @@ class TestRequest(models.Model, TestRequestBase):
         delivery_note=False,
         report_recipient: models.BaseModel | Literal[False] = False,
     ):
-        # E-commerce calls this when an order is confirmed, with one entry per sample on the quotation.
-        return self.create(
+        # E-commerce calls this when an order is confirmed, with one entry per sample on the quotation. An entry's
+        # sampling is the sampling snapshot it keeps, copied onto the sample.
+        request = self.create(
             {
                 "customer_id": customer.id,
                 "expected_date": expected_date,
@@ -154,6 +156,10 @@ class TestRequest(models.Model, TestRequestBase):
                 ],
             }
         )
+        for sample, values in zip(request.sample_ids.sorted("id"), samples, strict=True):
+            if values.get("sampling"):
+                values["sampling"]._copy_to(MODEL_EXPECTED_SAMPLING, {"sample_id": sample.id})
+        return request
 
     @api.model
     def _sample_tests_from_lines(self, lines):
