@@ -416,7 +416,7 @@ class OnlyofficeStateTest(unittest.TestCase):
         script = base64.b64decode(command[-1]).decode("utf-16-le")
         native_import = "Import-Module -Name (Join-Path $PSHOME 'Modules\\Microsoft.PowerShell.Security\\Microsoft.PowerShell.Security.psd1') -ErrorAction Stop"
         self.assertIn(native_import, script)
-        self.assertLess(script.index(native_import), script.index("Set-Acl"))
+        self.assertLess(script.index(native_import), script.index("SetAccessControl"))
         self.assertLess(script.index(native_import), script.index("Get-Acl"))
         self.assertEqual(
             {
