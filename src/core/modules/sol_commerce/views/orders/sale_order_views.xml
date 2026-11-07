@@ -336,9 +336,6 @@
                         </list>
                     </field>
                 </page>
-                <page string="Expected Samples" name="expected_samples">
-                    <field name="expected_sampling_html" readonly="1" />
-                </page>
                 <page string="Revisions" name="revisions">
                     <field name="quotation_ids" readonly="1">
                         <list decoration-muted="status == 'replaced'">
@@ -352,6 +349,9 @@
                             <field name="attachment_id" />
                         </list>
                     </field>
+                </page>
+                <page string="Expected Samples" name="expected_samples">
+                    <field name="expected_sampling_html" readonly="1" />
                 </page>
                 <page string="Payment" name="payment">
                     <group>

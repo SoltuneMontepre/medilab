@@ -10,9 +10,9 @@
                     <t t-out="entry['name']" />
                     <small t-if="entry['name'] != entry['sample_type'].name" class="text-muted"> – <t t-out="entry['sample_type'].name" /></small>
                 </h5>
-                <p class="mb-1">
-                    Objects: <strong class="o_medilab_objects" t-out="entry['objects']" />.
-                    Expected samples: <strong class="o_medilab_expected" t-out="entry['expected']" />.
+                <p class="d-flex flex-wrap gap-3 mb-1">
+                    <span>Objects: <strong class="o_medilab_objects" t-out="entry['objects']" /></span>
+                    <span>Expected samples: <strong class="o_medilab_expected" t-out="entry['expected']" /></span>
                 </p>
                 <div t-if="entry['groups']" class="table-responsive">
                     <table class="table table-sm mb-1">
@@ -35,7 +35,7 @@
                     </table>
                 </div>
                 <p t-if="entry['missing']" class="text-warning mb-0">
-                    No sampling requirement on <t t-out="entry['sample_type'].name" /> for <t t-out="', '.join(entry['missing'].mapped('code'))" />.
+                    Methods without a sampling requirement: <t t-out="', '.join(entry['missing'].mapped('code'))" />
                 </p>
             </div>
         </div>

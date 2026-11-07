@@ -20,9 +20,9 @@ class TestExpectedSampling(OrderCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.ml = cls.env[MODEL_MEASUREMENT_UNIT].create({"name": "mL", "category_id": cls.category.id})
+        cls.ml = cls.env[MODEL_MEASUREMENT_UNIT].create({"name": "mL (sampling)", "category_id": cls.category.id})
         cls.cadmium_method = cls.env[MODEL_TESTING_METHOD].create(
-            {"code": "TCVN 6193:1996", "name": "Cadmium by AAS", "field_id": cls.testing_field.id}
+            {"code": "TEST-CADMIUM-AAS", "name": "Cadmium by AAS", "field_id": cls.testing_field.id}
         )
         cls.cadmium_way = cls.env[MODEL_PARAMETER_METHOD].create(
             {"parameter_id": cls.other.id, "method_id": cls.cadmium_method.id, "department_id": cls.department.id}
@@ -105,7 +105,7 @@ class TestExpectedSampling(OrderCase):
             self.assertEqual(len(self.entry(order)["groups"]), 2)
 
     def test_amounts_in_other_units_are_listed_apart_in_their_group(self):
-        grams = self.env[MODEL_MEASUREMENT_UNIT].create({"name": "g", "category_id": self.category.id})
+        grams = self.env[MODEL_MEASUREMENT_UNIT].create({"name": "g (sampling)", "category_id": self.category.id})
         self.cadmium_requirement.write(
             {"container_type": "Polyethylene bottle", "preservation": "Acidified with HNO3", "unit_id": grams.id}
         )

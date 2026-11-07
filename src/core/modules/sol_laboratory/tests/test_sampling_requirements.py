@@ -22,7 +22,7 @@ class TestSamplingRequirements(MasterDataCase):
         cls.env[MODEL_RES_LANG]._activate_lang("vi_VN")
         cls.water = cls.env[MODEL_SAMPLE_TYPE].create({"name": "Bottled water"})
         cls.coliforms = cls.env[MODEL_TESTING_METHOD].create(
-            {"code": "TCVN 6187-2:1996", "name": "Coliforms by MPN", "field_id": cls.testing_field.id}
+            {"code": "TEST-COLIFORMS-MPN", "name": "Coliforms by MPN", "field_id": cls.testing_field.id}
         )
 
     def require(self, method=None, **vals):

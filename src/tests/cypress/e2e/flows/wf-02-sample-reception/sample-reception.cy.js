@@ -45,6 +45,11 @@ describe("WF-02 Sample reception and handover", () => {
     orderRequest().then((request) => {
       const [sample] = request.samples;
       cy.signInAs("sample_delivery_staff");
+      // Staff see the containers expected from the accepted quotation before they record the actual handover.
+      cy.openRecord(sample);
+      openTab("expected_sampling");
+      cy.get(".o_field_widget[name=expected_sample_count]").should("contain", "1");
+      cy.get(".o_field_widget[name=expected_sampling_ids] .o_data_row").should("have.length", 1).and("contain", "Polyethylene bottle");
       receiveOnForm(sample, "Good");
       cy.get(".o_statusbar_buttons button[name=action_receive_entered]").click();
       cy.get(".o_statusbar_buttons button[name=action_receive_entered]").should("not.exist");
