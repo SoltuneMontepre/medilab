@@ -301,11 +301,11 @@ if($env:TEST_ACL_SDDL) {
             private.ensure_local_directory(root, junction / "absent")
         self.assertEqual(before, self._windows_sddl(outside))
 
+    @unittest.skipUnless(os.name == "nt", "Windows ancestor backend")
     def test_repair_is_reported_once_per_repaired_path(self):
         backend = subprocess.CompletedProcess([], 0, stdout=b"0\r\n", stderr=b"")
         output = io.StringIO()
         with (
-            patch.object(private.os, "name", "nt"),
             patch.object(private.subprocess, "run", return_value=backend),
             redirect_stderr(output),
         ):
@@ -315,12 +315,12 @@ if($env:TEST_ACL_SDDL) {
             private.REPAIRED.format(path=self.root / ".local") + "\n",
         )
 
+    @unittest.skipUnless(os.name == "nt", "Windows ancestor backend")
     def test_unexpected_repair_output_refused(self):
         for stdout in (b"7", b"repaired"):
             backend = subprocess.CompletedProcess([], 0, stdout=stdout, stderr=b"")
             with (
                 self.subTest(stdout=stdout),
-                patch.object(private.os, "name", "nt"),
                 patch.object(private.subprocess, "run", return_value=backend),
                 self.assertRaises(private.LocalPrivatePathError),
             ):
