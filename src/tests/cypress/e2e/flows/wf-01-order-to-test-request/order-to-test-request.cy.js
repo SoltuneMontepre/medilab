@@ -11,6 +11,21 @@ const readOrder =
   () =>
     cy.readRecord(order, fields);
 
+// The laboratory's calendar day of a UTC datetime read from Odoo; the laboratory is in Vietnam (UTC+7).
+const laboratoryDay = (datetime) =>
+  new Date(Date.parse(`${datetime.replace(" ", "T")}Z`) + 7 * 3600000).toISOString().slice(0, 10);
+
+// The advance invoice of the order's latest quotation is due on the order's payment deadline.
+function expectAdvanceDueOnDeadline(order) {
+  cy.readRecord(order, ["payment_deadline"]).then(({ payment_deadline }) =>
+    latestQuotation(order.id).then(({ advance_invoice_id: [invoice] }) =>
+      call("account.move", "read", [[invoice], ["invoice_date_due"]]).then(([read]) =>
+        expect(read.invoice_date_due).to.equal(laboratoryDay(payment_deadline)),
+      ),
+    ),
+  );
+}
+
 // Leaves the back office for a portal page, which sends no requests of its own, then signs out.
 function becomeVisitor() {
   cy.visit("/catalog");
@@ -80,6 +95,7 @@ describe("WF-01 Order to confirmed test request", () => {
         }).then((lines) =>
           lines.filter((line) => !line.is_downpayment).forEach((line) => expect(line.parameter_method_id).to.be.ok),
         );
+        expectAdvanceDueOnDeadline(order);
         latestQuotation(order.id).then((quotation) => {
           expect(quotation.status).to.equal("sent");
           const invoice = quotation.advance_invoice_id[0];
@@ -221,6 +237,7 @@ describe("WF-01 Order to confirmed test request", () => {
       cy.contains(".o_datetime_picker button", "Áp dụng").click();
       save();
       cy.readRecord(order, ["quotation_follow_up"]).its("quotation_follow_up").should("eq", "unpaid");
+      expectAdvanceDueOnDeadline(order);
     });
   });
 
