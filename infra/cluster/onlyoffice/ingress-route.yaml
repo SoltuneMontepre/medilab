@@ -19,6 +19,7 @@ spec:
   headers:
     customRequestHeaders:
       X-Forwarded-Proto: https
+      X-Forwarded-Host: office.soltunemontepre.tech
     customResponseHeaders:
       Cache-Control: no-store
       Referrer-Policy: no-referrer
