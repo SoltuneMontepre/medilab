@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from odoo import models
+from odoo import fields, models
 from odoo.api import SUPERUSER_ID
 from odoo.exceptions import AccessError, UserError
 from odoo.fields import Command
@@ -8,7 +8,13 @@ from odoo.tools import format_datetime
 
 from odoo.addons.sol_commerce.constants.models import MODEL_ACCOUNT_MOVE, MODEL_ADVANCE_PAYMENT_INV, MODEL_SALE_ORDER
 from odoo.addons.sol_commerce.constants.notifications import EVENT_QUOTATION_SENT
-from odoo.addons.sol_commerce.constants.orders import ADVANCE_FIXED, ADVANCE_FULL, ADVANCE_NONE, ADVANCE_PERCENTAGE
+from odoo.addons.sol_commerce.constants.orders import (
+    ADVANCE_FIXED,
+    ADVANCE_FULL,
+    ADVANCE_NONE,
+    ADVANCE_PAID_STATES,
+    ADVANCE_PERCENTAGE,
+)
 from odoo.addons.sol_commerce.constants.xml_ids import ALL_ORDERS_GROUP
 from odoo.addons.sol_laboratory.constants.models import MODEL_MAIL_MESSAGE
 from odoo.addons.sol_laboratory.services.record_id import persisted_ids
@@ -40,6 +46,12 @@ class SaleOrderAdvance(models.Model, SaleOrderAdvanceBase):
         if self.advance_mode == ADVANCE_FIXED and self.advance_value <= 0:
             raise UserError(self.env._("The advance amount must be above 0."))
 
+    def write(self, vals):
+        result = super().write(vals)
+        if "payment_deadline" in vals:
+            self._move_advance_due_date()
+        return result
+
     def _send_quotation(self):
         previous = self._latest_quotation()
         quotation = super()._send_quotation()
@@ -69,9 +81,34 @@ class SaleOrderAdvance(models.Model, SaleOrderAdvanceBase):
         )
         wizard._check_amount_is_positive()
         invoice = wizard._create_invoices(order)
-        invoice.write({"invoice_kind": "advance", "order_id": order.id})
+        invoice.write(
+            {
+                "invoice_kind": "advance",
+                "order_id": order.id,
+                "invoice_payment_term_id": False,
+                "invoice_date_due": self._advance_due_date(),
+            }
+        )
         invoice.action_post()
         return invoice
+
+    def _advance_due_date(self):
+        """The laboratory's calendar day of the payment deadline, by which the advance is paid."""
+        self.ensure_one()
+        laboratory = self.with_context(tz=self.env.company.tz or "UTC")
+        return fields.Datetime.context_timestamp(laboratory, self.payment_deadline).date()
+
+    def _move_advance_due_date(self):
+        """Keep the open advance invoice of the current quotation due on the order's payment deadline."""
+        for order in self.filtered("payment_deadline"):
+            due_date = order._advance_due_date()
+            invoice = order._latest_quotation().sudo().advance_invoice_id
+            if (
+                invoice.state == "posted"
+                and invoice.payment_state not in ADVANCE_PAID_STATES
+                and invoice.invoice_date_due != due_date
+            ):
+                invoice.with_user(SUPERUSER_ID).invoice_date_due = due_date
 
     def _notify_quotation_sent(self, quotation, invoice):
         """Tell the order's contact about the quotation in the contact's language, with its PDF attached."""
