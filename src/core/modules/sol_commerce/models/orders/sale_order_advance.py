@@ -95,8 +95,11 @@ class SaleOrderAdvance(models.Model, SaleOrderAdvanceBase):
     def _advance_due_date(self):
         """The laboratory's calendar day of the payment deadline, by which the advance is paid."""
         self.ensure_one()
+        deadline = self.payment_deadline
+        if not deadline:
+            return False
         laboratory = self.with_context(tz=self.env.company.tz or "UTC")
-        return fields.Datetime.context_timestamp(laboratory, self.payment_deadline).date()
+        return fields.Datetime.context_timestamp(laboratory, deadline).date()
 
     def _move_advance_due_date(self):
         """Keep the open advance invoice of the current quotation due on the order's payment deadline."""

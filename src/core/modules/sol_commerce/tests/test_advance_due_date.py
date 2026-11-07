@@ -5,6 +5,7 @@ from odoo.tests import tagged
 
 from .order_case import OrderCase
 from odoo.addons.sol_commerce.constants.models import MODEL_ACCOUNT_MOVE, MODEL_QUOTATION
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 VIETNAM = "Asia/Ho_Chi_Minh"
 
@@ -27,9 +28,10 @@ class TestAdvanceDueDate(OrderCase):
 
         invoice = self.send(order)
 
-        deadline = fields.Datetime.context_timestamp(order.with_context(tz=VIETNAM), order.payment_deadline)
+        laboratory = order.with_context(tz=VIETNAM)
+        deadline = fields.Datetime.context_timestamp(laboratory, assert_instance(order.payment_deadline, datetime))
         self.assertEqual(invoice.invoice_date_due, deadline.date())
-        self.assertGreater(invoice.invoice_date_due, fields.Date.context_today(order.with_context(tz=VIETNAM)))
+        self.assertGreater(assert_instance(invoice.invoice_date_due, date), fields.Date.context_today(laboratory))
         self.assertFalse(invoice.invoice_payment_term_id)
         self.assertFalse(invoice.is_overdue)
         self.assertFalse(self.overdue(invoice))
@@ -64,7 +66,7 @@ class TestAdvanceDueDate(OrderCase):
         order.payment_deadline = fields.Datetime.now() + timedelta(days=3)
 
         self.assertEqual(order._latest_quotation().status, "sent")
-        self.assertGreater(invoice.invoice_date_due, date.today())
+        self.assertGreater(assert_instance(invoice.invoice_date_due, date), date.today())
         self.assertFalse(self.overdue(invoice))
 
     def test_a_paid_advance_keeps_its_due_date(self):
