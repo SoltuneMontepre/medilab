@@ -161,9 +161,8 @@
                 </div>
                 <section t-if="lines" class="mt-3">
                     <h2 class="h4">Expected samples</h2>
-                    <t t-call="sol_commerce.expected_sampling">
-                        <t t-set="entries" t-value="order.sudo()._expected_sampling()" />
-                    </t>
+                    <t t-set="entries" t-value="order.sudo()._expected_sampling()" />
+                    <t t-call="sol_commerce.expected_sampling" />
                 </section>
                 <form t-if="lines" action="/cart/submit" method="post" class="mt-3">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
