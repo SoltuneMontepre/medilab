@@ -6,6 +6,8 @@ from . import (
     res_config_settings,
     sample_test,
     sample_test_cancel,
+    sample_test_due_date,
+    sample_test_due_date_change,
     sample_test_outsource,
     test_report,
     test_report_document,

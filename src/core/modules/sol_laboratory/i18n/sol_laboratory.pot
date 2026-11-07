@@ -2340,6 +2340,11 @@ msgid "Callback Token"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__can_change_due_date
+msgid "Can Change Due Date"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__can_edit
 msgid "Can Edit"
 msgstr ""
@@ -2528,6 +2533,12 @@ msgid "Change"
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_due_date_change_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "Change Due Date"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_change_request
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__change_request_id
 msgid "Change Request"
@@ -2537,6 +2548,11 @@ msgstr ""
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_change_request
 #: model:ir.ui.menu,name:sol_laboratory.menu_change_request
 msgid "Change Requests"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_sample_test_due_date_change
+msgid "Change a Sample Test's Due Date"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2572,6 +2588,17 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/change_request.py:0
 msgid "Change requests are raised on signed documents only."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_sample_test_due_date_change
+msgid "Change the Due Date"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_due_date.py:0
+msgid "Change the due date of a sample test with Change Due Date."
 msgstr ""
 
 #. module: sol_laboratory
@@ -3033,6 +3060,11 @@ msgid "Contract Template"
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_resource_calendar_leaves_public_holiday_list
+msgid "Count As"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__message_bounce
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__message_bounce
 msgid "Counter of the number of bounced emails for this contact"
@@ -3381,6 +3413,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__create_uid
@@ -3464,6 +3497,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__create_date
@@ -4131,6 +4165,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_reject_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_scan_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_cancel_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_due_date_change_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_outsource_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_reassign_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_reject_form
@@ -4266,6 +4301,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__display_name
@@ -4529,7 +4565,24 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__due_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__due_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__due_date
 msgid "Due Date"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__due_date_conflict
+msgid "Due Date Conflict"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__due_date_reason
+msgid "Due Date Reason"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__due_on_non_working_day
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__due_on_non_working_day
+msgid "Due On Non Working Day"
 msgstr ""
 
 #. module: sol_laboratory
@@ -5693,6 +5746,12 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_due_date.py:0
+msgid "Give a reason for changing the due date."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/tasks/task.py:0
 msgid "Give a reason for moving %s to another person or department."
 msgstr ""
@@ -6017,6 +6076,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__id
@@ -6829,6 +6889,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__write_uid
@@ -6912,6 +6973,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__write_date
@@ -8317,6 +8379,14 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/sample_laboratory_folders.py:0
 msgid "Only the head of a department that tests %s creates its folders."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_due_date.py:0
+msgid ""
+"Only the head of the department testing %s changes its due date, until its "
+"result is entered."
 msgstr ""
 
 #. module: sol_laboratory
@@ -10779,6 +10849,17 @@ msgid "Public Date of Birth"
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_resource_calendar_leaves_public_holiday_list
+msgid "Public Holiday"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_public_holiday
+#: model:ir.ui.menu,name:sol_laboratory.menu_public_holiday
+msgid "Public Holidays"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__purchase_order_count
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__purchase_order_count
 msgid "Purchase Order Count"
@@ -11147,6 +11228,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__reason
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version_reject__reason
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__reason
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__reason
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__reason
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__reason
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__reason
@@ -12102,6 +12184,7 @@ msgstr ""
 #: model:ir.model,name:sol_laboratory.model_medilab_sample_test
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__sample_test_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__sample_test_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__sample_test_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__sample_test_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__sample_test_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_list
@@ -13546,6 +13629,18 @@ msgid "The document was rejected; withdraw the rejection first."
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "The due date is not a working day of the company calendar."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid ""
+"The due date was changed by hand and is now later than the date the "
+"request's expected date gives."
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_editing_session_callback.py:0
 msgid "The editing service could not save the document."
@@ -14133,6 +14228,11 @@ msgid "This customer is not flagged as a possible duplicate."
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_due_date_change_form
+msgid "This day is not a working day of the company calendar."
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/mobile_device.py:0
 msgid "This device is not registered for you."
@@ -14653,6 +14753,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__is_urgent
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__is_urgent
 msgid "Urgent"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "Use Automatic Due Date"
 msgstr ""
 
 #. module: sol_laboratory

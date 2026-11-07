@@ -117,7 +117,7 @@
                                 <list editable="bottom">
                                     <field name="parameter_id" />
                                     <field name="quantity" />
-                                    <field name="due_date" />
+                                    <field name="due_date" readonly="1" />
                                     <field name="status" widget="badge" />
                                 </list>
                             </field>
