@@ -206,9 +206,15 @@ if($env:TEST_ACL_SDDL) {
         environment = dict(os.environ, TEST_ACL_PATH=str(path), TEST_ACL_SDDL=sddl or "")
         return private._powershell(script, environment).decode("ascii")
 
-    def _user_sid(self):
-        script = "[Console]::Out.Write([Security.Principal.WindowsIdentity]::GetCurrent().User.Value)"
-        return private._powershell(script, dict(os.environ)).decode("ascii")
+    def _private_aces(self):
+        script = r"""
+$u=[Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+$d=New-Object Security.AccessControl.RawSecurityDescriptor($env:TEST_ACL_SDDL.Replace('USER',$u))
+[Console]::Out.Write($d.GetSddlForm('Access'))
+"""
+        environment = dict(os.environ, TEST_ACL_SDDL=f"D:P{PRIVATE_ACES}")
+        sddl = private._powershell(script, environment).decode("ascii")
+        return sorted(sddl.removeprefix("D:P(").removesuffix(")").split(")("))
 
     def _inheriting_root(self):
         temporary = tempfile.TemporaryDirectory(prefix="inherited kiểm tra ")
@@ -234,7 +240,7 @@ if($env:TEST_ACL_SDDL) {
         self.assertTrue(sddl.startswith("D:PAI("), sddl)
         self.assertEqual(
             sorted(sddl.removeprefix("D:PAI(").removesuffix(")").split(")(")),
-            sorted(PRIVATE_ACES.replace("USER", self._user_sid())[1:-1].split(")(")),
+            self._private_aces(),
         )
         self.assertNotIn(";AU)", self._windows_sddl(local / "project"))
         output = io.StringIO()
