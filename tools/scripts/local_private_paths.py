@@ -3,9 +3,10 @@
 The checkout is trusted executable code. Its .local subtree must remain owned and
 unwritable by other users before private files are opened. OS administrators are
 already trusted on Windows; this check grants them no additional permissions.
-On Windows a current-user directory whose only untrusted writers are inherited,
-such as a drive-wide grant to Authenticated Users, is repaired to the current
-user and SYSTEM instead of refused.
+On Windows a directory owned by the current user, or by Administrators under an
+elevated token, whose only untrusted writers are inherited, such as a drive-wide
+grant to Authenticated Users, is repaired to the current user and SYSTEM instead
+of refused.
 """
 
 import argparse
@@ -51,8 +52,11 @@ foreach($rule in $a.GetAccessRules($true,$true,[Security.Principal.SecurityIdent
 WINDOWS_ANCESTORS = r"""
 $ErrorActionPreference='Stop'
 Import-Module -Name (Join-Path $PSHOME 'Modules\Microsoft.PowerShell.Security\Microsoft.PowerShell.Security.psd1') -ErrorAction Stop
-$u=[Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+$identity=[Security.Principal.WindowsIdentity]::GetCurrent()
+$u=$identity.User.Value
 $trusted=@($u,'S-1-5-18','S-1-5-32-544')
+$own=@($u)
+if(([Security.Principal.WindowsPrincipal]$identity).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)){$own+='S-1-5-32-544'}
 $mutation=2 -bor 4 -bor 16 -bor 64 -bor 256 -bor 65536 -bor 262144 -bor 524288 -bor 0x40000000 -bor 0x10000000
 function Get-UntrustedWriters($a) {
   @($a.GetAccessRules($true,$true,[Security.Principal.SecurityIdentifier]) | Where-Object {
@@ -71,14 +75,14 @@ foreach($p in (ConvertFrom-Json $env:MEDILAB_LOCAL_STATE_PATHS)) {
   $writers=Get-UntrustedWriters $a
   if($writers.Count -eq 0){continue}
   $item=Get-Item -LiteralPath $p -Force
-  if($owner -ne $u -or $a.AreAccessRulesProtected -or -not $item.PSIsContainer -or
+  if($owner -notin $own -or $a.AreAccessRulesProtected -or -not $item.PSIsContainer -or
      ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -or
      @($writers | Where-Object { -not $_.IsInherited }).Count){exit 1}
   $private=New-Object Security.AccessControl.DirectorySecurity
   $private.SetAccessRuleProtection($true,$false)
   foreach($sid in @($u,'S-1-5-18')) {
-    $identity=New-Object Security.Principal.SecurityIdentifier($sid)
-    $rule=New-Object Security.AccessControl.FileSystemAccessRule($identity,'FullControl','ContainerInherit,ObjectInherit','None','Allow')
+    $trustee=New-Object Security.Principal.SecurityIdentifier($sid)
+    $rule=New-Object Security.AccessControl.FileSystemAccessRule($trustee,'FullControl','ContainerInherit,ObjectInherit','None','Allow')
     $private.AddAccessRule($rule)
   }
   (Get-Item -LiteralPath $p -Force).SetAccessControl($private)
