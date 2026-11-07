@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-05 08:57+0000\n"
-"PO-Revision-Date: 2026-11-05 08:57+0000\n"
+"POT-Creation-Date: 2026-11-07 10:45+0000\n"
+"PO-Revision-Date: 2026-11-07 10:45+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -1074,6 +1074,12 @@ msgid "A test result you entered was rejected"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_sampling_requirement_method_sample_type_unique
+msgid ""
+"A testing method has only one sampling requirement for each sample type."
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version.py:0
 msgid ""
@@ -1469,7 +1475,10 @@ msgid "Allowed Country State"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_expected_sampling__amount
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__quantity
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sampling_requirement__amount
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sampling_snapshot_mixin__amount
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.report_handover_record_document
 msgid "Amount"
 msgstr ""
@@ -2988,7 +2997,10 @@ msgid "Contacts and Addresses"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_expected_sampling__container_type
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__container_type
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sampling_requirement__container_type
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sampling_snapshot_mixin__container_type
 msgid "Container"
 msgstr ""
 
@@ -3264,6 +3276,11 @@ msgid "Create samples"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sampling_requirement_create_all
+msgid "Create sampling requirements"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_subcontract_dispatch_create_all
 msgid "Create subcontract dispatches"
 msgstr ""
@@ -3350,6 +3367,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signature__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_expected_sampling__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__create_uid
@@ -3393,6 +3411,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sampling_requirement__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_certificate__create_uid
@@ -3433,6 +3452,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signature__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_expected_sampling__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__create_date
@@ -3476,6 +3496,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sampling_requirement__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_certificate__create_date
@@ -3946,6 +3967,11 @@ msgid "Delete sample types of ways of testing of their department"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sampling_requirement_delete_all
+msgid "Delete sampling requirements"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_task_delete_all
 msgid "Delete tasks"
 msgstr ""
@@ -4230,6 +4256,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signature__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signing_mixin__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_expected_sampling__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__display_name
@@ -4278,6 +4305,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sampling_requirement__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sampling_snapshot_mixin__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_certificate__display_name
@@ -4810,6 +4839,11 @@ msgid "Edit samples"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sampling_requirement_edit_all
+msgid "Edit sampling requirements"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_scheduled_job_edit_all
 msgid "Edit scheduled jobs"
 msgstr ""
@@ -4945,6 +4979,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sampling_requirement__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__lock_message
@@ -5303,6 +5338,18 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__expected_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__expected_date
 msgid "Expected Date"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__expected_sample_count
+msgid "Expected Samples"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_expected_sampling
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__expected_sampling_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+msgid "Expected Sampling"
 msgstr ""
 
 #. module: sol_laboratory
@@ -5760,8 +5807,10 @@ msgid "Grade"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_expected_sampling__group_number
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__group_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__group_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sampling_snapshot_mixin__group_number
 msgid "Group"
 msgstr ""
 
@@ -5981,6 +6030,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signature__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signing_mixin__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_expected_sampling__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__id
@@ -6029,6 +6079,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sampling_requirement__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sampling_snapshot_mixin__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_certificate__id
@@ -6798,6 +6850,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signature__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_expected_sampling__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__write_uid
@@ -6841,6 +6894,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sampling_requirement__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_certificate__write_uid
@@ -6881,6 +6935,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signature__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_expected_sampling__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__write_date
@@ -6924,6 +6979,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sampling_requirement__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_certificate__write_date
@@ -8033,6 +8089,12 @@ msgid "Object Key"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_expected_sampling__objects
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sampling_snapshot_mixin__objects
+msgid "Objects"
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/audit_report.py:0
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__old_value
@@ -9045,6 +9107,11 @@ msgid "Permission: document.lock.read.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_expected_sampling_read_all
+msgid "Permission: expected.sampling.read.all"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_handover_record_create_all
 msgid "Permission: handover.record.create.all"
 msgstr ""
@@ -9890,6 +9957,11 @@ msgid "Permission: quotation.read.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_quotation_sampling_read_all
+msgid "Permission: quotation.sampling.read.all"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_receipt_create_all
 msgid "Permission: receipt.create.all"
 msgstr ""
@@ -10122,6 +10194,21 @@ msgstr ""
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_sample_type_edit_all
 msgid "Permission: sample.type.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_sampling_requirement_create_all
+msgid "Permission: sampling.requirement.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_sampling_requirement_delete_all
+msgid "Permission: sampling.requirement.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_sampling_requirement_edit_all
+msgid "Permission: sampling.requirement.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
@@ -10664,6 +10751,13 @@ msgid "Prepared"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_expected_sampling__preservation
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sampling_requirement__preservation
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sampling_snapshot_mixin__preservation
+msgid "Preservation"
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-javascript
 #: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
 msgid "Previous"
@@ -10979,6 +11073,11 @@ msgstr ""
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_laboratory_file_version_read_all
 msgid "Read every version of laboratory files"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_expected_sampling_read_all
+msgid "Read expected sampling"
 msgstr ""
 
 #. module: sol_laboratory
@@ -12043,6 +12142,7 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/test_report.py:0
 #: model:ir.model,name:sol_laboratory.model_medilab_sample
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_expected_sampling__sample_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__sample_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__sample_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__sample_id
@@ -12130,6 +12230,7 @@ msgstr ""
 #: model:ir.model,name:sol_laboratory.model_medilab_sample_type
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__sample_type_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__sample_type_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sampling_requirement__sample_type_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatch
 msgid "Sample Type"
 msgstr ""
@@ -12216,8 +12317,20 @@ msgid "Sampling Location"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_sampling_requirement
+msgid "Sampling Requirement"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__sampling_requirements
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__sampling_requirement_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_method_form
 msgid "Sampling Requirements"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_sampling_snapshot_mixin
+msgid "Sampling Snapshot"
 msgstr ""
 
 #. module: sol_laboratory
@@ -13237,6 +13350,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_testing_method
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__method_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sampling_requirement__method_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__method_id
 msgid "Testing Method"
 msgstr ""
@@ -13250,6 +13364,8 @@ msgstr ""
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_testing_method
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate__method_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__method_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_expected_sampling__method_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sampling_snapshot_mixin__method_ids
 #: model:ir.ui.menu,name:sol_laboratory.menu_testing_method
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_chemical_form
@@ -13330,6 +13446,11 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/role.py:0
 msgid "The administrator role holds every permission; none can be removed."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_sampling_requirement_amount_positive
+msgid "The amount of a sampling requirement must be above 0."
 msgstr ""
 
 #. module: sol_laboratory
@@ -14587,9 +14708,12 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/test_report.py:0
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_expected_sampling__unit_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__unit_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__unit_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__unit_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sampling_requirement__unit_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sampling_snapshot_mixin__unit_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__unit_id
 msgid "Unit"
 msgstr ""
@@ -14994,6 +15118,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sampling_requirement__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__lock_watched
