@@ -12,18 +12,11 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import REPORT_DRAFTS_FOLDER, REPORT_TEMPLATES_FOLDER
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
-from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
 
 if TYPE_CHECKING:
     from medilab_model_types import Model_medilab_laboratory_file as LaboratoryFileBase
 else:
     LaboratoryFileBase = object
-
-# The model whose records own the files of each report folder, and the field naming the file.
-REPORT_FOLDERS = {
-    REPORT_TEMPLATES_FOLDER: (MODEL_REPORT_TEMPLATE, "file_id"),
-    REPORT_DRAFTS_FOLDER: (MODEL_TEST_REPORT, "draft_file_id"),
-}
 
 
 # Tệp Phòng Thí Nghiệm: the DOCX files of report templates and report drafts, which their template or report gives
@@ -36,14 +29,14 @@ class LaboratoryFile(models.Model, LaboratoryFileBase):
         empty record for a file of a report folder that no document owns."""
         self.ensure_one()
         folder = self.sudo().folder_id
-        for xml_id, (model, field) in REPORT_FOLDERS.items():
+        # The model whose records own the files of each report folder, and the field naming the file.
+        owners = (
+            (REPORT_TEMPLATES_FOLDER, self.env[MODEL_REPORT_TEMPLATE], "file_id"),
+            (REPORT_DRAFTS_FOLDER, self.env[MODEL_TEST_REPORT], "draft_file_id"),
+        )
+        for xml_id, model, field in owners:
             if folder == self.env.ref(xml_id, raise_if_not_found=False):
-                return (
-                    dynamic_model(self.env, model)
-                    .sudo()
-                    .with_context(active_test=False)
-                    .search([(field, "=", self.id)], limit=1)
-                )
+                return model.sudo().with_context(active_test=False).search([(field, "=", self.id)], limit=1)
         return None
 
     def _check_file_access(self, access):
