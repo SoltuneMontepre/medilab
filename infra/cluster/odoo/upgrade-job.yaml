@@ -1,4 +1,5 @@
-# Installs the missing modules and upgrades every installed one before the new colour starts. A failure fails the sync.
+# Installs the missing modules and upgrades every installed one before the new colour starts, then records the image's
+# fingerprint in medilab, so a later sync of the same image skips it. A failure fails the sync.
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -20,17 +21,16 @@ spec:
       containers:
         - name: upgrade
           image: ghcr.io/soltunemontepre/medilab:sha-8e6924723d1121f7e90a11c5074220bac4e23a62
-          args:
-            - odoo
-            - --database=medilab
-            - --init=sol_laboratory,sol_commerce,sol_inventory,sol_theme,sol_demo
-            - --update=all
-            - --max-cron-threads=0
-            - --stop-after-init
+          command:
+            - bash
+            - /opt/medilab/upgrade/upgrade.sh
+            - release
           envFrom:
             - secretRef:
                 name: filestore-bucket
           env:
+            - name: MEDILAB_MODULES
+              value: sol_session,sol_laboratory,sol_commerce,sol_inventory,sol_theme,sol_demo
             - name: HOST
               value: medilab-db-rw
             - name: USER
@@ -61,9 +61,15 @@ spec:
               readOnly: true
             - name: data
               mountPath: /var/lib/odoo
+            - name: upgrade
+              mountPath: /opt/medilab/upgrade
+              readOnly: true
       volumes:
         - name: config
           secret:
             secretName: odoo-config
         - name: data
           emptyDir: {}
+        - name: upgrade
+          configMap:
+            name: odoo-upgrade

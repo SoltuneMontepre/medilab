@@ -1,5 +1,6 @@
 # The production odoo.conf, with the master password from Doppler. The database connection comes from the environment.
 # Six worker processes and one cron fit the pod's 5 GiB at their soft memory limit; e-mail goes to Mailpit.
+# sol_session loads with the server, so sessions live in the database and both colours of a release serve them.
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
@@ -27,6 +28,7 @@ spec:
           http_interface = 0.0.0.0
           workers = 6
           max_cron_threads = 1
+          server_wide_modules = base,rpc,web,sol_session
           db_maxconn = 8
           limit_memory_soft = 603979776
           limit_memory_hard = 939524096

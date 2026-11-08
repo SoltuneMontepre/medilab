@@ -124,9 +124,9 @@ ONLYOFFICE Document Server runs as an optional service with its own health monit
 ## Odoo
 
 - Two replicas, spread over the data sites by preferred pod anti-affinity.
-- A release is blue-green: Argo Rollouts starts the new image beside the running one, checks it, then switches the traffic to it at once, so users are not interrupted and never reach a mix of versions. The old pods stay up 10 minutes for a rollback. The anti-affinity is preferred rather than required so that the extra pods can be placed during a release.
+- A release is blue-green: Argo Rollouts starts the new image beside the running one, checks it, then switches the traffic to it at once, so users are not interrupted and never reach a mix of versions. Before the switch it checks the login page and that every asset bundle builds; after it, it watches the new pods' errors for 5 minutes and switches back to the old pods, which stay up 10 minutes, if they log too many. The anti-affinity is preferred rather than required so that the extra pods can be placed during a release.
 - Attachments are stored in the `medilab-filestore` bucket through the laboratory bucket service (`BUCKET_FILESTORE=1`) and cached on each replica's local disk, so either replica serves every file; see [Laboratory files](../specs/laboratory-files.md#filestore).
-- Sessions are stored on each replica's local disk; users log in again after a failover.
+- Sessions are stored in the database by the `sol_session` module, so users stay signed in across replicas, failovers and releases; see [Sessions](../specs/sessions.md).
 - Module installs and upgrades run in a one-off Job per release, never at pod start.
 - Scheduled actions run on both replicas; Odoo locks each job so it runs once.
 

@@ -1,4 +1,5 @@
 base
+sol_session
 sol_laboratory
 sol_commerce
 sol_inventory

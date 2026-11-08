@@ -10,6 +10,7 @@ Laboratory Information Management System (LIMS) for testing laboratories, built 
 - [Laboratory](docs/functional/laboratory_module/overview.md)
 - [Inventory](docs/functional/inventory_module/overview.md)
 - Medilab Theme (`sol_theme`), optional: the MediLab look
+- Medilab Sessions (`sol_session`): keeps sign-in sessions in the database; see [Sessions](docs/specs/sessions.md)
 
 Documentation index: [docs/readme.md](docs/readme.md).
 

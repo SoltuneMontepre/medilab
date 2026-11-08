@@ -1,5 +1,6 @@
 # Only Traefik reaches Odoo's web and websocket ports, so no other pod sends Odoo a forged Cf-Connecting-IP or
-# X-Forwarded-For. The Argo Rollouts controller also reaches the web port to check the preview colour before a switch.
+# X-Forwarded-For. The Argo Rollouts controller and its smoke check Job also reach the web port to check the preview
+# colour before a switch.
 # k3s enforces it with its network policy controller.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -30,5 +31,11 @@ spec:
             matchLabels:
               app.kubernetes.io/name: argo-rollouts
               app.kubernetes.io/component: rollouts-controller
+      ports:
+        - port: http
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: odoo-release-check
       ports:
         - port: http

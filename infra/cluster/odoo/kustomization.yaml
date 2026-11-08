@@ -13,6 +13,24 @@ resources:
   - service.yaml
   - ingress-route.yaml
   - network-policy.yaml
+# The upgrade scripts are a hook created before the other hooks, which run before Argo CD applies regular resources.
+# The release checks keep their name, as the AnalysisTemplate that mounts them is not a kind Kustomize renames in.
+configMapGenerator:
+  - name: odoo-upgrade
+    files:
+      - upgrade/upgrade.sh
+      - upgrade/fingerprint.py
+    options:
+      disableNameSuffixHash: true
+      annotations:
+        argocd.argoproj.io/hook: PreSync
+        argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+        argocd.argoproj.io/sync-wave: "-3"
+  - name: odoo-release-checks
+    files:
+      - checks/smoke.mjs
+    options:
+      disableNameSuffixHash: true
 images:
   - name: ghcr.io/soltunemontepre/medilab
     newTag: sha-ac0315c07099708779758c6df6415519323a687d

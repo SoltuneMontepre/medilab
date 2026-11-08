@@ -41,6 +41,7 @@ Every chart and image is pinned and upgraded by changing it in `infra/cluster/`:
 | Barman Cloud plugin chart | 0.8.1    | `applications/plugin-barman-cloud.yaml` |
 | Postgres image            | 18.4     | `imageName` in `database/cluster.yaml`  |
 | Rehearsal Postgres image  | 18.4     | `odoo/upgrade-rehearsal.yaml`           |
+| Smoke check Node image    | 22.23.4  | `odoo/analysis-template.yaml`           |
 | `cloudflared` image       | 2026.9.3 | `cloudflared/deployment.yaml`           |
 | Mailpit image             | v1.31.6  | `mailpit/deployment.yaml`               |
 | CloudBeaver image         | 26.2.2   | `cloudbeaver/deployment.yaml`           |
@@ -77,29 +78,37 @@ External Secrets reads the Doppler `infra` config through the `doppler` `Cluster
 
 ## Odoo
 
-- `odoo.conf` comes from the `odoo-config` Secret, not the image: six workers, one cron thread, `proxy_mode`, no database manager and only the `medilab` database. Odoo reaches the database through the `medilab-db-rw` service with the user in `medilab-db-app`, with at most 8 connections per process.
+- `odoo.conf` comes from the `odoo-config` Secret, not the image: six workers, one cron thread, `proxy_mode`, no database manager, only the `medilab` database, and `sol_session` loaded with the server so sessions live in the database; see [Sessions](../specs/sessions.md). Odoo reaches the database through the `medilab-db-rw` service with the user in `medilab-db-app`, with at most 8 connections per process.
 - Odoo and the database together get 8 GiB: the Odoo pod requests three cores and 4 GiB with a 5 GiB limit, and each worker is recycled above 576 MiB and killed above 896 MiB, so every process fits the limit at its soft memory limit. A worker is also recycled after 8192 requests. The pod has no CPU limit, so it uses the node's idle cores.
 - The upgrade Job, and the rehearsal's `upgrade` container, each request three cores and 2 GiB with a 4 GiB limit, on top of those 8 GiB while they run; they never run at the same time.
 - With no outgoing mail server stored in Odoo and no Brevo settings in the environment, Odoo sends every e-mail to Mailpit on port 1025, without TLS.
-- Odoo and the upgrade Job get the `medilab-filestore` bucket credentials and endpoint from the `filestore-bucket` Secret as `BUCKET_LABORATORY_*`, with `BUCKET_LABORATORY_NAME=medilab-filestore`, `BUCKET_LABORATORY_REGION=us-east-1` and `BUCKET_FILESTORE=1`. Attachments are kept in the bucket and cached in the pod's `/var/lib/odoo` `emptyDir` alongside the sessions; see [Laboratory files](../specs/laboratory-files.md#filestore).
+- Odoo and the upgrade Job get the `medilab-filestore` bucket credentials and endpoint from the `filestore-bucket` Secret as `BUCKET_LABORATORY_*`, with `BUCKET_LABORATORY_NAME=medilab-filestore`, `BUCKET_LABORATORY_REGION=us-east-1` and `BUCKET_FILESTORE=1`. Attachments are kept in the bucket and cached in the pod's `/var/lib/odoo` `emptyDir`; see [Laboratory files](../specs/laboratory-files.md#filestore).
 - Odoo is an Argo Rollouts `Rollout` with the blue-green strategy. The `odoo` Service sends traffic to the active colour and `odoo-preview` to the colour being released; Argo Rollouts adds the colour's `rollouts-pod-template-hash` to each selector, which the `odoo` application ignores in its diff.
 - Traefik routes `lims.soltunemontepre.tech` to `odoo` and `preview.soltunemontepre.tech` to `odoo-preview`, each with `/websocket` to the websocket port and the same middlewares, and tells Odoo the request came over HTTPS. Outside a release both hostnames reach the active colour.
+- The upgrade scripts are the `odoo-upgrade` ConfigMap, from `infra/cluster/odoo/upgrade/`. `fingerprint.py` hashes what an upgrade depends on: the Odoo package, the MediLab modules, their Python packages and the modules to install. After each upgrade, the `medilab.upgrade_fingerprint` system parameter of `medilab` records it, so a sync of an image `medilab` was already upgraded with, such as a change to a route or a policy, skips the rehearsal and the upgrade.
 - Every sync of the `odoo` application runs, in order:
-  1. A `PreSync` hook: the `odoo-upgrade-rehearsal` Job, which rehearses the upgrade on a copy of the database:
-     1. Its `copy` container empties the `medilab_rehearsal` database and copies `medilab` into it with `pg_dump` and `pg_restore`, without stopping Odoo.
-     2. Its `upgrade` container runs the release's image on `medilab_rehearsal` with the arguments of the `odoo-upgrade` Job. It has no bucket settings, so it neither reads nor writes the `medilab-filestore` bucket, and attachment files read as empty.
-     3. It does not retry and must finish within 30 minutes. A failure fails the sync before the backup, so `medilab` is untouched and the active colour keeps serving. The copy stays in `medilab_rehearsal` to inspect until the next sync empties it.
-  2. A `PreSync` hook: the `odoo-upgrade-rehearsal-cleanup` Job, which empties `medilab_rehearsal` once the rehearsal passed.
-  3. A `PreSync` hook: the `medilab-db-pre-sync` on-demand `Backup`, which must complete.
-  4. A `Sync` hook: the `odoo-upgrade` Job, which installs `sol_laboratory`, `sol_commerce`, `sol_inventory`, `sol_theme` and `sol_demo` when missing and upgrades every installed module. `MEDILAB_DEMO_PASSWORD` is not set, so the `demo.<role>` users keep the password `demo`. It does not retry; a failure fails the sync.
-  5. The blue-green release of the `odoo` Rollout:
+  1. A `PreSync` hook: the `odoo-upgrade` ConfigMap, replaced first so the other hooks read the current scripts.
+  2. A `PreSync` hook: the `odoo-upgrade-rehearsal` Job, which rehearses the upgrade on a copy of the database:
+     1. Its `check` container skips the rest when `medilab` is empty, with nothing to protect, or already records this image's fingerprint.
+     2. Its `copy` container empties the `medilab_rehearsal` database and copies `medilab` into it with `pg_dump` and `pg_restore`, without stopping Odoo.
+     3. Its `upgrade` container runs the release's image on `medilab_rehearsal` with the modules of the `odoo-upgrade` Job. It uses the image's own `odoo.conf`, since the `odoo-config` Secret exists only once a first sync applied it. It has no bucket settings, so it neither reads nor writes the `medilab-filestore` bucket, and attachment files read as empty.
+     4. It does not retry and must finish within 30 minutes. A failure fails the sync before the backup, so `medilab` is untouched and the active colour keeps serving. The copy stays in `medilab_rehearsal` to inspect until the next sync empties it.
+  3. A `PreSync` hook: the `odoo-upgrade-rehearsal-cleanup` Job, which empties `medilab_rehearsal` once the rehearsal passed.
+  4. A `PreSync` hook: the `medilab-db-pre-sync` on-demand `Backup`, which must complete.
+  5. A `Sync` hook: the `odoo-upgrade` Job, which, unless `medilab` already records this image's fingerprint, installs `sol_session`, `sol_laboratory`, `sol_commerce`, `sol_inventory`, `sol_theme` and `sol_demo` when missing and upgrades every installed module, then records the fingerprint. `MEDILAB_DEMO_PASSWORD` is not set, so the `demo.<role>` users keep the password `demo`. It does not retry; a failure fails the sync.
+  6. The blue-green release of the `odoo` Rollout, when the image or the pod template changed:
      1. The new image starts as the preview colour beside the active one, which keeps serving `lims.soltunemontepre.tech`.
-     2. Once the preview colour is ready, the `odoo-health` analysis has the Argo Rollouts controller request `/web/health?db_server_status=1` on `odoo-preview` three times, 20 seconds apart. Each answer must be `pass`; one failure or error aborts the release.
-     3. Argo Rollouts switches `odoo` to the new colour without a human step, and scales the old colour down 10 minutes later.
-     4. A release that is not ready and checked within the `progressDeadlineSeconds` of 10 minutes is aborted. An aborted release keeps the old colour active and scales the new one down, and Argo CD reports the application as degraded.
+     2. Once the preview colour is ready, the `odoo-health` analysis checks it through `odoo-preview`; one failure or error aborts the release:
+        - The Argo Rollouts controller requests `/web/health?db_server_status=1` three times, 20 seconds apart, and each answer must be `pass`.
+        - The `smoke` Job runs `checks/smoke.mjs`, from the `odoo-release-checks` ConfigMap, in a pinned Node 22 image. `/web/login` must show the login form and `/odoo` must send a visitor to it. Every asset bundle the login page links, and the web client's `web.assets_web` JavaScript and CSS, must answer 200, the CSS without Odoo's CSS error message and the JavaScript parsing without a syntax error. A bundle that fails to build otherwise leaves people on a blank page while `/web/health` passes. Fetching the bundles also builds them, so the first visitors after the switch do not wait for it.
+     3. Argo Rollouts switches `odoo` to the new colour without a human step.
+     4. The `odoo-errors` analysis then counts the `ERROR` and `CRITICAL` log lines of the new colour's pods in Loki, over the last minute, each minute for 5 minutes. More than 3 in two of those minutes aborts the release: Argo Rollouts sends the traffic back to the old colour, which is still running, and Argo CD reports the application as degraded, so `cd-core` rolls back.
+     5. Argo Rollouts scales the old colour down 10 minutes after the switch.
+     6. A release that makes no progress within the `progressDeadlineSeconds` of 15 minutes is aborted. An aborted release keeps the old colour active and scales the new one down, and Argo CD reports the application as degraded.
 - Each hook is replaced at the next sync, so the last backup and Job stay readable until then.
 - Both colours use the one `medilab` database, which the upgrade Job has already upgraded, so the old colour runs on the newer schema until it stops. Both run scheduled actions in that time; Odoo locks each job so it runs once.
-- Returning to the previous image within the 10 minutes reuses the old colour's running pod, so the switch back waits only for the analysis. Argo CD reverts changes made by hand, so a rollback goes through Git, as `cd-core` does; see [Pipelines](pipelines.md#cd-core).
+- Returning to the previous image through Git within the 10 minutes reuses the old colour's running pod, so the switch back waits only for the analysis.
+- People stay signed in when traffic switches colour, since sessions live in the database; see [Sessions](../specs/sessions.md). Argo CD reverts changes made by hand, so a rollback goes through Git, as `cd-core` does; see [Pipelines](pipelines.md#cd-core).
 - While the old colour runs, two Odoo pods request 6 cores and 8 GiB.
 - Odoo saves the address of the first administrator login as `web.base.url`, so an administrator who signs in on `preview.soltunemontepre.tech` changes the address in links Odoo sends.
 - The `odoo` application removes what it prunes only after every other resource is healthy, so the Deployment the Rollout replaced kept serving until the Rollout was ready.
@@ -142,7 +151,7 @@ The manual `applications/onlyoffice.yaml` and `applications/onlyoffice-monitor.y
 
 `cloudflared` connects the remotely managed tunnel of `CLOUDFLARE_TUNNEL_TOKEN`. Terraform creates the tunnel and its public hostnames, which send every request to `http://traefik.kube-system.svc.cluster.local:80`.
 
-- Only Cloudflare reaches the origin, so the `Cf-Connecting-IP` header Cloudflare sets is the client's address. Traefik binds no host port, the network policy `traefik-from-cloudflared` (Ansible's k3s role) lets only the `cloudflared` pods reach Traefik's web entry point, and `odoo-from-traefik` (`infra/cluster/odoo/network-policy.yaml`) lets only Traefik reach Odoo's web and websocket ports, and the Argo Rollouts controller reach the web port for the release check. k3s's network policy controller enforces both.
+- Only Cloudflare reaches the origin, so the `Cf-Connecting-IP` header Cloudflare sets is the client's address. Traefik binds no host port, the network policy `traefik-from-cloudflared` (Ansible's k3s role) lets only the `cloudflared` pods reach Traefik's web entry point, and `odoo-from-traefik` (`infra/cluster/odoo/network-policy.yaml`) lets only Traefik reach Odoo's web and websocket ports, and the Argo Rollouts controller and its `odoo-release-check` smoke Job pods reach the web port for the release checks. k3s's network policy controller enforces both.
 - The `odoo-rate-limit` middleware limits each client address, by `Cf-Connecting-IP`, on signing in to the laboratory files API (`/medilab/api/v1/sign-in`) and on the Brevo and PayOS webhooks: 30 requests a minute, with bursts of 30, then Traefik answers 429. Odoo also slows signing in per login; see [Laboratory files](../specs/laboratory-files.md#limits-on-signing-in).
 - `tools/scripts/check_origin_isolation.sh` waits for the `odoo` Rollout and the Traefik rollout to be healthy, then checks that a probe with the `cloudflared` label reaches Odoo's `/web/health` through Traefik, and that one with Traefik's label reaches Odoo directly. It then checks that a pod with neither label times out on both paths with forged `Cf-Connecting-IP` and `X-Forwarded-For` headers. A Job owns each probe pod so application ReplicaSets cannot adopt it. The check removes its Jobs on exit and gives them a deadline and an expiry in case it is interrupted. An unavailable origin, a DNS error or a probe that cannot run fails the check.
 
