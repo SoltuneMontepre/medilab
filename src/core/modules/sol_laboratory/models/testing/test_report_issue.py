@@ -255,7 +255,9 @@ class TestReport(models.Model, TestReportBase):
         for change_request in waiting:
             change_request._apply()
         tasks = self.env[MODEL_TASK]
-        for report in reports.filtered(lambda report: report.replaces_id and report.status in ("draft", "signing")):
+        for report in reports.filtered(
+            lambda report: bool(report.replaces_id) and report.status in ("draft", "signing")
+        ):
             if tasks._system_tasks_of(report, SIGNING_ACTION) or any(
                 result.status != STATE_APPROVED for result in report.result_ids
             ):

@@ -147,7 +147,7 @@ def _test(sample, parameter):
     return sample.test_ids.filtered(lambda test: test.parameter_id == parameter)
 
 
-def _enter(env, user, test, conclusion=False, **values):
+def _enter(env, user, test, conclusion: str | None = None, **values):
     """The user's result for the test; the conclusion is set only when the result is in the requested comparison."""
     result = env[MODEL_TEST_RESULT].with_user(user).create({"sample_test_id": test.id, **values})
     if conclusion and result.comparison_requested:

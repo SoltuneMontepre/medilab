@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from odoo import api, fields, models
 from odoo.exceptions import AccessError, UserError
@@ -265,7 +265,8 @@ class TestReport(models.Model, TestReportBase):
             raise UserError(self.env._("The draft was not generated from the report's template; generate it again."))
         current = file.current_version_id
         business = report._binding_values()
-        number = report.code or self.env["ir.sequence"].next_by_code(MODEL_TEST_REPORT)
+        # The module ships the report sequence, so a number always comes back.
+        number = report.code or cast("str", self.env["ir.sequence"].next_by_code(MODEL_TEST_REPORT))
         day = report._laboratory_day(fields.Datetime.now())
         try:
             docx = current.content_id._read_bytes()

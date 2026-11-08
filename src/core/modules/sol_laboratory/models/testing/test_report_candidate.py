@@ -156,7 +156,7 @@ class TestReportCandidate(models.Model, TestReportCandidateBase):
                 "snapshot": _jsonable(snapshot),
             }
         )
-        attachment.res_id = candidate.id
+        attachment.write({"res_id": candidate.id})
         return candidate
 
     def _invalidate(self, reason):
