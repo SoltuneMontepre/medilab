@@ -1,6 +1,5 @@
 """The browser boundary uses the existing editing model and explicitly configured service origins."""
 
-import functools
 import hashlib
 import ipaddress
 import json
@@ -37,7 +36,6 @@ ASSETS = "/sol_laboratory/static/src/laboratory_files/editor/"
 ASSET_FILES = ("editor.css", "editor.js")
 
 
-@functools.cache
 def asset_version():
     """A short checksum of the page's own stylesheet and script, in their addresses: browsers keep static files for a
     week, so a changed file is fetched again only under a new address."""

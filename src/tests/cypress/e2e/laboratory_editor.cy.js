@@ -66,6 +66,11 @@ describe("Laboratory browser editor adapter", () => {
         // The editor fills the page: the banner stays only for assistive technology.
         cy.get("#laboratory-editor > header").should("have.class", "quiet");
         cy.get("#laboratory-editor > header").invoke("outerHeight").should("be.at.most", 1);
+        // A hidden banner must stay in the accessibility tree: not display: none, not visibility: hidden.
+        cy.get("#editor-status").should(($status) => {
+          expect($status[0].checkVisibility({ visibilityProperty: true })).to.eq(true);
+          expect($status.closest("[aria-hidden=true]")).to.have.length(0);
+        });
         cy.get("iframe[title='Editor adapter fixture']").should("be.visible");
         cy.get("#editor-retry").should("not.be.visible");
         cy.get("#editor-messages").should("not.be.visible");
@@ -132,9 +137,12 @@ describe("Laboratory browser editor adapter", () => {
       expect(unloadState()).to.eq(false);
       expect(win.onbeforeunload({ preventDefault() { throw new Error("Clean document must not warn"); } })).to.eq(undefined);
       win.editorFixture.config.events.onDocumentStateChange({ data: true });
+      expect(win.document.querySelector("#laboratory-editor > header").classList.contains("slim")).to.eq(true);
+      expect(win.document.getElementById("editor-status").textContent).to.contain("edited");
       expect(unloadState()).to.eq(true);
       expect(win.onbeforeunload({ preventDefault() {} }), "legacy handler warning value").to.eq("true");
       win.editorFixture.config.events.onDocumentStateChange({ data: false });
+      expect(win.document.getElementById("editor-status").textContent).to.contain("not confirmed");
       expect(unloadState()).to.eq(false);
       expect(win.onbeforeunload({ preventDefault() { throw new Error("Saved document must not warn"); } })).to.eq(undefined);
     });

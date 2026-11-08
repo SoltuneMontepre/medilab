@@ -9,14 +9,16 @@
     const messages = Object.fromEntries(
         [...document.querySelectorAll("[data-message]")].map((node) => [node.dataset.message, node.textContent]),
     );
-    const QUIET_STATES = ["ready", "editing", "sent"];
+    const SLIM_STATES = ["editing", "sent"];
     let dirty = false;
     let timer;
     function show(state, canRetry = false) {
         status.textContent = messages[state];
         retry.hidden = !canRetry;
-        // Once the document is open the editor fills the page; the banner stays for assistive technology.
-        banner.classList.toggle("quiet", QUIET_STATES.includes(state));
+        // Once the document is open the editor fills the page and the banner stays for assistive technology; while
+        // changes are edited or sent it shrinks to its status line, which says MediLab has not saved them yet.
+        banner.classList.toggle("quiet", state === "ready");
+        banner.classList.toggle("slim", SLIM_STATES.includes(state));
     }
     function failed() {
         clearTimeout(timer);

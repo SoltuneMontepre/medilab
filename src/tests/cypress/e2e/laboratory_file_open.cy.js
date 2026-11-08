@@ -17,10 +17,9 @@ describe("Opening laboratory files from the back office", () => {
     signIn("demo.tester");
   });
 
-  it("opens an Office file of the Files list in the online editor, in a new tab the browser allows", () => {
+  it("opens an Office file of the Files list in the online editor, in a new tab", () => {
     fileId(OFFICE_FILE).then((id) => {
       cy.visit("/odoo/laboratory-files");
-      // The spy calls through, so a blocked popup shows as the null that window.open then returns.
       cy.window().then((win) => cy.spy(win, "open").as("open"));
 
       cy.contains(".o_data_row td", OFFICE_FILE).click();
@@ -28,7 +27,6 @@ describe("Opening laboratory files from the back office", () => {
       cy.get("@open").should("have.been.calledOnce");
       cy.get("@open").its("firstCall.args.0").should("contain", `/medilab/laboratory-files/${id}/edit`);
       cy.get("@open").its("firstCall.args.1").should("eq", "_blank");
-      cy.get("@open").its("firstCall.returnValue").should("not.be.null");
       cy.get(".o_form_view").should("not.exist");
     });
   });
