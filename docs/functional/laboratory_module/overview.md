@@ -263,7 +263,7 @@ flowchart LR
 
 ## Laboratory files
 
-Laboratory files are the files the testing work produces and uses outside MediLab's forms: raw data from instruments, working spreadsheets, result files and report drafts. The Laboratory module keeps them the way an object store does: folders of files, each file a series of versions, with the bytes in an S3 bucket and only their description in the database. People work on the files in their own programs on the laboratory's computers through [Medilab Sync](applications/medilab-sync.md), browse and download them in the Documents menu of the back office, and edit Office documents together in the browser. Medilab Sync reaches the module through its REST API.
+Laboratory files are the files the testing work produces and uses outside MediLab's forms: raw data from instruments, working spreadsheets, result files and report drafts. The Laboratory module keeps them the way an object store does: folders of files, each file a series of versions, with the bytes in an S3 bucket and only their description in the database. People work on the files in their own programs on the laboratory's computers through [Medilab Sync](applications/medilab-sync.md), browse and download them in the Documents menu of the back office, where a click on an Office file opens it in the browser editor, and edit Office documents together in the browser. Medilab Sync reaches the module through its REST API.
 
 | Rule            | Description |
 | --------------- | ----------- |
