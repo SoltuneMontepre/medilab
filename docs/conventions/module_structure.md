@@ -74,7 +74,7 @@ Technical names used in Python live in the `constants/` package at the root of t
 | `constants/items.py`       | Kinds of stock items and how they are tracked, such as `KIND_SOLUTION`                      |
 | `constants/laboratory_files.py` | Member roles, sync modes and access levels of laboratory folders and files, the sources of file versions, Office extensions, and the codes of their refusals, such as `FOLDER_SHARE` |
 | `constants/laboratory_editing.py` | Statuses of online editing sessions and of the editing service's callbacks, the files edited online, the editing service's addresses, secret and token header, and the codes of their refusals, such as `OPEN_STATUSES` |
-| `constants/report_templates.py` | States of report template versions, the data bindings of report DOCX files and the statuses of prepared PDFs, such as `REQUIRED_BINDINGS` |
+| `constants/report_templates.py` | States of report template versions, the data bindings of report DOCX files, the statuses of prepared PDFs and the context key naming the one a signer reviewed, such as `REQUIRED_BINDINGS` |
 | `constants/laboratory_api.py` | The path of the laboratory files API, the HTTP status of each refusal code and the limits on signing in, such as `ERROR_STATUSES` |
 
 - Names are UPPER*SNAKE_CASE; a model constant is `MODEL*<NAME>`and holds the value of`\_name`.

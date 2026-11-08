@@ -1,10 +1,11 @@
 import hashlib
 from pathlib import Path
 
+from odoo import fields
 from odoo.modules.module import load_script
 from odoo.tests import tagged
 
-from .report_case import ReportCase
+from .report_case import PDF, ReportCase
 from odoo.addons.sol_laboratory.constants.report_templates import CANDIDATE_ISSUED, CANDIDATE_MIGRATED
 
 POST_MIGRATE = Path(__file__).resolve().parents[1] / "migrations" / "20.0.1.28.0" / "post-migrate.py"
@@ -15,8 +16,18 @@ class TestReportCandidateMigration(ReportCase):
     def test_issued_pdf_becomes_an_issued_candidate_unchanged(self):
         self.complete()
         report = self.report()
-        self.sign(report)
-        attachment = report.attachment_id
+        # A report issued before report templates: its PDF printed when it was issued, with no prepared candidate.
+        attachment = self.env["ir.attachment"].create(
+            {"name": "PKQ.2025.0001.pdf", "raw": PDF, "mimetype": "application/pdf", "res_model": report._name}
+        )
+        report.sudo().write(
+            {
+                "status": "issued",
+                "code": "PKQ.2025.0001",
+                "issued_at": fields.Datetime.now(),
+                "attachment_id": attachment.id,
+            }
+        )
         pdf = bytes(attachment.raw)
         checksum = attachment.checksum
 

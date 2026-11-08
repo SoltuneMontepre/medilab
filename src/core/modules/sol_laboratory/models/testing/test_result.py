@@ -23,6 +23,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_REGULATION,
     MODEL_SAMPLE_TEST,
     MODEL_SAMPLE_TYPE,
+    MODEL_TEST_REPORT,
     MODEL_TEST_RESULT,
 )
 from odoo.addons.sol_laboratory.constants.notifications import EVENT_TEST_RESULT_REJECTED
@@ -498,7 +499,8 @@ class TestResult(models.Model, TestResultBase):
 
     def _new_version(self, change_request):
         """Replace the result by its next version, unsigned and reported in its place; its test goes back to testing in
-        the queue of the department that tested it, with the change to make."""
+        the queue of the department that tested it, with the change to make, and its request's unissued report stops
+        waiting for signature until the new version is approved."""
         self.ensure_one()
         result = self.sudo()
         result.is_replaced = True
@@ -511,6 +513,9 @@ class TestResult(models.Model, TestResultBase):
             }
         )
         test = version.sample_test_id
+        self.env[MODEL_TEST_REPORT]._stop_signing(
+            test.sample_id.request_id, self.env._("A reported result is corrected.")
+        )
         test._progress(test._work_status())
         test._open_testing_task(test._tested_by(), change_request.requested_change)
         return version
@@ -521,6 +526,8 @@ class TestResult(models.Model, TestResultBase):
             status = TEST_STATUS_BY_STATE[state]
             test = self.sample_test_id
             test._progress(test._work_status() if status == "testing" else status)
+            if state == STATE_APPROVED:
+                self.env[MODEL_TEST_REPORT]._follow_corrections(test.sample_id.request_id)
             if state == STATE_REJECTED and not self.replaces_id:
                 # The rejected result stays on record, and a new testing task with the reason waits in the queue of
                 # the department that tested it, unless one is still open. A rejected correction is redone by a change

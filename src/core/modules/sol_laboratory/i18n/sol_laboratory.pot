@@ -389,6 +389,12 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_issue.py:0
+msgid "%s is not approved, so its PDF cannot be issued."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/tasks/task.py:0
 msgid "%s is not in the task's department."
 msgstr ""
@@ -833,6 +839,14 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_issue.py:0
+msgid ""
+"A new PDF of the report was prepared since you opened it; review it before "
+"signing."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_method_sample_type_one_default
 msgid "A parameter has only one default way of testing for each sample type."
 msgstr ""
@@ -908,6 +922,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/test_report.py:0
 msgid "A report is signed once every result of its test request is approved."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result.py:0
+msgid "A reported result is corrected."
 msgstr ""
 
 #. module: sol_laboratory
@@ -8533,13 +8553,53 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__candidate_id
+msgid "PDF to Sign"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_report__status__pending_signing
+msgid "Pending Digital Signing"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_issue.py:0
+msgid "Prepare the report's PDF and review it before signing."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__regulation_notice
 msgid "Regulation Notice"
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_issue.py:0
+msgid "Replace the report with the corrected result %(result)s: %(change)s"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__report_change_request_id
+msgid "Report Change Request"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__result_change_request_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_form
+msgid "Result Corrections"
+msgstr ""
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_regulation_form
 msgid "Sample types to add their offered parameters for"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+msgid ""
+"Sign the prepared PDF you reviewed? The last signature issues it once its "
+"PDF is stored."
 msgstr ""
 
 #. module: sol_laboratory
@@ -12720,11 +12780,6 @@ msgid "Sign this computer in: the call has no key."
 msgstr ""
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
-msgid "Sign this report? The last signature issues it."
-msgstr ""
-
-#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_form_signing
 msgid ""
 "Sign this version? Your signature belongs to this version and its content."
@@ -14105,6 +14160,22 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_issue.py:0
+msgid ""
+"The prepared PDF no longer matches its template, its draft or the business "
+"records; reopen the draft and prepare the PDF again."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_issue.py:0
+msgid ""
+"The prepared PDF of %s no longer matches its sources, so it cannot be "
+"issued."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/system/signature.py:0
 msgid ""
 "The process of the document is completed, so a signature cannot be "
@@ -14130,6 +14201,15 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_regulation_code_unique
 msgid "The reference of a regulation must be unique."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+msgid ""
+"The report is approved, but Viettel Sign has not signed its PDF yet, so it "
+"is not issued: it cannot be delivered or downloaded. Signing is retried "
+"automatically, and the customer is told once the signed PDF is stored and "
+"the report is issued."
 msgstr ""
 
 #. module: sol_laboratory
@@ -15106,13 +15186,6 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/mixins/digital_signing_mixin.py:0
 msgid "Viettel Sign did not sign the PDF: %s"
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
-msgid ""
-"Viettel Sign has not signed the PDF yet. It is retried automatically, and "
-"the customer is told once it is signed."
 msgstr ""
 
 #. module: sol_laboratory

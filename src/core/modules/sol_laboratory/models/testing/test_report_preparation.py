@@ -26,7 +26,7 @@ from odoo.addons.sol_laboratory.constants.report_templates import (
     REQUIRED_BINDINGS,
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import REPORT_DRAFTS_FOLDER
-from odoo.addons.sol_laboratory.models.testing.test_report import OPEN_STATUSES, PRINT_LANGS
+from odoo.addons.sol_laboratory.models.testing.test_report import ISSUED_STATUSES, PRINT_LANGS
 from odoo.addons.sol_laboratory.services import laboratory_bucket, report_docx
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
 from odoo.addons.sol_laboratory.services.report_docx import paragraph, table
@@ -61,6 +61,9 @@ class TestReport(models.Model, TestReportBase):
         draft_ids = fields.One2many(MODEL_TEST_REPORT_DRAFT, "report_id", string="Generated Drafts")
         # Every PDF prepared for review, the latest first.
         candidate_ids = fields.One2many(MODEL_TEST_REPORT_CANDIDATE, "report_id", string="Prepared PDFs")
+        # The prepared PDF waiting for the lab head's review and signature; the sign button names it, so a signer never
+        # signs a PDF prepared after the one they reviewed.
+        candidate_id = fields.Many2one(MODEL_TEST_REPORT_CANDIDATE, string="PDF to Sign", compute="_compute_candidate")
         # True while a prepared PDF waits for the lab head's review.
         has_candidate = fields.Boolean(string="PDF Waiting for Review", compute="_compute_candidate")
         # True while that PDF still matches its template version, its draft's last save and the business records.
@@ -74,15 +77,16 @@ class TestReport(models.Model, TestReportBase):
     def _compute_candidate(self):
         for report in self:
             candidate = report.sudo()._candidate()
+            report.candidate_id = candidate
             report.has_candidate = bool(candidate)
             report.candidate_current = bool(candidate) and candidate._is_current()
             report.draft_editable = bool(report.id) and report.sudo()._docx_writable_error() is None
 
     def _candidate(self):
-        """The prepared PDF waiting for review; none once the report is issued."""
+        """The prepared PDF waiting for review and signature; none once the report is issued."""
         self.ensure_one()
         report = self.sudo()
-        if report.status not in OPEN_STATUSES:
+        if report.status in ISSUED_STATUSES:
             return report.candidate_ids.browse()
         return report.candidate_ids.filtered(lambda candidate: candidate.status == CANDIDATE_REVIEW)[:1]
 
@@ -339,7 +343,11 @@ class TestReport(models.Model, TestReportBase):
             "customer_address": header["address"],
             "received_dates": header["received"],
             "samples": report._sample_blocks(report._binding_samples(), labels),
-            "approvers": [paragraph(f"{signer['name']}, {signer['level']}") for signer in report._print_signers()],
+            # The report's own signatures come after its PDF is prepared, so they never print in it.
+            "approvers": [
+                paragraph(f"{signer['name']}, {signer['level']}")
+                for signer in report._print_signers(report_signers=False)
+            ],
         }
 
     def _binding_samples(self):

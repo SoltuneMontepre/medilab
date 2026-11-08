@@ -15,6 +15,7 @@ from . import (
     test_report_candidate,
     test_report_document,
     test_report_draft,
+    test_report_issue,
     test_report_preparation,
     test_report_reject,
     test_report_template_change,

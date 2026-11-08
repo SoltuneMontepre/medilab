@@ -1,5 +1,5 @@
-"""States of report template versions, the data bindings of report DOCX files, and the statuses of prepared PDF
-candidates."""
+"""States of report template versions, the data bindings of report DOCX files, the statuses of prepared PDF candidates
+and the context key naming the one a signer reviewed."""
 
 # The states of a template version: edited, used by new drafts, or kept only for the reports that used it.
 DRAFT = "draft"
@@ -31,3 +31,5 @@ CANDIDATE_ISSUED = "issued"
 # How a candidate was made: prepared from a DOCX draft, or kept from a report issued before report templates existed.
 CANDIDATE_PREPARED = "prepared"
 CANDIDATE_MIGRATED = "migrated"
+# Context key of the sign button of a report: the id of the prepared PDF its signer reviewed, which the signature signs.
+REVIEWED_CANDIDATE_CONTEXT = "medilab_reviewed_candidate_id"

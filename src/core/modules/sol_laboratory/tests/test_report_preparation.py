@@ -1,7 +1,8 @@
 from odoo.exceptions import AccessError, UserError
 from odoo.tests import tagged
 
-from .report_preparation_case import PDF, ReportPreparationCase
+from .report_case import PDF
+from .report_preparation_case import ReportPreparationCase
 from odoo.addons.sol_laboratory.constants.laboratory_editing import ERROR, SESSION_CONFLICT
 from odoo.addons.sol_laboratory.constants.laboratory_files import GENERATED, LOCKED
 from odoo.addons.sol_laboratory.constants.models import (
@@ -196,6 +197,9 @@ class TestReportPreparation(ReportPreparationCase):
         self.assertFalse(report.candidate_ids)
         self.assertFalse(report.code)
 
+        self.conversion.side_effect = None
+        self.editor(report).action_prepare_pdf()
+        # A PDF prepared before the outage is signed and issued without ONLYOFFICE.
         self.health_check.return_value = False
         self.sign(report)
         self.assertEqual(report.status, "issued")

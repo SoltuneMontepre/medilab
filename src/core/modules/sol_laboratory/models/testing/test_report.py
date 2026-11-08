@@ -5,12 +5,7 @@ from odoo.exceptions import UserError
 from odoo.fields import Domain
 from odoo.tools import format_date, formatLang
 
-from odoo.addons.sol_laboratory.constants.approvals import (
-    DECISION_SIGNED,
-    STATE_APPROVED,
-    STATE_REJECTED,
-    STATE_REQUESTED,
-)
+from odoo.addons.sol_laboratory.constants.approvals import DECISION_SIGNED, STATE_APPROVED
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_CUSTOMER,
     MODEL_DIGITAL_SIGNING_MIXIN,
@@ -42,6 +37,8 @@ PRINT_LANGS = {"vi": ("vi_VN",), "en": ("en_US",), "bilingual": ("vi_VN", "en_US
 SIGNING_ACTION = "sign"
 # The statuses of a report the lab head can still sign.
 OPEN_STATUSES = ("draft", "signing")
+# The statuses of a report that was issued; its PDF never changes.
+ISSUED_STATUSES = ("issued", "replaced")
 # Samples left off the report: they have no results to report.
 UNREPORTED_SAMPLE_STATUSES = ("cancelled", "rejected")
 
@@ -59,7 +56,7 @@ class TestReport(models.Model, TestReportBase):
     _digital_signing_report = TEST_REPORT_REPORT
 
     if not TYPE_CHECKING:
-        # Unique report number from a sequence, such as PKQ.2026.0001; given when the report is issued.
+        # Unique report number from a sequence, such as PKQ.2026.0001; reserved when its PDF is first prepared.
         code = fields.Char(string="Report Number", readonly=True, copy=False)
         # The test request reported.
         request_id = fields.Many2one(
@@ -71,9 +68,15 @@ class TestReport(models.Model, TestReportBase):
         version = fields.Integer(required=True, default=1, readonly=True, copy=False)
         # The version this report replaces; empty for version 1.
         replaces_id = fields.Many2one(MODEL_TEST_REPORT, readonly=True, copy=False, ondelete="restrict")
-        # Where the report is in its signing.
+        # Where the report is in its signing: approved but waiting for its digitally signed PDF while pending.
         status = fields.Selection(
-            [("draft", "Draft"), ("signing", "Signing"), ("issued", "Issued"), ("replaced", "Replaced")],
+            [
+                ("draft", "Draft"),
+                ("signing", "Signing"),
+                ("pending_signing", "Pending Digital Signing"),
+                ("issued", "Issued"),
+                ("replaced", "Replaced"),
+            ],
             required=True,
             default="draft",
             readonly=True,
@@ -233,17 +236,17 @@ class TestReport(models.Model, TestReportBase):
         return super()._approval_check_actor(rejecting)
 
     def _approval_process_completed(self):
-        return self.status in ("issued", "replaced")
+        return self.status in ISSUED_STATUSES
 
     def _change_request_open(self):
-        return self.status == "issued"
+        # One replacement at a time: the issued report takes no new change request while its replacement is open.
+        return self.status == "issued" and not self.sudo().search_count([("replaces_id", "=", self.id)], limit=1)
 
     def _new_version(self, change_request):
-        """Replace the issued report by its next version, a draft the lab head signs and issues again; the portal offers
-        the issued version only."""
+        """Create the issued report's next version, a draft the lab head signs; the issued report stays issued, and
+        offered in the portal, until that version is issued."""
         self.ensure_one()
         report = self.sudo()
-        report.status = "replaced"
         version = report.create(
             {
                 "request_id": report.request_id.id,
@@ -256,58 +259,6 @@ class TestReport(models.Model, TestReportBase):
             REPORT_DRAFTED_TRIGGER, document=version, note=change_request.requested_change
         )
         return version
-
-    def _approval_set_state(self, state):
-        if state == STATE_APPROVED:
-            self._issue()
-        elif state == STATE_REQUESTED:
-            self.status = "signing"
-        else:
-            self.status = "draft"
-        if state in (STATE_APPROVED, STATE_REJECTED):
-            self.env[MODEL_TASK]._close_for_document(self, SIGNING_ACTION)
-
-    def _issue(self):
-        """Number the report, mark its request and samples reported, retain the kept samples, then store its PDF and
-        tell the customer; with digital signing on, once Viettel Sign has signed the PDF."""
-        self.ensure_one()
-        self.write(
-            {
-                "code": self.code or self.env["ir.sequence"].next_by_code(MODEL_TEST_REPORT),
-                "issued_at": fields.Datetime.now(),
-                "status": "issued",
-            }
-        )
-        request = self.request_id
-        reported = request.sample_ids.filtered(lambda sample: sample.status == "completed")
-        reported.status = "reported"
-        reported._retain(self._report_day())
-        if request.status != "reported":
-            request._set_status("reported")
-        if self._digital_signing_enabled():
-            self._digital_signing_start()
-            return
-        pdf, _report_type = self.env["ir.actions.report"]._render_qweb_pdf(TEST_REPORT_REPORT, self.ids)
-        self.attachment_id = self.env["ir.attachment"].create(
-            {
-                "name": self._digital_signing_filename(),
-                "raw": pdf,
-                "mimetype": "application/pdf",
-                "res_model": self._name,
-                "res_id": self.id,
-            }
-        )
-        self._notify_issued()
-
-    def _digital_signing_fully_signed(self):
-        return self.status in ("issued", "replaced")
-
-    def _digital_signing_filename(self):
-        return f"{self.code}.pdf"
-
-    def _digital_signing_done(self, signature):
-        self.sudo().attachment_id = signature.attachment_id
-        self._notify_issued()
 
     def _notify_issued(self):
         """Tell the customer the results are released, once for each issued report."""
@@ -345,7 +296,7 @@ class TestReport(models.Model, TestReportBase):
 
     def _files_locked(self):
         """True when a report's PDF can no longer change: it is issued."""
-        return any(report.status in ("issued", "replaced") for report in self)
+        return any(report.status in ISSUED_STATUSES for report in self)
 
     def _print_env(self):
         # Printing reads what the report shows with full rights; TestReportDocument checks who may print.
@@ -517,20 +468,26 @@ class TestReport(models.Model, TestReportBase):
         unit = result.limit_unit_id
         return f"{limit} {unit.name}" if unit and unit != result.unit_id else limit
 
-    def _print_signers(self):
-        """Who approved the results, then who signed the report; testers who only sent a result are left out."""
+    def _print_signers(self, report_signers=True):
+        """Who approved the results, then who signed the report unless report_signers is false; testers who only sent
+        a result are left out."""
         report = self.sudo()
         sending = {result.id: result._approval_sending_level() for result in report.result_ids}
-        rows = self.env[MODEL_SIGNATURE].sudo().search(
-            [
-                ("document_model", "=", MODEL_TEST_RESULT),
-                ("document_id", "in", report.result_ids.ids),
-                ("decision", "=", DECISION_SIGNED),
-                ("withdrawn_at", "=", False),
-            ]
-        ).filtered(lambda row: row.level_id != sending[row.document_id]) + report._approval_open_rows().filtered(
-            lambda row: row.decision == DECISION_SIGNED
-        ).sorted("id")
+        rows = (
+            self.env[MODEL_SIGNATURE]
+            .sudo()
+            .search(
+                [
+                    ("document_model", "=", MODEL_TEST_RESULT),
+                    ("document_id", "in", report.result_ids.ids),
+                    ("decision", "=", DECISION_SIGNED),
+                    ("withdrawn_at", "=", False),
+                ]
+            )
+            .filtered(lambda row: row.level_id != sending[row.document_id])
+        )
+        if report_signers:
+            rows += report._approval_open_rows().filtered(lambda row: row.decision == DECISION_SIGNED).sorted("id")
         signers = {
             (row.signer_id.id, row.level_id.id): {
                 "name": row.signer_name,

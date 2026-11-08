@@ -16,7 +16,7 @@
                     name="status"
                     widget="badge"
                     decoration-info="status == 'draft'"
-                    decoration-warning="status == 'signing'"
+                    decoration-warning="status in ('signing', 'pending_signing')"
                     decoration-success="status == 'issued'"
                 />
             </list>
@@ -53,7 +53,8 @@
                         type="object"
                         string="Sign"
                         class="btn-primary"
-                        confirm="Sign this report? The last signature issues it."
+                        confirm="Sign the prepared PDF you reviewed? The last signature issues it once its PDF is stored."
+                        context="{'medilab_reviewed_candidate_id': candidate_id}"
                         invisible="not approval_can_sign"
                     />
                     <button
@@ -91,7 +92,7 @@
                         name="action_print_draft"
                         type="object"
                         string="Print Draft"
-                        invisible="status in ('issued', 'replaced')"
+                        invisible="status not in ('draft', 'signing')"
                     />
                     <button
                         name="action_edit_draft"
@@ -150,9 +151,9 @@
                     />
                     <field name="status" widget="statusbar" statusbar_visible="draft,signing,issued" />
                 </header>
-                <div class="alert alert-info mb-0" role="status" invisible="not has_candidate or not candidate_current">A prepared draft PDF waits for the lab head's review. It is not issued and not digitally signed.</div>
+                <div class="alert alert-info mb-0" role="status" invisible="not has_candidate or not candidate_current or status == 'pending_signing'">A prepared draft PDF waits for the lab head's review. It is not issued and not digitally signed.</div>
                 <div class="alert alert-warning mb-0" role="alert" invisible="not has_candidate or candidate_current">The prepared PDF no longer matches its template, its draft or the business records. Reopen the draft, then prepare and review the PDF again.</div>
-                <div class="alert alert-warning mb-0" role="alert" invisible="not digital_signing_pending">Viettel Sign has not signed the PDF yet. It is retried automatically, and the customer is told once it is signed.</div>
+                <div class="alert alert-warning mb-0" role="alert" invisible="status != 'pending_signing'">The report is approved, but Viettel Sign has not signed its PDF yet, so it is not issued: it cannot be delivered or downloaded. Signing is retried automatically, and the customer is told once the signed PDF is stored and the report is issued.</div>
                 <sheet>
                     <div class="oe_title">
                         <h1><field name="display_name" /></h1>
@@ -235,6 +236,7 @@
                         </page>
                     </notebook>
                     <field name="draft_file_id" invisible="1" groups="sol_laboratory.group_permission_test_report_edit_all" />
+                    <field name="candidate_id" invisible="1" />
                     <field name="has_candidate" invisible="1" />
                     <field name="candidate_current" invisible="1" />
                     <field name="draft_editable" invisible="1" />

@@ -131,9 +131,14 @@ stateDiagram-v2
 stateDiagram-v2
     [*] --> draft: every sample test of the request approved or cancelled
     draft --> signing: a level of a longer chain signs
-    draft --> issued: the last level signs
-    signing --> issued: the last level signs
+    draft --> issued: the last level signs and the PDF is stored
+    signing --> issued: the last level signs and the PDF is stored
     signing --> draft: withdrawal, rejection or result correction
+    draft --> pending_signing: the last level signs and digital signing fails
+    signing --> pending_signing: the last level signs and digital signing fails
+    pending_signing --> issued: a retry stores the digitally signed PDF
+    pending_signing --> draft: withdrawal or result correction
+    pending_signing --> signing: withdrawal of the last level of a longer chain
     issued --> replaced: the signed replacement is issued
 ```
 

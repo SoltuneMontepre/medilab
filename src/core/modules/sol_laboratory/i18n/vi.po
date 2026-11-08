@@ -156,6 +156,12 @@ msgstr "%s đã kết thúc và không thể giao lại."
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_issue.py:0
+msgid "%s is not approved, so its PDF cannot be issued."
+msgstr "%s chưa được duyệt nên không thể phát hành bản PDF."
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/tasks/task.py:0
 msgid "%s is not in the task's department."
 msgstr "%s không thuộc phòng ban của nhiệm vụ."
@@ -382,6 +388,16 @@ msgstr ""
 "%s"
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_issue.py:0
+msgid ""
+"A new PDF of the report was prepared since you opened it; review it before "
+"signing."
+msgstr ""
+"Một bản PDF mới của phiếu kết quả đã được chuẩn bị sau khi bạn mở phiếu; hãy"
+" xem lại trước khi ký."
+
+#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_sample_test_quantity_positive
 msgid "A parameter is tested at least once on a sample."
 msgstr "Một chỉ tiêu được thử nghiệm ít nhất một lần trên mẫu."
@@ -419,6 +435,12 @@ msgstr "Một điểm trên bản đồ phải nằm trong khoảng từ 0 đế
 #: code:addons/sol_laboratory/models/system/signature.py:0
 msgid "A rejection needs a reason."
 msgstr "Từ chối cần có lý do."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result.py:0
+msgid "A reported result is corrected."
+msgstr "Một kết quả đã báo cáo đang được hiệu chỉnh."
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_role_code_unique
@@ -5406,6 +5428,16 @@ msgid "Owners"
 msgstr "Chủ sở hữu"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__candidate_id
+msgid "PDF to Sign"
+msgstr "Bản PDF Cần Ký"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_report__status__pending_signing
+msgid "Pending Digital Signing"
+msgstr "Chờ ký số"
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_laboratory_file_lock_read_all
 msgid "Permission: laboratory.file.lock.read.all"
 msgstr "Quyền: laboratory.file.lock.read.all"
@@ -6538,6 +6570,12 @@ msgid "Prefix and length of the codes given to parameters, groups, sample types,
 msgstr "Tiền tố và độ dài của mã gán cho chỉ tiêu, nhóm, loại mẫu, hồ sơ, thầu phụ và chứng từ."
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_issue.py:0
+msgid "Prepare the report's PDF and review it before signing."
+msgstr "Hãy chuẩn bị bản PDF của phiếu kết quả và xem lại trước khi ký."
+
+#. module: sol_laboratory
 #. odoo-javascript
 #: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
 msgid "Previous"
@@ -6966,6 +7004,13 @@ msgid "Repeat every x."
 msgstr "Lặp lại mỗi x."
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_issue.py:0
+msgid "Replace the report with the corrected result %(result)s: %(change)s"
+msgstr ""
+"Thay thế phiếu kết quả bằng kết quả đã hiệu chỉnh %(result)s: %(change)s"
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_reject__report_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__report_id
@@ -6973,6 +7018,11 @@ msgstr "Lặp lại mỗi x."
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__report_id
 msgid "Report"
 msgstr "Phiếu kết quả"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__report_change_request_id
+msgid "Report Change Request"
+msgstr "Yêu Cầu Thay Đổi Phiếu Kết Quả"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__report_language
@@ -7028,6 +7078,12 @@ msgstr "Khôi phục"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__restored_from_id
 msgid "Restored From"
 msgstr "Khôi phục từ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__result_change_request_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_form
+msgid "Result Corrections"
+msgstr "Các Hiệu Chỉnh Kết Quả"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__result_decimals
@@ -7495,6 +7551,15 @@ msgstr "Xem nhiệm vụ chờ nhận"
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__sign
 msgid "Sign"
 msgstr "Ký"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+msgid ""
+"Sign the prepared PDF you reviewed? The last signature issues it once its "
+"PDF is stored."
+msgstr ""
+"Ký bản PDF đã chuẩn bị mà bạn đã xem lại? Chữ ký cuối cùng sẽ phát hành "
+"phiếu khi bản PDF của phiếu đã được lưu."
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_signature
@@ -8319,6 +8384,26 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_issue.py:0
+msgid ""
+"The prepared PDF no longer matches its template, its draft or the business "
+"records; reopen the draft and prepare the PDF again."
+msgstr ""
+"Bản PDF đã chuẩn bị không còn khớp với mẫu, bản nháp hoặc dữ liệu nghiệp vụ;"
+" hãy mở lại bản nháp và chuẩn bị lại bản PDF."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_issue.py:0
+msgid ""
+"The prepared PDF of %s no longer matches its sources, so it cannot be "
+"issued."
+msgstr ""
+"Bản PDF đã chuẩn bị của %s không còn khớp với nguồn dữ liệu nên không thể "
+"phát hành."
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/system/signature.py:0
 msgid "The process of the document is completed, so a signature cannot be withdrawn."
 msgstr "Quy trình của chứng từ đã hoàn tất nên không thể rút lại chữ ký."
@@ -8327,6 +8412,19 @@ msgstr "Quy trình của chứng từ đã hoàn tất nên không thể rút l�
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_regulation_code_unique
 msgid "The reference of a regulation must be unique."
 msgstr "Số hiệu quy chuẩn phải là duy nhất."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+msgid ""
+"The report is approved, but Viettel Sign has not signed its PDF yet, so it "
+"is not issued: it cannot be delivered or downloaded. Signing is retried "
+"automatically, and the customer is told once the signed PDF is stored and "
+"the report is issued."
+msgstr ""
+"Phiếu kết quả đã được duyệt nhưng Viettel Sign chưa ký số bản PDF nên phiếu "
+"chưa được phát hành: chưa thể giao hoặc tải xuống. Hệ thống tự động thử ký "
+"lại, và khách hàng được thông báo khi bản PDF đã ký được lưu và phiếu được "
+"phát hành."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -12043,11 +12141,6 @@ msgid "Sign test reports"
 msgstr "Ký phiếu kết quả"
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
-msgid "Sign this report? The last signature issues it."
-msgstr "Ký phiếu kết quả này? Chữ ký cuối cùng sẽ phát hành phiếu."
-
-#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/test_report.py:0
 #: model:ir.actions.report,name:sol_laboratory.action_report_test_report
@@ -13154,13 +13247,6 @@ msgstr "Viettel Sign chưa ký số được tệp PDF. Hệ thống sẽ tự �
 #: code:addons/sol_laboratory/models/mixins/digital_signing_mixin.py:0
 msgid "Viettel Sign did not sign the PDF: %s"
 msgstr "Viettel Sign không ký số được tệp PDF: %s"
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
-msgid ""
-"Viettel Sign has not signed the PDF yet. It is retried automatically, and "
-"the customer is told once it is signed."
-msgstr "Viettel Sign chưa ký số tệp PDF. Hệ thống sẽ tự động thử lại và báo cho khách hàng khi tệp đã được ký."
 
 #. module: sol_laboratory
 #. odoo-python

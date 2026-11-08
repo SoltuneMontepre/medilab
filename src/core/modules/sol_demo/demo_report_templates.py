@@ -1,7 +1,9 @@
+import io
 import logging
 from unittest.mock import patch
 
 from odoo import fields
+from odoo.tools.pdf import PdfFileWriter
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_IR_ACTIONS_REPORT,
@@ -26,10 +28,9 @@ DRAFTS = ("bilingual",)
 
 
 def seed_report_templates(env):
-    """A bilingual template with an archived first version, an available second one and a draft third one, Vietnamese
-    and English templates with an available version each, and the draft report of Nước Uống Sạch prepared as a PDF
-    waiting for the lab head's review."""
-    if env.ref("sol_demo.demo_report_template_bilingual", raise_if_not_found=False):
+    """A bilingual template with an archived first version, an available second one and a draft third one, and
+    Vietnamese and English templates with an available version each."""
+    if report_templates_seeded(env):
         return
     if not laboratory_bucket.is_ready():
         _logger.warning("The laboratory files bucket does not answer: the demo report templates are not seeded.")
@@ -57,19 +58,39 @@ def seed_report_templates(env):
         if key in DRAFTS:
             xml_ids.append((f"demo_report_template_version_{key}_{count + 1}", template._draft_version()))
 
-    report = env.ref("sol_demo.demo_test_report_draft")
+    env["ir.model.data"]._update_xmlids(
+        [{"xml_id": f"sol_demo.{xml_id}", "record": record, "noupdate": True} for xml_id, record in xml_ids]
+    )
+
+
+def report_templates_seeded(env):
+    """True when the demo templates exist, which they do only when the laboratory files bucket answered."""
+    return bool(env.ref("sol_demo.demo_report_template_bilingual", raise_if_not_found=False))
+
+
+def prepare_report(env, report):
+    """Prepare the report's PDF for the lab head's review as the sample delivery staff member and return it. ONLYOFFICE
+    does not run while the demo installs, so the report's print, without its draft mark, stands in for the PDF it would
+    convert."""
     staff = env.ref("sol_demo.demo_res_users_sample_delivery_staff")
-    # The PDF ONLYOFFICE would convert is stood in for by the report's print, as ONLYOFFICE does not run while the demo
-    # installs.
-    pdf, _type = env[MODEL_IR_ACTIONS_REPORT]._render_qweb_pdf(TEST_REPORT_REPORT, report.ids)
+    report_type = type(report)
+    with patch.object(report_type, "_digital_signing_draft", lambda self: False):
+        pdf = _report_pdf(env, report)
     sessions = type(env[MODEL_LABORATORY_EDITING_SESSION])
     with (
         patch.object(sessions, "_check_editing_available", lambda self: None),
         patch.object(type(env[MODEL_TEST_REPORT_CANDIDATE]), "_convert", lambda self, content, title: pdf),
     ):
-        candidate = report.with_user(staff)._prepare_candidate()
-    xml_ids.append(("demo_test_report_candidate_draft", candidate))
+        return report.with_user(staff)._prepare_candidate()
 
-    env["ir.model.data"]._update_xmlids(
-        [{"xml_id": f"sol_demo.{xml_id}", "record": record, "noupdate": True} for xml_id, record in xml_ids]
-    )
+
+def _report_pdf(env, report):
+    content, report_type = env[MODEL_IR_ACTIONS_REPORT]._render_qweb_pdf(TEST_REPORT_REPORT, report.ids)
+    if report_type == "pdf":
+        return content
+    # Tests render reports as HTML, so a blank page stands in for the PDF there.
+    writer = PdfFileWriter()
+    writer.add_blank_page(width=595, height=842)
+    stream = io.BytesIO()
+    writer.write(stream)
+    return stream.getvalue()

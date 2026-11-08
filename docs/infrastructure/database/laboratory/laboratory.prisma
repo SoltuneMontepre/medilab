@@ -1971,12 +1971,12 @@ model HandoverRecordSample {
   @@map("medilab_handover_record_sample")
 }
 
-/// The test report (phiếu kết quả) of one test request, covering all its samples. A change request creates a new version that replaces it.
+/// The test report (phiếu kết quả) of one test request, covering all its samples. A change request creates a new version that replaces it once that version is issued.
 /// Unique on (request_id, version).
 model TestReport {
   /// Row identifier.
   id              Int         @id @default(autoincrement())
-  /// Unique report number; filled from a sequence when the report is issued.
+  /// Unique report number; reserved from a sequence when its PDF is first prepared, and printed in it.
   code            String?     @unique @db.VarChar
   /// The test request reported.
   request_id      Int
@@ -1984,7 +1984,7 @@ model TestReport {
   version         Int         @default(1)
   /// The version this report replaces; empty for version 1.
   replaces_id     Int?        @unique
-  /// draft, signing, issued or replaced.
+  /// draft, signing, pending_signing while its last level signed and its digitally signed PDF is not stored yet, issued once its PDF is stored, or replaced once its replacement is issued.
   status          String      @db.VarChar
   /// The version the next signature records; it grows when every signature is withdrawn or the report is signed again after a rejection.
   document_version Int         @default(1)
@@ -1992,7 +1992,7 @@ model TestReport {
   language        String      @db.VarChar
   /// When the report was issued.
   issued_at       DateTime?
-  /// The PDF of the issued report, the one Viettel Sign signed while digital signing is on; empty until it is signed.
+  /// The PDF of the issued report: its prepared PDF, signed by Viettel Sign while digital signing is on; empty until the report is issued.
   attachment_id   Int?
   /// When the report was delivered to the customer by the request's delivery method.
   delivered_at    DateTime?
@@ -2187,6 +2187,7 @@ model TestReportCandidateResult {
 
 /// A request to change a document whose process is completed (SH-07). It is signed through the change-request chain of the document's type; when approved, a new version of the document is created.
 /// Points to its document by document_model and document_id, indexed together. Results and reports keep one row per version, so document_id names the version to change.
+/// A document has one requested or approved request at a time. An approved request on a report stays approved until its linked result corrections are decided and the report's results are approved, then creates the replacement.
 model ChangeRequest {
   /// Row identifier.
   id               Int       @id @default(autoincrement())
@@ -2210,8 +2211,14 @@ model ChangeRequest {
   rejection_reason String?   @db.Text
   /// Id of the new version created when the change was applied.
   new_document_id  Int?
+  /// For a correction of a result printed on an issued report: the change request of that report, which replaces it once the corrected results are approved.
+  report_change_request_id Int?
   /// Person who asked for the change.
   requested_by     Person    @relation("ChangeRequester", fields: [requested_by_id], references: [id], onDelete: Restrict)
+  /// The report change request the result correction joined.
+  report_change_request    ChangeRequest?  @relation("ReportCorrections", fields: [report_change_request_id], references: [id], onDelete: Restrict)
+  /// The result corrections that joined the report change request.
+  result_change_requests   ChangeRequest[] @relation("ReportCorrections")
 
   @@index([document_model, document_id])
   @@index([status])

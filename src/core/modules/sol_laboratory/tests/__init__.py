@@ -231,6 +231,7 @@ from . import (
     test_test_report_assessment,
     test_test_report_delivery,
     test_test_report_drafting,
+    test_test_report_issuance,
     test_test_report_portal,
     test_test_report_rejection,
     test_test_report_signing,
