@@ -14,7 +14,6 @@ Sample delivery staff (nhân viên giao nhận mẫu) collect samples at the cus
 
 ### Receiving samples
 
-- **US-SD06** As sample delivery staff, I want to create a test request for a customer with its samples, parameters, requested date and report delivery, so that the laboratory can take work that does not come through an order.
 - **US-SD07** As sample delivery staff, I want to see the samples expected for each test request, so that I know what should arrive.
 - **US-SD08** As sample delivery staff, I want to print a label for each sample with its lab code, test request, results due date and a QR code, so that the sample can be identified and scanned without showing the customer.
 - **US-SD09** As sample delivery staff, I want to record a sample's receipt with the amount, its condition and where it is stored, so that its state on arrival is on record.
@@ -42,7 +41,7 @@ Sample collection tasks follow [SH-10](../../shared.md#sh-10-tasks-and-to-do-lis
 
 | Rule           | Description                                                                                                       |
 | -------------- | ----------------------------------------------------------------------------------------------------------------- |
-| Scheduled task | Sales schedules a sample collection task on an order. A head of department's request to collect a sample again schedules one too. |
+| Scheduled task | Sales schedules a sample collection task on a confirmed order with **Start sample collection**: one task of the order's test request, in the shared queue of sample delivery staff, with the customer's address as its place and no time. Sample delivery staff claim it and plan its time. An order has at most one open collection task. The administrator routes the Sample collection task type to the role of sample delivery staff. A head of department's request to collect a sample again schedules one too. |
 | Travel time | Reserve a configurable travel buffer between collection appointments, 60 minutes by default, when checking whether the staff member can take them. |
 | Done by hand   | The task is marked done once the samples are collected.                                                           |
 | Photos | Attach sample photos through the web interface when collecting or receiving a sample. Testers never see them. |
@@ -53,6 +52,7 @@ Sample collection tasks follow [SH-10](../../shared.md#sh-10-tasks-and-to-do-lis
 Acceptance criteria:
 
 - A collection task assigned to sample delivery staff appears on their personal schedule and in their to-do list.
+- Starting sample collection on a confirmed order queues one unassigned collection task for sample delivery staff, and starting it again while that task is open is refused.
 - A reminder arrives before the collection starts.
 - A collection task created by a request to collect again shows the sample it is for.
 - A photo attached at collection appears only to readers who may see the customer's sample name; testers cannot see it.
@@ -62,15 +62,15 @@ Acceptance criteria:
 - Signing a handover record stores the signature, when and on which device it was signed, and emails the PDF to the customer.
 - A signed handover record cannot be edited.
 
-### 2. Receiving samples (US-SD06 to US-SD12)
+### 2. Receiving samples (US-SD07 to US-SD12)
 
 Follows the reception rules and the sample lifecycle in the [Laboratory overview](../overview.md#reception).
 
 | Rule          | Description                                                                                                                  |
 | ------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| Test request | Without an order, create a request with customer, samples and their types, optional regulation comparison, each sample's parameters and selected ways, the customer's requested date, report language, delivery method and recipient. |
+| Test request | With E-commerce, every test request comes from an order sales confirmed ([Sales, Confirmation](../../ecommerce_module/features/sales.md#4-confirmation-us-s12-us-s15)). A customer who brings samples to the laboratory goes through sales first. Sample delivery staff confirm the request once the order's advance is paid in full or the customer is allowed credit, and receive its samples once the request is paid; until then the samples wait at reception. |
 | Identification QR | Use only the sample's QR for identification and handover; test requests and handover documents have no separate identification QR. |
-| Return estimate | The test request shows the estimated return date of its samples and parameters. Its committed return date defaults to the requested date when the laboratory can meet it, otherwise to the estimate; an earlier requested date is checked as a [priority request](../overview.md#testing-work-and-scheduling) before it is accepted. |
+| Return estimate | The test request shows the estimated return date of its samples and parameters. |
 | Label         | The label shows the lab code, the test request's code, the date results are due and a QR code of the lab code, and nothing about the customer. |
 | Receipt       | Receipt records when and by whom the sample was received, the amount received, its condition (good, damaged or insufficient) with a note, and where it is stored. |
 | Testing tasks | Receiving a sample creates a testing task for each of its sample tests in the queue of the department that does the work.   |
@@ -78,7 +78,7 @@ Follows the reception rules and the sample lifecycle in the [Laboratory overview
 
 Acceptance criteria:
 
-- A test request created by sample delivery staff skips the paid step.
+- The samples of a test request are received only once the request is paid.
 - A sample's label shows its lab code, test request code, results due date and QR code, but not the customer or the customer's name for the sample.
 - Recording a sample's receipt sets it to received and creates its testing tasks in each department's queue.
 - A rejected sample keeps its condition note and gets no testing tasks.

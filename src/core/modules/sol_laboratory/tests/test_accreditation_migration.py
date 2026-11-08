@@ -29,7 +29,6 @@ class TestAccreditationMigration(MasterDataCase):
             {
                 "parameter_id": self.parameter.id,
                 "method_id": uncertified_method.id,
-                "unit_id": self.unit.id,
                 "department_id": self.department.id,
             }
         )
@@ -37,7 +36,6 @@ class TestAccreditationMigration(MasterDataCase):
             {
                 "parameter_id": self.parameter.id,
                 "method_id": self.method.id,
-                "unit_id": self.unit.id,
                 "subcontractor_id": self.env[MODEL_SUBCONTRACTOR].create({"name": "Migration Sub"}).id,
             }
         )

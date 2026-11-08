@@ -10,6 +10,7 @@ from odoo.fields import Command, Domain
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_CALENDAR_EVENT,
+    MODEL_DOCUMENT_LOCK,
     MODEL_LOCK_MIXIN,
     MODEL_MACHINE,
     MODEL_MACHINE_BOOKING,
@@ -164,6 +165,8 @@ class MachineBooking(models.Model, MachineBookingBase):
             # People move a booking only to a slot the scheduler finds free; its length stays the run time.
             vals = dict(vals)
             vals.pop("ends_at", None)
+            # A move skips the lock mixin's write, so it checks and releases the edit lock itself.
+            locks = self.env[MODEL_DOCUMENT_LOCK] if self.env.su else self._check_lock()
             if "starts_at" in vals:
                 start = fields.Datetime.to_datetime(vals.pop("starts_at"))
                 if not start:
@@ -171,11 +174,18 @@ class MachineBooking(models.Model, MachineBookingBase):
                 for booking in self:
                     booking._move(start)
             if not vals:
+                if locks:
+                    locks._own_edits()._release("saved")
                 return True
         result = super().write(vals)
         if {"status", "starts_at", "person_id", "machine_id"} & set(vals):
             self._sync_schedule()
         return result
+
+    @api.model
+    def _edits_in_views(self):
+        # A person moves their own bookings without the edit permission; _move refuses anyone else's.
+        return super()._edits_in_views() or bool(self.env[MODEL_PERSON]._current())
 
     def _open(self):
         return self.filtered(lambda booking: booking.status in OPEN_STATUSES)
@@ -384,8 +394,8 @@ class MachineBooking(models.Model, MachineBookingBase):
     @api.model
     def _recommend(self, test, person, department):
         """The way of testing, machine, start and slot length that finish the test soonest by its due date, from the
-        department's ways of testing and the machines that run them, with every bookable room of the way's steps free;
-        None when no machine can."""
+        department's ways of testing that apply to the sample's type, or only the way the customer accepted, and the
+        machines that run them, with every bookable room of the way's steps free; None when no machine can."""
         now = fields.Datetime.now()
         not_after = test.due_date or now + timedelta(days=HORIZON_DAYS)
         if not_after <= now:
@@ -395,10 +405,19 @@ class MachineBooking(models.Model, MachineBookingBase):
             if department
             else Domain("parameter_method_id.department_id", "!=", False)
         )
+        if test.accepted_method_id:
+            in_house &= Domain("parameter_method_id", "=", test.accepted_method_id.id)
         links = (
             self.env[MODEL_PARAMETER_METHOD_MACHINE]
             .sudo()
-            .search(Domain("parameter_method_id.parameter_id", "=", test.parameter_id.id) & in_house)
+            .search(
+                Domain("parameter_method_id.parameter_id", "=", test.parameter_id.id)
+                & Domain("parameter_method_id.active", "=", True)
+                & Domain(
+                    "parameter_method_id.applicability_ids.sample_type_id", "=", test.sudo().sample_id.sample_type_id.id
+                )
+                & in_house
+            )
         )
         working = self._working_time(person, _round_up(now), not_after)
         best, best_end = None, None
@@ -412,7 +431,8 @@ class MachineBooking(models.Model, MachineBookingBase):
 
     @api.model
     def _free_slot(self, machine, length, person, not_after, not_before=None, ignore=None, working=None, rooms=()):
-        """The earliest start of a free slot of the given length on the machine, within the person's working time.
+        """The earliest start of a free slot of the given length on the machine, within the person's working time and
+        clear of their other bookings.
 
         The slot starts on a slot boundary, not before not_before nor now, and ends by not_after while the machine is
         still fit to use. working gives the person's working intervals when the caller has them already. rooms are the
@@ -424,8 +444,11 @@ class MachineBooking(models.Model, MachineBookingBase):
         limit = min(not_after, machine._usable_until())
         if start_from + length > limit:
             return None
+        holders = Domain("machine_id", "=", machine.id)
+        if person:
+            holders |= Domain("person_id", "=", person.id)
         busy = self.sudo().search_fetch(
-            Domain("machine_id", "=", machine.id)
+            holders
             & Domain("status", "in", ACTIVE_STATUSES)
             & Domain("starts_at", "<", limit)
             & Domain("ends_at", ">", start_from)

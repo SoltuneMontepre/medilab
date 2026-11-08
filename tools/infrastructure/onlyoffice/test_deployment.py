@@ -497,7 +497,8 @@ class TestDeployment(unittest.TestCase):
         text = (
             ROOT / "infra/ansible/roles/k3s/templates/traefik-config.yaml.j2"
         ).read_text()
-        managed = yaml.safe_load(yaml.safe_load(text)["spec"]["valuesContent"])
+        values = yaml.safe_load(text)["spec"]["valuesContent"]
+        managed = yaml.safe_load(values.replace("{{ k3s_pod_network }}", "10.42.0.0/16"))
         candidate = yaml.safe_load(
             (ROOT / "infra/cluster/onlyoffice-edge/traefik-values.yaml").read_text()
         )
@@ -512,6 +513,11 @@ class TestDeployment(unittest.TestCase):
         )
         self.assertEqual(managed["logs"], candidate["logs"])
         self.assertEqual(managed["service"]["spec"]["type"], "ClusterIP")
+        # The web entry point keeps trusting the forwarded headers of the pod network.
+        self.assertEqual(
+            managed["ports"]["web"]["forwardedHeaders"],
+            {"trustedIPs": ["10.42.0.0/16"], "notAppendXForwardedFor": True},
+        )
 
     def test_edge_policy_preserves_tunnel_access_without_a_baseline_policy(self):
         policy = named(self.edge, "NetworkPolicy", "traefik-onlyoffice-callback")[

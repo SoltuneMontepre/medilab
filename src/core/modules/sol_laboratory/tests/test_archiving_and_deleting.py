@@ -29,6 +29,18 @@ class TestArchivingAndDeleting(MasterDataCase):
         cls.machine = cls.env[MODEL_MACHINE].create({"code": "AAS-09", "name": "AAS 9"})
         cls.subcontractor = cls.env[MODEL_SUBCONTRACTOR].create({"name": "Northern Testing Laboratory"})
 
+    def offer_in_unit(self):
+        """Offer the in-house way on bottled water in the case's unit, beside a subcontracted default in another unit,
+        so the in-house way can be archived."""
+        water = self.env[MODEL_SAMPLE_TYPE].create({"name": "Bottled water"})
+        other_unit = self.env[MODEL_MEASUREMENT_UNIT].create({"name": "ug/L", "category_id": self.category.id})
+        coastal = self.env[MODEL_SUBCONTRACTOR].create({"name": "Coastal Analytical Services"})
+        outside = self.env[MODEL_PARAMETER_METHOD].create(
+            {"parameter_id": self.parameter.id, "method_id": self.method.id, "subcontractor_id": coastal.id}
+        )
+        self.offer(self.parameter, water, outside, unit_id=other_unit.id)
+        return self.offer(self.parameter, water, self.pair)
+
     def test_archived_record_is_not_offered_for_selection(self):
         ppt = self.env[MODEL_MEASUREMENT_UNIT].create({"name": "ppt", "category_id": self.category.id})
 
@@ -38,20 +50,23 @@ class TestArchivingAndDeleting(MasterDataCase):
         self.assertNotIn(ppt.id, [record_id for record_id, _name in offered])
 
     def test_unit_of_active_way_of_testing_cannot_be_archived_or_deleted(self):
+        self.offer_in_unit()
         for action in (self.unit.action_archive, self.unit.unlink):
             with self.subTest(action=action.__name__), self.assertRaises(UserError) as refusal:
                 action()
             self.assertIn(self.pair.display_name, str(refusal.exception))
 
     def test_unit_can_be_archived_once_its_ways_of_testing_are_archived(self):
+        applicability = self.offer_in_unit()
         self.pair.action_archive()
 
         self.unit.action_archive()
 
         self.assertFalse(self.unit.active)
-        self.assertEqual(self.pair.unit_id, self.unit)
+        self.assertEqual(applicability.unit_id, self.unit)
 
     def test_unit_of_archived_way_of_testing_cannot_be_deleted(self):
+        self.offer_in_unit()
         self.pair.action_archive()
 
         with self.assertRaises(UserError):
@@ -92,7 +107,6 @@ class TestArchivingAndDeleting(MasterDataCase):
             {
                 "parameter_id": self.parameter.id,
                 "method_id": self.method.id,
-                "unit_id": self.unit.id,
                 "subcontractor_id": self.subcontractor.id,
                 "active": False,
             }
@@ -113,17 +127,15 @@ class TestArchivingAndDeleting(MasterDataCase):
         values = {
             "parameter_id": self.parameter.id,
             "method_id": self.method.id,
-            "unit_id": self.unit.id,
             "department_id": self.department.id,
         }
         with self.assertRaises(IntegrityError), mute_logger("odoo.sql_db"), self.env.cr.savepoint():
             self.env[MODEL_PARAMETER_METHOD].create(values)
 
         self.pair.action_archive()
-        replacement = self.env[MODEL_PARAMETER_METHOD].create({**values, "is_default": True})
+        replacement = self.env[MODEL_PARAMETER_METHOD].create(values)
 
-        self.assertFalse(self.pair.is_default)
-        self.assertTrue(replacement.is_default)
+        self.assertTrue(replacement.active)
 
     def test_parameter_way_of_testing_and_subcontractor_can_be_archived(self):
         for record in (self.pair, self.subcontractor, self.parameter):

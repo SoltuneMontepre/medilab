@@ -249,6 +249,7 @@ msgstr "<span>Hạn</span>"
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_approval_level_sequence_unique
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_approval_level_active_sequence_unique
 msgid "A chain cannot have two levels in the same position."
 msgstr "Một chuỗi không thể có hai cấp ở cùng một vị trí."
 
@@ -339,12 +340,6 @@ msgstr "Nhóm đã có chỉ tiêu không thể có nhóm con: %s."
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_scheduled_job_key_unique
 msgid "A job with this key already exists."
 msgstr "Đã có tác vụ định kỳ với khóa này."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/system/approval_level.py:0
-msgid "A level with signatures cannot be deleted. Signatures: %s"
-msgstr "Không thể xóa cấp đã có chữ ký. Chữ ký: %s"
 
 #. module: sol_laboratory
 #: model:mail.message.subtype,description:sol_laboratory.event_location_booking_reminder
@@ -489,11 +484,6 @@ msgid "A task type with this code already exists."
 msgstr "Đã có loại nhiệm vụ với mã này."
 
 #. module: sol_laboratory
-#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_method_one_default
-msgid "A test parameter has only one default way of testing."
-msgstr "Mỗi chỉ tiêu chỉ có một cách thử mặc định."
-
-#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_editing_session_committed_version_unique
 msgid "A version is saved by one editing session only."
 msgstr "Mỗi phiên bản chỉ do một phiên chỉnh sửa lưu."
@@ -623,6 +613,7 @@ msgstr "Giao diện của hành động cửa sổ"
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_file_lock__status__active
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_lock_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__active
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__active
 msgid "Active"
 msgstr "Đang hoạt động"
 
@@ -1966,6 +1957,9 @@ msgstr "Tạo từ máy tính"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__create_uid
 msgid "Created by"
 msgstr "Người tạo"
 
@@ -2039,6 +2033,9 @@ msgstr "Người tạo"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__create_date
 msgid "Created on"
 msgstr "Ngày tạo"
 
@@ -2227,7 +2224,7 @@ msgid "Decision"
 msgstr "Quyết định"
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__is_default
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__is_default
 msgid "Default"
 msgstr "Mặc định"
 
@@ -2387,9 +2384,11 @@ msgstr "Ghi chú gửi phiếu"
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_hr_department
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__department_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__department_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_event_recipient__department_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__department_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__department_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__department_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__department_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__department_id
@@ -2397,11 +2396,10 @@ msgstr "Ghi chú gửi phiếu"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_department_form_teams
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_hr_department_team_list
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_hr_department_team_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_person_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_handover_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__department_id
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_search
 msgid "Department"
 msgstr "Phòng Ban"
 
@@ -2594,6 +2592,9 @@ msgstr "Hiển thị báo cáo PDF mẫu hóa đơn"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -2621,6 +2622,7 @@ msgstr "Đã hủy mẫu"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__document_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__document_name
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_list
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__document_id
 msgid "Document"
 msgstr "Chứng từ"
 
@@ -2650,6 +2652,7 @@ msgstr "Model Chứng Từ"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__document_model
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__document_model
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__document_model
 msgid "Document Type"
 msgstr "Loại Chứng Từ"
 
@@ -2661,6 +2664,7 @@ msgstr "Loại Chứng Từ"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__document_version
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signature__document_version
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signing_mixin__document_version
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__document_version
 msgid "Document Version"
 msgstr "Phiên Bản Chứng Từ"
 
@@ -3670,6 +3674,9 @@ msgstr "Hr trạng thái hiện diện"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__id
 msgid "ID"
 msgstr "ID"
 
@@ -3915,6 +3922,11 @@ msgid "Interval Unit"
 msgstr "Đơn Vị Khoảng"
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__invoice
+msgid "Invoice"
+msgstr "Tạo hóa đơn"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__invoice_edi_format_store
 msgid "Invoice Edi Format Store"
 msgstr "Lưu trữ định dạng hóa đơn Edi"
@@ -4130,12 +4142,12 @@ msgid "Locks"
 msgstr "Khóa"
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__lod
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__lod
 msgid "LOD"
 msgstr "LOD"
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__loq
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__loq
 msgid "LOQ"
 msgstr "LOQ"
 
@@ -4360,6 +4372,9 @@ msgstr "Hoạt động gần nhất"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__write_uid
 msgid "Last Updated by"
 msgstr "Cập nhật lần cuối bởi"
 
@@ -4433,6 +4448,9 @@ msgstr "Cập nhật lần cuối bởi"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__write_date
 msgid "Last Updated on"
 msgstr "Cập nhật lần cuối vào"
 
@@ -4467,6 +4485,7 @@ msgstr "Tên Cấp"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__level_ids
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_approval_chain_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__level_ids
 msgid "Levels"
 msgstr "Các cấp"
 
@@ -5181,12 +5200,6 @@ msgstr "Chỉ nhân sự thuộc phòng ban đã thực hiện công việc mớ
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
-msgid "Only people with the role %s can act at this level."
-msgstr "Chỉ nhân sự có vai trò %s mới có thể thao tác ở cấp này."
-
-#. module: sol_laboratory
-#. odoo-python
 #: code:addons/sol_laboratory/models/tasks/task.py:0
 msgid "Only the assignee of %s can do this."
 msgstr "Chỉ người thực hiện %s mới có thể làm việc này."
@@ -5314,6 +5327,7 @@ msgstr "Đã thanh toán"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__parameter_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatch
 #: code:addons/sol_laboratory/models/testing/test_report.py:0
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__parameter_id
 msgid "Parameter"
 msgstr "Chỉ Tiêu"
 
@@ -5878,6 +5892,10 @@ msgid "Permission: order.edit.own"
 msgstr "Quyền: order.edit.own"
 
 #. module: sol_laboratory
+msgid "Permission: order.invoice.all"
+msgstr "Quyền: order.invoice.all"
+
+#. module: sol_laboratory
 msgid "Permission: order.read.all"
 msgstr "Quyền: order.read.all"
 
@@ -6346,6 +6364,7 @@ msgstr "Quyền"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__person_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__person_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__person_id
 msgid "Person"
 msgstr "Nhân Sự"
 
@@ -6885,7 +6904,7 @@ msgid "Restored From"
 msgstr "Khôi phục từ"
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__result_decimals
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__result_decimals
 msgid "Result Decimals"
 msgstr "Số chữ số thập phân của kết quả"
 
@@ -6960,6 +6979,7 @@ msgstr "Thu hồi lúc"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__role_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.verify_page
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder_member__role
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__role_id
 msgid "Role"
 msgstr "Vai Trò"
 
@@ -7120,6 +7140,7 @@ msgstr "Chỉ Tiêu Của Mẫu"
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_sample_type
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__sample_type_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__sample_type_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatch
 msgid "Sample Type"
@@ -7127,9 +7148,11 @@ msgstr "Loại Mẫu"
 
 #. module: sol_laboratory
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_sample_type
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__applicability_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation__sample_type_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__sample_type_ids
 #: model:ir.ui.menu,name:sol_laboratory.menu_sample_type
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_parameter_form
 msgid "Sample Types"
 msgstr "Loại Mẫu"
 
@@ -8525,10 +8548,11 @@ msgstr "Đang sửa chữa"
 
 #. module: sol_laboratory
 #. odoo-python
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__unit_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__unit_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__unit_id
 #: code:addons/sol_laboratory/models/testing/test_report.py:0
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__unit_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__unit_id
 msgid "Unit"
 msgstr "Đơn vị"
 
@@ -8704,6 +8728,7 @@ msgstr "Đang chờ"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__parameter_method_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__parameter_method_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__parameter_method_id
 msgid "Way of Testing"
 msgstr "Cách Thử"
 
@@ -13130,6 +13155,7 @@ msgstr "Đang chỉnh sửa"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__lock_message
 msgid "Editing Lock"
 msgstr "Khóa chỉnh sửa"
 
@@ -13338,6 +13364,7 @@ msgstr "Người chờ"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__lock_watched
 msgid "Watching Lock"
 msgstr "Đang chờ mở khóa"
 
@@ -14601,6 +14628,16 @@ msgid "This page accepts GET requests only."
 msgstr "Trang này chỉ chấp nhận yêu cầu GET."
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__can_edit
+msgid "Can Edit"
+msgstr "Được sửa"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__moved_out_by_ids
+msgid "Moved Out By"
+msgstr "Người chuyển nhiệm vụ"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__quality_registration_warning_days
 msgid "Expiry Warning (days)"
 msgstr "Cảnh báo hết hạn (ngày)"
@@ -14785,3 +14822,329 @@ msgstr ""
 #: model:ir.model,name:sol_laboratory.model_res_groups
 msgid "Access Groups"
 msgstr "Nhóm Quyền"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/role_grant.py:0
+msgid "%(person)s already holds the role %(role)s."
+msgstr "%(person)s đã giữ vai trò %(role)s."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_signing_process_version_unique
+msgid "A document version has one signing process."
+msgstr "Mỗi phiên bản chứng từ chỉ có một quy trình ký."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/role_grant.py:0
+msgid "A role is given until today or a later day."
+msgstr "Vai trò chỉ được giao đến hôm nay hoặc một ngày sau đó."
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_role_grant_create_all
+msgid "Create roles until a date"
+msgstr "Tạo vai trò có hạn"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_role_grant_delete_all
+msgid "Delete roles until a date"
+msgstr "Xóa vai trò có hạn"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_role_grant_edit_all
+msgid "Edit roles until a date"
+msgstr "Sửa vai trò có hạn"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
+msgid ""
+"Only people with the role %s, or the role of a later level, can act at this "
+"level."
+msgstr ""
+"Chỉ nhân sự có vai trò %s, hoặc vai trò của một cấp sau, mới có thể thao tác"
+" ở cấp này."
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_role_grant_create_all
+msgid "Permission: role.grant.create.all"
+msgstr "Quyền: role.grant.create.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_role_grant_delete_all
+msgid "Permission: role.grant.delete.all"
+msgstr "Quyền: role.grant.delete.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_role_grant_edit_all
+msgid "Permission: role.grant.edit.all"
+msgstr "Quyền: role.grant.edit.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_role_grant_read_all
+msgid "Permission: role.grant.read.all"
+msgstr "Quyền: role.grant.read.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_signing_process_read_all
+msgid "Permission: signing.process.read.all"
+msgstr "Quyền: signing.process.read.all"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_role_grant_read_all
+msgid "Read roles until a date"
+msgstr "Xem vai trò có hạn"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_signing_process_read_all
+msgid "Read signing processes"
+msgstr "Xem quy trình ký"
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_role_grants_expire_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_role_grants_expire
+msgid "Remove roles at the end of their date"
+msgstr "Gỡ vai trò khi hết hạn"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/role_grant.py:0
+msgid ""
+"Remove the role and give it again to change who holds it or which role it "
+"is."
+msgstr "Hãy gỡ vai trò rồi giao lại để đổi người giữ hoặc đổi vai trò."
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_role_grant
+msgid "Role Until a Date"
+msgstr "Vai Trò Có Hạn"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__role_grant_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_person_form
+msgid "Roles Until a Date"
+msgstr "Vai Trò Có Hạn"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_signing_process
+msgid "Signing Process"
+msgstr "Quy Trình Ký"
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_role_grant_role_unique
+msgid "The person is already given this role until a date."
+msgstr "Người này đã được giao vai trò này có hạn."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__date_end
+msgid "Until"
+msgstr "Đến ngày"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/test_parameter.py:0
+msgid ""
+"%(parameter)s cannot be ordered on %(sample_type)s: its default way of "
+"testing is unavailable and no other way is. %(reason)s"
+msgstr ""
+"%(parameter)s không thể đặt trên %(sample_type)s: cách thử mặc định không "
+"dùng được và không có cách thử nào khác. %(reason)s"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/test_parameter.py:0
+msgid "%(parameter)s is not offered on %(sample_type)s."
+msgstr "%(parameter)s không được nhận thử trên %(sample_type)s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/parameter_method_sample_type.py:0
+msgid "%(way)s tests another parameter than %(parameter)s."
+msgstr "%(way)s thử một chỉ tiêu khác với %(parameter)s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/parameter_method_sample_type.py:0
+msgid "%s is archived and cannot be the default way of testing."
+msgstr "%s đã được lưu trữ nên không thể là cách thử mặc định."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/parameter_method.py:0
+msgid "%s is archived."
+msgstr "%s đã được lưu trữ."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/parameter_method_sample_type.py:0
+msgid "%s: LOD and LOQ cannot be negative."
+msgstr "%s: LOD và LOQ không được âm."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/parameter_method_sample_type.py:0
+msgid "%s: LOD cannot be greater than LOQ."
+msgstr "%s: LOD không được lớn hơn LOQ."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_method_sample_type_one_default
+msgid "A parameter has only one default way of testing for each sample type."
+msgstr "Mỗi chỉ tiêu chỉ có một cách thử mặc định cho mỗi loại mẫu."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/parameter_method.py:0
+msgid ""
+"Choose another default way of testing, or stop offering the parameter on the"
+" sample type, before archiving the default: %s."
+msgstr ""
+"Hãy chọn cách thử mặc định khác, hoặc ngừng nhận thử chỉ tiêu trên loại mẫu "
+"đó, trước khi lưu trữ cách thử mặc định: %s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/test_parameter.py:0
+msgid "Choose one default way of testing for each sample type: %s."
+msgstr "Hãy chọn một cách thử mặc định cho mỗi loại mẫu: %s."
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_sample_type_create_all
+msgid "Create sample types of ways of testing"
+msgstr "Tạo cấu hình áp dụng theo loại mẫu"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_sample_type_delete_all
+msgid "Delete sample types of ways of testing"
+msgstr "Xóa cấu hình áp dụng theo loại mẫu"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_sample_type_edit_all
+msgid "Edit sample types of ways of testing"
+msgstr "Sửa cấu hình áp dụng theo loại mẫu"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/parameter_method.py:0
+msgid "No machine that runs it is in use with a valid calibration."
+msgstr ""
+"Không có máy nào chạy được cách thử này đang sử dụng và còn hiệu chuẩn."
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_sample_type_create_all
+msgid "Permission: parameter.method.sample.type.create.all"
+msgstr "Quyền: parameter.method.sample.type.create.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_sample_type_delete_all
+msgid "Permission: parameter.method.sample.type.delete.all"
+msgstr "Quyền: parameter.method.sample.type.delete.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_sample_type_edit_all
+msgid "Permission: parameter.method.sample.type.edit.all"
+msgstr "Quyền: parameter.method.sample.type.edit.all"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_parameter_method_sample_type
+msgid "Sample Type of a Way of Testing"
+msgstr "Cấu hình áp dụng theo loại mẫu"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__applicability_ids
+msgid "Sample Types of the Ways of Testing"
+msgstr "Loại mẫu của các cách thử"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/parameter_method.py:0
+msgid "The accreditation of %(subcontractor)s expired on %(date)s."
+msgstr "Công nhận của %(subcontractor)s đã hết hạn ngày %(date)s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/test_parameter.py:0
+msgid ""
+"The default way of testing %(parameter)s on %(sample_type)s is unavailable. "
+"%(reason)s Choose one of: %(ways)s."
+msgstr ""
+"Cách thử mặc định của %(parameter)s trên %(sample_type)s không dùng được. "
+"%(reason)s Hãy chọn một trong các cách thử: %(ways)s."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_method_sample_type_way_sample_type_unique
+msgid "The way of testing already applies to this sample type."
+msgstr "Cách thử đã áp dụng cho loại mẫu này."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_parameter_search
+msgid "Ways without sample types"
+msgstr "Cách thử chưa có loại mẫu"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "%(way)s does not apply to %(sample_type)s."
+msgstr "%(way)s không áp dụng cho %(sample_type)s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/parameter_method_sample_type.py:0
+msgid "%s is used by entered results, so its unit, sample type and way of testing are locked."
+msgstr "%s đã được dùng cho kết quả đã nhập, nên đơn vị, loại mẫu và cách thử của nó bị khóa."
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_sample_type_create_own_department
+msgid "Create sample types of ways of testing of their department"
+msgstr "Tạo cấu hình áp dụng theo loại mẫu của phòng ban mình"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_sample_type_create_own_department
+msgid "Permission: parameter.method.sample.type.create.own_department"
+msgstr "Quyền: parameter.method.sample.type.create.own_department"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_sample_type_edit_own_department
+msgid "Edit sample types of ways of testing of their department"
+msgstr "Sửa cấu hình áp dụng theo loại mẫu của phòng ban mình"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_sample_type_edit_own_department
+msgid "Permission: parameter.method.sample.type.edit.own_department"
+msgstr "Quyền: parameter.method.sample.type.edit.own_department"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_sample_type_delete_own_department
+msgid "Delete sample types of ways of testing of their department"
+msgstr "Xóa cấu hình áp dụng theo loại mẫu của phòng ban mình"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_sample_type_delete_own_department
+msgid "Permission: parameter.method.sample.type.delete.own_department"
+msgstr "Quyền: parameter.method.sample.type.delete.own_department"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "Only the system records who moved a task to another department."
+msgstr "Chỉ hệ thống ghi nhận người đã chuyển nhiệm vụ sang phòng ban khác."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid ""
+"%(parameter)s is tested by %(way)s, the way of testing the customer "
+"accepted; another way needs a revised quotation."
+msgstr ""
+"%(parameter)s được thử bằng %(way)s, cách thử khách hàng đã chấp nhận; muốn "
+"đổi cách thử cần một báo giá sửa đổi."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__accepted_method_id
+msgid "Accepted Way of Testing"
+msgstr "Cách Thử Đã Chấp Nhận"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "The accepted way of testing changes only through a revised quotation."
+msgstr "Cách thử đã chấp nhận chỉ thay đổi qua một báo giá sửa đổi."

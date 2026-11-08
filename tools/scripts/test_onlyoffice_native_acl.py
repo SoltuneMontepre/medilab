@@ -21,7 +21,7 @@ def diagnostic_script():
         "$identity=": "rule-identity",
         "$rule=": "rule",
         "$a.AddAccessRule": "add-rule",
-        "(Get-Item": "set-acl",
+        "(Get-Item -LiteralPath $p -Force).SetAccessControl": "set-acl",
         "$a=Get-Acl": "read-acl",
         "if(-not $a.AreAccessRulesProtected)": "verify-protection",
         "if($a.GetOwner": "verify-owner",
@@ -97,11 +97,12 @@ class NativeWindowsAclTest(unittest.TestCase):
                 + """
 $ErrorActionPreference='Stop'
 $p=$env:MEDILAB_ONLYOFFICE_ACL_PATH
-$a=Get-Acl -LiteralPath $p
+$i=Get-Item -LiteralPath $p -Force
+$a=$i.GetAccessControl('Access')
 $identity=New-Object Security.Principal.SecurityIdentifier('S-1-1-0')
 $rule=New-Object Security.AccessControl.FileSystemAccessRule($identity,'Read','Allow')
 $a.AddAccessRule($rule)
-(Get-Item -LiteralPath $p -Force).SetAccessControl($a)
+$i.SetAccessControl($a)
 """
             )
             result = invoke(

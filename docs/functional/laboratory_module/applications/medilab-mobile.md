@@ -73,7 +73,7 @@ Conversations follow [SH-12](../../shared.md#sh-12-conversations).
 | Rule          | Description |
 | ------------- | ----------- |
 | Test          | A testing task shows its sample's lab code, its parameter, its way of testing and its due date, and its method's steps, each with how long it takes, what to do, its note and where it is done. |
-| Result        | The tester enters the result as a number in the unit of the way of testing or as a text, and its conclusion, following [Results](../features/tester.md#2-results-us-t05-to-us-t09-us-t17-us-t18-us-t22). A result that is unusual or close to the regulation limit shows the same warning as on the web before it is sent. |
+| Result        | The tester enters the result as a number in the unit the way of testing has on the sample's type or as a text, and its conclusion, following [Results](../features/tester.md#2-results-us-t05-to-us-t09-us-t17-us-t18-us-t22). A result that is unusual or close to the regulation limit shows the same warning as on the web before it is sent. |
 | Sending       | The tester sends the result for approval and signs it with a deliberate action and a confirmation, as on the web ([SH-04](../../shared.md#sh-04-signatures-and-digital-signing)). |
 | Approving     | A head of department sees the results of their department waiting for their signature, and signs or rejects one with a reason, following [Samples and results](../features/head-of-department.md#2-samples-and-results-us-hd06-to-us-hd09). |
 | Read only     | A result that is approved, or waiting for someone else's signature, is shown and cannot be changed. |

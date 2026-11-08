@@ -16,6 +16,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MACHINE,
     MODEL_MAIL_MESSAGE,
     MODEL_MEASUREMENT_UNIT,
+    MODEL_PARAMETER_METHOD_SAMPLE_TYPE,
     MODEL_PERMISSION_MIXIN,
     MODEL_SAMPLE_TEST,
     MODEL_TEST_RESULT,
@@ -182,12 +183,12 @@ class TestResult(models.Model, TestResultBase):
     @api.depends("sample_test_id")
     def _compute_unit(self):
         for result in self:
-            result.unit_id = (result.replaces_id or result._way_of_testing()).unit_id
+            result.unit_id = result.replaces_id.unit_id if result.replaces_id else result._applicability().unit_id
 
     @api.depends("sample_test_id")
     def _compute_value_decimals(self):
         for result in self:
-            result.value_decimals = result._way_of_testing().result_decimals
+            result.value_decimals = result._applicability().result_decimals
 
     @api.depends("sample_test_id")
     def _compute_limit(self):
@@ -302,10 +303,18 @@ class TestResult(models.Model, TestResultBase):
         return limits.filtered(lambda limit: limit.parameter_id == test.parameter_id)[:1]
 
     def _way_of_testing(self):
-        # The way of testing chosen for the test, or else the parameter's default one.
+        # The way of testing chosen for the test, or else the parameter's default one on the sample's type.
         self.ensure_one()
         test = self.sample_test_id
-        return test.parameter_method_id or test.parameter_id.method_ids.filtered("is_default")[:1]
+        return test.parameter_method_id or test.parameter_id._default_way(test.sudo().sample_id.sample_type_id)
+
+    def _applicability(self):
+        # The unit and decimals of the way of testing on the sample's type; empty when it does not apply to it.
+        self.ensure_one()
+        way = self._way_of_testing()
+        if not way:
+            return self.env[MODEL_PARAMETER_METHOD_SAMPLE_TYPE]
+        return way._applicability(self.sample_test_id.sudo().sample_id.sample_type_id)
 
     def _copy_limit_translations(self):
         # The computed copy holds one language; the report needs the limit text in each.
@@ -331,16 +340,15 @@ class TestResult(models.Model, TestResultBase):
         # The head of department who entered and sent a result also approves it at the last level.
         return self.entered_by_id == self.env.user and level == self._approval_final_level()
 
-    @api.model
     def _approval_sending_level(self):
-        """The first level of a chain with more than one level: signing it sends the result, any other approves it."""
-        levels = self._approval_chain().level_ids.sorted("sequence")
+        """The first level of a result signed at more than one level: signing it sends the result, any other approves
+        it."""
+        levels = self._approval_levels()
         return levels[:1] if len(levels) > 1 else levels.browse()
 
-    @api.model
     def _approval_final_level(self):
-        """The last level of the chain, the head of department's: its signer may approve a result they entered."""
-        return self._approval_chain().level_ids.sorted("sequence")[-1:]
+        """The last level of the result, the head of department's: its signer may approve a result they entered."""
+        return self._approval_levels()[-1:]
 
     def _approval_department(self):
         # The department that tested it, also once its testing task is done, for the change requests on it.

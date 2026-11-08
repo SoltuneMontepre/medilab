@@ -92,10 +92,10 @@ class TestMachineScheduling(SchedulingCase):
             {
                 "parameter_id": self.parameter.id,
                 "method_id": self.method.id,
-                "unit_id": self.unit.id,
                 "subcontractor_id": subcontractor_id,
             }
         )
+        self.offer(self.parameter, self.sample_type, outside)
         test = self.new_test(MONDAY + timedelta(minutes=30))
         self.testing_task(test, self.tester)
         self.assertTrue(test.outsourcing_suggested)
@@ -143,6 +143,53 @@ class TestMachineScheduling(SchedulingCase):
         event.write({"start": later, "stop": later + timedelta(hours=1)})
         self.assertEqual((booking.starts_at, booking.ends_at), (later, later + 3 * SLOT))
         self.assertEqual(event.stop, later + 3 * SLOT)
+
+    def test_the_person_running_a_test_moves_their_booking_from_its_form_and_the_calendar(self):
+        self.slow.status = "under_repair"
+        self.testing_task(self.test, self.tester)
+        booking = self.schedule(self.test, self.tester)
+        waiting = self.queue(self.new_test(MONDAY + timedelta(minutes=50)), self.other_tester, MONDAY)
+        self.env[MODEL_MACHINE_BOOKING]._process_queue()
+        own = booking.with_user(self.tester.user_id)
+        for view_type in ("form", "calendar"):
+            self.assertNotIn('edit="False"', own.get_view(view_type=view_type)["arch"])
+
+        later = MONDAY + timedelta(hours=2)
+        own.write({"starts_at": later, "ends_at": later + SLOT})
+
+        self.assertEqual((booking.starts_at, booking.ends_at), (later, later + 3 * SLOT))
+        self.assertEqual((waiting.status, waiting.starts_at), ("scheduled", MONDAY))
+        with self.assertRaises(AccessError):
+            own.write({"person_id": self.other_tester.id})
+        own.action_start()
+        with self.assertRaisesRegex(UserError, "Only a scheduled booking can be moved"):
+            own.write({"starts_at": MONDAY + timedelta(hours=4)})
+
+    def test_a_tester_is_never_booked_twice_at_the_same_time(self):
+        second_test = self.new_test()
+        self.testing_task(self.test, self.tester)
+        self.testing_task(second_test, self.tester)
+        first = self.schedule(self.test, self.tester)
+        second = self.schedule(second_test, self.tester)
+        self.assertGreaterEqual(second.starts_at, first.ends_at)
+
+        with self.assertRaisesRegex(UserError, "is not free"):
+            second.with_user(self.tester.user_id).write({"starts_at": first.starts_at})
+
+    def test_moving_a_booking_respects_and_releases_the_edit_lock(self):
+        self.testing_task(self.test, self.tester)
+        booking = self.schedule(self.test, self.tester)
+        own = booking.with_user(self.tester.user_id)
+        head = booking.with_user(self.head.user_id)
+
+        self.assertEqual(head.lock_take(), {"taken": True})
+        with self.assertRaisesRegex(UserError, "is editing"):
+            own.write({"starts_at": MONDAY + timedelta(hours=1)})
+        head.lock_release("left")
+
+        self.assertEqual(own.lock_take(), {"taken": True})
+        own.write({"starts_at": MONDAY + timedelta(hours=1)})
+        self.assertEqual(head.lock_take(), {"taken": True})
 
     def test_only_the_person_running_a_test_and_their_head_adjust_its_booking(self):
         self.testing_task(self.test, self.tester)

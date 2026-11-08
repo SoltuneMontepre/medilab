@@ -25,6 +25,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PARAMETER_GROUP,
     MODEL_PARAMETER_METHOD,
     MODEL_PARAMETER_METHOD_MACHINE,
+    MODEL_PARAMETER_METHOD_SAMPLE_TYPE,
     MODEL_PERSON,
     MODEL_RES_PARTNER,
     MODEL_RES_USERS,
@@ -163,11 +164,16 @@ class SchedulingCommittedCase(TransactionCase):
         )
         pair = create(
             MODEL_PARAMETER_METHOD,
+            {"parameter_id": parameter.id, "method_id": method.id, "department_id": department.id},
+        )
+        sample_type = create(MODEL_SAMPLE_TYPE, {"name": f"Scheduling sample type {self.token}"})
+        create(
+            MODEL_PARAMETER_METHOD_SAMPLE_TYPE,
             {
                 "parameter_id": parameter.id,
-                "method_id": method.id,
+                "parameter_method_id": pair.id,
+                "sample_type_id": sample_type.id,
                 "unit_id": unit.id,
-                "department_id": department.id,
                 "is_default": True,
             },
         )
@@ -191,7 +197,6 @@ class SchedulingCommittedCase(TransactionCase):
         )
         customer = create(MODEL_CUSTOMER, {"name": f"Scheduling customer {self.token}", "is_company": True})
         self.owned[MODEL_RES_PARTNER].extend(customer.partner_id.ids)
-        sample_type = create(MODEL_SAMPLE_TYPE, {"name": f"Scheduling sample type {self.token}"})
         request = create(
             MODEL_TEST_REQUEST,
             {
@@ -498,6 +503,7 @@ class SchedulingCommittedCase(TransactionCase):
                 MODEL_CUSTOMER,
                 MODEL_PARAMETER_METHOD_MACHINE,
                 MODEL_TESTING_METHOD_STEP,
+                MODEL_PARAMETER_METHOD_SAMPLE_TYPE,
                 MODEL_PARAMETER_METHOD,
                 MODEL_TEST_PARAMETER,
                 MODEL_PARAMETER_GROUP,

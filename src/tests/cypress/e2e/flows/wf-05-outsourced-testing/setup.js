@@ -202,11 +202,10 @@ export function resultAwaitingApproval(kind = "lead") {
   );
 }
 
-// A testing method and unit that sol_demo seeds, to make ways of testing with.
+// A testing method that sol_demo seeds, to make ways of testing with.
 export function wayParts() {
   const parts = {};
   refAs(ADMINISTRATOR, "sol_demo.demo_testing_method_iso_17294_2").then(({ id }) => (parts.methodId = id));
-  refAs(ADMINISTRATOR, "sol_demo.demo_measurement_unit_ug_l").then(({ id }) => (parts.unitId = id));
   return cy.then(() => parts);
 }
 

@@ -13,7 +13,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_DEPARTMENT,
     MODEL_LOCATION,
     MODEL_LOCK_MIXIN,
-    MODEL_PARAMETER_METHOD,
+    MODEL_PARAMETER_METHOD_SAMPLE_TYPE,
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
     MODEL_REGULATION,
@@ -397,16 +397,23 @@ class Sample(models.Model, SampleBase):
 
     def _department_by_test(self):
         self.ensure_one()
-        pairs = self.env[MODEL_PARAMETER_METHOD].search(
+        defaults = self.env[MODEL_PARAMETER_METHOD_SAMPLE_TYPE].search(
             [
                 ("parameter_id", "in", self.test_ids.parameter_id.ids),
+                ("sample_type_id", "=", self.sample_type_id.id),
                 ("is_default", "=", True),
-                ("department_id", "!=", False),
+                ("parameter_method_id.department_id", "!=", False),
             ]
         )
-        department_of = {pair.parameter_id.id: pair.department_id for pair in pairs}
+        department_of = {default.parameter_id.id: default.parameter_method_id.department_id for default in defaults}
         empty = self.env[MODEL_DEPARTMENT]
-        return {test: department_of.get(test.parameter_id.id, empty) for test in self.test_ids}
+        # A test keeps to the way the customer accepted, and so to its department.
+        return {
+            test: test.accepted_method_id.department_id
+            if test.accepted_method_id
+            else department_of.get(test.parameter_id.id, empty)
+            for test in self.test_ids
+        }
 
     def _test_departments(self):
         self.ensure_one()

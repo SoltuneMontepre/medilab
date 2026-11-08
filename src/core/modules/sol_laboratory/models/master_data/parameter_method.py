@@ -5,6 +5,7 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.tools import format_date, format_list
 
 from odoo.addons.base.models.ir_model import MODULE_UNINSTALL_FLAG
+from odoo.addons.sol_laboratory.constants.catalog import DEFAULTS_CHECKED, DEFAULTS_CHECKED_BY_PARAMETER
 from odoo.addons.sol_laboratory.constants.departments import DEPARTMENT_DOMAIN
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ACCREDITATION_CERTIFICATE,
@@ -12,8 +13,9 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_DEPARTMENT,
     MODEL_LOCK_MIXIN,
-    MODEL_MEASUREMENT_UNIT,
     MODEL_PARAMETER_METHOD,
+    MODEL_PARAMETER_METHOD_MACHINE,
+    MODEL_PARAMETER_METHOD_SAMPLE_TYPE,
     MODEL_PERMISSION_MIXIN,
     MODEL_SUBCONTRACTOR,
     MODEL_TEST_PARAMETER,
@@ -31,7 +33,7 @@ class ParameterMethod(models.Model, ParameterMethodBase):
     _name = MODEL_PARAMETER_METHOD
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Way of Testing"
-    _order = "parameter_id, is_default desc, id"
+    _order = "parameter_id, id"
     _rec_names_search = ("parameter_id", "method_id")
     # Ways of testing are archived, never deleted, so they have no delete permission.
     _permission_actions = ("create", "edit", "archive")
@@ -43,8 +45,6 @@ class ParameterMethod(models.Model, ParameterMethodBase):
         method_id = fields.Many2one(
             MODEL_TESTING_METHOD, required=True, ondelete="restrict", index=True, string="Testing Method"
         )
-        # The unit the result is expressed in.
-        unit_id = fields.Many2one(MODEL_MEASUREMENT_UNIT, required=True, ondelete="restrict", index=True)
         # The subcontractor that tests it; empty when the laboratory tests it in-house. Only an active subcontractor with a
         # valid accreditation is offered, also where the list disables the active test to show archived ways of testing.
         subcontractor_id = fields.Many2one(
@@ -62,25 +62,18 @@ class ParameterMethod(models.Model, ParameterMethodBase):
             store=True,
             readonly=True,
         )
-        # Limit of detection: the lowest value this method can detect, in the row's unit.
-        lod = fields.Float(string="LOD", digits=0)
-        # Limit of quantification: the lowest value this method can measure reliably, in the row's unit.
-        loq = fields.Float(string="LOQ", digits=0)
-        # Decimals a result of this way of testing shows, such as 2 for 0.50; results copy it.
-        result_decimals = fields.Integer()
         # True when its results may be negative, such as a redox potential or a temperature in °C.
         allows_negative = fields.Boolean(string="Negative Results")
-        # True for the way the parameter is normally tested.
-        is_default = fields.Boolean(string="Default")
+        # The sample types the way applies to, with the unit, detection limits and default on each.
+        applicability_ids = fields.One2many(
+            MODEL_PARAMETER_METHOD_SAMPLE_TYPE, "parameter_method_id", string="Sample Types"
+        )
         # False when this way of testing is archived.
         active = fields.Boolean(default=True)
 
     _parameter_method_unique = models.UniqueIndex(
         "(parameter_id, method_id, COALESCE(subcontractor_id, 0)) WHERE active",
         "The parameter is already tested with this method by the same laboratory.",
-    )
-    _one_default = models.UniqueIndex(
-        "(parameter_id) WHERE is_default", "A test parameter has only one default way of testing."
     )
 
     @api.depends("parameter_id", "method_id", "subcontractor_id")
@@ -147,7 +140,6 @@ class ParameterMethod(models.Model, ParameterMethodBase):
         for vals in vals_list:
             if "is_accredited" in vals:
                 raise UserError(self.env._("Accreditation is computed from certificates; it cannot be set by hand."))
-        self._unset_defaults([vals.get("parameter_id") for vals in vals_list if vals.get("is_default")])
         pairs = super().create(vals_list)
         # The constraint runs only for the fields written, so a create that leaves out both testers would skip it.
         pairs._check_tester()
@@ -159,13 +151,19 @@ class ParameterMethod(models.Model, ParameterMethodBase):
         # Removing a line from its parameter, as the parameter's unlink and clear commands do, would delete it.
         if "parameter_id" in vals and not vals["parameter_id"]:
             raise UserError(self._never_deleted_message())
-        if vals.get("is_default"):
-            self._unset_defaults([vals["parameter_id"]] if vals.get("parameter_id") else self.parameter_id.ids)
-        # Archiving drops the default so another way of testing can take it. Done with full rights so archive
-        # alone is enough; the permission check would otherwise also demand edit.
-        if vals.get("active") is False and not vals.get("is_default"):
-            self.filtered("is_default").sudo().write({"is_default": False})
-        return super().write(vals)
+        # Saved from the parameter, another way may become the default in the same save, so the parameter checks it.
+        if vals.get("active") is False and self.env.context.get(DEFAULTS_CHECKED_BY_PARAMETER) is not DEFAULTS_CHECKED:
+            self._refuse_archiving_defaults()
+        result = super().write(vals)
+        if "active" in vals:
+            # The unique index only counts active ways, so an archived way must be saved before a replacement is; a
+            # search through the sample types a parameter is offered on does not recompute them first.
+            self.flush_recordset(["active"])
+            self.parameter_id.flush_recordset(["sample_type_ids"])
+        if vals.get("active") and self.env.context.get(DEFAULTS_CHECKED_BY_PARAMETER) is not DEFAULTS_CHECKED:
+            # A restored way never becomes a default, so its sample types must already have another one.
+            self.parameter_id._check_defaults(self.applicability_ids.sample_type_id)
+        return result
 
     @api.ondelete(at_uninstall=False)
     def _unlink_never(self):
@@ -179,14 +177,36 @@ class ParameterMethod(models.Model, ParameterMethodBase):
             format_list(self.env, self.mapped("display_name")),
         )
 
-    def _unset_defaults(self, parameter_ids):
-        # Making a way of testing the default replaces the parameter's previous default. The change is flushed
-        # at once so the unique index never sees two defaults in one statement.
-        previous = (
-            self.with_context(active_test=False).search(
-                [("parameter_id", "in", parameter_ids), ("is_default", "=", True)]
+    def _refuse_archiving_defaults(self):
+        defaults = self.applicability_ids.filtered("is_default")
+        if defaults:
+            raise UserError(
+                self.env._(
+                    "Choose another default way of testing, or stop offering the parameter on the sample type, before "
+                    "archiving the default: %s.",
+                    format_list(self.env, defaults.mapped("display_name")),
+                )
             )
-            - self
-        )
-        previous.is_default = False
-        previous.flush_recordset(["is_default"])
+
+    def _applicability(self, sample_type):
+        """The way's unit, detection limits and decimals on the sample type; empty when it does not apply to it."""
+        self.ensure_one()
+        return self.applicability_ids.filtered(lambda applicability: applicability.sample_type_id == sample_type)
+
+    def _unavailable_reason(self):
+        """Why the way cannot be offered now, or False when it can. Who may test a parameter is not checked yet."""
+        self.ensure_one()
+        subcontractor = self.subcontractor_id
+        if subcontractor and not subcontractor.active:
+            return self.env._("%s is archived.", subcontractor.display_name)
+        if subcontractor and subcontractor.accreditation_expired:
+            return self.env._(
+                "The accreditation of %(subcontractor)s expired on %(date)s.",
+                subcontractor=subcontractor.display_name,
+                date=format_date(self.env, subcontractor.accreditation_expiry),
+            )
+        links = self.env[MODEL_PARAMETER_METHOD_MACHINE].sudo().search([("parameter_method_id", "=", self.id)])
+        now = fields.Datetime.now()
+        if links and not any(link.machine_id._usable_until() > now for link in links):
+            return self.env._("No machine that runs it is in use with a valid calibration.")
+        return False
