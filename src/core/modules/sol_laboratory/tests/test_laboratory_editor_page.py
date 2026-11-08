@@ -20,7 +20,7 @@ from odoo.addons.sol_laboratory.constants.laboratory_bucket import PUBLIC_ADDRES
 from odoo.addons.sol_laboratory.constants.laboratory_editing import EXPIRED, PUBLIC_URL_VARIABLE
 from odoo.addons.sol_laboratory.constants.laboratory_files import RAW_DATA, RESULT
 from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_EDITING_SESSION
-from odoo.addons.sol_laboratory.services.laboratory_editor_page import CALLBACK_ORIGIN_VARIABLE
+from odoo.addons.sol_laboratory.services.laboratory_editor_page import ASSETS, CALLBACK_ORIGIN_VARIABLE, asset_version
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
 from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
 from odoo.addons.sol_laboratory.services.record_id import persisted_id
@@ -80,6 +80,25 @@ class TestLaboratoryEditorPage(HttpCase, LaboratoryEditingCase, LaboratorySample
         self.assertFalse(second["editorConfig"]["customization"]["forcesave"])
         claims = jwt.decode(second["token"], SECRET, algorithms=["HS256"])
         self.assertEqual(claims["document"]["key"], session.document_key)
+
+    def test_the_page_scripts_and_styles_are_addressed_by_their_checksum(self):
+        page = html.fromstring(self.page().content)
+        version = asset_version()
+
+        self.assertRegex(version, r"\A[0-9a-f]{12}\Z")
+        self.assertEqual(page.xpath("//script[contains(@src, 'editor.js')]/@src"), [f"{ASSETS}editor.js?v={version}"])
+        self.assertEqual(page.xpath("//link[contains(@href, 'editor.css')]/@href"), [f"{ASSETS}editor.css?v={version}"])
+
+    def test_the_editor_follows_the_theme_of_the_back_office(self):
+        for scheme, theme in (("light", "theme-light"), ("dark", "theme-dark")):
+            with (
+                self.subTest(scheme=scheme),
+                patch("odoo.addons.web.models.ir_http.IrHttp.color_scheme", return_value=scheme),
+            ):
+                config = self.config(self.page())
+                claims = jwt.decode(config["token"], SECRET, algorithms=["HS256"])
+                self.assertEqual(config["editorConfig"]["customization"]["uiTheme"], theme)
+                self.assertEqual(claims["editorConfig"]["customization"]["uiTheme"], theme)
 
     def test_nonmember_missing_and_hidden_sample_do_not_disclose_metadata(self):
         self.authenticate(self.outsider.login, PASSWORD)

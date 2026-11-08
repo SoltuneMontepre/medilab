@@ -5,14 +5,18 @@
     if (!page?.dataset.editorConfig) return;
     const status = document.getElementById("editor-status");
     const retry = document.getElementById("editor-retry");
+    const banner = page.querySelector("header");
     const messages = Object.fromEntries(
         [...document.querySelectorAll("[data-message]")].map((node) => [node.dataset.message, node.textContent]),
     );
+    const QUIET_STATES = ["ready", "editing", "sent"];
     let dirty = false;
     let timer;
     function show(state, canRetry = false) {
         status.textContent = messages[state];
         retry.hidden = !canRetry;
+        // Once the document is open the editor fills the page; the banner stays for assistive technology.
+        banner.classList.toggle("quiet", QUIET_STATES.includes(state));
     }
     function failed() {
         clearTimeout(timer);

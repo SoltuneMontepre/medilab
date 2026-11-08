@@ -5,6 +5,7 @@ body { margin: 0; }
 header { padding: .8rem 1.2rem; border-bottom: 1px solid #d8e0e5; background: #fff; flex-shrink: 0; }
 h1 { font-size: 1.1rem; margin: 0 0 .35rem; overflow-wrap: anywhere; }
 p { margin: .3rem 0; line-height: 1.5; }
+header.quiet { position: absolute; width: 1px; height: 1px; padding: 0; border: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .save-notice { color: #4d5e6a; font-size: .875rem; }
 a { display: inline-block; padding: .45rem .75rem; border: 1px solid #48758a; border-radius: .3rem; color: #185368; }
 a:focus-visible { outline: 3px solid #185368; outline-offset: 3px; }

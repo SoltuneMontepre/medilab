@@ -63,6 +63,9 @@ describe("Laboratory browser editor adapter", () => {
         cy.get("#editor-status[role=status][aria-live=polite]").should("contain", loading);
         cy.window({ log: false }).then((win) => win.editorFixture.config.events.onDocumentReady());
         cy.get("#editor-status").should("contain", ready);
+        // The editor fills the page: the banner stays only for assistive technology.
+        cy.get("#laboratory-editor > header").should("have.class", "quiet");
+        cy.get("#laboratory-editor > header").invoke("outerHeight").should("be.at.most", 1);
         cy.get("iframe[title='Editor adapter fixture']").should("be.visible");
         cy.get("#editor-retry").should("not.be.visible");
         cy.get("#editor-messages").should("not.be.visible");
