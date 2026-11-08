@@ -8579,7 +8579,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_editing_session_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_search
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
 msgid "Open"
 msgstr ""
 
@@ -13002,7 +13001,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__state_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_content__state
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__state_id
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__state
 msgid "State"
 msgstr ""
 
@@ -13048,6 +13046,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__status
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__state
 msgid "Status"
 msgstr ""
 
@@ -16351,4 +16350,9 @@ msgstr ""
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_report_template_form
 msgid "e.g. Water testing report"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+msgid "Open PDF"
 msgstr ""

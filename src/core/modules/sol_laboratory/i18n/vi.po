@@ -5344,7 +5344,6 @@ msgstr "Chỉ người đã ký mới có thể rút lại chữ ký."
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_search
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_editing_session__status__open
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_editing_session_search
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
 msgid "Open"
 msgstr "Đang mở"
 
@@ -7621,7 +7620,6 @@ msgstr "Bắt đầu lúc %(start)s tại %(location)s."
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__state_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__state_id
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__state
 msgid "State"
 msgstr "Tỉnh/Thành"
 
@@ -7667,6 +7665,7 @@ msgstr "Thống kê"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__status
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_editing_session_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__status
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__state
 msgid "Status"
 msgstr "Trạng thái"
 
@@ -16205,3 +16204,8 @@ msgstr "Bạn không có quyền mở bản nháp của phiếu này."
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_report_template_form
 msgid "e.g. Water testing report"
 msgstr "vd. Phiếu kết quả thử nghiệm nước"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+msgid "Open PDF"
+msgstr "Mở PDF"

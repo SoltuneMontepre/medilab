@@ -133,6 +133,13 @@ class TestReportPreparation(ReportPreparationCase):
         self.editor(report).action_prepare_pdf()
         self.assertTrue(report._candidate())
 
+    def test_printed_values_do_not_depend_on_who_asks(self):
+        report = self.report()
+        self.customer.partner_id.country_id = self.env.ref("base.vn")
+        self.assertEqual(
+            report.with_context(lang="vi_VN")._binding_values(), report.with_context(lang="en_US")._binding_values()
+        )
+
     def test_changed_business_data_makes_the_candidate_out_of_date(self):
         report, candidate = self.prepared()
         self.customer.partner_id.name = "Công ty Nước Sạch Mới"

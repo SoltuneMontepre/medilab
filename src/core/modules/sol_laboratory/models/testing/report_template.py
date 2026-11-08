@@ -65,7 +65,9 @@ class ReportTemplate(models.Model, ReportTemplateBase):
             MODEL_LABORATORY_FILE, string="DOCX File", readonly=True, copy=False, ondelete="restrict"
         )
         # Every version of the template, the latest first.
-        version_ids = fields.One2many(MODEL_REPORT_TEMPLATE_VERSION, "template_id", string="Versions")
+        version_ids = fields.One2many(
+            MODEL_REPORT_TEMPLATE_VERSION, "template_id", string="Versions", context={"active_test": False}
+        )
 
     _file_unique = models.Constraint("UNIQUE(file_id)", "A DOCX file belongs to one report template.")
 

@@ -330,9 +330,9 @@ class TestReport(models.Model, TestReportBase):
         return result
 
     def _binding_values(self):
-        """The business values the report's bindings print, by binding name."""
+        """The business values the report's bindings print, by binding name, in the report's language whoever asks."""
         self.ensure_one()
-        report = self.sudo()
+        report = self.sudo().with_context(lang=self.sudo()._print_langs()[0])
         header = report._print_header()
         labels = report._print_labels()
         return {
@@ -340,7 +340,7 @@ class TestReport(models.Model, TestReportBase):
             "customer_name": header["customer"] or "",
             "customer_address": header["address"],
             "received_dates": header["received"],
-            "samples": self._sample_blocks(report._binding_samples(), labels),
+            "samples": report._sample_blocks(report._binding_samples(), labels),
             "approvers": [paragraph(f"{signer['name']}, {signer['level']}") for signer in report._print_signers()],
         }
 

@@ -52,6 +52,7 @@ class ReportTemplateVersion(models.Model, ReportTemplateVersionBase):
         # draft while edited, available for new reports, archived once no new report may use it.
         state = fields.Selection(
             [(DRAFT, "Draft"), (AVAILABLE, "Available"), (ARCHIVED, "Archived")],
+            string="Status",
             required=True,
             default=DRAFT,
             readonly=True,

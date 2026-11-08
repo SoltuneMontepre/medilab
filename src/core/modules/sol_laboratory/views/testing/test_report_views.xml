@@ -215,7 +215,7 @@
                                         decoration-info="status == 'review'"
                                         decoration-success="status == 'issued'"
                                     />
-                                    <button name="action_open" type="object" string="Open" />
+                                    <button name="action_open" type="object" string="Open PDF" />
                                 </list>
                             </field>
                         </page>
