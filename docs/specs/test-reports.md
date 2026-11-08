@@ -28,6 +28,26 @@ A template has a name, report language and immutable available versions. Each ve
 
 Template changes never rewrite earlier drafts or issued reports. Selecting a different available version for an unsigned draft regenerates it explicitly and invalidates its prepared PDF. Never silently replace the chosen template.
 
+A template (`medilab.report.template`) is created with its first draft version (`medilab.report.template.version`) and one DOCX file in the shipped **Report Templates** laboratory folder. The file's versions are the template's saves; making a version available freezes the file's last save as the version's DOCX, and a new draft starts from an available version's DOCX, restored as the file's newest version. A template has at most one draft at a time. Making a version available needs every required binding, an editor that has finished saving and a preview of its last save: MediLab fills the DOCX with example values, ONLYOFFICE converts it to PDF and the PDF is kept on the version. Archiving is final; an archived version is never offered for a new draft and stays on the reports that use it. Template administration is the template and version permissions; the administrator holds them, and the version's `read` permission lets report editors and signers see which version a report uses.
+
+New reports of a language use the latest available version of the first template of that language, in the templates' order. Report editors choose another available version of the report's language with **Change Template**.
+
+#### Bindings
+
+A binding is a content control whose tag is `medilab:` followed by the binding's name, in the body, a header or a footer. A new template holds every binding after its label. MediLab fills each one and locks it against deletion and editing (`sdtContentLocked`); the editor keeps the lock, and the server still checks every value.
+
+| Binding | Prints |
+| --- | --- |
+| `report_number` | The report number, filled when the PDF is prepared |
+| `report_date` | The day the PDF is prepared, filled then |
+| `request_code` | The test request's code |
+| `customer_name`, `customer_address` | The customer's name and address |
+| `received_dates` | The first and last day the reported samples were received |
+| `samples` | For each sample: its name and lab code, sample type, amount received, condition, first recorded analysis start, conclusion, and a table of parameter, result, unit, limit and method; a paragraph of its own |
+| `approvers` | The approvers of the reported results and their levels; a paragraph of its own |
+
+A template version cannot become available while it misses one of these bindings, names a `medilab:` binding MediLab does not fill, or places `samples` or `approvers` inside a line of text.
+
 ### Generating and editing a draft
 
 Once every sample test of the request is approved or cancelled, generate the report's internal DOCX draft and create its signing task. Its source records identify:
@@ -43,6 +63,8 @@ Editors may change layout and explanatory text. Generated customer and sample de
 
 Use controlled working files for drafts, with immutable saved versions and the editing-session rules of [Laboratory files](laboratory-files.md#online-editing). Do not enable editing in raw-data or issued-report folders. Draft versions follow report locks and permissions even if a person may otherwise edit the working folder. This workflow creates its own working draft and issued PDF; it does not require general-purpose sample working and report folders.
 
+A report's draft is one DOCX file in the shipped **Test Report Drafts** laboratory folder. Report editors generate it with **Edit Draft**, which generates it the first time and opens it in the online editor, or with **Generate Draft Again**, which replaces the editors' changes. Each generation is a `medilab.test.report.draft` record naming the template version, the generated DOCX version, the result versions and the values it printed; issue bindings stay empty in a draft. Generation and its storage never run when a result is approved, so approving results never depends on ONLYOFFICE or the bucket. A draft cannot be generated while someone is editing it.
+
 ### Preparing the PDF
 
 Preparing a PDF freezes one candidate for approval:
@@ -53,6 +75,16 @@ Preparing a PDF freezes one candidate for approval:
 4. Resolve all printed issue metadata, including the report number and visible signer information, and store it in the final DOCX source version before conversion. Reserve the number for this report version before review; reservation does not issue the report. An abandoned reservation remains in history and is not assigned to another report.
 5. Convert that saved DOCX to PDF and store the candidate with its hash and the identifiers of its DOCX, template and data versions. Required generated metadata must be part of this candidate, rather than added by re-rendering after approval.
 6. Present that candidate for review. Its draft status is clear in the interface; a marked draft print is a separate preview copy, never the source used for digital signing.
+
+**Prepare PDF** on an unsigned draft report does this in one transaction, holding the report's operation lock and the draft file's row:
+
+- It refuses while ONLYOFFICE's health check fails, while the draft has an open editing session that is not idle, while its latest session ended in `error` on the draft's current version, or while its latest session saved a `conflict` newer than the current version. Editors close the editor, or open and save the draft again, to resolve them.
+- It refuses when the draft was not generated from the report's template version, when a required binding is missing, or when a business binding no longer prints what the business records give now.
+- It reserves the report number from the report sequence, fills `report_number` and `report_date` into a new DOCX version of the draft, has ONLYOFFICE convert that version to PDF, and stores a `medilab.test.report.candidate` waiting for review with the PDF, its SHA-256, the template version, the DOCX version, the result versions, the printed number and date, and the printed business values. A failed conversion stores nothing and keeps no number.
+- While a candidate waits for review, nobody opens or saves the draft: editing sessions are refused, and a save that arrives anyway, such as a late callback of an expired session, ends its session in `error` without a version. **Reopen Draft**, **Generate Draft Again**, **Change Template** and the lab head's rejection make it obsolete. The report keeps its reserved number for every later candidate of the same report version.
+- A candidate is current while it waits for review and its report still has the same template version, the draft's last save is its DOCX version, the same result versions and the same printed business values. The report form shows a waiting candidate as a draft PDF, not issued, and warns when it is no longer current. The lab head opens it with **Review PDF**.
+
+Reports issued before report templates keep their PDF unchanged: the upgrade records each as an issued, migrated candidate with the PDF's SHA-256 and no template or DOCX.
 
 Signing checks that the reviewed candidate is still current and all required source approvals still stand. Changed source data invalidates the affected candidate. The deliberate signing action records its identity and content hash with the approval. An obsolete signing task or preview cannot approve another candidate. If a printed signer or issue detail changes, invalidate the candidate and review its replacement before signing.
 

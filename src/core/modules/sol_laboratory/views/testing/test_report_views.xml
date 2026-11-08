@@ -94,6 +94,53 @@
                         invisible="status in ('issued', 'replaced')"
                     />
                     <button
+                        name="action_edit_draft"
+                        type="object"
+                        string="Edit Draft"
+                        class="btn-primary"
+                        invisible="not draft_editable"
+                        groups="sol_laboratory.group_permission_test_report_edit_all"
+                    />
+                    <button
+                        name="action_prepare_pdf"
+                        type="object"
+                        string="Prepare PDF"
+                        invisible="not draft_editable"
+                        groups="sol_laboratory.group_permission_test_report_edit_all"
+                    />
+                    <button
+                        name="action_open_candidate"
+                        type="object"
+                        string="Review PDF"
+                        class="btn-primary"
+                        invisible="not has_candidate"
+                        groups="sol_laboratory.group_permission_test_report_candidate_read_all"
+                    />
+                    <button
+                        name="action_reopen_draft"
+                        type="object"
+                        string="Reopen Draft"
+                        confirm="Reopen the draft? Its prepared PDF becomes obsolete, and a new one must be prepared and reviewed."
+                        invisible="not has_candidate or status != 'draft'"
+                        groups="sol_laboratory.group_permission_test_report_edit_all"
+                    />
+                    <button
+                        name="%(action_medilab_test_report_template_change)d"
+                        type="action"
+                        string="Change Template"
+                        context="{'default_report_id': id}"
+                        invisible="not draft_editable"
+                        groups="sol_laboratory.group_permission_test_report_edit_all"
+                    />
+                    <button
+                        name="action_generate_draft"
+                        type="object"
+                        string="Generate Draft Again"
+                        confirm="Generate the draft again from the template and the business records? The editors' changes are replaced."
+                        invisible="not draft_editable or not draft_file_id"
+                        groups="sol_laboratory.group_permission_test_report_edit_all"
+                    />
+                    <button
                         name="%(action_medilab_change_request_raise)d"
                         type="action"
                         string="Request a Change"
@@ -103,6 +150,8 @@
                     />
                     <field name="status" widget="statusbar" statusbar_visible="draft,signing,issued" />
                 </header>
+                <div class="alert alert-info mb-0" role="status" invisible="not has_candidate or not candidate_current">A prepared draft PDF waits for the lab head's review. It is not issued and not digitally signed.</div>
+                <div class="alert alert-warning mb-0" role="alert" invisible="not has_candidate or candidate_current">The prepared PDF no longer matches its template, its draft or the business records. Reopen the draft, then prepare and review the PDF again.</div>
                 <div class="alert alert-warning mb-0" role="alert" invisible="not digital_signing_pending">Viettel Sign has not signed the PDF yet. It is retried automatically, and the customer is told once it is signed.</div>
                 <sheet>
                     <div class="oe_title">
@@ -118,6 +167,11 @@
                             <field name="issued_at" invisible="not issued_at" />
                             <field name="attachment_id" invisible="not attachment_id" />
                             <field name="digital_signature_id" invisible="not digital_signature_id" options="{'no_open': True}" />
+                            <field
+                                name="template_version_id"
+                                invisible="not template_version_id"
+                                groups="sol_laboratory.group_permission_report_template_version_read_all"
+                            />
                         </group>
                         <group string="Delivery">
                             <field name="delivery_method" />
@@ -127,8 +181,8 @@
                             <field name="delivered_by_id" invisible="not delivered_by_id" />
                         </group>
                     </group>
-                    <notebook groups="sol_laboratory.group_permission_test_result_read_all">
-                        <page string="Results" name="results">
+                    <notebook>
+                        <page string="Results" name="results" groups="sol_laboratory.group_permission_test_result_read_all">
                             <field name="result_ids">
                                 <list>
                                     <field name="sample_id" />
@@ -140,7 +194,50 @@
                                 </list>
                             </field>
                         </page>
+                        <page
+                            string="Prepared PDFs"
+                            name="candidates"
+                            invisible="not candidate_ids"
+                            groups="sol_laboratory.group_permission_test_report_candidate_read_all"
+                        >
+                            <field name="candidate_ids" readonly="1">
+                                <list decoration-muted="status == 'obsolete'">
+                                    <field name="report_number" />
+                                    <field name="report_date" />
+                                    <field name="template_version_id" />
+                                    <field name="create_date" string="Prepared At" />
+                                    <field name="create_uid" string="Prepared By" />
+                                    <field name="invalidated_reason" optional="show" />
+                                    <field name="sha256" optional="hide" />
+                                    <field
+                                        name="status"
+                                        widget="badge"
+                                        decoration-info="status == 'review'"
+                                        decoration-success="status == 'issued'"
+                                    />
+                                    <button name="action_open" type="object" string="Open" />
+                                </list>
+                            </field>
+                        </page>
+                        <page
+                            string="Generated Drafts"
+                            name="drafts"
+                            invisible="not draft_ids"
+                            groups="sol_laboratory.group_permission_test_report_draft_read_all"
+                        >
+                            <field name="draft_ids" readonly="1">
+                                <list>
+                                    <field name="template_version_id" />
+                                    <field name="create_date" string="Generated At" />
+                                    <field name="create_uid" string="Generated By" />
+                                </list>
+                            </field>
+                        </page>
                     </notebook>
+                    <field name="draft_file_id" invisible="1" groups="sol_laboratory.group_permission_test_report_edit_all" />
+                    <field name="has_candidate" invisible="1" />
+                    <field name="candidate_current" invisible="1" />
+                    <field name="draft_editable" invisible="1" />
                     <field name="approval_can_sign" invisible="1" />
                     <field name="approval_can_reject" invisible="1" />
                     <field name="approval_can_withdraw" invisible="1" />

@@ -14,7 +14,7 @@ How code inside an Odoo module is laid out.
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `master_data`       | What the laboratory can test and with what: parameters, groups, sample types, methods, units, regulations, quality registrations, locations, machines, chemicals, subcontractors, customers |
 | `sample_collection` | Test requests and samples: reception, handover, recollection, subcontract dispatches, and creating a sample's laboratory folders                                                  |
-| `testing`           | Sample tests, results, machine bookings, test reports, change requests                                                                                                           |
+| `testing`           | Sample tests, results, machine bookings, test reports with their templates, drafts and prepared PDFs, change requests                                                                                                           |
 | `tasks`             | Task types and tasks                                                                                                                                                             |
 | `notifications`     | Notification events, preferences, recipients and push deliveries                                                                                                                 |
 | `management`        | Features only managers use                                                                                                                                                       |
@@ -74,6 +74,7 @@ Technical names used in Python live in the `constants/` package at the root of t
 | `constants/items.py`       | Kinds of stock items and how they are tracked, such as `KIND_SOLUTION`                      |
 | `constants/laboratory_files.py` | Member roles, sync modes and access levels of laboratory folders and files, the sources of file versions, Office extensions, and the codes of their refusals, such as `FOLDER_SHARE` |
 | `constants/laboratory_editing.py` | Statuses of online editing sessions and of the editing service's callbacks, the files edited online, the editing service's addresses, secret and token header, and the codes of their refusals, such as `OPEN_STATUSES` |
+| `constants/report_templates.py` | States of report template versions, the data bindings of report DOCX files and the statuses of prepared PDFs, such as `REQUIRED_BINDINGS` |
 | `constants/laboratory_api.py` | The path of the laboratory files API, the HTTP status of each refusal code and the limits on signing in, such as `ERROR_STATUSES` |
 
 - Names are UPPER*SNAKE_CASE; a model constant is `MODEL*<NAME>`and holds the value of`\_name`.

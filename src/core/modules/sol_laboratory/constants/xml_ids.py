@@ -21,4 +21,7 @@ CUSTOMER_EDITOR_GROUP = "sol_laboratory.group_permission_customer_edit_all"
 SAMPLE_LABEL_REPORT = "sol_laboratory.action_report_sample_label"
 HANDOVER_RECORD_REPORT = "sol_laboratory.action_report_handover_record"
 TEST_REPORT_REPORT = "sol_laboratory.action_report_test_report"
+# The folders of the DOCX files of report templates and of report drafts, which only their documents give access to.
+REPORT_TEMPLATES_FOLDER = "sol_laboratory.laboratory_folder_report_templates"
+REPORT_DRAFTS_FOLDER = "sol_laboratory.laboratory_folder_report_drafts"
 DEPARTMENTS_MENU = "hr.menu_hr_department_kanban"
