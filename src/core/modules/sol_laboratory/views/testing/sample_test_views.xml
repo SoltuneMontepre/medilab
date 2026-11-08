@@ -19,7 +19,7 @@
                         string="Outsource"
                         class="btn-success"
                         context="{'default_sample_test_id': id}"
-                        invisible="status not in ('waiting', 'assigned') or not subcontracted_method_ids or not (outsourcing_suggested or tested_by_my_department)"
+                        invisible="status not in ('waiting', 'assigned') or not outsourcing_method_ids or not (outsourcing_suggested or tested_by_my_department)"
                         groups="sol_laboratory.group_permission_subcontract_dispatch_create_all"
                     />
                     <button
@@ -89,6 +89,15 @@
                             <field name="due_date_reason" invisible="not due_date_reason" />
                             <field name="parameter_method_id" readonly="1" />
                             <field name="accepted_method_id" invisible="not accepted_method_id" />
+                            <field name="outsourcing_method_ids" invisible="1" />
+                            <field name="subcontractor_id" invisible="1" />
+                            <div
+                                colspan="2"
+                                class="text-muted"
+                                invisible="not accepted_method_id or subcontractor_id or not subcontracted_method_ids or status not in ('waiting', 'assigned')"
+                            >
+                                Outsourcing this test changes the way of testing the customer accepted: Sales first obtains a revised quotation the customer accepts.
+                            </div>
                         </group>
                         <group string="Recommendation" invisible="not recommended_machine_id">
                             <field name="recommended_method_id" string="Way of Testing" />
@@ -185,6 +194,7 @@
                 <field name="parameter_id" />
                 <field name="due_date" decoration-danger="is_urgent" />
                 <field name="subcontracted_method_ids" widget="many2many_tags" />
+                <field name="outsourcing_method_ids" column_invisible="1" />
                 <field name="status" widget="badge" />
                 <button
                     name="%(action_medilab_sample_test_outsource)d"
@@ -192,7 +202,7 @@
                     string="Outsource"
                     class="btn-success"
                     context="{'default_sample_test_id': id}"
-                    invisible="not subcontracted_method_ids"
+                    invisible="not outsourcing_method_ids"
                     groups="sol_laboratory.group_permission_subcontract_dispatch_create_all"
                 />
             </list>

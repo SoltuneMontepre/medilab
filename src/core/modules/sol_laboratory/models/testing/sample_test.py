@@ -105,10 +105,15 @@ class SampleTest(models.Model, SampleTestBase):
         cancelled_at = fields.Datetime(readonly=True, copy=False)
         # True when the due date is within the urgency threshold.
         is_urgent = fields.Boolean(string="Urgent", compute="_compute_is_urgent")
-        # The parameter's subcontracted ways of testing whose subcontractor can be chosen, through which an outsourcing
-        # suggestion sends the test.
+        # The parameter's subcontracted ways of testing whose subcontractor can be chosen, shown as the alternatives of
+        # an outsourcing suggestion.
         subcontracted_method_ids = fields.Many2many(
             MODEL_PARAMETER_METHOD, string="Subcontracted Ways", compute="_compute_subcontracted_method_ids"
+        )
+        # The subcontracted ways the test may be outsourced through: only the way the customer accepted, when there is
+        # one, since another needs a revised quotation the customer accepts.
+        outsourcing_method_ids = fields.Many2many(
+            MODEL_PARAMETER_METHOD, string="Agreed Subcontracted Ways", compute="_compute_subcontracted_method_ids"
         )
         # True when the current person belongs to the department of the test's testing task, which may outsource it
         # straight away.
@@ -198,6 +203,11 @@ class SampleTest(models.Model, SampleTestBase):
                 lambda way, sample_type=sample_type: (
                     way.subcontractor_id._can_be_chosen() and bool(way._applicability(sample_type))
                 )
+            )
+            test.outsourcing_method_ids = (
+                test.subcontracted_method_ids & test.accepted_method_id
+                if test.accepted_method_id
+                else test.subcontracted_method_ids
             )
 
     @api.depends_context("uid")

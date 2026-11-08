@@ -32,7 +32,7 @@ def seed_demo(env):
     from .demo_audit import seed_audit
     from .demo_change_requests import seed_change_requests
     from .demo_cleanup import seed_cleanup
-    from .demo_dispatches import seed_dispatches
+    from .demo_dispatches import seed_agreed_outsourcing, seed_dispatches
     from .demo_finance import seed_finance
     from .demo_laboratory_editing import seed_laboratory_editing
     from .demo_laboratory_file_locks import seed_laboratory_file_locks
@@ -67,6 +67,7 @@ def seed_demo(env):
     seed_signing(env)
     seed_tracking(env)
     seed_dispatches(env)
+    seed_agreed_outsourcing(env)
     seed_finance(env)
     seed_audit(env)
     seed_locks(env)

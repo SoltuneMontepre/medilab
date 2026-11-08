@@ -11019,7 +11019,6 @@ msgstr "Đã xếp lịch"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__subcontracted_method_ids
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__subcontracted_method_ids
 msgid "Subcontracted Ways"
 msgstr "Cách thử thuê ngoài"
 
@@ -16392,3 +16391,41 @@ msgstr "dưới LOD"
 #: code:addons/sol_laboratory/models/testing/test_result.py:0
 msgid "below LOQ"
 msgstr "dưới LOQ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__outsourcing_method_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__outsourcing_method_ids
+msgid "Agreed Subcontracted Ways"
+msgstr "Cách thử thuê ngoài đã thỏa thuận"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch.py:0
+msgid "Attach the subcontractor's report to a sent or received dispatch."
+msgstr "Chỉ đính kèm báo cáo của thầu phụ vào phiếu gửi đã gửi hoặc đã nhận."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid ""
+"Outsourcing this test changes the way of testing the customer accepted: "
+"Sales first obtains a revised quotation the customer accepts."
+msgstr ""
+"Gửi thầu phụ chỉ tiêu này sẽ đổi cách thử khách hàng đã chấp nhận: bộ phận "
+"kinh doanh cần có trước một báo giá sửa đổi được khách hàng chấp nhận."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__report_filename
+msgid "Report Filename"
+msgstr "Tên tệp báo cáo"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__report_file
+msgid "Subcontractor's Report"
+msgstr "Báo cáo của thầu phụ"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch.py:0
+msgid "The subcontractor's report is kept; attach another file to replace it."
+msgstr "Báo cáo của thầu phụ được giữ lại; đính kèm tệp khác để thay thế."
+

@@ -1842,6 +1842,8 @@ model SubcontractDispatch {
   status           String                    @db.VarChar
   /// Free notes about the dispatch.
   note             String?                   @db.Text
+  /// File name of the report the subcontractor returned; the file is an attachment of the dispatch's report_file field.
+  report_filename  String?                   @db.VarChar
   /// The subcontractor the tests are sent to.
   subcontractor    Subcontractor             @relation(fields: [subcontractor_id], references: [id], onDelete: Restrict)
   /// Sample delivery staff who takes the samples.

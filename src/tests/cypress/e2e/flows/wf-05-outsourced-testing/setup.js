@@ -12,6 +12,7 @@ export const PARAMETERS = {
   lead: {
     parameter: "sol_demo.demo_test_parameter_lead",
     way: "sol_demo.demo_parameter_method_lead_subcontracted",
+    inHouse: "sol_demo.demo_parameter_method_lead_aas",
     sampleType: "sol_demo.demo_sample_type_bottled_water",
     state: "liquid",
   },
@@ -69,11 +70,13 @@ export function clearDrafts(kind = "lead") {
 // A sample test of a received sample whose testing task the head of department assigned to the tester. Its results
 // are promised `days` from today: with none, its due date has passed, so no machine can finish it and the scheduler
 // suggests outsourcing it. `sample` can give another sample type and physical state, and a regulation to compare the
-// sample with, as external IDs.
-export function assignedTest(kind = "lead", { days = 0, sample = {} } = {}) {
+// sample with, as external IDs. `accepted` is the external ID of the way of testing the customer accepted on the
+// quotation, which the test keeps to.
+export function assignedTest(kind = "lead", { days = 0, sample = {}, accepted } = {}) {
   const { parameter, sampleType, state } = { ...PARAMETERS[kind], ...sample };
   const test = { model: "medilab.sample.test", kind };
-  const ids = { regulation: false };
+  const ids = { regulation: false, way: {} };
+  if (accepted) refAs(RECEPTION, accepted).then(({ id }) => (ids.way = { parameter_method_id: id, accepted_method_id: id }));
   refAs(RECEPTION, "sol_demo.demo_customer_green_farm").then(({ id }) => (ids.customer = id));
   refAs(RECEPTION, sampleType).then(({ id }) => (ids.sampleType = id));
   refAs(RECEPTION, parameter).then(({ id }) => (ids.parameter = id));
@@ -93,7 +96,7 @@ export function assignedTest(kind = "lead", { days = 0, sample = {} } = {}) {
               sample_type_id: ids.sampleType,
               physical_state: state,
               regulation_id: ids.regulation,
-              test_ids: [[0, 0, { parameter_id: ids.parameter }]],
+              test_ids: [[0, 0, { parameter_id: ids.parameter, ...ids.way }]],
             },
           ],
         ],

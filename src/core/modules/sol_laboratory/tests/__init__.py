@@ -162,6 +162,7 @@ from . import (
     test_onlyoffice_page_real,
     test_onlyoffice_real,
     test_outsourced_result_entry,
+    test_outsourcing_agreement,
     test_own_department_scope,
     test_own_scope,
     test_own_team_scope,
