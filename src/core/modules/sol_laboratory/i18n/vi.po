@@ -131,6 +131,7 @@ msgstr "%s đã kết thúc."
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/master_data/parameter_method.py:0
+#: code:addons/sol_laboratory/models/master_data/regulation.py:0
 msgid "%s is archived and cannot be chosen."
 msgstr "%s đã được lưu trữ nên không thể được chọn."
 
@@ -4198,11 +4199,13 @@ msgstr "Khóa"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__lod
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__lod
 msgid "LOD"
 msgstr "LOD"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__loq
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__loq
 msgid "LOQ"
 msgstr "LOQ"
 
@@ -7222,6 +7225,7 @@ msgstr "Chỉ Tiêu Của Mẫu"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__sample_type_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatch
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__sample_type_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__sample_type_id
 msgid "Sample Type"
 msgstr "Loại Mẫu"
 
@@ -8832,6 +8836,7 @@ msgstr "Đang chờ"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__parameter_method_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__parameter_method_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__parameter_method_id
 msgid "Way of Testing"
 msgstr "Cách Thử"
 
@@ -11279,12 +11284,6 @@ msgid "Send for Approval"
 msgstr "Gửi duyệt"
 
 #. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_result.py:0
-msgid "Set the conclusion against the regulation before sending the result."
-msgstr "Chọn kết luận theo quy chuẩn trước khi gửi kết quả."
-
-#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_test_result_sign_all
 msgid "Sign test results"
 msgstr "Ký kết quả thử nghiệm"
@@ -11340,12 +11339,6 @@ msgstr "Bạn đã nhập kết quả này nên người khác phải ký ở c�
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_test_result_decimals_range
 msgid "A result shows between 0 and 15 decimals."
 msgstr "Kết quả hiển thị từ 0 đến 15 chữ số thập phân."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_result.py:0
-msgid "The system sets the sample test, entry and status of a result."
-msgstr "Hệ thống tự đặt chỉ tiêu của mẫu, thông tin nhập và trạng thái của kết quả."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -11790,12 +11783,6 @@ msgid "Delivery"
 msgstr "Giao phiếu"
 
 #. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_report.py:0
-msgid "Does not meet %s"
-msgstr "Không đạt %s"
-
-#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_test_reports
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__download
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_archive_file_form
@@ -11847,12 +11834,6 @@ msgstr "Thời điểm phát hành"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__limit_decimals
 msgid "Limit Decimals"
 msgstr "Số thập phân của giới hạn"
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_report.py:0
-msgid "Meets %s"
-msgstr "Đạt %s"
 
 #. module: sol_laboratory
 #. odoo-python
@@ -15309,11 +15290,6 @@ msgstr ""
 "cùng."
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
-msgid "The regulation sets no limit for this parameter on the sample's type."
-msgstr "Quy chuẩn không đặt giới hạn cho chỉ tiêu này trên loại mẫu của mẫu."
-
-#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/sample_test.py:0
 msgid ""
@@ -15333,3 +15309,128 @@ msgstr "Cách Thử Đã Chấp Nhận"
 #: code:addons/sol_laboratory/models/testing/sample_test.py:0
 msgid "The accepted way of testing changes only through a revised quotation."
 msgstr "Cách thử đã chấp nhận chỉ thay đổi qua một báo giá sửa đổi."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result.py:0
+msgid ""
+"%s is outside the requested regulation comparison, so it takes no "
+"conclusion."
+msgstr ""
+"%s nằm ngoài phạm vi so sánh quy chuẩn được yêu cầu nên không cần kết "
+"luận."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+msgid "<span>The value is below the LOD or LOQ. Suggested text:</span>"
+msgstr "<span>Giá trị thấp hơn LOD hoặc LOQ. Văn bản đề xuất:</span>"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result.py:0
+msgid ""
+"Assess the result against the regulation as pass, fail or insufficient basis"
+" before sending it."
+msgstr ""
+"Hãy đánh giá kết quả theo quy chuẩn là đạt, không đạt hoặc không đủ căn cứ "
+"trước khi gửi."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__comparison_requested
+msgid "Comparison Requested"
+msgstr "Yêu Cầu So Sánh"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report.py:0
+msgid "Does not meet %s for the compared parameters"
+msgstr "Không đạt %s đối với các chỉ tiêu được so sánh"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_result__conclusion__insufficient
+msgid "Insufficient Basis"
+msgstr "Không đủ căn cứ"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report.py:0
+msgid "Insufficient basis to conclude against %s"
+msgstr "Không đủ căn cứ để kết luận theo %s"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report.py:0
+msgid "Meets %s for the compared parameters"
+msgstr "Đạt %s đối với các chỉ tiêu được so sánh"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report.py:0
+msgid "No limit for this sample type"
+msgstr "Không có giới hạn cho loại mẫu này"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result.py:0
+msgid "Only a value below its LOD or LOQ has a suggested text."
+msgstr "Chỉ giá trị thấp hơn LOD hoặc LOQ mới có văn bản đề xuất."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__value_suggestion
+msgid "Suggested Text"
+msgstr "Văn Bản Đề Xuất"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result.py:0
+msgid ""
+"The regulation sets no limit for %s on the sample's type, so it can only be "
+"assessed as insufficient basis."
+msgstr ""
+"Quy chuẩn không đặt giới hạn cho %s trên loại mẫu của mẫu, nên chỉ có thể "
+"đánh giá là không đủ căn cứ."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+msgid ""
+"The regulation sets no limit for this parameter on the sample's type, so the result\n"
+"                                can only be assessed as insufficient basis."
+msgstr ""
+"Quy chuẩn không đặt giới hạn cho chỉ tiêu này trên loại mẫu của mẫu, nên kết "
+"quả chỉ có thể được đánh giá là không đủ căn cứ."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+msgid ""
+"The regulation sets no limit for this parameter, so it is outside the requested\n"
+"                                comparison and takes no conclusion."
+msgstr ""
+"Quy chuẩn không đặt giới hạn cho chỉ tiêu này, nên chỉ tiêu nằm ngoài phạm vi "
+"so sánh được yêu cầu và không cần kết luận."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result.py:0
+msgid ""
+"The system sets the sample test, entry, status and copied catalog values of "
+"a result."
+msgstr ""
+"Hệ thống tự đặt chỉ tiêu của mẫu, thông tin nhập, trạng thái và các giá trị "
+"sao chép từ danh mục của kết quả."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+msgid "Use This Text"
+msgstr "Dùng Văn Bản Này"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result.py:0
+msgid "below LOD"
+msgstr "dưới LOD"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result.py:0
+msgid "below LOQ"
+msgstr "dưới LOQ"

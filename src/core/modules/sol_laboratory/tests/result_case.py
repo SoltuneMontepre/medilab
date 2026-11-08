@@ -87,11 +87,14 @@ class ResultCase(SchedulingCase):
 
     @classmethod
     def enter(cls, person=None, test=None, **values):
-        values = {"value": 0.008, "conclusion": "pass", **values}
+        """The person's result for the test, assessed as passing when its regulation limits the parameter."""
+        test = test or cls.test
+        if test.parameter_id in test.sample_id.regulation_id.limit_ids.parameter_id:
+            values = {"conclusion": "pass", **values}
         return (
             cls.env[MODEL_TEST_RESULT]
             .with_user((person or cls.tester).user_id)
-            .create({"sample_test_id": (test or cls.test).id, **values})
+            .create({"sample_test_id": test.id, "value": 0.008, **values})
         )
 
     def send(self, result, person=None):

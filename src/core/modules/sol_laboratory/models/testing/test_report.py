@@ -17,7 +17,6 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_DOCUMENT_LOCK,
     MODEL_LOCK_MIXIN,
     MODEL_MAIL_MESSAGE,
-    MODEL_PARAMETER_METHOD,
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
     MODEL_QUALITY_REGISTRATION,
@@ -414,18 +413,21 @@ class TestReport(models.Model, TestReportBase):
     def _print_samples(self):
         """Each sample the report covers, with its conclusion and one row per reported result."""
         results = self.sudo().result_ids.sorted("id")
-        ways = {result: result._way_of_testing() for result in results}
-        marks = self._print_marks(self.env[MODEL_PARAMETER_METHOD].union(ways.values()))
+        marks = self._print_marks(results.parameter_method_id)
         env = self._print_env()
-        return [
-            {
-                "name": sample.customer_sample_name,
-                "code": sample.code,
-                "conclusion": self._print_conclusion(sample, own),
-                "rows": [self._print_row(result, ways[result], marks.get(ways[result], ""), env) for result in own],
-            }
-            for sample, own in sorted(results.grouped("sample_id").items(), key=lambda item: item[0].code)
-        ]
+        samples = []
+        for sample, own in sorted(results.grouped("sample_id").items(), key=lambda item: item[0].code):
+            compared = any(own.mapped("comparison_requested"))
+            rows = [self._print_row(result, marks.get(result.parameter_method_id, ""), env, compared) for result in own]
+            samples.append(
+                {
+                    "name": sample.customer_sample_name,
+                    "code": sample.code,
+                    "conclusion": self._print_conclusion(own),
+                    "rows": rows,
+                }
+            )
+        return samples
 
     def _print_marks(self, ways):
         """The marks of the quality registrations valid on the report date, by the ways of testing they cover."""
@@ -451,26 +453,45 @@ class TestReport(models.Model, TestReportBase):
             for way in ways
         }
 
-    def _print_conclusion(self, sample, results):
-        regulation = sample.regulation_id
-        if not regulation:
+    def _print_conclusion(self, results):
+        """The sample's conclusion within the requested comparison: any failure fails it, it passes only when every
+        compared result passes, and otherwise its basis is insufficient. Without a requested comparison it has none."""
+        compared = results.filtered("comparison_requested")
+        if not compared:
             return ""
-        if "fail" in results.mapped("conclusion"):
-            return self._in_langs(lambda env: env._("Does not meet %s", regulation.code))
-        return self._in_langs(lambda env: env._("Meets %s", regulation.code))
+        codes = ", ".join(compared.regulation_id.mapped("code"))
+        conclusions = set(compared.mapped("conclusion"))
+        if "fail" in conclusions:
+            return self._in_langs(lambda env: env._("Does not meet %s for the compared parameters", codes))
+        if conclusions == {"pass"}:
+            return self._in_langs(lambda env: env._("Meets %s for the compared parameters", codes))
+        return self._in_langs(lambda env: env._("Insufficient basis to conclude against %s", codes))
 
-    def _print_row(self, result, way, marks, env):
+    def _print_row(self, result, marks, env, compared):
+        """The result's row. A sample with a requested comparison also prints the limit and the assessment, empty for
+        its results outside it."""
         parameter = self._in_langs(lambda lang_env: result.with_env(lang_env).parameter_id.name)
-        return {
+        row = {
             "parameter": f"{parameter} {marks}".strip(),
             "result": self._in_langs(lambda lang_env: result.with_env(lang_env).value_text)
             or result.with_env(env).value_display,
             "unit": result.unit_id.name or "",
-            "limit": self._print_limit(result, env),
-            "method": way.method_id.code or "",
         }
+        if compared:
+            row["limit"] = self._print_limit(result, env)
+            row["conclusion"] = self._in_langs(
+                lambda lang_env: dict(result._fields["conclusion"]._description_selection(lang_env)).get(
+                    result.conclusion, ""
+                )
+            )
+        row["method"] = result.parameter_method_id.method_id.code or ""
+        return row
 
     def _print_limit(self, result, env):
+        if not result.comparison_requested:
+            return ""
+        if result.limit_missing:
+            return self._in_langs(lambda lang_env: lang_env._("No limit for this sample type"))
         if result.limit_text:
             return self._in_langs(lambda lang_env: result.with_env(lang_env).limit_text)
         low = result.limit_min_set and formatLang(env, result.limit_min, digits=result.limit_decimals)

@@ -110,6 +110,8 @@ model SampleType {
   regulations RegulationSampleType[]
   /// Limits regulations set on this exact sample type.
   regulation_limits RegulationLimit[]
+  /// Results whose catalog values were copied for this sample type.
+  results     TestResult[]
 
   @@index([parent_id])
   @@index([parent_path])
@@ -140,6 +142,8 @@ model Regulation {
   limits            RegulationLimit[]
   /// Samples compared with the regulation.
   samples           Sample[]
+  /// Results compared with the regulation.
+  results           TestResult[]
 
   @@map("medilab_regulation")
 }
@@ -474,6 +478,8 @@ model ParameterMethod {
   sample_tests     SampleTest[] @relation("SampleTestWay")
   /// Sample tests whose customer accepted it.
   accepted_sample_tests SampleTest[] @relation("SampleTestAcceptedWay")
+  /// Results measured this way.
+  results          TestResult[]
   /// The sample types it applies to.
   sample_types     ParameterMethodSampleType[]
 
@@ -1030,10 +1036,22 @@ model TestResult {
   value          Decimal? @db.Decimal
   /// Decimals the value shows, between 0 and 15, such as 2 for 0.50, copied from the way of testing and correctable by the lab QA.
   value_decimals Int?
-  /// Result as text when it is not a number, such as "Not detected", in each language.
+  /// Result as text when it is not a number, such as "Not detected" or a confirmed suggestion for a value below the LOD or LOQ, such as "<0.05 mg/L (below LOQ)", in each language. The measured value stays in value.
   value_text     Json?
-  /// The unit of the value, taken from the way of testing.
+  /// The way of testing the result is measured by, copied from the sample test when the result is created; a new version copies it from the version it replaces.
+  parameter_method_id Int?
+  /// The sample's type when the result is created, which the unit, LOD, LOQ and regulation limit are copied for.
+  sample_type_id Int?
+  /// The unit of the value, copied from the way of testing on the sample type.
   unit_id        Int?
+  /// Limit of detection copied from the way of testing on the sample type, in unit_id; empty when it states none, which is not zero. Catalog edits never change it.
+  lod            Decimal? @db.Decimal
+  /// Limit of quantification copied from the way of testing on the sample type, in unit_id; empty when it states none, which is not zero. Catalog edits never change it.
+  loq            Decimal? @db.Decimal
+  /// The sample's regulation when the result is created; empty when none.
+  regulation_id  Int?
+  /// True when the regulation limits the parameter on some sample type, so the tester assesses the result against it; a parameter the regulation never limits is outside the requested comparison and takes no conclusion.
+  comparison_requested Boolean @default(false)
   /// The unit of limit_min and limit_max, copied from the sample's regulation.
   limit_unit_id  Int?
   /// True when the copied limit has a minimum, which may be 0.
@@ -1058,7 +1076,7 @@ model TestResult {
   started_at     DateTime?
   /// Why the sanity check found the value unusual when it was sent, shown to the approver; empty when nothing was found.
   check_warning  String?          @db.Text
-  /// pass or fail, set by the tester; empty when the sample has no regulation.
+  /// pass, fail or insufficient (insufficient basis), set by the tester for a requested comparison and required before the result is sent; empty outside it. A missing exact-type limit allows only insufficient. The system never infers it.
   conclusion     String?          @db.VarChar
   /// none, requested, approved or rejected: where the result stands in its approval chain, kept in step with its signatures. Approved and rejected are final; only the lab head's rejection of the report sends an approved result back to none. Only the system writes it, with is_reported, entered_by_id, entered_at and the version fields.
   status         String           @default("none") @db.VarChar
@@ -1076,6 +1094,12 @@ model TestResult {
   entered_by     User             @relation(fields: [entered_by_id], references: [id], onDelete: Restrict)
   /// The machine the measurement ran on.
   machine        Machine?         @relation(fields: [machine_id], references: [id], onDelete: Restrict)
+  /// The way of testing the result is measured by.
+  parameter_method ParameterMethod? @relation(fields: [parameter_method_id], references: [id], onDelete: Restrict)
+  /// The sample type the catalog values are copied for.
+  sample_type    SampleType?      @relation(fields: [sample_type_id], references: [id], onDelete: Restrict)
+  /// The regulation the result is compared with.
+  regulation     Regulation?      @relation(fields: [regulation_id], references: [id], onDelete: Restrict)
   /// The unit of the value.
   unit           MeasurementUnit? @relation("ResultUnit", fields: [unit_id], references: [id], onDelete: Restrict)
   /// The unit of the copied limits.
@@ -1086,6 +1110,7 @@ model TestResult {
   replaced_by    TestResult?      @relation("ResultVersions")
 
   @@index([sample_test_id])
+  @@index([parameter_method_id])
   @@index([status])
   @@map("medilab_test_result")
 }

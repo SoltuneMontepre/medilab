@@ -1,3 +1,4 @@
+from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
@@ -16,12 +17,16 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MACHINE,
     MODEL_MAIL_MESSAGE,
     MODEL_MEASUREMENT_UNIT,
+    MODEL_PARAMETER_METHOD,
     MODEL_PARAMETER_METHOD_SAMPLE_TYPE,
     MODEL_PERMISSION_MIXIN,
+    MODEL_REGULATION,
     MODEL_SAMPLE_TEST,
+    MODEL_SAMPLE_TYPE,
     MODEL_TEST_RESULT,
 )
 from odoo.addons.sol_laboratory.constants.notifications import EVENT_TEST_RESULT_REJECTED
+from odoo.addons.sol_laboratory.fields.nullable_float import NullableFloat
 from odoo.addons.sol_laboratory.models.testing.machine_booking import ACTIVE_STATUSES
 
 if TYPE_CHECKING:
@@ -29,19 +34,14 @@ if TYPE_CHECKING:
 else:
     TestResultBase = object
 
-# Fields only the system sets, so the approval chain and who entered the result cannot be bypassed.
-SYSTEM_FIELDS = frozenset(
-    {"is_reported", "entered_by_id", "entered_at", "status", "version", "replaces_id", "is_replaced"}
-)
-# The status of a sample test while its reported result is in each approval state.
-TEST_STATUS_BY_STATE = {
-    STATE_NONE: "testing",
-    STATE_REQUESTED: "result_entered",
-    STATE_APPROVED: "approved",
-    STATE_REJECTED: "testing",
-}
-# The limit copied from the regulation, which a new version copies from the version it replaces.
+# The way of testing, sample type, unit and detection limits copied from the catalog, which a new version copies from
+# the version it replaces.
+SOURCE_FIELDS = ("parameter_method_id", "sample_type_id", "unit_id", "lod", "loq")
+# The regulation and its limit copied for the requested comparison, which a new version copies from the version it
+# replaces.
 LIMIT_FIELDS = (
+    "regulation_id",
+    "comparison_requested",
     "limit_unit_id",
     "limit_min_set",
     "limit_min",
@@ -50,7 +50,29 @@ LIMIT_FIELDS = (
     "limit_decimals",
     "limit_text",
 )
-# What the tester enters, and the unit and limit copied with it: edits stop once a signature stands.
+# Fields only the system sets, so the approval chain, who entered the result and what was copied from the catalog
+# cannot be bypassed.
+SYSTEM_FIELDS = frozenset(
+    {
+        "is_reported",
+        "entered_by_id",
+        "entered_at",
+        "status",
+        "version",
+        "replaces_id",
+        "is_replaced",
+        *SOURCE_FIELDS,
+        *LIMIT_FIELDS,
+    }
+)
+# The status of a sample test while its reported result is in each approval state.
+TEST_STATUS_BY_STATE = {
+    STATE_NONE: "testing",
+    STATE_REQUESTED: "result_entered",
+    STATE_APPROVED: "approved",
+    STATE_REJECTED: "testing",
+}
+# What the tester enters, and what was copied with it: edits stop once a signature stands.
 CONTENT_FIELDS = frozenset(
     {
         "value",
@@ -59,7 +81,7 @@ CONTENT_FIELDS = frozenset(
         "machine_id",
         "started_at",
         "conclusion",
-        "unit_id",
+        *SOURCE_FIELDS,
         *LIMIT_FIELDS,
     }
 )
@@ -85,8 +107,28 @@ class TestResult(models.Model, TestResultBase):
         parameter_id = fields.Many2one(related="sample_test_id.parameter_id")
         # The subcontractor that tested it; empty when the laboratory tested it in-house.
         subcontractor_id = fields.Many2one(related="sample_test_id.subcontractor_id")
-        # The regulation the sample's results are compared with; empty when none.
-        regulation_id = fields.Many2one(related="sample_test_id.sample_id.regulation_id")
+        # The way of testing the result is measured by, copied from the sample test when the result is created.
+        parameter_method_id = fields.Many2one(
+            MODEL_PARAMETER_METHOD,
+            string="Way of Testing",
+            compute="_compute_source",
+            store=True,
+            ondelete="restrict",
+            index="btree_not_null",
+        )
+        # The sample's type when the result is created, which the unit, detection limits and regulation limit are
+        # copied for.
+        sample_type_id = fields.Many2one(MODEL_SAMPLE_TYPE, compute="_compute_source", store=True, ondelete="restrict")
+        # Limit of detection, copied from the way of testing on the sample type, in the unit; empty when it states none.
+        lod = NullableFloat(string="LOD", compute="_compute_source", store=True, min_display_digits=1)
+        # Limit of quantification, copied from the way of testing on the sample type, in the unit; empty when it states
+        # none.
+        loq = NullableFloat(string="LOQ", compute="_compute_source", store=True, min_display_digits=1)
+        # The sample's regulation when the result is created; empty when none.
+        regulation_id = fields.Many2one(MODEL_REGULATION, compute="_compute_limit", store=True, ondelete="restrict")
+        # True when the regulation limits the parameter on some sample type, so the tester assesses the result against
+        # it; a parameter the regulation never limits is outside the requested comparison.
+        comparison_requested = fields.Boolean(compute="_compute_limit", store=True)
         # True for the result reported to the customer: the latest one entered for the sample test.
         is_reported = fields.Boolean(string="Reported Result", readonly=True, copy=False)
         # Measured value in the unit, stored exactly; 0 for a text result.
@@ -99,9 +141,12 @@ class TestResult(models.Model, TestResultBase):
         value_text = fields.Char(string="Text Result", translate=True)
         # The result as shown: its text, or its value with its decimals.
         value_display = fields.Char(string="Result", compute="_compute_value_display")
-        # The unit of the value, taken from the way of testing.
+        # Text suggested for a value below the LOD or LOQ, such as "<0.05 mg/L (below LOQ)", for the tester to confirm;
+        # empty otherwise.
+        value_suggestion = fields.Char(string="Suggested Text", compute="_compute_value_suggestion")
+        # The unit of the value, copied from the way of testing on the sample type.
         unit_id = fields.Many2one(
-            MODEL_MEASUREMENT_UNIT, string="Unit", compute="_compute_unit", store=True, ondelete="restrict"
+            MODEL_MEASUREMENT_UNIT, string="Unit", compute="_compute_source", store=True, ondelete="restrict"
         )
         # The unit of the copied minimum and maximum.
         limit_unit_id = fields.Many2one(
@@ -119,7 +164,7 @@ class TestResult(models.Model, TestResultBase):
         limit_decimals = fields.Integer(compute="_compute_limit", store=True)
         # The limit as text, copied from the sample's regulation, in each language.
         limit_text = fields.Char(string="Limit", compute="_compute_limit", store=True, translate=True)
-        # True when the sample has a regulation but no limit was copied: the regulation sets none for the parameter on
+        # True when the comparison is requested but no limit was copied: the regulation sets none for the parameter on
         # the sample's exact type.
         limit_missing = fields.Boolean(compute="_compute_limit_missing")
         # The Odoo user who entered the result: a lab QA, or a subcontractor's person for an outsourced test.
@@ -139,8 +184,9 @@ class TestResult(models.Model, TestResultBase):
         )
         # When the measurement started, taken from the booking's start and correctable by the tester.
         started_at = fields.Datetime(string="Started At", compute="_compute_measurement", store=True, readonly=False)
-        # Whether the sample passes its regulation for the parameter; set by the tester, empty without a regulation.
-        conclusion = fields.Selection([("pass", "Pass"), ("fail", "Fail")])
+        # The tester's assessment against the copied limit: pass, fail or insufficient basis; empty outside the requested
+        # comparison.
+        conclusion = fields.Selection([("pass", "Pass"), ("fail", "Fail"), ("insufficient", "Insufficient Basis")])
         # Where the result is in its approval.
         status = fields.Selection(
             [
@@ -178,12 +224,25 @@ class TestResult(models.Model, TestResultBase):
             entered = format_datetime(self.env, result.entered_at)
             result.display_name = f"{test.sample_id.code} – {test.parameter_id.name} ({entered})"
 
-    # The unit and the decimals are computed apart: the form sends the editable decimals, and Odoo then leaves
+    # The copy and the decimals are computed apart: the form sends the editable decimals, and Odoo then leaves
     # every field of the same compute method as it was given.
     @api.depends("sample_test_id")
-    def _compute_unit(self):
+    def _compute_source(self):
+        # Only the sample test is a dependency, so later catalog edits leave the copy as it was.
         for result in self:
-            result.unit_id = result.replaces_id.unit_id if result.replaces_id else result._applicability().unit_id
+            if result.replaces_id:
+                # A new version keeps what was copied with the version it replaces.
+                result.update({name: result.replaces_id[name] for name in SOURCE_FIELDS})
+                continue
+            test = result.sample_test_id.sudo()
+            sample_type = test.sample_id.sample_type_id
+            way = test.parameter_method_id or test.parameter_id._default_way(sample_type)
+            applicability = way._applicability(sample_type) if way else self.env[MODEL_PARAMETER_METHOD_SAMPLE_TYPE]
+            result.parameter_method_id = way
+            result.sample_type_id = sample_type
+            result.unit_id = applicability.unit_id
+            result.lod = applicability.lod
+            result.loq = applicability.loq
 
     @api.depends("sample_test_id")
     def _compute_value_decimals(self):
@@ -198,7 +257,10 @@ class TestResult(models.Model, TestResultBase):
                 # A new version keeps the limit copied with the version it replaces.
                 result.update({name: result.replaces_id[name] for name in LIMIT_FIELDS})
                 continue
+            regulation = result.sample_test_id.sudo().sample_id.regulation_id
             limit = result._regulation_limit()
+            result.regulation_id = regulation
+            result.comparison_requested = result.sample_test_id.parameter_id in regulation.limit_ids.parameter_id
             result.limit_unit_id = limit.unit_id
             result.limit_min_set = limit.min_set
             result.limit_min = limit.min_value
@@ -207,10 +269,10 @@ class TestResult(models.Model, TestResultBase):
             result.limit_decimals = limit.decimals
             result.limit_text = limit.limit_text
 
-    @api.depends("regulation_id", "limit_min_set", "limit_max_set", "limit_text")
+    @api.depends("comparison_requested", "limit_min_set", "limit_max_set", "limit_text")
     def _compute_limit_missing(self):
         for result in self:
-            result.limit_missing = bool(result.regulation_id) and not (
+            result.limit_missing = result.comparison_requested and not (
                 result.limit_min_set or result.limit_max_set or result.limit_text
             )
 
@@ -231,6 +293,12 @@ class TestResult(models.Model, TestResultBase):
             result.value_display = result.value_text or formatLang(
                 self.env, result.value, digits=result.value_decimals, rounding_method="HALF-UP"
             )
+
+    @api.depends("value", "value_text", "lod", "loq", "unit_id")
+    @api.depends_context("lang")
+    def _compute_value_suggestion(self):
+        for result in self:
+            result.value_suggestion = not result.value_text and result._below_threshold_text(self.env)
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -274,7 +342,7 @@ class TestResult(models.Model, TestResultBase):
     def _check_not_negative(self):
         # A new version is the system's copy of a result already accepted, so it is not checked again.
         for result in self.filtered(lambda result: not result.replaces_id):
-            if result.value < 0 and not result.value_text and not result.sudo()._way_of_testing().allows_negative:
+            if result.value < 0 and not result.value_text and not result.sudo().parameter_method_id.allows_negative:
                 raise ValidationError(
                     self.env._(
                         '%s cannot be negative; enter a measurement below the LOD as a text, such as "< LOD".',
@@ -282,11 +350,45 @@ class TestResult(models.Model, TestResultBase):
                     )
                 )
 
+    @api.constrains("conclusion")
+    def _check_conclusion(self):
+        # Only a requested comparison is assessed, and a missing limit is never a basis for passing or failing.
+        for result in self.filtered("conclusion"):
+            if not result.comparison_requested:
+                raise ValidationError(
+                    self.env._(
+                        "%s is outside the requested regulation comparison, so it takes no conclusion.",
+                        result.display_name,
+                    )
+                )
+            if result.limit_missing and result.conclusion != "insufficient":
+                raise ValidationError(
+                    self.env._(
+                        "The regulation sets no limit for %s on the sample's type, so it can only be assessed as "
+                        "insufficient basis.",
+                        result.display_name,
+                    )
+                )
+
     def write(self, vals):
         moves = "sample_test_id" in vals and any(result.sample_test_id.id != vals["sample_test_id"] for result in self)
         if not self.env.su and (moves or SYSTEM_FIELDS & set(vals)):
-            raise UserError(self.env._("The system sets the sample test, entry and status of a result."))
+            raise UserError(
+                self.env._("The system sets the sample test, entry, status and copied catalog values of a result.")
+            )
         return super().write(vals)
+
+    def action_use_value_suggestion(self):
+        """The tester confirms the suggested text for a value below the LOD or LOQ, in each language; the measured
+        value stays as it was entered."""
+        self.ensure_one()
+        if not self.value_suggestion:
+            raise UserError(self.env._("Only a value below its LOD or LOQ has a suggested text."))
+        self.value_text = self.value_suggestion
+        langs = [code for code, _name in self.env["res.lang"].get_installed()]
+        self.update_field_translations(
+            "value_text", {lang: self._below_threshold_text(self.with_context(lang=lang).env) for lang in langs}
+        )
 
     def action_sign(self):
         self.ensure_one()
@@ -298,8 +400,12 @@ class TestResult(models.Model, TestResultBase):
                 )
             if not self.is_reported:
                 raise UserError(self.env._("Only the reported result of a sample test is sent for approval."))
-            if self.regulation_id and not self.conclusion:
-                raise UserError(self.env._("Set the conclusion against the regulation before sending the result."))
+            if self.comparison_requested and not self.conclusion:
+                raise UserError(
+                    self.env._(
+                        "Assess the result against the regulation as pass, fail or insufficient basis before sending it."
+                    )
+                )
         return super().action_sign()
 
     def action_withdraw(self):
@@ -312,26 +418,30 @@ class TestResult(models.Model, TestResultBase):
     def _regulation_limit(self):
         # Only the limit for the sample's exact type applies; a broader type's limit is never used.
         self.ensure_one()
-        sample = self.sample_test_id.sample_id
-        return sample.regulation_id.limit_ids.filtered(
+        return self.sample_test_id.sudo().sample_id.regulation_id.limit_ids.filtered(
             lambda limit: (
-                limit.parameter_id == self.sample_test_id.parameter_id and limit.sample_type_id == sample.sample_type_id
+                limit.parameter_id == self.sample_test_id.parameter_id and limit.sample_type_id == self.sample_type_id
             )
         )
 
-    def _way_of_testing(self):
-        # The way of testing chosen for the test, or else the parameter's default one on the sample's type.
-        self.ensure_one()
-        test = self.sample_test_id
-        return test.parameter_method_id or test.parameter_id._default_way(test.sudo().sample_id.sample_type_id)
-
     def _applicability(self):
-        # The unit and decimals of the way of testing on the sample's type; empty when it does not apply to it.
+        # The decimals of the way of testing on the sample type; empty when it does not apply to it.
         self.ensure_one()
-        way = self._way_of_testing()
-        if not way:
+        if not self.parameter_method_id:
             return self.env[MODEL_PARAMETER_METHOD_SAMPLE_TYPE]
-        return way._applicability(self.sample_test_id.sudo().sample_id.sample_type_id)
+        return self.parameter_method_id.sudo()._applicability(self.sample_type_id)
+
+    def _below_threshold_text(self, env):
+        """The text for a value below the LOD, or else below the LOQ, with the copied threshold and unit in the
+        language of env, such as "<0.05 mg/L (below LOQ)"; False when the value is not below either."""
+        self.ensure_one()
+        for threshold, which in ((self.lod, env._("below LOD")), (self.loq, env._("below LOQ"))):
+            if threshold is not False and self.value < threshold:
+                digits = max(0, -int(Decimal(repr(threshold)).normalize().as_tuple().exponent))
+                shown = formatLang(env, threshold, digits=digits)
+                unit = self.unit_id.with_env(env).name
+                return f"<{shown} {unit} ({which})" if unit else f"<{shown} ({which})"
+        return False
 
     def _copy_limit_translations(self):
         # The computed copy holds one language; the report needs the limit text in each.

@@ -65,6 +65,8 @@
 
 - **Subcontractor accreditation lapsing.** What happens when the subcontractor of an accepted quotation loses its accreditation before the dispatch? Proposed answer, not decided: as for a machine fault, no dispatch is made; the laboratory waits for the renewal, or sales tells the customer and the way of testing changes only through a revised quotation.
 - **Machines and departments.** Which department manages a machine and its bookings? Proposed answer, not decided: a machine names the department that manages it, so department permissions apply to it and its bookings.
+- **Requested comparison scope.** A sample names a regulation, but nothing records which of its parameters the customer asked to compare. For now a result is in the requested comparison when the sample's regulation sets a limit for its parameter on some sample type; a parameter the regulation never limits takes no conclusion and is left out of the sample's conclusion. This is provisional, not decided. Should the order or the sample name the compared parameters instead, and who may change them after the quotation is accepted? (blocks US-T06, US-LH02)
+- **Failing without an exact-type limit.** For now a result whose regulation sets no limit for its parameter on the sample's exact type can only be assessed as insufficient basis, never pass or fail. May a tester assess fail on professional grounds without that limit? This is provisional, not decided. (US-T06)
 
 ## Reports and laboratory files
 

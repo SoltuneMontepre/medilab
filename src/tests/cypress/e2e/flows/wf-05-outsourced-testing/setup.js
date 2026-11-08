@@ -68,14 +68,16 @@ export function clearDrafts(kind = "lead") {
 
 // A sample test of a received sample whose testing task the head of department assigned to the tester. Its results
 // are promised `days` from today: with none, its due date has passed, so no machine can finish it and the scheduler
-// suggests outsourcing it.
-export function assignedTest(kind = "lead", { days = 0 } = {}) {
-  const { parameter, sampleType, state } = PARAMETERS[kind];
+// suggests outsourcing it. `sample` can give another sample type and physical state, and a regulation to compare the
+// sample with, as external IDs.
+export function assignedTest(kind = "lead", { days = 0, sample = {} } = {}) {
+  const { parameter, sampleType, state } = { ...PARAMETERS[kind], ...sample };
   const test = { model: "medilab.sample.test", kind };
-  const ids = {};
+  const ids = { regulation: false };
   refAs(RECEPTION, "sol_demo.demo_customer_green_farm").then(({ id }) => (ids.customer = id));
   refAs(RECEPTION, sampleType).then(({ id }) => (ids.sampleType = id));
   refAs(RECEPTION, parameter).then(({ id }) => (ids.parameter = id));
+  if (sample.regulation) refAs(RECEPTION, sample.regulation).then(({ id }) => (ids.regulation = id));
   refAs(HEAD, "sol_demo.demo_person_tester").then(({ id }) => (ids.tester = id));
   cy.then(() =>
     callAs(RECEPTION, "medilab.test.request", "create", [
@@ -90,6 +92,7 @@ export function assignedTest(kind = "lead", { days = 0 } = {}) {
               customer_sample_name: `Mẫu gửi thầu phụ ${Date.now()}`,
               sample_type_id: ids.sampleType,
               physical_state: state,
+              regulation_id: ids.regulation,
               test_ids: [[0, 0, { parameter_id: ids.parameter }]],
             },
           ],

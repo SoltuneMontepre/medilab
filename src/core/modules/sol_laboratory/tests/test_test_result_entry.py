@@ -39,7 +39,7 @@ class TestTestResultEntry(ResultCase):
         self.offer(self.parameter, still_water)
         self.sample.sample_type_id = still_water
 
-        result = self.enter()
+        result = self.enter(conclusion=False)
 
         self.assertFalse(result.limit_max_set)
         self.assertFalse(result.limit_unit_id)

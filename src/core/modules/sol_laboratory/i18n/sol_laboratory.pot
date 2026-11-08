@@ -334,6 +334,7 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/master_data/parameter_method.py:0
+#: code:addons/sol_laboratory/models/master_data/regulation.py:0
 msgid "%s is archived and cannot be chosen."
 msgstr ""
 
@@ -4466,12 +4467,6 @@ msgid "Documents"
 msgstr ""
 
 #. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_report.py:0
-msgid "Does not meet %s"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_job_item__status__done
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine_booking__status__done
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__done
@@ -6608,11 +6603,13 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__lod
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__lod
 msgid "LOD"
 msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__loq
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__loq
 msgid "LOQ"
 msgstr ""
 
@@ -7416,12 +7413,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__meeting_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__meeting_ids
 msgid "Meetings"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_report.py:0
-msgid "Meets %s"
 msgstr ""
 
 #. module: sol_laboratory
@@ -8504,11 +8495,6 @@ msgstr ""
 #: code:addons/sol_laboratory/models/master_data/regulation.py:0
 msgid ""
 "The first valid day of regulation %s cannot be after its last valid day."
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
-msgid "The regulation sets no limit for this parameter on the sample's type."
 msgstr ""
 
 #. module: sol_laboratory
@@ -12283,6 +12269,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__sample_type_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatch
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__sample_type_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__sample_type_id
 msgid "Sample Type"
 msgstr ""
 
@@ -12582,12 +12569,6 @@ msgstr ""
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__use_partner_credit_limit
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__use_partner_credit_limit
 msgid "Set a value greater than 0.0 to activate a credit limit check"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_result.py:0
-msgid "Set the conclusion against the regulation before sending the result."
 msgstr ""
 
 #. module: sol_laboratory
@@ -14171,12 +14152,6 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_result.py:0
-msgid "The system sets the sample test, entry and status of a result."
-msgstr ""
-
-#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_outsource_form
 msgid ""
 "The test leaves the machine queue and joins the draft dispatch to the "
@@ -15192,6 +15167,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__parameter_method_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__parameter_method_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__parameter_method_id
 msgid "Way of Testing"
 msgstr ""
 
@@ -15510,4 +15486,117 @@ msgstr ""
 #. module: sol_laboratory
 #: model:mail.template,subject:sol_laboratory.mail_template_task_reminder
 msgid "{{ object.name }}"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result.py:0
+msgid ""
+"%s is outside the requested regulation comparison, so it takes no "
+"conclusion."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+msgid "<span>The value is below the LOD or LOQ. Suggested text:</span>"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result.py:0
+msgid ""
+"Assess the result against the regulation as pass, fail or insufficient basis"
+" before sending it."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__comparison_requested
+msgid "Comparison Requested"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report.py:0
+msgid "Does not meet %s for the compared parameters"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_result__conclusion__insufficient
+msgid "Insufficient Basis"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report.py:0
+msgid "Insufficient basis to conclude against %s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report.py:0
+msgid "Meets %s for the compared parameters"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report.py:0
+msgid "No limit for this sample type"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result.py:0
+msgid "Only a value below its LOD or LOQ has a suggested text."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__value_suggestion
+msgid "Suggested Text"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result.py:0
+msgid ""
+"The regulation sets no limit for %s on the sample's type, so it can only be "
+"assessed as insufficient basis."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+msgid ""
+"The regulation sets no limit for this parameter on the sample's type, so the result\n"
+"                                can only be assessed as insufficient basis."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+msgid ""
+"The regulation sets no limit for this parameter, so it is outside the requested\n"
+"                                comparison and takes no conclusion."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result.py:0
+msgid ""
+"The system sets the sample test, entry, status and copied catalog values of "
+"a result."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+msgid "Use This Text"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result.py:0
+msgid "below LOD"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result.py:0
+msgid "below LOQ"
 msgstr ""

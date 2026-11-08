@@ -48,7 +48,7 @@ def seed_demo(env):
     from .demo_orders import seed_orders
     from .demo_quotations import seed_quotations, seed_selected_ways
     from .demo_reports import seed_reports
-    from .demo_results import seed_results
+    from .demo_results import seed_assessments, seed_results
     from .demo_signing import seed_signing
     from .demo_signing_levels import seed_signing_levels
     from .demo_support import seed_support
@@ -59,6 +59,7 @@ def seed_demo(env):
     seed_quotations(env)
     seed_selected_ways(env)
     seed_results(env)
+    seed_assessments(env)
     seed_reports(env)
     seed_change_requests(env)
     seed_signing(env)

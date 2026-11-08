@@ -93,14 +93,38 @@
                     </group>
                     <group>
                         <group string="Result">
+                            <field name="parameter_method_id" />
+                            <field name="sample_type_id" />
                             <field name="value" invisible="value_text" readonly="status != 'none'" />
                             <field name="value_decimals" invisible="value_text" readonly="status != 'none'" />
                             <field name="value_text" readonly="status != 'none'" />
                             <field name="unit_id" />
+                            <field name="lod" widget="nullable_float" />
+                            <field name="loq" widget="nullable_float" />
                             <field name="value_display" invisible="not id" />
+                            <div
+                                class="alert alert-info mb-0"
+                                role="status"
+                                colspan="2"
+                                invisible="not value_suggestion or status != 'none'"
+                            >
+                                <span>The value is below the LOD or LOQ. Suggested text:</span>
+                                <field name="value_suggestion" class="fw-bold" />
+                                <button
+                                    name="action_use_value_suggestion"
+                                    type="object"
+                                    string="Use This Text"
+                                    class="btn btn-link p-0"
+                                />
+                            </div>
                         </group>
                         <group string="Regulation" invisible="not regulation_id">
                             <field name="regulation_id" />
+                            <field name="comparison_requested" invisible="1" />
+                            <div class="text-muted" colspan="2" invisible="comparison_requested">
+                                The regulation sets no limit for this parameter, so it is outside the requested
+                                comparison and takes no conclusion.
+                            </div>
                             <field name="limit_min_set" invisible="1" />
                             <field name="limit_max_set" invisible="1" />
                             <field name="limit_min" invisible="not limit_min_set" />
@@ -109,9 +133,15 @@
                             <field name="limit_unit_id" invisible="not limit_unit_id" />
                             <field name="limit_missing" invisible="1" />
                             <div class="alert alert-warning mb-0" role="alert" colspan="2" invisible="not limit_missing">
-                                The regulation sets no limit for this parameter on the sample's type.
+                                The regulation sets no limit for this parameter on the sample's type, so the result
+                                can only be assessed as insufficient basis.
                             </div>
-                            <field name="conclusion" widget="radio" readonly="status != 'none'" />
+                            <field
+                                name="conclusion"
+                                widget="radio"
+                                invisible="not comparison_requested"
+                                readonly="status != 'none'"
+                            />
                         </group>
                     </group>
                     <field name="approval_can_sign" invisible="1" />
