@@ -60,7 +60,7 @@ Paths below are relative to `cypress/e2e/`. The issue descriptions use flat path
 | WF-03 | Testing assignment and scheduling | [#154](https://github.com/SoltuneMontepre/medilab/issues/154) | `flows/wf-03-testing-scheduling/` | `testing-scheduling.cy.js`, `unhappy-paths.cy.js`, `reassignment-reasons.cy.js`, `notification-integrity.cy.js` |
 | WF-04 | Result entry and approval | [#155](https://github.com/SoltuneMontepre/medilab/issues/155) | `flows/wf-04-result-approval/` | `result-approval.cy.js` |
 | WF-05 | Outsourced testing | [#156](https://github.com/SoltuneMontepre/medilab/issues/156) | `flows/wf-05-outsourced-testing/` | `outsourced-testing.cy.js` |
-| WF-06 | Report signing, release and delivery | [#157](https://github.com/SoltuneMontepre/medilab/issues/157) | `flows/wf-06-report-release/` | `report-release.cy.js` |
+| WF-06 | Report signing, release and delivery | [#157](https://github.com/SoltuneMontepre/medilab/issues/157), [#431](https://github.com/SoltuneMontepre/medilab/issues/431) | `flows/wf-06-report-release/` | `report-release.cy.js`, `report-preparation.cy.js` |
 | WF-04, SF-11 | Result files and laboratory file administration | [#168](https://github.com/SoltuneMontepre/medilab/issues/168) | `flows/wf-07-laboratory-files/` | `laboratory-files.cy.js` |
 | SF-01 | Invoicing and payment collection | [#158](https://github.com/SoltuneMontepre/medilab/issues/158) | `flows/sf-01-payment-collection/` | `payment-collection.cy.js` |
 | SF-02 | Order cancellation | [#159](https://github.com/SoltuneMontepre/medilab/issues/159) | `flows/sf-02-order-cancellation/` | `order-cancellation.cy.js` |
@@ -105,6 +105,7 @@ The [open-issue query](https://github.com/SoltuneMontepre/medilab/issues?q=is%3A
 | [#184](https://github.com/SoltuneMontepre/medilab/issues/184) | `flows/wf-04-result-approval/` | Web verification that a mobile-signed result awaits the head of department; native screens and the Android emulator path belong to the mobile app suite. |
 | [#203](https://github.com/SoltuneMontepre/medilab/issues/203) | `flows/wf-07-laboratory-files/` | Real Document Server browser editing and service-down behavior; deployment, network, persistence, monitoring and licence gates keep their infrastructure ownership. |
 | [#220](https://github.com/SoltuneMontepre/medilab/issues/220) | `login.cy.js` | Reproduce and fix the existing wrong-password browser case. The other failures listed in the issue are Odoo module tests. |
+| [#431](https://github.com/SoltuneMontepre/medilab/issues/431) | `flows/wf-06-report-release/` | Editing, preparing and reviewing a report's PDF, WF-06-A5 and WF-06-E4, and the template versions an administrator sees. Preparing runs against a running editing service; without one, only the outage path runs. Template lifecycle, binding and callback rules remain in the module suite. |
 | [#230](https://github.com/SoltuneMontepre/medilab/issues/230) | `flows/wf-07-laboratory-files/` | Authenticated editor-page navigation, return after login, refusal messages, browser security and real-editor interaction. |
 
 Use the pinned running Document Server for acceptance criteria that require the real editor. A browser fixture or a passing Cypress case does not replace the native, API, infrastructure or staging evidence an issue requires.

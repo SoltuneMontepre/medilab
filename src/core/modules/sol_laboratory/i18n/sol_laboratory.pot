@@ -1277,6 +1277,7 @@ msgstr ""
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_file_lock__status__active
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_lock_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__active
 msgid "Active"
 msgstr ""
 
@@ -1467,6 +1468,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__received_quantity
+#: code:addons/sol_laboratory/models/testing/test_report.py:0
 msgid "Amount Received"
 msgstr ""
 
@@ -1704,6 +1706,8 @@ msgstr ""
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__archive
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__archive
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_report_template_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_report_template_version_form
 msgid "Archive"
 msgstr ""
 
@@ -1882,6 +1886,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_method_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_unit_category_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_unit_category_search
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_report_template_version__state__archived
 msgid "Archived"
 msgstr ""
 
@@ -2201,6 +2206,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_report__language__bilingual
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__report_language__bilingual
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_report_template__language__bilingual
 msgid "Bilingual"
 msgstr ""
 
@@ -2932,6 +2938,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__condition
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__condition
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.report_handover_record_document
+#: code:addons/sol_laboratory/models/testing/test_report.py:0
 msgid "Condition"
 msgstr ""
 
@@ -3432,6 +3439,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__create_uid
 msgid "Created by"
 msgstr ""
 
@@ -3516,6 +3528,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__create_date
 msgid "Created on"
 msgstr ""
 
@@ -4167,6 +4184,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_reject_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_reject_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_user_link_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_template_change_form
 msgid "Discard"
 msgstr ""
 
@@ -4326,6 +4344,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_partner__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_users__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_users_apikeys__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -4521,6 +4544,7 @@ msgstr ""
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_result__status__none
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_handover_record_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_search
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_report_template_version__state__draft
 msgid "Draft"
 msgstr ""
 
@@ -4649,6 +4673,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__edit
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__edit
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_report_template_form
 msgid "Edit"
 msgstr ""
 
@@ -4991,6 +5016,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__lock_message
 msgid "Editing Lock"
 msgstr ""
 
@@ -5190,6 +5217,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_report__language__en
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__report_language__en
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_report_template__language__en
 msgid "English"
 msgstr ""
 
@@ -5772,6 +5800,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_handover_record_sample__condition__good
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__condition__good
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
 msgid "Good"
 msgstr ""
 
@@ -6095,6 +6124,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_partner__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_users__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_users_apikeys__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__id
 msgid "ID"
 msgstr ""
 
@@ -6489,6 +6523,7 @@ msgstr ""
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_report__status__issued
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_test_reports
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_search
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_report_candidate__status__issued
 msgid "Issued"
 msgstr ""
 
@@ -6741,6 +6776,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__lang
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__lang
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__language
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template__language
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__language
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_report_template_search
 msgid "Language"
 msgstr ""
 
@@ -6904,6 +6942,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__write_uid
 msgid "Last Updated by"
 msgstr ""
 
@@ -6988,6 +7031,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__write_date
 msgid "Last Updated on"
 msgstr ""
 
@@ -7685,6 +7733,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_parameter_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_field_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_method_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template__name
 msgid "Name"
 msgstr ""
 
@@ -7728,6 +7777,8 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__new_document_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_report_template_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_report_template_version_form
 msgid "New Version"
 msgstr ""
 
@@ -8024,6 +8075,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__number
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__number
 msgid "Number"
 msgstr ""
 
@@ -8644,6 +8696,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__attachment_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__attachment_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__attachment_id
 msgid "PDF"
 msgstr ""
 
@@ -10784,6 +10837,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_upload__status__prepared
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_report_candidate__origin__prepared
 msgid "Prepared"
 msgstr ""
 
@@ -11677,6 +11731,9 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_reject__report_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__report_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__report_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__report_id
 msgid "Report"
 msgstr ""
 
@@ -11688,6 +11745,7 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/test_report.py:0
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__report_date
 msgid "Report Date"
 msgstr ""
 
@@ -11712,6 +11770,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_test_reports
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_list
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__report_number
 msgid "Report Number"
 msgstr ""
 
@@ -11850,6 +11909,8 @@ msgstr ""
 #: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_results
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__result_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__result_ids
 msgid "Results"
 msgstr ""
 
@@ -12133,6 +12194,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_content__sha256
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__sha256
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_form_signing
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__sha256
 msgid "SHA-256"
 msgstr ""
 
@@ -12270,6 +12332,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatch
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__sample_type_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__sample_type_id
+#: code:addons/sol_laboratory/models/testing/test_report.py:0
 msgid "Sample Type"
 msgstr ""
 
@@ -12545,6 +12608,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__sequence
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template__sequence
 msgid "Sequence"
 msgstr ""
 
@@ -12957,6 +13021,8 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__status
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__state
 msgid "Status"
 msgstr ""
 
@@ -14349,6 +14415,7 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/services/laboratory_editor_page.py:0
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_report.py:0
 msgid "This file does not exist or you do not have access to it."
 msgstr ""
 
@@ -14997,6 +15064,8 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__version_ids
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template__version_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_report_template_form
 msgid "Versions"
 msgstr ""
 
@@ -15009,6 +15078,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_report__language__vi
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__report_language__vi
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_report_template__language__vi
 msgid "Vietnamese"
 msgstr ""
 
@@ -15157,6 +15227,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__lock_watched
 msgid "Watching Lock"
 msgstr ""
 
@@ -15490,6 +15562,774 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/testing/report_template_version.py:0
+msgid "%(template)s, version %(number)s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid "12 Nguyen Hue, District 1, Ho Chi Minh City"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_test_report_draft_file_unique
+msgid "A DOCX draft belongs to one test report."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_report_template_file_unique
+msgid "A DOCX file belongs to one report template."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_test_report_candidate_sha256_format
+msgid "A SHA-256 is 64 hexadecimal digits."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_draft.py:0
+msgid ""
+"A generated draft never changes; generate the report's draft again instead."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/report_template_version.py:0
+msgid "A new version starts from an available version."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_test_report_candidate_prepared_sources
+msgid ""
+"A prepared PDF keeps the template version and the DOCX it was prepared from."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_candidate.py:0
+msgid "A prepared PDF never changes; prepare the report's PDF again instead."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+msgid ""
+"A prepared draft PDF waits for the lab head's review. It is not issued and "
+"not digitally signed."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_report_template_version_template_number_unique
+msgid "A template has one version of each number."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/report_template.py:0
+msgid ""
+"A template keeps its language; create another template for another language."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/report_template.py:0
+msgid "A template keeps the DOCX file it was created with."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/report_template_version.py:0
+msgid "A template version changes only through its actions."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/report_template_version.py:0
+msgid ""
+"A template version is created from its template or from an available "
+"version."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/report_template_version.py:0
+msgid ""
+"An archived template version stays archived; create a new version instead."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_report_template_version_frozen_docx
+msgid ""
+"An available or archived template version keeps the DOCX it was made "
+"available with."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/report_template_version.py:0
+msgid ""
+"An available template version never changes; create a new draft version to "
+"edit it."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report.py:0
+msgid "Analysis Started"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid "Another template version was chosen."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_report_template_version_archive_all
+msgid "Archive report template versions"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_report_template_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_report_template_version_form
+msgid ""
+"Archive this version? New reports can no longer use it; reports already "
+"using it keep it."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_report_template_version__state__available
+msgid "Available"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__available_version_ids
+msgid "Available Version"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid "Bottled drinking water"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid "Bottled drinking water 500 mL, lot 1001"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__candidate_current
+msgid "Candidate Current"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_template_change_form
+msgid "Change Template"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_test_report_template_change
+msgid "Change the Template"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_test_report_template_change
+msgid "Change the Template of a Test Report"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid "Choose an available template version in the report's language."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_report_template_version_create_all
+msgid "Create report template versions"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_report_template_create_all
+msgid "Create report templates"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__docx_version_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__docx_version_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__docx_version_id
+msgid "DOCX"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__draft_file_id
+msgid "DOCX Draft"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template__file_id
+msgid "DOCX File"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__draft_editable
+msgid "Draft Editable"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+msgid "Edit Draft"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_report_template_version_form
+msgid "Edit in ONLYOFFICE"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_report_template_version_edit_all
+msgid "Edit report template versions"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_report_template_edit_all
+msgid "Edit report templates"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid "Example Customer Co., Ltd."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid "Example approver, Head of Department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+msgid "Generate Draft Again"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+msgid ""
+"Generate the draft again from the template and the business records? The "
+"editors' changes are replaced."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_file_version__source__generated
+msgid "Generated"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+msgid "Generated At"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+msgid "Generated By"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__draft_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+msgid "Generated Drafts"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__invalidated_at
+msgid "Invalidated At"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__invalidated_reason
+msgid "Invalidated Reason"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__made_available_at
+msgid "Made Available At"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_report_template_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_report_template_version_form
+msgid "Make Available"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_report_template_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_report_template_version_form
+msgid ""
+"Make this version available? It no longer changes, and new reports in its "
+"language use it."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_report_candidate__origin__migrated
+msgid "Migrated"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid "No report template is available in the report's language yet."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_candidate.py:0
+msgid ""
+"ONLYOFFICE could not convert the document to PDF right now; prepare it again"
+" later."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid "ONLYOFFICE is unavailable, so no new PDF can be prepared: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_report_candidate__status__obsolete
+msgid "Obsolete"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/report_template_version.py:0
+msgid "Only an available template version is archived."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_report_template_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_report_template_version_form
+msgid "Open Preview"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__origin
+msgid "Origin"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__has_candidate
+msgid "PDF Waiting for Review"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_report_template_create_all
+msgid "Permission: report.template.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_report_template_edit_all
+msgid "Permission: report.template.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_report_template_read_all
+msgid "Permission: report.template.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_report_template_version_archive_all
+msgid "Permission: report.template.version.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_report_template_version_create_all
+msgid "Permission: report.template.version.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_report_template_version_edit_all
+msgid "Permission: report.template.version.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_report_template_version_read_all
+msgid "Permission: report.template.version.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_test_report_candidate_read_all
+msgid "Permission: test.report.candidate.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_test_report_draft_read_all
+msgid "Permission: test.report.draft.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+msgid "Prepare PDF"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+msgid "Prepared At"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+msgid "Prepared By"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__candidate_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+msgid "Prepared PDFs"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_test_report_candidate
+msgid "Prepared Test Report PDF"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__preview_attachment_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_report_template_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_report_template_version_form
+msgid "Preview"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/report_template_version.py:0
+msgid "Preview of %s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/report_template_version.py:0
+msgid "Preview the last save of this version before making it available."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__preview_docx_version_id
+msgid "Previewed DOCX"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_test_report_draft_read_all
+msgid "Read generated report drafts"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_test_report_candidate_read_all
+msgid "Read prepared report PDFs"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_report_template_version_read_all
+msgid "Read report template versions"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_report_template_read_all
+msgid "Read report templates"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+msgid "Reopen Draft"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+msgid ""
+"Reopen the draft? Its prepared PDF becomes obsolete, and a new one must be "
+"prepared and reviewed."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_report_template
+msgid "Report Template"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_report_template_version
+msgid "Report Template Version"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_report_template
+#: model:ir.ui.menu,name:sol_laboratory.menu_report_template
+msgid "Report Templates"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_report.py:0
+msgid "Report templates and drafts are only edited online."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+msgid "Review PDF"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report.py:0
+msgid "Samples and Results"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__snapshot
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__snapshot
+msgid "Snapshot"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid "Someone is editing the draft; wait until the editor has saved it."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid ""
+"Someone is still editing the draft; close the editor and wait for its save."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/report_template_version.py:0
+msgid ""
+"Someone is still editing this template; wait until the editor has saved it."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__template_id
+msgid "Template"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__template_version_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__template_version_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__template_version_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__template_version_id
+msgid "Template Version"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_test_report_draft
+msgid "Test Report Draft"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_template_change_form
+msgid ""
+"The draft is generated again from the chosen version, which replaces the "
+"editors' changes; a PDF waiting for review becomes obsolete."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid "The draft misses bindings, generate it again: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid ""
+"The draft no longer prints the business records for %s; correct the records "
+"through their workflow and generate the draft again."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid "The draft was generated again."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid ""
+"The draft was not generated from the report's template; generate it again."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid "The draft was reopened."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid "The lab head rejected the report."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid "The laboratory files storage is unavailable; generate the draft later."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid "The laboratory files storage is unavailable; prepare the PDF later."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/report_template_version.py:0
+msgid ""
+"The laboratory files storage is unavailable; preview the version later."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/report_template_version.py:0
+msgid "The laboratory files storage is unavailable; try again later."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid ""
+"The last save of the draft conflicts with a newer version; open the draft "
+"and save it again."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid "The last save of the draft failed; open the draft again and save it."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+msgid ""
+"The prepared PDF no longer matches its template, its draft or the business "
+"records. Reopen the draft, then prepare and review the PDF again."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_test_report_candidate_one_in_review
+msgid "The report already has a PDF waiting for review."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid "The report already uses this template version."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid "The report has no PDF waiting for review."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid "The report has signatures; its draft stays as it was signed."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid "The report's PDF waits for review; reopen the draft to change it."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid "The saved draft is not a DOCX document that can be read."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/report_template_version.py:0
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_report_template_version_one_draft
+msgid "The template already has a draft version; edit that one."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/report_template_version.py:0
+msgid "The template has bindings MediLab does not fill: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/report_template_version.py:0
+msgid "The template is not a DOCX document that can be read."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/report_template_version.py:0
+msgid "The template misses required bindings: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/report_template_version.py:0
+msgid "These bindings need paragraphs of their own, not a place in a line: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/report_template.py:0
+msgid ""
+"This template has no draft version; create one from its available version "
+"first."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/report_template_version.py:0
+msgid "This version has no preview yet."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_report_candidate__status__review
+msgid "Waiting for Review"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/report_template.py:0
+msgid "You do not have permission to open this report template."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid "You do not have permission to open this report's draft."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_report_template_form
+msgid "e.g. Water testing report"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+msgid "Open PDF"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/testing/test_result.py:0
 msgid ""
 "%s is outside the requested regulation comparison, so it takes no "
@@ -15534,6 +16374,7 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/test_report.py:0
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
 msgid "Meets %s for the compared parameters"
 msgstr ""
 

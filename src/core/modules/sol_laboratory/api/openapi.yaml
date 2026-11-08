@@ -1484,7 +1484,7 @@ components:
         number:
           type: integer
         source:
-          enum: [synced, conflict, restored, edited_online]
+          enum: [synced, conflict, restored, edited_online, generated]
         size:
           type: integer
           minimum: 0

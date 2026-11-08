@@ -101,6 +101,12 @@
                 sequence="20"
                 groups="group_permission_digital_signature_read_all"
             />
+            <menuitem
+                id="menu_report_template"
+                action="action_medilab_report_template"
+                sequence="30"
+                groups="group_permission_report_template_read_all"
+            />
         </menuitem>
     </menuitem>
 

@@ -1108,6 +1108,10 @@ model TestResult {
   replaces       TestResult?      @relation("ResultVersions", fields: [replaces_id], references: [id], onDelete: Restrict)
   /// The version that replaces this row.
   replaced_by    TestResult?      @relation("ResultVersions")
+  /// The generated report drafts that print the result.
+  report_drafts  TestReportDraftResult[]
+  /// The prepared report PDFs that print the result.
+  report_candidates TestReportCandidateResult[]
 
   @@index([sample_test_id])
   @@index([parameter_method_id])
@@ -2002,10 +2006,183 @@ model TestReport {
   replaced_by     TestReport? @relation("ReportVersions")
   /// Person who recorded the delivery.
   delivered_by    Person?     @relation("ReportDeliverer", fields: [delivered_by_id], references: [id], onDelete: Restrict)
+  /// The template version the report's draft is generated from.
+  template_version_id Int?
+  /// The working DOCX of the report; each generation and save is one of its versions.
+  draft_file_id   Int?        @unique
+  /// The template version the report's draft is generated from.
+  template_version ReportTemplateVersion? @relation(fields: [template_version_id], references: [id], onDelete: Restrict)
+  /// The working DOCX of the report.
+  draft_file      LaboratoryFile? @relation("ReportDraftFile", fields: [draft_file_id], references: [id], onDelete: Restrict)
+  /// Every generation of the draft.
+  drafts          TestReportDraft[]
+  /// Every PDF prepared for review.
+  candidates      TestReportCandidate[]
 
   @@unique([request_id, version])
   @@index([status])
   @@map("medilab_test_report")
+}
+
+/// A report template (mẫu phiếu kết quả): the DOCX layout reports of one language are generated from, edited online by its administrators. Its file holds every save; its versions freeze the saves new reports use. Never deleted.
+model ReportTemplate {
+  /// Row identifier.
+  id         Int            @id @default(autoincrement())
+  /// Name administrators know the template by, such as Water testing report.
+  name       String         @db.VarChar
+  /// Language of the reports the template prints: vi, en or bilingual; cannot change once the template exists.
+  language   String         @db.VarChar
+  /// Order in which new reports of the language pick their template: the first with an available version.
+  sequence   Int            @default(10)
+  /// The DOCX file the template is edited in, in the Report Templates folder; its versions are the template's saves.
+  file_id    Int?           @unique
+  /// The DOCX file the template is edited in.
+  file       LaboratoryFile? @relation(fields: [file_id], references: [id], onDelete: Restrict)
+  /// Every version of the template.
+  versions   ReportTemplateVersion[]
+
+  @@map("medilab_report_template")
+}
+
+/// A version of a report template: a draft while edited, then available to new reports of its language, then archived. An available or archived version keeps the DOCX it froze; editing it starts a new draft.
+/// Unique on (template_id, number); at most one draft per template (a partial unique index on template_id where state is draft); a version that is not a draft has its docx_version_id.
+model ReportTemplateVersion {
+  /// Row identifier.
+  id                      Int            @id @default(autoincrement())
+  /// The template the version is of.
+  template_id             Int
+  /// Language of the template, stored so reports choose versions by it.
+  language                String         @db.VarChar
+  /// Number of the version within its template, 1 for the first.
+  number                  Int
+  /// draft while edited, available for new reports, archived once no new report may use it.
+  state                   String         @db.VarChar
+  /// False once archived.
+  active                  Boolean        @default(true)
+  /// The saved DOCX the version froze when it became available; empty while draft.
+  docx_version_id         Int?
+  /// PDF of the version filled with example data.
+  preview_attachment_id   Int?
+  /// The saved DOCX the preview was made from; making the version available needs a preview of its last save.
+  preview_docx_version_id Int?
+  /// When the version became available.
+  made_available_at       DateTime?
+  /// The template the version is of.
+  template                ReportTemplate @relation(fields: [template_id], references: [id], onDelete: Restrict)
+  /// The saved DOCX the version froze.
+  docx_version            LaboratoryFileVersion? @relation("TemplateDocx", fields: [docx_version_id], references: [id], onDelete: Restrict)
+  /// The saved DOCX the preview was made from.
+  preview_docx_version    LaboratoryFileVersion? @relation("TemplatePreviewDocx", fields: [preview_docx_version_id], references: [id], onDelete: Restrict)
+  /// Reports whose draft is generated from the version.
+  reports                 TestReport[]
+  /// Generations of report drafts from the version.
+  report_drafts           TestReportDraft[]
+  /// PDFs prepared with the version.
+  report_candidates       TestReportCandidate[]
+
+  @@unique([template_id, number])
+  @@index([template_id])
+  @@map("medilab_report_template_version")
+}
+
+/// One generation of a report's working DOCX from a template version and approved business data. The editors' saves after it are versions of the same file. Never changes.
+model TestReportDraft {
+  /// Row identifier.
+  id                  Int                   @id @default(autoincrement())
+  /// The report generated.
+  report_id           Int
+  /// The exact template version the DOCX was generated from.
+  template_version_id Int
+  /// The DOCX version generated.
+  docx_version_id     Int
+  /// The values the DOCX's bindings were filled with, by binding name.
+  snapshot            Json?
+  /// The report generated.
+  report              TestReport            @relation(fields: [report_id], references: [id], onDelete: Restrict)
+  /// The exact template version the DOCX was generated from.
+  template_version    ReportTemplateVersion @relation(fields: [template_version_id], references: [id], onDelete: Restrict)
+  /// The DOCX version generated.
+  docx_version        LaboratoryFileVersion @relation(fields: [docx_version_id], references: [id], onDelete: Restrict)
+  /// The approved result versions the DOCX prints.
+  results             TestReportDraftResult[]
+
+  @@index([report_id])
+  @@map("medilab_test_report_draft")
+}
+
+/// Links a generated report draft to the approved result versions it prints.
+model TestReportDraftResult {
+  /// The generated draft.
+  draft_id  Int
+  /// A result version it prints.
+  result_id Int
+  /// The generated draft.
+  draft     TestReportDraft @relation(fields: [draft_id], references: [id], onDelete: Cascade)
+  /// The result version.
+  result    TestResult      @relation(fields: [result_id], references: [id], onDelete: Cascade)
+
+  @@id([draft_id, result_id])
+  @@index([result_id])
+  @@map("medilab_test_report_draft_result_rel")
+}
+
+/// The PDF prepared from one saved DOCX of a report (bản PDF chờ duyệt), frozen for the lab head's review and signature. Only its status changes.
+/// At most one per report waits for review (a partial unique index on report_id where status is review). A prepared one keeps its template version and DOCX; a migrated one, kept from a report issued before report templates, has neither. sha256 is 64 hexadecimal digits.
+model TestReportCandidate {
+  /// Row identifier.
+  id                  Int                    @id @default(autoincrement())
+  /// The report the PDF is of.
+  report_id           Int
+  /// prepared from a DOCX draft, or migrated from a report issued before report templates.
+  origin              String                 @db.VarChar
+  /// review while it waits for the lab head, obsolete once replaced or out of date, issued once issued.
+  status              String                 @db.VarChar
+  /// The exact template version the PDF was prepared with; empty for a migrated report.
+  template_version_id Int?
+  /// The saved DOCX converted, holding the printed issue details; empty for a migrated report.
+  docx_version_id     Int?
+  /// The PDF.
+  attachment_id       Int?
+  /// SHA-256 of the PDF, in hexadecimal, which the signature of its review records.
+  sha256              String                 @db.VarChar
+  /// The report number printed, reserved for the report version when the PDF was prepared.
+  report_number       String?                @db.VarChar
+  /// The report date printed: the day the PDF was prepared, in the laboratory's time zone.
+  report_date         DateTime?              @db.Date
+  /// The business values the PDF prints, by binding name, as they were when it was prepared.
+  snapshot            Json?
+  /// Why the candidate is obsolete, such as the draft being reopened.
+  invalidated_reason  String?                @db.VarChar
+  /// When the candidate became obsolete.
+  invalidated_at      DateTime?
+  /// The report the PDF is of.
+  report              TestReport             @relation(fields: [report_id], references: [id], onDelete: Restrict)
+  /// The exact template version the PDF was prepared with.
+  template_version    ReportTemplateVersion? @relation(fields: [template_version_id], references: [id], onDelete: Restrict)
+  /// The saved DOCX converted.
+  docx_version        LaboratoryFileVersion? @relation(fields: [docx_version_id], references: [id], onDelete: Restrict)
+  /// The approved result versions the PDF prints.
+  results             TestReportCandidateResult[]
+
+  @@index([report_id])
+  @@index([status])
+  @@map("medilab_test_report_candidate")
+}
+
+/// Links a prepared report PDF to the approved result versions it prints.
+model TestReportCandidateResult {
+  /// The prepared PDF.
+  candidate_id Int
+  /// A result version it prints.
+  result_id    Int
+  /// The prepared PDF.
+  candidate    TestReportCandidate @relation(fields: [candidate_id], references: [id], onDelete: Cascade)
+  /// The result version.
+  result       TestResult          @relation(fields: [result_id], references: [id], onDelete: Cascade)
+
+  @@id([candidate_id, result_id])
+  @@index([result_id])
+  @@map("medilab_test_report_candidate_result_rel")
 }
 
 /// A request to change a document whose process is completed (SH-07). It is signed through the change-request chain of the document's type; when approved, a new version of the document is created.
@@ -2560,6 +2737,10 @@ model LaboratoryFile {
   editing_sessions   LaboratoryEditingSession[]
   /// Locks taken on the file.
   locks              LaboratoryFileLock[]
+  /// The report template whose DOCX the file is.
+  report_template    ReportTemplate?
+  /// The test report whose working DOCX the file is.
+  report_draft_of    TestReport?      @relation("ReportDraftFile")
 
   @@unique([folder_id, path_key])
   @@map("medilab_laboratory_file")
@@ -2578,7 +2759,7 @@ model LaboratoryFileVersion {
   parent_version_id  Int?
   /// The version a restore copied.
   restored_from_id   Int?
-  /// synced, conflict, restored or edited_online.
+  /// synced, conflict, restored, edited_online, or generated by MediLab from business records, such as a report draft.
   source             String         @db.VarChar
   /// Size of the content in bytes, as the server computed it.
   size               BigInt
@@ -2624,6 +2805,14 @@ model LaboratoryFileVersion {
   editing_sessions   LaboratoryEditingSession[] @relation("EditingBase")
   /// The editing session that saved this version.
   saved_by_session   LaboratoryEditingSession? @relation("EditingResult")
+  /// Template versions that froze this DOCX when they became available.
+  frozen_template_versions ReportTemplateVersion[] @relation("TemplateDocx")
+  /// Template versions whose preview was made from this DOCX.
+  previewed_template_versions ReportTemplateVersion[] @relation("TemplatePreviewDocx")
+  /// Generations of a report draft that made this version.
+  report_drafts      TestReportDraft[]
+  /// PDFs prepared from this version.
+  report_candidates  TestReportCandidate[]
 
   @@unique([file_id, number])
   @@index([content_id])

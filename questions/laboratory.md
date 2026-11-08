@@ -75,6 +75,9 @@
 - **Turning off raw-data folders.** Are saves between syncs lost when a raw-data folder is turned off during testing? Proposed answer, not decided: a raw-data folder cannot be turned off while its sample is being tested, or the computer keeps a local copy of every save.
 - **Names that reveal the customer.** May file names, and printed subcontract dispatches, name the customer? See also "Anonymity beyond the label" in [Laboratory questions](laboratory.md). Proposed answer, not decided: sample folders are named by lab code, and file names follow a convention set through sync rules, with a warning or a refusal for the owner to choose; a printed dispatch shows only the lab code, sample type, parameters, methods and due date, never the customer, order or price.
 
+- **Analysis end dates and report notes.** A report prints each sample's recorded analysis start and end dates and its report-relevant request or sample notes. A result records only when its measurement started, nothing records when it ended, and the request's and sample's notes are free notes that may be internal. Which recorded date is a sample's analysis end, and which notes, or which flag on a note, print on the report? For now the `samples` binding prints the first recorded analysis start and neither an end date nor notes. (US-LH01, US-LH02)
+- **Signer and date printed before signing.** The prepared PDF is frozen before anyone signs it, and its printed issue details cannot change afterwards. Which report signer does it print: the holders of the report's signing level, nobody until the digital signature, or the lab head expected to sign? And which date is the report date: the day the PDF is prepared, or the day it is issued, which only a new PDF could print? For now it prints the result approvers only and the day it was prepared. (US-LH01, US-LH02, SH-04)
+
 ## Related documents
 
 - [Laboratory overview](../docs/functional/laboratory_module/overview.md)

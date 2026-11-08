@@ -364,6 +364,11 @@ class TestReport(models.Model, TestReportBase):
 
     def _print_labels(self):
         """The report's headings in its languages."""
+        return self._labels_in(self._print_langs())
+
+    @api.model
+    def _labels_in(self, langs):
+        """The headings of a report, side by side in the languages."""
 
         verify_url = f"{self.get_base_url()}{VERIFY_PATH}"
 
@@ -387,9 +392,14 @@ class TestReport(models.Model, TestReportBase):
                 "limit": env._("Limit"),
                 "method": env._("Method"),
                 "signatures": env._("Approved By"),
+                "results": env._("Samples and Results"),
+                "sample_type": env._("Sample Type"),
+                "amount": env._("Amount Received"),
+                "condition": env._("Condition"),
+                "analysis_started": env._("Analysis Started"),
             }
 
-        per_lang = [labels(self.with_context(lang=lang).env) for lang in self._print_langs()]
+        per_lang = [labels(self.with_context(lang=lang).env) for lang in langs]
         return {key: _side_by_side(texts[key] for texts in per_lang) for key in per_lang[0]}
 
     def _print_header(self):
