@@ -1,5 +1,3 @@
-import { call } from "../support/odoo";
-
 const PASSWORD = "demo";
 // The lead results of the bottled water in testing, which both testers edited online.
 const SPREADSHEET = "Pb-ket-qua.xlsx";
@@ -24,12 +22,9 @@ describe("Laboratory editing sessions", () => {
 
   it("lists the sessions on the spreadsheet's form next to the version saved online", () => {
     signIn("demo.tester");
-    // A click on a row of the Files list opens the editor, so the form is opened by its address.
-    call("medilab.laboratory.file", "search_read", [[["path", "like", SPREADSHEET]], ["id"]]).then(([file]) => {
-      expect(file, SPREADSHEET).to.exist;
-      cy.visit(`/odoo/laboratory-files/${file.id}`);
-    });
+    cy.visit("/odoo/laboratory-files");
 
+    cy.contains(".o_data_row", SPREADSHEET).click();
     cy.contains(".o_data_row", "Edited Online").should("be.visible");
     cy.get("button.nav-link[name=editing_sessions]").click();
     cy.get(".o_field_widget[name=editing_session_ids] .o_data_row").should("have.length", 3);

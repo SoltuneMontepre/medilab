@@ -5,20 +5,14 @@
     if (!page?.dataset.editorConfig) return;
     const status = document.getElementById("editor-status");
     const retry = document.getElementById("editor-retry");
-    const banner = page.querySelector("header");
     const messages = Object.fromEntries(
         [...document.querySelectorAll("[data-message]")].map((node) => [node.dataset.message, node.textContent]),
     );
-    const SLIM_STATES = new Set(["editing", "sent"]);
     let dirty = false;
     let timer;
     function show(state, canRetry = false) {
         status.textContent = messages[state];
         retry.hidden = !canRetry;
-        // Once the document is open the editor fills the page and the banner stays for assistive technology; while
-        // changes are edited or sent it shrinks to its status line, which says MediLab has not saved them yet.
-        banner.classList.toggle("quiet", state === "ready");
-        banner.classList.toggle("slim", SLIM_STATES.has(state));
     }
     function failed() {
         clearTimeout(timer);

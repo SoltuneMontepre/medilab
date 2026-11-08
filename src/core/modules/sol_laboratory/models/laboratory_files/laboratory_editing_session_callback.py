@@ -58,11 +58,10 @@ class LaboratoryEditingSession(models.Model, LaboratoryEditingSessionBase):
                 self.env._("Online editing is unavailable right now. Syncing, history and restoring still work."),
             )
 
-    def _editor_config(self, user, callback_url, ui_theme="theme-light"):
+    def _editor_config(self, user, callback_url):
         """The editor configuration of the session for the user: the editing service reads the base version from a
         presigned address of its content, never through Odoo, and calls back on callback_url. It is signed for as long
-        as that address lasts, the file address lifetime of the settings. Force save is off, and the editor shows the
-        interface theme."""
+        as that address lasts, the file address lifetime of the settings. Force save is off."""
         self.ensure_one()
         secret = jwt_secret()
         if not secret:
@@ -87,7 +86,7 @@ class LaboratoryEditingSession(models.Model, LaboratoryEditingSessionBase):
                 "mode": "edit",
                 "lang": (user.lang or "en_US").split("_")[0],
                 "user": {"id": str(user.id), "name": user.name},
-                "customization": {"forcesave": False, "uiTheme": ui_theme},
+                "customization": {"forcesave": False},
             },
         }
         return {**config, "token": sign(config, secret, lifetime_seconds)}

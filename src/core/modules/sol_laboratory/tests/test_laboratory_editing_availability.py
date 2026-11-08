@@ -81,7 +81,6 @@ class TestLaboratoryEditingAvailability(LaboratoryEditingCase):
         self.assertEqual(config["editorConfig"]["callbackUrl"], CALLBACK_URL)
         self.assertEqual(config["editorConfig"]["user"], {"id": str(self.tester.id), "name": self.tester.name})
         self.assertIs(config["editorConfig"]["customization"]["forcesave"], False)
-        self.assertEqual(config["editorConfig"]["customization"]["uiTheme"], "theme-light")
 
     def test_each_office_document_opens_in_its_editor(self):
         for path, document_type in (("2026/Báo cáo.DOCX", "word"), ("2026/Trình bày.pptx", "slide")):

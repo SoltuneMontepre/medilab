@@ -1,11 +1,9 @@
 """The browser boundary uses the existing editing model and explicitly configured service origins."""
 
-import hashlib
 import ipaddress
 import json
 import os
 import re
-from pathlib import Path
 from urllib.parse import urlsplit
 
 from odoo.exceptions import AccessError
@@ -19,7 +17,6 @@ from odoo.addons.sol_laboratory.constants.laboratory_editing import (
 )
 from odoo.addons.sol_laboratory.constants.laboratory_files import FILE_WRITE, NOT_FOUND, PERMISSION_DENIED
 from odoo.addons.sol_laboratory.constants.models import (
-    MODEL_IR_HTTP,
     MODEL_LABORATORY_EDITING_SESSION,
     MODEL_LABORATORY_FILE,
     MODEL_LABORATORY_FOLDER,
@@ -33,21 +30,6 @@ EDITOR_PATH = re.compile(r"/medilab/laboratory-files/((?a:\d+))/edit\Z")
 INVALID_SERVICE_ORIGIN = "Invalid service origin"
 
 ASSETS = "/sol_laboratory/static/src/laboratory_files/editor/"
-ASSET_FILES = ("editor.css", "editor.js")
-
-
-def asset_version():
-    """A short checksum of the page's own stylesheet and script, in their addresses: browsers keep static files for a
-    week, so a changed file is fetched again only under a new address."""
-    folder = Path(__file__).resolve().parents[1] / "static/src/laboratory_files/editor"
-    digest = hashlib.sha256()
-    for name in ASSET_FILES:
-        digest.update((folder / name).read_bytes())
-    return digest.hexdigest()[:12]
-
-
-def editor_path(file_id):
-    return f"/medilab/laboratory-files/{file_id}/edit"
 
 
 def _local_service_host(host):
@@ -117,7 +99,6 @@ def render_page(status, *, message="", retry_path="", config=None, public_origin
             "retry_path": retry_path,
             "script_url": public_origin + "/web-apps/apps/api/documents/api.js" if config else "",
             "assets": ASSETS,
-            "asset_version": asset_version(),
             "language": (env.lang or "en_US").replace("_", "-"),
         },
         status=status,
@@ -138,7 +119,7 @@ def editor_origins():
 
 def open_editor(file_id):
     env = request_env()
-    path = editor_path(file_id)
+    path = f"/medilab/laboratory-files/{file_id}/edit"
     file = env[MODEL_LABORATORY_FILE].browse(file_id)
     missing = env._("This file does not exist or you do not have access to it.")
     try:
@@ -158,9 +139,7 @@ def open_editor(file_id):
                     EDITING_UNAVAILABLE, env._("Online editing is unavailable right now.")
                 ) from None
             session = env[MODEL_LABORATORY_EDITING_SESSION]._open_for(file)
-            # The editor follows the theme of the back office.
-            ui_theme = "theme-dark" if env[MODEL_IR_HTTP].color_scheme() == "dark" else "theme-light"
-            config = session._editor_config(env.user, callback + CALLBACK_PREFIX + session._callback_token(), ui_theme)
+            config = session._editor_config(env.user, callback + CALLBACK_PREFIX + session._callback_token())
             return render_page(200, retry_path=path, config=config, public_origin=public, bucket_origin=bucket_origin)
     except LaboratoryFileError as error:
         if error.code == NOT_FOUND:
