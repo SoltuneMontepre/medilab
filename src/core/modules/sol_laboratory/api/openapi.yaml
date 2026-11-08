@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: MediLab laboratory files API
-  version: 1.4.0
+  version: 1.5.0
   description: |
     The API Medilab Sync signs computers in with and reaches laboratory files through. Every refusal answers
     `{"error": {"code", "message"}}` with the HTTP status of its code; a computer acts on the code, never on the
