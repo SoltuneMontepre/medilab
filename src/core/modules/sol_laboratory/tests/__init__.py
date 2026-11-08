@@ -83,6 +83,7 @@ from . import (
     test_laboratory_editing_expiry,
     test_laboratory_editing_http,
     test_laboratory_editing_logging,
+    test_laboratory_editing_open_from_list,
     test_laboratory_editing_sample_folder,
     test_laboratory_editing_saves,
     test_laboratory_editing_service_down,
