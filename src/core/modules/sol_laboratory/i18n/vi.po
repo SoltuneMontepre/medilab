@@ -10917,6 +10917,11 @@ msgid "Only the customer's own people can be changed here."
 msgstr "Tại đây chỉ thay đổi được người liên hệ của chính khách hàng này."
 
 #. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_portal_wizard_user
+msgid "Portal User Config"
+msgstr "Cấu hình người dùng cổng thông tin"
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_customer_form
 msgid "Position"
 msgstr "Chức vụ"
