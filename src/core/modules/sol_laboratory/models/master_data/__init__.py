@@ -2,6 +2,7 @@ from . import (
     accreditation_certificate,
     accreditation_certificate_import,
     accreditation_certificate_import_line,
+    accreditation_scope_line,
     chemical,
     customer,
     location,

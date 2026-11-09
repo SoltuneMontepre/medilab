@@ -13,6 +13,9 @@ from .common import MasterDataCase
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ACCREDITATION_CERTIFICATE,
     MODEL_ACCREDITATION_CERTIFICATE_IMPORT,
+    MODEL_PARAMETER_GROUP,
+    MODEL_SAMPLE_TYPE,
+    MODEL_TEST_PARAMETER,
     MODEL_TESTING_FIELD,
     MODEL_TESTING_METHOD,
 )
@@ -26,9 +29,9 @@ class TestAccreditationImportConcurrency(MasterDataCase):
     def test_two_transactions_import_the_same_method_code(self):
         """Concurrent create raises ConcurrencyError; retrying() completes one method and links."""
         code = f"CONC-2TXN-{uuid.uuid4().hex[:12]}"
-        certificate_id, field_id = self._prepare_committed()
-        self.addCleanup(self._remove_committed, certificate_id, field_id, [code, f"{code}-OTHER"])
-        wizard_id = self._commit_wizard(certificate_id, field_id, code)
+        records = self._prepare_committed()
+        self.addCleanup(self._remove_committed, records, [code, f"{code}-OTHER"])
+        wizard_id = self._commit_wizard(records, code)
 
         ready = threading.Event()
         committed = threading.Event()
@@ -50,7 +53,7 @@ class TestAccreditationImportConcurrency(MasterDataCase):
                             NOW() AT TIME ZONE 'UTC', NOW() AT TIME ZONE 'UTC'
                         )
                         """,
-                        (code, '{"en_US": "Winner"}', field_id, SUPERUSER_ID, SUPERUSER_ID),
+                        (code, '{"en_US": "Winner"}', records["field"], SUPERUSER_ID, SUPERUSER_ID),
                     )
             except Exception as error:
                 errors.append(error)
@@ -97,7 +100,7 @@ class TestAccreditationImportConcurrency(MasterDataCase):
             methods = env[MODEL_TESTING_METHOD].with_context(active_test=False).search([("code", "=", code)])
             self.assertEqual(len(methods), 1)
             self.assertEqual(methods.name, "Winner")
-            certificate = env[MODEL_ACCREDITATION_CERTIFICATE].browse(certificate_id)
+            certificate = env[MODEL_ACCREDITATION_CERTIFICATE].browse(records["certificate"])
             linked = certificate.with_context(active_test=False).method_ids
             self.assertIn(methods.id, linked.ids)
             self.assertTrue(linked.filtered(lambda method: method.code == f"{code}-OTHER"))
@@ -107,28 +110,46 @@ class TestAccreditationImportConcurrency(MasterDataCase):
             env = api.Environment(cursor, SUPERUSER_ID, {})
             field = env[MODEL_TESTING_FIELD].create({"code": f"F{uuid.uuid4().hex[:6]}", "name": "Concurrency field"})
             certificate = env[MODEL_ACCREDITATION_CERTIFICATE].create({"code": f"VILAS-{uuid.uuid4().hex[:8]}"})
-            return persisted_id(certificate), persisted_id(field)
+            group = env[MODEL_PARAMETER_GROUP].create({"name": "Concurrency group"})
+            parameter = env[MODEL_TEST_PARAMETER].create(
+                {"name": "Concurrency parameter", "group_ids": [group.id], "main_group_id": group.id}
+            )
+            sample_type = env[MODEL_SAMPLE_TYPE].create({"name": "Concurrency sample type"})
+            return {
+                "certificate": persisted_id(certificate),
+                "field": persisted_id(field),
+                "group": persisted_id(group),
+                "parameter": persisted_id(parameter),
+                "sample_type": persisted_id(sample_type),
+            }
 
-    def _commit_wizard(self, certificate_id, field_id, code):
+    def _commit_wizard(self, committed, code):
+        scope = {
+            "parameter_ids": [Command.set([committed["parameter"]])],
+            "sample_type_ids": [Command.set([committed["sample_type"]])],
+        }
         with sql_db.db_connect(self.registry.db_name).cursor() as cursor:
             env = api.Environment(cursor, SUPERUSER_ID, {})
             wizard = env[MODEL_ACCREDITATION_CERTIFICATE_IMPORT].create(
                 {
-                    "certificate_id": certificate_id,
-                    "field_id": field_id,
+                    "certificate_id": committed["certificate"],
+                    "field_id": committed["field"],
                     "lang": "en_US",
                     "line_ids": [
-                        Command.create({"code": code, "name": "From import"}),
-                        Command.create({"code": f"{code}-OTHER", "name": "Other"}),
+                        Command.create({"code": code, "name": "From import", **scope}),
+                        Command.create({"code": f"{code}-OTHER", "name": "Other", **scope}),
                     ],
                 }
             )
             return persisted_id(wizard)
 
-    def _remove_committed(self, certificate_id, field_id, codes):
-        # Deleting the certificate also removes the wizard and its lines, and frees the methods.
+    def _remove_committed(self, committed, codes):
+        # Deleting the certificate also removes the wizard and the scope lines, and frees the methods.
         with sql_db.db_connect(self.registry.db_name).cursor() as cursor:
             env = api.Environment(cursor, SUPERUSER_ID, {"active_test": False})
-            env[MODEL_ACCREDITATION_CERTIFICATE].browse(certificate_id).unlink()
+            env[MODEL_ACCREDITATION_CERTIFICATE].browse(committed["certificate"]).unlink()
             env[MODEL_TESTING_METHOD].search([("code", "in", codes)]).unlink()
-            env[MODEL_TESTING_FIELD].browse(field_id).unlink()
+            env[MODEL_TESTING_FIELD].browse(committed["field"]).unlink()
+            env[MODEL_TEST_PARAMETER].browse(committed["parameter"]).unlink()
+            env[MODEL_PARAMETER_GROUP].browse(committed["group"]).unlink()
+            env[MODEL_SAMPLE_TYPE].browse(committed["sample_type"]).unlink()

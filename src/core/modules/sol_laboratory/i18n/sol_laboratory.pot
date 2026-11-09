@@ -1184,6 +1184,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_accreditation_certificate
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import__certificate_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__certificate_id
 msgid "Accreditation Certificate"
 msgstr ""
 
@@ -1229,7 +1230,8 @@ msgid "Accreditation refresh"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__is_accredited
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__is_accredited
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__is_accredited
 msgid "Accredited"
 msgstr ""
 
@@ -3413,6 +3415,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__create_uid
 msgid "Created by"
 msgstr ""
 
@@ -3496,6 +3499,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__create_date
 msgid "Created on"
 msgstr ""
 
@@ -4304,6 +4308,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_partner__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_users__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_users_apikeys__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -4958,6 +4963,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__lock_message
 msgid "Editing Lock"
 msgstr ""
 
@@ -5168,12 +5174,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 msgid "Enter Result"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/master_data/accreditation_certificate_import.py:0
-msgid "Enter at least one method to import."
 msgstr ""
 
 #. module: sol_laboratory
@@ -6055,6 +6055,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_partner__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_users__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_users_apikeys__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__id
 msgid "ID"
 msgstr ""
 
@@ -6208,19 +6209,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import_line__import_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_import_form
 msgid "Import"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/master_data/accreditation_certificate.py:0
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_form
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_import_form
-msgid "Import Methods"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model,name:sol_laboratory.model_medilab_accreditation_certificate_import
-msgid "Import Methods from an Accreditation Certificate"
 msgstr ""
 
 #. module: sol_laboratory
@@ -6861,6 +6849,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__write_uid
 msgid "Last Updated by"
 msgstr ""
 
@@ -6944,6 +6933,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__write_date
 msgid "Last Updated on"
 msgstr ""
 
@@ -7467,11 +7457,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
 msgid "Method Steps"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import__line_ids
-msgid "Methods"
 msgstr ""
 
 #. module: sol_laboratory
@@ -8374,6 +8359,107 @@ msgid "Only the system records who moved a task to another department."
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_accreditation_scope_line
+msgid "Accreditation Scope Line"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_accreditation_scope_line_create_all
+msgid "Create accreditation scope lines"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_accreditation_scope_line_delete_all
+msgid "Delete accreditation scope lines"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_accreditation_scope_line_edit_all
+msgid "Edit accreditation scope lines"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/accreditation_certificate_import.py:0
+msgid "Enter at least one scope line to import."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_import_form
+#: code:addons/sol_laboratory/models/master_data/accreditation_certificate.py:0
+msgid "Import Scope Lines"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_accreditation_certificate_import
+msgid "Import Scope Lines into an Accreditation Certificate"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_search
+msgid "Lines to Confirm"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_accreditation_scope_line_create_all
+msgid "Permission: accreditation.scope.line.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_accreditation_scope_line_delete_all
+msgid "Permission: accreditation.scope.line.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_accreditation_scope_line_edit_all
+msgid "Permission: accreditation.scope.line.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/accreditation_certificate_import.py:0
+msgid "Row %(row)s has no code. Nothing was imported."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/accreditation_certificate_import.py:0
+msgid ""
+"Row %(row)s needs at least one parameter and one sample type. Nothing was "
+"imported."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import__line_ids
+msgid "Scope Lines"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_import_form
+msgid "The code when left empty"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/accreditation_scope_line.py:0
+msgid ""
+"The scope line of %(method)s on %(certificate)s needs at least one parameter"
+" and one sample type."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__to_confirm
+msgid "To Confirm"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__scope_line_ids
+msgid "Accreditation Scope Lines"
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version_signing.py:0
 msgid "Only versions of the files of a result folder are signed."
@@ -8560,6 +8646,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__parameter_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__parameter_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatch
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_search
 msgid "Parameter"
 msgstr ""
 
@@ -8578,6 +8665,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__parameter_ids
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_parameter_group_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import_line__parameter_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__parameter_ids
 msgid "Parameters"
 msgstr ""
 
@@ -11941,12 +12030,6 @@ msgid "Routing ID"
 msgstr ""
 
 #. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/master_data/accreditation_certificate_import.py:0
-msgid "Row %(row)s has no code or title. Nothing was imported."
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__row_count
 msgid "Row Count"
 msgstr ""
@@ -12136,6 +12219,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__sample_type_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__sample_type_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatch
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_search
 msgid "Sample Type"
 msgstr ""
 
@@ -12151,6 +12235,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__sample_type_ids
 #: model:ir.ui.menu,name:sol_laboratory.menu_sample_type
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_parameter_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import_line__sample_type_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__sample_type_ids
 msgid "Sample Types"
 msgstr ""
 
@@ -12338,6 +12424,8 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__scope
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate__scope_line_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_form
 msgid "Scope"
 msgstr ""
 
@@ -13243,6 +13331,7 @@ msgstr ""
 #: model:ir.model,name:sol_laboratory.model_medilab_testing_method
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__method_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__method_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__method_id
 msgid "Testing Method"
 msgstr ""
 
@@ -13256,7 +13345,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate__method_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__method_ids
 #: model:ir.ui.menu,name:sol_laboratory.menu_testing_method
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_chemical_form
 msgid "Testing Methods"
 msgstr ""
@@ -13397,13 +13485,6 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_change.py:0
 msgid "The changes of laboratory files are only added, never changed."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/master_data/accreditation_certificate_import.py:0
-msgid ""
-"The code %(code)s appears more than once in the list. Nothing was imported."
 msgstr ""
 
 #. module: sol_laboratory
@@ -15012,6 +15093,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__lock_watched
 msgid "Watching Lock"
 msgstr ""
 
