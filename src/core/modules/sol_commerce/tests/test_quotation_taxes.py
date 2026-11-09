@@ -17,11 +17,17 @@ class TestQuotationTaxes(OrderCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        charts = cls.env["account.chart.template"]
-        cls.vat10 = charts.ref("tax_sale_vat10")
-        cls.vat8 = charts.ref("tax_sale_vat8")
-        cls.vat0 = charts.ref("tax_sale_vat0")
-        cls.exemption = charts.ref("tax_sale_vat_exemption")
+        cls.vat10 = cls.chart_tax("tax_sale_vat10")
+        cls.vat8 = cls.chart_tax("tax_sale_vat8")
+        cls.vat0 = cls.chart_tax("tax_sale_vat0")
+        cls.exemption = cls.chart_tax("tax_sale_vat_exemption")
+
+    @classmethod
+    def chart_tax(cls, name):
+        """The company's sales tax of the Vietnamese chart of accounts."""
+        tax = cls.env["account.chart.template"].ref(name)
+        assert tax is not None
+        return cls.env["account.tax"].browse(persisted_ids(tax))
 
     def sales_order(self, lines, **vals):
         """An order sales creates on the Orders screen."""

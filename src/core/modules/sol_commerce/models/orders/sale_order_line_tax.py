@@ -22,7 +22,7 @@ class SaleOrderLineTax(models.Model, SaleOrderLineTaxBase):
 
     def _compute_tax_ids(self):
         open_lines = self - self._frozen_lines()
-        catalog = open_lines.filtered(lambda line: not line.display_type and line._catalog_tax())
+        catalog = open_lines.filtered(lambda line: not line.display_type and bool(line._catalog_tax()))
         result = super(SaleOrderLineTax, open_lines - catalog)._compute_tax_ids()
         # Odoo gives a line without a product the company's default tax; a MediLab line takes the tax of its parameter
         # or package.
