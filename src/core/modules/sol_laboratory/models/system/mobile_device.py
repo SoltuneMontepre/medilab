@@ -24,7 +24,7 @@ else:
 _logger = logging.getLogger(__name__)
 
 
-# Thiết Bị Di Động: the Firebase token of a phone signed in on Medilab Mobile, one per phone.
+# Thiết Bị Di Động
 class MobileDevice(models.Model, MobileDeviceBase):
     _name = MODEL_MOBILE_DEVICE
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_AUDIT_MIXIN]

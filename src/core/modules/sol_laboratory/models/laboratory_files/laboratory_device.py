@@ -42,7 +42,7 @@ PHONE_PLATFORMS = ("android", "ios")
 SEEN_INTERVAL = timedelta(minutes=1)
 
 
-# Thiết Bị Đăng Nhập: a computer running Medilab Sync or a phone running Medilab Mobile.
+# Thiết Bị Đăng Nhập
 class LaboratoryDevice(models.Model, LaboratoryDeviceBase):
     _name = MODEL_LABORATORY_DEVICE
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_AUDIT_MIXIN]
