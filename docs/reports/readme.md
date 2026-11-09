@@ -7,7 +7,7 @@ Documents, diagrams and supporting material that belong to no other folder.
 - [Context diagram](context-diagram/readme.md): the DFD level 0 diagram of the subsystem, with its 13 entities, 70 flows and the deviations from the capstone proposal
 - [Use case diagram](use-case-diagram/readme.md): the use cases of the Laboratory and E-commerce modules traced to their user stories, with the deviations from the proposal and the script that draws the diagram
 - [Conceptual ERD](erd-diagram/readme.md): the business concepts of the Laboratory and E-commerce modules in Chen notation, as an overview and one diagram per area, with the findings on the conceptual model, the deviations from the proposal and the script that draws the diagrams
-- [System activity diagram](activity-diagram/readme.md): the 17 business flows on one sheet, a frame per flow, with the system activity map, the joins between flows and the script that draws them
+- [Activity diagrams](activity-diagram/readme.md): the system activity map and an activity diagram per business flow, with the script that builds their website, PDF and zip
 - [Activity diagram website](https://medilab-activity-diagrams.vercel.app): the system activity map with a page per flow, built by `activity-diagram/site/build.py` and deployed to Vercel
 
 - [CloudBeaver initialization evidence](cloudbeaver-initialization.md): upstream lifecycle, comparison with the older implementation, regression coverage and production verification limits

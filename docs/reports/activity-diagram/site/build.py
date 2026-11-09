@@ -1,11 +1,14 @@
-"""Build the website of the activity diagrams into site/public, and the same diagrams into ../final and its zip.
+"""Build the website of the activity diagrams from ../final, and the pictures, zip and PDF of ../final.
 
-The home page is the system activity map, whose flows link to their own pages. A core flow page shows the
-diagram of flows-work-of-tuyen, with its Workflow and Demo scenarios pages; a supporting flow page shows the
-generated diagram of ../flows. Titles come from the headings of business-flows.md, and the flows each one comes
-from and leads to come from the lines of the map.
-../final holds each diagram of the website as draw.io and SVG, and PNG for the core flows, named with its title;
-activity-diagrams-final.pdf holds the map and the Workflow page of each flow, with a bookmark for each.
+../final holds the draw.io file of the system activity map and of each flow, named with its ID and title: the core
+flows WF-01 to WF-06, each with a Workflow and a Demo scenarios page, and the supporting flows SF-01 to SF-11. To
+change a diagram, edit its draw.io file there, then build and deploy.
+
+The home page is the system activity map, whose flows link to their own pages. Titles come from the headings of
+business-flows.md, and the flows each one comes from and leads to come from the lines of the map.
+Next to each draw.io file of ../final, a build writes an SVG of each page and, for a core flow, a PNG of each page.
+activity-diagrams-final.zip holds ../final; activity-diagrams-final.pdf holds the map and the Workflow page of each
+flow, with a bookmark for each.
 Run: uv run --with pypdf python build.py, then deploy the folder with: vercel deploy --prod
 """
 
@@ -27,14 +30,11 @@ HERE = Path(__file__).resolve().parent
 DIAGRAMS = HERE.parent
 ROOT = HERE.parents[3]
 FLOWS_MD = ROOT / "docs" / "functional" / "business-flows.md"
-CORE_DIR = DIAGRAMS / "flows-work-of-tuyen"
-SUPPORT_DIR = DIAGRAMS / "flows"
-MAP_SVG = DIAGRAMS / "system-activity-map.svg"
-SYSTEM_DRAWIO = DIAGRAMS / "system-activity-diagram.drawio"
 LOGO = ROOT / "src" / "core" / "modules" / "sol_theme" / "static" / "src" / "img" / "medilab.svg"
 STATIC = HERE / "static"
 PUBLIC = HERE / "public"
 FINAL = DIAGRAMS / "final"
+MAP_DRAWIO = FINAL / "System activity map.drawio"
 FINAL_ZIP = DIAGRAMS / "activity-diagrams-final.zip"
 FINAL_PDF = DIAGRAMS / "activity-diagrams-final.pdf"
 FLOW_KEY = re.compile(r"^m_((?:WF|SF)\d\d)$")
@@ -53,6 +53,15 @@ def titles():
     return dict(re.findall(r"^## ((?:WF|SF)-\d\d) (.+)$", text, re.M))
 
 
+def folder(fid):
+    return FINAL / ("Core flows" if fid.startswith("WF") else "Supporting flows")
+
+
+def source(fid):
+    """The draw.io file of a flow in ../final."""
+    return next(folder(fid).glob(f"{fid} *.drawio"))
+
+
 def pages(path):
     """The name and graph model of each page of a draw.io file."""
     for diagram in ET.parse(path).getroot().iter("diagram"):
@@ -65,22 +74,18 @@ def pages(path):
 
 def map_links():
     """For each flow, the flows and events that lead to it and the flows it leads to, from the map's lines."""
-    cells = {}
-    for _, model in pages(SYSTEM_DRAWIO):
-        found = {c.get("id"): c for c in model.iter("mxCell") if (c.get("id") or "").startswith("m_")}
-        if found:
-            cells = found
-            break
+    _, model = next(pages(MAP_DRAWIO))
+    cells = {c.get("id"): c for c in model.iter("mxCell") if (c.get("id") or "").startswith("m_")}
     names = {cid: re.sub(r"\s+", " ", html.unescape(re.sub("<[^>]+>", " ", c.get("value") or ""))).strip()
              for cid, c in cells.items()}
     comes, leads = {}, {}
     for cell in cells.values():
         if cell.get("edge") != "1":
             continue
-        source, target = cell.get("source"), cell.get("target")
-        s_key, t_key = FLOW_KEY.match(source or ""), FLOW_KEY.match(target or "")
+        source_id, target_id = cell.get("source"), cell.get("target")
+        s_key, t_key = FLOW_KEY.match(source_id or ""), FLOW_KEY.match(target_id or "")
         if t_key:
-            entry = flow_id(s_key.group(1)) if s_key else names.get(source, "")
+            entry = flow_id(s_key.group(1)) if s_key else names.get(source_id, "")
             comes.setdefault(flow_id(t_key.group(1)), []).append(entry)
         if s_key and t_key:
             leads.setdefault(flow_id(s_key.group(1)), []).append(flow_id(t_key.group(1)))
@@ -91,8 +96,8 @@ def flow_id(key):
     return f"{key[:2]}-{key[2:]}"
 
 
-def slug(fid):
-    return fid.lower()
+def slug(text):
+    return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
 
 
 def for_web(svg_text):
@@ -102,11 +107,15 @@ def for_web(svg_text):
     return FALLBACK.sub(r"\1\2", svg_text)
 
 
-def export_page(source, number, out):
+def export(path, number, out, kind):
+    subprocess.run([drawio(), "-x", "-f", kind, "-p", str(number), "-o", str(out), str(path)],
+                   check=True, capture_output=True)
+
+
+def export_svg(path, number, out):
     """Export one page to SVG; draw.io names each export with a random id, which is replaced by the file's name so
     that an unchanged page exports the same file."""
-    subprocess.run([drawio(), "-x", "-f", "svg", "-p", str(number), "-o", str(out), str(source)],
-                   check=True, capture_output=True)
+    export(path, number, out, "svg")
     text = for_web(out.read_text(encoding="utf-8"))
     random_id = re.search(r'id="(ge-svg-[^"]+)"', text)
     if random_id:
@@ -114,30 +123,23 @@ def export_page(source, number, out):
     out.write_text(text, encoding="utf-8")
 
 
-def copy_svg(source, out):
-    out.write_text(for_web(source.read_text(encoding="utf-8")), encoding="utf-8")
-
-
 def build_diagrams(names):
-    """Write the diagrams to public/diagrams and return the views of each flow: (label, published path)."""
+    """Write the diagrams to public/diagrams and return the views of each flow: (label, page number, published
+    path). A flow with one page has the view Activity diagram."""
     out_dir = PUBLIC / "diagrams"
     out_dir.mkdir(parents=True, exist_ok=True)
-    copy_svg(MAP_SVG, out_dir / "map.svg")
+    export_svg(MAP_DRAWIO, 1, out_dir / "map.svg")
     views = {}
     for fid in names:
-        if fid.startswith("WF"):
-            source = next(CORE_DIR.glob(f"[[]Flow[]] {fid} *.drawio"))
-            views[fid] = []
-            for number, (page, _) in enumerate(pages(source), 1):
-                label = page.removeprefix(fid).strip()
-                name = f"{slug(fid)}-{re.sub(r'[^a-z0-9]+', '-', label.lower()).strip('-')}.svg"
-                export_page(source, number, out_dir / name)
-                views[fid].append((label, f"/diagrams/{name}"))
-        else:
-            name = f"{slug(fid)}.svg"
-            copy_svg(SUPPORT_DIR / name, out_dir / name)
-            views[fid] = [("Activity diagram", f"/diagrams/{name}")]
-        print(f"{fid}: {', '.join(label for label, _ in views[fid])}")
+        path = source(fid)
+        found = [page for page, _ in pages(path)]
+        views[fid] = []
+        for number, page in enumerate(found, 1):
+            label = page.removeprefix(fid).strip() if len(found) > 1 else "Activity diagram"
+            name = f"{slug(fid)}-{slug(label)}.svg" if len(found) > 1 else f"{slug(fid)}.svg"
+            export_svg(path, number, out_dir / name)
+            views[fid].append((label, number, f"/diagrams/{name}"))
+        print(f"{fid}: {', '.join(label for label, _, _ in views[fid])}")
     return views
 
 
@@ -269,8 +271,8 @@ def write_flow(fid, names, views, comes, leads):
     if len(views) > 1:
         tabs = '<div class="tabs" role="tablist" aria-label="Diagram">' + "".join(
             f'<button type="button" role="tab" aria-selected="{"true" if i == 0 else "false"}" '
-            f'data-src="{src}" data-hash="{re.sub(r"[^a-z0-9]+", "-", label.lower()).strip("-")}">{esc(label)}</button>'
-            for i, (label, src) in enumerate(views)) + "</div>"
+            f'data-src="{src}" data-hash="{slug(label)}">{esc(label)}</button>'
+            for i, (label, _, src) in enumerate(views)) + "</div>"
     related = []
     if comes.get(fid):
         related.append('<div class="related-group"><span class="related-label">Comes from</span>'
@@ -279,76 +281,55 @@ def write_flow(fid, names, views, comes, leads):
         related.append('<div class="related-group"><span class="related-label">Leads to</span>'
                        + "".join(chip(e, names) for e in dict.fromkeys(leads[fid])) + "</div>")
     main = (f'<div class="related">{"".join(related)}</div>' if related else "") + VIEWER.substitute(
-        src=views[0][1], extra="", label=f"{title}, {views[0][0]}")
+        src=views[0][2], extra="", label=f"{title}, {views[0][0]}")
     write_page(PUBLIC / slug(fid) / "index.html", title=f"{title} · Medilab",
                description=f"Activity diagram of {title}.", current=fid,
                crumbs=[crumb("System activity map", "/"), crumb(family, f"/#{anchor}"), crumb(title)],
                tabs=tabs, main=main, names=names)
 
 
-def map_page():
-    """The system activity map page of the system activity diagram, as a draw.io file of its own."""
-    for diagram in ET.parse(SYSTEM_DRAWIO).getroot().iter("diagram"):
-        if any((c.get("id") or "").startswith("m_") for c in diagram.iter("mxCell")):
-            mxfile = ET.Element("mxfile", host="Electron")
-            mxfile.append(diagram)
-            return ET.tostring(mxfile, encoding="unicode")
-    raise ValueError(f"{SYSTEM_DRAWIO.name} has no system activity map page")
-
-
 def write_final(names, views):
-    """Copy the diagrams of the website to ../final, named with their titles, and zip the folder."""
-    if FINAL.exists():
-        shutil.rmtree(FINAL)
-    core, support = FINAL / "Core flows", FINAL / "Supporting flows"
-    core.mkdir(parents=True)
-    support.mkdir()
-    (FINAL / "System activity map.drawio").write_text(map_page(), encoding="utf-8")
-    shutil.copy(PUBLIC / "diagrams" / "map.svg", FINAL / "System activity map.svg")
-    for fid, title in names.items():
-        name = f"{fid} {title}"
-        if fid.startswith("WF"):
-            source = next(CORE_DIR.glob(f"[[]Flow[]] {fid} *.drawio"))
-            shutil.copy(source, core / f"{name}.drawio")
-            for label, src in views[fid]:
-                shutil.copy(PUBLIC / src.lstrip("/"), core / f"{name} - {label}.svg")
-                png = next(CORE_DIR.glob(f"[[]Flow[]] {fid} * - {label}.png"), None)
-                if png:
-                    shutil.copy(png, core / f"{name} - {label}.png")
-        else:
-            shutil.copy(SUPPORT_DIR / f"{slug(fid)}.drawio", support / f"{name}.drawio")
-            shutil.copy(PUBLIC / views[fid][0][1].lstrip("/"), support / f"{name}.svg")
+    """Write the SVG of each page next to its draw.io file in ../final, a PNG of each page for the core flows, and
+    zip the folder."""
+    for old in [*FINAL.rglob("*.svg"), *FINAL.rglob("*.png")]:
+        old.unlink()
+    shutil.copy(PUBLIC / "diagrams" / "map.svg", MAP_DRAWIO.with_suffix(".svg"))
+    for fid in names:
+        path = source(fid)
+        for label, number, src in views[fid]:
+            stem = f"{path.stem} - {label}" if len(views[fid]) > 1 else path.stem
+            shutil.copy(PUBLIC / src.lstrip("/"), path.with_name(f"{stem}.svg"))
+            if fid.startswith("WF"):
+                export(path, number, path.with_name(f"{stem}.png"), "png")
     FINAL_ZIP.unlink(missing_ok=True)
     shutil.make_archive(str(FINAL_ZIP.with_suffix("")), "zip", FINAL.parent, FINAL.name)
-    print(f"Wrote {FINAL.relative_to(DIAGRAMS)} and {FINAL_ZIP.name}")
+    print(f"Wrote the pictures of {FINAL.relative_to(DIAGRAMS)} and {FINAL_ZIP.name}")
 
 
 def write_pdf(names, views):
-    """Join the draw.io files of ../final into one PDF, with a bookmark for the map and each flow. A core flow gives
-    only its Workflow page; its Demo scenarios stay in ../final and on the website."""
+    """Join the map and the Workflow page of each flow into one PDF, with a bookmark for each. A core flow's Demo
+    scenarios stay in ../final and on the website."""
     from pypdf import PdfWriter
 
     writer = PdfWriter()
     with tempfile.TemporaryDirectory() as tmp:
-        def append(source, page):
+        def append(path, page):
             out = Path(tmp) / f"{len(writer.pages)}.pdf"
             subprocess.run([drawio(), "-x", "-f", "pdf", "-p", str(page), "--crop", "-b", "16", "-o", str(out),
-                            str(source)], check=True, capture_output=True)
+                            str(path)], check=True, capture_output=True)
             start = len(writer.pages)
             writer.append(str(out))
             return start
 
-        writer.add_outline_item("System activity map", append(FINAL / "System activity map.drawio", 1))
+        writer.add_outline_item("System activity map", append(MAP_DRAWIO, 1))
         groups = {}
         for fid, title in names.items():
-            folder = "Core flows" if fid.startswith("WF") else "Supporting flows"
-            name = f"{fid} {title}"
-            labels = [label for label, _ in views[fid]]
-            page = labels.index("Workflow") + 1 if "Workflow" in labels else 1
-            start = append(FINAL / folder / f"{name}.drawio", page)
-            if folder not in groups:
-                groups[folder] = writer.add_outline_item(folder, start)
-            writer.add_outline_item(name, start, parent=groups[folder])
+            number = next((n for label, n, _ in views[fid] if label == "Workflow"), 1)
+            start = append(source(fid), number)
+            group = folder(fid).name
+            if group not in groups:
+                groups[group] = writer.add_outline_item(group, start)
+            writer.add_outline_item(f"{fid} {title}", start, parent=groups[group])
     writer.add_metadata({"/Title": "Medilab activity diagrams"})
     writer.page_mode = "/UseOutlines"
     with FINAL_PDF.open("wb") as file:
