@@ -8,6 +8,7 @@ from odoo.fields import Command, Domain
 
 from odoo.addons.sol_laboratory.constants.approvals import STATE_NONE
 from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_ACCREDITATION_SCOPE_LINE,
     MODEL_AUDIT_MIXIN,
     MODEL_LOCK_MIXIN,
     MODEL_MACHINE,
@@ -89,6 +90,10 @@ class SampleTest(models.Model, SampleTestBase):
             index=True,
             domain="[('parameter_id', '=', parameter_id)]",
         )
+        # True while the test's way is in-house and a line of an active certificate valid that day covers its method,
+        # its parameter and its sample's type or one of that type's ancestors. Approving or cancelling the test keeps the
+        # mark it had then.
+        is_accredited = fields.Boolean(string="Accredited", default=False, readonly=True, copy=False)
         # The way of testing the customer accepted on the order's quotation; the test keeps to it. Empty for a test the
         # laboratory chooses the way of.
         accepted_method_id = fields.Many2one(
@@ -146,16 +151,62 @@ class SampleTest(models.Model, SampleTestBase):
 
     _quantity_positive = models.Constraint("CHECK(quantity >= 1)", "A parameter is tested at least once on a sample.")
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        tests = super().create(vals_list)
+        tests._refresh_accreditation()
+        return tests
+
     def write(self, vals):
         if "dispatch_ids" in vals and not self.env.su:
             raise UserError(self.env._("Add a sample test to a dispatch, or take it out, on the dispatch."))
+        if "is_accredited" in vals and not self.env.su:
+            raise UserError(self.env._("Accreditation is computed from certificates; it cannot be set by hand."))
         if "accepted_method_id" in vals:
             raise UserError(self.env._("The accepted way of testing changes only through a revised quotation."))
+        if vals.get("status") in FINISHED_STATUSES:
+            # The mark is kept from now on, so it is worked out on the day the test is finished.
+            self._refresh_accreditation()
         result = super().write(vals)
+        if {"parameter_id", "parameter_method_id", "sample_id"} & set(vals):
+            self._refresh_accreditation()
         if "parameter_method_id" in vals:
             # The tests of a dispatch go to its subcontractor, whichever side changes.
             self.sudo().dispatch_ids.filtered(lambda dispatch: dispatch.status != "cancelled")._check_sample_tests()
         return result
+
+    def _refresh_accreditation(self):
+        """Work out again whether the tests still open are accredited; finished tests keep their mark."""
+        tests = self.sudo().filtered(lambda test: test.status not in FINISHED_STATUSES)
+        keys = {
+            test: (test.parameter_method_id.method_id.id, test.parameter_id.id, test.sample_id.sample_type_id.id)
+            for test in tests
+            if test.parameter_method_id and not test.parameter_method_id.subcontractor_id
+        }
+        covered = self.env[MODEL_ACCREDITATION_SCOPE_LINE]._covered(set(keys.values()))
+        for accredited in (True, False):
+            changed = tests.filtered(
+                lambda test, accredited=accredited: (
+                    (keys.get(test) in covered) == accredited and test.is_accredited != accredited
+                )
+            )
+            if changed:
+                changed.write({"is_accredited": accredited})
+
+    @api.model
+    def _finished_statuses(self):
+        """The statuses in which a test keeps its accreditation mark."""
+        return FINISHED_STATUSES
+
+    @api.model
+    def _refresh_accreditation_of_methods(self, methods):
+        # Tests done in a way that was archived since are still open.
+        self.sudo().with_context(active_test=False).search(
+            [
+                ("parameter_method_id.method_id", "in", methods.ids),
+                ("status", "not in", FINISHED_STATUSES),
+            ]
+        )._refresh_accreditation()
 
     @api.depends("sample_id.request_id.expected_date")
     def _compute_due_date(self):

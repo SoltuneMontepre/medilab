@@ -28,6 +28,7 @@ src/tests/
         sf-09-support-feedback/
       features/
         catalog/sample-type-applicability/
+        laboratory/accreditation-scope/
         laboratory/backup-signers/
         onboarding/master-data-staging/
         inventory/solution-preparation/
@@ -79,6 +80,7 @@ Start test titles with the issue's `TC-WF…`, `TC-SF…` or `TC-F…` ID. Map f
 | Scope | Issue | Directory | Spec basename |
 | --- | --- | --- | --- |
 | Configure the unit, detection limits and default of a way of testing on a sample type; a quotation tests the parameter on that type and refuses a sibling type nothing is configured for. | [#409](https://github.com/SoltuneMontepre/medilab/issues/409) | `features/catalog/sample-type-applicability/` | `sample-type-applicability.cy.js` |
+| Import scope lines into a certificate with their parameters and sample types; a sample test is accredited only when one line covers its method, parameter and sample type or an ancestor, and never when subcontracted. | [#412](https://github.com/SoltuneMontepre/medilab/issues/412) | `features/laboratory/accreditation-scope/` | `accreditation-scope.cy.js` |
 | Pick an organisation, start a run, review staged records and accept a certificate with its methods. | [#176](https://github.com/SoltuneMontepre/medilab/issues/176) | `features/onboarding/master-data-staging/` | `master-data-staging.cy.js` |
 | Prepare a solution from scanned bottles; verify the resulting stock movements and container. | [#181](https://github.com/SoltuneMontepre/medilab/issues/181) | `features/inventory/solution-preparation/` | `solution-preparation.cy.js` |
 | Resize and collapse the chatter that sits beside a form, and keep its width and state. | [#282](https://github.com/SoltuneMontepre/medilab/issues/282) | `features/theme/chatter-resize/` | `chatter-resize.cy.js` |
