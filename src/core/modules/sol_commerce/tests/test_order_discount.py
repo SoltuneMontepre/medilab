@@ -2,11 +2,13 @@ from lxml import etree
 
 from odoo.exceptions import UserError
 from odoo.tests import Form, tagged
+from odoo.tests.form import O2MProxy
 
 from .order_case import OrderCase
 from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER, MODEL_SALE_ORDER_DISCOUNT
 from odoo.addons.sol_commerce.constants.xml_ids import DISCOUNT_PRODUCT, LINE_DISCOUNT_GROUP
 from odoo.addons.sol_laboratory.constants.models import MODEL_PERMISSION
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 LINES = "//page[@name='order_lines']/field[@name='product_line_ids']"
 DISCOUNT_BUTTON = "//div[@name='so_button_below_order_lines']/button[@name='action_open_discount_wizard']"
@@ -46,14 +48,16 @@ class TestOrderDiscount(OrderCase):
         self.assertEqual(len(buttons), 1)
 
     def test_the_discount_button_is_hidden_once_the_quotation_is_sent(self):
-        button = self.form_arch(self.sales).xpath(f"{DISCOUNT_BUTTON}[not(@disabled)]")[0]
+        buttons = self.form_arch(self.sales).xpath(f"{DISCOUNT_BUTTON}[not(@disabled)]")
+        assert isinstance(buttons, list)
+        button = buttons[0]
         assert isinstance(button, etree._Element)
 
         self.assertIn("state != 'draft'", button.get("invisible") or "")
 
     def test_a_salesperson_gives_a_line_a_discount(self):
         order = self.make_quotable_order()
-        with Form(order.with_user(self.sales)) as form, form.product_line_ids.edit(0) as line:
+        with Form(order.with_user(self.sales)) as form, assert_instance(form.product_line_ids, O2MProxy).edit(0) as line:
             line.discount = 10
 
         self.assertEqual(order.order_line.discount, 10)

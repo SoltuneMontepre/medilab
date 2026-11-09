@@ -4727,11 +4727,11 @@ msgid "Discount Wizard"
 msgstr "Công cụ chiết khấu"
 
 #. module: sol_commerce
-#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order_discount__discount_type__sol_discount
+#: code:addons/sol_commerce/models/orders/sale_order_discount.py:0
 msgid "On every line"
 msgstr "Trên từng dòng"
 
 #. module: sol_commerce
-#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order_discount__discount_type__so_discount
+#: code:addons/sol_commerce/models/orders/sale_order_discount.py:0
 msgid "On the whole quotation"
 msgstr "Trên cả báo giá"
