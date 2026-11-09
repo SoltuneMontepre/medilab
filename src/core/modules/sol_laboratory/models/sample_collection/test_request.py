@@ -94,6 +94,8 @@ class TestRequest(models.Model, TestRequestBase):
         )
         # Free notes about the request.
         note = fields.Text()
+        # Number of the order the request was created from, kept as text when uninstalling E-commerce drops the link.
+        order_number = fields.Char(readonly=True, copy=False, index="trigram")
         # Samples of the request.
         sample_ids = fields.One2many(MODEL_SAMPLE, "request_id", string="Samples")
         # Sample tests the laboratory cancelled with a reason; the report leaves them out.

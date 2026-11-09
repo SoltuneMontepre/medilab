@@ -30,7 +30,7 @@ Settings sits under the Configuration menu of the Laboratory app, as settings do
 
 ### Installation and removal
 
-Laboratory installs alone. E-commerce and Inventory each depend on Laboratory and on the Odoo Community apps named in the module boundaries, and on no other MediLab module. Uninstalling E-commerce or Inventory deletes the permissions that module shipped, including the group and access each permission generated, and leaves Laboratory's records, people and logins in place. Uninstalling E-commerce warns first, and test requests keep the number of their order as text. A stored column on a Laboratory table may only come from Laboratory.
+Laboratory installs alone. E-commerce and Inventory each depend on Laboratory and on the Odoo Community apps named in the module boundaries, and on no other MediLab module. Uninstalling E-commerce or Inventory deletes the permissions that module shipped, including the group and access each permission generated, and leaves Laboratory's records, people and logins in place. Uninstalling E-commerce warns first, and test requests keep the number of their order as text: Odoo's uninstall dialog shows the warning when it removes E-commerce and keeps Laboratory, and E-commerce's uninstall hook copies each order's number into the Order Number of its test request, a Laboratory field shown once it is filled, before Odoo drops the link. A stored column on a Laboratory table may only come from Laboratory.
 
 ## Related documents
 
