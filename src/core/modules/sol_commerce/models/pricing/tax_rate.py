@@ -128,7 +128,7 @@ class TaxRate(models.Model, TaxRateBase):
                 .with_company(company)
                 .ref(CHART_VAT_EXEMPTION_TAX, raise_if_not_found=False)
             )
-            if exemption:
+            if exemption and exemption.active:
                 return exemption
         taxes = self.env[MODEL_ACCOUNT_TAX].sudo().with_company(company)
         return taxes.search(

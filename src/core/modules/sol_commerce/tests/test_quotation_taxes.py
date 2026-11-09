@@ -116,6 +116,12 @@ class TestQuotationTaxes(OrderCase):
         self.assertEqual(order._catalog_lines().tax_ids, self.exemption)
         self.assertEqual(order.amount_total, 150000)
 
+    def test_an_archived_chart_exemption_leaves_the_chart_0_percent_vat(self):
+        self.lead_price.tax_id = self.not_subject_tax()
+        self.exemption.active = False
+
+        self.assertEqual(self.sales_order([(self.lead_product, 1)])._catalog_lines().tax_ids, self.vat0)
+
     def test_another_tax_of_0_percent_takes_the_chart_0_percent_vat(self):
         self.lead_price.tax_id = self.env[MODEL_TAX].create(
             {
@@ -126,6 +132,40 @@ class TestQuotationTaxes(OrderCase):
         )
 
         self.assertEqual(self.sales_order([(self.lead_product, 1)])._catalog_lines().tax_ids, self.vat0)
+
+    def test_a_cart_line_without_a_rate_gets_its_tax_when_the_quotation_is_sent(self):
+        current = self.vat.rate_ids.filtered(lambda period: period.rate == 10)
+        current.valid_until = date(2025, 12, 31)
+        order = (
+            self.env["sale.order"]
+            .with_user(self.portal)
+            .sudo()
+            .create(
+                {
+                    "partner_id": self.contact.id,
+                    "customer_id": self.customer.id,
+                    "source": "portal",
+                    "order_status": "claimed",
+                    "user_id": self.sales.id,
+                    "advance_method": "cash",
+                    "advance_mode": "full",
+                    "order_line": [Command.create({"product_id": self.lead_product.product_variant_ids.id})],
+                }
+            )
+        )
+        line = order._catalog_lines()
+        self.assertFalse(line.tax_ids)
+        line.sample_id = self.make_sample(order)
+
+        with self.assertRaisesRegex(UserError, "has no rate on"):
+            order.with_user(self.sales).action_send_quotation()
+        self.assertFalse(order.quotation_ids)
+
+        self.env["medilab.tax.rate"].create({"tax_id": self.vat.id, "rate": 10, "valid_from": date(2026, 1, 1)})
+        order.with_user(self.sales).action_send_quotation()
+
+        self.assertEqual(line.tax_ids, self.vat10)
+        self.assertEqual(order._latest_quotation().amount_total, 165000)
 
     def test_an_accounting_tax_of_another_rate_is_refused(self):
         rate = self.vat.rate_ids.filtered(lambda period: period.rate == 10)

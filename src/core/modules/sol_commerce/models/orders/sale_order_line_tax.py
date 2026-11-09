@@ -5,7 +5,7 @@ from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.fields import Domain
 
-from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER_LINE
+from odoo.addons.sol_commerce.constants.models import MODEL_ACCOUNT_TAX, MODEL_SALE_ORDER_LINE
 from odoo.addons.sol_commerce.constants.orders import STATUS_CLAIMED, STATUS_DRAFT, STATUS_SUBMITTED
 
 if TYPE_CHECKING:
@@ -36,12 +36,21 @@ class SaleOrderLineTax(models.Model, SaleOrderLineTaxBase):
         (self._catalog_lines() - self._frozen_lines())._set_catalog_taxes()
 
     def _set_catalog_taxes(self):
-        """Give each line the account tax of its catalog tax, looking each tax, date and fiscal position up once."""
+        """Give each line the account tax of its catalog tax, looking each tax, date and fiscal position up once.
+
+        A customer's cart shows no tax, so a tax without a rate on the date leaves the cart line untaxed instead of
+        refusing the customer; sending the quotation gives it its tax or tells sales what is missing.
+        """
         found = {}
         for line in self:
             key = line._catalog_tax_key()
             if key not in found:
-                found[key] = line._catalog_account_tax()
+                try:
+                    found[key] = line._catalog_account_tax()
+                except UserError:
+                    if not self.env.user.share:
+                        raise
+                    found[key] = self.env[MODEL_ACCOUNT_TAX]
             line.tax_ids = found[key]
 
     def _catalog_tax_key(self):

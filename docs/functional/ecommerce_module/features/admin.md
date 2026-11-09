@@ -41,6 +41,7 @@ Acceptance criteria:
 - An invoice posted after a reduced VAT period ends keeps the reduced rate of its quotation.
 - A rate period whose chosen accounting tax has another percent is refused with a message.
 - A quotation line whose rate has no sales tax of its percent in the chart of accounts is refused with a message.
+- A cart line whose tax has no rate on the day is added without tax; sending its quotation gives it the tax, or tells sales which rate is missing.
 - Adding a second rate period that overlaps an existing one for the same tax is refused with a message.
 - A tax that an active parameter price or package uses cannot be archived; the message lists them.
 - A tax that nothing refers to can be deleted, together with its rates.
