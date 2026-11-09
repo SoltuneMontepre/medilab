@@ -440,6 +440,7 @@ describe("WF-01 feature acceptance criteria", () => {
     const login = `khach.moi.${Date.now()}@example.com`;
     orderAt("sent").then((order) => {
       becomeVisitor();
+      visitCatalogAsVisitor();
       cy.visit("/web/signup");
       cy.get("input[name=name]").type("Đỗ Văn Mới");
       cy.get("input[name=login]").type(login);
