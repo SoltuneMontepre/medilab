@@ -115,6 +115,7 @@ class CustomerOrder(http.Controller):
                 "quotations": order.quotation_ids.sorted("revision", reverse=True),
                 "revising": order.state == "draft",
                 "lines": order._catalog_lines(),
+                "discount_lines": order._discount_lines(),
                 "advance": advance,
                 # The invoice page takes the payment; its token lets Odoo's payment form find the invoice.
                 "advance_url": advance.get_portal_url(query_string="&payment=True") if advance else False,

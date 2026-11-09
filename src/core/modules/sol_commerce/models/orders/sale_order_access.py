@@ -1,11 +1,13 @@
 from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
+from odoo.fields import Command
 
 from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
-from odoo.addons.sol_commerce.constants.xml_ids import ALL_ORDERS_GROUP
+from odoo.addons.sol_commerce.constants.xml_ids import ALL_ORDERS_GROUP, LINE_DISCOUNT_GROUP
 from odoo.addons.sol_laboratory.constants.models import MODEL_IR_ACCESS
 from odoo.addons.sol_laboratory.services.model_lookup import reference_as
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 if TYPE_CHECKING:
     from medilab_model_types import Model_sale_order as SaleOrderBase
@@ -34,6 +36,8 @@ PERMISSION_ACCESS_DOMAINS = {
     "quotation_edit_all": FOLLOWS_ORDER_WRITE,
     "quotation_delete_all": FOLLOWS_ORDER_WRITE,
 }
+# The generated groups of the permissions to edit orders, whose holders give discounts.
+ORDER_EDIT_GROUPS = ("sol_laboratory.group_permission_order_edit_all", "sol_laboratory.group_permission_order_edit_own")
 # Header actions that stay on an order the user may only read: claiming the unclaimed order makes it theirs.
 READER_ACTIONS = ("action_claim",)
 
@@ -72,6 +76,14 @@ class SaleOrder(models.Model, SaleOrderBase):
         """Set the domains of the generated order accesses, which Odoo does not update on upgrade."""
         for code, domain in PERMISSION_ACCESS_DOMAINS.items():
             reference_as(self.env[MODEL_IR_ACCESS], f"sol_laboratory.access_permission_{code}").sudo().domain = domain
+
+    @api.model
+    def _grant_line_discount(self):
+        """Let whoever edits orders see and change the discount of the lines and of the whole quotation."""
+        groups = self.env["res.groups"].sudo()
+        discount = reference_as(groups, LINE_DISCOUNT_GROUP)
+        for xml_id in ORDER_EDIT_GROUPS:
+            reference_as(groups, xml_id).implied_ids = [Command.link(persisted_id(discount))]
 
     @api.model
     def _get_view(self, view_id=None, view_type="form", **options):

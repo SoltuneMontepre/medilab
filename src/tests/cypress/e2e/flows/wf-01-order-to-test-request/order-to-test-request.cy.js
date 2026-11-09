@@ -379,6 +379,34 @@ describe("WF-01 feature acceptance criteria", () => {
     });
   });
 
+  it("TC-F06-01 lets sales give a line and the whole quotation a discount before sending it", () => {
+    orderAt("claimed").then((order) => {
+      cy.signInAs("sales");
+      cy.openRecord(order);
+      openTab("order_lines");
+      cy.get(".o_field_widget[name=product_line_ids] .o_data_row td[name=discount]").first().click();
+      cy.get(".o_selected_row .o_field_widget[name=discount] input").clear().type("10");
+      save();
+      cy.get("button[name=action_open_discount_wizard]:visible").click();
+      cy.get(".modal:visible").within(() => {
+        cy.get(".o_field_widget[name=discount_type] input[data-value=so_discount]").check();
+        cy.get(".o_field_widget[name=discount_percentage] input").clear().type("5");
+        cy.get("button[name=action_apply_discount]").click();
+      });
+      cy.get(".modal").should("not.exist");
+      cy.get(".o_field_widget[name=product_line_ids] .o_data_row").should("have.length", 2);
+      call("sale.order", "write", [[order.id], { advance_method: "bank_transfer", advance_mode: "percentage", advance_value: 30 }]);
+      cy.reload();
+      cy.sendRecord("action_send_quotation");
+      cy.get(".o_statusbar_buttons button[name=action_revise_quotation]:visible").should("exist");
+      cy.get("button[name=action_open_discount_wizard]:visible").should("not.exist");
+      cy.signInAs("customer");
+      cy.visit(`/orders/${order.id}/quotation`);
+      cy.contains("td", /^10(\.0+)?%$/).should("be.visible");
+      cy.contains("td", /(Discount|Chiết khấu) 5(\.0+)?%/).should("be.visible");
+    });
+  });
+
   it("TC-F02-02 refuses overlapping VAT rate periods", () => {
     cy.signInAs("administrator");
     resolveRecord("sol_demo.demo_tax_vat10").then((tax) => {

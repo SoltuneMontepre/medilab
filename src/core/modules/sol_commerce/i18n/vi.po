@@ -1030,6 +1030,7 @@ msgstr "Bỏ qua"
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_advance_payment_inv__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order_discount__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -1210,6 +1211,7 @@ msgstr "Gán mẫu cho các mục sau trước khi gửi báo giá:\n%s"
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_advance_payment_inv__id
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__id
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__id
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order_discount__id
 msgid "ID"
 msgstr "ID"
 
@@ -1961,11 +1963,13 @@ msgstr "Mẫu"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_sample__sample_type_id
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__sample_type_id
 msgid "Sample Type"
 msgstr "Loại Mẫu"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
 msgid "Sample type"
 msgstr "Loại mẫu"
 
@@ -2394,6 +2398,7 @@ msgstr "Xem báo giá"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_subcontract_cost__parameter_method_id
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__parameter_method_id
 msgid "Way of Testing"
 msgstr "Cách Thử"
 
@@ -4704,3 +4709,29 @@ msgstr "cho"
 #: code:addons/sol_commerce/models/orders/sale_order_line.py:0
 msgid "no sample type"
 msgstr "chưa có loại mẫu"
+
+#. module: sol_commerce
+#: model:product.template,name:sol_commerce.product_quotation_discount_product_template
+#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+msgid "Discount"
+msgstr "Chiết khấu"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order_discount__discount_type
+msgid "Discount Type"
+msgstr "Loại chiết khấu"
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_sale_order_discount
+msgid "Discount Wizard"
+msgstr "Công cụ chiết khấu"
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order_discount__discount_type__sol_discount
+msgid "On every line"
+msgstr "Trên từng dòng"
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order_discount__discount_type__so_discount
+msgid "On the whole quotation"
+msgstr "Trên cả báo giá"

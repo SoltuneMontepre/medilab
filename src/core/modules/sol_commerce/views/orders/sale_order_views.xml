@@ -259,6 +259,13 @@
             <xpath expr="//field[@name='order_line']/kanban/control/create[@name='add_note_control']" position="replace" />
             <xpath expr="//field[@name='order_line']/kanban/control/button[@name='action_add_from_catalog']" position="replace" />
             <xpath expr="//div[@name='so_button_below_order_lines']/widget[@name='combo_menu']" position="replace" />
+            <!-- Discounts are given before the quotation is sent, by whoever may change the order. -->
+            <xpath expr="//div[@name='so_button_below_order_lines']/button[@name='action_open_discount_wizard'][not(@disabled)]" position="attributes">
+                <attribute name="invisible">locked or state != 'draft' or not order_can_edit</attribute>
+            </xpath>
+            <xpath expr="//div[@name='so_button_below_order_lines']/widget[@name='discount_menu']" position="attributes">
+                <attribute name="invisible">locked or state != 'draft' or not order_can_edit</attribute>
+            </xpath>
             <xpath expr="//list[@name='sol_list']/control/create[@name='add_product_control']" position="attributes">
                 <attribute name="string">Add a parameter or package</attribute>
             </xpath>
