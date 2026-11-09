@@ -20,6 +20,9 @@ notation and cannot lay out 53 entities readably.
 - `conceptual-<area>.puml` and `conceptual-<area>.svg`: one diagram per area, listed in [Diagrams](#diagrams).
   PlantUML has no composite entity and draws one label per line, so the script adds the diamond of each composite
   and both labels of its lines to the SVG
+- [conceptual-erd.pdf](conceptual-erd.pdf): the overview and the area diagrams, one page each at its SVG size, in the
+  order of [Diagrams](#diagrams), with one bookmark per page. It is printed from the SVGs with Chrome, not by the
+  script, so print it again after regenerating the diagrams
 - [erd_diagram.py](erd_diagram.py): reads the tables of this document and writes the diagrams
 
 After changing a table, regenerate the diagrams. The overview keeps the saved positions; `--relayout` searches new

@@ -7,7 +7,8 @@ The use cases of the Laboratory and E-commerce modules in one diagram, traced to
 ## Files
 
 - [medilab-use-case.drawio](medilab-use-case.drawio): the diagram, generated from this document
-- [medilab-use-case.svg](medilab-use-case.svg) and [medilab-use-case.png](medilab-use-case.png): its exports
+- [medilab-use-case.svg](medilab-use-case.svg), [medilab-use-case.png](medilab-use-case.png) and
+  [medilab-use-case.pdf](medilab-use-case.pdf): its exports
 - [use_case_diagram.py](use_case_diagram.py): reads the tables of this document and writes the diagram
 
 After changing a table, regenerate the diagram and export it with draw.io desktop:
@@ -16,6 +17,7 @@ After changing a table, regenerate the diagram and export it with draw.io deskto
 python docs/reports/use-case-diagram/use_case_diagram.py
 drawio -x -f svg -o docs/reports/use-case-diagram/medilab-use-case.svg docs/reports/use-case-diagram/medilab-use-case.drawio
 drawio -x -f png -o docs/reports/use-case-diagram/medilab-use-case.png docs/reports/use-case-diagram/medilab-use-case.drawio
+drawio -x -f pdf --crop -o docs/reports/use-case-diagram/medilab-use-case.pdf docs/reports/use-case-diagram/medilab-use-case.drawio
 ```
 
 The script stops without writing when the tables are inconsistent. It prints the lines that cut a use case, cut a fan of generalizations or cross another line; a correct diagram has none.
