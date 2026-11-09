@@ -31,7 +31,7 @@ def migrate(cr, _version):
                 "active": active,
             }
         )
-    placeholders = placeholders.filtered(lambda device: device.client_uid.startswith("push-token-"))
+    placeholders = placeholders.search([("id", "in", placeholders.ids), ("client_uid", "=like", "push-token-%")])
     if placeholders:
         # The tokens' new phones reach the database before their placeholders are deleted, which would cascade to them.
         env.flush_all()
