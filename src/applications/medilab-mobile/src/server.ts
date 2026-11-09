@@ -2,7 +2,11 @@ import type { MessageKey } from "./i18n";
 
 /** The address as the app keeps it: without spaces around it or slashes at its end. */
 export function normalizeServerUrl(url: string): string {
-  return url.trim().replace(/\/+$/, "");
+  let normalized = url.trim();
+  while (normalized.endsWith("/")) {
+    normalized = normalized.slice(0, -1);
+  }
+  return normalized;
 }
 
 /** Why the address cannot be MediLab's, or null when it can: a production build reaches MediLab only over HTTPS. */

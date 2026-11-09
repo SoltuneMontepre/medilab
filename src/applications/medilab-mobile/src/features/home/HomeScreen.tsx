@@ -37,7 +37,9 @@ export function HomeScreen() {
 
   useEffect(() => {
     let shown = true;
-    loadModules().then((loaded) => shown && setLoad(loaded));
+    loadModules()
+      .then((loaded) => shown && setLoad(loaded))
+      .catch(() => shown && setLoad({ state: "unreachable" }));
     return () => {
       shown = false;
     };

@@ -34,25 +34,28 @@ function phoneName(): string {
 /** Keeps the phone's session: its server, its language and its device key, all in secure storage. */
 export function SessionProvider({ children }: Readonly<{ children: ReactNode }>) {
   const [status, setStatus] = useState<SessionStatus>("loading");
-  const [serverUrl, setServerUrlState] = useState(builtInServerUrl);
-  const [language, setLanguageState] = useState<Locale>("vi");
+  const [serverUrl, setServerUrl] = useState(builtInServerUrl);
+  const [language, setLanguage] = useState<Locale>("vi");
   const [key, setKey] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
-    Promise.all([read("serverUrl"), read("language"), read("deviceKey")]).then(([url, lang, kept]) => {
-      if (!mounted) {
-        return;
-      }
-      if (url) {
-        setServerUrlState(url);
-      }
-      if (isLocale(lang)) {
-        setLanguageState(lang);
-      }
-      setKey(kept);
-      setStatus(kept ? "signedIn" : "signedOut");
-    });
+    Promise.all([read("serverUrl"), read("language"), read("deviceKey")])
+      .then(([url, lang, kept]) => {
+        if (!mounted) {
+          return;
+        }
+        if (url) {
+          setServerUrl(url);
+        }
+        if (isLocale(lang)) {
+          setLanguage(lang);
+        }
+        setKey(kept);
+        setStatus(kept ? "signedIn" : "signedOut");
+      })
+      // Secure storage the app cannot read leaves the phone signed out.
+      .catch(() => mounted && setStatus("signedOut"));
     return () => {
       mounted = false;
     };
@@ -64,9 +67,9 @@ export function SessionProvider({ children }: Readonly<{ children: ReactNode }>)
     setStatus("signedOut");
   }, []);
 
-  const setLanguage = useCallback(async (chosen: Locale) => {
+  const keepLanguage = useCallback(async (chosen: Locale) => {
     await write("language", chosen);
-    setLanguageState(chosen);
+    setLanguage(chosen);
   }, []);
 
   const signIn = useCallback(
@@ -87,7 +90,7 @@ export function SessionProvider({ children }: Readonly<{ children: ReactNode }>)
       }
       await write("serverUrl", url);
       await write("deviceKey", signedIn.key);
-      setServerUrlState(url);
+      setServerUrl(url);
       setKey(signedIn.key);
       setStatus("signedIn");
     },
@@ -122,8 +125,8 @@ export function SessionProvider({ children }: Readonly<{ children: ReactNode }>)
   }, [call, forgetKey]);
 
   const session = useMemo<Session>(
-    () => ({ status, serverUrl, language, setLanguage, signIn, signOut, call }),
-    [status, serverUrl, language, setLanguage, signIn, signOut, call],
+    () => ({ status, serverUrl, language, setLanguage: keepLanguage, signIn, signOut, call }),
+    [status, serverUrl, language, keepLanguage, signIn, signOut, call],
   );
   return (
     <SessionContext.Provider value={session}>

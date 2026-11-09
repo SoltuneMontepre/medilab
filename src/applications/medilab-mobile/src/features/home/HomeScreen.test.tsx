@@ -57,7 +57,7 @@ describe("HomeScreen", () => {
     await renderApp();
 
     expect(await screen.findByText(/Không kết nối được MediLab/)).toBeOnTheScreen();
-    mediLab.then(MODULES);
+    mediLab.plan(MODULES);
     await fireEvent.press(screen.getByRole("button", { name: "Thử lại" }));
     expect(await screen.findByText("Đã đăng nhập")).toBeOnTheScreen();
   });

@@ -13,7 +13,7 @@ type Answer = { status: number; body?: unknown } | "unreachable";
 export function fakeMediLab(...answers: Answer[]) {
   const sent: Sent[] = [];
   const queue = [...answers];
-  globalThis.fetch = jest.fn(async (url: string, init: RequestInit) => {
+  globalThis.fetch = jest.fn((url: string, init: RequestInit) => {
     sent.push({
       url,
       method: init.method ?? "GET",
@@ -22,23 +22,18 @@ export function fakeMediLab(...answers: Answer[]) {
     });
     const answer = queue.shift();
     if (answer === undefined) {
-      throw new Error(`No answer is planned for ${url}.`);
+      return Promise.reject(new Error(`No answer is planned for ${url}.`));
     }
     if (answer === "unreachable") {
-      throw new TypeError("Network request failed");
+      return Promise.reject(new TypeError("Network request failed"));
     }
-    return {
+    return Promise.resolve({
       status: answer.status,
       ok: answer.status >= 200 && answer.status < 300,
-      json: async () => {
-        if (answer.body === undefined) {
-          throw new SyntaxError("No body");
-        }
-        return answer.body;
-      },
-    } as Response;
+      json: () => (answer.body === undefined ? Promise.reject(new SyntaxError("No body")) : Promise.resolve(answer.body)),
+    } as Response);
   }) as typeof fetch;
-  return { sent, then: (...more: Answer[]) => queue.push(...more) };
+  return { sent, plan: (...more: Answer[]) => queue.push(...more) };
 }
 
 export function refusal(status: number, code: string, message: string) {
