@@ -1,6 +1,6 @@
 import { pick, save } from "../../../support/form";
 import { callAs, callRefused } from "../../../support/odoo";
-import { LEAD_VALUE, TESTER, approvedResult, issuedReport, requestedChange, signatures, signedOrder } from "./setup";
+import { ADMINISTRATOR, LEAD_VALUE, TESTER, approvedResult, issuedReport, requestedChange, signatures, signedOrder } from "./setup";
 
 const BUTTONS = ".o_form_view .o_statusbar_buttons";
 const WITHDRAW = `${BUTTONS} button[name=action_withdraw]`;
@@ -38,7 +38,7 @@ function approveRequest() {
 // The change requests raised on a document.
 function changeRequests(document) {
   return callAs(
-    "demo.administrator",
+    ADMINISTRATOR,
     "medilab.change.request",
     "search_read",
     [
@@ -49,6 +49,11 @@ function changeRequests(document) {
     ],
     { fields: ["status"] },
   );
+}
+
+// The fields of a document as the signed-in user reads them, with its signatures.
+function withSignatures(document, fields) {
+  return cy.readRecord(document, fields).then((record) => signatures(document).then((rows) => ({ record, signatures: rows })));
 }
 
 describe("SF-03 Change request on a signed document", () => {
@@ -205,9 +210,10 @@ describe("SF-03 Change request on a signed document", () => {
       cy.signInAs("storekeeper");
       cy.openRecord(order);
       cy.get(WITHDRAW).should("not.exist");
-      signatures(order).then((before) => {
+      const read = () => withSignatures(order, ["approval_status", "document_version", "write_date"]);
+      read().then((before) => {
         callRefused("purchase.order", "action_withdraw", [[order.id]]).should("eq", "Withdraw the signatures given after yours first.");
-        signatures(order).should("deep.equal", before);
+        read().should("deep.equal", before);
       });
     });
 
@@ -215,13 +221,14 @@ describe("SF-03 Change request on a signed document", () => {
       cy.signInAs("head_of_department");
       cy.openRecord(result);
       cy.get(WITHDRAW).should("not.exist");
-      signatures(result).then((before) => {
+      const read = () => withSignatures(result, RESULT_FIELDS);
+      read().then((before) => {
+        expect(before.record.status).to.equal("approved");
         callRefused("medilab.test.result", "action_withdraw", [[result.id]]).should(
           "eq",
           "The process of the document is completed, so a signature cannot be withdrawn.",
         );
-        signatures(result).should("deep.equal", before);
-        cy.readRecord(result, ["status"]).its("status").should("eq", "approved");
+        read().should("deep.equal", before);
       });
     });
   });

@@ -4,6 +4,7 @@ const RECEPTION = "demo.sample_delivery_staff";
 const HEAD = "demo.head_of_department";
 const LAB_HEAD = "demo.lab_head";
 const STOREKEEPER = "demo.storekeeper";
+export const ADMINISTRATOR = "demo.administrator";
 export const TESTER = "demo.tester";
 
 // What the tester measured for lead, in mg/L.
@@ -68,7 +69,9 @@ export function approvedResult() {
     callAs(TESTER, "medilab.test.result", "create", [{ sample_test_id: test, value: LEAD_VALUE, value_decimals: 3 }]).then((id) => {
       callAs(TESTER, "medilab.test.result", "action_sign", [[id]]);
       callAs(HEAD, "medilab.test.result", "action_sign", [[id]]);
-      callAs(HEAD, "medilab.test.result", "read", [[id], ["status"]]).its("0.status").should("eq", "approved");
+      callAs(HEAD, "medilab.test.result", "read", [[id], ["status"]])
+        .its("0.status")
+        .should("eq", "approved");
       return cy.then(() => ({ model: "medilab.test.result", id, request }));
     }),
   );
@@ -135,7 +138,7 @@ export function signedOrder() {
 // The signatures of a document, oldest first, as the administrator reads them.
 export function signatures(document) {
   return callAs(
-    "demo.administrator",
+    ADMINISTRATOR,
     "medilab.signature",
     "search_read",
     [
