@@ -27,7 +27,7 @@ People reach the [laboratory files](../functional/laboratory_module/overview.md#
 - Files, versions and changes have only `read`: they are made by saving files, through the method below, and never changed or deleted. The laboratory files permission also reads the files and versions of its holder's folders. Versions also have `sign`, for [signing them](#signing-versions).
 - Locks have only `read` too: they are taken, renewed and unlocked through the laboratory files API, and administrators release one as folder administrators. The laboratory files permission reads the locks of its holder's folders.
 - Editing sessions have only `read`: opening a file online and the editing service's saves make and change them, and they are never deleted. The laboratory files permission also reads the sessions of its holder's folders.
-- Folders have no archive or delete action: archiving a folder is editing it, and folders are never deleted. Members change their role only with the folder's owner, so they have no edit action. Computers are created by signing in and revoked by editing; they are never deleted.
+- Folders have no archive or delete action: archiving a folder is editing it, and folders are never deleted. Members change their role only with the folder's owner, so they have no edit action. Computers and phones are created by signing in and revoked by editing; they are never deleted.
 
 ### What a person may do with a folder
 
@@ -60,7 +60,7 @@ Administrators administer folders in the back office; each action checks `admini
 
 ### Back office
 
-The Documents menu of the Laboratory app lists Folders, Files, File Versions, File Locks, Editing Sessions, Folder Members, Sync Rules and Computers. Files, versions, locks and editing sessions are read-only there except for permitted version signing, rejection and signature withdrawal, and folder administrators' release of file locks; the back office has no Edit online button or close-session action; a folder's form lists its files, and a file's form its versions and editing sessions. A version's form downloads it, for a member of its folder, through the same presigned address as the API, opened in a new tab. People with the laboratory files permission see their folders, with their members and rules, and their own computers there. They create folders of their own, as Medilab Sync does, and perform the permitted version actions above; owners manage their folders from Medilab Sync. A sample's folders are created from the sample ([Creating a sample's folders](#creating-a-samples-folders)); otherwise only administrators create a folder for someone else or set a folder's sample. Administrators see and change them all: they turn folders off and on, archive them, change their owner, add and remove members, change rules and revoke computers. Members are added on their folder; the Folder Members list removes them, from an archived folder too.
+The Documents menu of the Laboratory app lists Folders, Files, File Versions, File Locks, Editing Sessions, Folder Members, Sync Rules and Devices, which lists computers and phones. Files, versions, locks and editing sessions are read-only there except for permitted version signing, rejection and signature withdrawal, and folder administrators' release of file locks; the back office has no Edit online button or close-session action; a folder's form lists its files, and a file's form its versions and editing sessions. A version's form downloads it, for a member of its folder, through the same presigned address as the API, opened in a new tab. People with the laboratory files permission see their folders, with their members and rules, and their own computers and phones there. They create folders of their own, as Medilab Sync does, and perform the permitted version actions above; owners manage their folders from Medilab Sync. A sample's folders are created from the sample ([Creating a sample's folders](#creating-a-samples-folders)); otherwise only administrators create a folder for someone else or set a folder's sample. Administrators see and change them all: they turn folders off and on, archive them, change their owner, add and remove members, change rules and revoke computers and phones. Members are added on their folder; the Folder Members list removes them, from an archived folder too.
 
 A folder of a sample, its members, sync rules, files, versions, locks, editing sessions and changes are shown only to people who see the sample, administrators included; see [Sample folders](#sample-folders).
 
@@ -375,10 +375,10 @@ The API is Odoo HTTP controllers in `sol_laboratory` under `/medilab/api/v1`. Th
 
 | Route | Does |
 | ----- | ---- |
-| `POST /sign-in` | Signs a computer in with the person's login and gives it its key ([Computers](#computers)) |
-| `POST /sign-out` | Signs the computer of the key out |
-| `GET /devices` | Lists the person's computers |
-| `POST /devices/{device_id}/revoke` | Revokes one of the person's computers |
+| `POST /sign-in` | Signs a computer or a phone in with the person's login and gives it its key ([Computers](#computers)) |
+| `POST /sign-out` | Signs the computer or phone of the key out |
+| `GET /devices` | Lists the person's computers and phones |
+| `POST /devices/{device_id}/revoke` | Revokes one of the person's computers or phones |
 | `GET /folders`, `POST /folders` | Lists the person's folders; creates one of the person's own |
 | `GET /folders/{folder_id}`, `PATCH /folders/{folder_id}` | Gives a folder; renames it |
 | `GET /folders/{folder_id}/members`, `POST /folders/{folder_id}/members`, `DELETE /folders/{folder_id}/members/{member_id}` | Lists, adds and removes members |
