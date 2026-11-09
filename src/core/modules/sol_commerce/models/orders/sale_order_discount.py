@@ -23,6 +23,10 @@ class SaleOrderDiscount(models.TransientModel, SaleOrderDiscountBase):
             default="sol_discount",
         )
 
+    def _get_discountable_order_lines(self):
+        """Only the ordered parameters and packages: never a down payment or an earlier discount line."""
+        return self.sale_order_id._catalog_lines()
+
     def _get_discount_product(self):
         """The module's discount service, so Sales never needs to create a product or change the company."""
         return self.env.ref(DISCOUNT_PRODUCT)

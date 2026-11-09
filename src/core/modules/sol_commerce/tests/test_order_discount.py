@@ -78,6 +78,19 @@ class TestOrderDiscount(OrderCase):
         self.assertEqual(order.amount_untaxed, before * 0.9)
         self.assertEqual(order._catalog_lines().mapped("discount"), [0])
 
+    def test_a_discount_on_every_line_leaves_the_discount_line_and_down_payments_alone(self):
+        order = self.make_quotable_order([(self.lead_product, 2)])
+        self.discount(order, "so_discount", 0.1)
+        down_payment = self.env["sale.order.line"].create(
+            {"order_id": order.id, "name": "Advance", "price_unit": 1000, "product_uom_qty": 0, "is_downpayment": True}
+        )
+
+        self.discount(order, "sol_discount", 0.2)
+
+        self.assertEqual(order._catalog_lines().mapped("discount"), [20])
+        self.assertEqual(order._discount_lines().discount, 0)
+        self.assertEqual(down_payment.discount, 0)
+
     def test_a_quotation_with_a_discount_line_is_sent_and_confirmed(self):
         order = self.make_quotable_order()
         self.discount(order, "so_discount", 0.1)
