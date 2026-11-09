@@ -14,9 +14,9 @@ The phone's routes are routes of the [laboratory files API](laboratory-files.md#
 
 - **The module that owns a route declares it.** `sol_laboratory` declares the device, push, task, sample, result, handover, notification and conversation routes; `sol_commerce` the support request routes; `sol_inventory` the container routes. A route of a module that is not installed does not exist and answers `not_found`. The app learns what is installed from `GET /modules`.
 - **No laboratory files permission.** The phone's routes are declared with `permission=False`: the models check what the person may do, as on the web. The laboratory files routes keep their check, so a phone reaches folders only as a computer of a person with that permission would.
-- **The person's rights.** An endpoint reads and acts as the user of the key, never with full rights, except where the model method itself elevates, as `receive_by_label` and `action_take` do. A record the person may not read answers `not_found`, so the answer does not tell that it exists.
+- **The person's rights.** An endpoint reads and acts as the user of the key, never with full rights; only the model method itself elevates where the web's call does too, such as `receive_by_label()` recording a receipt. A record the person may not read answers `not_found`, so the answer does not tell that it exists.
 - **Language.** The app sends its language, `vi` or `en`, in `Accept-Language`. The route serves the request in that language when it is installed, so messages and translated names match the app; otherwise in the person's language.
-- **Model refusals.** A `UserError` or `ValidationError` raised by the model method a route calls answers `action_refused` with Odoo's message, which the app shows as it is. Refusals the app acts on have their own codes.
+- **Model refusals.** A `UserError` or `ValidationError` raised by the model method a route calls answers `action_refused` with Odoo's message, which the app shows as it is; on the laboratory files routes it stays `invalid_request`. Refusals the app acts on have their own codes. Every code below is added to `ERROR_STATUSES` and to the OpenAPI document's error codes.
 - **Creating once.** A route that creates something takes `Idempotency-Key` with the meaning the [laboratory files API](laboratory-files.md#laboratory-files-api) gives it: a task, a result, a photo, a message, a chatter note, a conversation and a support answer. A request the app sends again after a lost answer creates nothing more and answers what the first one created.
 - **Files in a request.** A photo, a signature or a file is sent in the JSON body as base64 with its name and type: at most 10 MiB per file once decoded and 25 MiB per request. A larger one is refused with `too_large` before anything is stored. A file the person reads is downloaded from `GET /attachments/{attachment_id}`, which reads the attachment with their rights, so a tester never downloads a sample photo.
 - **Calls without a connection** never reach MediLab; the app keeps an unsent photo or signature and sends it again with the same `Idempotency-Key`.
@@ -134,8 +134,8 @@ A push is created when a notification is delivered on the push channel ([SH-11](
 - A result is created and changed with the person's rights, so the unit, the copied limit, the machine and the start time are worked out as on the web; the machine and the start are corrected on the web only.
 - The warnings are those of the sanity check before sending ([US-T22](../functional/laboratory_module/features/tester.md#2-results-us-t05-to-us-t09-us-t17-us-t18-us-t22)): one model method that both the web and the route call. Signing a result with warnings needs `warnings_acknowledged`; without it, it is refused with `result_warning`.
 - Signing takes `confirmed: true`, which the app sends only from its confirmation step, so signing is a deliberate action ([SH-04](../functional/shared.md#sh-04-signatures-and-digital-signing)). The approval mixin decides the level: a tester's signature sends the result, a head of department's approves it, and a head may approve a result they entered.
-- Rejecting needs a reason; an empty one is refused with `invalid_request`.
-- The results waiting for the person are those whose `approval_can_sign` is true for them. A result that is approved or waits for someone else's signature answers that nothing can be done with it.
+- Rejecting needs a reason; an empty or blank one is refused by `action_reject()` with `action_refused`.
+- The results waiting for the person are the results awaiting approval that they may read, kept when `approval_can_sign` is true for them; it is computed, not stored, so the route filters them before paging. A result that is approved or waits for someone else's signature answers that nothing can be done with it.
 
 ### Collecting samples and photos
 
@@ -150,7 +150,7 @@ A push is created when a notification is delivered on the push channel ([SH-11](
 | `GET /handover-records/{record_id}` | The record's code, test request, who handed the samples over, the samples it lists with their amount and condition, and when and on which phone it was signed |
 | `POST /handover-records/{record_id}/sign` | Records the customer's signature through `action_sign()` |
 
-- Signing takes the signature as a PNG, at most 1 MiB, and `confirmed: true`. The server records the phone of the key as the device the record was signed on; the app does not send one. `action_sign()` takes no device from its caller.
+- Signing takes the signature as a PNG, at most 1 MiB, and `confirmed: true`. The route signs through the record's `_sign()` with the phone of the key, which is recorded as the device the record was signed on; neither the app nor any caller of `action_sign()` names the device.
 - A signed record is only shown. Signing it again from the phone that signed it answers the signed record, so a signature sent again after a lost answer is not refused; from any other phone it is refused with `action_refused`.
 
 ### Conversations and chatter
@@ -168,7 +168,7 @@ Conversations are Odoo Discuss channels ([SH-12](../functional/shared.md#sh-12-c
 | `GET /people?q=` | Active internal users, for new conversations and mentions |
 | `GET /documents/{model}/{id}/messages`, `POST /documents/{model}/{id}/notes` | Reads a task's, a sample's or a test request's chatter, and posts a note on it |
 
-- **Internal only.** Adding a member without an internal user to any Discuss channel is refused by the channel member model, on the web and the phone alike, so a customer or a subcontractor never joins a conversation.
+- **Internal only.** MediLab's channel member model refuses a member without an internal user in any Discuss channel, on the web and the phone alike, so a customer or a subcontractor never joins a conversation.
 - **Mentions** name internal users only. A message notifies the people it mentions on each channel they keep on ([SH-11](../functional/shared.md#sh-11-schedules-and-reminders)).
 - **Notes.** A note is posted with the note subtype, which is internal: it reaches only the people it mentions and the internal followers, never a customer. The chatter is read with the person's rights, so it shows what the web's chatter shows them.
 - **Refreshing without Odoo's bus.** The app does not open Odoo's websocket. A message push with data refreshes the list and the open conversation; while a conversation is open, the app also asks for messages after the last one it has about every 10 seconds, and the list is refreshed when the app comes back to the foreground.
@@ -196,6 +196,8 @@ With Inventory installed, `sol_inventory` adds routes for scanning a container's
 
 Every update is mandatory and signed ([Updates](../functional/laboratory_module/applications/medilab-mobile.md#updates)). An update is either a code update, which `expo-updates` downloads and restarts into, or a new install, an APK the app downloads before opening Android's installer. The version is a semantic version; the runtime version names the native build a code update runs on.
 
+Like the Sync updates route, these two are plain `auth='none'` HTTP routes, outside `laboratory_api_route()`, described in their own public contract `sol_laboratory/api/mobile-updates.openapi.yaml`.
+
 | Route | Does |
 | ----- | ---- |
 | `GET /mobile/release/{platform}/{runtime_version}/{version}` | Whether the phone must update: 204 when it is current; 200 with `code`, or `install` with the APK's version, address and SHA-256; or `unavailable` when it is older than the oldest version served and no release reaches it |
@@ -203,10 +205,10 @@ Every update is mandatory and signed ([Updates](../functional/laboratory_module/
 
 - **Public.** Both routes are `auth='none'`, so a phone that is signed out also updates. Like the [Sync updates route](sync-updates.md#routes), they never use cookies, keys or addresses from the request as authority, answer `Cache-Control: no-store`, refuse invalid platforms and versions with `invalid_request`, and answer `update_unavailable` while the catalog is missing or invalid.
 - **Checking.** The app asks the release route when it starts and when it comes back to the foreground. On `code` it fetches the update through `expo-updates`; on `install` it downloads the APK, checks its SHA-256 and opens the installer; on `unavailable` it shows only the updating screen. The app cannot be used until the update is installed.
-- **The Expo Updates route** follows the protocol's version 1: it reads `expo-platform` and `expo-runtime-version`, and answers the newest eligible code update of that runtime as a `multipart/mixed` answer with its manifest and the manifest's `expo-signature` exactly as the catalog holds them, or 204 when there is none.
+- **The Expo Updates route** follows the protocol's version 1: it requires `expo-protocol-version: 1`, reads `expo-platform` and `expo-runtime-version`, and answers the newest eligible code update of that runtime as a `multipart/mixed` answer with its manifest and the manifest's `expo-signature` exactly as the catalog holds them, or 204 when there is none.
 - **Signing.** The release pipeline signs every manifest with the update key; the app embeds the matching certificate and `expo-updates` refuses a manifest whose signature does not verify, keeping the version it has. An APK is signed with the laboratory's upload key, and Android installs it over the app only when the key is the same. Odoo stores and serves signatures; it never reads or holds a key.
 - **The catalog** is a read-only JSON file at `MEDILAB_MOBILE_RELEASES_FILE`, published last by the release pipeline after the artifacts, with the size limits and the all-or-nothing validation of the Sync catalog. Each release names its platform, kind (`code` or `install`), runtime version, version and publication date; a code release holds its manifest and signature, an install its HTTPS address and SHA-256.
-- **Administrators** set, in the settings, the oldest version MediLab still serves and the releases it stops serving. A stopped release is never answered; the newest release not stopped is. A phone that already runs a stopped code update returns to an earlier one only when the release pipeline republishes that one as a new signed update, because `expo-updates` never launches an update older than the one it runs.
+- **Administrators** set, in the settings, the oldest version MediLab still serves and the releases it stops serving. A stopped release is never answered; the newest release not stopped is. A phone that already runs a stopped code update returns to an earlier one only when the release pipeline republishes that one as a new signed update, because `expo-updates` never launches an update older than the one it runs; returning to the code built into the installed APK instead is the protocol's `rollBackToEmbedded` directive, which the pipeline signs the same way.
 - **iOS.** The first release is for Android. The routes take `ios`; the catalog has no iOS release until there is one, and an iOS build answers 204.
 
 ### Data

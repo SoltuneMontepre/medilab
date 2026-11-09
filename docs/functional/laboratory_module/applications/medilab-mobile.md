@@ -21,7 +21,7 @@ Medilab Mobile is the phone app of the laboratory's staff. It brings the work do
 | Code only   | An update that changes only the app's code downloads, and the app restarts into it. |
 | New install | An update that needs a new install downloads the APK and opens Android's installer. |
 | Signed      | The app installs only updates signed with the laboratory's key. An unsigned or altered update is refused, and the app keeps the version it has. |
-| Releases    | An administrator stops or rolls back a release in MediLab and sets the oldest version MediLab still serves. A phone with an older version shows only the updating screen. |
+| Releases    | An administrator stops a release in MediLab, so no phone downloads it any more, and sets the oldest version MediLab still serves. Rolling back publishes the previous release again, signed by the release pipeline. A phone with an older version than the oldest served shows only the updating screen. |
 
 ## Signing in
 
@@ -110,7 +110,7 @@ Conversations follow [SH-12](../../shared.md#sh-12-conversations).
 - A phone with an update waiting cannot be used until it has installed it.
 - An update not signed with the laboratory's key is refused, and the app keeps the version it has.
 - A phone with a version older than the oldest one MediLab serves shows only the updating screen.
-- After an administrator rolls back a release, phones return to the previous version at their next check.
+- After a release is rolled back, phones return to the previous version at their next check.
 
 ## Related documents
 
