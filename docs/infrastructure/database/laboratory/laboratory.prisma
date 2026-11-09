@@ -110,6 +110,8 @@ model SampleType {
   samples     Sample[]
   /// Regulations that apply to this sample type.
   regulations RegulationSampleType[]
+  /// Limits regulations set on this exact sample type.
+  regulation_limits RegulationLimit[]
   /// Accreditation scope lines that name the sample type, which also cover its narrower types.
   scope_lines AccreditationScopeLineSampleType[]
 
@@ -119,7 +121,8 @@ model SampleType {
   @@map("medilab_sample_type")
 }
 
-/// A regulation the results are compared against, such as QCVN 6-1:2010/BYT, with a limit per parameter. Trigram indexes on code and name serve search.
+/// A regulation the results are compared against, such as QCVN 6-1:2010/BYT, with a limit per parameter and sample type. Trigram indexes on code and name serve search.
+/// valid_from must not be after valid_until; an empty bound is unbounded.
 model Regulation {
   /// Row identifier.
   id                Int                    @id @default(autoincrement())
@@ -129,11 +132,15 @@ model Regulation {
   name              Json
   /// The ministry or body that issued the regulation.
   issuing_authority String?                @db.VarChar
+  /// First day the regulation is in force; empty means in force from any date.
+  valid_from        DateTime?              @db.Date
+  /// Last day the regulation is in force; empty means in force until any date.
+  valid_until       DateTime?              @db.Date
   /// False when the regulation is archived.
   active            Boolean                @default(true)
   /// Sample types the regulation applies to.
   sample_types      RegulationSampleType[]
-  /// Limits the regulation sets, one per parameter.
+  /// Limits the regulation sets, one per parameter and sample type.
   limits            RegulationLimit[]
   /// Samples compared with the regulation.
   samples           Sample[]
@@ -141,7 +148,8 @@ model Regulation {
   @@map("medilab_regulation")
 }
 
-/// The limit a regulation sets for one parameter. Unique on (regulation_id, parameter_id).
+/// The limit a regulation sets for one parameter on one exact sample type. Unique on (regulation_id, parameter_id, sample_type_id).
+/// The sample type is one the regulation names or a narrower type of one; a narrower type never uses a broader type's limit.
 /// A minimum or maximum may be empty or any number, including 0. min_set and max_set say which are set.
 /// At least one of those and limit_text is set; unit_id is set when a minimum or maximum is set.
 model RegulationLimit {
@@ -151,6 +159,8 @@ model RegulationLimit {
   regulation_id Int
   /// The parameter the limit applies to.
   parameter_id  Int
+  /// The sample type the limit applies to.
+  sample_type_id Int
   /// The unit of min_value and max_value; empty for a text-only limit.
   unit_id       Int?
   /// True when a minimum is set. The minimum may be 0.
@@ -169,11 +179,14 @@ model RegulationLimit {
   regulation    Regulation      @relation(fields: [regulation_id], references: [id], onDelete: Cascade)
   /// The parameter the limit applies to.
   parameter     TestParameter   @relation(fields: [parameter_id], references: [id], onDelete: Restrict)
+  /// The sample type the limit applies to.
+  sample_type   SampleType      @relation(fields: [sample_type_id], references: [id], onDelete: Restrict)
   /// The unit of the limit values.
   unit          MeasurementUnit? @relation(fields: [unit_id], references: [id], onDelete: Restrict)
 
-  @@unique([regulation_id, parameter_id])
+  @@unique([regulation_id, parameter_id, sample_type_id])
   @@index([parameter_id])
+  @@index([sample_type_id])
   @@index([unit_id])
   @@map("medilab_regulation_limit")
 }

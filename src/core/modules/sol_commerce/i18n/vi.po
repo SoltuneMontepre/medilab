@@ -4677,6 +4677,11 @@ msgid "Default Way"
 msgstr "Cách thử mặc định"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_sample__regulation_notice
+msgid "Regulation Notice"
+msgstr "Lưu ý quy chuẩn"
+
+#. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_line.py:0
 msgid ""

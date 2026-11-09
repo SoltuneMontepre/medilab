@@ -4736,6 +4736,11 @@ msgid "no sample type"
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_sample__regulation_notice
+msgid "Regulation Notice"
+msgstr ""
+
+#. module: sol_commerce
 #: model:product.template,name:sol_commerce.product_quotation_discount_product_template
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 msgid "Discount"

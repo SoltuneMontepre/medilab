@@ -27,6 +27,7 @@ src/tests/
         sf-08-laboratory-setup/
         sf-09-support-feedback/
       features/
+        catalog/regulation-limits/
         catalog/sample-type-applicability/
         laboratory/accreditation-scope/
         laboratory/backup-signers/
@@ -80,7 +81,8 @@ Start test titles with the issue's `TC-WF…`, `TC-SF…` or `TC-F…` ID. Map f
 
 | Scope | Issue | Directory | Spec basename |
 | --- | --- | --- | --- |
-| Configure the unit, detection limits and default of a way of testing on a sample type; a quotation tests the parameter on that type and refuses a sibling type nothing is configured for. | [#409](https://github.com/SoltuneMontepre/medilab/issues/409) | `features/catalog/sample-type-applicability/` | `sample-type-applicability.cy.js` |
+| Configure the unit, detection limits and default of a way of testing on a sample type; a quotation tests the parameter on that type and refuses a sibling type the parameter is not configured for. | [#409](https://github.com/SoltuneMontepre/medilab/issues/409) | `features/catalog/sample-type-applicability/` | `sample-type-applicability.cy.js` |
+| See that a regulation's covered sample type has no limit of its own, add its row from the catalog and save a limit; a duplicate limit and an expired regulation are refused. | [#410](https://github.com/SoltuneMontepre/medilab/issues/410) | `features/catalog/regulation-limits/` | `regulation-limits.cy.js` |
 | Import scope lines into a certificate with their parameters and sample types; a sample test is accredited only when one line covers its method, parameter and sample type or an ancestor, and never when subcontracted. | [#412](https://github.com/SoltuneMontepre/medilab/issues/412) | `features/laboratory/accreditation-scope/` | `accreditation-scope.cy.js` |
 | Pick an organisation, start a run, review staged records and accept a certificate with its methods. | [#176](https://github.com/SoltuneMontepre/medilab/issues/176) | `features/onboarding/master-data-staging/` | `master-data-staging.cy.js` |
 | Prepare a solution from scanned bottles; verify the resulting stock movements and container. | [#181](https://github.com/SoltuneMontepre/medilab/issues/181) | `features/inventory/solution-preparation/` | `solution-preparation.cy.js` |
