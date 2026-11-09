@@ -69,18 +69,21 @@ export function assignedTest(parameterId, { name, regulation } = {}) {
 // A completed result: the tester entered lead and sent it, and the head of department approved it. Testing and
 // approving belong to WF-03 and WF-04. Yields `{ model, id, request }`.
 export function approvedResult() {
+  let request;
   return refAs(RECEPTION, "sol_demo.demo_test_parameter_lead")
     .then(({ id }) => assignedTest(id, { name: "Nước uống đóng chai lô 1109" }))
-    .then(({ test, request }) =>
-      callAs(TESTER, "medilab.test.result", "create", [{ sample_test_id: test, value: LEAD_VALUE, value_decimals: 3 }]).then((id) => {
-        callAs(TESTER, "medilab.test.result", "action_sign", [[id]]);
-        callAs(HEAD, "medilab.test.result", "action_sign", [[id]]);
-        callAs(HEAD, "medilab.test.result", "read", [[id], ["status"]])
-          .its("0.status")
-          .should("eq", "approved");
-        return cy.then(() => ({ model: "medilab.test.result", id, request }));
-      }),
-    );
+    .then((assigned) => {
+      request = assigned.request;
+      return callAs(TESTER, "medilab.test.result", "create", [{ sample_test_id: assigned.test, value: LEAD_VALUE, value_decimals: 3 }]);
+    })
+    .then((id) => {
+      callAs(TESTER, "medilab.test.result", "action_sign", [[id]]);
+      callAs(HEAD, "medilab.test.result", "action_sign", [[id]]);
+      callAs(HEAD, "medilab.test.result", "read", [[id], ["status"]])
+        .its("0.status")
+        .should("eq", "approved");
+      return cy.wrap({ model: "medilab.test.result", id, request });
+    });
 }
 
 // An issued report: its only result is approved and the lab head signed its draft. Issuing belongs to WF-06.
@@ -129,20 +132,27 @@ export function requestedOrder(quantity) {
         },
       ]),
     )
-    .then((id) => callAs(STOREKEEPER, "purchase.order", "action_request_approval", [[id]]).then(() => id));
+    .then((id) => {
+      callAs(STOREKEEPER, "purchase.order", "action_request_approval", [[id]]);
+      return cy.wrap(id);
+    });
 }
 
 // A purchase order still in its process: the storekeeper requested approval and the lab head signed it, and it is
 // not sent to the supplier yet. Yields `{ model, id }`.
 export function signedOrder() {
-  return requestedOrder(2000).then((id) => {
-    callAs(LAB_HEAD, "purchase.order", "action_sign", [[id]]);
-    return callAs(LAB_HEAD, "purchase.order", "read", [[id], ["approval_status", "state"]]).then(([order]) => {
+  let orderId;
+  return requestedOrder(2000)
+    .then((id) => {
+      orderId = id;
+      callAs(LAB_HEAD, "purchase.order", "action_sign", [[id]]);
+      return callAs(LAB_HEAD, "purchase.order", "read", [[id], ["approval_status", "state"]]);
+    })
+    .then(([order]) => {
       expect(order.approval_status, "order approved").to.equal("approved");
       expect(order.state, "order not sent").to.equal("draft");
-      return { model: "purchase.order", id };
+      return { model: "purchase.order", id: orderId };
     });
-  });
 }
 
 // The signatures of a document, oldest first, as the administrator reads them.
