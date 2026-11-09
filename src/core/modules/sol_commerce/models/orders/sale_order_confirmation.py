@@ -99,6 +99,11 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
         )
         self._set_status(STATUS_CONFIRMED, {"test_request_id": request.id, "confirmed_at": fields.Datetime.now()})
 
+    def _keep_order_numbers(self):
+        """Write each order's number on its test request, which keeps it once uninstalling E-commerce drops the link."""
+        for order in self.sudo().search([("test_request_id", "!=", False)]):
+            order.test_request_id.order_number = order.name
+
     def action_start_sample_collection(self):
         """Refuse until the order is confirmed; the collection itself is not part of the order."""
         self.check_access("write")

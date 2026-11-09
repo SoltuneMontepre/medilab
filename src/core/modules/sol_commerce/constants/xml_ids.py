@@ -1,5 +1,6 @@
 """External ids of records the E-commerce module refers to from Python code."""
 
+MODULE = "sol_commerce"
 ALL_ORDERS_GROUP = "sol_commerce.group_all_orders"
 CANCELLATION_TASK_TYPE = "sol_commerce.task_type_order_cancellation"
 MAIN_COMPANY = "base.main_company"

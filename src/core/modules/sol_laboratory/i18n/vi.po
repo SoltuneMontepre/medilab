@@ -5252,6 +5252,11 @@ msgid "Opened On"
 msgstr "Mở lúc"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__order_number
+msgid "Order Number"
+msgstr "Số Đơn Hàng"
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__delivery_method__other
 msgid "Other"
 msgstr "Khác"

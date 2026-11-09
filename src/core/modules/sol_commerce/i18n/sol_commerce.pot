@@ -1230,6 +1230,11 @@ msgid "Comment"
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_base_module_uninstall__commerce_warning
+msgid "Commerce Warning"
+msgstr ""
+
+#. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_res_company
 msgid "Company"
 msgstr ""
@@ -2426,6 +2431,11 @@ msgstr ""
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.report_reconciliation_day
 msgid "Missing payment"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_base_module_uninstall
+msgid "Module Uninstall"
 msgstr ""
 
 #. module: sol_commerce
@@ -4473,6 +4483,14 @@ msgstr ""
 #: model:ir.actions.act_window,name:sol_commerce.action_medilab_sale_order_queue
 #: model:ir.ui.menu,name:sol_commerce.menu_sale_order_queue
 msgid "Unclaimed queue"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_base_module_uninstall
+msgid ""
+"Uninstalling E-commerce deletes its data and the link between orders and "
+"test requests. Each test request created from an order keeps the order's "
+"number as text."
 msgstr ""
 
 #. module: sol_commerce

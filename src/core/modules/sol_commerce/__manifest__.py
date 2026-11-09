@@ -35,6 +35,7 @@
         "views/invoicing/receivable_report_views.xml",
         "views/invoicing/cash_flow_report_views.xml",
         "views/invoicing/portal_templates.xml",
+        "views/system/base_module_uninstall_views.xml",
         "views/system/res_config_settings_views.xml",
         "views/pricing/parameter_price_views.xml",
         "views/pricing/service_package_views.xml",
@@ -63,5 +64,6 @@
         "views/system/menus.xml",
     ],
     "post_init_hook": "use_vietnamese_accounting",
+    "uninstall_hook": "keep_order_numbers",
     "application": True,
 }

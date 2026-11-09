@@ -240,6 +240,11 @@ msgid "Ask the laboratory for help and follow the conversation"
 msgstr "Nhờ phòng thí nghiệm hỗ trợ và theo dõi trao đổi"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_base_module_uninstall__commerce_warning
+msgid "Commerce Warning"
+msgstr "Cảnh Báo Gỡ Thương Mại Điện Tử"
+
+#. module: sol_commerce
 #: model:medilab.permission,name:sol_commerce.permission_order_edit_own
 msgid "Edit own orders"
 msgstr "Sửa đơn hàng của mình"
@@ -1315,6 +1320,11 @@ msgid "Min"
 msgstr "Tối thiểu"
 
 #. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_base_module_uninstall
+msgid "Module Uninstall"
+msgstr "Gỡ Cài Đặt Phân Hệ"
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
 #: model_terms:ir.ui.view,arch_db:sol_commerce.portal_navigation
@@ -1569,6 +1579,17 @@ msgstr "Thanh toán tạm ứng trước"
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 msgid "Advance invoice"
 msgstr "Hóa đơn tạm ứng"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_base_module_uninstall
+msgid ""
+"Uninstalling E-commerce deletes its data and the link between orders and "
+"test requests. Each test request created from an order keeps the order's "
+"number as text."
+msgstr ""
+"Gỡ cài đặt Thương Mại Điện Tử sẽ xoá dữ liệu của phân hệ này và liên kết "
+"giữa đơn hàng với yêu cầu thử nghiệm. Mỗi yêu cầu thử nghiệm tạo từ đơn hàng"
+" giữ lại số đơn hàng dưới dạng văn bản."
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
