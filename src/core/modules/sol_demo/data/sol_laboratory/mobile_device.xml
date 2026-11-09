@@ -1,26 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo noupdate="1">
-    <record id="demo_mobile_device_active" model="medilab.mobile.device">
-        <field name="user_id" ref="demo_res_users_sales" />
-        <field name="token">demo-device-active</field>
+    <!-- Phones signed in on Medilab Mobile; seed_phones gives them their keys and revokes the tester's old iPhone. -->
+    <record id="demo_laboratory_device_tester_phone" model="medilab.laboratory.device">
+        <field name="user_id" ref="demo_res_users_tester" />
+        <field name="client_uid">3b0f6c2e-8d41-4f7a-9c52-1e6a7d3b9f04</field>
+        <field name="name">Galaxy A55</field>
         <field name="platform">android</field>
+    </record>
+    <record id="demo_laboratory_device_tester_old_phone" model="medilab.laboratory.device">
+        <field name="user_id" ref="demo_res_users_tester" />
+        <field name="client_uid">a6e2d9f1-4c73-4b08-8e15-5f9c0b2a7d63</field>
+        <field name="name">iPhone 11</field>
+        <field name="platform">ios</field>
+    </record>
+    <record id="demo_laboratory_device_head_of_department_phone" model="medilab.laboratory.device">
+        <field name="user_id" ref="demo_res_users_head_of_department" />
+        <field name="client_uid">5d8a1f3c-2e94-4b6d-a071-9c3e5b8f2a17</field>
+        <field name="name">Pixel 8</field>
+        <field name="platform">android</field>
+    </record>
+    <record id="demo_laboratory_device_sample_delivery_staff_phone" model="medilab.laboratory.device">
+        <field name="user_id" ref="demo_res_users_sample_delivery_staff" />
+        <field name="client_uid">e1c7b4a9-6f20-4d3e-b8a5-2d7f9e0c4b81</field>
+        <field name="name">Galaxy A35</field>
+        <field name="platform">android</field>
+    </record>
+    <record id="demo_laboratory_device_sales_phone" model="medilab.laboratory.device">
+        <field name="user_id" ref="demo_res_users_sales" />
+        <field name="client_uid">8f3e6b1d-9a52-4c07-b4e8-6a1d2c9f5e30</field>
+        <field name="name">Redmi Note 13</field>
+        <field name="platform">android</field>
+    </record>
+    <record id="demo_laboratory_device_sales_tablet" model="medilab.laboratory.device">
+        <field name="user_id" ref="demo_res_users_sales" />
+        <field name="client_uid">c4a9e2f7-1b68-4e3d-9f05-7b2e8d1a6c94</field>
+        <field name="name">Galaxy Tab A9</field>
+        <field name="platform">android</field>
+    </record>
+
+    <!-- Their Firebase tokens. -->
+    <record id="demo_mobile_device_active" model="medilab.mobile.device">
+        <field name="laboratory_device_id" ref="demo_laboratory_device_sales_phone" />
+        <field name="token">demo-device-active</field>
         <field name="active" eval="True" />
     </record>
     <record id="demo_mobile_device_off" model="medilab.mobile.device">
-        <field name="user_id" ref="demo_res_users_tester" />
+        <field name="laboratory_device_id" ref="demo_laboratory_device_tester_old_phone" />
         <field name="token">demo-device-off</field>
-        <field name="platform">ios</field>
         <field name="active" eval="False" />
     </record>
     <record id="demo_mobile_device_failed" model="medilab.mobile.device">
-        <field name="user_id" ref="demo_res_users_sales" />
+        <field name="laboratory_device_id" ref="demo_laboratory_device_sales_tablet" />
         <field name="token">demo-device-failed</field>
-        <field name="platform">android</field>
         <field name="active" eval="True" />
     </record>
     <record id="demo_mobile_device_sample_delivery_staff" model="medilab.mobile.device">
-        <field name="user_id" ref="demo_res_users_sample_delivery_staff" />
+        <field name="laboratory_device_id" ref="demo_laboratory_device_sample_delivery_staff_phone" />
         <field name="token">demo-device-sample-delivery-staff</field>
-        <field name="platform">android</field>
     </record>
 </odoo>

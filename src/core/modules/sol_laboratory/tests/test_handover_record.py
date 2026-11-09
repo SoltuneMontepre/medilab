@@ -3,8 +3,9 @@ from odoo.exceptions import UserError
 from odoo.fields import Command
 from odoo.tests import new_test_user, tagged
 
+from .mobile_phones import push_token
 from .request_case import RequestCase
-from odoo.addons.sol_laboratory.constants.models import MODEL_HANDOVER_RECORD, MODEL_MOBILE_DEVICE
+from odoo.addons.sol_laboratory.constants.models import MODEL_HANDOVER_RECORD
 
 EDITOR_PERMISSIONS = (
     "handover_record_read_all",
@@ -33,9 +34,7 @@ class TestHandoverRecord(RequestCase):
                 ],
             }
         )
-        cls.device = cls.env[MODEL_MOBILE_DEVICE].create(
-            {"user_id": cls.env.ref("base.user_admin").id, "token": "handover-phone", "platform": "android"}
-        )
+        cls.device = push_token(cls.env, cls.env.ref("base.user_admin"), "handover-phone")
         cls.editor = new_test_user(
             cls.env,
             login="handover.editor",

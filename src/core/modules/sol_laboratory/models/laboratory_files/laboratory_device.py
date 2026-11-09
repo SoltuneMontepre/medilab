@@ -14,12 +14,14 @@ from odoo.addons.sol_laboratory.constants.laboratory_files import (
     INVALID_CREDENTIALS,
     INVALID_KEY,
     INVALID_REQUEST,
+    PERMISSION_DENIED,
 )
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_LABORATORY_DEVICE,
     MODEL_LABORATORY_FOLDER,
     MODEL_LOCK_MIXIN,
+    MODEL_MOBILE_DEVICE,
     MODEL_PERMISSION_MIXIN,
     MODEL_RES_USERS,
     MODEL_RES_USERS_APIKEYS,
@@ -33,12 +35,14 @@ if TYPE_CHECKING:
 else:
     LaboratoryDeviceBase = object
 
-PLATFORMS = [("linux", "Linux"), ("windows", "Windows")]
+PLATFORMS = [("linux", "Linux"), ("windows", "Windows"), ("android", "Android"), ("ios", "iOS")]
+# The platforms of phones running Medilab Mobile; the others are computers running Medilab Sync.
+PHONE_PLATFORMS = ("android", "ios")
 # A computer's last call is written at most once a minute, so its parallel calls do not fight over its row.
 SEEN_INTERVAL = timedelta(minutes=1)
 
 
-# Máy Tính Đồng Bộ
+# Thiết Bị Đăng Nhập: a computer running Medilab Sync or a phone running Medilab Mobile.
 class LaboratoryDevice(models.Model, LaboratoryDeviceBase):
     _name = MODEL_LABORATORY_DEVICE
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_AUDIT_MIXIN]
@@ -54,9 +58,9 @@ class LaboratoryDevice(models.Model, LaboratoryDeviceBase):
         user_id = fields.Many2one(MODEL_RES_USERS, string="User", required=True, ondelete="cascade", readonly=True)
         # Id the application generates once per installation.
         client_uid = fields.Char(string="Installation ID", required=True, readonly=True)
-        # Name of the computer.
+        # Name of the computer or the phone, such as the phone's model.
         name = fields.Char(required=True)
-        # linux or windows.
+        # linux or windows for a computer, android or ios for a phone.
         platform = fields.Selection(PLATFORMS, required=True, readonly=True)
         # The Odoo API key of the device; the key itself is never stored here.
         api_key_id = fields.Many2one(MODEL_RES_USERS_APIKEYS, string="API Key", readonly=True, copy=False)
@@ -89,17 +93,17 @@ class LaboratoryDevice(models.Model, LaboratoryDeviceBase):
         for device in self:
             if not (is_name(device.client_uid) and is_name(device.name)):
                 raise ValidationError(
-                    self.env._("A computer signs in with its installation id and its name, never a path.")
+                    self.env._("A device signs in with its installation id and its name, never a path.")
                 )
 
     @api.model
     def _sign_in(self, login, password, client_uid, name, platform):
-        """Sign a computer in with the person's MediLab login. Odoo checks the login as it does for its external API,
-        so a person with two-factor authentication uses one of their API keys in place of the password, which is
-        never kept. The computer gets a new key, returned only here; signing in again replaces it."""
+        """Sign a computer or a phone in with the person's MediLab login. Odoo checks the login as it does for its
+        external API, so a person with two-factor authentication uses one of their API keys in place of the password,
+        which is never kept. The device gets a new key, returned only here; signing in again replaces it."""
         if not (is_name(client_uid) and is_name(name) and platform in dict(PLATFORMS)):
             raise LaboratoryFileError(
-                INVALID_REQUEST, self.env._("A computer signs in with its installation id, its name and its platform.")
+                INVALID_REQUEST, self.env._("A device signs in with its installation id, its name and its platform.")
             )
         credential = {"type": "password", "login": login, "password": password}
         try:
@@ -107,16 +111,21 @@ class LaboratoryDevice(models.Model, LaboratoryDeviceBase):
         except AccessDenied as error:
             raise LaboratoryFileError(INVALID_CREDENTIALS, self.env._("The login or the password is wrong.")) from error
         devices = self.with_user(uid)
-        self.env[MODEL_LABORATORY_FOLDER].with_user(uid)._check_laboratory_files_permission()
+        phone = platform in PHONE_PLATFORMS
+        devices._check_may_sign_in(phone)
         device = devices.sudo().search([("user_id", "=", uid), ("client_uid", "=", client_uid)])
         if device.revoked_at:
             raise LaboratoryFileError(
                 DEVICE_REVOKED,
-                self.env._("This computer was revoked. Install Medilab Sync again to sign it in as a new computer."),
+                self.env._("This phone was revoked. Install Medilab Mobile again to sign it in as a new phone.")
+                if phone
+                else self.env._(
+                    "This computer was revoked. Install Medilab Sync again to sign it in as a new computer."
+                ),
             )
         # One write per sign-in, so each is one entry of the audit trail. The old key goes after the write, which records
         # it by its name.
-        key, key_id = devices._new_key(name)
+        key, key_id = devices._new_key(name, phone)
         if device:
             old_keys = device.api_key_id
             device.write({"name": name, "api_key_id": key_id})
@@ -126,6 +135,17 @@ class LaboratoryDevice(models.Model, LaboratoryDeviceBase):
                 {"user_id": uid, "client_uid": client_uid, "name": name, "platform": platform, "api_key_id": key_id}
             )
         return device.with_user(uid), key
+
+    @api.model
+    def _check_may_sign_in(self, phone):
+        """A computer signs in for a person with the laboratory files permission. A phone signs in for any internal user,
+        a person of the laboratory, and never for a portal user, which every customer and subcontractor is."""
+        if not phone:
+            self.env[MODEL_LABORATORY_FOLDER]._check_laboratory_files_permission()
+        elif not self.env.user._is_internal():
+            raise LaboratoryFileError(
+                PERMISSION_DENIED, self.env._("Only the laboratory's staff sign in on Medilab Mobile.")
+            )
 
     @api.model
     def _create_signed_in(self, values):
@@ -143,8 +163,21 @@ class LaboratoryDevice(models.Model, LaboratoryDeviceBase):
                 self.env._("Another sign-in of this computer happened meanwhile; the sign-in is run again.")
             ) from error
 
+    def write(self, vals):
+        result = super().write(vals)
+        if "api_key_id" in vals and not vals["api_key_id"]:
+            self._turn_push_token_off()
+        return result
+
+    def _turn_push_token_off(self):
+        """A phone no longer signed in gets no push: signing out, revoking it and removing its key from anywhere empty its
+        key, which turns its Firebase token off in the same transaction."""
+        tokens = self.env[MODEL_MOBILE_DEVICE].sudo().search([("laboratory_device_id", "in", self.ids)])
+        tokens.write({"active": False})
+
     def _sign_out(self):
-        """The computer signs out: its key is removed, which empties the computer's key, and it can sign in again."""
+        """The device signs out: its key is removed, which empties the device's key and turns its push token off, and it
+        can sign in again."""
         self.sudo().api_key_id._remove()
 
     def action_revoke(self):
@@ -183,16 +216,17 @@ class LaboratoryDevice(models.Model, LaboratoryDeviceBase):
         key_ids = [key_id for key_id, _hashed in rows]
         device = self.sudo().search([("api_key_id", "in", key_ids), ("revoked_at", "=", False)])
         if not device:
-            raise LaboratoryFileError(INVALID_KEY, self.env._("This computer is not signed in."))
+            raise LaboratoryFileError(INVALID_KEY, self.env._("This device is not signed in."))
         device._seen()
         return device.with_env(self.env)
 
     @api.model
-    def _new_key(self, name):
-        """A new Odoo API key of the user for a computer, and the id of its row. Odoo keeps only its hash."""
+    def _new_key(self, name, phone=False):
+        """A new Odoo API key of the user for a computer or a phone, and the id of its row. Odoo keeps only its hash."""
         keys = self.env[MODEL_RES_USERS_APIKEYS].sudo()
-        # Full rights let the key live until the computer signs out or is revoked; Odoo gives users only expiring keys.
-        key = keys._generate(DEVICE_KEY_SCOPE, f"Medilab Sync: {name}", None)
+        application = "Medilab Mobile" if phone else "Medilab Sync"
+        # Full rights let the key live until the device signs out or is revoked; Odoo gives users only expiring keys.
+        key = keys._generate(DEVICE_KEY_SCOPE, f"{application}: {name}", None)
         # Odoo does not return the row it inserted; it is the newest of the user's rows with the key's index.
         self.env.cr.execute(
             SQL(
@@ -205,8 +239,15 @@ class LaboratoryDevice(models.Model, LaboratoryDeviceBase):
         [(key_id,)] = self.env.cr.fetchall()
         return key, key_id
 
+    def _check_phone(self):
+        """Only a phone running Medilab Mobile calls the phone's own routes, such as registering its push token."""
+        if self.platform not in PHONE_PLATFORMS:
+            raise LaboratoryFileError(
+                INVALID_REQUEST, self.env._("Only a phone signed in on Medilab Mobile does this.")
+            )
+
     def _laboratory_api_values(self, current):
-        """The computer as the laboratory files API gives it; current is the computer of the call."""
+        """The device as the laboratory files API gives it; current is the device of the call."""
         self.ensure_one()
         return {
             "id": self.id,

@@ -620,20 +620,6 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
-msgid ""
-"A computer signs in with its installation id and its name, never a path."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
-msgid ""
-"A computer signs in with its installation id, its name and its platform."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
 msgid "A content keeps the key of its object."
 msgstr ""
@@ -808,12 +794,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_measurement_unit_name_unique
 msgid "A measurement unit with this symbol already exists."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/system/mobile_device.py:0
-msgid "A mobile device needs a token and a platform."
 msgstr ""
 
 #. module: sol_laboratory
@@ -1560,6 +1540,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_mobile_device__platform__android
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_device__platform__android
 msgid "Android"
 msgstr ""
 
@@ -2900,8 +2881,7 @@ msgid "Computer"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_laboratory_device
-#: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_device
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_search
 msgid "Computers"
 msgstr ""
 
@@ -10750,6 +10730,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__phone
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__phone
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__phone
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__laboratory_device_id
 msgid "Phone"
 msgstr ""
 
@@ -12694,12 +12675,6 @@ msgid "Sign test results"
 msgstr ""
 
 #. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/services/laboratory_api.py:0
-msgid "Sign this computer in: the call has no key."
-msgstr ""
-
-#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
 msgid "Sign this report? The last signature issues it."
 msgstr ""
@@ -13653,14 +13628,6 @@ msgid "The code of a testing method must be unique."
 msgstr ""
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_form
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_list
-msgid ""
-"The computer stops at once and can never sign in again; its person keeps "
-"their folders and other computers. Revoke it?"
-msgstr ""
-
-#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload_flow.py:0
 msgid "The computer was revoked meanwhile."
@@ -14284,13 +14251,6 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
-#: code:addons/sol_laboratory/services/laboratory_api.py:0
-msgid "This computer is not signed in."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
 msgid ""
 "This computer was revoked. Install Medilab Sync again to sign it in as a new"
 " computer."
@@ -14311,12 +14271,6 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/master_data/customer.py:0
 msgid "This customer is not flagged as a possible duplicate."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/system/mobile_device.py:0
-msgid "This device is not registered for you."
 msgstr ""
 
 #. module: sol_laboratory
@@ -15480,6 +15434,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_mobile_device__platform__ios
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_device__platform__ios
 msgid "iOS"
 msgstr ""
 
@@ -15508,4 +15463,80 @@ msgstr ""
 #. module: sol_laboratory
 #: model:mail.template,subject:sol_laboratory.mail_template_task_reminder
 msgid "{{ object.name }}"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+msgid "A device signs in with its installation id and its name, never a path."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+msgid "A device signs in with its installation id, its name and its platform."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/mobile_device.py:0
+msgid ""
+"Another registration of this push token happened meanwhile; it is run again."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_laboratory_device
+#: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_device
+msgid "Devices"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+msgid "Only a phone signed in on Medilab Mobile does this."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+msgid "Only the laboratory's staff sign in on Medilab Mobile."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_search
+msgid "Phones"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/services/laboratory_api.py:0
+msgid "Sign this device in: the call has no key."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_list
+msgid ""
+"The device stops at once, a phone gets no more pushes, and it can never sign"
+" in again; its person keeps their folders and other devices. Revoke it?"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+#: code:addons/sol_laboratory/services/laboratory_api.py:0
+msgid "This device is not signed in."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_mobile_device_phone_unique
+msgid "This phone already has a push token."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+msgid ""
+"This phone was revoked. Install Medilab Mobile again to sign it in as a new "
+"phone."
 msgstr ""

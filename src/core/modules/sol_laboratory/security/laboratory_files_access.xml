@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Holders of the laboratory files permission read the folders they are members of, with their members, sync rules,
-     files, versions, locks and editing sessions, and the computers they signed in. They change them only through the
-     checks of the laboratory files API. -->
+     files, versions, locks and editing sessions. Every internal user reads the computers and phones they signed in, as
+     a phone signs in without the laboratory files permission. They change them only through the checks of the
+     laboratory files API. -->
 <odoo>
     <record id="access_laboratory_folder_member_of" model="ir.access">
         <field name="name">Laboratory folder: folders the user is a member of</field>
@@ -25,9 +26,9 @@
         <field name="domain">[('folder_id.member_ids.user_id', '=', user.id)]</field>
     </record>
     <record id="access_laboratory_device_own" model="ir.access">
-        <field name="name">Laboratory device: the user's computers</field>
+        <field name="name">Laboratory device: the user's computers and phones</field>
         <field name="model_id" ref="model_medilab_laboratory_device" />
-        <field name="group_id" ref="group_permission_laboratory_folder_create_all" />
+        <field name="group_id" ref="base.group_user" />
         <field name="operation">r</field>
         <field name="domain">[('user_id', '=', user.id)]</field>
     </record>

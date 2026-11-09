@@ -18,7 +18,7 @@ export default function appConfig({ config }: ConfigContext): ExpoConfig {
     android: {
       package: "com.medilab.mobile",
     },
-    plugins: ["expo-router"],
+    plugins: ["expo-router", "expo-secure-store"],
     extra: {
       serverUrl: process.env.MEDILAB_URL || DEFAULT_SERVER_URL,
     },

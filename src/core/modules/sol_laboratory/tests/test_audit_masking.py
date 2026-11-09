@@ -2,6 +2,7 @@ from odoo.fields import Command
 from odoo.tests import tagged
 
 from .audit_case import AuditCase
+from .mobile_phones import signed_in_phone
 from odoo.addons.sol_laboratory.constants.audit import MASK_PERSONAL, MASK_SECRET
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_CHANGE,
@@ -84,10 +85,11 @@ class TestAuditMasking(AuditCase):
         self.assertEqual(self.changes(self.entries(parameter, "edit"))["value"][1], "***")
 
     def test_a_device_token_is_masked_and_refreshing_it_is_not_a_change(self):
+        phone, _key = signed_in_phone(self.env, self.editor)
         devices = self.env[MODEL_MOBILE_DEVICE].with_user(self.editor)
-        device = devices.register_token("fcm-token-1", "android")
+        device = devices._register_token(phone, "fcm-token-1")
 
-        devices.register_token("fcm-token-1", "android")
+        devices._register_token(phone, "fcm-token-1")
 
         changes = self.changes(self.entries(device, "create"))
         self.assertEqual(changes["token"], (False, "***"))
