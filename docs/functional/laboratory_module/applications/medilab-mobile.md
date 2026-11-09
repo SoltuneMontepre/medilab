@@ -1,8 +1,6 @@
 # Medilab Mobile
 
-Medilab Mobile is deferred from the [current scope](../../index.md#scope). These requirements describe the deferred application.
-
-Medilab Mobile is the phone app of the laboratory's staff. It brings the work done away from a desk to the phone: the to-do list and its tasks, conversations, scanning sample labels and container QR codes, sample photos, the customer's signature on a handover record, and entering and signing results at the bench. It reaches MediLab through the Laboratory module's [REST API](../overview.md#laboratory-files) and receives pushes through [Firebase Cloud Messaging](../../shared.md#4-firebase-cloud-messaging-mobile-push). MediLab checks every call with the person's permissions, so the app shows and does only what the person may see and do on the web.
+Medilab Mobile is the phone app of the laboratory's staff. It brings the work done away from a desk to the phone: the to-do list and its tasks, conversations, scanning sample labels and container QR codes, sample photos, the customer's signature on a handover record, and entering and signing results at the bench. It reaches MediLab through the Laboratory module's [REST API](../overview.md#laboratory-files) and receives pushes through [Firebase Cloud Messaging](../../shared.md#4-firebase-cloud-messaging-mobile-push). MediLab checks every call with the person's permissions, so the app shows and does only what the person may see and do on the web. [Medilab Mobile](../../../specs/medilab-mobile.md) specifies its routes, pushes and updates.
 
 ## Platforms and installation
 
@@ -124,3 +122,4 @@ Conversations follow [SH-12](../../shared.md#sh-12-conversations).
 - [Inventory tester](../../inventory_module/features/tester.md)
 - [Sales](../../ecommerce_module/features/sales.md)
 - [Medilab Sync](medilab-sync.md)
+- [Medilab Mobile spec](../../../specs/medilab-mobile.md)
