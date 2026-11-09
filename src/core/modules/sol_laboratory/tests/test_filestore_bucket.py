@@ -2,9 +2,10 @@ import os
 from unittest.mock import patch
 
 from odoo.tests import tagged
-from odoo.tools import config
+from odoo.tools import config, file_open
 
 from .laboratory_bucket_case import LaboratoryBucketCase
+from .test_module_files import MODULE_IMAGE
 from odoo.addons.sol_laboratory.constants.laboratory_bucket import FILESTORE_VARIABLE
 from odoo.addons.sol_laboratory.constants.models import MODEL_IR_ATTACHMENT
 from odoo.addons.sol_laboratory.services import laboratory_bucket
@@ -88,6 +89,26 @@ class TestFilestoreBucket(LaboratoryBucketCase):
             self.attachments._register_hook()
 
         self.assertIsNone(laboratory_bucket.object_size(self.attachments._bucket_key(attachment.store_fname)))
+
+    def test_an_update_writes_a_module_file_lost_in_both_places_again(self):
+        with file_open(MODULE_IMAGE, "rb") as file:
+            content = file.read()
+        attachment = self.new_attachment(content)
+        self.remove_local_copy(attachment)
+        laboratory_bucket.delete(self.attachments._bucket_key(attachment.store_fname))
+
+        with patch.dict(config._runtime_options, {"update": ["sol_laboratory"]}):
+            self.attachments._register_hook()
+
+        key = self.attachments._bucket_key(attachment.store_fname)
+        self.assertEqual(laboratory_bucket.object_size(key), len(content))
+        self.assertTrue(os.path.exists(self.attachments._full_path(attachment.store_fname)))
+
+    def test_a_file_the_bucket_holds_is_not_missing(self):
+        attachment = self.new_attachment(os.urandom(100))
+        self.remove_local_copy(attachment)
+
+        self.assertNotIn(attachment, self.attachments._missing_files())
 
     def test_the_cleanup_deletes_old_objects_no_attachment_uses_and_keeps_the_rest(self):
         attachment = self.new_attachment(os.urandom(100))

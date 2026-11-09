@@ -28,7 +28,7 @@
                 <field
                     name="quotation_follow_up"
                     widget="badge"
-                    decoration-success="quotation_follow_up == 'paid'"
+                    decoration-success="quotation_follow_up in ('paid', 'accepted')"
                     decoration-warning="quotation_follow_up == 'unpaid'"
                     decoration-danger="quotation_follow_up in ('declined', 'expired')"
                 />
@@ -56,6 +56,13 @@
         </field>
     </record>
 
+    <record id="action_create_invoice" model="ir.actions.act_window">
+        <field name="name">Create invoice</field>
+        <field name="res_model">sale.advance.payment.inv</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
     <record id="view_order_form_medilab" model="ir.ui.view">
         <field name="name">sale.order.form.medilab</field>
         <field name="model">sale.order</field>
@@ -63,6 +70,15 @@
         <field name="arch" type="xml">
             <xpath expr="//button[@name='action_view_invoice']" position="attributes">
                 <attribute name="groups">account.group_account_invoice</attribute>
+            </xpath>
+            <!-- The accountant, and whoever holds the order's invoice permission, create invoices from the order. -->
+            <xpath expr="//header/button[@id='create_invoice']" position="attributes">
+                <attribute name="name">%(action_create_invoice)d</attribute>
+                <attribute name="groups">account.group_account_invoice,sol_laboratory.group_permission_order_invoice_all</attribute>
+            </xpath>
+            <xpath expr="//header/button[@id='create_invoice_percentage']" position="attributes">
+                <attribute name="name">%(action_create_invoice)d</attribute>
+                <attribute name="groups">account.group_account_invoice,sol_laboratory.group_permission_order_invoice_all</attribute>
             </xpath>
             <xpath expr="//header" position="inside">
                 <field name="can_save_order_template" invisible="1" />
@@ -79,7 +95,7 @@
                     type="object"
                     string="Send quotation"
                     class="btn-primary"
-                    invisible="order_status in ('draft', 'submitted', 'completed', 'cancelled') or quotation_follow_up in ('unpaid', 'paid') and state != 'draft'"
+                    invisible="order_status in ('draft', 'submitted', 'completed', 'cancelled') or quotation_follow_up in ('unpaid', 'paid', 'accepted') and state != 'draft'"
                 />
                 <button
                     name="action_revise_quotation"
@@ -93,7 +109,7 @@
                     type="object"
                     string="Confirm order"
                     class="btn-success"
-                    invisible="order_status != 'claimed' or quotation_follow_up != 'paid'"
+                    invisible="order_status != 'claimed' or quotation_follow_up not in ('paid', 'accepted')"
                 />
                 <button
                     name="action_start_sample_collection"
@@ -178,7 +194,7 @@
                             name="quotation_follow_up"
                             widget="badge"
                             decoration-warning="quotation_follow_up == 'unpaid'"
-                            decoration-success="quotation_follow_up == 'paid'"
+                            decoration-success="quotation_follow_up in ('paid', 'accepted')"
                             decoration-danger="quotation_follow_up in ('declined', 'expired')"
                         />
                     </div>
@@ -218,6 +234,16 @@
             <xpath expr="//group[@name='order_details']/div[field[@name='pricelist_id']]" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
+            <!-- An order has no delivery: its date is the expected result date. -->
+            <xpath expr="//group[@name='order_details']/label[@for='commitment_date'][1]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//group[@name='order_details']/label[@for='commitment_date'][2]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//group[@name='order_details']/div[@name='commitment_date_div']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
             <!-- Prices are in VND, excluding VAT, so the tax-included switch does not apply. -->
             <xpath expr="//field[@id='document_tax_mode']" position="attributes">
                 <attribute name="invisible">1</attribute>
@@ -241,6 +267,7 @@
             </xpath>
             <xpath expr="//field[@name='order_line']/kanban//main/div[hasclass('text-muted')]" position="after">
                 <div class="text-muted" invisible="not sample_id">Sample: <field name="sample_id" /></div>
+                <div class="text-muted" invisible="not parameter_method_id">Way of testing: <field name="parameter_method_id" /></div>
                 <div class="text-warning" invisible="not default_way_notice"><field name="default_way_notice" /></div>
             </xpath>
             <xpath expr="//list[@name='sol_list']/column[@name='product_and_description']" position="attributes">
@@ -268,7 +295,9 @@
             </xpath>
             <xpath expr="//list[@name='sol_list']/column[@name='product_and_description']" position="after">
                 <field name="sample_id" domain="[('order_id', '=', parent.id)]" options="{'no_create': True}" />
-                <field name="default_way_notice" class="text-warning" optional="show" />
+                <field name="sample_type_id" readonly="sample_id or linked_line_id" options="{'no_create': True}" optional="show" />
+                <field name="offered_method_ids" column_invisible="1" />
+                <field name="parameter_method_id" readonly="not offered_method_ids" options="{'no_create': True}" />
             </xpath>
             <!-- The form of a line, used when the window is narrow, follows the list. -->
             <xpath expr="//field[@name='order_line']/form//label[@for='product_id']" position="attributes">
@@ -283,6 +312,9 @@
             </xpath>
             <xpath expr="//field[@name='order_line']/form/group/group/field[@name='name']" position="after">
                 <field name="sample_id" domain="[('order_id', '=', parent.id)]" options="{'no_create': True}" />
+                <field name="sample_type_id" readonly="sample_id or linked_line_id" options="{'no_create': True}" />
+                <field name="offered_method_ids" invisible="1" />
+                <field name="parameter_method_id" readonly="not offered_method_ids" options="{'no_create': True}" />
                 <field name="default_way_notice" class="text-warning" invisible="not default_way_notice" />
             </xpath>
             <xpath expr="//field[@name='order_line']/form//label[@for='qty_delivered']" position="attributes">
@@ -297,10 +329,11 @@
                         <list editable="bottom">
                             <field name="sequence" widget="handle" />
                             <field name="customer_sample_name" />
-                            <field name="sample_type_id" />
+                            <field name="sample_type_id" options="{'no_create': True}" />
                             <field name="physical_state" />
                             <field
                                 name="regulation_id"
+                                options="{'no_create': True}"
                                 domain="[
                                     ('sample_type_ids', 'parent_of', sample_type_id),
                                     '|', ('valid_from', '=', False), ('valid_from', '&lt;=', context_today().strftime('%Y-%m-%d')),
@@ -413,6 +446,7 @@
                 <separator />
                 <filter name="unpaid" string="Quotation unpaid" domain="[('quotation_follow_up', '=', 'unpaid')]" />
                 <filter name="paid" string="Quotation paid" domain="[('quotation_follow_up', '=', 'paid')]" />
+                <filter name="quotation_accepted" string="Quotation accepted" domain="[('quotation_follow_up', '=', 'accepted')]" />
                 <filter name="quotation_declined" string="Quotation declined" domain="[('quotation_follow_up', '=', 'declined')]" />
                 <filter name="quotation_expired" string="Quotation expired" domain="[('quotation_follow_up', '=', 'expired')]" />
                 <separator />

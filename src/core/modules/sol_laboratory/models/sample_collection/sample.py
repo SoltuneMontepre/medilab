@@ -424,7 +424,13 @@ class Sample(models.Model, SampleBase):
         )
         department_of = {default.parameter_id.id: default.parameter_method_id.department_id for default in defaults}
         empty = self.env[MODEL_DEPARTMENT]
-        return {test: department_of.get(test.parameter_id.id, empty) for test in self.test_ids}
+        # A test keeps to the way the customer accepted, and so to its department.
+        return {
+            test: test.accepted_method_id.department_id
+            if test.accepted_method_id
+            else department_of.get(test.parameter_id.id, empty)
+            for test in self.test_ids
+        }
 
     def _test_departments(self):
         self.ensure_one()

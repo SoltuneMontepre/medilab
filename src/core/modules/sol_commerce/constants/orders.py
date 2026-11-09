@@ -12,8 +12,6 @@ STATUS_CANCELLED = "cancelled"
 
 CUSTOMER_CANCELLABLE = (STATUS_DRAFT, STATUS_SUBMITTED, STATUS_CLAIMED)
 PORTAL_ORDERS_PER_PAGE = 20
-# The latest orders the account page lists before linking to the order history.
-ACCOUNT_RECENT_ORDERS = 5
 # How many catalog items an order history row names before it counts the rest.
 PORTAL_SUMMARY_ITEMS = 3
 FINISHED_STATUSES = (STATUS_COMPLETED, STATUS_CANCELLED)
@@ -68,6 +66,8 @@ FROZEN_LINE_FIELDS = frozenset(
         "discount",
         "tax_ids",
         "sample_id",
+        "sample_type_id",
+        "parameter_method_id",
         "is_downpayment",
         "linked_line_id",
         "order_id",

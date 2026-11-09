@@ -32,6 +32,14 @@ describe("WF-01 Order to confirmed test request", () => {
     cy.visit("/catalog");
     cy.contains("tr", "Lead (Pb)").find("button[type=submit]").click();
     cy.location("pathname").should("eq", "/cart");
+    // The customer chooses the sample type, and the parameter's default way of testing on it is filled in.
+    cy.get("select[name=sample_type_id]")
+      .first()
+      .find("option")
+      .contains(/Nước đóng chai|Bottled water/)
+      .invoke("val")
+      .then((value) => cy.get("select[name=sample_type_id]").first().select(String(value)));
+    cy.get("select[name=parameter_method_id]").first().invoke("val").should("not.be.empty");
     cy.get("form[action='/cart/submit'] button[type=submit]").first().click();
     cy.contains("h1", "Order submitted");
     cy.contains("p", "is in the sales queue.")
@@ -67,6 +75,11 @@ describe("WF-01 Order to confirmed test request", () => {
         cy.sendRecord("action_send_quotation");
         cy.get(".o_statusbar_buttons button[name=action_revise_quotation]:visible").should("exist");
         cy.readRecord(order, ["invoice_ids"]).its("invoice_ids").should("have.length", 1);
+        call("sale.order.line", "search_read", [[["order_id", "=", order.id], ["linked_line_id", "=", false]]], {
+          fields: ["parameter_method_id", "is_downpayment"],
+        }).then((lines) =>
+          lines.filter((line) => !line.is_downpayment).forEach((line) => expect(line.parameter_method_id).to.be.ok),
+        );
         latestQuotation(order.id).then((quotation) => {
           expect(quotation.status).to.equal("sent");
           const invoice = quotation.advance_invoice_id[0];
@@ -224,6 +237,7 @@ describe("WF-01 Order to confirmed test request", () => {
       cy.visit(`/orders/${order.id}/quotation`);
       cy.get("form[action$='/quotation/accept'] button").click();
       cy.contains("Status: Accepted");
+      cy.readRecord(order, ["quotation_follow_up"]).its("quotation_follow_up").should("eq", "accepted");
 
       cy.signInAs("sales");
       cy.openRecord(order);

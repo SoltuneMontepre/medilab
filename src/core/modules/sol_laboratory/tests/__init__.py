@@ -154,6 +154,7 @@ from . import (
     test_method_steps_in_testing,
     test_model_lookup,
     test_module_boundaries,
+    test_module_files,
     test_negative_results,
     test_notifications,
     test_onlyoffice_down_real,

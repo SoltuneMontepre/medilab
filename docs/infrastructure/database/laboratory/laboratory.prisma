@@ -440,7 +440,7 @@ model UnitCategory {
 
 /// How one parameter is tested with one method, by the laboratory or by a subcontractor, and the unit of its result.
 /// Active rows are unique on (parameter_id, method_id, COALESCE(subcontractor_id, 0)) WHERE active.
-/// At most one row per parameter is the default (partial unique index on parameter_id where is_default).
+/// Its default per sample type is set on its applicability rows (ParameterMethodSampleType).
 model ParameterMethod {
   /// Row identifier.
   id               Int             @id @default(autoincrement())
@@ -471,7 +471,9 @@ model ParameterMethod {
   /// Quality registration dossiers that cover it.
   registrations    QualityRegistrationParameterMethod[]
   /// Sample tests done this way.
-  sample_tests     SampleTest[]
+  sample_tests     SampleTest[] @relation("SampleTestWay")
+  /// Sample tests whose customer accepted it.
+  accepted_sample_tests SampleTest[] @relation("SampleTestAcceptedWay")
   /// The sample types it applies to.
   sample_types     ParameterMethodSampleType[]
 
@@ -957,8 +959,10 @@ model SampleTest {
   sample_id           Int
   /// The parameter tested.
   parameter_id        Int
-  /// The way of testing chosen for it; empty until the laboratory chooses. Must be a way of testing this parameter.
+  /// The way of testing chosen for it: the accepted way for a test from an order, otherwise empty until the laboratory chooses. Must be a way of testing this parameter.
   parameter_method_id Int?
+  /// The way of testing the customer accepted on the order's quotation; the test keeps to it, and it never changes. Empty for a test the laboratory chooses the way of.
+  accepted_method_id  Int?
   /// How many times the parameter is tested on the sample; at least 1.
   quantity            Int              @default(1)
   /// waiting, assigned, testing, outsourced, result_entered, approved or cancelled.
@@ -988,7 +992,9 @@ model SampleTest {
   /// The parameter tested.
   parameter           TestParameter    @relation(fields: [parameter_id], references: [id], onDelete: Restrict)
   /// The way of testing chosen.
-  parameter_method    ParameterMethod? @relation(fields: [parameter_method_id], references: [id], onDelete: Restrict)
+  parameter_method    ParameterMethod? @relation("SampleTestWay", fields: [parameter_method_id], references: [id], onDelete: Restrict)
+  /// The way of testing the customer accepted.
+  accepted_method     ParameterMethod? @relation("SampleTestAcceptedWay", fields: [accepted_method_id], references: [id], onDelete: Restrict)
   /// Head of department who cancelled the test.
   cancelled_by        Person?          @relation("SampleTestCanceller", fields: [cancelled_by_id], references: [id], onDelete: Restrict)
   /// Tester or head of department who marked the test urgent.
@@ -1310,7 +1316,7 @@ model Permission {
   name           Json
   /// Technical name of the document type, such as medilab.sample; cannot change once the permission exists.
   document_model String             @db.VarChar
-  /// read, create, edit, archive, delete or sign; cannot change once the permission exists.
+  /// read, create, edit, archive, delete, sign or invoice; cannot change once the permission exists.
   action         String             @db.VarChar
   /// all for every record, own_department for records of the person's department only, own_team for records of the person's team only, or own for the records whose user is the person; cannot change once the permission exists.
   scope          String             @db.VarChar

@@ -394,8 +394,8 @@ class MachineBooking(models.Model, MachineBookingBase):
     @api.model
     def _recommend(self, test, person, department):
         """The way of testing, machine, start and slot length that finish the test soonest by its due date, from the
-        department's ways of testing that apply to the sample's type and the machines that run them, with every
-        bookable room of the way's steps free; None when no machine can."""
+        department's ways of testing that apply to the sample's type, or only the way the customer accepted, and the
+        machines that run them, with every bookable room of the way's steps free; None when no machine can."""
         now = fields.Datetime.now()
         not_after = test.due_date or now + timedelta(days=HORIZON_DAYS)
         if not_after <= now:
@@ -405,6 +405,8 @@ class MachineBooking(models.Model, MachineBookingBase):
             if department
             else Domain("parameter_method_id.department_id", "!=", False)
         )
+        if test.accepted_method_id:
+            in_house &= Domain("parameter_method_id", "=", test.accepted_method_id.id)
         links = (
             self.env[MODEL_PARAMETER_METHOD_MACHINE]
             .sudo()

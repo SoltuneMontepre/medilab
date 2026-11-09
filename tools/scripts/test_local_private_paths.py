@@ -1,15 +1,20 @@
 """Private path checks use only owned temporary trees and synthetic Windows ACLs."""
 
+import io
 import os
 import stat
 import subprocess
 import sys
 import tempfile
 import unittest
+from contextlib import redirect_stderr
 from pathlib import Path
 from unittest.mock import patch
 
 import local_private_paths as private
+
+MODIFY = "0x1301bf"
+PRIVATE_ACES = "(A;OICI;FA;;;USER)(A;OICI;FA;;;SY)"
 
 
 class LocalPrivatePathsTest(unittest.TestCase):
@@ -147,11 +152,12 @@ class LocalPrivatePathsTest(unittest.TestCase):
 $ErrorActionPreference='Stop'
 Import-Module -Name (Join-Path $PSHOME 'Modules\Microsoft.PowerShell.Security\Microsoft.PowerShell.Security.psd1') -ErrorAction Stop
 $p=$env:MEDILAB_ONLYOFFICE_ACL_PATH
-$a=Get-Acl -LiteralPath $p
+$i=Get-Item -LiteralPath $p -Force
+$a=$i.GetAccessControl('Access')
 $id=New-Object Security.Principal.SecurityIdentifier($env:TEST_ACL_SID)
 $r=New-Object Security.AccessControl.FileSystemAccessRule($id,$env:TEST_ACL_RIGHT,'None','None','Allow')
 $a.AddAccessRule($r)
-Set-Acl -LiteralPath $p -AclObject $a
+$i.SetAccessControl($a)
 """
         for sid, right, allowed in (
             ("S-1-5-32-545", "ReadAndExecute", True),
@@ -184,6 +190,148 @@ Set-Acl -LiteralPath $p -AclObject $a
                 finally:
                     private.windows_private_acl(ancestor, create=True)
 
+    def _windows_sddl(self, path, sddl=None):
+        script = r"""
+$ErrorActionPreference='Stop'
+$u=[Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+$i=Get-Item -LiteralPath $env:TEST_ACL_PATH -Force
+$a=$i.GetAccessControl('Access')
+if($env:TEST_ACL_SDDL) {
+  $a.SetSecurityDescriptorSddlForm($env:TEST_ACL_SDDL.Replace('USER',$u),'Access')
+  $i.SetAccessControl($a)
+  $a=$i.GetAccessControl('Access')
+}
+[Console]::Out.Write($a.GetSecurityDescriptorSddlForm('Access'))
+"""
+        environment = dict(os.environ, TEST_ACL_PATH=str(path), TEST_ACL_SDDL=sddl or "")
+        return private._powershell(script, environment).decode("ascii")
+
+    def _private_aces(self):
+        script = r"""
+$u=[Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+$d=New-Object Security.AccessControl.RawSecurityDescriptor($env:TEST_ACL_SDDL.Replace('USER',$u))
+[Console]::Out.Write($d.GetSddlForm('Access'))
+"""
+        environment = dict(os.environ, TEST_ACL_SDDL=f"D:P{PRIVATE_ACES}")
+        sddl = private._powershell(script, environment).decode("ascii")
+        return sorted(sddl.removeprefix("D:P(").removesuffix(")").split(")("))
+
+    def _inheriting_root(self):
+        temporary = tempfile.TemporaryDirectory(prefix="inherited kiểm tra ")
+        self.addCleanup(temporary.cleanup)
+        root = Path(temporary.name).resolve()
+        self._windows_sddl(root, f"D:P(A;OICI;FA;;;SY)(A;OICI;{MODIFY};;;AU)")
+        (root / ".local/project").mkdir(parents=True)
+        return root
+
+    @unittest.skipUnless(os.name == "nt", "Native Windows ACL repair")
+    def test_inherited_writers_repaired_once_to_current_user_and_system(self):
+        root = self._inheriting_root()
+        local = root / ".local"
+        target = local / "project/generation"
+        output = io.StringIO()
+        with redirect_stderr(output):
+            self.assertEqual(private.ensure_local_directory(root, target), target)
+        self.assertEqual(
+            output.getvalue().splitlines(),
+            [private.REPAIRED.format(path=local)],
+        )
+        sddl = self._windows_sddl(local)
+        self.assertTrue(sddl.startswith("D:PAI("), sddl)
+        self.assertEqual(
+            sorted(sddl.removeprefix("D:PAI(").removesuffix(")").split(")(")),
+            self._private_aces(),
+        )
+        self.assertNotIn(";AU)", self._windows_sddl(local / "project"))
+        output = io.StringIO()
+        with redirect_stderr(output):
+            private.guard_local_path(root, target / "state.json")
+        self.assertEqual(output.getvalue(), "")
+
+    @unittest.skipUnless(os.name == "nt", "Native Windows ACL repair")
+    def test_explicit_writer_refused_without_repair(self):
+        root = self._inheriting_root()
+        local = root / ".local"
+        self._windows_sddl(local, f"D:(A;OICI;{MODIFY};;;BU)")
+        before = self._windows_sddl(local)
+        self.assertIn(";;;AU)", before)
+        for call in (private.guard_local_path, private.ensure_local_directory):
+            with self.subTest(call=call.__name__):
+                with self.assertRaises(private.LocalPrivatePathError):
+                    call(root, local / "project/absent")
+        self.assertEqual(before, self._windows_sddl(local))
+
+    @unittest.skipUnless(os.name == "nt", "Native Windows ACL repair")
+    def test_file_with_inherited_writer_refused_without_repair(self):
+        file = self.directory / "state.json"
+        file.write_text("private-marker", encoding="utf-8")
+        self._windows_sddl(
+            self.directory, f"D:P{PRIVATE_ACES}(A;OIIO;{MODIFY};;;BU)"
+        )
+        before = self._windows_sddl(file)
+        self.assertIn(f"(A;ID;{MODIFY};;;BU)", before)
+        with self.assertRaises(private.LocalPrivatePathError):
+            private.guard_local_path(self.root, file)
+        self.assertEqual(before, self._windows_sddl(file))
+        private.guard_local_path(self.root, self.directory / "absent")
+
+    @unittest.skipUnless(os.name == "nt", "Native Windows ACL repair")
+    def test_foreign_owner_refused_without_repair(self):
+        root = self._inheriting_root()
+        local = root / ".local"
+        result = subprocess.run(
+            ["icacls", str(local), "/setowner", "*S-1-5-32-544"],
+            capture_output=True,
+            check=False,
+        )
+        if result.returncode:
+            self.skipTest("Setting another owner needs an elevated token")
+        before = self._windows_sddl(local)
+        with self.assertRaises(private.LocalPrivatePathError):
+            private.ensure_local_directory(root, local / "project")
+        self.assertEqual(before, self._windows_sddl(local))
+
+    @unittest.skipUnless(os.name == "nt", "Native Windows junctions")
+    def test_junction_with_inherited_writers_refused_without_repair(self):
+        root = self._inheriting_root()
+        outside = root / "outside"
+        outside.mkdir()
+        junction = root / ".local/project/link"
+        subprocess.run(
+            ["cmd", "/c", "mklink", "/J", str(junction), str(outside)],
+            capture_output=True,
+            check=True,
+        )
+        before = self._windows_sddl(outside)
+        with self.assertRaises(private.LocalPrivatePathError):
+            private.ensure_local_directory(root, junction / "absent")
+        self.assertEqual(before, self._windows_sddl(outside))
+
+    @unittest.skipUnless(os.name == "nt", "Windows ancestor backend")
+    def test_repair_is_reported_once_per_repaired_path(self):
+        backend = subprocess.CompletedProcess([], 0, stdout=b"0\r\n", stderr=b"")
+        output = io.StringIO()
+        with (
+            patch.object(private.subprocess, "run", return_value=backend),
+            redirect_stderr(output),
+        ):
+            private.guard_local_path(self.root, self.directory / "absent")
+        self.assertEqual(
+            output.getvalue(),
+            private.REPAIRED.format(path=self.root / ".local") + "\n",
+        )
+
+    @unittest.skipUnless(os.name == "nt", "Windows ancestor backend")
+    def test_unexpected_repair_output_refused(self):
+        for stdout in (b"7", b"repaired"):
+            backend = subprocess.CompletedProcess([], 0, stdout=stdout, stderr=b"")
+            with (
+                self.subTest(stdout=stdout),
+                patch.object(private.subprocess, "run", return_value=backend),
+                self.assertRaises(private.LocalPrivatePathError),
+            ):
+                private.guard_local_path(self.root, self.directory / "absent")
+
     def test_windows_error_is_generic_and_never_echoes_backend_output(self):
         backend = subprocess.CompletedProcess(
             [], 1, stdout=b"private-marker", stderr=b"private-marker"
@@ -204,10 +352,11 @@ $ErrorActionPreference='Stop'
 Import-Module -Name (Join-Path $PSHOME 'Modules\Microsoft.PowerShell.Security\Microsoft.PowerShell.Security.psd1') -ErrorAction Stop
 $p=$env:MEDILAB_ONLYOFFICE_ACL_PATH
 $u=[Security.Principal.WindowsIdentity]::GetCurrent().User.Value
-$a=Get-Acl -LiteralPath $p
+$i=Get-Item -LiteralPath $p -Force
+$a=$i.GetAccessControl('Access')
 $sddl="D:P(A;;FA;;;$u)(A;;FA;;;SY)(A;;$($env:TEST_ACL_SDDL_RIGHT);;;BU)"
 $a.SetSecurityDescriptorSddlForm($sddl,[Security.AccessControl.AccessControlSections]::Access)
-Set-Acl -LiteralPath $p -AclObject $a
+$i.SetAccessControl($a)
 """
         for right, allowed in (
             ("GW", False),

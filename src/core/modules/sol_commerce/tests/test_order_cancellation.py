@@ -91,6 +91,18 @@ class TestOrderCancellation(OrderCase):
         self.assertEqual(request.status, "requested")
         self.assertEqual(waiting.order_status, "cancelled")
 
+    def test_an_approved_result_refuses_staff_without_the_customers_wording(self):
+        order = self.make_confirmed_order()
+        order.test_request_id.sample_ids.test_ids[:1].sudo().status = "approved"
+        request = order.with_user(self.portal).action_request_cancellation("Please cancel")
+
+        for action in (order.with_user(self.sales).action_sales_cancel, request.with_user(self.sales).action_accept):
+            with self.subTest(action=action.__name__), self.assertRaisesRegex(UserError, "results are released") as refusal:
+                action()
+            self.assertNotIn("contact you", str(refusal.exception))
+
+        self.assertEqual(order.order_status, "confirmed")
+
     def test_sales_can_cancel_a_confirmed_order_that_testing_has_not_finished(self):
         order = self.make_order([(self.lead_product, 1)], status="confirmed", user_id=self.sales.id)
 

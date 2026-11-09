@@ -88,19 +88,15 @@ class OrderSample(models.Model, OrderSampleBase):
         return copies
 
     def _test_request_values(self):
-        """The sample as a test request takes it: a package carries its parameters, any other line is one parameter."""
+        """The sample as a test request takes it: a package carries its parameters, any other line is one parameter,
+        each with its accepted way of testing."""
         self.ensure_one()
         lines = []
         for line in self.line_ids._catalog_lines():
-            template = line.product_id.product_tmpl_id
-            if template.service_package_id:
-                parameters = [
-                    {"parameter_id": part.product_id.product_tmpl_id.parameter_id.id, "quantity": part.product_uom_qty}
-                    for part in line.linked_line_ids
-                ]
-                lines.append({"parameters": parameters})
+            if line.product_id.product_tmpl_id.service_package_id:
+                lines.append({"parameters": [part._test_values() for part in line.linked_line_ids]})
             else:
-                lines.append({"parameter_id": template.parameter_id.id, "quantity": line.product_uom_qty})
+                lines.append(line._test_values())
         return {
             "customer_sample_name": self.customer_sample_name,
             "sample_type_id": self.sample_type_id.id,
