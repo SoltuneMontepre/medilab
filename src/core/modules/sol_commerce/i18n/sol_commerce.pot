@@ -142,6 +142,11 @@ msgid "<i class=\"oi me-1\" data-icon=\"add_shopping_cart\" aria-hidden=\"true\"
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid "<i class=\"oi me-1\" data-icon=\"arrow_back\" aria-hidden=\"true\"/>My orders"
+msgstr ""
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.portal_payos_pending
 msgid "<i class=\"oi me-1\" data-icon=\"arrow_forward\" aria-hidden=\"true\"/>Continue"
 msgstr ""
@@ -209,6 +214,7 @@ msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
 msgid "<i class=\"oi me-1\" data-icon=\"filter_alt\" aria-hidden=\"true\"/>Filter"
 msgstr ""
 
@@ -780,6 +786,11 @@ msgid "All sample types"
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
+msgid "All statuses"
+msgstr ""
+
+#. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_customer_sales_terms__allow_credit
 msgid "Allow Credit"
 msgstr ""
@@ -1179,6 +1190,11 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__claimed_at
 msgid "Claimed At"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_table
+msgid "Clear the filters"
 msgstr ""
 
 #. module: sol_commerce
@@ -2495,6 +2511,11 @@ msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_table
+msgid "No orders match these filters."
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_table
 msgid "No orders yet."
 msgstr ""
 
@@ -2789,6 +2810,11 @@ msgstr ""
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_search
 msgid "Order date"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
+msgid "Order number, parameter or package"
 msgstr ""
 
 #. module: sol_commerce
@@ -3796,6 +3822,11 @@ msgid "Scheduled Job"
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
+msgid "Search"
+msgstr ""
+
+#. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__access_token
 msgid "Security Token"
 msgstr ""
@@ -3908,6 +3939,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__status
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_reconciliation_day__status
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__status
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_table
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.support_list

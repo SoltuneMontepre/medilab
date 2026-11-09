@@ -32,6 +32,11 @@ msgid "<i class=\"oi me-1\" data-icon=\"add_shopping_cart\" aria-hidden=\"true\"
 msgstr "<i class=\"oi me-1\" data-icon=\"add_shopping_cart\" aria-hidden=\"true\"/>Thêm"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid "<i class=\"oi me-1\" data-icon=\"arrow_back\" aria-hidden=\"true\"/>My orders"
+msgstr "<i class=\"oi me-1\" data-icon=\"arrow_back\" aria-hidden=\"true\"/>Đơn hàng của tôi"
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.portal_payos_pending
 msgid "<i class=\"oi me-1\" data-icon=\"arrow_forward\" aria-hidden=\"true\"/>Continue"
 msgstr "<i class=\"oi me-1\" data-icon=\"arrow_forward\" aria-hidden=\"true\"/>Tiếp tục"
@@ -99,6 +104,7 @@ msgstr "<i class=\"oi me-1\" data-icon=\"edit\" aria-hidden=\"true\"/>Sửa"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
 msgid "<i class=\"oi me-1\" data-icon=\"filter_alt\" aria-hidden=\"true\"/>Filter"
 msgstr "<i class=\"oi me-1\" data-icon=\"filter_alt\" aria-hidden=\"true\"/>Lọc"
 
@@ -493,6 +499,11 @@ msgstr "Giá Trị Tạm Ứng"
 #: model:res.groups,name:sol_commerce.group_all_orders
 msgid "All orders"
 msgstr "Tất cả đơn hàng"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
+msgid "All statuses"
+msgstr "Tất cả trạng thái"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_customer_sales_terms__allow_credit
@@ -1495,6 +1506,11 @@ msgid "Order date"
 msgstr "Ngày đặt hàng"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
+msgid "Order number, parameter or package"
+msgstr "Số đơn hàng, chỉ tiêu hoặc gói dịch vụ"
+
+#. module: sol_commerce
 #: model:medilab.task.type,name:sol_commerce.task_type_order_quotation
 msgid "Order quotation"
 msgstr "Báo giá đơn hàng"
@@ -2088,6 +2104,7 @@ msgstr "Bắt đầu thu mẫu"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__status
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_reconciliation_day__status
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__status
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_table
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.support_list
@@ -3383,6 +3400,11 @@ msgstr "Logo"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_table
+msgid "No orders match these filters."
+msgstr "Không có đơn hàng nào khớp với bộ lọc."
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_table
 msgid "No orders yet."
 msgstr "Chưa có đơn hàng."
 
@@ -3525,6 +3547,11 @@ msgstr "Số lượng tệp đính kèm"
 #: model_terms:ir.ui.view,arch_db:sol_commerce.support_page
 msgid "Back to the support requests"
 msgstr "Quay lại danh sách yêu cầu hỗ trợ"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_table
+msgid "Clear the filters"
+msgstr "Bỏ bộ lọc"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
@@ -3766,6 +3793,11 @@ msgstr "Yêu cầu"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__message_has_sms_error
 msgid "SMS Delivery error"
 msgstr "Lỗi gửi SMS"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
+msgid "Search"
+msgstr "Tìm kiếm"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__access_token

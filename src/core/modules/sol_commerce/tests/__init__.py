@@ -24,6 +24,7 @@ from . import (
     test_order_form,
     test_order_freeze,
     test_order_history,
+    test_order_history_filters,
     test_order_invoicing,
     test_order_offering,
     test_order_page,
