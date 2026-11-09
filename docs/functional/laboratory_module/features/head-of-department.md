@@ -95,7 +95,7 @@ Acceptance criteria:
 
 - Scanning a sample's label records the handover for the scanner's department; a person outside the department is refused.
 - Asking for a sample to be collected again creates a sample collection task and records who asked and when.
-- Rejecting a result sends its sample test back to testing, opens a new testing task for it and tells the tester the reason; rejecting an outsourced test's result keeps it, sends the test back to outsourced and tells the subcontractor the reason.
+- Rejecting a result sends its sample test back to testing, opens a new testing task for it and tells the tester the reason.
 - Once every result of a sample is approved, the sample is completed.
 - A head can explicitly approve a result they entered; it still needs the Lab Head's report signature before issue.
 - A result sent with a sanity warning shows the warning to the head who approves it.

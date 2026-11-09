@@ -20,7 +20,7 @@ Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling
 | Entering     | The results of an outsourced sample test are entered either by the subcontractor or by a lab QA of the laboratory; each result records who entered it. |
 | Approval     | A result entered by a subcontractor goes to the head of department for approval as soon as it is entered, and the head is notified; it is approved like the laboratory's own results. |
 | First say    | While a result the subcontractor entered waits for approval, a lab QA cannot enter another result for the test. |
-| Rejection    | A rejected result stays on the dispatch page with the head's reason, beside the field to enter the new result, and the subcontractor is notified. |
+| Rejection    | A rejected result stays on the dispatch page with the head's reason, beside the field to enter the new result. |
 
 Acceptance criteria:
 
@@ -28,7 +28,7 @@ Acceptance criteria:
 - A subcontractor user never sees a sample's customer.
 - A result entered by a subcontractor user shows that user as the one who entered it, and waits for approval like any other result.
 - A lab QA cannot enter a result for a test whose subcontractor's result waits for approval.
-- A subcontractor user is notified of a rejected result and sees it with the reason on the dispatch page.
+- A subcontractor user sees their rejected result and the reason on the dispatch page.
 
 ## III. Related documents
 
