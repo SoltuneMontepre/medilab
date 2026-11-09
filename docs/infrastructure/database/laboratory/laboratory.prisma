@@ -2073,12 +2073,12 @@ model MobileDevice {
   id                   Int              @id @default(autoincrement())
   /// The phone the token belongs to.
   laboratory_device_id Int              @unique
-  /// The Odoo user of the phone.
-  user_id              Int
+  /// The Odoo user of the phone, kept from the phone.
+  user_id              Int?
   /// Registration token Firebase Cloud Messaging gives the app on the phone.
   token                String           @unique @db.VarChar
-  /// android or ios.
-  platform             String           @db.VarChar
+  /// android or ios, kept from the phone.
+  platform             String?          @db.VarChar
   /// When the app last registered the token.
   last_seen_at         DateTime
   /// False once the phone signed out or was revoked, or Firebase rejected the token; nothing is pushed to it.
@@ -2088,7 +2088,7 @@ model MobileDevice {
   /// The phone the token belongs to.
   laboratory_device    LaboratoryDevice @relation(fields: [laboratory_device_id], references: [id], onDelete: Cascade)
   /// The Odoo user of the phone.
-  user                 User             @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user                 User?            @relation(fields: [user_id], references: [id], onDelete: SetNull)
 
   @@index([user_id])
   @@map("medilab_mobile_device")
