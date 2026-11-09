@@ -407,6 +407,31 @@ describe("WF-01 feature acceptance criteria", () => {
     });
   });
 
+  it("TC-F02-01 shows each quotation line's price and the VAT rate in force on the quotation date", () => {
+    const lineTaxes = () => cy.get(".o_field_widget[name=product_line_ids] .o_data_row td[name=tax_ids]").first();
+    orderAt("claimed").then((order) => {
+      cy.signInAs("sales");
+      call("sale.order", "write", [[order.id], { date_order: "2025-03-15 09:00:00" }]);
+      cy.openRecord(order);
+      openTab("order_lines");
+      cy.get(".o_field_widget[name=product_line_ids] .o_data_row").first().should("contain", "280.000");
+      lineTaxes().should("contain", "8%");
+      cy.get(".o_field_widget[name=tax_totals]").should("contain", "22.400").and("contain", "302.400");
+      call("sale.order", "write", [[order.id], { date_order: "2025-07-01 09:00:00" }]);
+      cy.reload();
+      openTab("order_lines");
+      lineTaxes().should("contain", "10%");
+      cy.get(".o_field_widget[name=tax_totals]").should("contain", "28.000").and("contain", "308.000");
+      call("sale.order", "write", [[order.id], { advance_method: "bank_transfer", advance_mode: "percentage", advance_value: 30 }]);
+      cy.reload();
+      cy.sendRecord("action_send_quotation");
+      cy.get(".o_statusbar_buttons button[name=action_revise_quotation]:visible").should("exist");
+      cy.signInAs("customer");
+      cy.visit(`/orders/${order.id}/quotation`);
+      cy.contains("tr", /(Total including VAT|Tổng đã gồm VAT)/).invoke("text").should("match", /308[.,]000/);
+    });
+  });
+
   it("TC-F02-02 refuses overlapping VAT rate periods", () => {
     cy.signInAs("administrator");
     resolveRecord("sol_demo.demo_tax_vat10").then((tax) => {

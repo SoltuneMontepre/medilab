@@ -57,6 +57,7 @@ from . import (
     test_quotation_portal,
     test_quotation_portal_discount,
     test_quotation_send,
+    test_quotation_taxes,
     test_sales_analysis,
     test_service_package,
     test_support_portal,

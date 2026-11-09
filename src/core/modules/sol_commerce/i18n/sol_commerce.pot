@@ -4765,3 +4765,25 @@ msgstr ""
 #: code:addons/sol_commerce/models/orders/sale_order_discount.py:0
 msgid "On the whole quotation"
 msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/pricing/tax_rate.py:0
+msgid "Accounting has no sales tax for %(rate)s in %(company)s. Choose one on the rate."
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax_rate__account_tax_id
+msgid "Accounting Tax"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_tax_form
+msgid "Sales tax of the same rate"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/pricing/tax_rate.py:0
+msgid "The accounting tax of %(rate)s must be a sales tax of %(percent)s%%."
+msgstr ""

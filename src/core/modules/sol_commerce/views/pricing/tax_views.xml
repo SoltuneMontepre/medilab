@@ -32,6 +32,7 @@
                                     <field name="rate" />
                                     <field name="valid_from" />
                                     <field name="valid_until" />
+                                    <field name="account_tax_id" options="{'no_create': True}" placeholder="Sales tax of the same rate" />
                                 </list>
                             </field>
                         </page>
