@@ -40,7 +40,7 @@ class OrderSample(models.Model, OrderSampleBase):
         # The regulation the sample's results are compared with; empty when none.
         regulation_id = fields.Many2one(MODEL_REGULATION, ondelete="restrict")
         # Why the sample keeps a regulation that is no longer in force; empty while it is.
-        regulation_notice = fields.Char(string="Regulation Notice", compute="_compute_regulation_notice")
+        regulation_notice = fields.Char(compute="_compute_regulation_notice")
         # Position of the sample in the order.
         sequence = fields.Integer(default=10)
         # Lines tested on the sample.
