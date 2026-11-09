@@ -13,6 +13,7 @@ from . import (
     parameter_method,
     parameter_method_machine,
     parameter_method_sample_type,
+    portal_wizard_user,
     quality_registration,
     regulation,
     regulation_limit,
