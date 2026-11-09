@@ -28,7 +28,9 @@ describe("Portal navigation", () => {
 
   it("filters My orders by status and by order number, and keeps the filters on the order page", () => {
     const rows = "main table tbody tr";
-    const filter = () => cy.get("main form[action='/orders'] button[type=submit]").click();
+    const form = "main form[action='/orders']";
+    const search = `${form} input[name=search]`;
+    const filter = () => cy.get(`${form} button[type=submit]`).click();
     cy.signInAs("customer");
     cy.visit("/orders");
     cy.get("select[name=status] option[value='']").should("have.text", "All statuses");
@@ -38,7 +40,7 @@ describe("Portal navigation", () => {
       .invoke("text")
       .then((label) => {
         const status = label.trim();
-        cy.get("select[name=status]").select(status);
+        cy.get(`${form} select[name=status]`).select(status);
         filter();
         cy.location("search").should("include", "status=");
         cy.get(`${rows} td:nth-child(3)`).each(($cell) => expect($cell.text().trim()).to.equal(status));
@@ -48,17 +50,17 @@ describe("Portal navigation", () => {
       .first()
       .invoke("text")
       .then((name) => {
-        cy.get("input[name=search]").clear().type(name);
+        cy.get(search).clear().type(name);
         filter();
         cy.get(`${rows} td:first-child > a`).each(($link) => expect($link.text()).to.include(name));
         cy.get(`${rows} td:first-child > a`).first().click();
         cy.location("search").should("include", "search=");
         cy.get("main a:has(i[data-icon='arrow_back'])").click();
         cy.location("pathname").should("eq", "/orders");
-        cy.get("input[name=search]").should("have.value", name);
+        cy.get(search).should("have.value", name);
       });
 
-    cy.get("input[name=search]").clear().type("no order has this text");
+    cy.get(search).clear().type("no order has this text");
     filter();
     cy.contains("main p", "No orders match these filters.").find("a").click();
     cy.location("search").should("eq", "");
