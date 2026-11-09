@@ -12,3 +12,7 @@ Cypress.on("window:before:load", (win) => {
     Object.defineProperty(win.Notification, "permission", { get: () => "default" });
   }
 });
+
+// A list that resizes while it redraws, such as after a row button, makes the browser report a ResizeObserver loop.
+// The report is a notice, not an error of the page.
+Cypress.on("uncaught:exception", (error) => !error.message.includes("ResizeObserver loop"));
