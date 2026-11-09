@@ -15,7 +15,7 @@ The phone's routes are routes of the [laboratory files API](laboratory-files.md#
 - **The module that owns a route declares it.** `sol_laboratory` declares the device, push, task, sample, result, handover, notification and conversation routes; `sol_commerce` the support request routes; `sol_inventory` the container routes. A route of a module that is not installed does not exist and answers `not_found`. The app learns what is installed from `GET /modules`.
 - **No laboratory files permission.** The phone's routes are declared with `permission=False`: the models check what the person may do, as on the web. The laboratory files routes keep their check, so a phone reaches folders only as a computer of a person with that permission would.
 - **The person's rights.** An endpoint reads and acts as the user of the key, never with full rights; only the model method itself elevates where the web's call does too, such as `receive_by_label()` recording a receipt. A record the person may not read answers `not_found`, so the answer does not tell that it exists.
-- **Language.** The app sends its language, `vi` or `en`, in `Accept-Language`. The route serves the request in that language when it is installed, so messages and translated names match the app; otherwise in the person's language.
+- **Language.** The app sends its language, `vi` or `en`, in `Accept-Language`. The route serves the request in that language when the language is installed in MediLab, so messages and translated names match the app; otherwise it answers in the person's language.
 - **Model refusals.** A `UserError` or `ValidationError` raised by the model method a route calls answers `action_refused` with Odoo's message, which the app shows as it is; on the laboratory files routes it stays `invalid_request`. Refusals the app acts on have their own codes. Every code below is added to `ERROR_STATUSES` and to the OpenAPI document's error codes.
 - **Creating once.** A route that creates something takes `Idempotency-Key` with the meaning the [laboratory files API](laboratory-files.md#laboratory-files-api) gives it: a task, a result, a photo, a message, a chatter note, a conversation and a support answer. A request the app sends again after a lost answer creates nothing more and answers what the first one created.
 - **Files in a request.** A photo, a signature or a file is sent in the JSON body as base64 with its name and type: at most 10 MiB per file once decoded and 25 MiB per request. A larger one is refused with `too_large` before anything is stored. A file the person reads is downloaded from `GET /attachments/{attachment_id}`, which reads the attachment with their rights, so a tester never downloads a sample photo.
@@ -53,7 +53,7 @@ The Firebase token is a `medilab.mobile.device` linked to its phone's device: on
 - A token already registered for another phone, such as after the app is reinstalled, moves to this phone; a token is never pushed to two phones.
 - Signing out, revoking the phone and removing its key from anywhere turn its token off in the same transaction, so no push reaches a phone that is no longer signed in. Firebase rejecting the token for good turns it off too ([Firebase](../functional/shared.md#4-firebase-cloud-messaging-mobile-push)).
 - Pushes go only to tokens that are on and whose phone is signed in.
-- The session routes `/medilab/mobile/register` and `/medilab/mobile/unregister` are removed: a token is registered only by a signed-in phone.
+- A token is registered only through `PUT /push-token`, by a signed-in phone; no session route registers one.
 
 ### The person and the modules
 
@@ -214,7 +214,7 @@ Like the Sync updates route, these two are plain `auth='none'` HTTP routes, outs
 ### Data
 
 - `medilab.laboratory.device` takes the platforms `android` and `ios`.
-- `medilab.mobile.device` gets `laboratory_device_id`, required and unique: the phone the token belongs to. Its user is the phone's user. A token without a phone, registered before, is removed when the module is upgraded.
+- `medilab.mobile.device` has `laboratory_device_id`, required and unique: the phone the token belongs to. Its user is the phone's user.
 - `medilab.handover.record.signed_device_id` names the phone's `medilab.laboratory.device`, which is never deleted, rather than its token, which the cleanup job removes once it is off.
 - `medilab.push.delivery` pushes either a notification or a conversation message: `notification_id` or `message_id`, exactly one, each unique with the token.
 - The diagram is [laboratory.prisma](../infrastructure/database/laboratory/laboratory.prisma).
