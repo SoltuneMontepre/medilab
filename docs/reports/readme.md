@@ -8,7 +8,7 @@ Documents, diagrams and supporting material that belong to no other folder.
 - [Use case diagram](use-case-diagram/readme.md): the use cases of the Laboratory and E-commerce modules traced to their user stories, with the deviations from the proposal and the script that draws the diagram
 - [Conceptual ERD](erd-diagram/readme.md): the business concepts of the Laboratory and E-commerce modules in Chen notation, as an overview and one diagram per area, with the findings on the conceptual model, the deviations from the proposal and the script that draws the diagrams
 - [Activity diagrams](activity-diagram/readme.md): the system activity map and an activity diagram per business flow, with the script that builds their website, PDF and zip
-- [Activity diagram website](https://medilab-activity-diagrams.vercel.app): the system activity map with a page per flow, built by `activity-diagram/site/build.py` and deployed to Vercel
+- [Activity diagram website](https://soltunemontepre.github.io/medilab/): the system activity map with a page per flow, built by `activity-diagram/site/build.py` and published with GitHub Pages
 
 - [CloudBeaver initialization evidence](cloudbeaver-initialization.md): upstream lifecycle, comparison with the older implementation, regression coverage and production verification limits
 - [CloudBeaver review](cloudbeaver-review.md): strict findings, real Kubernetes verification, production evidence gaps and rollout decision

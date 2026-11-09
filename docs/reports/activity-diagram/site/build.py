@@ -9,7 +9,8 @@ business-flows.md, and the flows each one comes from and leads to come from the 
 Next to each draw.io file of ../final, a build writes an SVG of each page and, for a core flow, a PNG of each page.
 activity-diagrams-final.zip holds ../final; activity-diagrams-final.pdf holds the map and the Workflow page of each
 flow, with a bookmark for each.
-Run: uv run --with pypdf python build.py, then deploy the folder with: vercel deploy --prod
+With --publish, the build is pushed to the gh-pages branch, which GitHub Pages deploys.
+Run: uv run --with pypdf python build.py [--publish]
 """
 
 import base64
@@ -18,6 +19,7 @@ import json
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 import urllib.parse
 import xml.etree.ElementTree as ET
@@ -37,6 +39,8 @@ FINAL = DIAGRAMS / "final"
 MAP_DRAWIO = FINAL / "System activity map.drawio"
 FINAL_ZIP = DIAGRAMS / "activity-diagrams-final.zip"
 FINAL_PDF = DIAGRAMS / "activity-diagrams-final.pdf"
+PAGES_BRANCH = "gh-pages"
+PAGES_URL = "https://soltunemontepre.github.io/medilab/"
 FLOW_KEY = re.compile(r"^m_((?:WF|SF)\d\d)$")
 FALLBACK = re.compile(r"(<switch>.*?</foreignObject>)<image [^>]*/>(</switch>)", re.S)
 
@@ -124,8 +128,8 @@ def export_svg(path, number, out):
 
 
 def build_diagrams(names):
-    """Write the diagrams to public/diagrams and return the views of each flow: (label, page number, published
-    path). A flow with one page has the view Activity diagram."""
+    """Write the diagrams to public/diagrams and return the views of each flow: (label, page number, path from the
+    site's root). A flow with one page has the view Activity diagram."""
     out_dir = PUBLIC / "diagrams"
     out_dir.mkdir(parents=True, exist_ok=True)
     export_svg(MAP_DRAWIO, 1, out_dir / "map.svg")
@@ -138,7 +142,7 @@ def build_diagrams(names):
             label = page.removeprefix(fid).strip() if len(found) > 1 else "Activity diagram"
             name = f"{slug(fid)}-{slug(label)}.svg" if len(found) > 1 else f"{slug(fid)}.svg"
             export_svg(path, number, out_dir / name)
-            views[fid].append((label, number, f"/diagrams/{name}"))
+            views[fid].append((label, number, f"diagrams/{name}"))
         print(f"{fid}: {', '.join(label for label, _, _ in views[fid])}")
     return views
 
@@ -150,19 +154,19 @@ PAGE = Template("""<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>$page_title</title>
 <meta name="description" content="$description">
-<link rel="icon" href="/assets/medilab.svg" type="image/svg+xml">
+<link rel="icon" href="${root}assets/medilab.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="/assets/style.css">
-<script src="/assets/app.js" defer></script>
+<link rel="stylesheet" href="${root}assets/style.css">
+<script src="${root}assets/app.js" defer></script>
 </head>
 <body>
 <header class="navbar">
-  <a class="brand" href="/"><img src="/assets/medilab.svg" alt="" width="28" height="28"><span>Medilab</span><span class="brand-sub">Activity diagrams</span></a>
+  <a class="brand" href="$home"><img src="${root}assets/medilab.svg" alt="" width="28" height="28"><span>Medilab</span><span class="brand-sub">Activity diagrams</span></a>
   <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="menu" aria-label="Menu"><span></span></button>
   <nav id="menu" class="menu" aria-label="Flows">
-    <a class="entry$map_active" href="/">System activity map</a>
+    <a class="entry$map_active" href="$home">System activity map</a>
     <details class="dropdown$core_active">
       <summary class="entry">Core flows</summary>
       <div class="dropdown-menu">$core_menu</div>
@@ -203,12 +207,12 @@ def esc(text):
     return html.escape(text, quote=True)
 
 
-def menu(names, prefix, current):
+def menu(names, prefix, current, root):
     items = []
     for fid, title in names.items():
         if fid.startswith(prefix):
             here = ' aria-current="page"' if fid == current else ""
-            items.append(f'<a href="/{slug(fid)}/"{here}><b>{fid}</b><span>{esc(title)}</span></a>')
+            items.append(f'<a href="{root}{slug(fid)}/"{here}><b>{fid}</b><span>{esc(title)}</span></a>')
     return "".join(items)
 
 
@@ -218,36 +222,40 @@ def crumb(label, href=None):
     return f'<li aria-current="page">{esc(label)}</li>'
 
 
-def chip(entry, names):
+def chip(entry, names, root):
     if entry in names:
-        return f'<a class="chip chip-{entry[:2].lower()}" href="/{slug(entry)}/"><b>{entry}</b> {esc(names[entry])}</a>'
+        return (f'<a class="chip chip-{entry[:2].lower()}" href="{root}{slug(entry)}/"><b>{entry}</b> '
+                f'{esc(names[entry])}</a>')
     return f'<span class="chip chip-event">{esc(entry)}</span>'
 
 
 def write_page(path, *, title, description, current, crumbs, tabs, main, names):
+    """Write a page. Its links are relative to it, so the site works under any path, such as GitHub Pages'
+    /medilab/: root is "" for the home page and "../" for a flow page."""
     family = current[:2] if current else ""
+    root = "../" if current else ""
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(PAGE.substitute(
-        page_title=esc(title), description=esc(description),
+        page_title=esc(title), description=esc(description), root=root, home=root or "./",
         map_active=" active" if not current else "",
         core_active=" active" if family == "WF" else "",
         support_active=" active" if family == "SF" else "",
-        core_menu=menu(names, "WF", current), support_menu=menu(names, "SF", current),
+        core_menu=menu(names, "WF", current, root), support_menu=menu(names, "SF", current, root),
         crumbs="".join(crumbs), tabs=tabs, main=main, built=date.today().strftime("%d-%m-%Y"),
     ), encoding="utf-8")
 
 
 def cards(names, prefix):
     return "".join(
-        f'<a class="card card-{prefix.lower()}" href="/{slug(fid)}/"><b>{fid}</b><span>{esc(title)}</span></a>'
+        f'<a class="card card-{prefix.lower()}" href="{slug(fid)}/"><b>{fid}</b><span>{esc(title)}</span></a>'
         for fid, title in names.items() if fid.startswith(prefix))
 
 
 def write_home(names):
-    links = {fid.replace("-", ""): {"href": f"/{slug(fid)}/", "title": f"{fid} {title}"}
+    links = {fid.replace("-", ""): {"href": f"{slug(fid)}/", "title": f"{fid} {title}"}
              for fid, title in names.items()}
     flows_attr = esc(json.dumps(links))
-    main = VIEWER.substitute(src="/diagrams/map.svg", extra=f' data-map="{flows_attr}"',
+    main = VIEWER.substitute(src="diagrams/map.svg", extra=f' data-map="{flows_attr}"',
                              label="System activity map") + f"""
 <section class="index" id="core">
   <h2>Core flows</h2>
@@ -271,20 +279,20 @@ def write_flow(fid, names, views, comes, leads):
     if len(views) > 1:
         tabs = '<div class="tabs" role="tablist" aria-label="Diagram">' + "".join(
             f'<button type="button" role="tab" aria-selected="{"true" if i == 0 else "false"}" '
-            f'data-src="{src}" data-hash="{slug(label)}">{esc(label)}</button>'
+            f'data-src="../{src}" data-hash="{slug(label)}">{esc(label)}</button>'
             for i, (label, _, src) in enumerate(views)) + "</div>"
     related = []
     if comes.get(fid):
         related.append('<div class="related-group"><span class="related-label">Comes from</span>'
-                       + "".join(chip(e, names) for e in dict.fromkeys(comes[fid])) + "</div>")
+                       + "".join(chip(e, names, "../") for e in dict.fromkeys(comes[fid])) + "</div>")
     if leads.get(fid):
         related.append('<div class="related-group"><span class="related-label">Leads to</span>'
-                       + "".join(chip(e, names) for e in dict.fromkeys(leads[fid])) + "</div>")
+                       + "".join(chip(e, names, "../") for e in dict.fromkeys(leads[fid])) + "</div>")
     main = (f'<div class="related">{"".join(related)}</div>' if related else "") + VIEWER.substitute(
-        src=views[0][2], extra="", label=f"{title}, {views[0][0]}")
+        src=f"../{views[0][2]}", extra="", label=f"{title}, {views[0][0]}")
     write_page(PUBLIC / slug(fid) / "index.html", title=f"{title} · Medilab",
                description=f"Activity diagram of {title}.", current=fid,
-               crumbs=[crumb("System activity map", "/"), crumb(family, f"/#{anchor}"), crumb(title)],
+               crumbs=[crumb("System activity map", "../"), crumb(family, f"../#{anchor}"), crumb(title)],
                tabs=tabs, main=main, names=names)
 
 
@@ -337,6 +345,40 @@ def write_pdf(names, views):
     print(f"Wrote {FINAL_PDF.name}: {len(writer.pages)} pages")
 
 
+def git(*args, cwd=ROOT, check=True):
+    return subprocess.run(["git", *args], cwd=cwd, check=check, capture_output=True, text=True)
+
+
+def publish():
+    """Put site/public at the root of the gh-pages branch and push it, through a temporary worktree, so the
+    current branch and working tree stay as they are. GitHub Pages deploys gh-pages from its root; .nojekyll makes
+    Pages serve the files as they are."""
+    built_from = git("rev-parse", "--short", "HEAD").stdout.strip()
+    exists = git("fetch", "origin", PAGES_BRANCH, check=False).returncode == 0
+    with tempfile.TemporaryDirectory() as tmp:
+        work = Path(tmp) / "pages"
+        if exists:
+            git("worktree", "add", "-B", PAGES_BRANCH, str(work), f"origin/{PAGES_BRANCH}")
+        else:
+            git("worktree", "add", "--detach", str(work))
+            git("switch", "--orphan", PAGES_BRANCH, cwd=work)
+        try:
+            for item in work.iterdir():
+                if item.name != ".git":
+                    shutil.rmtree(item) if item.is_dir() else item.unlink()
+            shutil.copytree(PUBLIC, work, dirs_exist_ok=True)
+            (work / ".nojekyll").touch()
+            git("add", "-A", cwd=work)
+            if not git("status", "--porcelain", cwd=work).stdout.strip():
+                print(f"{PAGES_BRANCH} already holds this build")
+                return
+            git("commit", "-m", f"[docs] Publish the activity diagrams built from {built_from}", cwd=work)
+            git("push", "origin", PAGES_BRANCH, cwd=work)
+            print(f"Pushed {PAGES_BRANCH}; GitHub Pages deploys it at {PAGES_URL}")
+        finally:
+            git("worktree", "remove", "--force", str(work))
+
+
 def main():
     if PUBLIC.exists():
         shutil.rmtree(PUBLIC)
@@ -352,6 +394,8 @@ def main():
     print(f"Wrote {len(names) + 1} pages to {PUBLIC.relative_to(DIAGRAMS)}")
     write_final(names, views)
     write_pdf(names, views)
+    if "--publish" in sys.argv:
+        publish()
 
 
 if __name__ == "__main__":

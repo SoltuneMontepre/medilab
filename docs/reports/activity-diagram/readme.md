@@ -1,6 +1,6 @@
 # Activity diagrams
 
-The system activity map and one activity diagram per business flow of [Business flows](../../functional/business-flows.md): the core flows WF-01 to WF-06, which carry a test request from order to report, and the supporting flows SF-01 to SF-11. The [website](https://medilab-activity-diagrams.vercel.app) shows them: the map links to the page of each flow, and each page names the flows it comes from and leads to.
+The system activity map and one activity diagram per business flow of [Business flows](../../functional/business-flows.md): the core flows WF-01 to WF-06, which carry a test request from order to report, and the supporting flows SF-01 to SF-11. The [website](https://soltunemontepre.github.io/medilab/) shows them: the map links to the page of each flow, and each page names the flows it comes from and leads to.
 
 ![System activity map](<final/System activity map.svg>)
 
@@ -12,7 +12,7 @@ The system activity map and one activity diagram per business flow of [Business 
   - `Supporting flows`: one page per SF.
 - [activity-diagrams-final.pdf](activity-diagrams-final.pdf): the map and the Workflow page of each flow, with a bookmark for each.
 - [activity-diagrams-final.zip](activity-diagrams-final.zip): the `final` folder.
-- [site](site): `build.py` builds the website into `site/public`, then the pictures, the zip and the PDF; `static` holds its stylesheet and script.
+- [site](site): `build.py` builds the website into `site/public`, then the pictures, the zip and the PDF; `static` holds its stylesheet and script. With `--publish` it pushes the website to the `gh-pages` branch, which GitHub Pages deploys from its root.
 
 ## Reading a diagram
 
@@ -22,14 +22,13 @@ The system activity map and one activity diagram per business flow of [Business 
 
 ## Changing a diagram
 
-Edit its `.drawio` file in `final` with draw.io desktop, keeping its ID and title in the file name, then build and deploy from `site`:
+Edit its `.drawio` file in `final` with draw.io desktop, keeping its ID and title in the file name, then build and publish from `site`:
 
 ```bash
-uv run --with pypdf python build.py
-vercel deploy --prod --yes --project medilab-activity-diagrams
+uv run --with pypdf python build.py --publish
 ```
 
-The build needs draw.io desktop for the exports. Titles come from the `##` headings of business-flows.md, so a renamed flow is renamed in the menus and pages by the next build.
+Commit the changed `final` files, PDF and zip on your branch as usual; the website is published from `gh-pages` whatever branch you are on. The build needs draw.io desktop for the exports. Titles come from the `##` headings of business-flows.md, so a renamed flow is renamed in the menus and pages by the next build.
 
 ## Related documents
 
