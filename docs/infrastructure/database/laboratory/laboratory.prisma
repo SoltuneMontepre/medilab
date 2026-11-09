@@ -895,6 +895,8 @@ model TestRequest {
   status       String   @db.VarChar
   /// Free notes about the request.
   note         String?  @db.Text
+  /// Number of the order the request was created from, kept as text when uninstalling E-commerce drops the link. A trigram index serves search.
+  order_number String?  @db.VarChar
   /// The customer who asks for the tests.
   customer     Customer @relation(fields: [customer_id], references: [id], onDelete: Restrict)
   /// The contact who receives the report.

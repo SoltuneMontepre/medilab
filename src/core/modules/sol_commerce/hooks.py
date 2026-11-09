@@ -27,6 +27,11 @@ def use_vietnamese_accounting(env):
     _use_vnd_price_lists(env, company, vnd)
 
 
+def keep_order_numbers(env):
+    """Keep the number of each order on its test request before uninstalling drops the link between them."""
+    env[MODEL_SALE_ORDER]._keep_order_numbers()
+
+
 def _use_vietnamese_chart(env, company, vnd):
     if company.chart_template == VIETNAMESE_CHART:
         return
