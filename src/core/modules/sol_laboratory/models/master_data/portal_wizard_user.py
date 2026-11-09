@@ -16,5 +16,5 @@ class PortalWizardUser(models.TransientModel, PortalWizardUserBase):
 
     def _send_email(self):
         # The invitation's sign-up link needs the right to write the invited contact, which only Odoo's contact
-        # managers hold. The wizard itself is open only to those who maintain customers.
+        # managers hold. The wizard itself is open only to them and to those who maintain customers.
         return super(PortalWizardUser, self.sudo())._send_email()
