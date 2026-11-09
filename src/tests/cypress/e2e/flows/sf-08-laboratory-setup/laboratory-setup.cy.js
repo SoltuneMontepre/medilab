@@ -4,12 +4,16 @@ import {
   ADMINISTRATOR,
   BACKUP_PERSON,
   FINAL_LEVEL,
+  HEAD_OF_SALES,
+  NEW_PARAMETER,
   PURCHASE_CHAIN,
+  REGULATION,
   assignedTest,
   catalogProduct,
   claimedOrder,
   clearBackupRoles,
   clearCarts,
+  clearNewLimits,
   pricedParameter,
   requestedOrder,
   resetPurchaseChain,
@@ -41,7 +45,7 @@ function amount(thousands) {
   return new RegExp(`${thousands}[.,]000`);
 }
 
-// The product rows of the open cart, as the customer sees them.
+// The row of the open cart that holds the item.
 function cartRow(name) {
   return cy.contains("main tbody tr", name);
 }
@@ -60,7 +64,12 @@ function chooseSampleType(label) {
     .find("option")
     .contains(label)
     .invoke("val")
-    .then((value) => cy.get("select[name=sample_type_id]").first().select(String(value)));
+    .then((value) => {
+      cy.get("select[name=sample_type_id]").first().select(String(value));
+      // The choice submits the form; the reloaded cart shows it chosen.
+      cy.get("select[name=sample_type_id]").first().should("have.value", String(value));
+      cy.get("select[name=parameter_method_id]").should("exist");
+    });
 }
 
 // Submits the cart and yields the order number the confirmation shows.
@@ -75,9 +84,32 @@ function submitCart() {
 
 // The lines of an order, as the head of sales reads them.
 function orderLines(name) {
-  return callAs("demo.head_of_sales", "sale.order.line", "search_read", [[["order_id.name", "=", name]]], {
+  return callAs(HEAD_OF_SALES, "sale.order.line", "search_read", [[["order_id.name", "=", name]]], {
     fields: ["product_id", "price_unit", "linked_line_id"],
   });
+}
+
+// Signs the open purchase order and waits for the signature to be saved.
+function signOrder() {
+  cy.intercept("POST", "/web/dataset/call_button/purchase.order/action_sign").as("sign");
+  cy.signRecord();
+  cy.wait("@sign");
+}
+
+// The levels a document is signed at, oldest first, as the administrator reads them.
+function signatures(document) {
+  return callAs(
+    ADMINISTRATOR,
+    "medilab.signature",
+    "search_read",
+    [
+      [
+        ["document_model", "=", document.model],
+        ["document_id", "=", document.id],
+      ],
+    ],
+    { fields: ["level_name"], order: "id" },
+  ).then((rows) => rows.map((row) => row.level_name));
 }
 
 // The names of the apps the signed-in user's home menu offers.
@@ -91,14 +123,15 @@ function apps() {
 }
 
 describe("SF-08 Laboratory setup", () => {
-  // A2 and A4 change shared demo records; they are put back even when a test fails.
+  // M, A2 and A4 change shared demo records; they are put back even when a test fails.
   afterEach(() => {
+    clearNewLimits();
     clearBackupRoles();
     resetPurchaseChain();
   });
 
   it("TC-SF08-M creates a parameter with its way of testing, regulation limit and price, which a customer orders and a tester runs", () => {
-    const name = unique("Arsenic (As)");
+    const name = unique(NEW_PARAMETER);
     cy.signInAs("administrator");
     newRecord("/odoo/test-parameters");
     cy.get(".o_field_widget[name=name] input").type(name);
@@ -134,7 +167,7 @@ describe("SF-08 Laboratory setup", () => {
       });
 
       // The regulation of bottled water gets a limit for the new parameter.
-      cy.openRecord("sol_demo.demo_regulation_qcvn_6_1");
+      cy.openRecord(REGULATION);
       addRow("limit_ids");
       pick("parameter_id", name);
       pick("sample_type_id", "Bottled water");
@@ -142,7 +175,14 @@ describe("SF-08 Laboratory setup", () => {
       typeInRow("max_value", "0.01");
       pick("unit_id", "mg/L");
       save();
-      cy.contains(".o_field_widget[name=limit_ids] .o_data_row", name).should("contain", "0.01");
+      call("medilab.regulation.limit", "search_read", [[["parameter_id", "=", parameter.id]]], {
+        fields: ["regulation_id", "sample_type_id", "max_value", "unit_id"],
+      }).should(([limit]) => {
+        expect(limit.regulation_id[1]).to.equal("QCVN 6-1:2010/BYT");
+        expect(limit.sample_type_id[1]).to.equal("Bottled water");
+        expect(limit.max_value).to.equal(0.01);
+        expect(limit.unit_id[1]).to.equal("mg/L");
+      });
 
       clearCarts();
       cy.signInAs("customer");
@@ -292,26 +332,16 @@ describe("SF-08 Laboratory setup", () => {
     requestedOrder().then((order) => {
       cy.signInAs("lab_head");
       cy.openRecord(order);
-      cy.signRecord();
-      cy.get(`${BUTTONS} button[name=action_sign]`).should("not.exist");
+      signOrder();
+      // The lab head's level is signed, and the order still waits for the new level.
+      signatures(order).should("deep.equal", ["Storekeeper", "Lab head"]);
       cy.readRecord(order, ["approval_status"]).its("approval_status").should("eq", "requested");
 
       cy.signInAs("administrator");
       cy.openRecord(order);
-      cy.signRecord();
-      cy.get(`${BUTTONS} button[name=action_sign]`).should("not.exist");
+      signOrder();
       cy.readRecord(order, ["approval_status"]).its("approval_status").should("eq", "approved");
-      call(
-        "medilab.signature",
-        "search_read",
-        [
-          [
-            ["document_model", "=", order.model],
-            ["document_id", "=", order.id],
-          ],
-        ],
-        { fields: ["level_name"], order: "id" },
-      ).should((rows) => expect(rows.map((row) => row.level_name)).to.deep.equal(["Storekeeper", "Lab head", FINAL_LEVEL]));
+      signatures(order).should("deep.equal", ["Storekeeper", "Lab head", FINAL_LEVEL]);
     });
   });
 
@@ -326,7 +356,7 @@ describe("SF-08 Laboratory setup", () => {
         callAs(ADMINISTRATOR, "medilab.parameter.price", "action_archive", [prices]),
       );
       cy.expectRefusal({
-        read: () => callAs("demo.head_of_sales", "sale.order.line", "search_count", [[["product_id.parameter_id", "=", parameter.id]]]),
+        read: () => callAs(HEAD_OF_SALES, "sale.order.line", "search_count", [[["product_id.parameter_id", "=", parameter.id]]]),
         action: () => cy.contains("tr", parameter.name).find("button[type=submit]").click(),
         message: "This item is not in the catalog.",
         messageSelector: "main .text-danger",

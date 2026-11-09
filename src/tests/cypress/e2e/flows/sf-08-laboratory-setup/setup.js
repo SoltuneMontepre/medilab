@@ -2,7 +2,7 @@ import { callAs, randomId, refAs } from "../../../support/odoo";
 
 export const ADMINISTRATOR = "demo.administrator";
 const SALES = "demo.sales";
-const HEAD_OF_SALES = "demo.head_of_sales";
+export const HEAD_OF_SALES = "demo.head_of_sales";
 const RECEPTION = "demo.sample_delivery_staff";
 const HEAD = "demo.head_of_department";
 const STOREKEEPER = "demo.storekeeper";
@@ -13,6 +13,9 @@ const CONTACT = "sol_demo.demo_res_partner_hoa";
 
 export const PURCHASE_CHAIN = "sol_demo.demo_approval_chain_purchase_order_signing";
 export const BACKUP_PERSON = "sol_demo.demo_person_backup_signer";
+export const REGULATION = "sol_demo.demo_regulation_qcvn_6_1";
+// The name of the parameter the main path creates, before its unique suffix.
+export const NEW_PARAMETER = "Arsenic (As)";
 // The level the administrator adds to the purchase order chain.
 export const FINAL_LEVEL = "Final approval";
 
@@ -86,7 +89,7 @@ export function assignedTest(parameterId) {
   const ids = {};
   refAs(RECEPTION, "sol_demo.demo_customer_nuoc_sach").then(({ id }) => (ids.customer = id));
   refAs(RECEPTION, "sol_demo.demo_sample_type_bottled_water").then(({ id }) => (ids.water = id));
-  refAs(RECEPTION, "sol_demo.demo_regulation_qcvn_6_1").then(({ id }) => (ids.regulation = id));
+  refAs(RECEPTION, REGULATION).then(({ id }) => (ids.regulation = id));
   refAs(HEAD, "sol_demo.demo_person_tester").then(({ id }) => (ids.tester = id));
   return cy
     .then(() =>
@@ -229,4 +232,18 @@ export function clearBackupRoles() {
       (grants) => grants.length && callAs(ADMINISTRATOR, "medilab.role.grant", "unlink", [grants]),
     );
   });
+}
+
+// Removes the limits the main path added to the regulation of bottled water.
+export function clearNewLimits() {
+  return ref(REGULATION)
+    .then((regulation) =>
+      callAs(ADMINISTRATOR, "medilab.regulation.limit", "search", [
+        [
+          ["regulation_id", "=", regulation],
+          ["parameter_id.name", "=like", `${NEW_PARAMETER} %`],
+        ],
+      ]),
+    )
+    .then((limits) => limits.length && callAs(ADMINISTRATOR, "medilab.regulation.limit", "unlink", [limits]));
 }
