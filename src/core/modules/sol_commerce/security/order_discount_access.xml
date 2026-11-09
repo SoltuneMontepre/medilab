@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Whoever edits orders gives discounts. The generated permission groups are not updated on upgrade, so a
+         function links Odoo's line discount group on install and upgrade. -->
+    <function model="sale.order" name="_grant_line_discount" />
+
+    <record id="access_sale_order_discount_edit" model="ir.access">
+        <field name="name">sale.order.discount follows order edit</field>
+        <field name="model_id" ref="sale.model_sale_order_discount" />
+        <field name="group_id" ref="sol_laboratory.group_permission_order_edit_all" />
+        <field name="operation">cru</field>
+        <field name="domain">[("sale_order_id", "access", "write")]</field>
+    </record>
+    <record id="access_sale_order_discount_edit_own" model="ir.access">
+        <field name="name">sale.order.discount follows own order edit</field>
+        <field name="model_id" ref="sale.model_sale_order_discount" />
+        <field name="group_id" ref="sol_laboratory.group_permission_order_edit_own" />
+        <field name="operation">cru</field>
+        <field name="domain">[("sale_order_id", "access", "write")]</field>
+    </record>
+</odoo>
