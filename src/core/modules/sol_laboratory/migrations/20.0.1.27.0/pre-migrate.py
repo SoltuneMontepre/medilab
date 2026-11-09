@@ -1,52 +1,71 @@
+import logging
+
+from psycopg2 import sql
+
+from odoo.tools.sql import column_exists
+
+_logger = logging.getLogger(__name__)
+
+
 def migrate(cr, _version):
-    # Results now copy the way of testing, sample type, LOD, LOQ and regulation they are entered with. Filling the
-    # columns before the upgrade keeps Odoo from computing them, which would also recompute and rewrite the unit and
-    # limit copied before. A database older than 20.0.1.24.0 gets the applicability table only after this script, so
-    # Odoo computes the columns there.
-    cr.execute("SELECT to_regclass('medilab_parameter_method_sample_type')")
-    if not cr.fetchone()[0]:
+    # A limit now applies to one exact sample type. Each existing limit applied to the sample types its regulation
+    # names, so it is copied to each of them, never to their narrower types. A regulation that names no sample type
+    # applies to nothing, so its limits are removed.
+    if column_exists(cr, "medilab_regulation_limit", "sample_type_id"):
         return
     cr.execute(
+        "ALTER TABLE medilab_regulation_limit DROP CONSTRAINT IF EXISTS medilab_regulation_limit_regulation_parameter_unique"
+    )
+    cr.execute("ALTER TABLE medilab_regulation_limit ADD COLUMN sample_type_id INT4")
+    cr.execute(
         """
-        ALTER TABLE medilab_test_result
-            ADD COLUMN IF NOT EXISTS parameter_method_id integer,
-            ADD COLUMN IF NOT EXISTS sample_type_id integer,
-            ADD COLUMN IF NOT EXISTS lod numeric,
-            ADD COLUMN IF NOT EXISTS loq numeric,
-            ADD COLUMN IF NOT EXISTS regulation_id integer,
-            ADD COLUMN IF NOT EXISTS comparison_requested boolean
+        SELECT column_name
+          FROM information_schema.columns
+         WHERE table_name = 'medilab_regulation_limit' AND column_name NOT IN ('id', 'sample_type_id')
+        """
+    )
+    names = [name for (name,) in cr.fetchall()]
+    cr.execute(
+        """
+        UPDATE medilab_regulation_limit limit_row
+           SET sample_type_id = named.sample_type_id
+          FROM (
+                SELECT regulation_id, MIN(sample_type_id) AS sample_type_id
+                  FROM medilab_regulation_sample_type_rel
+              GROUP BY regulation_id
+               ) named
+         WHERE named.regulation_id = limit_row.regulation_id
         """
     )
     cr.execute(
-        """
-        UPDATE medilab_test_result result
-           SET sample_type_id = sample.sample_type_id,
-               regulation_id = sample.regulation_id,
-               parameter_method_id = COALESCE(
-                   test.parameter_method_id,
-                   (SELECT way.parameter_method_id
-                      FROM medilab_parameter_method_sample_type way
-                     WHERE way.parameter_id = test.parameter_id
-                       AND way.sample_type_id = sample.sample_type_id
-                       AND way.is_default)
-               ),
-               comparison_requested = EXISTS (
-                   SELECT 1
-                     FROM medilab_regulation_limit limit_row
-                    WHERE limit_row.regulation_id = sample.regulation_id
-                      AND limit_row.parameter_id = test.parameter_id
-               )
-          FROM medilab_sample_test test
-          JOIN medilab_sample sample ON sample.id = test.sample_id
-         WHERE test.id = result.sample_test_id
-        """
+        sql.SQL(
+            """
+            INSERT INTO medilab_regulation_limit ({columns}, sample_type_id)
+            SELECT {copied}, named.sample_type_id
+              FROM medilab_regulation_limit limit_row
+              JOIN medilab_regulation_sample_type_rel named ON named.regulation_id = limit_row.regulation_id
+             WHERE named.sample_type_id <> limit_row.sample_type_id
+            """
+        ).format(
+            columns=sql.SQL(", ").join(sql.Identifier(name) for name in names),
+            copied=sql.SQL(", ").join(sql.Identifier("limit_row", name) for name in names),
+        )
     )
+    copies = cr.rowcount
     cr.execute(
         """
-        UPDATE medilab_test_result result
-           SET lod = way.lod, loq = way.loq
-          FROM medilab_parameter_method_sample_type way
-         WHERE way.parameter_method_id = result.parameter_method_id
-           AND way.sample_type_id = result.sample_type_id
+        DELETE FROM medilab_regulation_limit limit_row
+         USING medilab_regulation regulation
+         WHERE regulation.id = limit_row.regulation_id AND limit_row.sample_type_id IS NULL
+     RETURNING regulation.code, limit_row.parameter_id
         """
     )
+    removed = cr.fetchall()
+    if copies:
+        _logger.info("Copied %s regulation limits to the other sample types their regulations name.", copies)
+    if removed:
+        _logger.warning(
+            "Removed %s limits of regulations that name no sample type (regulation, parameter id): %s",
+            len(removed),
+            removed,
+        )

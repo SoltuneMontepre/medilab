@@ -8,7 +8,7 @@ from odoo.tests import tagged
 from .report_case import PDF, ReportCase
 from odoo.addons.sol_laboratory.constants.report_templates import CANDIDATE_ISSUED, CANDIDATE_MIGRATED
 
-POST_MIGRATE = Path(__file__).resolve().parents[1] / "migrations" / "20.0.1.28.0" / "post-migrate.py"
+POST_MIGRATE = Path(__file__).resolve().parents[1] / "migrations" / "20.0.1.30.0" / "post-migrate.py"
 
 
 @tagged("post_install", "-at_install")
@@ -31,8 +31,8 @@ class TestReportCandidateMigration(ReportCase):
         pdf = bytes(attachment.raw)
         checksum = attachment.checksum
 
-        load_script(str(POST_MIGRATE), "post_migrate").migrate(self.env.cr, "20.0.1.26.0")
-        load_script(str(POST_MIGRATE), "post_migrate").migrate(self.env.cr, "20.0.1.26.0")
+        load_script(str(POST_MIGRATE), "post_migrate").migrate(self.env.cr, "20.0.1.29.0")
+        load_script(str(POST_MIGRATE), "post_migrate").migrate(self.env.cr, "20.0.1.29.0")
 
         self.env.invalidate_all()
         candidate = report.candidate_ids

@@ -578,7 +578,8 @@ msgid "Accreditation Number"
 msgstr "Số công nhận"
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__is_accredited
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__is_accredited
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__is_accredited
 msgid "Accredited"
 msgstr "Được công nhận"
 
@@ -632,6 +633,7 @@ msgstr "Giao diện của hành động cửa sổ"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_lock_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__active
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__active
 msgid "Active"
 msgstr "Đang hoạt động"
@@ -1053,6 +1055,8 @@ msgstr "Lưu trữ cách thử của phòng ban mình"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_search
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_report_template_version__state__archived
 msgid "Archived"
 msgstr "Đã lưu trữ"
@@ -1357,6 +1361,7 @@ msgstr "Được Từ Chối"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_report_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_import_form
 msgid "Cancel"
 msgstr "Hủy"
 
@@ -1558,6 +1563,8 @@ msgstr "Người huấn luyện"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__code
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__code
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__code
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate__code
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import_line__code
 msgid "Code"
 msgstr "Mã"
 
@@ -1973,7 +1980,6 @@ msgstr "Tạo từ máy tính"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__create_uid
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__create_uid
@@ -2016,6 +2022,11 @@ msgstr "Tạo từ máy tính"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import_line__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__create_uid
@@ -2055,7 +2066,6 @@ msgstr "Người tạo"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__create_date
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__create_date
@@ -2098,6 +2108,11 @@ msgstr "Người tạo"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import_line__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__create_date
@@ -2530,7 +2545,6 @@ msgstr "Cấp dưới trực tiếp"
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_scan_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_cancel_form
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_due_date_change_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_reassign_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_reject_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_outsource_form
@@ -2538,6 +2552,7 @@ msgstr "Cấp dưới trực tiếp"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_raise_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_reject_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_user_link_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_due_date_change_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_template_change_form
 msgid "Discard"
 msgstr "Hủy"
@@ -2610,7 +2625,6 @@ msgstr "Hiển thị báo cáo PDF mẫu hóa đơn"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__display_name
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__display_name
@@ -2665,6 +2679,11 @@ msgstr "Hiển thị báo cáo PDF mẫu hóa đơn"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import_line__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__display_name
@@ -3293,6 +3312,7 @@ msgstr "Hết hạn phiên chỉnh sửa"
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_file_lock__status__expired
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_lock_search
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_editing_session__status__expired
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_search
 msgid "Expired"
 msgstr "Đã hết hạn"
 
@@ -3724,7 +3744,6 @@ msgstr "Hr trạng thái hiện diện"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__id
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__id
@@ -3779,6 +3798,11 @@ msgstr "Hr trạng thái hiện diện"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import_line__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__id
@@ -4337,6 +4361,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__lang
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import__lang
 msgid "Lang"
 msgstr "Ngôn ngữ"
 
@@ -4445,7 +4470,6 @@ msgstr "Hoạt động gần nhất"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__write_uid
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__write_uid
@@ -4488,6 +4512,11 @@ msgstr "Hoạt động gần nhất"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import_line__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__write_uid
@@ -4527,7 +4556,6 @@ msgstr "Cập nhật lần cuối bởi"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__write_date
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__write_date
@@ -4570,6 +4598,11 @@ msgstr "Cập nhật lần cuối bởi"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import_line__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__write_date
@@ -5385,6 +5418,11 @@ msgid "Opened On"
 msgstr "Mở lúc"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__order_number
+msgid "Order Number"
+msgstr "Số Đơn Hàng"
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__delivery_method__other
 msgid "Other"
 msgstr "Khác"
@@ -5471,6 +5509,7 @@ msgstr "Đã thanh toán"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatch
 #: code:addons/sol_laboratory/models/testing/test_report.py:0
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__parameter_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_search
 msgid "Parameter"
 msgstr "Chỉ Tiêu"
 
@@ -5489,6 +5528,8 @@ msgstr "Nhóm Chỉ Tiêu"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__parameter_ids
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_parameter_group_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import_line__parameter_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__parameter_ids
 msgid "Parameters"
 msgstr "Chỉ Tiêu"
 
@@ -6876,7 +6917,6 @@ msgstr "Xem quy tắc đồng bộ của mọi thư mục phòng thí nghiệm"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__reason
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__reason
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__reason
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__reason
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result_reject__reason
@@ -6886,6 +6926,7 @@ msgstr "Xem quy tắc đồng bộ của mọi thư mục phòng thí nghiệm"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__reason
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__reason
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__reason
 msgid "Reason"
 msgstr "Lý do"
 
@@ -7313,20 +7354,21 @@ msgstr "Đã nhận mẫu"
 #: model:ir.model,name:sol_laboratory.model_medilab_sample_test
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__sample_test_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__sample_test_id
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__sample_test_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__sample_test_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_list
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__sample_test_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__sample_test_id
 msgid "Sample Test"
 msgstr "Chỉ Tiêu Của Mẫu"
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_sample_type
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__sample_type_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__sample_type_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__sample_type_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatch
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__sample_type_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__sample_type_id
 #: code:addons/sol_laboratory/models/testing/test_report.py:0
 msgid "Sample Type"
@@ -7339,6 +7381,8 @@ msgstr "Loại Mẫu"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__sample_type_ids
 #: model:ir.ui.menu,name:sol_laboratory.menu_sample_type
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_parameter_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import_line__sample_type_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__sample_type_ids
 msgid "Sample Types"
 msgstr "Loại Mẫu"
 
@@ -7440,6 +7484,8 @@ msgstr "Tác Vụ Định Kỳ"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__scope
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate__scope_line_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_form
 msgid "Scope"
 msgstr "Phạm vi"
 
@@ -7992,6 +8038,7 @@ msgstr "Đang thử nghiệm"
 #: model:ir.model,name:sol_laboratory.model_medilab_testing_field
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__field_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_method_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import__field_id
 msgid "Testing Field"
 msgstr "Lĩnh Vực Thử Nghiệm"
 
@@ -8005,6 +8052,7 @@ msgstr "Lĩnh Vực Thử Nghiệm"
 #: model:ir.model,name:sol_laboratory.model_medilab_testing_method
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__method_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__method_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__method_id
 msgid "Testing Method"
 msgstr "Phương Pháp Thử"
 
@@ -8018,6 +8066,7 @@ msgstr "Bước Phương Pháp Thử"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__method_ids
 #: model:ir.ui.menu,name:sol_laboratory.menu_testing_method
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_chemical_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate__method_ids
 msgid "Testing Methods"
 msgstr "Phương Pháp Thử"
 
@@ -8890,13 +8939,15 @@ msgid "Users"
 msgstr "Tài Khoản"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate__valid_from
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_quality_registration__valid_from
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_certificate__valid_from
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation__valid_from
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_certificate__valid_from
 msgid "Valid From"
 msgstr "Hiệu lực từ"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate__valid_until
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_quality_registration__valid_until
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation__valid_until
 msgid "Valid Until"
@@ -11128,6 +11179,11 @@ msgstr "Không trùng lặp"
 #: code:addons/sol_laboratory/models/master_data/customer.py:0
 msgid "Only the customer's own people can be changed here."
 msgstr "Tại đây chỉ thay đổi được người liên hệ của chính khách hàng này."
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_portal_wizard_user
+msgid "Portal User Config"
+msgstr "Cấu hình người dùng cổng thông tin"
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_customer_form
@@ -13380,6 +13436,7 @@ msgstr "Đang chỉnh sửa"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__lock_message
 msgid "Editing Lock"
@@ -13591,6 +13648,7 @@ msgstr "Người chờ"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__lock_watched
 msgid "Watching Lock"
@@ -13745,6 +13803,7 @@ msgstr "Thời gian lưu giữ nhật ký hoạt động không được âm; 0 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_accreditation_certificate
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import__certificate_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__certificate_id
 msgid "Accreditation Certificate"
 msgstr "Giấy chứng nhận công nhận"
 
@@ -13800,29 +13859,10 @@ msgid "Edit accreditation certificates"
 msgstr "Sửa giấy chứng nhận công nhận"
 
 #. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/master_data/accreditation_certificate_import.py:0
-msgid "Enter at least one method to import."
-msgstr "Nhập ít nhất một phương pháp để nhập."
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import_line__import_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_import_form
 msgid "Import"
 msgstr "Nhập"
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/master_data/accreditation_certificate.py:0
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_form
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_import_form
-msgid "Import Methods"
-msgstr "Nhập phương pháp"
-
-#. module: sol_laboratory
-#: model:ir.model,name:sol_laboratory.model_medilab_accreditation_certificate_import
-msgid "Import Methods from an Accreditation Certificate"
-msgstr "Nhập phương pháp từ giấy chứng nhận công nhận"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate__issuing_body
@@ -13835,11 +13875,6 @@ msgstr "Cơ quan cấp"
 msgid ""
 "Link testing methods to accreditation certificates from the certificate."
 msgstr "Gắn phương pháp thử vào giấy chứng nhận từ phía giấy chứng nhận."
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import__line_ids
-msgid "Methods"
-msgstr "Phương pháp"
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_search
@@ -13867,19 +13902,6 @@ msgstr "Quyền: accreditation.certificate.delete.all"
 #: model:res.groups,name:sol_laboratory.group_permission_accreditation_certificate_edit_all
 msgid "Permission: accreditation.certificate.edit.all"
 msgstr "Quyền: accreditation.certificate.edit.all"
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/master_data/accreditation_certificate_import.py:0
-msgid "Row %(row)s has no code or title. Nothing was imported."
-msgstr "Dòng %(row)s thiếu mã hoặc tiêu đề. Không nhập gì cả."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/master_data/accreditation_certificate_import.py:0
-msgid ""
-"The code %(code)s appears more than once in the list. Nothing was imported."
-msgstr "Mã %(code)s xuất hiện nhiều lần trong danh sách. Không nhập gì cả."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -15447,6 +15469,110 @@ msgstr ""
 "cùng."
 
 #. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_accreditation_scope_line
+msgid "Accreditation Scope Line"
+msgstr "Dòng phạm vi công nhận"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_accreditation_scope_line_create_all
+msgid "Create accreditation scope lines"
+msgstr "Tạo dòng phạm vi công nhận"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_accreditation_scope_line_delete_all
+msgid "Delete accreditation scope lines"
+msgstr "Xóa dòng phạm vi công nhận"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_accreditation_scope_line_edit_all
+msgid "Edit accreditation scope lines"
+msgstr "Sửa dòng phạm vi công nhận"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/accreditation_certificate_import.py:0
+msgid "Enter at least one scope line to import."
+msgstr "Hãy thêm ít nhất một dòng phạm vi để nhập."
+
+#. module: sol_laboratory
+#. odoo-python
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_import_form
+#: code:addons/sol_laboratory/models/master_data/accreditation_certificate.py:0
+msgid "Import Scope Lines"
+msgstr "Nhập dòng phạm vi"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_accreditation_certificate_import
+msgid "Import Scope Lines into an Accreditation Certificate"
+msgstr "Nhập dòng phạm vi vào giấy chứng nhận công nhận"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_search
+msgid "Lines to Confirm"
+msgstr "Dòng cần xác nhận"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_accreditation_scope_line_create_all
+msgid "Permission: accreditation.scope.line.create.all"
+msgstr "Quyền: accreditation.scope.line.create.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_accreditation_scope_line_delete_all
+msgid "Permission: accreditation.scope.line.delete.all"
+msgstr "Quyền: accreditation.scope.line.delete.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_accreditation_scope_line_edit_all
+msgid "Permission: accreditation.scope.line.edit.all"
+msgstr "Quyền: accreditation.scope.line.edit.all"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/accreditation_certificate_import.py:0
+msgid "Row %(row)s has no code. Nothing was imported."
+msgstr "Dòng %(row)s thiếu mã. Không nhập gì cả."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/accreditation_certificate_import.py:0
+msgid ""
+"Row %(row)s needs at least one parameter and one sample type. Nothing was "
+"imported."
+msgstr ""
+"Dòng %(row)s cần ít nhất một chỉ tiêu và một loại mẫu. Không nhập gì cả."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import__line_ids
+msgid "Scope Lines"
+msgstr "Dòng phạm vi"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_import_form
+msgid "The code when left empty"
+msgstr "Lấy mã khi để trống"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/accreditation_scope_line.py:0
+msgid ""
+"The scope line of %(method)s on %(certificate)s needs at least one parameter"
+" and one sample type."
+msgstr ""
+"Dòng phạm vi của %(method)s trên %(certificate)s cần ít nhất một chỉ tiêu và"
+" một loại mẫu."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__to_confirm
+msgid "To Confirm"
+msgstr "Cần xác nhận"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__scope_line_ids
+msgid "Accreditation Scope Lines"
+msgstr "Dòng phạm vi công nhận"
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/sample_test.py:0
 msgid ""
@@ -16428,4 +16554,3 @@ msgstr "Báo cáo của thầu phụ"
 #: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch.py:0
 msgid "The subcontractor's report is kept; attach another file to replace it."
 msgstr "Báo cáo của thầu phụ được giữ lại; đính kèm tệp khác để thay thế."
-

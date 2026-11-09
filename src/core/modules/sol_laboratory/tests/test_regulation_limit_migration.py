@@ -6,7 +6,7 @@ from odoo.tests import tagged
 from .common import MasterDataCase
 from odoo.addons.sol_laboratory.constants.models import MODEL_REGULATION, MODEL_REGULATION_LIMIT, MODEL_SAMPLE_TYPE
 
-PRE_MIGRATE = Path(__file__).resolve().parents[1] / "migrations" / "20.0.1.26.0" / "pre-migrate.py"
+PRE_MIGRATE = Path(__file__).resolve().parents[1] / "migrations" / "20.0.1.27.0" / "pre-migrate.py"
 
 
 @tagged("post_install", "-at_install")

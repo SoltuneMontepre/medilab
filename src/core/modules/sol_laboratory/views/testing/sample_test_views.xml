@@ -88,6 +88,7 @@
                             <field name="due_date" readonly="1" />
                             <field name="due_date_reason" invisible="not due_date_reason" />
                             <field name="parameter_method_id" readonly="1" />
+                            <field name="is_accredited" />
                             <field name="accepted_method_id" invisible="not accepted_method_id" />
                             <field name="outsourcing_method_ids" invisible="1" />
                             <field name="subcontractor_id" invisible="1" />

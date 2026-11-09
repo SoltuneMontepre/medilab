@@ -127,7 +127,7 @@ class Regulation(models.Model, RegulationBase):
     @api.constrains("sample_type_ids")
     def _check_limit_scope(self):
         for regulation in self:
-            outside = regulation.limit_ids.filtered(lambda limit: not regulation._covers(limit.sample_type_id))
+            outside = [limit for limit in regulation.limit_ids if not regulation._covers(limit.sample_type_id)]
             if outside:
                 raise ValidationError(
                     self.env._(

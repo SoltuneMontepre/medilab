@@ -29,6 +29,7 @@ src/tests/
       features/
         catalog/regulation-limits/
         catalog/sample-type-applicability/
+        laboratory/accreditation-scope/
         laboratory/backup-signers/
         onboarding/master-data-staging/
         inventory/solution-preparation/
@@ -37,6 +38,7 @@ src/tests/
         laboratory/unlinked-users/
         ecommerce/portal-language/
         ecommerce/portal-navigation/
+        ecommerce/uninstall-warning/
       *.cy.js
     support/
     fixtures/
@@ -81,6 +83,7 @@ Start test titles with the issue's `TC-WF…`, `TC-SF…` or `TC-F…` ID. Map f
 | --- | --- | --- | --- |
 | Configure the unit, detection limits and default of a way of testing on a sample type; a quotation tests the parameter on that type and refuses a sibling type the parameter is not configured for. | [#409](https://github.com/SoltuneMontepre/medilab/issues/409) | `features/catalog/sample-type-applicability/` | `sample-type-applicability.cy.js` |
 | See that a regulation's covered sample type has no limit of its own, add its row from the catalog and save a limit; a duplicate limit and an expired regulation are refused. | [#410](https://github.com/SoltuneMontepre/medilab/issues/410) | `features/catalog/regulation-limits/` | `regulation-limits.cy.js` |
+| Import scope lines into a certificate with their parameters and sample types; a sample test is accredited only when one line covers its method, parameter and sample type or an ancestor, and never when subcontracted. | [#412](https://github.com/SoltuneMontepre/medilab/issues/412) | `features/laboratory/accreditation-scope/` | `accreditation-scope.cy.js` |
 | Pick an organisation, start a run, review staged records and accept a certificate with its methods. | [#176](https://github.com/SoltuneMontepre/medilab/issues/176) | `features/onboarding/master-data-staging/` | `master-data-staging.cy.js` |
 | Prepare a solution from scanned bottles; verify the resulting stock movements and container. | [#181](https://github.com/SoltuneMontepre/medilab/issues/181) | `features/inventory/solution-preparation/` | `solution-preparation.cy.js` |
 | Resize and collapse the chatter that sits beside a form, and keep its width and state. | [#282](https://github.com/SoltuneMontepre/medilab/issues/282) | `features/theme/chatter-resize/` | `chatter-resize.cy.js` |
@@ -88,7 +91,8 @@ Start test titles with the issue's `TC-WF…`, `TC-SF…` or `TC-F…` ID. Map f
 | Link an internal user that no person links to, and refuse creating one outside a person. | [#438](https://github.com/SoltuneMontepre/medilab/issues/438) | `features/laboratory/unlinked-users/` | `unlinked-users.cy.js` |
 | Give a backup the head of department's role until a date, who approves a result or sends one at a lower level in their own name. | [#430](https://github.com/SoltuneMontepre/medilab/issues/430) | `features/laboratory/backup-signers/` | `backup-signers.cy.js` |
 | Switch the portal language from the header and the account page, as a customer and as a visitor. | [#451](https://github.com/SoltuneMontepre/medilab/issues/451) | `features/ecommerce/portal-language/` | `portal-language.cy.js` |
-| Reach the catalog, My orders, Support and the account from the portal header, as a customer and as a visitor. | [#452](https://github.com/SoltuneMontepre/medilab/issues/452) | `features/ecommerce/portal-navigation/` | `portal-navigation.cy.js` |
+| Reach the catalog, My orders, Support and the account from the portal header, as a customer and as a visitor, and filter My orders. | [#452](https://github.com/SoltuneMontepre/medilab/issues/452), [#499](https://github.com/SoltuneMontepre/medilab/issues/499) | `features/ecommerce/portal-navigation/` | `portal-navigation.cy.js` |
+| Warn before uninstalling E-commerce that test requests keep their order's number, and not when Laboratory leaves with it. | [#439](https://github.com/SoltuneMontepre/medilab/issues/439) | `features/ecommerce/uninstall-warning/` | `uninstall-warning.cy.js` |
 
 Onboarding and solution-preparation scenarios follow their approved feature documents and demo starting data. Reserving a directory does not settle the open requirements in those issues.
 

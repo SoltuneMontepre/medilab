@@ -32,6 +32,11 @@ msgid "<i class=\"oi me-1\" data-icon=\"add_shopping_cart\" aria-hidden=\"true\"
 msgstr "<i class=\"oi me-1\" data-icon=\"add_shopping_cart\" aria-hidden=\"true\"/>Thêm"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid "<i class=\"oi me-1\" data-icon=\"arrow_back\" aria-hidden=\"true\"/>My orders"
+msgstr "<i class=\"oi me-1\" data-icon=\"arrow_back\" aria-hidden=\"true\"/>Đơn hàng của tôi"
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.portal_payos_pending
 msgid "<i class=\"oi me-1\" data-icon=\"arrow_forward\" aria-hidden=\"true\"/>Continue"
 msgstr "<i class=\"oi me-1\" data-icon=\"arrow_forward\" aria-hidden=\"true\"/>Tiếp tục"
@@ -99,6 +104,7 @@ msgstr "<i class=\"oi me-1\" data-icon=\"edit\" aria-hidden=\"true\"/>Sửa"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
 msgid "<i class=\"oi me-1\" data-icon=\"filter_alt\" aria-hidden=\"true\"/>Filter"
 msgstr "<i class=\"oi me-1\" data-icon=\"filter_alt\" aria-hidden=\"true\"/>Lọc"
 
@@ -238,6 +244,11 @@ msgstr "Tất cả loại mẫu"
 #: model:portal.entry,description:sol_commerce.portal_entry_support
 msgid "Ask the laboratory for help and follow the conversation"
 msgstr "Nhờ phòng thí nghiệm hỗ trợ và theo dõi trao đổi"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_base_module_uninstall__commerce_warning
+msgid "Commerce Warning"
+msgstr "Cảnh Báo Gỡ Thương Mại Điện Tử"
 
 #. module: sol_commerce
 #: model:medilab.permission,name:sol_commerce.permission_order_edit_own
@@ -488,6 +499,11 @@ msgstr "Giá Trị Tạm Ứng"
 #: model:res.groups,name:sol_commerce.group_all_orders
 msgid "All orders"
 msgstr "Tất cả đơn hàng"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
+msgid "All statuses"
+msgstr "Tất cả trạng thái"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_customer_sales_terms__allow_credit
@@ -1030,6 +1046,7 @@ msgstr "Bỏ qua"
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_advance_payment_inv__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order_discount__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -1210,6 +1227,7 @@ msgstr "Gán mẫu cho các mục sau trước khi gửi báo giá:\n%s"
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_advance_payment_inv__id
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__id
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__id
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order_discount__id
 msgid "ID"
 msgstr "ID"
 
@@ -1313,6 +1331,11 @@ msgstr "Medilab - Thương mại điện tử"
 #: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_page
 msgid "Min"
 msgstr "Tối thiểu"
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_base_module_uninstall
+msgid "Module Uninstall"
+msgstr "Gỡ Cài Đặt Phân Hệ"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
@@ -1483,6 +1506,11 @@ msgid "Order date"
 msgstr "Ngày đặt hàng"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
+msgid "Order number, parameter or package"
+msgstr "Số đơn hàng, chỉ tiêu hoặc gói dịch vụ"
+
+#. module: sol_commerce
 #: model:medilab.task.type,name:sol_commerce.task_type_order_quotation
 msgid "Order quotation"
 msgstr "Báo giá đơn hàng"
@@ -1569,6 +1597,17 @@ msgstr "Thanh toán tạm ứng trước"
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 msgid "Advance invoice"
 msgstr "Hóa đơn tạm ứng"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_base_module_uninstall
+msgid ""
+"Uninstalling E-commerce deletes its data and the link between orders and "
+"test requests. Each test request created from an order keeps the order's "
+"number as text."
+msgstr ""
+"Gỡ cài đặt Thương Mại Điện Tử sẽ xoá dữ liệu của phân hệ này và liên kết "
+"giữa đơn hàng với yêu cầu thử nghiệm. Mỗi yêu cầu thử nghiệm tạo từ đơn hàng"
+" giữ lại số đơn hàng dưới dạng văn bản."
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
@@ -1961,11 +2000,13 @@ msgstr "Mẫu"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_sample__sample_type_id
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__sample_type_id
 msgid "Sample Type"
 msgstr "Loại Mẫu"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
 msgid "Sample type"
 msgstr "Loại mẫu"
 
@@ -2063,6 +2104,7 @@ msgstr "Bắt đầu thu mẫu"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__status
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_reconciliation_day__status
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__status
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_table
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.support_list
@@ -2394,6 +2436,7 @@ msgstr "Xem báo giá"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_subcontract_cost__parameter_method_id
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__parameter_method_id
 msgid "Way of Testing"
 msgstr "Cách Thử"
 
@@ -3358,6 +3401,11 @@ msgstr "Logo"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_table
+msgid "No orders match these filters."
+msgstr "Không có đơn hàng nào khớp với bộ lọc."
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_table
 msgid "No orders yet."
 msgstr "Chưa có đơn hàng."
 
@@ -3500,6 +3548,11 @@ msgstr "Số lượng tệp đính kèm"
 #: model_terms:ir.ui.view,arch_db:sol_commerce.support_page
 msgid "Back to the support requests"
 msgstr "Quay lại danh sách yêu cầu hỗ trợ"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_table
+msgid "Clear the filters"
+msgstr "Bỏ bộ lọc"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
@@ -3741,6 +3794,11 @@ msgstr "Yêu cầu"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__message_has_sms_error
 msgid "SMS Delivery error"
 msgstr "Lỗi gửi SMS"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
+msgid "Search"
+msgstr "Tìm kiếm"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__access_token
@@ -4710,3 +4768,29 @@ msgstr "cho"
 #: code:addons/sol_commerce/models/orders/sale_order_line.py:0
 msgid "no sample type"
 msgstr "chưa có loại mẫu"
+
+#. module: sol_commerce
+#: model:product.template,name:sol_commerce.product_quotation_discount_product_template
+#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+msgid "Discount"
+msgstr "Chiết khấu"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order_discount__discount_type
+msgid "Discount Type"
+msgstr "Loại chiết khấu"
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_sale_order_discount
+msgid "Discount Wizard"
+msgstr "Công cụ chiết khấu"
+
+#. module: sol_commerce
+#: code:addons/sol_commerce/models/orders/sale_order_discount.py:0
+msgid "On every line"
+msgstr "Trên từng dòng"
+
+#. module: sol_commerce
+#: code:addons/sol_commerce/models/orders/sale_order_discount.py:0
+msgid "On the whole quotation"
+msgstr "Trên cả báo giá"
