@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- The line of a discount given on a whole quotation; it is not sold on its own. -->
+    <record id="product_quotation_discount" model="product.product">
+        <field name="name">Discount</field>
+        <field name="type">service</field>
+        <field name="invoice_policy">order</field>
+        <field name="list_price">0</field>
+        <field name="sale_ok" eval="False" />
+        <field name="purchase_ok" eval="False" />
+        <field name="taxes_id" eval="[Command.clear()]" />
+        <field name="categ_id" ref="product.product_category_services" />
+    </record>
+</odoo>
