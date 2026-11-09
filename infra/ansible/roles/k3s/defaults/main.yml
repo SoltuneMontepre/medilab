@@ -16,3 +16,4 @@ k3s_etcd_s3_secret_key: "{{ lookup('ansible.builtin.env', 'BUCKET_BACKUP_SECRET_
 k3s_etcd_s3_folder: k3s-etcd
 k3s_marker: "Managed by infra/ansible"
 k3s_manifests_dir: /var/lib/rancher/k3s/server/manifests
+k3s_pod_network: 10.42.0.0/16

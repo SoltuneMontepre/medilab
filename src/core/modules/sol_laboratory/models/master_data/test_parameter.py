@@ -168,6 +168,15 @@ class TestParameter(models.Model, TestParameterBase):
         )
         return offered.parameter_method_id.filtered(lambda way: not way._unavailable_reason())
 
+    def _offered_ways(self, sample_type):
+        """The ways of testing that can be chosen for the parameter on the sample type: its default when available and
+        the other available ways."""
+        self.ensure_one()
+        default = self._default_way(sample_type)
+        if default and default._unavailable_reason():
+            default = default.browse()
+        return default | self._available_alternatives(sample_type)
+
     def _default_way(self, sample_type):
         """The way of testing the parameter is normally tested by on the sample type; empty when it has none."""
         self.ensure_one()

@@ -3946,6 +3946,11 @@ msgid "Interval Unit"
 msgstr "Đơn Vị Khoảng"
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__invoice
+msgid "Invoice"
+msgstr "Tạo hóa đơn"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__invoice_edi_format_store
 msgid "Invoice Edi Format Store"
 msgstr "Lưu trữ định dạng hóa đơn Edi"
@@ -5921,6 +5926,10 @@ msgstr "Quyền: order.edit.all"
 #. module: sol_laboratory
 msgid "Permission: order.edit.own"
 msgstr "Quyền: order.edit.own"
+
+#. module: sol_laboratory
+msgid "Permission: order.invoice.all"
+msgstr "Quyền: order.invoice.all"
 
 #. module: sol_laboratory
 msgid "Permission: order.read.all"
@@ -15234,3 +15243,24 @@ msgstr "Cần xác nhận"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__scope_line_ids
 msgid "Accreditation Scope Lines"
 msgstr "Dòng phạm vi công nhận"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid ""
+"%(parameter)s is tested by %(way)s, the way of testing the customer "
+"accepted; another way needs a revised quotation."
+msgstr ""
+"%(parameter)s được thử bằng %(way)s, cách thử khách hàng đã chấp nhận; muốn "
+"đổi cách thử cần một báo giá sửa đổi."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__accepted_method_id
+msgid "Accepted Way of Testing"
+msgstr "Cách Thử Đã Chấp Nhận"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "The accepted way of testing changes only through a revised quotation."
+msgstr "Cách thử đã chấp nhận chỉ thay đổi qua một báo giá sửa đổi."

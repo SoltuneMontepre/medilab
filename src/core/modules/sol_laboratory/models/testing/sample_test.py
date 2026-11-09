@@ -94,6 +94,11 @@ class SampleTest(models.Model, SampleTestBase):
         # its parameter and its sample's type or one of that type's ancestors. Approving or cancelling the test keeps the
         # mark it had then.
         is_accredited = fields.Boolean(string="Accredited", default=False, readonly=True, copy=False)
+        # The way of testing the customer accepted on the order's quotation; the test keeps to it. Empty for a test the
+        # laboratory chooses the way of.
+        accepted_method_id = fields.Many2one(
+            MODEL_PARAMETER_METHOD, string="Accepted Way of Testing", readonly=True, ondelete="restrict"
+        )
         # True when no machine can finish the test before its due date, so the scheduler suggests outsourcing it.
         outsourcing_suggested = fields.Boolean(readonly=True, copy=False, index=True)
         # Why the head of department outsourced the test straight away instead of from an outsourcing suggestion.
@@ -157,6 +162,8 @@ class SampleTest(models.Model, SampleTestBase):
             raise UserError(self.env._("Add a sample test to a dispatch, or take it out, on the dispatch."))
         if "is_accredited" in vals and not self.env.su:
             raise UserError(self.env._("Accreditation is computed from certificates; it cannot be set by hand."))
+        if "accepted_method_id" in vals:
+            raise UserError(self.env._("The accepted way of testing changes only through a revised quotation."))
         if vals.get("status") in FINISHED_STATUSES:
             # The mark is kept from now on, so it is worked out on the day the test is finished.
             self._refresh_accreditation()
@@ -230,6 +237,19 @@ class SampleTest(models.Model, SampleTestBase):
                         "%(way)s does not apply to %(sample_type)s.",
                         way=test.parameter_method_id.display_name,
                         sample_type=sample_type.display_name,
+                    )
+                )
+
+    @api.constrains("parameter_method_id", "accepted_method_id")
+    def _check_accepted_way(self):
+        for test in self.filtered("accepted_method_id"):
+            if test.parameter_method_id != test.accepted_method_id:
+                raise ValidationError(
+                    self.env._(
+                        "%(parameter)s is tested by %(way)s, the way of testing the customer accepted; another way needs "
+                        "a revised quotation.",
+                        parameter=test.parameter_id.display_name,
+                        way=test.accepted_method_id.display_name,
                     )
                 )
 

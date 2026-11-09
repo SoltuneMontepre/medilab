@@ -1,5 +1,7 @@
 # {{ k3s_marker }}
-# Traffic reaches Traefik through cloudflared inside the cluster, so it binds no host port.
+# Traffic reaches Traefik through cloudflared inside the cluster, so it binds no host port. The web entry point trusts
+# the forwarded headers of the pod network, which only cloudflared reaches it from, and appends no hop to
+# X-Forwarded-For, so its last address stays the client's that Cloudflare added and Odoo's proxy mode reads.
 apiVersion: helm.cattle.io/v1
 kind: HelmChartConfig
 metadata:
@@ -9,3 +11,9 @@ spec:
   valuesContent: |-
     service:
       type: ClusterIP
+    ports:
+      web:
+        forwardedHeaders:
+          trustedIPs:
+            - {{ k3s_pod_network }}
+          notAppendXForwardedFor: true
