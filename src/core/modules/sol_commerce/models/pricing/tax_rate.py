@@ -1,11 +1,17 @@
 from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Domain
-from odoo.tools import format_date
+from odoo.tools import float_compare, format_date
 
-from odoo.addons.sol_commerce.constants.models import MODEL_TAX, MODEL_TAX_RATE
+from odoo.addons.sol_commerce.constants.models import (
+    MODEL_ACCOUNT_CHART_TEMPLATE,
+    MODEL_ACCOUNT_TAX,
+    MODEL_TAX,
+    MODEL_TAX_RATE,
+)
+from odoo.addons.sol_commerce.constants.pricing import CHART_VAT_EXEMPTION_TAX, NOT_SUBJECT_TAX_CODE
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_PERMISSION_MIXIN
 
 if TYPE_CHECKING:
@@ -30,6 +36,14 @@ class TaxRate(models.Model, TaxRateBase):
         valid_from = fields.Date(required=True)
         # Last day the rate applies; empty when it applies until further notice.
         valid_until = fields.Date()
+        # The accounting sales tax that quotation and invoice lines get for this rate; empty for the company's sales
+        # tax of the same rate.
+        account_tax_id = fields.Many2one(
+            MODEL_ACCOUNT_TAX,
+            string="Accounting Tax",
+            ondelete="restrict",
+            domain="[('type_tax_use', '=', 'sale'), ('amount_type', '=', 'percent'), ('amount', '=', rate)]",
+        )
 
     _tax_valid_from_index = models.Index("(tax_id, valid_from)")
     _rate_positive = models.Constraint("CHECK(rate >= 0)", "A tax rate cannot be negative.")
@@ -64,3 +78,63 @@ class TaxRate(models.Model, TaxRateBase):
                         other=overlapping.display_name,
                     )
                 )
+
+    @api.constrains("rate", "account_tax_id")
+    def _check_account_tax(self):
+        for rate in self.filtered("account_tax_id"):
+            tax = rate.account_tax_id.sudo()
+            if (
+                tax.type_tax_use != "sale"
+                or tax.amount_type != "percent"
+                or float_compare(tax.amount, rate.rate, precision_digits=4)
+            ):
+                raise ValidationError(
+                    self.env._(
+                        "The accounting tax of %(rate)s must be a sales tax of %(percent)s%%.",
+                        rate=rate.display_name,
+                        percent=f"{rate.rate:g}",
+                    )
+                )
+
+    def _account_tax(self, company):
+        """Return the company's sales tax that lines get for this rate: the one chosen on the rate, otherwise the
+        default one of its percent.
+
+        While modules install, the company may not have its chart of accounts yet, so no tax is returned; otherwise a
+        rate without a sales tax is refused.
+        """
+        self.ensure_one()
+        if self.account_tax_id:
+            tax = self.account_tax_id.sudo()._filter_taxes_by_company(company)
+        else:
+            tax = self._default_account_tax(company)
+        if not tax and self.env.registry.ready:
+            raise UserError(
+                self.env._(
+                    "Accounting has no sales tax for %(rate)s in %(company)s. Choose one on the rate.",
+                    rate=self.display_name,
+                    company=company.display_name,
+                )
+            )
+        return tax.sudo(False)
+
+    def _default_account_tax(self, company):
+        """The chart's VAT exemption for the tax not subject to VAT, which invoices print differently from 0% VAT;
+        otherwise the company's first sales tax of the rate that is excluded from the price."""
+        if self.tax_id.code == NOT_SUBJECT_TAX_CODE and not self.rate:
+            exemption = (
+                self.env[MODEL_ACCOUNT_CHART_TEMPLATE]
+                .sudo()
+                .with_company(company)
+                .ref(CHART_VAT_EXEMPTION_TAX, raise_if_not_found=False)
+            )
+            if exemption:
+                return exemption
+        taxes = self.env[MODEL_ACCOUNT_TAX].sudo().with_company(company)
+        return taxes.search(
+            Domain(taxes._check_company_domain(company))
+            & Domain("type_tax_use", "=", "sale")
+            & Domain("amount_type", "=", "percent")
+            & Domain("amount", "=", self.rate),
+            order="sequence, id",
+        ).filtered(lambda candidate: not candidate.price_include)[:1]

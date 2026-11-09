@@ -54,6 +54,10 @@ def seed_demo(env):
     from .demo_support import seed_support
     from .demo_tracking import seed_tracking
 
+    if not env.company.chart_template:
+        # Order lines take their sales tax and advance invoices their journal from the chart of accounts, which a
+        # fresh install loads only once every module is installed.
+        env["account.chart.template"].try_loading("vn", env.company)
     seed_orders(env)
     seed_order_templates(env)
     seed_quotations(env)
