@@ -4,15 +4,18 @@ from zoneinfo import ZoneInfo
 
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
+from odoo.fields import Domain
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ACCREDITATION_CERTIFICATE,
     MODEL_ACCREDITATION_CERTIFICATE_IMPORT,
+    MODEL_ACCREDITATION_SCOPE_LINE,
     MODEL_ARCHIVE_MIXIN,
     MODEL_AUDIT_MIXIN,
     MODEL_LOCK_MIXIN,
-    MODEL_PARAMETER_METHOD,
+    MODEL_PARAMETER_METHOD_SAMPLE_TYPE,
     MODEL_PERMISSION_MIXIN,
+    MODEL_SAMPLE_TEST,
     MODEL_TESTING_METHOD,
 )
 
@@ -20,6 +23,9 @@ if TYPE_CHECKING:
     from medilab_model_types import Model_medilab_accreditation_certificate as AccreditationCertificateBase
 else:
     AccreditationCertificateBase = object
+
+# Fields that change what a certificate accredits, besides its scope lines.
+VALIDITY_FIELDS = {"valid_from", "valid_until", "active"}
 
 
 # Giấy Chứng Nhận Công Nhận
@@ -31,6 +37,7 @@ class AccreditationCertificate(models.Model, AccreditationCertificateBase):
     _rec_name = "code"
     _rec_names_search = ("code", "issuing_body")
     _permission_actions = ("create", "edit", "archive", "delete")
+    _audit_children = ("scope_line_ids",)
 
     if not TYPE_CHECKING:
         # Certificate number, such as VILAS 123.
@@ -41,19 +48,27 @@ class AccreditationCertificate(models.Model, AccreditationCertificateBase):
         valid_from = fields.Date()
         # Last day the certificate is valid; empty means valid until any date.
         valid_until = fields.Date()
-        # Testing methods in the scope of the certificate.
+        # Lines of the scope, each with a testing method, its parameters and its sample types.
+        scope_line_ids = fields.One2many(MODEL_ACCREDITATION_SCOPE_LINE, "certificate_id", string="Scope")
+        # Testing methods the scope lines name.
         method_ids = fields.Many2many(
             MODEL_TESTING_METHOD,
-            "medilab_accreditation_certificate_method_rel",
-            "certificate_id",
-            "method_id",
-            ondelete="restrict",
+            compute="_compute_method_ids",
+            search="_search_method_ids",
             string="Testing Methods",
         )
         # False when the certificate is archived.
         active = fields.Boolean(default=True)
 
     _code_unique = models.Constraint("UNIQUE(code)", "The number of an accreditation certificate must be unique.")
+
+    @api.depends("scope_line_ids.method_id")
+    def _compute_method_ids(self):
+        for certificate in self:
+            certificate.method_ids = certificate.scope_line_ids.method_id
+
+    def _search_method_ids(self, operator, value):
+        return Domain("scope_line_ids.method_id", operator, value)
 
     @api.constrains("valid_from", "valid_until")
     def _check_validity_dates(self):
@@ -71,60 +86,38 @@ class AccreditationCertificate(models.Model, AccreditationCertificateBase):
         return datetime.now(ZoneInfo(self.env.company.tz or "UTC")).date()
 
     @api.model
-    def _accredited_methods(self, methods, today=None):
-        """Return the subset of methods covered by an active certificate valid on today."""
+    def _recompute_accreditation(self, methods):
+        """Work out again whether the ways of testing that use the methods are accredited on their sample types, and
+        their sample tests still open."""
         methods = methods.exists()
         if not methods:
-            return methods
-        today = today or self._laboratory_today()
-        return (
-            self.with_context(active_test=True)
-            .search(
-                [
-                    ("method_ids", "in", methods.ids),
-                    "|",
-                    ("valid_from", "=", False),
-                    ("valid_from", "<=", today),
-                    "|",
-                    ("valid_until", "=", False),
-                    ("valid_until", ">=", today),
-                ]
-            )
-            .mapped("method_ids")
-            & methods
+            return
+        applicabilities = (
+            self.env[MODEL_PARAMETER_METHOD_SAMPLE_TYPE]
+            .sudo()
+            .with_context(active_test=False)
+            .search([("parameter_method_id.method_id", "in", methods.ids)])
         )
-
-    def _recompute_linked_pairs(self, methods=None):
-        methods = methods if methods is not None else self.mapped("method_ids")
-        self.env[MODEL_PARAMETER_METHOD]._recompute_for_methods(methods)
-
-    @api.model_create_multi
-    def create(self, vals_list):
-        certificates = super().create(vals_list)
-        certificates.flush_recordset()
-        certificates._recompute_linked_pairs(certificates.mapped("method_ids"))
-        return certificates
+        applicabilities._recompute_is_accredited()
+        self.env[MODEL_SAMPLE_TEST]._refresh_accreditation_of_methods(methods)
 
     def write(self, vals):
-        scope_keys = {"method_ids", "valid_from", "valid_until", "active"}
-        methods_before = self.mapped("method_ids") if scope_keys & set(vals) else self.env[MODEL_TESTING_METHOD]
         result = super().write(vals)
-        if scope_keys & set(vals):
-            method_ids = set(methods_before.ids) | set(self.mapped("method_ids").ids)
-            self._recompute_linked_pairs(self.env[MODEL_TESTING_METHOD].browse(method_ids))
+        if VALIDITY_FIELDS & set(vals):
+            self._recompute_accreditation(self.scope_line_ids.method_id)
         return result
 
     def unlink(self):
-        methods = self.mapped("method_ids")
+        methods = self.scope_line_ids.method_id
         result = super().unlink()
-        self.env[MODEL_PARAMETER_METHOD]._recompute_for_methods(methods)
+        self._recompute_accreditation(methods)
         return result
 
-    def action_import_methods(self):
+    def action_import_scope(self):
         self.ensure_one()
         return {
             "type": "ir.actions.act_window",
-            "name": self.env._("Import Methods"),
+            "name": self.env._("Import Scope Lines"),
             "res_model": MODEL_ACCREDITATION_CERTIFICATE_IMPORT,
             "view_mode": "form",
             "target": "new",

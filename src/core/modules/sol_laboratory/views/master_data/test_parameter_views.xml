@@ -43,7 +43,6 @@
                                     <field name="department_id" invisible="subcontractor_id" required="not subcontractor_id" />
                                     <field name="subcontractor_id" invisible="department_id" />
                                     <field name="allows_negative" optional="hide" />
-                                    <field name="is_accredited" readonly="1" />
                                     <field name="active" widget="boolean_toggle" />
                                 </list>
                             </field>
@@ -60,6 +59,7 @@
                                     <field name="loq" widget="nullable_float" />
                                     <field name="result_decimals" />
                                     <field name="is_default" />
+                                    <field name="is_accredited" optional="show" />
                                 </list>
                             </field>
                         </page>
