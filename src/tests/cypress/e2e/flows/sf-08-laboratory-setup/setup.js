@@ -1,11 +1,9 @@
 import { callAs, randomId, refAs } from "../../../support/odoo";
+import { assignedTest as assignedSampleTest, requestedOrder as requestedPurchase } from "../sf-03-change-request/setup";
 
 export const ADMINISTRATOR = "demo.administrator";
 const SALES = "demo.sales";
 export const HEAD_OF_SALES = "demo.head_of_sales";
-const RECEPTION = "demo.sample_delivery_staff";
-const HEAD = "demo.head_of_department";
-const STOREKEEPER = "demo.storekeeper";
 
 // The business demo.customer orders for, and the contact its orders name.
 const COMPANY = "sol_demo.demo_res_partner_nuoc_sach";
@@ -86,53 +84,10 @@ export function pricedParameter(name) {
 // the parameter, received and assigned to the tester. Receiving and assigning belong to WF-02 and WF-03. Yields the
 // sample test as `{ model, id }`.
 export function assignedTest(parameterId) {
-  const ids = {};
-  refAs(RECEPTION, "sol_demo.demo_customer_nuoc_sach").then(({ id }) => (ids.customer = id));
-  refAs(RECEPTION, "sol_demo.demo_sample_type_bottled_water").then(({ id }) => (ids.water = id));
-  refAs(RECEPTION, REGULATION).then(({ id }) => (ids.regulation = id));
-  refAs(HEAD, "sol_demo.demo_person_tester").then(({ id }) => (ids.tester = id));
-  return cy
-    .then(() =>
-      callAs(RECEPTION, "medilab.test.request", "create", [
-        {
-          customer_id: ids.customer,
-          sample_ids: [
-            [
-              0,
-              0,
-              {
-                customer_sample_name: unique("Nước uống đóng chai"),
-                sample_type_id: ids.water,
-                physical_state: "liquid",
-                regulation_id: ids.regulation,
-                test_ids: [[0, 0, { parameter_id: parameterId }]],
-              },
-            ],
-          ],
-        },
-      ]),
-    )
-    .then((request) => {
-      callAs(RECEPTION, "medilab.test.request", "action_confirm", [[request]]);
-      return callAs(RECEPTION, "medilab.sample", "search_read", [[["request_id", "=", request]]], { fields: ["test_ids"] });
-    })
-    .then(([sample]) => {
-      ids.test = sample.test_ids[0];
-      callAs(RECEPTION, "medilab.sample", "action_receive", [[sample.id], "2 chai", "good"]);
-      return callAs(HEAD, "medilab.task", "search", [
-        [
-          ["document_model", "=", "medilab.sample.test"],
-          ["document_id", "=", ids.test],
-        ],
-      ]);
-    })
-    .then((tasks) => {
-      const context = { active_ids: tasks };
-      return callAs(HEAD, "medilab.task.reassign", "create", [{ assignee_id: ids.tester }], { context }).then((wizard) =>
-        callAs(HEAD, "medilab.task.reassign", "action_confirm", [[wizard]], { context }),
-      );
-    })
-    .then(() => ({ model: "medilab.sample.test", id: ids.test }));
+  return assignedSampleTest(parameterId, { name: unique("Nước uống đóng chai"), regulation: REGULATION }).then(({ test }) => ({
+    model: "medilab.sample.test",
+    id: test,
+  }));
 }
 
 // A tax of 10% since 2020 and a package of Lead at 280,000 taxed with it. Yields `{ tax, package, product }` ids.
@@ -203,35 +158,19 @@ export function resetPurchaseChain() {
     .then((levels) => levels.length && callAs(ADMINISTRATOR, "medilab.approval.level", "unlink", [levels]));
 }
 
-// A purchase order of sodium chloride the storekeeper sent for approval, signing the first level. Yields `{ model, id }`.
+// A purchase order the storekeeper sent for approval, signing the first level. Yields `{ model, id }`.
 export function requestedOrder() {
-  const ids = {};
-  refAs(STOREKEEPER, "sol_demo.demo_res_partner_vietnam_chemicals").then(({ id }) => (ids.supplier = id));
-  refAs(STOREKEEPER, "sol_demo.demo_hr_department_chemistry").then(({ id }) => (ids.department = id));
-  refAs(STOREKEEPER, "sol_demo.demo_product_product_sodium_chloride").then(({ id }) => (ids.item = id));
-  return cy
-    .then(() =>
-      callAs(STOREKEEPER, "purchase.order", "create", [
-        {
-          partner_id: ids.supplier,
-          department_id: ids.department,
-          order_line: [[0, 0, { product_id: ids.item, product_qty: 500, price_unit: 380 }]],
-        },
-      ]),
-    )
-    .then((id) => {
-      return callAs(STOREKEEPER, "purchase.order", "action_request_approval", [[id]]).then(() => ({ model: "purchase.order", id }));
-    });
+  return requestedPurchase(500).then((id) => ({ model: "purchase.order", id }));
 }
 
 // Takes from the backup signer every role an earlier run or another spec gave, permanent or until a date.
 export function clearBackupRoles() {
-  return ref(BACKUP_PERSON).then((person) => {
-    callAs(ADMINISTRATOR, "medilab.person", "write", [[person], { role_ids: [[5, 0, 0]] }]);
-    return callAs(ADMINISTRATOR, "medilab.role.grant", "search", [[["person_id", "=", person]]]).then(
-      (grants) => grants.length && callAs(ADMINISTRATOR, "medilab.role.grant", "unlink", [grants]),
-    );
-  });
+  return ref(BACKUP_PERSON)
+    .then((person) => {
+      callAs(ADMINISTRATOR, "medilab.person", "write", [[person], { role_ids: [[5, 0, 0]] }]);
+      return callAs(ADMINISTRATOR, "medilab.role.grant", "search", [[["person_id", "=", person]]]);
+    })
+    .then((grants) => grants.length && callAs(ADMINISTRATOR, "medilab.role.grant", "unlink", [grants]));
 }
 
 // Removes the limits the main path added to the regulation of bottled water.

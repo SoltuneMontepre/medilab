@@ -1,5 +1,6 @@
 import { newRecord, openTab, pick, save } from "../../../support/form";
 import { call, callAs, resolveRecord } from "../../../support/odoo";
+import { signatures } from "../sf-03-change-request/setup";
 import {
   ADMINISTRATOR,
   BACKUP_PERSON,
@@ -96,20 +97,9 @@ function signOrder() {
   cy.wait("@sign");
 }
 
-// The levels a document is signed at, oldest first, as the administrator reads them.
-function signatures(document) {
-  return callAs(
-    ADMINISTRATOR,
-    "medilab.signature",
-    "search_read",
-    [
-      [
-        ["document_model", "=", document.model],
-        ["document_id", "=", document.id],
-      ],
-    ],
-    { fields: ["level_name"], order: "id" },
-  ).then((rows) => rows.map((row) => row.level_name));
+// The levels a document is signed at, oldest first.
+function signedLevels(document) {
+  return signatures(document).then((rows) => rows.map((row) => row.level_name));
 }
 
 // The names of the apps the signed-in user's home menu offers.
@@ -334,14 +324,14 @@ describe("SF-08 Laboratory setup", () => {
       cy.openRecord(order);
       signOrder();
       // The lab head's level is signed, and the order still waits for the new level.
-      signatures(order).should("deep.equal", ["Storekeeper", "Lab head"]);
+      signedLevels(order).should("deep.equal", ["Storekeeper", "Lab head"]);
       cy.readRecord(order, ["approval_status"]).its("approval_status").should("eq", "requested");
 
       cy.signInAs("administrator");
       cy.openRecord(order);
       signOrder();
       cy.readRecord(order, ["approval_status"]).its("approval_status").should("eq", "approved");
-      signatures(order).should("deep.equal", ["Storekeeper", "Lab head", FINAL_LEVEL]);
+      signedLevels(order).should("deep.equal", ["Storekeeper", "Lab head", FINAL_LEVEL]);
     });
   });
 
