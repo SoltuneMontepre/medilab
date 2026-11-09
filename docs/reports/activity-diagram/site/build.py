@@ -6,7 +6,7 @@ change a diagram, edit its draw.io file there, then build and deploy.
 
 The home page is the system activity map, whose flows link to their own pages. Titles come from the headings of
 business-flows.md, and the flows each one comes from and leads to come from the lines of the map.
-Next to each draw.io file of ../final, a build writes an SVG of each page and, for a core flow, a PNG of each page.
+Next to each draw.io file of ../final, a build writes an SVG of each page.
 activity-diagrams-final.zip holds ../final; activity-diagrams-final.pdf holds the map and the Workflow page of each
 flow, with a bookmark for each.
 With --publish, the build is pushed to the gh-pages branch, which GitHub Pages deploys.
@@ -297,21 +297,18 @@ def write_flow(fid, names, views, comes, leads):
 
 
 def write_final(names, views):
-    """Write the SVG of each page next to its draw.io file in ../final, a PNG of each page for the core flows, and
-    zip the folder."""
-    for old in [*FINAL.rglob("*.svg"), *FINAL.rglob("*.png")]:
+    """Write the SVG of each page next to its draw.io file in ../final, and zip the folder."""
+    for old in FINAL.rglob("*.svg"):
         old.unlink()
     shutil.copy(PUBLIC / "diagrams" / "map.svg", MAP_DRAWIO.with_suffix(".svg"))
     for fid in names:
         path = source(fid)
-        for label, number, src in views[fid]:
+        for label, _, src in views[fid]:
             stem = f"{path.stem} - {label}" if len(views[fid]) > 1 else path.stem
-            shutil.copy(PUBLIC / src.lstrip("/"), path.with_name(f"{stem}.svg"))
-            if fid.startswith("WF"):
-                export(path, number, path.with_name(f"{stem}.png"), "png")
+            shutil.copy(PUBLIC / src, path.with_name(f"{stem}.svg"))
     FINAL_ZIP.unlink(missing_ok=True)
     shutil.make_archive(str(FINAL_ZIP.with_suffix("")), "zip", FINAL.parent, FINAL.name)
-    print(f"Wrote the pictures of {FINAL.relative_to(DIAGRAMS)} and {FINAL_ZIP.name}")
+    print(f"Wrote the SVGs of {FINAL.relative_to(DIAGRAMS)} and {FINAL_ZIP.name}")
 
 
 def write_pdf(names, views):

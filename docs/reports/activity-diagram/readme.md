@@ -6,7 +6,7 @@ The system activity map and one activity diagram per business flow of [Business 
 
 ## Files
 
-- [final](final): the diagrams, named with their ID and title. Each `.drawio` file is the source; the build writes the `.svg` of each page next to it, and a `.png` of each page for a core flow.
+- [final](final): the diagrams, named with their ID and title. Each `.drawio` file is the source; the build writes the `.svg` of each page next to it.
   - `System activity map`: the flows, the events that start a flow on its own, and the hand-overs between flows.
   - `Core flows`: each WF has a Workflow page and a Demo scenarios page, whose bands each name the path of business-flows.md they show.
   - `Supporting flows`: one page per SF.
