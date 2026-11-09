@@ -1246,6 +1246,11 @@ msgid "Comment"
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_base_module_uninstall__commerce_warning
+msgid "Commerce Warning"
+msgstr ""
+
+#. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_res_company
 msgid "Company"
 msgstr ""
@@ -1775,6 +1780,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_advance_payment_inv__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order_discount__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -2144,6 +2150,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_advance_payment_inv__id
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__id
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__id
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order_discount__id
 msgid "ID"
 msgstr ""
 
@@ -2442,6 +2449,11 @@ msgstr ""
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.report_reconciliation_day
 msgid "Missing payment"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_base_module_uninstall
+msgid "Module Uninstall"
 msgstr ""
 
 #. module: sol_commerce
@@ -4508,6 +4520,14 @@ msgid "Unclaimed queue"
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_base_module_uninstall
+msgid ""
+"Uninstalling E-commerce deletes its data and the link between orders and "
+"test requests. Each test request created from an order keeps the order's "
+"number as text."
+msgstr ""
+
+#. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__quotation_follow_up__unpaid
 msgid "Unpaid"
 msgstr ""
@@ -4713,4 +4733,30 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_line.py:0
 msgid "no sample type"
+msgstr ""
+
+#. module: sol_commerce
+#: model:product.template,name:sol_commerce.product_quotation_discount_product_template
+#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+msgid "Discount"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order_discount__discount_type
+msgid "Discount Type"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_sale_order_discount
+msgid "Discount Wizard"
+msgstr ""
+
+#. module: sol_commerce
+#: code:addons/sol_commerce/models/orders/sale_order_discount.py:0
+msgid "On every line"
+msgstr ""
+
+#. module: sol_commerce
+#: code:addons/sol_commerce/models/orders/sale_order_discount.py:0
+msgid "On the whole quotation"
 msgstr ""

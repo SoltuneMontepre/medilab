@@ -19,6 +19,7 @@ from . import (
     test_order_cancellation,
     test_order_cart,
     test_order_confirmation,
+    test_order_discount,
     test_order_feedback,
     test_order_form,
     test_order_freeze,
@@ -53,6 +54,7 @@ from . import (
     test_quotation_language,
     test_quotation_pdf,
     test_quotation_portal,
+    test_quotation_portal_discount,
     test_quotation_send,
     test_sales_analysis,
     test_service_package,
@@ -61,5 +63,7 @@ from . import (
     test_support_request,
     test_tax_archiving,
     test_tax_rates,
+    test_uninstall,
+    test_uninstall_warning,
     test_vietnamese_accounting,
 )
