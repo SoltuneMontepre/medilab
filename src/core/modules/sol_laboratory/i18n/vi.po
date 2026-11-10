@@ -267,22 +267,6 @@ msgid "A chain with signatures cannot be deleted; archive it instead. Signatures
 msgstr "Không thể xóa chuỗi đã có chữ ký; hãy lưu trữ chuỗi. Chữ ký: %s"
 
 #. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
-msgid ""
-"A computer signs in with its installation id and its name, never a path."
-msgstr ""
-"Máy tính đăng nhập bằng mã cài đặt và tên của nó, không bao giờ là một đường"
-" dẫn."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
-msgid ""
-"A computer signs in with its installation id, its name and its platform."
-msgstr "Máy tính đăng nhập bằng mã cài đặt, tên và hệ điều hành của nó."
-
-#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_approval_chain_purpose_unique
 msgid "A document type cannot have two chains for the same purpose."
 msgstr "Một loại chứng từ không thể có hai chuỗi cho cùng một mục đích."
@@ -1666,8 +1650,7 @@ msgid "Computer"
 msgstr "Máy tính"
 
 #. module: sol_laboratory
-#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_laboratory_device
-#: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_device
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_search
 msgid "Computers"
 msgstr "Máy tính"
 
@@ -6563,6 +6546,7 @@ msgstr "Người chịu trách nhiệm xác thực hợp đồng của nhân vi�
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__phone
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__phone
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__phone
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__laboratory_device_id
 msgid "Phone"
 msgstr "Điện thoại"
 
@@ -8207,16 +8191,6 @@ msgid "The code of a testing method must be unique."
 msgstr "Mã phương pháp thử phải là duy nhất."
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_form
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_list
-msgid ""
-"The computer stops at once and can never sign in again; its person keeps "
-"their folders and other computers. Revoke it?"
-msgstr ""
-"Máy tính dừng ngay và không bao giờ đăng nhập lại được; người dùng vẫn giữ "
-"các thư mục và máy tính khác. Thu hồi máy tính?"
-
-#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
 msgid "The customer's contact"
 msgstr "Liên hệ của khách hàng"
@@ -8556,12 +8530,6 @@ msgstr ""
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_subcontractor_partner_unique
 msgid "This company is already a subcontractor."
 msgstr "Công ty này đã là thầu phụ."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
-msgid "This computer is not signed in."
-msgstr "Máy tính này chưa đăng nhập."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -9628,12 +9596,6 @@ msgid "A mandatory event cannot be turned off."
 msgstr "Không thể tắt một sự kiện bắt buộc."
 
 #. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/system/mobile_device.py:0
-msgid "A mobile device needs a token and a platform."
-msgstr "Thiết bị di động cần mã thông báo và nền tảng."
-
-#. module: sol_laboratory
 #: model:mail.message.subtype,description:sol_laboratory.event_task_reminder
 msgid "A planned task is about to start"
 msgstr "Một nhiệm vụ đã lên lịch sắp bắt đầu"
@@ -9645,6 +9607,7 @@ msgstr "Đã có sự kiện với mã này."
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_mobile_device__platform__android
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_device__platform__android
 msgid "Android"
 msgstr "Android"
 
@@ -10042,12 +10005,6 @@ msgid "This channel is already chosen for the event."
 msgstr "Kênh này đã được chọn cho sự kiện."
 
 #. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/system/mobile_device.py:0
-msgid "This device is not registered for you."
-msgstr "Thiết bị này không được đăng ký cho bạn."
-
-#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_mobile_device_token_unique
 msgid "This device token is already registered."
 msgstr "Mã thông báo của thiết bị này đã được đăng ký."
@@ -10075,6 +10032,7 @@ msgstr "Bạn chỉ có thể đổi lựa chọn kênh của chính mình."
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_mobile_device__platform__ios
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_device__platform__ios
 msgid "iOS"
 msgstr "iOS"
 
@@ -14187,12 +14145,6 @@ msgstr "Không tìm thấy gì tại địa chỉ này."
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/services/laboratory_api.py:0
-msgid "Sign this computer in: the call has no key."
-msgstr "Hãy đăng nhập máy tính này: yêu cầu không có khóa."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/services/laboratory_api.py:0
 msgid "The body is not valid JSON."
 msgstr "Nội dung yêu cầu không phải JSON hợp lệ."
 
@@ -16554,3 +16506,94 @@ msgstr "Báo cáo của thầu phụ"
 #: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch.py:0
 msgid "The subcontractor's report is kept; attach another file to replace it."
 msgstr "Báo cáo của thầu phụ được giữ lại; đính kèm tệp khác để thay thế."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+msgid "A device signs in with its installation id and its name, never a path."
+msgstr ""
+"Thiết bị đăng nhập bằng mã cài đặt và tên của nó, không bao giờ là một đường"
+" dẫn."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+msgid "A device signs in with its installation id, its name and its platform."
+msgstr "Thiết bị đăng nhập bằng mã cài đặt, tên và hệ điều hành của nó."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/mobile_device.py:0
+msgid ""
+"Another registration of this push token happened meanwhile; it is run again."
+msgstr ""
+"Mã thông báo đẩy này vừa được đăng ký ở một yêu cầu khác; lần đăng ký này "
+"được chạy lại."
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_laboratory_device
+#: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_device
+msgid "Devices"
+msgstr "Thiết bị"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+msgid "Only a phone signed in on Medilab Mobile does this."
+msgstr "Chỉ điện thoại đã đăng nhập Medilab Mobile mới làm được việc này."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+msgid "Only the laboratory's staff sign in on Medilab Mobile."
+msgstr "Chỉ nhân viên phòng thí nghiệm mới đăng nhập được Medilab Mobile."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_search
+msgid "Phones"
+msgstr "Điện thoại"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/services/laboratory_api.py:0
+msgid "Sign this device in: the call has no key."
+msgstr "Hãy đăng nhập thiết bị này: yêu cầu không có khóa."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_list
+msgid ""
+"The device stops at once, a phone gets no more pushes, and it can never sign"
+" in again; its person keeps their folders and other devices. Revoke it?"
+msgstr ""
+"Thiết bị dừng ngay, điện thoại không còn nhận thông báo đẩy và không bao giờ"
+" đăng nhập lại được; người dùng vẫn giữ các thư mục và thiết bị khác. Thu "
+"hồi thiết bị?"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+#: code:addons/sol_laboratory/services/laboratory_api.py:0
+msgid "This device is not signed in."
+msgstr "Thiết bị này chưa đăng nhập."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_mobile_device_phone_unique
+msgid "This phone already has a push token."
+msgstr "Điện thoại này đã có mã thông báo đẩy."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+msgid ""
+"This phone was revoked. Install Medilab Mobile again to sign it in as a new "
+"phone."
+msgstr ""
+"Điện thoại này đã bị thu hồi. Hãy cài lại Medilab Mobile để đăng nhập như "
+"một điện thoại mới."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/mail_notification.py:0
+msgid "This notification is no longer in your inbox."
+msgstr "Thông báo này không còn trong hộp thư của bạn."

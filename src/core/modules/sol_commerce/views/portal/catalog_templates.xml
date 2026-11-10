@@ -7,6 +7,7 @@
                     <h1>Catalog</h1>
                     <a class="btn btn-primary" href="/cart"><i class="oi me-1" data-icon="shopping_cart" aria-hidden="true" />Cart (<t t-out="cart_quantity" />)</a>
                 </div>
+                <p t-if="request.params.get('error')" class="text-danger" t-out="request.params.get('error')" />
                 <form method="get" action="/catalog" class="row g-2 mb-4">
                     <div class="col-md-3">
                         <select name="sample_type" class="form-select o_medilab_catalog_filter" aria-label="Sample type">

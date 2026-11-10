@@ -1,11 +1,12 @@
 openapi: 3.1.0
 info:
   title: MediLab laboratory files API
-  version: 1.5.0
+  version: 1.7.0
   description: |
-    The API Medilab Sync signs computers in with and reaches laboratory files through. Every refusal answers
-    `{"error": {"code", "message"}}` with the HTTP status of its code; a computer acts on the code, never on the
-    message, which is in the person's language.
+    The API Medilab Sync signs computers in with and reaches laboratory files through, and Medilab Mobile signs phones
+    in with. Every refusal answers `{"error": {"code", "message"}}` with the HTTP status of its code; a device acts on
+    the code, never on the message, which is in the person's language. A request with an `Accept-Language` of a
+    language MediLab has installed, such as `vi` or `en`, is answered in that language.
 
     A route that creates something takes an optional `Idempotency-Key` header, a key the computer generates for the
     request and that is unique for the computer: repeating the request with the same key, such as after a lost answer,
@@ -20,7 +21,7 @@ info:
     | `not_found` | 404 |
     | `method_not_allowed` | 405 |
     | `folder_archived`, `folder_disabled`, `folder_exists`, `locked`, `not_locked`, `upload_incomplete`, `upload_closed` | 409 |
-    | `not_eligible`, `not_lockable`, `not_editable`, `idempotency_conflict` | 422 |
+    | `not_eligible`, `not_lockable`, `not_editable`, `idempotency_conflict`, `mandatory_event` | 422 |
     | `too_many_attempts` | 429 |
     | `internal_error` | 500 |
     | `try_again`, `editing_unavailable`, `storage_unavailable` | 503 |
@@ -28,6 +29,17 @@ servers:
   - url: /medilab/api/v1
 security:
   - deviceKey: []
+tags:
+  - name: Push tokens
+    description: The Firebase token of a phone signed in on Medilab Mobile.
+  - name: Modules
+    description: The installed MediLab modules.
+  - name: Notifications
+    description: The person's inbox notifications, the same as the web's inbox.
+  - name: Notification preferences
+    description: Which events are pushed to the person's phones.
+  - name: Documents
+    description: The documents pushes, notifications and tasks open.
 paths:
   /health:
     get:
@@ -70,10 +82,11 @@ paths:
   /sign-in:
     post:
       operationId: signIn
-      summary: Signs a computer in with the person's MediLab login and gives it a key of its own.
+      summary: Signs a computer or a phone in with the person's MediLab login and gives it a key of its own.
       description: |
-        A person with two-factor authentication signs in with one of their Odoo API keys in place of the password.
-        Signing in again replaces the computer's key. After 5 failed attempts for a login within 15 minutes, every
+        A computer signs in for a person with the laboratory files permission; a phone, of platform `android` or `ios`,
+        for any internal user, never for a portal user. A person with two-factor authentication signs in with one of
+        their Odoo API keys in place of the password. Signing in again replaces the device's key. After 5 failed attempts for a login within 15 minutes, every
         further attempt waits a delay that doubles from 1 second up to 60 seconds after the last failure; an attempt
         before its delay has passed is refused before the password is checked.
       security: []
@@ -85,7 +98,7 @@ paths:
               $ref: "#/components/schemas/SignIn"
       responses:
         "200":
-          description: The computer is signed in. The key is given only in this answer.
+          description: The device is signed in. The key is given only in this answer.
           content:
             application/json:
               schema:
@@ -107,11 +120,13 @@ paths:
   /sign-out:
     post:
       operationId: signOut
-      summary: Signs the computer of the key out; it can sign in again.
-      description: The key stops at once, so repeating a sign-out whose answer was lost is refused with `invalid_key`.
+      summary: Signs the device of the key out; it can sign in again.
+      description: |
+        The key stops at once, so repeating a sign-out whose answer was lost is refused with `invalid_key`. A phone's
+        push token is turned off with it.
       responses:
         "204":
-          description: The computer is signed out.
+          description: The device is signed out.
         "400":
           $ref: "#/components/responses/InvalidRequest"
         "401":
@@ -127,10 +142,10 @@ paths:
   /devices:
     get:
       operationId: listDevices
-      summary: Lists the person's computers.
+      summary: Lists the person's computers and phones.
       responses:
         "200":
-          description: The person's computers, the one of the key included.
+          description: The person's computers and phones, the one of the key included.
           content:
             application/json:
               schema:
@@ -152,10 +167,10 @@ paths:
   /devices/{device_id}/revoke:
     post:
       operationId: revokeDevice
-      summary: Revokes one of the person's computers for good.
+      summary: Revokes one of the person's computers or phones for good.
       description: |
-        Its key stops at once and it cannot sign in again; the person's folders and other computers stay. Revoking a
-        computer already revoked changes nothing.
+        Its key stops at once, a phone's push token is turned off, and it cannot sign in again; the person's folders and
+        other devices stay. Revoking a device already revoked changes nothing.
       parameters:
         - name: device_id
           in: path
@@ -169,6 +184,254 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RevokedDevice"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /push-token:
+    put:
+      operationId: registerPushToken
+      tags: [Push tokens]
+      summary: Registers the Firebase token of the phone of the key, or replaces its old one, and turns it on.
+      description: |
+        A phone has one token. A token registered for another phone, such as after the app is reinstalled, moves to
+        this phone, so a token is never pushed to two phones. Only a phone registers a token; a computer is refused
+        with `invalid_request`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PushToken"
+      responses:
+        "204":
+          description: The token is registered and on.
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+    delete:
+      operationId: unregisterPushToken
+      tags: [Push tokens]
+      summary: Turns the token of the phone of the key off.
+      description: Turning off a token already off, or a phone without one, changes nothing.
+      responses:
+        "204":
+          description: The phone gets no more pushes.
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /modules:
+    get:
+      operationId: listModules
+      tags: [Modules]
+      summary: Lists the installed MediLab modules, so an application shows only the screens of those installed.
+      responses:
+        "200":
+          description: The technical names of the installed MediLab modules, such as `sol_laboratory`.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModuleList"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /notifications:
+    get:
+      operationId: listNotifications
+      tags: [Notifications]
+      summary: Lists the person's inbox notifications, unread first, then newest first.
+      description: |
+        The notifications the web's inbox shows the person. Each names its event, the event's name, its date, its
+        document and whether it is read, never its text: the app reads the document with the person's rights.
+        `next_after` is the `after` of the next page, or empty after the last one.
+      parameters:
+        - name: after
+          in: query
+          required: false
+          description: The `next_after` of the page before; 0 or none from the start.
+          schema:
+            type: string
+            pattern: "^[0-9]{1,18}$"
+        - name: limit
+          in: query
+          required: false
+          description: How many to give, from 1 to 100; 50 by default.
+          schema:
+            type: string
+            pattern: "^(100|[1-9][0-9]?)$"
+      responses:
+        "200":
+          description: The notifications.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationList"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /notifications/{message_id}/read:
+    parameters:
+      - name: message_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      operationId: readNotification
+      tags: [Notifications]
+      summary: Marks the person's notification of the message read, as opening it in the web's inbox does.
+      description: Marking a notification already read changes nothing.
+      responses:
+        "204":
+          description: The notification is read, on the web as well.
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /notification-preferences:
+    get:
+      operationId: listNotificationPreferences
+      tags: [Notification preferences]
+      summary: Lists every event with whether its push reaches the person's phones.
+      description: |
+        A push is on until the person turns it off, and always on for a mandatory event. An event the administrator
+        turned off notifies nobody and is not listed.
+      responses:
+        "200":
+          description: The events and their pushes.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationPreferenceList"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /notification-preferences/{event_code}:
+    parameters:
+      - name: event_code
+        in: path
+        required: true
+        schema:
+          type: string
+    put:
+      operationId: setNotificationPreference
+      tags: [Notification preferences]
+      summary: Turns the push of the event on or off for the person, the same choice the web's preferences show.
+      description: Turning off the push of a mandatory event is refused with `mandatory_event`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PushChoice"
+      responses:
+        "200":
+          description: The event with its push as it now is.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationPreference"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/MandatoryEvent"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /documents/{model}/{record_id}:
+    parameters:
+      - name: model
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: record_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: getDocument
+      tags: [Documents]
+      summary: Gives the document a push, a notification or a task opens, as the person may read it.
+      description: |
+        A document the person can no longer read, or that no longer exists, answers `not_found`, and the app says so.
+        A document the app has no screen for answers the screen `web` with its address on the web.
+      responses:
+        "200":
+          description: The document.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
         "400":
           $ref: "#/components/responses/InvalidRequest"
         "401":
@@ -1171,10 +1434,13 @@ components:
           description: The id the application generates once per installation.
           $ref: "#/components/schemas/Name"
         name:
-          description: The name of the computer.
+          description: The name of the computer, or the phone's model.
           $ref: "#/components/schemas/Name"
         platform:
-          enum: [linux, windows]
+          $ref: "#/components/schemas/Platform"
+    Platform:
+      description: "`linux` or `windows` for a computer running Medilab Sync, `android` or `ios` for a phone running Medilab Mobile."
+      enum: [linux, windows, android, ios]
     Device:
       type: object
       additionalProperties: false
@@ -1185,18 +1451,18 @@ components:
         name:
           type: string
         platform:
-          enum: [linux, windows]
+          $ref: "#/components/schemas/Platform"
         status:
           enum: [signed_in, signed_out, revoked]
         last_seen_at:
-          description: When the computer last called the API, to the minute.
+          description: When the device last called the API, to the minute.
           type: [string, "null"]
           format: date-time
         revoked_at:
           type: [string, "null"]
           format: date-time
         current:
-          description: Whether this is the computer of the key.
+          description: Whether this is the device of the key.
           type: boolean
     SignedIn:
       type: object
@@ -1204,7 +1470,7 @@ components:
       required: [key, device]
       properties:
         key:
-          description: The computer's key, for the Authorization header. It does not expire.
+          description: The device's key, for the Authorization header. It does not expire.
           type: string
         device:
           $ref: "#/components/schemas/Device"
@@ -1224,6 +1490,125 @@ components:
       properties:
         device:
           $ref: "#/components/schemas/Device"
+    PushToken:
+      type: object
+      additionalProperties: false
+      required: [token]
+      properties:
+        token:
+          description: The registration token Firebase Cloud Messaging gave the app.
+          type: string
+          minLength: 1
+          maxLength: 4096
+    ModuleList:
+      type: object
+      additionalProperties: false
+      required: [modules]
+      properties:
+        modules:
+          type: array
+          items:
+            type: string
+    NotificationList:
+      type: object
+      additionalProperties: false
+      required: [notifications, next_after]
+      properties:
+        notifications:
+          type: array
+          items:
+            $ref: "#/components/schemas/Notification"
+        next_after:
+          type: [integer, "null"]
+    Notification:
+      type: object
+      additionalProperties: false
+      required: [id, event, title, date, read, document]
+      properties:
+        id:
+          description: The id of the notification's message, which `readNotification` takes.
+          type: integer
+        event:
+          description: The code of the notification's event, such as `task.reminder`; null for a message of no event.
+          type: [string, "null"]
+        title:
+          description: The event's name in the person's language.
+          type: string
+        date:
+          type: string
+          format: date-time
+        read:
+          type: boolean
+        document:
+          oneOf:
+            - $ref: "#/components/schemas/DocumentReference"
+            - type: "null"
+    DocumentReference:
+      type: object
+      additionalProperties: false
+      required: [model, id, code]
+      properties:
+        model:
+          type: string
+        id:
+          type: integer
+        code:
+          description: The document's code, such as a sample's lab code; empty when it has none.
+          type: string
+    NotificationPreferenceList:
+      type: object
+      additionalProperties: false
+      required: [preferences]
+      properties:
+        preferences:
+          type: array
+          items:
+            $ref: "#/components/schemas/NotificationPreference"
+    NotificationPreference:
+      type: object
+      additionalProperties: false
+      required: [event, name, mandatory, push]
+      properties:
+        event:
+          description: The event's code, which `setNotificationPreference` takes.
+          type: string
+        name:
+          description: The event's name in the person's language.
+          type: string
+        mandatory:
+          description: True when the event's push cannot be turned off.
+          type: boolean
+        push:
+          description: Whether the event is pushed to the person's phones.
+          type: boolean
+    PushChoice:
+      type: object
+      additionalProperties: false
+      required: [push]
+      properties:
+        push:
+          type: boolean
+    Document:
+      type: object
+      additionalProperties: false
+      required: [model, id, code, title, screen, url]
+      properties:
+        model:
+          type: string
+        id:
+          type: integer
+        code:
+          description: The document's code, such as a sample's lab code; empty when it has none.
+          type: string
+        title:
+          description: The document's code, or its name when it has no code.
+          type: string
+        screen:
+          description: The app's screen for the document; `web` for one it shows only with its address on the web.
+          enum: [task, sample, sample_test, test_result, handover_record, support_request, container, conversation, web]
+        url:
+          description: The document's address on the web.
+          type: string
     Folder:
       type: object
       additionalProperties: false
@@ -1717,6 +2102,7 @@ components:
                 - not_lockable
                 - not_editable
                 - idempotency_conflict
+                - mandatory_event
                 - too_many_attempts
                 - internal_error
                 - try_again
@@ -1806,6 +2192,18 @@ components:
                     properties:
                       code:
                         enum: [not_eligible, not_lockable, not_editable, idempotency_conflict]
+    MandatoryEvent:
+      description: The push of a mandatory event cannot be turned off.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error"
+              - properties:
+                  error:
+                    properties:
+                      code:
+                        enum: [mandatory_event]
     MethodNotAllowed:
       description: The route does not take this method.
       headers:

@@ -8,7 +8,7 @@ from odoo.tests import tagged
 from .result_case import ResultCase
 from .scheduling_case import MONDAY
 
-PRE_MIGRATE = Path(__file__).resolve().parents[1] / "migrations" / "20.0.1.29.0" / "pre-migrate.py"
+PRE_MIGRATE = Path(__file__).resolve().parents[1] / "migrations" / "20.0.1.32.0" / "pre-migrate.py"
 
 
 @freeze_time(MONDAY)
@@ -36,7 +36,7 @@ class TestResultSnapshotMigration(ResultCase):
         )
         self.env.invalidate_all()
 
-        load_script(str(PRE_MIGRATE), "pre_migrate").migrate(cr, "20.0.1.28.0")
+        load_script(str(PRE_MIGRATE), "pre_migrate").migrate(cr, "20.0.1.31.0")
         self.env.invalidate_all()
 
         self.assertEqual((lead.parameter_method_id, lead.sample_type_id), (self.pair, self.sample_type))

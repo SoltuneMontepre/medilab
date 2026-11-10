@@ -4794,3 +4794,25 @@ msgstr "Trên từng dòng"
 #: code:addons/sol_commerce/models/orders/sale_order_discount.py:0
 msgid "On the whole quotation"
 msgstr "Trên cả báo giá"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/pricing/tax_rate.py:0
+msgid "Accounting has no sales tax for %(rate)s in %(company)s. Choose one on the rate."
+msgstr "Kế toán của %(company)s không có thuế bán hàng cho %(rate)s. Hãy chọn một thuế trên thuế suất."
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax_rate__account_tax_id
+msgid "Accounting Tax"
+msgstr "Thuế Kế Toán"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_tax_form
+msgid "Sales tax of the same rate"
+msgstr "Thuế bán hàng cùng thuế suất"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/pricing/tax_rate.py:0
+msgid "The accounting tax of %(rate)s must be a sales tax of %(percent)s%%."
+msgstr "Thuế kế toán của %(rate)s phải là thuế bán hàng %(percent)s%%."

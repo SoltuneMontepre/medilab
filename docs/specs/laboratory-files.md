@@ -27,7 +27,7 @@ People reach the [laboratory files](../functional/laboratory_module/overview.md#
 - Files, versions and changes have only `read`: they are made by saving files, through the method below, and never changed or deleted. The laboratory files permission also reads the files and versions of its holder's folders. Versions also have `sign`, for [signing them](#signing-versions).
 - Locks have only `read` too: they are taken, renewed and unlocked through the laboratory files API, and administrators release one as folder administrators. The laboratory files permission reads the locks of its holder's folders.
 - Editing sessions have only `read`: opening a file online and the editing service's saves make and change them, and they are never deleted. The laboratory files permission also reads the sessions of its holder's folders.
-- Folders have no archive or delete action: archiving a folder is editing it, and folders are never deleted. Members change their role only with the folder's owner, so they have no edit action. Computers are created by signing in and revoked by editing; they are never deleted.
+- Folders have no archive or delete action: archiving a folder is editing it, and folders are never deleted. Members change their role only with the folder's owner, so they have no edit action. Computers and phones are created by signing in and revoked by editing; they are never deleted.
 
 ### What a person may do with a folder
 
@@ -60,7 +60,7 @@ Administrators administer folders in the back office; each action checks `admini
 
 ### Back office
 
-The Documents menu of the Laboratory app lists Folders, Files, File Versions, File Locks, Editing Sessions, Folder Members, Sync Rules and Computers. Files, versions, locks and editing sessions are read-only there except for permitted version signing, rejection and signature withdrawal, and folder administrators' release of file locks; the back office has no Edit online button or close-session action; a folder's form lists its files, and a file's form its versions and editing sessions. A version's form downloads it, for a member of its folder, through the same presigned address as the API, opened in a new tab. People with the laboratory files permission see their folders, with their members and rules, and their own computers there. They create folders of their own, as Medilab Sync does, and perform the permitted version actions above; owners manage their folders from Medilab Sync. A sample's folders are created from the sample ([Creating a sample's folders](#creating-a-samples-folders)); otherwise only administrators create a folder for someone else or set a folder's sample. Administrators see and change them all: they turn folders off and on, archive them, change their owner, add and remove members, change rules and revoke computers. Members are added on their folder; the Folder Members list removes them, from an archived folder too.
+The Documents menu of the Laboratory app lists Folders, Files, File Versions, File Locks, Editing Sessions, Folder Members, Sync Rules and Devices, which lists computers and phones. Files, versions, locks and editing sessions are read-only there except for permitted version signing, rejection and signature withdrawal, and folder administrators' release of file locks; the back office has no Edit online button or close-session action; a folder's form lists its files, and a file's form its versions and editing sessions. A version's form downloads it, for a member of its folder, through the same presigned address as the API, opened in a new tab. People with the laboratory files permission see their folders, with their members and rules, and their own computers and phones there. They create folders of their own, as Medilab Sync does, and perform the permitted version actions above; owners manage their folders from Medilab Sync. A sample's folders are created from the sample ([Creating a sample's folders](#creating-a-samples-folders)); otherwise only administrators create a folder for someone else or set a folder's sample. Administrators see and change them all: they turn folders off and on, archive them, change their owner, add and remove members, change rules and revoke computers and phones. Members are added on their folder; the Folder Members list removes them, from an archived folder too.
 
 A folder of a sample, its members, sync rules, files, versions, locks, editing sessions and changes are shown only to people who see the sample, administrators included; see [Sample folders](#sample-folders).
 
@@ -375,10 +375,10 @@ The API is Odoo HTTP controllers in `sol_laboratory` under `/medilab/api/v1`. Th
 
 | Route | Does |
 | ----- | ---- |
-| `POST /sign-in` | Signs a computer in with the person's login and gives it its key ([Computers](#computers)) |
-| `POST /sign-out` | Signs the computer of the key out |
-| `GET /devices` | Lists the person's computers |
-| `POST /devices/{device_id}/revoke` | Revokes one of the person's computers |
+| `POST /sign-in` | Signs a computer or a phone in with the person's login and gives it its key ([Computers](#computers)) |
+| `POST /sign-out` | Signs the computer or phone of the key out |
+| `GET /devices` | Lists the person's computers and phones |
+| `POST /devices/{device_id}/revoke` | Revokes one of the person's computers or phones |
 | `GET /folders`, `POST /folders` | Lists the person's folders; creates one of the person's own |
 | `GET /folders/{folder_id}`, `PATCH /folders/{folder_id}` | Gives a folder; renames it |
 | `GET /folders/{folder_id}/members`, `POST /folders/{folder_id}/members`, `DELETE /folders/{folder_id}/members/{member_id}` | Lists, adds and removes members |
@@ -398,6 +398,7 @@ The API is Odoo HTTP controllers in `sol_laboratory` under `/medilab/api/v1`. Th
 
 - **Routes.** Every route is declared with `laboratory_api_route()` (`services/laboratory_api.py`): `type='http'`, `auth='bearer'`, `bearer_scope='sol_laboratory.device'`, `csrf=False`, `save_session=False`, `readonly=False` and the methods it takes, and the operation of the OpenAPI document it serves. Odoo checks a CSRF token on `type='http'` routes for methods other than GET, HEAD, OPTIONS and TRACE, so the API's routes set `csrf=False`; the computer's key, which a browser never sends by itself, takes its place. Without a key, Odoo's bearer authentication accepts a browser session for a same-origin page opened by the person; the API refuses it with `invalid_key`, as every route needs the computer of the key.
 - **Routes without a key.** Signing in gives the key, so it is `auth='public'`; health and readiness are `auth='none'` and read only. They are the only exceptions, and they too set `csrf=False` and `save_session=False`.
+- **Phones.** [Medilab Mobile](medilab-mobile.md) signs phones in through the same routes and adds its own routes, which leave out the laboratory files permission and let the models check what the person may do.
 - **The computer of a call.** Once Odoo has verified the key, `_from_key()` finds its computer, and only that one: a computer named in the request, such as Medilab Sync's `X-Sync-Device-Id`, is ignored. `_from_key()` relies on that verification of the key's hash, so only bearer routes call it. Saves and locks record the computer it found.
 - **Checks.** Every route checks, before it writes with full rights: the key's scope, through Odoo; that the computer is not revoked, through `_from_key()`; and the laboratory files permission, the folder membership and the folder's sample, through `_check_folder_access()` or `_check_file_access()`. Full rights never reach a record the check did not cover. Signing out and revoking one's own computers skip the laboratory files permission, so a person who lost it still stops their computers.
 - **Running twice.** A route that changes something has the effect of one run when Odoo's retrying runs it again or the computer repeats a call whose answer it lost.
@@ -425,7 +426,7 @@ The API is Odoo HTTP controllers in `sol_laboratory` under `/medilab/api/v1`. Th
 
 - `invalid_key` and `invalid_credentials` carry a `WWW-Authenticate: Bearer` header.
 - `method_not_allowed` answers a method the route does not take, with an `Allow` header naming those it takes. A path the API does not have is `not_found`.
-- Odoo's own refusals answer in the same format: a missing or invalid key, and a session of another person with a key, are `invalid_key`; a record the person may not read (`AccessError`) or that does not exist (`MissingError`) is `not_found`, so the answer does not tell that a record exists; any other user error is `invalid_request`. `permission_denied` is only raised by name, such as for a person without the laboratory files permission.
+- Odoo's own refusals answer in the same format: a missing or invalid key, and a session of another person with a key, are `invalid_key`; a record the person may not read (`AccessError`) or that does not exist (`MissingError`) is `not_found`, so the answer does not tell that a record exists; any other user error is `invalid_request`, except on the routes of [Medilab Mobile](medilab-mobile.md#the-api), where a model's refusal is `action_refused`. `permission_denied` is only raised by name, such as for a person without the laboratory files permission.
 - `internal_error` answers an exception nobody expected, with a generic message and an `id`. The server logs the exception and its traceback under that id; the answer tells nothing else about it.
 - `too_many_attempts`, `try_again` and `storage_unavailable` carry a `Retry-After` header in seconds. `try_again` answers a request still failing on concurrency after Odoo's last try, after 5 seconds; `storage_unavailable` answers an upload route while the bucket cannot be reached, after 5 seconds too.
 - **Adding to the API.** A feature adds its routes with `laboratory_api_route()`, its operations to the OpenAPI document, and any code of its own to `ERROR_STATUSES` (`constants/laboratory_api.py`) and to the document's error codes. Its tests call its routes through `LaboratoryApiCase` (`tests/laboratory_api_case.py`), which checks every answer against the document, so they are its contract tests.
@@ -433,7 +434,7 @@ The API is Odoo HTTP controllers in `sol_laboratory` under `/medilab/api/v1`. Th
 
 ### Computers
 
-A signed-in computer is a `medilab.laboratory.device` of its person, one per installation of Medilab Sync: the installation id the application generates once is unique for the person. Its name is one name and its platform is Linux or Windows.
+A signed-in computer is a `medilab.laboratory.device` of its person, one per installation of Medilab Sync: the installation id the application generates once is unique for the person. Its name is one name and its platform is Linux or Windows. A phone running Medilab Mobile is a device too, with the platform Android or iOS; [Medilab Mobile](medilab-mobile.md#phones) states what differs for it, such as signing in without the laboratory files permission.
 
 | Step        | What happens                                                                                                                                                                                                                                                                  | Refused with                                                                    |
 | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |

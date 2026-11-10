@@ -50,6 +50,8 @@ class SampleTest(models.Model, SampleTestBase):
     _rec_name = "parameter_id"
     # A sample test is cancelled, never archived or deleted.
     _permission_actions = ("read", "create", "edit")
+    # The Medilab Mobile screen that opens it.
+    _mobile_screen = "sample_test"
 
     if not TYPE_CHECKING:
         # The sample tested.
@@ -154,6 +156,10 @@ class SampleTest(models.Model, SampleTestBase):
         tests = super().create(vals_list)
         tests._refresh_accreditation()
         return tests
+
+    def _document_code(self):
+        """A push and Medilab Mobile name a sample test by its sample's lab code."""
+        return self.sample_id.code
 
     def write(self, vals):
         if "dispatch_ids" in vals and not self.env.su:

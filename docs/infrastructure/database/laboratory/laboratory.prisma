@@ -1280,7 +1280,7 @@ model User {
   notification_preferences NotificationPreference[] @relation("PreferenceUser")
   /// Job runs the user started by hand.
   triggered_runs JobRun[]     @relation("JobTrigger")
-  /// Mobile devices the user receives reminders on.
+  /// Push tokens of the user's phones.
   devices    MobileDevice[]
   /// Laboratory folders the user owns.
   owned_folders      LaboratoryFolder[]         @relation("FolderOwner")
@@ -1979,7 +1979,7 @@ model HandoverRecord {
   signed_at            DateTime?
   /// Image of the customer's handwritten signature.
   signature_attachment_id Int?
-  /// The mobile device the customer signed on.
+  /// The phone the customer signed on.
   signed_device_id     Int?
   /// The record's PDF.
   attachment_id        Int?
@@ -1989,8 +1989,8 @@ model HandoverRecord {
   request              TestRequest            @relation(fields: [request_id], references: [id], onDelete: Restrict)
   /// Sample delivery staff who took the samples.
   received_by          Person                 @relation("HandoverRecordReceiver", fields: [received_by_id], references: [id], onDelete: Restrict)
-  /// The mobile device the customer signed on.
-  signed_device        MobileDevice?          @relation(fields: [signed_device_id], references: [id], onDelete: SetNull)
+  /// The phone the customer signed on.
+  signed_device        LaboratoryDevice?      @relation(fields: [signed_device_id], references: [id], onDelete: Restrict)
   /// Samples on the record.
   samples              HandoverRecordSample[]
 
@@ -2276,27 +2276,29 @@ model ChangeRequest {
   @@map("medilab_change_request")
 }
 
-/// A mobile device registered with Firebase Cloud Messaging to receive reminders for one Odoo user. Unique on token.
-/// The cleanup job removes devices turned off longer than their retention period.
+/// The Firebase Cloud Messaging token of a phone signed in with Medilab Mobile, one per phone. Unique on token and on laboratory_device_id.
+/// The cleanup job removes tokens turned off longer than their retention period.
 model MobileDevice {
   /// Row identifier.
-  id           Int       @id @default(autoincrement())
-  /// The Odoo user signed in on the device.
-  user_id      Int
-  /// Registration token Firebase Cloud Messaging gives the app on the device.
-  token        String    @unique @db.VarChar
-  /// android or ios.
-  platform     String    @db.VarChar
-  /// When the app last refreshed the token.
-  last_seen_at DateTime
-  /// False when the user signed out or the token was rejected; no reminder is pushed to it.
-  active       Boolean   @default(true)
-  /// Pushes sent to the device.
-  pushes       PushDelivery[]
-  /// Handover records customers signed on the device.
-  signed_handover_records HandoverRecord[]
-  /// The Odoo user signed in on the device.
-  user         User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  id                   Int              @id @default(autoincrement())
+  /// The phone the token belongs to.
+  laboratory_device_id Int              @unique
+  /// The Odoo user of the phone, kept from the phone.
+  user_id              Int?
+  /// Registration token Firebase Cloud Messaging gives the app on the phone.
+  token                String           @unique @db.VarChar
+  /// android or ios, kept from the phone.
+  platform             String?          @db.VarChar
+  /// When the app last registered the token.
+  last_seen_at         DateTime
+  /// False once the phone signed out or was revoked, or Firebase rejected the token; nothing is pushed to it.
+  active               Boolean          @default(true)
+  /// Pushes sent to the token.
+  pushes               PushDelivery[]
+  /// The phone the token belongs to.
+  laboratory_device    LaboratoryDevice @relation(fields: [laboratory_device_id], references: [id], onDelete: Cascade)
+  /// The Odoo user of the phone.
+  user                 User?            @relation(fields: [user_id], references: [id], onDelete: SetNull)
 
   @@index([user_id])
   @@map("medilab_mobile_device")
@@ -2480,7 +2482,7 @@ model NotificationPreference {
   @@map("medilab_notification_preference")
 }
 
-/// Odoo's message (mail.message), shown with the columns this schema uses and the column the laboratory adds: one notification of one event about one document, sent to its recipients.
+/// Odoo's message (mail.message), shown with the columns this schema uses and the column the laboratory adds: one notification of one event about one document, sent to its recipients, or a message of a conversation.
 /// Partial unique index on notification_key where it is set.
 model Message {
   /// Row identifier.
@@ -2501,6 +2503,8 @@ model Message {
   event            NotificationEvent? @relation(fields: [subtype_id], references: [id], onDelete: SetNull)
   /// One notification per recipient.
   notifications    Notification[]
+  /// Pushes of a conversation message to its members' phones.
+  pushes           PushDelivery[]
 
   @@index([model, res_id])
   @@map("mail_message")
@@ -2534,13 +2538,15 @@ model Notification {
   @@map("mail_notification")
 }
 
-/// Pushing one notification to one mobile device through Firebase Cloud Messaging. Unique on (notification_id, mobile_device_id). Partial index on id where status is pending.
+/// Pushing one notification or one conversation message to one phone's token through Firebase Cloud Messaging. Exactly one of notification_id and message_id is set. Unique on (notification_id, mobile_device_id) and on (message_id, mobile_device_id). Partial index on id where status is pending.
 model PushDelivery {
   /// Row identifier.
   id               Int          @id @default(autoincrement())
-  /// The notification pushed.
-  notification_id  Int
-  /// The mobile device pushed to.
+  /// The notification pushed; empty for a conversation message.
+  notification_id  Int?
+  /// The conversation message pushed; empty for a notification.
+  message_id       Int?
+  /// The token pushed to.
   mobile_device_id Int
   /// pending, sent, failed or skipped.
   status           String       @db.VarChar
@@ -2548,12 +2554,15 @@ model PushDelivery {
   sent_at          DateTime?
   /// Error Firebase returned on the last failed attempt.
   error            String?      @db.Text
-  /// The notification pushed.
-  notification     Notification @relation(fields: [notification_id], references: [id], onDelete: Cascade)
-  /// The mobile device pushed to.
-  mobile_device    MobileDevice @relation(fields: [mobile_device_id], references: [id], onDelete: Cascade)
+  /// The notification pushed; empty for a conversation message.
+  notification     Notification? @relation(fields: [notification_id], references: [id], onDelete: Cascade)
+  /// The conversation message pushed; empty for a notification.
+  message          Message?      @relation(fields: [message_id], references: [id], onDelete: Cascade)
+  /// The token pushed to.
+  mobile_device    MobileDevice  @relation(fields: [mobile_device_id], references: [id], onDelete: Cascade)
 
   @@unique([notification_id, mobile_device_id])
+  @@unique([message_id, mobile_device_id])
   @@map("medilab_push_delivery")
 }
 
@@ -2956,7 +2965,7 @@ model LaboratoryUpload {
   @@map("medilab_laboratory_upload")
 }
 
-/// A computer signed in to the laboratory folders with its own key.
+/// A computer running Medilab Sync or a phone running Medilab Mobile, signed in with its own key.
 model LaboratoryDevice {
   /// Row identifier.
   id           Int       @id @default(autoincrement())
@@ -2964,9 +2973,9 @@ model LaboratoryDevice {
   user_id      Int
   /// Id the application generates once per installation.
   client_uid   String    @db.VarChar
-  /// Name of the computer.
+  /// Name of the computer or phone.
   name         String    @db.VarChar
-  /// linux or windows.
+  /// linux or windows for a computer, android or ios for a phone.
   platform     String    @db.VarChar
   /// The Odoo API key of the device, in res_users_apikeys; the key itself is never stored here.
   api_key_id   Int?
@@ -2984,6 +2993,10 @@ model LaboratoryDevice {
   uploads      LaboratoryUpload[]
   /// Locks taken from the device.
   locks        LaboratoryFileLock[]
+  /// The push token of a phone.
+  mobile_device MobileDevice?
+  /// Handover records customers signed on the phone.
+  signed_handover_records HandoverRecord[]
 
   @@unique([user_id, client_uid])
   @@map("medilab_laboratory_device")

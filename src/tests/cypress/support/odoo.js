@@ -40,6 +40,17 @@ export function signIn(login) {
   });
 }
 
+// Signs out to the catalog as a visitor whose session stays. The back office is left first, since its requests
+// after the cookies are cleared would open sessions. A visitor's first page and the requests it starts, such as
+// /website/translations, can each open a session, and a portal form's CSRF token only matches the one that stays.
+export function becomeVisitor() {
+  cy.visit("/catalog");
+  cy.clearCookies();
+  cy.visit("/catalog");
+  cy.getCookie("session_id").should("exist");
+  return cy.visit("/catalog");
+}
+
 // A call carries the signed-in user's context, so its messages are in the user's language, as on screen.
 function callKw(model, method, args, kwargs) {
   return cy

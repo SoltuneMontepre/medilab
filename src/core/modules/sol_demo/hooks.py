@@ -44,8 +44,10 @@ def seed_demo(env):
     )
     from .demo_laboratory_uploads import seed_laboratory_uploads
     from .demo_locks import seed_locks
+    from .demo_notifications import seed_notifications
     from .demo_order_templates import seed_order_templates
     from .demo_orders import seed_orders
+    from .demo_phones import seed_phones
     from .demo_quotations import seed_quotations, seed_selected_ways
     from .demo_report_templates import seed_report_templates
     from .demo_reports import seed_reports
@@ -55,6 +57,10 @@ def seed_demo(env):
     from .demo_support import seed_support
     from .demo_tracking import seed_tracking
 
+    if not env.company.chart_template:
+        # Order lines take their sales tax and advance invoices their journal from the chart of accounts, which a
+        # fresh install loads only once every module is installed.
+        env["account.chart.template"].try_loading("vn", env.company)
     seed_orders(env)
     seed_order_templates(env)
     seed_quotations(env)
@@ -78,6 +84,8 @@ def seed_demo(env):
     seed_laboratory_uploads(env)
     seed_sample_folders(env)
     seed_laboratory_editing(env)
+    seed_phones(env)
+    seed_notifications(env)
     seed_cleanup(env)
     seed_support(env)
     seed_signing_levels(env)

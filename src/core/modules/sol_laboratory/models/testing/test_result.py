@@ -96,6 +96,8 @@ class TestResult(models.Model, TestResultBase):
     _order = "sample_test_id, entered_at desc, version desc, id desc"
     # A result is signed, never archived or deleted.
     _permission_actions = ("read", "create", "edit", "sign")
+    # The Medilab Mobile screen that opens it.
+    _mobile_screen = "test_result"
 
     if not TYPE_CHECKING:
         # The sample test measured.
@@ -224,6 +226,10 @@ class TestResult(models.Model, TestResultBase):
             test = result.sudo().sample_test_id
             entered = format_datetime(self.env, result.entered_at)
             result.display_name = f"{test.sample_id.code} – {test.parameter_id.name} ({entered})"
+
+    def _document_code(self):
+        """A push and Medilab Mobile name a result by its sample's lab code."""
+        return self.sample_id.code
 
     # The copy and the decimals are computed apart: the form sends the editable decimals, and Odoo then leaves
     # every field of the same compute method as it was given.

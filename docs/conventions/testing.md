@@ -171,6 +171,8 @@ cy.expectRefusal({
 | `portalPostAs(login, page, path, form)` | Submit a portal form as a login, with the CSRF token of `page`. |
 | `callRefused(model, method, args, kwargs)` | Call a model method that must be refused and yield the server's message, in the signed-in user's language. Use it with a check that the screen does not offer the action. |
 
+A visitor's test starts with `becomeVisitor()` from the same file. It leaves the back office, clears the cookies and opens the catalog until a `session_id` cookie exists, then opens it again. A visitor's first page and the requests it starts, such as `/website/translations`, can each open a session; a portal form posted with a token of the first and the cookie of another fails CSRF validation.
+
 `cypress/support/form.js` exports the steps for filling a form in the interface:
 
 | Function | Use |

@@ -1,5 +1,5 @@
 import { choose, newRecord, openTab, pick, save, search } from "../../../support/form";
-import { call, callAs, callRefused, refAs, resolveRecord, signIn } from "../../../support/odoo";
+import { becomeVisitor, call, callAs, callRefused, refAs, resolveRecord, signIn } from "../../../support/odoo";
 import { CUSTOMERS, clearCarts, declineQuotation, latestQuotation, orderAt, payAdvance, reviseQuotation } from "./setup";
 
 const REASON = "Giá xét nghiệm chì cao hơn báo giá năm trước.";
@@ -10,19 +10,6 @@ const readOrder =
   (order, fields = ORDER_FIELDS) =>
   () =>
     cy.readRecord(order, fields);
-
-// Leaves the back office for a portal page, which sends no requests of its own, then signs out.
-function becomeVisitor() {
-  cy.visit("/catalog");
-  cy.clearCookies();
-}
-
-// A visitor's first page and the requests it starts can each open a session; the forms need the one that stays.
-function visitCatalogAsVisitor() {
-  cy.visit("/catalog");
-  cy.getCookie("session_id").should("exist");
-  cy.visit("/catalog");
-}
 
 describe("WF-01 Order to confirmed test request", () => {
   it("TC-WF01-M takes a portal order through the quotation, payment and confirmation", () => {
@@ -129,7 +116,7 @@ describe("WF-01 Order to confirmed test request", () => {
 
   it("TC-WF01-A2 lets a visitor who is not signed in submit a cart with their details", () => {
     const email = `visitor.${Date.now()}@example.com`;
-    visitCatalogAsVisitor();
+    becomeVisitor();
     cy.contains("tr", "Lead (Pb)").find("button[type=submit]").click();
     cy.get("form[action='/cart/submit'] input[name=name]").type("Lê Văn Khách");
     cy.get("form[action='/cart/submit'] input[name=email]").type(email);
@@ -266,7 +253,7 @@ describe("WF-01 Order to confirmed test request", () => {
   });
 
   it("TC-WF01-E2 refuses a cart submitted without an e-mail address", () => {
-    visitCatalogAsVisitor();
+    becomeVisitor();
     cy.contains("tr", "Lead (Pb)").find("button[type=submit]").click();
     cy.get("form[action='/cart/submit'] input[name=email]").should("have.attr", "required");
     // The browser asks for the address first; the server refuses a form sent without it all the same.
@@ -407,6 +394,31 @@ describe("WF-01 feature acceptance criteria", () => {
     });
   });
 
+  it("TC-F02-01 shows each quotation line's price and the VAT rate in force on the quotation date", () => {
+    const lineTaxes = () => cy.get(".o_field_widget[name=product_line_ids] .o_data_row td[name=tax_ids]").first();
+    orderAt("claimed").then((order) => {
+      cy.signInAs("sales");
+      call("sale.order", "write", [[order.id], { date_order: "2025-03-15 09:00:00" }]);
+      cy.openRecord(order);
+      openTab("order_lines");
+      cy.get(".o_field_widget[name=product_line_ids] .o_data_row").first().should("contain", "280.000");
+      lineTaxes().should("contain", "8%");
+      cy.get(".o_field_widget[name=tax_totals]").should("contain", "22.400").and("contain", "302.400");
+      call("sale.order", "write", [[order.id], { date_order: "2025-07-01 09:00:00" }]);
+      cy.reload();
+      openTab("order_lines");
+      lineTaxes().should("contain", "10%");
+      cy.get(".o_field_widget[name=tax_totals]").should("contain", "28.000").and("contain", "308.000");
+      call("sale.order", "write", [[order.id], { advance_method: "bank_transfer", advance_mode: "percentage", advance_value: 30 }]);
+      cy.reload();
+      cy.sendRecord("action_send_quotation");
+      cy.get(".o_statusbar_buttons button[name=action_revise_quotation]:visible").should("exist");
+      cy.signInAs("customer");
+      cy.visit(`/orders/${order.id}/quotation`);
+      cy.contains("tr", /(Total including VAT|Tổng đã gồm VAT)/).invoke("text").should("match", /308[.,]000/);
+    });
+  });
+
   it("TC-F02-02 refuses overlapping VAT rate periods", () => {
     cy.signInAs("administrator");
     resolveRecord("sol_demo.demo_tax_vat10").then((tax) => {
@@ -440,7 +452,6 @@ describe("WF-01 feature acceptance criteria", () => {
     const login = `khach.moi.${Date.now()}@example.com`;
     orderAt("sent").then((order) => {
       becomeVisitor();
-      visitCatalogAsVisitor();
       cy.visit("/web/signup");
       cy.get("input[name=name]").type("Đỗ Văn Mới");
       cy.get("input[name=login]").type(login);

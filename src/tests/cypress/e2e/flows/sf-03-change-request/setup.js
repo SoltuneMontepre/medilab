@@ -10,13 +10,16 @@ export const TESTER = "demo.tester";
 // What the tester measured for lead, in mg/L.
 export const LEAD_VALUE = 0.008;
 
-// A confirmed request of Nước Uống Sạch with one bottled water sample tested for lead, received in good condition and
-// whose testing task the head of department assigned to the tester; yields the ids of its sample test and request.
-function assignedLeadTest() {
+// A confirmed request of Nước Uống Sạch with one bottled water sample tested for the parameter, received in good
+// condition and whose testing task the head of department assigned to the tester. The sample is named `name` and, when
+// `regulation` gives one by its XML ID, compared with that regulation. Yields the ids of its sample test and request.
+export function assignedTest(parameterId, { name, regulation } = {}) {
   const ids = {};
   refAs(RECEPTION, "sol_demo.demo_customer_nuoc_sach").then(({ id }) => (ids.customer = id));
   refAs(RECEPTION, "sol_demo.demo_sample_type_bottled_water").then(({ id }) => (ids.sampleType = id));
-  refAs(RECEPTION, "sol_demo.demo_test_parameter_lead").then(({ id }) => (ids.lead = id));
+  if (regulation) {
+    refAs(RECEPTION, regulation).then(({ id }) => (ids.regulation = id));
+  }
   refAs(HEAD, "sol_demo.demo_person_tester").then(({ id }) => (ids.tester = id));
   return cy
     .then(() =>
@@ -28,10 +31,11 @@ function assignedLeadTest() {
               0,
               0,
               {
-                customer_sample_name: "Nước uống đóng chai lô 1109",
+                customer_sample_name: name,
                 sample_type_id: ids.sampleType,
                 physical_state: "liquid",
-                test_ids: [[0, 0, { parameter_id: ids.lead }]],
+                regulation_id: ids.regulation || false,
+                test_ids: [[0, 0, { parameter_id: parameterId }]],
               },
             ],
           ],
@@ -65,16 +69,21 @@ function assignedLeadTest() {
 // A completed result: the tester entered lead and sent it, and the head of department approved it. Testing and
 // approving belong to WF-03 and WF-04. Yields `{ model, id, request }`.
 export function approvedResult() {
-  return assignedLeadTest().then(({ test, request }) =>
-    callAs(TESTER, "medilab.test.result", "create", [{ sample_test_id: test, value: LEAD_VALUE, value_decimals: 3 }]).then((id) => {
+  let request;
+  return refAs(RECEPTION, "sol_demo.demo_test_parameter_lead")
+    .then(({ id }) => assignedTest(id, { name: "Nước uống đóng chai lô 1109" }))
+    .then((assigned) => {
+      request = assigned.request;
+      return callAs(TESTER, "medilab.test.result", "create", [{ sample_test_id: assigned.test, value: LEAD_VALUE, value_decimals: 3 }]);
+    })
+    .then((id) => {
       callAs(TESTER, "medilab.test.result", "action_sign", [[id]]);
       callAs(HEAD, "medilab.test.result", "action_sign", [[id]]);
       callAs(HEAD, "medilab.test.result", "read", [[id], ["status"]])
         .its("0.status")
         .should("eq", "approved");
-      return cy.then(() => ({ model: "medilab.test.result", id, request }));
-    }),
-  );
+      return cy.wrap({ model: "medilab.test.result", id, request });
+    });
 }
 
 // An issued report: its only result is approved and the lab head signed its draft. Issuing belongs to WF-06.
@@ -107,9 +116,8 @@ export function requestedChange(result, requestedChange, reason) {
     .then((action) => ({ model: "medilab.change.request", id: action.res_id }));
 }
 
-// A purchase order still in its process: the storekeeper requested approval and the lab head signed it, and it is
-// not sent to the supplier yet. Yields `{ model, id }`.
-export function signedOrder() {
+// A purchase order of sodium chloride the storekeeper sent for approval, signing the first level. Yields its id.
+export function requestedOrder(quantity) {
   const ids = {};
   refAs(STOREKEEPER, "sol_demo.demo_res_partner_vietnam_chemicals").then(({ id }) => (ids.supplier = id));
   refAs(STOREKEEPER, "sol_demo.demo_hr_department_chemistry").then(({ id }) => (ids.department = id));
@@ -120,18 +128,30 @@ export function signedOrder() {
         {
           partner_id: ids.supplier,
           department_id: ids.department,
-          order_line: [[0, 0, { product_id: ids.item, product_qty: 2000, price_unit: 380 }]],
+          order_line: [[0, 0, { product_id: ids.item, product_qty: quantity, price_unit: 380 }]],
         },
       ]),
     )
     .then((id) => {
       callAs(STOREKEEPER, "purchase.order", "action_request_approval", [[id]]);
+      return cy.wrap(id);
+    });
+}
+
+// A purchase order still in its process: the storekeeper requested approval and the lab head signed it, and it is
+// not sent to the supplier yet. Yields `{ model, id }`.
+export function signedOrder() {
+  let orderId;
+  return requestedOrder(2000)
+    .then((id) => {
+      orderId = id;
       callAs(LAB_HEAD, "purchase.order", "action_sign", [[id]]);
-      return callAs(LAB_HEAD, "purchase.order", "read", [[id], ["approval_status", "state"]]).then(([order]) => {
-        expect(order.approval_status, "order approved").to.equal("approved");
-        expect(order.state, "order not sent").to.equal("draft");
-        return { model: "purchase.order", id };
-      });
+      return callAs(LAB_HEAD, "purchase.order", "read", [[id], ["approval_status", "state"]]);
+    })
+    .then(([order]) => {
+      expect(order.approval_status, "order approved").to.equal("approved");
+      expect(order.state, "order not sent").to.equal("draft");
+      return { model: "purchase.order", id: orderId };
     });
 }
 

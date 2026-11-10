@@ -68,6 +68,8 @@ class Sample(models.Model, SampleBase):
     _rec_name = "code"
     # A sample is cancelled, never archived or deleted.
     _permission_actions = ("read", "create", "edit")
+    # The Medilab Mobile screen that opens it.
+    _mobile_screen = "sample"
     _audit_children = ("test_ids", "handover_ids")
 
     if not TYPE_CHECKING:
