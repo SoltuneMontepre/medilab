@@ -28,6 +28,24 @@ const messages = {
     en: "MediLab cannot be reached, so nothing was changed. Check the connection and try again.",
   },
   "unreachable.retry": { vi: "Thử lại", en: "Try again" },
+  "home.notifications": { vi: "Thông báo", en: "Notifications" },
+  "home.notificationSettings": { vi: "Cài đặt thông báo", en: "Notification settings" },
+  "notifications.title": { vi: "Thông báo", en: "Notifications" },
+  "notifications.empty": { vi: "Chưa có thông báo nào.", en: "There are no notifications." },
+  "notifications.unread": { vi: "Chưa đọc", en: "Unread" },
+  "notifications.more": { vi: "Xem thêm", en: "Show more" },
+  "document.gone": {
+    vi: "Bạn không còn xem được tài liệu này, hoặc tài liệu đã bị xoá.",
+    en: "You can no longer see this document, or it was deleted.",
+  },
+  "document.openOnWeb": { vi: "Mở trên web", en: "Open on the web" },
+  "settings.title": { vi: "Cài đặt thông báo", en: "Notification settings" },
+  "settings.explanation": {
+    vi: "Chọn sự kiện nào được gửi lên điện thoại. Sự kiện bắt buộc luôn được gửi.",
+    en: "Choose which events are pushed to your phone. Mandatory events are always pushed.",
+  },
+  "settings.mandatory": { vi: "Bắt buộc", en: "Mandatory" },
+  "back": { vi: "Quay lại", en: "Back" },
   "loading": { vi: "Đang tải...", en: "Loading..." },
 } as const satisfies Record<string, Record<Locale, string>>;
 

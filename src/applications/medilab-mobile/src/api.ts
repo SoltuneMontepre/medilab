@@ -74,3 +74,39 @@ export interface SignedIn {
   key: string;
   device: Device;
 }
+
+/** The document a notification or a push is about. */
+export interface DocumentReference {
+  model: string;
+  id: number;
+  code: string;
+}
+
+export interface Notification {
+  id: number;
+  event: string | null;
+  title: string;
+  date: string;
+  read: boolean;
+  document: DocumentReference | null;
+}
+
+export interface NotificationPage {
+  notifications: Notification[];
+  next_after: number | null;
+}
+
+/** An event and whether it is pushed to the person's phones. */
+export interface PushPreference {
+  event: string;
+  name: string;
+  mandatory: boolean;
+  push: boolean;
+}
+
+/** A document as the person may read it, with the app's screen for it and its address on the web. */
+export interface MediLabDocument extends DocumentReference {
+  title: string;
+  screen: string;
+  url: string;
+}

@@ -123,7 +123,7 @@ class TestAuditIntegrations(AuditLookup, HttpCase):
         self.notify("push")
         client = FirebaseClient(object(), "project")
 
-        def send(token, title, body):
+        def send(token, title, body, data):
             if token == "token-gone":
                 raise PermanentTokenError("UNREGISTERED")
 
