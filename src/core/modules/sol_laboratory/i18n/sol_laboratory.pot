@@ -15540,3 +15540,9 @@ msgid ""
 "This phone was revoked. Install Medilab Mobile again to sign it in as a new "
 "phone."
 msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/mail_notification.py:0
+msgid "This notification is no longer in your inbox."
+msgstr ""

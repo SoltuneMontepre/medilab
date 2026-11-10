@@ -76,6 +76,24 @@ class MobileDevice(models.Model, MobileDeviceBase):
             ) from error
 
     @api.model
+    def _push_tokens(self, user):
+        """The tokens pushes to the user go to: on, of a phone that is signed in and not revoked."""
+        return self.sudo().search(
+            [
+                ("user_id", "=", user.id),
+                ("active", "=", True),
+                ("laboratory_device_id.api_key_id", "!=", False),
+                ("laboratory_device_id.revoked_at", "=", False),
+            ]
+        )
+
+    def _signed_in(self):
+        """Whether the token is on and its phone still signed in, so a push may reach it."""
+        self.ensure_one()
+        phone = self.sudo().laboratory_device_id
+        return self.active and bool(phone.api_key_id) and not phone.revoked_at
+
+    @api.model
     def _cleanup_domain(self, cutoff):
         """The tokens the cleanup job removes: turned off before the cutoff."""
         return [("active", "=", False), ("write_date", "<", cutoff)]

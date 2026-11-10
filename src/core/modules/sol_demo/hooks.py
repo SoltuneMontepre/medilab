@@ -44,6 +44,7 @@ def seed_demo(env):
     )
     from .demo_laboratory_uploads import seed_laboratory_uploads
     from .demo_locks import seed_locks
+    from .demo_notifications import seed_notifications
     from .demo_order_templates import seed_order_templates
     from .demo_orders import seed_orders
     from .demo_phones import seed_phones
@@ -80,6 +81,7 @@ def seed_demo(env):
     seed_sample_folders(env)
     seed_laboratory_editing(env)
     seed_phones(env)
+    seed_notifications(env)
     seed_cleanup(env)
     seed_support(env)
     seed_signing_levels(env)

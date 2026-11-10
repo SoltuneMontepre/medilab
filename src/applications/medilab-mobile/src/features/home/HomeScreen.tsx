@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Pressable, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -72,7 +73,21 @@ export function HomeScreen() {
       <Text style={styles.detail}>{t("home.server", { url: session.serverUrl })}</Text>
       {load.state === "loading" && <ActivityIndicator accessibilityLabel={t("loading")} />}
       {load.state === "unreachable" && <Unreachable onRetry={retry} />}
-      {load.state === "ready" && <Text style={styles.label}>{t("home.signedIn")}</Text>}
+      {load.state === "ready" && (
+        <>
+          <Text style={styles.label}>{t("home.signedIn")}</Text>
+          <Pressable accessibilityRole="button" style={styles.primaryButton} onPress={() => router.push("/notifications")}>
+            <Text style={styles.primaryButtonText}>{t("home.notifications")}</Text>
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            style={styles.secondaryButton}
+            onPress={() => router.push("/notification-settings")}
+          >
+            <Text style={styles.secondaryButtonText}>{t("home.notificationSettings")}</Text>
+          </Pressable>
+        </>
+      )}
       {signOutUnreachable && <Unreachable onRetry={signOut} />}
       {refusal && <Text style={styles.error}>{refusal}</Text>}
       <Pressable accessibilityRole="button" style={styles.secondaryButton} onPress={signOut}>
