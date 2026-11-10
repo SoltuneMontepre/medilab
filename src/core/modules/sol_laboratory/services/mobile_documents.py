@@ -26,11 +26,13 @@ def document_values(env: Environment, model: str, record_id: int):
     screen = getattr(record, "_mobile_screen", None)
     if not screen:
         screen = CONVERSATION_SCREEN if model == MODEL_DISCUSS_CHANNEL else WEB_SCREEN
+    # The web client reads a model name without a dot only with its m- prefix.
+    web_path = model if "." in model else f"m-{model}"
     return {
         "model": model,
         "id": record.id,
         "code": code,
         "title": code or record.display_name or "",
         "screen": screen,
-        "url": f"{record.get_base_url()}/odoo/{model}/{record.id}",
+        "url": f"{record.get_base_url()}/odoo/{web_path}/{record.id}",
     }
