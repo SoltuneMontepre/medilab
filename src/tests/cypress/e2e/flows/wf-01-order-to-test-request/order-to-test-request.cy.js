@@ -551,8 +551,10 @@ describe("WF-01 feature acceptance criteria", () => {
       cy.openRecord(order);
       openTab("expected_samples");
       expectSampling(".o_field_widget[name=expected_sampling_html]", { objects: 3, expected: 6, groups: 2 });
+      callAs("demo.sales", "sale.order", "write", [[order.id], { advance_method: "bank_transfer", advance_mode: "percentage", advance_value: 30 }]);
+      cy.reload();
       cy.sendRecord("action_send_quotation");
-      cy.readRecord(order, ["state"]).its("state").should("eq", "sent");
+      cy.get(".o_statusbar_buttons button[name=action_revise_quotation]:visible").should("exist");
 
       cy.signInAs("customer");
       cy.visit(`/orders/${order.id}/quotation`);
