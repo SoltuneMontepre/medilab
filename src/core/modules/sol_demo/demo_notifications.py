@@ -3,7 +3,11 @@ from datetime import timedelta
 from odoo import fields
 
 from .demo_orders import _xml_id
-from odoo.addons.sol_laboratory.constants.models import MODEL_MAIL_MESSAGE, MODEL_MAIL_NOTIFICATION
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_MAIL_MESSAGE,
+    MODEL_MAIL_MESSAGE_SUBTYPE,
+    MODEL_MAIL_NOTIFICATION,
+)
 from odoo.addons.sol_laboratory.constants.notifications import EVENT_TASK_REMINDER
 
 # The task reminders in demo.tester's inbox, by the end of their xml id: the task, whether it is read and how many hours
@@ -20,7 +24,7 @@ def seed_notifications(env):
     tester can no longer see. Posted as the reminder job posts them, without queuing an email or a push."""
     messages = env[MODEL_MAIL_MESSAGE].sudo()
     tester = env.ref("sol_demo.demo_res_users_tester")
-    event = env["mail.message.subtype"]._event(EVENT_TASK_REMINDER)
+    event = env[MODEL_MAIL_MESSAGE_SUBTYPE]._event(EVENT_TASK_REMINDER)
     for name, task_xml_id, read, hours in REMINDERS:
         key = f"demo:{name}:reminder"
         if messages.search_count([("notification_key", "=", key)], limit=1):

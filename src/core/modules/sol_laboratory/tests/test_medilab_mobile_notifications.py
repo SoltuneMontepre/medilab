@@ -28,6 +28,7 @@ from odoo.addons.sol_laboratory.constants.notifications import (
 )
 from odoo.addons.sol_laboratory.services.document_code import document_code
 from odoo.addons.sol_laboratory.services.firebase_client import FirebaseClient
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 SAMPLE_READER_GROUP = "sol_laboratory.group_permission_sample_read_all"
 FIREBASE = "odoo.addons.sol_laboratory.models.notifications.scheduled_job.firebase_client_from_env"
@@ -252,7 +253,7 @@ class TestMedilabMobileNotifications(LaboratoryApiCase, RequestCase):
     # Documents
 
     def test_a_document_opens_on_its_screen_with_its_code(self):
-        self.person.group_ids = [Command.link(self.env.ref(SAMPLE_READER_GROUP).id)]
+        self.person.group_ids = [Command.link(persisted_id(self.env.ref(SAMPLE_READER_GROUP)))]
 
         document = self.api("GET", f"/documents/{self.sample._name}/{self.sample.id}", key=self.key).json()
 
@@ -270,10 +271,10 @@ class TestMedilabMobileNotifications(LaboratoryApiCase, RequestCase):
 
     def test_a_document_the_person_can_no_longer_see_is_not_found(self):
         path = f"/documents/{self.sample._name}/{self.sample.id}"
-        self.person.group_ids = [Command.link(self.env.ref(SAMPLE_READER_GROUP).id)]
+        self.person.group_ids = [Command.link(persisted_id(self.env.ref(SAMPLE_READER_GROUP)))]
         self.assertEqual(self.api("GET", path, key=self.key).status_code, 200)
 
-        self.person.group_ids = [Command.unlink(self.env.ref(SAMPLE_READER_GROUP).id)]
+        self.person.group_ids = [Command.unlink(persisted_id(self.env.ref(SAMPLE_READER_GROUP)))]
 
         self.assertApiRefused(NOT_FOUND, self.api("GET", path, key=self.key))
         self.assertApiRefused(NOT_FOUND, self.api("GET", f"/documents/{self.sample._name}/999999999", key=self.key))

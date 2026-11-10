@@ -12,8 +12,8 @@ def document_code(record: BaseModel) -> str:
         return ""
     own = getattr(record, "_document_code", None)
     if callable(own):
-        return own() or ""
+        return str(own() or "")
     field = record._fields.get("code")
     if field is None or field.type != "char":
         return ""
-    return record["code"] or ""
+    return str(record["code"] or "")
