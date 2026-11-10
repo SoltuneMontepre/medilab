@@ -217,8 +217,49 @@ model Tax {
   products    ProductTax[]
   /// Order lines that use the tax.
   order_lines OrderLineTax[]
+  /// Rate periods of laboratory taxes that quotation lines give this tax.
+  lab_rates   LabTaxRate[]
 
   @@map("account_tax")
+}
+
+/// A tax a parameter price or a package adds, such as VAT 10% or not subject to VAT, with its rate over time. A trigram index on code and name serves search.
+model LabTax {
+  /// Row identifier.
+  id     Int          @id @default(autoincrement())
+  /// Unique code of the tax, such as VAT10 or KCT.
+  code   String       @unique @db.VarChar
+  /// Tax name as printed on quotations and invoices, in each language.
+  name   Json
+  /// False when the tax is archived.
+  active Boolean      @default(true)
+  /// The tax's rate over time.
+  rates  LabTaxRate[]
+
+  @@map("medilab_tax")
+}
+
+/// The rate of a laboratory tax for a period. The periods of one tax do not overlap; valid_until is empty or not before valid_from; rate is not negative.
+model LabTaxRate {
+  /// Row identifier.
+  id             Int       @id @default(autoincrement())
+  /// The tax.
+  tax_id         Int
+  /// Rate in percent, such as 8 or 10; 0 for a tax that adds nothing.
+  rate           Float
+  /// First day the rate applies.
+  valid_from     DateTime  @db.Date
+  /// Last day the rate applies; empty when it applies until further notice.
+  valid_until    DateTime? @db.Date
+  /// The accounting sales tax that quotation and invoice lines get for this rate, of the same percent; empty for the company's sales tax of the same rate.
+  account_tax_id Int?
+  /// The tax.
+  tax            LabTax    @relation(fields: [tax_id], references: [id], onDelete: Cascade)
+  /// The accounting sales tax.
+  account_tax    Tax?      @relation(fields: [account_tax_id], references: [id], onDelete: Restrict)
+
+  @@index([tax_id, valid_from])
+  @@map("medilab_tax_rate")
 }
 
 /// Odoo's link between products and the taxes added to their price.

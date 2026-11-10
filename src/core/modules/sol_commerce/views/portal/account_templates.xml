@@ -121,8 +121,15 @@
         <span t-attf-class="badge #{status_classes.get(order.customer_status, 'text-bg-secondary')}" t-field="order.customer_status" />
     </template>
 
+    <template id="order_filter_inputs" name="Order history filters">
+        <t t-foreach="filters" t-as="name">
+            <input type="hidden" t-att-name="name" t-att-value="filters[name]" />
+        </t>
+    </template>
+
     <template id="order_table" name="Order history">
-        <p t-if="not orders">No orders yet. <a href="/catalog">Browse the catalog</a>.</p>
+        <p t-if="not has_orders">No orders yet. <a href="/catalog">Browse the catalog</a>.</p>
+        <p t-elif="not orders">No orders match these filters. <a href="/orders">Clear the filters</a>.</p>
         <div t-else="" class="table-responsive">
             <table class="table align-middle">
                 <thead>
@@ -138,7 +145,7 @@
                     <t t-foreach="orders" t-as="order">
                         <tr>
                             <td>
-                                <a t-att-href="'/orders/%s' % order.id" t-out="order.name" />
+                                <a t-att-href="'/orders/%s%s' % (order.id, filter_query)" t-out="order.name" />
                                 <div class="small text-muted" t-out="order.portal_summary()" />
                                 <div class="small text-muted d-md-none" t-out="order.submitted_at or order.create_date" t-options="{'widget': 'date'}" />
                             </td>
@@ -148,6 +155,7 @@
                             <td class="text-end">
                                 <form t-if="order.can_reorder()" t-att-action="'/orders/%s/reorder' % order.id" method="post">
                                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                                    <t t-call="sol_commerce.order_filter_inputs" />
                                     <button type="submit" class="btn btn-secondary btn-sm text-nowrap"><i class="oi me-1" data-icon="repeat" aria-hidden="true" />Reorder</button>
                                 </form>
                             </td>

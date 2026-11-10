@@ -260,22 +260,6 @@ msgid "A chain with signatures cannot be deleted; archive it instead. Signatures
 msgstr "Không thể xóa chuỗi đã có chữ ký; hãy lưu trữ chuỗi. Chữ ký: %s"
 
 #. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
-msgid ""
-"A computer signs in with its installation id and its name, never a path."
-msgstr ""
-"Máy tính đăng nhập bằng mã cài đặt và tên của nó, không bao giờ là một đường"
-" dẫn."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
-msgid ""
-"A computer signs in with its installation id, its name and its platform."
-msgstr "Máy tính đăng nhập bằng mã cài đặt, tên và hệ điều hành của nó."
-
-#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_approval_chain_purpose_unique
 msgid "A document type cannot have two chains for the same purpose."
 msgstr "Một loại chứng từ không thể có hai chuỗi cho cùng một mục đích."
@@ -411,11 +395,6 @@ msgstr "Không thể xóa nhân sự đã ký; hãy lưu trữ nhân sự. Chữ
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_location_map_point_range
 msgid "A point on a map lies between 0 and 1 of the image's width and height."
 msgstr "Một điểm trên bản đồ phải nằm trong khoảng từ 0 đến 1 theo chiều rộng và chiều cao của hình ảnh."
-
-#. module: sol_laboratory
-#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_regulation_limit_regulation_parameter_unique
-msgid "A regulation sets at most one limit per parameter."
-msgstr "Mỗi quy chuẩn chỉ đặt tối đa một giới hạn cho mỗi chỉ tiêu."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -560,7 +539,8 @@ msgid "Accreditation Number"
 msgstr "Số công nhận"
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__is_accredited
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__is_accredited
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__is_accredited
 msgid "Accredited"
 msgstr "Được công nhận"
 
@@ -614,6 +594,7 @@ msgstr "Giao diện của hành động cửa sổ"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_lock_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__active
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate__active
 msgid "Active"
 msgstr "Đang hoạt động"
 
@@ -1032,6 +1013,8 @@ msgstr "Lưu trữ cách thử của phòng ban mình"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_search
 msgid "Archived"
 msgstr "Đã lưu trữ"
 
@@ -1329,6 +1312,7 @@ msgstr "Được Từ Chối"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_report_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_import_form
 msgid "Cancel"
 msgstr "Hủy"
 
@@ -1508,6 +1492,8 @@ msgstr "Người huấn luyện"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__code
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__code
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__code
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate__code
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import_line__code
 msgid "Code"
 msgstr "Mã"
 
@@ -1609,8 +1595,7 @@ msgid "Computer"
 msgstr "Máy tính"
 
 #. module: sol_laboratory
-#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_laboratory_device
-#: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_device
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_search
 msgid "Computers"
 msgstr "Máy tính"
 
@@ -1960,6 +1945,10 @@ msgstr "Tạo từ máy tính"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import_line__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__create_uid
 msgid "Created by"
 msgstr "Người tạo"
 
@@ -2036,6 +2025,10 @@ msgstr "Người tạo"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import_line__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__create_date
 msgid "Created on"
 msgstr "Ngày tạo"
 
@@ -2595,6 +2588,10 @@ msgstr "Hiển thị báo cáo PDF mẫu hóa đơn"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import_line__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -3198,6 +3195,7 @@ msgstr "Hết hạn phiên chỉnh sửa"
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_file_lock__status__expired
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_lock_search
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_editing_session__status__expired
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_search
 msgid "Expired"
 msgstr "Đã hết hạn"
 
@@ -3677,6 +3675,10 @@ msgstr "Hr trạng thái hiện diện"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import_line__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__id
 msgid "ID"
 msgstr "ID"
 
@@ -4228,6 +4230,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__lang
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import__lang
 msgid "Lang"
 msgstr "Ngôn ngữ"
 
@@ -4375,6 +4378,10 @@ msgstr "Hoạt động gần nhất"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import_line__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__write_uid
 msgid "Last Updated by"
 msgstr "Cập nhật lần cuối bởi"
 
@@ -4451,6 +4458,10 @@ msgstr "Cập nhật lần cuối bởi"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_process__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import_line__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__write_date
 msgid "Last Updated on"
 msgstr "Cập nhật lần cuối vào"
 
@@ -5252,6 +5263,11 @@ msgid "Opened On"
 msgstr "Mở lúc"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__order_number
+msgid "Order Number"
+msgstr "Số Đơn Hàng"
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__delivery_method__other
 msgid "Other"
 msgstr "Khác"
@@ -5328,6 +5344,7 @@ msgstr "Đã thanh toán"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatch
 #: code:addons/sol_laboratory/models/testing/test_report.py:0
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__parameter_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_search
 msgid "Parameter"
 msgstr "Chỉ Tiêu"
 
@@ -5346,6 +5363,8 @@ msgstr "Nhóm Chỉ Tiêu"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__parameter_ids
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_parameter_group_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import_line__parameter_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__parameter_ids
 msgid "Parameters"
 msgstr "Chỉ Tiêu"
 
@@ -6379,6 +6398,7 @@ msgstr "Người chịu trách nhiệm xác thực hợp đồng của nhân vi�
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__phone
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__phone
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__phone
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__laboratory_device_id
 msgid "Phone"
 msgstr "Điện thoại"
 
@@ -7141,8 +7161,10 @@ msgstr "Chỉ Tiêu Của Mẫu"
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_sample_type
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__sample_type_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__sample_type_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__sample_type_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatch
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_search
 msgid "Sample Type"
 msgstr "Loại Mẫu"
 
@@ -7153,6 +7175,8 @@ msgstr "Loại Mẫu"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__sample_type_ids
 #: model:ir.ui.menu,name:sol_laboratory.menu_sample_type
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_parameter_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import_line__sample_type_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__sample_type_ids
 msgid "Sample Types"
 msgstr "Loại Mẫu"
 
@@ -7254,6 +7278,8 @@ msgstr "Tác Vụ Định Kỳ"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__scope
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate__scope_line_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_form
 msgid "Scope"
 msgstr "Phạm vi"
 
@@ -7794,6 +7820,7 @@ msgstr "Đang thử nghiệm"
 #: model:ir.model,name:sol_laboratory.model_medilab_testing_field
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__field_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_method_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import__field_id
 msgid "Testing Field"
 msgstr "Lĩnh Vực Thử Nghiệm"
 
@@ -7807,6 +7834,7 @@ msgstr "Lĩnh Vực Thử Nghiệm"
 #: model:ir.model,name:sol_laboratory.model_medilab_testing_method
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__method_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__method_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__method_id
 msgid "Testing Method"
 msgstr "Phương Pháp Thử"
 
@@ -7820,6 +7848,7 @@ msgstr "Bước Phương Pháp Thử"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__method_ids
 #: model:ir.ui.menu,name:sol_laboratory.menu_testing_method
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_chemical_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate__method_ids
 msgid "Testing Methods"
 msgstr "Phương Pháp Thử"
 
@@ -7958,16 +7987,6 @@ msgstr "Mã lĩnh vực thử nghiệm phải là duy nhất."
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_testing_method_code_unique
 msgid "The code of a testing method must be unique."
 msgstr "Mã phương pháp thử phải là duy nhất."
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_form
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_list
-msgid ""
-"The computer stops at once and can never sign in again; its person keeps "
-"their folders and other computers. Revoke it?"
-msgstr ""
-"Máy tính dừng ngay và không bao giờ đăng nhập lại được; người dùng vẫn giữ "
-"các thư mục và máy tính khác. Thu hồi máy tính?"
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
@@ -8264,12 +8283,6 @@ msgstr ""
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_subcontractor_partner_unique
 msgid "This company is already a subcontractor."
 msgstr "Công ty này đã là thầu phụ."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
-msgid "This computer is not signed in."
-msgstr "Máy tính này chưa đăng nhập."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -8637,13 +8650,17 @@ msgid "Users"
 msgstr "Tài Khoản"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate__valid_from
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_quality_registration__valid_from
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation__valid_from
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_certificate__valid_from
 msgid "Valid From"
 msgstr "Hiệu lực từ"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate__valid_until
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_quality_registration__valid_until
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation__valid_until
 msgid "Valid Until"
 msgstr "Hiệu lực đến"
 
@@ -9318,12 +9335,6 @@ msgid "A mandatory event cannot be turned off."
 msgstr "Không thể tắt một sự kiện bắt buộc."
 
 #. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/system/mobile_device.py:0
-msgid "A mobile device needs a token and a platform."
-msgstr "Thiết bị di động cần mã thông báo và nền tảng."
-
-#. module: sol_laboratory
 #: model:mail.message.subtype,description:sol_laboratory.event_task_reminder
 msgid "A planned task is about to start"
 msgstr "Một nhiệm vụ đã lên lịch sắp bắt đầu"
@@ -9335,6 +9346,7 @@ msgstr "Đã có sự kiện với mã này."
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_mobile_device__platform__android
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_device__platform__android
 msgid "Android"
 msgstr "Android"
 
@@ -9732,12 +9744,6 @@ msgid "This channel is already chosen for the event."
 msgstr "Kênh này đã được chọn cho sự kiện."
 
 #. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/system/mobile_device.py:0
-msgid "This device is not registered for you."
-msgstr "Thiết bị này không được đăng ký cho bạn."
-
-#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_mobile_device_token_unique
 msgid "This device token is already registered."
 msgstr "Mã thông báo của thiết bị này đã được đăng ký."
@@ -9765,6 +9771,7 @@ msgstr "Bạn chỉ có thể đổi lựa chọn kênh của chính mình."
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_mobile_device__platform__ios
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_device__platform__ios
 msgid "iOS"
 msgstr "iOS"
 
@@ -10866,6 +10873,11 @@ msgstr "Không trùng lặp"
 #: code:addons/sol_laboratory/models/master_data/customer.py:0
 msgid "Only the customer's own people can be changed here."
 msgstr "Tại đây chỉ thay đổi được người liên hệ của chính khách hàng này."
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_portal_wizard_user
+msgid "Portal User Config"
+msgstr "Cấu hình người dùng cổng thông tin"
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_customer_form
@@ -13156,6 +13168,7 @@ msgstr "Đang chỉnh sửa"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__lock_message
 msgid "Editing Lock"
 msgstr "Khóa chỉnh sửa"
 
@@ -13365,6 +13378,7 @@ msgstr "Người chờ"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__lock_watched
 msgid "Watching Lock"
 msgstr "Đang chờ mở khóa"
 
@@ -13517,6 +13531,7 @@ msgstr "Thời gian lưu giữ nhật ký hoạt động không được âm; 0 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_accreditation_certificate
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import__certificate_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__certificate_id
 msgid "Accreditation Certificate"
 msgstr "Giấy chứng nhận công nhận"
 
@@ -13572,29 +13587,10 @@ msgid "Edit accreditation certificates"
 msgstr "Sửa giấy chứng nhận công nhận"
 
 #. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/master_data/accreditation_certificate_import.py:0
-msgid "Enter at least one method to import."
-msgstr "Nhập ít nhất một phương pháp để nhập."
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import_line__import_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_import_form
 msgid "Import"
 msgstr "Nhập"
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/master_data/accreditation_certificate.py:0
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_form
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_import_form
-msgid "Import Methods"
-msgstr "Nhập phương pháp"
-
-#. module: sol_laboratory
-#: model:ir.model,name:sol_laboratory.model_medilab_accreditation_certificate_import
-msgid "Import Methods from an Accreditation Certificate"
-msgstr "Nhập phương pháp từ giấy chứng nhận công nhận"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate__issuing_body
@@ -13607,11 +13603,6 @@ msgstr "Cơ quan cấp"
 msgid ""
 "Link testing methods to accreditation certificates from the certificate."
 msgstr "Gắn phương pháp thử vào giấy chứng nhận từ phía giấy chứng nhận."
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import__line_ids
-msgid "Methods"
-msgstr "Phương pháp"
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_search
@@ -13638,19 +13629,6 @@ msgstr "Quyền: accreditation.certificate.delete.all"
 #: model:res.groups,name:sol_laboratory.group_permission_accreditation_certificate_edit_all
 msgid "Permission: accreditation.certificate.edit.all"
 msgstr "Quyền: accreditation.certificate.edit.all"
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/master_data/accreditation_certificate_import.py:0
-msgid "Row %(row)s has no code or title. Nothing was imported."
-msgstr "Dòng %(row)s thiếu mã hoặc tiêu đề. Không nhập gì cả."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/master_data/accreditation_certificate_import.py:0
-msgid ""
-"The code %(code)s appears more than once in the list. Nothing was imported."
-msgstr "Mã %(code)s xuất hiện nhiều lần trong danh sách. Không nhập gì cả."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -13932,12 +13910,6 @@ msgstr "Lượt đăng nhập sai"
 #: code:addons/sol_laboratory/services/laboratory_api.py:0
 msgid "Nothing is found at this address."
 msgstr "Không tìm thấy gì tại địa chỉ này."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/services/laboratory_api.py:0
-msgid "Sign this computer in: the call has no key."
-msgstr "Hãy đăng nhập máy tính này: yêu cầu không có khóa."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -15130,6 +15102,202 @@ msgstr "Chỉ hệ thống ghi nhận người đã chuyển nhiệm vụ sang p
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/master_data/regulation.py:0
+msgid "%(regulation)s does not apply to %(sample_type)s."
+msgstr "%(regulation)s không áp dụng cho %(sample_type)s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/regulation.py:0
+msgid ""
+"%(regulation)s does not apply to the sample type of these limits: "
+"%(limits)s. Keep their sample types in its scope or remove the limits first."
+msgstr ""
+"%(regulation)s không áp dụng cho loại mẫu của các giới hạn này: %(limits)s. "
+"Hãy giữ các loại mẫu đó trong phạm vi áp dụng hoặc xoá các giới hạn trước."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/regulation.py:0
+msgid "%(regulation)s is no longer in force: its last valid day was %(day)s."
+msgstr "%(regulation)s đã hết hiệu lực: ngày hiệu lực cuối cùng là %(day)s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/regulation.py:0
+msgid ""
+"%(regulation)s is no longer in force: its last valid day was %(day)s. The "
+"sample keeps it."
+msgstr ""
+"%(regulation)s đã hết hiệu lực: ngày hiệu lực cuối cùng là %(day)s. Mẫu vẫn "
+"giữ quy chuẩn này."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/regulation.py:0
+msgid "%(regulation)s is not in force yet: it applies from %(day)s."
+msgstr "%(regulation)s chưa có hiệu lực: áp dụng từ ngày %(day)s."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_regulation_limit_regulation_parameter_sample_t_bb7a94b7
+msgid "A regulation sets at most one limit per parameter and sample type."
+msgstr ""
+"Mỗi quy chuẩn chỉ đặt tối đa một giới hạn cho mỗi chỉ tiêu và loại mẫu."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation__add_sample_type_ids
+msgid "Add Parameters For"
+msgstr "Thêm chỉ tiêu cho"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__limit_missing
+msgid "Limit Missing"
+msgstr "Thiếu giới hạn"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation__missing_limits
+msgid "Missing Limits"
+msgstr "Giới hạn còn thiếu"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_regulation_form
+msgid ""
+"No limit is set on these sample types, though the regulation limits the "
+"parameter on another type:"
+msgstr ""
+"Chưa đặt giới hạn trên các loại mẫu này, dù quy chuẩn đã giới hạn chỉ tiêu "
+"đó trên loại mẫu khác:"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__regulation_notice
+msgid "Regulation Notice"
+msgstr "Lưu ý quy chuẩn"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_regulation_form
+msgid "Sample types to add their offered parameters for"
+msgstr "Chọn loại mẫu để thêm các chỉ tiêu đang cung cấp"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/regulation.py:0
+msgid ""
+"The first valid day of regulation %s cannot be after its last valid day."
+msgstr ""
+"Ngày bắt đầu hiệu lực của quy chuẩn %s không được sau ngày hiệu lực cuối "
+"cùng."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+msgid "The regulation sets no limit for this parameter on the sample's type."
+msgstr "Quy chuẩn không đặt giới hạn cho chỉ tiêu này trên loại mẫu của mẫu."
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_accreditation_scope_line
+msgid "Accreditation Scope Line"
+msgstr "Dòng phạm vi công nhận"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_accreditation_scope_line_create_all
+msgid "Create accreditation scope lines"
+msgstr "Tạo dòng phạm vi công nhận"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_accreditation_scope_line_delete_all
+msgid "Delete accreditation scope lines"
+msgstr "Xóa dòng phạm vi công nhận"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_accreditation_scope_line_edit_all
+msgid "Edit accreditation scope lines"
+msgstr "Sửa dòng phạm vi công nhận"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/accreditation_certificate_import.py:0
+msgid "Enter at least one scope line to import."
+msgstr "Hãy thêm ít nhất một dòng phạm vi để nhập."
+
+#. module: sol_laboratory
+#. odoo-python
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_import_form
+#: code:addons/sol_laboratory/models/master_data/accreditation_certificate.py:0
+msgid "Import Scope Lines"
+msgstr "Nhập dòng phạm vi"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_accreditation_certificate_import
+msgid "Import Scope Lines into an Accreditation Certificate"
+msgstr "Nhập dòng phạm vi vào giấy chứng nhận công nhận"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_search
+msgid "Lines to Confirm"
+msgstr "Dòng cần xác nhận"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_accreditation_scope_line_create_all
+msgid "Permission: accreditation.scope.line.create.all"
+msgstr "Quyền: accreditation.scope.line.create.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_accreditation_scope_line_delete_all
+msgid "Permission: accreditation.scope.line.delete.all"
+msgstr "Quyền: accreditation.scope.line.delete.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_accreditation_scope_line_edit_all
+msgid "Permission: accreditation.scope.line.edit.all"
+msgstr "Quyền: accreditation.scope.line.edit.all"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/accreditation_certificate_import.py:0
+msgid "Row %(row)s has no code. Nothing was imported."
+msgstr "Dòng %(row)s thiếu mã. Không nhập gì cả."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/accreditation_certificate_import.py:0
+msgid ""
+"Row %(row)s needs at least one parameter and one sample type. Nothing was "
+"imported."
+msgstr ""
+"Dòng %(row)s cần ít nhất một chỉ tiêu và một loại mẫu. Không nhập gì cả."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import__line_ids
+msgid "Scope Lines"
+msgstr "Dòng phạm vi"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_import_form
+msgid "The code when left empty"
+msgstr "Lấy mã khi để trống"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/accreditation_scope_line.py:0
+msgid ""
+"The scope line of %(method)s on %(certificate)s needs at least one parameter"
+" and one sample type."
+msgstr ""
+"Dòng phạm vi của %(method)s trên %(certificate)s cần ít nhất một chỉ tiêu và"
+" một loại mẫu."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__to_confirm
+msgid "To Confirm"
+msgstr "Cần xác nhận"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__scope_line_ids
+msgid "Accreditation Scope Lines"
+msgstr "Dòng phạm vi công nhận"
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/testing/sample_test.py:0
 msgid ""
 "%(parameter)s is tested by %(way)s, the way of testing the customer "
@@ -15148,3 +15316,88 @@ msgstr "Cách Thử Đã Chấp Nhận"
 #: code:addons/sol_laboratory/models/testing/sample_test.py:0
 msgid "The accepted way of testing changes only through a revised quotation."
 msgstr "Cách thử đã chấp nhận chỉ thay đổi qua một báo giá sửa đổi."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+msgid "A device signs in with its installation id and its name, never a path."
+msgstr ""
+"Thiết bị đăng nhập bằng mã cài đặt và tên của nó, không bao giờ là một đường"
+" dẫn."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+msgid "A device signs in with its installation id, its name and its platform."
+msgstr "Thiết bị đăng nhập bằng mã cài đặt, tên và hệ điều hành của nó."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/mobile_device.py:0
+msgid ""
+"Another registration of this push token happened meanwhile; it is run again."
+msgstr ""
+"Mã thông báo đẩy này vừa được đăng ký ở một yêu cầu khác; lần đăng ký này "
+"được chạy lại."
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_laboratory_device
+#: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_device
+msgid "Devices"
+msgstr "Thiết bị"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+msgid "Only a phone signed in on Medilab Mobile does this."
+msgstr "Chỉ điện thoại đã đăng nhập Medilab Mobile mới làm được việc này."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+msgid "Only the laboratory's staff sign in on Medilab Mobile."
+msgstr "Chỉ nhân viên phòng thí nghiệm mới đăng nhập được Medilab Mobile."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_search
+msgid "Phones"
+msgstr "Điện thoại"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/services/laboratory_api.py:0
+msgid "Sign this device in: the call has no key."
+msgstr "Hãy đăng nhập thiết bị này: yêu cầu không có khóa."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_list
+msgid ""
+"The device stops at once, a phone gets no more pushes, and it can never sign"
+" in again; its person keeps their folders and other devices. Revoke it?"
+msgstr ""
+"Thiết bị dừng ngay, điện thoại không còn nhận thông báo đẩy và không bao giờ"
+" đăng nhập lại được; người dùng vẫn giữ các thư mục và thiết bị khác. Thu "
+"hồi thiết bị?"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+#: code:addons/sol_laboratory/services/laboratory_api.py:0
+msgid "This device is not signed in."
+msgstr "Thiết bị này chưa đăng nhập."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_mobile_device_phone_unique
+msgid "This phone already has a push token."
+msgstr "Điện thoại này đã có mã thông báo đẩy."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+msgid ""
+"This phone was revoked. Install Medilab Mobile again to sign it in as a new "
+"phone."
+msgstr ""
+"Điện thoại này đã bị thu hồi. Hãy cài lại Medilab Mobile để đăng nhập như "
+"một điện thoại mới."

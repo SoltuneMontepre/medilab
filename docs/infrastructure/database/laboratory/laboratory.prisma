@@ -31,6 +31,8 @@ model TestParameter {
   regulation_limits RegulationLimit[]
   /// Sample tests of this parameter.
   sample_tests      SampleTest[]
+  /// Accreditation scope lines that name the parameter.
+  scope_lines       AccreditationScopeLineParameter[]
 
   @@index([main_group_id])
   @@map("medilab_test_parameter")
@@ -108,6 +110,10 @@ model SampleType {
   samples     Sample[]
   /// Regulations that apply to this sample type.
   regulations RegulationSampleType[]
+  /// Limits regulations set on this exact sample type.
+  regulation_limits RegulationLimit[]
+  /// Accreditation scope lines that name the sample type, which also cover its narrower types.
+  scope_lines AccreditationScopeLineSampleType[]
 
   @@index([parent_id])
   @@index([parent_path])
@@ -115,7 +121,8 @@ model SampleType {
   @@map("medilab_sample_type")
 }
 
-/// A regulation the results are compared against, such as QCVN 6-1:2010/BYT, with a limit per parameter. Trigram indexes on code and name serve search.
+/// A regulation the results are compared against, such as QCVN 6-1:2010/BYT, with a limit per parameter and sample type. Trigram indexes on code and name serve search.
+/// valid_from must not be after valid_until; an empty bound is unbounded.
 model Regulation {
   /// Row identifier.
   id                Int                    @id @default(autoincrement())
@@ -125,11 +132,15 @@ model Regulation {
   name              Json
   /// The ministry or body that issued the regulation.
   issuing_authority String?                @db.VarChar
+  /// First day the regulation is in force; empty means in force from any date.
+  valid_from        DateTime?              @db.Date
+  /// Last day the regulation is in force; empty means in force until any date.
+  valid_until       DateTime?              @db.Date
   /// False when the regulation is archived.
   active            Boolean                @default(true)
   /// Sample types the regulation applies to.
   sample_types      RegulationSampleType[]
-  /// Limits the regulation sets, one per parameter.
+  /// Limits the regulation sets, one per parameter and sample type.
   limits            RegulationLimit[]
   /// Samples compared with the regulation.
   samples           Sample[]
@@ -137,7 +148,8 @@ model Regulation {
   @@map("medilab_regulation")
 }
 
-/// The limit a regulation sets for one parameter. Unique on (regulation_id, parameter_id).
+/// The limit a regulation sets for one parameter on one exact sample type. Unique on (regulation_id, parameter_id, sample_type_id).
+/// The sample type is one the regulation names or a narrower type of one; a narrower type never uses a broader type's limit.
 /// A minimum or maximum may be empty or any number, including 0. min_set and max_set say which are set.
 /// At least one of those and limit_text is set; unit_id is set when a minimum or maximum is set.
 model RegulationLimit {
@@ -147,6 +159,8 @@ model RegulationLimit {
   regulation_id Int
   /// The parameter the limit applies to.
   parameter_id  Int
+  /// The sample type the limit applies to.
+  sample_type_id Int
   /// The unit of min_value and max_value; empty for a text-only limit.
   unit_id       Int?
   /// True when a minimum is set. The minimum may be 0.
@@ -165,11 +179,14 @@ model RegulationLimit {
   regulation    Regulation      @relation(fields: [regulation_id], references: [id], onDelete: Cascade)
   /// The parameter the limit applies to.
   parameter     TestParameter   @relation(fields: [parameter_id], references: [id], onDelete: Restrict)
+  /// The sample type the limit applies to.
+  sample_type   SampleType      @relation(fields: [sample_type_id], references: [id], onDelete: Restrict)
   /// The unit of the limit values.
   unit          MeasurementUnit? @relation(fields: [unit_id], references: [id], onDelete: Restrict)
 
-  @@unique([regulation_id, parameter_id])
+  @@unique([regulation_id, parameter_id, sample_type_id])
   @@index([parameter_id])
+  @@index([sample_type_id])
   @@index([unit_id])
   @@map("medilab_regulation_limit")
 }
@@ -210,8 +227,8 @@ model TestingMethod {
   chemicals  ChemicalMethod[]
   /// Steps of the procedure, in step number order.
   steps      TestingMethodStep[]
-  /// Accreditation certificates whose scope lists the method.
-  certificates AccreditationCertificateMethod[]
+  /// Accreditation scope lines that name the method.
+  scope_lines AccreditationScopeLine[]
 
   @@index([field_id])
   @@map("medilab_testing_method")
@@ -299,28 +316,69 @@ model AccreditationCertificate {
   valid_from   DateTime?                       @db.Date
   /// Last day the certificate is valid; empty means valid until any date.
   valid_until  DateTime?                       @db.Date
-  /// False when the certificate is archived.
+  /// False when the certificate is archived; an archived certificate accredits nothing.
   active       Boolean                         @default(true)
-  /// Testing methods in the scope of the certificate.
-  methods      AccreditationCertificateMethod[]
+  /// Lines of the scope.
+  scope_lines  AccreditationScopeLine[]
 
   @@map("medilab_accreditation_certificate")
 }
 
-/// Links an accreditation certificate to the testing methods in its scope.
-model AccreditationCertificateMethod {
-  /// The certificate.
+/// A line of an accreditation certificate's scope (Dòng phạm vi công nhận): one testing method with the parameters and sample types it is accredited for. A sample type covers its narrower types.
+model AccreditationScopeLine {
+  /// Row identifier.
+  id             Int                                @id @default(autoincrement())
+  /// The certificate whose scope the line belongs to.
   certificate_id Int
-  /// A method in its scope.
+  /// The testing method the line accredits.
   method_id      Int
+  /// True while the line names no parameter or no sample type, so it accredits nothing until an administrator completes it, as the method-only lines of earlier certificates do; worked out, never set by hand.
+  to_confirm     Boolean                            @default(false)
   /// The certificate.
-  certificate    AccreditationCertificate @relation(fields: [certificate_id], references: [id], onDelete: Cascade)
+  certificate    AccreditationCertificate           @relation(fields: [certificate_id], references: [id], onDelete: Cascade)
   /// The testing method.
-  method         TestingMethod            @relation(fields: [method_id], references: [id], onDelete: Restrict)
+  method         TestingMethod                      @relation(fields: [method_id], references: [id], onDelete: Restrict)
+  /// Parameters the line accredits with its method.
+  parameters     AccreditationScopeLineParameter[]
+  /// Sample types the line accredits with its method.
+  sample_types   AccreditationScopeLineSampleType[]
 
-  @@id([certificate_id, method_id])
+  @@index([certificate_id])
   @@index([method_id])
-  @@map("medilab_accreditation_certificate_method_rel")
+  @@index([to_confirm])
+  @@map("medilab_accreditation_scope_line")
+}
+
+/// Links an accreditation scope line to the parameters it accredits.
+model AccreditationScopeLineParameter {
+  /// The scope line.
+  line_id      Int
+  /// A parameter it accredits.
+  parameter_id Int
+  /// The scope line.
+  line         AccreditationScopeLine @relation(fields: [line_id], references: [id], onDelete: Cascade)
+  /// The parameter.
+  parameter    TestParameter          @relation(fields: [parameter_id], references: [id], onDelete: Restrict)
+
+  @@id([line_id, parameter_id])
+  @@index([parameter_id])
+  @@map("medilab_accreditation_scope_line_parameter_rel")
+}
+
+/// Links an accreditation scope line to the sample types it accredits.
+model AccreditationScopeLineSampleType {
+  /// The scope line.
+  line_id        Int
+  /// A sample type it accredits, with its narrower types.
+  sample_type_id Int
+  /// The scope line.
+  line           AccreditationScopeLine @relation(fields: [line_id], references: [id], onDelete: Cascade)
+  /// The sample type.
+  sample_type    SampleType             @relation(fields: [sample_type_id], references: [id], onDelete: Restrict)
+
+  @@id([line_id, sample_type_id])
+  @@index([sample_type_id])
+  @@map("medilab_accreditation_scope_line_sample_type_rel")
 }
 
 /// A field of testing that classifies methods, such as Chemistry or Microbiology. Trigram indexes on code and name serve search.
@@ -439,8 +497,6 @@ model ParameterMethod {
   subcontractor_id Int?
   /// The department that tests it in-house; empty when a subcontractor tests it.
   department_id    Int?
-  /// True while this in-house way of testing's method is on an accreditation certificate valid that day; worked out, never set by hand.
-  is_accredited    Boolean         @default(false)
   /// True when its results may be negative, such as a redox potential or a temperature in °C.
   allows_negative  Boolean         @default(false)
   /// False when this way of testing is archived.
@@ -678,6 +734,8 @@ model ParameterMethodSampleType {
   result_decimals     Int?
   /// True for the way the parameter is normally tested on this sample type.
   is_default          Boolean         @default(false)
+  /// True while the way is in-house and a line of an active certificate valid that day, in the company time zone, covers its method, its parameter and the sample type or one of its ancestors; worked out, never set by hand.
+  is_accredited       Boolean         @default(false)
   /// The department that tests the way in-house, copied from the way so a permission can be limited to the person's department; empty for a subcontractor's way.
   department_id       Int?
   /// The parameter.
@@ -837,6 +895,8 @@ model TestRequest {
   status       String   @db.VarChar
   /// Free notes about the request.
   note         String?  @db.Text
+  /// Number of the order the request was created from, kept as text when uninstalling E-commerce drops the link. A trigram index serves search.
+  order_number String?  @db.VarChar
   /// The customer who asks for the tests.
   customer     Customer @relation(fields: [customer_id], references: [id], onDelete: Restrict)
   /// The contact who receives the report.
@@ -972,6 +1032,8 @@ model SampleTest {
   urgent_reason       String?          @db.Text
   /// Why the head of department outsourced the test straight away instead of from an outsourcing suggestion.
   emergency_outsource_reason String?   @db.Text
+  /// True while the test's way is in-house and a line of an active certificate valid that day, in the company time zone, covers its method, its parameter and its sample's type or one of that type's ancestors. Worked out again while the test is open; an approved or cancelled test keeps the mark it had then.
+  is_accredited       Boolean          @default(false)
   /// Tester or head of department who marked the test urgent.
   marked_urgent_by_id Int?
   /// The sample tested.
@@ -1190,7 +1252,7 @@ model User {
   notification_preferences NotificationPreference[] @relation("PreferenceUser")
   /// Job runs the user started by hand.
   triggered_runs JobRun[]     @relation("JobTrigger")
-  /// Mobile devices the user receives reminders on.
+  /// Push tokens of the user's phones.
   devices    MobileDevice[]
   /// Laboratory folders the user owns.
   owned_folders      LaboratoryFolder[]         @relation("FolderOwner")
@@ -1887,7 +1949,7 @@ model HandoverRecord {
   signed_at            DateTime?
   /// Image of the customer's handwritten signature.
   signature_attachment_id Int?
-  /// The mobile device the customer signed on.
+  /// The phone the customer signed on.
   signed_device_id     Int?
   /// The record's PDF.
   attachment_id        Int?
@@ -1897,8 +1959,8 @@ model HandoverRecord {
   request              TestRequest            @relation(fields: [request_id], references: [id], onDelete: Restrict)
   /// Sample delivery staff who took the samples.
   received_by          Person                 @relation("HandoverRecordReceiver", fields: [received_by_id], references: [id], onDelete: Restrict)
-  /// The mobile device the customer signed on.
-  signed_device        MobileDevice?          @relation(fields: [signed_device_id], references: [id], onDelete: SetNull)
+  /// The phone the customer signed on.
+  signed_device        LaboratoryDevice?      @relation(fields: [signed_device_id], references: [id], onDelete: Restrict)
   /// Samples on the record.
   samples              HandoverRecordSample[]
 
@@ -2004,27 +2066,29 @@ model ChangeRequest {
   @@map("medilab_change_request")
 }
 
-/// A mobile device registered with Firebase Cloud Messaging to receive reminders for one Odoo user. Unique on token.
-/// The cleanup job removes devices turned off longer than their retention period.
+/// The Firebase Cloud Messaging token of a phone signed in with Medilab Mobile, one per phone. Unique on token and on laboratory_device_id.
+/// The cleanup job removes tokens turned off longer than their retention period.
 model MobileDevice {
   /// Row identifier.
-  id           Int       @id @default(autoincrement())
-  /// The Odoo user signed in on the device.
-  user_id      Int
-  /// Registration token Firebase Cloud Messaging gives the app on the device.
-  token        String    @unique @db.VarChar
-  /// android or ios.
-  platform     String    @db.VarChar
-  /// When the app last refreshed the token.
-  last_seen_at DateTime
-  /// False when the user signed out or the token was rejected; no reminder is pushed to it.
-  active       Boolean   @default(true)
-  /// Pushes sent to the device.
-  pushes       PushDelivery[]
-  /// Handover records customers signed on the device.
-  signed_handover_records HandoverRecord[]
-  /// The Odoo user signed in on the device.
-  user         User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  id                   Int              @id @default(autoincrement())
+  /// The phone the token belongs to.
+  laboratory_device_id Int              @unique
+  /// The Odoo user of the phone, kept from the phone.
+  user_id              Int?
+  /// Registration token Firebase Cloud Messaging gives the app on the phone.
+  token                String           @unique @db.VarChar
+  /// android or ios, kept from the phone.
+  platform             String?          @db.VarChar
+  /// When the app last registered the token.
+  last_seen_at         DateTime
+  /// False once the phone signed out or was revoked, or Firebase rejected the token; nothing is pushed to it.
+  active               Boolean          @default(true)
+  /// Pushes sent to the token.
+  pushes               PushDelivery[]
+  /// The phone the token belongs to.
+  laboratory_device    LaboratoryDevice @relation(fields: [laboratory_device_id], references: [id], onDelete: Cascade)
+  /// The Odoo user of the phone.
+  user                 User?            @relation(fields: [user_id], references: [id], onDelete: SetNull)
 
   @@index([user_id])
   @@map("medilab_mobile_device")
@@ -2208,7 +2272,7 @@ model NotificationPreference {
   @@map("medilab_notification_preference")
 }
 
-/// Odoo's message (mail.message), shown with the columns this schema uses and the column the laboratory adds: one notification of one event about one document, sent to its recipients.
+/// Odoo's message (mail.message), shown with the columns this schema uses and the column the laboratory adds: one notification of one event about one document, sent to its recipients, or a message of a conversation.
 /// Partial unique index on notification_key where it is set.
 model Message {
   /// Row identifier.
@@ -2229,6 +2293,8 @@ model Message {
   event            NotificationEvent? @relation(fields: [subtype_id], references: [id], onDelete: SetNull)
   /// One notification per recipient.
   notifications    Notification[]
+  /// Pushes of a conversation message to its members' phones.
+  pushes           PushDelivery[]
 
   @@index([model, res_id])
   @@map("mail_message")
@@ -2262,13 +2328,15 @@ model Notification {
   @@map("mail_notification")
 }
 
-/// Pushing one notification to one mobile device through Firebase Cloud Messaging. Unique on (notification_id, mobile_device_id). Partial index on id where status is pending.
+/// Pushing one notification or one conversation message to one phone's token through Firebase Cloud Messaging. Exactly one of notification_id and message_id is set. Unique on (notification_id, mobile_device_id) and on (message_id, mobile_device_id). Partial index on id where status is pending.
 model PushDelivery {
   /// Row identifier.
   id               Int          @id @default(autoincrement())
-  /// The notification pushed.
-  notification_id  Int
-  /// The mobile device pushed to.
+  /// The notification pushed; empty for a conversation message.
+  notification_id  Int?
+  /// The conversation message pushed; empty for a notification.
+  message_id       Int?
+  /// The token pushed to.
   mobile_device_id Int
   /// pending, sent, failed or skipped.
   status           String       @db.VarChar
@@ -2276,12 +2344,15 @@ model PushDelivery {
   sent_at          DateTime?
   /// Error Firebase returned on the last failed attempt.
   error            String?      @db.Text
-  /// The notification pushed.
-  notification     Notification @relation(fields: [notification_id], references: [id], onDelete: Cascade)
-  /// The mobile device pushed to.
-  mobile_device    MobileDevice @relation(fields: [mobile_device_id], references: [id], onDelete: Cascade)
+  /// The notification pushed; empty for a conversation message.
+  notification     Notification? @relation(fields: [notification_id], references: [id], onDelete: Cascade)
+  /// The conversation message pushed; empty for a notification.
+  message          Message?      @relation(fields: [message_id], references: [id], onDelete: Cascade)
+  /// The token pushed to.
+  mobile_device    MobileDevice  @relation(fields: [mobile_device_id], references: [id], onDelete: Cascade)
 
   @@unique([notification_id, mobile_device_id])
+  @@unique([message_id, mobile_device_id])
   @@map("medilab_push_delivery")
 }
 
@@ -2672,7 +2743,7 @@ model LaboratoryUpload {
   @@map("medilab_laboratory_upload")
 }
 
-/// A computer signed in to the laboratory folders with its own key.
+/// A computer running Medilab Sync or a phone running Medilab Mobile, signed in with its own key.
 model LaboratoryDevice {
   /// Row identifier.
   id           Int       @id @default(autoincrement())
@@ -2680,9 +2751,9 @@ model LaboratoryDevice {
   user_id      Int
   /// Id the application generates once per installation.
   client_uid   String    @db.VarChar
-  /// Name of the computer.
+  /// Name of the computer or phone.
   name         String    @db.VarChar
-  /// linux or windows.
+  /// linux or windows for a computer, android or ios for a phone.
   platform     String    @db.VarChar
   /// The Odoo API key of the device, in res_users_apikeys; the key itself is never stored here.
   api_key_id   Int?
@@ -2700,6 +2771,10 @@ model LaboratoryDevice {
   uploads      LaboratoryUpload[]
   /// Locks taken from the device.
   locks        LaboratoryFileLock[]
+  /// The push token of a phone.
+  mobile_device MobileDevice?
+  /// Handover records customers signed on the phone.
+  signed_handover_records HandoverRecord[]
 
   @@unique([user_id, client_uid])
   @@map("medilab_laboratory_device")

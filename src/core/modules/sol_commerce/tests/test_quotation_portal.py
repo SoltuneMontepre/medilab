@@ -77,7 +77,7 @@ class TestQuotationPortal(AuditLookup, HttpCase, OrderCase):
 
         response = self.page()
 
-        self.assertEqual((advance.amount_residual, advance.amount_owed), (0, 500_000))
+        self.assertEqual((advance.amount_residual, advance.amount_owed), (0, 550_000))
         self.assertIn(f"Advance invoice {advance.name}:", response.text)
         self.assertNotIn(f"Advance invoice {advance.name} is paid.", response.text)
 

@@ -19,9 +19,6 @@ PAYMENT_WIZARD = "account.payment.register"
 def seed_quotations(env):
     if env.ref("sol_demo.demo_sale_order_quotation_draft", raise_if_not_found=False):
         return
-    if not env.company.chart_template:
-        # Advance invoices need the sales journal, which a chart of accounts brings; a fresh install has none yet.
-        env["account.chart.template"].try_loading("vn", env.company)
     sales = env.ref("sol_demo.demo_res_users_sales")
     head = env.ref("sol_demo.demo_res_users_head_of_sales")
     vat8 = _sales_tax(env, 8)
