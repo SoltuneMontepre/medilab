@@ -6,6 +6,7 @@ from odoo.exceptions import UserError
 from odoo.fields import Command, Domain
 from odoo.tools import format_list
 
+from odoo.addons.sol_laboratory.constants.catalog import ACCEPTED, REGULATIONS_ACCEPTED
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_CODE_MIXIN,
@@ -95,6 +96,8 @@ class TestRequest(models.Model, TestRequestBase):
         )
         # Free notes about the request.
         note = fields.Text()
+        # Number of the order the request was created from, kept as text when uninstalling E-commerce drops the link.
+        order_number = fields.Char(readonly=True, copy=False, index="trigram")
         # Samples of the request.
         sample_ids = fields.One2many(MODEL_SAMPLE, "request_id", string="Samples")
         # Sample tests the laboratory cancelled with a reason; the report leaves them out.
@@ -130,9 +133,11 @@ class TestRequest(models.Model, TestRequestBase):
         delivery_note=False,
         report_recipient: models.BaseModel | Literal[False] = False,
     ):
-        # E-commerce calls this when an order is confirmed, with one entry per sample on the quotation. An entry's
-        # sampling is the sampling snapshot it keeps, copied onto the sample.
-        request = self.create(
+        # E-commerce calls this when an order is confirmed, with one entry per sample on the quotation. The samples keep
+        # the regulations the customer accepted; an entry's sampling is the sampling snapshot it keeps, copied onto the
+        # sample.
+        accepted = self.with_context(**{REGULATIONS_ACCEPTED: ACCEPTED})
+        request = accepted.create(
             {
                 "customer_id": customer.id,
                 "expected_date": expected_date,
@@ -159,7 +164,7 @@ class TestRequest(models.Model, TestRequestBase):
         for sample, values in zip(request.sample_ids.sorted("id"), samples, strict=True):
             if values.get("sampling"):
                 values["sampling"]._copy_to(MODEL_EXPECTED_SAMPLING, {"sample_id": sample.id})
-        return request
+        return request.with_env(self.env)
 
     @api.model
     def _sample_tests_from_lines(self, lines):

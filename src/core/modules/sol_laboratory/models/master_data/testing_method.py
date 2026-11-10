@@ -5,6 +5,7 @@ from odoo.exceptions import UserError
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ACCREDITATION_CERTIFICATE,
+    MODEL_ACCREDITATION_SCOPE_LINE,
     MODEL_ARCHIVE_MIXIN,
     MODEL_AUDIT_MIXIN,
     MODEL_CHEMICAL,
@@ -51,14 +52,14 @@ class TestingMethod(models.Model, TestingMethodBase):
             ondelete="restrict",
             string="Chemicals",
         )
-        # Accreditation certificates that list this method, archived ones included; linked from the certificate only.
+        # Accreditation scope lines that name this method; set from the certificate.
+        scope_line_ids = fields.One2many(
+            MODEL_ACCREDITATION_SCOPE_LINE, "method_id", readonly=True, string="Accreditation Scope Lines"
+        )
+        # Accreditation certificates whose scope lines name this method, archived ones included.
         certificate_ids = fields.Many2many(
             MODEL_ACCREDITATION_CERTIFICATE,
-            "medilab_accreditation_certificate_method_rel",
-            "method_id",
-            "certificate_id",
-            copy=False,
-            context={"active_test": False},
+            compute="_compute_certificate_ids",
             string="Accreditation Certificates",
         )
         # Steps of the procedure, in step number order.
@@ -72,8 +73,13 @@ class TestingMethod(models.Model, TestingMethodBase):
 
     _code_unique = models.Constraint("UNIQUE(code)", "The code of a testing method must be unique.")
 
+    @api.depends("scope_line_ids.certificate_id")
+    def _compute_certificate_ids(self):
+        for method in self:
+            method.certificate_ids = method.sudo().scope_line_ids.certificate_id.with_env(self.env)
+
     def _refuse_certificate_ids(self, vals):
-        if "certificate_ids" in vals:
+        if {"certificate_ids", "scope_line_ids"} & set(vals):
             raise UserError(self.env._("Link testing methods to accreditation certificates from the certificate."))
 
     @api.model_create_multi

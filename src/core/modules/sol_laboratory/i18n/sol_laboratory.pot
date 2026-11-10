@@ -620,20 +620,6 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
-msgid ""
-"A computer signs in with its installation id and its name, never a path."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
-msgid ""
-"A computer signs in with its installation id, its name and its platform."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
 msgid "A content keeps the key of its object."
 msgstr ""
@@ -812,12 +798,6 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/system/mobile_device.py:0
-msgid "A mobile device needs a token and a platform."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_sync_rule.py:0
 msgid ""
 "A name pattern is a file name with *, such as run-*.csv, without a path: %s"
@@ -889,11 +869,6 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/sample_handover.py:0
 msgid "A received handover cannot move to another sample or department."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_regulation_limit_regulation_parameter_unique
-msgid "A regulation sets at most one limit per parameter."
 msgstr ""
 
 #. module: sol_laboratory
@@ -1190,6 +1165,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_accreditation_certificate
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import__certificate_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__certificate_id
 msgid "Accreditation Certificate"
 msgstr ""
 
@@ -1235,7 +1211,8 @@ msgid "Accreditation refresh"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__is_accredited
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__is_accredited
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__is_accredited
 msgid "Accredited"
 msgstr ""
 
@@ -1572,6 +1549,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_mobile_device__platform__android
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_device__platform__android
 msgid "Android"
 msgstr ""
 
@@ -2912,8 +2890,7 @@ msgid "Computer"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_laboratory_device
-#: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_device
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_search
 msgid "Computers"
 msgstr ""
 
@@ -3432,6 +3409,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__create_uid
 msgid "Created by"
 msgstr ""
 
@@ -3517,6 +3495,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__create_date
 msgid "Created on"
 msgstr ""
 
@@ -4333,6 +4312,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_partner__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_users__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_users_apikeys__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -4993,6 +4973,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__lock_message
 msgid "Editing Lock"
 msgstr ""
 
@@ -5203,12 +5184,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 msgid "Enter Result"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/master_data/accreditation_certificate_import.py:0
-msgid "Enter at least one method to import."
 msgstr ""
 
 #. module: sol_laboratory
@@ -6107,6 +6082,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_partner__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_users__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_users_apikeys__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__id
 msgid "ID"
 msgstr ""
 
@@ -6260,19 +6236,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import_line__import_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_import_form
 msgid "Import"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/master_data/accreditation_certificate.py:0
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_form
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_import_form
-msgid "Import Methods"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model,name:sol_laboratory.model_medilab_accreditation_certificate_import
-msgid "Import Methods from an Accreditation Certificate"
 msgstr ""
 
 #. module: sol_laboratory
@@ -6915,6 +6878,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__write_uid
 msgid "Last Updated by"
 msgstr ""
 
@@ -7000,6 +6964,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__write_date
 msgid "Last Updated on"
 msgstr ""
 
@@ -7523,11 +7488,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
 msgid "Method Steps"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import__line_ids
-msgid "Methods"
 msgstr ""
 
 #. module: sol_laboratory
@@ -8436,6 +8396,190 @@ msgid "Only the system records who moved a task to another department."
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_accreditation_scope_line
+msgid "Accreditation Scope Line"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_accreditation_scope_line_create_all
+msgid "Create accreditation scope lines"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_accreditation_scope_line_delete_all
+msgid "Delete accreditation scope lines"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_accreditation_scope_line_edit_all
+msgid "Edit accreditation scope lines"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/accreditation_certificate_import.py:0
+msgid "Enter at least one scope line to import."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_import_form
+#: code:addons/sol_laboratory/models/master_data/accreditation_certificate.py:0
+msgid "Import Scope Lines"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_accreditation_certificate_import
+msgid "Import Scope Lines into an Accreditation Certificate"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_search
+msgid "Lines to Confirm"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_accreditation_scope_line_create_all
+msgid "Permission: accreditation.scope.line.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_accreditation_scope_line_delete_all
+msgid "Permission: accreditation.scope.line.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_accreditation_scope_line_edit_all
+msgid "Permission: accreditation.scope.line.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/accreditation_certificate_import.py:0
+msgid "Row %(row)s has no code. Nothing was imported."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/accreditation_certificate_import.py:0
+msgid ""
+"Row %(row)s needs at least one parameter and one sample type. Nothing was "
+"imported."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import__line_ids
+msgid "Scope Lines"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_import_form
+msgid "The code when left empty"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/accreditation_scope_line.py:0
+msgid ""
+"The scope line of %(method)s on %(certificate)s needs at least one parameter"
+" and one sample type."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__to_confirm
+msgid "To Confirm"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__scope_line_ids
+msgid "Accreditation Scope Lines"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/regulation.py:0
+msgid "%(regulation)s does not apply to %(sample_type)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/regulation.py:0
+msgid ""
+"%(regulation)s does not apply to the sample type of these limits: "
+"%(limits)s. Keep their sample types in its scope or remove the limits first."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/regulation.py:0
+msgid "%(regulation)s is no longer in force: its last valid day was %(day)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/regulation.py:0
+msgid ""
+"%(regulation)s is no longer in force: its last valid day was %(day)s. The "
+"sample keeps it."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/regulation.py:0
+msgid "%(regulation)s is not in force yet: it applies from %(day)s."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_regulation_limit_regulation_parameter_sample_t_bb7a94b7
+msgid "A regulation sets at most one limit per parameter and sample type."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation__add_sample_type_ids
+msgid "Add Parameters For"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__limit_missing
+msgid "Limit Missing"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation__missing_limits
+msgid "Missing Limits"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_regulation_form
+msgid ""
+"No limit is set on these sample types, though the regulation limits the "
+"parameter on another type:"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__regulation_notice
+msgid "Regulation Notice"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_regulation_form
+msgid "Sample types to add their offered parameters for"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/regulation.py:0
+msgid ""
+"The first valid day of regulation %s cannot be after its last valid day."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+msgid "The regulation sets no limit for this parameter on the sample's type."
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version_signing.py:0
 msgid "Only versions of the files of a result folder are signed."
@@ -8483,6 +8627,11 @@ msgstr ""
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__kind__operation
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_search
 msgid "Operation"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__order_number
+msgid "Order Number"
 msgstr ""
 
 #. module: sol_laboratory
@@ -8617,6 +8766,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__parameter_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__parameter_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatch
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_search
 msgid "Parameter"
 msgstr ""
 
@@ -8635,6 +8785,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__parameter_ids
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_parameter_group_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import_line__parameter_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__parameter_ids
 msgid "Parameters"
 msgstr ""
 
@@ -10665,6 +10817,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__phone
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__phone
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__phone
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__laboratory_device_id
 msgid "Phone"
 msgstr ""
 
@@ -10713,6 +10866,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__platform
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_search
 msgid "Platform"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_portal_wizard_user
+msgid "Portal User Config"
 msgstr ""
 
 #. module: sol_laboratory
@@ -12035,12 +12193,6 @@ msgid "Routing ID"
 msgstr ""
 
 #. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/master_data/accreditation_certificate_import.py:0
-msgid "Row %(row)s has no code or title. Nothing was imported."
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__row_count
 msgid "Row Count"
 msgstr ""
@@ -12229,9 +12381,11 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_sample_type
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__sample_type_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__sample_type_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__sample_type_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sampling_requirement__sample_type_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatch
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_search
 msgid "Sample Type"
 msgstr ""
 
@@ -12247,6 +12401,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__sample_type_ids
 #: model:ir.ui.menu,name:sol_laboratory.menu_sample_type
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_parameter_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import_line__sample_type_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__sample_type_ids
 msgid "Sample Types"
 msgstr ""
 
@@ -12446,6 +12602,8 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__scope
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate__scope_line_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_form
 msgid "Scope"
 msgstr ""
 
@@ -12627,12 +12785,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_test_result_sign_all
 msgid "Sign test results"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/services/laboratory_api.py:0
-msgid "Sign this computer in: the call has no key."
 msgstr ""
 
 #. module: sol_laboratory
@@ -13352,6 +13504,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__method_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sampling_requirement__method_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__method_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__method_id
 msgid "Testing Method"
 msgstr ""
 
@@ -13367,7 +13520,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_expected_sampling__method_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sampling_snapshot_mixin__method_ids
 #: model:ir.ui.menu,name:sol_laboratory.menu_testing_method
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_chemical_form
 msgid "Testing Methods"
 msgstr ""
@@ -13516,13 +13668,6 @@ msgid "The changes of laboratory files are only added, never changed."
 msgstr ""
 
 #. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/master_data/accreditation_certificate_import.py:0
-msgid ""
-"The code %(code)s appears more than once in the list. Nothing was imported."
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_change_request_code_unique
 msgid "The code of a change request must be unique."
 msgstr ""
@@ -13601,14 +13746,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_testing_method_code_unique
 msgid "The code of a testing method must be unique."
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_form
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_list
-msgid ""
-"The computer stops at once and can never sign in again; its person keeps "
-"their folders and other computers. Revoke it?"
 msgstr ""
 
 #. module: sol_laboratory
@@ -14235,13 +14372,6 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
-#: code:addons/sol_laboratory/services/laboratory_api.py:0
-msgid "This computer is not signed in."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
 msgid ""
 "This computer was revoked. Install Medilab Sync again to sign it in as a new"
 " computer."
@@ -14262,12 +14392,6 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/master_data/customer.py:0
 msgid "This customer is not flagged as a possible duplicate."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/system/mobile_device.py:0
-msgid "This device is not registered for you."
 msgstr ""
 
 #. module: sol_laboratory
@@ -14865,6 +14989,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate__valid_from
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_quality_registration__valid_from
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation__valid_from
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_certificate__valid_from
 msgid "Valid From"
 msgstr ""
@@ -14877,6 +15002,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate__valid_until
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_quality_registration__valid_until
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation__valid_until
 msgid "Valid Until"
 msgstr ""
 
@@ -15132,6 +15258,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__lock_watched
 msgid "Watching Lock"
 msgstr ""
 
@@ -15432,6 +15559,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_mobile_device__platform__ios
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_device__platform__ios
 msgid "iOS"
 msgstr ""
 
@@ -15460,4 +15588,80 @@ msgstr ""
 #. module: sol_laboratory
 #: model:mail.template,subject:sol_laboratory.mail_template_task_reminder
 msgid "{{ object.name }}"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+msgid "A device signs in with its installation id and its name, never a path."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+msgid "A device signs in with its installation id, its name and its platform."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/mobile_device.py:0
+msgid ""
+"Another registration of this push token happened meanwhile; it is run again."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_laboratory_device
+#: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_device
+msgid "Devices"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+msgid "Only a phone signed in on Medilab Mobile does this."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+msgid "Only the laboratory's staff sign in on Medilab Mobile."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_search
+msgid "Phones"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/services/laboratory_api.py:0
+msgid "Sign this device in: the call has no key."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_list
+msgid ""
+"The device stops at once, a phone gets no more pushes, and it can never sign"
+" in again; its person keeps their folders and other devices. Revoke it?"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+#: code:addons/sol_laboratory/services/laboratory_api.py:0
+msgid "This device is not signed in."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_mobile_device_phone_unique
+msgid "This phone already has a push token."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+msgid ""
+"This phone was revoked. Install Medilab Mobile again to sign it in as a new "
+"phone."
 msgstr ""

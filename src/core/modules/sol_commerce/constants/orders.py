@@ -9,6 +9,10 @@ STATUS_CLAIMED = "claimed"
 STATUS_CONFIRMED = "confirmed"
 STATUS_COMPLETED = "completed"
 STATUS_CANCELLED = "cancelled"
+# The statuses the customer sees that are not order statuses.
+STATUS_QUOTED = "quoted"
+STATUS_WAITING = "waiting"
+STATUS_TESTING = "testing"
 
 CUSTOMER_CANCELLABLE = (STATUS_DRAFT, STATUS_SUBMITTED, STATUS_CLAIMED)
 PORTAL_ORDERS_PER_PAGE = 20
