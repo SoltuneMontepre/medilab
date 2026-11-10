@@ -1,9 +1,9 @@
 import {
   getInitialNotification,
   getMessaging,
-  getToken,
   onNotificationOpenedApp,
-  onTokenRefresh,
+  onRegistered,
+  register,
   type RemoteMessage,
 } from "@react-native-firebase/messaging";
 import { PermissionsAndroid, Platform } from "react-native";
@@ -27,25 +27,32 @@ export function pushedDocument(message: RemoteMessage | null): PushedDocument | 
   return { model, id };
 }
 
-/** The Firebase token pushes reach this phone with, once the person allows notifications; null when the build has no
- * Firebase project, such as a local build without its google-services.json, or Firebase cannot give one. */
-export async function pushToken(): Promise<string | null> {
-  try {
-    if (Platform.OS === "android" && Number(Platform.Version) >= ANDROID_NOTIFICATION_PERMISSION_API) {
-      await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
-    }
-    return await getToken(getMessaging());
-  } catch {
-    return null;
-  }
+/** Calls back with the id pushes reach this phone with, its Firebase Installation ID, once the person allows
+ * notifications, and again whenever Firebase changes it; returns the unsubscribing function. A build without a Firebase
+ * project, such as a local build without its google-services.json, never calls back. */
+export function watchPushToken(onToken: (token: string) => void): () => void {
+  let unsubscribe: () => void = () => undefined;
+  let stopped = false;
+  allowNotifications()
+    .then(() => {
+      if (stopped) {
+        return;
+      }
+      const messaging = getMessaging();
+      unsubscribe = onRegistered(messaging, onToken);
+      return register(messaging);
+    })
+    .catch(() => undefined);
+  return () => {
+    stopped = true;
+    unsubscribe();
+  };
 }
 
-/** Calls back with each new token Firebase gives the phone; returns the unsubscribing function. */
-export function watchPushToken(onToken: (token: string) => void): () => void {
-  try {
-    return onTokenRefresh(getMessaging(), onToken);
-  } catch {
-    return () => undefined;
+// Android 13 and later show notifications only once the person allows them.
+async function allowNotifications(): Promise<void> {
+  if (Platform.OS === "android" && Number(Platform.Version) >= ANDROID_NOTIFICATION_PERMISSION_API) {
+    await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
   }
 }
 

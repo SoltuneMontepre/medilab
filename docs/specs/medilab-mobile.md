@@ -73,7 +73,7 @@ A push is created when a notification is delivered on the push channel ([SH-11](
 - **Conversation messages.** The title is the conversation's name and the body is the author's name; the message's text is not pushed. The data are `event: message`, `model: discuss.channel`, `id` and no code.
 - **Tapping a push** opens `GET /documents/{model}/{record_id}`. A document the person can no longer see answers `not_found`, and the app says so instead of showing an empty screen.
 - **On by default.** Once a person has a signed-in phone, every event they are notified of is also pushed unless they turned its push off. A mandatory event's push cannot be turned off, and a push of a mandatory event turned off before is sent all the same.
-- **Firebase in the app.** The app registers its token through `@react-native-firebase/messaging` at sign-in, at each start and whenever Firebase gives a new one. A build gets Firebase only from its `google-services.json` ([Running Medilab Mobile](../workflows/running-mobile-app.md)); without it the app registers no token.
+- **Firebase in the app.** The app registers its token, the phone's Firebase Installation ID, through `@react-native-firebase/messaging` (`register()` and `onRegistered()`, with Installation ID messaging turned on) at sign-in, at each start and whenever Firebase gives a new one. A build gets Firebase only from its `google-services.json` ([Running Medilab Mobile](../workflows/running-mobile-app.md)); without it the app registers no token.
 - **Conversation pushes at once.** A new message in a conversation creates a push for each member's phones except its author's and the members who muted the conversation, and triggers the push job at once instead of waiting for its next run.
 
 ### Notifications and documents

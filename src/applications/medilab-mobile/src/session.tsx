@@ -6,7 +6,7 @@ import { ApiError, callApi, UnreachableError, type Call, type SignedIn } from ".
 import { serverUrl as builtInServerUrl } from "./config";
 import { isLocale, type Locale } from "./i18n";
 import { LocaleProvider } from "./locale";
-import { pushToken, watchPushToken } from "./push";
+import { watchPushToken } from "./push";
 import { normalizeServerUrl } from "./server";
 import { installationId, read, remove, write } from "./storage";
 
@@ -118,18 +118,9 @@ export function SessionProvider({ children }: Readonly<{ children: ReactNode }>)
     if (status !== "signedIn") {
       return;
     }
-    let signedIn = true;
-    const register = (token: string | null) => {
-      if (signedIn && token) {
-        call("/push-token", { method: "PUT", body: { token } }).catch(() => undefined);
-      }
-    };
-    pushToken().then(register);
-    const unwatch = watchPushToken(register);
-    return () => {
-      signedIn = false;
-      unwatch();
-    };
+    return watchPushToken((token) => {
+      call("/push-token", { method: "PUT", body: { token } }).catch(() => undefined);
+    });
   }, [status, call]);
 
   const signOut = useCallback(async () => {

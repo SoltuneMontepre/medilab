@@ -8,7 +8,7 @@ const state = {
   onToken: [] as ((token: string) => void)[],
 };
 
-/** The token Firebase gives the phone; null stands for a build without a Firebase project. */
+/** The Installation ID Firebase gives the phone; null stands for a build without a Firebase project. */
 export function givePushToken(token: string | null) {
   state.token = token;
 }
@@ -23,7 +23,7 @@ export function tapPush(message: Message) {
   state.onOpened.forEach((listener) => listener(message));
 }
 
-/** Firebase gives the phone a new token. */
+/** Firebase gives the phone a new Installation ID. */
 export function refreshPushToken(token: string) {
   state.token = token;
   state.onToken.forEach((listener) => listener(token));
@@ -38,11 +38,12 @@ export function resetMessaging() {
 
 export const getMessaging = jest.fn(() => ({}));
 
-export const getToken = jest.fn(async () => {
+export const register = jest.fn(async () => {
   if (state.token === null) {
     throw new Error("No Firebase App '[DEFAULT]' has been created.");
   }
-  return state.token;
+  const token = state.token;
+  state.onToken.forEach((listener) => listener(token));
 });
 
 export const getInitialNotification = jest.fn(async () => {
@@ -58,7 +59,7 @@ export const onNotificationOpenedApp = jest.fn((_messaging: unknown, listener: (
   };
 });
 
-export const onTokenRefresh = jest.fn((_messaging: unknown, listener: (token: string) => void) => {
+export const onRegistered = jest.fn((_messaging: unknown, listener: (token: string) => void) => {
   state.onToken.push(listener);
   return () => {
     state.onToken = state.onToken.filter((kept) => kept !== listener);
