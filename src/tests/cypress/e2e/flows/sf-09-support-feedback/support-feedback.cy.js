@@ -1,5 +1,5 @@
 import { openTab, search } from "../../../support/form";
-import { call, callAs, callRefused, randomId } from "../../../support/odoo";
+import { becomeVisitor, call, callAs, callRefused, randomId } from "../../../support/odoo";
 import { CUSTOMER, OTHER_CUSTOMER, SALES, openRequest, orderIn, rateOrder, unique } from "./setup";
 
 const REQUEST_FIELDS = ["code", "status", "handled_by_id"];
@@ -17,15 +17,6 @@ function userId(login) {
 // Whether a salesperson's list of support requests holds the request.
 function salesSees(login, request) {
   return callAs(login, request.model, "search", [[["id", "=", request.id]]]).then((ids) => ids.length === 1);
-}
-
-// Signs out, then settles the visitor's session: a visitor's first page and the requests it starts can each open
-// one, and the sign-up form needs the one that stays.
-function becomeVisitor() {
-  cy.clearCookies();
-  cy.visit("/catalog");
-  cy.getCookie("session_id").should("exist");
-  cy.visit("/catalog");
 }
 
 // A visitor registers a business with a tax code, and yields the login.
