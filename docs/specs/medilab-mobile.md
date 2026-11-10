@@ -71,21 +71,23 @@ A push is created when a notification is delivered on the push channel ([SH-11](
 - **Payload.** A push has a title, a body and data. The data are `event`, the event's code or `message` for a conversation message; `model` and `id`, the document; and `code`, the document's code. The code is the record's own code, such as a sample's lab code; for a sample test or a result, its sample's lab code; for a task, its document's code; empty when the document has none.
 - **Text.** The title is the event's name in the person's language and the body is the document's code. A push never carries the notification's message, the document's name or any other field, so it never names the customer or the customer's name for a sample, to a tester or anyone else. The app reads the rest after the tap, with the person's rights.
 - **Conversation messages.** The title is the conversation's name and the body is the author's name; the message's text is not pushed. The data are `event: message`, `model: discuss.channel`, `id` and no code.
-- **Tapping a push** opens `GET /documents/{model}/{id}`. A document the person can no longer see answers `not_found`, and the app says so instead of showing an empty screen.
-- **On by default.** Once a person has a signed-in phone, every event they are notified of is also pushed unless they turned its push off. A mandatory event's push cannot be turned off.
+- **Tapping a push** opens `GET /documents/{model}/{record_id}`. A document the person can no longer see answers `not_found`, and the app says so instead of showing an empty screen.
+- **On by default.** Once a person has a signed-in phone, every event they are notified of is also pushed unless they turned its push off. A mandatory event's push cannot be turned off, and a push of a mandatory event turned off before is sent all the same.
+- **Firebase in the app.** The app registers its token through `@react-native-firebase/messaging` at sign-in, at each start and whenever Firebase gives a new one. A build gets Firebase only from its `google-services.json` ([Running Medilab Mobile](../workflows/running-mobile-app.md)); without it the app registers no token.
 - **Conversation pushes at once.** A new message in a conversation creates a push for each member's phones except its author's and the members who muted the conversation, and triggers the push job at once instead of waiting for its next run.
 
 ### Notifications and documents
 
 | Route | Does |
 | ----- | ---- |
-| `GET /notifications?after=&limit=` | The person's notifications, unread first, then newest first, each with its event, title, date, document and whether it is read |
+| `GET /notifications?after=&limit=` | The person's notifications, unread first, then newest first, each with its event, title, date, document and whether it is read; `next_after` is the `after` of the next page |
 | `POST /notifications/{message_id}/read` | Marks the notification read, as opening it in the web's inbox does |
 | `GET /notification-preferences` | Every event with its name, whether it is mandatory and whether its push is on |
-| `PUT /notification-preferences/{event_code}` | Turns the event's push on or off |
-| `GET /documents/{model}/{id}` | The document's code, title and phone screen, and its address on the web |
+| `PUT /notification-preferences/{event_code}` | Turns the event's push on or off with `push` |
+| `GET /documents/{model}/{record_id}` | The document's code, title and phone screen, and its address on the web |
 
-- Notifications are the person's inbox notifications ([SH-11](../functional/shared.md#sh-11-schedules-and-reminders)): Odoo messages with an inbox notification for the person's contact. Reading one marks that notification read for the web as well.
+- Notifications are the person's inbox notifications ([SH-11](../functional/shared.md#sh-11-schedules-and-reminders)): Odoo messages with an inbox notification for the person's contact. Reading one marks that notification read for the web as well. The title of a notification is its event's name, and the list never carries its text, as a push does not.
+- The preferences list the events that notify people: an event the administrator turned off is left out, and its push cannot be set.
 - A push preference is a `medilab.notification.preference` of channel `push`, set with `set_own()`, so the web shows the same choice. Turning off a mandatory event's push is refused with `mandatory_event`.
 - A document's screen is `task`, `sample`, `sample_test`, `test_result`, `handover_record`, `support_request`, `container` or `conversation`. Any other readable document answers the screen `web` with its code, its title and its address on the web, which the app shows with "Open on the web". The title is the document's code when it has one, otherwise its display name.
 
@@ -166,7 +168,7 @@ Conversations are Odoo Discuss channels ([SH-12](../functional/shared.md#sh-12-c
 | `POST /conversations/{channel_id}/seen` | Marks the conversation read up to a message through the member's `_mark_as_read()` |
 | `PUT /conversations/{channel_id}/mute` | Mutes or unmutes it through the member's `mute_until_dt`, as Discuss on the web does |
 | `GET /people?q=` | Active internal users, for new conversations and mentions |
-| `GET /documents/{model}/{id}/messages`, `POST /documents/{model}/{id}/notes` | Reads a task's, a sample's or a test request's chatter, and posts a note on it |
+| `GET /documents/{model}/{record_id}/messages`, `POST /documents/{model}/{record_id}/notes` | Reads a task's, a sample's or a test request's chatter, and posts a note on it |
 
 - **Internal only.** MediLab's channel member model refuses a member without an internal user in any Discuss channel, on the web and the phone alike, so a customer or a subcontractor never joins a conversation.
 - **Mentions** name internal users only. A message notifies the people it mentions on each channel they keep on ([SH-11](../functional/shared.md#sh-11-schedules-and-reminders)).

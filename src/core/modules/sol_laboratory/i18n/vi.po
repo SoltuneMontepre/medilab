@@ -15401,3 +15401,9 @@ msgid ""
 msgstr ""
 "Điện thoại này đã bị thu hồi. Hãy cài lại Medilab Mobile để đăng nhập như "
 "một điện thoại mới."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/mail_notification.py:0
+msgid "This notification is no longer in your inbox."
+msgstr "Thông báo này không còn trong hộp thư của bạn."

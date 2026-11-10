@@ -39,6 +39,8 @@ class HandoverRecord(models.Model, HandoverRecordBase):
     _rec_name = "code"
     # A signed record is never edited or deleted; a correction is a new record.
     _permission_actions = ("read", "create", "edit")
+    # The Medilab Mobile screen that opens it.
+    _mobile_screen = "handover_record"
 
     if not TYPE_CHECKING:
         # Unique code of the record, such as BBGN.2026.0001; filled from a sequence when left empty.

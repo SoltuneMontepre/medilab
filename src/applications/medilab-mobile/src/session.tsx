@@ -6,6 +6,7 @@ import { ApiError, callApi, UnreachableError, type Call, type SignedIn } from ".
 import { serverUrl as builtInServerUrl } from "./config";
 import { isLocale, type Locale } from "./i18n";
 import { LocaleProvider } from "./locale";
+import { pushToken, watchPushToken } from "./push";
 import { normalizeServerUrl } from "./server";
 import { installationId, read, remove, write } from "./storage";
 
@@ -110,6 +111,26 @@ export function SessionProvider({ children }: Readonly<{ children: ReactNode }>)
     },
     [serverUrl, language, key, forgetKey],
   );
+
+  // A signed-in phone registers the token Firebase gives it, at sign-in, at each start and whenever Firebase changes
+  // it, so pushes reach it; a phone without a token, such as a build without Firebase, simply gets none.
+  useEffect(() => {
+    if (status !== "signedIn") {
+      return;
+    }
+    let signedIn = true;
+    const register = (token: string | null) => {
+      if (signedIn && token) {
+        call("/push-token", { method: "PUT", body: { token } }).catch(() => undefined);
+      }
+    };
+    pushToken().then(register);
+    const unwatch = watchPushToken(register);
+    return () => {
+      signedIn = false;
+      unwatch();
+    };
+  }, [status, call]);
 
   const signOut = useCallback(async () => {
     try {
