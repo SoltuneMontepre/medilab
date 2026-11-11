@@ -50,7 +50,13 @@ class ApprovalChain(models.Model, ApprovalChainBase):
 
     @api.ondelete(at_uninstall=False)
     def _unlink_except_signed(self):
-        signatures = self.env[MODEL_SIGNATURE].sudo().search([("level_id.chain_id", "in", self.ids)])
+        # Levels replaced since they were signed are archived and still count.
+        signatures = (
+            self.env[MODEL_SIGNATURE]
+            .sudo()
+            .with_context(active_test=False)
+            .search([("level_id.chain_id", "in", self.ids)])
+        )
         if signatures:
             raise UserError(
                 self.env._(

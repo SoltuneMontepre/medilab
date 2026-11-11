@@ -26,6 +26,15 @@
         <field name="location_id" ref="demo_location_microbiology_bench_1" />
         <field name="status">under_repair</field>
     </record>
+    <!-- Microbiology keeps testing on the second incubator while the first is repaired. -->
+    <record id="demo_machine_incubator_2" model="medilab.machine">
+        <field name="code">INC-02</field>
+        <field name="name">Incubator 2</field>
+        <field name="model">IN110</field>
+        <field name="manufacturer">Memmert</field>
+        <field name="serial_number">B416.0187</field>
+        <field name="location_id" ref="demo_location_microbiology_bench_1" />
+    </record>
     <record id="demo_machine_aas_2" model="medilab.machine">
         <field name="code">AAS-02</field>
         <field name="name">Atomic absorption spectrometer 2</field>

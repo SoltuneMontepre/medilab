@@ -79,10 +79,22 @@
             <menuitem id="menu_laboratory_editing_session" action="action_medilab_laboratory_editing_session" sequence="18" />
             <menuitem id="menu_laboratory_folder_member" action="action_medilab_laboratory_folder_member" sequence="20" />
             <menuitem id="menu_laboratory_sync_rule" action="action_medilab_laboratory_sync_rule" sequence="30" />
-            <menuitem id="menu_laboratory_device" action="action_medilab_laboratory_device" sequence="40" />
+            <!-- Everyone reads their own phones, but only the laboratory files permission shows the list. -->
+            <menuitem
+                id="menu_laboratory_device"
+                action="action_medilab_laboratory_device"
+                sequence="40"
+                groups="group_permission_laboratory_folder_create_all,group_permission_laboratory_device_read_all"
+            />
         </menuitem>
         <menuitem id="menu_laboratory_configuration" name="Configuration" sequence="100">
             <menuitem id="menu_settings" action="action_medilab_settings" sequence="0" groups="base.group_system" />
+            <menuitem
+                id="menu_public_holiday"
+                action="action_medilab_public_holiday"
+                sequence="5"
+                groups="base.group_system"
+            />
             <menuitem
                 id="menu_signing_certificate"
                 action="action_medilab_signing_certificate"
@@ -94,6 +106,12 @@
                 action="action_medilab_digital_signature"
                 sequence="20"
                 groups="group_permission_digital_signature_read_all"
+            />
+            <menuitem
+                id="menu_report_template"
+                action="action_medilab_report_template"
+                sequence="30"
+                groups="group_permission_report_template_read_all"
             />
         </menuitem>
     </menuitem>

@@ -3,101 +3,63 @@
     <record id="demo_parameter_method_lead_aas" model="medilab.parameter.method">
         <field name="parameter_id" ref="demo_test_parameter_lead" />
         <field name="method_id" ref="demo_testing_method_tcvn_7602" />
-        <field name="unit_id" ref="demo_measurement_unit_mg_kg" />
         <field name="department_id" ref="demo_hr_department_chemistry" />
-        <field name="lod">0.01</field>
-        <field name="loq">0.03</field>
-        <field name="result_decimals">3</field>
-        <field name="is_default" eval="True" />
     </record>
     <record id="demo_parameter_method_lead_icpms" model="medilab.parameter.method">
         <field name="parameter_id" ref="demo_test_parameter_lead" />
         <field name="method_id" ref="demo_testing_method_iso_17294_2" />
-        <field name="unit_id" ref="demo_measurement_unit_ug_l" />
         <field name="department_id" ref="demo_hr_department_chemistry" />
-        <field name="lod">0.1</field>
-        <field name="loq">0.3</field>
-        <field name="result_decimals">2</field>
     </record>
     <record id="demo_parameter_method_lead_subcontracted" model="medilab.parameter.method">
         <field name="parameter_id" ref="demo_test_parameter_lead" />
         <field name="method_id" ref="demo_testing_method_iso_17294_2" />
-        <field name="unit_id" ref="demo_measurement_unit_ug_l" />
         <field name="subcontractor_id" ref="demo_subcontractor_northern_testing" />
-        <field name="lod">0.05</field>
-        <field name="loq">0.15</field>
-        <field name="result_decimals">2</field>
     </record>
     <record id="demo_parameter_method_coliforms_mpn" model="medilab.parameter.method">
         <field name="parameter_id" ref="demo_test_parameter_coliforms" />
         <field name="method_id" ref="demo_testing_method_tcvn_6187_2" />
-        <field name="unit_id" ref="demo_measurement_unit_mpn_100ml" />
         <field name="department_id" ref="demo_hr_department_microbiology" />
-        <field name="result_decimals">0</field>
-        <field name="is_default" eval="True" />
     </record>
+    <!-- The default before the most probable number method replaced it; archived since. -->
     <record id="demo_parameter_method_coliforms_colony" model="medilab.parameter.method">
         <field name="parameter_id" ref="demo_test_parameter_coliforms" />
         <field name="method_id" ref="demo_testing_method_iso_4832" />
-        <field name="unit_id" ref="demo_measurement_unit_cfu_g" />
         <field name="department_id" ref="demo_hr_department_microbiology" />
-        <field name="result_decimals">0</field>
+        <field name="active" eval="False" />
     </record>
     <record id="demo_parameter_method_e_coli_membrane" model="medilab.parameter.method">
         <field name="parameter_id" ref="demo_test_parameter_e_coli" />
         <field name="method_id" ref="demo_testing_method_tcvn_6187_1" />
-        <field name="unit_id" ref="demo_measurement_unit_cfu_100ml" />
         <field name="department_id" ref="demo_hr_department_microbiology" />
-        <field name="result_decimals">0</field>
-        <field name="is_default" eval="True" />
     </record>
     <record id="demo_parameter_method_e_coli_colony" model="medilab.parameter.method">
         <field name="parameter_id" ref="demo_test_parameter_e_coli" />
         <field name="method_id" ref="demo_testing_method_iso_16649_2" />
-        <field name="unit_id" ref="demo_measurement_unit_cfu_g" />
         <field name="department_id" ref="demo_hr_department_microbiology" />
-        <field name="result_decimals">0</field>
     </record>
     <record id="demo_parameter_method_ph_water" model="medilab.parameter.method">
         <field name="parameter_id" ref="demo_test_parameter_ph" />
         <field name="method_id" ref="demo_testing_method_tcvn_6492" />
-        <field name="unit_id" ref="demo_measurement_unit_ph" />
         <field name="department_id" ref="demo_hr_department_chemistry" />
-        <field name="result_decimals">1</field>
-        <field name="is_default" eval="True" />
     </record>
     <record id="demo_parameter_method_ph_soil" model="medilab.parameter.method">
         <field name="parameter_id" ref="demo_test_parameter_ph" />
         <field name="method_id" ref="demo_testing_method_tcvn_5979" />
-        <field name="unit_id" ref="demo_measurement_unit_ph" />
         <field name="department_id" ref="demo_hr_department_chemistry" />
-        <field name="result_decimals">1</field>
     </record>
     <record id="demo_parameter_method_chlorpyrifos_quechers" model="medilab.parameter.method">
         <field name="parameter_id" ref="demo_test_parameter_chlorpyrifos" />
         <field name="method_id" ref="demo_testing_method_en_15662" />
-        <field name="unit_id" ref="demo_measurement_unit_mg_kg" />
         <field name="department_id" ref="demo_hr_department_chemistry" />
-        <field name="lod">0.003</field>
-        <field name="loq">0.01</field>
-        <field name="result_decimals">3</field>
-        <field name="is_default" eval="True" />
     </record>
     <record id="demo_parameter_method_chlorpyrifos_ug" model="medilab.parameter.method">
         <field name="parameter_id" ref="demo_test_parameter_chlorpyrifos" />
         <field name="method_id" ref="demo_testing_method_en_15662" />
-        <field name="unit_id" ref="demo_measurement_unit_ug_kg" />
         <field name="subcontractor_id" ref="demo_subcontractor_southern_micro" />
-        <field name="lod">1</field>
-        <field name="loq">3</field>
-        <field name="result_decimals">1</field>
     </record>
     <record id="demo_parameter_method_chromium_vi_colorimetry" model="medilab.parameter.method">
         <field name="parameter_id" ref="demo_test_parameter_chromium_vi" />
         <field name="method_id" ref="demo_testing_method_chromium_vi_colorimetry" />
-        <field name="unit_id" ref="demo_measurement_unit_mg_l" />
         <field name="department_id" ref="demo_hr_department_chemistry" />
-        <field name="result_decimals">3</field>
-        <field name="is_default" eval="True" />
     </record>
 </odoo>

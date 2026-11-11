@@ -16,7 +16,7 @@ The tester, also called lab QA, runs assigned tests with a machine when the way 
 
 ### Results
 
-- **US-T05** As a tester, I want to enter a result as a number in the unit of the way of testing or as a text, so that the measurement is recorded as it was made.
+- **US-T05** As a tester, I want to enter a result as a number in the unit the way of testing has on the sample's type or as a text, so that the measurement is recorded as it was made.
 - **US-T06** As a tester, I want to assess requested regulation comparisons as pass, fail or insufficient basis, so that the report states only what its evidence supports.
 - **US-T07** As a tester, I want to send my result for approval and sign it, so that the head of department can review it.
 - **US-T08** As a tester, I want to retest when a result is rejected, so that the reported result is correct, while the rejected one stays on record.
@@ -62,7 +62,7 @@ Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling
 | Deadline risk | Notify the tester and Head of Department when risk first appears, then include unresolved risks in a daily summary. Show the flag on tasks and schedules. Sales contacts the customer only when the committed return date is affected or at risk. |
 | Machine heads-up | Warn within the separate calibration, maintenance or recent-repair windows, each defaulting to 7 days. Valid warnings allow booking only while calibration, maintenance and availability requirements are satisfied. |
 | Releasing the machine | Entering the result or marking the measurement finished frees the machine before the booking's end. A booking whose end passes without either keeps the machine, flags the next bookings on it at risk and notifies the tester and head. |
-| Adjusting | Move or cancel a not-started booking, keeping all required reservations synchronized under SH-11. Cancelling the booking returns its sample test to the plan without cancelling it. |
+| Adjusting | Move or cancel their own not-started booking, keeping all required reservations synchronized under SH-11. Cancelling the booking returns its sample test to the plan without cancelling it. A move is made from the booking's form or by dragging it on the machine schedule, only to a free slot. |
 
 Acceptance criteria:
 
@@ -91,9 +91,9 @@ Follows [Results](../overview.md#results) and [Signing](../overview.md#signing).
 
 | Rule        | Description                                                                                          |
 | ----------- | ---------------------------------------------------------------------------------------------------- |
-| Limit copy | Creating a result copies its unit, LOD and LOQ from its way and sample type. If comparison is requested, copy the exact regulation, parameter and sample-type limit and unit; missing configuration remains visible. |
+| Limit copy | Creating a result copies its way of testing, sample type, unit, LOD and LOQ from its way and sample type. If comparison is requested, copy the exact regulation, parameter and sample-type limit and unit; missing configuration remains visible. Comparison is requested for a result when the sample's regulation sets a limit for its parameter on some sample type. Only the system writes the copy, and catalog edits never change it. |
 | Measurement | Each result belongs to exactly one booking or subcontract dispatch. Its booking supplies the performer, interval and machine when required; entering one result does not complete the other bookings sharing its machine interval. |
-| Conclusion | No conclusion is needed without requested regulation comparison. For a requested comparison, the tester assesses pass, fail or insufficient basis. Text and below-LOD/LOQ values need professional assessment, never automatic passing or substitution with zero. Reports show the threshold and unit from the result's snapshot. |
+| Conclusion | No conclusion is needed without requested regulation comparison. For a requested comparison, the tester assesses pass, fail or insufficient basis. Text and below-LOD/LOQ values need professional assessment, never automatic passing or substitution with zero. A result without an exact-type limit can only be assessed as insufficient basis. A result outside the requested comparison takes no conclusion. A value below the LOD, or else below the LOQ, suggests a text such as "<0.05 mg/L (below LOQ)" with the copied threshold and unit, in each language; confirming it keeps the measured value. Reports show the threshold and unit from the result's snapshot. |
 | Retest | A retest is a new result with a new booking; the rejected or interrupted result stays on record. The system does not count or limit retests. |
 | Sanity check | Before a numeric result is sent for approval, it is compared with past approved results and the regulation limit. An unusual value shows a warning with the reason; the tester may still send it, and the warning stays on the result. |
 | Task done   | The testing task is done when the tester submits the result; approving it is the head's work at the result approval level. A rejected result keeps its record and review, and opens a new testing task for the same sample test, for a correction or a new measurement. |

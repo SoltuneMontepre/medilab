@@ -11,6 +11,7 @@ from odoo.tests import tagged
 from odoo.tools import SQL
 
 from .audit_case import AuditLookup
+from .mobile_phones import push_token
 from .people_case import PeopleCase
 from odoo.addons.sol_laboratory.constants.jobs import (
     CLEANUP_CONTEXT,
@@ -133,14 +134,8 @@ class TestCleanup(AuditLookup, PeopleCase):
         )
 
     def device(self, active, days):
-        device = self.env[MODEL_MOBILE_DEVICE].create(
-            {
-                "user_id": self.chemist.user_id.id,
-                "token": f"token-{active}-{days}",
-                "platform": "android",
-                "active": active,
-            }
-        )
+        device = push_token(self.env, self.chemist.user_id, f"token-{active}-{days}")
+        device.active = active
         self.backdate(device, "write_date", days)
         return device
 

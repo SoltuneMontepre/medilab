@@ -1,8 +1,6 @@
 # Medilab Mobile
 
-Medilab Mobile is deferred from the [current scope](../../index.md#scope). These requirements describe the deferred application.
-
-Medilab Mobile is the phone app of the laboratory's staff. It brings the work done away from a desk to the phone: the to-do list and its tasks, conversations, scanning sample labels and container QR codes, sample photos, the customer's signature on a handover record, and entering and signing results at the bench. It reaches MediLab through the Laboratory module's [REST API](../overview.md#laboratory-files) and receives pushes through [Firebase Cloud Messaging](../../shared.md#4-firebase-cloud-messaging-mobile-push). MediLab checks every call with the person's permissions, so the app shows and does only what the person may see and do on the web.
+Medilab Mobile is the phone app of the laboratory's staff. It brings the work done away from a desk to the phone: the to-do list and its tasks, conversations, scanning sample labels and container QR codes, sample photos, the customer's signature on a handover record, and entering and signing results at the bench. It reaches MediLab through the Laboratory module's [REST API](../overview.md#laboratory-files) and receives pushes through [Firebase Cloud Messaging](../../shared.md#4-firebase-cloud-messaging-mobile-push). MediLab checks every call with the person's permissions, so the app shows and does only what the person may see and do on the web. [Medilab Mobile](../../../specs/medilab-mobile.md) specifies its routes, pushes and updates.
 
 ## Platforms and installation
 
@@ -23,7 +21,7 @@ Medilab Mobile is the phone app of the laboratory's staff. It brings the work do
 | Code only   | An update that changes only the app's code downloads, and the app restarts into it. |
 | New install | An update that needs a new install downloads the APK and opens Android's installer. |
 | Signed      | The app installs only updates signed with the laboratory's key. An unsigned or altered update is refused, and the app keeps the version it has. |
-| Releases    | An administrator stops or rolls back a release in MediLab and sets the oldest version MediLab still serves. A phone with an older version shows only the updating screen. |
+| Releases    | An administrator stops a release in MediLab, so no phone downloads it any more, and sets the oldest version MediLab still serves. Rolling back publishes the previous release again, signed by the release pipeline. A phone with an older version than the oldest served shows only the updating screen. |
 
 ## Signing in
 
@@ -73,7 +71,7 @@ Conversations follow [SH-12](../../shared.md#sh-12-conversations).
 | Rule          | Description |
 | ------------- | ----------- |
 | Test          | A testing task shows its sample's lab code, its parameter, its way of testing and its due date, and its method's steps, each with how long it takes, what to do, its note and where it is done. |
-| Result        | The tester enters the result as a number in the unit of the way of testing or as a text, and its conclusion, following [Results](../features/tester.md#2-results-us-t05-to-us-t09-us-t17-us-t18-us-t22). A result that is unusual or close to the regulation limit shows the same warning as on the web before it is sent. |
+| Result        | The tester enters the result as a number in the unit the way of testing has on the sample's type or as a text, and its conclusion, following [Results](../features/tester.md#2-results-us-t05-to-us-t09-us-t17-us-t18-us-t22). A result that is unusual or close to the regulation limit shows the same warning as on the web before it is sent. |
 | Sending       | The tester sends the result for approval and signs it with a deliberate action and a confirmation, as on the web ([SH-04](../../shared.md#sh-04-signatures-and-digital-signing)). |
 | Approving     | A head of department sees the results of their department waiting for their signature, and signs or rejects one with a reason, following [Samples and results](../features/head-of-department.md#2-samples-and-results-us-hd06-to-us-hd09). |
 | Read only     | A result that is approved, or waiting for someone else's signature, is shown and cannot be changed. |
@@ -112,7 +110,7 @@ Conversations follow [SH-12](../../shared.md#sh-12-conversations).
 - A phone with an update waiting cannot be used until it has installed it.
 - An update not signed with the laboratory's key is refused, and the app keeps the version it has.
 - A phone with a version older than the oldest one MediLab serves shows only the updating screen.
-- After an administrator rolls back a release, phones return to the previous version at their next check.
+- After a release is rolled back, phones return to the previous version at their next check.
 
 ## Related documents
 
@@ -124,3 +122,4 @@ Conversations follow [SH-12](../../shared.md#sh-12-conversations).
 - [Inventory tester](../../inventory_module/features/tester.md)
 - [Sales](../../ecommerce_module/features/sales.md)
 - [Medilab Sync](medilab-sync.md)
+- [Medilab Mobile spec](../../../specs/medilab-mobile.md)

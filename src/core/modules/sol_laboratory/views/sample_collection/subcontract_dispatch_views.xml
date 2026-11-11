@@ -71,6 +71,12 @@
                             <field name="sent_date" readonly="status not in ('draft', 'sent')" />
                             <field name="expected_date" readonly="status not in ('draft', 'sent')" />
                             <field name="received_date" invisible="status != 'received'" />
+                            <field name="report_filename" invisible="1" />
+                            <field
+                                name="report_file"
+                                filename="report_filename"
+                                invisible="status not in ('sent', 'received')"
+                            />
                         </group>
                         <group string="Carrier">
                             <field name="courier_choice_ids" invisible="1" />

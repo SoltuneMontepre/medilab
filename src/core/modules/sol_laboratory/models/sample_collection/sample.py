@@ -7,13 +7,14 @@ from odoo.exceptions import UserError
 from odoo.fields import Command, Domain
 from odoo.tools import format_list
 
+from odoo.addons.sol_laboratory.constants.catalog import ACCEPTED, REGULATIONS_ACCEPTED
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_CODE_MIXIN,
     MODEL_DEPARTMENT,
     MODEL_LOCATION,
     MODEL_LOCK_MIXIN,
-    MODEL_PARAMETER_METHOD,
+    MODEL_PARAMETER_METHOD_SAMPLE_TYPE,
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
     MODEL_REGULATION,
@@ -67,6 +68,8 @@ class Sample(models.Model, SampleBase):
     _rec_name = "code"
     # A sample is cancelled, never archived or deleted.
     _permission_actions = ("read", "create", "edit")
+    # The Medilab Mobile screen that opens it.
+    _mobile_screen = "sample"
     _audit_children = ("test_ids", "handover_ids")
 
     if not TYPE_CHECKING:
@@ -92,6 +95,8 @@ class Sample(models.Model, SampleBase):
         container_type = fields.Char(string="Container")
         # The regulation the sample's results are compared with; empty when none.
         regulation_id = fields.Many2one(MODEL_REGULATION, ondelete="restrict", index="btree_not_null")
+        # Why the sample keeps a regulation that is no longer in force; empty while it is.
+        regulation_notice = fields.Char(compute="_compute_regulation_notice")
         # Free notes about the sample.
         note = fields.Text()
         # Where the sample is in its lifecycle.
@@ -169,9 +174,16 @@ class Sample(models.Model, SampleBase):
 
     _code_unique = models.Constraint("UNIQUE(code)", "The lab code of a sample must be unique.")
 
+    @api.depends("regulation_id.valid_until")
+    def _compute_regulation_notice(self):
+        for sample in self:
+            sample.regulation_notice = sample.regulation_id._expiry_notice() if sample.regulation_id else False
+
     @api.model_create_multi
     def create(self, vals_list):
         samples = super().create(vals_list)
+        if self.env.context.get(REGULATIONS_ACCEPTED) is not ACCEPTED:
+            samples.filtered("regulation_id")._check_regulation()
         if any("photo_ids" in vals for vals in vals_list):
             samples._link_photos()
         return samples
@@ -185,9 +197,18 @@ class Sample(models.Model, SampleBase):
                 )
             )
         result = super().write(vals)
+        if {"regulation_id", "sample_type_id"} & set(vals):
+            self.filtered("regulation_id")._check_regulation()
         if "photo_ids" in vals:
             self._link_photos()
+        if "sample_type_id" in vals:
+            self.test_ids._refresh_accreditation()
         return result
+
+    def _check_regulation(self):
+        # A regulation chosen for a sample, or a sample type chosen for a sample with one, is a new selection.
+        for sample in self:
+            sample.regulation_id._check_selectable(sample.sample_type_id)
 
     def _cancel(self):
         self.filtered(lambda sample: sample.status in CANCELLABLE_STATUSES).status = "cancelled"
@@ -397,16 +418,22 @@ class Sample(models.Model, SampleBase):
 
     def _department_by_test(self):
         self.ensure_one()
-        pairs = self.env[MODEL_PARAMETER_METHOD].search(
+        defaults = self.env[MODEL_PARAMETER_METHOD_SAMPLE_TYPE].search(
             [
                 ("parameter_id", "in", self.test_ids.parameter_id.ids),
+                ("sample_type_id", "=", self.sample_type_id.id),
                 ("is_default", "=", True),
-                ("department_id", "!=", False),
+                ("parameter_method_id.department_id", "!=", False),
             ]
         )
-        department_of = {pair.parameter_id.id: pair.department_id for pair in pairs}
+        department_of = {default.parameter_id.id: default.parameter_method_id.department_id for default in defaults}
         empty = self.env[MODEL_DEPARTMENT]
-        return {test: department_of.get(test.parameter_id.id, empty) for test in self.test_ids}
+        # A test keeps to the way the customer accepted, and so to its department; the department of the default way
+        # outsources a test accepted on a subcontracted way.
+        return {
+            test: test.accepted_method_id.department_id or department_of.get(test.parameter_id.id, empty)
+            for test in self.test_ids
+        }
 
     def _test_departments(self):
         self.ensure_one()

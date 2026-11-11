@@ -2,6 +2,7 @@ from odoo.tests import HttpCase, new_test_user, tagged
 
 from .report_case import ReportCase
 from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER
+from odoo.addons.sol_laboratory.constants.settings import DIGITAL_SIGNING_PARAMETER
 
 
 @tagged("post_install", "-at_install")
@@ -35,6 +36,18 @@ class TestTestReportPortal(HttpCase, ReportCase):
         self.authenticate("hoa.portal", "hoa.portal")
 
         self.assertEqual(self.download(self.report()).status_code, 404)
+
+    def test_a_report_pending_digital_signing_cannot_be_downloaded(self):
+        # Viettel Sign has no account in tests, so its signing fails.
+        self.env["ir.config_parameter"].set_bool(DIGITAL_SIGNING_PARAMETER, True)
+        self.complete()
+        self.sign()
+        report = self.report()
+        self.authenticate("hoa.portal", "hoa.portal")
+
+        self.assertEqual(report.status, "pending_signing")
+        self.assertNotIn(report.code, self.url_open("/my/test-reports").text)
+        self.assertEqual(self.download(report).status_code, 404)
 
     def test_a_customer_cannot_download_another_customers_report(self):
         self.complete()

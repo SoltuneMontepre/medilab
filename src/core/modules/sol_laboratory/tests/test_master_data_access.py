@@ -13,6 +13,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PARAMETER_GROUP,
     MODEL_PARAMETER_METHOD,
     MODEL_PARAMETER_METHOD_MACHINE,
+    MODEL_PARAMETER_METHOD_SAMPLE_TYPE,
     MODEL_PERMISSION,
     MODEL_PERMISSION_MIXIN,
     MODEL_QUALITY_REGISTRATION,
@@ -36,6 +37,7 @@ MASTER_DATA_MODELS = [
     MODEL_PARAMETER_GROUP,
     MODEL_PARAMETER_METHOD,
     MODEL_PARAMETER_METHOD_MACHINE,
+    MODEL_PARAMETER_METHOD_SAMPLE_TYPE,
     MODEL_QUALITY_REGISTRATION,
     MODEL_REGULATION,
     MODEL_REGULATION_LIMIT,
@@ -101,7 +103,7 @@ class TestMasterDataAccess(MasterDataCase, PeopleCase):
     def test_non_administrator_reads_but_cannot_change(self):
         parameter = self.parameter.with_user(self.tester)
 
-        self.assertEqual(parameter.method_ids.unit_id.name, "mg/g")
+        self.assertEqual(parameter.method_ids.method_id.code, "TCVN 8126:2009")
         for action in (
             lambda: parameter.create({"name": "Cadmium (Cd)", "main_group_id": self.group.id}),
             lambda: parameter.write({"name": "Lead"}),
@@ -171,16 +173,34 @@ class TestMasterDataAccess(MasterDataCase, PeopleCase):
             {
                 "parameter_id": self.create_parameter("Cadmium (Cd)", self.group).id,
                 "method_id": self.method.id,
-                "unit_id": self.unit.id,
                 "department_id": self.microbiology.id,
             }
         )
         self.grant(self.chemist, "parameter_method.edit.own_department")
 
-        self.as_person(self.pair, self.chemist).write({"lod": 0.01})
-        self.assertEqual(self.pair.lod, 0.01)
+        self.as_person(self.pair, self.chemist).write({"allows_negative": True})
+        self.assertTrue(self.pair.allows_negative)
         with self.assertRaises(AccessError):
-            self.as_person(cadmium, self.chemist).write({"lod": 0.01})
+            self.as_person(cadmium, self.chemist).write({"allows_negative": True})
+
+    def test_own_department_permission_edits_only_their_departments_sample_types_of_ways(self):
+        self.pair.department_id = self.chemistry
+        cadmium = self.env[MODEL_PARAMETER_METHOD].create(
+            {
+                "parameter_id": self.create_parameter("Cadmium (Cd)", self.group).id,
+                "method_id": self.method.id,
+                "department_id": self.microbiology.id,
+            }
+        )
+        water = self.env[MODEL_SAMPLE_TYPE].create({"name": "Bottled water"})
+        ours = self.offer(self.parameter, water, self.pair)
+        theirs = self.offer(cadmium.parameter_id, water, cadmium)
+        self.grant(self.chemist, "parameter_method_sample_type.edit.own_department")
+
+        self.as_person(ours, self.chemist).write({"lod": 0.01})
+        self.assertEqual(ours.lod, 0.01)
+        with self.assertRaises(AccessError):
+            self.as_person(theirs, self.chemist).write({"lod": 0.01})
 
     def test_administrator_keeps_every_action(self):
         administrator = self.env.ref("base.user_admin")

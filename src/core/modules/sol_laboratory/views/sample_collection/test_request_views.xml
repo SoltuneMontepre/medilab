@@ -69,6 +69,7 @@
                             <field name="customer_id" />
                             <field name="request_date" />
                             <field name="expected_date" />
+                            <field name="order_number" invisible="not order_number" />
                         </group>
                         <group string="Report">
                             <field name="report_language" />
@@ -135,6 +136,7 @@
             <search>
                 <field name="code" />
                 <field name="customer_id" />
+                <field name="order_number" />
                 <filter name="open" string="Open" domain="[('status', 'not in', ('reported', 'cancelled'))]" />
                 <filter name="cancelled" string="Cancelled" domain="[('status', '=', 'cancelled')]" />
                 <group>

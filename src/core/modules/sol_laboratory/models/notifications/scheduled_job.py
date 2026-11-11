@@ -116,7 +116,7 @@ class ScheduledJob(models.Model, ScheduledJobBase):
         if not delivery or not delivery.exists() or delivery.status in ("sent", "skipped"):
             return None
         device = delivery.mobile_device_id
-        if not device.active:
+        if not device._signed_in():
             delivery.write({"status": "skipped"})
             return None
         client = firebase_client_from_env()
@@ -124,7 +124,7 @@ class ScheduledJob(models.Model, ScheduledJobBase):
             return fields.Datetime.now() + timedelta(minutes=5)
         message = delivery.notification_id.mail_message_id
         try:
-            client.send(device.token, message.subject or "", self._push_body(delivery))
+            client.send(device.token, *delivery._push_message())
         except PermanentTokenError as error:
             device._audit("error", self.env._("Firebase rejected the token: %s", error))
             device.turn_off(str(error))
@@ -140,10 +140,6 @@ class ScheduledJob(models.Model, ScheduledJobBase):
             message._audit_document(),
         )
         return None
-
-    def _push_body(self, delivery):
-        message = delivery.notification_id.mail_message_id
-        return message.preview or message.subject or message.body or ""
 
     @api.model
     def _reminder_lead(self):

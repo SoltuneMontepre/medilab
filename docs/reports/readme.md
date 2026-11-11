@@ -11,6 +11,7 @@ Documents, diagrams and supporting material that belong to no other folder.
 - [CloudBeaver security and peer review](cloudbeaver-security-review.md): manual review findings, MD5 protocol/storage assessment and recovery safety boundaries
 - [Local setup security review](local-setup-security-review.md): Sonar source-to-sink dispositions, private-state integrity fixes and security-owner gates
 - [Cypress Tap and AI Skills](cypress-tap.md): verified capabilities, source pin, installation and validation requirements for local Cypress agent workflows
+- [WF-03 test plan](wf-03-test-plan.md): testing assignment and scheduling: business rules, the scenario matrix and its coverage, concurrency design, confirmed defects and open decisions
 
 ## Related documents
 

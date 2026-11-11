@@ -37,14 +37,22 @@ class FirebaseClient:
         self.credentials = credentials
         self.project_id = project_id
 
-    def send(self, token, title, body):
+    def send(self, token, title, body, data):
+        """Push the title and body to the token, with the data Medilab Mobile opens the document from; Firebase takes
+        only text values in the data."""
         if not self.credentials.valid:
             self.credentials.refresh(Request())
         try:
             response = requests.post(
                 f"https://fcm.googleapis.com/v1/projects/{self.project_id}/messages:send",
                 headers={"Authorization": f"Bearer {self.credentials.token}"},
-                json={"message": {"token": token, "notification": {"title": title, "body": body}}},
+                json={
+                    "message": {
+                        "token": token,
+                        "notification": {"title": title, "body": body},
+                        "data": {name: str(value) for name, value in data.items()},
+                    }
+                },
                 timeout=TIMEOUT,
             )
         except requests.RequestException as error:

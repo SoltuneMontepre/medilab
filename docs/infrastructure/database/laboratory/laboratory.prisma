@@ -21,14 +21,18 @@ model TestParameter {
   main_group   ParameterGroup            @relation("MainGroup", fields: [main_group_id], references: [id], onDelete: Restrict)
   /// Groups the parameter belongs to.
   groups       TestParameterGroup[]
-  /// Sample types the parameter can be tested on.
+  /// Sample types the parameter is offered on: those an active way of testing applies to; worked out, never set by hand.
   sample_types TestParameterSampleType[]
   /// Ways the parameter can be tested.
   methods      ParameterMethod[]
+  /// The sample types each way of testing applies to, with their unit, detection limits and default.
+  applicabilities ParameterMethodSampleType[]
   /// Limits regulations set for the parameter.
   regulation_limits RegulationLimit[]
   /// Sample tests of this parameter.
   sample_tests      SampleTest[]
+  /// Accreditation scope lines that name the parameter.
+  scope_lines       AccreditationScopeLineParameter[]
 
   @@index([main_group_id])
   @@map("medilab_test_parameter")
@@ -98,12 +102,20 @@ model SampleType {
   children    SampleType[]              @relation("SampleTypeTree")
   /// Unit of the minimum amount.
   minimum_quantity_unit    MeasurementUnit?          @relation(fields: [minimum_quantity_unit_id], references: [id], onDelete: Restrict)
-  /// Parameters that can be tested on this sample type.
+  /// Parameters offered on this sample type.
   parameters  TestParameterSampleType[]
+  /// Ways of testing that apply to this sample type.
+  ways        ParameterMethodSampleType[]
   /// Samples of this type.
   samples     Sample[]
   /// Regulations that apply to this sample type.
   regulations RegulationSampleType[]
+  /// Limits regulations set on this exact sample type.
+  regulation_limits RegulationLimit[]
+  /// Results whose catalog values were copied for this sample type.
+  results     TestResult[]
+  /// Accreditation scope lines that name the sample type, which also cover its narrower types.
+  scope_lines AccreditationScopeLineSampleType[]
 
   @@index([parent_id])
   @@index([parent_path])
@@ -111,7 +123,8 @@ model SampleType {
   @@map("medilab_sample_type")
 }
 
-/// A regulation the results are compared against, such as QCVN 6-1:2010/BYT, with a limit per parameter. Trigram indexes on code and name serve search.
+/// A regulation the results are compared against, such as QCVN 6-1:2010/BYT, with a limit per parameter and sample type. Trigram indexes on code and name serve search.
+/// valid_from must not be after valid_until; an empty bound is unbounded.
 model Regulation {
   /// Row identifier.
   id                Int                    @id @default(autoincrement())
@@ -121,19 +134,26 @@ model Regulation {
   name              Json
   /// The ministry or body that issued the regulation.
   issuing_authority String?                @db.VarChar
+  /// First day the regulation is in force; empty means in force from any date.
+  valid_from        DateTime?              @db.Date
+  /// Last day the regulation is in force; empty means in force until any date.
+  valid_until       DateTime?              @db.Date
   /// False when the regulation is archived.
   active            Boolean                @default(true)
   /// Sample types the regulation applies to.
   sample_types      RegulationSampleType[]
-  /// Limits the regulation sets, one per parameter.
+  /// Limits the regulation sets, one per parameter and sample type.
   limits            RegulationLimit[]
   /// Samples compared with the regulation.
   samples           Sample[]
+  /// Results compared with the regulation.
+  results           TestResult[]
 
   @@map("medilab_regulation")
 }
 
-/// The limit a regulation sets for one parameter. Unique on (regulation_id, parameter_id).
+/// The limit a regulation sets for one parameter on one exact sample type. Unique on (regulation_id, parameter_id, sample_type_id).
+/// The sample type is one the regulation names or a narrower type of one; a narrower type never uses a broader type's limit.
 /// A minimum or maximum may be empty or any number, including 0. min_set and max_set say which are set.
 /// At least one of those and limit_text is set; unit_id is set when a minimum or maximum is set.
 model RegulationLimit {
@@ -143,6 +163,8 @@ model RegulationLimit {
   regulation_id Int
   /// The parameter the limit applies to.
   parameter_id  Int
+  /// The sample type the limit applies to.
+  sample_type_id Int
   /// The unit of min_value and max_value; empty for a text-only limit.
   unit_id       Int?
   /// True when a minimum is set. The minimum may be 0.
@@ -161,11 +183,14 @@ model RegulationLimit {
   regulation    Regulation      @relation(fields: [regulation_id], references: [id], onDelete: Cascade)
   /// The parameter the limit applies to.
   parameter     TestParameter   @relation(fields: [parameter_id], references: [id], onDelete: Restrict)
+  /// The sample type the limit applies to.
+  sample_type   SampleType      @relation(fields: [sample_type_id], references: [id], onDelete: Restrict)
   /// The unit of the limit values.
   unit          MeasurementUnit? @relation(fields: [unit_id], references: [id], onDelete: Restrict)
 
-  @@unique([regulation_id, parameter_id])
+  @@unique([regulation_id, parameter_id, sample_type_id])
   @@index([parameter_id])
+  @@index([sample_type_id])
   @@index([unit_id])
   @@map("medilab_regulation_limit")
 }
@@ -206,8 +231,8 @@ model TestingMethod {
   chemicals  ChemicalMethod[]
   /// Steps of the procedure, in step number order.
   steps      TestingMethodStep[]
-  /// Accreditation certificates whose scope lists the method.
-  certificates AccreditationCertificateMethod[]
+  /// Accreditation scope lines that name the method.
+  scope_lines AccreditationScopeLine[]
 
   @@index([field_id])
   @@map("medilab_testing_method")
@@ -295,28 +320,69 @@ model AccreditationCertificate {
   valid_from   DateTime?                       @db.Date
   /// Last day the certificate is valid; empty means valid until any date.
   valid_until  DateTime?                       @db.Date
-  /// False when the certificate is archived.
+  /// False when the certificate is archived; an archived certificate accredits nothing.
   active       Boolean                         @default(true)
-  /// Testing methods in the scope of the certificate.
-  methods      AccreditationCertificateMethod[]
+  /// Lines of the scope.
+  scope_lines  AccreditationScopeLine[]
 
   @@map("medilab_accreditation_certificate")
 }
 
-/// Links an accreditation certificate to the testing methods in its scope.
-model AccreditationCertificateMethod {
-  /// The certificate.
+/// A line of an accreditation certificate's scope (Dòng phạm vi công nhận): one testing method with the parameters and sample types it is accredited for. A sample type covers its narrower types.
+model AccreditationScopeLine {
+  /// Row identifier.
+  id             Int                                @id @default(autoincrement())
+  /// The certificate whose scope the line belongs to.
   certificate_id Int
-  /// A method in its scope.
+  /// The testing method the line accredits.
   method_id      Int
+  /// True while the line names no parameter or no sample type, so it accredits nothing until an administrator completes it, as the method-only lines of earlier certificates do; worked out, never set by hand.
+  to_confirm     Boolean                            @default(false)
   /// The certificate.
-  certificate    AccreditationCertificate @relation(fields: [certificate_id], references: [id], onDelete: Cascade)
+  certificate    AccreditationCertificate           @relation(fields: [certificate_id], references: [id], onDelete: Cascade)
   /// The testing method.
-  method         TestingMethod            @relation(fields: [method_id], references: [id], onDelete: Restrict)
+  method         TestingMethod                      @relation(fields: [method_id], references: [id], onDelete: Restrict)
+  /// Parameters the line accredits with its method.
+  parameters     AccreditationScopeLineParameter[]
+  /// Sample types the line accredits with its method.
+  sample_types   AccreditationScopeLineSampleType[]
 
-  @@id([certificate_id, method_id])
+  @@index([certificate_id])
   @@index([method_id])
-  @@map("medilab_accreditation_certificate_method_rel")
+  @@index([to_confirm])
+  @@map("medilab_accreditation_scope_line")
+}
+
+/// Links an accreditation scope line to the parameters it accredits.
+model AccreditationScopeLineParameter {
+  /// The scope line.
+  line_id      Int
+  /// A parameter it accredits.
+  parameter_id Int
+  /// The scope line.
+  line         AccreditationScopeLine @relation(fields: [line_id], references: [id], onDelete: Cascade)
+  /// The parameter.
+  parameter    TestParameter          @relation(fields: [parameter_id], references: [id], onDelete: Restrict)
+
+  @@id([line_id, parameter_id])
+  @@index([parameter_id])
+  @@map("medilab_accreditation_scope_line_parameter_rel")
+}
+
+/// Links an accreditation scope line to the sample types it accredits.
+model AccreditationScopeLineSampleType {
+  /// The scope line.
+  line_id        Int
+  /// A sample type it accredits, with its narrower types.
+  sample_type_id Int
+  /// The scope line.
+  line           AccreditationScopeLine @relation(fields: [line_id], references: [id], onDelete: Cascade)
+  /// The sample type.
+  sample_type    SampleType             @relation(fields: [sample_type_id], references: [id], onDelete: Restrict)
+
+  @@id([line_id, sample_type_id])
+  @@index([sample_type_id])
+  @@map("medilab_accreditation_scope_line_sample_type_rel")
 }
 
 /// A field of testing that classifies methods, such as Chemistry or Microbiology. Trigram indexes on code and name serve search.
@@ -355,6 +421,8 @@ model Department {
   manager           Employee?         @relation("DepartmentManager", fields: [manager_id], references: [id], onDelete: SetNull)
   /// Parameter and method pairs the department tests in-house.
   parameter_methods ParameterMethod[]
+  /// Sample types of the department's ways of testing.
+  applicabilities   ParameterMethodSampleType[]
   /// Employees in the department.
   employees         Employee[]        @relation("EmployeeDepartment")
   /// People of the team.
@@ -390,8 +458,8 @@ model MeasurementUnit {
   active            Boolean           @default(true)
   /// The kind of quantity the unit measures.
   category          UnitCategory      @relation(fields: [category_id], references: [id], onDelete: Restrict)
-  /// Parameter and method pairs whose results use this unit.
-  parameter_methods ParameterMethod[]
+  /// Sample types of ways of testing whose results use this unit.
+  applicabilities   ParameterMethodSampleType[]
   /// Sample types whose minimum amount uses this unit.
   sample_types      SampleType[]
   /// Regulation limits expressed in this unit.
@@ -421,7 +489,7 @@ model UnitCategory {
 
 /// How one parameter is tested with one method, by the laboratory or by a subcontractor, and the unit of its result.
 /// Active rows are unique on (parameter_id, method_id, COALESCE(subcontractor_id, 0)) WHERE active.
-/// At most one row per parameter is the default (partial unique index on parameter_id where is_default).
+/// Its default per sample type is set on its applicability rows (ParameterMethodSampleType).
 model ParameterMethod {
   /// Row identifier.
   id               Int             @id @default(autoincrement())
@@ -429,32 +497,18 @@ model ParameterMethod {
   parameter_id     Int
   /// The method used to test it.
   method_id        Int
-  /// The unit the result is expressed in.
-  unit_id          Int
   /// The subcontractor that tests it; empty when the laboratory tests it in-house.
   subcontractor_id Int?
   /// The department that tests it in-house; empty when a subcontractor tests it.
   department_id    Int?
-  /// True while this in-house way of testing's method is on an accreditation certificate valid that day; worked out, never set by hand.
-  is_accredited    Boolean         @default(false)
-  /// Limit of detection: the lowest value this method can detect, in the row's unit.
-  lod              Decimal? @db.Decimal
-  /// Limit of quantification: the lowest value this method can measure reliably, in the row's unit.
-  loq              Decimal? @db.Decimal
-  /// Decimals a result of this way of testing shows, such as 2 for 0.50; results copy it.
-  result_decimals  Int?
   /// True when its results may be negative, such as a redox potential or a temperature in °C.
   allows_negative  Boolean         @default(false)
-  /// True for the way the parameter is normally tested.
-  is_default       Boolean         @default(false)
   /// False when this way of testing is archived.
   active           Boolean         @default(true)
   /// The parameter being tested.
   parameter        TestParameter   @relation(fields: [parameter_id], references: [id], onDelete: Restrict)
   /// The method used to test it.
   method           TestingMethod   @relation(fields: [method_id], references: [id], onDelete: Restrict)
-  /// The unit the result is expressed in.
-  unit             MeasurementUnit @relation(fields: [unit_id], references: [id], onDelete: Restrict)
   /// The subcontractor that tests it.
   subcontractor    Subcontractor?  @relation(fields: [subcontractor_id], references: [id], onDelete: Restrict)
   /// The department that tests it in-house.
@@ -464,10 +518,15 @@ model ParameterMethod {
   /// Quality registration dossiers that cover it.
   registrations    QualityRegistrationParameterMethod[]
   /// Sample tests done this way.
-  sample_tests     SampleTest[]
+  sample_tests     SampleTest[] @relation("SampleTestWay")
+  /// Sample tests whose customer accepted it.
+  accepted_sample_tests SampleTest[] @relation("SampleTestAcceptedWay")
+  /// Results measured this way.
+  results          TestResult[]
+  /// The sample types it applies to.
+  sample_types     ParameterMethodSampleType[]
 
   @@index([method_id])
-  @@index([unit_id])
   @@index([subcontractor_id])
   @@index([department_id])
   @@map("medilab_parameter_method")
@@ -558,7 +617,7 @@ model TestParameterGroup {
   @@map("medilab_test_parameter_group_rel")
 }
 
-/// Links parameters to the sample types they can be tested on.
+/// Links parameters to the sample types they are offered on, worked out from the sample types of their active ways of testing.
 model TestParameterSampleType {
   /// The parameter.
   parameter_id   Int
@@ -659,6 +718,49 @@ model ParameterMethodMachine {
   @@unique([parameter_method_id, machine_id])
   @@index([machine_id])
   @@map("medilab_parameter_method_machine")
+}
+
+/// The sample type a way of testing applies to, with the result unit, detection limits and decimals there; a narrower or broader type shares none of it. Unique on (parameter_method_id, sample_type_id); one default per parameter and sample type.
+model ParameterMethodSampleType {
+  /// Row identifier.
+  id                  Int             @id @default(autoincrement())
+  /// The parameter the way of testing tests, so each parameter and sample type keeps one default.
+  parameter_id        Int
+  /// The way of testing that applies to the sample type.
+  parameter_method_id Int
+  /// The sample type the way applies to; its narrower and broader types do not share it.
+  sample_type_id      Int
+  /// The unit results of the way are expressed in on this sample type.
+  unit_id             Int
+  /// Limit of detection, the lowest value the way detects, in the unit; empty when the way states none, which is not zero.
+  lod                 Decimal?        @db.Decimal
+  /// Limit of quantification, the lowest value the way measures reliably, in the unit; empty when the way states none.
+  loq                 Decimal?        @db.Decimal
+  /// Decimals a result shows, such as 2 for 0.50; results copy it.
+  result_decimals     Int?
+  /// True for the way the parameter is normally tested on this sample type.
+  is_default          Boolean         @default(false)
+  /// True while the way is in-house and a line of an active certificate valid that day, in the company time zone, covers its method, its parameter and the sample type or one of its ancestors; worked out, never set by hand.
+  is_accredited       Boolean         @default(false)
+  /// The department that tests the way in-house, copied from the way so a permission can be limited to the person's department; empty for a subcontractor's way.
+  department_id       Int?
+  /// The parameter.
+  parameter           TestParameter   @relation(fields: [parameter_id], references: [id], onDelete: Cascade)
+  /// The way of testing.
+  parameter_method    ParameterMethod @relation(fields: [parameter_method_id], references: [id], onDelete: Cascade)
+  /// The sample type.
+  sample_type         SampleType      @relation(fields: [sample_type_id], references: [id], onDelete: Restrict)
+  /// The result unit.
+  unit                MeasurementUnit @relation(fields: [unit_id], references: [id], onDelete: Restrict)
+  /// The department of the way.
+  department          Department?     @relation(fields: [department_id], references: [id], onDelete: Restrict)
+
+  @@unique([parameter_method_id, sample_type_id])
+  @@index([department_id])
+  @@index([parameter_id])
+  @@index([sample_type_id])
+  @@index([unit_id])
+  @@map("medilab_parameter_method_sample_type")
 }
 
 /// A chemical substance the laboratory keeps and uses for testing. Stock, expiry and suppliers are kept by Inventory. Trigram indexes on code, name and CAS number serve search.
@@ -799,6 +901,8 @@ model TestRequest {
   status       String   @db.VarChar
   /// Free notes about the request.
   note         String?  @db.Text
+  /// Number of the order the request was created from, kept as text when uninstalling E-commerce drops the link. A trigram index serves search.
+  order_number String?  @db.VarChar
   /// The customer who asks for the tests.
   customer     Customer @relation(fields: [customer_id], references: [id], onDelete: Restrict)
   /// The contact who receives the report.
@@ -908,14 +1012,18 @@ model SampleTest {
   sample_id           Int
   /// The parameter tested.
   parameter_id        Int
-  /// The way of testing chosen for it; empty until the laboratory chooses. Must be a way of testing this parameter.
+  /// The way of testing chosen for it: the accepted way for a test from an order, otherwise empty until the laboratory chooses. Must be a way of testing this parameter.
   parameter_method_id Int?
+  /// The way of testing the customer accepted on the order's quotation; the test keeps to it, and it never changes. Empty for a test the laboratory chooses the way of.
+  accepted_method_id  Int?
   /// How many times the parameter is tested on the sample; at least 1.
   quantity            Int              @default(1)
   /// waiting, assigned, testing, outsourced, result_entered, approved or cancelled.
   status              String           @db.VarChar
-  /// When the laboratory plans to finish the test: the end of the day, in the company's time zone, the safety margin before the request's expected date, worked out when the sample test is created or that date changes and changeable afterwards. Changing the safety margin does not change due dates already worked out. A test whose due date is close is scheduled first.
+  /// When the laboratory plans to finish the test: the end of the day, in the company's time zone, the safety margin before the request's expected date, worked out when the sample test is created or that date changes, unless the head of department changed it by hand. Changing the safety margin does not change due dates already worked out. A test whose due date is close is scheduled first.
   due_date            DateTime?
+  /// Why the head of department changed the due date by hand; empty while it is worked out from the safety margin.
+  due_date_reason     String?          @db.Text
   /// Why the test was cancelled, such as the parameter cannot be tested on this sample.
   cancel_reason       String?          @db.Text
   /// Head of department who cancelled the test.
@@ -932,6 +1040,8 @@ model SampleTest {
   urgent_reason       String?          @db.Text
   /// Why the head of department outsourced the test straight away instead of from an outsourcing suggestion.
   emergency_outsource_reason String?   @db.Text
+  /// True while the test's way is in-house and a line of an active certificate valid that day, in the company time zone, covers its method, its parameter and its sample's type or one of that type's ancestors. Worked out again while the test is open; an approved or cancelled test keeps the mark it had then.
+  is_accredited       Boolean          @default(false)
   /// Tester or head of department who marked the test urgent.
   marked_urgent_by_id Int?
   /// The sample tested.
@@ -939,12 +1049,14 @@ model SampleTest {
   /// The parameter tested.
   parameter           TestParameter    @relation(fields: [parameter_id], references: [id], onDelete: Restrict)
   /// The way of testing chosen.
-  parameter_method    ParameterMethod? @relation(fields: [parameter_method_id], references: [id], onDelete: Restrict)
+  parameter_method    ParameterMethod? @relation("SampleTestWay", fields: [parameter_method_id], references: [id], onDelete: Restrict)
+  /// The way of testing the customer accepted.
+  accepted_method     ParameterMethod? @relation("SampleTestAcceptedWay", fields: [accepted_method_id], references: [id], onDelete: Restrict)
   /// Head of department who cancelled the test.
   cancelled_by        Person?          @relation("SampleTestCanceller", fields: [cancelled_by_id], references: [id], onDelete: Restrict)
   /// Tester or head of department who marked the test urgent.
   marked_urgent_by    Person?          @relation("SampleTestUrgencyMarker", fields: [marked_urgent_by_id], references: [id], onDelete: Restrict)
-  /// Results of the test, one per attempt.
+  /// Results of the test, the latest entered first.
   results             TestResult[]
   /// Machine bookings for the test.
   bookings            MachineBooking[]
@@ -959,7 +1071,7 @@ model SampleTest {
   @@map("medilab_sample_test")
 }
 
-/// One version of one attempt at measuring a sample test. Earlier attempts are kept; one per sample test is the reported result.
+/// One version of one measurement of a sample test. Retests add results without being counted; the earlier ones are kept, ordered by when they were entered, and one per sample test is the reported result.
 /// A change request on a result whose process is completed creates a new row with the next version that replaces it; the signed row stays unchanged and is marked as replaced.
 /// At most one reported result per sample test among rows not replaced (partial unique index on sample_test_id where is_reported and not is_replaced).
 model TestResult {
@@ -967,18 +1079,28 @@ model TestResult {
   id             Int              @id @default(autoincrement())
   /// The sample test measured.
   sample_test_id Int
-  /// Attempt number, 1 for the first measurement and higher for retests.
-  attempt        Int              @default(1)
   /// True for the result reported to the customer: the latest one entered for the sample test.
   is_reported    Boolean          @default(false)
   /// Measured value, in unit_id, stored exactly; 0 for a text result, whose text is the result.
   value          Decimal? @db.Decimal
   /// Decimals the value shows, between 0 and 15, such as 2 for 0.50, copied from the way of testing and correctable by the lab QA.
   value_decimals Int?
-  /// Result as text when it is not a number, such as "Not detected", in each language.
+  /// Result as text when it is not a number, such as "Not detected" or a confirmed suggestion for a value below the LOD or LOQ, such as "<0.05 mg/L (below LOQ)", in each language. The measured value stays in value.
   value_text     Json?
-  /// The unit of the value, taken from the way of testing.
+  /// The way of testing the result is measured by, copied from the sample test when the result is created; a new version copies it from the version it replaces.
+  parameter_method_id Int?
+  /// The sample's type when the result is created, which the unit, LOD, LOQ and regulation limit are copied for.
+  sample_type_id Int?
+  /// The unit of the value, copied from the way of testing on the sample type.
   unit_id        Int?
+  /// Limit of detection copied from the way of testing on the sample type, in unit_id; empty when it states none, which is not zero. Catalog edits never change it.
+  lod            Decimal? @db.Decimal
+  /// Limit of quantification copied from the way of testing on the sample type, in unit_id; empty when it states none, which is not zero. Catalog edits never change it.
+  loq            Decimal? @db.Decimal
+  /// The sample's regulation when the result is created; empty when none.
+  regulation_id  Int?
+  /// True when the regulation limits the parameter on some sample type, so the tester assesses the result against it; a parameter the regulation never limits is outside the requested comparison and takes no conclusion.
+  comparison_requested Boolean @default(false)
   /// The unit of limit_min and limit_max, copied from the sample's regulation.
   limit_unit_id  Int?
   /// True when the copied limit has a minimum, which may be 0.
@@ -1003,9 +1125,9 @@ model TestResult {
   started_at     DateTime?
   /// Why the sanity check found the value unusual when it was sent, shown to the approver; empty when nothing was found.
   check_warning  String?          @db.Text
-  /// pass or fail, set by the tester; empty when the sample has no regulation.
+  /// pass, fail or insufficient (insufficient basis), set by the tester for a requested comparison and required before the result is sent; empty outside it. A missing exact-type limit allows only insufficient. The system never infers it.
   conclusion     String?          @db.VarChar
-  /// none, requested, approved or rejected: where the result stands in its approval chain, kept in step with its signatures. Approved and rejected are final; only the lab head's rejection of the report sends an approved result back to none. Only the system writes it, with attempt, is_reported, entered_by_id, entered_at and the version fields.
+  /// none, requested, approved or rejected: where the result stands in its approval chain, kept in step with its signatures. Approved and rejected are final; only the lab head's rejection of the report sends an approved result back to none. Only the system writes it, with is_reported, entered_by_id, entered_at and the version fields.
   status         String           @default("none") @db.VarChar
   /// The version the next signature records; it grows when every signature is withdrawn.
   document_version Int            @default(1)
@@ -1021,6 +1143,12 @@ model TestResult {
   entered_by     User             @relation(fields: [entered_by_id], references: [id], onDelete: Restrict)
   /// The machine the measurement ran on.
   machine        Machine?         @relation(fields: [machine_id], references: [id], onDelete: Restrict)
+  /// The way of testing the result is measured by.
+  parameter_method ParameterMethod? @relation(fields: [parameter_method_id], references: [id], onDelete: Restrict)
+  /// The sample type the catalog values are copied for.
+  sample_type    SampleType?      @relation(fields: [sample_type_id], references: [id], onDelete: Restrict)
+  /// The regulation the result is compared with.
+  regulation     Regulation?      @relation(fields: [regulation_id], references: [id], onDelete: Restrict)
   /// The unit of the value.
   unit           MeasurementUnit? @relation("ResultUnit", fields: [unit_id], references: [id], onDelete: Restrict)
   /// The unit of the copied limits.
@@ -1029,9 +1157,13 @@ model TestResult {
   replaces       TestResult?      @relation("ResultVersions", fields: [replaces_id], references: [id], onDelete: Restrict)
   /// The version that replaces this row.
   replaced_by    TestResult?      @relation("ResultVersions")
+  /// The generated report drafts that print the result.
+  report_drafts  TestReportDraftResult[]
+  /// The prepared report PDFs that print the result.
+  report_candidates TestReportCandidateResult[]
 
-  @@unique([sample_test_id, attempt, version])
   @@index([sample_test_id])
+  @@index([parameter_method_id])
   @@index([status])
   @@map("medilab_test_result")
 }
@@ -1052,10 +1184,14 @@ model Person {
   team          Department?  @relation("PersonTeam", fields: [team_id], references: [id], onDelete: Restrict)
   /// Roles the person holds.
   roles         PersonRole[]
+  /// Roles the person holds until a date.
+  role_grants   RoleGrant[]
   /// Tasks assigned to the person.
   tasks         Task[]           @relation("TaskAssignee")
   /// Tasks the person assigned.
   assigned_tasks Task[]          @relation("TaskAssigner")
+  /// Tasks the person moved to another department.
+  moved_out_tasks TaskMovedOutBy[]
   /// Permissions given to the person directly, on top of their roles.
   permissions   PersonPermission[]
   /// Sample tests the person cancelled.
@@ -1144,7 +1280,7 @@ model User {
   notification_preferences NotificationPreference[] @relation("PreferenceUser")
   /// Job runs the user started by hand.
   triggered_runs JobRun[]     @relation("JobTrigger")
-  /// Mobile devices the user receives reminders on.
+  /// Push tokens of the user's phones.
   devices    MobileDevice[]
   /// Laboratory folders the user owns.
   owned_folders      LaboratoryFolder[]         @relation("FolderOwner")
@@ -1196,6 +1332,8 @@ model Role {
   group           Group            @relation("RoleGroup", fields: [group_id], references: [id], onDelete: Restrict)
   /// People who hold the role.
   people          PersonRole[]
+  /// People who hold the role until a date.
+  grants          RoleGrant[]
   /// Permissions the role contains.
   permissions     RolePermission[]
   /// Approval levels the role signs.
@@ -1224,6 +1362,26 @@ model PersonRole {
   @@map("medilab_person_role_rel")
 }
 
+/// A role given to a person until a date, such as a backup signer's while no holder of a chain's top level is available. The role is also one of the person's roles; a scheduled job removes both once the date ends in the laboratory. Unique on (person_id, role_id).
+model RoleGrant {
+  /// Row identifier.
+  id        Int      @id @default(autoincrement())
+  /// The person who holds the role until the date.
+  person_id Int
+  /// The role given to the person.
+  role_id   Int
+  /// Last day the person holds the role.
+  date_end  DateTime @db.Date
+  /// The person.
+  person    Person   @relation(fields: [person_id], references: [id], onDelete: Cascade)
+  /// The role.
+  role      Role     @relation(fields: [role_id], references: [id], onDelete: Cascade)
+
+  @@unique([person_id, role_id])
+  @@index([person_id])
+  @@map("medilab_role_grant")
+}
+
 /// One action on one document type, within a scope. Granted to people through roles or directly.
 /// Unique on (document_model, action, scope).
 model Permission {
@@ -1235,7 +1393,7 @@ model Permission {
   name           Json
   /// Technical name of the document type, such as medilab.sample; cannot change once the permission exists.
   document_model String             @db.VarChar
-  /// read, create, edit, archive, delete or sign; cannot change once the permission exists.
+  /// read, create, edit, archive, delete, sign or invoice; cannot change once the permission exists.
   action         String             @db.VarChar
   /// all for every record, own_department for records of the person's department only, own_team for records of the person's team only, or own for the records whose user is the person; cannot change once the permission exists.
   scope          String             @db.VarChar
@@ -1304,7 +1462,7 @@ model ApprovalChain {
   @@map("medilab_approval_chain")
 }
 
-/// One level of an approval chain. Unique on (chain_id, sequence).
+/// One level of an approval chain. Unique on (chain_id, sequence) among active levels. A level that documents sign at is never changed or deleted: changing who signs it archives it and adds a copy with the new values, and removing it archives it.
 model ApprovalLevel {
   /// Row identifier.
   id              Int           @id @default(autoincrement())
@@ -1320,15 +1478,51 @@ model ApprovalLevel {
   same_department Boolean       @default(false)
   /// True when the signer may reject instead of signing.
   can_reject      Boolean       @default(true)
+  /// False once the level was replaced or removed while documents sign at it.
+  active          Boolean       @default(true)
   /// The chain the level belongs to.
   chain           ApprovalChain @relation(fields: [chain_id], references: [id], onDelete: Cascade)
   /// The role a person needs to sign at this level.
   role            Role          @relation(fields: [role_id], references: [id], onDelete: Restrict)
   /// Signatures given at this level.
   signatures      Signature[]
+  /// Signing processes that sign at this level.
+  processes       SigningProcessLevel[]
 
-  @@unique([chain_id, sequence])
   @@map("medilab_approval_level")
+}
+
+/// The signing of one version of a document, started by its first signature or rejection, with the chain levels it had then. Unique on (document_model, document_id, document_version).
+model SigningProcess {
+  /// Row identifier.
+  id               Int                   @id @default(autoincrement())
+  /// Technical name of the signed document's model, such as medilab.test.result.
+  document_model   String                @db.VarChar
+  /// Id of the signed document.
+  document_id      Int
+  /// Version of the document the process signs.
+  document_version Int
+  /// Levels of the chain when the process started.
+  levels           SigningProcessLevel[]
+
+  @@unique([document_model, document_id, document_version])
+  @@map("medilab_signing_process")
+}
+
+/// Links a signing process to the chain levels it signs at.
+model SigningProcessLevel {
+  /// The signing process.
+  process_id Int
+  /// A level the process signs at.
+  level_id   Int
+  /// The signing process.
+  process    SigningProcess @relation(fields: [process_id], references: [id], onDelete: Cascade)
+  /// The level.
+  level      ApprovalLevel  @relation(fields: [level_id], references: [id], onDelete: Restrict)
+
+  @@id([process_id, level_id])
+  @@index([level_id])
+  @@map("medilab_signing_process_level_rel")
 }
 
 /// One signature or rejection on one version of a document. Records are never deleted or changed; a withdrawal sets withdrawn_at once.
@@ -1351,7 +1545,7 @@ model Signature {
   signer_id        Int
   /// Signer's name at the time of signing.
   signer_name      String        @db.VarChar
-  /// Signer's role at the time of signing.
+  /// Name of the role the signer signed with at the time: the level's own, or a later level's that signed it in the signer's own name.
   signer_role      String        @db.VarChar
   /// Level name at the time of signing.
   level_name       String        @db.VarChar
@@ -1510,6 +1704,8 @@ model Task {
   bookings       MachineBooking[]
   /// Assign-task wizards that include this task.
   reassign_wizards TaskReassignTask[]
+  /// People who moved the task to another department; they still read it, but no longer change it.
+  moved_out_by   TaskMovedOutBy[]
 
   @@index([assignee_id, status])
   @@index([department_id, status])
@@ -1568,6 +1764,22 @@ model TaskReassignTask {
   @@id([medilab_task_reassign_id, medilab_task_id])
   @@index([medilab_task_id])
   @@map("medilab_task_medilab_task_reassign_rel")
+}
+
+/// Links a task to a person who moved it to another department.
+model TaskMovedOutBy {
+  /// The task.
+  task_id   Int
+  /// The person who moved it.
+  person_id Int
+  /// The task.
+  task      Task   @relation(fields: [task_id], references: [id], onDelete: Cascade)
+  /// The person.
+  person    Person @relation(fields: [person_id], references: [id], onDelete: Cascade)
+
+  @@id([task_id, person_id])
+  @@index([person_id])
+  @@map("medilab_task_moved_out_by_rel")
 }
 
 /// Odoo's calendar event (calendar.event), shown with the columns this schema uses: the planned time of a task, a machine booking or a location booking on the attendees' calendars. It has no Odoo alarm: the reminder job reminds of it before it starts.
@@ -1679,6 +1891,8 @@ model SubcontractDispatch {
   status           String                    @db.VarChar
   /// Free notes about the dispatch.
   note             String?                   @db.Text
+  /// File name of the report the subcontractor returned; the file is an attachment of the dispatch's report_file field.
+  report_filename  String?                   @db.VarChar
   /// The subcontractor the tests are sent to.
   subcontractor    Subcontractor             @relation(fields: [subcontractor_id], references: [id], onDelete: Restrict)
   /// Sample delivery staff who takes the samples.
@@ -1765,7 +1979,7 @@ model HandoverRecord {
   signed_at            DateTime?
   /// Image of the customer's handwritten signature.
   signature_attachment_id Int?
-  /// The mobile device the customer signed on.
+  /// The phone the customer signed on.
   signed_device_id     Int?
   /// The record's PDF.
   attachment_id        Int?
@@ -1775,8 +1989,8 @@ model HandoverRecord {
   request              TestRequest            @relation(fields: [request_id], references: [id], onDelete: Restrict)
   /// Sample delivery staff who took the samples.
   received_by          Person                 @relation("HandoverRecordReceiver", fields: [received_by_id], references: [id], onDelete: Restrict)
-  /// The mobile device the customer signed on.
-  signed_device        MobileDevice?          @relation(fields: [signed_device_id], references: [id], onDelete: SetNull)
+  /// The phone the customer signed on.
+  signed_device        LaboratoryDevice?      @relation(fields: [signed_device_id], references: [id], onDelete: Restrict)
   /// Samples on the record.
   samples              HandoverRecordSample[]
 
@@ -1808,12 +2022,12 @@ model HandoverRecordSample {
   @@map("medilab_handover_record_sample")
 }
 
-/// The test report (phiếu kết quả) of one test request, covering all its samples. A change request creates a new version that replaces it.
+/// The test report (phiếu kết quả) of one test request, covering all its samples. A change request creates a new version that replaces it once that version is issued.
 /// Unique on (request_id, version).
 model TestReport {
   /// Row identifier.
   id              Int         @id @default(autoincrement())
-  /// Unique report number; filled from a sequence when the report is issued.
+  /// Unique report number; reserved from a sequence when its PDF is first prepared, and printed in it.
   code            String?     @unique @db.VarChar
   /// The test request reported.
   request_id      Int
@@ -1821,7 +2035,7 @@ model TestReport {
   version         Int         @default(1)
   /// The version this report replaces; empty for version 1.
   replaces_id     Int?        @unique
-  /// draft, signing, issued or replaced.
+  /// draft, signing, pending_signing while its last level signed and its digitally signed PDF is not stored yet, issued once its PDF is stored, or replaced once its replacement is issued.
   status          String      @db.VarChar
   /// The version the next signature records; it grows when every signature is withdrawn or the report is signed again after a rejection.
   document_version Int         @default(1)
@@ -1829,7 +2043,7 @@ model TestReport {
   language        String      @db.VarChar
   /// When the report was issued.
   issued_at       DateTime?
-  /// The PDF of the issued report, the one Viettel Sign signed while digital signing is on; empty until it is signed.
+  /// The PDF of the issued report: its prepared PDF, signed by Viettel Sign while digital signing is on; empty until the report is issued.
   attachment_id   Int?
   /// When the report was delivered to the customer by the request's delivery method.
   delivered_at    DateTime?
@@ -1843,14 +2057,188 @@ model TestReport {
   replaced_by     TestReport? @relation("ReportVersions")
   /// Person who recorded the delivery.
   delivered_by    Person?     @relation("ReportDeliverer", fields: [delivered_by_id], references: [id], onDelete: Restrict)
+  /// The template version the report's draft is generated from.
+  template_version_id Int?
+  /// The working DOCX of the report; each generation and save is one of its versions.
+  draft_file_id   Int?        @unique
+  /// The template version the report's draft is generated from.
+  template_version ReportTemplateVersion? @relation(fields: [template_version_id], references: [id], onDelete: Restrict)
+  /// The working DOCX of the report.
+  draft_file      LaboratoryFile? @relation("ReportDraftFile", fields: [draft_file_id], references: [id], onDelete: Restrict)
+  /// Every generation of the draft.
+  drafts          TestReportDraft[]
+  /// Every PDF prepared for review.
+  candidates      TestReportCandidate[]
 
   @@unique([request_id, version])
   @@index([status])
   @@map("medilab_test_report")
 }
 
+/// A report template (mẫu phiếu kết quả): the DOCX layout reports of one language are generated from, edited online by its administrators. Its file holds every save; its versions freeze the saves new reports use. Never deleted.
+model ReportTemplate {
+  /// Row identifier.
+  id         Int            @id @default(autoincrement())
+  /// Name administrators know the template by, such as Water testing report.
+  name       String         @db.VarChar
+  /// Language of the reports the template prints: vi, en or bilingual; cannot change once the template exists.
+  language   String         @db.VarChar
+  /// Order in which new reports of the language pick their template: the first with an available version.
+  sequence   Int            @default(10)
+  /// The DOCX file the template is edited in, in the Report Templates folder; its versions are the template's saves.
+  file_id    Int?           @unique
+  /// The DOCX file the template is edited in.
+  file       LaboratoryFile? @relation(fields: [file_id], references: [id], onDelete: Restrict)
+  /// Every version of the template.
+  versions   ReportTemplateVersion[]
+
+  @@map("medilab_report_template")
+}
+
+/// A version of a report template: a draft while edited, then available to new reports of its language, then archived. An available or archived version keeps the DOCX it froze; editing it starts a new draft.
+/// Unique on (template_id, number); at most one draft per template (a partial unique index on template_id where state is draft); a version that is not a draft has its docx_version_id.
+model ReportTemplateVersion {
+  /// Row identifier.
+  id                      Int            @id @default(autoincrement())
+  /// The template the version is of.
+  template_id             Int
+  /// Language of the template, stored so reports choose versions by it.
+  language                String         @db.VarChar
+  /// Number of the version within its template, 1 for the first.
+  number                  Int
+  /// draft while edited, available for new reports, archived once no new report may use it.
+  state                   String         @db.VarChar
+  /// False once archived.
+  active                  Boolean        @default(true)
+  /// The saved DOCX the version froze when it became available; empty while draft.
+  docx_version_id         Int?
+  /// PDF of the version filled with example data.
+  preview_attachment_id   Int?
+  /// The saved DOCX the preview was made from; making the version available needs a preview of its last save.
+  preview_docx_version_id Int?
+  /// When the version became available.
+  made_available_at       DateTime?
+  /// The template the version is of.
+  template                ReportTemplate @relation(fields: [template_id], references: [id], onDelete: Restrict)
+  /// The saved DOCX the version froze.
+  docx_version            LaboratoryFileVersion? @relation("TemplateDocx", fields: [docx_version_id], references: [id], onDelete: Restrict)
+  /// The saved DOCX the preview was made from.
+  preview_docx_version    LaboratoryFileVersion? @relation("TemplatePreviewDocx", fields: [preview_docx_version_id], references: [id], onDelete: Restrict)
+  /// Reports whose draft is generated from the version.
+  reports                 TestReport[]
+  /// Generations of report drafts from the version.
+  report_drafts           TestReportDraft[]
+  /// PDFs prepared with the version.
+  report_candidates       TestReportCandidate[]
+
+  @@unique([template_id, number])
+  @@index([template_id])
+  @@map("medilab_report_template_version")
+}
+
+/// One generation of a report's working DOCX from a template version and approved business data. The editors' saves after it are versions of the same file. Never changes.
+model TestReportDraft {
+  /// Row identifier.
+  id                  Int                   @id @default(autoincrement())
+  /// The report generated.
+  report_id           Int
+  /// The exact template version the DOCX was generated from.
+  template_version_id Int
+  /// The DOCX version generated.
+  docx_version_id     Int
+  /// The values the DOCX's bindings were filled with, by binding name.
+  snapshot            Json?
+  /// The report generated.
+  report              TestReport            @relation(fields: [report_id], references: [id], onDelete: Restrict)
+  /// The exact template version the DOCX was generated from.
+  template_version    ReportTemplateVersion @relation(fields: [template_version_id], references: [id], onDelete: Restrict)
+  /// The DOCX version generated.
+  docx_version        LaboratoryFileVersion @relation(fields: [docx_version_id], references: [id], onDelete: Restrict)
+  /// The approved result versions the DOCX prints.
+  results             TestReportDraftResult[]
+
+  @@index([report_id])
+  @@map("medilab_test_report_draft")
+}
+
+/// Links a generated report draft to the approved result versions it prints.
+model TestReportDraftResult {
+  /// The generated draft.
+  draft_id  Int
+  /// A result version it prints.
+  result_id Int
+  /// The generated draft.
+  draft     TestReportDraft @relation(fields: [draft_id], references: [id], onDelete: Cascade)
+  /// The result version.
+  result    TestResult      @relation(fields: [result_id], references: [id], onDelete: Cascade)
+
+  @@id([draft_id, result_id])
+  @@index([result_id])
+  @@map("medilab_test_report_draft_result_rel")
+}
+
+/// The PDF prepared from one saved DOCX of a report (bản PDF chờ duyệt), frozen for the lab head's review and signature. Only its status changes.
+/// At most one per report waits for review (a partial unique index on report_id where status is review). A prepared one keeps its template version and DOCX; a migrated one, kept from a report issued before report templates, has neither. sha256 is 64 hexadecimal digits.
+model TestReportCandidate {
+  /// Row identifier.
+  id                  Int                    @id @default(autoincrement())
+  /// The report the PDF is of.
+  report_id           Int
+  /// prepared from a DOCX draft, or migrated from a report issued before report templates.
+  origin              String                 @db.VarChar
+  /// review while it waits for the lab head, obsolete once replaced or out of date, issued once issued.
+  status              String                 @db.VarChar
+  /// The exact template version the PDF was prepared with; empty for a migrated report.
+  template_version_id Int?
+  /// The saved DOCX converted, holding the printed issue details; empty for a migrated report.
+  docx_version_id     Int?
+  /// The PDF.
+  attachment_id       Int?
+  /// SHA-256 of the PDF, in hexadecimal, which the signature of its review records.
+  sha256              String                 @db.VarChar
+  /// The report number printed, reserved for the report version when the PDF was prepared.
+  report_number       String?                @db.VarChar
+  /// The report date printed: the day the PDF was prepared, in the laboratory's time zone.
+  report_date         DateTime?              @db.Date
+  /// The business values the PDF prints, by binding name, as they were when it was prepared.
+  snapshot            Json?
+  /// Why the candidate is obsolete, such as the draft being reopened.
+  invalidated_reason  String?                @db.VarChar
+  /// When the candidate became obsolete.
+  invalidated_at      DateTime?
+  /// The report the PDF is of.
+  report              TestReport             @relation(fields: [report_id], references: [id], onDelete: Restrict)
+  /// The exact template version the PDF was prepared with.
+  template_version    ReportTemplateVersion? @relation(fields: [template_version_id], references: [id], onDelete: Restrict)
+  /// The saved DOCX converted.
+  docx_version        LaboratoryFileVersion? @relation(fields: [docx_version_id], references: [id], onDelete: Restrict)
+  /// The approved result versions the PDF prints.
+  results             TestReportCandidateResult[]
+
+  @@index([report_id])
+  @@index([status])
+  @@map("medilab_test_report_candidate")
+}
+
+/// Links a prepared report PDF to the approved result versions it prints.
+model TestReportCandidateResult {
+  /// The prepared PDF.
+  candidate_id Int
+  /// A result version it prints.
+  result_id    Int
+  /// The prepared PDF.
+  candidate    TestReportCandidate @relation(fields: [candidate_id], references: [id], onDelete: Cascade)
+  /// The result version.
+  result       TestResult          @relation(fields: [result_id], references: [id], onDelete: Cascade)
+
+  @@id([candidate_id, result_id])
+  @@index([result_id])
+  @@map("medilab_test_report_candidate_result_rel")
+}
+
 /// A request to change a document whose process is completed (SH-07). It is signed through the change-request chain of the document's type; when approved, a new version of the document is created.
 /// Points to its document by document_model and document_id, indexed together. Results and reports keep one row per version, so document_id names the version to change.
+/// A document has one requested or approved request at a time. An approved request on a report stays approved until its linked result corrections are decided and the report's results are approved, then creates the replacement.
 model ChangeRequest {
   /// Row identifier.
   id               Int       @id @default(autoincrement())
@@ -1874,35 +2262,43 @@ model ChangeRequest {
   rejection_reason String?   @db.Text
   /// Id of the new version created when the change was applied.
   new_document_id  Int?
+  /// For a correction of a result printed on an issued report: the change request of that report, which replaces it once the corrected results are approved.
+  report_change_request_id Int?
   /// Person who asked for the change.
   requested_by     Person    @relation("ChangeRequester", fields: [requested_by_id], references: [id], onDelete: Restrict)
+  /// The report change request the result correction joined.
+  report_change_request    ChangeRequest?  @relation("ReportCorrections", fields: [report_change_request_id], references: [id], onDelete: Restrict)
+  /// The result corrections that joined the report change request.
+  result_change_requests   ChangeRequest[] @relation("ReportCorrections")
 
   @@index([document_model, document_id])
   @@index([status])
   @@map("medilab_change_request")
 }
 
-/// A mobile device registered with Firebase Cloud Messaging to receive reminders for one Odoo user. Unique on token.
-/// The cleanup job removes devices turned off longer than their retention period.
+/// The Firebase Cloud Messaging token of a phone signed in with Medilab Mobile, one per phone. Unique on token and on laboratory_device_id.
+/// The cleanup job removes tokens turned off longer than their retention period.
 model MobileDevice {
   /// Row identifier.
-  id           Int       @id @default(autoincrement())
-  /// The Odoo user signed in on the device.
-  user_id      Int
-  /// Registration token Firebase Cloud Messaging gives the app on the device.
-  token        String    @unique @db.VarChar
-  /// android or ios.
-  platform     String    @db.VarChar
-  /// When the app last refreshed the token.
-  last_seen_at DateTime
-  /// False when the user signed out or the token was rejected; no reminder is pushed to it.
-  active       Boolean   @default(true)
-  /// Pushes sent to the device.
-  pushes       PushDelivery[]
-  /// Handover records customers signed on the device.
-  signed_handover_records HandoverRecord[]
-  /// The Odoo user signed in on the device.
-  user         User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  id                   Int              @id @default(autoincrement())
+  /// The phone the token belongs to.
+  laboratory_device_id Int              @unique
+  /// The Odoo user of the phone, kept from the phone.
+  user_id              Int?
+  /// Registration token Firebase Cloud Messaging gives the app on the phone.
+  token                String           @unique @db.VarChar
+  /// android or ios, kept from the phone.
+  platform             String?          @db.VarChar
+  /// When the app last registered the token.
+  last_seen_at         DateTime
+  /// False once the phone signed out or was revoked, or Firebase rejected the token; nothing is pushed to it.
+  active               Boolean          @default(true)
+  /// Pushes sent to the token.
+  pushes               PushDelivery[]
+  /// The phone the token belongs to.
+  laboratory_device    LaboratoryDevice @relation(fields: [laboratory_device_id], references: [id], onDelete: Cascade)
+  /// The Odoo user of the phone.
+  user                 User?            @relation(fields: [user_id], references: [id], onDelete: SetNull)
 
   @@index([user_id])
   @@map("medilab_mobile_device")
@@ -2086,7 +2482,7 @@ model NotificationPreference {
   @@map("medilab_notification_preference")
 }
 
-/// Odoo's message (mail.message), shown with the columns this schema uses and the column the laboratory adds: one notification of one event about one document, sent to its recipients.
+/// Odoo's message (mail.message), shown with the columns this schema uses and the column the laboratory adds: one notification of one event about one document, sent to its recipients, or a message of a conversation.
 /// Partial unique index on notification_key where it is set.
 model Message {
   /// Row identifier.
@@ -2107,6 +2503,8 @@ model Message {
   event            NotificationEvent? @relation(fields: [subtype_id], references: [id], onDelete: SetNull)
   /// One notification per recipient.
   notifications    Notification[]
+  /// Pushes of a conversation message to its members' phones.
+  pushes           PushDelivery[]
 
   @@index([model, res_id])
   @@map("mail_message")
@@ -2140,13 +2538,15 @@ model Notification {
   @@map("mail_notification")
 }
 
-/// Pushing one notification to one mobile device through Firebase Cloud Messaging. Unique on (notification_id, mobile_device_id). Partial index on id where status is pending.
+/// Pushing one notification or one conversation message to one phone's token through Firebase Cloud Messaging. Exactly one of notification_id and message_id is set. Unique on (notification_id, mobile_device_id) and on (message_id, mobile_device_id). Partial index on id where status is pending.
 model PushDelivery {
   /// Row identifier.
   id               Int          @id @default(autoincrement())
-  /// The notification pushed.
-  notification_id  Int
-  /// The mobile device pushed to.
+  /// The notification pushed; empty for a conversation message.
+  notification_id  Int?
+  /// The conversation message pushed; empty for a notification.
+  message_id       Int?
+  /// The token pushed to.
   mobile_device_id Int
   /// pending, sent, failed or skipped.
   status           String       @db.VarChar
@@ -2154,12 +2554,15 @@ model PushDelivery {
   sent_at          DateTime?
   /// Error Firebase returned on the last failed attempt.
   error            String?      @db.Text
-  /// The notification pushed.
-  notification     Notification @relation(fields: [notification_id], references: [id], onDelete: Cascade)
-  /// The mobile device pushed to.
-  mobile_device    MobileDevice @relation(fields: [mobile_device_id], references: [id], onDelete: Cascade)
+  /// The notification pushed; empty for a conversation message.
+  notification     Notification? @relation(fields: [notification_id], references: [id], onDelete: Cascade)
+  /// The conversation message pushed; empty for a notification.
+  message          Message?      @relation(fields: [message_id], references: [id], onDelete: Cascade)
+  /// The token pushed to.
+  mobile_device    MobileDevice  @relation(fields: [mobile_device_id], references: [id], onDelete: Cascade)
 
   @@unique([notification_id, mobile_device_id])
+  @@unique([message_id, mobile_device_id])
   @@map("medilab_push_delivery")
 }
 
@@ -2401,6 +2804,10 @@ model LaboratoryFile {
   editing_sessions   LaboratoryEditingSession[]
   /// Locks taken on the file.
   locks              LaboratoryFileLock[]
+  /// The report template whose DOCX the file is.
+  report_template    ReportTemplate?
+  /// The test report whose working DOCX the file is.
+  report_draft_of    TestReport?      @relation("ReportDraftFile")
 
   @@unique([folder_id, path_key])
   @@map("medilab_laboratory_file")
@@ -2419,7 +2826,7 @@ model LaboratoryFileVersion {
   parent_version_id  Int?
   /// The version a restore copied.
   restored_from_id   Int?
-  /// synced, conflict, restored or edited_online.
+  /// synced, conflict, restored, edited_online, or generated by MediLab from business records, such as a report draft.
   source             String         @db.VarChar
   /// Size of the content in bytes, as the server computed it.
   size               BigInt
@@ -2465,6 +2872,14 @@ model LaboratoryFileVersion {
   editing_sessions   LaboratoryEditingSession[] @relation("EditingBase")
   /// The editing session that saved this version.
   saved_by_session   LaboratoryEditingSession? @relation("EditingResult")
+  /// Template versions that froze this DOCX when they became available.
+  frozen_template_versions ReportTemplateVersion[] @relation("TemplateDocx")
+  /// Template versions whose preview was made from this DOCX.
+  previewed_template_versions ReportTemplateVersion[] @relation("TemplatePreviewDocx")
+  /// Generations of a report draft that made this version.
+  report_drafts      TestReportDraft[]
+  /// PDFs prepared from this version.
+  report_candidates  TestReportCandidate[]
 
   @@unique([file_id, number])
   @@index([content_id])
@@ -2550,7 +2965,7 @@ model LaboratoryUpload {
   @@map("medilab_laboratory_upload")
 }
 
-/// A computer signed in to the laboratory folders with its own key.
+/// A computer running Medilab Sync or a phone running Medilab Mobile, signed in with its own key.
 model LaboratoryDevice {
   /// Row identifier.
   id           Int       @id @default(autoincrement())
@@ -2558,9 +2973,9 @@ model LaboratoryDevice {
   user_id      Int
   /// Id the application generates once per installation.
   client_uid   String    @db.VarChar
-  /// Name of the computer.
+  /// Name of the computer or phone.
   name         String    @db.VarChar
-  /// linux or windows.
+  /// linux or windows for a computer, android or ios for a phone.
   platform     String    @db.VarChar
   /// The Odoo API key of the device, in res_users_apikeys; the key itself is never stored here.
   api_key_id   Int?
@@ -2578,6 +2993,10 @@ model LaboratoryDevice {
   uploads      LaboratoryUpload[]
   /// Locks taken from the device.
   locks        LaboratoryFileLock[]
+  /// The push token of a phone.
+  mobile_device MobileDevice?
+  /// Handover records customers signed on the phone.
+  signed_handover_records HandoverRecord[]
 
   @@unique([user_id, client_uid])
   @@map("medilab_laboratory_device")

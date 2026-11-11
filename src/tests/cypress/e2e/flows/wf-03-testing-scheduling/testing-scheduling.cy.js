@@ -181,7 +181,7 @@ describe("WF-03 baseline assignment and scheduling", () => {
         expect(event.stop).to.equal(moved.ends_at);
       });
 
-      // The task leaves the department, so it is moved from the list, which the head still sees afterwards.
+      // The task leaves the department from the list; the head who moved it still reads it there.
       cy.visit("/odoo/all-tasks");
       search(sample.code);
       cy.contains(".o_data_row", "Lead (Pb)").find("button[name=action_assign_sample]").click();
@@ -190,7 +190,7 @@ describe("WF-03 baseline assignment and scheduling", () => {
       cy.get(".modal .o_field_widget[name=reason] textarea").clear().type("Only Microbiology can test this sample now.");
       cy.get(".modal button[name=action_confirm]").click();
       cy.get(".modal").should("not.exist");
-      cy.contains(".o_data_row", "Lead (Pb)").should("not.exist");
+      cy.contains(".o_data_row", "Lead (Pb)").should("exist");
       readTask(task)().should((read) => {
         expect(read.department_id[1]).to.equal("Microbiology");
         expect(read.status).to.equal("open");

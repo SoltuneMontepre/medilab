@@ -12,6 +12,7 @@ export const PARAMETERS = {
   lead: {
     parameter: "sol_demo.demo_test_parameter_lead",
     way: "sol_demo.demo_parameter_method_lead_subcontracted",
+    inHouse: "sol_demo.demo_parameter_method_lead_aas",
     sampleType: "sol_demo.demo_sample_type_bottled_water",
     state: "liquid",
   },
@@ -68,14 +69,18 @@ export function clearDrafts(kind = "lead") {
 
 // A sample test of a received sample whose testing task the head of department assigned to the tester. Its results
 // are promised `days` from today: with none, its due date has passed, so no machine can finish it and the scheduler
-// suggests outsourcing it.
-export function assignedTest(kind = "lead", { days = 0 } = {}) {
-  const { parameter, sampleType, state } = PARAMETERS[kind];
+// suggests outsourcing it. `sample` can give another sample type and physical state, and a regulation to compare the
+// sample with, as external IDs. `accepted` is the external ID of the way of testing the customer accepted on the
+// quotation, which the test keeps to.
+export function assignedTest(kind = "lead", { days = 0, sample = {}, accepted } = {}) {
+  const { parameter, sampleType, state } = { ...PARAMETERS[kind], ...sample };
   const test = { model: "medilab.sample.test", kind };
-  const ids = {};
+  const ids = { regulation: false, way: {} };
+  if (accepted) refAs(RECEPTION, accepted).then(({ id }) => (ids.way = { parameter_method_id: id, accepted_method_id: id }));
   refAs(RECEPTION, "sol_demo.demo_customer_green_farm").then(({ id }) => (ids.customer = id));
   refAs(RECEPTION, sampleType).then(({ id }) => (ids.sampleType = id));
   refAs(RECEPTION, parameter).then(({ id }) => (ids.parameter = id));
+  if (sample.regulation) refAs(RECEPTION, sample.regulation).then(({ id }) => (ids.regulation = id));
   refAs(HEAD, "sol_demo.demo_person_tester").then(({ id }) => (ids.tester = id));
   cy.then(() =>
     callAs(RECEPTION, "medilab.test.request", "create", [
@@ -90,7 +95,8 @@ export function assignedTest(kind = "lead", { days = 0 } = {}) {
               customer_sample_name: `Mẫu gửi thầu phụ ${Date.now()}`,
               sample_type_id: ids.sampleType,
               physical_state: state,
-              test_ids: [[0, 0, { parameter_id: ids.parameter }]],
+              regulation_id: ids.regulation,
+              test_ids: [[0, 0, { parameter_id: ids.parameter, ...ids.way }]],
             },
           ],
         ],
@@ -182,7 +188,7 @@ export function reportedResult(test) {
         ["is_reported", "=", true],
       ],
     ],
-    { fields: ["attempt", "status", "entered_by_id", "value"] },
+    { fields: ["status", "entered_by_id", "value"] },
   ).then(([result]) => ({ ...result, model: "medilab.test.result" }));
 }
 
@@ -202,11 +208,10 @@ export function resultAwaitingApproval(kind = "lead") {
   );
 }
 
-// A testing method and unit that sol_demo seeds, to make ways of testing with.
+// A testing method that sol_demo seeds, to make ways of testing with.
 export function wayParts() {
   const parts = {};
   refAs(ADMINISTRATOR, "sol_demo.demo_testing_method_iso_17294_2").then(({ id }) => (parts.methodId = id));
-  refAs(ADMINISTRATOR, "sol_demo.demo_measurement_unit_ug_l").then(({ id }) => (parts.unitId = id));
   return cy.then(() => parts);
 }
 
