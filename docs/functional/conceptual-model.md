@@ -14,7 +14,7 @@ Unit categories are part of MeasurementUnit, parameter prices part of TestParame
 erDiagram
     SAMPLE_TYPE o|--o{ SAMPLE_TYPE : broadens
     TEST_PARAMETER }o--o{ PARAMETER_GROUP : belongs_to
-    TEST_PARAMETER ||--o{ PARAMETER_METHOD : has
+    TEST_PARAMETER ||--|{ PARAMETER_METHOD : has
     PARAMETER_METHOD }o--|| TESTING_METHOD : uses
     PARAMETER_METHOD }o--o| DEPARTMENT : performed_in_house_by
     PARAMETER_METHOD }o--o| SUBCONTRACTOR : performed_externally_by
@@ -46,11 +46,11 @@ erDiagram
 
 | Relationship | Rule |
 | --- | --- |
-| Way and sample type | A way has one parameter, method and performing party. Explicit applicability gives the unit, optional LOD/LOQ and display precision for one sample type. Each offered parameter and sample type has one default. Technical applicability does not inherit. |
+| Way and sample type | A way has one parameter, method and performing party, and every parameter has at least one way. Explicit applicability gives the unit, optional LOD/LOQ and display precision for one sample type. Each offered parameter and sample type has one default. Technical applicability does not inherit. |
 | Sampling | A method's sample-type requirement gives amount, container and preservation. Compatible container and preservation groups share a physical sample and their amounts add. Expected objects per type are the largest line quantity; objects times groups gives expected samples. Collection records the actual handover and customer confirmation. |
 | Accreditation | A sample test is accredited only when its in-house way's method, parameter and sample type or ancestor match a valid certificate scope line. A method outside accreditation can still be used. |
 | Regulation | Comparison is optional. Scope includes descendants; limits are explicit per regulation, parameter and sample type and never inherited. The selected method, such as a TCVN, determines how to test; a QCVN determines requested comparisons. |
-| Result | Each result keeps its unit and LOD/LOQ snapshot and any exact sample-type regulation limit snapshot. It belongs to exactly one booking or subcontract dispatch; a retest is a new result with a new booking. |
+| Result | Each result keeps its unit and LOD/LOQ snapshot and any exact sample-type regulation limit snapshot. A result measured in the laboratory belongs to exactly one booking; an outsourced result belongs to its sample test, which a subcontract dispatch sends to the subcontractor. A retest is a new result with a new booking. |
 | Sample return | A return records what was returned to the customer, when, by whom and to whom. Returning extra samples or excess material leaves the sample's state unchanged; returning a retained sample after its retention period ends it as returned. |
 | Report preparation | A report uses one template version and approved business data to create its internal draft. Approval binds the saved draft, result versions and prepared PDF; issued files stay unchanged. Template versions and working files are omitted at this conceptual level. |
 
@@ -68,14 +68,14 @@ erDiagram
     MACHINE_BOOKING o|--o{ TEST_RESULT : measures
     PLAN_REVISION }o--|{ MACHINE_BOOKING : moves
     PLAN_REVISION }o--|{ DEPARTMENT : approved_by_head_of
-    SUBCONTRACT_DISPATCH o|--o{ TEST_RESULT : carries
+    SUBCONTRACT_DISPATCH }o--|{ SAMPLE_TEST : sends
     SUBCONTRACT_DISPATCH }o--|| SUBCONTRACTOR : sends_to
     MACHINE ||--o{ MACHINE_SERVICE : has
     PERSON ||--o{ OVER_TIME : has_planned
     SAMPLE_COLLECTION }o--|| PERSON : collected_by
 ```
 
-Mermaid ER notation cannot express the exclusive ownership of a result: each `TEST_RESULT` belongs to exactly one `MACHINE_BOOKING` or one `SUBCONTRACT_DISPATCH`, never both or neither, as the Result rule above requires.
+Mermaid ER notation cannot express that a result has a booking only when it is measured in the laboratory: a `TEST_RESULT` of an outsourced `SAMPLE_TEST` has no `MACHINE_BOOKING` and belongs to its sample test, which a `SUBCONTRACT_DISPATCH` sends, as the Result rule above requires. A subcontract dispatch sends at least one sample test.
 
 A booking has one sample test, one tester and one interval, and a machine only when the way needs one. Bookings whose ways use the same testing method share a machine for exactly the same interval, up to the capacity in samples of the machine-and-method link; a way that needs no machine has its own duration and capacity, 1 by default. Each department's plan proposes bookings for its received, not-started sample tests. A plan revision moves scheduled bookings once the head of each affected department approves its moves, and holds back a move that would miss a committed return date until the customer agrees. Staff shifts and approved leave come from HR; service records supply machine downtime. OverTime records a planned outside-hours interval and reason the head enters for a tester, without payroll or actual-hours confirmation.
 

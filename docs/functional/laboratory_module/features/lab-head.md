@@ -1,6 +1,6 @@
 # Features of: Lab head
 
-The lab head configures parameter authorizations, reviews laboratory-wide testing figures, reviews approved results, including a Head of Department's self-approved entries, and signs reports.
+The lab head configures parameter authorizations, reviews laboratory-wide testing statistics, reviews approved results, including a Head of Department's self-approved entries, and signs reports.
 
 ## I. User stories
 
@@ -10,7 +10,7 @@ The lab head configures parameter authorizations, reviews laboratory-wide testin
 
 - **US-LH04** As a lab head, I want to configure the parameters each tester is authorized to test, so that only competent people are scheduled.
 - **US-LH05** As a lab head, I want to review results self-approved by a Head of Department when signing their report, so that those results receive final review before issue.
-- **US-LH06** As a lab head, I want testing figures for every department over a period, so that I can review the laboratory's workload and turnaround.
+- **US-LH06** As a lab head, I want testing statistics for every department over a period, so that I can review the laboratory's workload and turnaround.
 
 ## II. Feature details
 
@@ -23,7 +23,7 @@ Follows [Reports and change requests](../overview.md#reports-and-change-requests
 | One report     | A test request has one report covering all its samples, in Vietnamese, English or both side by side, as the request asks.    |
 | Signing        | Samples have no sign-off of their own; once all results of a request are approved, the next signature is the lab head's on the report. |
 | Draft          | When every sample test of a request is approved or cancelled, the system creates the draft report and a signing task for the lab head. |
-| Authoring | Generate the DOCX draft from an available template version and approved business data. Authorized report editors use ONLYOFFICE for layout, explanatory text, comments and co-editing. Business values and approvers come from the structured records; their correction follows the result and report change rules. |
+| Authoring | Generate the DOCX draft from an available template version and approved business data. People with the report edit permission, the Lab Head by default, use ONLYOFFICE for layout, explanatory text, comments and co-editing. Business values and approvers come from the structured records; their correction follows the result and report change rules. |
 | Review and freeze | Finish all editing sessions and store their final saves before preparing the PDF. Review that PDF, its approved results and any requested regulation basis before signing. A save conflict, incomplete save or mismatch with approved data blocks signing. Approval binds the prepared PDF and its source versions as specified in [Test reports](../../../specs/test-reports.md). |
 | Draft correction | Before any signature, editing invalidates the prepared PDF and requires a new review. Once signed at any level, the draft stays locked until signatures are withdrawn in the permitted order. After issue, a change request and replacement report are required. |
 | Content | The report identifies the customer, request, receipt and issue dates, report number, samples and lab codes. For each sample, print its sample type, received amount and condition, recorded analysis start and end dates, and report-relevant request or sample notes when provided. The result table prints parameter, measured result, unit and method. Comparison limits and conclusions appear only for the requested regulation scope, with wording limited to that scope and insufficient basis where applicable. Below-LOD/LOQ text prints the snapshot threshold and unit. Print the actual result approvers, including a Head of Department who approved their own result, and the report signer; tester signatures stay internal. Cancelled tests are excluded. |
@@ -74,11 +74,11 @@ Acceptance criteria:
 - A Head of Department's self-approved result can enter a draft report; the report cannot be issued before the Lab Head reviews and signs it.
 - Rejecting such a report returns the named results to the department queue under the report-rejection rules.
 
-### 4. Testing figures (US-LH06)
+### 4. Testing statistics (US-LH06)
 
 | Rule | Description |
 | --- | --- |
-| Laboratory figures | For a period and across all departments, show completed sample tests, on-time share, average receipt-to-approval time, overdue sample tests, retests and workload per person, using the same measures as [department figures](head-of-department.md#6-testing-figures-us-hd18). |
+| Laboratory statistics | For a period and across all departments, show completed sample tests, on-time share, average receipt-to-approval time, overdue sample tests, retests and workload per person, using the same measures as [department statistics](head-of-department.md#6-testing-statistics-us-hd18). |
 
 Acceptance criteria:
 
