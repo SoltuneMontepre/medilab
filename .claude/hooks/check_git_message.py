@@ -1,11 +1,15 @@
 """Block commits and pull requests whose title breaks docs/conventions/git.md or that carry attribution lines."""
 
+import argparse
 import json
 import re
 import sys
 from pathlib import Path
 
 TITLE_PATTERN = re.compile(r"^\[(feat|fix|chore|docs|refactor|test|style|perf|build|ci)\](\s*\|\s*#\d+)?\s+[a-zA-Z].+")
+PR_TITLE_PATTERN = re.compile(
+    r"^\[(feat|fix|chore|docs|refactor|test|style|perf|build|ci|Integration)\](\s*\|\s*#\d+)?\s+[a-zA-Z].+"
+)
 GIT_GENERATED_TITLE = re.compile(r"^(Merge |Revert \")")
 ATTRIBUTION_PATTERN = re.compile(r"co-authored-by:|generated with \[?claude code|\U0001f916", re.IGNORECASE)
 COMMIT_PATTERN = re.compile(r"\bgit\s+(?:-c\s+\S+\s+)*commit\b")
@@ -84,16 +88,33 @@ def problems(command):
     if is_pr:
         title = flag_value(command[is_pr.end() :], ["--title", "-t"])
         title = first_line(title) if title else None
-        if title and "$" not in title and not TITLE_PATTERN.match(title):
+        if title and "$" not in title and not PR_TITLE_PATTERN.match(title):
             found.append(f"Pull request title '{title}' must be '[<type>] <title>' as in docs/conventions/git.md.")
     return found
 
 
 def main():
-    """Read the tool call from stdin and exit with 2 to block it when it breaks a rule."""
+    """Read the tool call and report a violation using the client's hook contract."""
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--client", choices=["claude-code", "codex"], default="claude-code")
+    args = parser.parse_args()
     command = json.load(sys.stdin).get("tool_input", {}).get("command", "")
     found = problems(command)
-    if found:
+    if not found:
+        return
+    if args.client == "codex":
+        print(
+            json.dumps(
+                {
+                    "hookSpecificOutput": {
+                        "hookEventName": "PreToolUse",
+                        "permissionDecision": "deny",
+                        "permissionDecisionReason": "\n".join(found),
+                    }
+                }
+            )
+        )
+    else:
         print("\n".join(found), file=sys.stderr)
         sys.exit(2)
 

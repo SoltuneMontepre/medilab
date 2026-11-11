@@ -1,4 +1,5 @@
 import math
+from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
@@ -11,20 +12,30 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_LOCK_MIXIN,
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
+    MODEL_ROLE,
     MODEL_SAMPLE_TEST,
     MODEL_SUBCONTRACT_DISPATCH,
     MODEL_SUBCONTRACTOR,
     MODEL_TEST_RESULT,
 )
+from odoo.addons.sol_laboratory.constants.settings import SAMPLE_DELIVERY_ROLE_PARAMETER
+from odoo.addons.sol_laboratory.constants.xml_ids import DISPATCH_READER_GROUP
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_subcontract_dispatch as SubcontractDispatchBase
+else:
+    SubcontractDispatchBase = object
 
 # What goes to whom; fixed once the dispatch is sent.
 CONTENT_FIELDS = frozenset({"subcontractor_id", "sample_test_ids"})
+# The subcontractor's report, attached once the dispatch is sent.
+REPORT_FIELDS = frozenset({"report_file", "report_filename"})
 # The statuses of a dispatch whose samples have left the laboratory.
 SENT_STATUSES = ("sent", "received")
 
 
 # Phiếu Gửi Thầu Phụ
-class SubcontractDispatch(models.Model):
+class SubcontractDispatch(models.Model, SubcontractDispatchBase):
     _name = MODEL_SUBCONTRACT_DISPATCH
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_CODE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Subcontract Dispatch"
@@ -33,43 +44,69 @@ class SubcontractDispatch(models.Model):
     # A dispatch is cancelled, never archived or deleted.
     _permission_actions = ("read", "create", "edit")
 
-    # Unique code of the dispatch, such as PGTP.2026.0001; filled from a sequence when left empty.
-    code = fields.Char(required=True, copy=False, readonly=True)
-    # The subcontractor the tests are sent to.
-    subcontractor_id = fields.Many2one(MODEL_SUBCONTRACTOR, required=True, ondelete="restrict", index=True)
-    # Date the samples were sent.
-    sent_date = fields.Date(copy=False)
-    # Sample delivery staff who take the samples; empty when a delivery service does.
-    courier_id = fields.Many2one(MODEL_PERSON, string="Sample Delivery Staff", ondelete="restrict")
-    # Delivery service and tracking number, when a delivery service takes the samples.
-    delivery_service = fields.Char(string="Delivery Service and Tracking Number")
-    # Date the results are expected back.
-    expected_date = fields.Date(index=True)
-    # Date the results came back.
-    received_date = fields.Date(copy=False)
-    # Where the dispatch is: draft, sent, received or cancelled.
-    status = fields.Selection(
-        [("draft", "Draft"), ("sent", "Sent"), ("received", "Received"), ("cancelled", "Cancelled")],
-        required=True,
-        default="draft",
-        readonly=True,
-        copy=False,
-    )
-    # Free notes about the dispatch.
-    note = fields.Text()
-    # Sample tests in the dispatch.
-    sample_test_ids = fields.Many2many(
-        MODEL_SAMPLE_TEST,
-        "medilab_subcontract_dispatch_test_rel",
-        "dispatch_id",
-        "sample_test_id",
-        string="Sample Tests",
-        ondelete="restrict",
-    )
-    # True when the current user is the sample delivery staff taking the dispatch.
-    carried_by_me = fields.Boolean(compute="_compute_carried_by_me", search="_search_carried_by_me")
+    if not TYPE_CHECKING:
+        # Unique code of the dispatch, such as PGTP.2026.0001; filled from a sequence when left empty.
+        code = fields.Char(required=True, copy=False, readonly=True)
+        # The subcontractor the tests are sent to.
+        subcontractor_id = fields.Many2one(MODEL_SUBCONTRACTOR, required=True, ondelete="restrict", index=True)
+        # Date the samples were sent.
+        sent_date = fields.Date(copy=False)
+        # Sample delivery staff who take the samples; empty when a delivery service does.
+        courier_id = fields.Many2one(MODEL_PERSON, string="Sample Delivery Staff", ondelete="restrict")
+        # Delivery service and tracking number, when a delivery service takes the samples.
+        delivery_service = fields.Char(string="Delivery Service and Tracking Number")
+        # Date the results are expected back.
+        expected_date = fields.Date(index=True)
+        # Date the results came back.
+        received_date = fields.Date(copy=False)
+        # Where the dispatch is: draft, sent, received or cancelled.
+        status = fields.Selection(
+            [("draft", "Draft"), ("sent", "Sent"), ("received", "Received"), ("cancelled", "Cancelled")],
+            required=True,
+            default="draft",
+            readonly=True,
+            copy=False,
+        )
+        # Free notes about the dispatch.
+        note = fields.Text()
+        # The report the subcontractor returned with the results.
+        report_file = fields.Binary(
+            string="Subcontractor's Report", attachment=True, copy=False, groups=DISPATCH_READER_GROUP
+        )
+        # File name of the subcontractor's report.
+        report_filename = fields.Char(copy=False, groups=DISPATCH_READER_GROUP)
+        # Sample tests in the dispatch.
+        sample_test_ids = fields.Many2many(
+            MODEL_SAMPLE_TEST,
+            "medilab_subcontract_dispatch_test_rel",
+            "dispatch_id",
+            "sample_test_id",
+            string="Sample Tests",
+            ondelete="restrict",
+        )
+        # People who can take the dispatch: those holding the sample delivery staff role named in the settings.
+        courier_choice_ids = fields.Many2many(
+            MODEL_PERSON,
+            string="Sample Delivery Staff to Choose",
+            compute="_compute_courier_choice_ids",
+            compute_sudo=True,
+        )
+        # True when the current user is the sample delivery staff taking the dispatch.
+        carried_by_me = fields.Boolean(compute="_compute_carried_by_me", search="_search_carried_by_me")
 
     _code_unique = models.Constraint("UNIQUE(code)", "The code of a dispatch must be unique.")
+
+    def _compute_courier_choice_ids(self):
+        couriers = self._sample_delivery_staff()
+        for dispatch in self:
+            dispatch.courier_choice_ids = couriers
+
+    @api.model
+    def _sample_delivery_staff(self):
+        # With full rights: only administrators read who holds a role.
+        role_id = self.env["ir.config_parameter"].sudo().get_int(SAMPLE_DELIVERY_ROLE_PARAMETER)
+        people = self.env[MODEL_ROLE].sudo().browse(role_id).exists().person_ids
+        return self.env[MODEL_PERSON].browse(people.ids)
 
     def _compute_carried_by_me(self):
         person = self.env[MODEL_PERSON]._current()
@@ -91,6 +128,18 @@ class SubcontractDispatch(models.Model):
                     self.env._(
                         "%s cannot be chosen: it is archived or its accreditation has expired.",
                         dispatch.subcontractor_id.display_name,
+                    )
+                )
+
+    @api.constrains("courier_id")
+    def _check_courier(self):
+        couriers = self._sample_delivery_staff()
+        for dispatch in self:
+            if dispatch.courier_id and dispatch.courier_id not in couriers:
+                raise ValidationError(
+                    self.env._(
+                        "%s does not hold the sample delivery staff role named in the Laboratory settings.",
+                        dispatch.courier_id.sudo().name,
                     )
                 )
 
@@ -139,6 +188,11 @@ class SubcontractDispatch(models.Model):
             raise UserError(self.env._("Send, receive or cancel a dispatch with its buttons."))
         if CONTENT_FIELDS & set(vals) and any(dispatch.status != "draft" for dispatch in self):
             raise UserError(self.env._("Only a draft dispatch can change its subcontractor or sample tests."))
+        if REPORT_FIELDS & set(vals):
+            if any(dispatch.status not in SENT_STATUSES for dispatch in self):
+                raise UserError(self.env._("Attach the subcontractor's report to a sent or received dispatch."))
+            if "report_file" in vals and not vals["report_file"]:
+                raise UserError(self.env._("The subcontractor's report is kept; attach another file to replace it."))
         return super().write(vals)
 
     def action_send(self):

@@ -61,10 +61,18 @@
   diff: false
   notify: Restart k3s
 
-- name: Keep Traefik off the host ports
+- name: Configure Traefik
   ansible.builtin.template:
     src: traefik-config.yaml.j2
     dest: "{{ k3s_manifests_dir }}/medilab-traefik-config.yaml"
+    owner: root
+    group: root
+    mode: "0600"
+
+- name: Let only cloudflared reach Traefik
+  ansible.builtin.template:
+    src: traefik-network-policy.yaml.j2
+    dest: "{{ k3s_manifests_dir }}/medilab-traefik-network-policy.yaml"
     owner: root
     group: root
     mode: "0600"

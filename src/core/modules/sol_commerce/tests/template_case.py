@@ -18,7 +18,7 @@ class TemplateCase(OrderCase):
 
     def template_source(self, lines=None, **vals):
         return self.make_order(
-            lines or [(self.lead_product, 1.5), (self.package_product, 2.25)],
+            lines or [(self.lead_product, 2), (self.package_product, 3)],
             status="claimed",
             user_id=self.sales.id,
             **vals,

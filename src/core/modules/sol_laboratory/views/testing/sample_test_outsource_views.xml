@@ -10,7 +10,7 @@
                 <group>
                     <field name="sample_test_id" invisible="1" />
                     <field name="outsourcing_suggested" invisible="1" />
-                    <field name="subcontracted_method_ids" invisible="1" />
+                    <field name="outsourcing_method_ids" invisible="1" />
                     <field name="parameter_method_id" options="{'no_create': True}" />
                     <field name="reason" invisible="outsourcing_suggested" required="not outsourcing_suggested" />
                 </group>

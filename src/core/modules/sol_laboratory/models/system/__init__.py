@@ -4,6 +4,7 @@ from . import (
     archive_file,
     audit_change,
     audit_entry,
+    audit_entry_editing_callback,
     audit_report,
     document_lock,
     hr_department,
@@ -11,6 +12,7 @@ from . import (
     ir_access,
     ir_actions_act_window_view,
     ir_actions_report,
+    ir_attachment,
     ir_binary,
     ir_config_parameter,
     ir_mail_server,
@@ -22,18 +24,26 @@ from . import (
     permission,
     person,
     res_config_settings,
+    res_groups,
     res_partner,
+    res_users,
     role,
+    role_grant,
     scheduled_job,
     signature,
+    signing_process,
+    user_link,
 )
 
-# Accreditation, laboratory file lock, editing session and upload job handlers inherit medilab.scheduled.job; load
-# after the base model.
+# Accreditation, laboratory content, laboratory file lock, editing session, upload, quality registration and role
+# grant job handlers inherit medilab.scheduled.job; load after the base model.
 # isort: split
 from . import (
     accreditation_scheduled_job,
+    laboratory_content_scheduled_job,
     laboratory_editing_scheduled_job,
     laboratory_file_lock_scheduled_job,
     laboratory_upload_scheduled_job,
+    quality_registration_scheduled_job,
+    role_grant_scheduled_job,
 )

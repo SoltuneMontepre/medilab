@@ -9,9 +9,9 @@ vars:
   ALL_MODULES:
     sh: 'out=; while IFS= read -r m || [ -n "$m" ]; do m=${m%$''\r''}; [ -z "$m" ] || [ "$m" = base ] || out=${out:+$out,}$m; done < src/core/modules.txt; echo "$out"'
   EXCLUDE: '{{.EXCLUDE | default ""}}'
-  MODULES: '{{.MODULES | default (without (splitList "," .ALL_MODULES) .EXCLUDE | join ",")}}'
-  TEST_MODULES: '{{.TEST_MODULES | default .MODULES}}'
-  TAGS: '{{range $i, $m := splitList "," .TEST_MODULES}}{{if $i}},{{end}}/{{$m}}{{end}}'
+  CORE_MODULES: '{{.MODULES | default (without (splitList "," .ALL_MODULES) .EXCLUDE | join ",")}}'
+  CORE_TEST_MODULES: '{{.TEST_MODULES | default .CORE_MODULES}}'
+  TAGS: '{{range $i, $m := splitList "," .CORE_TEST_MODULES}}{{if $i}},{{end}}/{{$m}}{{end}}'
   INSTALL_COVERAGE: '{{.INSTALL_COVERAGE | default "true"}}'
   TEST_DB: '{{.MEDILAB_TEST_DB | default "medilab_test"}}'
   RUNNER: "{{.RUNNER | default 1}}"
@@ -21,18 +21,27 @@ vars:
   SHARD_NUMBERS: "{{range $i := until .TEST_SHARDS}}{{add (mul (sub $.RUNNER 1) $.TEST_SHARDS) $i 1}} {{end}}"
   TEST_RUN_DIR: /var/lib/odoo/{{.TEST_DB}}-run
   ODOO_SCRIPTS: /opt/medilab/scripts
-  TEST_ENV: -e TEST_DB={{.TEST_DB}} -e TEST_RUN_DIR={{.TEST_RUN_DIR}} -e MODULES={{.MODULES}} -e "SHARD_NUMBERS={{.SHARD_NUMBERS}}"
+  TEST_COVERAGE_DIR: .local/core-test-coverage
+  TEST_ENV: '-v "{{.ROOT_DIR}}/{{.TEST_COVERAGE_DIR}}:/opt/medilab/test-deps:ro" -e PYTHONPATH=/opt/medilab/test-deps:/opt/python-packages -e "TEST_DB=$TEST_DB" -e "TEST_RUN_DIR=$TEST_RUN_DIR" -e "MODULES=$MODULES" -e "SHARD_NUMBERS=$SHARD_NUMBERS"'
   COVERAGE_IMAGE: docker.io/library/python:3.12-slim
   COVERAGE_DIR: "{{.COVERAGE_DIR}}"
   DB_USER: '{{.MEDILAB_DB_USER | default "root"}}'
   COVERAGE_REPORT: src/core/modules/coverage.xml
   E2E_DIR: src/tests
   E2E_URL: '{{.MEDILAB_URL | default "http://localhost:8069"}}'
+  E2E_SCRIPT: tools/scripts/test_e2e.sh
+  E2E_TAP: tools/scripts/cypress_tap.py
+  E2E_TAP_ARGS: '{{.TAP_ARGS | default .CLI_ARGS}}'
+  E2E_TAP_BROWSER: '{{.TAP_BROWSER | default "chrome"}}'
+  E2E_HEALTH_RETRIES: 30
+  E2E_HEALTH_DELAY: 2
   SYNC_APP_DIR: src/applications/medilab-sync
   MOBILE_APP_DIR: src/applications/medilab-mobile
   TYPECHECK_DIR: tools/typecheck
   UV: uv --project src/core
   OPENAPI_DOCUMENT: src/core/modules/sol_laboratory/api/openapi.yaml
+  CALLBACK_DOCUMENT: src/core/modules/sol_laboratory/api/onlyoffice-callback.openapi.yaml
+  UPDATES_DOCUMENT: src/core/modules/sol_laboratory/api/sync-updates.openapi.yaml
   OASDIFF_IMAGE: docker.io/tufin/oasdiff:v1.33.0@sha256:6263a96dd2ef0726c54e21fea9b8e1607eac4841add0079324b424c1f52b819c
   OPENAPI_BASE: '{{.OPENAPI_BASE | default "origin/main"}}'
   LOG: tools/scripts/log.sh
@@ -44,19 +53,44 @@ tasks:
       - task: test:core
       - task: test:apps
 
+  test:logging:
+    desc: "Check Task and Odoo logging colors, streams and prompt behavior"
+    cmds:
+      - python tools/scripts/test_log.py
+
+  test:taskfiles:
+    desc: "Check module selection and browser-test setup without running containers or Cypress"
+    cmds:
+      - python tools/scripts/test_taskfile_modules.py
+      - python tools/scripts/test_e2e_tasks.py
+      - python tools/scripts/test_e2e_readiness.py
+      - python tools/scripts/test_cypress_tap.py
+      - python tools/scripts/test_cypress_skills.py
+
   test:core:
     desc: "Run the tests of every module in src/core/modules.txt with coverage, split over parallel shards in throwaway databases; task test:core MODULES=a,b or EXCLUDE=a limits the modules, TEST_MODULES=a runs the tests of only some of them, RUNNER=2 RUNNERS=3 runs this machine's share of the shards, INSTALL_COVERAGE=false installs without coverage"
     silent: true
+    env:
+      TEST_DB: '{{.TEST_DB}}'
+      TEST_RUN_DIR: '{{.TEST_RUN_DIR}}'
+      MODULES: '{{.CORE_MODULES}}'
+      TEST_MODULES: '{{.CORE_TEST_MODULES}}'
+      TAGS: '{{.TAGS}}'
+      INSTALL_COVERAGE: '{{.INSTALL_COVERAGE}}'
+      SHARD_NUMBERS: '{{.SHARD_NUMBERS}}'
+      TOTAL_SHARDS: '{{.TOTAL_SHARDS}}'
     cmds:
-      - docker compose up -d --wait postgres
-      - docker compose run --rm -T garage-setup
-      - task: test:core:clean
+      - python tools/scripts/local_compose.py up -d --wait postgres
+      - python tools/scripts/core_test_guard.py prepare
       - defer: { task: test:core:clean }
+      # Odoo reads this cache as its container user; prepare keeps the host .local parent private.
+      - 'uv pip install --target {{.TEST_COVERAGE_DIR}} --python-version 3.12 --python-platform linux --no-deps --only-binary :all: coverage==7.10.7'
+      - python tools/scripts/local_compose.py run --rm -T garage-setup
       - . {{.LOG}} && log_step "Splitting the test classes into {{.TOTAL_SHARDS}} shards"
-      - docker compose run --rm -T --entrypoint python3 odoo {{.ODOO_SCRIPTS}}/test_shards.py {{.TEST_MODULES}} {{.TOTAL_SHARDS}} {{.TEST_RUN_DIR}}/shards
-      - . {{.LOG}} && log_step "Installing {{.MODULES}}"
-      - docker compose run --rm -T --user root {{.TEST_ENV}} -e TAGS={{.TAGS}} -e INSTALL_COVERAGE={{.INSTALL_COVERAGE}} --entrypoint bash odoo {{.ODOO_SCRIPTS}}/test_core_install.sh
-      - docker compose exec -T postgres bash -c 'set -e; for n in {{.SHARD_NUMBERS}}; do createdb -U {{.DB_USER}} -T {{.TEST_DB}} {{.TEST_DB}}_$n; done'
+      - python tools/scripts/local_compose.py run --rm -T --entrypoint python3 odoo {{.ODOO_SCRIPTS}}/test_shards.py "$TEST_MODULES" "$TOTAL_SHARDS" "$TEST_RUN_DIR/shards"
+      - . {{.LOG}} && log_step "Installing $MODULES"
+      - python tools/scripts/local_compose.py run --rm -T --user root {{.TEST_ENV}} -e "TAGS=$TAGS" -e "INSTALL_COVERAGE=$INSTALL_COVERAGE" --entrypoint bash odoo {{.ODOO_SCRIPTS}}/test_core_install.sh
+      - python tools/scripts/core_test_guard.py clone
       - . {{.LOG}} && log_step "Running shards {{trim .SHARD_NUMBERS}} of {{.TOTAL_SHARDS}}"
       - task: test:core:shards
       - task: test:core:report
@@ -71,25 +105,36 @@ tasks:
   test:core:shard:
     internal: true
     silent: true
+    env:
+      TEST_DB: '{{.TEST_DB}}'
+      TEST_RUN_DIR: '{{.TEST_RUN_DIR}}'
+      MODULES: '{{.CORE_MODULES}}'
+      SHARD_NUMBERS: '{{.SHARD_NUMBERS}}'
+      SHARD: '{{.SHARD}}'
     cmds:
-      - docker compose run --rm -T --user root {{.TEST_ENV}} -e SHARD={{.SHARD}} --entrypoint bash odoo {{.ODOO_SCRIPTS}}/test_core_shard.sh
+      - python tools/scripts/local_compose.py run --rm -T --user root {{.TEST_ENV}} -e "SHARD=$SHARD" --entrypoint bash odoo {{.ODOO_SCRIPTS}}/test_core_shard.sh
 
   test:core:report:
     internal: true
     silent: true
+    env:
+      TEST_DB: '{{.TEST_DB}}'
+      TEST_RUN_DIR: '{{.TEST_RUN_DIR}}'
+      MODULES: '{{.CORE_MODULES}}'
+      SHARD_NUMBERS: '{{.SHARD_NUMBERS}}'
     cmds:
       - cmd: mkdir -p {{.COVERAGE_DIR}}
         if: '[ -n "{{.COVERAGE_DIR}}" ]'
-      - cmd: docker compose run --rm -T --user root -v "{{.ROOT_DIR}}/{{.COVERAGE_DIR}}:/export" --entrypoint cp odoo -a {{.TEST_RUN_DIR}}/coverage/. /export/
+      - cmd: python tools/scripts/local_compose.py run --rm -T --user root -v "{{.ROOT_DIR}}/{{.COVERAGE_DIR}}:/export" --entrypoint cp odoo -a "$TEST_RUN_DIR/coverage/." /export/
         if: '[ -n "{{.COVERAGE_DIR}}" ]'
-      - cmd: docker compose run --rm -T --user root {{.TEST_ENV}} --entrypoint bash odoo {{.ODOO_SCRIPTS}}/test_core_coverage.sh {{.TEST_RUN_DIR}}/coverage
+      - cmd: python tools/scripts/local_compose.py run --rm -T --user root {{.TEST_ENV}} --entrypoint bash odoo {{.ODOO_SCRIPTS}}/test_core_coverage.sh "$TEST_RUN_DIR/coverage"
         if: '[ -z "{{.COVERAGE_DIR}}" ]'
       - cmd: sed -i 's|filename=.|&src/core/modules/|' {{.COVERAGE_REPORT}}
         if: '[ -z "{{.COVERAGE_DIR}}" ]'
       - |
         set -e
         . {{.LOG}}
-        failed=$(docker compose run --rm -T {{.TEST_ENV}} --entrypoint bash odoo {{.ODOO_SCRIPTS}}/test_core_status.sh)
+        failed=$(python tools/scripts/local_compose.py run --rm -T {{.TEST_ENV}} --entrypoint bash odoo {{.ODOO_SCRIPTS}}/test_core_status.sh)
         if [ -n "$failed" ]; then
           log_error "Odoo module tests failed in shard $failed. Search the output for [shard N]."
           exit 1
@@ -103,79 +148,168 @@ tasks:
       - sh: '[ -n "{{.COVERAGE_DIR}}" ]'
         msg: "Set COVERAGE_DIR to the folder with the coverage data: task test:core:coverage COVERAGE_DIR=.local/coverage"
     cmds:
-      - docker run --rm -v "{{.ROOT_DIR}}/src/core/modules:/mnt/extra-addons" -v "{{.ROOT_DIR}}/tools/scripts:{{.ODOO_SCRIPTS}}:ro" -v "{{.ROOT_DIR}}/{{.COVERAGE_DIR}}:/coverage" {{.COVERAGE_IMAGE}} bash {{.ODOO_SCRIPTS}}/test_core_coverage.sh /coverage
+      - 'uv pip install --target {{.TEST_COVERAGE_DIR}} --python-version 3.12 --python-platform linux --no-deps --only-binary :all: coverage==7.10.7'
+      - docker run --rm -v "{{.ROOT_DIR}}/src/core/modules:/mnt/extra-addons" -v "{{.ROOT_DIR}}/tools/scripts:{{.ODOO_SCRIPTS}}:ro" -v "{{.ROOT_DIR}}/{{.COVERAGE_DIR}}:/coverage" -v "{{.ROOT_DIR}}/{{.TEST_COVERAGE_DIR}}:/opt/medilab/test-deps:ro" -e PYTHONPATH=/opt/medilab/test-deps {{.COVERAGE_IMAGE}} bash {{.ODOO_SCRIPTS}}/test_core_coverage.sh /coverage
       - sed -i 's|filename=.|&src/core/modules/|' {{.COVERAGE_REPORT}}
       - . {{.LOG}} && log_ok "Coverage report in {{.COVERAGE_REPORT}}."
 
   test:core:clean:
     internal: true
     silent: true
+    env:
+      TEST_DB: '{{.TEST_DB}}'
+      TEST_RUN_DIR: '{{.TEST_RUN_DIR}}'
+      SHARD_NUMBERS: '{{.SHARD_NUMBERS}}'
     cmds:
-      - docker compose exec -T postgres bash -c 'set -e; for db in {{.TEST_DB}} $(for n in {{.SHARD_NUMBERS}}; do echo {{.TEST_DB}}_$n; done); do dropdb -U {{.DB_USER}} --if-exists $db; done'
-      - docker compose run --rm -T --user root --entrypoint rm odoo -rf {{.TEST_RUN_DIR}}
+      - python tools/scripts/core_test_guard.py clean
+
+  test:setup:
+    desc: "Test local setup security and platform acceptance helpers"
+    silent: true
+    cmds:
+      - python -B -m unittest discover -s tools/scripts -p test_local_private_paths.py
+      - python -B -m unittest discover -s tools/scripts -p test_private_state_writers.py
+      - python -B -m unittest discover -s tools/scripts -p 'test_*acceptance*.py'
+
+  test:onlyoffice:coverage:
+    desc: "Test the deployed ONLYOFFICE runtime helpers and report Python and signing-hook coverage"
+    cmds:
+      - python tools/scripts/local_private_paths.py .local/onlyoffice-coverage
+      - "{{.UV}} run --with coverage==7.10.7 python -m coverage run --branch --source=infra/cluster/onlyoffice,infra/cluster/onlyoffice-monitor --data-file=.local/onlyoffice-coverage/.coverage -m unittest discover -s tools/infrastructure/onlyoffice -p 'test_*.py'"
+      - "{{.UV}} run --with coverage==7.10.7 python -m coverage xml --data-file=.local/onlyoffice-coverage/.coverage -o .local/onlyoffice-coverage/coverage.xml"
+      - "{{.UV}} run python -m unittest discover -s tools/onlyoffice_integration -t . -p 'test_*.py'"
+      - node tools/onlyoffice_integration/test_loopback_proxy.cjs
+      - node tools/onlyoffice_integration/test_frame_diagnostics.cjs
+      - node --test tools/onlyoffice_integration/test_managed_frame.cjs
+      - node tools/onlyoffice_integration/test_editor_lifecycle.cjs
+      - node tools/onlyoffice_integration/test_garage_tls.cjs
+      - node tools/infrastructure/onlyoffice/test_retention_fixture.cjs
+      - npm exec --yes --ignore-scripts --package=c8@10.1.3 -- c8 --include=infra/cluster/onlyoffice/callback-signing.cjs --reporter=lcov --reports-dir=.local/onlyoffice-coverage/js node tools/infrastructure/onlyoffice/test_callback_signing.cjs
 
   test:uninstall:
     desc: "Install the modules in a throwaway database, uninstall commerce and inventory and check that the Laboratory data is intact"
     silent: true
     vars:
       MODULES: sol_laboratory,sol_commerce,sol_inventory
-      STANDALONE_TAG: medilab_uninstall
+      STANDALONE_TAG: medilab_commerce_uninstall,medilab_uninstall
+    env:
+      TEST_DB: '{{.TEST_DB}}'
+      TEST_RUN_DIR: '{{.TEST_RUN_DIR}}'
+      SHARD_NUMBERS: '1'
     cmds:
-      - docker compose up -d --wait postgres
-      - docker compose exec -T postgres dropdb -U {{.DB_USER}} --if-exists {{.TEST_DB}}
-      - defer: docker compose exec -T postgres dropdb -U {{.DB_USER}} --if-exists {{.TEST_DB}}
-      - docker compose run --rm -T odoo -d {{.TEST_DB}} -i {{.MODULES}} --stop-after-init --log-level=warn
+      - python tools/scripts/local_compose.py guard-uninstall
+      - python tools/scripts/local_compose.py up -d --wait postgres
+      - python tools/scripts/core_test_guard.py prepare
+      - defer: python tools/scripts/core_test_guard.py clean
+      - python tools/scripts/local_compose.py run --rm -T odoo -d "$TEST_DB" -i {{.MODULES}} --stop-after-init --log-level=warn
       - |
-        docker compose run --rm -T --entrypoint bash odoo -c '
-          set -e
+        python tools/scripts/local_compose.py run --rm -T -e "TEST_DB=$TEST_DB" --entrypoint bash odoo -c '
+          set -e -o pipefail
           export PGHOST="$HOST" PGUSER="$USER" PGPASSWORD="$PASSWORD"
-          python3 -m odoo.tests.test_module_operations -d {{.TEST_DB}} standalone {{.STANDALONE_TAG}} 2>&1 | tee /tmp/standalone.log
+          python3 -m odoo.tests.test_module_operations -d "$TEST_DB" standalone {{.STANDALONE_TAG}} 2>&1 | tee /tmp/standalone.log
           ! grep -q "Standalone script .* failed" /tmp/standalone.log'
       - . {{.LOG}} && log_ok "Uninstall test passed."
 
   test:typecheck:
-    desc: "Check that task typecheck resolves the module imports and still fails on missing names and type errors"
+    desc: "Test the typecheck runner, registry generator and typing contracts"
     cmds:
-      - task: dev:odoo-links
+      - task: typecheck:prepare
       - "{{.UV}} run python -m unittest discover -s {{.TYPECHECK_DIR}}"
 
   test:openapi:
-    desc: "Lint the OpenAPI document of the laboratory files API and refuse a change that breaks it against main unless its version changes; task test:openapi OPENAPI_BASE=<revision> compares with another revision"
+    desc: "Reject duplicate keys, validate the device, callback and updater OpenAPI contracts, and refuse incompatible changes against main unless versions change; task test:openapi OPENAPI_BASE=<revision> compares with another revision"
     cmds:
+      - "{{.UV}} run python tools/scripts/test_test_openapi_keys.py"
+      - "{{.UV}} run python tools/scripts/test_openapi_keys.py {{.OPENAPI_DOCUMENT}}"
+      - "{{.UV}} run python tools/scripts/test_openapi_keys.py {{.CALLBACK_DOCUMENT}}"
+      - "{{.UV}} run python tools/scripts/test_openapi_keys.py {{.UPDATES_DOCUMENT}}"
       - "{{.UV}} run openapi-spec-validator {{.OPENAPI_DOCUMENT}}"
+      - "{{.UV}} run openapi-spec-validator {{.CALLBACK_DOCUMENT}}"
+      - "{{.UV}} run openapi-spec-validator {{.UPDATES_DOCUMENT}}"
       - "{{.UV}} run python tools/scripts/test_openapi.py {{.OPENAPI_DOCUMENT}} {{.OASDIFF_IMAGE}} {{.OPENAPI_BASE}}"
+      - "{{.UV}} run python tools/scripts/test_openapi.py {{.CALLBACK_DOCUMENT}} {{.OASDIFF_IMAGE}} {{.OPENAPI_BASE}}"
+      - "{{.UV}} run python tools/scripts/test_openapi.py {{.UPDATES_DOCUMENT}} {{.OASDIFF_IMAGE}} {{.OPENAPI_BASE}}"
 
   test:e2e:
-    desc: "Run the browser tests against the running Odoo; task test:e2e needs task up first"
+    desc: "Run browser tests; GREP=TC-WF01-A5 or SPEC=<spec path> runs only those; start Odoo with task up first, or see task test:e2e:help"
+    silent: true
+    cmds:
+      - task: test:e2e:launch
+        vars: { E2E_MODE: run }
+
+  test:e2e:open:
+    desc: "Open Cypress App to choose and debug a test; see task test:e2e:help for setup"
+    silent: true
+    interactive: true
+    cmds:
+      - task: test:e2e:launch
+        vars: { E2E_MODE: open }
+
+  test:e2e:tap:open:
+    desc: "Open this worktree in Cypress E2E for Tap; select a Chromium browser with TAP_BROWSER"
+    silent: true
+    interactive: true
+    cmds:
+      - task: test:e2e:launch
+        vars: { E2E_MODE: tap }
+
+  test:e2e:tap:
+    desc: "Control this worktree's live Cypress session; use TAP_ARGS='status --json'"
+    silent: true
+    env:
+      MEDILAB_TAP_ARGS: "{{.E2E_TAP_ARGS}}"
+    cmds:
+      - 'python "{{.E2E_TAP}}"'
+
+  test:e2e:help:
+    desc: "Show browser-test setup, Cypress App instructions, the Odoo URL and troubleshooting"
+    silent: true
+    cmds:
+      - task: test:e2e:launch
+        vars: { E2E_MODE: help }
+
+  test:e2e:launch:
+    internal: true
     silent: true
     dir: "{{.E2E_DIR}}"
+    env:
+      MEDILAB_E2E_URL: "{{.E2E_URL}}"
+      MEDILAB_E2E_SPEC: "{{.SPEC}}"
+      MEDILAB_E2E_GREP: "{{.GREP}}"
+      MEDILAB_TAP_BROWSER: "{{.E2E_TAP_BROWSER}}"
     cmds:
-      - |
-        set -e
-        unset ELECTRON_RUN_AS_NODE
-        bun install --frozen-lockfile
-        bun run test
-        . {{.ROOT_DIR}}/{{.LOG}}
-        log_ok "Browser tests passed."
+      - '. "{{.ROOT_DIR}}/{{.E2E_SCRIPT}}" "{{.E2E_MODE}}" "{{.ROOT_DIR}}/{{.LOG}}"'
 
   test:e2e:app:
-    desc: "Install every module with the demo data and start Odoo for the browser tests, as ci-core does"
+    desc: "Prepare modules, demo data and Odoo for E2E; use task up for an existing demo, then test:e2e:open or test:e2e"
     silent: true
+    env:
+      MEDILAB_E2E_URL: "{{.E2E_URL}}"
+      MEDILAB_E2E_HEALTH_RETRIES: "{{.E2E_HEALTH_RETRIES}}"
+      MEDILAB_E2E_HEALTH_DELAY: "{{.E2E_HEALTH_DELAY}}"
     cmds:
+      - |
+        . "{{.LOG}}"
+        log_step "Preparing Odoo for browser tests"
+        log_link "Odoo" "$MEDILAB_E2E_URL"
+        log_info "This installs modules and demo data into this checkout's application database."
+        log_info "Use task up for an existing demo; use task upgrade after changing Odoo modules."
+      - python tools/scripts/local_compose.py guard-e2e-app
       - . {{.LOG}} && log_step "Installing {{.ALL_MODULES}}"
-      - docker compose up -d --wait postgres
-      - docker compose run --rm -T garage-setup
-      - docker compose run --rm -T odoo -i {{.ALL_MODULES}} --stop-after-init --log-level=warn
+      - python tools/scripts/local_compose.py up -d --wait postgres
+      - python tools/scripts/local_compose.py run --rm -T garage-setup
+      - python tools/scripts/local_compose.py run --rm -T odoo -i {{.ALL_MODULES}} --stop-after-init --log-level=warn
       - . {{.LOG}} && log_step "Starting Odoo"
-      - docker compose up -d odoo
+      - python tools/scripts/local_compose.py up -d odoo
       - |
         set -e
-        . {{.LOG}}
-        if ! curl -fsS --retry 30 --retry-delay 2 --retry-all-errors -o /dev/null {{.E2E_URL}}/web/health; then
-          log_error "Odoo did not answer at {{.E2E_URL}}. Read its log with task logs."
+        . "{{.LOG}}"
+        if ! curl -fsS --retry "$MEDILAB_E2E_HEALTH_RETRIES" --retry-delay "$MEDILAB_E2E_HEALTH_DELAY" --retry-all-errors "${MEDILAB_E2E_URL%/}/web/health" >/dev/null; then
+          log_error "Odoo did not answer at $MEDILAB_E2E_URL. Read its log with task logs."
           exit 1
         fi
-        log_ok "Odoo is ready at {{.E2E_URL}}."
+        log_ok "Odoo is ready at $MEDILAB_E2E_URL."
+        log_info "Next: task test:e2e:open to choose a test, or task test:e2e to run all specs."
 
   test:apps:
     desc: "Run the application tests"

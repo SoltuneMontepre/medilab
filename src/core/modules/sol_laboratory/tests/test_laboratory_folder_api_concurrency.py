@@ -12,6 +12,8 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_RES_USERS,
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import LABORATORY_FILES_GROUP
+from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -59,7 +61,7 @@ class TestLaboratoryFolderApiConcurrency(LaboratoryFilesConcurrencyCase):
     def folder(self, env):
         return env[MODEL_LABORATORY_FOLDER].browse(self.folder_id).with_user(self.owner_id)
 
-    def create(self, key):
+    def create_folder(self, key):
         def create(env):
             device = env[MODEL_LABORATORY_DEVICE].browse(self.device_id).with_user(self.owner_id)
             return env[MODEL_LABORATORY_FOLDER].with_user(self.owner_id)._create_for_device(device, "Runs", key)
@@ -70,7 +72,7 @@ class TestLaboratoryFolderApiConcurrency(LaboratoryFilesConcurrencyCase):
         return self.committed(lambda env: env[model].search_count(domain))
 
     def test_two_creations_with_one_idempotency_key_at_once_make_one_folder(self):
-        attempts, second = self.race(self.create("create-runs"), self.create("create-runs"))
+        attempts, second = self.race(self.create_folder("create-runs"), self.create_folder("create-runs"))
 
         self.assertEqual(attempts, 2)
         self.assertEqual(
@@ -86,10 +88,10 @@ class TestLaboratoryFolderApiConcurrency(LaboratoryFilesConcurrencyCase):
         )
 
     def test_two_creations_of_one_name_without_a_key_at_once_refuse_the_second(self):
-        attempts, refusal = self.race(self.create(None), self.create(None))
+        attempts, refusal = self.race(self.create_folder(None), self.create_folder(None))
 
         self.assertEqual(attempts, 2)
-        self.assertEqual(refusal.code, FOLDER_EXISTS)
+        self.assertEqual(assert_instance(refusal, LaboratoryFileError).code, FOLDER_EXISTS)
 
     def test_two_additions_of_one_member_at_once_make_one_membership(self):
         def add(env):

@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, models
 from odoo.exceptions import UserError
 from odoo.tools import format_list
@@ -11,12 +13,17 @@ from odoo.addons.sol_laboratory.constants.approvals import (
 )
 from odoo.addons.sol_laboratory.constants.models import MODEL_APPROVAL_MIXIN, MODEL_PERSON
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_purchase_order as PurchaseOrderApprovalBase
+else:
+    PurchaseOrderApprovalBase = object
+
 # What the signers approved: edits stop once a signature stands.
 APPROVAL_CONTENT_FIELDS = frozenset({"partner_id", "department_id", "order_line", "currency_id", "picking_type_id"})
 
 
 # Đơn Mua Hàng: the order is signed through its approval chain before it is sent.
-class PurchaseOrderApproval(models.Model):
+class PurchaseOrderApproval(models.Model, PurchaseOrderApprovalBase):
     _name = MODEL_PURCHASE_ORDER
     _inherit = [MODEL_PURCHASE_ORDER, MODEL_APPROVAL_MIXIN]
     _audit_children = ("order_line",)

@@ -1,7 +1,14 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, models
 
 from odoo.addons.sol_inventory.constants.models import MODEL_PRODUCT_TEMPLATE
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_product_template as ProductTemplateBase
+else:
+    ProductTemplateBase = object
 
 # Template fields that change how an item's stock is counted.
 TRACKING_FIELDS = ("tracking", "is_storable", "store_by")
@@ -10,7 +17,7 @@ ITEM_RULE_FIELDS = (*TRACKING_FIELDS, "purchase_ok")
 
 
 # Sản Phẩm
-class ProductTemplate(models.Model):
+class ProductTemplate(models.Model, ProductTemplateBase):
     # _name is required to add mixins to an Odoo model.
     _name = MODEL_PRODUCT_TEMPLATE
     _inherit = [MODEL_AUDIT_MIXIN, MODEL_PRODUCT_TEMPLATE]

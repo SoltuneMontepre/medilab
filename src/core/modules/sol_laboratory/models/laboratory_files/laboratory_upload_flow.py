@@ -1,6 +1,7 @@
 import contextlib
 import hashlib
 from datetime import timedelta
+from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 
@@ -51,13 +52,18 @@ from odoo.addons.sol_laboratory.services.laboratory_api import api_datetime
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
 from odoo.addons.sol_laboratory.services.laboratory_paths import is_relative_path, normal_text, path_key
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_laboratory_upload as LaboratoryUploadFlowBase
+else:
+    LaboratoryUploadFlowBase = object
+
 # The SHA-256 of empty content, the only one an empty file can claim.
 EMPTY_SHA256 = hashlib.sha256(b"").hexdigest()
 
 
 # Tải Lên Tệp: preparing, finalizing, verifying, storing and expiring an upload. Every bucket call here is safe to make
 # twice, as Odoo runs a request again after a concurrency failure and a job item that fails runs again later.
-class LaboratoryUploadFlow(models.Model):
+class LaboratoryUploadFlow(models.Model, LaboratoryUploadFlowBase):
     _inherit = MODEL_LABORATORY_UPLOAD
 
     @api.model
@@ -166,15 +172,17 @@ class LaboratoryUploadFlow(models.Model):
         """Refuse a part address or finalizing an upload that takes no more parts: not prepared, or past its expiry."""
         self.ensure_one()
         upload = self.sudo()
-        if upload.status not in FINALIZED_STATUSES or upload.expires_at <= fields.Datetime.now():
+        expires_at = upload.expires_at
+        if upload.status not in FINALIZED_STATUSES or not expires_at or expires_at <= fields.Datetime.now():
             raise LaboratoryFileError(UPLOAD_CLOSED, self.env._("This upload is closed; prepare the file again."))
+        return expires_at
 
     def _part_addresses(self, numbers):
         """The presigned addresses that upload the parts of the numbers, once the person may still write the file, and
         when they stop working: after the file address lifetime of the settings, or the upload's expiry if sooner."""
         self.ensure_one()
         upload = self.sudo()
-        upload._check_open()
+        upload_expires_at = upload._check_open()
         if upload.status != PREPARED or not upload.multipart_id:
             raise LaboratoryFileError(UPLOAD_CLOSED, self.env._("This upload takes no more parts."))
         self._check_access(FILE_WRITE)
@@ -190,7 +198,7 @@ class LaboratoryUploadFlow(models.Model):
             )
         now = fields.Datetime.now()
         minutes = self.env[MODEL_RES_CONFIG_SETTINGS]._get_parameter("laboratory_file_url_minutes")
-        expires_at = min(now + timedelta(minutes=minutes), upload.expires_at)
+        expires_at = min(now + timedelta(minutes=minutes), upload_expires_at)
         seconds = max(int((expires_at - now).total_seconds()), 1)
         key = upload.content_id.object_key
         addresses = [
@@ -369,7 +377,8 @@ class LaboratoryUploadFlow(models.Model):
         self.ensure_one()
         upload = self.sudo()
         upload._lock()
-        if upload.status not in FINALIZED_STATUSES or upload.expires_at > fields.Datetime.now():
+        expires_at = upload.expires_at
+        if upload.status not in FINALIZED_STATUSES or not expires_at or expires_at > fields.Datetime.now():
             return
         content = upload.content_id
         if content.state == PENDING:

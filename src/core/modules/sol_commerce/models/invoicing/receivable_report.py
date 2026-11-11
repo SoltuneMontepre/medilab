@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from odoo import fields, models
 from odoo.tools import SQL
@@ -8,6 +9,11 @@ from odoo.addons.sol_commerce.constants.orders import ADVANCE_PAID_STATES
 from odoo.addons.sol_commerce.models.invoicing.account_move import VIETNAM
 from odoo.addons.sol_commerce.models.invoicing.account_payment import CONFIRMED_STATES
 from odoo.addons.sol_laboratory.constants.models import MODEL_PERMISSION_MIXIN, MODEL_RES_PARTNER
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_receivable_report as ReceivableReportBase
+else:
+    ReceivableReportBase = object
 
 AGES = [
     ("not_due", "Not due"),
@@ -57,7 +63,7 @@ SELECT timed.*,
 
 
 # Báo Cáo Công Nợ
-class ReceivableReport(models.Model):
+class ReceivableReport(models.Model, ReceivableReportBase):
     _name = MODEL_RECEIVABLE_REPORT
     _inherit = [MODEL_PERMISSION_MIXIN]
     _description = "Receivables"
@@ -82,34 +88,35 @@ class ReceivableReport(models.Model):
         MODEL_ACCOUNT_PAYMENT: ["date", "invoice_ids", "state"],
     }
 
-    # Number of the invoice.
-    name = fields.Char(string="Invoice", readonly=True)
-    # The customer billed.
-    partner_id = fields.Many2one(MODEL_RES_PARTNER, string="Customer", readonly=True)
-    # Currency of the company.
-    currency_id = fields.Many2one("res.currency", readonly=True)
-    # Date of the invoice; the period the invoice counts in.
-    date = fields.Date(readonly=True)
-    # When the invoice must be paid.
-    date_due = fields.Date(string="Due Date", readonly=True)
-    # The day in Vietnam the invoice went to the customer.
-    sent_date = fields.Date(readonly=True)
-    # Total including VAT.
-    amount_total = fields.Monetary(string="Total", readonly=True)
-    # What confirmed payments have not settled yet.
-    amount_owed = fields.Monetary(string="Owed", readonly=True)
-    # Days past the due date while something is owed; 0 before it, empty once paid.
-    days_overdue = fields.Integer(readonly=True, aggregator="avg")
-    # Not due, 1-30, 31-60, 61-90 or over 90 days past the due date while something is owed.
-    age = fields.Selection(AGES, string="Age of the Debt", readonly=True)
-    # The day of the last confirmed payment of a paid invoice.
-    paid_date = fields.Date(readonly=True)
-    # Days from sending the invoice to its last confirmed payment.
-    days_to_pay = fields.Integer(readonly=True, aggregator="avg")
-    # On time when paid by the due date, late when paid after it or still open after it; empty until then.
-    timing = fields.Selection([("on_time", "On time"), ("late", "Late")], string="Payment", readonly=True)
-    # 100 for an invoice paid on time and 0 for a late one. Averaged, it is the share of invoices paid on time.
-    paid_on_time = fields.Float(string="Paid on Time (%)", readonly=True, aggregator="avg", digits=(16, 1))
+    if not TYPE_CHECKING:
+        # Number of the invoice.
+        name = fields.Char(string="Invoice", readonly=True)
+        # The customer billed.
+        partner_id = fields.Many2one(MODEL_RES_PARTNER, string="Customer", readonly=True)
+        # Currency of the company.
+        currency_id = fields.Many2one("res.currency", readonly=True)
+        # Date of the invoice; the period the invoice counts in.
+        date = fields.Date(readonly=True)
+        # When the invoice must be paid.
+        date_due = fields.Date(string="Due Date", readonly=True)
+        # The day in Vietnam the invoice went to the customer.
+        sent_date = fields.Date(readonly=True)
+        # Total including VAT.
+        amount_total = fields.Monetary(string="Total", readonly=True)
+        # What confirmed payments have not settled yet.
+        amount_owed = fields.Monetary(string="Owed", readonly=True)
+        # Days past the due date while something is owed; 0 before it, empty once paid.
+        days_overdue = fields.Integer(readonly=True, aggregator="avg")
+        # Not due, 1-30, 31-60, 61-90 or over 90 days past the due date while something is owed.
+        age = fields.Selection(AGES, string="Age of the Debt", readonly=True)
+        # The day of the last confirmed payment of a paid invoice.
+        paid_date = fields.Date(readonly=True)
+        # Days from sending the invoice to its last confirmed payment.
+        days_to_pay = fields.Integer(readonly=True, aggregator="avg")
+        # On time when paid by the due date, late when paid after it or still open after it; empty until then.
+        timing = fields.Selection([("on_time", "On time"), ("late", "Late")], string="Payment", readonly=True)
+        # 100 for an invoice paid on time and 0 for a late one. Averaged, it is the share of invoices paid on time.
+        paid_on_time = fields.Float(string="Paid on Time (%)", readonly=True, aggregator="avg", digits=(16, 1))
 
     @property
     def _table_sql(self):

@@ -1,3 +1,3 @@
 # Create issue
 
-Follow [.agent/skills/create-issue/SKILL.md](../../.agent/skills/create-issue/SKILL.md).
+Follow [.agents/skills/create-issue/SKILL.md](../../.agents/skills/create-issue/SKILL.md).

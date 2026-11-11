@@ -79,6 +79,16 @@
                                 </list>
                             </field>
                         </page>
+                        <page string="Room Bookings" name="room_bookings" invisible="not room_event_ids">
+                            <field name="room_event_ids" readonly="1">
+                                <list create="0" delete="0" edit="0">
+                                    <field name="step_id" />
+                                    <field name="location_id" />
+                                    <field name="start" />
+                                    <field name="stop" />
+                                </list>
+                            </field>
+                        </page>
                     </notebook>
                 </sheet>
             </form>

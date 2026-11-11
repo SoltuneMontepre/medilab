@@ -1,18 +1,26 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 
 from odoo.addons.sol_commerce.constants.models import MODEL_RATING, MODEL_SALE_ORDER
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_rating_rating as RatingRatingBase
+else:
+    RatingRatingBase = object
+
 
 # Phản Hồi: the feedback of an order follows the order's access, and an order has at most one.
-class RatingRating(models.Model):
+class RatingRating(models.Model, RatingRatingBase):
     _name = MODEL_RATING
     _inherit = [MODEL_AUDIT_MIXIN, MODEL_RATING]
 
-    # The order the rating is about, for ratings of orders; access rules on order feedback follow it.
-    order_id = fields.Many2one(
-        MODEL_SALE_ORDER, compute="_compute_order_id", store=True, index="btree_not_null", ondelete="cascade"
-    )
+    if not TYPE_CHECKING:
+        # The order the rating is about, for ratings of orders; access rules on order feedback follow it.
+        order_id = fields.Many2one(
+            MODEL_SALE_ORDER, compute="_compute_order_id", store=True, index="btree_not_null", ondelete="cascade"
+        )
 
     _order_feedback_unique = models.UniqueIndex(
         "(res_id) WHERE res_model = 'sale.order' AND consumed", "An order has at most one feedback."

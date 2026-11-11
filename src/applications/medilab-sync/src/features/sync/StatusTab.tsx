@@ -2,7 +2,7 @@ import { memo, useMemo, type ReactNode } from "react";
 import { useT } from "../../locale";
 import type { MessageKey } from "../../i18n";
 import type { JobRow, RemoteFileRow, StatusDto } from "../../types";
-import { isOfficeDocument } from "../office/OfficeEditor";
+import { canEditOnline } from "../office/officeFiles";
 
 /** Key thông điệp hiện cho một trạng thái job/tệp. */
 export function statusMessageKey(status: string): MessageKey {
@@ -267,6 +267,7 @@ export const ConflictResolveButtons = memo(function ConflictResolveButtons({
 /** Thuộc tính đầu vào cho một hàng hiển thị tệp từ xa. */
 export type RemoteFileRowProps = {
   file: RemoteFileRow;
+  category?: string | null;
   busy: boolean;
   onOpenHistory: (fileId: number, label: string) => void;
   onOpenOffice: (fileId: number, label: string) => void;
@@ -277,6 +278,7 @@ export type RemoteFileRowProps = {
 /** Một hàng hiển thị thông tin và thao tác tệp từ xa (lịch sử, office, xung đột, đã memoize). */
 export const RemoteFileRowView = memo(function RemoteFileRowView({
   file,
+  category,
   busy,
   onOpenHistory,
   onOpenOffice,
@@ -300,7 +302,7 @@ export const RemoteFileRowView = memo(function RemoteFileRowView({
               {t("files.history")}
             </button>
           ) : null}
-          {file.remote_file_id && isOfficeDocument(file.relative_path) ? (
+          {file.remote_file_id && canEditOnline(file.relative_path, category) ? (
             <button
               type="button"
               className="btn btn-secondary px-2 py-1"
@@ -327,6 +329,7 @@ export const RemoteFileRowView = memo(function RemoteFileRowView({
 /** Thuộc tính đầu vào cho bảng danh sách tệp từ xa. */
 export type RemoteFilesTableProps = {
   remoteFiles: RemoteFileRow[];
+  categories?: ReadonlyMap<number, string | null | undefined>;
   busy: boolean;
   onOpenHistory: (fileId: number, label: string) => void;
   onOpenOffice: (fileId: number, label: string) => void;
@@ -337,6 +340,7 @@ export type RemoteFilesTableProps = {
 /** Bảng hiển thị danh sách các tệp trên máy chủ đã đồng bộ hoặc xung đột (đã memoize). */
 export const RemoteFilesTable = memo(function RemoteFilesTable({
   remoteFiles,
+  categories,
   busy,
   onOpenHistory,
   onOpenOffice,
@@ -357,6 +361,7 @@ export const RemoteFilesTable = memo(function RemoteFilesTable({
         <RemoteFileRowView
           key={file.id}
           file={file}
+          category={categories?.get(file.folder_id)}
           busy={busy}
           onOpenHistory={onOpenHistory}
           onOpenOffice={onOpenOffice}
@@ -373,6 +378,7 @@ export type StatusTabProps = {
   status: StatusDto;
   busy: boolean;
   remoteFiles: RemoteFileRow[];
+  categories?: ReadonlyMap<number, string | null | undefined>;
   onRetry: (jobId: number) => void;
   onOpenHistory: (fileId: number, label: string) => void;
   onOpenOffice: (fileId: number, label: string) => void;
@@ -420,6 +426,7 @@ export const StatusTab = memo(function StatusTab({
       />
       <RemoteFilesTable
         remoteFiles={remoteFiles}
+        categories={new Map(status.folders.map((folder) => [folder.id, folder.category]))}
         busy={busy}
         onOpenHistory={onOpenHistory}
         onOpenOffice={onOpenOffice}

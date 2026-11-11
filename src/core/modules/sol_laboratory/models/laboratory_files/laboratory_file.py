@@ -1,5 +1,6 @@
 import functools
 import posixpath
+from typing import TYPE_CHECKING
 
 from psycopg2 import IntegrityError, errorcodes
 
@@ -15,6 +16,7 @@ from odoo.addons.sol_laboratory.constants.laboratory_files import (
     FILE_WRITE,
     FOLDER_READ,
     FOLDER_WRITE,
+    GENERATED,
     MOVE_CURRENT_CONTEXT,
     OFFICE_EXTENSIONS,
     RAW_DATA,
@@ -35,6 +37,11 @@ from odoo.addons.sol_laboratory.constants.models import (
 from odoo.addons.sol_laboratory.fields.big_integer import BigInteger
 from odoo.addons.sol_laboratory.services.laboratory_paths import is_relative_path, normal_text, path_key
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_laboratory_file as LaboratoryFileBase
+else:
+    LaboratoryFileBase = object
+
 # A file is found by its folder and path, which never change.
 IDENTITY_FIELDS = ("folder_id", "path", "path_key")
 # What reading and writing a file need of its folder.
@@ -42,7 +49,7 @@ FOLDER_ACCESS = {FILE_READ: FOLDER_READ, FILE_WRITE: FOLDER_WRITE}
 
 
 # Tệp Phòng Thí Nghiệm
-class LaboratoryFile(models.Model):
+class LaboratoryFile(models.Model, LaboratoryFileBase):
     _name = MODEL_LABORATORY_FILE
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Laboratory File"
@@ -52,27 +59,28 @@ class LaboratoryFile(models.Model):
     _permission_actions = ("read",)
     _audit_children = ("version_ids",)
 
-    # The folder holding the file.
-    folder_id = fields.Many2one(
-        MODEL_LABORATORY_FOLDER, string="Folder", required=True, ondelete="restrict", readonly=True
-    )
-    # Path of the file relative to its folder, such as HPLC/run-01.csv, in the letter case it was first saved with.
-    path = fields.Char(required=True, readonly=True)
-    # The path in one Unicode form and one letter case; unique in the folder, so paths that differ only in letter case
-    # are one file.
-    path_key = fields.Char(compute="_compute_path_key", store=True, readonly=True)
-    # The version people get; a restore adds a new version instead of pointing back at an old one.
-    current_version_id = fields.Many2one(
-        MODEL_LABORATORY_FILE_VERSION, string="Current Version", ondelete="restrict", readonly=True, copy=False
-    )
-    # Every version of the file.
-    version_ids = fields.One2many(MODEL_LABORATORY_FILE_VERSION, "file_id", string="Versions")
-    # Number of the current version.
-    current_number = fields.Integer(related="current_version_id.number", string="Current Number")
-    # Size of the current version in bytes.
-    current_size = BigInteger(related="current_version_id.size", string="Size")
-    # The user who saved the current version.
-    current_user_id = fields.Many2one(related="current_version_id.user_id", string="Saved By")
+    if not TYPE_CHECKING:
+        # The folder holding the file.
+        folder_id = fields.Many2one(
+            MODEL_LABORATORY_FOLDER, string="Folder", required=True, ondelete="restrict", readonly=True
+        )
+        # Path of the file relative to its folder, such as HPLC/run-01.csv, in the letter case it was first saved with.
+        path = fields.Char(required=True, readonly=True)
+        # The path in one Unicode form and one letter case; unique in the folder, so paths that differ only in letter case
+        # are one file.
+        path_key = fields.Char(compute="_compute_path_key", store=True, readonly=True)
+        # The version people get; a restore adds a new version instead of pointing back at an old one.
+        current_version_id = fields.Many2one(
+            MODEL_LABORATORY_FILE_VERSION, string="Current Version", ondelete="restrict", readonly=True, copy=False
+        )
+        # Every version of the file.
+        version_ids = fields.One2many(MODEL_LABORATORY_FILE_VERSION, "file_id", string="Versions")
+        # Number of the current version.
+        current_number = fields.Integer(related="current_version_id.number", string="Current Number")
+        # Size of the current version in bytes.
+        current_size = BigInteger(related="current_version_id.size", string="Size")
+        # The user who saved the current version.
+        current_user_id = fields.Many2one(related="current_version_id.user_id", string="Saved By")
 
     _folder_path_unique = models.Constraint(
         "UNIQUE(folder_id, path_key)", "The folder already has a file with this path, perhaps in another letter case."
@@ -213,7 +221,7 @@ class LaboratoryFile(models.Model):
     def _content_of_new_version(self, source, content, base_version, restored_from):
         """Refuse a version made the wrong way, and return the verified content it stores: the content given, or for a
         restore the content of the version it restores."""
-        if source not in (SYNCED, EDITED_ONLINE, RESTORED) or (source == RESTORED) != bool(restored_from):
+        if source not in (SYNCED, EDITED_ONLINE, GENERATED, RESTORED) or (source == RESTORED) != bool(restored_from):
             raise ValueError("A version is synced or edited online, or restored from a version.")
         if (base_version and base_version.file_id != self) or (restored_from and restored_from.file_id != self):
             raise ValueError("A version is made from a version of the same file.")

@@ -1,0 +1,28 @@
+# Traefik passes on the forwarded headers cloudflared sends, a client's own X-Forwarded-Host among them, so it is fixed
+# to CloudBeaver's host.
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: cloudbeaver-host
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  headers:
+    customRequestHeaders:
+      X-Forwarded-Host: cloudbeaver.soltunemontepre.tech
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: cloudbeaver
+spec:
+  entryPoints:
+    - web
+  routes:
+    - kind: Rule
+      match: Host(`cloudbeaver.soltunemontepre.tech`)
+      middlewares:
+        - name: cloudbeaver-host
+      services:
+        - name: cloudbeaver
+          port: http

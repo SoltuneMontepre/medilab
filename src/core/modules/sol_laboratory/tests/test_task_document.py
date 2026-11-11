@@ -1,6 +1,7 @@
 from odoo.tests import tagged
 
 from .task_case import TaskCase
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -10,7 +11,7 @@ class TestTaskDocument(TaskCase):
 
         action = task.action_open_document()
         self.assertEqual((action["res_model"], action["res_id"]), (self.chemistry._name, self.chemistry.id))
-        self.assertEqual(action["context"]["medilab_task_action"], "enter_result")
+        self.assertEqual(assert_instance(action["context"], dict)["medilab_task_action"], "enter_result")
 
     def test_task_without_a_document_opens_itself(self):
         task = self.create_by_hand(self.chemist)

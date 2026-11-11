@@ -21,6 +21,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_SCHEDULED_JOB,
 )
 from odoo.addons.sol_laboratory.constants.settings import DEFAULT_LOCK_TIMEOUT_MINUTES, LOCK_TIMEOUT_PARAMETER
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 EXPIRE = "document_locks.expire"
 
@@ -193,9 +194,11 @@ class TestDocumentLocking(PeopleCase):
 
     def test_a_concurrent_start_of_a_long_operation_is_refused_at_once(self):
         with self.env[MODEL_DOCUMENT_LOCK]._operation(self.regulation), self.registry.cursor() as cr:
-            other = api.Environment(cr, self.administrator.id, {})
+            other = api.Environment(cr, persisted_id(self.administrator), {})
             with self.assertRaises(UserError):
-                with other[MODEL_DOCUMENT_LOCK]._operation(other[MODEL_REGULATION].browse(self.regulation.id)):
+                with other[MODEL_DOCUMENT_LOCK]._operation(
+                    other[MODEL_REGULATION].browse(persisted_id(self.regulation))
+                ):
                     self.fail("The second start ran.")
 
     def test_a_long_operation_waits_for_another_user_to_stop_editing(self):
@@ -225,7 +228,7 @@ class TestDocumentLocking(PeopleCase):
             ]
         )
         self.assertEqual(entry.user_id, self.administrator)
-        self.assertIn(self.chemist.user_id.name, entry.note)
+        self.assertIn(self.chemist.user_id.name, (entry.note or ""))
 
     def test_the_form_shows_who_is_editing(self):
         arch = self.env[MODEL_REGULATION].get_view(view_type="form")["arch"]
@@ -234,7 +237,7 @@ class TestDocumentLocking(PeopleCase):
         self.assertIn('name="action_lock_watch"', arch)
 
     def test_every_editable_laboratory_document_is_lockable(self):
-        permission_mixin = self.env.registry[MODEL_PERMISSION_MIXIN]
+        permission_mixin = type(self.env[MODEL_PERMISSION_MIXIN])
         lock_mixin = self.env.registry[MODEL_LOCK_MIXIN]
         unlockable = {
             name

@@ -11,7 +11,13 @@ The [global rules](../readme.md#global-rules) still hold for the administrator: 
 - Releases an editing lock that is stuck; this is audited.
 - Runs a scheduled job by hand and retries a failed one.
 - Turns digital signing on, refreshes the laboratory's certificate from Viettel Sign and receives its expiry and revocation alerts.
+- Receives the expiry warnings of quality registrations and sets how many days before their expiry they come.
 - Cannot change a signed document.
+
+## People and signing
+
+- Sees the internal users that no person links to, and links each one to a person or archives it.
+- Gives a person a role until a date, as a backup signer when no holder of an approval chain's top level is available; the role is removed when that date ends, and both changes are audited.
 
 ## Laboratory files
 
@@ -19,6 +25,12 @@ The [global rules](../readme.md#global-rules) still hold for the administrator: 
 - Sees every laboratory folder with its members and sync rules, turns a folder off and on, changes its owner, who stays a member, and archives it with its retention date; an archived folder is only read, and its members can still be removed.
 - Sees every laboratory file lock and releases one someone left, so others can save the file again; this is audited.
 - Changes the retention period of archived folders and how long a laboratory file lock lasts in the settings.
+
+## Report templates
+
+- Creates report templates for Vietnamese, English and bilingual reports, edits their draft version in the online editor, previews it with example data and makes it available once it holds every required binding; an available version never changes, and editing it starts a new draft version.
+- Archives an available version, which new reports can no longer use; reports already using it keep it.
+- Report templates and their DOCX files are opened with the template permissions, not with a membership of the Report Templates folder.
 
 ## Related documents
 

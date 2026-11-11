@@ -1,5 +1,6 @@
 import re
 from datetime import datetime, time, timedelta
+from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
 
 from odoo import api, fields, models
@@ -43,46 +44,52 @@ from odoo.addons.sol_laboratory.constants.models import (
 
 MARKED_EMPTY = "Marked empty"
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_stock_package as StockPackageBase
+else:
+    StockPackageBase = object
+
 
 # Chai/Lọ
-class StockPackage(models.Model):
+class StockPackage(models.Model, StockPackageBase):
     # _name is required to add mixins to an Odoo model.
     _name = MODEL_STOCK_PACKAGE
     _inherit = [MODEL_AUDIT_MIXIN, MODEL_STOCK_PACKAGE, MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN]
     _permission_actions = ("edit",)
 
-    # sealed, opened, depleted, disposed or missing.
-    status = fields.Selection(
-        [
-            (CONTAINER_SEALED, "Sealed"),
-            (CONTAINER_OPENED, "Opened"),
-            (CONTAINER_DEPLETED, "Depleted"),
-            (CONTAINER_DISPOSED, "Disposed"),
-            (CONTAINER_MISSING, "Missing"),
-        ],
-        required=True,
-        default=CONTAINER_SEALED,
-    )
-    # When the container was opened or the solution in it was prepared.
-    opened_at = fields.Datetime(string="Opened At", copy=False)
-    # The day the container was opened or prepared, in the laboratory's time zone, for its label.
-    opened_on = fields.Date(string="Opened On", compute="_compute_opened_on")
-    # Who opened the container or prepared the solution in it.
-    opened_by_id = fields.Many2one(MODEL_RES_USERS, string="Opened By", copy=False, ondelete="restrict")
-    # How an opening the storekeeper recorded came about, such as a bottle opened outside the rules.
-    opening_note = fields.Char(string="Opening Note", copy=False)
-    # The preparation that filled this container; empty for a container that was received.
-    preparation_id = fields.Many2one(MODEL_PREPARATION, string="Preparation", copy=False, ondelete="restrict")
-    # Last day the container can be used. Empty when its lot has no expiry and it is still sealed.
-    usable_until = fields.Date(string="Usable Until", compute="_compute_usable_until", store=True)
-    # The item in the container. Kept after the stock is gone, because Odoo deletes a quant at zero.
-    item_id = fields.Many2one(MODEL_PRODUCT, string="Item", compute="_compute_content", store=True, ondelete="restrict")
-    # The lot of the stock in the container. Kept after the stock is gone.
-    lot_id = fields.Many2one(MODEL_STOCK_LOT, string="Lot", compute="_compute_content", store=True, ondelete="restrict")
-    # Quantity left in the container, in its item's unit.
-    quantity = fields.Float(string="Quantity Left", digits="Product Unit", compute="_compute_quantity")
-    # Done move lines that took stock from the container or put stock into it.
-    done_line_ids = fields.Many2many(MODEL_STOCK_MOVE_LINE, string="Moves", compute="_compute_done_line_ids")
+    if not TYPE_CHECKING:
+        # sealed, opened, depleted, disposed or missing.
+        status = fields.Selection(
+            [
+                (CONTAINER_SEALED, "Sealed"),
+                (CONTAINER_OPENED, "Opened"),
+                (CONTAINER_DEPLETED, "Depleted"),
+                (CONTAINER_DISPOSED, "Disposed"),
+                (CONTAINER_MISSING, "Missing"),
+            ],
+            required=True,
+            default=CONTAINER_SEALED,
+        )
+        # When the container was opened or the solution in it was prepared.
+        opened_at = fields.Datetime(string="Opened At", copy=False)
+        # The day the container was opened or prepared, in the laboratory's time zone, for its label.
+        opened_on = fields.Date(string="Opened On", compute="_compute_opened_on")
+        # Who opened the container or prepared the solution in it.
+        opened_by_id = fields.Many2one(MODEL_RES_USERS, string="Opened By", copy=False, ondelete="restrict")
+        # How an opening the storekeeper recorded came about, such as a bottle opened outside the rules.
+        opening_note = fields.Char(string="Opening Note", copy=False)
+        # The preparation that filled this container; empty for a container that was received.
+        preparation_id = fields.Many2one(MODEL_PREPARATION, string="Preparation", copy=False, ondelete="restrict")
+        # Last day the container can be used. Empty when its lot has no expiry and it is still sealed.
+        usable_until = fields.Date(string="Usable Until", compute="_compute_usable_until", store=True)
+        # The item in the container. Kept after the stock is gone, because Odoo deletes a quant at zero.
+        item_id = fields.Many2one(MODEL_PRODUCT, string="Item", compute="_compute_content", store=True, ondelete="restrict")
+        # The lot of the stock in the container. Kept after the stock is gone.
+        lot_id = fields.Many2one(MODEL_STOCK_LOT, string="Lot", compute="_compute_content", store=True, ondelete="restrict")
+        # Quantity left in the container, in its item's unit.
+        quantity = fields.Float(string="Quantity Left", digits="Product Unit", compute="_compute_quantity")
+        # Done move lines that took stock from the container or put stock into it.
+        done_line_ids = fields.Many2many(MODEL_STOCK_MOVE_LINE, string="Moves", compute="_compute_done_line_ids")
 
     _name_unique = models.Constraint("UNIQUE(name)", "Another container already has this code.")
     _preparation_unique = models.Constraint("UNIQUE(preparation_id)", "A preparation fills one container.")
@@ -371,6 +378,8 @@ class StockPackage(models.Model):
         prefix = f"{lot_name}-"
         used = self.sudo().search_fetch(Domain("name", "=like", f"{escape_like_value(prefix)}%"), ["name"])
         pattern = re.compile(rf"{re.escape(prefix)}(\d+)")
-        numbers = [int(match.group(1)) for match in map(pattern.fullmatch, used.mapped("name")) if match]
+        numbers = [
+            int(match.group(1)) for match in (pattern.fullmatch(name or "") for name in used.mapped("name")) if match
+        ]
         start = max(numbers, default=0) + 1
         return [f"{prefix}{number:02d}" for number in range(start, start + count)]

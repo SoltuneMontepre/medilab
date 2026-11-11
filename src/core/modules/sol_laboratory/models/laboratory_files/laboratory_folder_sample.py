@@ -1,12 +1,19 @@
+from typing import TYPE_CHECKING
+
 from odoo import models
 from odoo.exceptions import UserError
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_FOLDER, MODEL_LABORATORY_SAMPLE_FOLDER_MIXIN
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_laboratory_folder as LaboratoryFolderSampleBase
+else:
+    LaboratoryFolderSampleBase = object
+
 
 # Thư Mục Phòng Thí Nghiệm: a sample has one folder of each category, which only people who see the sample see; a
 # folder of no sample has no category.
-class LaboratoryFolderSample(models.Model):
+class LaboratoryFolderSample(models.Model, LaboratoryFolderSampleBase):
     _name = MODEL_LABORATORY_FOLDER
     _inherit = [MODEL_LABORATORY_FOLDER, MODEL_LABORATORY_SAMPLE_FOLDER_MIXIN]
     _sample_field = "sample_id"

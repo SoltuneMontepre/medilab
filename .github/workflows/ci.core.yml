@@ -26,8 +26,10 @@ jobs:
       pull-requests: read
     outputs:
       relevant: ${{ steps.result.outputs.relevant }}
-      scan: ${{ steps.result.outputs.relevant == 'true' || steps.filter.outputs.ai == 'true' }}
-      e2e: ${{ steps.result.outputs.relevant == 'true' || steps.filter.outputs.e2e == 'true' }}
+      lint: ${{ steps.result.outputs.lint }}
+      e2e: ${{ steps.result.outputs.e2e }}
+      scan: ${{ steps.result.outputs.scan }}
+      runtime: ${{ steps.result.outputs.runtime }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -42,9 +44,10 @@ jobs:
               - "src/core/**"
               - "tools/dockerfiles/**"
               - "tools/typecheck/**"
-              - "tools/taskfiles/dev.taskfile.yml"
-              - "tools/taskfiles/test.taskfile.yml"
+              - "tools/taskfiles/**"
+              - "src/applications/medilab-sync/docker-compose.yml"
               - "tools/scripts/**"
+              - "tools/onlyoffice/**"
               - "tools/infrastructure/docker-compose.yml"
               - "tools/infrastructure/garage/**"
               - "pyrightconfig.json"
@@ -52,31 +55,57 @@ jobs:
               - ".github/workflows/ci.core.yml"
             e2e:
               - "src/tests/**"
+            runtime:
+              - "infra/cluster/onlyoffice/**"
+              - "infra/cluster/onlyoffice-monitor/probe.py"
+              - "tools/infrastructure/onlyoffice/**"
+              - "tools/onlyoffice_integration/**"
             ai:
               - "tools/odoo-intelligence/**"
               - "tools/taskfiles/ai.taskfile.yml"
               - ".github/workflows/ci.tools.yml"
 
-      - name: Ignore Markdown under src/core
+      - name: Decide the jobs
         id: result
         env:
+          EVENT: ${{ github.event_name }}
           FILES: ${{ steps.filter.outputs.core_files }}
+          E2E: ${{ steps.filter.outputs.e2e }}
+          AI: ${{ steps.filter.outputs.ai }}
+          RUNTIME: ${{ steps.filter.outputs.runtime }}
         run: |
-          relevant=false
+          core=false
           for f in $FILES; do
             case "$f" in
               src/core/*.md) ;;
-              *) relevant=true ;;
+              *) core=true ;;
             esac
           done
-          echo "relevant=$relevant" >> "$GITHUB_OUTPUT"
+          scan=$core
+          [ "$AI" = true ] && scan=true
+          [ "$RUNTIME" = true ] && scan=true
+          e2e=$core
+          [ "$E2E" = true ] && e2e=true
+          case "$EVENT" in
+            pull_request) relevant=$core lint=$core ;;
+            push) relevant=$scan lint=false e2e=false ;;
+            *) relevant=true lint=true e2e=true scan=true ;;
+          esac
+          {
+            echo "relevant=$relevant"
+            echo "lint=$lint"
+            echo "e2e=$e2e"
+            echo "scan=$scan"
+            echo "runtime=$RUNTIME"
+          } >> "$GITHUB_OUTPUT"
 
   lint:
     needs: changes
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 25
     steps:
       - name: Checkout
+        if: needs.changes.outputs.lint == 'true'
         uses: actions/checkout@v7
         with:
           sparse-checkout: |
@@ -89,40 +118,49 @@ jobs:
             tools/typecheck
 
       - name: Set up uv
-        if: needs.changes.outputs.relevant == 'true' || github.event_name != 'pull_request'
+        if: needs.changes.outputs.lint == 'true'
         uses: astral-sh/setup-uv@v10.3.0
 
       - name: Set up Task
-        if: needs.changes.outputs.relevant == 'true' || github.event_name != 'pull_request'
+        if: needs.changes.outputs.lint == 'true'
         uses: arduino/setup-task@v3
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Python environment and Odoo source
-        if: needs.changes.outputs.relevant == 'true' || github.event_name != 'pull_request'
+        if: needs.changes.outputs.lint == 'true'
         run: task dev:setup
 
       - name: Typecheck
-        if: needs.changes.outputs.relevant == 'true' || github.event_name != 'pull_request'
+        id: typecheck
+        if: needs.changes.outputs.lint == 'true'
         run: task typecheck
 
+      - name: Upload typecheck diagnostics
+        if: always() && steps.typecheck.outcome != 'skipped'
+        uses: actions/upload-artifact@v7
+        with:
+          name: typecheck-diagnostics
+          path: .local/typecheck/report/
+          if-no-files-found: ignore
+
       - name: Typecheck tests
-        if: needs.changes.outputs.relevant == 'true' || github.event_name != 'pull_request'
+        if: needs.changes.outputs.lint == 'true'
         run: task test:typecheck
 
       - name: OpenAPI document
-        if: needs.changes.outputs.relevant == 'true' || github.event_name != 'pull_request'
+        if: needs.changes.outputs.lint == 'true'
         run: |
           git fetch --quiet --depth=1 origin main
           task test:openapi OPENAPI_BASE=FETCH_HEAD
 
       - name: Read the Odoo image
         id: odoo
-        if: needs.changes.outputs.relevant == 'true' || github.event_name != 'pull_request'
+        if: needs.changes.outputs.lint == 'true'
         run: echo "image=$(sed -n 's/^ARG ODOO_IMAGE=//p' tools/dockerfiles/prod.dockerfile)" >> "$GITHUB_OUTPUT"
 
       - name: Odoo lint
-        if: needs.changes.outputs.relevant == 'true' || github.event_name != 'pull_request'
+        if: needs.changes.outputs.lint == 'true'
         uses: ./.github/actions/odoo-lint
         with:
           image: ${{ steps.odoo.outputs.image }}
@@ -134,7 +172,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Check out repository
-        if: needs.changes.outputs.relevant == 'true' || github.event_name != 'pull_request'
+        if: needs.changes.outputs.relevant == 'true'
         uses: actions/checkout@v7
         with:
           sparse-checkout: |
@@ -142,11 +180,11 @@ jobs:
             tools/dockerfiles
 
       - name: Set up Docker Build
-        if: needs.changes.outputs.relevant == 'true' || github.event_name != 'pull_request'
+        if: needs.changes.outputs.relevant == 'true'
         uses: docker/setup-buildx-action@v4
 
       - name: Build image
-        if: needs.changes.outputs.relevant == 'true' || github.event_name != 'pull_request'
+        if: needs.changes.outputs.relevant == 'true'
         uses: docker/build-push-action@v7
         env:
           DOCKER_BUILD_RECORD_UPLOAD: false
@@ -162,7 +200,7 @@ jobs:
   test-runner:
     name: test (${{ matrix.part }})
     needs: [changes, build]
-    if: needs.changes.outputs.relevant == 'true' || github.event_name != 'pull_request'
+    if: needs.changes.outputs.relevant == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     strategy:
@@ -180,6 +218,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v10.3.0
 
       - name: Set up Task
         uses: arduino/setup-task@v3
@@ -218,31 +259,31 @@ jobs:
   e2e:
     needs: [changes, build]
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
       COMPOSE_FILE: tools/infrastructure/docker-compose.yml
       NO_COLOR: 1
     steps:
       - name: Checkout
-        if: needs.changes.outputs.e2e == 'true' || github.event_name != 'pull_request'
+        if: needs.changes.outputs.e2e == 'true'
         uses: actions/checkout@v7
 
       - name: Set up Task
-        if: needs.changes.outputs.e2e == 'true' || github.event_name != 'pull_request'
+        if: needs.changes.outputs.e2e == 'true'
         uses: arduino/setup-task@v3
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Bun
-        if: needs.changes.outputs.e2e == 'true' || github.event_name != 'pull_request'
+        if: needs.changes.outputs.e2e == 'true'
         uses: oven-sh/setup-bun@v2
 
       - name: Set up Docker Build
-        if: needs.changes.outputs.e2e == 'true' || github.event_name != 'pull_request'
+        if: needs.changes.outputs.e2e == 'true'
         uses: docker/setup-buildx-action@v4
 
       - name: Build image from cache
-        if: needs.changes.outputs.e2e == 'true' || github.event_name != 'pull_request'
+        if: needs.changes.outputs.e2e == 'true'
         uses: docker/build-push-action@v7
         env:
           DOCKER_BUILD_RECORD_UPLOAD: false
@@ -256,15 +297,15 @@ jobs:
           sbom: false
 
       - name: Start Odoo with demo data
-        if: needs.changes.outputs.e2e == 'true' || github.event_name != 'pull_request'
+        if: needs.changes.outputs.e2e == 'true'
         run: task test:e2e:app
 
       - name: Browser tests
-        if: needs.changes.outputs.e2e == 'true' || github.event_name != 'pull_request'
+        if: needs.changes.outputs.e2e == 'true'
         run: task test:e2e
 
       - name: Odoo log
-        if: failure() && (needs.changes.outputs.e2e == 'true' || github.event_name != 'pull_request')
+        if: failure() && needs.changes.outputs.e2e == 'true'
         run: docker compose logs --no-color odoo
 
   test:
@@ -274,7 +315,7 @@ jobs:
     timeout-minutes: 2
     steps:
       - name: Check the test runners
-        if: needs.changes.outputs.relevant == 'true' || github.event_name != 'pull_request'
+        if: needs.changes.outputs.relevant == 'true'
         env:
           RESULT: ${{ needs.test-runner.result }}
         run: |
@@ -294,12 +335,17 @@ jobs:
 
   coverage:
     needs: [changes, test-runner]
-    if: needs.changes.outputs.relevant == 'true' || github.event_name != 'pull_request'
+    if: ${{ !cancelled() && needs.changes.outputs.relevant == 'true' && needs.test-runner.result == 'success' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v10.3.0
 
       - name: Set up Task
         uses: arduino/setup-task@v3
@@ -307,6 +353,7 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download coverage data
+        if: needs.changes.outputs.relevant == 'true'
         uses: actions/download-artifact@v8
         with:
           pattern: coverage-data-*
@@ -314,17 +361,56 @@ jobs:
           path: .local/coverage
 
       - name: Combine coverage
+        if: needs.changes.outputs.relevant == 'true'
         run: task test:core:coverage COVERAGE_DIR=.local/coverage
 
       - name: Upload coverage report
+        if: needs.changes.outputs.relevant == 'true'
         uses: actions/upload-artifact@v7
         with:
           name: coverage
           path: src/core/modules/coverage.xml
           retention-days: 1
 
+  onlyoffice:
+    needs: changes
+    if: needs.changes.outputs.relevant == 'true' || needs.changes.outputs.runtime == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v10.3.0
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+
+      - name: Set up Task
+        uses: arduino/setup-task@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: ONLYOFFICE runtime coverage
+        run: task test:onlyoffice:coverage
+
+      - name: Upload runtime coverage
+        uses: actions/upload-artifact@v7
+        with:
+          name: onlyoffice-coverage
+          path: |
+            .local/onlyoffice-coverage/coverage.xml
+            .local/onlyoffice-coverage/js/lcov.info
+          if-no-files-found: error
+          retention-days: 1
+
   sonarqube:
-    needs: [changes, test, coverage]
+    needs: [changes, test, coverage, onlyoffice]
     if: ${{ !cancelled() && needs.test.result == 'success' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 5
@@ -338,20 +424,55 @@ jobs:
           exit 1
 
       - name: Checkout
-        if: github.event.pull_request.head.repo.fork != true && (needs.changes.outputs.scan == 'true' || github.event_name != 'pull_request')
+        if: github.event.pull_request.head.repo.fork != true && needs.changes.outputs.scan == 'true'
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
+      - name: Set up Bun
+        if: github.event.pull_request.head.repo.fork != true && needs.changes.outputs.scan == 'true'
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.4
+
+      - name: Install Mobile analysis dependencies
+        if: github.event.pull_request.head.repo.fork != true && needs.changes.outputs.scan == 'true'
+        working-directory: src/applications/medilab-mobile
+        run: bun install --frozen-lockfile --ignore-scripts
+
       - name: Download coverage report
-        if: github.event.pull_request.head.repo.fork != true && (needs.changes.outputs.relevant == 'true' || github.event_name != 'pull_request')
+        if: github.event.pull_request.head.repo.fork != true && needs.changes.outputs.relevant == 'true'
         uses: actions/download-artifact@v8
         with:
           name: coverage
           path: src/core/modules
 
+      - name: Download runtime coverage
+        if: github.event.pull_request.head.repo.fork != true && (needs.changes.outputs.relevant == 'true' || needs.changes.outputs.runtime == 'true')
+        uses: actions/download-artifact@v8
+        with:
+          name: onlyoffice-coverage
+          path: .local/onlyoffice-coverage
+
+      - name: Check coverage jobs
+        if: needs.changes.outputs.scan == 'true'
+        env:
+          CORE: ${{ needs.changes.outputs.relevant }}
+          RUNTIME: ${{ needs.changes.outputs.runtime }}
+          COVERAGE: ${{ needs.coverage.result }}
+          ONLYOFFICE: ${{ needs.onlyoffice.result }}
+        run: |
+          if [ "$CORE" = true ] && [ "$COVERAGE" != success ]; then
+            echo "::error::The core coverage job finished with result $COVERAGE."
+            exit 1
+          fi
+          if { [ "$CORE" = true ] || [ "$RUNTIME" = true ]; } && [ "$ONLYOFFICE" != success ]; then
+            echo "::error::The ONLYOFFICE job finished with result $ONLYOFFICE."
+            exit 1
+          fi
+
       - name: SonarQube Cloud scan
-        if: github.event.pull_request.head.repo.fork != true && (needs.changes.outputs.scan == 'true' || github.event_name != 'pull_request')
+        if: github.event.pull_request.head.repo.fork != true && needs.changes.outputs.scan == 'true'
         uses: SonarSource/sonarqube-scan-action@v8.3.0
         env:
           SONAR_HOST_URL: https://sonarcloud.io

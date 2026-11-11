@@ -2,6 +2,8 @@ from odoo.exceptions import UserError
 from odoo.fields import Command
 from odoo.tests import TransactionCase, tagged
 
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
+
 
 @tagged("post_install", "-at_install")
 class TestAdministratorPerson(TransactionCase):
@@ -23,7 +25,7 @@ class TestAdministratorPerson(TransactionCase):
         for action in (
             self.person.action_archive,
             self.person.unlink,
-            lambda: self.person.write({"role_ids": [Command.unlink(self.role.id)]}),
+            lambda: self.person.write({"role_ids": [Command.unlink(persisted_id(self.role))]}),
             lambda: self.person.write({"user_id": False}),
             lambda: self.person.employee_id.write({"user_id": False}),
             self.person.employee_id.action_archive,

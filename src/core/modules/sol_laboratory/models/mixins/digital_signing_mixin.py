@@ -1,4 +1,5 @@
 import hashlib
+from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError
@@ -19,12 +20,18 @@ from odoo.addons.sol_laboratory.constants.signing import DIGITAL_SIGNING_JOB, UN
 from odoo.addons.sol_laboratory.services.pdf_signing import certificate_chain, check_pdf, sign_pdf
 from odoo.addons.sol_laboratory.services.viettel_sign_client import ViettelSignError, viettel_sign_client
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_digital_signing_mixin as DigitalSigningMixinBase
+else:
+    DigitalSigningMixinBase = object
+
 # Statuses of a signing job item that still waits: to be tried, being tried, or given up until someone retries it.
 QUEUED_STATUSES = ("pending", "running", "failed")
+NOT_IN_OPERATOR = "not in"
 
 
 # Ký số: a fully signed document prints as the PDF Viettel Sign signed.
-class DigitalSigningMixin(models.AbstractModel):
+class DigitalSigningMixin(models.AbstractModel, DigitalSigningMixinBase):
     _name = MODEL_DIGITAL_SIGNING_MIXIN
     # Only a document signed through an approval chain is digitally signed.
     _inherit = [MODEL_APPROVAL_MIXIN]
@@ -32,14 +39,22 @@ class DigitalSigningMixin(models.AbstractModel):
     # External id of the report whose PDF Viettel Sign signs once the document is fully signed.
     _digital_signing_report = None
 
-    # The digital signature of the document's current version; empty until Viettel Sign signed its PDF.
-    digital_signature_id = fields.Many2one(
-        MODEL_DIGITAL_SIGNATURE, compute="_compute_digital_signature", compute_sudo=True
-    )
-    # When Viettel Sign signed the PDF of the current version.
-    digital_signed_at = fields.Datetime(related="digital_signature_id.signed_at", string="Digitally Signed At")
-    # True when the signing of the document's PDF waits in the signing job's queue.
-    digital_signing_pending = fields.Boolean(compute="_compute_digital_signature", compute_sudo=True)
+    if not TYPE_CHECKING:
+        # The digital signature of the document's current version; empty until Viettel Sign signed its PDF.
+        digital_signature_id = fields.Many2one(
+            MODEL_DIGITAL_SIGNATURE,
+            compute="_compute_digital_signature",
+            compute_sudo=True,
+            search="_search_digital_signature_id",
+        )
+        # When Viettel Sign signed the PDF of the current version.
+        digital_signed_at = fields.Datetime(
+            related="digital_signature_id.signed_at",
+            depends=["digital_signature_id.signed_at"],
+            string="Digitally Signed At",
+        )
+        # True when the signing of the document's PDF waits in the signing job's queue.
+        digital_signing_pending = fields.Boolean(compute="_compute_digital_signature", compute_sudo=True)
 
     @api.depends("document_version")
     def _compute_digital_signature(self):
@@ -76,6 +91,52 @@ class DigitalSigningMixin(models.AbstractModel):
             )
 
     @api.model
+    def _search_digital_signature_id(self, operator, value):
+        if operator == "=?":
+            if not value:
+                return []
+            operator = "="
+
+        if operator in ("=", "!="):
+            values = [value] if value else []
+            includes_false = not value
+        elif operator in ("in", NOT_IN_OPERATOR):
+            values = list(value or [])
+            includes_false = False in values
+            values = [value for value in values if value]
+        else:
+            raise NotImplementedError(f"Searching {self._name}.digital_signature_id with {operator!r} is unsupported")
+
+        signatures = (
+            self.env[MODEL_DIGITAL_SIGNATURE].sudo().search([("document_model", "=", self._name), ("id", "in", values)])
+        )
+        matching_ids = self._current_signature_document_ids(signatures)
+
+        if operator in ("=", "in"):
+            if not includes_false:
+                return [("id", "in", sorted(matching_ids))]
+            active_ids = self._current_signature_document_ids(
+                self.env[MODEL_DIGITAL_SIGNATURE].sudo().search([("document_model", "=", self._name)])
+            )
+            return ["|", ("id", "in", sorted(matching_ids)), ("id", NOT_IN_OPERATOR, sorted(active_ids))]
+
+        if includes_false:
+            active_ids = self._current_signature_document_ids(
+                self.env[MODEL_DIGITAL_SIGNATURE].sudo().search([("document_model", "=", self._name)])
+            )
+            return [("id", "in", sorted(active_ids - matching_ids))]
+        return [("id", NOT_IN_OPERATOR, sorted(matching_ids))]
+
+    def _current_signature_document_ids(self, signatures):
+        documents = self.sudo().browse(signatures.mapped("document_id")).exists()
+        versions = {document.id: document.document_version for document in documents}
+        return {
+            signature.document_id
+            for signature in signatures
+            if versions.get(signature.document_id) == signature.document_version
+        }
+
+    @api.model
     def _digital_signing_enabled(self):
         return self.env[MODEL_RES_CONFIG_SETTINGS]._get_parameter("digital_signing_enabled")
 
@@ -83,7 +144,7 @@ class DigitalSigningMixin(models.AbstractModel):
         """True when every level of the document's chain stands signed; a host that keeps its own status says it from
         there."""
         self.ensure_one()
-        levels = self._approval_chain().level_ids
+        levels = self._approval_levels()
         signed = self._approval_open_rows().filtered(lambda row: row.decision == DECISION_SIGNED)
         return bool(levels) and not (levels - signed.level_id)
 
@@ -156,13 +217,9 @@ class DigitalSigningMixin(models.AbstractModel):
         self.ensure_one()
         if self.digital_signature_id:
             return self.digital_signature_id
+        pdf = self._digital_signing_source()
         client = viettel_sign_client()
         certificate = self.env[MODEL_SIGNING_CERTIFICATE]._signing()
-        pdf, _report_type = (
-            self.env[MODEL_IR_ACTIONS_REPORT]
-            .with_context(**{UNSIGNED_PRINT_CONTEXT: True})
-            ._render_qweb_pdf(self._digital_signing_report, self.ids)
-        )
         chain = certificate_chain(certificate.certificate_chain)
         signed = sign_pdf(
             pdf, chain, lambda digest: client.sign_hash(certificate.credential_id, digest, self.display_name)
@@ -173,6 +230,17 @@ class DigitalSigningMixin(models.AbstractModel):
                 f"Viettel Sign returned a signature the certificate {certificate.name} does not verify"
             )
         return self._digital_signing_store(signed, certificate)
+
+    def _digital_signing_source(self):
+        """The unsigned PDF Viettel Sign signs: the document's report, rendered now. A host that keeps a reviewed PDF
+        returns that one."""
+        self.ensure_one()
+        pdf, _report_type = (
+            self.env[MODEL_IR_ACTIONS_REPORT]
+            .with_context(**{UNSIGNED_PRINT_CONTEXT: True})
+            ._render_qweb_pdf(self._digital_signing_report, self.ids)
+        )
+        return pdf
 
     def _digital_signing_store(self, pdf, certificate):
         """Store the PDF Viettel Sign signed with the certificate as the document's digital signature."""

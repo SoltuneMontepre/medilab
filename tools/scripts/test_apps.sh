@@ -10,7 +10,7 @@ bun install --frozen-lockfile --ignore-scripts
 bun test
 if command -v cargo >/dev/null 2>&1; then
   log_step "Medilab Sync backend"
-  cargo test --manifest-path src-tauri/Cargo.toml
+  cargo test --locked --manifest-path src-tauri/Cargo.toml
 else
   log_info "cargo not found, skipping the Rust tests. Install: winget install Rustlang.Rustup"
 fi

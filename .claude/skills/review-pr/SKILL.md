@@ -5,7 +5,7 @@ description: Review a MediLab pull request against the docs conventions, the bus
 
 # Review pull request
 
-Follow [.agent/skills/review-pr/SKILL.md](../../../.agent/skills/review-pr/SKILL.md).
+Follow [.agents/skills/review-pr/SKILL.md](../../../.agents/skills/review-pr/SKILL.md).
 
 In Claude Code:
 

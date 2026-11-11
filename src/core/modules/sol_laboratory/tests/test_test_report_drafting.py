@@ -28,4 +28,8 @@ class TestTestReportDrafting(ReportCase):
         self.assertIn(report, self.waiting_for("to_sign"))
         task = self.env[MODEL_TASK].search([("document_model", "=", report._name), ("document_id", "=", report.id)])
         self.assertEqual((task.type_id.code, task.action, task.status), ("report_signing", "sign", "open"))
+        # The lab head signs once the report's PDF is prepared for review.
+        self.assertFalse(self.as_person(report, self.lab_head).approval_can_sign)
+        self.prepare(report)
+        report.invalidate_recordset(["approval_can_sign"])
         self.assertTrue(self.as_person(report, self.lab_head).approval_can_sign)

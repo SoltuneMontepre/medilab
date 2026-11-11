@@ -1,0 +1,7 @@
+namespace: monitoring
+configMapGenerator:
+  - name: grafana-dashboards
+    files:
+      - odoo.json
+generatorOptions:
+  disableNameSuffixHash: true

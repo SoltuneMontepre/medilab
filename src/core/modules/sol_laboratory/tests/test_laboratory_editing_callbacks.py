@@ -1,6 +1,6 @@
 import hashlib
 import os
-from datetime import timedelta
+from datetime import datetime, timedelta
 from unittest.mock import patch
 
 from odoo import fields
@@ -28,6 +28,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 from odoo.addons.sol_laboratory.services import laboratory_bucket, saved_documents
 from odoo.addons.sol_laboratory.services.onlyoffice_jwt import EditingCallbackRefused
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 SAVED_PATH = "/cache/files/data/session_902/output.xlsx/output.xlsx"
 CONTENT = "Kết quả HPLC, sửa trực tuyến".encode()
@@ -78,8 +79,8 @@ class TestLaboratoryEditingCallbacks(LaboratoryEditingCase):
         self.assertEqual((version.source, version.user_id, version.sha256), (EDITED_ONLINE, self.member, SAVED_SHA256))
         self.assertEqual((self.session.status, self.session.committed_version_id), (COMMITTED, version))
         note = self.entries(self.session, "edit")[-1].note
-        self.assertIn(self.member.name, note)
-        self.assertIn(self.tester.name, note)
+        self.assertIn(self.member.name, (note or ""))
+        self.assertIn(self.tester.name, (note or ""))
 
     def test_the_saved_document_is_fetched_from_the_internal_address_with_its_path_and_query(self):
         self.save_online()
@@ -118,7 +119,7 @@ class TestLaboratoryEditingCallbacks(LaboratoryEditingCase):
         self.assertTrue(self.save_online())
 
         self.assertEqual((self.session.status, len(self.file.version_ids)), (ERROR, 1))
-        self.assertIn(self.saved_key(), self.entries(self.session, "edit")[-1].note)
+        self.assertIn(self.saved_key(), (self.entries(self.session, "edit")[-1].note or ""))
 
     def test_a_save_naming_nobody_who_can_save_ends_the_session_in_error_and_the_trail_keeps_the_content(self):
         for number, users in enumerate(([], ["999999"], ["7a"], [7])):
@@ -130,7 +131,7 @@ class TestLaboratoryEditingCallbacks(LaboratoryEditingCase):
                 self.assertTrue(self.call(2, session=session, url=f"{PUBLIC_URL}{SAVED_PATH}", users=users))
 
                 self.assertEqual(session.status, ERROR)
-                self.assertIn(self.saved_key(), self.entries(session, "edit")[-1].note)
+                self.assertIn(self.saved_key(), (self.entries(session, "edit")[-1].note or ""))
 
     def test_a_save_that_cannot_be_read_now_keeps_the_session_saving_and_asks_for_the_call_again(self):
         self.service.answer(SAVED_PATH, status=500)
@@ -218,7 +219,10 @@ class TestLaboratoryEditingCallbacks(LaboratoryEditingCase):
 
                 self.assertTrue(self.call(status, url=f"{PUBLIC_URL}{SAVED_PATH}", users=[str(self.member.id)]))
 
-                self.assertGreater(self.session.last_activity_at, fields.Datetime.now() - timedelta(minutes=1))
+                self.assertGreater(
+                    assert_instance(self.session.last_activity_at, datetime),
+                    fields.Datetime.now() - timedelta(minutes=1),
+                )
                 self.assertNothingStored()
         self.assertEqual(self.service.asked, [])
 
@@ -245,14 +249,13 @@ class TestLaboratoryEditingCallbacks(LaboratoryEditingCase):
         self.save(other_file, "Kết quả khác, bản 1")
         other = self.new_session(file=other_file)
         body, header = callback({"key": self.session.document_key, "status": 2, "url": f"{PUBLIC_URL}{SAVED_PATH}"})
+        other_body, other_header = callback({"key": other.document_key, "status": 4})
+        forged_body, forged_header = callback({"key": self.session.document_key, "status": 4}, secret="x" * 40)
         for token, body, header in (
             ("not-a-token", body, header),
             (other._callback_token(), body, header),
-            (self.session._callback_token(), *callback({"key": other.document_key, "status": 4})),
-            (
-                self.session._callback_token(),
-                *callback({"key": self.session.document_key, "status": 4}, secret="x" * 40),
-            ),
+            (self.session._callback_token(), other_body, other_header),
+            (self.session._callback_token(), forged_body, forged_header),
             (self.session._callback_token(), {"key": self.session.document_key, "status": 4}, None),
         ):
             with self.subTest(token=token[:12]), self.assertRaises(EditingCallbackRefused):

@@ -23,10 +23,13 @@ spec:
           args:
             - odoo
             - --database=medilab
-            - --init=sol_laboratory,sol_commerce,sol_inventory,sol_theme
+            - --init=sol_laboratory,sol_commerce,sol_inventory,sol_theme,sol_demo
             - --update=all
             - --max-cron-threads=0
             - --stop-after-init
+          envFrom:
+            - secretRef:
+                name: filestore-bucket
           env:
             - name: HOST
               value: medilab-db-rw
@@ -40,26 +43,27 @@ spec:
                 secretKeyRef:
                   name: medilab-db-app
                   key: password
+            - name: BUCKET_LABORATORY_NAME
+              value: medilab-filestore
+            - name: BUCKET_LABORATORY_REGION
+              value: us-east-1
+            - name: BUCKET_FILESTORE
+              value: "1"
           resources:
             requests:
-              cpu: 500m
-              memory: 1Gi
+              cpu: "3"
+              memory: 2Gi
             limits:
-              memory: 3Gi
+              memory: 4Gi
           volumeMounts:
             - name: config
               mountPath: /etc/odoo
               readOnly: true
             - name: data
               mountPath: /var/lib/odoo
-            - name: filestore
-              mountPath: /var/lib/odoo/filestore
       volumes:
         - name: config
           secret:
             secretName: odoo-config
         - name: data
           emptyDir: {}
-        - name: filestore
-          persistentVolumeClaim:
-            claimName: filestore

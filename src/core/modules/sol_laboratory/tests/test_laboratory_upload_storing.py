@@ -99,14 +99,14 @@ class TestLaboratoryUploadStoring(AuditLookup, LaboratoryUploadCase):
         upload = self.verified()
         file.with_user(self.member)._lock()
         self.store()
-        self.assertEqual(self.read(upload)["status"], REFUSED)
+        self.assertEqual(self.read_upload(upload)["status"], REFUSED)
 
         file.with_user(self.member)._unlock()
         finalized = self.finalize(upload)
         self.store()
 
         self.assertEqual(finalized.json()["upload"]["status"], VERIFYING)
-        read = self.read(upload)
+        read = self.read_upload(upload)
         self.assertEqual((read["status"], read["failure_code"], read["version"]["number"]), (COMPLETED, None, 2))
 
     def test_the_file_of_a_new_path_is_made_once_the_version_is_stored(self):

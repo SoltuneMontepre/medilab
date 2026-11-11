@@ -3,6 +3,7 @@ from odoo.fields import Command
 from odoo.tests import tagged
 
 from .task_case import SIGNATURE_REQUESTED, TaskCase
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 
 @tagged("post_install", "-at_install")
@@ -46,7 +47,7 @@ class TestTaskClaiming(TaskCase):
             self.as_person(task, self.chemist).action_claim()
 
     def test_holders_of_the_role_claim_a_role_routed_task(self):
-        self.chemist.role_ids = [Command.link(self.signer_role.id)]
+        self.chemist.role_ids = [Command.link(persisted_id(self.signer_role))]
         task = self.tasks._create_for_event(SIGNATURE_REQUESTED, self.chemistry, department=self.chemistry)
 
         self.assertFalse(task.department_id)
@@ -56,7 +57,7 @@ class TestTaskClaiming(TaskCase):
         self.assertEqual(task.assignee_id, self.chemist)
 
     def test_holders_of_the_role_see_its_queue(self):
-        self.chemist.role_ids = [Command.link(self.signer_role.id)]
+        self.chemist.role_ids = [Command.link(persisted_id(self.signer_role))]
         task = self.tasks._create_for_event(SIGNATURE_REQUESTED, self.chemistry)
 
         self.assertIn(task, self.as_person(self.tasks, self.chemist).search([]))

@@ -4,6 +4,7 @@ from odoo.tests import tagged
 
 from .recipe_case import RECIPE_PERMISSIONS, RecipeCase
 from odoo.addons.sol_inventory.constants.models import MODEL_RECIPE
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 
 @tagged("post_install", "-at_install")
@@ -29,7 +30,7 @@ class TestRecipeAccess(RecipeCase):
             {
                 "shelf_life_days": 14,
                 "line_ids": [
-                    Command.update(recipe.line_ids.id, {"quantity": 90}),
+                    Command.update(persisted_id(recipe.line_ids), {"quantity": 90}),
                     Command.create({"item_id": self.water.id, "quantity": 910}),
                 ],
             }

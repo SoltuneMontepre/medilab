@@ -14,7 +14,22 @@ module "github_actions" {
     SONAR_TOKEN   = module.secrets.sonar_token
     DOPPLER_TOKEN = module.secrets.doppler_token
     TF_API_TOKEN  = module.secrets.tf_api_token
+
+    ARGOCD_AUTH_TOKEN = module.secrets.argocd_auth_token
+
+    RELEASE_APP_ID          = module.secrets.release_app_id
+    RELEASE_APP_PRIVATE_KEY = module.secrets.release_app_private_key
   }
+
+  variables = {
+    ARGOCD_SERVER = local.web_hostnames.argocd
+    RELEASE_MODE  = var.release.mode
+    RELEASE_DAYS  = var.release.days
+    RELEASE_HOURS = var.release.hours
+  }
+
+  required_checks = var.required_checks
+  release_app_id  = tonumber(nonsensitive(module.secrets.release_app_id))
 
   environments = {
     ansible = {
@@ -24,9 +39,18 @@ module "github_actions" {
       branch    = "main"
       reviewers = var.ansible_apply_reviewers
     }
+    database-reset = {
+      branch    = "main"
+      reviewers = var.ansible_apply_reviewers
+    }
   }
 
   environment_secrets = {
     DOPPLER_INFRA_TOKEN = module.secrets.doppler_infra_token
   }
+}
+
+import {
+  to = module.github_actions.github_repository_ruleset.main
+  id = "${var.github_repository}:24628840"
 }

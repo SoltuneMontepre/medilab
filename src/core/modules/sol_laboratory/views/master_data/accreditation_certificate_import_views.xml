@@ -4,7 +4,7 @@
         <field name="name">medilab.accreditation.certificate.import.form</field>
         <field name="model">medilab.accreditation.certificate.import</field>
         <field name="arch" type="xml">
-            <form string="Import Methods">
+            <form string="Import Scope Lines">
                 <group>
                     <field name="certificate_id" readonly="1" />
                     <field name="field_id" />
@@ -13,7 +13,9 @@
                 <field name="line_ids">
                     <list editable="bottom">
                         <field name="code" />
-                        <field name="name" />
+                        <field name="name" placeholder="The code when left empty" />
+                        <field name="parameter_ids" widget="many2many_tags" />
+                        <field name="sample_type_ids" widget="many2many_tags" />
                     </list>
                 </field>
                 <footer>

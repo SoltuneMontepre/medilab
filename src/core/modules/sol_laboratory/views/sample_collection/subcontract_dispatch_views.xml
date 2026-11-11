@@ -59,7 +59,7 @@
                 <sheet>
                     <div class="oe_title">
                         <label for="code" />
-                        <h1><field name="code" placeholder="Filled from the sequence when left empty" /></h1>
+                        <h1><field name="code" required="0" placeholder="Filled from the sequence when left empty" /></h1>
                     </div>
                     <group>
                         <group>
@@ -71,11 +71,20 @@
                             <field name="sent_date" readonly="status not in ('draft', 'sent')" />
                             <field name="expected_date" readonly="status not in ('draft', 'sent')" />
                             <field name="received_date" invisible="status != 'received'" />
+                            <field name="report_filename" invisible="1" />
+                            <field
+                                name="report_file"
+                                filename="report_filename"
+                                invisible="status not in ('sent', 'received')"
+                            />
                         </group>
                         <group string="Carrier">
+                            <field name="courier_choice_ids" invisible="1" />
                             <field
                                 name="courier_id"
                                 readonly="status not in ('draft', 'sent') or delivery_service"
+                                domain="[('id', 'in', courier_choice_ids)]"
+                                options="{'no_create': True}"
                             />
                             <field
                                 name="delivery_service"

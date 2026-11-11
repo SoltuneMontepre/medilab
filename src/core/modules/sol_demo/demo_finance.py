@@ -6,6 +6,9 @@ from .demo_orders import _product, _xml_id
 from .demo_quotations import _sales_tax
 from odoo.addons.sol_commerce.constants.models import MODEL_ACCOUNT_MOVE, MODEL_ACCOUNT_PAYMENT
 from odoo.addons.sol_commerce.models.invoicing.account_move import VIETNAM
+from odoo.addons.sol_laboratory.constants.models import MODEL_RES_PARTNER
+from odoo.addons.sol_laboratory.services.model_lookup import reference_as
+from odoo.addons.sol_laboratory.services.record_id import persisted_ids
 
 # Invoices of the last three months per customer: name, days ago it was sent, days from then to its due date, days from
 # then to its confirmed payment, and the share of the total paid.
@@ -36,7 +39,7 @@ def seed_finance(env):
     tax = _sales_tax(env, 8)
     today = datetime.now(VIETNAM).date()
     for customer, invoices in INVOICES.items():
-        partner = env.ref(f"sol_demo.demo_res_partner_{customer}")
+        partner = reference_as(env[MODEL_RES_PARTNER], f"sol_demo.demo_res_partner_{customer}")
         for name, days_ago, due_in, paid_after, share in invoices:
             sent = today - timedelta(days=days_ago)
             lines = [(package, 1), (lead, 2)] if name == "on_time" else [(lead, 1)]
@@ -61,7 +64,9 @@ def _invoice(env, partner, lines, tax, sent, due_in):
             "partner_id": partner.id,
             "invoice_date": sent,
             "invoice_line_ids": [
-                Command.create({"product_id": product.id, "quantity": quantity, "tax_ids": [Command.set(tax.ids)]})
+                Command.create(
+                    {"product_id": product.id, "quantity": quantity, "tax_ids": [Command.set(persisted_ids(tax))]}
+                )
                 for product, quantity in lines
             ],
         }

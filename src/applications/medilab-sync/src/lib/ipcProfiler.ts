@@ -27,6 +27,8 @@ export type IpcCommandName =
   | "accept_server_version"
   | "keep_local_conflict"
   | "open_office_editor"
+  | "get_client_migration"
+  | "open_client_download"
   | "check_update"
   | "download_and_install_update"
   | "dismiss_update_session";

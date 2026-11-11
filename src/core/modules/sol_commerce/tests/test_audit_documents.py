@@ -52,3 +52,12 @@ class TestAuditDocuments(AuditLookup, OrderCase):
         self.assertEqual(self.changes(entry)["rejection_reason"], (False, "Not received"))
         with self.assertRaises(UserError):
             entry.write({"note": "changed"})
+
+    def test_the_token_that_opens_an_order_without_signing_in_is_masked(self):
+        order = self.make_order([(self.lead_product, 1)])
+
+        token = order._portal_ensure_token()
+
+        changes = self.entries(order).change_ids.filtered(lambda change: change.field_name == "access_token")
+        self.assertTrue(token)
+        self.assertEqual(set(changes.mapped("new_value")), {"***"})

@@ -51,9 +51,9 @@ The laboratory files API is a set of Odoo HTTP controllers in `sol_laboratory`, 
 
 ## Decision 2: laboratory files have a private bucket of their own
 
-File content is stored in a private S3-compatible bucket used only for laboratory files: MinIO if the existing infrastructure suits it, otherwise an equivalent S3-compatible provider the deployment supports. Content is addressed by its SHA-256 in the database: every object has a random key, and a content table holds one verified object per SHA-256. Computers upload and download through presigned addresses, in parts for uploads, and abandoned uploads are cleaned up automatically.
+File content is stored in a private S3-compatible bucket that also holds Odoo's filestore under `filestore/<database>/` when `BUCKET_FILESTORE=1`: MinIO if the existing infrastructure suits it, otherwise an equivalent S3-compatible provider the deployment supports. Content is addressed by its SHA-256 in the database: every object has a random key, and a content table holds one verified object per SHA-256. Computers upload and download through presigned addresses, in parts for uploads, and abandoned uploads are cleaned up automatically.
 
-**Rationale.** A bucket of its own gets its own credentials, lifecycle rules for unfinished uploads, and backups, apart from Odoo's attachments. Content addressing stores shared content once. Presigned addresses keep file bytes out of Odoo's requests. Addressing content in the database rather than by object key needs no server-side copy, which providers limit to 5 GiB, and no conditional write, and an object key tells nothing about its content.
+**Rationale.** Sharing the `medilab-filestore` bucket through the same bucket service keeps Odoo's attachments and laboratory files in one private bucket with its lifecycle rules and backups, while each replica caches attachments on local disk instead of mounting the bucket. Content addressing stores shared content once. Presigned addresses keep file bytes out of Odoo's requests. Addressing content in the database rather than by object key needs no server-side copy, which providers limit to 5 GiB, and no conditional write, and an object key tells nothing about its content.
 
 ### Content integrity
 

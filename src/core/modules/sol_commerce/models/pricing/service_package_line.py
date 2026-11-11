@@ -1,23 +1,31 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.fields import Domain
 
 from odoo.addons.sol_commerce.constants.models import MODEL_SERVICE_PACKAGE, MODEL_SERVICE_PACKAGE_LINE
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_PERMISSION_MIXIN, MODEL_TEST_PARAMETER
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_service_package_line as ServicePackageLineBase
+else:
+    ServicePackageLineBase = object
+
 
 # Links a service package to a parameter it includes, with how many times.
-class ServicePackageLine(models.Model):
+class ServicePackageLine(models.Model, ServicePackageLineBase):
     _name = MODEL_SERVICE_PACKAGE_LINE
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Service Package Line"
     _order = "package_id, id"
 
-    # The package.
-    package_id = fields.Many2one(MODEL_SERVICE_PACKAGE, required=True, ondelete="cascade")
-    # A parameter the package includes.
-    parameter_id = fields.Many2one(MODEL_TEST_PARAMETER, required=True, ondelete="restrict", index=True)
-    # How many times the package includes the parameter; at least 1.
-    quantity = fields.Integer(required=True, default=1)
+    if not TYPE_CHECKING:
+        # The package.
+        package_id = fields.Many2one(MODEL_SERVICE_PACKAGE, required=True, ondelete="cascade")
+        # A parameter the package includes.
+        parameter_id = fields.Many2one(MODEL_TEST_PARAMETER, required=True, ondelete="restrict", index=True)
+        # How many times the package includes the parameter; at least 1.
+        quantity = fields.Integer(required=True, default=1)
 
     _package_parameter_unique = models.Constraint(
         "UNIQUE(package_id, parameter_id)", "A package holds each parameter once; raise its quantity instead."
@@ -42,7 +50,7 @@ class ServicePackageLine(models.Model):
         raised = self.browse()
         new = {}
         for vals in vals_list:
-            key = (vals.get("package_id"), vals.get("parameter_id"))
+            key = (vals.get("package_id", False), vals.get("parameter_id", False))
             if key in existing:
                 existing[key].quantity += vals.get("quantity", 1)
                 raised |= existing[key]

@@ -6,4 +6,20 @@
         <field name="issuing_authority">Ministry of Health</field>
         <field name="sample_type_ids" eval="[Command.set([ref('demo_sample_type_bottled_water')])]" />
     </record>
+    <!-- Covers all food: it limits lead differently on bottled water and cabbage, and sets no limit on lettuce. -->
+    <record id="demo_regulation_qcvn_8_2" model="medilab.regulation">
+        <field name="code">QCVN 8-2:2011/BYT</field>
+        <field name="name">National technical regulation on the limits of heavy metals contamination in food</field>
+        <field name="issuing_authority">Ministry of Health</field>
+        <field name="sample_type_ids" eval="[Command.set([ref('demo_sample_type_food')])]" />
+    </record>
+    <!-- Replaced by QCVN 01-1:2018/BYT, so it is no longer in force. -->
+    <record id="demo_regulation_qcvn_01_2009" model="medilab.regulation">
+        <field name="code">QCVN 01:2009/BYT</field>
+        <field name="name">National technical regulation on drinking water quality</field>
+        <field name="issuing_authority">Ministry of Health</field>
+        <field name="valid_from">2009-12-01</field>
+        <field name="valid_until">2019-06-30</field>
+        <field name="sample_type_ids" eval="[Command.set([ref('demo_sample_type_bottled_water')])]" />
+    </record>
 </odoo>

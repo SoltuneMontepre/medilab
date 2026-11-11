@@ -1,0 +1,18 @@
+# The web UI and API accept only the users in MAILPIT_UI_AUTH, written as "user:password", space-separated.
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: mailpit-ui-auth
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: doppler
+  target:
+    name: mailpit-ui-auth
+  data:
+    - secretKey: MP_UI_AUTH
+      remoteRef:
+        key: MAILPIT_UI_AUTH

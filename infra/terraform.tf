@@ -10,6 +10,11 @@ terraform {
   }
 
   required_providers {
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = "5.28.1"
+    }
+
     doppler = {
       source  = "DopplerHQ/doppler"
       version = "1.21.4"

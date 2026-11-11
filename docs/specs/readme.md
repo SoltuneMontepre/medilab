@@ -27,13 +27,18 @@ Stories: US-AD13, US-AD15
 - [Document locking](document-locking.md): how a document is locked while one user edits it or a long operation runs, how others see it, are told when it is free, and how locks are released
 - [Invoices](invoices.md): how advance, final and adjustment invoices use Odoo customer invoices, what is still owed, and who can post or correct them
 - [Laboratory files](laboratory-files.md): which permission opens the laboratory folders, what a person may do with a folder and its files, the names and paths that are never computer paths, how versions are stored and numbered when saves come at once, how content is stored and verified in its bucket, how the API under `/medilab/api/v1` authenticates and answers, and how computers sign in with their own key
+- [Medilab Mobile](medilab-mobile.md): how phones sign in as devices of the API, which routes each feature of the app calls, what a push carries and hides, how conversations refresh and how mandatory signed updates are answered
 - [Odoo intelligence](odoo-intelligence.md): shared Odoo model and field navigation for editors and coding agents, with isolated worktree tooling
+- [Onboarding crawler](onboarding-crawler.md): how trusted sources are read safely through adapters and one fetcher, how runs queue their pages, and how staged records are matched, accepted and traced
 - [Payments](payments.md): how cash, bank transfer and PayOS payments are confirmed, rejected, receipted and reconciled by day
 - [PayOS](payos.md): how the PayOS provider, its signed webhook, its jobs and its payment links behave
 - [Permissions](permissions.md): how permission, role and person records become Odoo groups and accesses, and how the own-department scope is applied
 - [Scheduled jobs](scheduled-jobs.md): how jobs, their item queues and runs work: handlers, claiming, retries, running by hand, the no-overlap rule, and the cleanup job with its archive files
+- [Scheduling](scheduling.md): how bookings of sample tests are planned, share a machine and free it, how priority and internal due dates order the plan, and how plan revisions are approved without breaking a committed return date
 - [Settings](settings.md): how a module declares a system parameter with its default, how features read it, who changes settings and how modules install and uninstall independently
 - [Stock costing and charges](stock-costing.md): how moves are costed, stock is valued and charged to cost centres, budgets are used up and charges are exported
+- [Test reports](test-reports.md): versioned ONLYOFFICE templates, controlled DOCX drafts, protected business data and the saved PDF that approval and digital signing bind
+- [Sync updates](sync-updates.md): public signed-artifact discovery, legacy refusals and separate current/legacy trust catalogs
 
 ## Related documents
 

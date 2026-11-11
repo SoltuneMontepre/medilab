@@ -7,6 +7,7 @@ from .request_case import RequestCase
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_DEPARTMENT,
     MODEL_PARAMETER_METHOD,
+    MODEL_PERMISSION,
     MODEL_PERSON,
     MODEL_ROLE,
     MODEL_SAMPLE_HANDOVER,
@@ -15,6 +16,8 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TASK,
 )
 from odoo.addons.sol_laboratory.constants.tasks import SAMPLE_COLLECTION_CODE, SAMPLE_TEST_CODE
+from odoo.addons.sol_laboratory.services.model_lookup import reference_as
+from odoo.addons.sol_laboratory.services.record_id import persisted_id, persisted_ids
 
 
 @tagged("post_install", "-at_install")
@@ -31,7 +34,7 @@ class TestSampleReception(RequestCase):
                 "permission_ids": [
                     Command.set(
                         [
-                            cls.env.ref(permission.format(name)).id
+                            persisted_id(cls.env.ref(permission.format(name)))
                             for name in (
                                 "sample_read_all",
                                 "sample_handover_read_own_department",
@@ -49,7 +52,7 @@ class TestSampleReception(RequestCase):
                 "name": name,
                 "login": login,
                 "department_id": department.id,
-                "role_ids": [Command.set(self.scanner_role.ids)],
+                "role_ids": [Command.set(persisted_ids(self.scanner_role))],
             }
         )
 
@@ -61,15 +64,14 @@ class TestSampleReception(RequestCase):
     def test_good_receipt_creates_a_testing_task_for_each_in_house_test(self):
         subcontractor_id, _name = self.env[MODEL_SUBCONTRACTOR].name_create("Outside Lab")
         outside = self.create_parameter("Arsenic (As)", self.group)
-        self.env[MODEL_PARAMETER_METHOD].create(
+        way = self.env[MODEL_PARAMETER_METHOD].create(
             {
                 "parameter_id": outside.id,
                 "method_id": self.method.id,
-                "unit_id": self.unit.id,
                 "subcontractor_id": subcontractor_id,
-                "is_default": True,
             }
         )
+        self.offer(outside, self.sample_type, way)
         self.env[MODEL_SAMPLE_TEST].create({"sample_id": self.sample.id, "parameter_id": outside.id})
 
         sample = self.receive("2 bottles of 1 L", "good", storage_location="Fridge 2, shelf B")
@@ -173,15 +175,14 @@ class TestSampleReception(RequestCase):
     def test_two_handovers_show_which_department_received_the_sample(self):
         microbiology = self.env[MODEL_DEPARTMENT].create({"name": "Microbiology"})
         parameter = self.create_parameter("Coliforms", self.group)
-        self.env[MODEL_PARAMETER_METHOD].create(
+        way = self.env[MODEL_PARAMETER_METHOD].create(
             {
                 "parameter_id": parameter.id,
                 "method_id": self.method.id,
-                "unit_id": self.unit.id,
                 "department_id": microbiology.id,
-                "is_default": True,
             }
         )
+        self.offer(parameter, self.sample_type, way)
         self.env[MODEL_SAMPLE_TEST].create({"sample_id": self.sample.id, "parameter_id": parameter.id})
         chemist = self.department_person("Nguyen Van An", "an.scan", self.department)
         sample = self.receive("1 L", "good")
@@ -217,7 +218,7 @@ class TestSampleReception(RequestCase):
                 "permission_ids": [
                     Command.set(
                         [
-                            self.env.ref(f"sol_laboratory.permission_{name}").id
+                            persisted_id(reference_as(self.env[MODEL_PERMISSION], f"sol_laboratory.permission_{name}"))
                             for name in ("sample_read_all", "sample_handover_read_all", "sample_handover_edit_all")
                         ]
                     )
