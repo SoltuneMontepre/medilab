@@ -4,8 +4,8 @@ ADAPTERS: dict[str, type[Adapter]] = {}
 
 
 # Class decorator registering an adapter under the key sources name it by.
-def register(key: str):
-    def decorator(adapter_class: type[Adapter]) -> type[Adapter]:
+def register[AdapterT: type[Adapter]](key: str):
+    def decorator(adapter_class: AdapterT) -> AdapterT:
         ADAPTERS[key] = adapter_class
         return adapter_class
 

@@ -25,7 +25,7 @@ class PagesAdapter(Adapter):
         organisations = tuple(
             OrganisationValues(
                 key=row.get("data-key") or "",
-                name=clean_text("".join(row.itertext())),
+                name=clean_text(str(row.xpath("string()"))),
                 url=document.url,
                 tax_id=row.get("data-tax-id"),
                 accreditation_code=row.get("data-code"),

@@ -32,7 +32,15 @@ class ScheduledJob(models.Model, ScheduledJobBase):
         # ago. The cron's schedule is the cadence; the half interval keeps a run by hand, which calls this every time,
         # from starting another, and lets the cron's next pass in even though the last refresh began after the cron.
         now = fields.Datetime.now()
-        recent = now - (now + relativedelta(**{str(self.interval_type): self.interval_number}) - now) / 2
+        number = self.interval_number
+        interval = {
+            "minutes": relativedelta(minutes=number),
+            "hours": relativedelta(hours=number),
+            "days": relativedelta(days=number),
+            "weeks": relativedelta(weeks=number),
+            "months": relativedelta(months=number),
+        }[str(self.interval_type)]
+        recent = now - (now + interval - now) / 2
         for source in self.env[MODEL_ONBOARDING_SOURCE].sudo().search([("enabled", "=", True)]):
             refreshed_at = source.organisations_refreshed_at
             if self._refresh_items(source, *ITEMS_OPEN) or (refreshed_at and refreshed_at > recent):

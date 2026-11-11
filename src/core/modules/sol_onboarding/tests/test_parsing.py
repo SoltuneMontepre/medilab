@@ -28,7 +28,7 @@ class TestParsing(TransactionCase):
             patch.object(socket.socket, "connect", side_effect=AssertionError("network")),
         ):
             tree = html_tree(body)
-        self.assertEqual("".join(tree.itertext()).strip(), "A")
+        self.assertEqual(str(tree.xpath("string()")).strip(), "A")
 
     def test_pdf_text_reads_a_text_pdf(self):
         with file_open("sol_onboarding/tests/pages/scope.pdf", "rb") as scope:

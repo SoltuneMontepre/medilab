@@ -68,7 +68,7 @@ class TestOrganisations(OnboardingCase):
 
         self.assertEqual(self.listed(), first)
         self.assertEqual(alpha.name, "Alpha Renamed")
-        self.assertGreater(alpha.seen_at or seen, seen)
+        self.assertTrue(alpha.seen_at and seen and alpha.seen_at > seen)
 
     def test_refresh_archives_organisations_no_longer_listed(self):
         self.serve({START: page(("a", "Alpha", "1"), ("b", "Beta", "2"))})
