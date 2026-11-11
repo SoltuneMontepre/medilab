@@ -220,6 +220,11 @@
         <field name="document_model">medilab.sample</field>
         <field name="action">edit</field>
     </record>
+    <record id="permission_expected_sampling_read_all" model="medilab.permission">
+        <field name="name">Read expected sampling</field>
+        <field name="document_model">medilab.expected.sampling</field>
+        <field name="action">read</field>
+    </record>
     <record id="permission_sample_handover_read_all" model="medilab.permission">
         <field name="name">Read sample handovers</field>
         <field name="document_model">medilab.sample.handover</field>
@@ -904,6 +909,21 @@
     <record id="permission_testing_method_step_delete_all" model="medilab.permission">
         <field name="name">Delete testing method steps</field>
         <field name="document_model">medilab.testing.method.step</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_sampling_requirement_create_all" model="medilab.permission">
+        <field name="name">Create sampling requirements</field>
+        <field name="document_model">medilab.sampling.requirement</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_sampling_requirement_edit_all" model="medilab.permission">
+        <field name="name">Edit sampling requirements</field>
+        <field name="document_model">medilab.sampling.requirement</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_sampling_requirement_delete_all" model="medilab.permission">
+        <field name="name">Delete sampling requirements</field>
+        <field name="document_model">medilab.sampling.requirement</field>
         <field name="action">delete</field>
     </record>
     <record id="permission_unit_category_create_all" model="medilab.permission">

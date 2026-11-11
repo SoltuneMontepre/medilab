@@ -11,6 +11,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_CHEMICAL,
     MODEL_LOCK_MIXIN,
     MODEL_PERMISSION_MIXIN,
+    MODEL_SAMPLING_REQUIREMENT,
     MODEL_TESTING_FIELD,
     MODEL_TESTING_METHOD,
     MODEL_TESTING_METHOD_STEP,
@@ -31,7 +32,7 @@ class TestingMethod(models.Model, TestingMethodBase):
     _order = "code"
     _rec_names_search = ("code", "name")
     _permission_actions = ("create", "edit", "archive", "delete")
-    _audit_children = ("step_ids",)
+    _audit_children = ("step_ids", "sampling_requirement_ids")
 
     if not TYPE_CHECKING:
         # Unique standard reference of the method, such as TCVN 6187-1:2009.
@@ -63,6 +64,10 @@ class TestingMethod(models.Model, TestingMethodBase):
         )
         # Steps of the procedure, in step number order.
         step_ids = fields.One2many(MODEL_TESTING_METHOD_STEP, "method_id", string="Steps")
+        # Amount, container and preservation the method needs on each sample type.
+        sampling_requirement_ids = fields.One2many(
+            MODEL_SAMPLING_REQUIREMENT, "method_id", string="Sampling Requirements"
+        )
         # False when the method is archived.
         active = fields.Boolean(default=True)
 

@@ -5,6 +5,8 @@ ALL_ORDERS_GROUP = "sol_commerce.group_all_orders"
 CANCELLATION_TASK_TYPE = "sol_commerce.task_type_order_cancellation"
 # The service product of the discount line given on a whole quotation.
 DISCOUNT_PRODUCT = "sol_commerce.product_quotation_discount"
+# The table of expected samples, containers and amounts that the order form, the portal and the quotation show.
+EXPECTED_SAMPLING_TEMPLATE = "sol_commerce.expected_sampling"
 # Odoo's group that shows the discount of order lines and the whole-order discount.
 LINE_DISCOUNT_GROUP = "sale.group_discount_per_so_line"
 MAIN_COMPANY = "base.main_company"
