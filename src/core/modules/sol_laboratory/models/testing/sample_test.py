@@ -1,6 +1,4 @@
-from datetime import UTC, datetime, time, timedelta
 from typing import TYPE_CHECKING
-from zoneinfo import ZoneInfo
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
@@ -17,7 +15,6 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PARAMETER_METHOD,
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
-    MODEL_RES_CONFIG_SETTINGS,
     MODEL_SAMPLE,
     MODEL_SAMPLE_TEST,
     MODEL_SUBCONTRACT_DISPATCH,
@@ -41,7 +38,6 @@ OPEN_SAMPLE_STATUSES = ("received", "testing")
 # The statuses of a sample test while a result can be entered for it: open, or sent to a subcontractor.
 MEASURABLE_STATUSES = (*OPEN_STATUSES, "outsourced")
 FINISHED_STATUSES = ("approved", "cancelled")
-END_OF_DAY = time(23, 59, 59)
 
 
 # Chỉ Tiêu Của Mẫu
@@ -54,6 +50,8 @@ class SampleTest(models.Model, SampleTestBase):
     _rec_name = "parameter_id"
     # A sample test is cancelled, never archived or deleted.
     _permission_actions = ("read", "create", "edit")
+    # The Medilab Mobile screen that opens it.
+    _mobile_screen = "sample_test"
 
     if not TYPE_CHECKING:
         # The sample tested.
@@ -79,9 +77,6 @@ class SampleTest(models.Model, SampleTestBase):
             copy=False,
             index=True,
         )
-        # When the laboratory plans to finish the test. The default is the end of the day, in the company's time zone, a
-        # safety margin before the request's expected date; it can be changed, and is worked out again when that date changes.
-        due_date = fields.Datetime(compute="_compute_due_date", store=True, readonly=False)
         # The way of testing chosen for it; empty until the scheduler or the laboratory chooses.
         parameter_method_id = fields.Many2one(
             MODEL_PARAMETER_METHOD,
@@ -105,7 +100,7 @@ class SampleTest(models.Model, SampleTestBase):
         emergency_outsource_reason = fields.Text(readonly=True, copy=False)
         # Machine bookings for the test.
         booking_ids = fields.One2many(MODEL_MACHINE_BOOKING, "sample_test_id", string="Bookings")
-        # Results of the test, one per attempt.
+        # Results of the test, the latest entered first.
         result_ids = fields.One2many(MODEL_TEST_RESULT, "sample_test_id", string="Results")
         # Why the test was cancelled, such as the parameter cannot be tested on this sample.
         cancel_reason = fields.Text(readonly=True, copy=False)
@@ -117,10 +112,15 @@ class SampleTest(models.Model, SampleTestBase):
         cancelled_at = fields.Datetime(readonly=True, copy=False)
         # True when the due date is within the urgency threshold.
         is_urgent = fields.Boolean(string="Urgent", compute="_compute_is_urgent")
-        # The parameter's subcontracted ways of testing whose subcontractor can be chosen, through which an outsourcing
-        # suggestion sends the test.
+        # The parameter's subcontracted ways of testing whose subcontractor can be chosen, shown as the alternatives of
+        # an outsourcing suggestion.
         subcontracted_method_ids = fields.Many2many(
             MODEL_PARAMETER_METHOD, string="Subcontracted Ways", compute="_compute_subcontracted_method_ids"
+        )
+        # The subcontracted ways the test may be outsourced through: only the way the customer accepted, when there is
+        # one, since another needs a revised quotation the customer accepts.
+        outsourcing_method_ids = fields.Many2many(
+            MODEL_PARAMETER_METHOD, string="Agreed Subcontracted Ways", compute="_compute_subcontracted_method_ids"
         )
         # True when the current person belongs to the department of the test's testing task, which may outsource it
         # straight away.
@@ -156,6 +156,10 @@ class SampleTest(models.Model, SampleTestBase):
         tests = super().create(vals_list)
         tests._refresh_accreditation()
         return tests
+
+    def _document_code(self):
+        """A push and Medilab Mobile name a sample test by its sample's lab code."""
+        return self.sample_id.code
 
     def write(self, vals):
         if "dispatch_ids" in vals and not self.env.su:
@@ -208,20 +212,6 @@ class SampleTest(models.Model, SampleTestBase):
             ]
         )._refresh_accreditation()
 
-    @api.depends("sample_id.request_id.expected_date")
-    def _compute_due_date(self):
-        # The margin is read here and is not a dependency: changing it leaves due dates already stored.
-        margin = self.env[MODEL_RES_CONFIG_SETTINGS]._get_parameter("safety_margin_days")
-        # The laboratory's time zone, so the due date does not depend on who saved the request.
-        laboratory_tz = ZoneInfo(self.env.company.tz or "UTC")
-        for test in self:
-            expected = test.sample_id.request_id.expected_date
-            if not expected:
-                test.due_date = False
-                continue
-            local_end = datetime.combine(expected - timedelta(days=margin), END_OF_DAY, tzinfo=laboratory_tz)
-            test.due_date = local_end.astimezone(UTC).replace(tzinfo=None)
-
     def _compute_is_urgent(self):
         until = self.env[MODEL_MACHINE_BOOKING]._urgent_until()
         for test in self:
@@ -270,6 +260,11 @@ class SampleTest(models.Model, SampleTestBase):
                 lambda way, sample_type=sample_type: (
                     way.subcontractor_id._can_be_chosen() and bool(way._applicability(sample_type))
                 )
+            )
+            test.outsourcing_method_ids = (
+                test.subcontracted_method_ids & test.accepted_method_id
+                if test.accepted_method_id
+                else test.subcontracted_method_ids
             )
 
     @api.depends_context("uid")
@@ -337,7 +332,7 @@ class SampleTest(models.Model, SampleTestBase):
         self.ensure_one()
         return self.env[MODEL_TASK]._system_tasks_of(self, TESTING_ACTION)[:1]
 
-    def _open_testing_task(self, department, note=False):
+    def _open_testing_task(self, department, note: str | bool = False):
         """Put a testing task for the test in the queue of the department that does the work."""
         self.ensure_one()
         return self.env[MODEL_TASK]._create_for_event(
@@ -357,11 +352,21 @@ class SampleTest(models.Model, SampleTestBase):
             if test.status in ("waiting", "assigned"):
                 test.status = "assigned" if task.assignee_id else "waiting"
 
-    def _tested_by(self):
-        """The department of the test's latest testing task, finished or not."""
+    def _latest_testing_task(self):
+        """The test's latest testing task, finished or not."""
         self.ensure_one()
         domain = self.env[MODEL_TASK]._testing_domain() & Domain("document_id", "=", self.id)
-        return self.env[MODEL_TASK].sudo().search(domain, order="id desc", limit=1).department_id
+        return self.env[MODEL_TASK].sudo().search(domain, order="id desc", limit=1)
+
+    def _tested_by(self):
+        """The department of the test's latest testing task, finished or not."""
+        return self._latest_testing_task().department_id
+
+    def _reopen_testing_task(self):
+        """Give the test's latest testing task back to its assignee, or to its queue, once it was done."""
+        task = self._latest_testing_task()
+        if task.status == "done":
+            task.write({"status": "assigned" if task.assignee_id else "open", "done_at": False})
 
     def action_schedule(self):
         """Queue each test for the machine the scheduler recommends, then give the queue its slots.
@@ -505,7 +510,8 @@ class SampleTest(models.Model, SampleTestBase):
     def _progress(self, status):
         tests = self.sudo()
         tests.status = status
-        if status == "approved":
+        # Submitting the result is the tester's work done; approving it is the head's.
+        if status in ("result_entered", "approved"):
             self.env[MODEL_TASK]._close_for_document(tests, TESTING_ACTION)
         tests.sample_id._follow_tests()
 

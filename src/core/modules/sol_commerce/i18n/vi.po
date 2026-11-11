@@ -3145,6 +3145,7 @@ msgstr "Khoản thanh toán bị từ chối: %(reason)s"
 
 #. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_medilab_scheduled_job
+#: model:ir.model,name:sol_commerce.model_medilab_scheduled_job
 msgid "Scheduled Job"
 msgstr "Tác vụ định kỳ"
 #. module: sol_commerce

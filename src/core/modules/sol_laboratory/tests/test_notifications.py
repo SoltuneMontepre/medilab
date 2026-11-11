@@ -157,7 +157,7 @@ class TestNotifications(TransactionCase):
         delivery = self.env["medilab.push.delivery"].search([("mobile_device_id", "=", device.id)])
         client = FirebaseClient(object(), "project")
 
-        def permanent(token, title, body):
+        def permanent(token, title, body, data):
             raise PermanentTokenError("UNREGISTERED")
 
         with (
@@ -175,7 +175,7 @@ class TestNotifications(TransactionCase):
         self.env["mail.message"].raise_event(EVENT_TASK_REMINDER, task, "push-2", "Body", partners=self.user.partner_id)
         delivery2 = self.env["medilab.push.delivery"].search([("mobile_device_id", "=", device2.id)])
 
-        def temporary(token, title, body):
+        def temporary(token, title, body, data):
             raise TemporaryFirebaseError("503")
 
         with (
@@ -230,7 +230,7 @@ class TestNotifications(TransactionCase):
             "odoo.addons.sol_laboratory.services.firebase_client.requests.post",
             return_value=_Response(200, {}),
         ):
-            client.send("token", "Title", "Body")
+            client.send("token", "Title", "Body", {})
         self.assertTrue(credentials.refreshed)
         ready = FirebaseClient(_Credentials(), "project")
         with (
@@ -240,7 +240,7 @@ class TestNotifications(TransactionCase):
             ),
             self.assertRaises(TemporaryFirebaseError),
         ):
-            ready.send("token", "Title", "Body")
+            ready.send("token", "Title", "Body", {})
 
     def client_from_env(self):
         client = firebase_client.firebase_client_from_env()

@@ -86,25 +86,15 @@ export function approvedResult() {
     });
 }
 
-// An issued report: its only result is approved and the lab head signed its draft. Issuing belongs to WF-06.
-// Yields `{ model, id, code }`.
+// The demo report issued by email. A new report is signed only after its PDF is prepared through ONLYOFFICE, which the
+// browser tests run without; issuing belongs to WF-06. Yields `{ model, id, code }`.
 export function issuedReport() {
-  return approvedResult()
-    .then((result) =>
-      callAs(LAB_HEAD, "medilab.test.report", "search", [
-        [
-          ["request_id", "=", result.request],
-          ["status", "=", "draft"],
-        ],
-      ]),
-    )
-    .then(([id]) => {
-      callAs(LAB_HEAD, "medilab.test.report", "action_sign", [[id]]);
-      return callAs(LAB_HEAD, "medilab.test.report", "read", [[id], ["status", "code"]]).then(([report]) => {
-        expect(report.status, "report issued").to.equal("issued");
-        return { model: "medilab.test.report", id, code: report.code };
-      });
-    });
+  return refAs(LAB_HEAD, "sol_demo.demo_test_report_by_email").then(({ model, id }) =>
+    callAs(LAB_HEAD, model, "read", [[id], ["status", "code"]]).then(([report]) => {
+      expect(report.status, "report issued").to.equal("issued");
+      return { model, id, code: report.code };
+    }),
+  );
 }
 
 // A change request the tester raised on a result through its Request a Change dialog. Yields `{ model, id }`.

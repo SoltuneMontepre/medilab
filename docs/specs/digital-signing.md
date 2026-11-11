@@ -43,7 +43,8 @@ A fully signed document prints as a PDF that Viettel Sign digitally signed with 
 
 - Approval and signing bind the prepared PDF and its DOCX, template and business-data versions. Digital signing and every retry use that same source; a template update or later editor save cannot change it. A marked draft preview is a separate copy and never replaces the prepared source.
 - With digital signing on, completing the approval chain signs the prepared PDF. Only after Viettel Sign succeeds and the verified signed PDF is stored is the report issued. Until then the approvals stand, the report remains unissued and pending digital signing, and it cannot be delivered or downloaded by the customer. Failure does not mark a previous report replaced or notify the customer of a release.
-- With digital signing off, completing the approval chain stores the prepared PDF without a digital signature, then issues the report.
+- With digital signing off, completing the approval chain stores the prepared PDF without a digital signature, then issues the report. A report still pending digital signing when it is turned off is issued that way at its next retry.
+- A test report waiting for its signed PDF has the status Pending Digital Signing, whether its signing is queued or gave up, and shows **Retry Digital Signing**; a withdrawn approval takes it out of that status.
 - Issuance makes the stored PDF available for delivery and customer download and sends the release notification. For a replacement, only issuance marks the previous report replaced. A retry rechecks that the candidate and its approvals still stand; a withdrawn approval or corrected source cannot issue an obsolete candidate.
 - Issued PDFs are downloaded and delivered from storage, including while ONLYOFFICE is unavailable. Internal DOCX drafts are not customer downloads.
 

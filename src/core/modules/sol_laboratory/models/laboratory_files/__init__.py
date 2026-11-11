@@ -16,6 +16,7 @@ from . import (
     laboratory_file_lock_sample,
     laboratory_file_lock_settings,
     laboratory_file_locking,
+    laboratory_file_report,
     laboratory_file_sample,
     laboratory_file_signing,
     laboratory_file_url_settings,

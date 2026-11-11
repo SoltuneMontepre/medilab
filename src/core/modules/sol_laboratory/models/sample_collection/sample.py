@@ -69,6 +69,8 @@ class Sample(models.Model, SampleBase):
     _rec_name = "code"
     # A sample is cancelled, never archived or deleted.
     _permission_actions = ("read", "create", "edit")
+    # The Medilab Mobile screen that opens it.
+    _mobile_screen = "sample"
     _audit_children = ("test_ids", "handover_ids", "expected_sampling_ids")
 
     if not TYPE_CHECKING:
@@ -436,11 +438,10 @@ class Sample(models.Model, SampleBase):
         )
         department_of = {default.parameter_id.id: default.parameter_method_id.department_id for default in defaults}
         empty = self.env[MODEL_DEPARTMENT]
-        # A test keeps to the way the customer accepted, and so to its department.
+        # A test keeps to the way the customer accepted, and so to its department; the department of the default way
+        # outsources a test accepted on a subcontracted way.
         return {
-            test: test.accepted_method_id.department_id
-            if test.accepted_method_id
-            else department_of.get(test.parameter_id.id, empty)
+            test: test.accepted_method_id.department_id or department_of.get(test.parameter_id.id, empty)
             for test in self.test_ids
         }
 

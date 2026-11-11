@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: MediLab laboratory files API
-  version: 1.5.0
+  version: 1.7.0
   description: |
     The API Medilab Sync signs computers in with and reaches laboratory files through, and Medilab Mobile signs phones
     in with. Every refusal answers `{"error": {"code", "message"}}` with the HTTP status of its code; a device acts on
@@ -21,7 +21,7 @@ info:
     | `not_found` | 404 |
     | `method_not_allowed` | 405 |
     | `folder_archived`, `folder_disabled`, `folder_exists`, `locked`, `not_locked`, `upload_incomplete`, `upload_closed` | 409 |
-    | `not_eligible`, `not_lockable`, `not_editable`, `idempotency_conflict` | 422 |
+    | `not_eligible`, `not_lockable`, `not_editable`, `idempotency_conflict`, `mandatory_event` | 422 |
     | `too_many_attempts` | 429 |
     | `internal_error` | 500 |
     | `try_again`, `editing_unavailable`, `storage_unavailable` | 503 |
@@ -34,6 +34,12 @@ tags:
     description: The Firebase token of a phone signed in on Medilab Mobile.
   - name: Modules
     description: The installed MediLab modules.
+  - name: Notifications
+    description: The person's inbox notifications, the same as the web's inbox.
+  - name: Notification preferences
+    description: Which events are pushed to the person's phones.
+  - name: Documents
+    description: The documents pushes, notifications and tasks open.
 paths:
   /health:
     get:
@@ -252,6 +258,180 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ModuleList"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /notifications:
+    get:
+      operationId: listNotifications
+      tags: [Notifications]
+      summary: Lists the person's inbox notifications, unread first, then newest first.
+      description: |
+        The notifications the web's inbox shows the person. Each names its event, the event's name, its date, its
+        document and whether it is read, never its text: the app reads the document with the person's rights.
+        `next_after` is the `after` of the next page, or empty after the last one.
+      parameters:
+        - name: after
+          in: query
+          required: false
+          description: The `next_after` of the page before; 0 or none from the start.
+          schema:
+            type: string
+            pattern: "^[0-9]{1,18}$"
+        - name: limit
+          in: query
+          required: false
+          description: How many to give, from 1 to 100; 50 by default.
+          schema:
+            type: string
+            pattern: "^(100|[1-9][0-9]?)$"
+      responses:
+        "200":
+          description: The notifications.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationList"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /notifications/{message_id}/read:
+    parameters:
+      - name: message_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      operationId: readNotification
+      tags: [Notifications]
+      summary: Marks the person's notification of the message read, as opening it in the web's inbox does.
+      description: Marking a notification already read changes nothing.
+      responses:
+        "204":
+          description: The notification is read, on the web as well.
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /notification-preferences:
+    get:
+      operationId: listNotificationPreferences
+      tags: [Notification preferences]
+      summary: Lists every event with whether its push reaches the person's phones.
+      description: |
+        A push is on until the person turns it off, and always on for a mandatory event. An event the administrator
+        turned off notifies nobody and is not listed.
+      responses:
+        "200":
+          description: The events and their pushes.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationPreferenceList"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /notification-preferences/{event_code}:
+    parameters:
+      - name: event_code
+        in: path
+        required: true
+        schema:
+          type: string
+    put:
+      operationId: setNotificationPreference
+      tags: [Notification preferences]
+      summary: Turns the push of the event on or off for the person, the same choice the web's preferences show.
+      description: Turning off the push of a mandatory event is refused with `mandatory_event`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PushChoice"
+      responses:
+        "200":
+          description: The event with its push as it now is.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationPreference"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/MandatoryEvent"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /documents/{model}/{record_id}:
+    parameters:
+      - name: model
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: record_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: getDocument
+      tags: [Documents]
+      summary: Gives the document a push, a notification or a task opens, as the person may read it.
+      description: |
+        A document the person can no longer read, or that no longer exists, answers `not_found`, and the app says so.
+        A document the app has no screen for answers the screen `web` with its address on the web.
+      responses:
+        "200":
+          description: The document.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
         "400":
           $ref: "#/components/responses/InvalidRequest"
         "401":
@@ -1329,6 +1509,106 @@ components:
           type: array
           items:
             type: string
+    NotificationList:
+      type: object
+      additionalProperties: false
+      required: [notifications, next_after]
+      properties:
+        notifications:
+          type: array
+          items:
+            $ref: "#/components/schemas/Notification"
+        next_after:
+          type: [integer, "null"]
+    Notification:
+      type: object
+      additionalProperties: false
+      required: [id, event, title, date, read, document]
+      properties:
+        id:
+          description: The id of the notification's message, which `readNotification` takes.
+          type: integer
+        event:
+          description: The code of the notification's event, such as `task.reminder`; null for a message of no event.
+          type: [string, "null"]
+        title:
+          description: The event's name in the person's language.
+          type: string
+        date:
+          type: string
+          format: date-time
+        read:
+          type: boolean
+        document:
+          oneOf:
+            - $ref: "#/components/schemas/DocumentReference"
+            - type: "null"
+    DocumentReference:
+      type: object
+      additionalProperties: false
+      required: [model, id, code]
+      properties:
+        model:
+          type: string
+        id:
+          type: integer
+        code:
+          description: The document's code, such as a sample's lab code; empty when it has none.
+          type: string
+    NotificationPreferenceList:
+      type: object
+      additionalProperties: false
+      required: [preferences]
+      properties:
+        preferences:
+          type: array
+          items:
+            $ref: "#/components/schemas/NotificationPreference"
+    NotificationPreference:
+      type: object
+      additionalProperties: false
+      required: [event, name, mandatory, push]
+      properties:
+        event:
+          description: The event's code, which `setNotificationPreference` takes.
+          type: string
+        name:
+          description: The event's name in the person's language.
+          type: string
+        mandatory:
+          description: True when the event's push cannot be turned off.
+          type: boolean
+        push:
+          description: Whether the event is pushed to the person's phones.
+          type: boolean
+    PushChoice:
+      type: object
+      additionalProperties: false
+      required: [push]
+      properties:
+        push:
+          type: boolean
+    Document:
+      type: object
+      additionalProperties: false
+      required: [model, id, code, title, screen, url]
+      properties:
+        model:
+          type: string
+        id:
+          type: integer
+        code:
+          description: The document's code, such as a sample's lab code; empty when it has none.
+          type: string
+        title:
+          description: The document's code, or its name when it has no code.
+          type: string
+        screen:
+          description: The app's screen for the document; `web` for one it shows only with its address on the web.
+          enum: [task, sample, sample_test, test_result, handover_record, support_request, container, conversation, web]
+        url:
+          description: The document's address on the web.
+          type: string
     Folder:
       type: object
       additionalProperties: false
@@ -1589,7 +1869,7 @@ components:
         number:
           type: integer
         source:
-          enum: [synced, conflict, restored, edited_online]
+          enum: [synced, conflict, restored, edited_online, generated]
         size:
           type: integer
           minimum: 0
@@ -1822,6 +2102,7 @@ components:
                 - not_lockable
                 - not_editable
                 - idempotency_conflict
+                - mandatory_event
                 - too_many_attempts
                 - internal_error
                 - try_again
@@ -1911,6 +2192,18 @@ components:
                     properties:
                       code:
                         enum: [not_eligible, not_lockable, not_editable, idempotency_conflict]
+    MandatoryEvent:
+      description: The push of a mandatory event cannot be turned off.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error"
+              - properties:
+                  error:
+                    properties:
+                      code:
+                        enum: [mandatory_event]
     MethodNotAllowed:
       description: The route does not take this method.
       headers:
