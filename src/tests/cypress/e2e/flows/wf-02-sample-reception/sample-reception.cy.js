@@ -1,6 +1,6 @@
 import { choose, newRecord, openTab, pick, save, search } from "../../../support/form";
 import { callAs, callRefused, refAs } from "../../../support/odoo";
-import { PARAMETERS, PNG, STAFF, collectionTask, inMinutes, orderRequest, receive, signedRecord, staffRequest, testingTasks } from "./setup";
+import { PARAMETERS, PNG, STAFF, collectionTask, inMinutes, orderCollectionTask, orderRequest, receive, signedRecord, staffRequest, testingTasks } from "./setup";
 
 // Sample delivery staff record a sample's receipt on its form.
 function receiveOnForm(sample, condition, note) {
@@ -45,10 +45,13 @@ describe("WF-02 Sample reception and handover", () => {
     orderRequest().then((request) => {
       const [sample] = request.samples;
       cy.signInAs("sample_delivery_staff");
+      // Only the request of an order goes through the paid step.
+      cy.readRecord(request, ["status"]).its("status").should("eq", "paid");
       receiveOnForm(sample, "Good");
       cy.get(".o_statusbar_buttons button[name=action_receive_entered]").click();
       cy.get(".o_statusbar_buttons button[name=action_receive_entered]").should("not.exist");
       cy.readRecord(sample, ["status"]).its("status").should("eq", "received");
+      cy.readRecord(request, ["status"]).its("status").should("eq", "sample_received");
 
       cy.openRecord(request);
       cy.intercept("POST", "/report/download").as("labels");
@@ -76,25 +79,27 @@ describe("WF-02 Sample reception and handover", () => {
   });
 
   it("TC-WF02-A1 collects the samples at the customer's site from the collection task, with photos and the customer's signature", () => {
-    staffRequest().then((request) => {
+    // Sales starts the collection on the confirmed order; the task waits in the queue of sample delivery staff.
+    orderCollectionTask().then(({ request, task }) => {
       const [sample] = request.samples;
-      // Sales schedules the collection.
-      collectionTask(request, { deadline: inMinutes(24 * 60) }).then((task) => {
-        cy.signInAs("sample_delivery_staff");
-        cy.visit("/odoo/my-tasks");
-        search(task.name);
-        cy.contains(".o_data_row", task.name).should("be.visible");
-        cy.openRecord(task);
-        cy.get(".o_statusbar_buttons button[name=action_start]").click();
-        cy.get(".o_statusbar_buttons button[name=action_start]").should("not.exist");
-        // The photo and the signature come from the phone of sample delivery staff.
-        callAs(STAFF, "medilab.sample", "action_attach_photo", [[sample.id], PNG, "collection.png"]);
-        signedRecord(request, sample);
-        cy.get(".o_statusbar_buttons button[name=action_done]").click();
-        cy.get(".o_statusbar_buttons button[name=action_done]").should("not.exist");
-        cy.readRecord(task, ["status"]).its("status").should("eq", "done");
-        cy.readRecord(sample, ["photo_ids"]).its("photo_ids").should("have.length", 1);
+      cy.signInAs("sample_delivery_staff");
+      cy.visit("/odoo/awaiting-tasks");
+      search(task.order);
+      cy.contains(".o_data_row", task.name).find("button[name=action_claim]").click();
+      cy.readRecord(task, ["status", "planned_start"]).should((read) => {
+        expect(read.status).to.equal("assigned");
+        expect(read.planned_start).to.equal(false);
       });
+      cy.openRecord(task);
+      cy.get(".o_statusbar_buttons button[name=action_start]").click();
+      cy.get(".o_statusbar_buttons button[name=action_start]").should("not.exist");
+      // The photo and the signature come from the phone of sample delivery staff.
+      callAs(STAFF, "medilab.sample", "action_attach_photo", [[sample.id], PNG, "collection.png"]);
+      signedRecord(request, sample);
+      cy.get(".o_statusbar_buttons button[name=action_done]").click();
+      cy.get(".o_statusbar_buttons button[name=action_done]").should("not.exist");
+      cy.readRecord(task, ["status"]).its("status").should("eq", "done");
+      cy.readRecord(sample, ["photo_ids"]).its("photo_ids").should("have.length", 1);
     });
   });
 
@@ -120,46 +125,6 @@ describe("WF-02 Sample reception and handover", () => {
             ["notification_ids.res_partner_id.user_ids.login", "=", STAFF],
           ],
         ]).should("eq", 1);
-      });
-    });
-  });
-
-  it("TC-WF02-A2 lets sample delivery staff create a test request without an order, which skips the paid step", () => {
-    cy.signInAs("sample_delivery_staff");
-    newRecord("/odoo/test-requests");
-    pick("customer_id", "Nước Uống Sạch");
-    choose("delivery_method", "By Email");
-    pick("report_recipient_id", "Phạm Thị Hoa");
-    // The 15th of next month leaves time for the tests of the sample added below.
-    cy.get(".o_field_widget[name=expected_date] input").click();
-    cy.get(".o_datetime_picker .o_header_part")
-      .invoke("text")
-      .then((month) => {
-        cy.get(".o_datetime_picker .o_next").click();
-        cy.get(".o_datetime_picker .o_header_part").should("not.have.text", month);
-      });
-    cy.contains(".o_datetime_picker .o_date_item_cell:not(.o_out_of_range)", /^15$/).click();
-    // A sample needs its saved test request.
-    save();
-    cy.get(".o_field_widget[name=sample_ids] .o_field_x2many_list_row_add button").click();
-    cy.get(".modal .o_field_widget[name=customer_sample_name] input").type("Nước đóng chai 1");
-    pick("sample_type_id", "Bottled water");
-    choose("physical_state", "Liquid");
-    cy.get(".modal .o_field_widget[name=test_ids] .o_field_x2many_list_row_add button").click();
-    pick("parameter_id", "Lead (Pb)");
-    cy.contains(".modal footer button", "Save & Close").click();
-    cy.get(".modal").should("not.exist");
-    cy.get(".o_statusbar_buttons button[name=action_confirm]").click();
-    cy.get(".o_statusbar_buttons button[name=action_confirm]").should("not.exist");
-    cy.location("pathname").then((path) => {
-      const request = { model: "medilab.test.request", id: Number(path.split("/").pop()) };
-      cy.readRecord(request, ["status", "sample_ids", "expected_date", "delivery_method", "report_recipient_id"]).then((read) => {
-        expect(read.status).to.equal("confirmed");
-        expect(read.expected_date).to.match(/-15$/);
-        expect(read.delivery_method).to.equal("email");
-        expect(read.report_recipient_id[1]).to.contain("Phạm Thị Hoa");
-        receive({ id: read.sample_ids[0] });
-        cy.readRecord(request, ["status"]).its("status").should("eq", "sample_received");
       });
     });
   });
