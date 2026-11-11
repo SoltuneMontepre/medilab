@@ -14,7 +14,7 @@
     </record>
 
     <record id="demo_sample_pond_water_confirmed" model="medilab.sample">
-        <field name="request_id" ref="demo_test_request_confirmed" />
+        <field name="request_id" ref="demo_test_request_by_post" />
         <field name="customer_sample_name">Nước ao nuôi cá</field>
         <field name="sample_type_id" ref="demo_sample_type_surface_water" />
         <field name="physical_state">liquid</field>

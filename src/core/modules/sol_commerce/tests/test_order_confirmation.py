@@ -94,6 +94,7 @@ class TestOrderConfirmation(OrderCase):
         self.assertFalse(order.test_request_id)
 
     def test_sample_collection_starts_once_the_order_is_confirmed(self):
+        self.route_collection_to_delivery_staff()
         order = self.sent_order()
         self.pay_advance(order)
 
@@ -102,7 +103,56 @@ class TestOrderConfirmation(OrderCase):
         order.with_user(self.sales).action_confirm_order()
 
         self.assertTrue(order.confirmed_at)
-        self.assertTrue(order.with_user(self.sales).action_start_sample_collection())
+        action = order.with_user(self.sales).action_start_sample_collection()
+        self.assertEqual(action["tag"], "display_notification")
+
+    def test_starting_collection_queues_one_task_for_sample_delivery_staff(self):
+        staff = self.route_collection_to_delivery_staff()
+        self.customer.write({"street": "12 Nguyen Hue", "city": "Ho Chi Minh"})
+        order = self.make_confirmed_order()
+
+        order.with_user(self.sales).action_start_sample_collection()
+
+        task = self.collection_tasks(order)
+        self.assertEqual(len(task), 1)
+        self.assertEqual(task.type_id, self.collection_type())
+        self.assertEqual(task.status, "open")
+        self.assertFalse(task.assignee_id)
+        self.assertFalse(task.department_id)
+        self.assertFalse(task.planned_start)
+        self.assertIn(order.name, task.name or "")
+        self.assertIn("12 Nguyen Hue", task.note or "")
+        self.assertTrue(task._claimable_by(staff))
+        self.assertFalse(task._claimable_by(self.sales_person))
+        with self.assertRaises(UserError):
+            order.with_user(self.sales).action_start_sample_collection()
+        self.assertEqual(len(self.collection_tasks(order)), 1)
+
+    def test_a_finished_collection_task_lets_sales_start_another(self):
+        self.route_collection_to_delivery_staff()
+        order = self.make_confirmed_order()
+        order.with_user(self.sales).action_start_sample_collection()
+        self.collection_tasks(order).write({"status": "cancelled"})
+
+        order.with_user(self.sales).action_start_sample_collection()
+
+        self.assertEqual(sorted(self.collection_tasks(order).mapped("status")), ["cancelled", "open"])
+
+    def test_only_those_who_change_the_order_start_its_collection(self):
+        self.route_collection_to_delivery_staff()
+        order = self.make_confirmed_order()
+
+        with self.assertRaises(AccessError):
+            order.with_user(self.portal).action_start_sample_collection()
+        self.assertFalse(self.collection_tasks(order))
+
+    def test_collection_needs_its_task_type_routed_to_a_role(self):
+        order = self.make_confirmed_order()
+        self.collection_type().write({"route": "person"})
+
+        with self.assertRaises(UserError):
+            order.with_user(self.sales).action_start_sample_collection()
+        self.assertFalse(self.collection_tasks(order))
 
     def test_an_order_is_confirmed_once(self):
         order = self.make_confirmed_order()
@@ -151,6 +201,23 @@ class TestOrderConfirmation(OrderCase):
 
         self.assertFalse(paid.test_request_id._credit_blocks_confirmation())
         self.assertFalse(alone._credit_blocks_confirmation())
+
+    def test_the_request_of_a_paid_order_is_paid_on_confirmation(self):
+        request = self.make_confirmed_order().test_request_id
+
+        request.action_confirm()
+
+        self.assertEqual(request.status, "paid")
+        request.sample_ids[:1].with_user(self.sales).sudo().action_receive(1, "damaged", "The bottle leaked")
+        self.assertEqual(request.status, "sample_received")
+
+    def test_the_request_of_a_credit_customer_is_paid_on_confirmation(self):
+        request = self.accepted_unpaid_order().test_request_id
+        self.env[MODEL_CUSTOMER_SALES_TERMS].create({"customer_id": self.customer_record.id, "allow_credit": True})
+
+        request.action_confirm()
+
+        self.assertEqual(request.status, "paid")
 
     def test_only_the_head_of_sales_changes_the_sales_terms(self):
         terms = self.env[MODEL_CUSTOMER_SALES_TERMS]
