@@ -18,6 +18,7 @@ from odoo.addons.sol_inventory.constants.models import (
 from odoo.addons.sol_inventory.constants.stock import CONTAINER_SEALED, LOT_EXPIRED
 from odoo.addons.sol_inventory.constants.xml_ids import SCRAP_SPILLED
 from odoo.addons.sol_laboratory.constants.models import MODEL_PERSON, MODEL_TEST_REQUEST, MODEL_TEST_RESULT
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 _logger = logging.getLogger(__name__)
 
@@ -67,10 +68,10 @@ class StockPackage(models.Model, StockPackageBase):
         # A shelf life after opening, so opening shortens the usable date; the shipped item does not use one.
         item["sodium_chloride"].write({"use_shelf_life_after_opening": True, "shelf_life_after_opening_days": 180})
         # The cost the opening stock of each item is valued at.
-        item["acetonitrile"].standard_price = 450
-        item["sodium_chloride"].standard_price = 380
-        item["sulfuric_acid"].standard_price = 2
-        item["distilled_water"].standard_price = 1
+        item["acetonitrile"].write({"standard_price": 450})
+        item["sodium_chloride"].write({"standard_price": 380})
+        item["sulfuric_acid"].write({"standard_price": 2})
+        item["distilled_water"].write({"standard_price": 1})
 
         acetonitrile = item["acetonitrile"]
         lot = _lot(self.env, acetonitrile, ACETONITRILE_LOT, 365)
@@ -149,7 +150,7 @@ class StockPackage(models.Model, StockPackageBase):
             self.env.ref(role).write(
                 {
                     "permission_ids": [
-                        Command.link(self.env.ref(f"sol_inventory.permission_{code}").id) for code in codes
+                        Command.link(persisted_id(self.env.ref(f"sol_inventory.permission_{code}"))) for code in codes
                     ]
                 }
             )
