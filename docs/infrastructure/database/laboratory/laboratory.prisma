@@ -116,6 +116,8 @@ model SampleType {
   results     TestResult[]
   /// Accreditation scope lines that name the sample type, which also cover its narrower types.
   scope_lines AccreditationScopeLineSampleType[]
+  /// What testing methods need to sample this type.
+  sampling_requirements SamplingRequirement[]
 
   @@index([parent_id])
   @@index([parent_path])
@@ -233,6 +235,10 @@ model TestingMethod {
   steps      TestingMethodStep[]
   /// Accreditation scope lines that name the method.
   scope_lines AccreditationScopeLine[]
+  /// Amount, container and preservation the method needs on each sample type.
+  sampling_requirements SamplingRequirement[]
+  /// Expected sampling rows that add or list the method.
+  expected_sampling ExpectedSamplingMethod[]
 
   @@index([field_id])
   @@map("medilab_testing_method")
@@ -264,6 +270,35 @@ model TestingMethodStep {
   @@index([location_id])
   @@unique([method_id, sequence])
   @@map("medilab_testing_method_step")
+}
+
+/// The amount, container and preservation a testing method needs for a sample type (Yêu Cầu Lấy Mẫu). Requirements of one sample type with the same container type and preservation condition form one sampling group.
+model SamplingRequirement {
+  /// Row identifier.
+  id             Int             @id @default(autoincrement())
+  /// The testing method that needs the sample.
+  method_id      Int
+  /// The sample type the requirement applies to; its narrower and broader types do not share it.
+  sample_type_id Int
+  /// Amount of sample the method needs, in the unit; above 0.
+  amount         Decimal         @db.Decimal
+  /// Unit of the amount, such as mL or g.
+  unit_id        Int
+  /// Container the sample is collected in, such as "Sterile glass bottle", in each language.
+  container_type Json
+  /// How the sample is preserved until testing, such as "Chilled at 2–8 °C", in each language.
+  preservation   Json
+  /// The testing method.
+  method         TestingMethod   @relation(fields: [method_id], references: [id], onDelete: Cascade)
+  /// The sample type.
+  sample_type    SampleType      @relation(fields: [sample_type_id], references: [id], onDelete: Restrict)
+  /// Unit of the amount.
+  unit           MeasurementUnit @relation(fields: [unit_id], references: [id], onDelete: Restrict)
+
+  @@unique([method_id, sample_type_id])
+  @@index([sample_type_id])
+  @@index([unit_id])
+  @@map("medilab_sampling_requirement")
 }
 
 /// A place in the company's premises (Vị trí), such as a room, a bench, an area or a sampling point. Every module uses it.
@@ -468,6 +503,10 @@ model MeasurementUnit {
   results           TestResult[] @relation("ResultUnit")
   /// Results whose copied limits are in this unit.
   result_limits     TestResult[] @relation("ResultLimitUnit")
+  /// Sampling requirements whose amount is in this unit.
+  sampling_requirements SamplingRequirement[]
+  /// Expected sampling whose amount is in this unit.
+  expected_sampling ExpectedSampling[]
 
   @@index([category_id])
   @@map("medilab_measurement_unit")
@@ -995,6 +1034,8 @@ model Sample {
   photos               SamplePhoto[]
   /// Laboratory folders of the sample.
   folders              LaboratoryFolder[]
+  /// Containers, preservation and amounts expected for the sample, kept from the accepted quotation.
+  expected_sampling    ExpectedSampling[]
 
   @@index([request_id])
   @@index([sample_type_id])
@@ -1002,6 +1043,50 @@ model Sample {
   @@index([status])
   @@index([sampling_location_id])
   @@map("medilab_sample")
+}
+
+/// The containers, preservation and amounts expected for a sample of a test request (Nhu Cầu Lấy Mẫu Dự Kiến), kept from the accepted quotation: one row per sampling group and unit. Group 0 lists the methods without a sampling requirement. The expected samples are the objects times the groups.
+model ExpectedSampling {
+  /// Row identifier.
+  id             Int                      @id @default(autoincrement())
+  /// The sample of the test request the sampling needs are expected for.
+  sample_id      Int
+  /// Number of objects of the sample: the largest quantity of the lines tested on it.
+  objects        Int                      @default(1)
+  /// Which sampling group the row belongs to, from 1; 0 for the methods that state no sampling requirement.
+  group_number   Int                      @default(0)
+  /// Container of the group, as the requirements stated it, in each language; empty without a requirement.
+  container_type Json?
+  /// Preservation condition of the group, as the requirements stated it, in each language; empty without a requirement.
+  preservation   Json?
+  /// Amount the group's methods need together in the unit, for each object.
+  amount         Decimal?                 @db.Decimal
+  /// Unit of the amount; empty without a requirement.
+  unit_id        Int?
+  /// The sample.
+  sample         Sample                   @relation(fields: [sample_id], references: [id], onDelete: Cascade)
+  /// Unit of the amount.
+  unit           MeasurementUnit?         @relation(fields: [unit_id], references: [id], onDelete: Restrict)
+  /// The testing methods whose requirements the row adds, or that state none.
+  methods        ExpectedSamplingMethod[]
+
+  @@index([sample_id])
+  @@map("medilab_expected_sampling")
+}
+
+/// Links an expected sampling row to the testing methods it adds or lists without a requirement.
+model ExpectedSamplingMethod {
+  /// The expected sampling row.
+  medilab_expected_sampling_id Int
+  /// The testing method.
+  medilab_testing_method_id    Int
+  /// The expected sampling row.
+  sampling                     ExpectedSampling @relation(fields: [medilab_expected_sampling_id], references: [id], onDelete: Cascade)
+  /// The testing method.
+  method                       TestingMethod    @relation(fields: [medilab_testing_method_id], references: [id], onDelete: Cascade)
+
+  @@id([medilab_expected_sampling_id, medilab_testing_method_id])
+  @@map("medilab_expected_sampling_medilab_testing_method_rel")
 }
 
 /// One parameter tested on one sample, and the way it is tested once the laboratory has chosen it.

@@ -519,6 +519,7 @@ class SaleOrder(models.Model, SaleOrderBase):
             )
         )
         quotation.attachment_id.write({"res_model": MODEL_QUOTATION, "res_id": quotation.id})
+        self._keep_sampling(quotation)
         previous.write({"status": QUOTATION_REPLACED})
         if self.state == "draft":
             self.state = "sent"
