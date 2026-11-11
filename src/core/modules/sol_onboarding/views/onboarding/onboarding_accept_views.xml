@@ -22,12 +22,6 @@
                         options="{'no_create': True}"
                     />
                     <field
-                        name="unit_id"
-                        invisible="not unit_needed"
-                        required="unit_needed"
-                        options="{'no_create': True}"
-                    />
-                    <field
                         name="department_id"
                         invisible="not department_needed"
                         required="department_needed"

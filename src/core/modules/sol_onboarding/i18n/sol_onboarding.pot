@@ -492,12 +492,6 @@ msgstr ""
 
 #. module: sol_onboarding
 #. odoo-python
-#: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_acceptance.py:0
-msgid "No testing method has the code %s after the import."
-msgstr ""
-
-#. module: sol_onboarding
-#. odoo-python
 #: code:addons/sol_onboarding/models/onboarding/onboarding_run_crawl.py:0
 msgid "No turned-on source reads this organisation or these sectors."
 msgstr ""
@@ -964,17 +958,6 @@ msgstr ""
 #: model:ir.model.fields.selection,name:sol_onboarding.selection__medilab_onboarding_staged_record__state__to_review
 #: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_search
 msgid "To Review"
-msgstr ""
-
-#. module: sol_onboarding
-#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_accept__unit_id
-#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__unit_id
-msgid "Unit"
-msgstr ""
-
-#. module: sol_onboarding
-#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_accept__unit_needed
-msgid "Unit Needed"
 msgstr ""
 
 #. module: sol_onboarding

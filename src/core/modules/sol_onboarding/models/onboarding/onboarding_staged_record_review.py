@@ -4,7 +4,6 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.addons.sol_laboratory.constants.departments import DEPARTMENT_DOMAIN
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_DEPARTMENT,
-    MODEL_MEASUREMENT_UNIT,
     MODEL_PARAMETER_GROUP,
     MODEL_TESTING_FIELD,
 )
@@ -19,7 +18,7 @@ from odoo.addons.sol_onboarding.constants.onboarding import (
 
 TEXT_KEYS = ("code", "name", "issuing_body")
 DATE_KEYS = ("valid_from", "valid_until")
-RECORD_KEYS = ("field_id", "main_group_id", "unit_id", "department_id")
+RECORD_KEYS = ("field_id", "main_group_id", "department_id")
 EDITABLE_KEYS = TEXT_KEYS + DATE_KEYS + RECORD_KEYS
 
 
@@ -49,8 +48,6 @@ class OnboardingStagedRecordReview(models.Model):
         readonly=False,
         domain="[('child_ids', '=', False)]",
     )
-    # Unit of a way of testing.
-    unit_id = fields.Many2one(MODEL_MEASUREMENT_UNIT, string="Unit", compute="_compute_values", readonly=False)
     # Department that tests a way of testing in-house.
     department_id = fields.Many2one(
         MODEL_DEPARTMENT,

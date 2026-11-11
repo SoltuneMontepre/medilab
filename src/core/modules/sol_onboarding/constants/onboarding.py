@@ -72,7 +72,7 @@ ASKED_KEYS = {
     KIND_TESTING_FIELD: ("code",),
     KIND_TESTING_METHOD: ("field_id",),
     KIND_TEST_PARAMETER: ("main_group_id",),
-    KIND_PARAMETER_METHOD: ("unit_id", "department_id"),
+    KIND_PARAMETER_METHOD: ("department_id",),
 }
 
 MAX_BYTES = 10 * 1024 * 1024

@@ -3,7 +3,6 @@ from odoo import api, fields, models
 from odoo.addons.sol_laboratory.constants.departments import DEPARTMENT_DOMAIN
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_DEPARTMENT,
-    MODEL_MEASUREMENT_UNIT,
     MODEL_PARAMETER_GROUP,
     MODEL_TESTING_FIELD,
 )
@@ -25,8 +24,6 @@ class OnboardingAccept(models.TransientModel):
     field_id = fields.Many2one(MODEL_TESTING_FIELD, string="Testing Field")
     # Main group of the test parameter to create.
     main_group_id = fields.Many2one(MODEL_PARAMETER_GROUP, string="Main Group", domain="[('child_ids', '=', False)]")
-    # Unit of the way of testing to create.
-    unit_id = fields.Many2one(MODEL_MEASUREMENT_UNIT, string="Unit")
     # Department that tests the way of testing to create.
     department_id = fields.Many2one(MODEL_DEPARTMENT, string="Department", domain=DEPARTMENT_DOMAIN)
     # True when the staged record, or a record it needs, misses the code.
@@ -35,8 +32,6 @@ class OnboardingAccept(models.TransientModel):
     field_needed = fields.Boolean(string="Testing Field Needed", compute="_compute_needed")
     # True when the staged record, or a record it needs, misses the main group.
     main_group_needed = fields.Boolean(string="Main Group Needed", compute="_compute_needed")
-    # True when the staged record, or a record it needs, misses the unit.
-    unit_needed = fields.Boolean(string="Unit Needed", compute="_compute_needed")
     # True when the staged record, or a record it needs, misses the department.
     department_needed = fields.Boolean(string="Department Needed", compute="_compute_needed")
     # One "Value: record" line per value asked, naming the staged record that misses it.
@@ -49,7 +44,6 @@ class OnboardingAccept(models.TransientModel):
             wizard.code_needed = "code" in missing
             wizard.field_needed = "field_id" in missing
             wizard.main_group_needed = "main_group_id" in missing
-            wizard.unit_needed = "unit_id" in missing
             wizard.department_needed = "department_id" in missing
             wizard.asked_for = "\n".join(
                 f"{self._fields[key]._description_string(self.env)}: {record._describe()}"

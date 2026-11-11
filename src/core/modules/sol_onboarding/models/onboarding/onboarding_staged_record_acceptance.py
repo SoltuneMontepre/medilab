@@ -7,12 +7,7 @@ from odoo.exceptions import UserError
 from odoo.fields import Command
 from odoo.tools import format_list, mute_logger
 
-from odoo.addons.sol_laboratory.constants.models import (
-    MODEL_ACCREDITATION_CERTIFICATE,
-    MODEL_ACCREDITATION_CERTIFICATE_IMPORT,
-    MODEL_TESTING_FIELD,
-    MODEL_TESTING_METHOD,
-)
+from odoo.addons.sol_laboratory.constants.models import MODEL_TESTING_FIELD, MODEL_TESTING_METHOD
 from odoo.addons.sol_onboarding.constants.models import MODEL_ONBOARDING_STAGED_RECORD
 from odoo.addons.sol_onboarding.constants.onboarding import (
     ACTION_CREATE,
@@ -39,7 +34,7 @@ LABORATORY_KEYS = {
     KIND_TESTING_METHOD: ("code", "name", "field_id"),
     KIND_SAMPLE_TYPE: ("name",),
     KIND_TEST_PARAMETER: ("name", "main_group_id"),
-    KIND_PARAMETER_METHOD: ("unit_id", "department_id"),
+    KIND_PARAMETER_METHOD: ("department_id",),
 }
 # The Laboratory field each need key fills with the record its staged record became.
 NEED_FIELDS = {"field_key": "field_id", "parameter_key": "parameter_id", "method_key": "method_id"}
@@ -131,12 +126,6 @@ class OnboardingStagedRecordAcceptance(models.Model):
             )
         record = self._accept_certificate(model) if self.kind == KIND_CERTIFICATE else self._laboratory_record(model)
         self._mark_accepted(record)
-        parent = self.parent_id
-        if self.kind == KIND_TESTING_METHOD and parent.kind == KIND_CERTIFICATE and parent.state == STAGED_ACCEPTED:
-            # Methods refuse certificate_ids, so the certificate links the method.
-            self.env[MODEL_ACCREDITATION_CERTIFICATE].browse(parent.record_id).exists().write(
-                {"method_ids": [Command.link(record.id)]}
-            )
 
     def _mark_accepted(self, record):
         self.write(
@@ -161,54 +150,43 @@ class OnboardingStagedRecordAcceptance(models.Model):
         )
 
     def _accept_certificate(self, model):
-        """Create, link or update the certificate, link the methods of its scope accepted before it, then link the
-        to-review ones through Laboratory's import, one import per testing field. Methods whose codes differ only in
-        case, spaces and compatibility forms make one line, under a matched method's own code, so the import links it
-        however the source wrote the code. The methods to create or link are accepted with the certificate; one to
-        update is linked but stays to review, so its changes are accepted on their own."""
-        _ = self.env._
+        """Create, link or update the certificate and accept the to-review methods of its scope into the catalog:
+        a matched method, or one with the same code, is kept unchanged and a new one is created in its testing field.
+        The certificate gets no scope lines; the administrator adds them with their parameters and sample types.
+        Methods whose codes differ only in case, spaces and compatibility forms make one method, under a matched
+        method's own code. A method to update stays to review, so its changes are accepted on their own."""
         certificate = self._laboratory_record(model)
-        accepted = self.child_ids.filtered(
-            lambda child: child.kind == KIND_TESTING_METHOD and child.state == STAGED_ACCEPTED
-        )
-        if linked := self.env[MODEL_TESTING_METHOD].browse(accepted.mapped("record_id")).exists():
-            certificate.write({"method_ids": [Command.link(method.id) for method in linked]})
-        methods = self._scope_methods()
+        catalog = self.env[MODEL_TESTING_METHOD].with_context(active_test=False)
         groups = defaultdict(self.browse)
-        for method in methods:
+        for method in self._scope_methods():
             groups[normalize_code(method.code or "")] |= method
-        codes = {}
-        lines = defaultdict(list)
         for group in groups.values():
-            matched = self.env[MODEL_TESTING_METHOD]
+            matched = catalog
             field = self.env[MODEL_TESTING_FIELD]
             for method in group:
                 found = method._matched_record()
                 if method.action != ACTION_CREATE and not found:
                     raise UserError(
-                        _("The matched record of %s no longer exists. Set the match again.", method._describe())
+                        self.env._(
+                            "The matched record of %s no longer exists. Set the match again.", method._describe()
+                        )
                     )
                 matched = matched or found
                 if method.action != ACTION_UPDATE:
-                    method_field = method._method_field()
-                    field = field or method_field
-            field = field or self.field_id or matched.field_id
-            codes.update(dict.fromkeys(group, matched.code or group[0].code))
-            lines[field.id].append(Command.create({"code": codes[group[0]], "name": group[0].name}))
-        for field_id, field_lines in lines.items():
-            self.env[MODEL_ACCREDITATION_CERTIFICATE_IMPORT].create(
-                {"certificate_id": certificate.id, "field_id": field_id, "lang": self.lang, "line_ids": field_lines}
-            ).action_import()
-        imported = (
-            self.env[MODEL_TESTING_METHOD]
-            .with_context(active_test=False)
-            .search([("code", "in", list(codes.values()))])
-        )
-        by_code = {record.code: record for record in imported}
-        for method in methods.filtered(lambda method: method.action != ACTION_UPDATE):
-            if codes[method] not in by_code:
-                raise UserError(_("No testing method has the code %s after the import.", codes[method]))
-            method._mark_accepted(by_code[codes[method]])
+                    field = field or method._method_field()
+            to_accept = group.filtered(lambda method: method.action != ACTION_UPDATE)
+            if not to_accept:
+                continue
+            code = matched.code or group[0].code
+            record = (
+                matched
+                or catalog.search([("code", "=", code)], limit=1)
+                or catalog.with_context(lang=self.lang).create(
+                    {"code": code, "name": group[0].name or code, "field_id": (field or self.field_id).id}
+                )
+            )
+            for method in to_accept:
+                method._mark_accepted(record)
         return certificate
 
     def _scope_methods(self):

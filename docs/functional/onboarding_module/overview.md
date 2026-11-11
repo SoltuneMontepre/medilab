@@ -49,7 +49,7 @@ A staged record is one of these kinds. Accepting it follows the rules of the Lab
 
 | Kind                      | Becomes                                                                                       |
 | ------------------------- | --------------------------------------------------------------------------------------------- |
-| Accreditation certificate | An accreditation certificate with its number, issuing body, validity dates and the methods of its scope |
+| Accreditation certificate | An accreditation certificate with its number, issuing body and validity dates; accepting it adds the methods of its scope to the catalog, not to its scope lines |
 | Testing field             | A testing field, such as Chemistry or Microbiology                                            |
 | Testing method            | A testing method with its standard code and title                                             |
 | Sample type               | A sample type, such as the material or product a test is done on                              |

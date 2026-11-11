@@ -8,14 +8,12 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ACCREDITATION_CERTIFICATE,
     MODEL_AUDIT_ENTRY,
     MODEL_DEPARTMENT,
-    MODEL_MEASUREMENT_UNIT,
     MODEL_PARAMETER_GROUP,
     MODEL_PARAMETER_METHOD,
     MODEL_SAMPLE_TYPE,
     MODEL_TEST_PARAMETER,
     MODEL_TESTING_FIELD,
     MODEL_TESTING_METHOD,
-    MODEL_UNIT_CATEGORY,
 )
 from odoo.addons.sol_onboarding.constants.models import (
     MODEL_ONBOARDING_ACCEPT,
@@ -45,8 +43,6 @@ class TestAccepting(OnboardingCase):
         super().setUpClass()
         cls.field = cls.env[MODEL_TESTING_FIELD].create({"code": "ZZACCEPT", "name": "Accepting field"})
         cls.group = cls.env[MODEL_PARAMETER_GROUP].create({"name": "Accepting group"})
-        category = cls.env[MODEL_UNIT_CATEGORY].create({"name": "Accepting category"})
-        cls.unit = cls.env[MODEL_MEASUREMENT_UNIT].create({"name": "zz/accept", "category_id": category.id})
         cls.department = cls.env[MODEL_DEPARTMENT].create({"name": "Accepting department"})
         # Accepts staged records but holds no Laboratory permission.
         cls.editor = new_test_user(
@@ -70,7 +66,7 @@ class TestAccepting(OnboardingCase):
 
     def way_of_testing(self):
         """A staged way of testing with its staged parameter and method, and the method's staged testing field, as a
-        source gives them: without the parameter's main group, nor the unit and department."""
+        source gives them: without the parameter's main group, nor the department."""
         field = self.stage(KIND_TESTING_FIELD, code=FIELD_CODE, name="Accepted field")
         method = self.stage(KIND_TESTING_METHOD, code=METHOD_CODE, name="Accepted method", field_key=FIELD_CODE)
         parameter = self.stage(KIND_TEST_PARAMETER, name="Accepted parameter xyz")
@@ -92,16 +88,12 @@ class TestAccepting(OnboardingCase):
 
         self.assertEqual(action["res_model"], MODEL_ONBOARDING_ACCEPT)
         self.assertEqual((pair | parameter | method | field).mapped("state"), ["to_review"] * 4)
-        wizard = self.wizard(
-            action, main_group_id=self.group.id, unit_id=self.unit.id, department_id=self.department.id
-        )
-        needed = (wizard.main_group_needed, wizard.unit_needed, wizard.department_needed)
-        self.assertEqual(needed, (True, True, True))
+        wizard = self.wizard(action, main_group_id=self.group.id, department_id=self.department.id)
+        self.assertEqual((wizard.main_group_needed, wizard.department_needed), (True, True))
         self.assertEqual((wizard.field_needed, wizard.code_needed), (False, False))
         self.assertEqual(
             wizard.asked_for.splitlines(),
             [
-                "Unit: Way of Testing accepted pair",
                 "Department: Way of Testing accepted pair",
                 "Main Group: Test Parameter Accepted parameter xyz",
             ],
@@ -119,7 +111,7 @@ class TestAccepting(OnboardingCase):
         self.assertEqual(lab_pair.method_id, self.env[MODEL_TESTING_METHOD].browse(method.record_id))
         self.assertEqual(lab_pair.method_id.field_id, self.env[MODEL_TESTING_FIELD].browse(field.record_id))
         self.assertEqual(lab_pair.method_id.field_id.code, FIELD_CODE)
-        self.assertEqual((lab_pair.unit_id, lab_pair.department_id), (self.unit, self.department))
+        self.assertEqual(lab_pair.department_id, self.department)
         self.assertEqual(lab_pair.parameter_id.main_group_id, self.group)
         self.assertEqual(lab_pair.parameter_id.group_ids, self.group)
 
@@ -135,12 +127,11 @@ class TestAccepting(OnboardingCase):
         self.assertEqual(sample.state, "accepted")
 
         parameter.main_group_id = self.group
-        pair.unit_id = self.unit
         action = pair.with_user(self.admin).action_accept()
 
         self.assertEqual(action["res_model"], MODEL_ONBOARDING_ACCEPT)
         wizard = self.wizard(action)
-        self.assertEqual((wizard.department_needed, wizard.unit_needed, wizard.main_group_needed), (True, False, False))
+        self.assertEqual((wizard.department_needed, wizard.main_group_needed), (True, False))
         self.assertEqual(wizard.asked_for, "Department: Way of Testing accepted pair")
         self.assertEqual(pair.state, "to_review")
         self.assertFalse(self.lab_pairs_for(pair))
@@ -172,7 +163,7 @@ class TestAccepting(OnboardingCase):
     def test_a_refused_accept_keeps_the_record_to_review_with_the_message(self):
         pair, parameter, method, field = self.way_of_testing()
         parameter.main_group_id = self.group
-        pair.write({"unit_id": self.unit.id, "department_id": self.department.id})
+        pair.department_id = self.department
         # The field's code is taken after it was staged, so its staged match is stale.
         self.env[MODEL_TESTING_FIELD].create({"code": FIELD_CODE, "name": "Taken meanwhile"})
 
@@ -278,7 +269,7 @@ class TestAccepting(OnboardingCase):
         )
         pair, parameter, _method, _field = self.way_of_testing()
         self.assertTrue(parameter.match_suggested)
-        pair.write({"unit_id": self.unit.id, "department_id": self.department.id})
+        pair.department_id = self.department
 
         pair.with_user(self.admin).action_accept()
 

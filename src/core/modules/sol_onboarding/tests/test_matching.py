@@ -5,14 +5,12 @@ from odoo.tests import tagged
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ACCREDITATION_CERTIFICATE,
     MODEL_DEPARTMENT,
-    MODEL_MEASUREMENT_UNIT,
     MODEL_PARAMETER_GROUP,
     MODEL_PARAMETER_METHOD,
     MODEL_SAMPLE_TYPE,
     MODEL_TEST_PARAMETER,
     MODEL_TESTING_FIELD,
     MODEL_TESTING_METHOD,
-    MODEL_UNIT_CATEGORY,
 )
 from odoo.addons.sol_onboarding.constants.models import (
     MODEL_ONBOARDING_RUN,
@@ -120,14 +118,11 @@ class TestMatching(OnboardingCase):
     def test_a_way_of_testing_matches_its_parameter_and_method_pair(self):
         method = self.lab_method(code="TCVN 9882:2011")
         parameter = self.lab_parameter("Matching parameter")
-        category = self.env[MODEL_UNIT_CATEGORY].create({"name": "Matching category"})
-        unit = self.env[MODEL_MEASUREMENT_UNIT].create({"name": "mm/mm", "category_id": category.id})
         department = self.env[MODEL_DEPARTMENT].create({"name": "Matching department"})
         pair = self.env[MODEL_PARAMETER_METHOD].create(
             {
                 "parameter_id": parameter.id,
                 "method_id": method.id,
-                "unit_id": unit.id,
                 "department_id": department.id,
             }
         )

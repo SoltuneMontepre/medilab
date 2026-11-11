@@ -125,12 +125,6 @@
                                 options="{'no_create': True}"
                             />
                             <field
-                                name="unit_id"
-                                invisible="kind != 'parameter_method'"
-                                readonly="state != 'to_review'"
-                                options="{'no_create': True}"
-                            />
-                            <field
                                 name="department_id"
                                 invisible="kind != 'parameter_method'"
                                 readonly="state != 'to_review'"

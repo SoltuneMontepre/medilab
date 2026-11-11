@@ -68,7 +68,10 @@ class TestAcceptingCertificates(OnboardingCase):
     def lab_certificate(self, staged):
         return self.env[MODEL_ACCREDITATION_CERTIFICATE].browse(staged.record_id).with_context(active_test=False)
 
-    def test_a_certificate_with_thirty_methods_creates_twenty_five_and_links_thirty(self):
+    def lab_methods(self, staged):
+        return self.env[MODEL_TESTING_METHOD].browse(staged.mapped("record_id"))
+
+    def test_a_certificate_with_thirty_methods_creates_twenty_five_and_no_scope_lines(self):
         codes = [f"TCVN 99{number:02d}:2012" for number in range(1, 31)]
         existing = self.env[MODEL_TESTING_METHOD]
         for code in codes[:5]:
@@ -94,17 +97,19 @@ class TestAcceptingCertificates(OnboardingCase):
         self.assertEqual(action["tag"], "display_notification")
         lab_certificate = self.lab_certificate(certificate)
         self.assertEqual((certificate.state, lab_certificate.code), ("accepted", CERTIFICATE_CODE))
-        self.assertEqual(len(lab_certificate.method_ids), 30)
+        self.assertFalse(lab_certificate.scope_line_ids)
+        methods = self.lab_methods(children)
+        self.assertEqual(len(methods), 30)
         lab_field = self.env[MODEL_TESTING_FIELD].browse(field.record_id)
         self.assertEqual((field.state, lab_field.code), ("accepted", "ZZCERTNEW"))
-        created = lab_certificate.method_ids - existing
+        created = methods - existing
         self.assertEqual(
             {method.code: method.field_id for method in created},
             {code: self.field if index < 20 else lab_field for index, code in enumerate(codes) if index >= 5},
         )
         self.assertEqual(existing.mapped("name"), [f"Existing {code}" for code in codes[:5]])
         self.assertEqual(existing.mapped("field_id"), self.other_field)
-        by_code = {method.code: method.id for method in lab_certificate.method_ids}
+        by_code = {method.code: method.id for method in methods}
         self.assertEqual(children.mapped("state"), ["accepted"] * 30)
         self.assertEqual(children.mapped("record_id"), [by_code[code] for code in codes])
         self.assertEqual(children.mapped("reviewed_by_id"), self.admin)
@@ -117,7 +122,7 @@ class TestAcceptingCertificates(OnboardingCase):
 
         certificate.with_user(self.admin).action_accept()
 
-        self.assertEqual(self.lab_certificate(certificate).method_ids, method)
+        self.assertFalse(self.lab_certificate(certificate).scope_line_ids)
         self.assertEqual((child.state, child.record_id), ("accepted", method.id))
         self.assertEqual((method.code, method.field_id, method.active), ("TCVN 9876:2011", self.other_field, False))
         written = self.env[MODEL_TESTING_METHOD].with_context(active_test=False).search([("code", "ilike", "9876")])
@@ -135,8 +140,7 @@ class TestAcceptingCertificates(OnboardingCase):
 
         certificate.with_user(self.admin).action_accept()
 
-        lab_certificate = self.lab_certificate(certificate)
-        self.assertEqual(lab_certificate.method_ids.mapped("code"), ["TCVN 9877:2012", "TCVN 9878:2012"])
+        self.assertEqual(self.lab_methods(new).code, "TCVN 9878:2012")
         self.assertEqual((certificate.state, new.state), ("accepted", "accepted"))
         self.assertEqual((changed.state, changed.record_id), ("to_review", method.id))
         self.assertEqual(method.with_context(lang="vi_VN").name, "Old certificate title")
@@ -145,7 +149,7 @@ class TestAcceptingCertificates(OnboardingCase):
 
         self.assertEqual(changed.state, "accepted")
         self.assertEqual(method.with_context(lang="vi_VN").name, "New certificate title")
-        self.assertEqual(lab_certificate.method_ids, method | self.env[MODEL_TESTING_METHOD].browse(new.record_id))
+        self.assertFalse(self.lab_certificate(certificate).scope_line_ids)
 
     def test_new_methods_without_a_field_ask_for_one(self):
         certificate, first, second = self.stage(
@@ -178,7 +182,7 @@ class TestAcceptingCertificates(OnboardingCase):
         created = self.env[MODEL_TESTING_METHOD].browse((first | second).mapped("record_id"))
         self.assertEqual(created.mapped("code"), ["TCVN 9879:2012", "TCVN 9880:2012"])
         self.assertEqual(created.mapped("field_id"), self.field)
-        self.assertEqual(self.lab_certificate(certificate).method_ids, created)
+        self.assertFalse(self.lab_certificate(certificate).scope_line_ids)
 
     def test_a_deleted_method_match_leaves_the_certificate_to_review(self):
         method = self.lab_method("TCVN 9883:2012", "Deleted meanwhile")
@@ -209,10 +213,11 @@ class TestAcceptingCertificates(OnboardingCase):
         new.with_user(self.admin).action_accept()
 
         lab_certificate = self.lab_certificate(new)
-        self.assertEqual((lab_certificate.issuing_body, len(lab_certificate.method_ids)), ("AOSC", 3))
+        self.assertEqual((lab_certificate.issuing_body, len(self.lab_methods(children))), ("AOSC", 3))
+        self.assertFalse(lab_certificate.scope_line_ids)
         self.assertEqual(children.mapped("state"), ["accepted"] * 3)
 
-    def test_methods_accepted_before_their_certificate_are_linked_to_it(self):
+    def test_a_method_accepted_before_its_certificate_stays_out_of_its_scope(self):
         certificate, first, second = self.stage(
             self.certificate(),
             self.method("TCVN 9921:2014", "Accepted before the certificate"),
@@ -226,11 +231,11 @@ class TestAcceptingCertificates(OnboardingCase):
         certificate.with_user(self.admin).action_accept()
 
         self.assertEqual((certificate | second).mapped("state"), ["accepted"] * 2)
-        methods = self.env[MODEL_TESTING_METHOD].browse((first | second).mapped("record_id"))
-        self.assertEqual(self.lab_certificate(certificate).method_ids, methods)
+        self.assertEqual(self.lab_methods(first | second).mapped("code"), ["TCVN 9921:2014", "TCVN 9922:2014"])
+        self.assertFalse(self.lab_certificate(certificate).scope_line_ids)
 
-    def test_a_method_accepted_after_its_certificate_is_linked_to_it(self):
-        certificate, first = self.stage(self.certificate(), self.method("TCVN 9923:2014", "In the first scope"))
+    def test_a_method_accepted_after_its_certificate_stays_out_of_its_scope(self):
+        certificate = self.stage(self.certificate(), self.method("TCVN 9923:2014", "In the first scope"))[0]
         certificate.field_id = self.field
         certificate.with_user(self.admin).action_accept()
         self.run = self.env[MODEL_ONBOARDING_RUN].create({"requested_by_id": self.admin.id})
@@ -240,8 +245,8 @@ class TestAcceptingCertificates(OnboardingCase):
 
         later.with_user(self.admin).action_accept()
 
-        methods = self.env[MODEL_TESTING_METHOD].browse((first | later).mapped("record_id"))
-        self.assertEqual((later.state, self.lab_certificate(certificate).method_ids), ("accepted", methods))
+        self.assertEqual((later.state, self.lab_methods(later).code), ("accepted", "TCVN 9924:2014"))
+        self.assertFalse(self.lab_certificate(certificate).scope_line_ids)
 
     def test_a_rejected_field_of_a_new_method_refuses_the_certificate(self):
         field, certificate, child = self.stage(
@@ -275,7 +280,7 @@ class TestAcceptingCertificates(OnboardingCase):
 
         certificate.with_user(self.admin).action_accept()
 
-        method = self.lab_certificate(certificate).method_ids
+        method = self.lab_methods(first)
         self.assertEqual((method.code, method.field_id), ("TCVN 9902:2013", self.field))
         self.assertEqual((first | second).mapped("state"), ["accepted"] * 2)
         self.assertEqual((first | second).mapped("record_id"), [method.id] * 2)
@@ -327,4 +332,5 @@ class TestAcceptingCertificates(OnboardingCase):
         )
         self.assertEqual(taken.error, "The code of a testing field must be unique.")
         self.assertEqual((staged - refused).mapped("state"), ["accepted"] * 18)
-        self.assertEqual(len(self.lab_certificate(certificate).method_ids), 2)
+        self.assertEqual(len(self.lab_methods(staged[1:3])), 2)
+        self.assertFalse(self.lab_certificate(certificate).scope_line_ids)
