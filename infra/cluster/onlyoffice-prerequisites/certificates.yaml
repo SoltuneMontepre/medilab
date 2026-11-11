@@ -2,6 +2,8 @@ apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   name: onlyoffice-bootstrap
+  annotations:
+    argocd.argoproj.io/sync-wave: "-5"
 spec:
   selfSigned: {}
 ---
@@ -10,6 +12,7 @@ kind: Certificate
 metadata:
   name: onlyoffice-ca
   annotations:
+    argocd.argoproj.io/sync-wave: "-5"
     argocd.argoproj.io/sync-options: Prune=false,Delete=false
 spec:
   isCA: true
@@ -28,6 +31,8 @@ apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   name: onlyoffice-ca
+  annotations:
+    argocd.argoproj.io/sync-wave: "-4"
 spec:
   ca:
     secretName: onlyoffice-ca
@@ -36,6 +41,8 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: onlyoffice-tls
+  annotations:
+    argocd.argoproj.io/sync-wave: "-3"
 spec:
   secretName: onlyoffice-tls
   duration: 2160h

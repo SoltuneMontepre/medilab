@@ -162,6 +162,7 @@ $i.SetAccessControl($a)
         for sid, right, allowed in (
             ("S-1-5-32-545", "ReadAndExecute", True),
             ("S-1-5-32-544", "FullControl", True),
+            ("S-1-3-4", "FullControl", True),
             ("S-1-5-32-545", "WriteData", False),
             ("S-1-5-32-545", "ChangePermissions", False),
             ("S-1-5-32-545", "TakeOwnership", False),
