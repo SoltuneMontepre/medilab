@@ -109,7 +109,7 @@ Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling
 | Rule        | Description                                                                                                                 |
 | ----------- | --------------------------------------------------------------------------------------------------------------------------- |
 | Accept | Accept an outsourcing suggestion only for the agreed subcontracted way. If it changes an accepted selection, Sales first obtains customer agreement through a revised quotation. The head then puts its sample tests in the subcontractor's draft dispatch. |
-| Dispatch | A dispatch holds one subcontractor, sending and due dates, the sample tests sent, the subcontractor's report, and sample delivery staff or a delivery service and tracking number. The way's turnaround includes transport and processing. |
+| Dispatch | A dispatch holds one subcontractor, sending and due dates, the sample tests sent, the subcontractor's report, and sample delivery staff or a delivery service and tracking number. The way's turnaround includes transport and processing. The head attaches the subcontractor's report to the sent or received dispatch. |
 | Accreditation | A subcontractor whose accreditation has expired cannot be chosen.                                                          |
 | Emergency | The head may initiate outsourcing for a waiting or assigned test with a reason, without waiting for a scheduler suggestion. Only the department testing a test with no suggestion sees the emergency action, and its reason is shown on the test. Changing an accepted way still requires Sales and customer agreement on a revised quotation. Once agreed, cancel not-started bookings and put its sample tests in a draft dispatch. |
 
@@ -119,6 +119,9 @@ Acceptance criteria:
 - A sent dispatch appears on the outsourcing schedule with its expected date.
 - A dispatch records either the sample delivery staff who took it or the delivery service and tracking number.
 - Outsourcing a test straight away without a reason is refused; a test already in testing cannot be outsourced straight away.
+- Outsourcing, from a suggestion or straight away, through a way other than the one the customer accepted is refused.
+- A sample test is in one dispatch that is not cancelled.
+- Only people who can read dispatches read the subcontractor's report; a subcontractor never reads another subcontractor's report or the customer.
 
 ### 4. Laboratory files (US-HD15, US-HD16)
 

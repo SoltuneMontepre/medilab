@@ -5,7 +5,12 @@ from odoo.fields import Command
 from odoo.tests import new_test_user
 
 from .common import MasterDataCase
-from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_ENTRY, MODEL_AUDIT_MIXIN, MODEL_REGULATION
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_ENTRY,
+    MODEL_AUDIT_MIXIN,
+    MODEL_REGULATION,
+    MODEL_SAMPLE_TYPE,
+)
 from odoo.addons.sol_laboratory.constants.xml_ids import AUDIT_READ_GROUP
 
 if TYPE_CHECKING:
@@ -59,7 +64,8 @@ class AuditLookup:
 
 
 class AuditCase(AuditLookup, MasterDataCase):
-    """A master data editor without the audit permission, an auditor and a regulation with a limit for the parameter."""
+    """A master data editor without the audit permission, an auditor and a regulation with a limit for the parameter on
+    cabbage."""
 
     @classmethod
     def setUpClass(cls):
@@ -70,14 +76,17 @@ class AuditCase(AuditLookup, MasterDataCase):
             groups="base.group_user,base.group_system,sol_laboratory.group_permission_regulation_limit_edit_all",
         )
         cls.auditor = cls.new_auditor()
+        cls.cabbage = cls.env[MODEL_SAMPLE_TYPE].create({"name": "Cabbage"})
         cls.regulation = cls.env[MODEL_REGULATION].create(
             {
                 "code": "QCVN 8-2:2011/BYT",
                 "name": "Limits of heavy metals in food",
+                "sample_type_ids": [Command.set(cls.cabbage.ids)],
                 "limit_ids": [
                     Command.create(
                         {
                             "parameter_id": cls.parameter.id,
+                            "sample_type_id": cls.cabbage.id,
                             "unit_id": cls.unit.id,
                             "max_set": True,
                             "max_value": 0.01,

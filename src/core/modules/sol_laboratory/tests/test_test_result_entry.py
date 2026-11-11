@@ -5,6 +5,7 @@ from odoo.tests import tagged
 
 from .result_case import ResultCase
 from .scheduling_case import MONDAY
+from odoo.addons.sol_laboratory.constants.models import MODEL_SAMPLE_TYPE
 
 
 @freeze_time(MONDAY)
@@ -32,6 +33,21 @@ class TestTestResultEntry(ResultCase):
         self.limit.max_value = 0.05
         result.invalidate_recordset()
         self.assertEqual(result.limit_max, 0.01)
+
+    def test_a_result_on_a_narrower_type_without_its_own_limit_gets_none_and_shows_it_is_missing(self):
+        still_water = self.env[MODEL_SAMPLE_TYPE].create({"name": "Still water", "parent_id": self.sample_type.id})
+        self.offer(self.parameter, still_water)
+        self.sample.sample_type_id = still_water
+
+        result = self.enter(conclusion=False)
+
+        self.assertFalse(result.limit_max_set)
+        self.assertFalse(result.limit_unit_id)
+        self.assertTrue(result.limit_missing)
+        own = self.limit.copy({"sample_type_id": still_water.id, "max_value": 0.02})
+        result.invalidate_recordset()
+        self.assertEqual(result._regulation_limit(), own)
+        self.assertTrue(result.limit_missing, "A limit added later leaves the result's copy as it was.")
 
     def test_a_result_on_a_sample_with_a_regulation_needs_a_conclusion_before_it_is_sent(self):
         result = self.enter(conclusion=False)
@@ -72,7 +88,7 @@ class TestTestResultEntry(ResultCase):
         first = self.enter()
         second = self.enter(value=0.009)
 
-        self.assertEqual((first.attempt, second.attempt), (1, 2))
+        self.assertEqual(first.search([("sample_test_id", "=", self.test.id)]).ids, [second.id, first.id])
         self.assertFalse(first.is_reported)
         self.assertTrue(second.is_reported)
         with self.assertRaises(UserError):

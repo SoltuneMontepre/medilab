@@ -6,6 +6,7 @@ from odoo.fields import Domain
 
 from odoo.addons.sol_laboratory.constants.catalog import DEFAULTS_CHECKED, DEFAULTS_CHECKED_BY_PARAMETER
 from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_ACCREDITATION_SCOPE_LINE,
     MODEL_AUDIT_MIXIN,
     MODEL_LOCK_MIXIN,
     MODEL_MEASUREMENT_UNIT,
@@ -60,6 +61,14 @@ class ParameterMethodSampleType(models.Model, ParameterMethodSampleTypeBase):
         way_active = fields.Boolean(related="parameter_method_id.active")
         # The department that tests the way in-house, so a permission can be limited to the person's department.
         department_id = fields.Many2one(related="parameter_method_id.department_id", store=True, index="btree_not_null")
+        # True while the way is in-house and a line of an active certificate valid that day covers its method, its
+        # parameter and the sample type or one of its ancestors.
+        is_accredited = fields.Boolean(
+            string="Accredited",
+            compute="_compute_is_accredited",
+            store=True,
+            readonly=True,
+        )
 
     _way_sample_type_unique = models.Constraint(
         "UNIQUE(parameter_method_id, sample_type_id)", "The way of testing already applies to this sample type."
@@ -75,6 +84,24 @@ class ParameterMethodSampleType(models.Model, ParameterMethodSampleTypeBase):
             applicability.display_name = (
                 f"{applicability.parameter_method_id.display_name} – {applicability.sample_type_id.name}"
             )
+
+    @api.depends(
+        "parameter_id", "sample_type_id", "parameter_method_id.method_id", "parameter_method_id.subcontractor_id"
+    )
+    def _compute_is_accredited(self):
+        in_house = self.filtered(lambda applicability: not applicability.parameter_method_id.subcontractor_id)
+        keys = {applicability: applicability._accreditation_key() for applicability in in_house}
+        covered = self.env[MODEL_ACCREDITATION_SCOPE_LINE]._covered(set(keys.values()))
+        for applicability in self:
+            applicability.is_accredited = keys.get(applicability) in covered
+
+    def _accreditation_key(self):
+        return (self.parameter_method_id.method_id.id, self.parameter_id.id, self.sample_type_id.id)
+
+    def _recompute_is_accredited(self):
+        # Certificates and the day also change the mark, and the compute cannot depend on them.
+        self.env.add_to_compute(self._fields["is_accredited"], self)
+        self.flush_recordset(["is_accredited"])
 
     @api.constrains("parameter_id", "parameter_method_id")
     def _check_parameter(self):
@@ -111,6 +138,7 @@ class ParameterMethodSampleType(models.Model, ParameterMethodSampleTypeBase):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
+            self._refuse_is_accredited(vals)
             if not vals.get("parameter_id") and vals.get("parameter_method_id"):
                 vals["parameter_id"] = (
                     self.env[MODEL_PARAMETER_METHOD].browse(vals["parameter_method_id"]).parameter_id.id
@@ -123,6 +151,7 @@ class ParameterMethodSampleType(models.Model, ParameterMethodSampleTypeBase):
         return applicabilities
 
     def write(self, vals):
+        self._refuse_is_accredited(vals)
         locked = [name for name in ("unit_id", "sample_type_id", "parameter_method_id") if name in vals]
         for applicability in self:
             if locked and any(applicability[name].id != vals[name] for name in locked) and applicability._is_used():
@@ -151,6 +180,10 @@ class ParameterMethodSampleType(models.Model, ParameterMethodSampleTypeBase):
         self._offering_changed(before)
         return result
 
+    def _refuse_is_accredited(self, vals):
+        if "is_accredited" in vals:
+            raise UserError(self.env._("Accreditation is computed from certificates; it cannot be set by hand."))
+
     def unlink(self):
         pairs = self._pairs()
         result = super().unlink()
@@ -158,19 +191,16 @@ class ParameterMethodSampleType(models.Model, ParameterMethodSampleTypeBase):
         return result
 
     def _is_used(self):
-        # Results copy the unit when they are entered, so the configuration is used once one is: a result of a test of
-        # the way on the sample type, or, for the default, of a test of the parameter whose way is not chosen yet.
+        # Results copy the way of testing, sample type and unit when they are entered, so the configuration is used once
+        # a result copied it.
         self.ensure_one()
-        tests = Domain("sample_test_id.parameter_method_id", "=", self.parameter_method_id.id)
-        if self.is_default:
-            tests |= Domain("sample_test_id.parameter_method_id", "=", False) & Domain(
-                "sample_test_id.parameter_id", "=", self.parameter_id.id
-            )
         return bool(
             self.env[MODEL_TEST_RESULT]
             .sudo()
             .search_count(
-                tests & Domain("sample_test_id.sample_id.sample_type_id", "=", self.sample_type_id.id), limit=1
+                Domain("parameter_method_id", "=", self.parameter_method_id.id)
+                & Domain("sample_type_id", "=", self.sample_type_id.id),
+                limit=1,
             )
         )
 

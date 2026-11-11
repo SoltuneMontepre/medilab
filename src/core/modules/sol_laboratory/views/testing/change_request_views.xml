@@ -74,8 +74,21 @@
                             <field name="requested_change" />
                             <field name="reason" />
                             <field name="rejection_reason" invisible="not rejection_reason" />
+                            <field name="report_change_request_id" invisible="not report_change_request_id" />
                         </group>
                     </group>
+                    <notebook invisible="not result_change_request_ids">
+                        <page string="Result Corrections" name="result_corrections">
+                            <field name="result_change_request_ids" readonly="1">
+                                <list>
+                                    <field name="code" />
+                                    <field name="document_name" />
+                                    <field name="requested_change" />
+                                    <field name="status" widget="badge" decoration-success="status == 'applied'" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
                     <field name="new_document_id" invisible="1" />
                     <field name="approval_can_sign" invisible="1" />
                     <field name="approval_can_reject" invisible="1" />

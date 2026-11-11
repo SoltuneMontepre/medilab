@@ -33,6 +33,7 @@ class TestAuditRecording(AuditCase):
             {
                 "regulation_id": (False, f"{self.regulation.display_name} (#{self.regulation.id})"),
                 "parameter_id": (False, f"{self.parameter.display_name} (#{self.parameter.id})"),
+                "sample_type_id": (False, f"{self.cabbage.display_name} (#{self.cabbage.id})"),
                 "unit_id": (False, f"{self.unit.display_name} (#{self.unit.id})"),
                 "max_set": (False, "True"),
                 "max_value": (False, "0.01"),

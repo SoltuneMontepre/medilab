@@ -17,6 +17,8 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MAIL_MESSAGE,
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
+    MODEL_TEST_REPORT,
+    MODEL_TEST_RESULT,
 )
 from odoo.addons.sol_laboratory.constants.notifications import (
     EVENT_CHANGE_REQUEST_APPROVED,
@@ -33,6 +35,8 @@ else:
 CONTENT_FIELDS = frozenset({"document_model", "document_id", "requested_change", "reason"})
 # The statuses of a request its chain has decided; no signature can be withdrawn then.
 DECIDED_STATUSES = (STATE_APPROVED, STATE_REJECTED, STATE_APPLIED)
+# The statuses of a request not applied or rejected yet; a document has one such request at a time.
+OPEN_STATUSES = (STATE_REQUESTED, STATE_APPROVED)
 
 
 # Yêu Cầu Thay Đổi
@@ -84,6 +88,15 @@ class ChangeRequest(models.Model, ChangeRequestBase):
         new_document_id = fields.Many2oneReference(
             model_field="document_model", string="New Version", readonly=True, copy=False
         )
+        # For a correction of a result printed on an issued report: the change request of that report, which replaces
+        # it once the corrected results are approved.
+        report_change_request_id = fields.Many2one(
+            MODEL_CHANGE_REQUEST, string="Report Change Request", readonly=True, copy=False, ondelete="restrict"
+        )
+        # For a change request on a report: the result corrections that joined it.
+        result_change_request_ids = fields.One2many(
+            MODEL_CHANGE_REQUEST, "report_change_request_id", string="Result Corrections"
+        )
 
     _code_unique = models.Constraint("UNIQUE(code)", "The code of a change request must be unique.")
     _document_idx = models.Index("(document_model, document_id)")
@@ -121,11 +134,14 @@ class ChangeRequest(models.Model, ChangeRequestBase):
             [
                 ("document_model", "=", document_model),
                 ("document_id", "=", document.id),
-                ("status", "=", STATE_REQUESTED),
+                ("status", "in", OPEN_STATUSES),
             ],
             limit=1,
         ):
             raise UserError(self.env._("%s already has an open change request.", document.sudo().display_name))
+        report_request = self.env[MODEL_CHANGE_REQUEST]
+        if document_model == MODEL_TEST_RESULT:
+            report_request = self.env[MODEL_TEST_REPORT]._correction_request(document, requested_change, reason, person)
         request = self.sudo().create(
             {
                 "document_model": document_model,
@@ -133,6 +149,7 @@ class ChangeRequest(models.Model, ChangeRequestBase):
                 "requested_by_id": person.id,
                 "requested_change": requested_change,
                 "reason": reason,
+                "report_change_request_id": report_request.id,
             }
         )
         return request.with_env(self.env)
@@ -158,11 +175,14 @@ class ChangeRequest(models.Model, ChangeRequestBase):
         return model.browse(self.document_id)
 
     def _apply(self):
-        """Create the version of the document the approved request asks for, and tell the requester."""
+        """Create the version of the document the approved request asks for, once the document is ready for it, and
+        tell the requester; until then the request stays approved."""
         self.status = STATE_APPROVED
         document = self._document()
         if not document._change_request_open():
             raise UserError(self.env._("%s can no longer be changed; reject the request.", document.display_name))
+        if not document._change_request_ready(self):
+            return
         version = document._new_version(self)
         self.write({"status": STATE_APPLIED, "new_document_id": version.id})
         self._notify_requester(
@@ -203,8 +223,12 @@ class ChangeRequest(models.Model, ChangeRequestBase):
     def _approval_set_state(self, state):
         if state == STATE_APPROVED:
             self._apply()
-        else:
-            self.status = STATE_REJECTED if state == STATE_REJECTED else STATE_REQUESTED
+            return
+        self.status = STATE_REJECTED if state == STATE_REJECTED else STATE_REQUESTED
+        # A rejected correction no longer holds back the report change request it joined.
+        waiting = self.report_change_request_id.filtered(lambda request: request.status == STATE_APPROVED)
+        if state == STATE_REJECTED and waiting:
+            waiting._apply()
 
     def _approval_notify_rejected(self, reason):
         self.ensure_one()

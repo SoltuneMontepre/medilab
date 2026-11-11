@@ -4,7 +4,6 @@ from unittest.mock import patch
 from freezegun import freeze_time
 
 from odoo import fields
-from odoo.fields import Command
 from odoo.sql_db import Cursor
 from odoo.tests import tagged
 from odoo.tools import mute_logger
@@ -15,6 +14,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ACCREDITATION_CERTIFICATE,
     MODEL_JOB_ITEM,
     MODEL_PARAMETER_METHOD,
+    MODEL_SAMPLE_TYPE,
     MODEL_SCHEDULED_JOB,
     MODEL_TESTING_METHOD,
 )
@@ -23,7 +23,7 @@ from odoo.addons.sol_laboratory.models.system.accreditation_scheduled_job import
     DISCOVERY_DONE,
     DISCOVERY_PARAM_PREFIX,
 )
-from odoo.addons.sol_laboratory.services.record_id import persisted_id, persisted_ids
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
@@ -35,11 +35,13 @@ class TestAccreditationJob(MasterDataCase):
         cls.job = cls.env.ref("sol_laboratory.scheduled_job_accreditation_refresh")
         cls.Certificate = cls.env[MODEL_ACCREDITATION_CERTIFICATE]
         cls.today = cls.Certificate._laboratory_today()
+        cls.sample_type = cls.env[MODEL_SAMPLE_TYPE].create({"name": "Bottled drinking water"})
+        cls.applicability = cls.offer(cls.parameter, cls.sample_type)
         cls.certificate = cls.Certificate.create(
             {
                 "code": "VILAS-JOB",
                 "valid_until": cls.today,
-                "method_ids": [Command.set(persisted_ids(cls.method))],
+                "scope_line_ids": [cls.scope_line(cls.method, cls.parameter, cls.sample_type)],
             }
         )
 
@@ -59,53 +61,59 @@ class TestAccreditationJob(MasterDataCase):
             self.job._run_batch()
         self.env.invalidate_all()
 
-    def _today_pair_key(self, pair):
-        return f"date:{self.today.isoformat()}:pair:{pair.id}"
+    def _today_method_key(self, method):
+        return f"date:{self.today.isoformat()}:method:{method.id}"
 
     def test_daily_idempotence(self):
         self.run_job()
         first = self.env[MODEL_JOB_ITEM].search(
-            [("job_id", "=", self.job.id), ("item_key", "=", self._today_pair_key(self.pair))]
+            [("job_id", "=", self.job.id), ("item_key", "=", self._today_method_key(self.method))]
         )
         self.assertEqual(first.status, "done")
         self.run_job()
         items = self.env[MODEL_JOB_ITEM].search(
-            [("job_id", "=", self.job.id), ("item_key", "=", self._today_pair_key(self.pair))]
+            [("job_id", "=", self.job.id), ("item_key", "=", self._today_method_key(self.method))]
         )
         self.assertEqual(len(items), 1)
         self.assertEqual(items.status, "done")
 
     def test_day_after_expiry_clears_accreditation(self):
-        self.assertTrue(self.pair.is_accredited)
+        self.assertTrue(self.applicability.is_accredited)
         after = self.today + timedelta(days=1)
         with freeze_time(f"{after.isoformat()} 08:00:00"):
             self.run_job()
-            self.assertFalse(self.pair.is_accredited)
+            self.assertFalse(self.applicability.is_accredited)
 
     def test_missed_day_recovers_on_next_run(self):
         yesterday = self.today - timedelta(days=1)
         self.env[MODEL_SCHEDULED_JOB].queue(
-            ACCREDITATION_REFRESH_JOB, f"date:{yesterday.isoformat()}:pair:{self.pair.id}"
+            ACCREDITATION_REFRESH_JOB, f"date:{yesterday.isoformat()}:method:{self.method.id}"
         ).write({"status": "failed", "attempts": 3, "last_error": "missed"})
         self.certificate.valid_until = self.today - timedelta(days=1)
-        self.env.cr.execute("UPDATE medilab_parameter_method SET is_accredited = TRUE WHERE id = %s", [self.pair.id])
-        self.pair.invalidate_recordset(["is_accredited"])
+        self.env.cr.execute(
+            "UPDATE medilab_parameter_method_sample_type SET is_accredited = TRUE WHERE id = %s",
+            [self.applicability.id],
+        )
+        self.applicability.invalidate_recordset(["is_accredited"])
         self.run_job()
-        self.assertFalse(self.pair.is_accredited)
+        self.assertFalse(self.applicability.is_accredited)
 
     def test_stale_true_cleared_when_no_certificates(self):
         self.certificate.unlink()
-        self.env.cr.execute("UPDATE medilab_parameter_method SET is_accredited = TRUE WHERE id = %s", [self.pair.id])
-        self.pair.invalidate_recordset(["is_accredited"])
+        self.env.cr.execute(
+            "UPDATE medilab_parameter_method_sample_type SET is_accredited = TRUE WHERE id = %s",
+            [self.applicability.id],
+        )
+        self.applicability.invalidate_recordset(["is_accredited"])
         self.run_job()
-        self.assertFalse(self.pair.is_accredited)
+        self.assertFalse(self.applicability.is_accredited)
 
     def test_failed_job_retries(self):
         def fail(job, item):
             raise ValueError("refresh failed")
 
         with freeze_time(f"{self.today.isoformat()} 08:00:00"):
-            item = self.env[MODEL_SCHEDULED_JOB].queue(ACCREDITATION_REFRESH_JOB, self._today_pair_key(self.pair))
+            item = self.env[MODEL_SCHEDULED_JOB].queue(ACCREDITATION_REFRESH_JOB, self._today_method_key(self.method))
             with (
                 patch.object(type(self.env[MODEL_SCHEDULED_JOB]), "_handle_accreditation_refresh", fail),
                 mute_logger(JOB_LOGGER),
@@ -120,18 +128,18 @@ class TestAccreditationJob(MasterDataCase):
             self.run_job()
             self.assertEqual(item.status, "done")
             self.assertEqual(item.attempts, 1)
-            self.assertTrue(self.pair.is_accredited)
+            self.assertTrue(self.applicability.is_accredited)
 
     def test_yesterday_item_does_not_apply_to_today(self):
         yesterday = self.today - timedelta(days=1)
         item = self.env[MODEL_SCHEDULED_JOB].queue(
-            ACCREDITATION_REFRESH_JOB, f"date:{yesterday.isoformat()}:pair:{self.pair.id}"
+            ACCREDITATION_REFRESH_JOB, f"date:{yesterday.isoformat()}:method:{self.method.id}"
         )
         item.status = "pending"
         self.certificate.valid_until = self.today
-        self.assertTrue(self.pair.is_accredited)
+        self.assertTrue(self.applicability.is_accredited)
         self.env[MODEL_SCHEDULED_JOB].browse(persisted_id(self.job))._handle_accreditation_refresh(item)
-        self.assertTrue(self.pair.is_accredited)
+        self.assertTrue(self.applicability.is_accredited)
         self.assertTrue(assert_instance(item.item_key, str).startswith(f"date:{yesterday.isoformat()}"))
 
     def _queue_accreditation_refresh(self):
@@ -154,25 +162,7 @@ class TestAccreditationJob(MasterDataCase):
     def test_discovery_advances_cursor_across_batches(self):
         """Each batch discovers the next ID page; it must not restart from id 0."""
         self.job.batch_size = 2
-        methods = self.env[MODEL_TESTING_METHOD]
-        created_pairs = self.env[MODEL_PARAMETER_METHOD]
-        for index in range(6):
-            method = methods.create(
-                {
-                    "code": f"CURSOR-{index}",
-                    "name": f"Cursor {index}",
-                    "field_id": self.testing_field.id,
-                }
-            )
-            pair = self.env[MODEL_PARAMETER_METHOD].create(
-                {
-                    "parameter_id": self.parameter.id,
-                    "method_id": method.id,
-                    "department_id": self.department.id,
-                }
-            )
-            created_pairs |= pair
-            self.certificate.write({"method_ids": [Command.link(persisted_id(method))]})
+        self._create_scoped_methods(6, "CURSOR")
 
         self.env["ir.config_parameter"].sudo().set_str(f"{DISCOVERY_PARAM_PREFIX}{self.today.isoformat()}", "0")
         self.run_one_batch()
@@ -193,23 +183,7 @@ class TestAccreditationJob(MasterDataCase):
     def test_catalog_larger_than_batch_resumes(self):
         # Shrink the batch so one cron tick cannot finish discovery or the queue.
         self.job.batch_size = 2
-        methods = self.env[MODEL_TESTING_METHOD]
-        for index in range(5):
-            method = methods.create(
-                {
-                    "code": f"BATCH-{index}",
-                    "name": f"Batch {index}",
-                    "field_id": self.testing_field.id,
-                }
-            )
-            self.env[MODEL_PARAMETER_METHOD].create(
-                {
-                    "parameter_id": self.parameter.id,
-                    "method_id": method.id,
-                    "department_id": self.department.id,
-                }
-            )
-            self.certificate.write({"method_ids": [Command.link(persisted_id(method))]})
+        self._create_scoped_methods(5, "BATCH")
 
         self.env["ir.config_parameter"].sudo().set_str(f"{DISCOVERY_PARAM_PREFIX}{self.today.isoformat()}", "0")
         queue_calls = {"n": 0}
@@ -222,7 +196,7 @@ class TestAccreditationJob(MasterDataCase):
         with patch.object(type(self.env[MODEL_SCHEDULED_JOB]), "queue", counting_queue):
             self.run_one_batch()
             first_pass_queues = queue_calls["n"]
-            # One discovery page only: at most batch_size new pair keys (plus none for already queued).
+            # One discovery page only: at most batch_size new method keys (plus none for already queued).
             self.assertLessEqual(first_pass_queues, self.job.batch_size)
 
             for _ in range(30):
@@ -230,7 +204,7 @@ class TestAccreditationJob(MasterDataCase):
                     today_items = self.env[MODEL_JOB_ITEM].search(
                         [
                             ("job_id", "=", self.job.id),
-                            ("item_key", "like", f"date:{self.today.isoformat()}:pair:%"),
+                            ("item_key", "like", f"date:{self.today.isoformat()}:method:%"),
                         ]
                     )
                     if today_items and all(item.status == "done" for item in today_items):
@@ -240,7 +214,7 @@ class TestAccreditationJob(MasterDataCase):
         today_items = self.env[MODEL_JOB_ITEM].search(
             [
                 ("job_id", "=", self.job.id),
-                ("item_key", "like", f"date:{self.today.isoformat()}:pair:%"),
+                ("item_key", "like", f"date:{self.today.isoformat()}:method:%"),
             ]
         )
         self.assertGreater(len(today_items), self.job.batch_size)
@@ -265,20 +239,21 @@ class TestAccreditationJob(MasterDataCase):
                 "department_id": self.department.id,
             }
         )
-        self.certificate.write({"method_ids": [Command.link(persisted_id(other))]})
-        self.assertTrue(other_pair.is_accredited)
+        other_applicability = self.offer(self.parameter, self.sample_type, other_pair)
+        self.certificate.write({"scope_line_ids": [self.scope_line(other, self.parameter, self.sample_type)]})
+        self.assertTrue(other_applicability.is_accredited)
 
-        # Queue today's work, then unlink the method before the handler runs for that pair.
+        # Queue today's work, then remove the method's line before the handler runs for that method.
         self._queue_accreditation_refresh()
-        self.certificate.write({"method_ids": [Command.unlink(persisted_id(other))]})
-        self.assertFalse(other_pair.is_accredited)
+        self.certificate.scope_line_ids.filtered(lambda line: line.method_id == other).unlink()
+        self.assertFalse(other_applicability.is_accredited)
 
         self.run_job()
-        other_pair.invalidate_recordset(["is_accredited"])
-        self.assertFalse(other_pair.is_accredited)
+        other_applicability.invalidate_recordset(["is_accredited"])
+        self.assertFalse(other_applicability.is_accredited)
 
-    def _create_scoped_pairs(self, count, code_prefix):
-        pairs = self.env[MODEL_PARAMETER_METHOD]
+    def _create_scoped_methods(self, count, code_prefix):
+        methods = self.env[MODEL_TESTING_METHOD]
         for index in range(count):
             method = self.env[MODEL_TESTING_METHOD].create(
                 {
@@ -287,21 +262,14 @@ class TestAccreditationJob(MasterDataCase):
                     "field_id": self.testing_field.id,
                 }
             )
-            pair = self.env[MODEL_PARAMETER_METHOD].create(
-                {
-                    "parameter_id": self.parameter.id,
-                    "method_id": method.id,
-                    "department_id": self.department.id,
-                }
-            )
-            pairs |= pair
-            self.certificate.write({"method_ids": [Command.link(persisted_id(method))]})
-        return pairs
+            methods |= method
+            self.certificate.write({"scope_line_ids": [self.scope_line(method, self.parameter, self.sample_type)]})
+        return methods
 
     def test_cron_drains_catalog_larger_than_batch(self):
         """method_direct_trigger finishes every discovery page without a manual _run_batch loop."""
         self.job.batch_size = 2
-        pairs = self._create_scoped_pairs(7, "CRON")
+        methods = self._create_scoped_methods(7, "CRON")
         self.env["ir.config_parameter"].sudo().set_str(f"{DISCOVERY_PARAM_PREFIX}{self.today.isoformat()}", "0")
         self.assertEqual(self.job._due_count(fields.Datetime.now()), 1)
         self.run_job()
@@ -310,18 +278,18 @@ class TestAccreditationJob(MasterDataCase):
         today_items = self.env[MODEL_JOB_ITEM].search(
             [
                 ("job_id", "=", self.job.id),
-                ("item_key", "like", f"date:{self.today.isoformat()}:pair:%"),
+                ("item_key", "like", f"date:{self.today.isoformat()}:method:%"),
             ]
         )
-        for pair in pairs:
-            item = today_items.filtered(lambda row, pair=pair: row.item_key == self._today_pair_key(pair))
+        for method in methods:
+            item = today_items.filtered(lambda row, method=method: row.item_key == self._today_method_key(method))
             self.assertEqual(len(item), 1)
             self.assertEqual(item.status, "done")
 
     def test_remaining_work_while_discovery_incomplete(self):
         """After the last item of a page is done, _due_count stays positive until discovery is DONE."""
         self.job.batch_size = 2
-        self._create_scoped_pairs(5, "REMAIN")
+        self._create_scoped_methods(5, "REMAIN")
         self.env["ir.config_parameter"].sudo().set_str(f"{DISCOVERY_PARAM_PREFIX}{self.today.isoformat()}", "0")
         self.run_one_batch()
         self.assertNotEqual(self._discovery_marker(), DISCOVERY_DONE)
@@ -341,7 +309,7 @@ class TestAccreditationJob(MasterDataCase):
                     [
                         ("job_id", "=", self.job.id),
                         ("status", "=", "pending"),
-                        ("item_key", "like", f"date:{self.today.isoformat()}:pair:%"),
+                        ("item_key", "like", f"date:{self.today.isoformat()}:method:%"),
                     ]
                 )
             )
@@ -353,9 +321,9 @@ class TestAccreditationJob(MasterDataCase):
         self.assertEqual(self.job._due_count(fields.Datetime.now()), 0)
 
     def test_due_count_does_not_scan_remaining_catalog(self):
-        """Mid-discovery, _due_count reads only today's marker, never the undiscovered pairs."""
+        """Mid-discovery, _due_count reads only today's marker, never the undiscovered methods."""
         self.job.batch_size = 2
-        self._create_scoped_pairs(12, "NOCOUNT")
+        self._create_scoped_methods(12, "NOCOUNT")
         self.run_one_batch()
         self.assertNotIn(self._discovery_marker(), ("0", DISCOVERY_DONE))
 
@@ -374,11 +342,13 @@ class TestAccreditationJob(MasterDataCase):
         with patch.object(Cursor, "execute", recording_execute):
             remaining = self.job._due_count(now)
         self.assertEqual(remaining, due_items + 1)
-        self.assertEqual([query for query in queries if "medilab_parameter_method" in query], [])
+        self.assertEqual([query for query in queries if "medilab_accreditation_scope_line" in query], [])
 
     def test_empty_catalog_marks_discovery_done(self):
         self.certificate.unlink()
-        self.env.cr.execute("UPDATE medilab_parameter_method SET is_accredited = FALSE WHERE is_accredited IS TRUE")
+        self.env.cr.execute(
+            "UPDATE medilab_parameter_method_sample_type SET is_accredited = FALSE WHERE is_accredited IS TRUE"
+        )
         self.env["ir.config_parameter"].sudo().set_str(f"{DISCOVERY_PARAM_PREFIX}{self.today.isoformat()}", "0")
         self.assertEqual(self.job._due_count(fields.Datetime.now()), 1)
         self.run_job()
@@ -387,7 +357,7 @@ class TestAccreditationJob(MasterDataCase):
 
     def test_discovery_interruption_and_resume(self):
         self.job.batch_size = 2
-        pairs = self._create_scoped_pairs(6, "RESUME")
+        methods = self._create_scoped_methods(6, "RESUME")
         self.env["ir.config_parameter"].sudo().set_str(f"{DISCOVERY_PARAM_PREFIX}{self.today.isoformat()}", "0")
         self.run_one_batch()
         mid = self._discovery_marker()
@@ -398,15 +368,15 @@ class TestAccreditationJob(MasterDataCase):
         today_items = self.env[MODEL_JOB_ITEM].search(
             [
                 ("job_id", "=", self.job.id),
-                ("item_key", "like", f"date:{self.today.isoformat()}:pair:%"),
+                ("item_key", "like", f"date:{self.today.isoformat()}:method:%"),
             ]
         )
         self.assertTrue(all(item.status == "done" for item in today_items))
-        self.assertGreaterEqual(len(today_items), len(pairs))
+        self.assertGreaterEqual(len(today_items), len(methods))
 
     def test_day_rollover_starts_fresh_discovery(self):
         self.job.batch_size = 2
-        self._create_scoped_pairs(3, "DAY")
+        self._create_scoped_methods(3, "DAY")
         self.env["ir.config_parameter"].sudo().set_str(f"{DISCOVERY_PARAM_PREFIX}{self.today.isoformat()}", "0")
         self.run_one_batch()
         today_marker = self._discovery_marker()
@@ -428,7 +398,7 @@ class TestAccreditationJob(MasterDataCase):
     def test_discovery_uses_sql_not_certificate_scope_materialization(self):
         """Discovery pages must not load every certificate's method_ids into Python."""
         self.job.batch_size = 2
-        self._create_scoped_pairs(8, "SQL")
+        self._create_scoped_methods(8, "SQL")
         self.env["ir.config_parameter"].sudo().set_str(f"{DISCOVERY_PARAM_PREFIX}{self.today.isoformat()}", "0")
         mapped_calls = {"n": 0}
         from odoo import models as odoo_models
@@ -449,18 +419,18 @@ class TestAccreditationJob(MasterDataCase):
                 self.fail("discovery did not reach DONE")
         self.assertEqual(mapped_calls["n"], 0)
 
-        # Coverage through the final pair via cron (no materialization assertion here).
+        # Coverage through the final method via cron (no materialization assertion here).
         self.run_job()
-        pair_ids = self.job._fetch_accreditation_pair_ids_after(0, 10_000)
-        self.assertTrue(pair_ids)
+        method_ids = self.job._fetch_accreditation_method_ids_after(0, 10_000)
+        self.assertTrue(method_ids)
         today_keys = {
             item.item_key
             for item in self.env[MODEL_JOB_ITEM].search(
                 [
                     ("job_id", "=", self.job.id),
-                    ("item_key", "like", f"date:{self.today.isoformat()}:pair:%"),
+                    ("item_key", "like", f"date:{self.today.isoformat()}:method:%"),
                 ]
             )
         }
-        for pair_id in pair_ids:
-            self.assertIn(f"date:{self.today.isoformat()}:pair:{pair_id}", today_keys)
+        for method_id in method_ids:
+            self.assertIn(f"date:{self.today.isoformat()}:method:{method_id}", today_keys)
