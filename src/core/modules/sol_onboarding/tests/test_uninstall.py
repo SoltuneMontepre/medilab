@@ -1,0 +1,83 @@
+"""Uninstalling Onboarding leaves the master data it accepted in Laboratory (SH-01), and no cron of it running.
+
+A standalone function, like ``sol_laboratory/tests/test_uninstall.py``, which ``task test:uninstall`` runs after it.
+"""
+
+from datetime import datetime
+
+from odoo import api, fields
+from odoo.api import SUPERUSER_ID
+from odoo.tests.common import standalone
+
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_ENTRY,
+    MODEL_JOB_RUN,
+    MODEL_SCHEDULED_JOB,
+    MODEL_TESTING_FIELD,
+    MODEL_TESTING_METHOD,
+)
+from odoo.addons.sol_onboarding.constants.models import (
+    MODEL_ONBOARDING_RUN,
+    MODEL_ONBOARDING_SNAPSHOT,
+    MODEL_ONBOARDING_SOURCE,
+    MODEL_ONBOARDING_STAGED_RECORD,
+)
+from odoo.addons.sol_onboarding.constants.onboarding import (
+    CRAWL_JOB,
+    JOB_KEY_PREFIX,
+    KIND_TESTING_METHOD,
+    ORGANISATIONS_JOB,
+)
+from odoo.addons.sol_onboarding.services.adapters.base import Fetched, StagedValues
+
+CODE = "TCVN 9999:2026"
+NAME = "Phương pháp thử gỡ cài đặt"
+
+
+def _accept_method(env):
+    """Stage a testing method and accept it; returns the id of the Laboratory method."""
+    field = env[MODEL_TESTING_FIELD].create({"code": "ZZUNINSTALL", "name": "Uninstall field"})
+    source = env[MODEL_ONBOARDING_SOURCE].create(
+        {"name": "Uninstall source", "adapter": "test", "host": "lab.example", "start_url": "https://lab.example/"}
+    )
+    run = env[MODEL_ONBOARDING_RUN].create({})
+    fetched = Fetched("https://lab.example/scope", "html", b"<p>Scope</p>", datetime(2026, 10, 21, 8, 0, 0))
+    snapshot = env[MODEL_ONBOARDING_SNAPSHOT]._keep(run, source, fetched)
+    values = {"code": CODE, "name": NAME, "field_key": ""}
+    staged = env[MODEL_ONBOARDING_STAGED_RECORD]._stage(
+        snapshot, [StagedValues(KIND_TESTING_METHOD, CODE, values, "vi_VN")]
+    )
+    staged.field_id = field
+    staged.action_accept()
+    assert staged.state == "accepted", staged.error
+    return staged.record_id
+
+
+@standalone("medilab_uninstall")
+def test_uninstalling_onboarding_keeps_accepted_master_data(env):
+    method_id = _accept_method(env)
+    jobs = env[MODEL_SCHEDULED_JOB]
+    # The crawl job has an item and a run nothing refers to; the organisations job has run once, which audits its end.
+    jobs.queue(CRAWL_JOB, "uninstall")
+    env[MODEL_JOB_RUN].create({"job_id": jobs._by_key(CRAWL_JOB).id, "started_at": fields.Datetime.now()})
+    organisations_job = jobs._by_key(ORGANISATIONS_JOB)
+    # The shipped sources are turned on, and the job would read their sites.
+    env[MODEL_ONBOARDING_SOURCE].search([]).enabled = False
+    organisations_job._run_batch()
+    assert env[MODEL_AUDIT_ENTRY].search_count([("job_run_id", "in", organisations_job.run_ids.ids)])
+    organisations_cron_id = organisations_job.cron_id.id
+    env.cr.commit()
+
+    module = env["ir.module.module"].search([("name", "=", "sol_onboarding")])
+    module.button_immediate_uninstall()
+    env = api.Environment(env.cr, SUPERUSER_ID, {})
+
+    assert env["ir.module.module"].browse(module.id).state == "uninstalled", "sol_onboarding is still installed"
+    method = env[MODEL_TESTING_METHOD].browse(method_id).exists()
+    assert method, "the accepted testing method is gone"
+    assert (method.code, method.name) == (CODE, NAME), f"the accepted testing method changed: {method.code}"
+    assert not env["ir.cron"].search([("code", "like", JOB_KEY_PREFIX)]), "an onboarding cron is still active"
+    assert not env[MODEL_SCHEDULED_JOB].search([("key", "=", CRAWL_JOB)]), "the crawl job is still there"
+    kept = env["ir.cron"].with_context(active_test=False).browse(organisations_cron_id).exists()
+    assert env[MODEL_SCHEDULED_JOB].search([("key", "=", ORGANISATIONS_JOB)]), "the audited organisations job is gone"
+    assert kept and not kept.active, "the cron of the audited organisations job is not kept turned off"

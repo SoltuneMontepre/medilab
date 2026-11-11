@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_test_parameter_form_origin" model="ir.ui.view">
+        <field name="name">medilab.test.parameter.form.origin</field>
+        <field name="model">medilab.test.parameter</field>
+        <field name="inherit_id" ref="sol_laboratory.view_medilab_test_parameter_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/widget[@name='web_ribbon']" position="before">
+                <div class="oe_button_box" name="button_box">
+                    <button
+                        name="action_open_onboarding_origin"
+                        type="object"
+                        icon="travel_explore"
+                        invisible="not onboarding_origin_count"
+                        groups="sol_laboratory.group_permission_onboarding_staged_record_read_all"
+                    >
+                        <field name="onboarding_origin_count" widget="statinfo" string="Origin" />
+                    </button>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_master_data_onboarding" name="Onboarding" parent="sol_laboratory.menu_master_data_root" sequence="40">
+        <menuitem
+            id="menu_onboarding_run"
+            action="action_medilab_onboarding_run"
+            sequence="10"
+            groups="sol_laboratory.group_permission_onboarding_run_read_all"
+        />
+        <menuitem
+            id="menu_onboarding_staged_record"
+            action="action_medilab_onboarding_staged_record"
+            sequence="20"
+            groups="sol_laboratory.group_permission_onboarding_staged_record_read_all"
+        />
+    </menuitem>
+</odoo>
