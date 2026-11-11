@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_expiry" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.sol_inventory.expiry</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="stock.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//setting[@id='expiration_dates_serial_numbers']" position="after">
+                <setting id="expiry_warning_setting">
+                    <field name="expiry_warning_days" class="o_light_label" />
+                </setting>
+            </xpath>
+        </field>
+    </record>
+</odoo>

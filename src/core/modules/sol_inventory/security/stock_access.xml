@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Creating a move is for recording use and waste. Receipts and other operations keep their own accesses. -->
+    <!-- Creating a move is for recording use and waste, moving stock inside a store, correcting a quantity and disposing
+         of expired stock. Receipts and other operations keep their own accesses. -->
     <record id="sol_laboratory.access_permission_move_create_all" model="ir.access">
-        <field name="domain">[("move_kind", "in", ("consumption", "waste"))]</field>
+        <field name="domain">[("move_kind", "in", ("consumption", "waste", "relocation", "adjustment", "disposal"))]</field>
     </record>
 
     <!-- Whoever can read a result, a preparation or a container can read the moves that screen shows. -->

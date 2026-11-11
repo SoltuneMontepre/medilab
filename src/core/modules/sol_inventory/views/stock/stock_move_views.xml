@@ -15,6 +15,9 @@
                 <field name="location_dest_id" />
                 <field name="reason" />
                 <field name="automatic" />
+                <field name="company_currency_id" column_invisible="True" />
+                <field name="unit_cost" />
+                <field name="value" groups="stock.group_stock_manager,sol_laboratory.group_permission_stock_read_all" />
                 <field name="state" widget="badge" />
             </list>
         </field>
@@ -44,6 +47,9 @@
                             <field name="preparation_id" />
                             <field name="test_result_id" />
                             <field name="scrap_reason_tag_ids" widget="many2many_tags" />
+                            <field name="company_currency_id" invisible="1" />
+                            <field name="unit_cost" />
+                            <field name="value" groups="stock.group_stock_manager,sol_laboratory.group_permission_stock_read_all" />
                         </group>
                     </group>
                     <field name="move_line_ids" readonly="1">
@@ -74,6 +80,9 @@
                 <filter name="filter_preparation" string="Preparations" domain="[('move_kind', '=', 'preparation')]" />
                 <filter name="filter_consumption" string="Use" domain="[('move_kind', '=', 'consumption')]" />
                 <filter name="filter_waste" string="Waste" domain="[('move_kind', '=', 'waste')]" />
+                <filter name="filter_relocation" string="Relocations" domain="[('move_kind', '=', 'relocation')]" />
+                <filter name="filter_adjustment" string="Adjustments" domain="[('move_kind', '=', 'adjustment')]" />
+                <filter name="filter_disposal" string="Disposals" domain="[('move_kind', '=', 'disposal')]" />
                 <group>
                     <filter name="group_kind" string="Kind" context="{'group_by': 'move_kind'}" />
                 </group>

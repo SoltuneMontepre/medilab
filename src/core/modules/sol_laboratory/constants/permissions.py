@@ -30,4 +30,5 @@ DOCUMENT_TYPES = {
     "stock.lot": "lot",
     "stock.package": "container",
     "stock.move": "move",
+    "stock.quant": "stock",
 }

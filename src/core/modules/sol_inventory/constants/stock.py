@@ -18,11 +18,16 @@ MOVE_PREPARATION = "preparation"
 MOVE_CONSUMPTION = "consumption"
 MOVE_WASTE = "waste"
 MOVE_ADJUSTMENT = "adjustment"
+MOVE_RELOCATION = "relocation"
+MOVE_DISPOSAL = "disposal"
 
 # Odoo's operation type code of a receipt.
 RECEIPT_CODE = "incoming"
 # Odoo's usage of the location stock is used into: the company's Production location.
 PRODUCTION_USAGE = "production"
+# Odoo's usage of the locations stock is kept in, and of the location issued stock waits in until it is received.
+INTERNAL_USAGE = "internal"
+TRANSIT_USAGE = "transit"
 # Odoo's states of a purchase order: draft while it is prepared and signed, purchase once sent to the supplier.
 ORDER_DRAFT = "draft"
 ORDER_SENT = "purchase"

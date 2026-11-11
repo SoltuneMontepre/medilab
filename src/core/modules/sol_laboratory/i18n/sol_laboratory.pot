@@ -16842,3 +16842,8 @@ msgstr ""
 #: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch.py:0
 msgid "The subcontractor's report is kept; attach another file to replace it."
 msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_stock_read_all
+msgid "Permission: stock.read.all"
+msgstr ""

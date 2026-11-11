@@ -86,7 +86,12 @@ Follows [Containers](../overview.md#containers), [Use](../overview.md#use) and [
 | Rule       | Description                                                                                         |
 | ---------- | --------------------------------------------------------------------------------------------------- |
 | Moves      | Every transfer, use, disposal or correction is a move with a reason; moves are never edited.        |
-| Disposal   | Disposing of an expired container or lot deducts what remained in it from every location.          |
+| Keeping    | The manager of a store keeps it and every store under it: they move, correct and dispose of its stock and see its stock on hand and value. Administrators keep every store. |
+| Relocation | Stock moves between the locations of one store with a reason: a container whole, every container of a lot at a location, or a quantity. A container keeps its status and usable date. A location of another store is refused. |
+| Use        | A use by hand takes stock from the stores the person's team or department holds and the stores they keep. |
+| Correction | A correction sets the quantity of a container, or of an item and lot at a location, to the quantity counted, with a reason, as an inventory adjustment. A container corrected to zero is depleted; one whose stock ran out is counted back at the location chosen. |
+| Disposal   | The disposal list shows the expired stock of the stores the person keeps: lots past their expiry and containers past their usable date. Disposing of the stock chosen moves what remained at its locations to the scrap location with the reason Expired; a container left empty and a lot with nothing left in the laboratory are disposed. |
+| Stock      | Stock on hand and its value are shown per item, lot, container and location, under the Reporting menu with the stock expiring soon; stock in transit is shown apart and counts in no store. |
 | Missing    | A container not found at a stock take is marked missing, and its remaining amount is deducted.     |
 
 Acceptance criteria:

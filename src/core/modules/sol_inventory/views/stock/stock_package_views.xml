@@ -115,6 +115,12 @@
                     string="In stock"
                     domain="[('status', 'in', ('sealed', 'opened'))]"
                 />
+                <separator />
+                <filter
+                    name="filter_expired"
+                    string="Expired"
+                    domain="[('status', 'in', ('sealed', 'opened')), '|', ('usable_until', '&lt;', context_today().strftime('%Y-%m-%d')), ('lot_id.status', '=', 'expired')]"
+                />
                 <group>
                     <filter name="group_location" string="Location" context="{'group_by': 'location_id'}" />
                     <filter name="group_status" string="Status" context="{'group_by': 'status'}" />
