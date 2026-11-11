@@ -9,7 +9,7 @@ from odoo.fields import Command
 from odoo.tools import format_list, mute_logger
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_TESTING_FIELD, MODEL_TESTING_METHOD
-from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model, record_as
 from odoo.addons.sol_onboarding.constants.models import MODEL_ONBOARDING_STAGED_RECORD
 from odoo.addons.sol_onboarding.constants.onboarding import (
     ACTION_CREATE,
@@ -117,11 +117,11 @@ class OnboardingStagedRecordAcceptance(models.Model, OnboardingStagedRecordAccep
             raise UserError(_("Only staged records to review can be accepted."))
         if self.match_suggested:
             raise UserError(_("Confirm or clear the suggested match of %s first.", self._describe()))
-        model = dynamic_model(self.env, KIND_MODELS[self.kind])
+        model = dynamic_model(self.env, KIND_MODELS[self._kind()])
         for field, need in self._needs().items():
             if need.state == STAGED_TO_REVIEW:
                 need._accept_one()
-            elif not need and field not in ASKED_KEYS.get(self.kind, ()):
+            elif not need and field not in ASKED_KEYS.get(self._kind(), ()):
                 self._refuse_need(model._fields[field])
         if missing := self._own_missing_values():
             labels = [self._fields[key]._description_string(self.env) for key in missing]
@@ -172,7 +172,7 @@ class OnboardingStagedRecordAcceptance(models.Model, OnboardingStagedRecordAccep
             matched = catalog
             field = self.env[MODEL_TESTING_FIELD]
             for method in group:
-                found = method._matched_record()
+                found = record_as(method._matched_record(), catalog)
                 if method.action != ACTION_CREATE and not found:
                     raise UserError(
                         self.env._(
@@ -245,7 +245,7 @@ class OnboardingStagedRecordAcceptance(models.Model, OnboardingStagedRecordAccep
         """The staged record each need names, by the Laboratory field it fills; an edited value takes its place."""
         values = self._effective_values()
         needs = {}
-        for key, kind in KIND_NEEDS.get(self.kind, {}).items():
+        for key, kind in KIND_NEEDS.get(self._kind(), {}).items():
             field = NEED_FIELDS[key]
             if not values.get(field):
                 needs[field] = self._resolve_need(kind, values.get(key) or "").with_env(self.env)
@@ -264,7 +264,7 @@ class OnboardingStagedRecordAcceptance(models.Model, OnboardingStagedRecordAccep
         if self.action != ACTION_CREATE:
             return []
         needs = self._needs()
-        return [key for key in ASKED_KEYS.get(self.kind, ()) if not self[key] and not needs.get(key)]
+        return [key for key in ASKED_KEYS.get(self._kind(), ()) if not self[key] and not needs.get(key)]
 
     def _missing_values(self) -> dict:
         """The asked keys that the record, or a to-review record it needs at any depth, has no value for, each with
@@ -282,13 +282,13 @@ class OnboardingStagedRecordAcceptance(models.Model, OnboardingStagedRecordAccep
 
     def _describe(self) -> str:
         """The kind and the value of the record, such as "Test Parameter pH"."""
-        kind = dict(self._fields["kind"]._description_selection(self.env))[self.kind]
+        kind = dict(self._fields["kind"]._description_selection(self.env))[self._kind()]
         return f"{kind} {self.display_value or self.external_key}"
 
     def _laboratory_values(self) -> dict:
         """The values of its Laboratory record: the shown values, and the record each need became."""
         self.ensure_one()
-        values = {key: self._fields[key].convert_to_write(self[key], self) for key in LABORATORY_KEYS[self.kind]}
+        values = {key: self._fields[key].convert_to_write(self[key], self) for key in LABORATORY_KEYS[self._kind()]}
         values.update({field: need.record_id for field, need in self._needs().items()})
         if self.kind == KIND_TEST_PARAMETER:
             values["group_ids"] = [Command.set([values["main_group_id"]])]

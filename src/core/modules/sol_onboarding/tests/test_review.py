@@ -118,8 +118,8 @@ class TestReview(OnboardingCase):
 
         self.assertEqual((staged.record_id, staged.action), (method.id, "update"))
         self.assertEqual(staged.changes, "Name: Old title → New title")
-        self.assertIn("Code: tcvn 9990:2011", staged.source_summary)
-        self.assertIn("Name: New title", staged.source_summary)
+        self.assertIn("Code: tcvn 9990:2011", staged.source_summary or "")
+        self.assertIn("Name: New title", staged.source_summary or "")
 
         linked = self.stage(KIND_TESTING_METHOD, code="TCVN 9990:2011", name="Old title", field_key="x")
         self.assertFalse(linked.changes)

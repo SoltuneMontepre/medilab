@@ -61,5 +61,5 @@ class OnboardingSnapshot(models.Model, OnboardingSnapshotBase):
                 "attachment_id": attachment.id,
             }
         )
-        attachment.res_id = snapshot.id
+        attachment.write({"res_id": snapshot.id})
         return snapshot

@@ -5,6 +5,7 @@ from dateutil.relativedelta import relativedelta
 from lxml.etree import ParserError
 
 from odoo import fields, models
+from odoo.fields import Domain
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_JOB_ITEM, MODEL_SCHEDULED_JOB
 from odoo.addons.sol_onboarding.constants.models import (
@@ -31,7 +32,7 @@ class ScheduledJob(models.Model, ScheduledJobBase):
         # ago. The cron's schedule is the cadence; the half interval keeps a run by hand, which calls this every time,
         # from starting another, and lets the cron's next pass in even though the last refresh began after the cron.
         now = fields.Datetime.now()
-        recent = now - (now + relativedelta(**{self.interval_type: self.interval_number}) - now) / 2
+        recent = now - (now + relativedelta(**{str(self.interval_type): self.interval_number}) - now) / 2
         for source in self.env[MODEL_ONBOARDING_SOURCE].sudo().search([("enabled", "=", True)]):
             refreshed_at = source.organisations_refreshed_at
             if self._refresh_items(source, *ITEMS_OPEN) or (refreshed_at and refreshed_at > recent):
@@ -44,7 +45,7 @@ class ScheduledJob(models.Model, ScheduledJobBase):
         previous = source.organisations_refreshed_at
         organisations = self.env[MODEL_ONBOARDING_ORGANISATION].sudo()
         if previous:
-            failed = self._refresh_items(source, ITEM_FAILED, stamp=fields.Datetime.to_string(previous))
+            failed = self._refresh_items(source, ITEM_FAILED, stamp=str(fields.Datetime.to_string(previous)))
             seen = organisations.search_count([("source_id", "=", source.id), ("seen_at", ">=", previous)])
             # A refresh that failed or saw nothing proves nothing about what is no longer listed.
             if seen and not failed:
@@ -57,9 +58,9 @@ class ScheduledJob(models.Model, ScheduledJobBase):
             self._queue_organisation_page(source, stamp, address)
 
     def _refresh_items(self, source, *statuses, stamp="%"):
-        domain = [("item_key", "=like", f"organisations:{source.id}:{stamp}:%")]
+        domain = Domain("item_key", "=like", f"organisations:{source.id}:{stamp}:%")
         if statuses:
-            domain.append(("status", "in", statuses))
+            domain &= Domain("status", "in", statuses)
         return self.env[MODEL_JOB_ITEM].sudo().search(domain)
 
     def _queue_organisation_page(self, source, stamp, address):

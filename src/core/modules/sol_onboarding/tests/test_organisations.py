@@ -143,7 +143,8 @@ class TestOrganisations(OnboardingCase):
         self.run_until_settled(ORGANISATIONS_JOB)
         item = self.items()
         self.assertEqual(item.status, "done")
-        self.assertTrue(item.payload["skipped"])
+        payload = item.payload
+        self.assertTrue(isinstance(payload, dict) and payload["skipped"])
         self.assertFalse(self.listed())
 
     def test_a_busy_source_defers_the_item_without_an_attempt(self):

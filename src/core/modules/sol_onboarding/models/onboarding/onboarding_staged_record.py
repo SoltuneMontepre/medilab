@@ -108,3 +108,15 @@ class OnboardingStagedRecord(models.Model, OnboardingStagedRecordBase):
         reviewed_by_id = fields.Many2one(MODEL_RES_USERS, string="Reviewed By", ondelete="restrict")
         # Time it was accepted or rejected.
         reviewed_at = fields.Datetime(string="Reviewed At")
+
+    def _kind(self) -> str:
+        """The kind, which every staged record has."""
+        return self.kind or ""
+
+    def _source_dict(self) -> dict:
+        """The source values, which are stored as a JSON object."""
+        return self.source_values if isinstance(self.source_values, dict) else {}
+
+    def _edited_dict(self) -> dict:
+        """The edited values, which are stored as a JSON object; empty until edited."""
+        return self.edited_values if isinstance(self.edited_values, dict) else {}

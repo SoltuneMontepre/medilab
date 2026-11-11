@@ -171,7 +171,7 @@ class TestFetcher(OnboardingCase):
         fetcher_module.ROBOTS.clear()
         fetcher_module.LAST_REQUESTS.clear()
         self.env.invalidate_all()
-        Fetcher(self.env[MODEL_ONBOARDING_SOURCE].sudo().browse(self.source.id), "run:1").fetch("https://lab.example/b")
+        Fetcher(self.source.sudo(), "run:1").fetch("https://lab.example/b")
 
         self.assertEqual(
             [call.url for call in calls], [ROBOTS_URL, "https://lab.example/a", ROBOTS_URL, "https://lab.example/b"]

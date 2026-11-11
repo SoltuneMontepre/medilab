@@ -13,6 +13,7 @@ from odoo.addons.sol_onboarding.constants.models import (
 )
 from odoo.addons.sol_onboarding.constants.onboarding import CRAWL_JOB
 from odoo.addons.sol_onboarding.services.adapters.base import Fetched, Parsed
+from odoo.addons.sol_onboarding.services.adapters.boa import BoaAdapter
 from odoo.addons.sol_onboarding.services.adapters.registry import adapter_for
 from odoo.addons.sol_onboarding.services.parsing import pdf_text
 from odoo.addons.sol_onboarding.tests.onboarding_case import OnboardingCase
@@ -182,7 +183,7 @@ class TestBoaAdapter(OnboardingCase):
             "Field of testing: Chemical\n1. Determination of colour 0 8,0 ASTM D 1500 -24 \n(2017)\n"
             "2. Determination of gum GOST 11802 -88(e2003) ASTM D 1500 -24 (2017)\n3. Xác định\n TCVN 7272:10\n"
         )
-        adapter = adapter_for(self.boa)
+        adapter = BoaAdapter(self.boa)
         methods = adapter._annex(text)[1:]
         self.assertEqual(
             [(m.key, m.values["name"]) for m in methods],
@@ -203,7 +204,7 @@ class TestBoaAdapter(OnboardingCase):
             "10. ISO 6579-1:2017\n11. TCVN 7924-2:2008\n12. AOAC Official Method 2015.01\n13. US EPA Method 200.8\n"
             "14. ISO/IEC 17025:2017\n"
         )
-        methods = adapter_for(self.boa)._annex(text)[1:]
+        methods = BoaAdapter(self.boa)._annex(text)[1:]
         self.assertEqual(
             [m.values["code"] for m in methods],
             [
@@ -252,7 +253,7 @@ class TestBoaAdapter(OnboardingCase):
         snapshot = self.env[MODEL_ONBOARDING_SNAPSHOT]._keep(
             self.env[MODEL_ONBOARDING_RUN].create({}), self.boa, fetched
         )
-        adapter = adapter_for(self.boa)
+        adapter = BoaAdapter(self.boa)
         annex = adapter._annex(pdf_text(recorded("annex.pdf")).replace("VILAS 001", "VILAS 9972"))
         second = (
             self.env[MODEL_ONBOARDING_STAGED_RECORD]
@@ -264,6 +265,6 @@ class TestBoaAdapter(OnboardingCase):
         self.assertEqual(
             sorted(second.child_ids.mapped("external_key")), sorted(f"VILAS 9972: {code}" for code in SCOPE)
         )
-        self.assertEqual(sorted(child.source_values["code"] for child in second.child_ids), sorted(SCOPE))
+        self.assertEqual(sorted(child._source_dict()["code"] for child in second.child_ids), sorted(SCOPE))
         self.assertEqual(len(first.child_ids), len(SCOPE))
         self.assertEqual(set(first.child_ids.mapped("state")), {"to_review"})

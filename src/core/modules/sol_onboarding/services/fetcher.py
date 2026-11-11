@@ -126,10 +126,10 @@ class Fetcher:
                 )
             except RedirectSkipped:
                 # Rules that cannot be followed to their address disallow everything for the run (RFC 9309 2.3.1.2).
-                robots.disallow_all = True
+                robots.parse(["User-agent: *", "Disallow: /"])
             except (PageRefused, PageSkipped):
                 # A robots.txt that answers 4xx or cannot be used allows everything for the run.
-                robots.allow_all = True
+                robots.parse([])
             else:
                 robots.parse(document.body.decode("utf-8", "replace").splitlines())
             ROBOTS[key] = robots

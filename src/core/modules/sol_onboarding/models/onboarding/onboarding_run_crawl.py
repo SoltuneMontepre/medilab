@@ -27,6 +27,11 @@ else:
     OnboardingRunCrawlBase = object
 
 
+def _payload(item) -> dict:
+    """The payload of a crawl item, which the job framework stores as JSON."""
+    return item.payload if isinstance(item.payload, dict) else {}
+
+
 # Lượt Thu Thập: crawling its pages and reporting when it ends.
 class OnboardingRunCrawl(models.Model, OnboardingRunCrawlBase):
     _inherit = MODEL_ONBOARDING_RUN
@@ -73,7 +78,8 @@ class OnboardingRunCrawl(models.Model, OnboardingRunCrawlBase):
         items = run._crawl_items().sorted("id")
         lines = []
         for item in items:
-            address = item.item_key.partition(":")[2]
+            address = (item.item_key or "").partition(":")[2]
+            payload = _payload(item)
             if item.status == ITEM_FAILED:
                 error = (item.last_error or "").strip()
                 # A retried failure keeps its traceback, whose last line is the exception class and, when it has one,
@@ -82,13 +88,11 @@ class OnboardingRunCrawl(models.Model, OnboardingRunCrawlBase):
                     last = error.rpartition("\n")[2]
                     error = last.partition(": ")[2] if ": " in last else last
                 lines.append(self.env._("failed %(address)s: %(error)s", address=address, error=error))
-            elif "skipped" in item.payload:
-                lines.append(
-                    self.env._("skipped %(address)s: %(reason)s", address=address, reason=item.payload["skipped"])
-                )
+            elif "skipped" in payload:
+                lines.append(self.env._("skipped %(address)s: %(reason)s", address=address, reason=payload["skipped"]))
             elif item.status == ITEM_DONE:
                 lines.append(self.env._("fetched %s", address))
-            if dropped := item.payload.get("dropped"):
+            if dropped := payload.get("dropped"):
                 lines.append(self.env._("%s pages not queued: page limit", dropped))
         kinds = Counter(run.staged_record_ids.mapped("kind"))
         labels = self.env[MODEL_ONBOARDING_STAGED_RECORD]._fields["kind"]._description_selection(self.env)
@@ -97,7 +101,7 @@ class OnboardingRunCrawl(models.Model, OnboardingRunCrawlBase):
             lines.append(self.env._("No turned-on source reads this organisation or these sectors."))
         return {
             "page_count": len(run.snapshot_ids),
-            "skipped_count": len(items.filtered(lambda item: "skipped" in item.payload)),
+            "skipped_count": len(items.filtered(lambda item: "skipped" in _payload(item))),
             "staged_count": len(run.staged_record_ids),
             "log": "\n".join(lines),
         }

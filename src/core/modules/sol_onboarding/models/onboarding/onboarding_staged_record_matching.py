@@ -1,4 +1,5 @@
 import unicodedata
+from datetime import date
 from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
@@ -69,14 +70,14 @@ class OnboardingStagedRecordMatching(models.Model, OnboardingStagedRecordMatchin
     @api.constrains("record_model", "kind")
     def _check_record_model(self):
         for record in self:
-            if record.record_model and record.record_model != KIND_MODELS[record.kind]:
+            if record.record_model and record.record_model != KIND_MODELS[record._kind()]:
                 raise ValidationError(
                     self.env._("The matched record of %s must be a record of its kind.", record._describe())
                 )
 
     def _effective_values(self) -> dict:
         self.ensure_one()
-        return {**self.source_values, **(self.edited_values or {})}
+        return {**self._source_dict(), **self._edited_dict()}
 
     def _resolve_need(self, kind: str, key: str):
         """The newest staged record of the kind and key from the same source, to review or accepted."""
@@ -111,7 +112,7 @@ class OnboardingStagedRecordMatching(models.Model, OnboardingStagedRecordMatchin
         """The model, id and whether the match is a suggestion; an id of 0 is no match."""
         self.ensure_one()
         values = self._effective_values()
-        model = KIND_MODELS[self.kind]
+        model = KIND_MODELS[self._kind()]
         dynamic_model(self.env, model).flush_model()
         table = dynamic_model(self.env, model)._table
         if self.kind == KIND_PARAMETER_METHOD:
@@ -160,7 +161,7 @@ class OnboardingStagedRecordMatching(models.Model, OnboardingStagedRecordMatchin
     def _matched_record(self):
         """The Laboratory record it matches, empty when there is none or it was deleted."""
         self.ensure_one()
-        model = dynamic_model(self.env, KIND_MODELS[self.kind])
+        model = dynamic_model(self.env, KIND_MODELS[self._kind()])
         if not self.record_id:
             return model
         return model.sudo().browse(self.record_id).exists()
@@ -179,18 +180,18 @@ class OnboardingStagedRecordMatching(models.Model, OnboardingStagedRecordMatchin
         does not give, or gives as a date that is not ISO, is no change."""
         if self.kind == KIND_PARAMETER_METHOD:
             return []
-        record = dynamic_model(self.env, KIND_MODELS[self.kind]).sudo().browse(matched_id).exists()
+        record = dynamic_model(self.env, KIND_MODELS[self._kind()]).sudo().browse(matched_id).exists()
         if not record:
             return []
         record = record.with_context(lang=self.lang, active_test=False)
         values = self._effective_values()
         differences = []
-        for key in COMPARED_KEYS[self.kind]:
+        for key in COMPARED_KEYS[self._kind()]:
             wanted = values.get(key) or ""
             if not wanted or (record._fields[key].type == "date" and not is_iso_date(wanted)):
                 continue
             current = record[key]
-            current = (current.isoformat() if hasattr(current, "isoformat") else current) or ""
+            current = current.isoformat() if isinstance(current, date) else str(current or "")
             if key == "code":
                 same = normalize_code(current) == normalize_code(wanted)
             else:

@@ -40,7 +40,7 @@ class TestMatching(OnboardingCase):
     def stage(self, kind, key=None, **values):
         fetched = Fetched("https://lab.example/a", "html", b"<p>A</p>", datetime(2026, 10, 21, 8, 0, 0))
         snapshot = self.env[MODEL_ONBOARDING_SNAPSHOT]._keep(self.collection_run, self.source, fetched)
-        item = StagedValues(kind, key or values.get("code") or values.get("name"), values, "vi_VN")
+        item = StagedValues(kind, key or values.get("code") or values.get("name") or "", values, "vi_VN")
         return self.records._stage(snapshot, [item])
 
     def lab_method(self, **values):
@@ -143,7 +143,7 @@ class TestMatching(OnboardingCase):
         method = self.lab_method(code="TCVN 9883:2011")
         staged = self.stage(KIND_TESTING_METHOD, code="TCVN 9883：２011", name=method.name, field_key="x")
 
-        self.assertEqual(staged.source_values["code"], "TCVN 9883\uff1a\uff12011")
+        self.assertEqual(staged._source_dict()["code"], "TCVN 9883\uff1a\uff12011")
         self.assertEqual((staged.record_id, staged.action, staged.match_suggested), (method.id, "link", False))
 
     def test_a_laboratory_code_kept_with_full_width_characters_links(self):

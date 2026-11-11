@@ -311,5 +311,5 @@ class TestAccepting(OnboardingCase):
         staged.with_user(self.editor).action_accept()
 
         self.assertEqual(staged.state, "to_review")
-        self.assertIn(MODEL_TESTING_METHOD, staged.error)
+        self.assertIn(MODEL_TESTING_METHOD, staged.error or "")
         self.assertFalse(self.env[MODEL_TESTING_METHOD].search([("code", "=", "TCVN 9703:2011")]))

@@ -67,11 +67,10 @@ describe("Onboarding", () => {
     currentStatus().should("contain", "Accepted");
 
     // The methods go into the catalog; the administrator adds the certificate's scope lines by hand.
-    cy.visit("/odoo/testing-methods");
-    for (const code of ["TCVN 6492:2011", "TCVN 8126:2009", "TCVN 6658:2000"]) {
-      cy.get(".o_searchview_input").type(`${code}{enter}`);
-      cy.contains(".o_data_row", code).should("be.visible");
-    }
+    const codes = ["TCVN 6492:2011", "TCVN 6658:2000", "TCVN 8126:2009"];
+    call("medilab.testing.method", "search_read", [[["code", "in", codes]]], { fields: ["code"] }).then((methods) => {
+      expect(methods.map(({ code }) => code).sort()).to.deep.equal(codes);
+    });
     cy.visit("/odoo/accreditation-certificates");
     cy.contains(".o_data_row", CERTIFICATE).click();
     cy.get(".o_field_widget[name=scope_line_ids] .o_data_row").should("not.exist");

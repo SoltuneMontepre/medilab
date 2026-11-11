@@ -24,8 +24,8 @@ class PagesAdapter(Adapter):
         tree = html_tree(document.body)
         organisations = tuple(
             OrganisationValues(
-                key=row.get("data-key"),
-                name=clean_text(row.text_content()),
+                key=row.get("data-key") or "",
+                name=clean_text("".join(row.itertext())),
                 url=document.url,
                 tax_id=row.get("data-tax-id"),
                 accreditation_code=row.get("data-code"),
@@ -37,14 +37,16 @@ class PagesAdapter(Adapter):
         for item in tree.iter("li"):
             if item.get("data-kind") is None:
                 continue
-            kind = item.get("data-kind")
+            kind = item.get("data-kind") or ""
             parent = (
-                (item.get("data-parent-kind"), item.get("data-parent-key")) if item.get("data-parent-key") else None
+                (item.get("data-parent-kind") or "", item.get("data-parent-key") or "")
+                if item.get("data-parent-key")
+                else None
             )
             records.append(
                 StagedValues(
                     kind=kind,
-                    key=item.get("data-key"),
+                    key=item.get("data-key") or "",
                     values={key: clean_text(item.get(f"data-{key.replace('_', '-')}", "")) for key in VALUE_KEYS[kind]},
                     lang="vi_VN",
                     sector=sector,

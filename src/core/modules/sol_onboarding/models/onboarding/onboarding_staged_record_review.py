@@ -9,6 +9,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PARAMETER_GROUP,
     MODEL_TESTING_FIELD,
 )
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
 from odoo.addons.sol_onboarding.constants.models import MODEL_ONBOARDING_STAGED_RECORD
 from odoo.addons.sol_onboarding.constants.onboarding import (
     ACTION_UPDATE,
@@ -102,8 +103,9 @@ class OnboardingStagedRecordReview(models.Model, OnboardingStagedRecordReviewBas
                 return fields.Date.to_date(value)
             except ValueError:
                 return False
-        if key in RECORD_KEYS:
-            return self.env[self._fields[key].comodel_name].browse(value or []).exists()
+        field = self._fields[key]
+        if key in RECORD_KEYS and isinstance(field, fields.Many2one):
+            return dynamic_model(self.env, field.comodel_name).browse(value or []).exists()
         return value
 
     @api.depends("source_values", "edited_values")
@@ -121,10 +123,10 @@ class OnboardingStagedRecordReview(models.Model, OnboardingStagedRecordReviewBas
             return super().write(vals)
         others = {key: value for key, value in vals.items() if key not in keys}
         for record in self:
-            edited = dict(record.edited_values or {})
+            edited = dict(record._edited_dict())
             for key in keys:
                 stored = self._stored(key, vals[key])
-                if stored == (record.source_values.get(key) or ""):
+                if stored == (record._source_dict().get(key) or ""):
                     edited.pop(key, None)
                 else:
                     edited[key] = stored
@@ -151,7 +153,7 @@ class OnboardingStagedRecordReview(models.Model, OnboardingStagedRecordReviewBas
         labels = self._value_labels()
         for record in self:
             record.source_summary = "\n".join(
-                f"{labels[key]}: {record.source_values.get(key) or ''}" for key in VALUE_KEYS[record.kind]
+                f"{labels[key]}: {record._source_dict().get(key) or ''}" for key in VALUE_KEYS[record._kind()]
             )
 
     @api.depends("source_values", "edited_values", "record_model", "record_id", "action", "lang")
@@ -167,12 +169,12 @@ class OnboardingStagedRecordReview(models.Model, OnboardingStagedRecordReviewBas
     def _compute_match_ref(self):
         for record in self:
             matched = record._matched_record()
-            record.match_ref = f"{matched._name},{matched.id}" if matched else False
+            record.match_ref = matched or False
 
     def _inverse_match_ref(self):
         for record in self:
             matched = record.match_ref
-            if matched and matched._name != KIND_MODELS[record.kind]:
+            if matched and matched._name != KIND_MODELS[record._kind()]:
                 raise ValidationError(
                     self.env._("The match must be a record of the model of the kind %s.", record.kind)
                 )
