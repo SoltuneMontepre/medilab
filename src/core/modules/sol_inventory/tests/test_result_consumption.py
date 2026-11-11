@@ -211,6 +211,7 @@ class TestResultConsumption(ResultCase):
                 "subcontractor_id": subcontractor.id,
             }
         )
+        self.offer(self.parameter, self.test.sudo().sample_id.sample_type_id, way=way)
         result = self.enter()
         self.test.sudo().write({"parameter_method_id": way.id, "status": "outsourced"})
 
