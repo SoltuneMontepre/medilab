@@ -14,7 +14,7 @@ How code inside an Odoo module is laid out.
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `master_data`       | What the laboratory can test and with what: parameters, groups, sample types, methods, units, regulations, quality registrations, locations, machines, chemicals, subcontractors, customers |
 | `sample_collection` | Test requests and samples: reception, handover, recollection, subcontract dispatches, and creating a sample's laboratory folders                                                  |
-| `testing`           | Sample tests, results, machine bookings, test reports, change requests                                                                                                           |
+| `testing`           | Sample tests, results, machine bookings, test reports with their templates, drafts and prepared PDFs, change requests                                                                                                           |
 | `tasks`             | Task types and tasks                                                                                                                                                             |
 | `notifications`     | Notification events, preferences, recipients and push deliveries                                                                                                                 |
 | `management`        | Features only managers use                                                                                                                                                       |
@@ -44,7 +44,7 @@ How code inside an Odoo module is laid out.
 
 ## Permissions
 
-- Each new document model inherits `medilab.permission.mixin` and ships its permissions in its module's `data/permission_data.xml`: one per action in its `_permission_actions`, with scope `all`, the same actions with scope `own_department` only when the model has `department_id`, and with scope `own_team` only when it has `team_id`. A test fails when one is missing.
+- Each new document model inherits `medilab.permission.mixin` and ships its permissions in its module's `data/permission_data.xml`: one per action in its `_permission_actions`, with scope `all`, the same actions with scope `own_department` only when the model has `department_id`, with scope `own_team` only when it has `team_id`, and with scope `own` only when it has `user_id` and a role may be limited to its own records. A test fails when one is missing.
 - Each new document model also inherits `medilab.audit.mixin` and names the documents under it in `_audit_children`, such as `sample_ids` on a test request. An Odoo model a module extends gets the mixin with `_name` set and the mixin before the Odoo name in `_inherit`, so the entry includes what Odoo's own `write` changes, such as an employee's version: `_name = MODEL_EMPLOYEE` and `_inherit = [MODEL_AUDIT_MIXIN, MODEL_EMPLOYEE]`. A model that gets the audit mixin through another mixin, such as `sale.order` through the approval mixin, lists that mixin after the Odoo name, as Python cannot order the two otherwise. A test fails when a model is left out; [Audit trail](../specs/audit-trail.md) lists the models that are.
 - Permissions, the administrator role and the administrator person are shipped data. Departments, people and other roles are user data. Demo data lives only in the `sol_demo` module, which assigns shipped permissions and never creates one.
 - [Permissions](../specs/permissions.md) describes the mechanism.
@@ -60,7 +60,9 @@ Technical names used in Python live in the `constants/` package at the root of t
 | `constants/departments.py` | Domains that tell departments from teams, such as `DEPARTMENT_DOMAIN`                       |
 | `constants/xml_ids.py`     | External ids Python code refers to, such as `ADMINISTRATOR_ROLE`                            |
 | `constants/settings.py`    | System parameter keys and their defaults, such as `SAFETY_MARGIN_PARAMETER`                 |
+| `constants/catalog.py`     | Context keys of the catalog, such as `DEFAULTS_CHECKED_BY_PARAMETER`                        |
 | `constants/tasks.py`       | Task triggers and statuses, such as `MANUAL_TRIGGER`                                        |
+| `constants/scheduling.py`  | Internal calendar synchronization and scheduling context markers                           |
 | `constants/approvals.py`   | Approval chain purposes, signature decisions and approval states, such as `DECISION_SIGNED` |
 | `constants/customers.py`   | Customer types and sign-up values, such as `SIGNUP_CUSTOMER_KEY`                            |
 | `constants/audit.py`       | How the audit trail masks values, such as `MASK_PERSONAL`                                   |
@@ -72,6 +74,7 @@ Technical names used in Python live in the `constants/` package at the root of t
 | `constants/items.py`       | Kinds of stock items and how they are tracked, such as `KIND_SOLUTION`                      |
 | `constants/laboratory_files.py` | Member roles, sync modes and access levels of laboratory folders and files, the sources of file versions, Office extensions, and the codes of their refusals, such as `FOLDER_SHARE` |
 | `constants/laboratory_editing.py` | Statuses of online editing sessions and of the editing service's callbacks, the files edited online, the editing service's addresses, secret and token header, and the codes of their refusals, such as `OPEN_STATUSES` |
+| `constants/report_templates.py` | States of report template versions, the data bindings of report DOCX files, the statuses of prepared PDFs and the context key naming the one a signer reviewed, such as `REQUIRED_BINDINGS` |
 | `constants/laboratory_api.py` | The path of the laboratory files API, the HTTP status of each refusal code and the limits on signing in, such as `ERROR_STATUSES` |
 
 - Names are UPPER*SNAKE_CASE; a model constant is `MODEL*<NAME>`and holds the value of`\_name`.

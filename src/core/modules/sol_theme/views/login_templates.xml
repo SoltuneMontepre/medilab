@@ -42,6 +42,7 @@
             expr="//div[contains(@t-attf-class, 'o_database_list')]/div[hasclass('card-body')]/div[hasclass('ml_auth_logo')]/img"
             position="attributes">
             <attribute name="class">ml_auth_logo_image</attribute>
+            <attribute name="t-attf-src">/sol_theme/static/src/img/icons/icon-192x192.png</attribute>
         </xpath>
 
         <xpath

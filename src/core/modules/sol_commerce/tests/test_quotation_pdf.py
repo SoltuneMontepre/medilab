@@ -47,3 +47,9 @@ class TestQuotationPdf(OrderCase):
         order = self.make_quotable_order()
 
         self.assertNotIn("Units", self.html(order))
+
+    def test_the_report_renders_in_the_contact_language(self):
+        order = self.make_quotable_order()
+        order.partner_id.lang = "vi_VN"
+
+        self.assertIn("Nhân viên kinh doanh", self.html(order))

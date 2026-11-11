@@ -1,4 +1,5 @@
 import re
+from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.fields import Domain
@@ -15,33 +16,39 @@ from odoo.addons.sol_inventory.constants.stock import (
 from odoo.addons.sol_inventory.constants.xml_ids import CONTAINER_ACTION
 from odoo.addons.sol_laboratory.constants.models import MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_stock_package as StockPackageBase
+else:
+    StockPackageBase = object
+
 
 # Chai/Lọ
-class StockPackage(models.Model):
+class StockPackage(models.Model, StockPackageBase):
     # _name is required to add mixins to an Odoo model.
     _name = MODEL_STOCK_PACKAGE
     _inherit = [MODEL_AUDIT_MIXIN, MODEL_STOCK_PACKAGE, MODEL_ARCHIVE_MIXIN]
 
-    # sealed, opened, depleted, disposed or missing.
-    status = fields.Selection(
-        [
-            (CONTAINER_SEALED, "Sealed"),
-            (CONTAINER_OPENED, "Opened"),
-            (CONTAINER_DEPLETED, "Depleted"),
-            (CONTAINER_DISPOSED, "Disposed"),
-            (CONTAINER_MISSING, "Missing"),
-        ],
-        required=True,
-        default=CONTAINER_SEALED,
-    )
-    # Last day the container can be used: its lot's expiry date while it is sealed.
-    usable_until = fields.Date(string="Usable Until", compute="_compute_usable_until", store=True)
-    # The item in the container.
-    item_id = fields.Many2one(MODEL_PRODUCT, string="Item", compute="_compute_content")
-    # The lot of the stock in the container.
-    lot_id = fields.Many2one(MODEL_STOCK_LOT, string="Lot", compute="_compute_content")
-    # Quantity left in the container, in its item's unit.
-    quantity = fields.Float(string="Quantity", digits="Product Unit", compute="_compute_content")
+    if not TYPE_CHECKING:
+        # sealed, opened, depleted, disposed or missing.
+        status = fields.Selection(
+            [
+                (CONTAINER_SEALED, "Sealed"),
+                (CONTAINER_OPENED, "Opened"),
+                (CONTAINER_DEPLETED, "Depleted"),
+                (CONTAINER_DISPOSED, "Disposed"),
+                (CONTAINER_MISSING, "Missing"),
+            ],
+            required=True,
+            default=CONTAINER_SEALED,
+        )
+        # Last day the container can be used: its lot's expiry date while it is sealed.
+        usable_until = fields.Date(string="Usable Until", compute="_compute_usable_until", store=True)
+        # The item in the container.
+        item_id = fields.Many2one(MODEL_PRODUCT, string="Item", compute="_compute_content")
+        # The lot of the stock in the container.
+        lot_id = fields.Many2one(MODEL_STOCK_LOT, string="Lot", compute="_compute_content")
+        # Quantity left in the container, in its item's unit.
+        quantity = fields.Float(string="Quantity", digits="Product Unit", compute="_compute_content")
 
     _name_unique = models.Constraint("UNIQUE(name)", "Another container already has this code.")
     _location_status_idx = models.Index("(location_id, status)")
@@ -75,6 +82,8 @@ class StockPackage(models.Model):
         prefix = f"{lot_name}-"
         used = self.sudo().search_fetch(Domain("name", "=like", f"{escape_like_value(prefix)}%"), ["name"])
         pattern = re.compile(rf"{re.escape(prefix)}(\d+)")
-        numbers = [int(match.group(1)) for match in map(pattern.fullmatch, used.mapped("name")) if match]
+        numbers = [
+            int(match.group(1)) for match in (pattern.fullmatch(name or "") for name in used.mapped("name")) if match
+        ]
         start = max(numbers, default=0) + 1
         return [f"{prefix}{number:02d}" for number in range(start, start + count)]

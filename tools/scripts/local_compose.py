@@ -4,6 +4,7 @@ Usage: python tools/scripts/local_compose.py <Compose arguments> or guard-demo-i
 Completed fresh bootstrap environments use their persisted, owner-checked Compose and volume configuration.
 """
 
+import contextlib
 import os
 import subprocess
 import sys
@@ -24,6 +25,7 @@ from demo_bootstrap import (
     _volume_mismatch,
     _volume_mismatch_message,
 )
+from onlyoffice_state import OnlyofficeError, missing_core_volumes, resolve_addon
 
 COMPOSE_COMMANDS = {"up", "down", "stop", "restart", "logs", "ps", "run", "exec"}
 COMPOSE_IDENTITY_OPTIONS = {
@@ -47,6 +49,7 @@ def _checked_arguments(arguments):
         )
     if any(
         argument in COMPOSE_IDENTITY_OPTIONS
+        or (len(argument) > 2 and argument.startswith(("-p", "-f")))
         or any(
             argument.startswith(option + "=")
             for option in COMPOSE_IDENTITY_OPTIONS
@@ -73,7 +76,7 @@ def _completed_configuration(project, marker):
     missing_volumes, unexpected_volumes = _volume_mismatch(
         config, _owned_volume_names(project, owner)
     )
-    if missing_volumes or unexpected_volumes:
+    if missing_core_volumes(config, missing_volumes) or unexpected_volumes:
         raise BootstrapError(
             _volume_mismatch_message(missing_volumes, unexpected_volumes)
         )
@@ -203,9 +206,19 @@ def main():
             return
         arguments = _checked_arguments(sys.argv[1:])
         project, _marker, files, env = _resolve(arguments[0])
+        extra_files, extra_env = resolve_addon(project, _marker, env, arguments[0])
+        files += extra_files
+        env.update(extra_env)
         command = ["docker", "compose", "-p", project, *files, *arguments]
-        raise SystemExit(subprocess.run(command, env=env, check=False).returncode)
-    except (BootstrapError, ValueError, OSError) as error:
+        drain = contextlib.nullcontext()
+        if arguments[0] == "down" and extra_files:
+            from onlyoffice import drained_for_compose
+
+            drain = drained_for_compose(project, _marker, env)
+        with drain:
+            result = subprocess.run(command, env=env, check=False)
+        raise SystemExit(result.returncode)
+    except (BootstrapError, OnlyofficeError, ValueError, OSError) as error:
         print(str(error), file=sys.stderr)
         raise SystemExit(1) from error
 

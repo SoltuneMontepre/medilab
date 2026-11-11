@@ -1,27 +1,54 @@
+// The backend's service worker checks for an update after its page has gone. Sent after the session is
+// cleared, that request gets a new session cookie, which the login form's CSRF token no longer matches.
+// Unregistering waits for an update in progress and cancels later ones.
+export function removeServiceWorkers() {
+  return cy.then(() =>
+    navigator.serviceWorker?.getRegistrations().then((registrations) => Promise.all(registrations.map((registration) => registration.unregister()))),
+  );
+}
+
 export function signIn(login) {
   return cy.env(["demoPassword"]).then(({ demoPassword }) => {
-    cy.session([Cypress.config("baseUrl"), login], () => {
-      cy.visit("/web/login");
-      cy.get("input[name=login]").type(login);
-      cy.get("input[name=password]").type(demoPassword, {
-        log: false,
-        parseSpecialCharSequences: false,
-      });
-      cy.get("form.oe_login_form").submit();
-      cy.location("pathname").should("match", /^\/(odoo|my)(\/|$)/);
-    }, {
-      cacheAcrossSpecs: false,
-      validate() {
-        cy.request("POST", "/web/session/get_session_info", {
-          jsonrpc: "2.0",
-          method: "call",
-          params: {},
-        }).its("body.result.username").should("eq", login);
+    removeServiceWorkers();
+    cy.session(
+      [Cypress.config("baseUrl"), login],
+      () => {
+        cy.visit("/web/login");
+        cy.get("input[name=login]").type(login);
+        cy.get("input[name=password]").type(demoPassword, {
+          log: false,
+          parseSpecialCharSequences: false,
+        });
+        cy.get("form.oe_login_form").submit();
+        cy.location("pathname").should("match", /^\/(odoo|my)(\/|$)/);
       },
-    });
+      {
+        cacheAcrossSpecs: false,
+        validate() {
+          cy.request("POST", "/web/session/get_session_info", {
+            jsonrpc: "2.0",
+            method: "call",
+            params: {},
+          })
+            .its("body.result.username")
+            .should("eq", login);
+        },
+      },
+    );
     cy.visit("/web");
     return cy.location("pathname").should("match", /^\/(odoo|my)(\/|$)/);
   });
+}
+
+// Signs out to the catalog as a visitor whose session stays. The back office is left first, since its requests
+// after the cookies are cleared would open sessions. A visitor's first page and the requests it starts, such as
+// /website/translations, can each open a session, and a portal form's CSRF token only matches the one that stays.
+export function becomeVisitor() {
+  cy.visit("/catalog");
+  cy.clearCookies();
+  cy.visit("/catalog");
+  cy.getCookie("session_id").should("exist");
+  return cy.visit("/catalog");
 }
 
 // A call carries the signed-in user's context, so its messages are in the user's language, as on screen.
@@ -53,14 +80,39 @@ export function callRefused(model, method, args, kwargs = {}) {
   });
 }
 
+// A random identifier. crypto.randomUUID needs a secure origin, which an HTTP address other than localhost is not.
+export function randomId() {
+  if (crypto.randomUUID) return crypto.randomUUID();
+  return Array.from(crypto.getRandomValues(new Uint8Array(16)), (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+// Execution metadata identifies pending work without exposing RPC arguments or session cookies.
+export function task(name, payload, options) {
+  const execution = Cypress.expose("wf03Execution");
+  return cy.task(
+    name,
+    execution
+      ? {
+          ...payload,
+          execution: {
+            ...execution,
+            callId: randomId(),
+            test: Cypress.currentTest?.titlePath.join(" > ") || "suite hook",
+          },
+        }
+      : payload,
+    options,
+  );
+}
+
 // Calls a model method as another login from the test runner, leaving the browser's session as it is.
 export function callAs(login, model, method, args, kwargs = {}) {
-  return cy.task("odooCall", { login, model, method, args, kwargs });
+  return task("odooCall", { login, model, method, args, kwargs });
 }
 
 // A record given by its external ID, resolved as another login from the test runner.
-export function refAs(login, xmlId) {
-  return callAs(login, "ir.model.data", "check_object_reference", xmlId.split(".")).then(([model, id]) => ({ model, id }));
+export function refAs(login, xmlId, kwargs = {}) {
+  return callAs(login, "ir.model.data", "check_object_reference", xmlId.split("."), kwargs).then(([model, id]) => ({ model, id }));
 }
 
 // Posts a portal form as another login from the test runner, with the CSRF token of the page that shows it.

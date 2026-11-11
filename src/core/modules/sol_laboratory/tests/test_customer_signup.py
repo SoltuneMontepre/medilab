@@ -1,7 +1,7 @@
 import secrets
 
 from odoo.exceptions import UserError
-from odoo.tests import tagged
+from odoo.tests import new_test_user, tagged
 
 from .request_case import RequestCase
 from odoo.addons.sol_laboratory.constants.customers import SIGNUP_CUSTOMER_KEY
@@ -93,7 +93,14 @@ class TestCustomerSignup(RequestCase):
         own_request = self.create_request()
         own_request.customer_id = duplicate
 
-        duplicate.action_merge_duplicate()
+        editor = new_test_user(
+            self.env,
+            login="customer.merger",
+            groups="base.group_user,sol_laboratory.group_permission_customer_read_all,"
+            "sol_laboratory.group_permission_customer_edit_all",
+        )
+
+        duplicate.with_user(editor).action_merge_duplicate()
 
         self.assertFalse(duplicate.exists())
         self.assertEqual(own_request.customer_id, self.customer)

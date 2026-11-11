@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: onlyoffice
+spec:
+  selector:
+    app.kubernetes.io/name: onlyoffice
+  ports:
+    - name: https
+      port: 443
+      targetPort: https

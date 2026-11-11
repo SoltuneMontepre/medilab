@@ -4,6 +4,7 @@ from odoo.tests import tagged
 
 from .people_case import PeopleCase
 from odoo.addons.sol_laboratory.constants.models import MODEL_DEPARTMENT, MODEL_PERSON, MODEL_ROLE
+from odoo.addons.sol_laboratory.services.record_id import persisted_id, persisted_ids
 
 
 @tagged("post_install", "-at_install")
@@ -15,7 +16,7 @@ class TestPersonUser(PeopleCase):
             {
                 "code": "qa_reader",
                 "name": "Reader",
-                "permission_ids": [Command.set(cls.permissions("department.read.all").ids)],
+                "permission_ids": [Command.set(persisted_ids(cls.permissions("department.read.all")))],
             }
         )
 
@@ -46,9 +47,9 @@ class TestPersonUser(PeopleCase):
         role = self.reader
         export = self.env.ref("base.group_allow_export")
         user = self.chemist.user_id
-        user.group_ids = [Command.link(export.id)]
+        user.group_ids = [Command.link(persisted_id(export))]
 
-        self.chemist.write({"role_ids": [Command.set(role.ids)]})
+        self.chemist.write({"role_ids": [Command.set(persisted_ids(role))]})
         self.grant(self.chemist, "person.read.all")
         self.assertTrue({role.group_id, self.permissions("person.read.all").group_id, export} <= set(user.group_ids))
 
@@ -90,7 +91,9 @@ class TestPersonUser(PeopleCase):
         self.assertEqual(user.group_ids, self.env.ref("base.group_user"))
 
     def test_people_of_a_department_are_listed_on_it(self):
-        self.assertEqual(self.env[MODEL_DEPARTMENT].browse(self.chemistry.id).member_ids, self.chemist.employee_id)
+        self.assertEqual(
+            self.env[MODEL_DEPARTMENT].browse(persisted_id(self.chemistry)).member_ids, self.chemist.employee_id
+        )
         self.assertEqual(
             self.env[MODEL_PERSON].search([("department_id", "=", self.microbiology.id)]), self.microbiologist
         )

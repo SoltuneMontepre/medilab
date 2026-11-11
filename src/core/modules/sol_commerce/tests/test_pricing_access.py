@@ -13,6 +13,7 @@ from odoo.addons.sol_commerce.constants.models import (
     MODEL_TAX,
     MODEL_TAX_RATE,
 )
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
 
 PRICING_MODELS = [
     MODEL_PARAMETER_PRICE,
@@ -54,7 +55,7 @@ class TestPricingAccess(PricingCase):
 
     def test_non_administrator_sees_no_actions(self):
         for model in PRICING_MODELS:
-            records = self.env[model].with_user(self.sales)
+            records = dynamic_model(self.env, model).with_user(self.sales)
             for view_type, view in records.get_views([(False, "list"), (False, "form")])["views"].items():
                 root = etree.fromstring(view["arch"])
                 with self.subTest(model=model, view=view_type):

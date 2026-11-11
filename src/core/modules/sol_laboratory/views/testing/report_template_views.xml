@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_report_template_list" model="ir.ui.view">
+        <field name="name">medilab.report.template.list</field>
+        <field name="model">medilab.report.template</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="language" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_report_template_form" model="ir.ui.view">
+        <field name="name">medilab.report.template.form</field>
+        <field name="model">medilab.report.template</field>
+        <field name="arch" type="xml">
+            <form delete="0" duplicate="0">
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="e.g. Water testing report" /></h1>
+                    </div>
+                    <group>
+                        <field name="language" readonly="id" />
+                        <field name="sequence" />
+                    </group>
+                    <notebook>
+                        <page
+                            string="Versions"
+                            name="versions"
+                            invisible="not id"
+                            groups="sol_laboratory.group_permission_report_template_version_read_all"
+                        >
+                            <field name="version_ids" readonly="1">
+                                <list create="0" delete="0" decoration-muted="state == 'archived'">
+                                    <field name="number" />
+                                    <field
+                                        name="state"
+                                        widget="badge"
+                                        decoration-info="state == 'draft'"
+                                        decoration-success="state == 'available'"
+                                    />
+                                    <field name="made_available_at" />
+                                    <field name="preview_attachment_id" column_invisible="1" />
+                                    <button
+                                        name="action_edit"
+                                        type="object"
+                                        string="Edit"
+                                        invisible="state != 'draft'"
+                                        groups="sol_laboratory.group_permission_report_template_version_edit_all"
+                                    />
+                                    <button
+                                        name="action_preview"
+                                        type="object"
+                                        string="Preview"
+                                        invisible="state != 'draft'"
+                                        groups="sol_laboratory.group_permission_report_template_version_edit_all"
+                                    />
+                                    <button
+                                        name="action_open_preview"
+                                        type="object"
+                                        string="Open Preview"
+                                        invisible="not preview_attachment_id"
+                                    />
+                                    <button
+                                        name="action_make_available"
+                                        type="object"
+                                        string="Make Available"
+                                        class="btn-primary"
+                                        invisible="state != 'draft'"
+                                        confirm="Make this version available? It no longer changes, and new reports in its language use it."
+                                        groups="sol_laboratory.group_permission_report_template_version_edit_all"
+                                    />
+                                    <button
+                                        name="action_new_draft"
+                                        type="object"
+                                        string="New Version"
+                                        invisible="state != 'available'"
+                                        groups="sol_laboratory.group_permission_report_template_version_create_all"
+                                    />
+                                    <button
+                                        name="action_archive"
+                                        type="object"
+                                        string="Archive"
+                                        invisible="state != 'available'"
+                                        confirm="Archive this version? New reports can no longer use it; reports already using it keep it."
+                                        groups="sol_laboratory.group_permission_report_template_version_archive_all"
+                                    />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_medilab_report_template_search" model="ir.ui.view">
+        <field name="name">medilab.report.template.search</field>
+        <field name="model">medilab.report.template</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <group>
+                    <filter name="group_language" string="Language" context="{'group_by': 'language'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medilab_report_template" model="ir.actions.act_window">
+        <field name="name">Report Templates</field>
+        <field name="res_model">medilab.report.template</field>
+        <field name="path">report-templates</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_medilab_report_template_version_form" model="ir.ui.view">
+        <field name="name">medilab.report.template.version.form</field>
+        <field name="model">medilab.report.template.version</field>
+        <field name="arch" type="xml">
+            <form create="0" delete="0" duplicate="0" edit="0">
+                <header>
+                    <button
+                        name="action_edit"
+                        type="object"
+                        string="Edit in ONLYOFFICE"
+                        class="btn-primary"
+                        invisible="state != 'draft'"
+                        groups="sol_laboratory.group_permission_report_template_version_edit_all"
+                    />
+                    <button
+                        name="action_preview"
+                        type="object"
+                        string="Preview"
+                        invisible="state != 'draft'"
+                        groups="sol_laboratory.group_permission_report_template_version_edit_all"
+                    />
+                    <button name="action_open_preview" type="object" string="Open Preview" invisible="not preview_attachment_id" />
+                    <button
+                        name="action_make_available"
+                        type="object"
+                        string="Make Available"
+                        invisible="state != 'draft'"
+                        confirm="Make this version available? It no longer changes, and new reports in its language use it."
+                        groups="sol_laboratory.group_permission_report_template_version_edit_all"
+                    />
+                    <button
+                        name="action_new_draft"
+                        type="object"
+                        string="New Version"
+                        invisible="state != 'available'"
+                        groups="sol_laboratory.group_permission_report_template_version_create_all"
+                    />
+                    <button
+                        name="action_archive"
+                        type="object"
+                        string="Archive"
+                        invisible="state != 'available'"
+                        confirm="Archive this version? New reports can no longer use it; reports already using it keep it."
+                        groups="sol_laboratory.group_permission_report_template_version_archive_all"
+                    />
+                    <field name="state" widget="statusbar" />
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="display_name" /></h1>
+                    </div>
+                    <group>
+                        <field name="template_id" />
+                        <field name="language" />
+                        <field name="number" />
+                        <field name="made_available_at" invisible="not made_available_at" />
+                        <field name="preview_attachment_id" invisible="1" />
+                        <field
+                            name="docx_version_id"
+                            invisible="not docx_version_id"
+                            groups="sol_laboratory.group_permission_laboratory_file_version_read_all"
+                        />
+                        <field
+                            name="preview_docx_version_id"
+                            invisible="not preview_docx_version_id"
+                            groups="sol_laboratory.group_permission_laboratory_file_version_read_all"
+                        />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

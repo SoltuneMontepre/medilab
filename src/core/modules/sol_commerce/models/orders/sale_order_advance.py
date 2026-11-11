@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import models
 from odoo.api import SUPERUSER_ID
 from odoo.exceptions import AccessError, UserError
@@ -9,10 +11,16 @@ from odoo.addons.sol_commerce.constants.notifications import EVENT_QUOTATION_SEN
 from odoo.addons.sol_commerce.constants.orders import ADVANCE_FIXED, ADVANCE_FULL, ADVANCE_NONE, ADVANCE_PERCENTAGE
 from odoo.addons.sol_commerce.constants.xml_ids import ALL_ORDERS_GROUP
 from odoo.addons.sol_laboratory.constants.models import MODEL_MAIL_MESSAGE
+from odoo.addons.sol_laboratory.services.record_id import persisted_ids
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_sale_order as SaleOrderAdvanceBase
+else:
+    SaleOrderAdvanceBase = object
 
 
 # Đơn Hàng: the advance invoice and the notice that go out with a quotation.
-class SaleOrderAdvance(models.Model):
+class SaleOrderAdvance(models.Model, SaleOrderAdvanceBase):
     _inherit = MODEL_SALE_ORDER
 
     def _check_quotation_can_be_sent(self):
@@ -57,7 +65,7 @@ class SaleOrderAdvance(models.Model):
             self.env[MODEL_ADVANCE_PAYMENT_INV]
             .with_user(SUPERUSER_ID)
             .with_context(active_model=MODEL_SALE_ORDER, active_ids=order.ids)
-            .create({**values, "sale_order_ids": [Command.set(order.ids)]})
+            .create({**values, "sale_order_ids": [Command.set(persisted_ids(order))]})
         )
         wizard._check_amount_is_positive()
         invoice = wizard._create_invoices(order)
@@ -66,27 +74,28 @@ class SaleOrderAdvance(models.Model):
         return invoice
 
     def _notify_quotation_sent(self, quotation, invoice):
-        """Tell the order's contact about the quotation, with its PDF attached."""
+        """Tell the order's contact about the quotation in the contact's language, with its PDF attached."""
         self.ensure_one()
-        deadline = format_datetime(self.env, self.payment_deadline)
+        order = self.with_context(lang=self._get_lang())
+        deadline = format_datetime(order.env, order.payment_deadline)
         if invoice:
-            body = self.env._(
+            body = order.env._(
                 "Quotation %(code)s is ready. Pay the advance of %(amount)s before %(deadline)s.",
                 code=quotation.code,
-                amount=self.currency_id.format(invoice.amount_total),
+                amount=order.currency_id.format(invoice.amount_total),
                 deadline=deadline,
             )
         else:
-            body = self.env._(
+            body = order.env._(
                 "Quotation %(code)s is ready. Accept it before %(deadline)s.",
                 code=quotation.code,
                 deadline=deadline,
             )
-        self.env[MODEL_MAIL_MESSAGE].raise_event(
+        order.env[MODEL_MAIL_MESSAGE].raise_event(
             EVENT_QUOTATION_SENT,
-            self.sudo(),
+            order.sudo(),
             f"quotation:{quotation.id}:sent",
             body,
-            partners=self.partner_id,
+            partners=order.partner_id,
             attachments=quotation.attachment_id,
         )

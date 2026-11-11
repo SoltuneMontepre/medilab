@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 from odoo.fields import Domain
@@ -13,17 +15,23 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PERSON,
 )
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_hr_department as HrDepartmentBase
+else:
+    HrDepartmentBase = object
+
 
 # Phòng Ban
-class HrDepartment(models.Model):
+class HrDepartment(models.Model, HrDepartmentBase):
     # _name is required to add mixins to an Odoo model.
     _name = MODEL_DEPARTMENT
     _inherit = [MODEL_AUDIT_MIXIN, MODEL_DEPARTMENT, MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_ARCHIVE_MIXIN]
 
-    # The department a team belongs to; empty for a department. A team cannot have teams of its own.
-    parent_id = fields.Many2one(domain=DEPARTMENT_DOMAIN)
-    # People of the team; empty for a department, whose people are its employees.
-    team_person_ids = fields.One2many(MODEL_PERSON, "team_id", string="Team Members")
+    if not TYPE_CHECKING:
+        # The department a team belongs to; empty for a department. A team cannot have teams of its own.
+        parent_id = fields.Many2one(domain=DEPARTMENT_DOMAIN)
+        # People of the team; empty for a department, whose people are its employees.
+        team_person_ids = fields.One2many(MODEL_PERSON, "team_id", string="Team Members")
 
     @api.constrains("parent_id")
     def _check_team_level(self):

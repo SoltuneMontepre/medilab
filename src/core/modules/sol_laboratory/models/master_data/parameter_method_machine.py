@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.fields import Domain
 
@@ -10,23 +12,29 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PERMISSION_MIXIN,
 )
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_parameter_method_machine as ParameterMethodMachineBase
+else:
+    ParameterMethodMachineBase = object
+
 
 # Links parameter and method pairs to the machines that can run them, with the run time.
-class ParameterMethodMachine(models.Model):
+class ParameterMethodMachine(models.Model, ParameterMethodMachineBase):
     _name = MODEL_PARAMETER_METHOD_MACHINE
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Machine for a Way of Testing"
     _order = "machine_id, id"
     _permission_actions = ("create", "edit", "delete")
 
-    # The parameter and method pair.
-    parameter_method_id = fields.Many2one(
-        MODEL_PARAMETER_METHOD, required=True, ondelete="cascade", string="Way of Testing"
-    )
-    # A machine that can run it.
-    machine_id = fields.Many2one(MODEL_MACHINE, required=True, ondelete="restrict", index=True)
-    # Minutes one run takes on the machine; the booking rounds it up to whole slots.
-    run_minutes = fields.Integer(required=True)
+    if not TYPE_CHECKING:
+        # The parameter and method pair.
+        parameter_method_id = fields.Many2one(
+            MODEL_PARAMETER_METHOD, required=True, ondelete="cascade", string="Way of Testing"
+        )
+        # A machine that can run it.
+        machine_id = fields.Many2one(MODEL_MACHINE, required=True, ondelete="restrict", index=True)
+        # Minutes one run takes on the machine; the booking rounds it up to whole slots.
+        run_minutes = fields.Integer(required=True)
 
     _pair_machine_unique = models.Constraint(
         "UNIQUE(parameter_method_id, machine_id)", "The machine is already linked to this way of testing."

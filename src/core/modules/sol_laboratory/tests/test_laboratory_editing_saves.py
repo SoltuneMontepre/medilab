@@ -52,8 +52,8 @@ class TestLaboratoryEditingSaves(LaboratoryEditingCase):
 
         self.assertEqual(version.user_id, self.member)
         note = self.entries(self.session, "edit")[-1].note
-        self.assertIn(self.member.name, note)
-        self.assertIn(self.tester.name, note)
+        self.assertIn(self.member.name, (note or ""))
+        self.assertIn(self.tester.name, (note or ""))
 
     def test_a_save_after_the_file_changed_is_kept_as_a_conflict(self):
         synced = self.save(self.file, "Kết quả, bản 2 từ máy tính", user=self.member)
@@ -123,8 +123,8 @@ class TestLaboratoryEditingSaves(LaboratoryEditingCase):
         self.assertEqual(len(self.file.version_ids), 1)
         self.assertEqual(self.session.status, ERROR)
         note = self.entries(self.session, "edit")[-1].note
-        self.assertIn(self.stored("Kết quả, sửa trực tuyến").object_key, note)
-        self.assertIn(self.member.name, note)
+        self.assertIn(self.stored("Kết quả, sửa trực tuyến").object_key, (note or ""))
+        self.assertIn(self.member.name, (note or ""))
 
     def test_a_save_into_a_turned_off_folder_ends_the_session_in_error(self):
         self.folder.with_user(self.administrator).action_turn_off()
@@ -142,7 +142,7 @@ class TestLaboratoryEditingSaves(LaboratoryEditingCase):
             self.assertFalse(self.store("Kết quả, sửa trực tuyến"))
 
         self.assertEqual((self.session.status, len(self.file.version_ids)), (ERROR, 1))
-        self.assertIn("Locked by someone else.", self.entries(self.session, "edit")[-1].note)
+        self.assertIn("Locked by someone else.", (self.entries(self.session, "edit")[-1].note or ""))
 
     def test_everyone_leaving_without_changes_closes_the_session(self):
         self.session._close_unchanged()

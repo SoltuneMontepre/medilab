@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.tools import format_list
@@ -5,6 +7,11 @@ from odoo.tools import format_list
 from odoo.addons.sol_inventory.constants.models import MODEL_STOCK_MOVE_LINE, MODEL_STOCK_PACKAGE
 from odoo.addons.sol_inventory.constants.stock import DONE, RECEIPT_CODE
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_IR_ATTACHMENT
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_stock_move_line as StockMoveLineBase
+else:
+    StockMoveLineBase = object
 
 # What a done move moved; a mistake is corrected by another move.
 DONE_LINE_FIELDS = frozenset(
@@ -23,18 +30,19 @@ DONE_LINE_FIELDS = frozenset(
 
 
 # Dòng Phiếu Nhập Kho: the part of a move from one lot and container, or into one.
-class StockMoveLine(models.Model):
+class StockMoveLine(models.Model, StockMoveLineBase):
     # _name is required to add mixins to an Odoo model.
     _name = MODEL_STOCK_MOVE_LINE
     _inherit = [MODEL_AUDIT_MIXIN, MODEL_STOCK_MOVE_LINE]
 
-    # Number of bottles or vials the line receives of an item tracked by container; its quantity is split evenly
-    # among them.
-    container_count = fields.Integer(string="Bottles or Vials", required=True, default=1)
-    # True when the line's item keeps each bottle or vial as a container of its own.
-    track_containers = fields.Boolean(related="product_id.track_containers")
-    # The manufacturer's certificate that came with the lot the line receives; it is attached to the lot.
-    certificate_id = fields.Many2one(MODEL_IR_ATTACHMENT, string="Manufacturer's Certificate", ondelete="set null")
+    if not TYPE_CHECKING:
+        # Number of bottles or vials the line receives of an item tracked by container; its quantity is split evenly
+        # among them.
+        container_count = fields.Integer(string="Bottles or Vials", required=True, default=1)
+        # True when the line's item keeps each bottle or vial as a container of its own.
+        track_containers = fields.Boolean(related="product_id.track_containers")
+        # The manufacturer's certificate that came with the lot the line receives; it is attached to the lot.
+        certificate_id = fields.Many2one(MODEL_IR_ATTACHMENT, string="Manufacturer's Certificate", ondelete="set null")
 
     _container_count_positive = models.Constraint(
         "CHECK(container_count >= 1)", "A line receives at least one bottle or vial."
@@ -51,7 +59,7 @@ class StockMoveLine(models.Model):
         # The expiry of a lot received for a stock item is the date printed on its container, typed by the storekeeper;
         # Odoo's default of the receipt date plus the item's expiration time would invent one.
         typed = self.filtered(
-            lambda line: (
+            lambda line: bool(
                 line.product_id.item_kind
                 and line.picking_type_use_create_lots
                 and not (line.quant_id.lot_id or line.lot_id)
@@ -84,7 +92,7 @@ class StockMoveLine(models.Model):
     def _check_expiry_typed(self):
         """Refuse receiving a lot of an item with an expiry date without the date printed on its container."""
         missing = self.filtered(
-            lambda line: line.quantity and line.product_id.use_expiration_date and not line.expiration_date
+            lambda line: bool(line.quantity and line.product_id.use_expiration_date and not line.expiration_date)
         )
         if missing:
             raise UserError(

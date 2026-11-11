@@ -13,6 +13,9 @@ on:
       - main
     paths:
       - "infra/**"
+      - "!infra/cluster/onlyoffice/**"
+      - "!infra/cluster/onlyoffice-*/**"
+      - "!infra/cluster/applications/onlyoffice*.yaml"
       - ".github/workflows/cd.infra.yml"
   workflow_dispatch:
 

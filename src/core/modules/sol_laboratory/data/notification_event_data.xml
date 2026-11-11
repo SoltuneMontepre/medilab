@@ -120,6 +120,17 @@
         <field name="enabled" eval="True" />
     </record>
 
+    <record id="event_quality_registration_expiry" model="mail.message.subtype">
+        <field name="name">Quality registration expiry</field>
+        <field name="description">A quality registration expires soon or expires today</field>
+        <field name="code">quality_registration.expiry</field>
+        <field name="res_model">medilab.quality.registration</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="True" />
+        <field name="enabled" eval="True" />
+    </record>
+
     <record id="event_laboratory_file_version_rejected" model="mail.message.subtype">
         <field name="name">Laboratory file version rejected</field>
         <field name="description">A version of a laboratory file you saved was rejected</field>
@@ -135,6 +146,10 @@
     <data noupdate="1">
         <record id="event_recipient_signing_certificate_alert" model="medilab.notification.event.recipient">
             <field name="event_id" ref="event_signing_certificate_alert" />
+            <field name="role_id" ref="role_administrator" />
+        </record>
+        <record id="event_recipient_quality_registration_expiry" model="medilab.notification.event.recipient">
+            <field name="event_id" ref="event_quality_registration_expiry" />
             <field name="role_id" ref="role_administrator" />
         </record>
     </data>

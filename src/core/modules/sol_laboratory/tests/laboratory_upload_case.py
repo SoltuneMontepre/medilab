@@ -48,7 +48,7 @@ class LaboratoryUploadCase(LaboratoryBucketTools, LaboratoryApiCase):
         folder = folder or self.folder
         return self.api("POST", f"/folders/{folder.id}/uploads/{upload['id']}/finalize", key=key or self.key)
 
-    def read(self, upload, key=None, folder=None):
+    def read_upload(self, upload, key=None, folder=None):
         folder = folder or self.folder
         response = self.api("GET", f"/folders/{folder.id}/uploads/{upload['id']}", key=key or self.key)
         self.assertEqual(response.status_code, 200, response.text)
@@ -70,7 +70,7 @@ class LaboratoryUploadCase(LaboratoryBucketTools, LaboratoryApiCase):
         finalized = self.finalize(upload, key=key, folder=folder)
         self.assertEqual(finalized.status_code, 202, finalized.text)
         self.run_jobs()
-        return self.read(upload, key=key, folder=folder)
+        return self.read_upload(upload, key=key, folder=folder)
 
     def record(self, upload):
         return self.env[MODEL_LABORATORY_UPLOAD].sudo().browse(upload["id"])

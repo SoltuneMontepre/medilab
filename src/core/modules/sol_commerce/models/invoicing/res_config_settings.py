@@ -1,25 +1,33 @@
+from typing import TYPE_CHECKING
+
 from odoo import fields, models
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_RES_CONFIG_SETTINGS
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_res_config_settings as ResConfigSettingsBase
+else:
+    ResConfigSettingsBase = object
 
 PAYOS_EXPIRY_PARAMETER = "sol_commerce.payos_expiry_hours"
 DEFAULT_PAYOS_EXPIRY_HOURS = 24
 
 
 # Cài Đặt
-class ResConfigSettings(models.TransientModel):
+class ResConfigSettings(models.TransientModel, ResConfigSettingsBase):
     _inherit = MODEL_RES_CONFIG_SETTINGS
 
-    # PayOS is offered on the portal when this is on.
-    payos_enabled = fields.Boolean(string="PayOS")
-    # The QR method is offered only when PayOS and this are both on.
-    payos_qr_enabled = fields.Boolean(string="PayOS QR")
-    # Hours before a PayOS link expires. A payment PayOS confirms after that still counts.
-    payos_expiry_hours = fields.Integer(
-        string="PayOS link expiry (hours)",
-        config_parameter=PAYOS_EXPIRY_PARAMETER,
-        default=DEFAULT_PAYOS_EXPIRY_HOURS,
-    )
+    if not TYPE_CHECKING:
+        # PayOS is offered on the portal when this is on.
+        payos_enabled = fields.Boolean(string="PayOS")
+        # The QR method is offered only when PayOS and this are both on.
+        payos_qr_enabled = fields.Boolean(string="PayOS QR")
+        # Hours before a PayOS link expires. A payment PayOS confirms after that still counts.
+        payos_expiry_hours = fields.Integer(
+            string="PayOS link expiry (hours)",
+            config_parameter=PAYOS_EXPIRY_PARAMETER,
+            default=DEFAULT_PAYOS_EXPIRY_HOURS,
+        )
 
     def get_values(self):
         values = super().get_values()

@@ -1,21 +1,17 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.fields import Domain
 from odoo.tools import format_date, formatLang
 
-from odoo.addons.sol_laboratory.constants.approvals import (
-    DECISION_SIGNED,
-    STATE_APPROVED,
-    STATE_REJECTED,
-    STATE_REQUESTED,
-)
+from odoo.addons.sol_laboratory.constants.approvals import DECISION_SIGNED, STATE_APPROVED
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_CUSTOMER,
     MODEL_DIGITAL_SIGNING_MIXIN,
     MODEL_DOCUMENT_LOCK,
     MODEL_LOCK_MIXIN,
     MODEL_MAIL_MESSAGE,
-    MODEL_PARAMETER_METHOD,
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
     MODEL_QUALITY_REGISTRATION,
@@ -30,18 +26,25 @@ from odoo.addons.sol_laboratory.constants.signing import VERIFY_PATH
 from odoo.addons.sol_laboratory.constants.tasks import REPORT_DRAFTED_TRIGGER
 from odoo.addons.sol_laboratory.constants.xml_ids import TEST_REPORT_REPORT, TEST_RESULT_READER_GROUP
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_test_report as TestReportBase
+else:
+    TestReportBase = object
+
 # The languages a report prints in, by the request's report language; a bilingual report puts them side by side.
 PRINT_LANGS = {"vi": ("vi_VN",), "en": ("en_US",), "bilingual": ("vi_VN", "en_US")}
 # The action of the lab head's signing task.
 SIGNING_ACTION = "sign"
 # The statuses of a report the lab head can still sign.
 OPEN_STATUSES = ("draft", "signing")
+# The statuses of a report that was issued; its PDF never changes.
+ISSUED_STATUSES = ("issued", "replaced")
 # Samples left off the report: they have no results to report.
 UNREPORTED_SAMPLE_STATUSES = ("cancelled", "rejected")
 
 
 # Phiếu Kết Quả
-class TestReport(models.Model):
+class TestReport(models.Model, TestReportBase):
     _name = MODEL_TEST_REPORT
     # Locked while edited. Signed through its approval chain, which the digital signing mixin brings, and issued
     # as a signed PDF.
@@ -52,55 +55,62 @@ class TestReport(models.Model):
     _permission_actions = ("read", "edit", "sign")
     _digital_signing_report = TEST_REPORT_REPORT
 
-    # Unique report number from a sequence, such as PKQ.2026.0001; given when the report is issued.
-    code = fields.Char(string="Report Number", readonly=True, copy=False)
-    # The test request reported.
-    request_id = fields.Many2one(
-        MODEL_TEST_REQUEST, string="Test Request", required=True, readonly=True, ondelete="restrict"
-    )
-    # The customer of the test request.
-    customer_id = fields.Many2one(related="request_id.customer_id")
-    # Version of the report, 1 for the first and one higher for each version a change request creates.
-    version = fields.Integer(required=True, default=1, readonly=True, copy=False)
-    # The version this report replaces; empty for version 1.
-    replaces_id = fields.Many2one(MODEL_TEST_REPORT, readonly=True, copy=False, ondelete="restrict")
-    # Where the report is in its signing.
-    status = fields.Selection(
-        [("draft", "Draft"), ("signing", "Signing"), ("issued", "Issued"), ("replaced", "Replaced")],
-        required=True,
-        default="draft",
-        readonly=True,
-        copy=False,
-        index=True,
-    )
-    # Language the report is issued in, taken from the request: Vietnamese, English or both side by side.
-    language = fields.Selection(
-        [("vi", "Vietnamese"), ("en", "English"), ("bilingual", "Bilingual")], required=True, readonly=True
-    )
-    # When the report was issued.
-    issued_at = fields.Datetime(readonly=True, copy=False)
-    # The PDF of the issued report.
-    attachment_id = fields.Many2one("ir.attachment", string="PDF", readonly=True, copy=False, ondelete="restrict")
-    # How the report reaches the customer, as the request says.
-    delivery_method = fields.Selection(related="request_id.delivery_method")
-    # How to deliver when the method is other, or details such as the postal address.
-    delivery_note = fields.Text(related="request_id.delivery_note")
-    # The contact who receives the report: the request's recipient, or else the customer.
-    recipient_id = fields.Many2one("res.partner", string="Recipient", compute="_compute_recipient_id")
-    # When the report was delivered to the customer.
-    delivered_at = fields.Datetime(readonly=True, copy=False)
-    # Person who recorded the delivery.
-    delivered_by_id = fields.Many2one(
-        MODEL_PERSON, string="Delivered By", readonly=True, copy=False, ondelete="restrict"
-    )
-    # The reported results the report prints: those of the request's tests that are not cancelled.
-    result_ids = fields.Many2many(
-        MODEL_TEST_RESULT,
-        string="Results",
-        compute="_compute_result_ids",
-        compute_sudo=True,
-        groups=TEST_RESULT_READER_GROUP,
-    )
+    if not TYPE_CHECKING:
+        # Unique report number from a sequence, such as PKQ.2026.0001; reserved when its PDF is first prepared.
+        code = fields.Char(string="Report Number", readonly=True, copy=False)
+        # The test request reported.
+        request_id = fields.Many2one(
+            MODEL_TEST_REQUEST, string="Test Request", required=True, readonly=True, ondelete="restrict"
+        )
+        # The customer of the test request.
+        customer_id = fields.Many2one(related="request_id.customer_id")
+        # Version of the report, 1 for the first and one higher for each version a change request creates.
+        version = fields.Integer(required=True, default=1, readonly=True, copy=False)
+        # The version this report replaces; empty for version 1.
+        replaces_id = fields.Many2one(MODEL_TEST_REPORT, readonly=True, copy=False, ondelete="restrict")
+        # Where the report is in its signing: approved but waiting for its digitally signed PDF while pending.
+        status = fields.Selection(
+            [
+                ("draft", "Draft"),
+                ("signing", "Signing"),
+                ("pending_signing", "Pending Digital Signing"),
+                ("issued", "Issued"),
+                ("replaced", "Replaced"),
+            ],
+            required=True,
+            default="draft",
+            readonly=True,
+            copy=False,
+            index=True,
+        )
+        # Language the report is issued in, taken from the request: Vietnamese, English or both side by side.
+        language = fields.Selection(
+            [("vi", "Vietnamese"), ("en", "English"), ("bilingual", "Bilingual")], required=True, readonly=True
+        )
+        # When the report was issued.
+        issued_at = fields.Datetime(readonly=True, copy=False)
+        # The PDF of the issued report.
+        attachment_id = fields.Many2one("ir.attachment", string="PDF", readonly=True, copy=False, ondelete="restrict")
+        # How the report reaches the customer, as the request says.
+        delivery_method = fields.Selection(related="request_id.delivery_method")
+        # How to deliver when the method is other, or details such as the postal address.
+        delivery_note = fields.Text(related="request_id.delivery_note")
+        # The contact who receives the report: the request's recipient, or else the customer.
+        recipient_id = fields.Many2one("res.partner", string="Recipient", compute="_compute_recipient_id")
+        # When the report was delivered to the customer.
+        delivered_at = fields.Datetime(readonly=True, copy=False)
+        # Person who recorded the delivery.
+        delivered_by_id = fields.Many2one(
+            MODEL_PERSON, string="Delivered By", readonly=True, copy=False, ondelete="restrict"
+        )
+        # The reported results the report prints: those of the request's tests that are not cancelled.
+        result_ids = fields.Many2many(
+            MODEL_TEST_RESULT,
+            string="Results",
+            compute="_compute_result_ids",
+            compute_sudo=True,
+            groups=TEST_RESULT_READER_GROUP,
+        )
 
     _code_unique = models.Constraint("UNIQUE(code)", "The number of a test report must be unique.")
     _version_unique = models.Constraint("UNIQUE(request_id, version)", "A test request has one report per version.")
@@ -161,10 +171,11 @@ class TestReport(models.Model):
             raise UserError(self.env._("Name the results to check again."))
         if results - self.sudo().result_ids:
             raise UserError(self.env._("Only results printed on the report can be checked again."))
-        super().action_reject(reason)
+        result = super().action_reject(reason)
         results.sudo()._send_back(
             self.env._("Report of %(request)s rejected: %(reason)s", request=self.sudo().request_id.code, reason=reason)
         )
+        return result
 
     def action_record_delivery(self):
         self._check_permission("edit")
@@ -225,17 +236,17 @@ class TestReport(models.Model):
         return super()._approval_check_actor(rejecting)
 
     def _approval_process_completed(self):
-        return self.status in ("issued", "replaced")
+        return self.status in ISSUED_STATUSES
 
     def _change_request_open(self):
-        return self.status == "issued"
+        # One replacement at a time: the issued report takes no new change request while its replacement is open.
+        return self.status == "issued" and not self.sudo().search_count([("replaces_id", "=", self.id)], limit=1)
 
     def _new_version(self, change_request):
-        """Replace the issued report by its next version, a draft the lab head signs and issues again; the portal offers
-        the issued version only."""
+        """Create the issued report's next version, a draft the lab head signs; the issued report stays issued, and
+        offered in the portal, until that version is issued."""
         self.ensure_one()
         report = self.sudo()
-        report.status = "replaced"
         version = report.create(
             {
                 "request_id": report.request_id.id,
@@ -248,58 +259,6 @@ class TestReport(models.Model):
             REPORT_DRAFTED_TRIGGER, document=version, note=change_request.requested_change
         )
         return version
-
-    def _approval_set_state(self, state):
-        if state == STATE_APPROVED:
-            self._issue()
-        elif state == STATE_REQUESTED:
-            self.status = "signing"
-        else:
-            self.status = "draft"
-        if state in (STATE_APPROVED, STATE_REJECTED):
-            self.env[MODEL_TASK]._close_for_document(self, SIGNING_ACTION)
-
-    def _issue(self):
-        """Number the report, mark its request and samples reported, retain the kept samples, then store its PDF and
-        tell the customer; with digital signing on, once Viettel Sign has signed the PDF."""
-        self.ensure_one()
-        self.write(
-            {
-                "code": self.code or self.env["ir.sequence"].next_by_code(MODEL_TEST_REPORT),
-                "issued_at": fields.Datetime.now(),
-                "status": "issued",
-            }
-        )
-        request = self.request_id
-        reported = request.sample_ids.filtered(lambda sample: sample.status == "completed")
-        reported.status = "reported"
-        reported._retain(self._report_day())
-        if request.status != "reported":
-            request._set_status("reported")
-        if self._digital_signing_enabled():
-            self._digital_signing_start()
-            return
-        pdf, _report_type = self.env["ir.actions.report"]._render_qweb_pdf(TEST_REPORT_REPORT, self.ids)
-        self.attachment_id = self.env["ir.attachment"].create(
-            {
-                "name": self._digital_signing_filename(),
-                "raw": pdf,
-                "mimetype": "application/pdf",
-                "res_model": self._name,
-                "res_id": self.id,
-            }
-        )
-        self._notify_issued()
-
-    def _digital_signing_fully_signed(self):
-        return self.status in ("issued", "replaced")
-
-    def _digital_signing_filename(self):
-        return f"{self.code}.pdf"
-
-    def _digital_signing_done(self, signature):
-        self.sudo().attachment_id = signature.attachment_id
-        self._notify_issued()
 
     def _notify_issued(self):
         """Tell the customer the results are released, once for each issued report."""
@@ -333,11 +292,11 @@ class TestReport(models.Model):
         return Domain("status", "=", "issued") & Domain("request_id.customer_id", "=", customer.id)
 
     def _print_langs(self):
-        return PRINT_LANGS[self.language]
+        return PRINT_LANGS[self.language or ""]
 
     def _files_locked(self):
         """True when a report's PDF can no longer change: it is issued."""
-        return any(report.status in ("issued", "replaced") for report in self)
+        return any(report.status in ISSUED_STATUSES for report in self)
 
     def _print_env(self):
         # Printing reads what the report shows with full rights; TestReportDocument checks who may print.
@@ -356,33 +315,42 @@ class TestReport(models.Model):
 
     def _print_labels(self):
         """The report's headings in its languages."""
+        return self._labels_in(self._print_langs())
+
+    @api.model
+    def _labels_in(self, langs):
+        """The headings of a report, side by side in the languages."""
 
         verify_url = f"{self.get_base_url()}{VERIFY_PATH}"
 
         def labels(env):
-            _ = env._
             return {
-                "title": _("Test Report"),
-                "draft": _("Draft, not digitally signed"),
-                "verify": _("Digitally signed. Verify this report at %s", verify_url),
-                "number": _("Report No."),
-                "request": _("Test Request"),
-                "customer": _("Customer"),
-                "address": _("Address"),
-                "received": _("Samples Received"),
-                "date": _("Report Date"),
-                "sample": _("Sample"),
-                "lab_code": _("Lab Code"),
-                "conclusion": _("Conclusion"),
-                "parameter": _("Parameter"),
-                "result": _("Result"),
-                "unit": _("Unit"),
-                "limit": _("Limit"),
-                "method": _("Method"),
-                "signatures": _("Approved By"),
+                "title": env._("Test Report"),
+                "draft": env._("Draft, not digitally signed"),
+                "verify": env._("Digitally signed. Verify this report at %s", verify_url),
+                "number": env._("Report No."),
+                "request": env._("Test Request"),
+                "customer": env._("Customer"),
+                "address": env._("Address"),
+                "received": env._("Samples Received"),
+                "date": env._("Report Date"),
+                "sample": env._("Sample"),
+                "lab_code": env._("Lab Code"),
+                "conclusion": env._("Conclusion"),
+                "parameter": env._("Parameter"),
+                "result": env._("Result"),
+                "unit": env._("Unit"),
+                "limit": env._("Limit"),
+                "method": env._("Method"),
+                "signatures": env._("Approved By"),
+                "results": env._("Samples and Results"),
+                "sample_type": env._("Sample Type"),
+                "amount": env._("Amount Received"),
+                "condition": env._("Condition"),
+                "analysis_started": env._("Analysis Started"),
             }
 
-        per_lang = [labels(self.with_context(lang=lang).env) for lang in self._print_langs()]
+        per_lang = [labels(self.with_context(lang=lang).env) for lang in langs]
         return {key: _side_by_side(texts[key] for texts in per_lang) for key in per_lang[0]}
 
     def _print_header(self):
@@ -406,18 +374,21 @@ class TestReport(models.Model):
     def _print_samples(self):
         """Each sample the report covers, with its conclusion and one row per reported result."""
         results = self.sudo().result_ids.sorted("id")
-        ways = {result: result._way_of_testing() for result in results}
-        marks = self._print_marks(self.env[MODEL_PARAMETER_METHOD].union(ways.values()))
+        marks = self._print_marks(results.parameter_method_id)
         env = self._print_env()
-        return [
-            {
-                "name": sample.customer_sample_name,
-                "code": sample.code,
-                "conclusion": self._print_conclusion(sample, own),
-                "rows": [self._print_row(result, ways[result], marks.get(ways[result], ""), env) for result in own],
-            }
-            for sample, own in sorted(results.grouped("sample_id").items(), key=lambda item: item[0].code)
-        ]
+        samples = []
+        for sample, own in sorted(results.grouped("sample_id").items(), key=lambda item: item[0].code):
+            compared = any(own.mapped("comparison_requested"))
+            rows = [self._print_row(result, marks.get(result.parameter_method_id, ""), env, compared) for result in own]
+            samples.append(
+                {
+                    "name": sample.customer_sample_name,
+                    "code": sample.code,
+                    "conclusion": self._print_conclusion(own),
+                    "rows": rows,
+                }
+            )
+        return samples
 
     def _print_marks(self, ways):
         """The marks of the quality registrations valid on the report date, by the ways of testing they cover."""
@@ -443,26 +414,45 @@ class TestReport(models.Model):
             for way in ways
         }
 
-    def _print_conclusion(self, sample, results):
-        regulation = sample.regulation_id
-        if not regulation:
+    def _print_conclusion(self, results):
+        """The sample's conclusion within the requested comparison: any failure fails it, it passes only when every
+        compared result passes, and otherwise its basis is insufficient. Without a requested comparison it has none."""
+        compared = results.filtered("comparison_requested")
+        if not compared:
             return ""
-        if "fail" in results.mapped("conclusion"):
-            return self._in_langs(lambda env: env._("Does not meet %s", regulation.code))
-        return self._in_langs(lambda env: env._("Meets %s", regulation.code))
+        codes = ", ".join(compared.regulation_id.mapped("code"))
+        conclusions = set(compared.mapped("conclusion"))
+        if "fail" in conclusions:
+            return self._in_langs(lambda env: env._("Does not meet %s for the compared parameters", codes))
+        if conclusions == {"pass"}:
+            return self._in_langs(lambda env: env._("Meets %s for the compared parameters", codes))
+        return self._in_langs(lambda env: env._("Insufficient basis to conclude against %s", codes))
 
-    def _print_row(self, result, way, marks, env):
+    def _print_row(self, result, marks, env, compared):
+        """The result's row. A sample with a requested comparison also prints the limit and the assessment, empty for
+        its results outside it."""
         parameter = self._in_langs(lambda lang_env: result.with_env(lang_env).parameter_id.name)
-        return {
+        row = {
             "parameter": f"{parameter} {marks}".strip(),
             "result": self._in_langs(lambda lang_env: result.with_env(lang_env).value_text)
             or result.with_env(env).value_display,
             "unit": result.unit_id.name or "",
-            "limit": self._print_limit(result, env),
-            "method": way.method_id.code or "",
         }
+        if compared:
+            row["limit"] = self._print_limit(result, env)
+            row["conclusion"] = self._in_langs(
+                lambda lang_env: dict(result._fields["conclusion"]._description_selection(lang_env)).get(
+                    result.conclusion, ""
+                )
+            )
+        row["method"] = result.parameter_method_id.method_id.code or ""
+        return row
 
     def _print_limit(self, result, env):
+        if not result.comparison_requested:
+            return ""
+        if result.limit_missing:
+            return self._in_langs(lambda lang_env: lang_env._("No limit for this sample type"))
         if result.limit_text:
             return self._in_langs(lambda lang_env: result.with_env(lang_env).limit_text)
         low = result.limit_min_set and formatLang(env, result.limit_min, digits=result.limit_decimals)
@@ -478,20 +468,32 @@ class TestReport(models.Model):
         unit = result.limit_unit_id
         return f"{limit} {unit.name}" if unit and unit != result.unit_id else limit
 
-    def _print_signers(self):
-        """Who approved the results, then who signed the report; testers who only sent a result are left out."""
+    def _print_signers(self, report_signers=True):
+        """Who approved the results, then who signed the report unless report_signers is false; testers who only sent
+        a result are left out."""
         report = self.sudo()
-        rows = self.env[MODEL_SIGNATURE].sudo().search(
-            [
-                ("document_model", "=", MODEL_TEST_RESULT),
-                ("document_id", "in", report.result_ids.ids),
-                ("decision", "=", DECISION_SIGNED),
-                ("withdrawn_at", "=", False),
-                ("level_id", "not in", self.env[MODEL_TEST_RESULT]._approval_sending_level().ids),
-            ]
-        ) + report._approval_open_rows().filtered(lambda row: row.decision == DECISION_SIGNED).sorted("id")
+        sending = {result.id: result._approval_sending_level() for result in report.result_ids}
+        rows = (
+            self.env[MODEL_SIGNATURE]
+            .sudo()
+            .search(
+                [
+                    ("document_model", "=", MODEL_TEST_RESULT),
+                    ("document_id", "in", report.result_ids.ids),
+                    ("decision", "=", DECISION_SIGNED),
+                    ("withdrawn_at", "=", False),
+                ]
+            )
+            .filtered(lambda row: row.level_id != sending[row.document_id])
+        )
+        if report_signers:
+            rows += report._approval_open_rows().filtered(lambda row: row.decision == DECISION_SIGNED).sorted("id")
         signers = {
-            (row.signer_id.id, row.level_name): {"name": row.signer_name, "level": row.level_name} for row in rows
+            (row.signer_id.id, row.level_id.id): {
+                "name": row.signer_name,
+                "level": report._in_langs(lambda env, level=row.level_id: level.with_env(env).name),
+            }
+            for row in rows
         }
         return list(signers.values())
 

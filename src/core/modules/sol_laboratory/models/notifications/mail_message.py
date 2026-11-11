@@ -1,5 +1,6 @@
 import json
 import logging
+from typing import TYPE_CHECKING
 
 from psycopg2 import IntegrityError
 
@@ -18,12 +19,19 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_SCHEDULED_JOB,
 )
 from odoo.addons.sol_laboratory.constants.notifications import CHANNEL_EMAIL, CHANNEL_POPUP, CHANNEL_PUSH
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_mail_message as MailMessageBase
+else:
+    MailMessageBase = object
 
 _logger = logging.getLogger(__name__)
 
 
 def _apply_preference(preference, event, user, popup, email, push):
-    if event.mandatory and preference.channel in (CHANNEL_POPUP, CHANNEL_EMAIL) and not preference.enabled:
+    if event.mandatory and not preference.enabled:
         return popup, email, push
     if preference.channel == CHANNEL_POPUP:
         return preference.enabled and bool(user), email, push
@@ -46,11 +54,12 @@ def _selected_channels(popup, email, push):
 
 
 # Thông Báo
-class MailMessage(models.Model):
+class MailMessage(models.Model, MailMessageBase):
     _inherit = MODEL_MAIL_MESSAGE
 
-    # Unique key that stops the same notification being created twice.
-    notification_key = fields.Char(index=True, copy=False)
+    if not TYPE_CHECKING:
+        # Unique key that stops the same notification being created twice.
+        notification_key = fields.Char(index=True, copy=False)
 
     _notification_key_unique = models.UniqueIndex(
         "(notification_key) WHERE notification_key IS NOT NULL",
@@ -82,7 +91,7 @@ class MailMessage(models.Model):
                         "message_type": "notification",
                         "subtype_id": event.id,
                         "notification_key": key,
-                        "attachment_ids": [Command.link(attachment.id) for attachment in attachments]
+                        "attachment_ids": [Command.link(persisted_id(attachment)) for attachment in attachments]
                         if attachments
                         else [],
                     }
@@ -136,7 +145,8 @@ class MailMessage(models.Model):
     def _preferred_channels(self, user, event):
         popup = bool(user) and user.notification_type == "inbox"
         email = (not user) or user.notification_type == "email"
-        push = False
+        # Pushed once the person has a signed-in phone, until they turn the event's push off.
+        push = bool(user) and bool(self.env[MODEL_MOBILE_DEVICE]._push_tokens(user))
         if not user:
             return popup, email, push
         preferences = (
@@ -191,12 +201,12 @@ class MailMessage(models.Model):
                     "body_html": self.body or "",
                     "email_from": self.env.company.email or self.env.user.email or "notifications@localhost",
                     "email_to": partner.email,
-                    "recipient_ids": [Command.link(partner.id)],
+                    "recipient_ids": [Command.link(persisted_id(partner))],
                     "mail_message_id": self.id,
                     "auto_delete": False,
                     "state": "outgoing",
                     "headers": json.dumps({"X-Mailin-custom": f"notification:{notification.id}"}),
-                    "attachment_ids": [Command.link(attachment.id) for attachment in self.attachment_ids],
+                    "attachment_ids": [Command.link(persisted_id(attachment)) for attachment in self.attachment_ids],
                 }
             )
         )
@@ -207,7 +217,7 @@ class MailMessage(models.Model):
         user = partner.user_ids[:1]
         if not user:
             return
-        devices = self.env[MODEL_MOBILE_DEVICE].sudo().search([("user_id", "=", user.id), ("active", "=", True)])
+        devices = self.env[MODEL_MOBILE_DEVICE]._push_tokens(user)
         deliveries = self.env[MODEL_PUSH_DELIVERY].sudo()
         for device in devices:
             existing = deliveries.search(
@@ -235,4 +245,4 @@ class MailMessage(models.Model):
         self.ensure_one()
         if not self.res_id or self.model not in self.env:
             return None
-        return self.env[self.model].sudo().browse(self.res_id).exists() or None
+        return dynamic_model(self.env, self.model).sudo().browse(self.res_id).exists() or None

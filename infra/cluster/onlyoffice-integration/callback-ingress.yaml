@@ -1,0 +1,30 @@
+apiVersion: traefik.io/v1alpha1
+kind: ServersTransport
+metadata:
+  name: onlyoffice-callback
+spec:
+  forwardingTimeouts:
+    dialTimeout: 10s
+    responseHeaderTimeout: 22m
+    idleConnTimeout: 22m
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: onlyoffice-callback
+spec:
+  entryPoints: [onlyofficecallback]
+  tls:
+    secretName: onlyoffice-tls
+  routes:
+    - kind: Rule
+      match: Host(`onlyoffice-callback.kube-system.svc.cluster.local`) && PathPrefix(`/medilab/laboratory-files/callback/`) && Method(`POST`)
+      observability:
+        accessLogs: false
+        tracing: false
+      middlewares:
+        - name: odoo-https
+      services:
+        - name: odoo
+          port: http
+          serversTransport: onlyoffice-callback

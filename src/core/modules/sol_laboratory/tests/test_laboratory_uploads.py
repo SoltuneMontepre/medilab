@@ -111,7 +111,7 @@ class TestLaboratoryUploads(LaboratoryUploadCase):
 
         self.run_jobs()
 
-        read = self.read(upload)
+        read = self.read_upload(upload)
         self.assertEqual(
             (read["status"], read["failure_code"], read["version"]), (UPLOAD_FAILED, SHA256_MISMATCH, None)
         )
@@ -128,7 +128,7 @@ class TestLaboratoryUploads(LaboratoryUploadCase):
 
         self.assertApiRefused(UPLOAD_INCOMPLETE, self.finalize(upload))
 
-        self.assertEqual(self.read(upload)["status"], PREPARED)
+        self.assertEqual(self.read_upload(upload)["status"], PREPARED)
 
     def test_an_empty_file_is_uploaded_without_parts(self):
         upload = self.upload(b"", path="HPLC/empty.csv")
@@ -189,7 +189,7 @@ class TestLaboratoryUploads(LaboratoryUploadCase):
 
         self.assertApiRefused(LOCKED, self.finalize(upload))
 
-        self.assertEqual(self.read(upload)["status"], PREPARED)
+        self.assertEqual(self.read_upload(upload)["status"], PREPARED)
 
     def test_another_computers_upload_is_not_found(self):
         upload = self.prepare(RUN).json()["upload"]
@@ -248,7 +248,7 @@ class TestLaboratoryUploads(LaboratoryUploadCase):
         self.put_parts(garbage, b"x" * len(RUN), key=outsider, folder=other_folder)
         self.finalize(garbage, key=outsider, folder=other_folder)
         self.run_jobs()
-        refused = self.read(garbage, key=outsider, folder=other_folder)
+        refused = self.read_upload(garbage, key=outsider, folder=other_folder)
         honest = self.upload(RUN, path="run-01.csv", key=outsider, folder=other_folder)
         theirs = self.api("GET", f"/folders/{self.folder.id}/uploads/{garbage['id']}", key=outsider)
 

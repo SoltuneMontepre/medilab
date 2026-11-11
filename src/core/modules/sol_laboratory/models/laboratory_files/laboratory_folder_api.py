@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from psycopg2 import IntegrityError, errorcodes
 
 from odoo import api, models
@@ -22,7 +24,12 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_RES_USERS,
 )
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
-from odoo.addons.sol_laboratory.services.laboratory_paths import normal_text
+from odoo.addons.sol_laboratory.services.laboratory_paths import normal_pattern, normal_text
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_laboratory_folder as LaboratoryFolderApiBase
+else:
+    LaboratoryFolderApiBase = object
 
 # The logger of the queries a unique key refuses, which a save point catches and answers itself.
 SQL_LOGGER = "odoo.sql_db"
@@ -30,7 +37,7 @@ SQL_LOGGER = "odoo.sql_db"
 
 # Thư Mục Phòng Thí Nghiệm: what the laboratory files API does with folders once it has checked access; a computer
 # creates a folder once per Idempotency-Key.
-class LaboratoryFolderApi(models.Model):
+class LaboratoryFolderApi(models.Model, LaboratoryFolderApiBase):
     _name = MODEL_LABORATORY_FOLDER
     _inherit = [MODEL_LABORATORY_FOLDER, MODEL_LABORATORY_IDEMPOTENCY_MIXIN]
     _idempotency_device_field = "created_by_device_id"
@@ -125,7 +132,7 @@ class LaboratoryFolderApi(models.Model):
         found keeps its own flags, which a change of the rule sets. Two additions at once make one rule."""
         self.ensure_one()
         rules = self.env[MODEL_LABORATORY_SYNC_RULE].sudo()
-        pattern = rules._normal_pattern(kind, pattern)
+        pattern = normal_pattern(kind, pattern)
         rule = rules.search([("folder_id", "=", self.id), ("kind", "=", kind), ("pattern", "=", pattern)])
         if rule:
             return rule

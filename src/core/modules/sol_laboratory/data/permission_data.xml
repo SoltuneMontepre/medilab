@@ -60,6 +60,26 @@
         <field name="document_model">medilab.role</field>
         <field name="action">delete</field>
     </record>
+    <record id="permission_role_grant_read_all" model="medilab.permission">
+        <field name="name">Read roles until a date</field>
+        <field name="document_model">medilab.role.grant</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_role_grant_create_all" model="medilab.permission">
+        <field name="name">Create roles until a date</field>
+        <field name="document_model">medilab.role.grant</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_role_grant_edit_all" model="medilab.permission">
+        <field name="name">Edit roles until a date</field>
+        <field name="document_model">medilab.role.grant</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_role_grant_delete_all" model="medilab.permission">
+        <field name="name">Delete roles until a date</field>
+        <field name="document_model">medilab.role.grant</field>
+        <field name="action">delete</field>
+    </record>
     <record id="permission_person_read_all" model="medilab.permission">
         <field name="name">Read people</field>
         <field name="document_model">medilab.person</field>
@@ -332,6 +352,51 @@
         <field name="name">Sign test reports</field>
         <field name="document_model">medilab.test.report</field>
         <field name="action">sign</field>
+    </record>
+    <record id="permission_test_report_draft_read_all" model="medilab.permission">
+        <field name="name">Read generated report drafts</field>
+        <field name="document_model">medilab.test.report.draft</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_test_report_candidate_read_all" model="medilab.permission">
+        <field name="name">Read prepared report PDFs</field>
+        <field name="document_model">medilab.test.report.candidate</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_report_template_read_all" model="medilab.permission">
+        <field name="name">Read report templates</field>
+        <field name="document_model">medilab.report.template</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_report_template_create_all" model="medilab.permission">
+        <field name="name">Create report templates</field>
+        <field name="document_model">medilab.report.template</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_report_template_edit_all" model="medilab.permission">
+        <field name="name">Edit report templates</field>
+        <field name="document_model">medilab.report.template</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_report_template_version_read_all" model="medilab.permission">
+        <field name="name">Read report template versions</field>
+        <field name="document_model">medilab.report.template.version</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_report_template_version_create_all" model="medilab.permission">
+        <field name="name">Create report template versions</field>
+        <field name="document_model">medilab.report.template.version</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_report_template_version_edit_all" model="medilab.permission">
+        <field name="name">Edit report template versions</field>
+        <field name="document_model">medilab.report.template.version</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_report_template_version_archive_all" model="medilab.permission">
+        <field name="name">Archive report template versions</field>
+        <field name="document_model">medilab.report.template.version</field>
+        <field name="action">archive</field>
     </record>
     <record id="permission_change_request_read_all" model="medilab.permission">
         <field name="name">Read change requests</field>
@@ -612,6 +677,39 @@
         <field name="document_model">medilab.parameter.method.machine</field>
         <field name="action">delete</field>
     </record>
+    <record id="permission_parameter_method_sample_type_create_all" model="medilab.permission">
+        <field name="name">Create sample types of ways of testing</field>
+        <field name="document_model">medilab.parameter.method.sample.type</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_parameter_method_sample_type_edit_all" model="medilab.permission">
+        <field name="name">Edit sample types of ways of testing</field>
+        <field name="document_model">medilab.parameter.method.sample.type</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_parameter_method_sample_type_delete_all" model="medilab.permission">
+        <field name="name">Delete sample types of ways of testing</field>
+        <field name="document_model">medilab.parameter.method.sample.type</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_parameter_method_sample_type_create_own_department" model="medilab.permission">
+        <field name="name">Create sample types of ways of testing of their department</field>
+        <field name="document_model">medilab.parameter.method.sample.type</field>
+        <field name="action">create</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_parameter_method_sample_type_edit_own_department" model="medilab.permission">
+        <field name="name">Edit sample types of ways of testing of their department</field>
+        <field name="document_model">medilab.parameter.method.sample.type</field>
+        <field name="action">edit</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_parameter_method_sample_type_delete_own_department" model="medilab.permission">
+        <field name="name">Delete sample types of ways of testing of their department</field>
+        <field name="document_model">medilab.parameter.method.sample.type</field>
+        <field name="action">delete</field>
+        <field name="scope">own_department</field>
+    </record>
     <record id="permission_quality_registration_create_all" model="medilab.permission">
         <field name="name">Create quality registrations</field>
         <field name="document_model">medilab.quality.registration</field>
@@ -651,6 +749,21 @@
     <record id="permission_accreditation_certificate_delete_all" model="medilab.permission">
         <field name="name">Delete accreditation certificates</field>
         <field name="document_model">medilab.accreditation.certificate</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_accreditation_scope_line_create_all" model="medilab.permission">
+        <field name="name">Create accreditation scope lines</field>
+        <field name="document_model">medilab.accreditation.scope.line</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_accreditation_scope_line_edit_all" model="medilab.permission">
+        <field name="name">Edit accreditation scope lines</field>
+        <field name="document_model">medilab.accreditation.scope.line</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_accreditation_scope_line_delete_all" model="medilab.permission">
+        <field name="name">Delete accreditation scope lines</field>
+        <field name="document_model">medilab.accreditation.scope.line</field>
         <field name="action">delete</field>
     </record>
     <record id="permission_regulation_create_all" model="medilab.permission">
@@ -861,6 +974,11 @@
     <record id="permission_signature_read_all" model="medilab.permission">
         <field name="name">Read signatures</field>
         <field name="document_model">medilab.signature</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_signing_process_read_all" model="medilab.permission">
+        <field name="name">Read signing processes</field>
+        <field name="document_model">medilab.signing.process</field>
         <field name="action">read</field>
     </record>
     <record id="permission_signing_certificate_read_all" model="medilab.permission">

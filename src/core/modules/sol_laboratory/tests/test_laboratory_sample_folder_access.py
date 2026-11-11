@@ -14,6 +14,7 @@ from odoo.addons.sol_laboratory.constants.laboratory_files import (
 )
 from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_FOLDER
 from odoo.addons.sol_laboratory.constants.xml_ids import FOLDER_ADMINISTRATION_GROUP
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 SAMPLE_READER_GROUP = "sol_laboratory.group_permission_sample_read_all"
 
@@ -32,7 +33,7 @@ class TestLaboratorySampleFolderAccess(LaboratoryFilesCase, RequestCase):
         self.assertRefused(NOT_FOUND, self.raw_data.with_user(self.tester)._check_folder_access, FOLDER_READ)
 
     def test_a_member_who_can_see_the_sample_reads_its_folder(self):
-        self.tester.group_ids = [Command.link(self.env.ref(SAMPLE_READER_GROUP).id)]
+        self.tester.group_ids = [Command.link(persisted_id(self.env.ref(SAMPLE_READER_GROUP)))]
 
         self.raw_data.with_user(self.tester)._check_folder_access(FOLDER_READ)
 
@@ -40,7 +41,7 @@ class TestLaboratorySampleFolderAccess(LaboratoryFilesCase, RequestCase):
         file = self.file_of("HPLC/run-01.csv", self.raw_data)
 
         self.assertRefused(NOT_FOUND, file.with_user(self.tester)._check_file_access, FILE_READ)
-        self.tester.group_ids = [Command.link(self.env.ref(SAMPLE_READER_GROUP).id)]
+        self.tester.group_ids = [Command.link(persisted_id(self.env.ref(SAMPLE_READER_GROUP)))]
         file.with_user(self.tester)._check_file_access(FILE_READ)
         self.assertTrue(file._is_raw_data())
 
@@ -59,7 +60,7 @@ class TestLaboratorySampleFolderAccess(LaboratoryFilesCase, RequestCase):
                 )
         self.assertRefused(NOT_FOUND, raw_data.action_turn_off)
 
-        self.folder_administrator.group_ids = [Command.link(self.env.ref(SAMPLE_READER_GROUP).id)]
+        self.folder_administrator.group_ids = [Command.link(persisted_id(self.env.ref(SAMPLE_READER_GROUP)))]
         for access in (FOLDER_SHARE, FOLDER_ADMINISTER):
             with self.subTest(access=access, sees_sample=True):
                 raw_data._check_folder_access(access)

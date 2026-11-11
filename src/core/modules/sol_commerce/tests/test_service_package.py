@@ -1,8 +1,10 @@
 from odoo.fields import Command
 from odoo.tests import Form, tagged
+from odoo.tests.form import O2MProxy
 
 from .common import PricingCase
 from odoo.addons.sol_commerce.constants.models import MODEL_PARAMETER_PRICE
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 ONCHANGE_LOGGER = "odoo.tests.form.onchange"
 
@@ -27,7 +29,7 @@ class TestServicePackage(PricingCase):
     def test_same_parameter_added_in_the_form_raises_the_quantity(self):
         package = self.create_package(400000, (self.parameter, 1))
 
-        with Form(package) as form, form.line_ids.new() as line:
+        with Form(package) as form, assert_instance(form.line_ids, O2MProxy).new() as line:
             line.parameter_id = self.parameter
 
         self.assertEqual(package.line_ids.mapped("quantity"), [2])

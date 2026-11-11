@@ -2,6 +2,7 @@ from odoo.fields import Command
 from odoo.tests import tagged
 
 from .audit_case import AuditCase
+from .mobile_phones import signed_in_phone
 from odoo.addons.sol_laboratory.constants.audit import MASK_PERSONAL, MASK_SECRET
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_CHANGE,
@@ -17,7 +18,7 @@ from odoo.addons.sol_laboratory.models.mixins.audit_mixin import mask_text
 class TestAuditMasking(AuditCase):
     def test_a_secret_field_records_that_it_changed_without_its_values(self):
         field = self.env[MODEL_CHEMICAL]._fields["cas_number"]
-        field.audit_mask = MASK_SECRET
+        setattr(field, "audit_mask", MASK_SECRET)
         self.addCleanup(delattr, field, "audit_mask")
         chemical = self.env[MODEL_CHEMICAL].create({"code": "HC-101", "name": "Acetonitrile", "cas_number": "75-05-8"})
 
@@ -28,7 +29,7 @@ class TestAuditMasking(AuditCase):
 
     def test_a_personal_field_keeps_only_enough_to_tell_values_apart(self):
         field = self.env[MODEL_CHEMICAL]._fields["cas_number"]
-        field.audit_mask = MASK_PERSONAL
+        setattr(field, "audit_mask", MASK_PERSONAL)
         self.addCleanup(delattr, field, "audit_mask")
         chemical = self.env[MODEL_CHEMICAL].create({"code": "HC-102", "name": "Acetonitrile", "cas_number": "75-05-8"})
 
@@ -84,10 +85,11 @@ class TestAuditMasking(AuditCase):
         self.assertEqual(self.changes(self.entries(parameter, "edit"))["value"][1], "***")
 
     def test_a_device_token_is_masked_and_refreshing_it_is_not_a_change(self):
+        phone, _key = signed_in_phone(self.env, self.editor)
         devices = self.env[MODEL_MOBILE_DEVICE].with_user(self.editor)
-        device = devices.register_token("fcm-token-1", "android")
+        device = devices._register_token(phone, "fcm-token-1")
 
-        devices.register_token("fcm-token-1", "android")
+        devices._register_token(phone, "fcm-token-1")
 
         changes = self.changes(self.entries(device, "create"))
         self.assertEqual(changes["token"], (False, "***"))

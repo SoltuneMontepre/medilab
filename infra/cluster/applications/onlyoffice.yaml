@@ -1,0 +1,24 @@
+# Register and sync manually only after the ONLYOFFICE acceptance and licence gates.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: onlyoffice
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/SoltuneMontepre/medilab.git
+    targetRevision: main
+    path: infra/cluster/onlyoffice
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: medilab
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 30s
+        factor: 2
+        maxDuration: 5m

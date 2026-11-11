@@ -12,6 +12,10 @@ Always read [docs/readme.md](docs/readme.md) first to understand the conventions
 
 When authoring, reviewing or debugging Cypress specs, read [Cypress Tap and AI Skills](docs/workflows/cypress-tap.md). Use the repository's Cypress skills and bind live Tap commands to this worktree's E2E session.
 
+## Cloud sessions
+
+In a Claude Code cloud session, or when asked how to set one up, follow [Working in a cloud session](docs/workflows/cloud-session.md). Guide the owner through the environment settings it lists when a tool, secret or host is missing.
+
 ## MCP servers
 
 `.mcp.json`, `.codex/config.toml` and `.cursor/mcp.json` configure the clients; `task ai:setup` installs worktree-local AI tooling. [Odoo intelligence](docs/workflows/odoo-intelligence.md) covers installation and verification. Use them whenever the task calls for them, before falling back to the shell:

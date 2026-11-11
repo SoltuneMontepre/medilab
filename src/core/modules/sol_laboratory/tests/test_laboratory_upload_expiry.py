@@ -58,7 +58,7 @@ class TestLaboratoryUploadExpiry(LaboratoryUploadCase):
         self.assertEqual(self.finalize(upload).json()["upload"]["status"], UPLOAD_EXPIRED)
         self.assertEqual(stored_content.state, VERIFIED)
         self.assertEqual(laboratory_bucket.object_size(stored_content.object_key), len(RUN))
-        self.assertEqual(self.read(stored)["status"], COMPLETED)
+        self.assertEqual(self.read_upload(stored)["status"], COMPLETED)
 
     def test_an_upload_past_its_expiry_is_not_finalized_even_before_the_job_marks_it(self):
         upload = self.prepare(RUN).json()["upload"]

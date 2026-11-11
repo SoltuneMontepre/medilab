@@ -51,7 +51,7 @@ class TestLaboratoryEditingSessions(LaboratoryEditingCase, LaboratorySampleFolde
         self.assertEqual(joined, session)
         self.assertEqual(joined._callback_token(), session._callback_token())
         self.assertEqual(len(self.file.editing_session_ids), 1)
-        self.assertIn(self.member.name, self.entries(session, "edit").note)
+        self.assertIn(self.member.name, (self.entries(session, "edit").note or ""))
 
     def test_a_person_joins_the_session_even_when_the_file_has_a_newer_version(self):
         session = self.open(self.tester)

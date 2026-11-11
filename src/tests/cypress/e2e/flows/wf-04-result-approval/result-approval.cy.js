@@ -1,41 +1,44 @@
 import { newRecord, openTab, pick, save, search } from "../../../support/form";
-import { call, callAs, callRefused, resolveRecord } from "../../../support/odoo";
-import { orderAt } from "../wf-01-order-to-test-request/setup";
+import { call, callAs, callRefused, refAs, resolveRecord } from "../../../support/odoo";
+import { releaseFixtures } from "../wf-03-testing-scheduling/setup";
 import {
-  HEAD,
   LAB_HEAD,
-  PARAMETERS,
+  TESTER,
   approvedResult,
-  bookAndStart,
-  enterResult,
+  assignedTest,
+  bookedLead,
+  enteredResult,
+  leadInTesting,
   newParameter,
   newRegulation,
-  rejectedResult,
-  sampleInTesting,
+  results,
   sentResult,
-  testOf,
+  testingTasks,
 } from "./setup";
 
-const REJECTION = "Hàm lượng chì cao bất thường so với mẫu cùng lô; đề nghị đo lại.";
+const ACTIONS = ".o_form_view .o_statusbar_buttons";
 const CANCELLATION = "Mẫu không đủ thể tích để phân tích chì.";
+// Lead in bottled water compared with QCVN 6-1:2010/BYT, which limits it there.
+const COMPARED_WATER = { regulation: "sol_demo.demo_regulation_qcvn_6_1" };
+// Lead in lettuce compared with QCVN 8-2:2011/BYT, which limits lead on cabbage but not on lettuce.
+const LETTUCE_WITHOUT_LIMIT = {
+  sampleType: "sol_demo.demo_sample_type_lettuce",
+  state: "solid",
+  regulation: "sol_demo.demo_regulation_qcvn_8_2",
+};
 
-// The results of a sample test, the latest attempt first, as the signed-in user reads them.
-function resultsOf(test) {
-  return call("medilab.test.result", "search_read", [[["sample_test_id", "=", test.id]]], {
-    fields: ["attempt", "status", "is_reported", "value_display"],
-    order: "attempt desc",
-  }).then((results) => results.map((result) => ({ ...result, model: "medilab.test.result" })));
+// Chooses an assessment of the open result and saves it.
+function assess(label) {
+  cy.get(".o_field_widget[name=conclusion]").contains("label", label).click();
+  save();
 }
 
-// Opens the result form of a new result from the sample test's form.
-function enterResultOnScreen(test) {
+// Enters a value for the sample test through its form and saves the result.
+function enterResult(test, value) {
   cy.openRecord(test);
-  cy.get(".o_statusbar_buttons button[name=action_enter_result]:visible").click();
-  cy.get(".o_form_view .o_field_widget[name=sample_test_id]").should("be.visible");
-}
-
-function concludeOnScreen(conclusion) {
-  cy.get(`.o_field_widget[name=conclusion] input[data-value=${conclusion}]`).check();
+  cy.signRecord("action_enter_result");
+  cy.get(".o_field_widget[name=value] input").clear().type(value);
+  save();
 }
 
 // Saves the form and waits for the server's answer, so what follows reads or changes the saved record.
@@ -52,10 +55,9 @@ function addLine(field) {
 }
 
 // Adds an in-house way of testing in Chemistry to the parameter form.
-function addWay(method, unit) {
+function addWay(method) {
   addLine("method_ids");
   pick("method_id", method);
-  pick("unit_id", unit);
   pick("department_id", "Chemistry");
   cy.get(".o_selected_row .o_field_widget[name=department_id] input").should("have.value", "Chemistry");
 }
@@ -66,7 +68,7 @@ function listActions(path, name) {
   cy.get(".o_data_row").should("exist");
   search(name);
   cy.contains(".o_data_row", name).find(".o_list_record_selector input").check();
-  cy.contains(".o_control_panel button.dropdown-toggle", "Actions").click();
+  cy.contains(".o_control_panel button", "Actions").click();
 }
 
 // Discards the form's unsaved changes, so leaving the page does not save them, and waits until the form has read the
@@ -85,19 +87,247 @@ function discardRefused() {
   discard();
 }
 
-// Archives the parameter's one way of testing with its Active toggle, so no active way uses the parameter. The row is
-// edited first: a click on the toggle of a row not in edition can be taken by opening the row.
-function archiveWay() {
-  cy.get(".o_field_widget[name=method_ids] .o_data_row td[name=lod]").click();
-  cy.get(".o_field_widget[name=method_ids] .o_selected_row td[name=active] input").click();
-  cy.get(".o_field_widget[name=method_ids] .o_data_row td[name=active] input").should("not.be.checked");
-  saveAndWait("medilab.test.parameter");
-}
+// Only the bookings these tests made are released, so the machines stay free for the next ones.
+afterEach(releaseFixtures);
 
 describe("WF-04 Result entry and approval", () => {
-  it("TC-WF04-M lets the tester follow the steps and send a number with its conclusion, which the head approves", () => {
-    sampleInTesting().then((sample) => {
-      const [test] = sample.tests;
+  it("TC-WF04-M lets the tester enter and send a result, which completes their testing task, and the head approve it", () => {
+    assignedTest("lead", { days: 7 }).then((test) => {
+      cy.signInAs("tester");
+      enterResult(test, "0.008");
+      cy.get(".o_field_widget[name=conclusion]").should("not.exist");
+      cy.signRecord();
+      cy.get(`${ACTIONS} button[name=action_withdraw]:visible`).should("exist");
+      testingTasks(test).then((tasks) => expect(tasks.map((task) => task.status)).to.deep.equal(["done"]));
+      cy.readRecord(test, ["status"]).its("status").should("eq", "result_entered");
+
+      results(test).then(([result]) => {
+        callRefused("medilab.test.result", "write", [[result.id], { value: 0.003 }]).should(
+          "eq",
+          "The document has signatures; withdraw them before changing it.",
+        );
+        cy.signInAs("head_of_department");
+        cy.openRecord(result);
+        cy.signRecord();
+        cy.get(`${ACTIONS} button[name=action_sign]`).should("not.exist");
+        cy.readRecord(result, ["status"]).its("status").should("eq", "approved");
+        cy.readRecord(test, ["status"]).its("status").should("eq", "approved");
+      });
+    });
+  });
+
+  it("TC-WF04-A2 lets the tester withdraw a sent result, which gives them back their testing task", () => {
+    sentResult().then(({ test, result }) => {
+      cy.signInAs("tester");
+      cy.openRecord(result);
+      cy.signRecord("action_withdraw");
+      cy.get(`${ACTIONS} button[name=action_withdraw]`).should("not.exist");
+      cy.readRecord(result, ["status"]).its("status").should("eq", "none");
+      refAs(TESTER, "sol_demo.demo_person_tester").then((tester) =>
+        testingTasks(test).then(([task, ...others]) => {
+          expect(others).to.be.empty;
+          expect(task.status).to.equal("assigned");
+          expect(task.assignee_id[0]).to.equal(tester.id);
+        }),
+      );
+    });
+  });
+
+  it("TC-WF04-E1 lets the head reject a result, which stays on record and opens a new testing task", () => {
+    const reason = "Mẫu chuẩn kiểm tra đọc cao 15%, hiệu chuẩn lại máy AAS và đo lại.";
+    sentResult().then(({ test, result }) => {
+      cy.signInAs("head_of_department");
+      cy.openRecord(result);
+      cy.rejectRecord(reason);
+      cy.readRecord(result, ["status"]).its("status").should("eq", "rejected");
+      cy.readRecord(test, ["status"]).its("status").should("eq", "testing");
+      testingTasks(test).then(([done, retest, ...others]) => {
+        expect(others).to.be.empty;
+        expect(done.status).to.equal("done");
+        expect(retest.status).to.equal("open");
+        expect(retest.assignee_id).to.equal(false);
+        expect(retest.note).to.contain(reason);
+      });
+
+      cy.signInAs("tester");
+      enterResult(test, "0.009");
+      results(test).then((rows) => {
+        expect(rows.map((row) => [row.status, row.is_reported])).to.deep.equal([
+          ["none", true],
+          ["rejected", false],
+        ]);
+      });
+    });
+  });
+
+  it("TC-WF04-A1 lets the tester confirm the suggested text for a value below the LOD, keeping the measured value", () => {
+    assignedTest("lead", { days: 7, sample: COMPARED_WATER }).then((test) => {
+      cy.signInAs("tester");
+      enterResult(test, "0.003");
+      cy.get(".o_field_widget[name=limit_max]").should("contain", "0.01");
+      cy.get(".o_field_widget[name=limit_unit_id]").should("contain", "mg/L");
+      results(test).then(([result]) => {
+        cy.readRecord(result, ["lod", "unit_id"]).then(({ lod, unit_id: [, unit] }) => {
+          const text = `<${lod} ${unit} (below LOD)`;
+          cy.get(".o_field_widget[name=value_suggestion]").should("have.text", text);
+          cy.get("button[name=action_use_value_suggestion]").click();
+          cy.get(".o_field_widget[name=value_text] input").should("have.value", text);
+          cy.get(".o_field_widget[name=value_suggestion]").should("not.exist");
+          cy.readRecord(result, ["value", "value_text", "conclusion"]).should("deep.include", {
+            value: 0.003,
+            value_text: text,
+            conclusion: false,
+          });
+        });
+        assess("Pass");
+        cy.signRecord();
+        cy.get(`${ACTIONS} button[name=action_withdraw]:visible`).should("exist");
+        cy.readRecord(result, ["status", "conclusion"]).should("deep.include", {
+          status: "requested",
+          conclusion: "pass",
+        });
+      });
+    });
+  });
+
+  it("TC-WF04-A4 shows a missing exact-type limit and lets the tester send it only as insufficient basis", () => {
+    assignedTest("lead", { days: 7, sample: LETTUCE_WITHOUT_LIMIT }).then((test) => {
+      cy.signInAs("tester");
+      enterResult(test, "0.12");
+      cy.contains(".o_form_view .alert-warning", "can only be assessed as insufficient basis").should("be.visible");
+      results(test).then(([result]) => {
+        callRefused("medilab.test.result", "write", [[result.id], { conclusion: "pass" }]).should("contain", "insufficient basis");
+        assess("Insufficient Basis");
+        cy.signRecord();
+        cy.get(`${ACTIONS} button[name=action_withdraw]:visible`).should("exist");
+        cy.readRecord(result, ["status", "conclusion", "limit_missing"]).should("deep.include", {
+          status: "requested",
+          conclusion: "insufficient",
+          limit_missing: true,
+        });
+      });
+    });
+  });
+
+  it("TC-WF04-A1 lets the tester enter and send a plain text result on a sample without a regulation", () => {
+    assignedTest("lead", { days: 7 }).then((test) => {
+      cy.signInAs("tester");
+      cy.openRecord(test);
+      cy.signRecord("action_enter_result");
+      cy.get(".o_field_widget[name=conclusion]").should("not.exist");
+      cy.get(".o_field_widget[name=value_text] input").type("Not detected").blur();
+      cy.get(".o_field_widget[name=value]").should("not.exist");
+      save();
+      cy.signRecord();
+      cy.get(`${ACTIONS} button[name=action_withdraw]:visible`).should("exist");
+      results(test).then(([result]) =>
+        cy.readRecord(result, ["status", "value_display"]).should("deep.include", { status: "requested", value_display: "Not detected" }),
+      );
+    });
+  });
+
+  it("TC-WF04-E3 lets the head cancel a test with a reason, and completes the sample and its report without it", () => {
+    leadInTesting().then((sample) => {
+      const { lead, ph } = sample;
+      approvedResult(ph, { value: 7.2 }).as("phResult");
+      cy.signInAs("head_of_department");
+      cy.openRecord(lead);
+      cy.rejectRecord(CANCELLATION, { action: "action_cancel" });
+      cy.get(".o_field_widget[name=cancel_reason]").should("contain", CANCELLATION);
+      cy.readRecord(lead, ["status", "cancel_reason"]).should("deep.include", { status: "cancelled", cancel_reason: CANCELLATION });
+      cy.readRecord(lead.task, ["status"]).its("status").should("eq", "cancelled");
+      cy.readRecord(lead.booking, ["status"]).its("status").should("eq", "cancelled");
+      cy.readRecord(sample, ["status"]).its("status").should("eq", "completed");
+      cy.readRecord(sample, ["request_id"]).then(({ request_id: [requestId] }) =>
+        cy
+          .get("@phResult")
+          .then((phResult) =>
+            callAs(LAB_HEAD, "medilab.test.report", "search_read", [[["request_id", "=", requestId]]], { fields: ["result_ids"] }).should(
+              ([report]) => expect(report.result_ids).to.deep.equal([phResult.id]),
+            ),
+          ),
+      );
+    });
+  });
+});
+
+describe("WF-04 feature acceptance criteria", () => {
+  it("TC-F29-01 saves a parameter with several ways of testing and groups", () => {
+    const name = `Arsenic (As) ${Date.now()}`;
+    cy.signInAs("administrator");
+    newRecord("/odoo/test-parameters");
+    cy.get(".o_field_widget[name=name] input").type(name);
+    pick("group_ids", "Heavy metals");
+    pick("group_ids", "Physicochemical");
+    pick("main_group_id", "Heavy metals");
+    addWay("TCVN 7602:2007");
+    addWay("ISO 17294-2:2016");
+    saveAndWait("medilab.test.parameter");
+    cy.reload();
+    cy.get(".o_field_widget[name=group_ids] .o_tag").should("have.length", 2);
+    cy.get(".o_field_widget[name=method_ids] .o_data_row").should("have.length", 2);
+    call("medilab.test.parameter", "search_read", [[["name", "=", name]]], { fields: ["main_group_id", "group_ids", "method_ids"] }).should(
+      ([parameter]) => {
+        expect(parameter.main_group_id[1]).to.equal("Heavy metals");
+        expect(parameter.group_ids).to.have.length(2);
+        expect(parameter.method_ids).to.have.length(2);
+      },
+    );
+  });
+
+  it("TC-F29-02 refuses a main group that is not one of the parameter's groups, and an in-house way without a department", () => {
+    newParameter().then((parameter) => {
+      cy.signInAs("administrator");
+      cy.openRecord(parameter);
+      cy.expectRefusal({
+        read: () => cy.readRecord(parameter, ["group_ids", "main_group_id", "write_date"]),
+        action: () => {
+          pick("group_ids", "Physicochemical");
+          cy.contains(".o_field_widget[name=group_ids] .o_tag", "Heavy metals").find(".o_delete").click();
+          cy.get(".o_form_button_save").click();
+        },
+        message: `The main group of ${parameter.name} must be one of its groups.`,
+      });
+      discardRefused();
+      addLine("method_ids");
+      pick("method_id", "ISO 17294-2:2016");
+      cy.get(".o_form_button_save").click();
+      cy.get(".o_selected_row td[name=department_id]").should("have.class", "o_invalid_cell");
+      cy.get(".o_form_button_save").should("be.visible");
+      call("medilab.parameter.method", "search_count", [[["parameter_id", "=", parameter.id]]]).should("eq", 1);
+      discard();
+    });
+  });
+
+  it("TC-F29-03 refuses a second active way with the same method, and archives a parameter instead of deleting it", () => {
+    newParameter().then((parameter) => {
+      cy.signInAs("administrator");
+      cy.openRecord(parameter);
+      cy.expectRefusal({
+        read: () => call("medilab.parameter.method", "search_read", [[["parameter_id", "=", parameter.id]]], { fields: ["method_id", "write_date"] }),
+        action: () => {
+          addWay("TCVN 7602:2007");
+          cy.get(".o_form_button_save").click();
+        },
+        message: "The parameter is already tested with this method by the same laboratory.",
+      });
+      discardRefused();
+      // No active way of testing may use the parameter when it is archived.
+      call("medilab.parameter.method", "search", [[["parameter_id", "=", parameter.id]]]).then((ways) =>
+        call("medilab.parameter.method", "action_archive", [ways]),
+      );
+      listActions("test-parameters", parameter.name);
+      cy.get(".o-dropdown--menu .o-dropdown-item").should("not.contain", "Delete");
+      cy.contains(".o-dropdown--menu .o-dropdown-item", "Archive").click();
+      cy.get(".modal-footer .btn-primary").click();
+      cy.contains(".o_data_row", parameter.name).should("not.exist");
+      callRefused("medilab.test.parameter", "unlink", [[parameter.id]]).should("match", /^You are not allowed to delete 'Test Parameter'/);
+      cy.readRecord(parameter, ["active"]).its("active").should("eq", false);
+    });
+  });
+
+  it("TC-F30-01 shows the tester the steps of the method on their testing task, in number order", () => {
+    bookedLead().then((test) => {
       cy.signInAs("tester");
       cy.openRecord(test.task);
       openTab("method_steps");
@@ -120,270 +350,6 @@ describe("WF-04 Result entry and approval", () => {
                 .should("have.text", step.note || "");
             });
         });
-      cy.get(".o_form_view button[name=action_open_document]").click();
-      cy.get(".o_statusbar_buttons button[name=action_enter_result]:visible").click();
-      cy.readRecord(test.booking, ["machine_id"]).then(({ machine_id: [, machine] }) =>
-        cy.get(".o_field_widget[name=machine_id] input").should("have.value", machine),
-      );
-      cy.get(".o_field_widget[name=started_at] button").invoke("text").should("not.be.empty");
-      cy.get(".o_field_widget[name=limit_max]").should("contain", "0.01");
-      cy.get(".o_field_widget[name=limit_unit_id]").should("contain", "mg/L");
-      cy.get(".o_field_widget[name=value] input").clear().type("0.004");
-      concludeOnScreen("pass");
-      save();
-      cy.sendRecord("action_sign");
-      cy.get(".o_statusbar_buttons button[name=action_withdraw]:visible").should("exist");
-      resultsOf(test).then(([result]) => {
-        expect(result.status).to.equal("requested");
-        callRefused("medilab.test.result", "write", [[result.id], { value: 0.003 }]).should(
-          "eq",
-          "The document has signatures; withdraw them before changing it.",
-        );
-        cy.signInAs("head_of_department");
-        cy.openRecord(result);
-        cy.signRecord();
-        cy.get(".o_statusbar_buttons button[name=action_sign]").should("not.exist");
-        cy.readRecord(result, ["status"]).its("status").should("eq", "approved");
-      });
-      cy.readRecord(test, ["status"]).its("status").should("eq", "approved");
-      cy.readRecord(test.task, ["status"]).its("status").should("eq", "done");
-      cy.readRecord(sample, ["status"]).its("status").should("eq", "completed");
-    });
-  });
-
-  it("TC-WF04-A1 lets the tester enter and send a text result", () => {
-    sampleInTesting([PARAMETERS.lead], { regulation: false }).then(({ tests: [test] }) => {
-      cy.signInAs("tester");
-      enterResultOnScreen(test);
-      cy.get(".o_field_widget[name=conclusion]").should("not.exist");
-      cy.get(".o_field_widget[name=value_text] input").type("Not detected").blur();
-      cy.get(".o_field_widget[name=value]").should("not.exist");
-      save();
-      cy.sendRecord("action_sign");
-      cy.get(".o_statusbar_buttons button[name=action_withdraw]:visible").should("exist");
-      resultsOf(test).should(([result]) => {
-        expect(result.status).to.equal("requested");
-        expect(result.value_display).to.equal("Not detected");
-      });
-    });
-  });
-
-  it("TC-WF04-A2 keeps a rejected result on record when the tester retests and the head approves the new one", () => {
-    sampleInTesting().then(({ tests: [test] }) => {
-      sentResult(test, { value: 0.02, conclusion: "fail" }).then((rejected) => {
-        cy.signInAs("head_of_department");
-        cy.openRecord(rejected);
-        cy.rejectRecord(REJECTION);
-        cy.readRecord(rejected, ["status"]).its("status").should("eq", "rejected");
-        cy.readRecord(test, ["status"]).its("status").should("eq", "testing");
-
-        cy.signInAs("tester");
-        call(
-          "mail.message",
-          "search_read",
-          [
-            [
-              ["model", "=", "medilab.test.result"],
-              ["res_id", "=", rejected.id],
-              ["needaction", "=", true],
-            ],
-          ],
-          { fields: ["body"] },
-        ).should(([message]) => expect(message.body).to.contain(REJECTION));
-        enterResultOnScreen(test);
-        cy.get(".o_field_widget[name=value] input").clear().type("0.005");
-        concludeOnScreen("pass");
-        save();
-        cy.sendRecord("action_sign");
-        cy.get(".o_statusbar_buttons button[name=action_withdraw]:visible").should("exist");
-        resultsOf(test).then(([retest]) => {
-          cy.signInAs("head_of_department");
-          cy.openRecord(retest);
-          cy.signRecord();
-          cy.get(".o_statusbar_buttons button[name=action_sign]").should("not.exist");
-        });
-        resultsOf(test).should((results) => {
-          expect(results.map(({ attempt, status, is_reported }) => [attempt, status, is_reported])).to.deep.equal([
-            [2, "approved", true],
-            [1, "rejected", false],
-          ]);
-        });
-        cy.readRecord(test, ["status"]).its("status").should("eq", "approved");
-      });
-    });
-  });
-
-  it("TC-WF04-A3 lets the tester withdraw a result they sent before the head acts", () => {
-    sampleInTesting().then(({ tests: [test] }) => {
-      sentResult(test, { value: 0.004, conclusion: "pass" }).then((result) => {
-        cy.signInAs("tester");
-        cy.openRecord(result);
-        cy.get(".o_statusbar_buttons button[name=action_withdraw]:visible").click();
-        cy.get(".o_statusbar_buttons button[name=action_sign]:visible").should("exist");
-        cy.get(".o_field_widget[name=value] input").should("be.enabled");
-        cy.readRecord(result, ["status"]).its("status").should("eq", "none");
-        cy.readRecord(test, ["status"]).its("status").should("eq", "testing");
-      });
-    });
-  });
-
-  it("TC-WF04-A5 lets the head cancel a test that cannot be done, and completes the sample and its report without it", () => {
-    sampleInTesting([PARAMETERS.lead, PARAMETERS.ph]).then((sample) => {
-      testOf(sample, PARAMETERS.ph).then((ph) => approvedResult(ph, { value: 7.2, conclusion: "pass" }).as("phResult"));
-      testOf(sample, PARAMETERS.lead).then((lead) => {
-        rejectedResult(lead, { value: 0.02, conclusion: "fail" }, REJECTION);
-        bookAndStart(lead);
-        cy.signInAs("head_of_department");
-        cy.openRecord(lead);
-        cy.rejectRecord(CANCELLATION, { action: "action_cancel" });
-        cy.get(".o_field_widget[name=cancel_reason]").should("contain", CANCELLATION);
-        cy.readRecord(lead, ["status", "cancel_reason"]).should((read) => {
-          expect(read.status).to.equal("cancelled");
-          expect(read.cancel_reason).to.equal(CANCELLATION);
-        });
-        cy.readRecord(lead.task, ["status"]).its("status").should("eq", "cancelled");
-        cy.then(() => cy.readRecord(lead.booking, ["status"]))
-          .its("status")
-          .should("eq", "cancelled");
-      });
-      cy.readRecord(sample, ["status"]).its("status").should("eq", "completed");
-      cy.get("@phResult").then((phResult) =>
-        callAs(LAB_HEAD, "medilab.test.report", "search_read", [[["request_id", "=", sample.requestId]]], {
-          fields: ["result_ids"],
-        }).should(([report]) => expect(report.result_ids).to.deep.equal([phResult.id])),
-      );
-    });
-  });
-
-  it("TC-WF04-E1 does not let the person who entered a result approve it", () => {
-    sampleInTesting().then(({ tests: [test] }) => {
-      sentResult(test, { value: 0.004, conclusion: "pass" }, { enteredBy: HEAD }).then((result) => {
-        cy.signInAs("head_of_department");
-        cy.openRecord(result);
-        cy.get(".o_statusbar_buttons button[name=action_sign]").should("not.exist");
-        callRefused("medilab.test.result", "action_sign", [[result.id]]).should("eq", "You entered this result, so another person must approve it.");
-        cy.readRecord(result, ["status"]).its("status").should("eq", "requested");
-      });
-    });
-  });
-
-  it("TC-WF04-E2 refuses to send a result on a sample with a regulation without a conclusion", () => {
-    sampleInTesting().then(({ tests: [test] }) => {
-      enterResult(test, { value: 0.004 }).then((result) => {
-        cy.signInAs("tester");
-        cy.openRecord(result);
-        cy.expectRefusal({
-          read: () => cy.readRecord(result, ["status", "value", "conclusion", "write_date"]),
-          action: () => cy.sendRecord("action_sign"),
-          message: "Set the conclusion against the regulation before sending the result.",
-        });
-      });
-    });
-  });
-
-  it("TC-WF04-E3 refuses to cancel a test without a reason, or a test with an approved result", () => {
-    sampleInTesting().then(({ tests: [test] }) => {
-      cy.signInAs("head_of_department");
-      cy.openRecord(test);
-      cy.expectRefusal({
-        read: () => cy.readRecord(test, ["status", "cancel_reason", "write_date"]),
-        action: () => {
-          cy.get(".o_statusbar_buttons button.btn-danger:visible").click();
-          cy.get(".modal:visible [name=reason] textarea").type("   ");
-          cy.get(".modal:visible button[name=action_cancel]").click();
-        },
-        message: "Give a reason for cancelling the test.",
-      });
-    });
-    sampleInTesting().then(({ tests: [test] }) => {
-      approvedResult(test, { value: 0.004, conclusion: "pass" });
-      cy.signInAs("head_of_department");
-      cy.openRecord(test);
-      cy.get(".o_statusbar_buttons button.btn-danger").should("not.exist");
-      callRefused("medilab.sample.test", "action_cancel", [[test.id], CANCELLATION]).should(
-        "match",
-        /^Only a waiting, assigned or testing sample test can be cancelled: /,
-      );
-      cy.readRecord(test, ["status"]).its("status").should("eq", "approved");
-    });
-  });
-});
-
-describe("WF-04 feature acceptance criteria", () => {
-  it("TC-F29-01 saves a parameter with several ways of testing, groups and sample types", () => {
-    const name = `Arsenic (As) ${Date.now()}`;
-    cy.signInAs("administrator");
-    newRecord("/odoo/test-parameters");
-    cy.get(".o_field_widget[name=name] input").type(name);
-    pick("group_ids", "Heavy metals");
-    pick("group_ids", "Physicochemical");
-    pick("main_group_id", "Heavy metals");
-    pick("sample_type_ids", "Bottled water");
-    pick("sample_type_ids", "Surface water");
-    addWay("TCVN 7602:2007", "mg/kg");
-    addWay("ISO 17294-2:2016", "µg/L");
-    saveAndWait("medilab.test.parameter");
-    cy.reload();
-    cy.get(".o_field_widget[name=group_ids] .o_tag").should("have.length", 2);
-    cy.get(".o_field_widget[name=sample_type_ids] .o_tag").should("have.length", 2);
-    cy.get(".o_field_widget[name=method_ids] .o_data_row").should("have.length", 2);
-    call("medilab.test.parameter", "search_read", [[["name", "=", name]]], {
-      fields: ["main_group_id", "group_ids", "sample_type_ids", "method_ids"],
-    }).should(([parameter]) => {
-      expect(parameter.main_group_id[1]).to.equal("Heavy metals");
-      expect(parameter.group_ids).to.have.length(2);
-      expect(parameter.sample_type_ids).to.have.length(2);
-      expect(parameter.method_ids).to.have.length(2);
-    });
-  });
-
-  it("TC-F29-02 refuses a main group that is not one of the parameter's groups, and an in-house way without a department", () => {
-    newParameter().then((parameter) => {
-      cy.signInAs("administrator");
-      cy.openRecord(parameter);
-      cy.expectRefusal({
-        read: () => cy.readRecord(parameter, ["group_ids", "main_group_id", "write_date"]),
-        action: () => {
-          pick("group_ids", "Physicochemical");
-          cy.contains(".o_field_widget[name=group_ids] .o_tag", "Heavy metals").find(".o_delete").click();
-          cy.get(".o_form_button_save").click();
-        },
-        message: `The main group of ${parameter.name} must be one of its groups.`,
-      });
-      discardRefused();
-      addLine("method_ids");
-      pick("method_id", "ISO 17294-2:2016");
-      pick("unit_id", "µg/L");
-      cy.get(".o_form_button_save").click();
-      cy.get(".o_selected_row td[name=department_id]").should("have.class", "o_invalid_cell");
-      cy.get(".o_form_button_save").should("be.visible");
-      call("medilab.parameter.method", "search_count", [[["parameter_id", "=", parameter.id]]]).should("eq", 1);
-      discard();
-    });
-  });
-
-  it("TC-F29-03 refuses a second active way with the same method, and archives a parameter instead of deleting it", () => {
-    newParameter().then((parameter) => {
-      cy.signInAs("administrator");
-      cy.openRecord(parameter);
-      cy.expectRefusal({
-        read: () => call("medilab.parameter.method", "search_read", [[["parameter_id", "=", parameter.id]]], { fields: ["method_id", "write_date"] }),
-        action: () => {
-          addWay("TCVN 7602:2007", "mg/kg");
-          cy.get(".o_form_button_save").click();
-        },
-        message: "The parameter is already tested with this method by the same laboratory.",
-      });
-      discardRefused();
-      archiveWay();
-      call("medilab.parameter.method", "search_count", [[["parameter_id", "=", parameter.id]]]).should("eq", 0);
-      listActions("test-parameters", parameter.name);
-      cy.get(".o-dropdown--menu .o-dropdown-item").should("not.contain", "Delete");
-      cy.contains(".o-dropdown--menu .o-dropdown-item", "Archive").click();
-      cy.get(".modal footer .btn-primary").click();
-      cy.contains(".o_data_row", parameter.name).should("not.exist");
-      callRefused("medilab.test.parameter", "unlink", [[parameter.id]]).should("match", /^You are not allowed to delete 'Test Parameter'/);
-      cy.readRecord(parameter, ["active"]).its("active").should("eq", false);
     });
   });
 
@@ -460,17 +426,17 @@ describe("WF-04 feature acceptance criteria", () => {
         action: () => {
           listActions("chemicals", "Nitric acid 65%");
           cy.contains(".o-dropdown--menu .o-dropdown-item", "Delete").click();
-          cy.get(".modal footer .btn-danger").click();
+          cy.get(".modal-footer .btn-danger").click();
         },
         message: "This cannot be deleted while these records refer to it:",
       });
     });
   });
 
-  it("TC-F32-02 keeps a result's copied limit when the regulation changes, and holds one limit per parameter", () => {
+  it("TC-F32-02 keeps a result's copied limit when the regulation changes, and holds one limit per parameter and sample type", () => {
     newRegulation(0.05).then((regulation) => {
-      sampleInTesting([PARAMETERS.lead], { regulation }).then(({ tests: [test] }) => {
-        enterResult(test, { value: 0.004 }).then((result) => {
+      assignedTest("lead", { days: 7, sample: { regulation } }).then((test) => {
+        enteredResult(test, { value: 0.004 }).then((result) => {
           cy.signInAs("administrator");
           cy.openRecord(regulation);
           cy.expectRefusal({
@@ -478,10 +444,11 @@ describe("WF-04 feature acceptance criteria", () => {
             action: () => {
               addLine("limit_ids");
               pick("parameter_id", "Lead (Pb)");
+              pick("sample_type_id", "Bottled water");
               cy.get(".o_selected_row [name=limit_text] input").type("Không phát hiện");
               cy.get(".o_form_button_save").click();
             },
-            message: "A regulation sets at most one limit per parameter.",
+            message: "A regulation sets at most one limit per parameter and sample type.",
           });
           discardRefused();
           cy.get(".o_field_widget[name=limit_ids] .o_data_row td[name=max_value]").click();
@@ -496,25 +463,32 @@ describe("WF-04 feature acceptance criteria", () => {
     });
   });
 
-  it("TC-F33-02 lets no signer withdraw once the process completes or while a higher level's signature stands", () => {
-    sampleInTesting().then(({ tests: [test] }) => {
-      approvedResult(test, { value: 0.004, conclusion: "pass" }).then((result) => {
+  it("TC-F32-03 refuses to send a result whose requested comparison has no conclusion", () => {
+    assignedTest("lead", { days: 7, sample: COMPARED_WATER }).then((test) => {
+      enteredResult(test, { value: 0.004 }).then((result) => {
         cy.signInAs("tester");
         cy.openRecord(result);
-        cy.get(".o_statusbar_buttons button[name=action_withdraw]").should("not.exist");
+        cy.expectRefusal({
+          read: () => cy.readRecord(result, ["status", "value", "conclusion", "write_date"]),
+          action: () => cy.signRecord(),
+          message: "Assess the result against the regulation as pass, fail or insufficient basis before sending it.",
+        });
+      });
+    });
+  });
+
+  it("TC-F33-02 lets no signer withdraw once the process completes", () => {
+    assignedTest("lead", { days: 7 }).then((test) => {
+      approvedResult(test, { value: 0.004 }).then((result) => {
+        cy.signInAs("tester");
+        cy.openRecord(result);
+        cy.get(`${ACTIONS} button[name=action_withdraw]`).should("not.exist");
         callRefused("medilab.test.result", "action_withdraw", [[result.id]]).should(
           "eq",
           "The process of the document is completed, so a signature cannot be withdrawn.",
         );
         cy.readRecord(result, ["status"]).its("status").should("eq", "approved");
       });
-    });
-    orderAt("approved", { advance: false }).then((order) => {
-      cy.signInAs("sales");
-      cy.openRecord(order);
-      cy.get(".o_statusbar_buttons button[name=action_withdraw]").should("not.exist");
-      callRefused("sale.order", "action_withdraw", [[order.id]]).should("eq", "Hãy rút lại chữ ký của các cấp cao hơn trước.");
-      cy.readRecord(order, ["approval_status"]).its("approval_status").should("eq", "approved");
     });
   });
 
@@ -541,21 +515,45 @@ describe("WF-04 feature acceptance criteria", () => {
   });
 
   it("TC-F34-02 sends only the latest result of a test for approval", () => {
-    sampleInTesting().then(({ tests: [test] }) => {
-      enterResult(test, { value: 0.004, conclusion: "pass" }).then((first) => {
-        enterResult(test, { value: 0.005, conclusion: "pass" });
+    assignedTest("lead", { days: 7 }).then((test) => {
+      enteredResult(test, { value: 0.004 }).then((first) => {
+        enteredResult(test, { value: 0.005 });
         cy.signInAs("tester");
         cy.openRecord(first);
-        cy.get(".o_statusbar_buttons button[name=action_sign]").should("not.exist");
+        cy.get(`${ACTIONS} button[name=action_sign]`).should("not.exist");
         callRefused("medilab.test.result", "action_sign", [[first.id]]).should(
           "eq",
           "Only the reported result of a sample test is sent for approval.",
         );
-        cy.readRecord(first, ["status", "is_reported"]).should((read) => {
-          expect(read.status).to.equal("none");
-          expect(read.is_reported).to.equal(false);
-        });
+        cy.readRecord(first, ["status", "is_reported"]).should("deep.include", { status: "none", is_reported: false });
       });
+    });
+  });
+
+  it("TC-F36-03 refuses to cancel a test without a reason, or a test with an approved result", () => {
+    assignedTest("lead", { days: 7 }).then((test) => {
+      cy.signInAs("head_of_department");
+      cy.openRecord(test);
+      cy.expectRefusal({
+        read: () => cy.readRecord(test, ["status", "cancel_reason", "write_date"]),
+        action: () => {
+          cy.get(`${ACTIONS} button.btn-danger:visible`).click();
+          cy.get(".modal:visible [name=reason] textarea").type("   ");
+          cy.get(".modal:visible button[name=action_cancel]").click();
+        },
+        message: "Give a reason for cancelling the test.",
+      });
+    });
+    assignedTest("lead", { days: 7 }).then((test) => {
+      approvedResult(test, { value: 0.004 });
+      cy.signInAs("head_of_department");
+      cy.openRecord(test);
+      cy.get(`${ACTIONS} button.btn-danger`).should("not.exist");
+      callRefused("medilab.sample.test", "action_cancel", [[test.id], CANCELLATION]).should(
+        "match",
+        /^Only a waiting, assigned or testing sample test can be cancelled: /,
+      );
+      cy.readRecord(test, ["status"]).its("status").should("eq", "approved");
     });
   });
 });

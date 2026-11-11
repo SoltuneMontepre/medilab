@@ -3,11 +3,14 @@ import re
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding, utils
 
+from odoo import models
 from odoo.tests import HttpCase, tagged
 
 from .signing_case import SigningCase, self_signed
 from odoo.addons.sol_laboratory.constants.models import MODEL_DIGITAL_SIGNATURE
+from odoo.addons.sol_laboratory.services.model_lookup import record_as
 from odoo.addons.sol_laboratory.services.pdf_signing import sign_pdf
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 CSRF_TOKEN = re.compile(r'name="csrf_token" value="([^"]+)"')
 
@@ -29,7 +32,9 @@ class TestSignedPdfVerification(HttpCase, SigningCase):
 
         self.assertTrue(result["valid"])
         self.assertEqual(result["signature"], self.digital_signature(report))
-        approvals = result["signature"]._approvals()
+        approvals = record_as(
+            assert_instance(result["signature"], models.BaseModel), self.env[MODEL_DIGITAL_SIGNATURE]
+        )._approvals()
         self.assertEqual(approvals.signer_id, self.lab_head)
         self.assertEqual(approvals.level_name, "Lab head")
 
