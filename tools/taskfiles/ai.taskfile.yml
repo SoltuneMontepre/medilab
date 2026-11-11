@@ -6,6 +6,16 @@ vars:
   LOG: tools/scripts/log.sh
   CLOUD_ENV_TEMPLATE: tools/cloud/cloud.env.example
   CLOUD_ENV_FILE: .local/cloud.env
+  PLANTUML_SCRIPT: tools/scripts/ai_plantuml.py
+  # Upstream publishes no jar, so it is built from this commit; the jar path is the plantuml-java entry of .mcp.json
+  PLANTUML_MCP_REPOSITORY: https://github.com/plantuml/plantuml-mcp.git
+  PLANTUML_MCP_COMMIT: 80e3322fdc734ac7a75a0249fa2a264cb518c286
+  PLANTUML_MCP_DIR: .local/plantuml-mcp
+  PLANTUML_MCP_JAR: .local/plantuml-mcp/build/libs/plantuml-mcp-1.0.0.jar
+  # The port is PLANTUML_SERVER_URL of the plantuml-infobip entry of .mcp.json
+  PLANTUML_SERVER_IMAGE: plantuml/plantuml-server:jetty-v1.2026.8
+  PLANTUML_SERVER_NAME: plantuml-server
+  PLANTUML_SERVER_PORT: 8090
 
 tasks:
   ai:setup:
@@ -52,6 +62,28 @@ tasks:
     cmds:
       - task: doppler
       - . tools/scripts/ai_env.sh {{.CLOUD_ENV_TEMPLATE}} {{.CLOUD_ENV_FILE}} {{.DOPPLER_PROJECT}} {{.DOPPLER_CONFIG}}
+
+  ai:plantuml:
+    desc: "Build the pinned jar of the plantuml-java MCP server; needs Java 21+"
+    silent: true
+    cmds:
+      - |
+        set -e
+        . {{.LOG}}
+        log_step "plantuml-java MCP server"
+        log_info "Building plantuml-mcp with Gradle. The first build takes a few minutes."
+        message=$(python {{.PLANTUML_SCRIPT}} jar --directory {{.PLANTUML_MCP_DIR}} --repository {{.PLANTUML_MCP_REPOSITORY}} --commit {{.PLANTUML_MCP_COMMIT}} --jar {{.PLANTUML_MCP_JAR}})
+        log_ok "$message"
+
+  ai:plantuml-server:
+    desc: "Start the local PlantUML server the plantuml-infobip MCP server renders with"
+    silent: true
+    cmds:
+      - |
+        set -e
+        . {{.LOG}}
+        message=$(python {{.PLANTUML_SCRIPT}} server --image {{.PLANTUML_SERVER_IMAGE}} --name {{.PLANTUML_SERVER_NAME}} --port {{.PLANTUML_SERVER_PORT}})
+        log_ok "$message"
 
   ai:cursor-setup:
     desc: "Install the official Odoo extension into an isolated Cursor profile in this worktree"
