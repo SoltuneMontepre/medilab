@@ -10,6 +10,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TEST_REQUEST,
     MODEL_TESTING_METHOD,
 )
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 
 @tagged("post_install", "-at_install")
@@ -61,7 +62,7 @@ class TestExpectedSampling(OrderCase):
             [(group["container_type"], group["amounts"][0][0]) for group in entry["groups"]],
             [("Polyethylene bottle", 500), ("Sterile glass bottle", 250)],
         )
-        self.assertIn("o_medilab_expected", order.expected_sampling_html)
+        self.assertIn("o_medilab_expected", order.expected_sampling_html or "")
 
     def test_cart_lines_not_on_a_sample_are_counted_by_sample_type(self):
         order = self.make_order([(self.lead_product, 2), (self.cadmium_product, 3)])
@@ -146,7 +147,7 @@ class TestExpectedSampling(OrderCase):
         )
         self.assertEqual(self.entry(order)["groups"][0]["container_type"], "Polyethylene bottle")
         order.with_user(self.sales).action_confirm_order()
-        sample = self.env[MODEL_TEST_REQUEST].browse(order.test_request_id.id).sample_ids
+        sample = self.env[MODEL_TEST_REQUEST].browse(persisted_id(order.test_request_id)).sample_ids
         self.assertEqual(sample.expected_sample_count, 6)
         self.assertEqual(
             sorted(sample.expected_sampling_ids.mapped(lambda row: (row.container_type, row.amount, row.objects))),

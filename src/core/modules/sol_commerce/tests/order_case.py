@@ -27,6 +27,7 @@ ORDER_PERMISSIONS = (
     "order.sample.edit.all",
     "order.sample.delete.all",
     "quotation.read.all",
+    "quotation.sampling.read.all",
     "customer.sales.terms.read.all",
     "customer.sales.terms.create.all",
     "customer.sales.terms.edit.all",
