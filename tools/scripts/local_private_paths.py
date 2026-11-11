@@ -54,7 +54,7 @@ $ErrorActionPreference='Stop'
 Import-Module -Name (Join-Path $PSHOME 'Modules\Microsoft.PowerShell.Security\Microsoft.PowerShell.Security.psd1') -ErrorAction Stop
 $identity=[Security.Principal.WindowsIdentity]::GetCurrent()
 $u=$identity.User.Value
-$trusted=@($u,'S-1-5-18','S-1-5-32-544')
+$trusted=@($u,'S-1-5-18','S-1-5-32-544','S-1-3-4')
 $own=@($u)
 if(([Security.Principal.WindowsPrincipal]$identity).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)){$own+='S-1-5-32-544'}
 $mutation=2 -bor 4 -bor 16 -bor 64 -bor 256 -bor 65536 -bor 262144 -bor 524288 -bor 0x40000000 -bor 0x10000000

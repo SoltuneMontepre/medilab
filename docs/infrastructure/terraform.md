@@ -13,7 +13,7 @@ Terraform manages the `soltunemontepre.tech` zone's records and the tunnel that 
 | Fallback         | `modules/tunnel` | Any other host name on the tunnel gets a 404                                                          |
 | Web DNS records  | `modules/dns`    | A proxied CNAME per web host name to `<tunnel-id>.cfargotunnel.com`                                   |
 
-- The web host names are `lims.soltunemontepre.tech`, `argocd.soltunemontepre.tech`, `mail.soltunemontepre.tech`, `cloudbeaver.soltunemontepre.tech` and `grafana.soltunemontepre.tech`; add one by adding it to `web_hostnames` in `infra/dns.tf`, which creates its record and its public hostname together.
+- The web host names are `lims.soltunemontepre.tech`, `argocd.soltunemontepre.tech`, `mail.soltunemontepre.tech`, `cloudbeaver.soltunemontepre.tech`, `grafana.soltunemontepre.tech` and `office.soltunemontepre.tech`; add one by adding it to `web_hostnames` in `infra/dns.tf`, which creates its record and its public hostname together.
 - The tunnel's token is the sensitive output `tunnel_token`. Terraform does not store it in Doppler; see `CLOUDFLARE_TUNNEL_TOKEN` in [Secrets](secrets.md).
 - Deleting a host name from `web_hostnames` and applying removes its record and its public hostname.
 
