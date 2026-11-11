@@ -32,14 +32,20 @@ export function choose(field, label) {
   cy.get(`.o_field_widget[name=${field}] .o_select_menu_toggler`).should("have.value", label);
 }
 
-// Filters the shown list by the first field of its search view, so a record past the first page is found too.
-export function search(text) {
+// Filters the shown list by a search field, so a record past the first page is found too.
+export function search(text, { grouped = false, field } = {}) {
   cy.get(".o_searchview_input").type(text);
   // Enter applies the first suggestion only once the suggestions are shown.
   cy.get(".o_searchview_autocomplete").should("contain", text);
   // Rows shown before the filtered list arrives still match the callers' row queries.
-  cy.intercept("POST", "/web/dataset/call_kw/*/web_search_read").as("filtered");
-  cy.get(".o_searchview_input").type("{enter}");
+  cy.intercept("POST", `/web/dataset/call_kw/*/${grouped ? "web_read_group" : "web_search_read"}`).as("filtered");
+  if (field) {
+    cy.contains(".o_searchview_autocomplete .o-dropdown-item b", new RegExp(`^${Cypress._.escapeRegExp(field)}$`))
+      .closest(".o-dropdown-item")
+      .click();
+  } else {
+    cy.get(".o_searchview_input").type("{enter}");
+  }
   cy.contains(".o_searchview_facet", text);
   cy.wait("@filtered");
 }

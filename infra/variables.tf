@@ -23,7 +23,7 @@ variable "github_repository" {
 }
 
 variable "ansible_apply_reviewers" {
-  description = "GitHub usernames that must approve every cd-ansible apply"
+  description = "GitHub usernames that must approve every cd-ansible apply and cd-reset run"
   type        = list(string)
   default     = ["hatohui"]
 }

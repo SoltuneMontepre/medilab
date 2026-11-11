@@ -1,37 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- The generated read and edit accesses cover every record. Narrow them to the
-         salesperson's orders and the unclaimed queue. group_all_orders ORs back to every record. -->
-    <record id="sol_laboratory.access_permission_order_read_all" model="ir.access">
-        <field name="domain">["|", ("user_id", "=", user.id), "&amp;", ("order_status", "=", "submitted"), ("user_id", "=", False)]</field>
-    </record>
-    <record id="sol_laboratory.access_permission_order_edit_all" model="ir.access">
-        <field name="domain">["|", ("user_id", "=", user.id), "&amp;", ("order_status", "=", "submitted"), ("user_id", "=", False)]</field>
-    </record>
-    <record id="sol_laboratory.access_permission_cancellation_request_read_all" model="ir.access">
-        <field name="domain">[("order_id.user_id", "=", user.id)]</field>
-    </record>
-    <record id="sol_laboratory.access_permission_cancellation_request_edit_all" model="ir.access">
-        <field name="domain">[("order_id.user_id", "=", user.id)]</field>
-    </record>
-    <record id="sol_laboratory.access_permission_order_sample_read_all" model="ir.access">
-        <field name="domain">[("order_id.user_id", "=", user.id)]</field>
-    </record>
-    <record id="sol_laboratory.access_permission_order_sample_edit_all" model="ir.access">
-        <field name="domain">[("order_id.user_id", "=", user.id)]</field>
-    </record>
-    <record id="sol_laboratory.access_permission_order_sample_delete_all" model="ir.access">
-        <field name="domain">[("order_id.user_id", "=", user.id)]</field>
-    </record>
-    <record id="sol_laboratory.access_permission_quotation_read_all" model="ir.access">
-        <field name="domain">[("order_id.user_id", "=", user.id)]</field>
-    </record>
-    <record id="sol_laboratory.access_permission_quotation_edit_all" model="ir.access">
-        <field name="domain">[("order_id.user_id", "=", user.id)]</field>
-    </record>
-    <record id="sol_laboratory.access_permission_quotation_delete_all" model="ir.access">
-        <field name="domain">[("order_id.user_id", "=", user.id)]</field>
-    </record>
+    <!-- The generated accesses of the order permissions are not updated on upgrade, so a function sets their
+         domains on install and upgrade. -->
+    <function model="sale.order" name="_scope_permission_accesses" />
 
     <record id="access_sale_order_all" model="ir.access">
         <field name="name">All orders</field>
@@ -70,6 +41,13 @@
         <field name="operation">r</field>
         <field name="domain">[("user_id", "=", user.id)]</field>
     </record>
+    <record id="access_sale_report_read_own" model="ir.access">
+        <field name="name">sale.report follows the order owner for own orders</field>
+        <field name="model_id" ref="sale.model_sale_report" />
+        <field name="group_id" ref="sol_laboratory.group_permission_order_read_own" />
+        <field name="operation">r</field>
+        <field name="domain">[("user_id", "=", user.id)]</field>
+    </record>
     <record id="access_sale_report_all" model="ir.access">
         <field name="name">All orders analysis</field>
         <field name="model_id" ref="sale.model_sale_report" />
@@ -85,6 +63,13 @@
         <field name="operation">r</field>
         <field name="domain">[("order_id", "access", "read")]</field>
     </record>
+    <record id="access_sale_order_line_read_own" model="ir.access">
+        <field name="name">sale.order.line follows own orders</field>
+        <field name="model_id" ref="sale.model_sale_order_line" />
+        <field name="group_id" ref="sol_laboratory.group_permission_order_read_own" />
+        <field name="operation">r</field>
+        <field name="domain">[("order_id", "access", "read")]</field>
+    </record>
     <record id="access_sale_order_line_create" model="ir.access">
         <field name="name">sale.order.line create</field>
         <field name="model_id" ref="sale.model_sale_order_line" />
@@ -96,6 +81,13 @@
         <field name="name">sale.order.line follows order edit</field>
         <field name="model_id" ref="sale.model_sale_order_line" />
         <field name="group_id" ref="sol_laboratory.group_permission_order_edit_all" />
+        <field name="operation">u</field>
+        <field name="domain">[("order_id", "access", "write")]</field>
+    </record>
+    <record id="access_sale_order_line_edit_own" model="ir.access">
+        <field name="name">sale.order.line follows own order edit</field>
+        <field name="model_id" ref="sale.model_sale_order_line" />
+        <field name="group_id" ref="sol_laboratory.group_permission_order_edit_own" />
         <field name="operation">u</field>
         <field name="domain">[("order_id", "access", "write")]</field>
     </record>

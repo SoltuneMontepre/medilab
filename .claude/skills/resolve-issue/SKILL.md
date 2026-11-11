@@ -9,7 +9,6 @@ Follow [.agents/skills/resolve-issue/SKILL.md](../../../.agents/skills/resolve-i
 
 In Claude Code:
 
-- Search Trello with the Trello search tool when it is connected; load it with tool search first.
 - Use the Explore agent for wide codebase searches; read the files you change yourself.
 - Check the interface in the built-in browser: open `http://localhost:8069` with the preview or navigate tool, and read the page text or take screenshots for each acceptance criterion.
 - Run the code review and simplify skills on the finished change before opening the pull request.

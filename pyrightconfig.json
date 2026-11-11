@@ -1,12 +1,16 @@
 {
-  "include": ["src/core/modules"],
-  "exclude": ["**/__manifest__.py"],
-  "extraPaths": [".local/odoo-source"],
+  "include": [
+    "src/core/modules"
+  ],
+  "exclude": [
+    "**/__manifest__.py"
+  ],
+  "extraPaths": [
+    ".local/typecheck/current/odoo-source",
+    ".local/typecheck/current"
+  ],
   "venvPath": "src/core",
   "venv": ".venv",
   "pythonVersion": "3.12",
-  "typeCheckingMode": "basic",
-  "reportAttributeAccessIssue": "warning",
-  "reportArgumentType": "warning",
-  "reportOptionalContextManager": "warning"
+  "typeCheckingMode": "basic"
 }

@@ -1,0 +1,61 @@
+name: cd-reset
+
+permissions:
+  contents: read
+
+concurrency:
+  group: medilab-cd-reset
+  cancel-in-progress: false
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type RESET to drop the production database and install it again with the demo data"
+        required: true
+        type: string
+
+jobs:
+  reset:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    if: inputs.confirm == 'RESET'
+    environment: database-reset
+    env:
+      COMPOSE_FILE: tools/ansible/compose.yml
+      DOPPLER_TOKEN: ${{ secrets.DOPPLER_INFRA_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Docker Build
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build Ansible image
+        uses: docker/build-push-action@v7
+        env:
+          DOCKER_BUILD_RECORD_UPLOAD: false
+        with:
+          context: .
+          file: tools/ansible/ansible.dockerfile
+          tags: medilab-ansible:local
+          load: true
+          cache-from: type=gha,scope=ansible
+          cache-to: type=gha,mode=max,scope=ansible
+
+      - name: Install Doppler CLI
+        uses: dopplerhq/cli-action@v4
+
+      - name: Mask Doppler secrets
+        run: |
+          set -o pipefail
+          doppler secrets download --no-file --format json \
+            | jq -r 'to_entries[] | select(.key | startswith("DOPPLER_") | not) | .value' \
+            | while IFS= read -r line; do
+                if [[ -n "$line" ]]; then
+                  echo "::add-mask::$line"
+                fi
+              done
+
+      - name: Reset the database
+        run: doppler run -- docker compose run --rm -T ansible ansible-playbook reset.yml

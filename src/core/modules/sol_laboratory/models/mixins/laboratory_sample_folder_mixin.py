@@ -1,11 +1,18 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, models
 from odoo.fields import Domain
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_SAMPLE_FOLDER_MIXIN, MODEL_SAMPLE
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_laboratory_sample_folder_mixin as LaboratorySampleFolderMixinBase
+else:
+    LaboratorySampleFolderMixinBase = object
+
 
 # Thư Mục Của Mẫu: records of a sample's folder only for people who see the sample
-class LaboratorySampleFolderMixin(models.AbstractModel):
+class LaboratorySampleFolderMixin(models.AbstractModel, LaboratorySampleFolderMixinBase):
     _name = MODEL_LABORATORY_SAMPLE_FOLDER_MIXIN
     _description = "Laboratory Records of a Sample's Folder"
     # Path from the record to its folder's sample, such as folder_id.sample_id.

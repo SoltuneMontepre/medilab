@@ -11,6 +11,8 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_SAMPLE_TYPE,
     MODEL_SUBCONTRACTOR,
 )
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -43,7 +45,7 @@ class TestCodeSequences(MasterDataCase):
             (MODEL_CUSTOMER, {"name": "Duplicate"}),
         ]:
             with self.subTest(model=model):
-                existing = self.env[model].create(dict(vals))
+                existing = dynamic_model(self.env, model).create(dict(vals))
 
                 with self.assertRaises(IntegrityError), mute_logger("odoo.sql_db"), self.env.cr.savepoint():
-                    self.env[model].create({**vals, "code": existing.code})
+                    dynamic_model(self.env, model).create({**vals, "code": assert_instance(existing["code"], str)})

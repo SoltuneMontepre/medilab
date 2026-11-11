@@ -80,7 +80,7 @@ class TestOrderTracking(ChangeRequestCase):
         on_order = self.released_messages()
         self.assertEqual(len(on_order), 1)
         self.assertEqual(on_order.notification_ids.res_partner_id, self.contact)
-        self.assertIn(self.order.name, on_order.body)
+        self.assertIn(self.order.name, (on_order.body or ""))
         issued = self.env.ref("sol_laboratory.event_test_report_issued")
         self.assertFalse(self.messages(report).filtered(lambda message: message.subtype_id == issued))
 

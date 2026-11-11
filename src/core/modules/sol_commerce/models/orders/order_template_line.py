@@ -1,9 +1,9 @@
 import math
+from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 from odoo.fields import Command, Domain
-from odoo.tools import float_compare
 
 from odoo.addons.sol_commerce.constants.models import (
     MODEL_ORDER_TEMPLATE,
@@ -12,24 +12,33 @@ from odoo.addons.sol_commerce.constants.models import (
 )
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_PERMISSION_MIXIN
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_order_template_line as OrderTemplateLineBase
+else:
+    OrderTemplateLineBase = object
+
+# The largest quantity the integer column holds.
+MAX_QUANTITY = 2**31 - 1
+
 
 # Dòng Đơn Hàng Mẫu
-class OrderTemplateLine(models.Model):
+class OrderTemplateLine(models.Model, OrderTemplateLineBase):
     _name = MODEL_ORDER_TEMPLATE_LINE
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Order Template Line"
     _order = "template_id, id"
     _permission_actions = ("read", "create", "edit", "delete")
 
-    # The template this selection belongs to.
-    template_id = fields.Many2one(MODEL_ORDER_TEMPLATE, required=True, ondelete="cascade", index=True)
-    # The parameter or whole-package product, before resolving its current variant.
-    product_id = fields.Many2one(MODEL_PRODUCT_TEMPLATE, required=True, ondelete="restrict")
-    # How many units to order, preserving fractional sale-line quantities.
-    quantity = fields.Float(required=True, default=1, digits="Product Unit")
+    if not TYPE_CHECKING:
+        # The template this selection belongs to.
+        template_id = fields.Many2one(MODEL_ORDER_TEMPLATE, required=True, ondelete="cascade", index=True)
+        # The parameter or whole-package product, before resolving its current variant.
+        product_id = fields.Many2one(MODEL_PRODUCT_TEMPLATE, required=True, ondelete="restrict")
+        # How many times the parameter or package is ordered, a whole number.
+        quantity = fields.Integer(required=True, default=1)
 
     _quantity_minimum = models.Constraint(
-        "CHECK(quantity >= 1)", "A template selection needs a quantity of at least 1."
+        "CHECK(quantity >= 1)", "A template selection needs a whole quantity of at least 1."
     )
 
     @api.constrains("quantity")
@@ -39,17 +48,18 @@ class OrderTemplateLine(models.Model):
 
     @api.model
     def _check_quantity_value(self, quantity):
-        precision = self.env["decimal.precision"].precision_get("Product Unit")
         try:
             quantity = float(quantity)
         except (TypeError, ValueError, OverflowError):
             quantity = None
+        # An Integer field truncates a fraction, so a fraction is refused before it is stored.
         if (
             quantity is None
             or not math.isfinite(quantity)
-            or float_compare(quantity, 1, precision_digits=precision) < 0
+            or not quantity.is_integer()
+            or not 1 <= quantity <= MAX_QUANTITY
         ):
-            raise ValidationError(self.env._("A template selection needs a quantity of at least 1."))
+            raise ValidationError(self.env._("A template selection needs a whole quantity of at least 1."))
 
     @api.model
     def _check_product_identity(self, product_id):
@@ -63,7 +73,7 @@ class OrderTemplateLine(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        parents = self.env[MODEL_ORDER_TEMPLATE].browse([vals.get("template_id") for vals in vals_list])
+        parents = self.env[MODEL_ORDER_TEMPLATE].browse([vals["template_id"] for vals in vals_list])
         # A template has no selections only while it is being created, so its first ones need read access only.
         initial = parents.filtered(lambda parent: not parent.sudo().line_ids)
         initial.check_access("read")

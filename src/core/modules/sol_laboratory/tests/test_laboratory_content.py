@@ -11,6 +11,7 @@ from .laboratory_bucket_case import LaboratoryBucketCase
 from odoo.addons.sol_laboratory.constants.laboratory_files import DUPLICATE, FAILED, PENDING, VERIFIED
 from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_CONTENT
 from odoo.addons.sol_laboratory.services import laboratory_bucket
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 # Bytes no demo file has, so no content of them is stored before a test.
 DATA = "Kết quả HPLC của bài kiểm tra nội dung".encode()
@@ -41,7 +42,7 @@ class TestLaboratoryContent(LaboratoryBucketCase):
 
         self.assertEqual((first.state, first.sha256, first.size), (PENDING, False, False))
         self.assertNotEqual(first.object_key, second.object_key)
-        self.assertTrue(re.fullmatch(r"[0-9a-f]{32}", first.object_key))
+        self.assertTrue(re.fullmatch(r"[0-9a-f]{32}", assert_instance(first.object_key, str)))
 
     def test_nobody_records_content_with_a_hash_or_a_state_of_their_own(self):
         for values in ({"state": VERIFIED}, {"sha256": SHA256}, {"size": len(DATA)}):

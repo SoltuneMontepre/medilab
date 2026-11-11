@@ -1,4 +1,4 @@
-"""typecheck.py passes only a complete pyright run that found no errors and no missing imported names."""
+"""typecheck.py passes only a complete pyright run that found no errors or warnings."""
 
 import contextlib
 import io
@@ -26,9 +26,13 @@ class TestPyrightReport(unittest.TestCase):
         self.addCleanup(folder.cleanup)
         self.case = Path(folder.name, "case.py")
         self.case.write_text(CASE, encoding="utf-8")
-        typecheck.import_lines.cache_clear()
+        validation = mock.patch.object(typecheck, "validate")
+        validation.start()
+        self.addCleanup(validation.stop)
 
-    def diagnostic(self, line, severity="warning", rule=typecheck.IMPORT_NAME_RULE, file=None):
+    def diagnostic(
+        self, line, severity="warning", rule="reportAttributeAccessIssue", file=None
+    ):
         return {
             "file": str(file or self.case),
             "severity": severity,
@@ -41,7 +45,11 @@ class TestPyrightReport(unittest.TestCase):
         }
 
     def report(self, *diagnostics, files=1, errors=None):
-        errors = sum(item["severity"] == "error" for item in diagnostics) if errors is None else errors
+        errors = (
+            sum(item["severity"] == "error" for item in diagnostics)
+            if errors is None
+            else errors
+        )
         warnings = sum(item["severity"] == "warning" for item in diagnostics)
         summary = {
             "filesAnalyzed": files,
@@ -61,28 +69,36 @@ class TestPyrightReport(unittest.TestCase):
         """The exit code, standard output and standard error of the typecheck of a pyright run."""
         out, err = io.StringIO(), io.StringIO()
         with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
-            code = typecheck.outcome(subprocess.CompletedProcess([], returncode, stdout, stderr))
+            code = typecheck.outcome(
+                subprocess.CompletedProcess([], returncode, stdout, stderr)
+            )
         return code, out.getvalue(), err.getvalue()
 
-    def test_odoo_warnings_pass(self):
+    def test_all_warnings_fail(self):
         code, out, _ = self.outcome(
             0,
-            self.report(self.diagnostic(4), self.diagnostic(4, rule="reportArgumentType")),
+            self.report(
+                self.diagnostic(4), self.diagnostic(4, rule="reportArgumentType")
+            ),
         )
-        self.assertEqual(code, 0)
+        self.assertEqual(code, 1)
         self.assertIn("0 errors, 2 warnings in 1 files", out)
 
     def test_a_missing_imported_name_fails(self):
-        code, out, _ = self.outcome(0, self.report(self.diagnostic(1), self.diagnostic(4)))
+        code, out, _ = self.outcome(
+            0, self.report(self.diagnostic(1), self.diagnostic(4))
+        )
         self.assertEqual(code, 1)
         self.assertIn(
-            f"{self.case}:2:5 - error: warning on line 1 ({typecheck.IMPORT_NAME_RULE})",
+            f"{self.case}:2:5 - warning: warning on line 1 (reportAttributeAccessIssue)",
             out,
         )
-        self.assertIn("1 errors, 1 warnings in 1 files", out)
+        self.assertIn("0 errors, 2 warnings in 1 files", out)
 
     def test_an_error_fails(self):
-        code, out, _ = self.outcome(1, self.report(self.diagnostic(4, "error", "reportAssignmentType")))
+        code, out, _ = self.outcome(
+            1, self.report(self.diagnostic(4, "error", "reportAssignmentType"))
+        )
         self.assertEqual(code, 1)
         self.assertIn("error on line 4 (reportAssignmentType)", out)
 
@@ -100,13 +116,17 @@ class TestPyrightReport(unittest.TestCase):
         self.assertIn("0 errors, 0 warnings in 0 files", out)
 
     def test_a_failed_run_with_errors_keeps_them_visible(self):
-        code, out, err = self.outcome(2, self.report(self.diagnostic(4, "error", "reportAssignmentType")))
+        code, out, err = self.outcome(
+            2, self.report(self.diagnostic(4, "error", "reportAssignmentType"))
+        )
         self.assertEqual(code, 2)
         self.assertIn("error on line 4", out)
         self.assertIn("pyright exited with 2", err)
 
     def test_a_run_that_checked_no_files_fails(self):
-        code, _, err = self.outcome(0, self.report(files=0), 'File or directory "nothing" does not exist.\n')
+        code, _, err = self.outcome(
+            0, self.report(files=0), 'File or directory "nothing" does not exist.\n'
+        )
         self.assertEqual(code, 2)
         self.assertIn("checked no files", err)
         self.assertIn("does not exist", err)
@@ -160,9 +180,9 @@ class TestPyrightReport(unittest.TestCase):
             mock.patch.object(typecheck.subprocess, "run", return_value=failed),
             contextlib.redirect_stdout(io.StringIO()),
             contextlib.redirect_stderr(io.StringIO()),
+            self.assertRaises(SystemExit) as exited,
         ):
-            with self.assertRaises(SystemExit) as exited:
-                typecheck.main()
+            typecheck.main()
         self.assertEqual(exited.exception.code, 2)
 
     def test_invalid_report_shapes_fail_cleanly(self):
@@ -183,7 +203,8 @@ class TestPyrightReport(unittest.TestCase):
         for constant in ("NaN", "Infinity", "-Infinity"):
             with self.subTest(constant=constant):
                 report = self.report().replace(
-                    '"informationCount": 0', f'"informationCount": 0, "timeInSec": {constant}'
+                    '"informationCount": 0',
+                    f'"informationCount": 0, "timeInSec": {constant}',
                 )
                 code, _, _ = self.outcome(0, report)
                 self.assertEqual(code, 2)
@@ -208,8 +229,18 @@ class TestPyrightReport(unittest.TestCase):
     def test_invalid_diagnostics_fail_cleanly(self):
         for change in (
             {"severity": "fatal"},
-            {"range": {"start": {"line": -1, "character": 0}, "end": {"line": 4, "character": 17}}},
-            {"range": {"start": {"line": True, "character": 0}, "end": {"line": 4, "character": 17}}},
+            {
+                "range": {
+                    "start": {"line": -1, "character": 0},
+                    "end": {"line": 4, "character": 17},
+                }
+            },
+            {
+                "range": {
+                    "start": {"line": True, "character": 0},
+                    "end": {"line": 4, "character": 17},
+                }
+            },
             {"range": {"start": {"line": 1, "character": 0}}},
             {
                 "range": {

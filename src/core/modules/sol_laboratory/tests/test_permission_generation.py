@@ -9,12 +9,16 @@ from odoo.tools import mute_logger
 from .common import UnshippedPermissionCase
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_DEPARTMENT,
+    MODEL_IR_ACCESS,
     MODEL_PERMISSION,
     MODEL_PERSON,
+    MODEL_RES_GROUPS,
     MODEL_ROLE,
     MODEL_TEST_PARAMETER,
 )
 from odoo.addons.sol_laboratory.constants.permissions import DOCUMENT_TYPES
+from odoo.addons.sol_laboratory.services.model_lookup import reference_as
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 
 @tagged("post_install", "-at_install")
@@ -27,15 +31,18 @@ class TestPermissionGeneration(UnshippedPermissionCase):
     def generated_xml_id(self, kind, code):
         return f"sol_laboratory.{kind}_permission_{code.replace('.', '_')}"
 
-    def generated(self, kind, code):
-        return self.env.ref(self.generated_xml_id(kind, code))
+    def generated_group(self, code):
+        return reference_as(self.env[MODEL_RES_GROUPS], self.generated_xml_id("group", code))
+
+    def generated_access(self, code):
+        return reference_as(self.env[MODEL_IR_ACCESS], self.generated_xml_id("access", code))
 
     def test_permission_generates_its_group_and_access(self):
         permission = self.create_permission("delete")
 
         self.assertEqual(permission.code, "test.parameter.delete.all")
-        self.assertEqual(self.generated("group", permission.code), permission.group_id)
-        access = self.generated("access", permission.code)
+        self.assertEqual(self.generated_group(permission.code), permission.group_id)
+        access = self.generated_access(permission.code)
         self.assertEqual((access.model_id.model, access.group_id), (MODEL_TEST_PARAMETER, permission.group_id))
         self.assertEqual((access.operation, access.domain), ("d", "[(1, '=', 1)]"))
         generated_data = self.env["ir.model.data"].search(
@@ -56,7 +63,7 @@ class TestPermissionGeneration(UnshippedPermissionCase):
     def test_sign_permission_generates_only_its_group(self):
         permission = self.create_permission("sign")
 
-        self.assertEqual(self.generated("group", permission.code), permission.group_id)
+        self.assertEqual(self.generated_group(permission.code), permission.group_id)
         self.assertIsNone(self.env.ref(self.generated_xml_id("access", permission.code), raise_if_not_found=False))
 
     def test_permissions_are_neither_created_nor_deleted_from_the_screen(self):
@@ -113,7 +120,7 @@ class TestPermissionGeneration(UnshippedPermissionCase):
 
     def test_deleting_a_permission_deletes_what_it_generated(self):
         permission = self.create_permission("delete")
-        group, access = (self.generated(kind, permission.code) for kind in ("group", "access"))
+        group, access = self.generated_group(permission.code), self.generated_access(permission.code)
 
         permission.unlink()
 
@@ -141,7 +148,7 @@ class TestPermissionGeneration(UnshippedPermissionCase):
         role = self.env[MODEL_ROLE].create({"code": "qa_reader", "name": "Reader"})
 
         for action in (
-            lambda: permission.write({"role_ids": [Command.link(role.id)]}),
+            lambda: permission.write({"role_ids": [Command.link(persisted_id(role))]}),
             lambda: role.write({"person_ids": [Command.clear()]}),
         ):
             with self.subTest(action=action), self.assertRaises(UserError):
@@ -162,4 +169,4 @@ class TestPermissionGeneration(UnshippedPermissionCase):
         permission = self.env.ref("sol_laboratory.permission_department_edit_all")
 
         self.assertEqual((permission.document_model, permission.code), (MODEL_DEPARTMENT, "department.edit.all"))
-        self.assertEqual(self.generated("access", permission.code).model_id.model, MODEL_DEPARTMENT)
+        self.assertEqual(self.generated_access(permission.code).model_id.model, MODEL_DEPARTMENT)

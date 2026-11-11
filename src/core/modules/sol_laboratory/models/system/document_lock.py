@@ -1,5 +1,6 @@
 from contextlib import contextmanager
 from datetime import timedelta
+from typing import TYPE_CHECKING
 
 from psycopg2 import IntegrityError
 
@@ -18,10 +19,16 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_RES_USERS,
 )
 from odoo.addons.sol_laboratory.constants.notifications import EVENT_DOCUMENT_LOCK_RELEASED
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_document_lock as DocumentLockBase
+else:
+    DocumentLockBase = object
 
 
 # Khóa Chứng Từ
-class DocumentLock(models.Model):
+class DocumentLock(models.Model, DocumentLockBase):
     _name = MODEL_DOCUMENT_LOCK
     _inherit = [MODEL_PERMISSION_MIXIN]
     _description = "Document Lock"
@@ -29,45 +36,46 @@ class DocumentLock(models.Model):
     # Locks are taken and released by editing and by long operations; administrators read them and release a stuck one.
     _permission_actions = ("read", "edit")
 
-    # Technical name of the locked document.
-    document_model = fields.Char(string="Document Type", required=True, readonly=True)
-    # Id of the locked document.
-    document_id = fields.Integer(string="Document ID", required=True, readonly=True)
-    # The Odoo user holding the lock; for a long operation, the user who started it.
-    user_id = fields.Many2one(MODEL_RES_USERS, string="Holder", required=True, ondelete="restrict", readonly=True)
-    # edit for a user editing, or operation for a long operation such as sending a quotation.
-    kind = fields.Selection(
-        [("edit", "Editing"), ("operation", "Operation")], required=True, default="edit", readonly=True
-    )
-    # Last activity of the holder; the lock expires after the inactivity period from here.
-    last_activity_at = fields.Datetime(required=True, default=fields.Datetime.now, readonly=True)
-    # active, released or expired.
-    status = fields.Selection(
-        [("active", "Active"), ("released", "Released"), ("expired", "Expired")],
-        required=True,
-        default="active",
-        readonly=True,
-    )
-    # When the lock was released or expired.
-    released_at = fields.Datetime(readonly=True)
-    # saved, cancelled, left, completed, expired or released_by_administrator.
-    release_reason = fields.Selection(
-        [
-            ("saved", "Saved"),
-            ("cancelled", "Cancelled"),
-            ("left", "Left"),
-            ("completed", "Completed"),
-            ("expired", "Expired"),
-            ("released_by_administrator", "Released by Administrator"),
-        ],
-        readonly=True,
-    )
-    # Administrator who released a stuck lock.
-    released_by_id = fields.Many2one(MODEL_RES_USERS, ondelete="restrict", readonly=True)
-    # Users waiting to be told when the lock is released.
-    watcher_ids = fields.Many2many(
-        MODEL_RES_USERS, "medilab_document_lock_watcher_rel", "lock_id", "user_id", string="Watchers", readonly=True
-    )
+    if not TYPE_CHECKING:
+        # Technical name of the locked document.
+        document_model = fields.Char(string="Document Type", required=True, readonly=True)
+        # Id of the locked document.
+        document_id = fields.Integer(string="Document ID", required=True, readonly=True)
+        # The Odoo user holding the lock; for a long operation, the user who started it.
+        user_id = fields.Many2one(MODEL_RES_USERS, string="Holder", required=True, ondelete="restrict", readonly=True)
+        # edit for a user editing, or operation for a long operation such as sending a quotation.
+        kind = fields.Selection(
+            [("edit", "Editing"), ("operation", "Operation")], required=True, default="edit", readonly=True
+        )
+        # Last activity of the holder; the lock expires after the inactivity period from here.
+        last_activity_at = fields.Datetime(required=True, default=fields.Datetime.now, readonly=True)
+        # active, released or expired.
+        status = fields.Selection(
+            [("active", "Active"), ("released", "Released"), ("expired", "Expired")],
+            required=True,
+            default="active",
+            readonly=True,
+        )
+        # When the lock was released or expired.
+        released_at = fields.Datetime(readonly=True)
+        # saved, cancelled, left, completed, expired or released_by_administrator.
+        release_reason = fields.Selection(
+            [
+                ("saved", "Saved"),
+                ("cancelled", "Cancelled"),
+                ("left", "Left"),
+                ("completed", "Completed"),
+                ("expired", "Expired"),
+                ("released_by_administrator", "Released by Administrator"),
+            ],
+            readonly=True,
+        )
+        # Administrator who released a stuck lock.
+        released_by_id = fields.Many2one(MODEL_RES_USERS, ondelete="restrict", readonly=True)
+        # Users waiting to be told when the lock is released.
+        watcher_ids = fields.Many2many(
+            MODEL_RES_USERS, "medilab_document_lock_watcher_rel", "lock_id", "user_id", string="Watchers", readonly=True
+        )
 
     _active_unique = models.UniqueIndex(
         "(document_model, document_id) WHERE status = 'active'", "Someone else has just locked this document."
@@ -86,7 +94,7 @@ class DocumentLock(models.Model):
         self.ensure_one()
         if self.document_model not in self.env:
             return None
-        return self.env[self.document_model].sudo().browse(self.document_id).exists() or None
+        return dynamic_model(self.env, self.document_model).sudo().browse(self.document_id).exists() or None
 
     @api.model
     def _timeout(self):

@@ -10,7 +10,6 @@ Read [AGENTS.md](../../../AGENTS.md) and the docs index first; they override any
 - Take the issue number the user gives, otherwise the lowest open issue without an open pull request and not assigned to someone else, who may already be working on it.
 - Assign yourself to the issue first, before reading the code or changing anything, then say which issue you picked. When the user gives an issue assigned to someone else, ask before taking it over.
 - Read the issue's spec when it links one, and the questions file of its topic only.
-- When a Trello connection is available, search the medilab board for cards about the feature. Confirm with the owner before building anything a card adds that the documents do not say.
 - Use what your environment offers: search tools or sub-agents for wide codebase searches, a browser for the check at `http://localhost:8069`, code review before the pull request, and the SonarQube and pull request tools for [Creating a pull request](../../../docs/workflows/creating-pr.md).
 - Sign in to the local app only with the local development account from the project's configuration; never with real credentials.
 - Ask the owner when the documents do not answer something, record what stays open in `questions/<topic>.md` with the story IDs it blocks, and do not guess.

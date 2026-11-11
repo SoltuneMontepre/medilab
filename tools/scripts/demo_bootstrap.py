@@ -11,6 +11,7 @@ import re
 import socket
 import subprocess
 import sys
+import tempfile
 import time
 import uuid
 from pathlib import Path
@@ -18,6 +19,14 @@ from urllib.parse import urlsplit
 from urllib.request import urlopen
 
 from compose_env import project_name
+from local_private_paths import (
+    LocalPrivatePathError,
+    ensure_local_directory,
+    guard_local_path,
+    protect_created_path,
+)
+from onlyoffice_state import CONFIG_KEYS as ONLYOFFICE_CONFIG_KEYS
+from onlyoffice_state import missing_core_volumes, optional_volume_names
 
 ROOT = Path(__file__).resolve().parents[2]
 COMPOSE = ROOT / "tools/infrastructure/docker-compose.yml"
@@ -50,13 +59,14 @@ VOLUME_KEYS = (
     "MEDILAB_APP_VOLUME",
     "MEDILAB_CLOUDBEAVER_VOLUME",
 )
-PORT_KEYS = (
-    "MEDILAB_ODOO_PORT",
-    "MEDILAB_DB_PORT",
-    "MEDILAB_GARAGE_PORT",
-    "MEDILAB_GARAGE_ADMIN_PORT",
-    "MEDILAB_CLOUDBEAVER_PORT",
-)
+DEFAULT_PORTS = {
+    "MEDILAB_ODOO_PORT": "8069",
+    "MEDILAB_DB_PORT": "15432",
+    "MEDILAB_GARAGE_PORT": "3900",
+    "MEDILAB_GARAGE_ADMIN_PORT": "3903",
+    "MEDILAB_CLOUDBEAVER_PORT": "8978",
+}
+PORT_KEYS = tuple(DEFAULT_PORTS)
 # Below the dynamic ranges that Linux (32768+) and Windows (49152+) hand out and reserve.
 SELECTED_PORT_RANGE = range(20000, 32768)
 MODULES = [
@@ -72,8 +82,18 @@ class BootstrapError(RuntimeError):
 
 def _is_local_engine_endpoint(endpoint):
     parsed = urlsplit(endpoint)
-    if parsed.scheme in ("unix", "npipe"):
-        return True
+    if parsed.scheme == "unix":
+        return (
+            not parsed.netloc
+            and parsed.path.startswith("/")
+            and not parsed.path.startswith("//")
+        )
+    if parsed.scheme == "npipe":
+        target = (parsed.netloc + parsed.path).lower()
+        return (
+            re.fullmatch(r"(?://)?(?:\.|localhost)/pipe/[a-z0-9_.-]+", target)
+            is not None
+        )
     return parsed.scheme == "tcp" and parsed.hostname in (
         "localhost",
         "127.0.0.1",
@@ -99,13 +119,54 @@ def _assert_local_context(context, source):
     return host
 
 
+def _assert_local_podman(context, container_host):
+    if context:
+        raise BootstrapError(
+            "Docker contexts cannot verify a Podman endpoint; select an explicit local Podman endpoint."
+        )
+    information = _run(
+        ["docker", "info", "--format", "{{json .}}"],
+        capture_output=True,
+        check=False,
+    )
+    try:
+        remote = json.loads(information.stdout)["host"]["serviceIsRemote"]
+    except (KeyError, TypeError, ValueError):
+        raise BootstrapError(
+            "Cannot verify whether the selected Podman service is local."
+        ) from None
+    if (
+        information.returncode
+        or not isinstance(remote, bool)
+        or (remote and not container_host)
+    ):
+        raise BootstrapError(
+            "The selected Podman service is remote or unverified; select an explicit local endpoint."
+        )
+    return container_host or "podman"
+
+
 def _assert_local_engine():
+    if os.environ.get("CONTAINER_CONNECTION"):
+        raise BootstrapError(
+            "Named Podman connections are not verified by this wrapper; select an explicit local container endpoint."
+        )
+    container_host = os.environ.get("CONTAINER_HOST")
+    if container_host and not _is_local_engine_endpoint(container_host):
+        raise BootstrapError(
+            "The selected Podman endpoint is not local; refusing environment changes."
+        )
     endpoint = os.environ.get("DOCKER_HOST")
     context = os.environ.get("DOCKER_CONTEXT")
     if endpoint and not _is_local_engine_endpoint(endpoint):
         raise BootstrapError(
             "The configured container engine is not local; refusing fresh bootstrap."
         )
+    version = _run(["docker", "--version"], capture_output=True, check=False)
+    if version.returncode:
+        raise BootstrapError("Cannot identify the selected container CLI.")
+    if "podman" in (version.stdout + version.stderr).lower():
+        return _assert_local_podman(context, container_host)
     if context:
         host = _assert_local_context(context, "configured")
         return endpoint or host
@@ -114,12 +175,9 @@ def _assert_local_engine():
     result = _run(["docker", "context", "show"], capture_output=True, check=False)
     if result.returncode == 0:
         return _assert_local_context(result.stdout.strip(), "selected")
-    version = _run(["docker", "--version"], capture_output=True, check=False)
-    if "podman" not in version.stdout.lower():
-        raise BootstrapError(
-            "Could not verify that the selected container engine is local."
-        )
-    return "podman"
+    raise BootstrapError(
+        "Could not verify that the selected container engine is local."
+    )
 
 
 def _record_engine(marker, engine):
@@ -131,15 +189,16 @@ def _assert_matching_engine(marker, engine, resources, missing):
     saved_engine = marker.get("engine")
     if saved_engine and (not isinstance(engine, str) or engine != saved_engine):
         raise BootstrapError(
-            "Reset refused: the selected container engine does not match the completed bootstrap marker."
+            "Refused: the selected container engine does not match the completed bootstrap marker."
         )
     if missing and not saved_engine and not any(resources.values()):
         raise BootstrapError(
-            "Reset refused: cannot verify that the selected container engine owns the missing volumes."
+            "Refused: cannot verify that the selected container engine owns the missing volumes."
         )
 
 
 def _read_marker():
+    _private_path(MARKER)
     if not MARKER.exists():
         return None
     try:
@@ -150,13 +209,52 @@ def _read_marker():
         ) from error
 
 
+def _private_path(path):
+    try:
+        return guard_local_path(ROOT, path)
+    except LocalPrivatePathError as error:
+        raise BootstrapError(str(error)) from None
+
+
+def _private_directory(path):
+    try:
+        return ensure_local_directory(ROOT, path)
+    except LocalPrivatePathError as error:
+        raise BootstrapError(str(error)) from None
+
+
+def _atomic_text(path, text, *, private=False, exclusive=False):
+    if private:
+        _private_path(path)
+        _private_directory(path.parent)
+    else:
+        path.parent.mkdir(parents=True, exist_ok=True)
+    descriptor, name = tempfile.mkstemp(prefix=".medilab-", dir=path.parent)
+    temporary = Path(name)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8", newline="\n") as output:
+            if private:
+                try:
+                    protect_created_path(ROOT, temporary)
+                except LocalPrivatePathError as error:
+                    raise BootstrapError(str(error)) from None
+            output.write(text)
+            output.flush()
+            os.fsync(output.fileno())
+        if private:
+            _private_path(path)
+        if exclusive:
+            os.link(temporary, path)
+        else:
+            temporary.replace(path)
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
 def _write_marker(marker):
-    MARKER.parent.mkdir(parents=True, exist_ok=True)
-    temporary = MARKER.with_suffix(".tmp")
-    temporary.write_text(
-        json.dumps(marker, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    _atomic_text(
+        MARKER, json.dumps(marker, indent=2, sort_keys=True) + "\n", private=True
     )
-    temporary.replace(MARKER)
 
 
 def _read_compose_env():
@@ -184,29 +282,35 @@ def _write_compose_env(values):
             output.append(line)
             continue
         key, _value = line.split("=", 1)
+        if (
+            values.get("MEDILAB_DEMO_BOOTSTRAP_OWNER")
+            and key in ONLYOFFICE_CONFIG_KEYS
+            and key not in values
+        ):
+            continue
         if key in pending:
             output.append(f"{key}={pending.pop(key)}")
         else:
             output.append(line)
     output.extend(f"{key}={value}" for key, value in sorted(pending.items()))
-    COMPOSE_ENV_FILE.parent.mkdir(parents=True, exist_ok=True)
-    temporary = COMPOSE_ENV_FILE.with_suffix(".tmp")
-    temporary.write_text(
-        "\n".join(output) + "\n",
-        encoding="utf-8",
-    )
-    temporary.replace(COMPOSE_ENV_FILE)
+    _atomic_text(COMPOSE_ENV_FILE, "\n".join(output) + "\n")
+
+
+def _remove_compose_env(values):
+    """Drop the saved selection lines from .env, keeping every other line."""
+    if not COMPOSE_ENV_FILE.exists():
+        return
+    kept = [
+        line
+        for line in COMPOSE_ENV_FILE.read_text(encoding="utf-8").splitlines()
+        if line.lstrip().startswith("#") or line.split("=", 1)[0] not in values
+    ]
+    _atomic_text(COMPOSE_ENV_FILE, "".join(f"{line}\n" for line in kept))
 
 
 def _fresh_config(project, owner, selected_ports=None):
     current = _read_compose_env()
-    ports = {
-        "MEDILAB_ODOO_PORT": current.get("MEDILAB_ODOO_PORT", "8069"),
-        "MEDILAB_DB_PORT": current.get("MEDILAB_DB_PORT", "15432"),
-        "MEDILAB_GARAGE_PORT": current.get("MEDILAB_GARAGE_PORT", "3900"),
-        "MEDILAB_GARAGE_ADMIN_PORT": current.get("MEDILAB_GARAGE_ADMIN_PORT", "3903"),
-        "MEDILAB_CLOUDBEAVER_PORT": current.get("MEDILAB_CLOUDBEAVER_PORT", "8978"),
-    }
+    ports = {key: current.get(key, default) for key, default in DEFAULT_PORTS.items()}
     for key, default in ports.items():
         value = selected_ports[key] if selected_ports else os.environ.get(key, default)
         try:
@@ -245,11 +349,13 @@ def _host_port_range(value):
 
 def _published_ports():
     """Return the host ports that containers publish, running or stopped; Docker Desktop still lets a socket bind them."""
-    result = _run(["docker", "ps", "--all", "--quiet"], capture_output=True)
+    result = _resource_read(["docker", "ps", "--all", "--quiet"], "container", "list")
     identities = result.stdout.split()
     if not identities:
         return set()
-    result = _run(["docker", "inspect", *identities], capture_output=True)
+    result = _resource_read(
+        ["docker", "container", "inspect", *identities], "container", "inspect"
+    )
     ports = set()
     for container in json.loads(result.stdout):
         for bindings in (
@@ -275,18 +381,20 @@ def _port_is_free(host, port, published):
 
 
 def _free_ports():
+    """Keep each default port when it is free; otherwise take a random free port from SELECTED_PORT_RANGE."""
     published = _published_ports()
     candidates = iter(
         random.SystemRandom().sample(SELECTED_PORT_RANGE, len(SELECTED_PORT_RANGE))
     )
     ports = {}
     for key in PORT_KEYS:
+        host = _port_host(key)
+        default = int(DEFAULT_PORTS[key])
+        if _port_is_free(host, default, published):
+            ports[key] = str(default)
+            continue
         port = next(
-            (
-                port
-                for port in candidates
-                if _port_is_free(_port_host(key), port, published)
-            ),
+            (port for port in candidates if _port_is_free(host, port, published)),
             None,
         )
         if port is None:
@@ -298,7 +406,7 @@ def _free_ports():
 
 
 def _volume_mismatch(config, actual):
-    expected = {config[key] for key in VOLUME_KEYS}
+    expected = {config[key] for key in VOLUME_KEYS} | optional_volume_names(config)
     return sorted(expected - set(actual)), sorted(set(actual) - expected)
 
 
@@ -336,7 +444,7 @@ def _reselect(existing, project):
         missing, unexpected = _volume_mismatch(
             config, _owned_volume_names(project, existing["owner"])
         )
-        if missing or unexpected:
+        if missing_core_volumes(config, missing) or unexpected:
             raise BootstrapError(_volume_mismatch_message(missing, unexpected))
     print(f"Compose project {project} is already selected ({existing['status']}).")
 
@@ -347,6 +455,7 @@ def select(project):
             "Use a new project name beginning with medilab-bootstrap- and containing only lowercase letters, digits, _ or -."
         )
     engine = _assert_local_engine()
+    _private_path(SWITCH_JOURNAL)
     if SWITCH_JOURNAL.exists():
         raise BootstrapError(INTERRUPTED_SWITCH_ERROR)
     existing = _read_marker()
@@ -406,13 +515,14 @@ def _verify_completed_selection(marker, project):
     )
     if unexpected:
         raise BootstrapError(_volume_mismatch_message(missing, unexpected))
-    if missing:
+    if missing_core_volumes(config, missing):
         raise BootstrapError(
             f"Persistent volumes {', '.join(missing)} of Compose project {project!r} no longer exist."
         )
 
 
 def _read_selection_file(path):
+    _private_path(path)
     try:
         return json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as error:
@@ -420,6 +530,7 @@ def _read_selection_file(path):
 
 
 def _saved_selection(project):
+    _private_path(SELECTIONS)
     paths = [
         SELECTIONS / f"{project}.json",
         *sorted(SELECTIONS.glob(f"{project}.*.json")),
@@ -455,6 +566,7 @@ def _saved_selection(project):
 def _archive_current_selection(marker):
     project = marker["project"]
     primary = SELECTIONS / f"{project}.json"
+    _private_path(primary)
     path = primary
     if primary.exists():
         saved = _read_selection_file(primary)
@@ -480,22 +592,23 @@ def _archive_current_selection(marker):
                 "The saved owner generation differs from the current selection."
             )
         return
-    SELECTIONS.mkdir(parents=True, exist_ok=True)
-    with path.open("x", encoding="utf-8") as output:
-        json.dump(marker, output, indent=2, sort_keys=True)
-        output.write("\n")
-        output.flush()
-        os.fsync(output.fileno())
+    _atomic_text(
+        path,
+        json.dumps(marker, indent=2, sort_keys=True) + "\n",
+        private=True,
+        exclusive=True,
+    )
 
 
 def _write_switch_journal(current, target):
-    SWITCH_JOURNAL.parent.mkdir(parents=True, exist_ok=True)
     try:
-        with SWITCH_JOURNAL.open("x", encoding="utf-8") as output:
-            json.dump({"from": current, "to": target}, output, indent=2, sort_keys=True)
-            output.write("\n")
-            output.flush()
-            os.fsync(output.fileno())
+        _atomic_text(
+            SWITCH_JOURNAL,
+            json.dumps({"from": current, "to": target}, indent=2, sort_keys=True)
+            + "\n",
+            private=True,
+            exclusive=True,
+        )
     except FileExistsError as error:
         raise BootstrapError(INTERRUPTED_SWITCH_ERROR) from error
 
@@ -506,6 +619,7 @@ def switch(project):
             "Use a medilab-bootstrap- project name to switch selections."
         )
     engine = _assert_local_engine()
+    _private_path(SWITCH_JOURNAL)
     if SWITCH_JOURNAL.exists():
         raise BootstrapError(INTERRUPTED_SWITCH_ERROR)
     current = _read_marker()
@@ -542,12 +656,14 @@ def switch(project):
     _write_switch_journal(current, target)
     _write_marker(target)
     _write_compose_env(target["config"])
+    _private_path(SWITCH_JOURNAL)
     SWITCH_JOURNAL.unlink()
     print(f"Selected Compose project {project} ({target['status']}).")
 
 
 def recover_switch():
     _assert_local_engine()
+    _private_path(SWITCH_JOURNAL)
     if not SWITCH_JOURNAL.exists():
         raise BootstrapError("There is no interrupted project switch to recover.")
     journal = _read_selection_file(SWITCH_JOURNAL)
@@ -591,6 +707,7 @@ def recover_switch():
         raise BootstrapError(
             "The switch marker or Compose configuration changed unexpectedly; manual review is required."
         )
+    _private_path(SWITCH_JOURNAL)
     SWITCH_JOURNAL.unlink()
     print(f"Interrupted project switch {outcome}; no resources were removed.")
 
@@ -662,6 +779,7 @@ def _run(args, *, env=None, stdin=None, capture_output=False, check=True):
         stdin=stdin,
         capture_output=capture_output,
         text=capture_output,
+        encoding="utf-8" if capture_output else None,
         check=check,
     )
 
@@ -744,16 +862,29 @@ def _prepare_accounting_foundation(project, owner, env):
 def _compose_environment(project, owner=None, config=None):
     allowed = {
         "ANSICON",
+        "ALLUSERSPROFILE",
+        "APPDATA",
+        "CARGO_BUILD_JOBS",
         "COLORTERM",
         "ConEmuANSI",
         "COMSPEC",
+        "CONTAINER_HOST",
         "DOCKER_CONFIG",
         "DOCKER_CONTEXT",
         "DOCKER_HOST",
         "FORCE_COLOR",
         "HOME",
+        "HOMEDRIVE",
+        "HOMEPATH",
+        "LOCALAPPDATA",
         "NO_COLOR",
         "PATH",
+        "PATHEXT",
+        "PROGRAMDATA",
+        "PROGRAMFILES",
+        "PROGRAMFILES(X86)",
+        "PROGRAMW6432",
+        "SYSTEMDRIVE",
         "SYSTEMROOT",
         "TEMP",
         "TERM",
@@ -842,6 +973,19 @@ def _compose_args(project, *, owned, bootstrap):
     return command
 
 
+def _resource_read(command, resource, operation):
+    failure = None
+    try:
+        result = _run(command, capture_output=True)
+    except subprocess.CalledProcessError as error:
+        failure = error.returncode
+    if failure is not None:
+        raise BootstrapError(
+            f"Cannot {operation} local {resource} resources (engine exit {failure}). Existing resources were preserved; inspect the selected local engine."
+        )
+    return result
+
+
 def _inspect(kind, project):
     command = ["docker", kind]
     if kind == "ps":
@@ -853,14 +997,14 @@ def _inspect(kind, project):
         "--filter",
         f"label={PROJECT_LABEL}={project}",
     ]
-    result = _run(
-        command,
-        capture_output=True,
-    )
+    resource = "container" if kind == "ps" else kind
+    result = _resource_read(command, resource, "list")
     identities = result.stdout.split()
     if not identities:
         return []
-    result = _run(["docker", "inspect", *identities], capture_output=True)
+    result = _resource_read(
+        ["docker", resource, "inspect", *identities], resource, "inspect"
+    )
     return json.loads(result.stdout)
 
 
@@ -958,16 +1102,28 @@ def _owned_volume_identities(project, owner):
 
 
 def _normal_app_ready(project, owner, config):
-    _compose(
-        project,
-        False,
-        "up",
-        "-d",
-        "--no-build",
-        owner=owner,
-        owned=True,
-        config=config,
-    )
+    if optional_volume_names(config):
+        _run(
+            [
+                sys.executable,
+                str(ROOT / "tools/scripts/local_compose.py"),
+                "up",
+                "-d",
+                "--no-build",
+            ],
+            env=_compose_environment(project, owner, config),
+        )
+    else:
+        _compose(
+            project,
+            False,
+            "up",
+            "-d",
+            "--no-build",
+            owner=owner,
+            owned=True,
+            config=config,
+        )
     port = config["MEDILAB_ODOO_PORT"]
     url = f"http://127.0.0.1:{port}/web/login?db={DATABASE}"
     last_error = None
@@ -1141,6 +1297,8 @@ def _resume_setup(project, marker):
     config = marker["config"]
     _assert_owned_resources(project, owner)
     missing, unexpected = _volume_mismatch(config, _owned_volume_names(project, owner))
+    if marker.get("status") == "completed":
+        missing = missing_core_volumes(config, missing)
     if marker.get("status") == "completed" and (missing or unexpected):
         raise BootstrapError(_volume_mismatch_message(missing, unexpected))
     if missing or unexpected:
@@ -1407,7 +1565,8 @@ def recover():
     _write_marker(marker)
 
 
-def reset():
+def _remove_verified(action, prompt):
+    """Delete the containers, networks and volumes of this worktree's completed bootstrap after owner confirmation."""
     engine = _assert_local_engine()
     marker = _read_marker()
     if (
@@ -1417,12 +1576,12 @@ def reset():
         or marker.get("handoff_verified") is not True
     ):
         raise BootstrapError(
-            "Reset refused: there is no verified fresh bootstrap owned by this worktree. Existing or ambiguous environments are never deleted."
+            f"{action} refused: there is no verified fresh bootstrap owned by this worktree. Existing or ambiguous environments are never deleted."
         )
     project = marker.get("project")
     if project != project_name():
         raise BootstrapError(
-            "Reset refused: the completed bootstrap belongs to a different Compose project."
+            f"{action} refused: the completed bootstrap belongs to a different Compose project."
         )
     resources = _assert_owned_resources(project, marker["owner"])
     missing, unexpected = _volume_mismatch(
@@ -1430,7 +1589,7 @@ def reset():
     )
     if unexpected:
         raise BootstrapError(
-            f"Reset refused: owned volumes {', '.join(unexpected)} are not in the completed bootstrap marker."
+            f"{action} refused: owned volumes {', '.join(unexpected)} are not in the completed bootstrap marker."
         )
     _assert_matching_engine(marker, engine, resources, missing)
     summary = {
@@ -1448,13 +1607,11 @@ def reset():
     )
     if missing:
         print(
-            "The missing volumes cannot be restored; reset discards what remains of this environment."
+            f"The missing volumes cannot be restored; {action.lower()} discards what remains of this environment."
         )
-    confirmation = input(
-        f"Type {marker['owner']} to delete only this verified local demo environment and recreate it: "
-    )
+    confirmation = input(f"Type {marker['owner']} to {prompt}: ")
     if confirmation != marker["owner"]:
-        raise BootstrapError("Reset was not confirmed; no resources were removed.")
+        raise BootstrapError(f"{action} was not confirmed; no resources were removed.")
     for container in resources["containers"]:
         _run(["docker", "stop", container["Id"]], check=False)
         _run(["docker", "rm", container["Id"]], check=False)
@@ -1465,8 +1622,29 @@ def reset():
         )
     for volume in resources["volumes"]:
         _run(["docker", "volume", "rm", volume["Name"]])
+    return marker
+
+
+def reset():
+    marker = _remove_verified(
+        "Reset", "delete only this verified local demo environment and recreate it"
+    )
     marker["status"] = "discarded"
     _write_marker(marker)
+
+
+def clean():
+    """Remove the verified demo environment, its image and its selection, leaving the worktree unselected."""
+    marker = _remove_verified(
+        "Clean", "delete this verified local demo environment without recreating it"
+    )
+    _run(["docker", "image", "rm", marker["config"]["MEDILAB_ODOO_IMAGE"]], check=False)
+    _remove_compose_env(marker["config"])
+    _private_path(MARKER)
+    MARKER.unlink()
+    print(
+        f"Removed Compose project {marker['project']}. Run `task setup:fresh:select PROJECT=medilab-bootstrap-<name>` to create a new one."
+    )
 
 
 def main():
@@ -1478,10 +1656,11 @@ def main():
         "recover": recover,
         "check-normal": check_normal_setup,
         "reset": reset,
+        "clean": clean,
     }
     if len(sys.argv) < 2 or sys.argv[1] not in commands:
         raise SystemExit(
-            "Usage: python tools/scripts/demo_bootstrap.py select|switch|switch-recover|setup|recover|check-normal|reset"
+            "Usage: python tools/scripts/demo_bootstrap.py select|switch|switch-recover|setup|recover|check-normal|reset|clean"
         )
     action = sys.argv[1]
     try:

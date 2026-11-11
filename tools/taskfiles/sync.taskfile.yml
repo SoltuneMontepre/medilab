@@ -1,0 +1,72 @@
+version: "3"
+
+tasks:
+  sync:_python:
+    internal: true
+    preconditions:
+      - sh: python -c "import sys; sys.exit(sys.version_info < (3, 12))"
+        msg: "Python 3.12+ is required. Install native Python, disable Windows Store aliases if necessary, and reopen the terminal."
+    cmds: []
+
+  sync:doctor:
+    desc: "Check native Sync compiler, WebView and desktop dependencies"
+    silent: true
+    deps: [sync:_python]
+    cmds:
+      - python tools/scripts/sync.py doctor
+
+  sync:setup:
+    desc: "Prepare locked Sync development dependencies without opening the application"
+    silent: true
+    deps: [sync:_python]
+    cmds:
+      - python tools/scripts/sync.py setup
+
+  sync:dev:
+    desc: "Launch the native Sync development application"
+    silent: true
+    deps: [sync:_python]
+    cmds:
+      - python tools/scripts/sync.py dev
+
+  sync:build:
+    desc: "Build native Sync release packages for Windows or Linux"
+    silent: true
+    deps: [sync:_python]
+    cmds:
+      - python tools/scripts/sync.py build
+
+  sync:test:
+    desc: "Run Sync frontend and locked Rust tests"
+    silent: true
+    deps: [sync:_python]
+    cmds:
+      - python tools/scripts/sync.py test
+
+  sync:lint:
+    desc: "Check Sync Rust formatting and Clippy warnings"
+    silent: true
+    deps: [sync:_python]
+    cmds:
+      - python tools/scripts/sync.py lint
+
+  sync:check:
+    desc: "Check Sync frontend types, assets and native Rust compilation"
+    silent: true
+    deps: [sync:_python]
+    cmds:
+      - python tools/scripts/sync.py check
+
+  sync:verify:
+    desc: "Verify native Sync prerequisites and the selected Laboratory files API"
+    silent: true
+    deps: [sync:_python]
+    cmds:
+      - python tools/scripts/sync.py verify
+
+  sync:clean:
+    desc: "Remove fixed Sync build outputs while preserving installed application data"
+    silent: true
+    deps: [sync:_python]
+    cmds:
+      - python tools/scripts/sync.py clean

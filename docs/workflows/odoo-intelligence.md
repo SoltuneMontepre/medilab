@@ -65,7 +65,7 @@ Writing through MCP needs a separate development configuration that the owner ha
 
 Launch `claude` from the worktree root. Project MCP servers are enabled by the existing project settings. Check `claude mcp get odoo`, then request an Odoo-aware definition or hover. For a concrete check, resolve the model string `medilab.reconciliation.day` in `src/core/modules/sol_commerce/models/invoicing/payment_transaction.py`; it should lead to the `ReconciliationDay` class. `tools/odoo-intelligence/odoo_intelligence/navigation_cases.json` lists the source text and expected target of every case that `task ai:verify` and the Cursor probe check.
 
-The Serena hooks run through the locked local environment.
+The Serena hooks run in the local environment's Python, which the launcher finds in `.venv/Scripts` or `.venv/bin` with the same code on every platform, without uv's lock check, because they run before every tool call; the servers start through `uv run --locked`, which keeps that environment in sync. Before setup creates the environment, the hooks fall back to `uv run --locked`. Only the Serena server puts the local Terraform on its PATH, so hooks do not load the installer.
 
 ### Codex CLI
 
@@ -73,7 +73,7 @@ Trust the specific worktree when Codex asks so it can load `.codex/config.toml`.
 
 Review and trust the hook definitions with `/hooks` in a new Codex CLI session. Codex records trust for each definition's current hash; new or changed hooks are skipped until trusted. Trusting the worktree does not automatically trust its hooks.
 
-`.codex/hooks.json` runs the Git message checker and Serena hooks through the locked launcher with `--client=codex`. `PreToolUse` matches `Bash`, which includes Codex shell commands executed through PowerShell, to check Git messages and remind the agent to use symbolic tools. The Git checker returns a JSON denial for Codex so a PowerShell wrapper cannot change the blocking decision by normalizing a nonzero exit code. `PostToolUse` observes Serena calls and resets the reminder counters after a successful symbolic call. `SessionStart` prompts the agent to activate the project and read Serena's instructions; `SessionEnd` removes that session's hook data, with a three-second timeout. Tool approval follows Codex's permission configuration.
+`.codex/hooks.json` runs the Git message checker and Serena hooks through the launcher with `--client=codex`. `PreToolUse` matches `Bash`, which includes Codex shell commands executed through PowerShell, to check Git messages and remind the agent to use symbolic tools. The Git checker returns a JSON denial for Codex so a PowerShell wrapper cannot change the blocking decision by normalizing a nonzero exit code. `PostToolUse` observes Serena calls and resets the reminder counters after a successful symbolic call. `SessionStart` prompts the agent to activate the project and read Serena's instructions; `SessionEnd` removes that session's hook data, with a three-second timeout. Tool approval follows Codex's permission configuration.
 
 For a noninteractive check without persisting trust globally, supply the worktree trust as a CLI override:
 

@@ -6,6 +6,7 @@ import subprocess
 import tempfile
 import unittest
 import uuid
+from contextlib import contextmanager
 from pathlib import Path
 from unittest.mock import patch
 
@@ -19,10 +20,46 @@ from demo_bootstrap import (
     _labels,
     _prepare_accounting_foundation,
     check_normal_setup,
+    clean,
     reset,
     select,
     switch,
 )
+from local_private_paths import ensure_local_directory
+
+
+@contextmanager
+def local_state_directory():
+    with tempfile.TemporaryDirectory() as temporary:
+        root = Path(temporary).resolve()
+        local = ensure_local_directory(root, root / ".local")
+        with (
+            patch.object(demo_bootstrap, "ROOT", root),
+            patch.object(demo_bootstrap, "MARKER", local / "demo-bootstrap.json"),
+            patch.object(
+                demo_bootstrap, "SELECTIONS", local / "demo-bootstrap-selections"
+            ),
+            patch.object(
+                demo_bootstrap, "SWITCH_JOURNAL", local / "demo-bootstrap-switch.json"
+            ),
+        ):
+            yield str(local)
+
+
+class ProcessCaptureTest(unittest.TestCase):
+    def test_engine_capture_decodes_utf8_paths_independently_of_windows_ansi_locale(
+        self,
+    ):
+        payload = '{"path":"C:/MediLab tài liệu/compose.yml"}'
+        command = [
+            demo_bootstrap.sys.executable,
+            "-c",
+            f"import os; os.write(1, bytes.fromhex('{payload.encode().hex()}'))",
+        ]
+        with patch.object(subprocess, "_text_encoding", return_value="cp1252"):
+            self.assertEqual(
+                demo_bootstrap._run(command, capture_output=True).stdout, payload
+            )
 
 
 class SetCountryScriptTest(unittest.TestCase):
@@ -91,7 +128,7 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
             "status": "completed",
             "handoff_verified": True,
             "selected_project": True,
-            "worktree": str(Path(__file__).resolve().parents[2]),
+            "worktree": str(demo_bootstrap.ROOT),
             "lifecycle_version": 2,
             "config": config,
         }
@@ -100,7 +137,7 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
         return project, config, marker, marker_path
 
     def test_switch_archives_verified_selection_before_selecting_empty_project(self):
-        with tempfile.TemporaryDirectory() as directory:
+        with local_state_directory() as directory:
             root = Path(directory)
             project, config, marker, marker_path = self.completed_selection(root)
             target = "medilab-bootstrap-reset-check"
@@ -139,7 +176,7 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
             write_env.assert_called_once_with(fresh_config)
 
     def test_switch_preserves_completed_selection_and_refuses_target_resources(self):
-        with tempfile.TemporaryDirectory() as directory:
+        with local_state_directory() as directory:
             root = Path(directory)
             _project, config, marker, marker_path = self.completed_selection(root)
             target = "medilab-bootstrap-reset-check"
@@ -174,7 +211,7 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
             write_env.assert_not_called()
 
     def test_switch_preserves_stale_archive_after_guarded_reset(self):
-        with tempfile.TemporaryDirectory() as directory:
+        with local_state_directory() as directory:
             root = Path(directory)
             project = "medilab-bootstrap-test-01"
             target = "medilab-bootstrap-qweb-check"
@@ -198,7 +235,7 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
                 "status": "completed",
                 "handoff_verified": True,
                 "selected_project": True,
-                "worktree": str(Path(__file__).resolve().parents[2]),
+                "worktree": str(demo_bootstrap.ROOT),
                 "lifecycle_version": 2,
                 "config": config,
             }
@@ -247,7 +284,7 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
             self.assertFalse((root / "switch.json").exists())
 
     def test_interrupted_switch_requires_verified_recovery(self):
-        with tempfile.TemporaryDirectory() as directory:
+        with local_state_directory() as directory:
             root = Path(directory)
             source = "medilab-bootstrap-test-01"
             target = "medilab-bootstrap-other-01"
@@ -270,7 +307,7 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
                 "status": "completed",
                 "handoff_verified": True,
                 "selected_project": True,
-                "worktree": str(Path(__file__).resolve().parents[2]),
+                "worktree": str(demo_bootstrap.ROOT),
                 "lifecycle_version": 2,
                 "config": config,
             }
@@ -336,7 +373,7 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
             self.assertFalse(journal.exists())
 
     def test_saved_selection_uses_only_the_owner_verified_by_resources(self):
-        with tempfile.TemporaryDirectory() as directory:
+        with local_state_directory() as directory:
             project = "medilab-bootstrap-test-01"
             archive = Path(directory)
             owners = (str(uuid.uuid4()), str(uuid.uuid4()))
@@ -361,7 +398,7 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
                         "status": "completed",
                         "handoff_verified": True,
                         "selected_project": True,
-                        "worktree": str(Path(__file__).resolve().parents[2]),
+                        "worktree": str(demo_bootstrap.ROOT),
                         "lifecycle_version": 2,
                         "config": config,
                     }
@@ -394,7 +431,7 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
                 self.assertEqual(demo_bootstrap._saved_selection(project), markers[1])
 
     def test_saved_selection_rejects_foreign_or_ambiguous_resources(self):
-        with tempfile.TemporaryDirectory() as directory:
+        with local_state_directory() as directory:
             project = "medilab-bootstrap-test-01"
             marker = {
                 "project": project,
@@ -402,7 +439,7 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
                 "status": "completed",
                 "handoff_verified": True,
                 "selected_project": True,
-                "worktree": str(Path(__file__).resolve().parents[2]),
+                "worktree": str(demo_bootstrap.ROOT),
                 "lifecycle_version": 2,
                 "config": {"COMPOSE_PROJECT_NAME": project},
             }
@@ -419,7 +456,7 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
                 demo_bootstrap._saved_selection(project)
 
     def test_recover_switch_accepts_verified_completed_target(self):
-        with tempfile.TemporaryDirectory() as directory:
+        with local_state_directory() as directory:
             root = Path(directory)
             source = {
                 "project": "medilab-bootstrap-first",
@@ -454,7 +491,7 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
             self.assertFalse(journal.exists())
 
     def test_recover_switch_refuses_unexpected_active_owner(self):
-        with tempfile.TemporaryDirectory() as directory:
+        with local_state_directory() as directory:
             root = Path(directory)
             source = {
                 "project": "medilab-bootstrap-first",
@@ -490,7 +527,7 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
             self.assertEqual(json.loads(marker_path.read_text()), foreign)
 
     def test_switch_to_resource_verified_archived_selection(self):
-        with tempfile.TemporaryDirectory() as directory:
+        with local_state_directory() as directory:
             root = Path(directory)
             current_project = "medilab-bootstrap-current"
             target_project = "medilab-bootstrap-previous"
@@ -503,7 +540,7 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
                     "status": "completed",
                     "handoff_verified": True,
                     "selected_project": True,
-                    "worktree": str(Path(__file__).resolve().parents[2]),
+                    "worktree": str(demo_bootstrap.ROOT),
                     "lifecycle_version": 2,
                     "config": {
                         "COMPOSE_PROJECT_NAME": project,
@@ -562,7 +599,7 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
 
     def test_select_refuses_existing_resources_without_writing_marker(self):
         with (
-            tempfile.TemporaryDirectory() as temporary,
+            local_state_directory() as temporary,
             patch("demo_bootstrap.MARKER", Path(temporary) / "marker.json"),
             patch("demo_bootstrap._assert_local_engine"),
             patch(
@@ -577,7 +614,7 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
 
     def test_select_persists_unique_project_owner_ports_and_image(self):
         with (
-            tempfile.TemporaryDirectory() as temporary,
+            local_state_directory() as temporary,
             patch("demo_bootstrap.MARKER", Path(temporary) / "marker.json"),
             patch("demo_bootstrap._assert_local_engine"),
             patch("demo_bootstrap._assert_no_resources"),
@@ -607,7 +644,7 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
         self.assertEqual(write_env.call_args.args[0], marker["config"])
 
     def test_interrupted_initial_selection_cannot_authorize_reset(self):
-        with tempfile.TemporaryDirectory() as directory:
+        with local_state_directory() as directory:
             marker_path = Path(directory) / "marker.json"
             with (
                 patch("demo_bootstrap.MARKER", marker_path),
@@ -632,7 +669,7 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
             run.assert_not_called()
 
     def test_selecting_the_same_completed_project_preserves_its_marker(self):
-        with tempfile.TemporaryDirectory() as temporary:
+        with local_state_directory() as temporary:
             marker_path = Path(temporary) / "marker.json"
             project = "medilab-bootstrap-test-01"
             owner = "owner-id"
@@ -652,7 +689,7 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
                 "status": "completed",
                 "handoff_verified": True,
                 "selected_project": True,
-                "worktree": str(Path(__file__).resolve().parents[2]),
+                "worktree": str(demo_bootstrap.ROOT),
                 "lifecycle_version": 2,
                 "config": config,
             }
@@ -746,7 +783,7 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
         ]
         outputs = {
             "ps": "running-id\nstopped-id\n",
-            "inspect": json.dumps(containers),
+            "container": json.dumps(containers),
         }
 
         with patch(
@@ -762,7 +799,7 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
             [call.args[0] for call in run.call_args_list],
             [
                 ["docker", "ps", "--all", "--quiet"],
-                ["docker", "inspect", "running-id", "stopped-id"],
+                ["docker", "container", "inspect", "running-id", "stopped-id"],
             ],
         )
 
@@ -776,7 +813,7 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
 
     def test_reset_refuses_unowned_environments_before_removing_resources(self):
         with (
-            tempfile.TemporaryDirectory() as temporary,
+            local_state_directory() as temporary,
             patch("demo_bootstrap.MARKER", Path(temporary) / "missing.json"),
             patch("demo_bootstrap.project_name", return_value="medilab-test"),
             patch("demo_bootstrap._assert_local_engine"),
@@ -788,7 +825,7 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
         run.assert_not_called()
 
     def test_reset_discards_a_completed_environment_whose_volumes_are_missing(self):
-        with tempfile.TemporaryDirectory() as directory:
+        with local_state_directory() as directory:
             project, config, _marker, marker_path = self.completed_selection(
                 Path(directory)
             )
@@ -811,8 +848,78 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
             run.assert_called_once_with(["docker", "volume", "rm", remaining])
             self.assertEqual(json.loads(marker_path.read_text())["status"], "discarded")
 
+    def test_clean_removes_the_environment_image_marker_and_saved_selection(self):
+        with local_state_directory() as directory:
+            root = Path(directory)
+            project, config, marker, marker_path = self.completed_selection(root)
+            config["MEDILAB_ODOO_IMAGE"] = f"localhost/{project}-odoo:owner"
+            marker_path.write_text(json.dumps(marker), encoding="utf-8")
+            env_path = root / ".env"
+            env_path.write_text(
+                "".join(f"{key}={value}\n" for key, value in config.items())
+                + "MEDILAB_URL=http://localhost:8069\n",
+                encoding="utf-8",
+            )
+            volumes = [{"Name": config[key]} for key in demo_bootstrap.VOLUME_KEYS]
+            with (
+                patch("demo_bootstrap.MARKER", marker_path),
+                patch("demo_bootstrap.COMPOSE_ENV_FILE", env_path),
+                patch("demo_bootstrap.project_name", return_value=project),
+                patch("demo_bootstrap._assert_local_engine"),
+                patch(
+                    "demo_bootstrap._assert_owned_resources",
+                    return_value={"containers": [], "networks": [], "volumes": volumes},
+                ),
+                patch(
+                    "demo_bootstrap._owned_volume_names",
+                    return_value=[volume["Name"] for volume in volumes],
+                ),
+                patch("builtins.input", return_value="owner"),
+                patch("demo_bootstrap._run") as run,
+            ):
+                clean()
+
+            run.assert_any_call(
+                ["docker", "image", "rm", config["MEDILAB_ODOO_IMAGE"]], check=False
+            )
+            for volume in volumes:
+                run.assert_any_call(["docker", "volume", "rm", volume["Name"]])
+            self.assertFalse(marker_path.exists())
+            self.assertEqual(
+                env_path.read_text(encoding="utf-8"),
+                "MEDILAB_URL=http://localhost:8069\n",
+            )
+
+    def test_clean_keeps_everything_without_owner_confirmation(self):
+        with local_state_directory() as directory:
+            project, config, _marker, marker_path = self.completed_selection(
+                Path(directory)
+            )
+            names = [config[key] for key in demo_bootstrap.VOLUME_KEYS]
+            with (
+                patch("demo_bootstrap.MARKER", marker_path),
+                patch("demo_bootstrap.project_name", return_value=project),
+                patch("demo_bootstrap._assert_local_engine"),
+                patch(
+                    "demo_bootstrap._assert_owned_resources",
+                    return_value={
+                        "containers": [],
+                        "networks": [],
+                        "volumes": [{"Name": name} for name in names],
+                    },
+                ),
+                patch("demo_bootstrap._owned_volume_names", return_value=names),
+                patch("builtins.input", return_value="no"),
+                patch("demo_bootstrap._run") as run,
+                self.assertRaisesRegex(BootstrapError, "Clean was not confirmed"),
+            ):
+                clean()
+
+            run.assert_not_called()
+            self.assertTrue(marker_path.exists())
+
     def test_reset_refuses_volumes_outside_the_completed_marker(self):
-        with tempfile.TemporaryDirectory() as directory:
+        with local_state_directory() as directory:
             project, config, marker, marker_path = self.completed_selection(
                 Path(directory)
             )
@@ -839,7 +946,7 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
             self.assertEqual(json.loads(marker_path.read_text()), marker)
 
     def test_reset_refuses_empty_selection_on_a_different_container_engine(self):
-        with tempfile.TemporaryDirectory() as directory:
+        with local_state_directory() as directory:
             project, _config, marker, marker_path = self.completed_selection(
                 Path(directory)
             )
@@ -870,7 +977,7 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
             self.assertEqual(json.loads(marker_path.read_text()), marker)
 
     def test_reset_discards_empty_selection_when_saved_engine_matches(self):
-        with tempfile.TemporaryDirectory() as directory:
+        with local_state_directory() as directory:
             project, _config, marker, marker_path = self.completed_selection(
                 Path(directory)
             )
@@ -895,8 +1002,32 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
             run.assert_not_called()
             self.assertEqual(json.loads(marker_path.read_text())["status"], "discarded")
 
+    def test_free_ports_keep_free_default_ports(self):
+        with (
+            patch("demo_bootstrap._published_ports", return_value=set()),
+            patch("demo_bootstrap._port_is_free", return_value=True),
+        ):
+            ports = demo_bootstrap._free_ports()
+
+        self.assertEqual(ports, demo_bootstrap.DEFAULT_PORTS)
+
+    def test_free_ports_replace_only_busy_default_ports(self):
+        with (
+            patch("demo_bootstrap._published_ports", return_value=set()),
+            patch(
+                "demo_bootstrap._port_is_free",
+                side_effect=lambda _host, port, _published: port != 8069,
+            ),
+        ):
+            ports = demo_bootstrap._free_ports()
+
+        self.assertIn(int(ports["MEDILAB_ODOO_PORT"]), range(20000, 32768))
+        self.assertEqual(ports["MEDILAB_DB_PORT"], "15432")
+
     def test_free_ports_stay_below_dynamic_ranges_and_skip_busy_ports(self):
-        busy = set(range(20000, 32768, 2))
+        busy = set(range(20000, 32768, 2)) | {
+            int(port) for port in demo_bootstrap.DEFAULT_PORTS.values()
+        }
         with (
             patch("demo_bootstrap._published_ports", return_value=set()),
             patch(
@@ -918,7 +1049,10 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
         with (
             patch(
                 "demo_bootstrap._published_ports",
-                return_value=set(range(20000, 32768)) - unpublished,
+                return_value=(
+                    set(range(20000, 32768)) - unpublished
+                    | {int(port) for port in demo_bootstrap.DEFAULT_PORTS.values()}
+                ),
             ),
             patch("demo_bootstrap.socket.socket"),
         ):
@@ -960,6 +1094,50 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
 
         self.assertEqual(_labels({"labels": labels}, "networks"), labels)
 
+    def test_network_inspection_does_not_resolve_volume_prefixes(self):
+        project = "medilab-bootstrap-prefix"
+        networks = [{"name": project + "_default"}, {"name": project + "_onlyoffice"}]
+
+        def command(arguments, **_kwargs):
+            if arguments[:3] == ["docker", "network", "ls"]:
+                return subprocess.CompletedProcess(
+                    arguments, 0, stdout="\n".join(item["name"] for item in networks)
+                )
+            if arguments[:2] == ["docker", "inspect"]:
+                raise subprocess.CalledProcessError(
+                    125, arguments, stderr="more than one result for volume name"
+                )
+            self.assertEqual(
+                arguments,
+                ["docker", "network", "inspect", *(item["name"] for item in networks)],
+            )
+            return subprocess.CompletedProcess(
+                arguments, 0, stdout=json.dumps(networks)
+            )
+
+        with patch("demo_bootstrap._run", side_effect=command):
+            self.assertEqual(demo_bootstrap._inspect("network", project), networks)
+
+    def test_resource_inspection_failure_has_safe_operation_diagnostics(self):
+        secret = "FAKE-INSPECT-STDOUT-SECRET"
+
+        def command(arguments, **_kwargs):
+            if arguments[:3] == ["docker", "network", "ls"]:
+                return subprocess.CompletedProcess(arguments, 0, stdout="owned-network")
+            raise subprocess.CalledProcessError(
+                125, arguments, output=secret, stderr=secret
+            )
+
+        with (
+            patch("demo_bootstrap._run", side_effect=command),
+            self.assertRaises(BootstrapError) as raised,
+        ):
+            demo_bootstrap._inspect("network", "project")
+        self.assertIn("inspect local network", str(raised.exception))
+        self.assertIn("125", str(raised.exception))
+        self.assertNotIn(secret, str(raised.exception))
+        self.assertIsNone(raised.exception.__context__)
+
     def test_compose_environment_uses_only_local_credentials(self):
         with patch.dict(
             os.environ,
@@ -981,6 +1159,21 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
         self.assertEqual(environment["MEDILAB_DEMO_BOOTSTRAP_OWNER"], "owner-id")
         self.assertEqual(environment["MEDILAB_ODOO_PORT"], "18069")
 
+    def test_compose_environment_keeps_the_docker_plugin_folders(self):
+        folders = {"PROGRAMDATA": r"C:\ProgramData", "PROGRAMFILES": r"C:\Program Files"}
+        with patch.dict(os.environ, folders, clear=False):
+            environment = _compose_environment("medilab-local-test", "owner-id")
+
+        for name, folder in folders.items():
+            self.assertEqual(environment[name], folder)
+
+    def test_compose_environment_keeps_system_drive(self):
+        # Windows resolves %SystemDrive% paths relative to the working directory without it.
+        with patch.dict(os.environ, {"SYSTEMDRIVE": "C:"}):
+            environment = _compose_environment("medilab-local-test")
+
+        self.assertEqual(environment["SYSTEMDRIVE"], "C:")
+
     def test_selected_ports_override_existing_worktree_ports(self):
         ports = {
             "MEDILAB_ODOO_PORT": "28069",
@@ -1000,7 +1193,7 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
         )
 
     def test_normal_setup_refuses_an_incomplete_bootstrap(self):
-        with tempfile.TemporaryDirectory() as temporary:
+        with local_state_directory() as temporary:
             marker = Path(temporary) / "marker.json"
             marker.write_text(
                 json.dumps({"project": "medilab-test", "status": "failed"}),
@@ -1026,7 +1219,7 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
             ],
         }
         with (
-            tempfile.TemporaryDirectory() as temporary,
+            local_state_directory() as temporary,
             patch("demo_bootstrap.MARKER", Path(temporary) / "missing.json"),
             patch("demo_bootstrap.project_name", return_value="medilab-test"),
             patch("demo_bootstrap._resources", return_value=resources),

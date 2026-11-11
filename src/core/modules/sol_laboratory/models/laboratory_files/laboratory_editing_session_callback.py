@@ -1,5 +1,6 @@
 import hmac
 import posixpath
+from typing import TYPE_CHECKING
 
 from odoo import api, models
 
@@ -20,6 +21,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_RES_USERS,
 )
 from odoo.addons.sol_laboratory.services import laboratory_bucket
+from odoo.addons.sol_laboratory.services.editing_callback_logging import record_staged_document
 from odoo.addons.sol_laboratory.services.editing_service_health import is_editing_service_up
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
 from odoo.addons.sol_laboratory.services.onlyoffice_jwt import EditingCallbackRefused, jwt_secret, sign, verify_callback
@@ -29,6 +31,12 @@ from odoo.addons.sol_laboratory.services.saved_documents import (
     SavedDocumentUnavailable,
     saved_document,
 )
+from odoo.addons.sol_laboratory.services.type_values import value_as
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_laboratory_editing_session as LaboratoryEditingSessionBase
+else:
+    LaboratoryEditingSessionBase = object
 
 # The editor of each Office extension.
 DOCUMENT_TYPES = {"docx": "word", "xlsx": "cell", "pptx": "slide"}
@@ -37,7 +45,7 @@ ACTIVITY_STATUSES = (CALLBACK_EDITING, CALLBACK_FORCE_SAVED, CALLBACK_FORCE_SAVE
 
 
 # Phiên Chỉnh Sửa Trực Tuyến
-class LaboratoryEditingSession(models.Model):
+class LaboratoryEditingSession(models.Model, LaboratoryEditingSessionBase):
     _inherit = MODEL_LABORATORY_EDITING_SESSION
 
     @api.model
@@ -62,6 +70,7 @@ class LaboratoryEditingSession(models.Model):
         lifetime_seconds = self.env[MODEL_RES_CONFIG_SETTINGS]._get_parameter("laboratory_file_url_minutes") * 60
         document_url = session.base_version_id._read_address(lifetime_seconds)
         path = session.file_id.path
+        assert path is not False
         extension = posixpath.splitext(path)[1].removeprefix(".").lower()
         config = {
             "document": {
@@ -91,7 +100,11 @@ class LaboratoryEditingSession(models.Model):
         key = fields.get("key")
         if not session or not isinstance(key, str):
             raise EditingCallbackRefused("The callback is for no editing session.")
-        if not hmac.compare_digest(session.document_key.encode(), key.encode()):
+        try:
+            key_bytes = key.encode()
+        except UnicodeEncodeError:
+            raise EditingCallbackRefused("The callback's document key is not valid UTF-8.") from None
+        if not hmac.compare_digest(value_as(session.document_key, str).encode(), key_bytes):
             raise EditingCallbackRefused("The callback's document key is not its session's.")
         return session, fields
 
@@ -163,6 +176,7 @@ class LaboratoryEditingSession(models.Model):
         except (SavedDocumentTooLarge, SavedDocumentUnavailable):
             content._fail()
             raise
+        record_staged_document(self.id, content.object_key, sha256, size)
         return content._settle(sha256, size)
 
     def _editors_of(self, fields):

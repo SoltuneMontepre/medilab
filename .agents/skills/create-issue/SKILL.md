@@ -8,7 +8,6 @@ description: Turn a feature from the MediLab functional documents into a GitHub 
 Read [AGENTS.md](../../../AGENTS.md) and the docs index first, then follow [docs/workflows/creating-issue.md](../../../docs/workflows/creating-issue.md) step by step.
 
 - Work out story status from GitHub and readiness from the documents, as the workflow says. Never write status into the documents.
-- When a Trello connection is available, search the medilab board for cards about the feature, as the workflow's Trello section says.
 - When the user names no feature, list the stories that are not started and ready, grouped by feature, and ask which one.
 - Report the status check before drafting. Stop and ask when the feature is already covered, not ready, or needs a spec that does not exist.
 - Write the draft body to a temporary file, then show the owner the title, the stories and a short summary.

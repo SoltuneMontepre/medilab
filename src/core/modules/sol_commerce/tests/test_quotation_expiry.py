@@ -1,10 +1,11 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from odoo import fields
 from odoo.tests import tagged
 
 from .order_case import OrderCase
 from odoo.addons.sol_commerce.constants.models import MODEL_QUOTATION
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -55,4 +56,4 @@ class TestQuotationExpiry(OrderCase):
 
         self.assertEqual(first.status, "replaced")
         self.assertEqual(order._latest_quotation().status, "sent")
-        self.assertGreater(order.payment_deadline, fields.Datetime.now())
+        self.assertGreater(assert_instance(order.payment_deadline, datetime), fields.Datetime.now())

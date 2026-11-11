@@ -9,10 +9,14 @@ AUDIT_RETENTION_PARAMETER = "sol_laboratory.audit_retention_days"
 SAMPLE_RETENTION_REMINDER_PARAMETER = "sol_laboratory.sample_retention_reminder_days"
 DEFAULT_SAMPLE_RETENTION_REMINDER_DAYS = 7
 URGENCY_HOURS_PARAMETER = "sol_laboratory.urgency_hours"
+# No default: nobody carries dispatches until the administrator names the role.
+SAMPLE_DELIVERY_ROLE_PARAMETER = "sol_laboratory.sample_delivery_role_id"
 DEFAULT_URGENCY_HOURS = 24
 DIGITAL_SIGNING_PARAMETER = "sol_laboratory.digital_signing_enabled"
 SIGNING_CERTIFICATE_ALERT_PARAMETER = "sol_laboratory.signing_certificate_alert_days"
 DEFAULT_SIGNING_CERTIFICATE_ALERT_DAYS = 30
+QUALITY_REGISTRATION_WARNING_PARAMETER = "sol_laboratory.quality_registration_warning_days"
+DEFAULT_QUALITY_REGISTRATION_WARNING_DAYS = 30
 LOCK_TIMEOUT_PARAMETER = "sol_laboratory.lock_timeout_minutes"
 DEFAULT_LOCK_TIMEOUT_MINUTES = 15
 JOB_RETENTION_PARAMETER = "sol_laboratory.job_retention_days"

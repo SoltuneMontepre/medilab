@@ -15,6 +15,12 @@ How the `sol_demo` module seeds data for demos and browser checks.
 - Record XML ids are `demo_<model>_<short name>`, such as `demo_test_parameter_lead`. Records that seeding code creates in Python follow the same rule. The parent Odoo creates for a delegated record, such as a product's template, keeps the name Odoo gives it: the record's id followed by the parent model.
 - Data files use `noupdate="1"`, so upgrading the module does not overwrite records changed during a demo. Function calls stay outside it, so every upgrade runs them: a seeding function, which adds only what is missing, or a call that records loaded after it need, such as flagging Odoo's stock location as the central store, because an upgrade leaves the records of other modules unchanged.
 
+## Laboratory catalog
+
+Use 20 to 30 factual scope lines from VILAS 677 across Sinh and Hóa, a three-level sample-type example and at least one sample test outside the accreditation scope. Keep standard codes, analytes and LOQs; do not bundle the source PDF or real contact details.
+
+Sample-type roots cover food, health supplements (TPBVSK), food additives, animal feed, water, cosmetics, food-contact packaging and veterinary drugs. These are sample types, not a separate product-group entity, and the model has no fixed tree depth. Testing fields use the VILAS names Sinh, Hóa and Dược.
+
 ## Related documents
 
 - [Module structure](module_structure.md)

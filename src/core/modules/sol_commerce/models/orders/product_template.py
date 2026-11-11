@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.fields import Command, Domain
@@ -14,16 +16,22 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TEST_PARAMETER,
 )
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_product_template as ProductTemplateBase
+else:
+    ProductTemplateBase = object
+
 
 # Sản Phẩm
-class ProductTemplate(models.Model):
+class ProductTemplate(models.Model, ProductTemplateBase):
     _name = MODEL_PRODUCT_TEMPLATE
     _inherit = [MODEL_AUDIT_MIXIN, MODEL_PRODUCT_TEMPLATE]
 
-    # The parameter this product sells; empty for a package.
-    parameter_id = fields.Many2one(MODEL_TEST_PARAMETER, ondelete="restrict", index=True)
-    # The service package this product sells; empty for a parameter.
-    service_package_id = fields.Many2one(MODEL_SERVICE_PACKAGE, ondelete="restrict", index=True)
+    if not TYPE_CHECKING:
+        # The parameter this product sells; empty for a package.
+        parameter_id = fields.Many2one(MODEL_TEST_PARAMETER, ondelete="restrict", index=True)
+        # The service package this product sells; empty for a parameter.
+        service_package_id = fields.Many2one(MODEL_SERVICE_PACKAGE, ondelete="restrict", index=True)
 
     _catalog_kind = models.Constraint(
         "CHECK(parameter_id IS NULL OR service_package_id IS NULL)",
@@ -55,7 +63,7 @@ class ProductTemplate(models.Model):
         lines = self._open_order_lines()
         if not lines:
             return
-        names = lines.order_id.mapped("display_name")
+        names = [name or "" for name in lines.order_id.mapped("display_name")]
         raise UserError(self.env._("This cannot be archived while these orders use it:\n%s", "\n".join(names)))
 
     def _sync_parameter_product(self, price):

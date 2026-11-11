@@ -1,25 +1,45 @@
-from urllib.parse import quote
+from urllib.parse import quote, urlencode
 
 from odoo import http
 from odoo.exceptions import UserError
 from odoo.http import request
 
+from odoo.addons.portal.controllers.portal import pager as portal_pager
 from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
-from odoo.addons.sol_commerce.controllers.catalog import CART_SESSION
+from odoo.addons.sol_commerce.constants.orders import PORTAL_ORDERS_PER_PAGE
+from odoo.addons.sol_commerce.controllers.catalog import CART_SESSION, ORDERS_PATH
+from odoo.addons.sol_commerce.models.orders.sale_order_customer import CUSTOMER_STATUSES
 from odoo.addons.sol_laboratory.services.request_env import request_env
 
 
 class CustomerOrder(http.Controller):
-    @http.route("/orders", type="http", auth="user")
-    def orders(self, **kwargs):
-        orders = request_env()[MODEL_SALE_ORDER]._portal_orders(request_env().user)
-        return request.render("sol_commerce.order_list", {"orders": orders})
+    @http.route([ORDERS_PATH, f"{ORDERS_PATH}/page/<int:page>"], type="http", auth="user")
+    def orders(self, page=1, saved=None, **kwargs):
+        orders = request_env()[MODEL_SALE_ORDER]
+        user = request_env().user
+        filters = self._filters(kwargs)
+        total = orders._portal_order_count(user, **filters)
+        pager = portal_pager(url=ORDERS_PATH, url_args=filters, total=total, page=page, step=PORTAL_ORDERS_PER_PAGE)
+        return request.render(
+            "sol_commerce.order_list",
+            {
+                "orders": orders._portal_orders(user, limit=PORTAL_ORDERS_PER_PAGE, offset=pager["offset"], **filters),
+                "pager": pager,
+                "saved": bool(saved),
+                "statuses": orders._fields["customer_status"]._description_selection(request_env()),
+                "filters": filters,
+                "filter_query": self._filter_query(filters),
+                # A filter that matches nothing is told apart from a customer with no orders at all.
+                "has_orders": bool(total) or bool(filters and orders._portal_order_count(user)),
+            },
+        )
 
     @http.route("/orders/<int:order_id>", type="http", auth="user")
     def order(self, order_id, **kwargs):
         order = self._order(order_id)
         if not order:
             return request.not_found()
+        filters = self._filters(kwargs)
         return request.render(
             "sol_commerce.order_page",
             {
@@ -27,6 +47,8 @@ class CustomerOrder(http.Controller):
                 "lines": order._catalog_lines(),
                 "requests": order.cancellation_request_ids,
                 "support_requests": order.support_request_ids,
+                "filters": filters,
+                "orders_url": ORDERS_PATH + self._filter_query(filters),
             },
         )
 
@@ -46,9 +68,12 @@ class CustomerOrder(http.Controller):
         order = self._order(order_id)
         if not order:
             return request.not_found()
-        new = order.action_reorder()
+        try:
+            new = order.action_reorder()
+        except UserError as error:
+            return request.redirect(f"/orders/{order.id}?error={quote(str(error))}")
         request.session[CART_SESSION] = new.id
-        return request.redirect(f"/orders/{new.id}")
+        return request.redirect(f"/orders/{new.id}{self._filter_query(self._filters(kwargs))}")
 
     @http.route("/orders/<int:order_id>/cancellation", type="http", auth="user", methods=["POST"])
     def cancellation(self, order_id, reason=None, **kwargs):
@@ -90,6 +115,7 @@ class CustomerOrder(http.Controller):
         current = order._latest_quotation() if order else None
         if not current:
             return request.not_found()
+        advance = current.advance_invoice_id.filtered(lambda invoice: invoice.state == "posted")
         return request.render(
             "sol_commerce.quotation_page",
             {
@@ -98,6 +124,10 @@ class CustomerOrder(http.Controller):
                 "quotations": order.quotation_ids.sorted("revision", reverse=True),
                 "revising": order.state == "draft",
                 "lines": order._catalog_lines(),
+                "discount_lines": order._discount_lines(),
+                "advance": advance,
+                # The invoice page takes the payment; its token lets Odoo's payment form find the invoice.
+                "advance_url": advance.get_portal_url(query_string="&payment=True") if advance else False,
             },
         )
 
@@ -134,6 +164,20 @@ class CustomerOrder(http.Controller):
         sent._audit("download")
         stream = request_env()["ir.binary"]._get_stream_from(sent.attachment_id, "raw", filename_field="name")
         return stream.get_response(as_attachment=True)
+
+    @staticmethod
+    def _filters(params):
+        """The order history's filters among the request parameters, without the empty or unknown ones."""
+        status = params.get("status") or ""
+        filters = {
+            "status": status if status in dict(CUSTOMER_STATUSES) else "",
+            "search": (params.get("search") or "").strip(),
+        }
+        return {name: value for name, value in filters.items() if value}
+
+    @staticmethod
+    def _filter_query(filters):
+        return f"?{urlencode(filters)}" if filters else ""
 
     def _order(self, order_id):
         order = request_env()[MODEL_SALE_ORDER].sudo().browse(order_id).exists()

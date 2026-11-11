@@ -1,6 +1,8 @@
 from odoo.fields import Command
 from odoo.tests import TransactionCase
 
+from odoo.addons.sol_laboratory.services.record_id import persisted_ids
+
 
 class TestVietnameseAccountingLocalization(TransactionCase):
     def test_vietnamese_chart_and_vat_invoice_are_compatible(self):
@@ -49,7 +51,7 @@ class TestVietnameseAccountingLocalization(TransactionCase):
                             "quantity": 1,
                             "price_unit": 100_000,
                             "account_id": income_account.id,
-                            "tax_ids": [Command.set(tax.ids)],
+                            "tax_ids": [Command.set(persisted_ids(tax))],
                         }
                     )
                 ],

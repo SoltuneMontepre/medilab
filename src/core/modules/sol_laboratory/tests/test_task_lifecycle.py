@@ -1,7 +1,10 @@
+from datetime import datetime
+
 from odoo.exceptions import AccessError, UserError
 from odoo.tests import tagged
 
 from .task_case import TaskCase
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -88,7 +91,11 @@ class TestTaskLifecycle(TaskCase):
     def test_event_task_gets_the_default_deadline_of_its_type(self):
         task = self.receive_sample(self.chemistry)
 
-        self.assertAlmostEqual((task.deadline - task.create_date).total_seconds(), 48 * 3600, delta=60)
+        self.assertAlmostEqual(
+            (assert_instance(task.deadline, datetime) - assert_instance(task.create_date, datetime)).total_seconds(),
+            48 * 3600,
+            delta=60,
+        )
 
     def test_department_with_an_unfinished_task_cannot_be_archived_or_deleted(self):
         self.receive_sample(self.microbiology)

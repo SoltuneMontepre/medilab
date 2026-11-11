@@ -106,3 +106,24 @@ describe("StatusTab component memoization and render isolation", () => {
     expect(html).toContain("Đã đồng bộ");
   });
 });
+
+
+test("listed Office files offer editing by folder policy", () => {
+  for (const extension of ["docx", "xlsx", "pptx"]) {
+    for (const category of [null, "working", "result", "raw"]) {
+      const html = renderWithLocale(
+        <RemoteFileRowView
+          file={{ id: 1, folder_id: 1, relative_path: `probe.${extension}`, remote_file_id: 8, remote_version_id: 15, status: "synced" }}
+          category={category}
+          busy={false}
+          onOpenHistory={() => {}}
+          onOpenOffice={() => {}}
+          onAcceptServer={() => {}}
+          onKeepLocal={() => {}}
+        />,
+      );
+      expect(html).toContain(`probe.${extension}`);
+      expect(html.includes("Chỉnh sửa trực tuyến")).toBe(category !== "raw");
+    }
+  }
+});

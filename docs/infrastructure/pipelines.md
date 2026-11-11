@@ -4,18 +4,19 @@ What each GitHub Actions workflow in `.github/workflows/` does. How workflows ar
 
 ## Workflows
 
-| Workflow        | Runs on                                                                                 | Does                                                                                                                 |
-| --------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `ci-core`       | every pull request and every push to `main`                                             | Lints, builds and tests the Odoo modules, runs the browser tests, then SonarQube Cloud.                              |
-| `ci-infra`      | every pull request                                                                      | Checks Terraform, Ansible, origin isolation and CloudBeaver when their code changes. |
-| `ci-tools`      | every pull request                                                                      | Runs the AI tooling tests, Ruff and the typecheck tooling tests when that tooling changes.                           |
-| `ci-sync-app`   | every pull request                                                                      | Checks the format, lints, tests and builds the sync app when it changes.                                             |
-| `ci-mobile-app` | every pull request                                                                      | Type-checks, lints and tests the mobile app, and builds it for Android and iOS, when it changes.                     |
-| `cd-core`       | a push to `main` that changes `src/core` or the Dockerfile, and hourly in `window` mode | Publishes the image, releases it through Argo CD at once or in the maintenance window, and rolls back if it fails.   |
-| `cd-infra`      | a push to `main` that changes `infra/`                                                  | Runs `terraform apply`.                                                                                              |
-| `cd-ansible`    | a manual run on `main`                                                                  | Runs the Ansible playbooks against the nodes: `ping`, `inspect`, `check` or `apply`.                                 |
-| `cd-sync-app`   | a `filesync-v*` tag                                                                     | Builds the sync app's Windows, macOS and Linux packages and publishes them as a GitHub release.                      |
-| `cd-cleanup`    | a closed pull request, merged or not, or a finished `cd-core`                           | Deletes the branch, artifacts and build caches of closed pull requests, and old images.                              |
+| Workflow        | Runs on                                                                                 | Does                                                                                                               |
+| --------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `ci-core`       | every pull request and every push to `main`                                             | Lints, builds and tests the Odoo modules, runs the browser tests, then SonarQube Cloud.                            |
+| `ci-infra`      | every pull request                                                                      | Checks Terraform, Ansible, origin isolation, ONLYOFFICE contracts and CloudBeaver when their paths change.         |
+| `ci-tools`      | every pull request                                                                      | Runs the AI tooling tests, Ruff and the typecheck tooling tests when that tooling changes.                         |
+| `ci-sync-app`   | every pull request                                                                      | Checks the format, lints, tests and builds the sync app when it changes.                                           |
+| `ci-mobile-app` | every pull request                                                                      | Type-checks, lints and tests the mobile app, and builds it for Android and iOS, when it changes.                   |
+| `cd-core`       | a push to `main` that changes `src/core` or the Dockerfile, and hourly in `window` mode | Publishes the image, releases it through Argo CD at once or in the maintenance window, and rolls back if it fails. |
+| `cd-infra`      | a push to `main` that changes `infra/`                                                  | Runs `terraform apply`.                                                                                            |
+| `cd-ansible`    | a manual run on `main`                                                                  | Runs the Ansible playbooks against the nodes: `ping`, `inspect`, `check` or `apply`.                               |
+| `cd-reset`      | a manual run on `main`                                                                  | Recreates the production database and installs it again with the demo data.                                        |
+| `cd-sync-app`   | a `filesync-v*` tag                                                                     | Builds the sync app's Windows, macOS and Linux packages and publishes them as a GitHub release.                    |
+| `cd-cleanup`    | a closed pull request, merged or not, or a finished `cd-core`                           | Deletes the branch, artifacts and build caches of closed pull requests, and old images.                            |
 
 Every workflow can also be started by hand.
 
@@ -28,13 +29,14 @@ flowchart LR
     build --> e2e --> test
     runners --> test --> sonarqube
     runners --> coverage --> sonarqube
+    changes --> onlyoffice --> sonarqube
 ```
 
-- `changes` decides whether the pull request touches the core: `src/core` except Markdown, the Dockerfile, `pyrightconfig.json`, `tools/typecheck`, the dev and test taskfiles, `tools/scripts`, the Docker Compose file and the Garage setup of `tools/infrastructure/garage`, the lint action or the workflow. It also decides whether to scan: on core changes, or on changes to `tools/odoo-intelligence`, the AI taskfile or `ci-tools`. The browser tests run on core changes and on changes to `src/tests`.
+- `changes` decides whether the pull request touches the core: `src/core` except Markdown, the Dockerfile, `pyrightconfig.json`, `tools/typecheck`, the dev and test taskfiles, `tools/scripts`, the Docker Compose file and the Garage setup of `tools/infrastructure/garage`, the lint action or the workflow. It also decides whether to scan: on core changes, runtime changes under the ONLYOFFICE deployment/monitor and verification tools, or changes to `tools/odoo-intelligence`, the AI taskfile or `ci-tools`. The browser tests run on core changes and on changes to `src/tests`.
 - A push to `main` skips `lint` and `e2e`, which already passed on the pull request. When the merge changes anything SonarQube scans, it runs `build`, the test runners, `coverage` and `sonarqube`, so SonarQube Cloud analyses all of `main` with full coverage after each merge; otherwise it runs nothing. That analysis is the project's overall view: its issues, coverage and quality gate on `main`, against which pull requests are compared.
 - A manual run ignores what `changes` decides and runs every job.
-- `lint` runs `task typecheck` and `task test:typecheck`, then `task test:openapi`, then pylint-odoo inside the Odoo image. A type error fails it; see [Python](../conventions/python.md#type-checking).
-- `task test:openapi` refuses a key that a mapping of the OpenAPI document of the laboratory files API defines twice, naming the key and its line, since YAML loaders silently keep the last value. It then lints the document with `openapi-spec-validator` and compares it with the document on `main` with oasdiff, in its image pinned by digest. A change that breaks the document, such as removing a field or a route, fails unless it gives the document a new `info.version`. The tests of the routes check their answers against the same document; see [Testing](../conventions/testing.md#odoo-module-tests).
+- `lint` runs `task typecheck` and `task test:typecheck`, then `task test:openapi`, then pylint-odoo inside the Odoo image. Typing preparation uses the pinned image and an owned temporary PostgreSQL database. Every type error or warning fails it; the original JSON and diagnostic counts are uploaded even after failure. See [Python](../conventions/python.md#type-checking).
+- `task test:openapi` lints the OpenAPI document of the laboratory files API with `openapi-spec-validator`, then compares it with the document on `main` with oasdiff, in its image pinned by digest. A change that breaks the document, such as removing a field or a route, fails unless it gives the document a new `info.version`. The tests of the routes check their answers against the same document; see [Testing](../conventions/testing.md#odoo-module-tests).
 - The test runners and `e2e` reach the laboratory files bucket of the Garage server that Docker Compose starts; `garage-setup` sets it up once per run, before the modules install. It also adds `laboratory-files-other`, which Odoo's key may not reach, and `laboratory-files-reconcile`, which only the reconciliation tests use and empty, since the shards share one server. Production has neither ([#202](https://github.com/SoltuneMontepre/medilab/issues/202)).
 - `build` builds the production image into the GitHub Actions build cache and does not push it.
 - Four test runners each build the image again from that cache and load it as `medilab-odoo:ci`, so the tests run on the image that ships, with its Python requirements. Each runs its own copy of the test database per shard, four shards at once, one per runner CPU, and uploads its raw coverage data as a `coverage-data-<n>` artifact. The runners skip when the change is not relevant.
@@ -42,8 +44,9 @@ flowchart LR
   - `test (install)` installs every module with coverage and runs the `sol_demo` tests: `task test:core TEST_MODULES=sol_demo`. It records the code that only runs while the modules install and checks that the demo data loads, alongside the other runners.
 - `e2e` builds the image from the same cache, installs every module with the demo data and starts Odoo with `task test:e2e:app`, then runs the Cypress browser tests with `task test:e2e`. When a step fails it prints the Odoo log.
 - `test` is the required check for the tests: it fails unless every runner and `e2e` passed.
-- `coverage` combines the coverage data of the four runners with `task test:core:coverage` and uploads the report as the `coverage` artifact.
-- `sonarqube` downloads the coverage report, scans with SonarQube Cloud and waits for the quality gate. A failed gate, including on coverage, fails the pipeline. A pull request that changes only the AI tooling skips `lint`, `build`, the test runners and `coverage`; `sonarqube` then scans without a coverage report, which is enough because `tools/**` is excluded from coverage.
+- `coverage` combines the coverage data of the four runners with `task test:core:coverage` and uploads the report as the `coverage` artifact. Independent callback HTTP workers inherit their parent tracing settings and save parallel data for the combined Odoo report.
+- `onlyoffice` runs `task test:onlyoffice:coverage` on core or runtime changes and publishes the runtime Python XML and signing-hook LCOV as `onlyoffice-coverage`. It starts after `changes`, in parallel with the Odoo build and tests, without waiting for the test runners or `coverage`. Its checkout fetches full history for the policy regression. `sonarqube` waits for both coverage jobs and fails if an applicable job did not succeed.
+- `sonarqube` downloads the applicable coverage reports, installs Mobile dependencies with pinned Bun 1.4.4 and lifecycle scripts disabled so Expo tsconfig inheritance resolves, scans with SonarQube Cloud and waits for the quality gate. A failed gate, including on coverage, fails the pipeline. A pull request that changes only the AI tooling skips `lint`, `build`, the test runners and `coverage`; `sonarqube` then scans without a coverage report, which is enough because `tools/**` is excluded from coverage.
 - A pull request from a fork cannot read secrets, so `sonarqube` fails on it with a message. Contributors push a branch to the repository instead.
 - Static assets, the applications, the tests, the tools, module manifests and migration scripts are excluded from SonarQube coverage in `sonar-project.properties`, because no coverage report exists for them; Odoo reads manifests as data, and the tests install the modules fresh, so they never run the lines of either. SonarQube's coverage figure therefore does not include the typecheck scripts in `tools/typecheck`; `task test:typecheck` tests them in `lint`, and SonarQube still reports issues and security hotspots in `tools/`.
 
@@ -62,8 +65,9 @@ Checks the developer tooling. `tools` is its required check: it fails unless `ai
 - Both read the `dev` Doppler config through the `DOPPLER_TOKEN` Actions secret; see [Secrets](secrets.md).
 - Both authenticate to HCP Terraform with the `TF_API_TOKEN` Actions secret.
 - The `ansible` job of `ci-infra` runs `ansible-lint` with the `production` profile inside the Ansible image and the origin isolation script's syntax and regression tests, when `infra/ansible/`, `tools/ansible/`, the script or its tests change. It uses no secrets and never reaches a node.
+- The `onlyoffice` job validates Kustomize candidates, core Kubernetes and pinned upstream CRD schemas, JWT/secret/network/storage contracts, native-worker policy drift, sender signing boundaries and the isolated Compose merge. It downloads checksum-verified validators and CRDs, uses no production credentials, and never reaches a cluster. The inherited Odoo Backup resource stays under its existing validation scope. These checks do not establish pinned-service or staging acceptance; see [ONLYOFFICE](onlyoffice.md).
 - The `cloudbeaver` job runs CloudBeaver 26.2.2 and PostgreSQL 18.4 container regressions, then a disposable kind Kubernetes 1.36.4 cluster with Traefik 3.7.13, when manifests, helpers or tests change. It uses synthetic credentials, local volumes and an explicitly isolated context, with no production access or secrets. It checks bootstrap classification, concurrent writers, immediate process termination, original-password login, preserved subjects/settings/connections/credentials, JSON ambiguity and escaping, authenticated readiness, PVC retention, Pod replacement, EndpointSlices and actual Service/IngressRoute availability. The Kubernetes harness refuses any context, API address or node identity outside its named disposable cluster.
-- `infrastructure` is the required check of `ci-infra`: it fails unless `terraform`, `ansible` and `cloudbeaver` all passed.
+- `infrastructure` is the required check of `ci-infra`: it fails unless `terraform`, `ansible`, `onlyoffice` and `cloudbeaver` passed.
 
 ## cd-ansible
 
@@ -85,31 +89,46 @@ Checks the developer tooling. `tools` is its required check: it fails unless `ai
 - No pull request trigger starts it, so a pull request never reaches the nodes or the `infra` secrets.
 - The kubeconfig is never printed in its log; see [Provisioning a node](../workflows/provisioning-node.md).
 
+## cd-reset
+
+`cd-reset` drops the production database and installs it again, such as when the company was installed with a chart or currency that Odoo no longer lets change.
+
+- It starts only by hand, from the Actions page, and does nothing unless its `confirm` input is `RESET`.
+- It runs in the `database-reset` environment: `main` only, and approval by a reviewer from the `ansible_apply_reviewers` variable in `infra/`. It builds the same Ansible image and reads the same `infra` config as `cd-ansible`, then runs `reset.yml` on a k3s server.
+- The `reset` role, `infra/ansible/roles/reset/files/reset.sh`, runs in order:
+  1. Takes the `medilab-db-reset` on-demand backup of the `medilab-db` cluster, replacing the previous one, and waits until it completes.
+  2. Drops the `medilab` database, closing Odoo's connections, and creates it again empty, owned by the `medilab` user.
+  3. Has Argo CD sync the `odoo` application from `main`, so its upgrade Job installs every module and the demo data on the empty database, and waits until the sync succeeds; see [Cluster](cluster.md#odoo).
+  4. Restarts Odoo, so no worker keeps the registry of the dropped database.
+  5. Fails unless the company's currency is VND and `sol_demo` is installed.
+- Odoo answers with errors from the drop until the restart. Every session ends, and the `demo.<role>` users get the password `demo` again.
+- The attachments of the dropped database stay in the filestore bucket until Odoo's autovacuum deletes them, since no attachment refers to them; see [Laboratory files](../specs/laboratory-files.md#filestore). Mailpit keeps its messages.
+
 ## ci-sync-app and cd-sync-app
 
 The sync app is the Tauri desktop client in `src/applications/medilab-sync`.
 
-When the app or the workflow changes, its jobs run at once after `changes`:
+When the Sync app, Mobile app, shared device OpenAPI document, application test tooling or workflow changes, its jobs run after `changes`:
 
 ```mermaid
 flowchart LR
     changes --> lint
     changes --> compile["compile (Linux), (Windows), (macOS)"] --> build
-    changes --> runners["test (frontend), (backend)"] --> test
+    changes --> runners["test-runner: task test:apps"] --> test
 ```
 
 `lint`, `build` and `test` are the required checks, the same names as in `ci-core`. When nothing relevant changed, they pass at once.
 
 - `lint` runs `cargo fmt --check`, the frontend type check with `tsc`, and Clippy with warnings as errors.
-- `compile` builds the frontend and then the app on Linux, Windows and macOS, so the code that compiles only on one platform, such as the keyring and autostart, is checked on each. Only these jobs build the frontend. `build` fails unless every `compile` passed.
-- `test (frontend)` runs `bun test` and `test (backend)` runs `cargo test`, side by side. `test` fails unless both passed.
-- The app embeds the built frontend when it compiles, so `lint` and `test (backend)` compile against an empty stand-in `dist/index.html` instead of building the frontend.
+- `compile` builds the frontend and then the app on Linux, Windows and macOS, so the code that compiles only on one platform, such as the keyring and autostart, is checked on each. The application test job also builds the frontend. `build` fails unless every `compile` passed.
+- `test-runner` installs Bun, Rust, Task and Linux Tauri libraries, builds the frontend, verifies Cargo availability and runs `task test:apps` from the repository root. This includes Sync frontend tests, locked Rust tests and Mobile tests. `test` fails unless this job passes.
+- The app embeds the built frontend when it compiles, so `lint` compiles against an empty stand-in `dist/index.html`; compilation and application tests use the built frontend.
 - A release starts by pushing a tag `filesync-v<version>`, such as `filesync-v1.2.3`. `cd-sync-app` writes that version into `package.json`, `tauri.conf.json` and `Cargo.toml` for the build only, so the repository keeps its own versions.
 - `package` builds on three runners at once: an NSIS installer on Windows, a DMG for Apple silicon on macOS, and deb and rpm packages on Linux. One failure stops the others.
 - `release` publishes the packages as a GitHub release for the tag, with notes generated from the merged pull requests. A version with a suffix, such as `1.2.3-rc.1`, is a pre-release.
 - The production Odoo address is built into the app from the `MEDILAB_SYNC_ODOO_URL` Actions variable. A tag build fails when it is not set or does not start with `https://`.
 - A manual run builds the packages without releasing them, to check a build before tagging.
-- The packages are not signed for automatic updates and are not uploaded to a bucket: the app checks for updates through an Odoo endpoint that does not exist yet.
+- The packages are not signed for automatic updates and are not uploaded to a bucket: the app checks the public Odoo updater, whose release catalog must be supplied only after artifact/signing-trust verification. See [Sync updates](../specs/sync-updates.md).
 
 ## ci-mobile-app
 

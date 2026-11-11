@@ -1,0 +1,224 @@
+# Candidate Grafana values; merge only after destination and rule acceptance.
+envValueFrom:
+  ONLYOFFICE_ALERT_WEBHOOK:
+    secretKeyRef:
+      name: onlyoffice-alerting
+      key: webhook
+alerting:
+  contactpoints.yaml:
+    apiVersion: 1
+    contactPoints:
+    - orgId: 1
+      name: onlyoffice-operators
+      receivers:
+      - uid: onlyoffice-operators
+        type: webhook
+        settings:
+          url: ${ONLYOFFICE_ALERT_WEBHOOK}
+  policies.yaml:
+    apiVersion: 1
+    policies:
+    - orgId: 1
+      receiver: onlyoffice-operators
+      group_by:
+      - grafana_folder
+      - alertname
+      group_wait: 10s
+      group_interval: 1m
+      repeat_interval: 30m
+  rules.yaml:
+    apiVersion: 1
+    groups:
+    - orgId: 1
+      name: ONLYOFFICE
+      folder: MediLab
+      interval: 1m
+      rules:
+      - uid: onlyoffice-down
+        title: onlyoffice-down
+        condition: C
+        for: 1m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          service: onlyoffice
+          severity: critical
+        annotations:
+          summary: ONLYOFFICE requires operator review
+          runbook_url: https://github.com/SoltuneMontepre/medilab/blob/main/docs/infrastructure/onlyoffice.md
+        data:
+        - refId: A
+          relativeTimeRange:
+            from: 180
+            to: 0
+          datasourceUid: loki
+          model:
+            refId: A
+            expr: sum(count_over_time({app="onlyoffice-monitor"} |= "onlyoffice_probe
+              healthy=0" [1m]))
+            queryType: instant
+            instant: true
+        - refId: C
+          relativeTimeRange:
+            from: 0
+            to: 0
+          datasourceUid: __expr__
+          model:
+            refId: C
+            type: threshold
+            expression: A
+            conditions:
+            - evaluator:
+                type: gt
+                params:
+                - 0
+              operator:
+                type: and
+              query:
+                params:
+                - C
+              reducer:
+                type: last
+                params: []
+              type: query
+      - uid: onlyoffice-probe-missing
+        title: onlyoffice-probe-missing
+        condition: C
+        for: 1m
+        noDataState: Alerting
+        execErrState: Alerting
+        labels:
+          service: onlyoffice
+          severity: critical
+        annotations:
+          summary: ONLYOFFICE requires operator review
+          runbook_url: https://github.com/SoltuneMontepre/medilab/blob/main/docs/infrastructure/onlyoffice.md
+        data:
+        - refId: A
+          relativeTimeRange:
+            from: 180
+            to: 0
+          datasourceUid: loki
+          model:
+            refId: A
+            expr: absent_over_time({app="onlyoffice-monitor"} |= "onlyoffice_probe"
+              [2m])
+            queryType: instant
+            instant: true
+        - refId: C
+          relativeTimeRange:
+            from: 0
+            to: 0
+          datasourceUid: __expr__
+          model:
+            refId: C
+            type: threshold
+            expression: A
+            conditions:
+            - evaluator:
+                type: gt
+                params:
+                - 0
+              operator:
+                type: and
+              query:
+                params:
+                - C
+              reducer:
+                type: last
+                params: []
+              type: query
+      - uid: onlyoffice-callback-failure
+        title: onlyoffice-callback-failure
+        condition: C
+        for: 1m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          service: onlyoffice
+          severity: critical
+        annotations:
+          summary: ONLYOFFICE requires operator review
+          runbook_url: https://github.com/SoltuneMontepre/medilab/blob/main/docs/infrastructure/onlyoffice.md
+        data:
+        - refId: A
+          relativeTimeRange:
+            from: 180
+            to: 0
+          datasourceUid: loki
+          model:
+            refId: A
+            expr: sum(count_over_time({app="odoo"} |~ "ONLYOFFICE callback .*outcome=(temporary_failure|concurrency_failure|internal_error|terminal_error|refused)"
+              [2m]))
+            queryType: instant
+            instant: true
+        - refId: C
+          relativeTimeRange:
+            from: 0
+            to: 0
+          datasourceUid: __expr__
+          model:
+            refId: C
+            type: threshold
+            expression: A
+            conditions:
+            - evaluator:
+                type: gt
+                params:
+                - 0
+              operator:
+                type: and
+              query:
+                params:
+                - C
+              reducer:
+                type: last
+                params: []
+              type: query
+      - uid: onlyoffice-reconciliation
+        title: onlyoffice-reconciliation
+        condition: C
+        for: 1m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          service: onlyoffice
+          severity: critical
+        annotations:
+          summary: ONLYOFFICE requires operator review
+          runbook_url: https://github.com/SoltuneMontepre/medilab/blob/main/docs/infrastructure/onlyoffice.md
+        data:
+        - refId: A
+          relativeTimeRange:
+            from: 180
+            to: 0
+          datasourceUid: loki
+          model:
+            refId: A
+            expr: sum(count_over_time({app="odoo"} |~ "(?i)(reconcil.*(error|missing|mismatch)|ONLYOFFICE.*(terminal|stale|unresolved))"
+              [2m]))
+            queryType: instant
+            instant: true
+        - refId: C
+          relativeTimeRange:
+            from: 0
+            to: 0
+          datasourceUid: __expr__
+          model:
+            refId: C
+            type: threshold
+            expression: A
+            conditions:
+            - evaluator:
+                type: gt
+                params:
+                - 0
+              operator:
+                type: and
+              query:
+                params:
+                - C
+              reducer:
+                type: last
+                params: []
+              type: query

@@ -29,6 +29,24 @@ pub fn is_odoo_auth_failure(err: &AppError) -> bool {
 pub enum AppError {
     #[error("{0}")]
     Message(String),
+    #[error("{0}")]
+    ClientUpdateRequired(crate::client_migration::MigrationRequired),
+    #[error("{message} ({code})")]
+    Api {
+        status: u16,
+        code: String,
+        message: String,
+        retry_after: Option<i64>,
+    },
+    #[error("Máy chủ đang xác minh nội dung tải lên")]
+    UploadPending,
+    #[error("Phiên tải lên đã hết hạn")]
+    UploadExpired,
+    #[error("Xác minh tải lên thất bại: {0}")]
+    UploadFailed(String),
+    #[error("Storage trả HTTP {0}")]
+    StorageStatus(u16),
+
     /// Odoo trả 401: API key hết hạn/bị thu hồi hoặc thiết bị bị thu hồi. Cần đăng nhập lại.
     #[error("Phiên đăng nhập đã hết hạn hoặc thiết bị đã bị thu hồi")]
     Unauthenticated,

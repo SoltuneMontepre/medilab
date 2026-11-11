@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Domain
@@ -11,9 +13,14 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_SIGNATURE,
 )
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_signature as SignatureBase
+else:
+    SignatureBase = object
+
 
 # Chữ Ký
-class Signature(models.Model):
+class Signature(models.Model, SignatureBase):
     _name = MODEL_SIGNATURE
     _inherit = [MODEL_PERMISSION_MIXIN]
     _description = "Signature"
@@ -21,43 +28,59 @@ class Signature(models.Model):
     # Signatures are given through the approval mixin and never edited or deleted on the screen.
     _permission_actions = ("read",)
 
-    # Technical name of the model of the signed document, such as sale.order.
-    document_model = fields.Char(string="Document Type", required=True)
-    # Id of the signed document.
-    document_id = fields.Integer(string="Document", required=True)
-    # Version of the document that was signed.
-    document_version = fields.Integer(required=True, default=1)
-    # SHA-256 of the content signed, for a document type whose content has one, such as a laboratory file version.
-    document_hash = fields.Char(string="Document Hash")
-    # The level signed at.
-    level_id = fields.Many2one(MODEL_APPROVAL_LEVEL, string="Level", required=True, ondelete="restrict")
-    # The person who signed.
-    signer_id = fields.Many2one(MODEL_PERSON, string="Signer", required=True, ondelete="restrict")
-    # Name of the signer at the time of signing.
-    signer_name = fields.Char(required=True)
-    # Name of the signer's role at the time of signing.
-    signer_role = fields.Char(required=True)
-    # Name of the level at the time of signing.
-    level_name = fields.Char(required=True)
-    # Whether the signer signed or rejected the document.
-    decision = fields.Selection([(DECISION_SIGNED, "Signed"), (DECISION_REJECTED, "Rejected")], required=True)
-    # Reason the signer gave for a rejection.
-    reason = fields.Text()
-    # When the signer withdrew the signature; empty while it stands.
-    withdrawn_at = fields.Datetime()
+    if not TYPE_CHECKING:
+        # Technical name of the model of the signed document, such as medilab.test.result.
+        document_model = fields.Char(string="Document Type", required=True)
+        # Id of the signed document.
+        document_id = fields.Integer(string="Document", required=True)
+        # Version of the document that was signed.
+        document_version = fields.Integer(required=True, default=1)
+        # SHA-256 of the content signed, for a document type whose content has one, such as a laboratory file version.
+        document_hash = fields.Char(string="Document Hash")
+        # The level signed at.
+        level_id = fields.Many2one(MODEL_APPROVAL_LEVEL, string="Level", required=True, ondelete="restrict")
+        # The person who signed.
+        signer_id = fields.Many2one(MODEL_PERSON, string="Signer", required=True, ondelete="restrict")
+        # Name of the signer at the time of signing.
+        signer_name = fields.Char(required=True)
+        # Name of the role the signer signed with at the time: the level's own, or a later level's that signed it in
+        # the signer's own name.
+        signer_role = fields.Char(required=True)
+        # Name of the level at the time of signing.
+        level_name = fields.Char(required=True)
+        # Whether the signer signed or rejected the document.
+        decision = fields.Selection([(DECISION_SIGNED, "Signed"), (DECISION_REJECTED, "Rejected")], required=True)
+        # Reason the signer gave for a rejection.
+        reason = fields.Text()
+        # When the signer withdrew the signature; empty while it stands.
+        withdrawn_at = fields.Datetime()
 
     _document_idx = models.Index("(document_model, document_id)")
 
     @api.constrains("decision", "reason")
     def _check_rejection_reason(self):
         for signature in self:
-            if signature.decision == DECISION_REJECTED and not (signature.reason or "").strip():
+            if signature.decision == DECISION_REJECTED and not ((signature.reason or "").strip()):
                 raise ValidationError(self.env._("A rejection needs a reason."))
 
     @api.depends("signer_name", "level_name")
     def _compute_display_name(self):
         for signature in self:
             signature.display_name = f"{signature.signer_name} - {signature.level_name}"
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        # A signature is given in force, whatever default the context carries.
+        for vals in vals_list:
+            if vals.get("withdrawn_at"):
+                raise UserError(self.env._("A signature is given in force; only withdrawing it records a withdrawal."))
+            vals["withdrawn_at"] = False
+        return super().create(vals_list)
+
+    def write(self, vals):
+        # A signature proves what was signed, so even full rights cannot change it; _record_withdrawal records its
+        # withdrawal.
+        raise UserError(self.env._("A signature cannot be changed once it is given."))
 
     def unlink(self):
         # Only uninstalling the module removes signatures.
@@ -73,7 +96,14 @@ class Signature(models.Model):
     def _withdraw(self, process_completed=False):
         for signature in self:
             signature._check_withdrawable(process_completed)
-        self.sudo().write({"withdrawn_at": fields.Datetime.now()})
+        self._record_withdrawal()
+
+    def _record_withdrawal(self):
+        # The only way a signature's withdrawal is recorded: once, at the current time, past the refusal of write.
+        signatures = self.sudo()
+        if signatures.filtered("withdrawn_at"):
+            raise UserError(self.env._("This signature is already withdrawn."))
+        super(Signature, signatures).write({"withdrawn_at": fields.Datetime.now()})
 
     def _check_withdrawable(self, process_completed=False):
         self.ensure_one()

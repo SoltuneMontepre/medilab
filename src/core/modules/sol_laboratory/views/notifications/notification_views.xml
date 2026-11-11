@@ -21,8 +21,8 @@
                 <sheet>
                     <group>
                         <field name="name" />
-                        <field name="code" />
-                        <field name="mandatory" />
+                        <field name="code" readonly="mandatory" />
+                        <field name="mandatory" readonly="mandatory" />
                         <field name="enabled" readonly="mandatory" />
                         <field name="res_model" />
                     </group>
@@ -52,7 +52,8 @@
         <field name="name">medilab.mobile.device.list</field>
         <field name="model">medilab.mobile.device</field>
         <field name="arch" type="xml">
-            <list>
+            <list create="0">
+                <field name="laboratory_device_id" />
                 <field name="user_id" />
                 <field name="platform" />
                 <field name="last_seen_at" />

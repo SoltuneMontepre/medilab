@@ -78,8 +78,8 @@
             height: 100%;
         }
 
-        .o_nav_entry,
-        .dropdown-toggle:not(.o-dropdown-toggle-custo) {
+        .o_nav_entry:not(.d-none),
+        .dropdown-toggle:not(.o-dropdown-toggle-custo, .d-none) {
             background: transparent !important;
             border-color: transparent !important;
             border-radius: 0 !important;

@@ -9,6 +9,7 @@ import subprocess
 import sys
 
 import yaml
+from local_private_paths import ensure_local_directory
 
 # Where the two documents are written for oasdiff, which reads them from a mounted folder.
 WORK_DIR = pathlib.Path(".local/openapi")
@@ -32,7 +33,8 @@ def main(document, image, base):
             f"The document's version changes from {old_version} to {new_version}, so it may break the old one."
         )
         return 0
-    WORK_DIR.mkdir(parents=True, exist_ok=True)
+    root = pathlib.Path.cwd().resolve()
+    ensure_local_directory(root, root / WORK_DIR)
     (WORK_DIR / "base.yaml").write_text(shown.stdout, encoding="utf-8")
     (WORK_DIR / "revision.yaml").write_text(revision, encoding="utf-8")
     command = [

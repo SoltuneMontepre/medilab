@@ -28,6 +28,7 @@ from odoo.addons.sol_laboratory.constants.laboratory_uploads import (
     UPLOAD_CLOSED,
     UPLOAD_INCOMPLETE,
 )
+from odoo.addons.sol_laboratory.constants.medilab_mobile import MANDATORY_EVENT
 
 # Every route of the API is under this path.
 API_PREFIX = "/medilab/api/v1"
@@ -51,6 +52,7 @@ ERROR_STATUSES = {
     NOT_LOCKABLE: 422,
     NOT_EDITABLE: 422,
     IDEMPOTENCY_CONFLICT: 422,
+    MANDATORY_EVENT: 422,
     TOO_MANY_ATTEMPTS: 429,
     INTERNAL_ERROR: 500,
     TRY_AGAIN: 503,

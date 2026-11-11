@@ -3,10 +3,13 @@ from odoo.fields import Command
 from .common import MasterDataCase
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_CUSTOMER,
+    MODEL_PERMISSION,
     MODEL_PERSON,
     MODEL_SAMPLE_TYPE,
     MODEL_TEST_REQUEST,
 )
+from odoo.addons.sol_laboratory.services.model_lookup import reference_as
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 
 class RequestCase(MasterDataCase):
@@ -17,6 +20,7 @@ class RequestCase(MasterDataCase):
         super().setUpClass()
         cls.customer = cls.env[MODEL_CUSTOMER].create({"name": "An Phu Beverage Co., Ltd.", "is_company": True})
         cls.sample_type = cls.env[MODEL_SAMPLE_TYPE].create({"name": "Bottled drinking water"})
+        cls.applicability = cls.offer(cls.parameter, cls.sample_type)
         cls.request = cls.create_request()
         cls.sample = cls.request.sample_ids
 
@@ -49,7 +53,11 @@ class RequestCase(MasterDataCase):
                 "permission_ids": [
                     Command.set(
                         [
-                            self.env.ref(f"sol_laboratory.permission_sample_{action}_all").id
+                            persisted_id(
+                                reference_as(
+                                    self.env[MODEL_PERMISSION], f"sol_laboratory.permission_sample_{action}_all"
+                                )
+                            )
                             for action in ("read", "edit")
                         ]
                     )

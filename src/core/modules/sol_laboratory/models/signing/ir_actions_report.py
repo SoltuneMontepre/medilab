@@ -1,12 +1,20 @@
+from typing import TYPE_CHECKING
+
 from odoo import models
 from odoo.exceptions import UserError
 
-from odoo.addons.sol_laboratory.constants.models import MODEL_IR_ACTIONS_REPORT
+from odoo.addons.sol_laboratory.constants.models import MODEL_DIGITAL_SIGNING_MIXIN, MODEL_IR_ACTIONS_REPORT
 from odoo.addons.sol_laboratory.constants.signing import UNSIGNED_PRINT_CONTEXT
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model, record_as
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_ir_actions_report as IrActionsReportBase
+else:
+    IrActionsReportBase = object
 
 
 # Báo Cáo In: a fully signed document prints as its digitally signed PDF.
-class IrActionsReport(models.Model):
+class IrActionsReport(models.Model, IrActionsReportBase):
     _inherit = MODEL_IR_ACTIONS_REPORT
 
     def _render_qweb_pdf(self, report_ref, res_ids=None, data=None):
@@ -24,10 +32,11 @@ class IrActionsReport(models.Model):
         if not res_ids or self.env.context.get(UNSIGNED_PRINT_CONTEXT):
             return None
         report = self._get_report(report_ref)
-        documents = self.env[report.model].browse([res_ids] if isinstance(res_ids, int) else res_ids)
+        documents = dynamic_model(self.env, report.model).browse([res_ids] if isinstance(res_ids, int) else res_ids)
         xml_id = getattr(documents, "_digital_signing_report", None)
         if not xml_id or self.env.ref(xml_id, raise_if_not_found=False) != report:
             return None
+        documents = record_as(documents, self.env[MODEL_DIGITAL_SIGNING_MIXIN])
         if not documents._digital_signing_enabled() or all(document._digital_signing_draft() for document in documents):
             return None
         return documents

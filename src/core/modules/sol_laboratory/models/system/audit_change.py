@@ -1,35 +1,44 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.tools import SQL
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_CHANGE, MODEL_AUDIT_ENTRY, MODEL_AUDIT_MIXIN
 from odoo.addons.sol_laboratory.models.mixins.audit_mixin import mask_text
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_audit_change as AuditChangeBase
+else:
+    AuditChangeBase = object
 
 NO_VALUE = "—"
 
 
 # Thay Đổi Dữ Liệu
-class AuditChange(models.Model):
+class AuditChange(models.Model, AuditChangeBase):
     _name = MODEL_AUDIT_CHANGE
     _description = "Audit Change"
     _order = "entry_id, id"
 
-    # The audit entry the change belongs to.
-    entry_id = fields.Many2one(MODEL_AUDIT_ENTRY, required=True, readonly=True, ondelete="restrict", index=True)
-    # Technical name of the field changed.
-    field_name = fields.Char(required=True, readonly=True)
-    # Value before the change, as text.
-    old_value = fields.Text(readonly=True)
-    # Value after the change, as text.
-    new_value = fields.Text(readonly=True)
-    # Label of the field changed, in the reader's language.
-    field_label = fields.Char(string="Field", compute="_compute_field_label")
+    if not TYPE_CHECKING:
+        # The audit entry the change belongs to.
+        entry_id = fields.Many2one(MODEL_AUDIT_ENTRY, required=True, readonly=True, ondelete="restrict", index=True)
+        # Technical name of the field changed.
+        field_name = fields.Char(required=True, readonly=True)
+        # Value before the change, as text.
+        old_value = fields.Text(readonly=True)
+        # Value after the change, as text.
+        new_value = fields.Text(readonly=True)
+        # Label of the field changed, in the reader's language.
+        field_label = fields.Char(string="Field", compute="_compute_field_label")
 
     @api.depends("entry_id.document_model", "field_name")
     def _compute_field_label(self):
         for change in self:
             model = change.entry_id.document_model
-            field = self.env[model]._fields.get(change.field_name) if model in self.env else None
+            field = dynamic_model(self.env, model)._fields.get(change.field_name or "") if model in self.env else None
             change.field_label = field._description_string(self.env) if field else change.field_name
 
     @api.depends("field_label", "old_value", "new_value")
@@ -64,7 +73,7 @@ class AuditChange(models.Model):
                 **tables,
             )
         )
-        mixin = self.env.registry[MODEL_AUDIT_MIXIN]
+        mixin = type(self.env[MODEL_AUDIT_MIXIN])
         for model_name, field_name in self.env.cr.fetchall():
             documents = self.env.get(model_name)
             if not isinstance(documents, mixin) or field_name not in documents._fields:

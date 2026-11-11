@@ -4,6 +4,7 @@ from odoo.tools.safe_eval import safe_eval, time
 
 from .purchasing_case import PurchasingCase
 from odoo.addons.sol_inventory.constants.xml_ids import CONTAINER_LABEL_REPORT, SMALL_CONTAINER_LABEL_REPORT
+from odoo.addons.sol_laboratory.services.model_lookup import reference_as
 
 
 @tagged("post_install", "-at_install")
@@ -36,5 +37,8 @@ class TestContainerLabels(PurchasingCase):
         # Odoo names a downloaded report only when it holds one record, and gives the name only that record.
         container = self.receipt.container_ids[:1]
         for report in (CONTAINER_LABEL_REPORT, SMALL_CONTAINER_LABEL_REPORT):
-            name = safe_eval(self.env.ref(report).print_report_name, {"object": container, "time": time})
+            name = safe_eval(
+                reference_as(self.env["ir.actions.report"], report).print_report_name,
+                {"object": container, "time": time},
+            )
             self.assertEqual(name, f"Labels {container.name}")

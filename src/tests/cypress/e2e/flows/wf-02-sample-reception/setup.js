@@ -26,9 +26,9 @@ function readRequest(id) {
   );
 }
 
-// The test request of an approved and paid order, confirmed by sample delivery staff, its samples expected.
+// The test request of a confirmed and paid order, confirmed by sample delivery staff, its samples expected.
 export function orderRequest() {
-  return orderAt("approved")
+  return orderAt("confirmed")
     .then((order) => callAs(SALES, "sale.order", "read", [[order.id], ["test_request_id"]]))
     .then(([order]) => {
       const id = order.test_request_id[0];

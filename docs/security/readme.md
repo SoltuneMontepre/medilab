@@ -7,18 +7,21 @@ What each role may do. Roles and their permissions are defined by administrators
 Rules that hold for everyone, whatever their roles and permissions:
 
 - A signed document cannot be edited, archived or deleted ([SH-07](../functional/shared.md#sh-07-signed-documents-are-locked)).
+- Signatures are never changed once given; only their withdrawal is recorded, once.
 - Signatures, results, people who have signed a document, test parameters, parameter and method pairs, subcontractors, stock items and suppliers are never deleted. Audit entries are never deleted by anyone; only the cleanup job removes them after the audit retention period.
 - Permissions are enforced in the API and in the interface; a person does not see menus, records, fields or buttons for what they are not allowed to do.
+- A page never shows text taken from its address, such as an error message in the URL; every message it shows comes from the system.
 
 ## Permissions
 
-A permission is an action on a document type: read, create, edit, archive, delete or sign, on every record, only those of the person's department or only those of the person's team. A role is a set of permissions. A person holds roles and can be given extra permissions directly. The administrator role is the exception: it holds every permission.
+A permission is an action on a document type: read, create, edit, archive, delete, sign or invoice, on every record, only those of the person's department or only those of the person's team. A role is a set of permissions. A person holds roles and can be given extra permissions directly. The administrator role is the exception: it holds every permission.
 
 Odoo enforces permissions: each permission becomes Odoo groups and accesses, so the API and the interface follow it. Only administrators assign roles and permissions. [Permissions](../specs/permissions.md) specifies the mechanism.
 
 One document per role, in `permissions/<role>.md`.
 
 - [Administrator](permissions/admin.md): every permission, as Odoo's default administrator
+- [Head of department](permissions/head-of-department.md): the testing work of their department
 
 ## Related documents
 

@@ -6,6 +6,7 @@ from odoo.tests import new_test_user, tagged
 
 from .common import MasterDataCase
 from odoo.addons.sol_laboratory.constants.models import MODEL_TEST_PARAMETER
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 PARAMETER_EDITOR_GROUPS = (
     "base.group_user,"
@@ -33,17 +34,17 @@ class TestWaysOfTestingList(MasterDataCase):
     def test_active_toggle_archives_and_restores_a_way_of_testing_from_the_form(self):
         parameter = self.parameter.with_user(self.editor)
 
-        parameter.write({"method_ids": [Command.update(self.pair.id, {"active": False})]})
+        parameter.write({"method_ids": [Command.update(persisted_id(self.pair), {"active": False})]})
         self.assertFalse(self.pair.active)
 
-        parameter.write({"method_ids": [Command.update(self.pair.id, {"active": True})]})
+        parameter.write({"method_ids": [Command.update(persisted_id(self.pair), {"active": True})]})
         self.assertTrue(self.pair.active)
 
     def test_commands_of_the_parameter_never_delete_a_way_of_testing(self):
         administrator = self.env.ref("base.user_admin")
         commands = {
-            "delete": Command.delete(self.pair.id),
-            "unlink": Command.unlink(self.pair.id),
+            "delete": Command.delete(persisted_id(self.pair)),
+            "unlink": Command.unlink(persisted_id(self.pair)),
             "clear": Command.clear(),
         }
         for user in (self.editor, administrator):
