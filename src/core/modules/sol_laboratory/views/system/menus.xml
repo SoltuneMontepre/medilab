@@ -90,6 +90,12 @@
         <menuitem id="menu_laboratory_configuration" name="Configuration" sequence="100">
             <menuitem id="menu_settings" action="action_medilab_settings" sequence="0" groups="base.group_system" />
             <menuitem
+                id="menu_public_holiday"
+                action="action_medilab_public_holiday"
+                sequence="5"
+                groups="base.group_system"
+            />
+            <menuitem
                 id="menu_signing_certificate"
                 action="action_medilab_signing_certificate"
                 sequence="10"
@@ -100,6 +106,12 @@
                 action="action_medilab_digital_signature"
                 sequence="20"
                 groups="group_permission_digital_signature_read_all"
+            />
+            <menuitem
+                id="menu_report_template"
+                action="action_medilab_report_template"
+                sequence="30"
+                groups="group_permission_report_template_read_all"
             />
         </menuitem>
     </menuitem>

@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: MediLab laboratory files API
-  version: 1.6.0
+  version: 1.7.0
   description: |
     The API Medilab Sync signs computers in with and reaches laboratory files through, and Medilab Mobile signs phones
     in with. Every refusal answers `{"error": {"code", "message"}}` with the HTTP status of its code; a device acts on
@@ -1869,7 +1869,7 @@ components:
         number:
           type: integer
         source:
-          enum: [synced, conflict, restored, edited_online]
+          enum: [synced, conflict, restored, edited_online, generated]
         size:
           type: integer
           minimum: 0
