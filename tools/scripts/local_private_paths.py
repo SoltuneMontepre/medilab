@@ -3,6 +3,10 @@
 The checkout is trusted executable code. Its .local subtree must remain owned and
 unwritable by other users before private files are opened. OS administrators are
 already trusted on Windows; this check grants them no additional permissions.
+On Windows a directory owned by the current user, or by Administrators under an
+elevated token, whose only untrusted writers are inherited, such as a drive-wide
+grant to Authenticated Users, is repaired to the current user and SYSTEM instead
+of refused.
 """
 
 import argparse
@@ -15,6 +19,7 @@ import sys
 from pathlib import Path
 
 ERROR = "Local state path integrity cannot be verified; preserve data and review owner/write permissions."
+REPAIRED = "Repaired inherited permissions on {path}: access is now limited to the current user and SYSTEM."
 WINDOWS_ACL = r"""
 $ErrorActionPreference='Stop'
 Import-Module -Name (Join-Path $PSHOME 'Modules\Microsoft.PowerShell.Security\Microsoft.PowerShell.Security.psd1') -ErrorAction Stop
@@ -35,7 +40,7 @@ if($env:MEDILAB_ONLYOFFICE_ACL_PROTECT -eq '1') {
     $rule=New-Object Security.AccessControl.FileSystemAccessRule($identity,'FullControl',$flags,'None','Allow')
     $a.AddAccessRule($rule)
   }
-  Set-Acl -LiteralPath $p -AclObject $a
+  (Get-Item -LiteralPath $p -Force).SetAccessControl($a)
 }
 $a=Get-Acl -LiteralPath $p
 if(-not $a.AreAccessRulesProtected){exit 1}
@@ -47,18 +52,42 @@ foreach($rule in $a.GetAccessRules($true,$true,[Security.Principal.SecurityIdent
 WINDOWS_ANCESTORS = r"""
 $ErrorActionPreference='Stop'
 Import-Module -Name (Join-Path $PSHOME 'Modules\Microsoft.PowerShell.Security\Microsoft.PowerShell.Security.psd1') -ErrorAction Stop
-$u=[Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+$identity=[Security.Principal.WindowsIdentity]::GetCurrent()
+$u=$identity.User.Value
 $trusted=@($u,'S-1-5-18','S-1-5-32-544')
+$own=@($u)
+if(([Security.Principal.WindowsPrincipal]$identity).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)){$own+='S-1-5-32-544'}
 $mutation=2 -bor 4 -bor 16 -bor 64 -bor 256 -bor 65536 -bor 262144 -bor 524288 -bor 0x40000000 -bor 0x10000000
+function Get-UntrustedWriters($a) {
+  @($a.GetAccessRules($true,$true,[Security.Principal.SecurityIdentifier]) | Where-Object {
+    $_.AccessControlType -eq 'Allow' -and
+    ($_.PropagationFlags -band [Security.AccessControl.PropagationFlags]::InheritOnly) -eq 0 -and
+    $_.IdentityReference.Value -notin $trusted -and
+    ([int64]$_.FileSystemRights -band $mutation) -ne 0
+  })
+}
+$index=-1
 foreach($p in (ConvertFrom-Json $env:MEDILAB_LOCAL_STATE_PATHS)) {
+  $index++
   $a=Get-Acl -LiteralPath $p
-  if($a.GetOwner([Security.Principal.SecurityIdentifier]).Value -notin $trusted){exit 1}
-  foreach($r in $a.GetAccessRules($true,$true,[Security.Principal.SecurityIdentifier])) {
-    if($r.AccessControlType -eq 'Allow' -and
-       ($r.PropagationFlags -band [Security.AccessControl.PropagationFlags]::InheritOnly) -eq 0 -and
-       $r.IdentityReference.Value -notin $trusted -and
-       ([int64]$r.FileSystemRights -band $mutation) -ne 0){exit 1}
+  $owner=$a.GetOwner([Security.Principal.SecurityIdentifier]).Value
+  if($owner -notin $trusted){exit 1}
+  $writers=Get-UntrustedWriters $a
+  if($writers.Count -eq 0){continue}
+  $item=Get-Item -LiteralPath $p -Force
+  if($owner -notin $own -or $a.AreAccessRulesProtected -or -not $item.PSIsContainer -or
+     ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -or
+     @($writers | Where-Object { -not $_.IsInherited }).Count){exit 1}
+  $private=New-Object Security.AccessControl.DirectorySecurity
+  $private.SetAccessRuleProtection($true,$false)
+  foreach($sid in @($u,'S-1-5-18')) {
+    $trustee=New-Object Security.Principal.SecurityIdentifier($sid)
+    $rule=New-Object Security.AccessControl.FileSystemAccessRule($trustee,'FullControl','ContainerInherit,ObjectInherit','None','Allow')
+    $private.AddAccessRule($rule)
   }
+  (Get-Item -LiteralPath $p -Force).SetAccessControl($private)
+  if((Get-UntrustedWriters (Get-Acl -LiteralPath $p)).Count){exit 1}
+  [Console]::Out.WriteLine($index)
 }
 """
 
@@ -86,6 +115,7 @@ def _powershell(script, environment, *, invoke=None):
         raise LocalPrivatePathError(ERROR) from None
     if result.returncode:
         raise LocalPrivatePathError(ERROR)
+    return result.stdout
 
 
 def windows_private_acl(path, *, create=False, invoke=None):
@@ -145,11 +175,13 @@ def guard_local_path(root, path):
             _check_existing_item(item, info, index == len(chain) - 1)
             existing.append(str(item))
         if os.name == "nt" and existing:
-            _powershell(
+            repaired = _powershell(
                 WINDOWS_ANCESTORS,
                 dict(os.environ, MEDILAB_LOCAL_STATE_PATHS=json.dumps(existing)),
             )
-    except OSError:
+            for item in [existing[int(index)] for index in repaired.split()]:
+                sys.stderr.write(REPAIRED.format(path=item) + "\n")
+    except (OSError, ValueError, IndexError):
         raise LocalPrivatePathError(ERROR) from None
     return path
 

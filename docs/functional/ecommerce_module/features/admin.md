@@ -27,6 +27,7 @@ E-commerce keeps prices, taxes and packages in its own tables and does not add c
 | Parameter price    | A parameter has one price, excluding VAT, the same whichever method tests it, whichever sample type it is tested on and whether a subcontractor tests it. Groups do not set a price. |
 | Tax                | Every parameter price and package has one tax, such as VAT 10% or not subject to VAT. Tax is added on quotations and invoices, never in the cart.         |
 | Tax rate over time | A tax's rate is recorded with the period it applies, so a rate change, such as a temporary VAT reduction, is a new period. The periods of one tax do not overlap. A quotation uses the rate in force on its date, and its invoices use the quotation's rates. |
+| Accounting tax     | Each rate period gives quotation and invoice lines a sales tax of the chart of accounts with the same percent: the one the administrator chooses on the period, otherwise the first sales tax of that percent. A tax coded KCT, not subject to VAT, takes the chart's VAT exemption tax, which invoices print as KCT. |
 | Currency           | All prices are in VND.                                                                                                                                   |
 | Special prices     | There are no customer price lists. Special prices, such as for partners or promotions, are discounts sales gives on the quotation.                     |
 | Tax on a quotation | A quotation line takes the tax of its parameter or package. Sales can change it on the quotation, such as 0% for a foreign customer.                    |
@@ -38,6 +39,9 @@ Acceptance criteria:
 - A parameter without a price and tax cannot be added to a cart or quotation.
 - A quotation dated during a reduced VAT period shows the reduced rate; one dated after it shows the normal rate.
 - An invoice posted after a reduced VAT period ends keeps the reduced rate of its quotation.
+- A rate period whose chosen accounting tax has another percent is refused with a message.
+- A quotation line whose rate has no sales tax of its percent in the chart of accounts is refused with a message.
+- A cart line whose tax has no rate on the day is added without tax; sending its quotation gives it the tax, or tells sales which rate is missing.
 - Adding a second rate period that overlaps an existing one for the same tax is refused with a message.
 - A tax that an active parameter price or package uses cannot be archived; the message lists them.
 - A tax that nothing refers to can be deleted, together with its rates.

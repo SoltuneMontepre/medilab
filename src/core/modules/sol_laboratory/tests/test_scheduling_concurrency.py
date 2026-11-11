@@ -12,6 +12,8 @@ from odoo.addons.sol_laboratory.constants.models import MODEL_MACHINE_BOOKING, M
 class TestSchedulingConcurrency(SchedulingConcurrencyCase):
     def test_two_people_claiming_one_task_commit_one_assignee(self):
         task_id = self.task_ids[0]
+        before = self.committed(self.graph)
+        self.assertEqual((before["tasks"][0]["status"], before["tests"][0]["status"]), ("open", "waiting"))
 
         def claim(number):
             def action(env):
@@ -33,6 +35,8 @@ class TestSchedulingConcurrency(SchedulingConcurrencyCase):
         self.assertEqual(task["status"], "assigned")
         self.assertEqual(task["assignee_id"][0], winners[0])
         self.assertEqual(task["assigned_by_id"][0], winners[0])
+        self.assertEqual(graph["tests"][0]["status"], "assigned")
+        self.assertEqual((graph["tasks"][1], graph["tests"][1]), (before["tasks"][1], before["tests"][1]))
         self.assertFalse(graph["bookings"])
         self.assertFalse(graph["events"])
         self.assertFalse(graph["messages"])
@@ -40,6 +44,7 @@ class TestSchedulingConcurrency(SchedulingConcurrencyCase):
             entry for entry in graph["audit"] if entry["document_id"] == task_id and entry["action"] == "edit"
         ]
         self.assertEqual(len(assignments), 1)
+        self.committed(self.assert_committed_invariants)
 
     def test_two_schedule_requests_for_one_test_commit_one_booking(self):
         self.committed(self.assign)
@@ -167,28 +172,3 @@ class TestSchedulingConcurrency(SchedulingConcurrencyCase):
                     [event for event in after["events"] if event["id"] in protected],
                     [event for event in before["events"] if event["id"] in protected],
                 )
-
-    @staticmethod
-    def values(argument):
-        return [argument] if isinstance(argument, dict) else argument
-
-    def assert_consistent_booking(self, graph, number):
-        task = graph["tasks"][number]
-        [booking] = [booking for booking in graph["bookings"] if booking["person_id"][0] == self.person_ids[number]]
-        self.assertEqual(booking["status"], "scheduled")
-        self.assertEqual(booking["machine_id"][0], self.machine_id)
-        self.assertEqual(task["status"], "assigned")
-        self.assertEqual(task["assignee_id"][0], self.person_ids[number])
-        self.assertEqual(graph["tests"][number]["status"], "assigned")
-        self.assertEqual((task["planned_start"], task["planned_end"]), (booking["starts_at"], booking["ends_at"]))
-        [event] = [event for event in graph["events"] if event["id"] == booking["calendar_event_id"][0]]
-        self.assertEqual((event["start"], event["stop"]), (booking["starts_at"], booking["ends_at"]))
-        self.assertEqual(event["user_id"][0], self.user_ids[number])
-        self.assertEqual(event["partner_ids"], [self.partner_ids[number]])
-        [room] = [event for event in graph["events"] if event["id"] in booking["room_event_ids"]]
-        self.assertEqual(room["location_id"][0], self.room_id)
-        self.assertEqual(room["machine_booking_id"][0], booking["id"])
-        self.assertEqual(room["start"], booking["starts_at"])
-        self.assertEqual(room["stop"] - room["start"], timedelta(minutes=30))
-        self.assertEqual(room["user_id"][0], self.user_ids[number])
-        self.assertEqual(room["partner_ids"], [self.partner_ids[number]])

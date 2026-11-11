@@ -58,8 +58,7 @@ Each document keeps its own status. Tasks keep their own generic lifecycle ([SH-
 stateDiagram-v2
     [*] --> draft
     draft --> confirmed: request confirmed
-    confirmed --> paid: payment received or customer allowed credit
-    confirmed --> sample_received: no payment step
+    confirmed --> paid: at once, as confirming needs the payment or credit
     paid --> sample_received: first sample received
     sample_received --> testing: first sample test started
     testing --> awaiting_approval: every remaining test has its reported result sent for approval
@@ -75,7 +74,8 @@ stateDiagram-v2
     testing --> cancelled
 ```
 
-- Only the request of an order goes through the paid step, which E-commerce sets. A request sample delivery staff create goes straight from confirmed to sample received.
+- With E-commerce, every test request comes from an order sales confirmed and goes through the paid step, which E-commerce sets: confirming it needs the order's advance paid in full or the customer allowed credit, so a confirmed request is paid at once.
+- Creating a test request directly, with the permission `test_request.create.all`, is a temporary shortcut for developers to set up flows. It is removed once every browser test and demo record creates its test requests from orders ([#485](https://github.com/SoltuneMontepre/medilab/issues/485)).
 
 ### Sample
 
@@ -131,9 +131,14 @@ stateDiagram-v2
 stateDiagram-v2
     [*] --> draft: every sample test of the request approved or cancelled
     draft --> signing: a level of a longer chain signs
-    draft --> issued: the last level signs
-    signing --> issued: the last level signs
+    draft --> issued: the last level signs and the PDF is stored
+    signing --> issued: the last level signs and the PDF is stored
     signing --> draft: withdrawal, rejection or result correction
+    draft --> pending_signing: the last level signs and digital signing fails
+    signing --> pending_signing: the last level signs and digital signing fails
+    pending_signing --> issued: a retry stores the digitally signed PDF
+    pending_signing --> draft: withdrawal or result correction
+    pending_signing --> signing: withdrawal of the last level of a longer chain
     issued --> replaced: the signed replacement is issued
 ```
 
@@ -205,7 +210,7 @@ Signing follows [Approval and signing chain](../../business/approval-and-signing
 | Signature       | A signature records the document and its version, the level, the signer and, as they were at signing, the signer's name, role and level name. A rejection records its reason. |
 | Withdrawal      | A withdrawn signature is kept with the time it was withdrawn; signature records are never deleted.                               |
 | People          | A person is someone who works for the laboratory, maintained by the administrator. Their details are their contact; if they sign in, they have an Odoo user. |
-| Permissions     | A permission is an action on a document type (read, create, edit, archive, delete or sign) on every record, only those of the person's department or only those of the person's team. |
+| Permissions     | A permission is an action on a document type (read, create, edit, archive, delete, sign or invoice) on every record, only those of the person's department or only those of the person's team. |
 | Roles           | A role is a set of permissions the administrator defines. A person holds roles and can also be given permissions directly; they have every permission of their roles plus their own. |
 | Enforcement     | Permissions are enforced in the API and in the interface: a person does not see menus, records, fields or buttons for what they are not allowed to do. |
 | Global rules    | Some rules hold for everyone whatever their permissions, such as a signed document not being edited, archived or deleted. See [Security](../../security/readme.md). |
@@ -232,9 +237,9 @@ flowchart LR
 
 | Rule               | Description                                                                                                                                     |
 | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| Testing tasks      | When a sample is received, the system creates a testing task for each sample test and puts it in the queue of the department that does the work. |
+| Testing tasks      | When a sample is received, the system creates a testing task for each sample test and puts it in the queue of the department that does the work. A test the customer accepted on a subcontracted way goes to the department of its parameter's default in-house way, which outsources it. |
 | Assignment | Testing tasks queue by department, not by team. The Head of Department assigns a single task or all of a sample's tasks in that department to an authorized tester; authorized testers may claim unassigned tasks. Lab Head maintains the person-to-parameter authorization list, without start or end dates. Reassignment needs a reason. Scheduling checks membership of this list. |
-| Due date | The test request carries the customer's requested date and the committed return date. On a request without an order, the committed date defaults to the requested date when the laboratory can meet it, otherwise to the return estimate; only Sales changes it, with the customer's agreement. The customer never sees an internal due date. Each sample test's internal due date is that date minus a configurable safety margin (2 days by default), at the end of the company-local day, and is met when its result is submitted. A margin change does not rewrite existing due dates. |
+| Due date | The test request carries the customer's requested date and the committed return date; only Sales changes it, with the customer's agreement. The customer never sees an internal due date. Each sample test's internal due date is that date minus a configurable safety margin (2 days by default), at the end of the company-local day, and is met when its result is submitted. A margin change does not rewrite existing due dates. |
 | Method steps       | The person running a test sees the steps of the testing method of its way of testing, each with its number, how long it takes, what to do and its note. The steps are the same for the whole laboratory. |
 | Booking | A booking schedules one sample test, its sample, parameter and agreed way of testing, for one authorized tester and one interval, on a machine only when the way needs one, and reserves every bookable location its steps name. Scheduling does not choose another way. A sample test can be booked only once its sample is received by its department, is not held for the customer's agreement and is not cancelled. |
 | Duration | The machine-and-method link gives the booking duration, which covers preparation, measurement and time to repeat a failed measurement. A way needing no machine has its own duration and capacity, default capacity 1. Durations round up to 15-minute slots. The system does not count or limit measurement attempts. |
@@ -255,7 +260,7 @@ flowchart LR
 | Changing a due date | Only the Head of Department changes the internal due date manually, with a reason. Preserve this override when the committed return date changes; recalculate only dates still automatic and report conflicts with overrides. An internal-only date change does not notify the customer. Sales informs the customer when the committed return date is affected or at risk. |
 | Return estimate | Simulate the earliest finish of each in-house branch using authorized people, required locations and machines when needed. Each subcontracted way has an end-to-end turnaround including transport and processing. The latest branch finish plus the safety margin gives the return estimate. A missing subcontract turnaround means no complete estimate can be given. An estimate reserves or moves nothing. |
 | Priority request   | When the customer asks for results earlier than the estimate, the scheduler checks the requested date as if its tests were urgent, with the due date check below. It answers that the date can be met, can be met only by outsourcing named parameters, or cannot be met, with the earliest date it can. An accepted priority request marks the tests of its test request urgent when they are created. |
-| Due date check | Use the company working calendar, public holidays, staff shifts and approved leave; a public holiday the administrator marked as a working day is accepted. The check only reads: it simulates available resources and possible moves, shows feasibility, reasons and the earliest feasible date, and never reserves or moves bookings. The Head of Department may retain an infeasible internal due date with a reason and visible risk flag; it implies no reserved resources. |
+| Due date check | Use the company working calendar, public holidays, staff shifts and approved leave. The administrator keeps the public holidays on the company working calendar; one the administrator marked as a working day is accepted. A due date on a non-working day, automatic or changed by hand, is kept and reported. The check only reads: it simulates available resources and possible moves, shows feasibility, reasons and the earliest feasible date, and never reserves or moves bookings. The Head of Department may retain an infeasible internal due date with a reason and visible risk flag; it implies no reserved resources. |
 | Deadline risk | A sample test is at risk when its planned finish is after its internal due date, when no free slot lets it finish by then, or when its booking overran. Notify its responsible tester and Head of Department initially, then include unresolved risks in a daily consolidated summary until resolved. Recheck on schedule changes and through a scheduled job. Overdue approvals are reminded through their signing tasks. Sales tells the customer only when the committed return date changes or is at risk. |
 | Machine heads-up | Use three independent system settings, each defaulting to 7 days: before calibration, before maintenance and after a recorded repair. Warn when planning or starting within the applicable window. Warnings do not override blocked calibration, maintenance or unavailable-resource conditions. Returning a machine to in use after a repair requires a calibration or maintenance record dated after the repair. |
 | Bookings as tasks  | A scheduled booking appears on the person's schedule and in their to-do list as part of their testing task, due at its start.                |
@@ -271,7 +276,7 @@ Laboratory files are the files the testing work produces and uses outside MediLa
 | Sample folders  | A folder can belong to a sample, with a category: raw data, working documents, results or reports. The head of department creates a sample's folders from the sample; a person needs both the folder and the sample to use it, so testers still see only the lab code. |
 | Members         | The owner and the people they add can read and write the folder: see, download and upload its files and restore their versions. There is no read-only member. The owner and administrators add and remove members; only administrators change the owner, and the previous owner stays a member. |
 | Sync rules      | A folder can limit which files are synced by name prefix, name pattern with `*`, or extension, with or without subfolders. With no rule every file is synced. |
-| Versions        | Saving a changed file adds a version: a number that never changes, who saved it, from which device, when, its size and SHA-256 hash, and how it was made: synced, restored, edited online, or kept from a conflict. A version is never edited or deleted. The file's current version is the one people get. Two versions with the same content share the stored bytes. |
+| Versions        | Saving a changed file adds a version: a number that never changes, who saved it, from which device, when, its size and SHA-256 hash, and how it was made: synced, restored, edited online, generated by MediLab, such as a report draft, or kept from a conflict. A version is never edited or deleted. The file's current version is the one people get. Two versions with the same content share the stored bytes. |
 | Uploads         | A file is uploaded straight to the bucket in parts through short-lived signed addresses, never through Odoo, up to 5 GiB in parts of 16 MiB. The server checks the hash and size of the stored bytes before the version counts. An upload left unfinished expires and its parts are removed. |
 | Conflicts       | An upload made from a version that is no longer the current one is kept as a conflict version, never written over the current one. The person chooses to keep their own file or take the server's; both versions stay in the history. |
 | Restore         | Restoring an earlier version adds a new current version with its content; history is never rewritten. |

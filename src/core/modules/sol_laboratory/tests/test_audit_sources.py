@@ -4,6 +4,8 @@ from odoo.tests import HttpCase, new_test_user, tagged
 from odoo.tools import mute_logger
 
 from .audit_case import AuditLookup
+from .mobile_phones import signed_in_phone
+from odoo.addons.sol_laboratory.constants.laboratory_api import API_PREFIX
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_ENTRY, MODEL_CHEMICAL, MODEL_MOBILE_DEVICE
 
 PASSWORD = "Lab-Password-2026"
@@ -57,11 +59,17 @@ class TestAuditSources(AuditLookup, HttpCase):
         self.assertEqual((edit.source, edit.user_id), ("api", self.editor))
 
     def test_the_mobile_app_is_the_api(self):
-        self.authenticate("editor", PASSWORD)
+        phone, key = signed_in_phone(self.env, self.editor)
 
-        result = self.make_jsonrpc_request("/medilab/mobile/register", {"token": "fcm-token", "platform": "android"})
+        response = self.url_open(
+            f"{API_PREFIX}/push-token",
+            json={"token": "fcm-token"},
+            headers={"Authorization": f"Bearer {key}"},
+            method="PUT",
+        )
 
-        entry = self.entries(self.env[MODEL_MOBILE_DEVICE].browse(result["id"]), "create")
+        self.assertEqual(response.status_code, 204, response.text)
+        entry = self.entries(self.env[MODEL_MOBILE_DEVICE].search([("laboratory_device_id", "=", phone.id)]), "create")
         self.assertEqual((entry.source, entry.user_id), ("api", self.editor))
 
     @mute_logger("odoo.http", "odoo.addons.rpc.controllers.xmlrpc")

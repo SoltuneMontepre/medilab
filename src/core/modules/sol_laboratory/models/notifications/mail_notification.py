@@ -2,9 +2,13 @@ import logging
 from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
-from odoo.exceptions import AccessError
+from odoo.exceptions import AccessError, MissingError
+from odoo.fields import Domain
 
-from odoo.addons.sol_laboratory.constants.models import MODEL_MAIL_NOTIFICATION
+from odoo.addons.sol_laboratory.constants.models import MODEL_MAIL_MESSAGE, MODEL_MAIL_NOTIFICATION
+from odoo.addons.sol_laboratory.services.document_code import document_code
+from odoo.addons.sol_laboratory.services.laboratory_api import api_datetime
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
 
 if TYPE_CHECKING:
     from medilab_model_types import Model_mail_notification as MailNotificationBase
@@ -70,6 +74,60 @@ class MailNotification(models.Model, MailNotificationBase):
             "res_model": message.model,
             "res_id": message.res_id,
             "views": [(False, "form")],
+        }
+
+    @api.model
+    def _inbox_domain(self):
+        """The signed-in user's inbox notifications, which the web's inbox shows."""
+        return Domain("res_partner_id", "=", self.env.user.partner_id.id) & Domain("notification_type", "=", "inbox")
+
+    @api.model
+    def _inbox_after(self, after, limit):
+        """The signed-in user's inbox notifications, unread first, then newest first, that come after the notification
+        after, the last one the app has; from the first one when after is 0."""
+        domain = self._inbox_domain()
+        if after:
+            last = self.sudo().search(domain & Domain("id", "=", after))
+            if not last:
+                raise MissingError(self.env._("This notification is no longer in your inbox."))
+            older = Domain("id", "<", last.id)
+            if last.is_read:
+                domain &= Domain("is_read", "=", True) & older
+            else:
+                domain &= Domain("is_read", "=", True) | (Domain("is_read", "=", False) & older)
+        return self.sudo().search(domain, order="is_read, id desc", limit=limit)
+
+    @api.model
+    def _mark_inbox_read(self, message_id):
+        """Mark the signed-in user's notification of the message read, as opening it in the web's inbox does."""
+        if not self.sudo().search_count(self._inbox_domain() & Domain("mail_message_id", "=", message_id), limit=1):
+            raise MissingError(self.env._("This notification is no longer in your inbox."))
+        self.env[MODEL_MAIL_MESSAGE].browse(message_id).set_message_done()
+
+    def _mobile_values(self):
+        """The notification as Medilab Mobile lists it: its event and the event's name, its date, its document and
+        whether it is read. Its text is left out, as from a push: the app shows the document read with the person's
+        rights."""
+        self.ensure_one()
+        message = self.sudo().mail_message_id
+        event = message.subtype_id.with_env(self.env)
+        document = None
+        if message.model and message.res_id:
+            record = (
+                dynamic_model(self.env, message.model).browse(message.res_id) if message.model in self.env else None
+            )
+            document = {
+                "model": message.model,
+                "id": message.res_id,
+                "code": document_code(record) if record is not None else "",
+            }
+        return {
+            "id": message.id,
+            "event": event.code or None,
+            "title": event.name or "",
+            "date": api_datetime(message.date),
+            "read": self.is_read,
+            "document": document,
         }
 
     def _apply_brevo_event(self, event):

@@ -573,6 +573,11 @@ msgid "VAT 10%"
 msgstr "Thuế GTGT 10%"
 
 #. module: sol_demo
+#: model:medilab.sample.type,name:sol_demo.demo_sample_type_lettuce
+msgid "Lettuce"
+msgstr "Xà lách"
+
+#. module: sol_demo
 #: model:medilab.sample.type,name:sol_demo.demo_sample_type_vegetables
 msgid "Vegetables"
 msgstr "Rau"

@@ -3,11 +3,13 @@ from typing import TYPE_CHECKING
 from odoo import fields, models
 
 from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_ACCREDITATION_CERTIFICATE,
     MODEL_ARCHIVE_MIXIN,
     MODEL_AUDIT_MIXIN,
     MODEL_CODE_MIXIN,
     MODEL_LOCK_MIXIN,
     MODEL_MEASUREMENT_UNIT,
+    MODEL_PARAMETER_METHOD_SAMPLE_TYPE,
     MODEL_PERMISSION_MIXIN,
     MODEL_SAMPLE_TYPE,
 )
@@ -57,3 +59,16 @@ class SampleType(models.Model, SampleTypeBase):
         active = fields.Boolean(default=True)
 
     _code_unique = models.Constraint("UNIQUE(code)", "The code of a sample type must be unique.")
+
+    def write(self, vals):
+        result = super().write(vals)
+        if "parent_id" in vals:
+            # A scope line on an ancestor covers its narrower types, so the moved types follow their new ancestors.
+            ways = (
+                self.env[MODEL_PARAMETER_METHOD_SAMPLE_TYPE]
+                .sudo()
+                .search([("sample_type_id", "child_of", self.ids)])
+                .parameter_method_id
+            )
+            self.env[MODEL_ACCREDITATION_CERTIFICATE]._recompute_accreditation(ways.method_id)
+        return result

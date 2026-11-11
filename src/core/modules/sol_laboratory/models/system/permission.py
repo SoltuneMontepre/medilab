@@ -52,7 +52,7 @@ class Permission(models.Model, PermissionBase):
         name = fields.Char(required=True, translate=True)
         # Technical name of the document type, such as medilab.sample; cannot change once the permission exists.
         document_model = fields.Selection(selection="_selection_document_model", string="Document Type", required=True)
-        # read, create, edit, archive, delete or sign; cannot change once the permission exists.
+        # read, create, edit, archive, delete, sign or invoice; cannot change once the permission exists.
         action = fields.Selection(
             [
                 ("read", "Read"),
@@ -61,6 +61,7 @@ class Permission(models.Model, PermissionBase):
                 ("archive", "Archive"),
                 ("delete", "Delete"),
                 ("sign", "Sign"),
+                ("invoice", "Invoice"),
             ],
             required=True,
         )

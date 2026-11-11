@@ -19,9 +19,6 @@ PAYMENT_WIZARD = "account.payment.register"
 def seed_quotations(env):
     if env.ref("sol_demo.demo_sale_order_quotation_draft", raise_if_not_found=False):
         return
-    if not env.company.chart_template:
-        # Advance invoices need the sales journal, which a chart of accounts brings; a fresh install has none yet.
-        env["account.chart.template"].try_loading("vn", env.company)
     sales = env.ref("sol_demo.demo_res_users_sales")
     head = env.ref("sol_demo.demo_res_users_head_of_sales")
     vat8 = _sales_tax(env, 8)
@@ -60,6 +57,35 @@ def seed_quotations(env):
         ("demo_sale_order_quotation_confirmed", confirmed),
     ):
         _xml_id(env, xml_id, record)
+
+
+def seed_selected_ways(env):
+    """An order with Lead on its own and the bottled water package, where Lead and one of the package's parameters are
+    tested by another way than their default, sent, then revised and sent again with those ways."""
+    if env.ref("sol_demo.demo_sale_order_quotation_ways", raise_if_not_found=False):
+        return
+    sales = env.ref("sol_demo.demo_res_users_sales")
+    lead = _product(env, "parameter_id", env.ref("sol_demo.demo_parameter_price_lead").parameter_id.id)
+    package = _product(env, "service_package_id", env.ref("sol_demo.demo_service_package_bottled_water_basic").id)
+    order = _quotable_order(env, lead, _sales_tax(env, 10), advance_method="bank_transfer", advance_mode="full")
+    sample = order.sample_ids
+    order.write({"order_line": [Command.create({"product_id": package.product_variant_ids.id, "product_uom_qty": 1})]})
+    lines = order._catalog_lines()
+    lines.filtered(lambda line: not line.sample_id).sample_id = sample
+    single = lines.filtered(lambda line: line.product_id.product_tmpl_id == lead)
+    part = next((part for part in lines.linked_line_ids if _other_way(part)), None)
+    for line in (single, part):
+        if line and _other_way(line):
+            line.parameter_method_id = _other_way(line)
+    _as(order, sales).action_send_quotation()
+    _as(order, sales).action_revise_quotation()
+    _as(order, sales).action_send_quotation()
+    _xml_id(env, "demo_sale_order_quotation_ways", order)
+
+
+def _other_way(line):
+    """A way of testing offered for the line's parameter other than the one it has, or empty."""
+    return (line._own_parameter()._offered_ways(line.sample_type_id) - line.parameter_method_id)[:1]
 
 
 def _as(order, user):

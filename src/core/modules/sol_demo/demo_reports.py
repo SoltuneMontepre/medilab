@@ -1,17 +1,22 @@
+import logging
 from datetime import timedelta
 
 from odoo import fields
 
+from .demo_report_templates import prepare_report, report_templates_seeded
 from .demo_results import _enter, _received_request, _test
 from odoo.addons.sol_laboratory.constants.models import MODEL_TEST_REPORT
 
 REJECTION = "Lead in sample 1 reads above last month's blank; check the digestion blank and measure again."
 
+_logger = logging.getLogger(__name__)
+
 
 def seed_reports(env):
-    """Test reports of Nước Uống Sạch, whose portal user downloads the issued ones: a draft waiting for the lab head
-    beside a cancelled test and a result the head of department entered and approved, a rejected one with a result
-    sent back, and issued ones in Vietnamese, English and both."""
+    """Test reports of Nước Uống Sạch, whose portal user downloads the issued ones: a draft whose prepared PDF waits
+    for the lab head beside a cancelled test and a result the head of department entered and approved, a rejected one
+    with a result sent back, issued ones in Vietnamese, English and both, and one whose PDF the digital signing demo
+    signs, or fails to sign, at issue. Without the demo templates the reports wait for their PDF."""
     if env.ref("sol_demo.demo_test_report_draft", raise_if_not_found=False):
         return
     lead = env.ref("sol_demo.demo_test_parameter_lead")
@@ -43,6 +48,7 @@ def seed_reports(env):
             report_recipient_id=env.ref("sol_demo.demo_res_partner_hoa").id,
         ),
         "in_person": _completed_request(env, (("Nước uống đóng chai Suối Mát 5 L lô 1006", (lead, ph)),)),
+        "pending": _completed_request(env, (("Nước khoáng Suối Mát 1,5 L lô 1007", (lead, ph)),)),
     }
     reports = {
         name: env[MODEL_TEST_REPORT].search([("request_id", "=", request.id)]) for name, request in requests.items()
@@ -50,15 +56,21 @@ def seed_reports(env):
     reports["rejected"].with_user(lab_head).action_reject(
         REJECTION, _test(requests["rejected"].sample_ids, lead).result_ids
     )
-    for name in ("by_post", "by_email", "in_person"):
-        reports[name].with_user(lab_head).action_sign()
-    reports["by_email"].with_user(env.ref("sol_demo.demo_res_users_sample_delivery_staff")).action_record_delivery()
+    if report_templates_seeded(env):
+        for name in ("draft", "by_post", "by_email", "in_person", "pending"):
+            prepare_report(env, reports[name])
+        for name in ("by_email", "in_person"):
+            reports[name].with_user(lab_head).action_sign()
+        staff = env.ref("sol_demo.demo_res_users_sample_delivery_staff")
+        reports["by_email"].with_user(staff).action_record_delivery()
+    else:
+        _logger.warning("The demo report templates are missing: the demo reports wait for their PDF, unissued.")
 
+    records = {f"demo_test_report_{name}": report for name, report in reports.items()}
+    if reports["draft"].candidate_ids:
+        records["demo_test_report_candidate_draft"] = reports["draft"].candidate_ids
     env["ir.model.data"]._update_xmlids(
-        [
-            {"xml_id": f"sol_demo.demo_test_report_{name}", "record": report, "noupdate": True}
-            for name, report in reports.items()
-        ]
+        [{"xml_id": f"sol_demo.{xml_id}", "record": record, "noupdate": True} for xml_id, record in records.items()]
     )
 
 

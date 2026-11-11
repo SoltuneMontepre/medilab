@@ -16,6 +16,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
     MODEL_ROLE,
+    MODEL_ROLE_GRANT,
     MODEL_SIGNATURE,
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_GROUP, ADMINISTRATOR_PERSON, ADMINISTRATOR_ROLE
@@ -36,6 +37,7 @@ class Person(models.Model, PersonBase):
     _check_inherits_access = False
     _description = "Person"
     _rec_names_search = ("name", "work_email")
+    _audit_children = ("role_grant_ids",)
 
     if not TYPE_CHECKING:
         # The Odoo employee the person delegates to, holding their name, user, work contact and department.
@@ -71,6 +73,10 @@ class Person(models.Model, PersonBase):
             ondelete="restrict",
             string="Roles",
             groups=ADMINISTRATOR_GROUP,
+        )
+        # Roles the person holds until a date, such as a backup signer's; each is also one of their roles.
+        role_grant_ids = fields.One2many(
+            MODEL_ROLE_GRANT, "person_id", string="Roles Until a Date", groups=ADMINISTRATOR_GROUP
         )
         # Permissions given to the person directly, on top of their roles.
         permission_ids = fields.Many2many(
@@ -128,6 +134,9 @@ class Person(models.Model, PersonBase):
                 person._set_login(login)
         if "role_ids" in vals:
             self._check_administrator_role()
+            # A role taken away before its date leaves nothing to remove when the date ends.
+            grants = self.sudo().role_grant_ids
+            grants.filtered(lambda grant: grant.role_id not in grant.person_id.role_ids).unlink()
         if "active" in vals:
             employees = self.sudo().employee_id
             if vals["active"]:

@@ -71,7 +71,7 @@ export function testingTasks(sample) {
         ["document_id", "in", sample.tests.map((test) => test.id)],
       ],
     ],
-    { fields: ["name", "status", "assignee_id", "department_id", "document_id"] },
+    { fields: ["name", "status", "assignee_id", "department_id", "document_id", "note"] },
   );
 }
 

@@ -15,6 +15,7 @@ from odoo.addons.sol_laboratory.services.laboratory_paths import (
     is_name_pattern,
     is_name_prefix,
     normal_extension,
+    normal_pattern,
     normal_text,
 )
 
@@ -65,15 +66,8 @@ class LaboratorySyncRule(models.Model, LaboratorySyncRuleBase):
         )._check_not_archived()
         for vals in vals_list:
             if vals.get("pattern"):
-                vals["pattern"] = self._normal_pattern(vals.get("kind", "prefix"), vals["pattern"])
+                vals["pattern"] = normal_pattern(vals.get("kind", "prefix"), vals["pattern"])
         return super().create(vals_list)
-
-    @api.model
-    def _normal_pattern(self, kind, pattern):
-        """The pattern as a rule of the kind keeps it: in one Unicode form, and an extension without its dot and in
-        lowercase."""
-        pattern = normal_text(pattern)
-        return normal_extension(pattern) if kind == "extension" and pattern else pattern
 
     def write(self, vals):
         (self.folder_id | self.folder_id.browse(vals.get("folder_id") or []))._check_not_archived()

@@ -1,3 +1,4 @@
+from odoo.fields import Command
 from odoo.tests import TransactionCase
 
 from odoo.addons.sol_laboratory.constants.models import (
@@ -5,15 +6,17 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MEASUREMENT_UNIT,
     MODEL_PARAMETER_GROUP,
     MODEL_PARAMETER_METHOD,
+    MODEL_PARAMETER_METHOD_SAMPLE_TYPE,
     MODEL_TEST_PARAMETER,
     MODEL_TESTING_FIELD,
     MODEL_TESTING_METHOD,
     MODEL_UNIT_CATEGORY,
 )
+from odoo.addons.sol_laboratory.services.record_id import persisted_id, persisted_ids
 
 
 class MasterDataCase(TransactionCase):
-    """A unit, a method, a group and a parameter tested by one default way of testing."""
+    """A unit, a method, a group and a parameter tested by one way of testing, offered on no sample type yet."""
 
     @classmethod
     def setUpClass(cls):
@@ -31,9 +34,37 @@ class MasterDataCase(TransactionCase):
             {
                 "parameter_id": cls.parameter.id,
                 "method_id": cls.method.id,
-                "unit_id": cls.unit.id,
                 "department_id": cls.department.id,
-                "is_default": True,
+            }
+        )
+
+    @classmethod
+    def offer(cls, parameter, sample_type, way=None, **vals):
+        """Make a way of testing of the parameter apply to the sample type in the case's unit: the given way, or else the
+        parameter's first, created in the case's department when it has none. The first way offered on a sample type
+        becomes its default."""
+        if not way:
+            way = parameter.method_ids[:1] or cls.env[MODEL_PARAMETER_METHOD].create(
+                {"parameter_id": parameter.id, "method_id": cls.method.id, "department_id": cls.department.id}
+            )
+        return cls.env[MODEL_PARAMETER_METHOD_SAMPLE_TYPE].create(
+            {
+                "parameter_method_id": way.id,
+                "sample_type_id": sample_type.id,
+                "unit_id": cls.unit.id,
+                "is_default": not parameter._default_way(sample_type),
+                **vals,
+            }
+        )
+
+    @staticmethod
+    def scope_line(method, parameters, sample_types):
+        """A command that adds a certificate scope line of the method on the parameters and sample types."""
+        return Command.create(
+            {
+                "method_id": persisted_id(method),
+                "parameter_ids": [Command.set(persisted_ids(parameters))],
+                "sample_type_ids": [Command.set(persisted_ids(sample_types))],
             }
         )
 

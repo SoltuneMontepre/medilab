@@ -5,19 +5,13 @@ from odoo.exceptions import UserError
 from odoo.fields import Domain
 from odoo.tools import format_date, formatLang
 
-from odoo.addons.sol_laboratory.constants.approvals import (
-    DECISION_SIGNED,
-    STATE_APPROVED,
-    STATE_REJECTED,
-    STATE_REQUESTED,
-)
+from odoo.addons.sol_laboratory.constants.approvals import DECISION_SIGNED, STATE_APPROVED
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_CUSTOMER,
     MODEL_DIGITAL_SIGNING_MIXIN,
     MODEL_DOCUMENT_LOCK,
     MODEL_LOCK_MIXIN,
     MODEL_MAIL_MESSAGE,
-    MODEL_PARAMETER_METHOD,
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
     MODEL_QUALITY_REGISTRATION,
@@ -43,6 +37,8 @@ PRINT_LANGS = {"vi": ("vi_VN",), "en": ("en_US",), "bilingual": ("vi_VN", "en_US
 SIGNING_ACTION = "sign"
 # The statuses of a report the lab head can still sign.
 OPEN_STATUSES = ("draft", "signing")
+# The statuses of a report that was issued; its PDF never changes.
+ISSUED_STATUSES = ("issued", "replaced")
 # Samples left off the report: they have no results to report.
 UNREPORTED_SAMPLE_STATUSES = ("cancelled", "rejected")
 
@@ -60,7 +56,7 @@ class TestReport(models.Model, TestReportBase):
     _digital_signing_report = TEST_REPORT_REPORT
 
     if not TYPE_CHECKING:
-        # Unique report number from a sequence, such as PKQ.2026.0001; given when the report is issued.
+        # Unique report number from a sequence, such as PKQ.2026.0001; reserved when its PDF is first prepared.
         code = fields.Char(string="Report Number", readonly=True, copy=False)
         # The test request reported.
         request_id = fields.Many2one(
@@ -72,9 +68,15 @@ class TestReport(models.Model, TestReportBase):
         version = fields.Integer(required=True, default=1, readonly=True, copy=False)
         # The version this report replaces; empty for version 1.
         replaces_id = fields.Many2one(MODEL_TEST_REPORT, readonly=True, copy=False, ondelete="restrict")
-        # Where the report is in its signing.
+        # Where the report is in its signing: approved but waiting for its digitally signed PDF while pending.
         status = fields.Selection(
-            [("draft", "Draft"), ("signing", "Signing"), ("issued", "Issued"), ("replaced", "Replaced")],
+            [
+                ("draft", "Draft"),
+                ("signing", "Signing"),
+                ("pending_signing", "Pending Digital Signing"),
+                ("issued", "Issued"),
+                ("replaced", "Replaced"),
+            ],
             required=True,
             default="draft",
             readonly=True,
@@ -234,17 +236,17 @@ class TestReport(models.Model, TestReportBase):
         return super()._approval_check_actor(rejecting)
 
     def _approval_process_completed(self):
-        return self.status in ("issued", "replaced")
+        return self.status in ISSUED_STATUSES
 
     def _change_request_open(self):
-        return self.status == "issued"
+        # One replacement at a time: the issued report takes no new change request while its replacement is open.
+        return self.status == "issued" and not self.sudo().search_count([("replaces_id", "=", self.id)], limit=1)
 
     def _new_version(self, change_request):
-        """Replace the issued report by its next version, a draft the lab head signs and issues again; the portal offers
-        the issued version only."""
+        """Create the issued report's next version, a draft the lab head signs; the issued report stays issued, and
+        offered in the portal, until that version is issued."""
         self.ensure_one()
         report = self.sudo()
-        report.status = "replaced"
         version = report.create(
             {
                 "request_id": report.request_id.id,
@@ -257,58 +259,6 @@ class TestReport(models.Model, TestReportBase):
             REPORT_DRAFTED_TRIGGER, document=version, note=change_request.requested_change
         )
         return version
-
-    def _approval_set_state(self, state):
-        if state == STATE_APPROVED:
-            self._issue()
-        elif state == STATE_REQUESTED:
-            self.status = "signing"
-        else:
-            self.status = "draft"
-        if state in (STATE_APPROVED, STATE_REJECTED):
-            self.env[MODEL_TASK]._close_for_document(self, SIGNING_ACTION)
-
-    def _issue(self):
-        """Number the report, mark its request and samples reported, retain the kept samples, then store its PDF and
-        tell the customer; with digital signing on, once Viettel Sign has signed the PDF."""
-        self.ensure_one()
-        self.write(
-            {
-                "code": self.code or self.env["ir.sequence"].next_by_code(MODEL_TEST_REPORT),
-                "issued_at": fields.Datetime.now(),
-                "status": "issued",
-            }
-        )
-        request = self.request_id
-        reported = request.sample_ids.filtered(lambda sample: sample.status == "completed")
-        reported.status = "reported"
-        reported._retain(self._report_day())
-        if request.status != "reported":
-            request._set_status("reported")
-        if self._digital_signing_enabled():
-            self._digital_signing_start()
-            return
-        pdf, _report_type = self.env["ir.actions.report"]._render_qweb_pdf(TEST_REPORT_REPORT, self.ids)
-        self.attachment_id = self.env["ir.attachment"].create(
-            {
-                "name": self._digital_signing_filename(),
-                "raw": pdf,
-                "mimetype": "application/pdf",
-                "res_model": self._name,
-                "res_id": self.id,
-            }
-        )
-        self._notify_issued()
-
-    def _digital_signing_fully_signed(self):
-        return self.status in ("issued", "replaced")
-
-    def _digital_signing_filename(self):
-        return f"{self.code}.pdf"
-
-    def _digital_signing_done(self, signature):
-        self.sudo().attachment_id = signature.attachment_id
-        self._notify_issued()
 
     def _notify_issued(self):
         """Tell the customer the results are released, once for each issued report."""
@@ -346,7 +296,7 @@ class TestReport(models.Model, TestReportBase):
 
     def _files_locked(self):
         """True when a report's PDF can no longer change: it is issued."""
-        return any(report.status in ("issued", "replaced") for report in self)
+        return any(report.status in ISSUED_STATUSES for report in self)
 
     def _print_env(self):
         # Printing reads what the report shows with full rights; TestReportDocument checks who may print.
@@ -365,6 +315,11 @@ class TestReport(models.Model, TestReportBase):
 
     def _print_labels(self):
         """The report's headings in its languages."""
+        return self._labels_in(self._print_langs())
+
+    @api.model
+    def _labels_in(self, langs):
+        """The headings of a report, side by side in the languages."""
 
         verify_url = f"{self.get_base_url()}{VERIFY_PATH}"
 
@@ -388,9 +343,14 @@ class TestReport(models.Model, TestReportBase):
                 "limit": env._("Limit"),
                 "method": env._("Method"),
                 "signatures": env._("Approved By"),
+                "results": env._("Samples and Results"),
+                "sample_type": env._("Sample Type"),
+                "amount": env._("Amount Received"),
+                "condition": env._("Condition"),
+                "analysis_started": env._("Analysis Started"),
             }
 
-        per_lang = [labels(self.with_context(lang=lang).env) for lang in self._print_langs()]
+        per_lang = [labels(self.with_context(lang=lang).env) for lang in langs]
         return {key: _side_by_side(texts[key] for texts in per_lang) for key in per_lang[0]}
 
     def _print_header(self):
@@ -414,18 +374,21 @@ class TestReport(models.Model, TestReportBase):
     def _print_samples(self):
         """Each sample the report covers, with its conclusion and one row per reported result."""
         results = self.sudo().result_ids.sorted("id")
-        ways = {result: result._way_of_testing() for result in results}
-        marks = self._print_marks(self.env[MODEL_PARAMETER_METHOD].union(ways.values()))
+        marks = self._print_marks(results.parameter_method_id)
         env = self._print_env()
-        return [
-            {
-                "name": sample.customer_sample_name,
-                "code": sample.code,
-                "conclusion": self._print_conclusion(sample, own),
-                "rows": [self._print_row(result, ways[result], marks.get(ways[result], ""), env) for result in own],
-            }
-            for sample, own in sorted(results.grouped("sample_id").items(), key=lambda item: item[0].code)
-        ]
+        samples = []
+        for sample, own in sorted(results.grouped("sample_id").items(), key=lambda item: item[0].code):
+            compared = any(own.mapped("comparison_requested"))
+            rows = [self._print_row(result, marks.get(result.parameter_method_id, ""), env, compared) for result in own]
+            samples.append(
+                {
+                    "name": sample.customer_sample_name,
+                    "code": sample.code,
+                    "conclusion": self._print_conclusion(own),
+                    "rows": rows,
+                }
+            )
+        return samples
 
     def _print_marks(self, ways):
         """The marks of the quality registrations valid on the report date, by the ways of testing they cover."""
@@ -451,26 +414,45 @@ class TestReport(models.Model, TestReportBase):
             for way in ways
         }
 
-    def _print_conclusion(self, sample, results):
-        regulation = sample.regulation_id
-        if not regulation:
+    def _print_conclusion(self, results):
+        """The sample's conclusion within the requested comparison: any failure fails it, it passes only when every
+        compared result passes, and otherwise its basis is insufficient. Without a requested comparison it has none."""
+        compared = results.filtered("comparison_requested")
+        if not compared:
             return ""
-        if "fail" in results.mapped("conclusion"):
-            return self._in_langs(lambda env: env._("Does not meet %s", regulation.code))
-        return self._in_langs(lambda env: env._("Meets %s", regulation.code))
+        codes = ", ".join(compared.regulation_id.mapped("code"))
+        conclusions = set(compared.mapped("conclusion"))
+        if "fail" in conclusions:
+            return self._in_langs(lambda env: env._("Does not meet %s for the compared parameters", codes))
+        if conclusions == {"pass"}:
+            return self._in_langs(lambda env: env._("Meets %s for the compared parameters", codes))
+        return self._in_langs(lambda env: env._("Insufficient basis to conclude against %s", codes))
 
-    def _print_row(self, result, way, marks, env):
+    def _print_row(self, result, marks, env, compared):
+        """The result's row. A sample with a requested comparison also prints the limit and the assessment, empty for
+        its results outside it."""
         parameter = self._in_langs(lambda lang_env: result.with_env(lang_env).parameter_id.name)
-        return {
+        row = {
             "parameter": f"{parameter} {marks}".strip(),
             "result": self._in_langs(lambda lang_env: result.with_env(lang_env).value_text)
             or result.with_env(env).value_display,
             "unit": result.unit_id.name or "",
-            "limit": self._print_limit(result, env),
-            "method": way.method_id.code or "",
         }
+        if compared:
+            row["limit"] = self._print_limit(result, env)
+            row["conclusion"] = self._in_langs(
+                lambda lang_env: dict(result._fields["conclusion"]._description_selection(lang_env)).get(
+                    result.conclusion, ""
+                )
+            )
+        row["method"] = result.parameter_method_id.method_id.code or ""
+        return row
 
     def _print_limit(self, result, env):
+        if not result.comparison_requested:
+            return ""
+        if result.limit_missing:
+            return self._in_langs(lambda lang_env: lang_env._("No limit for this sample type"))
         if result.limit_text:
             return self._in_langs(lambda lang_env: result.with_env(lang_env).limit_text)
         low = result.limit_min_set and formatLang(env, result.limit_min, digits=result.limit_decimals)
@@ -486,18 +468,26 @@ class TestReport(models.Model, TestReportBase):
         unit = result.limit_unit_id
         return f"{limit} {unit.name}" if unit and unit != result.unit_id else limit
 
-    def _print_signers(self):
-        """Who approved the results, then who signed the report; testers who only sent a result are left out."""
+    def _print_signers(self, report_signers=True):
+        """Who approved the results, then who signed the report unless report_signers is false; testers who only sent
+        a result are left out."""
         report = self.sudo()
-        rows = self.env[MODEL_SIGNATURE].sudo().search(
-            [
-                ("document_model", "=", MODEL_TEST_RESULT),
-                ("document_id", "in", report.result_ids.ids),
-                ("decision", "=", DECISION_SIGNED),
-                ("withdrawn_at", "=", False),
-                ("level_id", "not in", self.env[MODEL_TEST_RESULT]._approval_sending_level().ids),
-            ]
-        ) + report._approval_open_rows().filtered(lambda row: row.decision == DECISION_SIGNED).sorted("id")
+        sending = {result.id: result._approval_sending_level() for result in report.result_ids}
+        rows = (
+            self.env[MODEL_SIGNATURE]
+            .sudo()
+            .search(
+                [
+                    ("document_model", "=", MODEL_TEST_RESULT),
+                    ("document_id", "in", report.result_ids.ids),
+                    ("decision", "=", DECISION_SIGNED),
+                    ("withdrawn_at", "=", False),
+                ]
+            )
+            .filtered(lambda row: row.level_id != sending[row.document_id])
+        )
+        if report_signers:
+            rows += report._approval_open_rows().filtered(lambda row: row.decision == DECISION_SIGNED).sorted("id")
         signers = {
             (row.signer_id.id, row.level_id.id): {
                 "name": row.signer_name,

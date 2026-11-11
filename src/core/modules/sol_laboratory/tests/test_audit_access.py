@@ -28,6 +28,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_RES_GROUPS,
     MODEL_RES_USERS,
     MODEL_SIGNATURE,
+    MODEL_SIGNING_PROCESS,
 )
 
 HISTORY_BUTTON = 'name="action_open_audit_history"'
@@ -76,7 +77,8 @@ class TestAuditAccess(AuditCase):
         self.assertEqual(button.get("name"), "action_open_audit_history")
 
     def test_every_document_model_of_the_laboratory_is_audited(self):
-        # The trail itself, and the records the trail already describes: signatures, digital signatures, the work of
+        # The trail itself, and the records the trail already describes: signatures and the signing processes their
+        # first signature starts, digital signatures, the work of
         # jobs, such as the pushes of a notification, the emails and notifications of messages, which integration
         # entries describe, document locks, whose release by an administrator is an entry on the document, and the
         # changes of laboratory files, each the new current version a version's own entry describes, and their stored
@@ -89,6 +91,7 @@ class TestAuditAccess(AuditCase):
             MODEL_AUDIT_ENTRY,
             MODEL_AUDIT_CHANGE,
             MODEL_SIGNATURE,
+            MODEL_SIGNING_PROCESS,
             MODEL_DIGITAL_SIGNATURE,
             MODEL_DOCUMENT_LOCK,
             MODEL_LABORATORY_FILE_CHANGE,

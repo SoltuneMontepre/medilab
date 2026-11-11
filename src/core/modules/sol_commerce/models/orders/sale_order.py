@@ -54,7 +54,7 @@ _logger = logging.getLogger(__name__)
 class SaleOrder(models.Model, SaleOrderBase):
     _name = MODEL_SALE_ORDER
     _inherit = [MODEL_SALE_ORDER, MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
-    _permission_actions = ("read", "create", "edit", "delete")
+    _permission_actions = ("read", "create", "edit", "delete", "invoice")
     _audit_children = ("order_line", "quotation_ids", "sample_ids", "cancellation_request_ids", "support_request_ids")
 
     if not TYPE_CHECKING:
@@ -115,11 +115,13 @@ class SaleOrder(models.Model, SaleOrderBase):
         sample_ids = fields.One2many(MODEL_ORDER_SAMPLE, "order_id", string="Samples")
         # Quotations sent for the order, one per revision.
         quotation_ids = fields.One2many(MODEL_QUOTATION, "order_id", string="Quotations")
-        # Where the latest quotation stands: unpaid until the advance is paid, declined or expired; empty when none was sent.
+        # Where the latest quotation stands: unpaid until the advance is paid or, sent without an advance, accepted;
+        # declined or expired; empty when none was sent.
         quotation_follow_up = fields.Selection(
             [
                 (FOLLOW_UP_UNPAID, "Unpaid"),
                 (FOLLOW_UP_PAID, "Paid"),
+                (QUOTATION_ACCEPTED, "Accepted"),
                 (QUOTATION_DECLINED, "Declined"),
                 (QUOTATION_EXPIRED, "Expired"),
             ],
@@ -382,10 +384,7 @@ class SaleOrder(models.Model, SaleOrderBase):
         """Why sales cannot cancel the order on their own; empty when they can."""
         self.ensure_one()
         if self.order_status == STATUS_COMPLETED or self._laboratory_blocks_cancellation():
-            return self.env._(
-                "Testing is completed or results are released, so this order cannot be cancelled. "
-                "The laboratory will contact you."
-            )
+            return self.env._("Testing is completed or results are released, so this order cannot be cancelled.")
         if self._samples_collected():
             return self.env._(
                 "The samples of this order are collected, so cancelling it needs a change request "
@@ -444,12 +443,14 @@ class SaleOrder(models.Model, SaleOrderBase):
             .create({"order_id": self.id, "reason": text, "requested_by_id": self.env.uid})
         )
 
-    @api.depends("quotation_ids.status", "quotation_ids.revision")
+    @api.depends("quotation_ids.status", "quotation_ids.revision", "quotation_ids.advance_invoice_id")
     def _compute_quotation_follow_up(self):
         for order in self:
-            order.quotation_follow_up = FOLLOW_UP_BY_QUOTATION_STATUS.get(
-                (order._latest_quotation().status or ""), False
-            )
+            quotation = order._latest_quotation()
+            if quotation.status == QUOTATION_ACCEPTED and not quotation.advance_invoice_id:
+                order.quotation_follow_up = QUOTATION_ACCEPTED
+            else:
+                order.quotation_follow_up = FOLLOW_UP_BY_QUOTATION_STATUS.get((quotation.status or ""), False)
 
     def _latest_quotation(self):
         self.ensure_one()
@@ -479,6 +480,9 @@ class SaleOrder(models.Model, SaleOrderBase):
                     "\n".join(name or "" for name in unassigned.mapped("product_id.display_name")),
                 )
             )
+        # The catalog may have stopped offering a parameter on a sample type since the line got its sample.
+        lines._check_offered_on_sample()
+        self.order_line._way_lines()._check_ways_can_be_sent()
         latest = self._latest_quotation()
         if latest.status == QUOTATION_REPLACED:
             raise UserError(self.env._("A replaced quotation cannot be sent. Send the current revision instead."))

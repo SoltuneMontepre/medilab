@@ -69,6 +69,16 @@ class TestCustomerProfile(RequestCase):
                 with self.subTest(user=user.login, node=node):
                     self.assertEqual(node in arch, shown)
 
+    def test_sales_invite_a_customer_to_the_portal_without_contact_rights(self):
+        self.customer.email = "invite@customer.example"
+        action = self.customer.with_user(self.editor).action_invite_to_portal()
+        wizard = self.env[action["res_model"]].with_user(self.editor).browse(action["res_id"])
+
+        wizard.user_ids.filtered(lambda line: line.partner_id == self.customer.partner_id).action_grant_access()
+
+        user = self.customer.partner_id.user_ids
+        self.assertEqual((user.login, user.share), ("invite@customer.example", True))
+
     def test_a_citizen_id_already_given_is_not_asked_again(self):
         customer = self.env[MODEL_CUSTOMER].create({"name": "Pham Van Long"}).sudo()
 
