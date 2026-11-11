@@ -19,6 +19,13 @@ export const CUSTOMERS = {
 
 const STAGES = ["submitted", "claimed", "sent", "accepted", "confirmed"];
 
+// Lead twice and E. coli three times on bottled water: Lead needs an acidified polyethylene bottle and E. coli a chilled
+// sterile glass bottle, so 3 objects in two sampling groups make 6 expected samples.
+export const SAMPLING_LINES = [
+  ["sol_demo.demo_test_parameter_lead", 2],
+  ["sol_demo.demo_test_parameter_e_coli", 3],
+];
+
 // The catalog product of a parameter that sol_demo seeds.
 export function parameterProduct(xmlId) {
   return refAs(SALES, xmlId)
@@ -97,27 +104,32 @@ export function reviseQuotation(order, { advance = true } = {}) {
   return callAs(login, "sale.order", "action_send_quotation", [[order.id]]);
 }
 
-// An order for Lead (Pb), taken through every step before `stage` by the actor who does it.
-// Without `advance` the Head of Sales sends the quotation and the customer accepts it on the portal.
-export function orderAt(stage, { customer = CUSTOMERS.nuocSach, advance = true, sample = true } = {}) {
+// An order for Lead (Pb), or the parameters and quantities of `lines`, taken through every step before `stage` by the
+// actor who does it. Without `advance` the Head of Sales sends the quotation and the customer accepts it on the portal.
+export function orderAt(
+  stage,
+  { customer = CUSTOMERS.nuocSach, advance = true, sample = true, lines = [["sol_demo.demo_test_parameter_lead", 1]] } = {},
+) {
   expect(STAGES, "order stage").to.include(stage);
   const reached = (name) => STAGES.indexOf(stage) >= STAGES.indexOf(name);
   const order = { model: "sale.order" };
   refAs(SALES, customer.company).then(({ id }) => (order.customerId = id));
   refAs(SALES, customer.contact).then(({ id }) => (order.contactId = id));
-  parameterProduct("sol_demo.demo_test_parameter_lead")
-    .then((productId) =>
-      callAs(SALES, "sale.order", "create", [
-        {
-          customer_id: order.customerId,
-          partner_id: order.contactId,
-          source: "portal",
-          order_status: "submitted",
-          order_line: [[0, 0, { product_id: productId, product_uom_qty: 1 }]],
-        },
-      ]),
-    )
-    .then((id) => (order.id = id));
+  const products = [];
+  for (const [xmlId] of lines) {
+    parameterProduct(xmlId).then((productId) => products.push(productId));
+  }
+  cy.then(() =>
+    callAs(SALES, "sale.order", "create", [
+      {
+        customer_id: order.customerId,
+        partner_id: order.contactId,
+        source: "portal",
+        order_status: "submitted",
+        order_line: lines.map(([, quantity], index) => [0, 0, { product_id: products[index], product_uom_qty: quantity }]),
+      },
+    ]),
+  ).then((id) => (order.id = id));
   const step = (login, method, args = []) => cy.then(() => callAs(login, "sale.order", method, [[order.id], ...args]));
   if (reached("claimed")) {
     step(SALES, "action_claim");

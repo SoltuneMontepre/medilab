@@ -30,6 +30,8 @@ model SampleType {
   order_samples OrderSample[]
   /// Order lines tested on the type.
   order_lines   SaleOrderLine[]
+  /// Sampling needs kept with quotations for the type.
+  quotation_sampling QuotationSampling[]
 
   @@map("medilab_sample_type")
 }
@@ -58,6 +60,30 @@ model ParameterMethod {
   order_lines      SaleOrderLine[]
 
   @@map("medilab_parameter_method")
+}
+
+/// Laboratory's testing method, shown with the columns this module uses.
+model TestingMethod {
+  /// Row identifier.
+  id                 Int                       @id @default(autoincrement())
+  /// Unique standard reference of the method.
+  code               String                    @unique @db.VarChar
+  /// Sampling needs kept with quotations that list the method.
+  quotation_sampling QuotationSamplingMethod[]
+
+  @@map("medilab_testing_method")
+}
+
+/// Laboratory's measurement unit, shown with the columns this module uses.
+model MeasurementUnit {
+  /// Row identifier.
+  id                 Int                 @id @default(autoincrement())
+  /// Unique unit symbol, such as mL.
+  name               String              @unique @db.VarChar
+  /// Sampling needs kept with quotations whose amount is in the unit.
+  quotation_sampling QuotationSampling[]
+
+  @@map("medilab_measurement_unit")
 }
 
 /// Laboratory's customer, shown with the columns this module uses.
@@ -478,6 +504,8 @@ model OrderSample {
   regulation           Regulation?     @relation(fields: [regulation_id], references: [id], onDelete: Restrict)
   /// Lines tested on the sample.
   lines                SaleOrderLine[]
+  /// Sampling needs kept with the quotations of the sample.
+  quotation_sampling   QuotationSampling[]
 
   @@index([order_id])
   @@map("medilab_order_sample")
@@ -587,11 +615,66 @@ model Quotation {
   replaces       Quotation? @relation("QuotationRevisions", fields: [replaces_id], references: [id], onDelete: Restrict)
   /// The revision that replaces this one.
   replaced_by    Quotation? @relation("QuotationRevisions")
+  /// The expected samples, containers and amounts sent with the quotation; accepting it makes them the order's.
+  sampling       QuotationSampling[]
 
   @@unique([order_id, revision])
   @@index([status])
   @@index([advance_invoice_id])
   @@map("medilab_quotation")
+}
+
+/// The sampling needs of one sample a quotation was sent with (Nhu Cầu Lấy Mẫu Của Báo Giá): one row per sampling group and unit, so later catalog changes do not rewrite them. Group 0 lists the methods without a sampling requirement.
+model QuotationSampling {
+  /// Row identifier.
+  id              Int                       @id @default(autoincrement())
+  /// The quotation that was sent with these sampling needs.
+  quotation_id    Int
+  /// The order's sample the needs are for; empty once a revision removed it.
+  order_sample_id Int?
+  /// The sample type the needs were calculated on.
+  sample_type_id  Int
+  /// Number of objects of the sample: the largest quantity of the lines tested on it.
+  objects         Int                       @default(1)
+  /// Which sampling group the row belongs to, from 1; 0 for the methods that state no sampling requirement.
+  group_number    Int                       @default(0)
+  /// Container of the group, as the requirements stated it, in each language; empty without a requirement.
+  container_type  Json?
+  /// Preservation condition of the group, as the requirements stated it, in each language; empty without a requirement.
+  preservation    Json?
+  /// Amount the group's methods need together in the unit, for each object.
+  amount          Decimal?                  @db.Decimal
+  /// Unit of the amount; empty without a requirement.
+  unit_id         Int?
+  /// The quotation.
+  quotation       Quotation                 @relation(fields: [quotation_id], references: [id], onDelete: Cascade)
+  /// The order's sample.
+  order_sample    OrderSample?              @relation(fields: [order_sample_id], references: [id], onDelete: SetNull)
+  /// The sample type.
+  sample_type     SampleType                @relation(fields: [sample_type_id], references: [id], onDelete: Restrict)
+  /// Unit of the amount.
+  unit            MeasurementUnit?          @relation(fields: [unit_id], references: [id], onDelete: Restrict)
+  /// The testing methods whose requirements the row adds, or that state none.
+  methods         QuotationSamplingMethod[]
+
+  @@index([quotation_id])
+  @@index([order_sample_id])
+  @@map("medilab_quotation_sampling")
+}
+
+/// Links a kept quotation sampling row to the testing methods it adds or lists without a requirement.
+model QuotationSamplingMethod {
+  /// The sampling row.
+  medilab_quotation_sampling_id Int
+  /// The testing method.
+  medilab_testing_method_id     Int
+  /// The sampling row.
+  sampling                      QuotationSampling @relation(fields: [medilab_quotation_sampling_id], references: [id], onDelete: Cascade)
+  /// The testing method.
+  method                        TestingMethod     @relation(fields: [medilab_testing_method_id], references: [id], onDelete: Cascade)
+
+  @@id([medilab_quotation_sampling_id, medilab_testing_method_id])
+  @@map("medilab_quotation_sampling_medilab_testing_method_rel")
 }
 
 /// A saved order a returning customer reuses to create the next order faster. It has no price of its own.

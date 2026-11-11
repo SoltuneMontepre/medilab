@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-28 14:19+0000\n"
-"PO-Revision-Date: 2026-10-28 14:19+0000\n"
+"POT-Creation-Date: 2026-11-07 10:46+0000\n"
+"PO-Revision-Date: 2026-11-07 10:46+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -58,6 +58,12 @@ msgstr ""
 #. module: sol_demo
 #: model:medilab.chemical,storage_conditions:sol_demo.demo_chemical_nitric_acid
 msgid "Acid cabinet, away from organic substances"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.sampling.requirement,preservation:sol_demo.demo_sampling_requirement_lead_aas_bottled_water
+#: model:medilab.sampling.requirement,preservation:sol_demo.demo_sampling_requirement_lead_icpms_bottled_water
+msgid "Acidified with HNO₃ to pH below 2"
 msgstr ""
 
 #. module: sol_demo
@@ -126,6 +132,13 @@ msgstr ""
 #. module: sol_demo
 #: model:medilab.location,name:sol_demo.demo_location_chemistry_room
 msgid "Chemistry room"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.sampling.requirement,preservation:sol_demo.demo_sampling_requirement_coliforms_mpn_bottled_water
+#: model:medilab.sampling.requirement,preservation:sol_demo.demo_sampling_requirement_e_coli_membrane_bottled_water
+#: model:medilab.sampling.requirement,preservation:sol_demo.demo_sampling_requirement_ph_water_bottled_water
+msgid "Chilled at 2–8 °C"
 msgstr ""
 
 #. module: sol_demo
@@ -260,7 +273,6 @@ msgstr ""
 
 #. module: sol_demo
 #: model:medilab.approval.level,name:sol_demo.demo_approval_level_order_change_request_final
-#: model:medilab.approval.level,name:sol_demo.demo_approval_level_order_signing_head_of_sales
 msgid "Head of Sales"
 msgstr ""
 
@@ -336,6 +348,11 @@ msgstr ""
 #. module: sol_demo
 #: model:medilab.chemical,name:sol_demo.demo_chemical_lead_standard
 msgid "Lead standard solution 1000 mg/L"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.sample.type,name:sol_demo.demo_sample_type_lettuce
+msgid "Lettuce"
 msgstr ""
 
 #. module: sol_demo
@@ -483,6 +500,13 @@ msgid "Plate count agar plates"
 msgstr ""
 
 #. module: sol_demo
+#: model:medilab.sampling.requirement,container_type:sol_demo.demo_sampling_requirement_lead_aas_bottled_water
+#: model:medilab.sampling.requirement,container_type:sol_demo.demo_sampling_requirement_lead_icpms_bottled_water
+#: model:medilab.sampling.requirement,container_type:sol_demo.demo_sampling_requirement_ph_water_bottled_water
+msgid "Polyethylene bottle"
+msgstr ""
+
+#. module: sol_demo
 #: model:medilab.sample.type,disposal_method:sol_demo.demo_sample_type_bottled_water
 msgid "Pour into the drain and recycle the bottles."
 msgstr ""
@@ -524,7 +548,6 @@ msgid "Room temperature, tightly closed"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.approval.level,name:sol_demo.demo_approval_level_order_signing_sales
 #: model:medilab.role,name:sol_demo.demo_role_sales
 msgid "Sales"
 msgstr ""
@@ -563,6 +586,12 @@ msgstr ""
 #. module: sol_demo
 #: model:medilab.testing.method,name:sol_demo.demo_testing_method_tcvn_5979
 msgid "Soil quality — Determination of pH"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.sampling.requirement,container_type:sol_demo.demo_sampling_requirement_coliforms_mpn_bottled_water
+#: model:medilab.sampling.requirement,container_type:sol_demo.demo_sampling_requirement_e_coli_membrane_bottled_water
+msgid "Sterile glass bottle"
 msgstr ""
 
 #. module: sol_demo
