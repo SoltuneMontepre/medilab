@@ -220,12 +220,12 @@ flowchart TD
 
 ## WF-05 Outsourced testing
 
-- **Trigger:** the sample test's way is subcontracted, or a subcontracted way with the same method is proposed because in-house resources cannot meet the due date.
+- **Trigger:** the sample test's way is subcontracted, or a subcontracted way with the same method is proposed because in-house resources cannot meet the due date, or the head outsources a test urgently with a reason.
 - **Result:** the subcontractor's result is approved like any other result.
 - **Stories:** US-HD05, US-HD10, US-HD11, US-HD13, US-SD13, US-SUB01, US-SUB02, US-T09, US-HD08.
-- **States:** sample test waiting → outsourced → result entered → approved; dispatch draft → sent → received.
+- **States:** sample test waiting → outsourced → result entered → approved; dispatch draft → sent → received, or draft → cancelled before any result.
 - **Starts from:** sample tests with an outsourcing suggestion, and accredited subcontractors.
-- **Main path:** For a subcontracted way, the head creates a dispatch of sample tests with sending date, due date and returned report; staff carry it, results are entered and independently approved. Outsourcing is internal: the subcontractor tests the parameter with the method the customer agreed, so the customer is neither told nor asked.
+- **Main path:** The system suggests a subcontracted way with the test's parameter and method; the head accepts it and puts the sample tests in a dispatch. Sample delivery staff carry it, and the system records the date sent, who took it and the expected date. The subcontractor receives the samples and enters the results; the head is notified and approves them like any other result. Outsourcing is internal: the subcontractor tests the parameter with the method the customer agreed, so the customer is neither told nor asked.
 - **Alternative paths:**
   - WF-05-A1: A dispatch goes by a delivery service with its tracking number.
   - WF-05-A2: A lab QA enters the results the subcontractor sent back.
@@ -233,25 +233,29 @@ flowchart TD
 - **Exceptions:**
   - WF-05-E1: The head rejects the subcontractor's result; the test goes back to outsourced and a new result is entered.
   - WF-05-E2: A dispatch cannot proceed; it is cancelled before any result and its tests stay outsourced for another dispatch.
+  - WF-05-E3: Delivery to the subcontractor fails; the same sample is requested again through WF-02 Sample reception and handover.
 - **Acceptance criteria:** See [Head of department](laboratory_module/features/head-of-department.md) and [Subcontractor](laboratory_module/features/subcontractor.md). A dispatch whose tests have results cannot be cancelled. A subcontractor user sees only its own dispatches and never a sample's customer. An emergency proposal needs a reason; a test already running cannot be outsourced directly. Only a subcontracted way with the test's parameter and method can be chosen. The customer never sees that a test is outsourced or which subcontractor tests it.
-- **Paths in other flows:** SF-06 for subcontractor accreditation expiry.
+- **Paths in other flows:** SF-06 for subcontractor accreditation expiry; WF-02 for requesting a sample again after a failed delivery.
 
 ```mermaid
 flowchart TD
+    suggest[Suggest outsourcing]
     subgraph lane12 ["Head of department"]
-        h1[Review the outsourcing suggestion] --> h2[Put the sample tests in a dispatch]
-        h0[Propose urgent outsourcing with a reason] --> h2
-        h3[Record when it is sent and the expected date]
+        h1[Accept the suggestion] --> h2[Put the sample tests in a dispatch]
+        h0[Request outsourcing with a reason] --> h2
         h4{Approve the result?}
     end
     subgraph lane13 ["Sample delivery staff"]
-        d1[Carry the dispatch to the subcontractor]
+        d1[Carry the dispatch to the subcontractor] --> delivered{Delivered?}
     end
     subgraph lane14 ["Subcontractor"]
-        s1[See the dispatch and its tests] --> s2[Enter the results]
+        s1[Receive the samples of the dispatch] --> s2[Enter the results]
     end
-    h2 --> d1 --> h3 --> s1
-    s2 --> h4
+    suggest --> h1
+    h2 --> d1
+    delivered -->|yes| sent[Record when it is sent, who took it and the expected date] --> s1
+    delivered -->|no| wf02([Delivery failed: WF-02 requests the same sample again])
+    s2 --> notify[Notify the head] --> h4
     h4 -->|reject| s2
     h4 -->|approve| done([Outsourced test approved])
 ```
