@@ -92,6 +92,50 @@
         "import runpy; from pathlib import Path; runpy.run_path(str(next(p / 'tools/odoo-intelligence/run.py' for p in [Path.cwd(), *Path.cwd().parents] if (p / 'tools/odoo-intelligence/run.py').is_file())), run_name='__main__')",
         "mcp"
       ]
+    },
+    "filesystem": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "."
+      ]
+    },
+    "drawio": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@drawio/mcp@1.6.1"
+      ]
+    },
+    "plantuml-js": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@plantuml/mcp-js@0.2.2"
+      ]
+    },
+    "plantuml-java": {
+      "type": "stdio",
+      "command": "java",
+      "args": [
+        "-jar",
+        ".local/plantuml-mcp/build/libs/plantuml-mcp-1.0.0.jar"
+      ]
+    },
+    "plantuml-infobip": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "plantuml-mcp-server@0.2.4"
+      ],
+      "env": {
+        "PLANTUML_SERVER_URL": "http://localhost:8090"
+      }
     }
   }
 }
