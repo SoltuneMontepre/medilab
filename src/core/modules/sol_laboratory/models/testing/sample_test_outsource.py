@@ -24,9 +24,9 @@ class SampleTestOutsource(models.TransientModel, SampleTestOutsourceBase):
         sample_test_id = fields.Many2one(MODEL_SAMPLE_TEST, required=True, ondelete="cascade")
         # True when the scheduler suggests outsourcing the test; otherwise it is outsourced straight away.
         outsourcing_suggested = fields.Boolean(related="sample_test_id.outsourcing_suggested")
-        # The subcontracted ways of testing it can go through.
-        subcontracted_method_ids = fields.Many2many(related="sample_test_id.subcontracted_method_ids")
-        # The way of testing it is sent through; the first subcontracted way by default.
+        # The subcontracted ways of testing it can go through: the accepted way only, when the customer accepted one.
+        outsourcing_method_ids = fields.Many2many(related="sample_test_id.outsourcing_method_ids")
+        # The way of testing it is sent through; the first way it can go through by default.
         parameter_method_id = fields.Many2one(
             MODEL_PARAMETER_METHOD,
             string="Way of Testing",
@@ -35,7 +35,7 @@ class SampleTestOutsource(models.TransientModel, SampleTestOutsourceBase):
             compute="_compute_parameter_method_id",
             store=True,
             readonly=False,
-            domain="[('id', 'in', subcontracted_method_ids)]",
+            domain="[('id', 'in', outsourcing_method_ids)]",
         )
         # Why the test is outsourced straight away, without an outsourcing suggestion.
         reason = fields.Text()
@@ -43,7 +43,7 @@ class SampleTestOutsource(models.TransientModel, SampleTestOutsourceBase):
     @api.depends("sample_test_id")
     def _compute_parameter_method_id(self):
         for wizard in self:
-            wizard.parameter_method_id = wizard.sample_test_id.subcontracted_method_ids[:1]
+            wizard.parameter_method_id = wizard.sample_test_id.outsourcing_method_ids[:1]
 
     def action_outsource(self):
         self.ensure_one()

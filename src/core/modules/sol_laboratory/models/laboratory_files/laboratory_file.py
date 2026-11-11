@@ -16,6 +16,7 @@ from odoo.addons.sol_laboratory.constants.laboratory_files import (
     FILE_WRITE,
     FOLDER_READ,
     FOLDER_WRITE,
+    GENERATED,
     MOVE_CURRENT_CONTEXT,
     OFFICE_EXTENSIONS,
     RAW_DATA,
@@ -220,7 +221,7 @@ class LaboratoryFile(models.Model, LaboratoryFileBase):
     def _content_of_new_version(self, source, content, base_version, restored_from):
         """Refuse a version made the wrong way, and return the verified content it stores: the content given, or for a
         restore the content of the version it restores."""
-        if source not in (SYNCED, EDITED_ONLINE, RESTORED) or (source == RESTORED) != bool(restored_from):
+        if source not in (SYNCED, EDITED_ONLINE, GENERATED, RESTORED) or (source == RESTORED) != bool(restored_from):
             raise ValueError("A version is synced or edited online, or restored from a version.")
         if (base_version and base_version.file_id != self) or (restored_from and restored_from.file_id != self):
             raise ValueError("A version is made from a version of the same file.")

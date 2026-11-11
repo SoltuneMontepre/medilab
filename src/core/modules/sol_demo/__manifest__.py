@@ -1,6 +1,6 @@
 {
     "name": "Medilab - Testing Data",
-    "version": "20.0.1.21.0",
+    "version": "20.0.1.23.0",
     "summary": "Seeds and configure data for demo purposes.",
     "category": "Services/Laboratory",
     "author": "Soltune Montepre",
@@ -9,6 +9,7 @@
     "data": [
         "data/hr/hr_department.xml",
         "data/base/res_company.xml",
+        "data/resource/resource_calendar_leaves.xml",
         "data/base/res_partner.xml",
         "data/base/res_users.xml",
         "data/sol_laboratory/location.xml",
