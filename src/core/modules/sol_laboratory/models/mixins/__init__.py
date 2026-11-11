@@ -12,4 +12,5 @@ from . import (
     laboratory_sample_folder_mixin,
     lock_mixin,
     permission_mixin,
+    sampling_snapshot_mixin,
 )

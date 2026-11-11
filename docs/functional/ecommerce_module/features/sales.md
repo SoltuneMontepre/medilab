@@ -119,7 +119,7 @@ stateDiagram-v2
 Acceptance criteria:
 
 - A quotation without parameters or packages cannot be sent.
-- A quotation carries each parameter's sample type and selected or resolved default way, including a separate selection for every parameter of a package, and shows expected sampling needs before sending.
+- A quotation carries each parameter's sample type and selected or resolved default way, including a separate selection for every parameter of a package, and shows expected sampling needs before sending. A sent quotation keeps those needs; editing a sampling requirement afterwards does not change them.
 - Changing catalog defaults, package prices or package membership does not rewrite a sent quotation or an accepted order; sample tests use the retained selections.
 - Send is blocked above the Head of Sales's thresholds until they approve; below them Sales can send alone.
 - Before sending, Sales gives a percentage discount on a line, on every line or on the whole quotation as one discount line; no fixed-amount discount is offered, and after sending a discount changes only through a revision.

@@ -39,6 +39,17 @@
                                 </list>
                             </field>
                         </page>
+                        <page string="Sampling Requirements" name="sampling_requirements">
+                            <field name="sampling_requirement_ids">
+                                <list editable="bottom">
+                                    <field name="sample_type_id" options="{'no_create': True}" />
+                                    <field name="amount" />
+                                    <field name="unit_id" options="{'no_create': True}" />
+                                    <field name="container_type" />
+                                    <field name="preservation" />
+                                </list>
+                            </field>
+                        </page>
                         <page string="Chemicals" name="chemicals">
                             <field name="chemical_ids">
                                 <list>

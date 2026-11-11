@@ -4,7 +4,12 @@ from odoo import api, fields, models
 from odoo.api import SUPERUSER_ID
 from odoo.exceptions import AccessError, UserError
 
-from odoo.addons.sol_commerce.constants.models import MODEL_ACCOUNT_MOVE, MODEL_QUOTATION, MODEL_SALE_ORDER
+from odoo.addons.sol_commerce.constants.models import (
+    MODEL_ACCOUNT_MOVE,
+    MODEL_QUOTATION,
+    MODEL_QUOTATION_SAMPLING,
+    MODEL_SALE_ORDER,
+)
 from odoo.addons.sol_commerce.constants.orders import (
     ADVANCE_TOUCHED_STATES,
     QUOTATION_ACCEPTED,
@@ -33,6 +38,7 @@ class Quotation(models.Model, QuotationBase):
     _order = "order_id desc, revision desc"
     _rec_name = "code"
     _permission_actions = ("read", "create", "edit", "delete")
+    _audit_children = ("sampling_ids",)
 
     if not TYPE_CHECKING:
         # Unique quotation number in the format the administrator configures, such as 0001 26/BG-VTT; filled from a sequence.
@@ -70,6 +76,8 @@ class Quotation(models.Model, QuotationBase):
         )
         # The PDF sent to the customer.
         attachment_id = fields.Many2one("ir.attachment", required=True, ondelete="restrict")
+        # The expected samples, containers and amounts sent with the quotation; accepting it makes them the order's.
+        sampling_ids = fields.One2many(MODEL_QUOTATION_SAMPLING, "quotation_id", string="Expected Sampling")
 
     _code_unique = models.Constraint("UNIQUE(code)", "The number of a quotation must be unique.")
     _revision_unique = models.Constraint(
