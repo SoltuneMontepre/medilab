@@ -13,4 +13,4 @@ resources:
   - network-policy.yaml
 images:
   - name: ghcr.io/soltunemontepre/medilab
-    newTag: sha-769054493d735f73e70d5e23b702af37d3f6bd8b
+    newTag: sha-4216938dce899f7b863b12fbb9a56f211fed81c8
