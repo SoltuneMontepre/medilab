@@ -53,6 +53,9 @@
                         <setting id="sample_retention_reminder_setting">
                             <field name="sample_retention_reminder_days" class="o_light_label" />
                         </setting>
+                        <setting id="sample_delivery_role_setting">
+                            <field name="sample_delivery_role_id" options="{'no_create': True}" />
+                        </setting>
                     </block>
                 </app>
             </xpath>

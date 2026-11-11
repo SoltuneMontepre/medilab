@@ -10,6 +10,19 @@ spec:
     customRequestHeaders:
       X-Forwarded-Proto: https
 ---
+# Traefik passes on the forwarded headers cloudflared sends, a client's own X-Forwarded-Host among them, and Odoo's proxy
+# mode takes the host from it, so it is fixed to Odoo's host.
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: odoo-host
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+spec:
+  headers:
+    customRequestHeaders:
+      X-Forwarded-Host: lims.soltunemontepre.tech
+---
 # Signing in to the laboratory files API and the webhooks are limited per client address, which Cloudflare sends as
 # Cf-Connecting-IP; network policies let only cloudflared reach Traefik and only Traefik reach Odoo, so nothing else
 # sends that header. Traefik answers 429 past the limit.
@@ -39,6 +52,7 @@ spec:
       match: Host(`lims.soltunemontepre.tech`) && PathPrefix(`/websocket`)
       middlewares:
         - name: odoo-https
+        - name: odoo-host
       services:
         - name: odoo
           port: websocket
@@ -48,6 +62,7 @@ spec:
         Path(`/payment/payos/webhook`))
       middlewares:
         - name: odoo-https
+        - name: odoo-host
         - name: odoo-rate-limit
       services:
         - name: odoo
@@ -56,6 +71,7 @@ spec:
       match: Host(`lims.soltunemontepre.tech`)
       middlewares:
         - name: odoo-https
+        - name: odoo-host
       services:
         - name: odoo
           port: http

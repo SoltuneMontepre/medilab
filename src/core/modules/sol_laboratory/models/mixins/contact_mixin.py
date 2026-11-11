@@ -1,16 +1,28 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, models
 
-from odoo.addons.sol_laboratory.constants.models import MODEL_CONTACT_MIXIN
+from odoo.addons.sol_laboratory.constants.models import MODEL_CONTACT_MIXIN, MODEL_PERMISSION_MIXIN
+from odoo.addons.sol_laboratory.services.model_lookup import record_as
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_contact_mixin as ContactMixinBase
+else:
+    ContactMixinBase = object
 
 RES_PARTNER = "res.partner"
 
 
 # Lets the document's own permissions cover the contact it delegates to, which Odoo lets only contact managers change.
-class ContactMixin(models.AbstractModel):
+class ContactMixin(models.AbstractModel, ContactMixinBase):
     _name = MODEL_CONTACT_MIXIN
     _description = "Delegated Contact"
     # The fields of the contact that the document's create and edit permissions cover.
-    _contact_fields = ()
+    _contact_fields: tuple[str, ...] = ()
+    if TYPE_CHECKING:
+        from medilab_model_types import Model_res_partner
+
+        partner_id: Model_res_partner
 
     def _prepare_create_values(self, vals_list):
         # Odoo always adds the contact's properties, which would write the contact as the user.
@@ -40,7 +52,7 @@ class ContactMixin(models.AbstractModel):
         contact = {field_name: vals[field_name] for field_name in self._contact_fields if field_name in vals}
         vals = {field_name: value for field_name, value in vals.items() if field_name not in contact}
         if contact:
-            self._check_permission("edit")
+            record_as(self, self.env[MODEL_PERMISSION_MIXIN])._check_permission("edit")
             self._check_contact_values(contact)
         result = super().write(vals) if vals else True
         if contact:

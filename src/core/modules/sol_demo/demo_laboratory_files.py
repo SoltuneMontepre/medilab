@@ -6,7 +6,9 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_IR_MODEL_DATA,
     MODEL_LABORATORY_DEVICE,
     MODEL_LABORATORY_FILE,
+    MODEL_RES_USERS,
 )
+from odoo.addons.sol_laboratory.services.model_lookup import reference_as
 
 COMPUTERS = (
     (
@@ -91,8 +93,8 @@ def seed_laboratory_file_versions(env):
         version = file._add_version(
             content=store(content),
             source=SYNCED,
-            user=env.ref(f"sol_demo.demo_res_users_{user_name}"),
-            device=env.ref(f"sol_demo.demo_laboratory_device_{computer_name}"),
+            user=reference_as(env[MODEL_RES_USERS], f"sol_demo.demo_res_users_{user_name}"),
+            device=reference_as(env[MODEL_LABORATORY_DEVICE], f"sol_demo.demo_laboratory_device_{computer_name}"),
             base_version=file.version_ids.filtered(lambda version, number=base_number: version.number == number),
         )
         xml_ids.append(

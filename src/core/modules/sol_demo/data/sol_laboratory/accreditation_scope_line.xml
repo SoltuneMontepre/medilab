@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Lead by AAS is accredited on bottled water and, through Vegetables, on cabbage, but not on surface water. -->
+    <record id="demo_accreditation_scope_line_lead_aas_bottled_water" model="medilab.accreditation.scope.line">
+        <field name="certificate_id" ref="demo_accreditation_certificate_valid" />
+        <field name="method_id" ref="demo_testing_method_tcvn_7602" />
+        <field name="parameter_ids" eval="[Command.set([ref('demo_test_parameter_lead')])]" />
+        <field name="sample_type_ids" eval="[Command.set([ref('demo_sample_type_bottled_water')])]" />
+    </record>
+    <record id="demo_accreditation_scope_line_lead_aas_vegetables" model="medilab.accreditation.scope.line">
+        <field name="certificate_id" ref="demo_accreditation_certificate_valid" />
+        <field name="method_id" ref="demo_testing_method_tcvn_7602" />
+        <field name="parameter_ids" eval="[Command.set([ref('demo_test_parameter_lead')])]" />
+        <field name="sample_type_ids" eval="[Command.set([ref('demo_sample_type_vegetables')])]" />
+    </record>
+    <!-- Lead by ICP-MS is accredited on every food; the subcontracted way with the same method is not. -->
+    <record id="demo_accreditation_scope_line_lead_icpms_food" model="medilab.accreditation.scope.line">
+        <field name="certificate_id" ref="demo_accreditation_certificate_valid" />
+        <field name="method_id" ref="demo_testing_method_iso_17294_2" />
+        <field name="parameter_ids" eval="[Command.set([ref('demo_test_parameter_lead')])]" />
+        <field name="sample_type_ids" eval="[Command.set([ref('demo_sample_type_food')])]" />
+    </record>
+    <record id="demo_accreditation_scope_line_coliforms_mpn" model="medilab.accreditation.scope.line">
+        <field name="certificate_id" ref="demo_accreditation_certificate_valid" />
+        <field name="method_id" ref="demo_testing_method_tcvn_6187_2" />
+        <field name="parameter_ids" eval="[Command.set([ref('demo_test_parameter_coliforms')])]" />
+        <field name="sample_type_ids" eval="[Command.set([ref('demo_sample_type_bottled_water')])]" />
+    </record>
+    <record id="demo_accreditation_scope_line_coliforms_colony" model="medilab.accreditation.scope.line">
+        <field name="certificate_id" ref="demo_accreditation_certificate_valid" />
+        <field name="method_id" ref="demo_testing_method_iso_4832" />
+        <field name="parameter_ids" eval="[Command.set([ref('demo_test_parameter_coliforms')])]" />
+        <field name="sample_type_ids" eval="[Command.set([ref('demo_sample_type_food')])]" />
+    </record>
+    <record id="demo_accreditation_scope_line_e_coli_membrane" model="medilab.accreditation.scope.line">
+        <field name="certificate_id" ref="demo_accreditation_certificate_valid" />
+        <field name="method_id" ref="demo_testing_method_tcvn_6187_1" />
+        <field name="parameter_ids" eval="[Command.set([ref('demo_test_parameter_e_coli')])]" />
+        <field
+            name="sample_type_ids"
+            eval="[Command.set([ref('demo_sample_type_bottled_water'), ref('demo_sample_type_surface_water')])]"
+        />
+    </record>
+    <record id="demo_accreditation_scope_line_e_coli_colony" model="medilab.accreditation.scope.line">
+        <field name="certificate_id" ref="demo_accreditation_certificate_valid" />
+        <field name="method_id" ref="demo_testing_method_iso_16649_2" />
+        <field name="parameter_ids" eval="[Command.set([ref('demo_test_parameter_e_coli')])]" />
+        <field name="sample_type_ids" eval="[Command.set([ref('demo_sample_type_vegetables')])]" />
+    </record>
+    <record id="demo_accreditation_scope_line_ph_water" model="medilab.accreditation.scope.line">
+        <field name="certificate_id" ref="demo_accreditation_certificate_valid" />
+        <field name="method_id" ref="demo_testing_method_tcvn_6492" />
+        <field name="parameter_ids" eval="[Command.set([ref('demo_test_parameter_ph')])]" />
+        <field
+            name="sample_type_ids"
+            eval="[Command.set([ref('demo_sample_type_bottled_water'), ref('demo_sample_type_surface_water')])]"
+        />
+    </record>
+    <!-- Chlorpyrifos by QuEChERS is accredited on cabbage only; the subcontracted way with the same method is not. -->
+    <record id="demo_accreditation_scope_line_chlorpyrifos_cabbage" model="medilab.accreditation.scope.line">
+        <field name="certificate_id" ref="demo_accreditation_certificate_valid" />
+        <field name="method_id" ref="demo_testing_method_en_15662" />
+        <field name="parameter_ids" eval="[Command.set([ref('demo_test_parameter_chlorpyrifos')])]" />
+        <field name="sample_type_ids" eval="[Command.set([ref('demo_sample_type_cabbage')])]" />
+    </record>
+    <record id="demo_accreditation_scope_line_expired_ph_soil" model="medilab.accreditation.scope.line">
+        <field name="certificate_id" ref="demo_accreditation_certificate_expired" />
+        <field name="method_id" ref="demo_testing_method_tcvn_5979" />
+        <field name="parameter_ids" eval="[Command.set([ref('demo_test_parameter_ph')])]" />
+        <field name="sample_type_ids" eval="[Command.set([ref('demo_sample_type_environment')])]" />
+    </record>
+</odoo>

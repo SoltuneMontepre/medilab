@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_user_link_form" model="ir.ui.view">
+        <field name="name">medilab.user.link.form</field>
+        <field name="model">medilab.user.link</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="user_id" readonly="1" force_save="1" />
+                    <field name="person_id" placeholder="New person from the user" options="{'no_create': True}" />
+                </group>
+                <footer>
+                    <button name="action_link" type="object" string="Link" class="btn-primary" />
+                    <button special="cancel" string="Discard" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_medilab_user_link" model="ir.actions.act_window">
+        <field name="name">Link to a Person</field>
+        <field name="res_model">medilab.user.link</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

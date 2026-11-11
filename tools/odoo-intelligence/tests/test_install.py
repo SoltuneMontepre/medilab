@@ -1,10 +1,49 @@
 import hashlib
 import io
+import os
+import stat
 import zipfile
 
 import pytest
 
 from odoo_intelligence.install import unpack_verified
+
+
+@pytest.mark.skipif(os.name == "nt", reason="POSIX umask contract")
+def test_install_and_session_creation_keep_local_paths_private(tmp_path, monkeypatch):
+    import odoo_intelligence.install as installer
+    from odoo_intelligence.workspace import Workspace
+
+    monkeypatch.setattr(installer, "install_release", lambda workspace: None)
+    monkeypatch.setattr(installer, "install_source", lambda workspace: None)
+    monkeypatch.setattr("odoo_intelligence.prerequisites.install_terraform", lambda workspace: None)
+    previous = os.umask(0o002)
+    try:
+        installer.install(tmp_path, report_status=False)
+        workspace = Workspace(tmp_path)
+        session = workspace.session_directory()
+    finally:
+        os.umask(previous)
+    for path in (tmp_path / ".local", workspace.local, session.parent, session):
+        assert stat.S_IMODE(path.stat().st_mode) == 0o700
+
+
+@pytest.mark.skipif(os.name == "nt", reason="POSIX owner/write policy")
+def test_install_refuses_existing_mutable_local_state_without_repair(tmp_path, monkeypatch):
+    import odoo_intelligence.install as installer
+
+    local = tmp_path / ".local"
+    local.mkdir()
+    local.chmod(0o775)
+    original = local / "existing-state"
+    original.write_text("retain", encoding="utf-8")
+    monkeypatch.setattr(
+        installer, "install_release", lambda workspace: pytest.fail("unsafe state reached installation")
+    )
+    with pytest.raises(RuntimeError, match="owner/write permissions"):
+        installer.install(tmp_path, report_status=False)
+    assert stat.S_IMODE(local.stat().st_mode) == 0o775
+    assert original.read_text(encoding="utf-8") == "retain"
 
 
 def archive(contents):

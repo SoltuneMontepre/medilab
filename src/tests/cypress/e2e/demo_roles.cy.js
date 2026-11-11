@@ -7,6 +7,7 @@ const ROLES = [
   "sample_delivery_staff",
   "tester",
   "chemistry_tester",
+  "microbiology_tester",
   "head_of_department",
   "lab_head",
   "subcontractor",

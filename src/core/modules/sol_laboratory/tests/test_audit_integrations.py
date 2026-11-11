@@ -6,6 +6,7 @@ from odoo.tests import HttpCase, new_test_user, tagged
 from odoo.tools import mute_logger
 
 from .audit_case import AuditLookup
+from .mobile_phones import push_token
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_ENTRY,
     MODEL_DEPARTMENT,
@@ -13,7 +14,6 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MAIL_MAIL,
     MODEL_MAIL_MESSAGE,
     MODEL_MAIL_MESSAGE_SUBTYPE,
-    MODEL_MOBILE_DEVICE,
     MODEL_NOTIFICATION_PREFERENCE,
     MODEL_PUSH_DELIVERY,
     MODEL_TASK,
@@ -21,6 +21,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 from odoo.addons.sol_laboratory.constants.notifications import BREVO_WEBHOOK_TOKEN, CHANNEL_PUSH, EVENT_TASK_REMINDER
 from odoo.addons.sol_laboratory.services.firebase_client import FirebaseClient, PermanentTokenError
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 FIREBASE_FROM_ENV = "odoo.addons.sol_laboratory.models.notifications.scheduled_job.firebase_client_from_env"
 MAIL_SERVER = "odoo.addons.base.models.ir_mail_server.IrMail_Server"
@@ -86,7 +87,7 @@ class TestAuditIntegrations(AuditLookup, HttpCase):
         ):
             mail.send(raise_exception=False)
 
-        self.assertIn("Mailbox unavailable", self.entries(self.task, "error").note)
+        self.assertIn("Mailbox unavailable", assert_instance(self.entries(self.task, "error").note, str))
         self.assertFalse(self.entries(self.task, "integration"))
 
     def test_a_brevo_event_is_recorded_on_the_document_of_its_email(self):
@@ -115,14 +116,14 @@ class TestAuditIntegrations(AuditLookup, HttpCase):
         self.assertFalse(errors.user_id)
 
     def test_a_push_is_recorded_on_its_document_and_a_rejected_token_on_the_device(self):
-        devices = self.env[MODEL_MOBILE_DEVICE].with_user(self.recipient)
-        sent, rejected = devices.register_token("token-sent", "android"), devices.register_token("token-gone", "ios")
+        sent = push_token(self.env, self.recipient, "token-sent")
+        rejected = push_token(self.env, self.recipient, "token-gone", "ios")
         event = self.env[MODEL_MAIL_MESSAGE_SUBTYPE]._event(EVENT_TASK_REMINDER)
         self.env[MODEL_NOTIFICATION_PREFERENCE].with_user(self.recipient).set_own(event, CHANNEL_PUSH, True)
         self.notify("push")
         client = FirebaseClient(object(), "project")
 
-        def send(token, title, body):
+        def send(token, title, body, data):
             if token == "token-gone":
                 raise PermanentTokenError("UNREGISTERED")
 

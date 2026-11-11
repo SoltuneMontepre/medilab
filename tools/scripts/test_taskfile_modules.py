@@ -22,7 +22,7 @@ class TaskfileModulesTests(unittest.TestCase):
             env.pop(name, None)
         env["NO_COLOR"] = "1"
         env.update(overrides or {})
-        result = subprocess.run(
+        return subprocess.run(
             [TASK, "--verbose", *(["--dry"] if dry else []), task, *variables],
             cwd=ROOT,
             env=env,
@@ -32,7 +32,6 @@ class TaskfileModulesTests(unittest.TestCase):
             timeout=30,
             check=False,
         )
-        return result
 
     def dry_run(self, task, *variables):
         result = self.run_task(task, *variables)
@@ -106,8 +105,10 @@ class TaskfileModulesTests(unittest.TestCase):
     def test_upgrade_defaults_to_installed_modules(self):
         self.assert_upgrade_modules(self.dry_run("upgrade"), "all")
 
-    def test_setup_defaults_to_installed_modules(self):
-        self.assert_upgrade_modules(self.dry_run("setup"), "all")
+    def test_setup_delegates_to_the_portable_orchestrator(self):
+        self.assertIn(
+            "python tools/scripts/local_setup.py setup", self.dry_run("setup")
+        )
 
     def test_upgrade_keeps_explicit_module_selection(self):
         self.assert_upgrade_modules(

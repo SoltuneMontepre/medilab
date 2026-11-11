@@ -41,8 +41,10 @@ export type RemoteFilesRefreshControllerOptions = {
 export type RemoteFilesRefreshController = {
   /** Yêu cầu làm mới danh sách tệp; gộp các lượt gọi liên tiếp và tuần tự hóa tối đa 1 request in-flight. */
   invalidate: (revision?: number) => Promise<void>;
-  /** Hủy bỏ việc lắng nghe và dừng mọi lượt follow-up chưa chạy. */
+  /** Bỏ kết quả đang chờ và tạm dừng làm mới cho tới khi phiên được khôi phục. */
   cancel: () => void;
+  /** Cho phép làm mới sau đăng nhập; không tự gửi request. */
+  resume: () => void;
   /** True nếu đang có một request fetch đang chạy. */
   isInFlight: () => boolean;
   /** True nếu có ít nhất một invalidation đang chờ chạy lượt kế tiếp. */
@@ -61,7 +63,8 @@ export function createRemoteFilesRefreshController(
 ): RemoteFilesRefreshController {
   let inFlight = false;
   let queued = false;
-  let cancelled = false;
+  let active = true;
+  let generation = 0;
 
   let currentWaiters: Array<() => void> = [];
   let queuedWaiters: Array<() => void> = [];
@@ -74,13 +77,14 @@ export function createRemoteFilesRefreshController(
 
   async function executeFetch(): Promise<void> {
     inFlight = true;
+    const requestGeneration = generation;
     try {
       const result = await options.fetcher();
-      if (!cancelled) {
+      if (active && requestGeneration === generation) {
         options.onLoaded(result);
       }
     } catch (err) {
-      if (!cancelled) {
+      if (active && requestGeneration === generation) {
         options.onError?.(err);
       }
     } finally {
@@ -89,7 +93,7 @@ export function createRemoteFilesRefreshController(
       currentWaiters = [];
       notifyWaiters(finishedWaiters);
 
-      if (!cancelled && queued) {
+      if (active && queued) {
         queued = false;
         currentWaiters = queuedWaiters;
         queuedWaiters = [];
@@ -100,7 +104,7 @@ export function createRemoteFilesRefreshController(
 
   return {
     invalidate(_revision?: number): Promise<void> {
-      if (cancelled) {
+      if (!active) {
         return Promise.resolve();
       }
 
@@ -117,13 +121,16 @@ export function createRemoteFilesRefreshController(
       });
     },
     cancel(): void {
-      cancelled = true;
+      active = false;
+      generation++;
       queued = false;
-      inFlight = false;
       const allWaiters = [...currentWaiters, ...queuedWaiters];
       currentWaiters = [];
       queuedWaiters = [];
       notifyWaiters(allWaiters);
+    },
+    resume(): void {
+      active = true;
     },
     isInFlight(): boolean {
       return inFlight;

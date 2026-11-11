@@ -110,7 +110,7 @@ jobs:
           - os: windows-2025
             label: Windows
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 5
+    timeout-minutes: ${{ matrix.label == 'Windows' && 30 || 15 }}
     permissions:
       contents: read
       pull-requests: read
@@ -125,6 +125,33 @@ jobs:
           filters: |
             relevant:
               - "taskfile.yml"
+              - "tools/taskfiles/**"
+              - "tools/scripts/host_tools.py"
+              - "tools/scripts/local_private_paths.py"
+              - "tools/scripts/test_local_private_paths.py"
+              - "tools/scripts/test_local_state_creators.py"
+              - "tools/scripts/core_test_guard.py"
+              - "tools/scripts/test_core_guard.py"
+              - "tools/scripts/test_openapi.py"
+              - "tools/scripts/test_private_state_writers.py"
+              - "tools/scripts/*acceptance*.py"
+              - "tools/scripts/windows_acceptance.ps1"
+              - "tools/scripts/local_setup.py"
+              - "tools/scripts/test_host_tools.py"
+              - "tools/scripts/test_local_setup*.py"
+              - "tools/scripts/sync*.py"
+              - "tools/scripts/test_sync*.py"
+              - "tools/scripts/onlyoffice*.py"
+              - "tools/scripts/test_onlyoffice*.py"
+              - "tools/onlyoffice/**"
+              - "src/core/pyproject.toml"
+              - "src/core/uv.lock"
+              - "tools/scripts/demo_bootstrap*.py"
+              - "tools/scripts/local_compose.py"
+              - "tools/scripts/test_demo_bootstrap.py"
+              - "tools/scripts/test_local_compose.py"
+              - "tools/scripts/test_compose_env.py"
+              - "src/applications/medilab-sync/docker-compose.yml"
               - "tools/scripts/compose_env.py"
               - "tools/scripts/colorize_odoo_logs.py"
               - "tools/scripts/log.sh"
@@ -162,6 +189,32 @@ jobs:
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set up uv for locked local TLS contracts
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        uses: astral-sh/setup-uv@v10.3.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: src/core/uv.lock
+
+      - name: Exclude external Bash from native Windows task checks
+        if: runner.os == 'Windows' && (steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch')
+        shell: pwsh
+        run: |
+          $medilabBlockedShellPath = '(?i)[\\/]Git[\\/](usr[\\/]bin|bin)([\\/]|$)|[\\/]msys64[\\/]'
+          foreach ($sample in @('C:\Program Files\Git\usr\bin', 'C:\Program Files\Git\bin', 'C:/Program Files/Git/usr/bin', 'C:\msys64\usr\bin')) {
+            if ($sample -notmatch $medilabBlockedShellPath) { throw 'External Bash path detection failed its native path contract.' }
+          }
+          if ('C:\Program Files\Git\cmd' -match $medilabBlockedShellPath) { throw 'Native Git cmd must remain available.' }
+          $paths = @($env:PATH -split ';' | Where-Object { $_ -notmatch $medilabBlockedShellPath })
+          if (@($paths | Where-Object { $_ -match $medilabBlockedShellPath }).Count -ne 0) { throw 'Native Windows PATH still exposes external Bash directories.' }
+          $guard = Join-Path $env:RUNNER_TEMP 'medilab-native-shell-guard'
+          New-Item -ItemType Directory -Force $guard | Out-Null
+          foreach ($name in @('bash', 'sh')) {
+            Set-Content -Path (Join-Path $guard "$name.cmd") -Value '@exit /b 97'
+          }
+          Add-Content $env:GITHUB_ENV ('PATH=' + $guard + ';' + ($paths -join ';'))
+          Add-Content $env:GITHUB_ENV 'PYTHONUTF8=1'
+
       - name: Logging regression tests
         if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         run: task test:logging
@@ -170,8 +223,113 @@ jobs:
         if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         run: task test:taskfiles
 
+      - name: Portable host invocation contracts
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: python -m unittest discover -s tools/scripts -p 'test_host_tools.py'
+
+      - name: Root setup and native Task entrypoint contracts
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: python -m unittest discover -s tools/scripts -p 'test_local_setup*.py'
+
+      - name: Sync development contracts
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: python -m unittest discover -s tools/scripts -p 'test_sync*.py'
+
+      - name: Native PowerShell refusal contracts
+        if: runner.os == 'Windows' && (steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch')
+        run: python -B -m unittest discover -s tools/scripts -p 'test_windows_acceptance.py' -k NativePowerShellTests
+
+      - name: Selected Compose lifecycle regression tests
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: python -m unittest discover -s tools/scripts -p 'test_*compose*.py'
+
+      - name: Local setup security and platform evidence contracts
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: task test:setup
+
+      - name: Local state creator permission contracts
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: uv run --locked --no-build --project src/core python tools/scripts/test_local_state_creators.py
+
+      - name: ONLYOFFICE local setup contracts
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: uv run --locked --no-build --project src/core python -m unittest discover -s tools/scripts -p 'test_onlyoffice*.py'
+
+      - name: ONLYOFFICE local protocol contracts
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: uv run --locked --no-build --project src/core python -m unittest discover -s tools/onlyoffice -p 'test_*.py'
+
+      - name: Bootstrap lifecycle regression tests
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: python tools/scripts/test_demo_bootstrap.py
+
+  onlyoffice-docker:
+    name: ONLYOFFICE Docker network
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Detect relevant changes
+        id: filter
+        uses: dorny/paths-filter@v4
+        with:
+          filters: |
+            relevant:
+              - "taskfile.yml"
+              - "tools/taskfiles/onlyoffice.taskfile.yml"
+              - "tools/scripts/check_onlyoffice_docker_network.py"
+              - "tools/scripts/onlyoffice*.py"
+              - "tools/scripts/host_tools.py"
+              - "tools/scripts/local_private_paths.py"
+              - "tools/scripts/test_local_private_paths.py"
+              - "tools/scripts/test_private_state_writers.py"
+              - "tools/scripts/*acceptance*.py"
+              - "tools/scripts/windows_acceptance.ps1"
+              - "tools/scripts/local_setup.py"
+              - "tools/scripts/demo_bootstrap*.py"
+              - "tools/onlyoffice/**"
+              - "tools/infrastructure/docker-compose.yml"
+              - "src/applications/medilab-sync/docker-compose.yml"
+              - "src/core/pyproject.toml"
+              - "src/core/uv.lock"
+              - ".github/workflows/ci.tools.yml"
+
+      - name: Initialize sanitized Docker fixture evidence
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: |
+          python tools/scripts/local_private_paths.py .local
+          python -c "import json; from pathlib import Path;
+          report=Path('.local/onlyoffice-docker-network.json');
+          report.write_text(json.dumps({'status':'not_run','stage':'environment-preparation','server_version':None,'checks':{}},indent=2),encoding='utf-8')"
+
+      - name: Set up uv for the locked synthetic TLS fixture
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        uses: astral-sh/setup-uv@v10.3.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: src/core/uv.lock
+
+      - name: Verify Docker network and public proxy with owned synthetic fixtures
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: uv run --locked --no-build --project src/core python tools/scripts/check_onlyoffice_docker_network.py --report .local/onlyoffice-docker-network.json
+
+      - name: Upload sanitized Docker network evidence
+        if: always() && (steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch')
+        uses: actions/upload-artifact@v7
+        with:
+          name: onlyoffice-docker-network
+          path: .local/onlyoffice-docker-network.json
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+
   tools:
-    needs: [ai, typecheck, logging]
+    needs: [ai, typecheck, logging, onlyoffice-docker]
     if: ${{ !cancelled() }}
     runs-on: ubuntu-24.04
     timeout-minutes: 2
@@ -181,8 +339,9 @@ jobs:
           AI: ${{ needs.ai.result }}
           TYPECHECK: ${{ needs.typecheck.result }}
           LOGGING: ${{ needs.logging.result }}
+          DOCKER_NETWORK: ${{ needs.onlyoffice-docker.result }}
         run: |
-          if [ "$AI" != success ] || [ "$TYPECHECK" != success ] || [ "$LOGGING" != success ]; then
-            echo "::error::ai finished with result $AI, typecheck with result $TYPECHECK, and logging with result $LOGGING."
+          if [ "$AI" != success ] || [ "$TYPECHECK" != success ] || [ "$LOGGING" != success ] || [ "$DOCKER_NETWORK" != success ]; then
+            echo "::error::ai finished with result $AI, typecheck with result $TYPECHECK, logging with result $LOGGING, and Docker network with result $DOCKER_NETWORK."
             exit 1
           fi

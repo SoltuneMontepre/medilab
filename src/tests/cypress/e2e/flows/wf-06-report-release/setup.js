@@ -22,34 +22,38 @@ function refs(xmlIds) {
   return cy.wrap(ids);
 }
 
+// The open testing tasks of the sample tests.
+export const testingTasks = (tests) =>
+  callAs(HEAD, "medilab.task", "search", [
+    [
+      ["document_model", "=", "medilab.sample.test"],
+      ["document_id", "in", tests],
+      ["status", "not in", ["done", "cancelled"]],
+    ],
+  ]);
+
+// The head of department gives the tasks to the tester through the Reassign dialog.
+export function assignToTester(tasks) {
+  const context = { active_ids: tasks };
+  return refAs(HEAD, "sol_demo.demo_person_tester").then((tester) =>
+    callAs(HEAD, "medilab.task.reassign", "create", [{ assignee_id: tester.id }], { context }).then((wizard) =>
+      callAs(HEAD, "medilab.task.reassign", "action_confirm", [[wizard]], { context }),
+    ),
+  );
+}
+
 // Confirms a test request, receives its samples and has the head of department give their testing tasks to the tester.
 export function receiveRequest(requestId) {
-  return refs(["sol_demo.demo_person_tester", "sol_demo.demo_person_head_of_department"]).then((ids) => {
-    callAs(STAFF, "medilab.test.request", "action_confirm", [[requestId]]);
-    return callAs(STAFF, "medilab.test.request", "read", [[requestId], ["sample_ids"]])
-      .then(([request]) => {
-        callAs(STAFF, "medilab.sample", "action_receive", [request.sample_ids, "2 bottles", "good"]);
-        return callAs(STAFF, "medilab.sample", "read", [request.sample_ids, ["test_ids"]]);
-      })
-      .then((samples) => {
-        const tests = samples.flatMap((sample) => sample.test_ids);
-        return callAs(HEAD, "medilab.task", "search", [
-          [
-            ["document_model", "=", "medilab.sample.test"],
-            ["document_id", "in", tests],
-          ],
-        ]).then((tasks) =>
-          callAs(HEAD, "medilab.task", "write", [
-            tasks,
-            {
-              assignee_id: ids["sol_demo.demo_person_tester"],
-              assigned_by_id: ids["sol_demo.demo_person_head_of_department"],
-              status: "assigned",
-            },
-          ]).then(() => tests),
-        );
-      });
-  });
+  callAs(STAFF, "medilab.test.request", "action_confirm", [[requestId]]);
+  return callAs(STAFF, "medilab.test.request", "read", [[requestId], ["sample_ids"]])
+    .then(([request]) => {
+      callAs(STAFF, "medilab.sample", "action_receive", [request.sample_ids, "2 bottles", "good"]);
+      return callAs(STAFF, "medilab.sample", "read", [request.sample_ids, ["test_ids"]]);
+    })
+    .then((samples) => {
+      const tests = samples.flatMap((sample) => sample.test_ids);
+      return testingTasks(tests).then((tasks) => assignToTester(tasks).then(() => tests));
+    });
 }
 
 // The tester enters and signs a passing result of each test; the head of department approves it.
@@ -62,23 +66,21 @@ export function approveTests(testIds, cancelled = []) {
           callAs(HEAD, "medilab.sample.test", "action_cancel", [[test.id], "Too little sample was left after the lead digestion."]);
           continue;
         }
-        callAs(TESTER, "medilab.test.result", "create", [{ sample_test_id: test.id, value: PASSING[parameter], conclusion: "pass" }]).then((result) => {
-          callAs(TESTER, "medilab.test.result", "action_sign", [[result]]);
-          callAs(HEAD, "medilab.test.result", "action_sign", [[result]]);
-        });
+        callAs(TESTER, "medilab.test.result", "create", [{ sample_test_id: test.id, value: PASSING[parameter], conclusion: "pass" }]).then(
+          (result) => {
+            callAs(TESTER, "medilab.test.result", "action_sign", [[result]]);
+            callAs(HEAD, "medilab.test.result", "action_sign", [[result]]);
+          },
+        );
       }
     }),
   );
 }
 
-// A draft report the lab head has signed over RPC, which issues it with its number and PDF.
-export function issuedReport(options) {
-  return draftReport(options).then((built) => callAs(LAB_HEAD, "medilab.test.report", "action_sign", [[built.report.id]]).then(() => built));
-}
-
 // A test request of Nước Uống Sạch whose results are all approved, with its draft report, as `{ request, report }`.
 // `samples` lists the parameters of each bottled water sample; `cancel` names parameters whose test the head of
-// department cancels instead; `values` sets fields of the request, such as its report language.
+// department cancels instead; `values` sets fields of the request, such as its report language. The browser tests
+// never sign a new report: signing needs its PDF prepared through ONLYOFFICE.
 export function draftReport({ samples = [[PARAMETERS.lead, PARAMETERS.ph]], cancel = [], ...values } = {}) {
   return refs([
     "sol_demo.demo_customer_nuoc_sach",

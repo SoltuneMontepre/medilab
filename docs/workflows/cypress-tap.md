@@ -12,7 +12,7 @@ task test:e2e:tap:open
 task test:e2e:tap:open MEDILAB_URL=http://localhost:8169
 ```
 
-Set `TAP_BROWSER=edge`, `chromium` or `electron` to choose another installed supported browser. Chrome is the default; Cypress 16 deprecates Electron as a test browser.
+Set `TAP_BROWSER=edge`, `chromium` or `electron` to choose another installed supported browser. Chrome is the default; Cypress 16 deprecates Electron as a test browser. A second session of the same checkout cannot attach Chrome while the first one uses it; open it with another browser.
 
 Keep that command running. In another terminal at the same worktree root:
 

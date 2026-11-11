@@ -24,18 +24,13 @@ A story is ready for an issue when:
 - no question in `questions/<topic>.md` names it as blocked;
 - its [spec](../specs/readme.md) exists, when the feature needs one.
 
-## Trello
-
-The [medilab Trello board](https://trello.com/b/mk5Pnyu3/medilab) holds business detail: user stories, acceptance criteria and questions for stakeholders. When a Trello connection is available, search it for cards about the feature. Some cards describe the system being replaced, so what a card adds is confirmed with the owner and written into the documents before it is used; the documents stay the source of truth.
-
 ## Steps
 
 1. **Find the feature.** Take it from the functional documents: a feature section of an actor document, with its user stories. When the user names no feature, list the stories that are not started and ready, grouped by feature, and ask which one.
-2. **Check its status and readiness** as above, the code (the models, views and tests of its tables) and the Trello cards about it.
+2. **Check its status and readiness** as above, and the code (the models, views and tests of its tables).
    - If an issue already covers its stories, report that issue instead of creating a new one.
    - Report what is not ready, and the issues the feature depends on, such as accounts and permissions before any feature with access rules. Stop until the owner says how to go on.
    - When the feature needs a spec that does not exist, offer to write it first.
-   - When a Trello card adds rules or acceptance criteria the documents lack, propose adding them to the documents first.
 3. **Draft the issue** from [the feature template](../../.github/ISSUE_TEMPLATE/feature-ticket.md):
    - Title: `[Feature | <scope>] <feature name>`, where the scope is the module, such as `Laboratory`.
    - **Stories:** every story ID the issue covers.
@@ -62,6 +57,17 @@ The [medilab Trello board](https://trello.com/b/mk5Pnyu3/medilab) holds business
 ## Chores
 
 Work that is neither a feature nor a bug, such as tooling or demo data, is a chore issue. Its title is `[Chore | <scope>] <short description>`, where the scope is the module or area, such as `Tooling`. Set the issue type to Task.
+
+## Epics
+
+Work that spans several features of one business area is an epic: a parent issue whose sub-issues are the feature and chore issues that build it.
+
+- Its title is `[Epic | <scope>] <area>`. Set the issue type to Feature. An epic has no assignee; its sub-issues do.
+- Its body states the goal, links the documents and spec of the area, and gives the order of its sub-issues.
+- Each sub-issue is a feature or chore issue as above, small enough for one pull request, and is added to the epic as a GitHub sub-issue.
+- A sub-issue that needs another one first records it with GitHub's **blocked by** relationship and names it in its body.
+- A sub-issue that changes existing code says what is already on `main` in a **Starting point on main** line of its Description.
+- A sub-issue may be created before its new tables are in the database diagrams when the documents describe them; its first step adds those tables to the diagram. This is the only exception to [Readiness](#readiness).
 
 ## Related documents
 

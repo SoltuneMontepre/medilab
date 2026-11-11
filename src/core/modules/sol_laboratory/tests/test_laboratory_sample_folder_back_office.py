@@ -16,6 +16,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_SAMPLE,
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import FOLDER_ADMINISTRATION_GROUP
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 SAMPLE_READER_GROUP = "sol_laboratory.group_permission_sample_read_all"
 # The groups of a folder administrator who reads every folder and what it holds, but no sample.
@@ -85,7 +86,7 @@ class TestLaboratorySampleFolderBackOffice(LaboratoryFilesCase, RequestCase):
                     of_sample.with_user(self.member).read(["display_name"])
 
     def test_a_member_who_sees_the_sample_sees_its_folder(self):
-        self.member.group_ids = [Command.link(self.env.ref(SAMPLE_READER_GROUP).id)]
+        self.member.group_ids = [Command.link(persisted_id(self.env.ref(SAMPLE_READER_GROUP)))]
 
         for model, (of_sample, _of_no_sample) in self.member_records().items():
             with self.subTest(model=model):
@@ -97,7 +98,7 @@ class TestLaboratorySampleFolderBackOffice(LaboratoryFilesCase, RequestCase):
                 self.assertFalse(self.visible(self.folder_administrator, model, of_sample))
                 self.assertEqual(self.visible(self.folder_administrator, model, of_no_sample), of_no_sample)
 
-        self.folder_administrator.group_ids = [Command.link(self.env.ref(SAMPLE_READER_GROUP).id)]
+        self.folder_administrator.group_ids = [Command.link(persisted_id(self.env.ref(SAMPLE_READER_GROUP)))]
         for model, (of_sample, _of_no_sample) in self.records.items():
             with self.subTest(model=model, sees_sample=True):
                 self.assertEqual(self.visible(self.folder_administrator, model, of_sample), of_sample)
@@ -118,7 +119,7 @@ class TestLaboratorySampleFolderBackOffice(LaboratoryFilesCase, RequestCase):
         other_file = self.file_of("calibration.csv")
         self.save(other_file, "calibration 1")
         # Locking the sample's file takes seeing the sample too.
-        self.tester.group_ids = [Command.link(self.env.ref(SAMPLE_READER_GROUP).id)]
+        self.tester.group_ids = [Command.link(persisted_id(self.env.ref(SAMPLE_READER_GROUP)))]
         return sample_file.with_user(self.tester)._lock(), other_file.with_user(self.tester)._lock()
 
     def test_a_lock_in_a_folder_of_the_sample_is_hidden_from_people_who_cannot_see_the_sample(self):
@@ -130,7 +131,7 @@ class TestLaboratorySampleFolderBackOffice(LaboratoryFilesCase, RequestCase):
                 with self.assertRaises(AccessError):
                     of_sample.with_user(user).read(["display_name"])
 
-            user.group_ids = [Command.link(self.env.ref(SAMPLE_READER_GROUP).id)]
+            user.group_ids = [Command.link(persisted_id(self.env.ref(SAMPLE_READER_GROUP)))]
             with self.subTest(user=user.login, sees_sample=True):
                 self.assertEqual(
                     self.visible(user, MODEL_LABORATORY_FILE_LOCK, of_sample | of_no_sample), of_sample | of_no_sample
@@ -144,7 +145,7 @@ class TestLaboratorySampleFolderBackOffice(LaboratoryFilesCase, RequestCase):
                 self.assertRefused(NOT_FOUND, locks.with_user(self.folder_administrator).action_release)
                 self.assertRecordValues(locks, [{"status": "active", "released_by_id": False}] * len(locks))
 
-        self.folder_administrator.group_ids = [Command.link(self.env.ref(SAMPLE_READER_GROUP).id)]
+        self.folder_administrator.group_ids = [Command.link(persisted_id(self.env.ref(SAMPLE_READER_GROUP)))]
         of_sample.with_user(self.folder_administrator).action_release()
         self.assertRecordValues(of_sample, [{"status": "released", "released_by_id": self.folder_administrator.id}])
 
@@ -154,11 +155,11 @@ class TestLaboratorySampleFolderBackOffice(LaboratoryFilesCase, RequestCase):
 
     def test_the_sample_counts_only_the_folders_the_person_sees(self):
         for user in (self.member, self.outsider):
-            user.group_ids = [Command.link(self.env.ref(SAMPLE_READER_GROUP).id)]
+            user.group_ids = [Command.link(persisted_id(self.env.ref(SAMPLE_READER_GROUP)))]
 
         self.assertEqual(
-            self.env[MODEL_SAMPLE].with_user(self.member).browse(self.sample.id).laboratory_folder_count, 1
+            self.env[MODEL_SAMPLE].with_user(self.member).browse(persisted_id(self.sample)).laboratory_folder_count, 1
         )
         self.assertEqual(
-            self.env[MODEL_SAMPLE].with_user(self.outsider).browse(self.sample.id).laboratory_folder_count, 0
+            self.env[MODEL_SAMPLE].with_user(self.outsider).browse(persisted_id(self.sample)).laboratory_folder_count, 0
         )

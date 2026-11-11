@@ -1,15 +1,21 @@
 import logging
+from typing import TYPE_CHECKING
 
 from odoo import api, models
 
 from odoo.addons.sol_laboratory.constants.customers import SIGNUP_CUSTOMER_KEY
 from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_res_users as ResUsersBase
+else:
+    ResUsersBase = object
+
 _logger = logging.getLogger(__name__)
 
 
 # Người Dùng: a self-registered user is a customer's person; a password reset does not reveal who has an account.
-class ResUsers(models.Model):
+class ResUsers(models.Model, ResUsersBase):
     _inherit = "res.users"
 
     @api.model

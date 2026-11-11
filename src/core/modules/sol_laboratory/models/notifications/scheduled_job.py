@@ -1,4 +1,5 @@
 from datetime import UTC, datetime, timedelta
+from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
 
 from odoo import api, fields, models
@@ -22,11 +23,16 @@ from odoo.addons.sol_laboratory.services.firebase_client import (
     firebase_client_from_env,
 )
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_scheduled_job as ScheduledJobBase
+else:
+    ScheduledJobBase = object
+
 VIETNAM = ZoneInfo(VIETNAM_ZONE)
 
 
 # Tác Vụ Định Kỳ
-class ScheduledJob(models.Model):
+class ScheduledJob(models.Model, ScheduledJobBase):
     _inherit = MODEL_SCHEDULED_JOB
 
     def _run_batch(self):
@@ -110,7 +116,7 @@ class ScheduledJob(models.Model):
         if not delivery or not delivery.exists() or delivery.status in ("sent", "skipped"):
             return None
         device = delivery.mobile_device_id
-        if not device.active:
+        if not device._signed_in():
             delivery.write({"status": "skipped"})
             return None
         client = firebase_client_from_env()
@@ -118,7 +124,7 @@ class ScheduledJob(models.Model):
             return fields.Datetime.now() + timedelta(minutes=5)
         message = delivery.notification_id.mail_message_id
         try:
-            client.send(device.token, message.subject or "", self._push_body(delivery))
+            client.send(device.token, *delivery._push_message())
         except PermanentTokenError as error:
             device._audit("error", self.env._("Firebase rejected the token: %s", error))
             device.turn_off(str(error))
@@ -134,10 +140,6 @@ class ScheduledJob(models.Model):
             message._audit_document(),
         )
         return None
-
-    def _push_body(self, delivery):
-        message = delivery.notification_id.mail_message_id
-        return message.preview or message.subject or message.body or ""
 
     @api.model
     def _reminder_lead(self):

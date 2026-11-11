@@ -24,6 +24,10 @@ CALLBACK_OPERATION = "callback"
 class EditingCallbackRefused(Exception):
     """A call of the editing service that fails a check; nothing of it is stored."""
 
+    def __init__(self, message, *, expired=False):
+        super().__init__(message)
+        self.expired = expired
+
 
 def jwt_secret():
     """The secret shared with the editing service, or None when it is not set or too short to sign with."""
@@ -81,7 +85,9 @@ def _decode(token, secret):
         )
     except jwt.InvalidTokenError as error:
         # The class names why without repeating the token.
-        raise EditingCallbackRefused(f"The token is not valid: {type(error).__name__}.") from None
+        raise EditingCallbackRefused(
+            f"The token is not valid: {type(error).__name__}.", expired=isinstance(error, jwt.ExpiredSignatureError)
+        ) from None
 
 
 def _check_operation(*claims):

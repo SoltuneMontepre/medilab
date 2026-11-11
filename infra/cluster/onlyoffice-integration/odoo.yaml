@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: odoo
+spec:
+  template:
+    spec:
+      initContainers:
+        - name: onlyoffice-trust
+          image: ghcr.io/soltunemontepre/medilab:sha-d8edc75d11fa67cfaabc6741de5607b2acd83251
+          command: ["python3", "-c"]
+          args:
+            - |
+              from pathlib import Path
+              Path('/trust/ca-bundle.pem').write_bytes(
+                  Path('/etc/ssl/certs/ca-certificates.crt').read_bytes()
+                  + b'\n' + Path('/ca/ca.crt').read_bytes())
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: "1"
+              memory: 128Mi
+          volumeMounts:
+            - name: onlyoffice-ca
+              mountPath: /ca
+              readOnly: true
+            - name: onlyoffice-trust
+              mountPath: /trust
+      containers:
+        - name: odoo
+          env:
+            - name: ONLYOFFICE_INTERNAL_URL
+              value: https://onlyoffice.medilab.svc.cluster.local
+            - name: ONLYOFFICE_PUBLIC_URL
+              value: https://office.soltunemontepre.tech
+            - name: ONLYOFFICE_CALLBACK_ORIGIN
+              value: https://onlyoffice-callback.kube-system.svc.cluster.local:8443
+            - name: ONLYOFFICE_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: onlyoffice-jwt
+                  key: jwt-secret
+            - name: REQUESTS_CA_BUNDLE
+              value: /run/onlyoffice-trust/ca-bundle.pem
+          volumeMounts:
+            - name: onlyoffice-trust
+              mountPath: /run/onlyoffice-trust
+              readOnly: true
+      volumes:
+        - name: onlyoffice-ca
+          secret:
+            secretName: onlyoffice-tls
+            items:
+              - key: ca.crt
+                path: ca.crt
+        - name: onlyoffice-trust
+          emptyDir: {}

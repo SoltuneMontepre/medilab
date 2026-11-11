@@ -76,7 +76,15 @@ pub fn next_status(err: &AppError, attempt: i64, retryable: bool, now: i64) -> R
     }
     RetryDecision {
         status: "retry_wait",
-        retry_at: Some(now + backoff_secs(attempt)),
+        retry_at: Some(
+            now + backoff_secs(attempt).max(match err {
+                AppError::Api {
+                    retry_after: Some(wait),
+                    ..
+                } => *wait,
+                _ => 0,
+            }),
+        ),
         message,
     }
 }

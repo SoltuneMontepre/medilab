@@ -2,6 +2,8 @@ from odoo.fields import Command
 from odoo.tests import TransactionCase
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_DEPARTMENT, MODEL_PERMISSION, MODEL_PERSON
+from odoo.addons.sol_laboratory.services.model_lookup import reference_as
+from odoo.addons.sol_laboratory.services.record_id import persisted_id, persisted_ids
 
 
 class PeopleCase(TransactionCase):
@@ -22,9 +24,9 @@ class PeopleCase(TransactionCase):
         if login:
             vals["login"] = login
         if permissions:
-            vals["permission_ids"] = [Command.set(cls.permissions(*permissions).ids)]
+            vals["permission_ids"] = [Command.set(persisted_ids(cls.permissions(*permissions)))]
         if roles:
-            vals["role_ids"] = [Command.set(roles.ids)]
+            vals["role_ids"] = [Command.set(persisted_ids(roles))]
         return cls.env[MODEL_PERSON].create(vals)
 
     @classmethod
@@ -34,12 +36,13 @@ class PeopleCase(TransactionCase):
     @classmethod
     def permissions(cls, *codes):
         return cls.env[MODEL_PERMISSION].concat(
-            cls.env.ref(f"sol_laboratory.permission_{code.replace('.', '_')}") for code in codes
+            reference_as(cls.env[MODEL_PERMISSION], f"sol_laboratory.permission_{code.replace('.', '_')}")
+            for code in codes
         )
 
     @classmethod
     def grant(cls, person, *codes):
-        person.permission_ids = [Command.link(permission.id) for permission in cls.permissions(*codes)]
+        person.permission_ids = [Command.link(persisted_id(permission)) for permission in cls.permissions(*codes)]
 
     @staticmethod
     def as_person(records, person):

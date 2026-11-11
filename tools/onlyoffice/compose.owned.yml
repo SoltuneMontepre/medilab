@@ -1,0 +1,10 @@
+services:
+  onlyoffice:
+    labels:
+      com.medilab.bootstrap.owner: ${MEDILAB_ONLYOFFICE_BASE_OWNER}
+  onlyoffice-adapter:
+    labels:
+      com.medilab.bootstrap.owner: ${MEDILAB_ONLYOFFICE_BASE_OWNER}
+  onlyoffice-gateway:
+    labels:
+      com.medilab.bootstrap.owner: ${MEDILAB_ONLYOFFICE_BASE_OWNER}

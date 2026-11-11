@@ -93,6 +93,17 @@ class TestOrderConfirmation(OrderCase):
         self.assertEqual(order.state, "sent")
         self.assertFalse(order.test_request_id)
 
+    def test_sample_collection_starts_once_the_order_is_confirmed(self):
+        order = self.sent_order()
+        self.pay_advance(order)
+
+        with self.assertRaises(UserError):
+            order.with_user(self.sales).action_start_sample_collection()
+        order.with_user(self.sales).action_confirm_order()
+
+        self.assertTrue(order.confirmed_at)
+        self.assertTrue(order.with_user(self.sales).action_start_sample_collection())
+
     def test_an_order_is_confirmed_once(self):
         order = self.make_confirmed_order()
 

@@ -289,6 +289,7 @@ export function FoldersTab({
                       {t("folders.instrument")}: {folder.instrument_label}
                     </div>
                   ) : null}
+                  {folder.access_state === "unbound" ? <div className="text-amber-700">{t("folders.unbound")}</div> : null}
                   {folder.access_state === "denied" ? (
                     <div className="text-amber-700">{t("folders.denied")}</div>
                   ) : null}

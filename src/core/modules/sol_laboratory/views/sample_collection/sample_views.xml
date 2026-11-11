@@ -69,6 +69,9 @@
                     />
                 </header>
                 <sheet>
+                    <div class="alert alert-warning" role="alert" invisible="not regulation_notice">
+                        <field name="regulation_notice" />
+                    </div>
                     <div class="oe_title">
                         <label for="code" />
                         <h1><field name="code" required="0" placeholder="Given when the sample is saved" /></h1>
@@ -83,7 +86,14 @@
                         <group>
                             <field name="sample_form" />
                             <field name="container_type" />
-                            <field name="regulation_id" />
+                            <field
+                                name="regulation_id"
+                                domain="[
+                                    ('sample_type_ids', 'parent_of', sample_type_id),
+                                    '|', ('valid_from', '=', False), ('valid_from', '&lt;=', context_today().strftime('%Y-%m-%d')),
+                                    '|', ('valid_until', '=', False), ('valid_until', '&gt;=', context_today().strftime('%Y-%m-%d')),
+                                ]"
+                            />
                         </group>
                     </group>
                     <group string="Receipt">
@@ -117,7 +127,8 @@
                                 <list editable="bottom">
                                     <field name="parameter_id" />
                                     <field name="quantity" />
-                                    <field name="due_date" />
+                                    <field name="due_date" readonly="1" />
+                                    <field name="is_accredited" optional="show" />
                                     <field name="status" widget="badge" />
                                 </list>
                             </field>

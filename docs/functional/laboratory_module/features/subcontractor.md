@@ -19,12 +19,16 @@ Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling
 | Anonymity    | They see samples by lab code, sample type and parameters only, never the customer or the customer's name for the sample.         |
 | Entering     | The results of an outsourced sample test are entered either by the subcontractor or by a lab QA of the laboratory; each result records who entered it. |
 | Approval     | Results entered by a subcontractor go through the same approval as the laboratory's own results: a lab QA of the department sends them, and the head of department approves them. |
+| First say    | While a result the subcontractor entered waits to be sent, a lab QA cannot enter another result for the test. |
+| Rejection    | A rejected result stays on the dispatch page with the head's reason, beside the field to enter the new result. |
 
 Acceptance criteria:
 
 - A subcontractor user sees the dispatches of their own subcontractor and no others.
 - A subcontractor user never sees a sample's customer.
 - A result entered by a subcontractor user shows that user as the one who entered it, and waits for approval like any other result.
+- A lab QA cannot enter a result for a test whose subcontractor's result waits to be sent.
+- A subcontractor user sees their rejected result and the reason on the dispatch page.
 
 ## III. Related documents
 

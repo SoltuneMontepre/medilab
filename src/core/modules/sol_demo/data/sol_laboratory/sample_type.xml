@@ -28,6 +28,11 @@
         <field name="storage_conditions">0–4 °C</field>
         <field name="disposal_method">Dispose of as organic waste.</field>
     </record>
+    <!-- A narrower type nothing is configured for: Cabbage's parameters are not offered on it. -->
+    <record id="demo_sample_type_lettuce" model="medilab.sample.type">
+        <field name="name">Lettuce</field>
+        <field name="parent_id" ref="demo_sample_type_vegetables" />
+    </record>
     <record id="demo_sample_type_environment" model="medilab.sample.type">
         <field name="name">Environment</field>
     </record>

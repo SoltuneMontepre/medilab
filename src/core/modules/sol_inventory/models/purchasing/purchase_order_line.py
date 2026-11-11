@@ -1,14 +1,21 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, models
 
 from odoo.addons.sol_inventory.constants.models import MODEL_PURCHASE_ORDER, MODEL_PURCHASE_ORDER_LINE
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_purchase_order_line as PurchaseOrderLineBase
+else:
+    PurchaseOrderLineBase = object
 
 # What the signers approved on a line; Odoo keeps writing the others, such as the received quantity.
 SIGNED_LINE_FIELDS = frozenset({"product_id", "product_qty", "uom_id", "price_unit", "discount", "tax_ids", "name"})
 
 
 # Dòng Đơn Mua Hàng
-class PurchaseOrderLine(models.Model):
+class PurchaseOrderLine(models.Model, PurchaseOrderLineBase):
     _name = MODEL_PURCHASE_ORDER_LINE
     _inherit = [MODEL_AUDIT_MIXIN, MODEL_PURCHASE_ORDER_LINE]
 

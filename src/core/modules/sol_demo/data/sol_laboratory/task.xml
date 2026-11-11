@@ -180,7 +180,7 @@
         <field name="assignee_id" ref="demo_person_tester" />
         <field name="assigned_by_id" ref="demo_person_head_of_department" />
         <field name="status">assigned</field>
-        <field name="deadline" eval="(DateTime.now() + relativedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="deadline" eval="(DateTime.now() + relativedelta(minutes=30)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="document_model">medilab.sample.test</field>
         <field name="document_id" eval="ref('demo_sample_test_lead_queued')" />
     </record>

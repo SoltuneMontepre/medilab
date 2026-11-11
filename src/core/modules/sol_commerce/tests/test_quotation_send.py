@@ -1,12 +1,14 @@
 import re
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from odoo import fields
 from odoo.exceptions import UserError
+from odoo.fields import Command
 from odoo.tests import tagged
 
 from .order_case import OrderCase
-from odoo.addons.sol_commerce.constants.models import MODEL_QUOTATION
+from odoo.addons.sol_commerce.constants.models import MODEL_QUOTATION, MODEL_TAX
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -57,10 +59,12 @@ class TestQuotationSend(OrderCase):
         self.assertEqual(quotation.status, "sent")
         self.assertEqual(quotation.revision, 1)
         self.assertEqual(quotation.amount_total, order.amount_total)
-        self.assertRegex(quotation.code, r"^\d{4} \d{2}/BG-VTT$")
+        self.assertRegex(assert_instance(quotation.code, str), r"^\d{4} \d{2}/BG-VTT$")
         self.assertTrue(quotation.attachment_id.raw)
         self.assertEqual(quotation.attachment_id.res_id, quotation.id)
-        self.assertGreaterEqual(order.payment_deadline, before + timedelta(days=3) - timedelta(seconds=1))
+        self.assertGreaterEqual(
+            assert_instance(order.payment_deadline, datetime), before + timedelta(days=3) - timedelta(seconds=1)
+        )
         self.assertEqual(order.order_status, "claimed")
         self.assertEqual(order.quotation_follow_up, "unpaid")
 
@@ -74,7 +78,7 @@ class TestQuotationSend(OrderCase):
         self.assertEqual(order.payment_deadline, deadline)
 
     def test_catalog_changes_after_sending_do_not_change_the_line(self):
-        self.lead_product.taxes_id = self.tax_10
+        self.vat.rate_ids.filtered(lambda period: period.rate == 10).account_tax_id = self.tax_10
         order = self.make_quotable_order()
         line = order._catalog_lines()
         price = line.price_unit
@@ -82,7 +86,13 @@ class TestQuotationSend(OrderCase):
         self.send(order)
 
         self.lead_price.list_price = price + 5000
-        self.lead_product.taxes_id = self.tax_8
+        self.lead_price.tax_id = self.env[MODEL_TAX].create(
+            {
+                "code": "TEST-VAT8",
+                "name": "VAT 8%",
+                "rate_ids": [Command.create({"rate": 8, "valid_from": "2020-01-01", "account_tax_id": self.tax_8.id})],
+            }
+        )
         line.with_context(sale_write_from_compute=True).technical_price_unit = line.price_unit
         self.env.add_to_compute(line._fields["price_unit"], line)
         self.env.add_to_compute(line._fields["tax_ids"], line)
@@ -107,7 +117,7 @@ class TestQuotationSend(OrderCase):
         self.assertEqual(second.replaces_id, first)
         self.assertEqual(second.status, "sent")
         self.assertNotEqual(first.code, second.code)
-        self.assertTrue(re.match(r"^\d{4} \d{2}/BG-VTT$", second.code))
+        self.assertTrue(re.match(r"^\d{4} \d{2}/BG-VTT$", assert_instance(second.code, str)))
         with self.assertRaises(UserError):
             first.write({"status": "sent"})
         self.assertEqual(len(order.quotation_ids), 2)

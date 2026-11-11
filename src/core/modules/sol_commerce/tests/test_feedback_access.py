@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from psycopg2 import IntegrityError
 
 from odoo.exceptions import AccessError, UserError
@@ -8,6 +10,9 @@ from .support_case import SupportCase
 from odoo.addons.sol_commerce.constants.models import MODEL_RATING, MODEL_SALE_ORDER
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_ENTRY
 from odoo.addons.sol_laboratory.tests.audit_case import AuditLookup
+
+if TYPE_CHECKING:
+    from odoo.orm.types import DomainType
 
 READ_FIELDS = ["rating", "feedback"]
 
@@ -33,7 +38,7 @@ class TestFeedbackAccess(AuditLookup, SupportCase):
 
     def assert_cannot_read(self, user):
         """A user without any rating access is refused; one with it finds nothing."""
-        found = [("id", "=", self.feedback.id)]
+        found: DomainType = [("id", "=", self.feedback.id)]
         ratings = self.ratings.with_user(user)
         if ratings.has_access("read"):
             self.assertFalse(ratings.search(found))
@@ -135,12 +140,12 @@ class TestFeedbackAccess(AuditLookup, SupportCase):
         order.with_user(self.portal).action_give_feedback(5)
         model = type(order)
         no_feedback = model._feedback
-        model._feedback = lambda record: record.env[MODEL_RATING]
+        setattr(model, "_feedback", lambda record: record.env[MODEL_RATING])
         try:
             with self.assertRaises(UserError):
                 order.with_user(self.portal).action_give_feedback(1)
         finally:
-            model._feedback = no_feedback
+            setattr(model, "_feedback", no_feedback)
 
         self.assertEqual(order.feedback_rating, 5)
 

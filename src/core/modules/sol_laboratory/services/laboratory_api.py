@@ -29,11 +29,12 @@ from odoo.addons.sol_laboratory.constants.laboratory_files import (
     NOT_FOUND,
     TRY_AGAIN,
 )
-from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_DEVICE, MODEL_LABORATORY_FOLDER
+from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_DEVICE, MODEL_LABORATORY_FOLDER, MODEL_RES_LANG
 from odoo.addons.sol_laboratory.constants.routes import DEVICE_KEY
 from odoo.addons.sol_laboratory.services import openapi_document
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
 from odoo.addons.sol_laboratory.services.request_env import request_env
+from odoo.addons.sol_laboratory.services.sync_update_http import is_public_sync_path
 
 _logger = logging.getLogger(__name__)
 
@@ -49,7 +50,7 @@ UNAUTHENTICATED = "none"
 
 
 def is_api_path(path):
-    return path == API_PREFIX or path.startswith(API_PREFIX + "/")
+    return (path == API_PREFIX or path.startswith(API_PREFIX + "/")) and not is_public_sync_path(path)
 
 
 def laboratory_api_route(path, methods, operation, auth=BY_KEY, permission=True, readonly=False):
@@ -104,6 +105,7 @@ def serve(endpoint, controller, params, declared):
     if request.httprequest.method not in (*methods, *(["HEAD"] if "GET" in methods else [])):
         raise MethodNotAllowed(valid_methods=methods)
     path_arguments = {name: params.pop(name) for name in declared.arguments}
+    serve_in_requested_language()
     body, values = checked_request(declared.operation, params)
     if declared.auth == BY_KEY:
         env = request_env()
@@ -118,12 +120,26 @@ def serve(endpoint, controller, params, declared):
     return json_answer(result)
 
 
+def serve_in_requested_language():
+    """Serve the request in the language the application sends in Accept-Language, such as vi from Medilab Mobile, when
+    MediLab has it installed; otherwise in the person's language."""
+    if request.env is None or not request.httprequest.accept_languages:
+        return
+    installed = [code for code, _name in request.env[MODEL_RES_LANG].get_installed()]
+    for value, _quality in request.httprequest.accept_languages:
+        wanted = value.replace("-", "_").lower()
+        for code in installed:
+            if wanted in (code.lower(), code.split("_")[0].lower()):
+                request.update_context(lang=code)
+                return
+
+
 def bearer_key():
     """The key of the call. Odoo's bearer authentication also takes a browser session without one, which the API never
-    does: every call comes from a signed-in computer."""
+    does: every call comes from a signed-in device."""
     match = BEARER.match(request.httprequest.headers.get("Authorization") or "")
     if not match:
-        raise LaboratoryFileError(INVALID_KEY, request_env()._("Sign this computer in: the call has no key."))
+        raise LaboratoryFileError(INVALID_KEY, request_env()._("Sign this device in: the call has no key."))
     return match.group(1)
 
 
@@ -194,6 +210,12 @@ def refusal_answer(code, message, retry_after=None, headers=None, error_id=None)
 def exception_answer(exception):
     """The answer of an exception raised while serving a path of the API. A request refused this way commits nothing,
     as Odoo commits only what an endpoint returns."""
+    if isinstance(
+        exception, (HTTPException, AccessDenied, SessionExpiredException, AccessError, MissingError, UserError)
+    ):
+        # Odoo may refuse before the route serves the request, such as a key it does not take. A failed database call
+        # is left out, as its transaction can no longer read the installed languages.
+        serve_in_requested_language()
     env = request_env()
     if isinstance(exception, LaboratoryFileError):
         return refusal_answer(exception.code, exception.args[0], exception.retry_after)
@@ -205,7 +227,7 @@ def exception_answer(exception):
             headers={"Allow": ", ".join(allowed)},
         )
     if isinstance(exception, (Unauthorized, AccessDenied, SessionExpiredException)):
-        return refusal_answer(INVALID_KEY, env._("This computer is not signed in."))
+        return refusal_answer(INVALID_KEY, env._("This device is not signed in."))
     # A record the person may not read answers as one that does not exist, so the answer does not tell that it does.
     if isinstance(exception, (NotFound, MissingError, AccessError)):
         return refusal_answer(NOT_FOUND, env._("Nothing is found at this address."))

@@ -29,20 +29,20 @@ class TestSavedDocuments(BaseCase):
         environment.start()
         self.addCleanup(environment.stop)
 
-    def read(self, url):
+    def read_saved_document(self, url):
         with saved_document(url) as chunks:
             return b"".join(chunks)
 
     def test_a_saved_document_on_the_public_address_is_streamed_from_the_internal_one(self):
         self.service.answer(SAVED_PATH, CONTENT)
 
-        self.assertEqual(self.read(f"{PUBLIC_URL}{SAVED_PATH}{QUERY}"), CONTENT)
+        self.assertEqual(self.read_saved_document(f"{PUBLIC_URL}{SAVED_PATH}{QUERY}"), CONTENT)
         self.assertEqual(self.service.asked, [f"{SAVED_PATH}{QUERY}"])
 
     def test_a_saved_document_on_the_internal_address_is_streamed_from_it(self):
         self.service.answer(SAVED_PATH, CONTENT)
 
-        self.assertEqual(self.read(f"{self.service.url}{SAVED_PATH}{QUERY}"), CONTENT)
+        self.assertEqual(self.read_saved_document(f"{self.service.url}{SAVED_PATH}{QUERY}"), CONTENT)
 
     def test_a_saved_document_comes_in_chunks(self):
         self.service.answer(SAVED_PATH, CONTENT, headers={"Transfer-Encoding": "chunked"})
@@ -64,20 +64,20 @@ class TestSavedDocuments(BaseCase):
         ):
             with self.subTest(url=url), patch.object(requests, "get") as get:
                 with self.assertRaises(SavedDocumentRefused):
-                    self.read(url)
+                    self.read_saved_document(url)
                 get.assert_not_called()
 
     def test_a_redirect_is_never_followed(self):
         self.service.answer(SAVED_PATH, status=302, headers={"Location": "http://169.254.169.254/latest/meta-data/"})
 
         with self.assertRaises(SavedDocumentRefused):
-            self.read(f"{PUBLIC_URL}{SAVED_PATH}")
+            self.read_saved_document(f"{PUBLIC_URL}{SAVED_PATH}")
 
     def test_a_document_over_the_limit_is_refused_by_its_length(self):
         self.service.answer(SAVED_PATH, CONTENT)
 
         with patch.object(saved_documents, "MAX_SIZE", len(CONTENT) - 1), self.assertRaises(SavedDocumentTooLarge):
-            self.read(f"{PUBLIC_URL}{SAVED_PATH}")
+            self.read_saved_document(f"{PUBLIC_URL}{SAVED_PATH}")
 
     def test_a_document_over_the_limit_without_a_length_is_refused_while_it_arrives(self):
         self.service.answer(SAVED_PATH, CONTENT, headers={"Transfer-Encoding": "chunked"})
@@ -93,13 +93,13 @@ class TestSavedDocuments(BaseCase):
         self.service.answer(SAVED_PATH, CONTENT)
 
         with patch.object(saved_documents, "TOTAL_SECONDS", -1), self.assertRaises(SavedDocumentUnavailable):
-            self.read(f"{PUBLIC_URL}{SAVED_PATH}")
+            self.read_saved_document(f"{PUBLIC_URL}{SAVED_PATH}")
 
     def test_an_editing_service_that_does_not_give_the_document_is_tried_again_later(self):
         self.service.answer(SAVED_PATH, status=500)
         with self.assertRaises(SavedDocumentUnavailable):
-            self.read(f"{PUBLIC_URL}{SAVED_PATH}")
+            self.read_saved_document(f"{PUBLIC_URL}{SAVED_PATH}")
         for error in (requests.ConnectionError(), requests.Timeout()):
             with self.subTest(error=type(error).__name__), patch.object(requests, "get", side_effect=error):
                 with self.assertRaises(SavedDocumentUnavailable):
-                    self.read(f"{PUBLIC_URL}{SAVED_PATH}")
+                    self.read_saved_document(f"{PUBLIC_URL}{SAVED_PATH}")

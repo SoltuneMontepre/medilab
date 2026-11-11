@@ -40,32 +40,52 @@ def test_codex_hooks_use_the_worktree_launcher_and_supported_events():
     assert not re.fullmatch(matcher, "mcp__odoo__definition")
 
 
+@pytest.mark.parametrize("environment", [True, False])
 @pytest.mark.parametrize("operation", ["activate", "remind", "reset", "cleanup"])
-def test_codex_launcher_selects_the_codex_client(monkeypatch, operation):
+def test_codex_launcher_selects_the_codex_client(monkeypatch, operation, environment):
     command = []
+    folders = []
+
+    def which(name, path=None):
+        if path is None:
+            return "uv"
+        folders.extend(path.split(os.pathsep))
+        return "python" if environment else None
 
     def capture(*arguments):
         command.extend(arguments[-1])
         raise SystemExit(0)
 
     monkeypatch.setattr(sys, "argv", ["run.py", f"hook-serena-codex-{operation}"])
-    monkeypatch.setattr(shutil, "which", lambda _: "uv")
+    monkeypatch.setattr(shutil, "which", which)
     monkeypatch.setattr(subprocess, "call", capture)
     monkeypatch.setattr(os, "execv", capture)
     with pytest.raises(SystemExit) as stopped:
         runpy.run_path(str(ROOT / "tools/odoo-intelligence/run.py"), run_name="__main__")
     assert stopped.value.code == 0
-    assert command == [
-        "uv",
-        "run",
-        "--locked",
-        "--project",
-        str(ROOT / "tools/odoo-intelligence"),
-        "medilab-odoo",
-        "serena-hooks",
-        operation,
-        "--client=codex",
-    ]
+    environment_folder = ROOT / "tools/odoo-intelligence/.venv"
+    assert folders == [str(environment_folder / "Scripts"), str(environment_folder / "bin")]
+    if environment:
+        launch = ["python", "-P", "-m", "odoo_intelligence.cli"]
+    else:
+        launch = ["uv", "run", "--locked", "--project", str(ROOT / "tools/odoo-intelligence"), "medilab-odoo"]
+    assert command == [*launch, "serena-hooks", operation, "--client=codex"]
+
+
+def test_launcher_starts_servers_through_the_locked_environment(monkeypatch):
+    command = []
+
+    def capture(*arguments):
+        command.extend(arguments[-1])
+        raise SystemExit(0)
+
+    monkeypatch.setattr(sys, "argv", ["run.py", "mcp"])
+    monkeypatch.setattr(shutil, "which", lambda _: "uv")
+    monkeypatch.setattr(subprocess, "call", capture)
+    monkeypatch.setattr(os, "execv", capture)
+    with pytest.raises(SystemExit):
+        runpy.run_path(str(ROOT / "tools/odoo-intelligence/run.py"), run_name="__main__")
+    assert command[:3] == ["uv", "run", "--locked"]
 
 
 @pytest.mark.parametrize(

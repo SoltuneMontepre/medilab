@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from psycopg2 import IntegrityError
 
 from odoo import fields, models
@@ -18,19 +20,25 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_laboratory_file as LaboratoryFileBase
+else:
+    LaboratoryFileBase = object
+
 
 # Tệp Phòng Thí Nghiệm
-class LaboratoryFile(models.Model):
+class LaboratoryFile(models.Model, LaboratoryFileBase):
     _inherit = MODEL_LABORATORY_FILE
 
-    # Every lock taken on the file.
-    lock_ids = fields.One2many(MODEL_LABORATORY_FILE_LOCK, "file_id", string="Locks")
-    # The lock in force on the file; empty when nobody holds one or it expired.
-    lock_id = fields.Many2one(MODEL_LABORATORY_FILE_LOCK, string="Lock", compute="_compute_lock")
-    # The user holding the lock in force.
-    locked_by_id = fields.Many2one(MODEL_RES_USERS, string="Locked By", compute="_compute_lock")
-    # When the lock in force expires unless renewed.
-    locked_until = fields.Datetime(string="Locked Until", compute="_compute_lock")
+    if not TYPE_CHECKING:
+        # Every lock taken on the file.
+        lock_ids = fields.One2many(MODEL_LABORATORY_FILE_LOCK, "file_id", string="Locks")
+        # The lock in force on the file; empty when nobody holds one or it expired.
+        lock_id = fields.Many2one(MODEL_LABORATORY_FILE_LOCK, string="Lock", compute="_compute_lock")
+        # The user holding the lock in force.
+        locked_by_id = fields.Many2one(MODEL_RES_USERS, string="Locked By", compute="_compute_lock")
+        # When the lock in force expires unless renewed.
+        locked_until = fields.Datetime(string="Locked Until", compute="_compute_lock")
 
     def _compute_lock(self):
         # Computed together rather than related to the lock, which is not stored: a lock's expiry changes as it is
@@ -58,14 +66,16 @@ class LaboratoryFile(models.Model):
 
     def _check_file_access(self, access):
         """Writing a file someone else has locked is refused, so callers refuse it before they act."""
-        super()._check_file_access(access)
+        result = super()._check_file_access(access)
         if access == FILE_WRITE:
             self._check_not_locked_by_others(self.env.user)
+        return result
 
     def _check_can_add_version(self, user, device):
         """No version of a file someone else has locked is stored, whoever stores it and with whatever rights."""
-        super()._check_can_add_version(user, device)
+        result = super()._check_can_add_version(user, device)
         self._check_not_locked_by_others(user)
+        return result
 
     def _check_not_locked_by_others(self, user):
         others = self._locks_in_force().filtered(lambda lock: lock.user_id != user)

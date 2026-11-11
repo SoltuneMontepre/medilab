@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_header_navigation" inherit_id="portal.frontend_layout" name="Portal header navigation">
+        <xpath expr="//ul[@id='top_menu']" position="before">
+            <t t-call="sol_commerce.portal_navigation" />
+        </xpath>
+    </template>
+
+    <!-- Odoo shows a card without a counter to every portal user; the Support card is for customers only. -->
+    <template id="portal_support_card" inherit_id="portal.portal_docs_entry" name="Support card for customers only">
+        <xpath expr="//t[@t-set='show_portal_card']" position="after">
+            <t
+                t-if="entry == env.ref('sol_commerce.portal_entry_support') and not env['medilab.customer']._of_user(env.user)"
+                t-set="show_portal_card"
+                t-value="False"
+            />
+        </xpath>
+    </template>
+
+    <template id="portal_navigation" name="Portal navigation">
+        <t t-set="current_path" t-value="request.httprequest.path" />
+        <t t-set="visitor" t-value="request.env.user._is_public()" />
+        <t t-set="customer" t-value="not visitor and request.env['medilab.customer']._of_user(request.env.user)" />
+        <ul t-if="customer or visitor and current_path.startswith(('/catalog', '/cart'))" class="nav navbar-nav o_medilab_portal_navigation">
+            <t t-call="sol_commerce.portal_navigation_link" url="'/catalog'" icon="'science'" paths="('/catalog', '/cart')">Catalog</t>
+            <t t-if="customer">
+                <t t-call="sol_commerce.portal_navigation_link" url="'/orders'" icon="'format_list_bulleted'" paths="('/orders',)">My orders</t>
+                <t t-call="sol_commerce.portal_navigation_link" url="'/support'" icon="'support'" paths="('/support',)">Support</t>
+                <t t-call="sol_commerce.portal_navigation_link" url="'/my/account'" icon="'person'" paths="('/my/account', '/my/contacts', '/my/address', '/my/notifications')">Account</t>
+            </t>
+        </ul>
+    </template>
+
+    <template id="portal_navigation_link" name="Portal navigation link">
+        <t t-set="current" t-value="current_path.startswith(paths)" />
+        <li class="nav-item">
+            <a t-att-href="url" t-attf-class="nav-link text-nowrap #{'active' if current else ''}" t-att-aria-current="'page' if current else None">
+                <i class="oi me-1" t-att-data-icon="icon" aria-hidden="true" /><t t-out="0" />
+            </a>
+        </li>
+    </template>
+</odoo>

@@ -74,7 +74,7 @@ class TestOrderCart(OrderCase):
         self.assertEqual(new.reordered_from_id, order)
         self.assertEqual(new._catalog_lines().price_unit, original_price + 5000)
         self.assertEqual(new._catalog_lines().product_id.product_tmpl_id, self.lead_product)
-        self.assertIn(self.package.name, new.reorder_note)
+        self.assertIn(self.package.name, (new.reorder_note or ""))
 
     def test_archiving_a_price_on_an_open_order_is_refused(self):
         self.make_order([(self.lead_product, 1)])
@@ -93,7 +93,7 @@ class TestOrderCart(OrderCase):
 
     def test_catalog_filters_by_name_price_and_sample_type(self):
         sample = self.env[MODEL_SAMPLE_TYPE].create({"name": "Bottled water", "code": "LM-CART"})
-        self.parameter.sample_type_ids = sample
+        self.offer(self.parameter, sample)
         products = self.env[MODEL_PRODUCT_TEMPLATE]
 
         found = products.search(

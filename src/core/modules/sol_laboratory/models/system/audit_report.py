@@ -1,5 +1,6 @@
 import io
 from datetime import UTC, datetime, time, timedelta
+from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
 
 from odoo import api, fields, models
@@ -9,6 +10,12 @@ from odoo.tools.binary import BinaryBytes
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_ENTRY, MODEL_AUDIT_REPORT, MODEL_RES_USERS
 from odoo.addons.sol_laboratory.constants.xml_ids import AUDIT_REPORT_ACTION
+from odoo.addons.sol_laboratory.services.type_values import value_as
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_audit_report as AuditReportBase
+else:
+    AuditReportBase = object
 
 FILTER_FIELDS = ("document_model", "action", "source")
 # Keys of a report row, in the order of the columns.
@@ -18,28 +25,29 @@ NO_CHANGE = {"field": "", "old_value": "", "new_value": ""}
 
 
 # Báo Cáo Nhật Ký Hoạt Động
-class AuditReport(models.TransientModel):
+class AuditReport(models.TransientModel, AuditReportBase):
     _name = MODEL_AUDIT_REPORT
     _description = "Audit Report"
 
-    # First day of the period reported, in the user's time zone.
-    date_from = fields.Date(string="From", required=True, default=fields.Date.context_today)
-    # Last day of the period reported, in the user's time zone.
-    date_to = fields.Date(string="To", required=True, default=fields.Date.context_today)
-    # Only entries on documents of this type, when set.
-    document_model = fields.Selection(selection="_selection_document_model", string="Document Type")
-    # Only entries on documents whose name contains this text, when set.
-    document_name = fields.Char(string="Document")
-    # Only entries of this user, when set.
-    user_id = fields.Many2one(MODEL_RES_USERS)
-    # Only entries of this action, when set.
-    action = fields.Selection(selection="_selection_action")
-    # Only entries from this source, when set.
-    source = fields.Selection(selection="_selection_source")
-    # The exported spreadsheet, removed with the report.
-    file = fields.Binary(attachment=False, readonly=True)
-    # File name of the exported spreadsheet.
-    file_name = fields.Char(readonly=True)
+    if not TYPE_CHECKING:
+        # First day of the period reported, in the user's time zone.
+        date_from = fields.Date(string="From", required=True, default=fields.Date.context_today)
+        # Last day of the period reported, in the user's time zone.
+        date_to = fields.Date(string="To", required=True, default=fields.Date.context_today)
+        # Only entries on documents of this type, when set.
+        document_model = fields.Selection(selection="_selection_document_model", string="Document Type")
+        # Only entries on documents whose name contains this text, when set.
+        document_name = fields.Char(string="Document")
+        # Only entries of this user, when set.
+        user_id = fields.Many2one(MODEL_RES_USERS)
+        # Only entries of this action, when set.
+        action = fields.Selection(selection="_selection_action")
+        # Only entries from this source, when set.
+        source = fields.Selection(selection="_selection_source")
+        # The exported spreadsheet, removed with the report.
+        file = fields.Binary(attachment=False, readonly=True)
+        # File name of the exported spreadsheet.
+        file_name = fields.Char(readonly=True)
 
     _period_check = models.Constraint("CHECK(date_from <= date_to)", "The period must end on or after its first day.")
 
@@ -110,7 +118,7 @@ class AuditReport(models.TransientModel):
         self.ensure_one()
         entries = self.env[MODEL_AUDIT_ENTRY].search(self._entry_domain(), order="create_date, id")
         labels = {
-            field_name: dict(entries._fields[field_name]._description_selection(self.env))
+            field_name: dict(value_as(entries._fields[field_name], fields.Selection)._description_selection(self.env))
             for field_name in ("source", "action", "document_model")
         }
         rows = []
@@ -118,9 +126,9 @@ class AuditReport(models.TransientModel):
             entry_row = {
                 "date": format_datetime(self.env, entry.create_date),
                 "user": entry.user_id.name or "",
-                "source": labels["source"][entry.source],
-                "action": labels["action"][entry.action],
-                "document_type": labels["document_model"].get(entry.document_model, entry.document_model or ""),
+                "source": labels["source"][entry.source or ""],
+                "action": labels["action"][entry.action or ""],
+                "document_type": labels["document_model"].get(entry.document_model or "", entry.document_model or ""),
                 "document": entry.document_name or "",
                 "note": entry.note or "",
             }

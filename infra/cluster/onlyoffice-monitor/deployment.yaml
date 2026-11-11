@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: onlyoffice-monitor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: onlyoffice-monitor
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: onlyoffice-monitor
+    spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: probe
+          image: docker.io/library/python:3.12.13-slim@sha256:229a2c5bfa27522db7815ea81f9bed70af17ccb9de9fc7ad142b1877b5830d36
+          command: ["python3", "-B", "/probe/probe.py"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+          volumeMounts:
+            - name: script
+              mountPath: /probe
+              readOnly: true
+            - name: ca
+              mountPath: /run/onlyoffice-ca
+              readOnly: true
+      volumes:
+        - name: script
+          configMap:
+            name: onlyoffice-probe
+        - name: ca
+          secret:
+            secretName: onlyoffice-tls
+            items:
+              - key: ca.crt
+                path: ca.crt
