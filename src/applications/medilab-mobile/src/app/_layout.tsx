@@ -1,11 +1,13 @@
 import { Stack } from "expo-router";
 
-import { LocaleProvider } from "../locale";
+import { PushOpener } from "../features/documents/PushOpener";
+import { SessionProvider } from "../session";
 
 export default function RootLayout() {
   return (
-    <LocaleProvider locale="vi">
+    <SessionProvider>
+      <PushOpener />
       <Stack screenOptions={{ headerShown: false }} />
-    </LocaleProvider>
+    </SessionProvider>
   );
 }

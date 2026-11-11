@@ -36,7 +36,7 @@ The accountant is the laboratory's financial user. The accountant issues and tra
 | Invoice                                 | Created by                                                   | Purpose                                                                                  |
 | --------------------------------------- | ------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
 | Advance invoice                         | System, when sales sends a quotation with an advance request | Collect the amount (full, percentage or fixed) the customer pays to accept the quotation |
-| Final invoice                           | Accountant, from the confirmed order                         | Bill the remaining amount once the work is done                                          |
+| Final invoice                           | Accountant, or sales with the Create invoices permission, from the confirmed order; the accountant posts it | Bill the remaining amount once the work is done                                          |
 | Adjustment invoice (hóa đơn điều chỉnh) | Accountant, from a posted invoice                            | Correct a posted invoice with only the difference, raising or lowering the amount        |
 
 - An advance invoice is posted automatically; the accountant does not need to create or post it.

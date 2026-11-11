@@ -7,7 +7,8 @@ from .portal_case import PortalCase
 
 @tagged("post_install", "-at_install")
 class TestCartPage(PortalCase):
-    """A cart line is removed or its quantity stepped in one click, and a saved draft is confirmed."""
+    """A cart line is removed or its quantity stepped in one click, takes the sample type and ways chosen, and a saved
+    draft is confirmed."""
 
     def setUp(self):
         super().setUp()
@@ -17,7 +18,9 @@ class TestCartPage(PortalCase):
         )
 
     def line_buttons(self):
-        row = self.find(self.tree("/cart"), f"//tr[.//input[@name='line_id'][@value='{self.line.id}']]")
+        row = self.find(
+            self.tree("/cart"), f"//tr[.//form[@action='/cart/line']/input[@name='line_id'][@value='{self.line.id}']]"
+        )
         self.assertEqual(len(row), 1)
         forms = self.find(row[0], ".//form[@action='/cart/line']")
         self.assertEqual(len(forms), 1)
@@ -46,3 +49,10 @@ class TestCartPage(PortalCase):
         text = self.page(f"{location.path}?{location.query}")
         self.assertIn("Your draft is saved", text)
         self.assertIn(self.cart.name, text)
+
+    def test_a_line_takes_the_sample_type_and_way_chosen(self):
+        self.post("/cart/selection", "/cart", line_id=self.line.id, sample_type_id=self.sample_type.id)
+
+        self.assertEqual(self.line.sample_type_id, self.sample_type)
+        self.assertEqual(self.line.parameter_method_id, self.pair)
+        self.assertIn(self.pair.display_name, self.page("/cart"))

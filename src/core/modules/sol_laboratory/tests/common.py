@@ -1,3 +1,4 @@
+from odoo.fields import Command
 from odoo.tests import TransactionCase
 
 from odoo.addons.sol_laboratory.constants.models import (
@@ -11,6 +12,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TESTING_METHOD,
     MODEL_UNIT_CATEGORY,
 )
+from odoo.addons.sol_laboratory.services.record_id import persisted_id, persisted_ids
 
 
 class MasterDataCase(TransactionCase):
@@ -52,6 +54,17 @@ class MasterDataCase(TransactionCase):
                 "unit_id": cls.unit.id,
                 "is_default": not parameter._default_way(sample_type),
                 **vals,
+            }
+        )
+
+    @staticmethod
+    def scope_line(method, parameters, sample_types):
+        """A command that adds a certificate scope line of the method on the parameters and sample types."""
+        return Command.create(
+            {
+                "method_id": persisted_id(method),
+                "parameter_ids": [Command.set(persisted_ids(parameters))],
+                "sample_type_ids": [Command.set(persisted_ids(sample_types))],
             }
         )
 

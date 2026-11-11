@@ -50,9 +50,14 @@ The customer is an external user of the laboratory. A customer has an account li
 - Self-registration asks for the name, address, phone and email, and the tax code of a business or the citizen ID and tax code of an individual. Registration with any of them missing is refused.
 - A business also gives its company name. The company becomes the customer, and the person who registers becomes its contact, who logs in and is its default contact. An individual is their own contact.
 - If the identity matches an existing profile, the account is flagged for sales to review instead of being merged automatically.
-- The account page shows contact details, tax and identity information, and additional addresses.
+- Every page of a signed-in customer carries the same header: **Catalog** (building an order, with the cart), **My orders**, **Support** and **Account**, then the language menu and the user menu. The section of the current page is marked. A visitor who is not signed in sees only Catalog, on the catalog and cart pages. Other portal users, such as subcontractors, and other public pages, such as report verification, show none of these links, and the portal home shows the Support card to customers only.
+- The account page shows contact details, tax and identity information, the language, additional addresses, contacts, the logo and a link to the notification preferences. It shows no order history; it links to **My orders**.
+- The customer switches language from the language menu in the portal header or the Language field of the account page ([SH-08](../../shared.md#sh-08-multiple-languages)). The page reloads in that language, and a signed-in customer's choice is saved as their contact's language, so e-mails and documents follow it. A visitor who is not signed in keeps the choice in the browser.
 - Order history is a single list of every quotation and order of the customer, with a customer-facing status: Draft for the cart, Submitted once sent to sales, Quoted once a quotation is sent, then the labels of [Tracking and results](#4-tracking-and-results-us-c18-us-c19).
-- Each row of the order history names the order's first parameters and packages and its date, submitted or created. The list is paged, newest first, and the account page shows the latest orders with a link to the whole list.
+- Each row of the order history names the order's first parameters and packages and its date, submitted or created. The list is paged, newest first, on its own **My orders** page (`/orders`), which links to the catalog and offers no other catalog action.
+- Filters above the order history narrow it before it is counted and paged, so the pager counts only the matching orders. **Status** picks one customer-facing status and reads "All statuses" in grey when none is picked, as the catalog filters do. **Search** finds the text in the order number or in the name of a parameter or package the customer ordered; the parameters inside a package are not searched. The filters apply together when the customer chooses **Filter**, which returns to the first page.
+- The chosen filters stay in the page address. Paging, opening an order, Reorder and the order page's **My orders** link keep them.
+- A customer with no orders sees "No orders yet" and no filters. When no order matches the filters, the page says "No orders match these filters" with a link that clears them.
 - The portal home's **Your Orders** card opens the order history. Odoo's own sales order and quotation cards are not offered, and their addresses lead to the order history and the order page.
 - Prices, amounts and totals are shown as money in the customer's currency and language, and quantities as whole numbers.
 - The order page shows the status next to the order number, when the order was submitted or created, the quotation deadline and the expected results date. Its actions sit in one row.
@@ -116,7 +121,7 @@ Acceptance criteria:
 
 The customer builds an order from the test catalog, like a cart. The unit of selection is the **parameter** (test) or a **service package**: the customer searches the catalog and adds the parameters or packages they need to the cart. Sample types and other catalog categories are **filters** that narrow the catalog, not things the customer has to pick first. The total price is shown while composing.
 
-Catalog filters:
+Catalog filters. A list filter with nothing picked reads "All sample types" or "All parameter groups" in grey; in its open list that option means any value.
 
 - Sample type
 - Parameter group
@@ -159,7 +164,7 @@ stateDiagram-v2
 | Public catalog        | Anyone can browse the catalog and fill a cart without signing in.                                                                      |
 | Details on submit     | A visitor who is not signed in gives their details and e-mail address when submitting; they become the customer's contact.            |
 | Complete order        | Submitting requires at least one parameter or service package in the cart.                                                             |
-| Ways of testing | Select a sample type for each line and choose an applicable way for each parameter, or use its unique default. A way shows its method only, never whether a department or a subcontractor performs it. Only active ways the laboratory can perform are offered, following the [catalog rules](../../laboratory_module/features/admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28). An unavailable default shows a reason and viable alternatives for explicit selection; with none, the pair cannot be ordered. |
+| Ways of testing | Select a sample type for each line and choose an applicable way for each parameter, or use its unique default. Only active ways the laboratory can perform are offered, following the [catalog rules](../../laboratory_module/features/admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28). An unavailable default shows a reason and viable alternatives for explicit selection; with none, the pair cannot be ordered. |
 | Expected samples | Show the expected sample count, containers and amounts calculated from method sampling requirements. The customer orders parameters and quantities, not physical samples; collection staff confirm the actual samples at handover. Extra samples or excess material add no test; the customer gets them back on request, when collecting the report in person or at a separate pickup. |
 | Requested date | The customer may give the date they want the results, kept as the order's requested date. |
 | Priority request | The customer may mark the order as priority and request an earlier date. Sales accepts or declines priority on the quotation after the feasibility check; the request itself does not promise the date. |
@@ -183,7 +188,6 @@ Acceptance criteria:
 
 - A visitor who is not signed in can browse the catalog and fill a cart.
 - The customer can choose an applicable way or accept its sample-type default and sees expected sampling needs.
-- The customer never sees whether a test is outsourced or which subcontractor performs it.
 - An unavailable default is never silently substituted.
 - A portal priority request reaches Sales for acceptance or refusal on the quotation.
 - Submitting without being signed in asks for the visitor's details and e-mail address, and is refused without an e-mail address.
@@ -263,7 +267,7 @@ A notice of a mandatory event always stays visible in the portal, whatever happe
 
 ### 6. Support and feedback (US-C20, US-C21)
 
-- **Support.** The customer opens a support request from the portal, optionally linked to an order, and follows the conversation with sales until it is closed.
+- **Support.** The customer opens a support request from the portal's Support page, reached from the header and from its card on the portal home, optionally linked to an order, and follows the conversation with sales until it is closed. The order page offers a request about that order.
 - **Feedback.** After an order is completed the customer can rate the service and leave a comment. Feedback is visible to sales and management and is not shown to other customers.
 
 ```mermaid

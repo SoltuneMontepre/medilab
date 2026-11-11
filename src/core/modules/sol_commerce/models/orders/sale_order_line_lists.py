@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 from odoo import api, fields, models
 
 from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER, MODEL_SALE_ORDER_LINE
+from odoo.addons.sol_commerce.constants.xml_ids import DISCOUNT_PRODUCT
 
 if TYPE_CHECKING:
     from medilab_model_types import Model_sale_order as SaleOrderBase
@@ -37,3 +38,8 @@ class SaleOrder(models.Model, SaleOrderBase):
     def _onchange_product_line_ids(self):
         """Give the edited lines back to Odoo's order lines, which the totals follow while the order is edited."""
         self.order_line = self.product_line_ids | self.order_line.filtered("is_downpayment")
+
+    def _discount_lines(self):
+        """The discount lines given on the whole quotation."""
+        discount = self.env.ref(DISCOUNT_PRODUCT)
+        return self.order_line.filtered(lambda line: line.product_id == discount)

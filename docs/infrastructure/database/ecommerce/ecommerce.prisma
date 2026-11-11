@@ -28,6 +28,8 @@ model SampleType {
   code          String        @unique @db.VarChar
   /// Order samples of the type.
   order_samples OrderSample[]
+  /// Order lines tested on the type.
+  order_lines   SaleOrderLine[]
 
   @@map("medilab_sample_type")
 }
@@ -52,6 +54,8 @@ model ParameterMethod {
   subcontractor_id Int?
   /// What the subcontractor charges for it.
   subcontract_cost SupplierInfo?
+  /// Order lines whose parameter is tested by it.
+  order_lines      SaleOrderLine[]
 
   @@map("medilab_parameter_method")
 }
@@ -213,8 +217,49 @@ model Tax {
   products    ProductTax[]
   /// Order lines that use the tax.
   order_lines OrderLineTax[]
+  /// Rate periods of laboratory taxes that quotation lines give this tax.
+  lab_rates   LabTaxRate[]
 
   @@map("account_tax")
+}
+
+/// A tax a parameter price or a package adds, such as VAT 10% or not subject to VAT, with its rate over time. A trigram index on code and name serves search.
+model LabTax {
+  /// Row identifier.
+  id     Int          @id @default(autoincrement())
+  /// Unique code of the tax, such as VAT10 or KCT.
+  code   String       @unique @db.VarChar
+  /// Tax name as printed on quotations and invoices, in each language.
+  name   Json
+  /// False when the tax is archived.
+  active Boolean      @default(true)
+  /// The tax's rate over time.
+  rates  LabTaxRate[]
+
+  @@map("medilab_tax")
+}
+
+/// The rate of a laboratory tax for a period. The periods of one tax do not overlap; valid_until is empty or not before valid_from; rate is not negative.
+model LabTaxRate {
+  /// Row identifier.
+  id             Int       @id @default(autoincrement())
+  /// The tax.
+  tax_id         Int
+  /// Rate in percent, such as 8 or 10; 0 for a tax that adds nothing.
+  rate           Float
+  /// First day the rate applies.
+  valid_from     DateTime  @db.Date
+  /// Last day the rate applies; empty when it applies until further notice.
+  valid_until    DateTime? @db.Date
+  /// The accounting sales tax that quotation and invoice lines get for this rate, of the same percent; empty for the company's sales tax of the same rate.
+  account_tax_id Int?
+  /// The tax.
+  tax            LabTax    @relation(fields: [tax_id], references: [id], onDelete: Cascade)
+  /// The accounting sales tax.
+  account_tax    Tax?      @relation(fields: [account_tax_id], references: [id], onDelete: Restrict)
+
+  @@index([tax_id, valid_from])
+  @@map("medilab_tax_rate")
 }
 
 /// Odoo's link between products and the taxes added to their price.
@@ -438,7 +483,7 @@ model OrderSample {
   @@map("medilab_order_sample")
 }
 
-/// Odoo's sale order line (sale.order.line), shown with the columns this module uses and the column it adds: one parameter or package in an order, with its price. Price, discount and taxes are kept on the line, so a sent quotation never changes with the catalog.
+/// Odoo's sale order line (sale.order.line), shown with the columns this module uses and the columns it adds: one parameter or package in an order, with its price, sample type and way of testing. Price, discount, taxes, sample type and way are kept on the line, so a sent quotation never changes with the catalog; they change only through a revised quotation.
 /// The parameters of a package are lines linked to the package's line, as Odoo adds them for a combo product.
 model SaleOrderLine {
   /// Row identifier.
@@ -451,6 +496,10 @@ model SaleOrderLine {
   linked_line_id  Int?
   /// The sample the line is tested on; required before the quotation is sent.
   sample_id       Int?
+  /// The sample type the line is tested on: chosen in the cart, or its sample's type; a package's parameter takes its package's.
+  sample_type_id  Int?
+  /// The way of testing of a parameter line or of a package's parameter: chosen, or the parameter's default on the sample type when it is available; required before the quotation is sent. Empty on a package line.
+  parameter_method_id Int?
   /// How many times it is ordered; at least 1.
   product_uom_qty Decimal         @db.Decimal
   /// Catalog price of one unit, excluding VAT, copied when the line is priced.
@@ -475,6 +524,10 @@ model SaleOrderLine {
   linked_lines    SaleOrderLine[] @relation("PackageLines")
   /// The sample the line is tested on.
   sample          OrderSample?    @relation(fields: [sample_id], references: [id], onDelete: Restrict)
+  /// The sample type the line is tested on.
+  sample_type     SampleType?     @relation(fields: [sample_type_id], references: [id], onDelete: Restrict)
+  /// The way of testing of the line's parameter.
+  parameter_method ParameterMethod? @relation(fields: [parameter_method_id], references: [id], onDelete: Restrict)
   /// Taxes of the line.
   taxes           OrderLineTax[]
   /// Invoice lines that bill the line.
@@ -482,6 +535,7 @@ model SaleOrderLine {
 
   @@index([order_id])
   @@index([sample_id])
+  @@index([sample_type_id])
   @@map("sale_order_line")
 }
 

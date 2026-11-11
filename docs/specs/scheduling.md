@@ -53,7 +53,8 @@ Within a class, the earlier committed return date goes first, then the earlier a
 | --- | --- |
 | Committed return date | The test request carries the committed return date Sales promised the customer. Only Sales changes it, with the customer's agreement, recording the old date, the new date and the confirmation. |
 | Internal due date | A sample test's internal due date is its committed return date minus the safety margin, 2 days by default, at the end of the company-local day. A margin change does not rewrite stored dates. |
-| Override | The head of department may override an internal due date with a reason. The override stays until the head clears it; a changed committed date recalculates only automatic dates and reports conflicts with overrides. |
+| Override | The head of the department testing a sample test may override its internal due date with a reason, until its result is entered. The override stays until the head clears it; a changed committed date recalculates only automatic dates and reports a conflict for an override later than the automatic date. |
+| Working days | The company's working calendar gives the working days: its working hours, minus company-wide time off. The administrator keeps the public holidays as company-wide time off; one counted as working time is a working day. A due date on a non-working day, automatic or overridden, is kept and reported. |
 | Planned finish | The plan gives each sample test its planned finish: the end of its booking. A sample test meets its internal due date when its result is submitted by then. The safety margin is kept for result approval and report signing. |
 | At risk | A sample test is at risk when its planned finish is after its internal due date, when no free slot lets it finish by then, or when its booking overran. Its tester and head are notified when the risk appears, then in a daily consolidated summary until it is resolved. Overdue approvals are reminded through their signing tasks. Only a risk to the committed return date starts the Sales workflow; internal-only changes do not notify the customer. |
 
@@ -69,7 +70,7 @@ For example, GC-01 has two 4-hour intervals on Wednesday. Z holds the morning an
 
 ### Feasibility check
 
-The feasibility check only reads: it simulates in-house resources and outsourced turnaround, including transport and processing, and moves or reserves nothing. The latest branch finish plus the safety margin gives the return estimate. A missing outsourced turnaround marks the estimate incomplete. The check explains infeasibility and gives the earliest feasible date. A date the head keeps despite infeasibility stays flagged at risk and implies no reserved resources. While Sales waits for the customer's agreement to a changed date or method, the sample test is flagged at risk and keeps its accepted way; nothing is booked on an unapproved method.
+The feasibility check only reads: it simulates in-house resources and outsourced turnaround, including transport and processing, and moves or reserves nothing. The latest branch finish plus the safety margin gives the return estimate. A missing outsourced turnaround marks the estimate incomplete. The check explains infeasibility and gives the earliest feasible date. A date the head keeps despite infeasibility stays flagged at risk and implies no reserved resources. While Sales waits for the customer's agreement to a changed date or way, the sample test is flagged at risk and keeps its accepted way; nothing is booked on an unapproved way or subcontractor.
 
 ### Interruptions
 

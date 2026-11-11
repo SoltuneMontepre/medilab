@@ -84,7 +84,9 @@ The script stops without writing when the tables are inconsistent. It prints the
 | View Quotation Status | Manage Quotations | US-S10 |  |
 | View Estimated Return Date | Manage Quotations | US-S21 |  |
 | Check Earlier Date | Manage Quotations | US-S22 |  |
-| Record Customer Payment |  | US-S11 | [Sales §3](../../functional/ecommerce_module/features/sales.md#3-payment-collection-us-s11) |
+| Collect Payments |  |  | [Sales §3](../../functional/ecommerce_module/features/sales.md#3-payment-collection-us-s11-us-s25) |
+| Record Customer Payment | Collect Payments | US-S11 |  |
+| Create Invoice from Order | Collect Payments | US-S25 |  |
 | Confirm Orders |  |  | [Sales §4](../../functional/ecommerce_module/features/sales.md#4-confirmation-us-s12-us-s15) |
 | Confirm Order | Confirm Orders | US-S12 |  |
 | Start Sample Collection | Confirm Orders | US-S15 |  |

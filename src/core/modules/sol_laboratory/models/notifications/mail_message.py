@@ -31,7 +31,7 @@ _logger = logging.getLogger(__name__)
 
 
 def _apply_preference(preference, event, user, popup, email, push):
-    if event.mandatory and preference.channel in (CHANNEL_POPUP, CHANNEL_EMAIL) and not preference.enabled:
+    if event.mandatory and not preference.enabled:
         return popup, email, push
     if preference.channel == CHANNEL_POPUP:
         return preference.enabled and bool(user), email, push
@@ -145,7 +145,8 @@ class MailMessage(models.Model, MailMessageBase):
     def _preferred_channels(self, user, event):
         popup = bool(user) and user.notification_type == "inbox"
         email = (not user) or user.notification_type == "email"
-        push = False
+        # Pushed once the person has a signed-in phone, until they turn the event's push off.
+        push = bool(user) and bool(self.env[MODEL_MOBILE_DEVICE]._push_tokens(user))
         if not user:
             return popup, email, push
         preferences = (
@@ -216,7 +217,7 @@ class MailMessage(models.Model, MailMessageBase):
         user = partner.user_ids[:1]
         if not user:
             return
-        devices = self.env[MODEL_MOBILE_DEVICE].sudo().search([("user_id", "=", user.id), ("active", "=", True)])
+        devices = self.env[MODEL_MOBILE_DEVICE]._push_tokens(user)
         deliveries = self.env[MODEL_PUSH_DELIVERY].sudo()
         for device in devices:
             existing = deliveries.search(

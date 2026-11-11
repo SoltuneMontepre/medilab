@@ -104,7 +104,7 @@ erDiagram
     INTERNAL_MOVEMENT }o--|| STOCK_LOCATION : goes_to
 ```
 
-An order line contains a parameter or a whole package, with a sample type and quantity. Its selections retain one parameter and its selected or resolved default way per included parameter: one selection for a parameter line and one for every parameter in a package line. Each quotation version keeps those selections; later catalog membership or default changes do not rewrite the accepted version. Sample tests use its retained selections. A package line keeps the package price. Accepted methods change only through a revised quotation and customer agreement; outsourcing a sample test to a subcontracted way with the same method is internal. Templates have no price of their own. Completed orders, quotations, results and reports use change requests.
+An order line contains a parameter or a whole package, with a sample type and quantity. Its selections retain one parameter and its selected or resolved default way per included parameter: one selection for a parameter line and one for every parameter in a package line. Each quotation version keeps those selections; later catalog membership or default changes do not rewrite the accepted version. Sample tests use its retained selections. A package line keeps the package price. Accepted ways change only through a revised quotation and customer agreement. Templates have no price of their own. Completed orders, quotations, results and reports use change requests.
 
 ## Related documents
 
