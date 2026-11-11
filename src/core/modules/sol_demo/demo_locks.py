@@ -22,7 +22,7 @@ def seed_locks(env):
     draft = env.ref("sol_demo.demo_test_request_draft")
     active = take(courier, draft)
     locks.with_user(sales)._watch(draft)
-    saved = take(courier, env.ref("sol_demo.demo_test_request_confirmed"))
+    saved = take(courier, env.ref("sol_demo.demo_test_request_by_post"))
     saved._release("saved")
     expired = take(tester, env.ref("sol_demo.demo_regulation_qcvn_6_1"))
     expired.last_activity_at = fields.Datetime.now() - timedelta(hours=2)

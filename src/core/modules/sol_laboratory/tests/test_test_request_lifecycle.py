@@ -37,12 +37,10 @@ class TestTestRequestLifecycle(RequestCase):
         self.assertEqual(self.sample.status, "expected")
         self.assertEqual(self.sample.test_ids.status, "waiting")
 
-    def test_request_without_order_skips_the_paid_step(self):
+    def test_a_confirmed_request_is_paid_at_once(self):
         self.request.action_confirm()
 
-        self.assertEqual(self.request.status, "confirmed")
-        with self.assertRaises(UserError):
-            self.request._set_status("paid")
+        self.assertEqual(self.request.status, "paid")
         self.request._set_status("sample_received")
         self.assertEqual(self.request.status, "sample_received")
 
