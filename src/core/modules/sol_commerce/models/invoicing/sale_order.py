@@ -68,7 +68,7 @@ class SaleOrder(models.Model, SaleOrderBase):
             order.pending_amount = sum(payment.amount for payment in pending)
 
     def create_advance_invoice(self, amount=None, percentage=None):
-        """Post one down-payment invoice for this order. Sending a quotation calls this through _on_quotation_sent."""
+        """Post one down-payment invoice for this order, due on its payment deadline when it has one."""
         self.ensure_one()
         if percentage is not None and amount is not None:
             raise UserError(self.env._("An advance is a fixed amount or a percentage, not both."))
@@ -86,7 +86,10 @@ class SaleOrder(models.Model, SaleOrderBase):
             }
         )
         invoices = wizard._create_invoices(self)
-        invoices.with_context(**{AUTO_POST_CONTEXT: True}).write({"invoice_kind": "advance", "order_id": self.id})
+        invoice_values = {"invoice_kind": "advance", "order_id": self.id}
+        if self.payment_deadline:
+            invoice_values.update(invoice_payment_term_id=False, invoice_date_due=self._advance_due_date())
+        invoices.with_context(**{AUTO_POST_CONTEXT: True}).write(invoice_values)
         invoices.action_post()
         return invoices
 
