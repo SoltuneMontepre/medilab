@@ -91,7 +91,10 @@ class StockLot(models.Model, StockLotBase):
             [("product_id", "in", items.ids), ("status", "=", LOT_AVAILABLE), ("expiration_date", "!=", False)]
         )
         for lot in lots:
-            alert = lot.expiration_date - timedelta(days=days)
+            expiry = lot.expiration_date
+            if not expiry:
+                continue
+            alert = expiry - timedelta(days=days)
             if lot.alert_date != alert:
                 lot.alert_date = alert
 
@@ -116,7 +119,8 @@ class StockLot(models.Model, StockLotBase):
     def _is_expired(self):
         self.ensure_one()
         packages = self.env[MODEL_STOCK_PACKAGE]
-        return bool(self.expiration_date) and self.expiration_date < packages._at_utc(packages._today())
+        expiry, start = self.expiration_date, packages._at_utc(packages._today())
+        return bool(expiry and start and expiry < start)
 
     def _held_quants(self):
         """The stock of these lots in the laboratory's own locations."""

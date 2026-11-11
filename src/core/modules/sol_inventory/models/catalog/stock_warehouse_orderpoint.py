@@ -33,7 +33,7 @@ class StockWarehouseOrderpoint(models.Model, StockWarehouseOrderpointBase):
         # Odoo counts the stores below a store in its stock. A store's minimum is about the stock it holds itself: the
         # stores below it hold stock already issued to them.
         stores_below = {}
-        for minimum in self.filtered(lambda minimum: minimum.product_id and minimum.location_id):
+        for minimum in self.filtered(lambda minimum: bool(minimum.product_id and minimum.location_id)):
             location = minimum.location_id
             if location not in stores_below:
                 stores_below[location] = location._stores_below()

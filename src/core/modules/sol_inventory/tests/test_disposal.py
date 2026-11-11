@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from odoo.exceptions import AccessError, UserError
 from odoo.fields import Command
 from odoo.tests import tagged
@@ -18,6 +20,7 @@ from odoo.addons.sol_inventory.constants.stock import (
     MOVE_DISPOSAL,
 )
 from odoo.addons.sol_inventory.constants.xml_ids import DISPOSAL_ACTION, SCRAP_EXPIRED, SCRAP_SPILLED
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -82,7 +85,8 @@ class TestDisposal(StockCase):
 
     def test_a_container_past_its_own_usable_date_leaves_its_lot_available(self):
         container = self.put_container(self.acid, 400, "Opened", status=CONTAINER_OPENED)
-        container.opened_at = container.opened_at.replace(year=container.opened_at.year - 1)
+        opened_at = assert_instance(container.opened_at, datetime)
+        container.opened_at = opened_at.replace(year=opened_at.year - 1)
 
         self.disposal_list(self.storekeeper.user_id).with_user(self.storekeeper.user_id).action_dispose()
 

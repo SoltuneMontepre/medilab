@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from odoo.tests import tagged
 
@@ -11,6 +11,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_RES_CONFIG_SETTINGS,
     MODEL_SCHEDULED_JOB,
 )
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -45,7 +46,7 @@ class TestStockExpiryJob(StockCase):
         self.assertEqual(len(notice), 1)
         self.assertEqual(notice.notification_key, f"stock.expired:lot:{lot.id}")
         self.assertIn(self.tester.user_id.partner_id, notice.notification_ids.res_partner_id)
-        self.assertIn("Pesticide residues store", notice.body)
+        self.assertIn("Pesticide residues store", assert_instance(notice.body, str))
 
     def test_a_lot_a_disposal_already_marked_expired_is_notified_to_the_stores_still_holding_it(self):
         lot = self.container("Split", -1).lot_id
@@ -83,7 +84,8 @@ class TestStockExpiryJob(StockCase):
 
     def test_a_container_opened_past_its_shelf_life_is_notified_apart_from_its_lot(self):
         container = self.container("Opened", 365, status=CONTAINER_OPENED)
-        container.opened_at = container.opened_at.replace(year=container.opened_at.year - 1)
+        opened_at = assert_instance(container.opened_at, datetime)
+        container.opened_at = opened_at.replace(year=opened_at.year - 1)
 
         self.job._run_batch()
 
@@ -97,7 +99,7 @@ class TestStockExpiryJob(StockCase):
         self.env[MODEL_RES_CONFIG_SETTINGS].create({"expiry_warning_days": 7}).execute()
 
         self.assertEqual(self.acid.alert_time, 7)
-        self.assertEqual(lot.alert_date, lot.expiration_date - timedelta(days=7))
+        self.assertEqual(lot.alert_date, assert_instance(lot.expiration_date, datetime) - timedelta(days=7))
         self.job._run_batch()
         self.assertFalse(self.notices(lot))
 

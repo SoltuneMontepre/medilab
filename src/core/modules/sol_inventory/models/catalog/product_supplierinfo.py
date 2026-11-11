@@ -43,9 +43,9 @@ class ProductSupplierinfo(models.Model, ProductSupplierinfoBase):
     @api.model
     def _archived_contacts(self, contacts=None):
         """The company contacts of archived suppliers, among these contacts when given."""
-        domain = [("active", "=", False)]
+        domain = Domain("active", "=", False)
         if contacts is not None:
-            domain.append(("partner_id", "in", contacts.ids))
+            domain &= Domain("partner_id", "in", contacts.ids)
         return self.env[MODEL_SUPPLIER].sudo().with_context(active_test=False).search(domain).partner_id
 
     def _get_filtered_supplier(self, company_id, product_id, params=False):

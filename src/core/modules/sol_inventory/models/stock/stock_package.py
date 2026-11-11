@@ -181,7 +181,7 @@ class StockPackage(models.Model, StockPackageBase):
         return fields.Datetime.context_timestamp(laboratory, moment).date()
 
     @api.model
-    def _at_utc(self, day):
+    def _at_utc(self, day) -> datetime | Literal[False]:
         """Midnight of this day in the laboratory, as the naive UTC time Odoo stores."""
         if not day:
             return False

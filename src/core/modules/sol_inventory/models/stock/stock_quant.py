@@ -161,4 +161,4 @@ class StockQuant(models.Model, StockQuantBase):
     def _stock_name(self):
         self.ensure_one()
         parts = [self.product_id.display_name, self.lot_id.name, self.package_id.name, self.location_id.display_name]
-        return " / ".join(part for part in parts if part)
+        return " / ".join(part for part in parts if isinstance(part, str) and part)

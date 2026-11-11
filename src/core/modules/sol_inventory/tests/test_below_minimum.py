@@ -10,6 +10,7 @@ from odoo.addons.sol_inventory.constants.models import (
     MODEL_SUPPLIER_INFO,
 )
 from odoo.addons.sol_laboratory.constants.models import MODEL_MAIL_MESSAGE
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -54,7 +55,7 @@ class TestBelowMinimum(StockCase):
         warning = self.warnings()
         self.assertEqual(len(warning), 1)
         self.assertIn(self.storekeeper.user_id.partner_id, warning.notification_ids.res_partner_id)
-        self.assertIn("40", warning.body)
+        self.assertIn("40", assert_instance(warning.body, str))
 
     def test_falling_below_again_warns_again(self):
         self.put_stock(self.gloves, self.central, 60)

@@ -137,19 +137,23 @@ def _receive_plates(env, plates):
     receipt = order.picking_ids.filtered(lambda picking: picking.state not in ("done", "cancel"))[:1]
     move = receipt.move_ids
     move.move_line_ids.unlink()
-    move.move_line_ids = [
-        Command.create(
-            {
-                "product_id": plates.id,
-                "picking_id": receipt.id,
-                "location_id": move.location_id.id,
-                "location_dest_id": move.location_dest_id.id,
-                "lot_name": PLATES_LOT,
-                "quantity": PLATES_RECEIVED,
-                "expiration_date": fields.Datetime.now() + timedelta(days=PLATES_EXPIRE_IN_DAYS),
-            }
-        )
-    ]
+    move.write(
+        {
+            "move_line_ids": [
+                Command.create(
+                    {
+                        "product_id": plates.id,
+                        "picking_id": receipt.id,
+                        "location_id": move.location_id.id,
+                        "location_dest_id": move.location_dest_id.id,
+                        "lot_name": PLATES_LOT,
+                        "quantity": PLATES_RECEIVED,
+                        "expiration_date": fields.Datetime.now() + timedelta(days=PLATES_EXPIRE_IN_DAYS),
+                    }
+                )
+            ]
+        }
+    )
     move.picked = True
     receipt.button_validate()
     return move.move_line_ids.lot_id

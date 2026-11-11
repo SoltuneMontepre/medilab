@@ -40,7 +40,7 @@ class ProductCategory(models.Model, ProductCategoryBase):
             costs = {
                 item: item.avg_cost
                 for item in items
-                if item.uom_id.compare(item._with_valuation_context().qty_available, 0) > 0
+                if item.uom_id.compare(item.with_env(item._with_valuation_context().env).qty_available, 0) > 0
             }
         category.property_cost_method = cost_method
         items._sync_lot_valuation()
