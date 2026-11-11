@@ -1,3 +1,4 @@
+from odoo import fields
 from odoo.exceptions import AccessError, UserError
 from odoo.fields import Command
 from odoo.tests import tagged
@@ -20,6 +21,7 @@ from odoo.addons.sol_inventory.constants.stock import (
 )
 from odoo.addons.sol_inventory.constants.xml_ids import SCRAP_EXPIRED, SCRAP_OTHER, SCRAP_SPILLED
 from odoo.addons.sol_inventory.models.stock.stock_package import MARKED_EMPTY
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -114,7 +116,9 @@ class TestStockUse(ContainersCase):
         wizard.action_confirm()
 
         self.assertFalse(container.done_line_ids.move_id.reason)
-        offered = self.env[MODEL_SCRAP_REASON_TAG].search(wizard._fields["scrap_reason_tag_ids"].domain(wizard))
+        offered = self.env[MODEL_SCRAP_REASON_TAG].search(
+            assert_instance(wizard._fields["scrap_reason_tag_ids"], fields.Many2many).get_comodel_domain(wizard)
+        )
         self.assertIn(self.env.ref(SCRAP_OTHER), offered)
         self.assertNotIn(self.env.ref(SCRAP_EXPIRED), offered)
 

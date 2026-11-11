@@ -1,6 +1,6 @@
 import re
-from datetime import datetime, time, timedelta
-from typing import TYPE_CHECKING
+from datetime import date, datetime, time, timedelta
+from typing import TYPE_CHECKING, Literal
 from zoneinfo import ZoneInfo
 
 from odoo import api, fields, models
@@ -169,7 +169,7 @@ class StockPackage(models.Model, StockPackageBase):
         return fields.Date.context_today(self.with_context(tz=self.env.company.tz or "UTC"))
 
     @api.model
-    def _as_date(self, moment):
+    def _as_date(self, moment) -> date | Literal[False]:
         if not moment:
             return False
         laboratory = self.with_context(tz=self.env.company.tz or "UTC")

@@ -248,7 +248,8 @@ class StockMove(models.Model, StockMoveBase):
         if item.tracking in ("lot", "serial") and (not lot or lot.status != LOT_AVAILABLE):
             return False
         packages = self.env[MODEL_STOCK_PACKAGE]
-        dated = lot and lot.expiration_date and packages._as_date(lot.expiration_date) < packages._today()
+        expiry = packages._as_date(lot.expiration_date) if lot else False
+        dated = bool(expiry and expiry < packages._today())
         return not (lot and lot.status != LOT_AVAILABLE) and not dated
 
     @api.model

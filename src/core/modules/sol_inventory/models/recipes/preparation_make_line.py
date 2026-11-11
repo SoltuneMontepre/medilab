@@ -45,7 +45,9 @@ class PreparationMakeLine(models.TransientModel, PreparationMakeLineBase):
     @api.depends("container_ids.container_id", "container_ids.sequence")
     def _compute_container_codes(self):
         for line in self:
-            line.container_codes = ", ".join(line.container_ids.container_id.mapped("display_name"))
+            line.container_codes = ", ".join(
+                name for name in line.container_ids.container_id.mapped("display_name") if name
+            )
 
     @api.onchange("container_scan")
     def _onchange_container_scan(self):

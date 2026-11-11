@@ -1,5 +1,5 @@
 from datetime import timedelta
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 from odoo import api, fields, models
 from odoo.exceptions import AccessError, UserError
@@ -49,7 +49,9 @@ class Preparation(models.Model, PreparationBase):
             preparation.display_name = preparation.container_ids[:1].name or preparation.recipe_id.display_name
 
     @api.model
-    def prepare(self, recipe, location, ingredient_lines, received, scrap_tags, extra_reason=False):
+    def prepare(
+        self, recipe, location, ingredient_lines, received, scrap_tags, extra_reason: str | Literal[False] = False
+    ):
         """Prepare one batch. ingredient_lines are dicts with item, quantity and containers in scan order. Each
         ingredient quantity is at least the recipe's; anything above it is wasted for scrap_tags, with extra_reason
         written out when one of them is Other. received is at most the yield."""
@@ -147,7 +149,7 @@ class Preparation(models.Model, PreparationBase):
             return
         raise AccessError(self.env._("You are not allowed to prepare a solution."))
 
-    def _check_batch(self, recipe, ingredient_lines, received, scrap_tags, extra_reason):
+    def _check_batch(self, recipe, ingredient_lines, received, scrap_tags, extra_reason: str | Literal[False]):
         """Refuse a batch that does not follow the recipe. Returns what happened to the extra, when its reason is
         Other."""
         if not recipe or not recipe.active:

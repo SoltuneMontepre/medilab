@@ -19,6 +19,7 @@ from odoo.addons.sol_inventory.constants.models import (
 from odoo.addons.sol_inventory.constants.stock import CONTAINER_SEALED, LOT_EXPIRED
 from odoo.addons.sol_inventory.constants.xml_ids import SCRAP_SPILLED
 from odoo.addons.sol_laboratory.constants.models import MODEL_PERSON, MODEL_TEST_REQUEST, MODEL_TEST_RESULT
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 _logger = logging.getLogger(__name__)
 
@@ -66,8 +67,8 @@ class StockPackage(models.Model, StockPackageBase):
         }
         # A shelf life after opening, so opening shortens the usable date; the shipped item does not use one.
         item["sodium_chloride"].write({"use_shelf_life_after_opening": True, "shelf_life_after_opening_days": 180})
-        item["sulfuric_acid"].standard_price = 2
-        item["distilled_water"].standard_price = 1
+        item["sulfuric_acid"].write({"standard_price": 2})
+        item["distilled_water"].write({"standard_price": 1})
 
         acetonitrile = item["acetonitrile"]
         lot = _lot(self.env, acetonitrile, ACETONITRILE_LOT, 365)
@@ -144,11 +145,11 @@ class StockPackage(models.Model, StockPackageBase):
         tester_permissions = self.env["medilab.permission"].browse()
         for code in ("container_edit_all", "preparation_create_all", "move_create_all"):
             tester_permissions |= self.env.ref(f"sol_inventory.permission_{code}")
-        tester.write({"permission_ids": [Command.link(permission.id) for permission in tester_permissions]})
+        tester.write({"permission_ids": [Command.link(persisted_id(permission)) for permission in tester_permissions]})
         storekeeper.write(
             {
                 "permission_ids": [
-                    Command.link(self.env.ref(f"sol_inventory.permission_{code}").id)
+                    Command.link(persisted_id(self.env.ref(f"sol_inventory.permission_{code}")))
                     for code in ("move_read_all", "container_edit_all")
                 ]
             }

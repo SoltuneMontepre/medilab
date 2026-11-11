@@ -1,3 +1,5 @@
+from typing import Literal
+
 from odoo.exceptions import AccessError, UserError
 from odoo.fields import Command
 from odoo.tests import tagged
@@ -17,12 +19,20 @@ from odoo.addons.sol_inventory.constants.stock import (
     MOVE_WASTE,
 )
 from odoo.addons.sol_inventory.constants.xml_ids import CONTAINER_LABEL_REPORT, SCRAP_OTHER, SCRAP_WRONGLY_PREPARED
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
 class TestPreparations(ContainersCase):
     def prepare(
-        self, acid_quantity=77, water_quantity=923, received=1000, acid=None, water=None, tags=None, extra_reason=False
+        self,
+        acid_quantity: float = 77,
+        water_quantity: float = 923,
+        received: float = 1000,
+        acid=None,
+        water=None,
+        tags=None,
+        extra_reason: str | Literal[False] = False,
     ):
         mark = self.env[MODEL_STOCK_LOT].search_count([])
         acid = acid or self.put_container(self.acid, 500, f"Acid{mark}", status=CONTAINER_OPENED)
@@ -66,8 +76,9 @@ class TestPreparations(ContainersCase):
         container = preparation.container_ids
 
         self.assertEqual(container.name, f"{container.lot_id.name}-01")
-        self.assertTrue(container.lot_id.name.startswith("PC."))
-        self.assertEqual(len(container.lot_id.name), 7)
+        lot_name = assert_instance(container.lot_id.name, str)
+        self.assertTrue(lot_name.startswith("PC."))
+        self.assertEqual(len(lot_name), 7)
         self.assertEqual(container.status, CONTAINER_OPENED)
         self.assertEqual(container.item_id, self.dilute_acid)
         self.assertEqual(container.quantity, 1000)
@@ -108,7 +119,7 @@ class TestPreparations(ContainersCase):
         self.assertEqual(water_line.container_ids.container_id, water)
         self.assertFalse(wizard.container_scan)
         for code, message in ((acid.name, "already on this preparation"), (other.name, "does not use")):
-            wizard.container_scan = code
+            wizard.update({"container_scan": code})
             with self.assertRaises(UserError) as refused:
                 wizard._onchange_container_scan()
             self.assertIn(message, refused.exception.args[0])
@@ -166,14 +177,9 @@ class TestPreparations(ContainersCase):
         )
         short = self.put_container(self.acid, 10, "Short", status=CONTAINER_OPENED)
         wrong = self.put_container(self.water, 500, "Wrong", status=CONTAINER_OPENED)
-        for kwargs in (
-            {"acid": sealed},
-            {"acid": expired},
-            {"acid": short},
-            {"acid": wrong, "acid_quantity": 77},
-        ):
-            with self.subTest(kwargs=kwargs), self.assertRaises(UserError):
-                self.prepare(**kwargs)
+        for acid in (sealed, expired, short, wrong):
+            with self.subTest(container=acid.name), self.assertRaises(UserError):
+                self.prepare(acid=acid)
         self.assertEqual(sealed.status, "sealed")
         self.assertNotEqual(short.status, CONTAINER_DEPLETED)
 
