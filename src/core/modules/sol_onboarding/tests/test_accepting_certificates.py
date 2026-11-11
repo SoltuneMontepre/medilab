@@ -37,11 +37,11 @@ class TestAcceptingCertificates(OnboardingCase):
 
     def setUp(self):
         super().setUp()
-        self.run = self.env[MODEL_ONBOARDING_RUN].create({"requested_by_id": self.admin.id})
+        self.collection_run = self.env[MODEL_ONBOARDING_RUN].create({"requested_by_id": self.admin.id})
 
     def stage(self, *items):
         fetched = Fetched("https://lab.example/a", "html", b"<p>A</p>", datetime(2026, 10, 21, 8, 0, 0))
-        snapshot = self.env[MODEL_ONBOARDING_SNAPSHOT]._keep(self.run, self.source, fetched)
+        snapshot = self.env[MODEL_ONBOARDING_SNAPSHOT]._keep(self.collection_run, self.source, fetched)
         return self.env[MODEL_ONBOARDING_STAGED_RECORD]._stage(snapshot, items)
 
     def certificate(self, code=CERTIFICATE_CODE, **values):
@@ -69,7 +69,7 @@ class TestAcceptingCertificates(OnboardingCase):
         return self.env[MODEL_ACCREDITATION_CERTIFICATE].browse(staged.record_id).with_context(active_test=False)
 
     def lab_methods(self, staged):
-        return self.env[MODEL_TESTING_METHOD].browse(staged.mapped("record_id"))
+        return self.env[MODEL_TESTING_METHOD].browse([record.record_id for record in staged])
 
     def test_a_certificate_with_thirty_methods_creates_twenty_five_and_no_scope_lines(self):
         codes = [f"TCVN 99{number:02d}:2012" for number in range(1, 31)]
@@ -179,7 +179,7 @@ class TestAcceptingCertificates(OnboardingCase):
         self.assertEqual(wizard.action_confirm()["tag"], "display_notification")
         self.assertEqual((certificate | first | second).mapped("state"), ["accepted"] * 3)
         self.assertFalse(certificate.error)
-        created = self.env[MODEL_TESTING_METHOD].browse((first | second).mapped("record_id"))
+        created = self.env[MODEL_TESTING_METHOD].browse([record.record_id for record in first | second])
         self.assertEqual(created.mapped("code"), ["TCVN 9879:2012", "TCVN 9880:2012"])
         self.assertEqual(created.mapped("field_id"), self.field)
         self.assertFalse(self.lab_certificate(certificate).scope_line_ids)
@@ -202,7 +202,7 @@ class TestAcceptingCertificates(OnboardingCase):
         methods = [self.method(f"TCVN 991{number}:2013", f"Kept method {number}") for number in range(3)]
         staged = self.stage(self.certificate(), *methods)
         old, children = staged[0], staged[1:]
-        self.run = self.env[MODEL_ONBOARDING_RUN].create({"requested_by_id": self.admin.id})
+        self.collection_run = self.env[MODEL_ONBOARDING_RUN].create({"requested_by_id": self.admin.id})
 
         new = self.stage(self.certificate(issuing_body="AOSC"), *methods)
 
@@ -238,7 +238,7 @@ class TestAcceptingCertificates(OnboardingCase):
         certificate = self.stage(self.certificate(), self.method("TCVN 9923:2014", "In the first scope"))[0]
         certificate.field_id = self.field
         certificate.with_user(self.admin).action_accept()
-        self.run = self.env[MODEL_ONBOARDING_RUN].create({"requested_by_id": self.admin.id})
+        self.collection_run = self.env[MODEL_ONBOARDING_RUN].create({"requested_by_id": self.admin.id})
         later = self.stage(self.method("TCVN 9924:2014", "Added to the scope later"))
         self.assertEqual(later.parent_id, certificate)
         later.field_id = self.field

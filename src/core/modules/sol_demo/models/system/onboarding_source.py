@@ -1,10 +1,17 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, models
 
 from odoo.addons.sol_onboarding.constants.models import MODEL_ONBOARDING_SOURCE
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_onboarding_source as OnboardingSourceBase
+else:
+    OnboardingSourceBase = object
+
 
 # Nguồn Tin Cậy
-class OnboardingSource(models.Model):
+class OnboardingSource(models.Model, OnboardingSourceBase):
     _inherit = MODEL_ONBOARDING_SOURCE
 
     @api.model

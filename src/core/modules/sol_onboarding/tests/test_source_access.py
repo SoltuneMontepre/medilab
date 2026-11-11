@@ -6,6 +6,7 @@ from odoo.tests.common import JsonRpcException
 from odoo.tools import mute_logger
 
 from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_GROUP
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
 from odoo.addons.sol_onboarding.constants.models import MODEL_ONBOARDING_SOURCE
 from odoo.addons.sol_onboarding.services.adapters.boa import BoaAdapter
 from odoo.addons.sol_onboarding.services.adapters.fda_bam import FdaBamAdapter
@@ -52,7 +53,9 @@ class TestSourceAccess(HttpCase):
             ("ir.actions.act_window", "res_model"),
             ("ir.access", "model_id.model"),
         ):
-            self.assertFalse(self.env[model].sudo().search_count([(field, "=", MODEL_ONBOARDING_SOURCE)]), model)
+            self.assertFalse(
+                dynamic_model(self.env, model).sudo().search_count([(field, "=", MODEL_ONBOARDING_SOURCE)]), model
+            )
 
     def test_a_source_is_off_by_default(self):
         source = self.sources.create(SOURCE_VALUES)

@@ -1,4 +1,5 @@
 from collections import Counter
+from typing import TYPE_CHECKING
 
 from odoo import api, models
 
@@ -20,9 +21,14 @@ from odoo.addons.sol_onboarding.services.adapters.registry import adapter_for
 from odoo.addons.sol_onboarding.services.fetcher import Fetcher, PageSkipped
 from odoo.addons.sol_onboarding.services.parsing import pdf_text
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_onboarding_run as OnboardingRunCrawlBase
+else:
+    OnboardingRunCrawlBase = object
+
 
 # Lượt Thu Thập: crawling its pages and reporting when it ends.
-class OnboardingRunCrawl(models.Model):
+class OnboardingRunCrawl(models.Model, OnboardingRunCrawlBase):
     _inherit = MODEL_ONBOARDING_RUN
 
     def _crawl_page(self, item):

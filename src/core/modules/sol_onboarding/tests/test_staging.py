@@ -23,12 +23,12 @@ class TestStaging(OnboardingCase):
     def setUp(self):
         super().setUp()
         self.runs = self.env[MODEL_ONBOARDING_RUN]
-        self.run = self.runs.create({"requested_by_id": self.admin.id})
+        self.collection_run = self.runs.create({"requested_by_id": self.admin.id})
         self.snapshots = self.env[MODEL_ONBOARDING_SNAPSHOT]
         self.records = self.env[MODEL_ONBOARDING_STAGED_RECORD]
 
     def snapshot_of(self, run=None, body=b"<p>A</p>"):
-        return self.snapshots._keep(run or self.run, self.source, Fetched(PAGE, "html", body, FETCHED_AT))
+        return self.snapshots._keep(run or self.collection_run, self.source, Fetched(PAGE, "html", body, FETCHED_AT))
 
     def method(self, code, name="pH", parent=None):
         return StagedValues(

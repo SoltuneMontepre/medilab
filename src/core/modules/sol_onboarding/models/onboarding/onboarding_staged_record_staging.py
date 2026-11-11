@@ -1,6 +1,7 @@
 import hashlib
 import json
 from collections.abc import Iterable
+from typing import TYPE_CHECKING
 
 from odoo import models
 
@@ -15,9 +16,14 @@ from odoo.addons.sol_onboarding.constants.onboarding import (
 from odoo.addons.sol_onboarding.services.adapters.base import StagedValues
 from odoo.addons.sol_onboarding.services.parsing import clean_text
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_onboarding_staged_record as OnboardingStagedRecordStagingBase
+else:
+    OnboardingStagedRecordStagingBase = object
+
 
 # Bản Ghi Chờ Duyệt: what a fetched page stages, once per change at the source.
-class OnboardingStagedRecordStaging(models.Model):
+class OnboardingStagedRecordStaging(models.Model, OnboardingStagedRecordStagingBase):
     _inherit = MODEL_ONBOARDING_STAGED_RECORD
 
     def _checksum(self, values: dict) -> str:

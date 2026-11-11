@@ -56,11 +56,11 @@ class TestAccepting(OnboardingCase):
 
     def setUp(self):
         super().setUp()
-        self.run = self.env[MODEL_ONBOARDING_RUN].create({"requested_by_id": self.admin.id})
+        self.collection_run = self.env[MODEL_ONBOARDING_RUN].create({"requested_by_id": self.admin.id})
 
     def stage(self, kind, key=None, **values):
         fetched = Fetched("https://lab.example/a", "html", b"<p>A</p>", datetime(2026, 10, 21, 8, 0, 0))
-        snapshot = self.env[MODEL_ONBOARDING_SNAPSHOT]._keep(self.run, self.source, fetched)
+        snapshot = self.env[MODEL_ONBOARDING_SNAPSHOT]._keep(self.collection_run, self.source, fetched)
         item = StagedValues(kind, key or values.get("code") or values["name"], values, "vi_VN")
         return self.env[MODEL_ONBOARDING_STAGED_RECORD]._stage(snapshot, [item])
 
@@ -92,7 +92,7 @@ class TestAccepting(OnboardingCase):
         self.assertEqual((wizard.main_group_needed, wizard.department_needed), (True, True))
         self.assertEqual((wizard.field_needed, wizard.code_needed), (False, False))
         self.assertEqual(
-            wizard.asked_for.splitlines(),
+            (wizard.asked_for or "").splitlines(),
             [
                 "Department: Way of Testing accepted pair",
                 "Main Group: Test Parameter Accepted parameter xyz",

@@ -1,10 +1,12 @@
 import unicodedata
+from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 from odoo.tools import SQL
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_PARAMETER_METHOD
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
 from odoo.addons.sol_onboarding.constants.models import MODEL_ONBOARDING_STAGED_RECORD
 from odoo.addons.sol_onboarding.constants.onboarding import (
     ACTION_CREATE,
@@ -23,6 +25,11 @@ from odoo.addons.sol_onboarding.constants.onboarding import (
     STAGED_TO_REVIEW,
 )
 from odoo.addons.sol_onboarding.services.parsing import clean_text
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_onboarding_staged_record as OnboardingStagedRecordMatchingBase
+else:
+    OnboardingStagedRecordMatchingBase = object
 
 # Kinds that match by code.
 CODE_KINDS = (KIND_CERTIFICATE, KIND_TESTING_METHOD)
@@ -50,7 +57,7 @@ def is_iso_date(value: str) -> bool:
 
 
 # Bản Ghi Chờ Duyệt: the Laboratory record a staged record matches and the action it proposes.
-class OnboardingStagedRecordMatching(models.Model):
+class OnboardingStagedRecordMatching(models.Model, OnboardingStagedRecordMatchingBase):
     _inherit = MODEL_ONBOARDING_STAGED_RECORD
 
     def write(self, vals):
@@ -105,8 +112,8 @@ class OnboardingStagedRecordMatching(models.Model):
         self.ensure_one()
         values = self._effective_values()
         model = KIND_MODELS[self.kind]
-        self.env[model].flush_model()
-        table = self.env[model]._table
+        dynamic_model(self.env, model).flush_model()
+        table = dynamic_model(self.env, model)._table
         if self.kind == KIND_PARAMETER_METHOD:
             return model, self._find_pair(values), False
         code = values.get("code")
@@ -153,7 +160,7 @@ class OnboardingStagedRecordMatching(models.Model):
     def _matched_record(self):
         """The Laboratory record it matches, empty when there is none or it was deleted."""
         self.ensure_one()
-        model = self.env[KIND_MODELS[self.kind]]
+        model = dynamic_model(self.env, KIND_MODELS[self.kind])
         if not self.record_id:
             return model
         return model.sudo().browse(self.record_id).exists()
@@ -172,7 +179,7 @@ class OnboardingStagedRecordMatching(models.Model):
         does not give, or gives as a date that is not ISO, is no change."""
         if self.kind == KIND_PARAMETER_METHOD:
             return []
-        record = self.env[KIND_MODELS[self.kind]].sudo().browse(matched_id).exists()
+        record = dynamic_model(self.env, KIND_MODELS[self.kind]).sudo().browse(matched_id).exists()
         if not record:
             return []
         record = record.with_context(lang=self.lang, active_test=False)

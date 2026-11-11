@@ -32,14 +32,14 @@ from odoo.addons.sol_onboarding.tests.onboarding_case import OnboardingCase
 class TestMatching(OnboardingCase):
     def setUp(self):
         super().setUp()
-        self.run = self.env[MODEL_ONBOARDING_RUN].create({"requested_by_id": self.admin.id})
+        self.collection_run = self.env[MODEL_ONBOARDING_RUN].create({"requested_by_id": self.admin.id})
         self.records = self.env[MODEL_ONBOARDING_STAGED_RECORD]
         self.field = self.env[MODEL_TESTING_FIELD].create({"code": "ZZMATCH", "name": "Matching field"})
         self.group = self.env[MODEL_PARAMETER_GROUP].create({"name": "Matching group"})
 
     def stage(self, kind, key=None, **values):
         fetched = Fetched("https://lab.example/a", "html", b"<p>A</p>", datetime(2026, 10, 21, 8, 0, 0))
-        snapshot = self.env[MODEL_ONBOARDING_SNAPSHOT]._keep(self.run, self.source, fetched)
+        snapshot = self.env[MODEL_ONBOARDING_SNAPSHOT]._keep(self.collection_run, self.source, fetched)
         item = StagedValues(kind, key or values.get("code") or values.get("name"), values, "vi_VN")
         return self.records._stage(snapshot, [item])
 

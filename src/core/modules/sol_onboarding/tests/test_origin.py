@@ -65,4 +65,4 @@ class TestOrigin(OnboardingCase):
         self.assertTrue(views)
         for view in views:
             with self.subTest(view=view.name):
-                self.assertNotIn("source_id", view.arch_db)
+                self.assertNotIn("source_id", view.arch_db or "")

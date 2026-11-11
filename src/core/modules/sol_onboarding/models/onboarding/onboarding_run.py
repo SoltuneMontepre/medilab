@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 
@@ -28,9 +30,14 @@ from odoo.addons.sol_onboarding.constants.onboarding import (
 )
 from odoo.addons.sol_onboarding.services.adapters.registry import adapter_for
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_onboarding_run as OnboardingRunBase
+else:
+    OnboardingRunBase = object
+
 
 # Lượt Thu Thập
-class OnboardingRun(models.Model):
+class OnboardingRun(models.Model, OnboardingRunBase):
     _name = MODEL_ONBOARDING_RUN
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Collection Run"
@@ -43,54 +50,59 @@ class OnboardingRun(models.Model):
         "(state) WHERE state = 'running'", "Another collection run is running; start this one when it ends."
     )
 
-    # Unique reference of the run, such as THU.2026.0001.
-    name = fields.Char(string="Reference", required=True, readonly=True, copy=False, default="New")
-    # The organisation whose accreditation scope the run collects.
-    organisation_id = fields.Many2one(MODEL_ONBOARDING_ORGANISATION, string="Organisation", ondelete="restrict")
-    # Sectors the run collects for.
-    sector_ids = fields.Many2many(
-        MODEL_ONBOARDING_SECTOR,
-        "medilab_onboarding_run_sector_rel",
-        "run_id",
-        "sector_id",
-        string="Sectors",
-    )
-    # draft, running, done, failed or cancelled.
-    state = fields.Selection(
-        [
-            ("draft", "Draft"),
-            ("running", "Running"),
-            ("done", "Done"),
-            ("failed", "Failed"),
-            ("cancelled", "Cancelled"),
-        ],
-        string="Status",
-        required=True,
-        default=RUN_DRAFT,
-        copy=False,
-        index=True,
-    )
-    # The user who started the run and is notified when it ends.
-    requested_by_id = fields.Many2one(
-        MODEL_RES_USERS, string="Requested By", required=True, default=lambda self: self.env.user, ondelete="restrict"
-    )
-    # Time the run started.
-    started_at = fields.Datetime(string="Started At", copy=False)
-    # Time the run ended.
-    ended_at = fields.Datetime(string="Ended At", copy=False)
-    # Pages the run fetched.
-    page_count = fields.Integer(string="Pages Fetched", default=0, copy=False)
-    # Pages the run skipped, for robots.txt, another host, not HTTPS, too many redirects, a refused content type or size, a
-    # PDF without text, or the source turned off; pages over the page limit are logged, not counted.
-    skipped_count = fields.Integer(string="Pages Skipped", default=0, copy=False)
-    # Records the run staged.
-    staged_count = fields.Integer(string="Records Staged", default=0, copy=False)
-    # Documents the run fetched.
-    snapshot_ids = fields.One2many(MODEL_ONBOARDING_SNAPSHOT, "run_id", string="Snapshots")
-    # Records the run staged.
-    staged_record_ids = fields.One2many(MODEL_ONBOARDING_STAGED_RECORD, "run_id", string="Staged Records")
-    # One line per page: fetched, skipped with its reason, or failed with its error.
-    log = fields.Text(string="Log", copy=False)
+    if not TYPE_CHECKING:
+        # Unique reference of the run, such as THU.2026.0001.
+        name = fields.Char(string="Reference", required=True, readonly=True, copy=False, default="New")
+        # The organisation whose accreditation scope the run collects.
+        organisation_id = fields.Many2one(MODEL_ONBOARDING_ORGANISATION, string="Organisation", ondelete="restrict")
+        # Sectors the run collects for.
+        sector_ids = fields.Many2many(
+            MODEL_ONBOARDING_SECTOR,
+            "medilab_onboarding_run_sector_rel",
+            "run_id",
+            "sector_id",
+            string="Sectors",
+        )
+        # draft, running, done, failed or cancelled.
+        state = fields.Selection(
+            [
+                ("draft", "Draft"),
+                ("running", "Running"),
+                ("done", "Done"),
+                ("failed", "Failed"),
+                ("cancelled", "Cancelled"),
+            ],
+            string="Status",
+            required=True,
+            default=RUN_DRAFT,
+            copy=False,
+            index=True,
+        )
+        # The user who started the run and is notified when it ends.
+        requested_by_id = fields.Many2one(
+            MODEL_RES_USERS,
+            string="Requested By",
+            required=True,
+            default=lambda self: self.env.user,
+            ondelete="restrict",
+        )
+        # Time the run started.
+        started_at = fields.Datetime(string="Started At", copy=False)
+        # Time the run ended.
+        ended_at = fields.Datetime(string="Ended At", copy=False)
+        # Pages the run fetched.
+        page_count = fields.Integer(string="Pages Fetched", default=0, copy=False)
+        # Pages the run skipped, for robots.txt, another host, not HTTPS, too many redirects, a refused content type or size, a
+        # PDF without text, or the source turned off; pages over the page limit are logged, not counted.
+        skipped_count = fields.Integer(string="Pages Skipped", default=0, copy=False)
+        # Records the run staged.
+        staged_count = fields.Integer(string="Records Staged", default=0, copy=False)
+        # Documents the run fetched.
+        snapshot_ids = fields.One2many(MODEL_ONBOARDING_SNAPSHOT, "run_id", string="Snapshots")
+        # Records the run staged.
+        staged_record_ids = fields.One2many(MODEL_ONBOARDING_STAGED_RECORD, "run_id", string="Staged Records")
+        # One line per page: fetched, skipped with its reason, or failed with its error.
+        log = fields.Text(string="Log", copy=False)
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -147,7 +159,7 @@ class OnboardingRun(models.Model):
         source = source.sudo()
         key = f"{self.id}:{url}"
         on_host = self._crawl_items().filtered(
-            lambda item: item.item_key.startswith(f"{self.id}:https://{source.host}/")
+            lambda item: (item.item_key or "").startswith(f"{self.id}:https://{source.host}/")
         )
         if key in on_host.mapped("item_key"):
             return True

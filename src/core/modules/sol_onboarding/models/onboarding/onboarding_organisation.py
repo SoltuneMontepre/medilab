@@ -1,5 +1,6 @@
 import re
 from collections.abc import Iterable
+from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.tools import SQL
@@ -9,33 +10,39 @@ from odoo.addons.sol_onboarding.constants.onboarding import SUGGEST_CONTEXT
 from odoo.addons.sol_onboarding.constants.xml_ids import SOURCES_GROUP
 from odoo.addons.sol_onboarding.services.adapters.base import OrganisationValues
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_onboarding_organisation as OnboardingOrganisationBase
+else:
+    OnboardingOrganisationBase = object
+
 
 # Tổ Chức
-class OnboardingOrganisation(models.Model):
+class OnboardingOrganisation(models.Model, OnboardingOrganisationBase):
     _name = MODEL_ONBOARDING_ORGANISATION
     _description = "Onboarding Organisation"
     _order = "name, id"
 
     _key_unique = models.Constraint("UNIQUE(source_id, external_key)", "A source lists an organisation once.")
 
-    # The source that lists the organisation; only the developers see it.
-    source_id = fields.Many2one(
-        MODEL_ONBOARDING_SOURCE, string="Source", required=True, ondelete="cascade", groups=SOURCES_GROUP
-    )
-    # Key of the organisation at the source.
-    external_key = fields.Char(string="External Key", required=True)
-    # Organisation name as the source gives it.
-    name = fields.Char(string="Name", required=True, index="trigram")
-    # Tax ID of the organisation, when the source gives it.
-    tax_id = fields.Char(string="Tax ID", index=True)
-    # Accreditation number, such as VILAS 123, when the source gives it.
-    accreditation_code = fields.Char(string="Accreditation Code")
-    # Address of the organisation's page at the source.
-    url = fields.Char(string="Address", required=True)
-    # Time the organisation was last seen at the source.
-    seen_at = fields.Datetime(string="Seen At", required=True)
-    # False when the source no longer lists the organisation.
-    active = fields.Boolean(string="Active", default=True)
+    if not TYPE_CHECKING:
+        # The source that lists the organisation; only the developers see it.
+        source_id = fields.Many2one(
+            MODEL_ONBOARDING_SOURCE, string="Source", required=True, ondelete="cascade", groups=SOURCES_GROUP
+        )
+        # Key of the organisation at the source.
+        external_key = fields.Char(string="External Key", required=True)
+        # Organisation name as the source gives it.
+        name = fields.Char(string="Name", required=True, index="trigram")
+        # Tax ID of the organisation, when the source gives it.
+        tax_id = fields.Char(string="Tax ID", index=True)
+        # Accreditation number, such as VILAS 123, when the source gives it.
+        accreditation_code = fields.Char(string="Accreditation Code")
+        # Address of the organisation's page at the source.
+        url = fields.Char(string="Address", required=True)
+        # Time the organisation was last seen at the source.
+        seen_at = fields.Datetime(string="Seen At", required=True)
+        # False when the source no longer lists the organisation.
+        active = fields.Boolean(string="Active", default=True)
 
     def _upsert(self, source, values: Iterable[OrganisationValues]):
         """Create or update the source's organisations by key, mark them seen now and bring archived ones back."""

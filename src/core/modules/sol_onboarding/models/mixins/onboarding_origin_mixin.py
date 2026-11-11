@@ -1,17 +1,25 @@
+from typing import TYPE_CHECKING
+
 from odoo import fields, models
 
 from odoo.addons.sol_onboarding.constants.models import MODEL_ONBOARDING_ORIGIN_MIXIN, MODEL_ONBOARDING_STAGED_RECORD
 from odoo.addons.sol_onboarding.constants.onboarding import STAGED_ACCEPTED
 from odoo.addons.sol_onboarding.constants.xml_ids import ORIGIN_LIST_VIEW
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_onboarding_origin_mixin as OnboardingOriginMixinBase
+else:
+    OnboardingOriginMixinBase = object
+
 
 # Nguồn Gốc: the accepted staged records a Laboratory record was created, linked or updated from.
-class OnboardingOriginMixin(models.AbstractModel):
+class OnboardingOriginMixin(models.AbstractModel, OnboardingOriginMixinBase):
     _name = MODEL_ONBOARDING_ORIGIN_MIXIN
     _description = "Onboarding Origin"
 
-    # Number of accepted staged records the record came from.
-    onboarding_origin_count = fields.Integer(string="Origin", compute="_compute_onboarding_origin_count")
+    if not TYPE_CHECKING:
+        # Number of accepted staged records the record came from.
+        onboarding_origin_count = fields.Integer(string="Origin", compute="_compute_onboarding_origin_count")
 
     def _onboarding_origin_domain(self) -> list:
         return [("state", "=", STAGED_ACCEPTED), ("record_model", "=", self._name), ("record_id", "in", self.ids)]

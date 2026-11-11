@@ -1,17 +1,25 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 
 from odoo.addons.sol_onboarding.constants.models import MODEL_ONBOARDING_REJECT, MODEL_ONBOARDING_STAGED_RECORD
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_onboarding_reject as OnboardingRejectBase
+else:
+    OnboardingRejectBase = object
+
 
 # Từ Chối Bản Ghi Chờ Duyệt
-class OnboardingReject(models.TransientModel):
+class OnboardingReject(models.TransientModel, OnboardingRejectBase):
     _name = MODEL_ONBOARDING_REJECT
     _description = "Reject Staged Records"
 
-    # The staged records to reject.
-    staged_record_ids = fields.Many2many(MODEL_ONBOARDING_STAGED_RECORD, string="Staged Records")
-    # Why they are rejected; optional.
-    reason = fields.Text(string="Reason")
+    if not TYPE_CHECKING:
+        # The staged records to reject.
+        staged_record_ids = fields.Many2many(MODEL_ONBOARDING_STAGED_RECORD, string="Staged Records")
+        # Why they are rejected; optional.
+        reason = fields.Text(string="Reason")
 
     @api.model
     def default_get(self, fields_list):

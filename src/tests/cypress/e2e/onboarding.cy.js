@@ -43,7 +43,7 @@ function currentStatus() {
 }
 
 describe("Onboarding", () => {
-  it("lets an administrator run a collection, accept a certificate with its methods and open its origin", () => {
+  it("lets an administrator run a collection, accept a certificate's methods into the catalog and open its origin", () => {
     signIn("demo.administrator");
     cancelRunningRuns();
 
@@ -66,13 +66,15 @@ describe("Onboarding", () => {
     cy.get(".modal button[name=action_confirm]").click();
     currentStatus().should("contain", "Accepted");
 
+    // The methods go into the catalog; the administrator adds the certificate's scope lines by hand.
+    cy.visit("/odoo/testing-methods");
+    for (const code of ["TCVN 6492:2011", "TCVN 8126:2009", "TCVN 6658:2000"]) {
+      cy.get(".o_searchview_input").type(`${code}{enter}`);
+      cy.contains(".o_data_row", code).should("be.visible");
+    }
     cy.visit("/odoo/accreditation-certificates");
     cy.contains(".o_data_row", CERTIFICATE).click();
-    cy.get(".o_field_widget[name=method_ids]").within(() => {
-      for (const code of ["TCVN 6492:2011", "TCVN 8126:2009", "TCVN 6658:2000"]) {
-        cy.contains(".o_data_row", code).should("be.visible");
-      }
-    });
+    cy.get(".o_field_widget[name=scope_line_ids] .o_data_row").should("not.exist");
     cy.get("button[name=action_open_onboarding_origin]").click();
     cy.contains(".o_data_row", "https://www.boa.gov.vn/vi/timkiem/tochuc/9901").click();
 

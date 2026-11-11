@@ -1,4 +1,5 @@
 from collections import defaultdict
+from typing import TYPE_CHECKING
 
 import psycopg2
 
@@ -8,6 +9,7 @@ from odoo.fields import Command
 from odoo.tools import format_list, mute_logger
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_TESTING_FIELD, MODEL_TESTING_METHOD
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
 from odoo.addons.sol_onboarding.constants.models import MODEL_ONBOARDING_STAGED_RECORD
 from odoo.addons.sol_onboarding.constants.onboarding import (
     ACTION_CREATE,
@@ -27,6 +29,11 @@ from odoo.addons.sol_onboarding.constants.onboarding import (
 from odoo.addons.sol_onboarding.constants.xml_ids import ACCEPT_ACTION
 from odoo.addons.sol_onboarding.models.onboarding.onboarding_staged_record_matching import normalize_code
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_onboarding_staged_record as OnboardingStagedRecordAcceptanceBase
+else:
+    OnboardingStagedRecordAcceptanceBase = object
+
 # Values a Laboratory record of each kind takes from the staged value field of the same name.
 LABORATORY_KEYS = {
     KIND_CERTIFICATE: ("code", "issuing_body", "valid_from", "valid_until"),
@@ -41,7 +48,7 @@ NEED_FIELDS = {"field_key": "field_id", "parameter_key": "parameter_id", "method
 
 
 # Bản Ghi Chờ Duyệt: accepting turns it into Laboratory master data.
-class OnboardingStagedRecordAcceptance(models.Model):
+class OnboardingStagedRecordAcceptance(models.Model, OnboardingStagedRecordAcceptanceBase):
     _inherit = MODEL_ONBOARDING_STAGED_RECORD
 
     def action_accept(self):
@@ -96,7 +103,8 @@ class OnboardingStagedRecordAcceptance(models.Model):
         """The message of the refused constraint, from the model of its table, as Odoo gives it for a form."""
         table = error.diag.table_name
         model = next(
-            (self.env[name] for name, cls in self.env.registry.items() if cls._table == table), self.env["base"]
+            (dynamic_model(self.env, name) for name, cls in self.env.registry.items() if cls._table == table),
+            self.env["base"],
         )
         return model._sql_error_to_message(error)
 
@@ -109,7 +117,7 @@ class OnboardingStagedRecordAcceptance(models.Model):
             raise UserError(_("Only staged records to review can be accepted."))
         if self.match_suggested:
             raise UserError(_("Confirm or clear the suggested match of %s first.", self._describe()))
-        model = self.env[KIND_MODELS[self.kind]]
+        model = dynamic_model(self.env, KIND_MODELS[self.kind])
         for field, need in self._needs().items():
             if need.state == STAGED_TO_REVIEW:
                 need._accept_one()

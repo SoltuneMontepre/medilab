@@ -94,7 +94,7 @@ class TestCrawl(OnboardingCase):
         self.assertEqual((failed.item_key, failed.attempts), (f"{run.id}:{SECOND}", 3))
         self.assertEqual(run.state, "failed")
         # A retried failure keeps its traceback; the log gives the message of its last line.
-        self.assertIn(f"failed {SECOND}: The source answered 503.", run.log.splitlines())
+        self.assertIn(f"failed {SECOND}: The source answered 503.", (run.log or "").splitlines())
         self.assertEqual(self.staged(run), [("TCVN 1", "to_review")])
 
     def test_an_unavailable_source_defers_its_other_pages_without_an_attempt(self):
@@ -109,7 +109,7 @@ class TestCrawl(OnboardingCase):
         run = self.start()
         self.job._run_batch()  # the first page queues three
         self.job._run_batch()  # one batch claims all three
-        items = {item.item_key.partition(":")[2]: item for item in run._crawl_items()}
+        items = {(item.item_key or "").partition(":")[2]: item for item in run._crawl_items()}
         self.assertEqual([items[url].attempts for url in (SECOND, THIRD, FOURTH)], [1, 0, 0])
         self.assertEqual({items[url].status for url in (SECOND, THIRD, FOURTH)}, {"pending"})
         self.assertEqual(items[THIRD].next_attempt_at, items[SECOND].next_attempt_at)
@@ -121,7 +121,7 @@ class TestCrawl(OnboardingCase):
         self.serve({FOOD: page()})
         with patch.object(PagesAdapter, "parse", side_effect=RuntimeError):
             run = self.crawl()
-        self.assertIn(f"failed {FOOD}: RuntimeError", run.log.splitlines())
+        self.assertIn(f"failed {FOOD}: RuntimeError", (run.log or "").splitlines())
 
     @mute_logger(JOB_LOGGER)
     def test_a_4xx_page_fails_at_once(self):
@@ -138,7 +138,7 @@ class TestCrawl(OnboardingCase):
         run = self.crawl()
 
         self.assertEqual((len(run.snapshot_ids), run.page_count), (5, 5))
-        self.assertIn("4 pages not queued: page limit", run.log.splitlines())
+        self.assertIn("4 pages not queued: page limit", (run.log or "").splitlines())
 
     def test_skipped_pages_are_counted_and_named(self):
         private, data = "https://lab.example/private/a", "https://lab.example/data.csv"
@@ -153,7 +153,7 @@ class TestCrawl(OnboardingCase):
 
         self.assertEqual((run.state, run.page_count, run.skipped_count), ("done", 1, 3))
         self.assertEqual(
-            run.log.splitlines(),
+            (run.log or "").splitlines(),
             [
                 f"fetched {FOOD}",
                 f"skipped {private}: disallowed by robots.txt",
@@ -228,7 +228,7 @@ class TestCrawl(OnboardingCase):
 
         self.assertEqual((run.page_count, run.skipped_count, run.staged_count), (2, 1, 4))
         self.assertEqual(
-            run.log.splitlines(),
+            (run.log or "").splitlines(),
             [
                 f"fetched {FOOD}",
                 f"fetched {SECOND}",
@@ -245,7 +245,7 @@ class TestCrawl(OnboardingCase):
         run = self.crawl()
 
         self.assertEqual((run.page_count, run.skipped_count), (2, 1))
-        self.assertIn(f"skipped {scan}: PDF without text", run.log.splitlines())
+        self.assertIn(f"skipped {scan}: PDF without text", (run.log or "").splitlines())
 
     def test_a_busy_source_defers_the_page_without_an_attempt(self):
         run = self.start()

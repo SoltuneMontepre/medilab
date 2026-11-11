@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
@@ -16,6 +18,11 @@ from odoo.addons.sol_onboarding.constants.onboarding import (
     VALUE_KEYS,
 )
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_onboarding_staged_record as OnboardingStagedRecordReviewBase
+else:
+    OnboardingStagedRecordReviewBase = object
+
 TEXT_KEYS = ("code", "name", "issuing_body")
 DATE_KEYS = ("valid_from", "valid_until")
 RECORD_KEYS = ("field_id", "main_group_id", "department_id")
@@ -23,49 +30,52 @@ EDITABLE_KEYS = TEXT_KEYS + DATE_KEYS + RECORD_KEYS
 
 
 # Bản Ghi Chờ Duyệt: what the administrator reads, edits, confirms, rejects and reopens.
-class OnboardingStagedRecordReview(models.Model):
+class OnboardingStagedRecordReview(models.Model, OnboardingStagedRecordReviewBase):
     _inherit = MODEL_ONBOARDING_STAGED_RECORD
     _rec_name = "external_key"
 
-    # The values below show the edited value, else the source's; writing one stores it in the edited values.
-    # Code of a certificate, testing field or testing method.
-    code = fields.Char(string="Code", compute="_compute_values", readonly=False)
-    # Name of a testing field, testing method, sample type or test parameter.
-    name = fields.Char(string="Name", compute="_compute_values", readonly=False)
-    # Body that issued a certificate.
-    issuing_body = fields.Char(string="Issuing Body", compute="_compute_values", readonly=False)
-    # First valid day of a certificate.
-    valid_from = fields.Date(string="Valid From", compute="_compute_values", readonly=False)
-    # Last valid day of a certificate.
-    valid_until = fields.Date(string="Valid Until", compute="_compute_values", readonly=False)
-    # Testing field of a testing method, or the one a certificate gives the methods of its scope that have none.
-    field_id = fields.Many2one(MODEL_TESTING_FIELD, string="Testing Field", compute="_compute_values", readonly=False)
-    # Main group of a test parameter.
-    main_group_id = fields.Many2one(
-        MODEL_PARAMETER_GROUP,
-        string="Main Group",
-        compute="_compute_values",
-        readonly=False,
-        domain="[('child_ids', '=', False)]",
-    )
-    # Department that tests a way of testing in-house.
-    department_id = fields.Many2one(
-        MODEL_DEPARTMENT,
-        string="Department",
-        compute="_compute_values",
-        readonly=False,
-        domain=DEPARTMENT_DOMAIN,
-    )
-    # The code of the record, else its name.
-    display_value = fields.Char(string="Value", compute="_compute_display_value")
-    # One "Label: value" line per value the source gave.
-    source_summary = fields.Text(string="Source Values Summary", compute="_compute_source_summary")
-    # For an update, one "field: current → new" line per value that differs from the matched record.
-    changes = fields.Text(string="Changes", compute="_compute_changes")
-    # The Laboratory record it matches or became; setting it confirms the match.
-    match_ref = fields.Reference(
-        selection="_match_selection", string="Match", compute="_compute_match_ref", inverse="_inverse_match_ref"
-    )
+    if not TYPE_CHECKING:
+        # The values below show the edited value, else the source's; writing one stores it in the edited values.
+        # Code of a certificate, testing field or testing method.
+        code = fields.Char(string="Code", compute="_compute_values", readonly=False)
+        # Name of a testing field, testing method, sample type or test parameter.
+        name = fields.Char(string="Name", compute="_compute_values", readonly=False)
+        # Body that issued a certificate.
+        issuing_body = fields.Char(string="Issuing Body", compute="_compute_values", readonly=False)
+        # First valid day of a certificate.
+        valid_from = fields.Date(string="Valid From", compute="_compute_values", readonly=False)
+        # Last valid day of a certificate.
+        valid_until = fields.Date(string="Valid Until", compute="_compute_values", readonly=False)
+        # Testing field of a testing method, or the one a certificate gives the methods of its scope that have none.
+        field_id = fields.Many2one(
+            MODEL_TESTING_FIELD, string="Testing Field", compute="_compute_values", readonly=False
+        )
+        # Main group of a test parameter.
+        main_group_id = fields.Many2one(
+            MODEL_PARAMETER_GROUP,
+            string="Main Group",
+            compute="_compute_values",
+            readonly=False,
+            domain="[('child_ids', '=', False)]",
+        )
+        # Department that tests a way of testing in-house.
+        department_id = fields.Many2one(
+            MODEL_DEPARTMENT,
+            string="Department",
+            compute="_compute_values",
+            readonly=False,
+            domain=DEPARTMENT_DOMAIN,
+        )
+        # The code of the record, else its name.
+        display_value = fields.Char(string="Value", compute="_compute_display_value")
+        # One "Label: value" line per value the source gave.
+        source_summary = fields.Text(string="Source Values Summary", compute="_compute_source_summary")
+        # For an update, one "field: current → new" line per value that differs from the matched record.
+        changes = fields.Text(string="Changes", compute="_compute_changes")
+        # The Laboratory record it matches or became; setting it confirms the match.
+        match_ref = fields.Reference(
+            selection="_match_selection", string="Match", compute="_compute_match_ref", inverse="_inverse_match_ref"
+        )
 
     @api.model
     def _match_selection(self):

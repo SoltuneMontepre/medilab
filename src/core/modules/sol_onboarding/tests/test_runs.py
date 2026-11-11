@@ -42,7 +42,7 @@ class TestRuns(OnboardingCase):
         )
 
     def test_a_run_gets_a_yearly_reference(self):
-        self.assertRegex(self.run_of(sector_ids=self.food).name, r"^THU\.\d{4}\.\d{4}$")
+        self.assertRegex(self.run_of(sector_ids=self.food).name or "", r"^THU\.\d{4}\.\d{4}$")
 
     def test_starting_queues_the_first_pages_of_each_turned_on_source(self):
         off = (

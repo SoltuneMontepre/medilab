@@ -1,4 +1,5 @@
 from datetime import timedelta
+from typing import TYPE_CHECKING
 
 from dateutil.relativedelta import relativedelta
 from lxml.etree import ParserError
@@ -15,9 +16,14 @@ from odoo.addons.sol_onboarding.constants.onboarding import ITEM_FAILED, ITEMS_O
 from odoo.addons.sol_onboarding.services.adapters.registry import adapter_for
 from odoo.addons.sol_onboarding.services.fetcher import UNAVAILABLE, Fetcher, PageSkipped, PageUnavailable, SourceBusy
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_scheduled_job as ScheduledJobBase
+else:
+    ScheduledJobBase = object
+
 
 # Tác Vụ Định Kỳ
-class ScheduledJob(models.Model):
+class ScheduledJob(models.Model, ScheduledJobBase):
     _inherit = MODEL_SCHEDULED_JOB
 
     def _queue_onboarding_organisations(self):
