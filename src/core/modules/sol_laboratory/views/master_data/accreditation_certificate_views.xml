@@ -20,9 +20,9 @@
             <form>
                 <header>
                     <button
-                        name="action_import_methods"
+                        name="action_import_scope"
                         type="object"
-                        string="Import Methods"
+                        string="Import Scope Lines"
                         class="btn-primary"
                     />
                 </header>
@@ -42,12 +42,13 @@
                         </group>
                     </group>
                     <notebook>
-                        <page string="Testing Methods" name="methods">
-                            <field name="method_ids">
-                                <list>
-                                    <field name="code" />
-                                    <field name="name" />
-                                    <field name="field_id" />
+                        <page string="Scope" name="scope">
+                            <field name="scope_line_ids">
+                                <list editable="bottom" decoration-warning="to_confirm">
+                                    <field name="method_id" />
+                                    <field name="parameter_ids" widget="many2many_tags" />
+                                    <field name="sample_type_ids" widget="many2many_tags" />
+                                    <field name="to_confirm" optional="show" />
                                 </list>
                             </field>
                         </page>
@@ -65,6 +66,13 @@
                 <field name="display_name" string="Number" />
                 <field name="issuing_body" />
                 <field name="method_ids" />
+                <field name="scope_line_ids" string="Parameter" filter_domain="[('scope_line_ids.parameter_ids', 'ilike', self)]" />
+                <field name="scope_line_ids" string="Sample Type" filter_domain="[('scope_line_ids.sample_type_ids', 'ilike', self)]" />
+                <filter
+                    name="to_confirm"
+                    string="Lines to Confirm"
+                    domain="[('scope_line_ids.to_confirm', '=', True)]"
+                />
                 <filter
                     name="expired"
                     string="Expired"

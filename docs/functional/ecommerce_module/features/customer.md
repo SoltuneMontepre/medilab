@@ -50,9 +50,14 @@ The customer is an external user of the laboratory. A customer has an account li
 - Self-registration asks for the name, address, phone and email, and the tax code of a business or the citizen ID and tax code of an individual. Registration with any of them missing is refused.
 - A business also gives its company name. The company becomes the customer, and the person who registers becomes its contact, who logs in and is its default contact. An individual is their own contact.
 - If the identity matches an existing profile, the account is flagged for sales to review instead of being merged automatically.
-- The account page shows contact details, tax and identity information, and additional addresses.
+- Every page of a signed-in customer carries the same header: **Catalog** (building an order, with the cart), **My orders**, **Support** and **Account**, then the language menu and the user menu. The section of the current page is marked. A visitor who is not signed in sees only Catalog, on the catalog and cart pages. Other portal users, such as subcontractors, and other public pages, such as report verification, show none of these links, and the portal home shows the Support card to customers only.
+- The account page shows contact details, tax and identity information, the language, additional addresses, contacts, the logo and a link to the notification preferences. It shows no order history; it links to **My orders**.
+- The customer switches language from the language menu in the portal header or the Language field of the account page ([SH-08](../../shared.md#sh-08-multiple-languages)). The page reloads in that language, and a signed-in customer's choice is saved as their contact's language, so e-mails and documents follow it. A visitor who is not signed in keeps the choice in the browser.
 - Order history is a single list of every quotation and order of the customer, with a customer-facing status: Draft for the cart, Submitted once sent to sales, Quoted once a quotation is sent, then the labels of [Tracking and results](#4-tracking-and-results-us-c18-us-c19).
-- Each row of the order history names the order's first parameters and packages and its date, submitted or created. The list is paged, newest first, and the account page shows the latest orders with a link to the whole list.
+- Each row of the order history names the order's first parameters and packages and its date, submitted or created. The list is paged, newest first, on its own **My orders** page (`/orders`), which links to the catalog and offers no other catalog action.
+- Filters above the order history narrow it before it is counted and paged, so the pager counts only the matching orders. **Status** picks one customer-facing status and reads "All statuses" in grey when none is picked, as the catalog filters do. **Search** finds the text in the order number or in the name of a parameter or package the customer ordered; the parameters inside a package are not searched. The filters apply together when the customer chooses **Filter**, which returns to the first page.
+- The chosen filters stay in the page address. Paging, opening an order, Reorder and the order page's **My orders** link keep them.
+- A customer with no orders sees "No orders yet" and no filters. When no order matches the filters, the page says "No orders match these filters" with a link that clears them.
 - The portal home's **Your Orders** card opens the order history. Odoo's own sales order and quotation cards are not offered, and their addresses lead to the order history and the order page.
 - Prices, amounts and totals are shown as money in the customer's currency and language, and quantities as whole numbers.
 - The order page shows the status next to the order number, when the order was submitted or created, the quotation deadline and the expected results date. Its actions sit in one row.
@@ -116,7 +121,7 @@ Acceptance criteria:
 
 The customer builds an order from the test catalog, like a cart. The unit of selection is the **parameter** (test) or a **service package**: the customer searches the catalog and adds the parameters or packages they need to the cart. Sample types and other catalog categories are **filters** that narrow the catalog, not things the customer has to pick first. The total price is shown while composing.
 
-Catalog filters:
+Catalog filters. A list filter with nothing picked reads "All sample types" or "All parameter groups" in grey; in its open list that option means any value.
 
 - Sample type
 - Parameter group
@@ -222,7 +227,7 @@ Acceptance criteria:
 ### 3. Quotation, acceptance and payment (US-C13 to US-C17)
 
 - The quotation page shows the parameters, prices, the payment deadline, the advance invoice, the customer's requested date and the committed return date. Internal due dates are never shown to the customer.
-- **Acceptance is payment.**. Paying the advance invoice means the customer accepted.
+- **Acceptance is payment.** Paying the advance invoice means the customer accepted. A quotation sent without an advance is accepted on the portal with **Accept quotation**.
 - The customer can decline a sent quotation with a reason; the salesperson is notified and the order is not cancelled.
 - When sales creates a new revision of a quotation, the customer sees a banner and the list of revisions.
 - The invoice list shows posted invoices only, with payment status and the amount still owed. The customer can print or download the invoice and, after payment, the payment receipt.
@@ -256,13 +261,13 @@ The customer receives one notification per event, through the channels chosen in
 | Payment received                         | Payment receipt                             |
 | Results released                         | Results ready                               |
 
-The results of an order are released on the order, to the order's contact, once for each issued report. A test request the laboratory took without an order tells the customer on its report instead.
+The results of an order are released on the order, to the order's contact, once for each issued report.
 
 A notice of a mandatory event always stays visible in the portal, whatever happens to its email ([SH-11](../../shared.md#sh-11-schedules-and-reminders)). When an email to the customer bounces and Sales corrects the address, the new address receives a confirmation link; emails resume once the customer opens it, and until then the customer gets notices in the portal only.
 
 ### 6. Support and feedback (US-C20, US-C21)
 
-- **Support.** The customer opens a support request from the portal, optionally linked to an order, and follows the conversation with sales until it is closed.
+- **Support.** The customer opens a support request from the portal's Support page, reached from the header and from its card on the portal home, optionally linked to an order, and follows the conversation with sales until it is closed. The order page offers a request about that order.
 - **Feedback.** After an order is completed the customer can rate the service and leave a comment. Feedback is visible to sales and management and is not shown to other customers.
 
 ```mermaid

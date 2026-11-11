@@ -84,15 +84,16 @@ class TestCustomerPortal(HttpCase, OrderCase):
             self.assertIn("Password reset instructions sent to your email address.", answer)
             self.assertNotIn("No account found", answer)
 
-    def test_the_account_page_shows_the_customer_and_the_order_history(self):
+    def test_the_account_page_shows_the_customer_and_links_to_the_orders(self):
         order = self.make_order([(self.lead_product, 1)], status="submitted")
         self.authenticate(self.portal.login, PASSWORD)
 
         page = self.url_open("/my/account").text
 
         self.assertIn(self.customer_record.code, page)
-        self.assertIn(order.name, page)
-        self.assertIn("Submitted", page)
+        self.assertNotIn(order.name, page)
+        self.assertNotIn("<h3>Customer</h3>", page)
+        self.assertIn('href="/orders"', page)
         self.assertIn('href="/my/contacts"', page)
         self.assertNotIn("o_portal_profile_card", page)
 

@@ -15,8 +15,8 @@ class TestTestRequestPaidStepMigration(RequestCase):
     def migrate(self):
         self.env.flush_all()
         self.env.invalidate_all()
-        load_script(str(MIGRATIONS / "20.0.1.26.0" / "post-migrate.py"), "test_request_paid_step_post").migrate(
-            self.env.cr, "20.0.1.25.0"
+        load_script(str(MIGRATIONS / "20.0.1.34.0" / "post-migrate.py"), "test_request_paid_step_post").migrate(
+            self.env.cr, "20.0.1.33.0"
         )
         self.env.invalidate_all()
 

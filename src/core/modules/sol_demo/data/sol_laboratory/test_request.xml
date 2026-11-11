@@ -80,4 +80,10 @@
         <field name="expected_date" eval="(DateTime.today() - relativedelta(days=20)).strftime('%Y-%m-%d')" />
         <field name="status">reported</field>
     </record>
+    <record id="demo_test_request_due_date" model="medilab.test.request">
+        <field name="customer_id" ref="demo_customer_pham_van_long" />
+        <field name="request_date" eval="(DateTime.today() - relativedelta(days=2)).strftime('%Y-%m-%d')" />
+        <field name="expected_date" eval="(DateTime.today() + relativedelta(days=8)).strftime('%Y-%m-%d')" />
+        <field name="status">sample_received</field>
+    </record>
 </odoo>

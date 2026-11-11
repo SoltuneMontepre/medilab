@@ -26,6 +26,12 @@ The [global rules](../readme.md#global-rules) still hold for the administrator: 
 - Sees every laboratory file lock and releases one someone left, so others can save the file again; this is audited.
 - Changes the retention period of archived folders and how long a laboratory file lock lasts in the settings.
 
+## Report templates
+
+- Creates report templates for Vietnamese, English and bilingual reports, edits their draft version in the online editor, previews it with example data and makes it available once it holds every required binding; an available version never changes, and editing it starts a new draft version.
+- Archives an available version, which new reports can no longer use; reports already using it keep it.
+- Report templates and their DOCX files are opened with the template permissions, not with a membership of the Report Templates folder.
+
 ## Related documents
 
 - [Security](../readme.md)

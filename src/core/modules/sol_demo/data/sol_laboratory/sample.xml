@@ -360,4 +360,15 @@
         <field name="received_quantity">2 bottles</field>
         <field name="condition">good</field>
     </record>
+    <record id="demo_sample_due_date" model="medilab.sample">
+        <field name="request_id" ref="demo_test_request_due_date" />
+        <field name="customer_sample_name">Nước khoáng Vĩnh Hảo 500 mL</field>
+        <field name="sample_type_id" ref="demo_sample_type_bottled_water" />
+        <field name="physical_state">liquid</field>
+        <field name="status">received</field>
+        <field name="received_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="received_by_id" ref="demo_person_sample_delivery_staff" />
+        <field name="received_quantity">2 bottles</field>
+        <field name="condition">good</field>
+    </record>
 </odoo>

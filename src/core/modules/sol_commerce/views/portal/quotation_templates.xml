@@ -14,8 +14,17 @@
                 <div t-if="revising" class="alert alert-warning" role="alert">
                     This quotation is being revised. Its items are shown again when the new revision is sent.
                 </div>
-                <p t-if="order.payment_deadline and quotation.advance_invoice_id">Pay the advance before <t t-out="order.payment_deadline" t-options="{'widget': 'datetime'}" />.</p>
+                <div t-if="advance and not revising" class="alert alert-info d-flex flex-wrap align-items-center justify-content-between gap-2" role="alert">
+                    <div t-if="advance.amount_residual or advance.amount_owed &gt; 0">
+                        <p class="mb-1">Advance invoice <t t-out="advance.name" />: <span t-field="advance.amount_owed" t-options='{"widget": "monetary", "display_currency": advance.currency_id}' /></p>
+                        <p t-if="order.payment_deadline and quotation.status == 'sent'" class="mb-0">Pay the advance before <t t-out="order.payment_deadline" t-options="{'widget': 'datetime'}" />.</p>
+                    </div>
+                    <p t-else="" class="mb-0">Advance invoice <t t-out="advance.name" /> is paid.</p>
+                    <!-- Paying accepts only a sent quotation, so a declined or expired one offers no payment. -->
+                    <a t-if="advance.amount_residual and quotation.status == 'sent'" class="btn btn-primary" t-att-href="advance_url"><i class="oi me-1" data-icon="credit_card" aria-hidden="true" />Pay the advance</a>
+                </div>
                 <p t-if="order.payment_deadline and not quotation.advance_invoice_id">Accept the quotation before <t t-out="order.payment_deadline" t-options="{'widget': 'datetime'}" />.</p>
+                <t t-set="show_discount" t-value="any(lines.mapped('discount'))" />
                 <div class="table-responsive">
                     <table class="table">
                         <thead>
@@ -23,6 +32,7 @@
                                 <th>Parameter</th>
                                 <th class="text-end">Price</th>
                                 <th class="text-end">Quantity</th>
+                                <th t-if="show_discount" class="text-end">Discount</th>
                                 <th class="text-end">Amount</th>
                             </tr>
                         </thead>
@@ -32,19 +42,25 @@
                                     <td t-out="line.product_id.display_name" />
                                     <td class="text-end" t-out="line.price_unit" t-options="{'widget': 'monetary', 'display_currency': order.currency_id}" />
                                     <td class="text-end" t-out="int(line.product_uom_qty)" />
+                                    <td t-if="show_discount" class="text-end"><t t-out="line.discount" />%</td>
                                     <td class="text-end" t-out="line.price_subtotal" t-options="{'widget': 'monetary', 'display_currency': order.currency_id}" />
                                 </tr>
                                 <tr t-foreach="line.linked_line_ids" t-as="part">
                                     <td class="ps-4 text-muted" t-out="part.product_id.display_name" />
                                     <td />
                                     <td class="text-end text-muted" t-out="int(part.product_uom_qty)" />
+                                    <td t-if="show_discount" />
                                     <td />
                                 </tr>
                             </t>
+                            <tr t-foreach="discount_lines" t-as="line">
+                                <td t-att-colspan="4 if show_discount else 3" t-out="line.name" />
+                                <td class="text-end" t-out="line.price_subtotal" t-options="{'widget': 'monetary', 'display_currency': order.currency_id}" />
+                            </tr>
                         </tbody>
                         <tfoot>
                             <tr>
-                                <th colspan="3">Total including VAT</th>
+                                <th t-att-colspan="4 if show_discount else 3">Total including VAT</th>
                                 <th class="text-end" t-out="quotation.amount_total" t-options="{'widget': 'monetary', 'display_currency': quotation.currency_id}" />
                             </tr>
                         </tfoot>
@@ -53,12 +69,12 @@
                 <p t-if="quotation.decline_reason">Reason for declining: <t t-out="quotation.decline_reason" /></p>
                 <form t-if="quotation.status == 'sent' and not quotation.advance_invoice_id and not revising" t-att-action="'/orders/%s/quotation/accept' % order.id" method="post" class="mb-4">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
-                    <button type="submit" class="btn btn-success">Accept quotation</button>
+                    <button type="submit" class="btn btn-success"><i class="oi me-1" data-icon="check" aria-hidden="true" />Accept quotation</button>
                 </form>
                 <form t-if="quotation.status == 'sent'" t-att-action="'/orders/%s/quotation/decline' % order.id" method="post" class="mb-4">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
                     <textarea name="reason" class="form-control mb-2" placeholder="Reason" required="required" />
-                    <button type="submit" class="btn btn-danger">Decline quotation</button>
+                    <button type="submit" class="btn btn-danger"><i class="oi me-1" data-icon="close" aria-hidden="true" />Decline quotation</button>
                 </form>
                 <h2>Revisions</h2>
                 <div class="table-responsive">

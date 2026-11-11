@@ -3,6 +3,7 @@
     <record id="demo_regulation_limit_qcvn_6_1_lead" model="medilab.regulation.limit">
         <field name="regulation_id" ref="demo_regulation_qcvn_6_1" />
         <field name="parameter_id" ref="demo_test_parameter_lead" />
+        <field name="sample_type_id" ref="demo_sample_type_bottled_water" />
         <field name="unit_id" ref="demo_measurement_unit_mg_l" />
         <field name="max_set" eval="True" />
         <field name="max_value">0.01</field>
@@ -11,6 +12,7 @@
     <record id="demo_regulation_limit_qcvn_6_1_ph" model="medilab.regulation.limit">
         <field name="regulation_id" ref="demo_regulation_qcvn_6_1" />
         <field name="parameter_id" ref="demo_test_parameter_ph" />
+        <field name="sample_type_id" ref="demo_sample_type_bottled_water" />
         <field name="unit_id" ref="demo_measurement_unit_ph" />
         <field name="min_set" eval="True" />
         <field name="min_value">6.5</field>
@@ -21,11 +23,40 @@
     <record id="demo_regulation_limit_qcvn_6_1_e_coli" model="medilab.regulation.limit">
         <field name="regulation_id" ref="demo_regulation_qcvn_6_1" />
         <field name="parameter_id" ref="demo_test_parameter_e_coli" />
+        <field name="sample_type_id" ref="demo_sample_type_bottled_water" />
         <field name="limit_text">Not detected</field>
     </record>
     <record id="demo_regulation_limit_qcvn_6_1_coliforms" model="medilab.regulation.limit">
         <field name="regulation_id" ref="demo_regulation_qcvn_6_1" />
         <field name="parameter_id" ref="demo_test_parameter_coliforms" />
+        <field name="sample_type_id" ref="demo_sample_type_bottled_water" />
         <field name="limit_text">Not detected</field>
+    </record>
+    <record id="demo_regulation_limit_qcvn_8_2_lead_bottled_water" model="medilab.regulation.limit">
+        <field name="regulation_id" ref="demo_regulation_qcvn_8_2" />
+        <field name="parameter_id" ref="demo_test_parameter_lead" />
+        <field name="sample_type_id" ref="demo_sample_type_bottled_water" />
+        <field name="unit_id" ref="demo_measurement_unit_mg_l" />
+        <field name="max_set" eval="True" />
+        <field name="max_value">0.01</field>
+        <field name="decimals">2</field>
+    </record>
+    <record id="demo_regulation_limit_qcvn_8_2_lead_cabbage" model="medilab.regulation.limit">
+        <field name="regulation_id" ref="demo_regulation_qcvn_8_2" />
+        <field name="parameter_id" ref="demo_test_parameter_lead" />
+        <field name="sample_type_id" ref="demo_sample_type_cabbage" />
+        <field name="unit_id" ref="demo_measurement_unit_mg_kg" />
+        <field name="max_set" eval="True" />
+        <field name="max_value">0.3</field>
+        <field name="decimals">1</field>
+    </record>
+    <record id="demo_regulation_limit_qcvn_01_2009_lead" model="medilab.regulation.limit">
+        <field name="regulation_id" ref="demo_regulation_qcvn_01_2009" />
+        <field name="parameter_id" ref="demo_test_parameter_lead" />
+        <field name="sample_type_id" ref="demo_sample_type_bottled_water" />
+        <field name="unit_id" ref="demo_measurement_unit_mg_l" />
+        <field name="max_set" eval="True" />
+        <field name="max_value">0.01</field>
+        <field name="decimals">2</field>
     </record>
 </odoo>

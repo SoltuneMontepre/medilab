@@ -69,7 +69,7 @@ describe("Ways of testing per sample type", () => {
         expect(applicability).to.include({ lod: false, loq: 0.01, is_default: true });
       });
 
-      // Sales tests the quotation on a Kale sample; Lettuce, a sibling with nothing configured, is refused.
+      // Sales tests the quotation on a Kale sample; Lettuce, a sibling Chlorpyrifos is not configured on, is refused.
       chlorpyrifosQuotation().then((orderId) => {
         callAs(SALES, "sale.order", "read", [[orderId], ["order_line"]]).then(([{ order_line: lines }]) => {
           addSample(orderId, kaleId, kale).then((kaleSampleId) => {

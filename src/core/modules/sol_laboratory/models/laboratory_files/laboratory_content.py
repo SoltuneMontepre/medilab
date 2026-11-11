@@ -90,6 +90,20 @@ class LaboratoryContent(models.Model, LaboratoryContentBase):
         """A new pending content, under a new random key, for an object about to be written."""
         return self.sudo().create({"object_key": laboratory_bucket.new_object_key()}).with_env(self.env)
 
+    @api.model
+    def _store_bytes(self, data):
+        """Write bytes MediLab made, such as a generated report draft, to a new object and return their verified
+        content. Raises BucketUnavailable while the bucket cannot be reached."""
+        content = self._new_pending()
+        size, sha256 = laboratory_bucket.write(content.object_key, iter([data]))
+        return content._settle(sha256, size)
+
+    def _read_bytes(self):
+        """The bytes of a small content, such as a report template; large files are streamed instead."""
+        self.ensure_one()
+        with laboratory_bucket.read(self.sudo().object_key) as chunks:
+            return b"".join(chunks)
+
     def _settle(self, sha256, size):
         """Record the SHA-256 and size the server computed of the content's object, and return the verified content
         versions refer to: this one, or the content already stored with that SHA-256, when this one becomes a duplicate

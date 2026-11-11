@@ -1,10 +1,12 @@
+from .demo_report_templates import prepare_report
 from .demo_results import _test
 from odoo.addons.sol_laboratory.constants.models import MODEL_CHANGE_REQUEST, MODEL_TEST_REPORT
 
 
 def seed_change_requests(env):
     """Change requests through the lab head's chains: one requested on a result, one applied as version 2 of a result,
-    one rejected with its reason, and one that replaced an issued report by version 2, issued again."""
+    one rejected with its reason, and one that replaced an issued report by version 2, whose own issue marked the
+    first version replaced."""
     if env.ref("sol_demo.demo_change_request_requested", raise_if_not_found=False):
         return
     tester = env.ref("sol_demo.demo_res_users_tester")
@@ -41,27 +43,27 @@ def seed_change_requests(env):
     rejected.with_user(lab_head).action_reject(
         "0.004 mg/L is above the method's limit of quantification of 0.002 mg/L, so the measured value stands."
     )
-    report = raise_on(
-        courier,
-        in_person,
-        "Reissue the report with the customer's new registered name.",
-        "The customer changed its business registration; the report must show the new name.",
-    )
-    report.with_user(lab_head).action_sign()
-    reissued = env[MODEL_TEST_REPORT].browse(report.new_document_id)
-    reissued.with_user(lab_head).action_sign()
+    records = [
+        ("demo_change_request_requested", requested),
+        ("demo_change_request_applied", applied),
+        ("demo_change_request_rejected", rejected),
+    ]
+    # The report is issued only when the demo templates could be seeded.
+    if in_person.status == "issued":
+        report = raise_on(
+            courier,
+            in_person,
+            "Reissue the report with the customer's new registered name.",
+            "The customer changed its business registration; the report must show the new name.",
+        )
+        report.with_user(lab_head).action_sign()
+        reissued = env[MODEL_TEST_REPORT].browse(report.new_document_id)
+        prepare_report(env, reissued)
+        reissued.with_user(lab_head).action_sign()
+        records += [("demo_change_request_report", report), ("demo_test_report_reissued", reissued)]
 
     env["ir.model.data"]._update_xmlids(
-        [
-            {"xml_id": f"sol_demo.{name}", "record": record, "noupdate": True}
-            for name, record in (
-                ("demo_change_request_requested", requested),
-                ("demo_change_request_applied", applied),
-                ("demo_change_request_rejected", rejected),
-                ("demo_change_request_report", report),
-                ("demo_test_report_reissued", reissued),
-            )
-        ]
+        [{"xml_id": f"sol_demo.{name}", "record": record, "noupdate": True} for name, record in records]
     )
 
 

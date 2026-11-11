@@ -26,6 +26,7 @@ Sales is the laboratory's salesperson. Sales turns customer orders into quotatio
 ### Payment collection
 
 - **US-S11** As a salesperson, I want to record a cash or bank-transfer payment received from a customer, so that the accountant can confirm it without asking the customer again.
+- **US-S25** As a salesperson, I want to create an invoice from a confirmed order, so that the customer is billed without waiting for the accountant to prepare it.
 
 ### Confirmation
 
@@ -54,8 +55,8 @@ Sales is the laboratory's salesperson. Sales turns customer orders into quotatio
 - **Queue.** Submitted customer orders appear in an unclaimed queue, oldest first. A salesperson claims one; from then on only that salesperson and the Head of Sales edit it and act on it.
 - **Reading other salespeople's orders.** The administrator chooses per role whether its salespeople read every order (**Read orders**) or only their own and the unclaimed queue (**Read own orders**). A salesperson who reads every order opens another salesperson's order read-only: its fields cannot be changed and its actions are hidden. Editing follows **Edit own orders** for a salesperson and **Edit orders** for whoever edits every order.
 - **Quotation task.** Submitting an order puts a quotation task in the queue of the Sales role ([SH-10](../../shared.md#sh-10-tasks-and-to-do-list)); the administrator chooses the role on the task type. Claiming the order, or claiming its task, gives both to that salesperson: the task moves to their to-do list and opens the order. When the order's salesperson changes, its open task moves to the new salesperson. The task is done when the order's first quotation is sent, and cancelled when the order is cancelled. It is due 24 elapsed hours after the order is submitted; the administrator changes this default on the task type.
-- **Order on behalf of a customer.** Sales selects the customer, adds parameters and service packages in the same catalog the customer uses and saves it as an order owned by the salesperson. From here the flow is the same as a portal order.
-- **Order form.** Under the order number, each status has its label: **Customer sees** (the progress shown on the portal) and **Quotation** (unpaid, paid, declined or expired). A quotation waiting for the Head of Sales's threshold approval names that role. The **Order Lines** tab holds only the ordered parameters and packages, added with **Add a parameter or package**. The down payments Odoo adds to the order when an advance invoice is created are listed on the **Payment** tab, each with its invoice and untaxed amount, next to the advance method, payment status and pending amount.
+- **Order on behalf of a customer.** Sales selects the customer, adds parameters and service packages in the same catalog the customer uses and saves it as an order owned by the salesperson. From here the flow is the same as a portal order. A customer who brings samples to the laboratory orders this way too; the samples wait at reception until the order's test request is paid.
+- **Order form.** Under the order number, each status has its label: **Customer sees** (the progress shown on the portal) and **Quotation** (unpaid, paid, accepted without an advance, declined or expired). A quotation waiting for the Head of Sales's threshold approval names that role. The **Order Lines** tab holds the ordered parameters and packages, added with **Add a parameter or package**, and the whole-quotation discount line. Whoever edits the order sees each line's **Disc.%** and, until the quotation is sent, the **Discount** button, which puts a percentage on every parameter and package or on the whole quotation as one discount line. The down payments Odoo adds to the order when an advance invoice is created are listed on the **Payment** tab, each with its invoice and untaxed amount, next to the advance method, payment status and pending amount.
 - **Customer profile.** Name, tax code or citizen ID, addresses, the contact people of a business, and the customer's order history. Sales can set whether a customer is allowed to order on credit (see below). The customer itself is kept by the [Laboratory module](../../laboratory_module/overview.md#test-requests-and-samples); E-commerce keeps the customer's sales terms.
 - **Customer bank accounts.** Maintain optional bank accounts on the customer's Odoo contact, allowing several accounts under the [customer rules](../../laboratory_module/overview.md#test-requests-and-samples). A customer can be saved without bank details. Each document selects and preserves any printed customer bank details under the same customer rules.
 - **Portal invitation and duplicates.** Sales can invite a customer to the portal. A self-registered account that matches an existing profile on tax code or citizen ID is flagged; sales reviews it and either clears the flag or merges it into the profile it matched. Merging moves every order, document and person of the flagged account to that profile and deletes the flagged one; its login stays, as a contact of the remaining profile.
@@ -113,7 +114,7 @@ stateDiagram-v2
 | Dates | An order keeps three dates: the customer's requested date, the committed return date Sales promises on the quotation, and each sample test's internal due date. The committed date defaults to the requested date when the laboratory can meet it, otherwise to the estimate. The customer sees the requested and committed dates on the portal and the quotation, never an internal due date. |
 | Changed return date | When a committed return date is at risk, Sales informs the customer and proposes the earliest feasible replacement. Only Sales changes a committed date, and only with customer agreement, recording old date, new date and confirmation. If the customer refuses, Sales handles a cancellation request for the unfulfillable part; never cancel automatically or change the agreed way. Internal-only due-date changes do not trigger customer notice. |
 | Priority order | A customer may request priority on the portal. Sales checks resource feasibility, including outsourced turnaround, and accepts or declines it on the quotation. Accept only a date the laboratory can meet; accepted priority makes the request's tests urgent. |
-| Acceptance       | There is no customer signature. Payment of the advance invoice means acceptance. A declined quotation carries the customer's reason and notifies sales.                                           |
+| Acceptance       | There is no customer signature. Payment of the advance invoice means acceptance; a quotation sent without an advance is accepted by the customer on the portal. Sales never accepts a quotation for the customer. A declined quotation carries the customer's reason and notifies sales. |
 
 Acceptance criteria:
 
@@ -121,13 +122,15 @@ Acceptance criteria:
 - A quotation carries each parameter's sample type and selected or resolved default way, including a separate selection for every parameter of a package, and shows expected sampling needs before sending.
 - Changing catalog defaults, package prices or package membership does not rewrite a sent quotation or an accepted order; sample tests use the retained selections.
 - Send is blocked above the Head of Sales's thresholds until they approve; below them Sales can send alone.
+- Before sending, Sales gives a percentage discount on a line, on every line or on the whole quotation as one discount line; no fixed-amount discount is offered, and after sending a discount changes only through a revision.
+- The customer's quotation shows each line's discount and the whole-quotation discount line.
 - An unavailable default is explained and is never silently replaced.
 - An accepted way cannot be edited directly; its replacement needs a revised quotation and customer agreement.
 - A proposed later return date does not overwrite the committed return date before the customer agrees.
 - The customer sees the requested and committed dates and no internal due date.
 - Sending a quotation with an advance request creates exactly one advance invoice and one notification to the customer.
 - A revised quotation cannot be sent or confirmed in its old version.
-- Sales sees at a glance whether a sent quotation is unpaid, paid, declined or expired.
+- Sales sees at a glance whether a sent quotation is unpaid, paid, accepted without an advance, declined or expired.
 - Adding a parameter to a quotation updates its estimated return date.
 - A requested date earlier than the estimate is accepted as a priority order only when the check says the laboratory can meet it; otherwise the check shows the earliest date it can.
 - The tests of a priority order's test request are urgent when they are created.
@@ -158,9 +161,16 @@ Acceptance criteria:
 - Skipped names and reasons remain visible after reopening the order; no valid selections means no new order.
 - Template operations do not send quotations, issue invoices, confirm orders or start laboratory work.
 
-### 3. Payment collection (US-S11)
+### 3. Payment collection (US-S11, US-S25)
 
 When a customer pays sales directly in cash or by bank transfer, sales records the amount, date and method on the order. The record is **pending**: it does not count as paid until the accountant confirms it (see [accountant](accountant.md)). The order shows the pending amount so the same payment is not recorded twice, and the amount cannot exceed what the customer still owes.
+
+A salesperson who holds the **Create invoices** permission creates invoices from a confirmed order, as the accountant does. The invoice is a draft; the accountant posts it.
+
+Acceptance criteria:
+
+- A salesperson without the Create invoices permission does not see Create Invoice on the order and cannot create an invoice from it.
+- An invoice a salesperson creates stays a draft until the accountant posts it.
 
 ### 4. Confirmation (US-S12, US-S15)
 
@@ -178,9 +188,9 @@ stateDiagram-v2
 | Test request   | Confirming creates a test request with at least one expected sample, calculated from the accepted order's sampling requirements, and each sample's tests with their required selected ways. The request carries the committed return date; Sales sets the report language, delivery method and recipient. Collection staff record the actual handover, including extra samples and excess material. Fewer samples wait for another collection or Sales cancels the missing part. |
 | Agreed scope   | Testing stays within the agreed scope. Extra samples and excess material add no test and change no order; they stay with the sample and are [returned](../../laboratory_module/features/sample-delivery-staff.md#5-returning-samples-us-sd15) only when the customer asks. |
 | Confirm        | Confirming does not wait for payment. An order with no payment shows a warning, because the customer may have an agreement. A confirmed order needs no approval. |
-| Credit gate    | The laboratory core cannot confirm the test request of an order that has no payment unless the customer is marked as allowed to order on credit. Only the Head of Sales sets that flag. |
+| Credit gate    | The laboratory core cannot confirm the test request of an order until its advance is paid in full, unless the customer is marked as allowed to order on credit. A payment sales records counts once the accountant confirms it. Only the Head of Sales sets that flag. |
 | Frozen content | From confirmation, the order's customer, prices, validity date, parameters and ways change only through a revised quotation the customer accepts. Once the order is completed, a [change request](../../shared.md#sh-07-signed-documents-are-locked) is needed. |
-| Collection     | **Start sample collection** is available once the order is confirmed. |
+| Collection     | **Start sample collection** is available once the order is confirmed. It queues one sample collection task of the order's test request for sample delivery staff, at the customer's address; they claim it and plan its time. An order has at most one open collection task. |
 
 Acceptance criteria:
 
