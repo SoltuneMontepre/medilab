@@ -75,6 +75,7 @@
                                         t-att-title="this.itemTooltip(item)"
                                         t-on-click="() => this.props.openRecord(item.id)">
                                     <span class="text-truncate" t-out="item.name"/>
+                                    <span t-if="item.subtitle" class="o_timeline_item_subtitle text-truncate" t-out="item.subtitle"/>
                                 </button>
                             </t>
                         </div>

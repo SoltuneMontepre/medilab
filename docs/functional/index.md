@@ -6,11 +6,17 @@ Medilab is a laboratory management system built on Odoo 20 Community and the Odo
 
 Each installation serves one laboratory company; there is no multi-company setup. The system serves laboratories testing in four sectors: food (thực phẩm), cosmetics (mỹ phẩm), pharmaceuticals (dược phẩm) and environment (môi trường).
 
+## Scope
+
+The main laboratory flow is testing by the selected method, including TCVN methods, and returning measured results in a signed report. Comparison with QCVN regulations is optional.
+
 ## Modules
 
 MediLab is split into three modules that can each be installed from the Odoo marketplace and support each other: **E-commerce**, **Inventory** and **Laboratory Testing (core)**. Each module is designed to handle specific aspects of laboratory management, allowing users to customize their experience based on their needs.
 
 The MediLab look (colours, navigation, icons, login page and app icons) is a fourth, optional module, **Medilab Theme** (`sol_theme`). A laboratory that prefers Odoo's own look leaves it out.
+
+A fifth optional module, **Onboarding** (`sol_onboarding`), fills the Laboratory master data of a new installation from trusted public sources, such as the accreditation registry of the Bureau of Accreditation, as staged records an administrator reviews. See [Onboarding Module](./onboarding_module/overview.md).
 
 [E-commerce Module](./ecommerce_module/overview.md): The E-commerce module allows users to manage their laboratory sales processes, including creating and managing sales orders, invoices, quotations, and customer information. It also provides tools for tracking sales performance and generating reports.
 
@@ -24,6 +30,7 @@ It also includes a set of shared technical features that are used by all modules
 
 - [Shared technical features](shared.md): requirements shared by all modules and external integrations
 - [Business flows](business-flows.md): the core and supporting flows from trigger to result, with an activity diagram per flow
+- [Conceptual model](conceptual-model.md): business relationships across Laboratory, E-commerce, Inventory and scheduling
 - E-commerce module
   - [Overview](ecommerce_module/overview.md)
   - Actors: [Customer](ecommerce_module/features/customer.md), [Sales](ecommerce_module/features/sales.md), [Accountant](ecommerce_module/features/accountant.md), [Admin](ecommerce_module/features/admin.md)
@@ -33,4 +40,7 @@ It also includes a set of shared technical features that are used by all modules
 - Laboratory module
   - [Overview](laboratory_module/overview.md)
   - Actors: [Admin](laboratory_module/features/admin.md), [Sample delivery staff](laboratory_module/features/sample-delivery-staff.md), [Tester](laboratory_module/features/tester.md), [Head of department](laboratory_module/features/head-of-department.md), [Lab head](laboratory_module/features/lab-head.md), [Subcontractor](laboratory_module/features/subcontractor.md)
-  - Applications: [Medilab Mobile](laboratory_module/applications/medilab-mobile.md), [Medilab Sync](laboratory_module/applications/medilab-sync.md)
+  - Applications: [Medilab Sync](laboratory_module/applications/medilab-sync.md), [Medilab Mobile](laboratory_module/applications/medilab-mobile.md)
+- Onboarding module
+  - [Overview](onboarding_module/overview.md)
+  - Actors: [Administrator](onboarding_module/features/admin.md)

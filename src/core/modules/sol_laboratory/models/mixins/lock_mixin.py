@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from lxml import etree
 
 from odoo import api, fields, models
@@ -6,23 +8,30 @@ from odoo.exceptions import UserError
 from odoo.addons.sol_laboratory.constants.locks import CLIENT_RELEASE_REASONS
 from odoo.addons.sol_laboratory.constants.models import MODEL_DOCUMENT_LOCK, MODEL_LOCK_MIXIN
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_lock_mixin as LockMixinBase
+else:
+    LockMixinBase = object
+
 
 # Khóa Chứng Từ khi chỉnh sửa
-class LockMixin(models.AbstractModel):
+class LockMixin(models.AbstractModel, LockMixinBase):
     _name = MODEL_LOCK_MIXIN
     _description = "Editing Lock"
 
-    # Who else is editing the document and since when; empty while nobody else holds a lock on it.
-    lock_message = fields.Char(string="Editing Lock", compute="_compute_lock_message")
-    # True when the current user asked to be told when the document's lock is released.
-    lock_watched = fields.Boolean(string="Watching Lock", compute="_compute_lock_message")
+    if not TYPE_CHECKING:
+        # Who else is editing the document and since when; empty while nobody else holds a lock on it.
+        lock_message = fields.Char(string="Editing Lock", compute="_compute_lock_message")
+        # True when the current user asked to be told when the document's lock is released.
+        lock_watched = fields.Boolean(string="Watching Lock", compute="_compute_lock_message")
 
     @api.depends_context("uid")
     def _compute_lock_message(self):
         locks = self.env[MODEL_DOCUMENT_LOCK]._active(self.filtered("id"))._fresh()
         by_document = {lock.document_id: lock for lock in locks if lock.user_id != self.env.user}
         for document in self:
-            lock = by_document.get(document.id)
+            record_id = document.id
+            lock = by_document.get(record_id) if isinstance(record_id, int) else None
             document.lock_message = lock._busy_message() if lock else False
             document.lock_watched = bool(lock) and self.env.user in lock.watcher_ids
 
@@ -82,7 +91,9 @@ class LockMixin(models.AbstractModel):
             {"class": "alert alert-warning d-flex align-items-center gap-2 mb-0", "role": "alert"},
             invisible="not lock_message",
         )
-        etree.SubElement(banner, "field", name="lock_message", readonly="1", nolabel="1", **{"class": "flex-grow-1"})
+        etree.SubElement(
+            banner, "field", name="lock_message", readonly="1", nolabel="1", attrib={"class": "flex-grow-1"}
+        )
         etree.SubElement(
             banner,
             "button",
@@ -90,7 +101,7 @@ class LockMixin(models.AbstractModel):
             type="object",
             string=self.env._("Notify me when free"),
             invisible="lock_watched",
-            **{"class": "btn-secondary"},
+            attrib={"class": "btn-secondary"},
         )
         # Below the header, so the banner is the first thing read on the document.
         header = arch.find("header")

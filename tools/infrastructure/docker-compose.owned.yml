@@ -1,0 +1,36 @@
+# Persisted resource identity for an explicitly owned fresh local demo environment.
+services:
+  odoo:
+    labels:
+      com.medilab.bootstrap.owner: ${MEDILAB_DEMO_BOOTSTRAP_OWNER:?A bootstrap owner id is required}
+  postgres:
+    labels:
+      com.medilab.bootstrap.owner: ${MEDILAB_DEMO_BOOTSTRAP_OWNER:?A bootstrap owner id is required}
+  garage:
+    labels:
+      com.medilab.bootstrap.owner: ${MEDILAB_DEMO_BOOTSTRAP_OWNER:?A bootstrap owner id is required}
+  garage-setup:
+    labels:
+      com.medilab.bootstrap.owner: ${MEDILAB_DEMO_BOOTSTRAP_OWNER:?A bootstrap owner id is required}
+  cloudbeaver:
+    labels:
+      com.medilab.bootstrap.owner: ${MEDILAB_DEMO_BOOTSTRAP_OWNER:?A bootstrap owner id is required}
+
+networks:
+  default:
+    labels:
+      com.medilab.bootstrap.owner: ${MEDILAB_DEMO_BOOTSTRAP_OWNER:?A bootstrap owner id is required}
+
+volumes:
+  medilab-app:
+    external: true
+    name: ${MEDILAB_APP_VOLUME:?An owned Odoo volume is required}
+  medilab-db:
+    external: true
+    name: ${MEDILAB_DB_VOLUME:?An owned database volume is required}
+  medilab-garage:
+    external: true
+    name: ${MEDILAB_GARAGE_VOLUME:?An owned Garage volume is required}
+  medilab-cloudbeaver:
+    external: true
+    name: ${MEDILAB_CLOUDBEAVER_VOLUME:?An owned CloudBeaver volume is required}

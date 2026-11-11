@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 
@@ -5,26 +7,32 @@ from odoo.addons.sol_inventory.constants.models import MODEL_PRODUCT, MODEL_RESU
 from odoo.addons.sol_laboratory.constants.approvals import STATE_NONE
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_TEST_RESULT
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_result_container as ResultContainerBase
+else:
+    ResultContainerBase = object
+
 
 # Chai đã quét cho một kết quả thử nghiệm.
-class ResultContainer(models.Model):
+class ResultContainer(models.Model, ResultContainerBase):
     _name = MODEL_RESULT_CONTAINER
     _inherit = [MODEL_AUDIT_MIXIN]
     _description = "Result Container"
     _order = "sequence, id"
 
-    # The result the container was scanned for.
-    result_id = fields.Many2one(MODEL_TEST_RESULT, required=True, ondelete="cascade", index=True)
-    # The container that was scanned.
-    container_id = fields.Many2one(
-        MODEL_STOCK_PACKAGE, string="Container", required=True, ondelete="restrict", index=True
-    )
-    # Place in the scan order. Earlier containers are used up first.
-    sequence = fields.Integer(default=10)
-    # The item in the container.
-    item_id = fields.Many2one(MODEL_PRODUCT, related="container_id.item_id")
-    # Quantity left in the container, in its item's unit.
-    quantity = fields.Float(related="container_id.quantity", digits="Product Unit")
+    if not TYPE_CHECKING:
+        # The result the container was scanned for.
+        result_id = fields.Many2one(MODEL_TEST_RESULT, required=True, ondelete="cascade", index=True)
+        # The container that was scanned.
+        container_id = fields.Many2one(
+            MODEL_STOCK_PACKAGE, string="Container", required=True, ondelete="restrict", index=True
+        )
+        # Place in the scan order. Earlier containers are used up first.
+        sequence = fields.Integer(default=10)
+        # The item in the container.
+        item_id = fields.Many2one(MODEL_PRODUCT, related="container_id.item_id")
+        # Quantity left in the container, in its item's unit.
+        quantity = fields.Float(related="container_id.quantity", digits="Product Unit")
 
     _result_container_unique = models.Constraint(
         "UNIQUE(result_id, container_id)", "This container is already on the result."

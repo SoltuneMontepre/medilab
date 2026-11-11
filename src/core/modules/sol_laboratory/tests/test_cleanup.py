@@ -1,3 +1,4 @@
+import datetime as _datetime_types
 import gzip
 import json
 from datetime import timedelta
@@ -10,6 +11,7 @@ from odoo.tests import tagged
 from odoo.tools import SQL
 
 from .audit_case import AuditLookup
+from .mobile_phones import push_token
 from .people_case import PeopleCase
 from odoo.addons.sol_laboratory.constants.jobs import (
     CLEANUP_CONTEXT,
@@ -24,6 +26,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_DOCUMENT_LOCK,
     MODEL_JOB_ITEM,
     MODEL_JOB_RUN,
+    MODEL_LABORATORY_FILE_LOCK,
     MODEL_MAIL_MESSAGE,
     MODEL_MAIL_NOTIFICATION,
     MODEL_MOBILE_DEVICE,
@@ -31,6 +34,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_SCHEDULED_JOB,
 )
 from odoo.addons.sol_laboratory.constants.settings import AUDIT_RETENTION_PARAMETER, DEFAULT_RETENTION_DAYS
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 ARCHIVE_FILE_MODULE = "odoo.addons.sol_laboratory.models.system.archive_file"
 OLD = DEFAULT_RETENTION_DAYS + 1
@@ -50,7 +54,9 @@ class TestCleanup(AuditLookup, PeopleCase):
         parameters = cls.env["ir.config_parameter"]
         settings = cls.env["res.config.settings"]
         for field in CLEANUP_RETENTION_FIELDS:
-            parameters.set_int(settings._fields[field].config_parameter, DEFAULT_RETENTION_DAYS)
+            parameters.set_int(
+                assert_instance(getattr(settings._fields[field], "config_parameter"), str), DEFAULT_RETENTION_DAYS
+            )
         parameters.set_int(AUDIT_RETENTION_PARAMETER, 0)
         cls.regulation = cls.env[MODEL_REGULATION].create({"code": "CLEANUP-TEST", "name": "Bottled water"})
 
@@ -128,14 +134,8 @@ class TestCleanup(AuditLookup, PeopleCase):
         )
 
     def device(self, active, days):
-        device = self.env[MODEL_MOBILE_DEVICE].create(
-            {
-                "user_id": self.chemist.user_id.id,
-                "token": f"token-{active}-{days}",
-                "platform": "android",
-                "active": active,
-            }
-        )
+        device = push_token(self.env, self.chemist.user_id, f"token-{active}-{days}")
+        device.active = active
         self.backdate(device, "write_date", days)
         return device
 
@@ -213,7 +213,7 @@ class TestCleanup(AuditLookup, PeopleCase):
         self.assertTrue(
             any(change["new_value"] == "Bottled mineral water" for row in rows for change in row["changes"])
         )
-        self.assertEqual(archive.period_start.day, 1)
+        self.assertEqual(assert_instance(archive.period_start, _datetime_types.date).day, 1)
         self.assertEqual(archive.job_run_id.job_id, self.job)
 
     def test_audit_entries_stay_when_the_stored_file_does_not_match_its_checksum(self):
@@ -246,7 +246,14 @@ class TestCleanup(AuditLookup, PeopleCase):
 
         self.assertEqual(
             housekeeping,
-            {MODEL_JOB_ITEM, MODEL_JOB_RUN, MODEL_DOCUMENT_LOCK, MODEL_MAIL_NOTIFICATION, MODEL_MOBILE_DEVICE},
+            {
+                MODEL_JOB_ITEM,
+                MODEL_JOB_RUN,
+                MODEL_DOCUMENT_LOCK,
+                MODEL_MAIL_NOTIFICATION,
+                MODEL_MOBILE_DEVICE,
+                MODEL_LABORATORY_FILE_LOCK,
+            },
         )
         self.backdate(self.regulation, "write_date", 1000)
         self.run_cleanup()

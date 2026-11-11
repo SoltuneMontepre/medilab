@@ -5,6 +5,7 @@ set -e
 
 runuser -u odoo -- mkdir -p "$TEST_RUN_DIR/coverage" "$TEST_RUN_DIR/status"
 cd /mnt/extra-addons
+prepare_vietnamese_accounting
 if [[ "$INSTALL_COVERAGE" = false ]]; then
   odoo_without_coverage -d "$TEST_DB" -i "$MODULES" --test-tags "$TAGS,-post_install"
 else

@@ -1,12 +1,19 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, models
 from odoo.exceptions import UserError
 
 from odoo.addons.sol_inventory.constants.models import MODEL_STOCK_LOCATION
 from odoo.addons.sol_laboratory.constants.models import MODEL_PERSON
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_person as PersonBase
+else:
+    PersonBase = object
+
 
 # Nhân Sự
-class Person(models.Model):
+class Person(models.Model, PersonBase):
     _inherit = MODEL_PERSON
 
     @api.model

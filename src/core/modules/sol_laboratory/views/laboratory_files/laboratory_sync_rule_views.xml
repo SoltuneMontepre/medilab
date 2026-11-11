@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Rules are added on their folder. -->
+    <record id="view_medilab_laboratory_sync_rule_list" model="ir.ui.view">
+        <field name="name">medilab.laboratory.sync.rule.list</field>
+        <field name="model">medilab.laboratory.sync.rule</field>
+        <field name="arch" type="xml">
+            <list create="0" duplicate="0" editable="bottom" decoration-muted="not enabled">
+                <field name="folder_id" readonly="1" />
+                <field name="kind" />
+                <field name="pattern" />
+                <field name="recursive" />
+                <field name="enabled" widget="boolean_toggle" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_laboratory_sync_rule_search" model="ir.ui.view">
+        <field name="name">medilab.laboratory.sync.rule.search</field>
+        <field name="model">medilab.laboratory.sync.rule</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="folder_id" />
+                <field name="pattern" />
+                <filter name="turned_off" string="Turned Off" domain="[('enabled', '=', False)]" />
+                <separator />
+                <filter name="group_by_folder" string="Folder" context="{'group_by': 'folder_id'}" />
+                <filter name="group_by_kind" string="Kind" context="{'group_by': 'kind'}" />
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medilab_laboratory_sync_rule" model="ir.actions.act_window">
+        <field name="name">Sync Rules</field>
+        <field name="res_model">medilab.laboratory.sync.rule</field>
+        <field name="path">laboratory-sync-rules</field>
+        <field name="view_mode">list</field>
+    </record>
+</odoo>

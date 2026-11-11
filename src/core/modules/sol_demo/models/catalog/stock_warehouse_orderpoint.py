@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, models
 
 from odoo.addons.sol_demo.models.purchasing.purchase_order import STOREKEEPER
@@ -8,9 +10,14 @@ CENTRAL = "stock.stock_location_stock"
 # The minimum and maximum quantity of each item in the central store.
 MINIMUMS = (("nitric_acid", 1000, 5000), ("agar_plates", 50, 200), ("nitrile_gloves", 200, 1000))
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_stock_warehouse_orderpoint as StockWarehouseOrderpointBase
+else:
+    StockWarehouseOrderpointBase = object
+
 
 # Tồn Tối Thiểu
-class StockWarehouseOrderpoint(models.Model):
+class StockWarehouseOrderpoint(models.Model, StockWarehouseOrderpointBase):
     _inherit = MODEL_ORDERPOINT
 
     @api.model

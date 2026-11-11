@@ -1,4 +1,5 @@
 import re
+from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
@@ -15,36 +16,42 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_GROUP, ADMINISTRATOR_ROLE, MODULE
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_role as RoleBase
+else:
+    RoleBase = object
+
 CODE_PATTERN = re.compile(r"[a-z][a-z0-9_]*")
 
 
 # Vai Trò
-class Role(models.Model):
+class Role(models.Model, RoleBase):
     _name = MODEL_ROLE
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Role"
     _order = "code"
     _rec_names_search = ("name", "code")
 
-    # Unique code of the role: lowercase letters, digits and underscores; cannot change once the role exists.
-    code = fields.Char(required=True, copy=False, index="trigram")
-    # Role name in each language.
-    name = fields.Char(required=True, translate=True, index="trigram")
-    # The Odoo group generated for the role, which implies the groups of its permissions.
-    group_id = fields.Many2one("res.groups", required=True, readonly=True, ondelete="restrict", copy=False)
-    # Permissions the role contains.
-    permission_ids = fields.Many2many(
-        MODEL_PERMISSION,
-        "medilab_role_permission_rel",
-        "role_id",
-        "permission_id",
-        string="Permissions",
-        groups=ADMINISTRATOR_GROUP,
-    )
-    # People who hold the role.
-    person_ids = fields.Many2many(
-        MODEL_PERSON, "medilab_person_role_rel", "role_id", "person_id", string="People", groups=ADMINISTRATOR_GROUP
-    )
+    if not TYPE_CHECKING:
+        # Unique code of the role: lowercase letters, digits and underscores; cannot change once the role exists.
+        code = fields.Char(required=True, copy=False, index="trigram")
+        # Role name in each language.
+        name = fields.Char(required=True, translate=True, index="trigram")
+        # The Odoo group generated for the role, which implies the groups of its permissions.
+        group_id = fields.Many2one("res.groups", required=True, readonly=True, ondelete="restrict", copy=False)
+        # Permissions the role contains.
+        permission_ids = fields.Many2many(
+            MODEL_PERMISSION,
+            "medilab_role_permission_rel",
+            "role_id",
+            "permission_id",
+            string="Permissions",
+            groups=ADMINISTRATOR_GROUP,
+        )
+        # People who hold the role.
+        person_ids = fields.Many2many(
+            MODEL_PERSON, "medilab_person_role_rel", "role_id", "person_id", string="People", groups=ADMINISTRATOR_GROUP
+        )
 
     _code_unique = models.Constraint("UNIQUE(code)", "A role with this code already exists.")
     _group_unique = models.Constraint("UNIQUE(group_id)", "Each role has its own group.")

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Each folder makes its owner a member itself. -->
+<odoo noupdate="1">
+    <record id="demo_laboratory_folder_member_hplc_chemistry_tester" model="medilab.laboratory.folder.member">
+        <field name="folder_id" ref="demo_laboratory_folder_hplc_results" />
+        <field name="user_id" ref="demo_res_users_chemistry_tester" />
+    </record>
+    <record id="demo_laboratory_folder_member_report_drafts_chemistry_tester" model="medilab.laboratory.folder.member">
+        <field name="folder_id" ref="demo_laboratory_folder_report_drafts_2025" />
+        <field name="user_id" ref="demo_res_users_chemistry_tester" />
+    </record>
+    <record id="demo_laboratory_folder_member_bottled_water_working_chemistry_tester" model="medilab.laboratory.folder.member">
+        <field name="folder_id" ref="demo_laboratory_folder_bottled_water_working" />
+        <field name="user_id" ref="demo_res_users_chemistry_tester" />
+    </record>
+</odoo>

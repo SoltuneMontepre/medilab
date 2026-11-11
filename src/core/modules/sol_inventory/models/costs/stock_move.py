@@ -1,19 +1,27 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 
 from odoo.addons.sol_inventory.constants.models import MODEL_STOCK_MOVE
 from odoo.addons.sol_inventory.constants.xml_ids import VALUE_GROUPS
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_stock_move as StockMoveBase
+else:
+    StockMoveBase = object
+
 
 # Dịch Chuyển Kho
-class StockMove(models.Model):
+class StockMove(models.Model, StockMoveBase):
     _inherit = MODEL_STOCK_MOVE
 
-    # Value of the move from Odoo's costing, seen by those who see the value of stock.
-    value = fields.Monetary(groups=VALUE_GROUPS)
-    # Cost of one unit of the item moved, from the move's value.
-    unit_cost = fields.Monetary(
-        string="Unit Cost", currency_field="company_currency_id", compute="_compute_unit_cost", groups=VALUE_GROUPS
-    )
+    if not TYPE_CHECKING:
+        # Value of the move from Odoo's costing, seen by those who see the value of stock.
+        value = fields.Monetary(groups=VALUE_GROUPS)
+        # Cost of one unit of the item moved, from the move's value.
+        unit_cost = fields.Monetary(
+            string="Unit Cost", currency_field="company_currency_id", compute="_compute_unit_cost", groups=VALUE_GROUPS
+        )
 
     @api.depends("value", "quantity")
     def _compute_unit_cost(self):

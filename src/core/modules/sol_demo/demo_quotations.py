@@ -10,6 +10,7 @@ from odoo.addons.sol_commerce.constants.models import (
     MODEL_QUOTATION,
     MODEL_SALE_ORDER,
 )
+from odoo.addons.sol_laboratory.services.record_id import persisted_ids
 
 DISCOUNT_WIZARD = "sale.order.discount"
 PAYMENT_WIZARD = "account.payment.register"
@@ -18,9 +19,6 @@ PAYMENT_WIZARD = "account.payment.register"
 def seed_quotations(env):
     if env.ref("sol_demo.demo_sale_order_quotation_draft", raise_if_not_found=False):
         return
-    if not env.company.chart_template:
-        # Advance invoices need the sales journal, which a chart of accounts brings; a fresh install has none yet.
-        env["account.chart.template"].try_loading("vn", env.company)
     sales = env.ref("sol_demo.demo_res_users_sales")
     head = env.ref("sol_demo.demo_res_users_head_of_sales")
     vat8 = _sales_tax(env, 8)
@@ -35,26 +33,19 @@ def seed_quotations(env):
     expired = _quotable_order(env, lead, vat8)
     revised = _quotable_order(env, lead, vat10, quantity=3, advance_method="none")
     for order in (sent, accepted, declined, expired):
-        order.with_user(sales).action_send_quotation()
+        _as(order, sales).action_send_quotation()
     _pay_advance(env, accepted)
     declined._latest_quotation().action_decline("The price is above our budget this quarter.")
     expired.payment_deadline = fields.Datetime.now() - timedelta(days=1)
     env[MODEL_QUOTATION]._flag_expired()
-    revised.with_user(head).action_send_quotation()
+    _as(revised, head).action_send_quotation()
     revised.with_user(sales).action_revise_quotation()
     env[DISCOUNT_WIZARD].create(
         {"sale_order_id": revised.id, "discount_type": "so_discount", "discount_percentage": 0.05}
     ).action_apply_discount()
-    revised.with_user(head).action_send_quotation()
+    _as(revised, head).action_send_quotation()
 
-    requested = _confirmed_order(env, lead, vat10, sales, head)
-    approved = _confirmed_order(env, package, vat8, sales, head)
-    rejected = _confirmed_order(env, lead, vat8, sales, head)
-    requested.with_user(sales).action_request_approval()
-    approved.with_user(sales).action_request_approval()
-    approved.with_user(head).action_sign()
-    rejected.with_user(sales).action_request_approval()
-    rejected.with_user(head).action_reject("The discount agreed with the customer is not on the order.")
+    confirmed = _confirmed_order(env, package, vat8, sales, head)
 
     for xml_id, record in (
         ("demo_sale_order_quotation_draft", draft),
@@ -63,22 +54,76 @@ def seed_quotations(env):
         ("demo_sale_order_quotation_declined", declined),
         ("demo_sale_order_quotation_expired", expired),
         ("demo_sale_order_quotation_revised", revised),
-        ("demo_sale_order_approval_requested", requested),
-        ("demo_sale_order_approval_approved", approved),
-        ("demo_sale_order_approval_rejected", rejected),
+        ("demo_sale_order_quotation_confirmed", confirmed),
     ):
         _xml_id(env, xml_id, record)
+
+
+def seed_selected_ways(env):
+    """An order with Lead on its own and the bottled water package, where Lead and one of the package's parameters are
+    tested by another way than their default, sent, then revised and sent again with those ways."""
+    if env.ref("sol_demo.demo_sale_order_quotation_ways", raise_if_not_found=False):
+        return
+    sales = env.ref("sol_demo.demo_res_users_sales")
+    lead = _product(env, "parameter_id", env.ref("sol_demo.demo_parameter_price_lead").parameter_id.id)
+    package = _product(env, "service_package_id", env.ref("sol_demo.demo_service_package_bottled_water_basic").id)
+    order = _quotable_order(env, lead, _sales_tax(env, 10), advance_method="bank_transfer", advance_mode="full")
+    sample = order.sample_ids
+    order.write({"order_line": [Command.create({"product_id": package.product_variant_ids.id, "product_uom_qty": 1})]})
+    lines = order._catalog_lines()
+    lines.filtered(lambda line: not line.sample_id).sample_id = sample
+    single = lines.filtered(lambda line: line.product_id.product_tmpl_id == lead)
+    part = next((part for part in lines.linked_line_ids if _other_way(part)), None)
+    for line in (single, part):
+        if line and _other_way(line):
+            line.parameter_method_id = _other_way(line)
+    _as(order, sales).action_send_quotation()
+    _as(order, sales).action_revise_quotation()
+    _as(order, sales).action_send_quotation()
+    _xml_id(env, "demo_sale_order_quotation_ways", order)
+
+
+def _other_way(line):
+    """A way of testing offered for the line's parameter other than the one it has, or empty."""
+    return (line._own_parameter()._offered_ways(line.sample_type_id) - line.parameter_method_id)[:1]
+
+
+def _as(order, user):
+    """The order as the user works on it, in the user's language as in their session."""
+    return order.with_user(user).with_context(lang=user.lang)
 
 
 def _sales_tax(env, rate):
     """The company's sales VAT of the rate; the chart of accounts may not have it, so it is added to a tax group."""
     taxes = env["account.tax"]
-    tax = taxes.search([("type_tax_use", "=", "sale"), ("amount_type", "=", "percent"), ("amount", "=", rate)], limit=1)
+    company = env.company
+    country = company.account_fiscal_country_id
+    domain = [
+        ("company_id", "=", company.id),
+        ("country_id", "=", country.id),
+        ("type_tax_use", "=", "sale"),
+        ("amount_type", "=", "percent"),
+        ("amount", "=", rate),
+    ]
+    tax = taxes.search(domain, limit=1)
     if tax:
         return tax
-    country = env.company.account_fiscal_country_id or env.ref("base.vn")
     groups = env["account.tax.group"]
-    group = groups.search([("country_id", "in", [False, country.id])], limit=1) or groups.create({"name": "VAT"})
+    group = groups.search(
+        [
+            ("country_id", "=", country.id),
+            ("company_id", "=", company.id),
+        ],
+        limit=1,
+    )
+    if not group:
+        group = groups.create(
+            {
+                "name": "VAT",
+                "country_id": country.id,
+                "company_id": company.id,
+            }
+        )
     return taxes.create(
         {
             "name": f"VAT {rate}%",
@@ -86,6 +131,7 @@ def _sales_tax(env, rate):
             "amount_type": "percent",
             "type_tax_use": "sale",
             "country_id": country.id,
+            "company_id": company.id,
             "tax_group_id": group.id,
         }
     )
@@ -118,7 +164,7 @@ def _quotable_order(
         }
     )
     line = order._catalog_lines()
-    line.write({"tax_ids": [Command.set(tax.ids)], "discount": discount})
+    line.write({"tax_ids": [Command.set(persisted_ids(tax))], "discount": discount})
     line.sample_id = env[MODEL_ORDER_SAMPLE].create(
         {
             "order_id": order.id,
@@ -133,7 +179,7 @@ def _quotable_order(
 def _confirmed_order(env, product, tax, sales, head):
     """An order the Head of Sales quoted without an advance, the customer accepted and sales confirmed."""
     order = _quotable_order(env, product, tax, advance_method="none")
-    order.with_user(head).action_send_quotation()
+    _as(order, head).action_send_quotation()
     order._latest_quotation()._accept()
     order.with_user(sales).action_confirm_order()
     return order

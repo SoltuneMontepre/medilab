@@ -5,8 +5,8 @@ description: Bring a MediLab module's Prisma database diagram in line with the t
 
 # Sync database
 
-Follow [.agent/skills/sync-database/SKILL.md](../../../.agent/skills/sync-database/SKILL.md).
+Follow [.agents/skills/sync-database/SKILL.md](../../../.agents/skills/sync-database/SKILL.md).
 
 In Claude Code:
 
-- Read the schema with the `postgres` MCP server; when it is not connected, say so and use `docker exec medilab-postgres psql` instead.
+- Read the schema with the `postgres` MCP server; when it is not connected, say so and use `docker compose -f tools/infrastructure/docker-compose.yml exec -T postgres psql` instead.

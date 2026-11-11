@@ -1,10 +1,17 @@
+from typing import TYPE_CHECKING
+
 from odoo import models
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_IR_BINARY
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_ir_binary as IrBinaryBase
+else:
+    IrBinaryBase = object
+
 
 # Nội Dung Tệp
-class IrBinary(models.AbstractModel):
+class IrBinary(models.AbstractModel, IrBinaryBase):
     _inherit = MODEL_IR_BINARY
 
     def _get_stream_from(

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A file shows whether its current version is signed; a newer version starts unsigned. -->
+<odoo>
+    <record id="view_medilab_laboratory_file_list_signing" model="ir.ui.view">
+        <field name="name">medilab.laboratory.file.list.signing</field>
+        <field name="model">medilab.laboratory.file</field>
+        <field name="inherit_id" ref="view_medilab_laboratory_file_list" />
+        <field name="arch" type="xml">
+            <field name="current_number" position="after">
+                <field
+                    name="current_approval_state"
+                    widget="badge"
+                    optional="show"
+                    decoration-success="current_approval_state == 'approved'"
+                    decoration-info="current_approval_state == 'requested'"
+                    decoration-danger="current_approval_state == 'rejected'"
+                />
+            </field>
+        </field>
+    </record>
+
+    <record id="view_medilab_laboratory_file_form_signing" model="ir.ui.view">
+        <field name="name">medilab.laboratory.file.form.signing</field>
+        <field name="model">medilab.laboratory.file</field>
+        <field name="inherit_id" ref="view_medilab_laboratory_file_form" />
+        <field name="arch" type="xml">
+            <field name="current_number" position="after">
+                <field
+                    name="current_approval_state"
+                    widget="badge"
+                    decoration-success="current_approval_state == 'approved'"
+                    decoration-info="current_approval_state == 'requested'"
+                    decoration-danger="current_approval_state == 'rejected'"
+                />
+            </field>
+            <xpath expr="//field[@name='version_ids']/list/field[@name='source']" position="after">
+                <field
+                    name="approval_state"
+                    widget="badge"
+                    decoration-success="approval_state == 'approved'"
+                    decoration-info="approval_state == 'requested'"
+                    decoration-danger="approval_state == 'rejected'"
+                />
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -13,6 +13,7 @@ from pathlib import Path
 
 from filelock import FileLock
 
+from .local_paths import ensure_directory
 from .workspace import RELEASE, Workspace
 
 
@@ -59,7 +60,7 @@ def install_release(workspace: Workspace) -> None:
         ):
             raise RuntimeError("Incomplete OdooLS release; move this worktree's release directory aside and reinstall.")
         return
-    workspace.release.parent.mkdir(parents=True, exist_ok=True)
+    ensure_directory(workspace.root, workspace.release.parent)
     with tempfile.TemporaryDirectory(dir=workspace.local) as staging:
         stage = Path(staging)
         unpacked = stage / "release"
@@ -116,13 +117,14 @@ def install_source(workspace: Workspace) -> None:
         source.rename(workspace.source)
 
 
-def install(root: Path) -> None:
+def install(root: Path, report_status: bool = True) -> None:
     workspace = Workspace(root)
-    workspace.local.mkdir(parents=True, exist_ok=True)
+    ensure_directory(workspace.root, workspace.local)
     with FileLock(str(workspace.local / "install.lock"), timeout=1200):
         install_release(workspace)
         install_source(workspace)
         from .prerequisites import install_terraform
 
         install_terraform(workspace)
-    print(f"OdooLS {RELEASE['version']} and Odoo source ready in {workspace.local}.")
+    if report_status:
+        print(f"OdooLS {RELEASE['version']} and Odoo source ready in {workspace.local}.")

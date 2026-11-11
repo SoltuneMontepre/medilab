@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Command
@@ -13,12 +15,19 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ROLE,
 )
 from odoo.addons.sol_laboratory.constants.permissions import (
-    ODOO_DOCUMENT_TYPES,
+    DOCUMENT_TYPES,
     OPERATIONS,
     SCOPE_DOMAINS,
     SCOPE_FIELDS,
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_GROUP, ADMINISTRATOR_ROLE, MODULE
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
+from odoo.addons.sol_laboratory.services.type_values import value_as
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_permission as PermissionBase
+else:
+    PermissionBase = object
 
 DOCUMENT_MODEL_PREFIX = "medilab."
 IR_MODEL = "ir.model"
@@ -28,7 +37,7 @@ HOLDER_FIELDS = ("role_ids", "person_ids")
 
 
 # Quyền
-class Permission(models.Model):
+class Permission(models.Model, PermissionBase):
     _name = MODEL_PERMISSION
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Permission"
@@ -36,51 +45,58 @@ class Permission(models.Model):
     # Permissions come with modules: they are read and renamed on the screen, never created or deleted there.
     _permission_actions = ("read", "edit")
 
-    # Unique code derived from the document type, action and scope, such as sample.edit.own_department.
-    code = fields.Char(compute="_compute_code", store=True, required=True, precompute=True)
-    # Permission name in each language.
-    name = fields.Char(required=True, translate=True)
-    # Technical name of the document type, such as medilab.sample; cannot change once the permission exists.
-    document_model = fields.Selection(selection="_selection_document_model", string="Document Type", required=True)
-    # read, create, edit, archive, delete or sign; cannot change once the permission exists.
-    action = fields.Selection(
-        [
-            ("read", "Read"),
-            ("create", "Create"),
-            ("edit", "Edit"),
-            ("archive", "Archive"),
-            ("delete", "Delete"),
-            ("sign", "Sign"),
-        ],
-        required=True,
-    )
-    # all for every record, own_department for the person's department only or own_team for the person's team
-    # only; cannot change once it exists.
-    scope = fields.Selection(
-        [("all", "All records"), ("own_department", "Own department"), ("own_team", "Own team")],
-        required=True,
-        default="all",
-    )
-    # The Odoo group generated for the permission, which carries its access.
-    group_id = fields.Many2one("res.groups", required=True, readonly=True, ondelete="restrict", copy=False)
-    # Roles that contain the permission.
-    role_ids = fields.Many2many(
-        MODEL_ROLE,
-        "medilab_role_permission_rel",
-        "permission_id",
-        "role_id",
-        string="Roles",
-        groups=ADMINISTRATOR_GROUP,
-    )
-    # People given the permission directly.
-    person_ids = fields.Many2many(
-        MODEL_PERSON,
-        "medilab_person_permission_rel",
-        "permission_id",
-        "person_id",
-        string="People",
-        groups=ADMINISTRATOR_GROUP,
-    )
+    if not TYPE_CHECKING:
+        # Unique code derived from the document type, action and scope, such as sample.edit.own_department.
+        code = fields.Char(compute="_compute_code", store=True, required=True, precompute=True)
+        # Permission name in each language.
+        name = fields.Char(required=True, translate=True)
+        # Technical name of the document type, such as medilab.sample; cannot change once the permission exists.
+        document_model = fields.Selection(selection="_selection_document_model", string="Document Type", required=True)
+        # read, create, edit, archive, delete, sign or invoice; cannot change once the permission exists.
+        action = fields.Selection(
+            [
+                ("read", "Read"),
+                ("create", "Create"),
+                ("edit", "Edit"),
+                ("archive", "Archive"),
+                ("delete", "Delete"),
+                ("sign", "Sign"),
+                ("invoice", "Invoice"),
+            ],
+            required=True,
+        )
+        # all for every record, own_department for the person's department only, own_team for the person's team only or
+        # own for the records whose user is the person; cannot change once it exists.
+        scope = fields.Selection(
+            [
+                ("all", "All records"),
+                ("own_department", "Own department"),
+                ("own_team", "Own team"),
+                ("own", "Own records"),
+            ],
+            required=True,
+            default="all",
+        )
+        # The Odoo group generated for the permission, which carries its access.
+        group_id = fields.Many2one("res.groups", required=True, readonly=True, ondelete="restrict", copy=False)
+        # Roles that contain the permission.
+        role_ids = fields.Many2many(
+            MODEL_ROLE,
+            "medilab_role_permission_rel",
+            "permission_id",
+            "role_id",
+            string="Roles",
+            groups=ADMINISTRATOR_GROUP,
+        )
+        # People given the permission directly.
+        person_ids = fields.Many2many(
+            MODEL_PERSON,
+            "medilab_person_permission_rel",
+            "permission_id",
+            "person_id",
+            string="People",
+            groups=ADMINISTRATOR_GROUP,
+        )
 
     _code_unique = models.Constraint("UNIQUE(code)", "A permission with this code already exists.")
     _group_unique = models.Constraint("UNIQUE(group_id)", "Each permission has its own group.")
@@ -94,7 +110,7 @@ class Permission(models.Model):
         names = [
             name
             for name, model in self.env.registry.items()
-            if (name.startswith(DOCUMENT_MODEL_PREFIX) or name in ODOO_DOCUMENT_TYPES)
+            if (name.startswith(DOCUMENT_MODEL_PREFIX) or name in DOCUMENT_TYPES)
             and not model._abstract
             and not model._transient
         ]
@@ -110,7 +126,7 @@ class Permission(models.Model):
 
     @api.model
     def _make_code(self, document_model, action, scope):
-        document_type = ODOO_DOCUMENT_TYPES.get(document_model) or document_model.removeprefix(DOCUMENT_MODEL_PREFIX)
+        document_type = DOCUMENT_TYPES.get(document_model) or document_model.removeprefix(DOCUMENT_MODEL_PREFIX)
         return f"{document_type}.{action}.{scope}"
 
     @api.depends("document_model", "action", "scope")
@@ -130,7 +146,7 @@ class Permission(models.Model):
         permissions = super().create(vals_list)
         permissions._generate_access()
         self.env.transaction.invalidate_ormcache()
-        self.env.ref(ADMINISTRATOR_ROLE).sudo().permission_ids = [Command.link(p.id) for p in permissions]
+        self.env.ref(ADMINISTRATOR_ROLE).sudo().permission_ids = [Command.link(persisted_id(p)) for p in permissions]
         return permissions
 
     def write(self, vals):
@@ -222,6 +238,9 @@ class Permission(models.Model):
                 "own_team": self.env._(
                     "%s has no team, so a permission on it cannot be limited to the person's team.", label
                 ),
+                "own": self.env._(
+                    "%s has no user, so a permission on it cannot be limited to the person's own records.", label
+                ),
             }
             raise ValidationError(refusals[scope])
         # Only the mixin enforces permissions, so a model without it has none.
@@ -241,7 +260,7 @@ class Permission(models.Model):
         # Group first: uninstall deletes the newest external id first, so the access goes before its group.
         xml_ids = []
         for permission in self.sudo():
-            records = {"group": permission.group_id}
+            records: dict[str, models.BaseModel] = {"group": permission.group_id}
             if permission.action in OPERATIONS:
                 records["access"] = self.env[IR_ACCESS].sudo().create(permission._access_values())
             xml_ids += [
@@ -252,7 +271,7 @@ class Permission(models.Model):
 
     def _generated_xml_id(self, kind):
         # The external id of the group or access generated for the permission.
-        return f"{MODULE}.{kind}_permission_{self.code.replace('.', '_')}"
+        return f"{MODULE}.{kind}_permission_{value_as(self.code, str).replace('.', '_')}"
 
     @api.model
     def _action_label(self, action):
@@ -265,8 +284,8 @@ class Permission(models.Model):
             self.env[MODEL_ROLE].sudo().search([("group_id", "in", current.ids)]).group_id
             | self.sudo().search([("group_id", "in", current.ids)]).group_id
         )
-        return [Command.unlink(group.id) for group in managed - wanted] + [
-            Command.link(group.id) for group in wanted - current
+        return [Command.unlink(persisted_id(group)) for group in managed - wanted] + [
+            Command.link(persisted_id(group)) for group in wanted - current
         ]
 
     def _access_values(self):
@@ -275,6 +294,6 @@ class Permission(models.Model):
             "name": f"Permission: {self.code}",
             "model_id": self.env[IR_MODEL]._get(self.document_model).id,
             "group_id": self.group_id.id,
-            "operation": OPERATIONS[self.action],
-            "domain": SCOPE_DOMAINS[self.scope],
+            "operation": OPERATIONS[self.action or ""],
+            "domain": SCOPE_DOMAINS[self.scope or ""],
         }

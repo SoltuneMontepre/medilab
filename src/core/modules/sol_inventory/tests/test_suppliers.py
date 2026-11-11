@@ -7,12 +7,13 @@ from odoo.tools import mute_logger
 from .catalog_case import CatalogCase
 from odoo.addons.sol_inventory.constants.models import MODEL_SUPPLIER, MODEL_SUPPLIER_INFO
 from odoo.addons.sol_laboratory.constants.models import MODEL_RES_PARTNER
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
 class TestSuppliers(CatalogCase):
     def test_a_supplier_gets_a_code_and_is_a_vendor_company(self):
-        self.assertTrue(self.supplier.code.startswith("NCC."))
+        self.assertTrue(assert_instance(self.supplier.code, str).startswith("NCC."))
         self.assertTrue(self.supplier.partner_id.is_company)
         self.assertEqual(self.supplier.partner_id.supplier_rank, 1)
 

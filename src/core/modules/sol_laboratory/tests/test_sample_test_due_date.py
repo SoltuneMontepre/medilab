@@ -21,15 +21,13 @@ class TestSampleTestDueDate(RequestCase):
         self.env["ir.config_parameter"].set_int(SAFETY_MARGIN_PARAMETER, 3)
         self.assertEqual(self.due_date(), datetime(2026, 10, 17, 16, 59, 59))
 
-    def test_a_changed_due_date_stays_until_the_expected_date_changes(self):
+    def test_changing_the_safety_margin_leaves_stored_due_dates(self):
         test = self.sample.test_ids
-        test.due_date = datetime(2026, 10, 15, 10, 0, 0)
-        self.env["ir.config_parameter"].set_int(SAFETY_MARGIN_PARAMETER, 5)
+        due_date = test.due_date
 
-        self.assertEqual(test.due_date, datetime(2026, 10, 15, 10, 0, 0))
-        self.request.expected_date = "2026-11-10"
-        # Margin 5: 2026-11-05 23:59:59 in Vietnam.
-        self.assertEqual(test.due_date, datetime(2026, 11, 5, 16, 59, 59))
+        self.env["ir.config_parameter"].set_int(SAFETY_MARGIN_PARAMETER, 5)
+        test.invalidate_recordset(["due_date"])
+        self.assertEqual(test.due_date, due_date)
 
     def test_due_date_follows_the_expected_date(self):
         test = self.sample.test_ids

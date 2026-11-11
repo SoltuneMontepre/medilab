@@ -1,6 +1,6 @@
 {
   "version": "1.6.0",
-  "odoo_revision": "17ff827a18248397342e73bb2bcac48e2b8e1027",
+  "odoo_revision": "7434faa93558d4f46fdda77acd1be4dfc663ea7c",
   "assets": {
     "config_schema.json": "334edbcb987efe495fbf852fb6e75732c241747447489df2199c0a869cbfc846",
     "odoo-alpine-aarch64-1.6.0.tar.gz": "c94e77c2044785a0bd1b66eb7a10097efb8b803e32ebe7384ce2716eb61e0046",

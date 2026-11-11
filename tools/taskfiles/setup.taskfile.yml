@@ -1,0 +1,46 @@
+version: "3"
+
+tasks:
+  setup:fresh:
+    desc: "Create an isolated fresh local database, seed demo data with private report assets, then start the app"
+    silent: true
+    cmds:
+      - task: dev:setup
+      - task: ai:setup
+      - . tools/scripts/log.sh && log_step "Fresh local demo setup"
+      - python tools/scripts/demo_bootstrap.py setup
+      - . tools/scripts/log.sh && log_ok "Fresh local demo setup is ready."
+
+  setup:fresh:select:
+    desc: "Select a new, empty isolated local demo project for this worktree"
+    silent: true
+    requires:
+      vars: [PROJECT]
+    env:
+      MEDILAB_SELECTED_PROJECT: '{{.PROJECT}}'
+    cmds:
+      - python tools/scripts/demo_bootstrap.py select
+
+  setup:fresh:switch:
+    desc: "Switch between a verified completed demo project and a new isolated one"
+    silent: true
+    requires:
+      vars: [PROJECT]
+    env:
+      MEDILAB_SELECTED_PROJECT: '{{.PROJECT}}'
+    cmds:
+      - python tools/scripts/demo_bootstrap.py switch
+
+  setup:fresh:switch:recover:
+    desc: "Resolve an interrupted project switch after verifying both saved selections"
+    silent: true
+    cmds:
+      - python tools/scripts/demo_bootstrap.py switch-recover
+
+  setup:fresh:recover:
+    desc: "Discard a failed fresh local bootstrap after verifying its isolated resource ownership"
+    silent: true
+    interactive: true
+    cmds:
+      - . tools/scripts/log.sh && log_step "Recover fresh local demo setup"
+      - python tools/scripts/demo_bootstrap.py recover

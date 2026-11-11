@@ -39,7 +39,7 @@ class TestTestReportRejection(ReportCase):
         task = self.test._testing_task()
         self.assertEqual((task.status, task.department_id), ("open", self.department))
         self.assertFalse(task.assignee_id)
-        self.assertIn(REASON, task.note)
+        self.assertIn(REASON, (task.note or ""))
         self.assertEqual(report.status, "draft")
         self.assertNotIn(report, self.waiting_for("to_sign"))
         self.assertFalse(self.as_person(report, self.lab_head).approval_can_sign)

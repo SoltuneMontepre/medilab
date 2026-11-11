@@ -7,6 +7,7 @@ from odoo.tools import mute_logger
 
 from .recipe_case import RecipeCase
 from odoo.addons.sol_inventory.constants.models import MODEL_PRODUCT, MODEL_RECIPE, MODEL_RECIPE_LINE
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 
 @tagged("post_install", "-at_install")
@@ -46,13 +47,13 @@ class TestRecipes(RecipeCase):
         with self.assertRaises(ValidationError):
             line.write({"recipe_id": self.recipe.id, "item_id": self.water.id})
         with self.assertRaises(ValidationError):
-            self.recipe.line_ids = [Command.link(line.id)]
+            self.recipe.line_ids = [Command.link(persisted_id(line))]
 
     def test_an_ingredient_can_be_removed_or_replaced_while_one_is_left(self):
         recipe = self.create_recipe(self.rinse, {self.dilute_acid: 100})
 
         recipe.line_ids = [
-            Command.delete(recipe.line_ids.id),
+            Command.delete(persisted_id(recipe.line_ids)),
             Command.create({"item_id": self.water.id, "quantity": 1}),
         ]
         self.recipe.line_ids.filtered(lambda line: line.item_id == self.water).unlink()

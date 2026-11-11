@@ -3,7 +3,6 @@
 import asyncio
 import json
 import sys
-from datetime import timedelta
 from pathlib import Path
 
 from mcp import ClientSession, StdioServerParameters
@@ -20,7 +19,7 @@ async def check_navigation(root: Path) -> dict:
     )
     async with (
         stdio_client(parameters) as (read, write),
-        ClientSession(read, write, read_timeout_seconds=timedelta(seconds=660)) as session,
+        ClientSession(read, write, read_timeout_seconds=660) as session,
     ):
         await session.initialize()
         tools = await session.list_tools()
@@ -29,9 +28,9 @@ async def check_navigation(root: Path) -> dict:
 
         async def call(name, arguments):
             result = await session.call_tool(name, arguments)
-            if result.isError:
+            if result.is_error:
                 raise RuntimeError(f"{name}: {result.content}")
-            return result.structuredContent or json.loads(
+            return result.structured_content or json.loads(
                 next(item.text for item in result.content if item.type == "text")
             )
 
@@ -58,7 +57,7 @@ async def check_navigation(root: Path) -> dict:
         report["document_symbols"] = [item["name"] for item in symbols]
         report["diagnostics"] = await call("diagnostics", {"path": field["path"]})
         unsafe = await session.call_tool("definition", {"path": "../outside.py", "line": 0, "character": 0})
-        assert unsafe.isError
+        assert unsafe.is_error
         report["path_escape_rejected"] = True
         report["status"] = await call("status", {})
         return report

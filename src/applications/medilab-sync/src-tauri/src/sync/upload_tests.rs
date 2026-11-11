@@ -36,7 +36,7 @@ async fn fixture(part_size: i64) -> Fixture {
     let db_path = dir.path().join("t.db");
     let db = Db::open(&db_path).unwrap();
     let local = dir.path().join("root");
-    std::fs::create_dir_all(&local).unwrap();
+    tokio::fs::create_dir_all(&local).await.unwrap();
     let folder_id = db
         .upsert_folder(local.to_str().unwrap(), "R", Some(7), true, &[])
         .unwrap();
@@ -1138,4 +1138,39 @@ async fn budget_of_four_limits_a_window_of_eight_to_four_buffers() {
     task.await.unwrap().unwrap();
     assert!(budget.peak_mib() <= 4);
     assert_eq!(fx.server.versions()[0].actual_hash, sha(&bytes));
+}
+
+#[tokio::test]
+async fn lost_prepare_reply_reuses_persisted_idempotency_key_after_restart() {
+    let fx = fixture(SMALL_PART).await;
+    let bytes = content(100, 7);
+    let job = fx.write_and_enqueue("lost.bin", &bytes);
+    fx.server.lose_prepare_reply();
+    assert!(fx.upload(&job).await.is_err());
+    assert_eq!(fx.server.upload_count(), 1);
+    let reopened = Db::open(&fx.db_path).unwrap();
+    reopened
+        .mark_job(job.id, "pending", None, 0, None, None, None)
+        .unwrap();
+    let retry = reopened.next_job().unwrap().unwrap();
+    run_upload_job(&fx.client, &reopened, &retry, |_, _| {}, || false, |_| {})
+        .await
+        .unwrap();
+    assert_eq!(fx.server.upload_count(), 1);
+    assert_eq!(fx.server.versions().len(), 1);
+    assert_eq!(fx.server.versions()[0].actual_hash, sha(&bytes));
+}
+
+#[tokio::test]
+async fn lost_finalize_reply_reads_completed_upload_without_reuploading_parts() {
+    let fx = fixture(SMALL_PART).await;
+    let bytes = content(100, 8);
+    let job = fx.write_and_enqueue("finalized.bin", &bytes);
+    fx.server.lose_finalize_reply();
+    assert!(fx.upload(&job).await.is_err());
+    let puts = fx.server.put_count();
+    let retry = fx.requeue(&job);
+    fx.upload(&retry).await.unwrap();
+    assert_eq!(fx.server.put_count(), puts);
+    assert_eq!(fx.server.versions().len(), 1);
 }

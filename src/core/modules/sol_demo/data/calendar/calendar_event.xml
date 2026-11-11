@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_calendar_event_quality_review" model="calendar.event">
+        <field name="name">Quality review meeting</field>
+        <field name="location_id" ref="demo_location_meeting_room_1" />
+        <field name="start" eval="(DateTime.now() + relativedelta(hour=8, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="stop" eval="(DateTime.now() + relativedelta(hour=9, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="user_id" ref="demo_res_users_lab_head" />
+        <field
+            name="partner_ids"
+            eval="[Command.set([ref('demo_res_partner_lab_head'), ref('demo_res_partner_head_of_department'), ref('demo_res_partner_tester')])]"
+        />
+    </record>
+    <record id="demo_calendar_event_preparation_room_training" model="calendar.event">
+        <field name="name">Microwave digester training</field>
+        <field name="location_id" ref="demo_location_preparation_room" />
+        <field name="start" eval="(DateTime.now() + relativedelta(days=1, hour=2, minute=30, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="stop" eval="(DateTime.now() + relativedelta(days=1, hour=4, minute=30, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="user_id" ref="demo_res_users_head_of_department" />
+        <field
+            name="partner_ids"
+            eval="[Command.set([ref('demo_res_partner_head_of_department'), ref('demo_res_partner_chemistry_tester')])]"
+        />
+    </record>
+</odoo>

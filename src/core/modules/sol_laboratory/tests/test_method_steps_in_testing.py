@@ -16,6 +16,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TESTING_METHOD,
     MODEL_TESTING_METHOD_STEP,
 )
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 
 @freeze_time(MONDAY)
@@ -43,10 +44,17 @@ class TestMethodStepsInTesting(SchedulingCase):
             {"code": "TCVN 9996:2026", "name": "Lead by ICP-MS", "field_id": cls.testing_field.id}
         )
 
+    def use(self, test, way):
+        """Choose the way of testing for the test, applying it to the test's sample type first."""
+        sample_type = test.sample_id.sample_type_id
+        if not way._applicability(sample_type):
+            self.offer(way.parameter_id, sample_type, way)
+        test.parameter_method_id = way
+
     def run_test(self, way=None):
         """A test with its way of testing chosen, its testing task assigned to the runner and a booking for them."""
         test = self.new_test()
-        test.parameter_method_id = way or self.pair
+        self.use(test, way or self.pair)
         task = self.testing_task(test, self.runner)
         booking = self.env[MODEL_MACHINE_BOOKING].create(
             {
@@ -85,7 +93,6 @@ class TestMethodStepsInTesting(SchedulingCase):
             {
                 "parameter_id": cadmium.id,
                 "method_id": self.method.id,
-                "unit_id": self.unit.id,
                 "department_id": self.department.id,
             }
         )
@@ -102,7 +109,6 @@ class TestMethodStepsInTesting(SchedulingCase):
             {
                 "parameter_id": self.parameter.id,
                 "method_id": self.stepless.id,
-                "unit_id": self.unit.id,
                 "department_id": self.department.id,
             }
         )
@@ -160,12 +166,11 @@ class TestMethodStepsInTesting(SchedulingCase):
             {
                 "parameter_id": self.parameter.id,
                 "method_id": self.stepless.id,
-                "unit_id": self.unit.id,
                 "department_id": self.department.id,
             }
         )
 
-        test.parameter_method_id = way
+        self.use(test, way)
 
         self.assertEqual(booking.method_step_ids, self.stepless.step_ids)
         self.assertEqual(
@@ -180,9 +185,9 @@ class TestMethodStepsInTesting(SchedulingCase):
             for record in (task, booking):
                 with self.subTest(person=person.name, model=record._name), self.assertRaises(AccessError):
                     self.as_person(record, person).write(
-                        {"method_step_ids": [Command.update(step.id, {"instruction": "Changed."})]}
+                        {"method_step_ids": [Command.update(persisted_id(step), {"instruction": "Changed."})]}
                     )
-        for command in (Command.create(new_step), Command.delete(step.id)):
+        for command in (Command.create(new_step), Command.delete(persisted_id(step))):
             with self.subTest(command=command[0]), self.assertRaises(AccessError):
                 self.as_person(task, self.head).write({"method_step_ids": [command]})
             self.as_person(booking, self.head).write({"method_step_ids": [command]})
@@ -203,7 +208,7 @@ class TestMethodStepsInTesting(SchedulingCase):
                 self.assertEqual([steps.get(flag) for flag in ("create", "delete", "edit")], ["0"] * 3)
                 self.assertEqual(
                     [column.get("name") for column in steps.iterfind("field")],
-                    ["sequence", "duration_minutes", "instruction", "note"],
+                    ["sequence", "duration_minutes", "instruction", "location_id", "note"],
                 )
 
     def test_the_administrator_edits_steps_on_the_method_form(self):
@@ -215,7 +220,7 @@ class TestMethodStepsInTesting(SchedulingCase):
         self.assertEqual(steps.get("editable"), "bottom")
         self.assertEqual(
             [column.get("name") for column in steps.iterfind("field")],
-            ["sequence", "duration_minutes", "instruction", "note"],
+            ["sequence", "duration_minutes", "instruction", "location_id", "note"],
         )
         self.assertIsNone(form.get("edit"))
         tester_form = methods.with_user(self.runner.user_id).get_views([(False, "form")])["views"]["form"]["arch"]

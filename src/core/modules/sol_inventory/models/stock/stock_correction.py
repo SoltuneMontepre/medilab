@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.fields import Domain
@@ -5,19 +7,25 @@ from odoo.fields import Domain
 from odoo.addons.sol_inventory.constants.items import TRACKING_LOT
 from odoo.addons.sol_inventory.constants.models import MODEL_STOCK_CORRECTION, MODEL_STOCK_OPERATION, MODEL_STOCK_QUANT
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_stock_correction as StockCorrectionBase
+else:
+    StockCorrectionBase = object
+
 
 # Điều Chỉnh Tồn Kho
-class StockCorrection(models.TransientModel):
+class StockCorrection(models.TransientModel, StockCorrectionBase):
     _name = MODEL_STOCK_CORRECTION
     _inherit = MODEL_STOCK_OPERATION
     _description = "Correct Quantity"
 
-    # Quantity on record at the location, in the item's unit.
-    on_hand = fields.Float(string="On Hand", digits="Product Unit", compute="_compute_on_hand")
-    # Quantity actually there, in the item's unit.
-    counted_quantity = fields.Float(string="Counted Quantity", digits="Product Unit")
-    # Where the container is; empty once its stock ran out, and the location is then chosen.
-    container_location_id = fields.Many2one(related="container_id.location_id", string="Container Location")
+    if not TYPE_CHECKING:
+        # Quantity on record at the location, in the item's unit.
+        on_hand = fields.Float(string="On Hand", digits="Product Unit", compute="_compute_on_hand")
+        # Quantity actually there, in the item's unit.
+        counted_quantity = fields.Float(string="Counted Quantity", digits="Product Unit")
+        # Where the container is; empty once its stock ran out, and the location is then chosen.
+        container_location_id = fields.Many2one(related="container_id.location_id", string="Container Location")
 
     @api.depends("container_id", "item_id", "lot_id", "location_id")
     def _compute_on_hand(self):

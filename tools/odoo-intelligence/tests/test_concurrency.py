@@ -3,7 +3,6 @@ import json
 import os
 import subprocess
 import sys
-from datetime import timedelta
 
 import pytest
 from mcp import ClientSession, StdioServerParameters
@@ -76,14 +75,14 @@ class ProbeUsage(models.Model):
         )
         async with (
             stdio_client(params) as (read, write),
-            ClientSession(read, write, read_timeout_seconds=timedelta(seconds=660)) as session,
+            ClientSession(read, write, read_timeout_seconds=660) as session,
         ):
             await session.initialize()
 
             async def call(name, arguments):
                 response = await session.call_tool(name, arguments)
-                assert not response.isError, response
-                return response.structuredContent or json.loads(response.content[0].text)
+                assert not response.is_error, response
+                return response.structured_content or json.loads(response.content[0].text)
 
             usage = "src/core/modules/navigation_probe/usage.py"
             position = utf16_position((root / usage).read_text(), "self." + marker, offset=7)

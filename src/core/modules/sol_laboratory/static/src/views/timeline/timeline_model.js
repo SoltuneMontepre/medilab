@@ -53,7 +53,7 @@ export class TimelineModel extends Model {
   }
 
   async fetch() {
-    const { dateStart, dateStop, dateDeadline, statusField, resModel } = this.meta;
+    const { dateStart, dateStop, dateDeadline, statusField, subtitleField, resModel } = this.meta;
     const { start, end } = this.range;
     const from = serializeDateTime(start);
     const to = serializeDateTime(end);
@@ -73,7 +73,9 @@ export class TimelineModel extends Model {
     }
     const domain = Domain.and([this.searchParams.domain, Domain.or(periods)]).toList();
     const groupField = this.groupField;
-    const fieldNames = [...new Set(["display_name", dateStart, dateStop, dateDeadline, statusField, groupField])];
+    const fieldNames = [
+      ...new Set(["display_name", dateStart, dateStop, dateDeadline, statusField, subtitleField, groupField]),
+    ];
     const records = await this.orm.searchRead(resModel, domain, fieldNames.filter(Boolean), {
       context: this.searchParams.context,
     });
@@ -81,7 +83,7 @@ export class TimelineModel extends Model {
   }
 
   makeRows(records, groupField) {
-    const { dateStart, dateStop, dateDeadline, statusField } = this.meta;
+    const { dateStart, dateStop, dateDeadline, statusField, subtitleField } = this.meta;
     const { start: rangeStart, end: rangeEnd } = this.range;
     const span = rangeEnd.toMillis() - rangeStart.toMillis();
     const rows = new Map();
@@ -102,6 +104,7 @@ export class TimelineModel extends Model {
       rows.get(key).items.push({
         id: record.id,
         name: record.display_name,
+        subtitle: subtitleField && record[subtitleField] ? this.groupOf(record[subtitleField], subtitleField)[1] : "",
         status: record[statusField],
         startAt,
         start,

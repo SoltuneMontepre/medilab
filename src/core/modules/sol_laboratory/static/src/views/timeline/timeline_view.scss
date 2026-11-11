@@ -82,6 +82,12 @@
         background: $o-danger;
     }
 
+    .o_timeline_item_subtitle {
+        margin-left: 0.4rem;
+        font-weight: 400;
+        color: $o-main-color-muted;
+    }
+
     .o_timeline_item {
         position: absolute;
         z-index: 1;

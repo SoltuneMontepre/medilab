@@ -1,0 +1,28 @@
+# Traefik passes on the forwarded headers cloudflared sends, a client's own X-Forwarded-Host among them, so it is fixed
+# to Mailpit's host.
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: mailpit-host
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  headers:
+    customRequestHeaders:
+      X-Forwarded-Host: mail.soltunemontepre.tech
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: mailpit
+spec:
+  entryPoints:
+    - web
+  routes:
+    - kind: Rule
+      match: Host(`mail.soltunemontepre.tech`)
+      middlewares:
+        - name: mailpit-host
+      services:
+        - name: mailpit
+          port: http

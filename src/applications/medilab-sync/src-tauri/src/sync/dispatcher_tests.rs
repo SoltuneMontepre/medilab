@@ -374,8 +374,34 @@ async fn uploads_and_downloads_run_together() {
     queue_upload(&db, folder, "u2", 10);
     queue_download(&db, folder, "d1", 10, 1);
     queue_download(&db, folder, "d2", 10, 1);
-    let tracker = run_fake(&db, limits(2, 2), Duration::ZERO, Duration::from_millis(80)).await;
+    let tracker = Arc::new(Tracker::default());
+    let ready = Arc::new(tokio::sync::Barrier::new(4));
+    let (runner_db, runner_tracker) = (db.clone(), tracker.clone());
+    let mut dispatcher = Dispatcher::new(db.clone(), limits(2, 2), move |job: JobRow| {
+        let (db, tracker, ready) = (runner_db.clone(), runner_tracker.clone(), ready.clone());
+        async move {
+            if job.relative_path == "u2" {
+                tokio::time::sleep(Duration::from_millis(120)).await;
+            }
+            tracker.start(&job);
+            tokio::time::timeout(Duration::from_secs(10), ready.wait())
+                .await
+                .expect("all four transfers must start before any finishes");
+            tracker.end(&job);
+            db.transition_running_job(job.id, "completed", None, 0, None, None, None)
+                .unwrap();
+        }
+    });
+    tokio::time::timeout(Duration::from_secs(15), dispatcher.run_until_idle())
+        .await
+        .expect("the concurrent transfers must complete")
+        .unwrap();
     assert_eq!(tracker.max.load(Ordering::SeqCst), 4);
+    assert!(db
+        .list_jobs()
+        .unwrap()
+        .iter()
+        .all(|job| job.status == "completed"));
 }
 
 /// 6 upload lớn xếp trước, rồi 1 download và 2 upload nhỏ: với giới hạn mặc định, download và
@@ -539,8 +565,10 @@ fn upload_dispatcher(
                     |part| {
                         if let Some((arrive, release, folder)) = &gate {
                             if part == 2 && job.folder_id == *folder {
-                                arrive.wait();
-                                release.wait();
+                                tokio::task::block_in_place(|| {
+                                    arrive.wait();
+                                    release.wait();
+                                });
                             }
                         }
                     },
@@ -671,7 +699,8 @@ async fn restart_recovers_every_running_transfer() {
 /// Folder mất quyền khi 3 upload của nó đang chạy: cả 3 dừng ở điểm an toàn với thông báo mất
 /// quyền, job của folder đó không được claim thêm (folder khác vẫn chạy), tệp cục bộ còn nguyên;
 /// cấp lại quyền thì resume và hoàn tất.
-#[tokio::test(flavor = "multi_thread", worker_threads = 8)]
+/// Một worker buộc gate nhường lịch cho I/O thay vì chặn executor.
+#[tokio::test(flavor = "multi_thread", worker_threads = 1)]
 async fn revoked_folder_stops_running_transfers_and_blocks_new_claims() {
     let env = uploads().await;
     let revoked = env.folder("revoked");

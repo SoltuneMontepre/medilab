@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="ir_cron_laboratory_contents_verify" model="ir.cron">
+        <field name="name">Verify uploaded laboratory files</field>
+        <field name="model_id" ref="model_medilab_scheduled_job" />
+        <field name="state">code</field>
+        <field name="code">model._run_key("laboratory_contents.verify")</field>
+        <field name="interval_number">5</field>
+        <field name="interval_type">minutes</field>
+    </record>
+    <!-- One file per batch and per pass: a file of 5 GiB is read whole within the cron worker's time limit. -->
+    <record id="scheduled_job_laboratory_contents_verify" model="medilab.scheduled.job">
+        <field name="key">laboratory_contents.verify</field>
+        <field name="name">Verify uploaded laboratory files</field>
+        <field name="cron_id" ref="ir_cron_laboratory_contents_verify" />
+        <field name="batch_size">1</field>
+        <field name="max_attempts">5</field>
+    </record>
+    <record id="ir_cron_laboratory_uploads_store" model="ir.cron">
+        <field name="name">Store uploaded laboratory files</field>
+        <field name="model_id" ref="model_medilab_scheduled_job" />
+        <field name="state">code</field>
+        <field name="code">model._run_key("laboratory_uploads.store")</field>
+        <field name="interval_number">5</field>
+        <field name="interval_type">minutes</field>
+    </record>
+    <record id="scheduled_job_laboratory_uploads_store" model="medilab.scheduled.job">
+        <field name="key">laboratory_uploads.store</field>
+        <field name="name">Store uploaded laboratory files</field>
+        <field name="cron_id" ref="ir_cron_laboratory_uploads_store" />
+        <field name="batch_size">20</field>
+        <field name="max_attempts">5</field>
+        <field name="retry_delay_minutes">1</field>
+    </record>
+    <record id="ir_cron_laboratory_uploads_expire" model="ir.cron">
+        <field name="name">Expire unfinished uploads of laboratory files</field>
+        <field name="model_id" ref="model_medilab_scheduled_job" />
+        <field name="state">code</field>
+        <field name="code">model._run_key("laboratory_uploads.expire")</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">hours</field>
+    </record>
+    <record id="scheduled_job_laboratory_uploads_expire" model="medilab.scheduled.job">
+        <field name="key">laboratory_uploads.expire</field>
+        <field name="name">Expire unfinished uploads of laboratory files</field>
+        <field name="cron_id" ref="ir_cron_laboratory_uploads_expire" />
+        <field name="batch_size">100</field>
+        <field name="max_attempts">3</field>
+    </record>
+</odoo>

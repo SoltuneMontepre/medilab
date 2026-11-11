@@ -25,10 +25,11 @@ How a module is laid out, from its root:
 
 ```text
 <module>/
-├── __init__.py          imports controllers and models
+├── __init__.py          imports controllers, fields and models
 ├── __manifest__.py
 ├── constants/           technical names, see Constants
 ├── controllers/         HTTP routes
+├── fields/              field types Odoo does not have, such as a 64-bit integer
 ├── models/<concern>/    one model per file
 ├── services/            logic that belongs to no single model
 ├── security/
@@ -79,42 +80,38 @@ How a module is laid out, from its root:
 
 ## Type checking
 
-`task typecheck` runs pyright in `basic` mode on `src/core/modules` with `pyrightconfig.json`. It fails on every error and on an import of a name that a module does not define. `task test:typecheck` checks that it still does.
+`task typecheck` prepares registry typing and runs Pyright in `basic` mode on every module Python source and test, plus the generated interfaces. It fails on every error and warning. It preserves the raw JSON and diagnostic counts under `.local/typecheck/report`. See [Type checking](../workflows/type-checking.md) for preparation, cache identity and recovery.
 
 ### Imports
 
 - pyright finds `odoo.addons.<name>` only inside `odoo/addons` of the Odoo source. `task dev:odoo-source` links each module of `src/core/modules` there, and each Odoo addon in `ODOO_ADDONS` of `dev.taskfile.yml`: a symbolic link on Linux and macOS, a directory junction on Windows, which needs no administrator rights.
 - A link shows the current code, so a changed module needs no new `task dev:odoo-source`. `task typecheck` refreshes the links first, so a new module is found too.
-- `tools/typecheck/link_addons.py` records the links it makes in `.local/odoo-source/medilab-links.json` and replaces or removes only recorded links whose targets still match the record. Matching unrecorded links can be used, but remain unmanaged. Other links in `odoo/addons` stay. A conflicting unrecorded link or any real folder under a name it needs stops it with an error naming the path. Move a conflicting folder out of `odoo/addons` before running again; matching files do not prove tool ownership. Invalid names in the record stop linking before any changes.
+- `tools/typecheck/link_addons.py` records the links it makes in `.local/odoo-source/medilab-links.json` and replaces or removes only recorded links whose targets still match the record. Matching unrecorded links can be used, but remain unmanaged. Other links in `odoo/addons` stay. A conflicting unrecorded link stops it with an error naming the path. A real folder under a name it needs is deleted and linked instead only after the user confirms at the prompt; without a terminal, or on any other answer, it stops with an error naming the path, because matching files do not prove tool ownership. Invalid names in the record stop linking before any changes.
 - An Odoo addon that a module imports in Python is added to `ODOO_ADDONS`.
 - Import `SUPERUSER_ID` from `odoo.api`. Odoo 20 sets it on the `odoo` package only at startup, so `from odoo import SUPERUSER_ID` is a missing name to pyright.
 - `lxml-stubs`, in the `dev` group, gives pyright the names of the compiled `lxml.etree`.
-- `asn1crypto`, `freezegun` and `xlsxwriter`, in the `dev` group, let pyright resolve the packages that the Odoo image provides and the modules import.
+- `asn1crypto`, `freezegun`, `xlsxwriter`, `requests`, `psycopg2-binary` and `polib`, in the `dev` group, let pyright resolve the packages that the Odoo image provides and the modules import.
 
-### Relaxed rules
+### Registry typing
 
-pyright cannot follow Odoo's dynamic models. These rules are warnings: the editor shows them and `task typecheck` does not fail on them.
-
-| Rule                           | Why                                                                                                                                                                                                                                                        |
-| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `reportAttributeAccessIssue`   | `self.env[<model>]` is typed as `BaseModel`, and fields and methods added through `_inherit` are unknown to pyright, so every field or model method access fails. `self.env.context` is typed as `frozendict`, which pyright sees without mapping methods. |
-| `reportArgumentType`           | `fields.Selection(selection=...)` is typed as a sentinel, a record id as `int`, `NewId`, `str` or `False` where `Command.link()` takes an `int`, and `mapped()` returns a list or a recordset.                                                             |
-| `reportOptionalContextManager` | `assertRaises` of Odoo's test cases has no annotation, so pyright infers that `with self.assertRaises(...)` may get `None`.                                                                                                                                |
-
-- pyright reports a missing name in `from <module> import <name>` under `reportAttributeAccessIssue` too. `tools/typecheck/typecheck.py` reports those warnings as errors, so a missing name still fails.
-- `typecheck.py` also fails, with exit code 2, when pyright cannot execute, exits with a code other than 0 or 1, writes no complete report, reports invalid counts or diagnostic positions, lists different diagnostic counts than its summary, or checks no files. Exit codes 0 and 1 must agree with the reported errors. Missing imported names still fail with exit code 1 when pyright reports them as warnings.
-- `__manifest__.py` files are not checked: a manifest is a bare dict, which pyright reports as an unused expression.
-- Every other rule keeps its `basic` level. Do not silence one with an inline comment or `cast()`; fix the code.
+- Keep every rule at its `basic` level. Do not use inline suppression, broad `Any`, `cast()` or a reduced test scope to obtain a pass.
+- Preparation installs `src/core/modules.txt` and its dependencies using the pinned Odoo image in an owned temporary PostgreSQL container. Generated output belongs under `.local`, never in Git.
+- Source models keep `models.Model`, `AbstractModel` or `TransientModel` directly visible to OdooLS. Their additional registry base is imported only in `TYPE_CHECKING` and is `object` at runtime, preserving the runtime MRO. Native field constructors are inside `if not TYPE_CHECKING`, so registry descriptors provide the analysis types. Method bodies and tests remain checked.
+- Registry interfaces include fields and methods contributed by extensions, delegated fields and related fields. Source method signatures remain authoritative; annotate an ambiguous contract at its source.
+- The analysis mirror corrects the pinned framework's annotations for selection constructors, field/ID descriptors, context mappings, HTTP methods, forms and both `assertRaises` call styles. It never changes the runtime Odoo source.
+- The runner returns exit code 1 for diagnostics, and 2 for stale/missing typing, execution failure, malformed reports, inconsistent counts or zero checked files. It preserves warning severity and the original counts.
+- Only `__manifest__.py` files remain excluded: a manifest is a bare dictionary Odoo reads as data.
 
 ### Odoo typing in code
 
 Where Odoo's annotations are narrower than its behaviour, the code says what it relies on:
 
 - Controllers read the environment with `request_env()` from `sol_laboratory/services/request_env.py`. Odoo types `request.env` as optional, because a request may have no database.
-- A route option that an addon reads, such as `website` of `http_routing`, is passed by unpacking a dict constant, because `odoo.http` does not declare it: `**FRONTEND_PAGE` from `sol_laboratory/constants/routes.py`.
-- Read the context with `self.env.context.get(<key>)`. `in` and `[]` fail on its `frozendict` type.
+- A route option that an addon reads, such as `website` of `http_routing`, is passed by unpacking a `TypedDict` constant, because `odoo.http` does not declare it: `**FRONTEND_PAGE` from `sol_laboratory/constants/routes.py`.
+- Context is a read-only mapping; `.get()`, membership and indexing are supported.
 - A Char field reads as `False` when empty, `display_name` too. Give a fallback before joining or formatting it.
-- In tests, narrow an optional value with `if value is None: self.fail(...)`. pyright knows that `fail()` does not return.
+- In tests, narrow an optional value with `if value is None: self.fail(...)` or `assert_instance` from `sol_laboratory/tests/assertions.py`. Pyright knows `fail()` does not return.
+- Use `persisted_id` for operations requiring a saved positive integer ID, and model lookup helpers only for names obtained dynamically from metadata. Validate required primitive values where the operation excludes an empty field.
 
 ## Related documents
 

@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 
@@ -5,17 +7,23 @@ from odoo.addons.sol_inventory.constants.models import MODEL_STOCK_LOT
 from odoo.addons.sol_inventory.constants.settings import DEFAULT_EXPIRY_WARNING_DAYS, EXPIRY_WARNING_PARAMETER
 from odoo.addons.sol_laboratory.constants.models import MODEL_RES_CONFIG_SETTINGS
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_res_config_settings as ResConfigSettingsBase
+else:
+    ResConfigSettingsBase = object
+
 
 # Cài Đặt
-class ResConfigSettings(models.TransientModel):
+class ResConfigSettings(models.TransientModel, ResConfigSettingsBase):
     _inherit = MODEL_RES_CONFIG_SETTINGS
 
-    # Days before a lot or container stops being usable when it is listed and notified as expiring soon.
-    expiry_warning_days = fields.Integer(
-        config_parameter=EXPIRY_WARNING_PARAMETER,
-        default=DEFAULT_EXPIRY_WARNING_DAYS,
-        help="Lots and containers usable for fewer days than this are listed and notified as expiring soon.",
-    )
+    if not TYPE_CHECKING:
+        # Days before a lot or container stops being usable when it is listed and notified as expiring soon.
+        expiry_warning_days = fields.Integer(
+            config_parameter=EXPIRY_WARNING_PARAMETER,
+            default=DEFAULT_EXPIRY_WARNING_DAYS,
+            help="Lots and containers usable for fewer days than this are listed and notified as expiring soon.",
+        )
 
     @api.constrains("expiry_warning_days")
     def _check_expiry_warning(self):

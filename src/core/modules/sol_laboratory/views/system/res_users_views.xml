@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Internal users are created only through people, so Odoo's user screens create none. -->
+    <record id="view_users_form_through_people" model="ir.ui.view">
+        <field name="name">res.users.form.inherit.sol_laboratory.people</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form" />
+        <field name="arch" type="xml">
+            <xpath expr="/form" position="attributes">
+                <attribute name="create">0</attribute>
+                <attribute name="duplicate">0</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_users_simple_form_through_people" model="ir.ui.view">
+        <field name="name">res.users.simplified.form.inherit.sol_laboratory.people</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_simple_form" />
+        <field name="arch" type="xml">
+            <xpath expr="/form" position="attributes">
+                <attribute name="create">0</attribute>
+                <attribute name="duplicate">0</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_users_tree_through_people" model="ir.ui.view">
+        <field name="name">res.users.list.inherit.sol_laboratory.people</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_tree" />
+        <field name="arch" type="xml">
+            <xpath expr="/list" position="attributes">
+                <attribute name="create">0</attribute>
+            </xpath>
+            <field name="role" position="before">
+                <field name="share" column_invisible="1" />
+            </field>
+            <field name="role" position="attributes">
+                <attribute name="readonly">share</attribute>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_res_users_kanban_through_people" model="ir.ui.view">
+        <field name="name">res.users.kanban.inherit.sol_laboratory.people</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_res_users_kanban" />
+        <field name="arch" type="xml">
+            <xpath expr="/kanban" position="attributes">
+                <attribute name="create">0</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_res_users_unlinked_list" model="ir.ui.view">
+        <field name="name">res.users.unlinked.list</field>
+        <field name="model">res.users</field>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <list create="0" duplicate="0">
+                <field name="name" />
+                <field name="login" />
+                <field name="login_date" optional="show" />
+                <button
+                    name="%(action_medilab_user_link)d"
+                    type="action"
+                    string="Link to Person"
+                    icon="fa-link"
+                    context="{'default_user_id': id}"
+                    groups="sol_laboratory.group_role_administrator"
+                />
+            </list>
+        </field>
+    </record>
+
+    <record id="action_res_users_unlinked" model="ir.actions.act_window">
+        <field name="name">Unlinked Users</field>
+        <field name="res_model">res.users</field>
+        <field name="path">unlinked-users</field>
+        <field name="view_mode">list,form</field>
+        <field
+            name="view_ids"
+            eval="[
+                Command.clear(),
+                Command.create({'view_mode': 'list', 'view_id': ref('view_res_users_unlinked_list')}),
+                Command.create({'view_mode': 'form', 'view_id': ref('base.view_users_form')}),
+            ]"
+        />
+        <field name="domain">[('share', '=', False), ('has_person', '=', False)]</field>
+    </record>
+</odoo>

@@ -1,12 +1,19 @@
+from typing import TYPE_CHECKING
+
 from odoo import models
 
 from odoo.addons.sol_inventory.constants.jobs import EXPIRED, EXPIRING, STOCK_EXPIRY_JOB
 from odoo.addons.sol_inventory.constants.models import MODEL_STOCK_LOT, MODEL_STOCK_PACKAGE
 from odoo.addons.sol_laboratory.constants.models import MODEL_SCHEDULED_JOB
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_scheduled_job as ScheduledJobBase
+else:
+    ScheduledJobBase = object
+
 
 # Tác Vụ Định Kỳ
-class ScheduledJob(models.Model):
+class ScheduledJob(models.Model, ScheduledJobBase):
     _inherit = MODEL_SCHEDULED_JOB
 
     def _queue_inventory_stock_expiry(self):

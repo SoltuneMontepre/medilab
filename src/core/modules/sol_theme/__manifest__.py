@@ -6,7 +6,7 @@
     "author": "Soltune Montepre",
     "license": "LGPL-3",
     "icon": "/sol_theme/static/description/icon.svg",
-    "depends": ["web"],
+    "depends": ["web", "mail"],
     "data": [
         "views/favicon_templates.xml",
         "views/login_templates.xml",
@@ -49,6 +49,7 @@
             "sol_theme/static/src/scss/preferences.scss",
             "sol_theme/static/src/js/app_drawer.js",
             "sol_theme/static/src/js/boolean_button_group_field.js",
+            "sol_theme/static/src/js/chatter_resize.js",
             "sol_theme/static/src/js/list_column_widths.js",
             "sol_theme/static/src/js/user_menu.js",
             "sol_theme/static/src/xml/app_drawer.xml",

@@ -98,6 +98,9 @@ export class TimelineRenderer extends Component {
 
   itemTooltip(item) {
     const parts = [item.name];
+    if (item.subtitle) {
+      parts.push(item.subtitle);
+    }
     if (!item.isPoint) {
       parts.push(item.startAt.toLocaleString(DateTime.DATETIME_MED));
     }

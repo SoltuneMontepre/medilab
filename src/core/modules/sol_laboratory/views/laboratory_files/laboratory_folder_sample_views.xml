@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A folder that holds files keeps its sample and its category. -->
+<odoo>
+    <record id="view_medilab_laboratory_folder_form_sample" model="ir.ui.view">
+        <field name="name">medilab.laboratory.folder.form.sample</field>
+        <field name="model">medilab.laboratory.folder</field>
+        <field name="inherit_id" ref="view_medilab_laboratory_folder_form" />
+        <field name="arch" type="xml">
+            <field name="sample_id" position="attributes">
+                <attribute name="readonly">file_ids</attribute>
+            </field>
+            <field name="category" position="attributes">
+                <attribute name="readonly">file_ids</attribute>
+            </field>
+        </field>
+    </record>
+</odoo>

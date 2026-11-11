@@ -1,0 +1,21 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: medilab
+configMapGenerator:
+  - name: cloudbeaver-bootstrap
+    files:
+      - bootstrap/JsonFiles.java
+      - bootstrap/GraphClient.java
+      - bootstrap/Authentication.java
+      - bootstrap/Workspace.java
+      - bootstrap/Connections.java
+      - bootstrap/Readiness.java
+      - bootstrap/prepare.sh
+      - bootstrap/start.sh
+      - bootstrap/ready.sh
+resources:
+  - admin.yaml
+  - storage.yaml
+  - deployment.yaml
+  - service.yaml
+  - ingress-route.yaml

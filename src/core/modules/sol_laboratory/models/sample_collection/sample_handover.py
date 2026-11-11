@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.tools import format_list
@@ -12,12 +14,17 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_SAMPLE_HANDOVER,
 )
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_sample_handover as SampleHandoverBase
+else:
+    SampleHandoverBase = object
+
 # Fields only scanning the sample's label sets, for the scanner's department.
 RECEIPT_FIELDS = frozenset({"received_at", "received_by_id"})
 
 
 # Bàn Giao Mẫu
-class SampleHandover(models.Model):
+class SampleHandover(models.Model, SampleHandoverBase):
     _name = MODEL_SAMPLE_HANDOVER
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Sample Handover"
@@ -25,14 +32,17 @@ class SampleHandover(models.Model):
     _rec_name = "sample_id"
     _permission_actions = ("read", "create", "edit")
 
-    # The sample handed over.
-    sample_id = fields.Many2one(MODEL_SAMPLE, required=True, ondelete="cascade")
-    # The department that receives it.
-    department_id = fields.Many2one(MODEL_DEPARTMENT, required=True, ondelete="restrict")
-    # When the department received it; empty while it is on its way.
-    received_at = fields.Datetime(readonly=True, copy=False)
-    # Person in the department who received it.
-    received_by_id = fields.Many2one(MODEL_PERSON, string="Received By", readonly=True, copy=False, ondelete="restrict")
+    if not TYPE_CHECKING:
+        # The sample handed over.
+        sample_id = fields.Many2one(MODEL_SAMPLE, required=True, ondelete="cascade")
+        # The department that receives it.
+        department_id = fields.Many2one(MODEL_DEPARTMENT, required=True, ondelete="restrict")
+        # When the department received it; empty while it is on its way.
+        received_at = fields.Datetime(readonly=True, copy=False)
+        # Person in the department who received it.
+        received_by_id = fields.Many2one(
+            MODEL_PERSON, string="Received By", readonly=True, copy=False, ondelete="restrict"
+        )
 
     _sample_department_unique = models.Constraint(
         "UNIQUE(sample_id, department_id)", "This sample is already handed over to this department."

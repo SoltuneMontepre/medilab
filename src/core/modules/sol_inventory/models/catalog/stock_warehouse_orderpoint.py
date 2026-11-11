@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import fields, models
 from odoo.exceptions import UserError
 from odoo.tools import format_list
@@ -6,19 +8,25 @@ from odoo.addons.sol_inventory.constants.models import MODEL_ORDERPOINT, MODEL_S
 from odoo.addons.sol_inventory.constants.notifications import EVENT_BELOW_MINIMUM
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_MAIL_MESSAGE, MODEL_PERMISSION_MIXIN
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_stock_warehouse_orderpoint as StockWarehouseOrderpointBase
+else:
+    StockWarehouseOrderpointBase = object
+
 
 # Tồn Tối Thiểu
-class StockWarehouseOrderpoint(models.Model):
+class StockWarehouseOrderpoint(models.Model, StockWarehouseOrderpointBase):
     # _name is required to add mixins to an Odoo model.
     _name = MODEL_ORDERPOINT
     _inherit = [MODEL_AUDIT_MIXIN, MODEL_ORDERPOINT, MODEL_PERMISSION_MIXIN]
     _permission_actions = ("create", "edit", "delete")
 
-    # The vendor price a suggested purchase uses; the prices of archived suppliers stay on record but are not offered.
-    supplier_id = fields.Many2one(
-        domain="['|', ('product_id', '=', product_id), '&', ('product_id', '=', False), "
-        "('product_tmpl_id', '=', product_tmpl_id), ('supplier_archived', '=', False)]"
-    )
+    if not TYPE_CHECKING:
+        # The vendor price a suggested purchase uses; the prices of archived suppliers stay on record but are not offered.
+        supplier_id = fields.Many2one(
+            domain="['|', ('product_id', '=', product_id), '&', ('product_id', '=', False), "
+            "('product_tmpl_id', '=', product_tmpl_id), ('supplier_archived', '=', False)]"
+        )
 
     def _compute_qty(self):
         result = super()._compute_qty()

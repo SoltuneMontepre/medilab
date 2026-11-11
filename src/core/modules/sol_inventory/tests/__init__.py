@@ -24,6 +24,7 @@ from . import (
     test_stock_on_hand,
     test_stock_use,
     test_store_cost_centres,
+    test_store_places,
     test_store_setup_access,
     test_store_tree,
     test_suppliers,

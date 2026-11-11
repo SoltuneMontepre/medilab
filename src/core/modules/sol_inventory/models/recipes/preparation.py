@@ -1,4 +1,5 @@
 from datetime import timedelta
+from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.exceptions import AccessError, UserError
@@ -19,22 +20,28 @@ from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL
 # The sequence that numbers the lots of prepared solutions, such as PC.0001.
 LOT_SEQUENCE = "medilab.preparation.lot"
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_preparation as PreparationBase
+else:
+    PreparationBase = object
+
 
 # Phiếu Pha Chế
-class Preparation(models.Model):
+class Preparation(models.Model, PreparationBase):
     _name = MODEL_PREPARATION
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Preparation"
     _permission_actions = ("create",)
 
-    # The recipe this preparation followed, one batch of it.
-    recipe_id = fields.Many2one(MODEL_RECIPE, string="Recipe", required=True, ondelete="restrict", index=True)
-    # The store the solution was prepared in and put back into.
-    location_id = fields.Many2one(MODEL_STOCK_LOCATION, string="Store", required=True, ondelete="restrict")
-    # The container the solution was put into.
-    container_ids = fields.One2many(MODEL_STOCK_PACKAGE, "preparation_id", string="Container")
-    # Moves of the ingredients, of any extra that was wasted, and of the solution put into the container.
-    move_ids = fields.One2many(MODEL_STOCK_MOVE, "preparation_id", string="Moves")
+    if not TYPE_CHECKING:
+        # The recipe this preparation followed, one batch of it.
+        recipe_id = fields.Many2one(MODEL_RECIPE, string="Recipe", required=True, ondelete="restrict", index=True)
+        # The store the solution was prepared in and put back into.
+        location_id = fields.Many2one(MODEL_STOCK_LOCATION, string="Store", required=True, ondelete="restrict")
+        # The container the solution was put into.
+        container_ids = fields.One2many(MODEL_STOCK_PACKAGE, "preparation_id", string="Container")
+        # Moves of the ingredients, of any extra that was wasted, and of the solution put into the container.
+        move_ids = fields.One2many(MODEL_STOCK_MOVE, "preparation_id", string="Moves")
 
     @api.depends("container_ids.name")
     def _compute_display_name(self):

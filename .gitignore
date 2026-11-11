@@ -62,6 +62,7 @@ env/
 
 # --- Odoo core reference mirror (task sync) ---
 src/reference/
+/medilab-past/
 
 # --- Odoo runtime / data ---
 *.log
@@ -160,6 +161,12 @@ kubeconfig.yml
 ~$*
 
 # Cypress
+src/tests/cypress/downloads/
 src/tests/cypress/screenshots/
 src/tests/cypress/videos/
 src/core/modules/coverage.xml
+
+# Local integration and review evidence
+docs/integration/
+tools/onlyoffice_integration/evidence/
+tools/onlyoffice_integration/RESULTS.md

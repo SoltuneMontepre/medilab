@@ -4,6 +4,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_DOCUMENT_LOCK,
     MODEL_JOB_ITEM,
     MODEL_JOB_RUN,
+    MODEL_LABORATORY_FILE_LOCK,
     MODEL_MAIL_NOTIFICATION,
     MODEL_MOBILE_DEVICE,
 )
@@ -14,6 +15,10 @@ JOB_RUN_CONTEXT = "medilab_job_run_id"
 CLEANUP_CONTEXT = "medilab_cleanup"
 # Key of the cleanup job.
 CLEANUP_JOB = "cleanup"
+# Key of the job that warns administrators before quality registrations expire.
+QUALITY_REGISTRATION_EXPIRY_JOB = "quality_registration.expiry"
+# Key of the job that removes the roles given until a date once that date ends.
+ROLE_GRANTS_EXPIRE_JOB = "role_grants.expire"
 # What the cleanup job removes: each kind, its model and the settings field holding its retention period in days.
 CLEANUP_KINDS = {
     "job_items": (MODEL_JOB_ITEM, "job_retention_days"),
@@ -21,6 +26,7 @@ CLEANUP_KINDS = {
     "locks": (MODEL_DOCUMENT_LOCK, "lock_retention_days"),
     "notifications": (MODEL_MAIL_NOTIFICATION, "notification_retention_days"),
     "devices": (MODEL_MOBILE_DEVICE, "device_retention_days"),
+    "laboratory_file_locks": (MODEL_LABORATORY_FILE_LOCK, "lock_retention_days"),
 }
 # Kind of the archive files the cleanup job writes of audit entries.
 AUDIT_KIND = "audit_entry"

@@ -10,9 +10,12 @@ from .common import MasterDataCase
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ACCREDITATION_CERTIFICATE,
     MODEL_ACCREDITATION_CERTIFICATE_IMPORT,
+    MODEL_SAMPLE_TYPE,
     MODEL_TESTING_FIELD,
     MODEL_TESTING_METHOD,
 )
+from odoo.addons.sol_laboratory.services.record_id import persisted_ids
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -21,6 +24,7 @@ class TestAccreditationImport(MasterDataCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.certificate = cls.env[MODEL_ACCREDITATION_CERTIFICATE].create({"code": "VILAS-IMP"})
+        cls.sample_type = cls.env[MODEL_SAMPLE_TYPE].create({"name": "Vegetables"})
         cls.Import = cls.env[MODEL_ACCREDITATION_CERTIFICATE_IMPORT]
         cls.admin = new_test_user(
             cls.env,
@@ -28,13 +32,25 @@ class TestAccreditationImport(MasterDataCase):
             groups="base.group_user,sol_laboratory.group_role_administrator",
         )
 
-    def _wizard(self, lines, field=None, lang="en_US", certificate=None):
-        return self.Import.with_user(self.admin).create(
+    def row(self, code, title, parameters=None, sample_types=None):
+        parameters = self.parameter if parameters is None else parameters
+        sample_types = self.sample_type if sample_types is None else sample_types
+        return Command.create(
+            {
+                "code": code,
+                "name": title,
+                "parameter_ids": [Command.set(persisted_ids(parameters))],
+                "sample_type_ids": [Command.set(persisted_ids(sample_types))],
+            }
+        )
+
+    def _wizard(self, lines, field=None, lang="en_US", certificate=None, user=None, rows=()):
+        return self.Import.with_user(user or self.admin).create(
             {
                 "certificate_id": (certificate or self.certificate).id,
                 "field_id": (field or self.testing_field).id,
                 "lang": lang,
-                "line_ids": [Command.create({"code": code, "name": title}) for code, title in lines],
+                "line_ids": [self.row(code, title) for code, title in lines] + list(rows),
             }
         )
 
@@ -63,25 +79,59 @@ class TestAccreditationImport(MasterDataCase):
             method = existing.filtered(lambda m, c=code: m.code == c)
             self.assertEqual(method.name, existing_names[code])
             self.assertEqual(method.field_id.id, existing_fields[code])
-        created = linked.filtered(lambda m: m.code.startswith("NEW-"))
+        created = linked.filtered(lambda m: assert_instance(m.code, str).startswith("NEW-"))
         self.assertEqual(len(created), 25)
         self.assertTrue(all(method.field_id == other_field for method in created))
 
-    def test_blank_code_or_title_refuses_entire_import(self):
+    def test_lines_name_their_parameters_and_sample_types(self):
+        self._wizard([("LINE-1", "One")]).action_import()
+        line = self.certificate.scope_line_ids
+        self.assertEqual(line.method_id.code, "LINE-1")
+        self.assertEqual(line.parameter_ids, self.parameter)
+        self.assertEqual(line.sample_type_ids, self.sample_type)
+        self.assertFalse(line.to_confirm)
+
+    def test_blank_title_takes_the_code(self):
+        self._wizard([("TCVN 7602:2007", "")]).action_import()
+        method = self.env[MODEL_TESTING_METHOD].search([("code", "=", "TCVN 7602:2007")])
+        self.assertEqual(method.name, "TCVN 7602:2007")
+
+    def test_row_without_parameters_or_sample_types_refuses_entire_import(self):
+        for row in (
+            self.row("NO-PARAM", "No parameter", parameters=self.parameter.browse()),
+            self.row("NO-TYPE", "No sample type", sample_types=self.sample_type.browse()),
+        ):
+            with self.subTest(row=row):
+                wizard = self._wizard([("OK-1", "Ok")], rows=[row])
+                with self.assertRaises(ValidationError):
+                    wizard.action_import()
+                codes = ["OK-1", "NO-PARAM", "NO-TYPE"]
+                self.assertFalse(self.env[MODEL_TESTING_METHOD].search([("code", "in", codes)]))
+                self.assertFalse(self.certificate.scope_line_ids)
+
+    def test_a_code_on_several_rows_makes_one_method_and_a_line_per_row(self):
+        cadmium = self.create_parameter("Cadmium (Cd)", self.group)
+        wizard = self._wizard([("SAME-1", "Metals")], rows=[self.row("SAME-1", "", parameters=cadmium)])
+        wizard.action_import()
+        method = self.env[MODEL_TESTING_METHOD].search([("code", "=", "SAME-1")])
+        self.assertEqual(method.name, "Metals")
+        lines = self.certificate.scope_line_ids
+        self.assertEqual(len(lines), 2)
+        self.assertEqual(lines.method_id, method)
+        self.assertEqual(lines.parameter_ids, self.parameter | cadmium)
+
+    def test_importing_a_line_again_adds_nothing(self):
+        self._wizard([("AGAIN-1", "Again"), ("AGAIN-1", "Again")]).action_import()
+        self._wizard([("AGAIN-1", "Again")]).action_import()
+        self.assertEqual(len(self.certificate.scope_line_ids), 1)
+
+    def test_blank_code_refuses_entire_import(self):
         before = self.env[MODEL_TESTING_METHOD].search_count([])
         wizard = self._wizard([("OK-1", "Ok"), ("", "Missing code")])
         with self.assertRaises(ValidationError):
             wizard.action_import()
         self.assertEqual(self.env[MODEL_TESTING_METHOD].search_count([]), before)
-        self.assertFalse(self.certificate.method_ids)
-
-    def test_duplicate_codes_refuse_entire_import(self):
-        before = self.env[MODEL_TESTING_METHOD].search_count([])
-        wizard = self._wizard([("DUP-1", "One"), ("DUP-1", "Two")])
-        with self.assertRaises(ValidationError):
-            wizard.action_import()
-        self.assertEqual(self.env[MODEL_TESTING_METHOD].search_count([]), before)
-        self.assertFalse(self.certificate.method_ids)
+        self.assertFalse(self.certificate.scope_line_ids)
 
     def test_titles_use_selected_language(self):
         wizard = self._wizard([("LANG-1", "Tiêu đề")], lang="vi_VN")
@@ -106,14 +156,7 @@ class TestAccreditationImport(MasterDataCase):
             login="acc.import.noedit",
             groups="base.group_user,sol_laboratory.group_permission_testing_method_create_all",
         )
-        wizard = self.Import.with_user(user).create(
-            {
-                "certificate_id": self.certificate.id,
-                "field_id": self.testing_field.id,
-                "lang": "en_US",
-                "line_ids": [Command.create({"code": "X-1", "name": "X"})],
-            }
-        )
+        wizard = self._wizard([("X-1", "X")], user=user)
         with self.assertRaises((AccessError, UserError)):
             wizard.action_import()
 
@@ -121,26 +164,34 @@ class TestAccreditationImport(MasterDataCase):
         user = new_test_user(
             self.env,
             login="acc.import.nocreate",
-            groups="base.group_user,sol_laboratory.group_permission_accreditation_certificate_edit_all",
+            groups="base.group_user,sol_laboratory.group_permission_accreditation_certificate_edit_all,"
+            "sol_laboratory.group_permission_accreditation_scope_line_create_all",
         )
-        wizard = self.Import.with_user(user).create(
-            {
-                "certificate_id": self.certificate.id,
-                "field_id": self.testing_field.id,
-                "lang": "en_US",
-                "line_ids": [Command.create({"code": "NEED-CREATE", "name": "New"})],
-            }
-        )
+        wizard = self._wizard([("NEED-CREATE", "New")], user=user)
         with self.assertRaises(AccessError):
             wizard.action_import()
 
+    def test_missing_scope_line_create_is_refused(self):
+        user = new_test_user(
+            self.env,
+            login="acc.import.nolines",
+            groups="base.group_user,sol_laboratory.group_permission_accreditation_certificate_edit_all",
+        )
+        self.env[MODEL_TESTING_METHOD].create(
+            {"code": "EXISTING", "name": "Existing", "field_id": self.testing_field.id}
+        )
+        wizard = self._wizard([("EXISTING", "Existing")], user=user)
+        with self.assertRaises(AccessError):
+            wizard.action_import()
+        self.assertFalse(self.certificate.scope_line_ids)
+
     def test_failure_rolls_back_partial_creates(self):
         before_methods = self.env[MODEL_TESTING_METHOD].search_count([])
-        wizard = self._wizard([("RB-1", "One"), ("", "Missing title"), ("RB-2", "Two")])
+        wizard = self._wizard([("RB-1", "One"), ("", "Missing code"), ("RB-2", "Two")])
         with self.assertRaises(ValidationError):
             wizard.action_import()
         self.assertEqual(self.env[MODEL_TESTING_METHOD].search_count([]), before_methods)
-        self.assertFalse(self.certificate.method_ids)
+        self.assertFalse(self.certificate.scope_line_ids)
 
     def test_import_is_atomic_when_link_refused(self):
         """Missing certificate-edit permission must not leave newly created methods or links."""
@@ -150,21 +201,14 @@ class TestAccreditationImport(MasterDataCase):
             groups="base.group_user,sol_laboratory.group_permission_testing_method_create_all",
         )
         before = self.env[MODEL_TESTING_METHOD].with_context(active_test=False).search_count([])
-        wizard = self.Import.with_user(user).create(
-            {
-                "certificate_id": self.certificate.id,
-                "field_id": self.testing_field.id,
-                "lang": "en_US",
-                "line_ids": [Command.create({"code": "ATOM-1", "name": "Atomic"})],
-            }
-        )
+        wizard = self._wizard([("ATOM-1", "Atomic")], user=user)
         with self.assertRaises((AccessError, UserError)):
             wizard.action_import()
         self.assertEqual(
             self.env[MODEL_TESTING_METHOD].with_context(active_test=False).search_count([]),
             before,
         )
-        self.assertFalse(self.certificate.method_ids)
+        self.assertFalse(self.certificate.scope_line_ids)
 
     def test_link_failure_after_create_rolls_back_methods(self):
         """A failure during certificate linking after creates must leave no methods or links."""
@@ -183,11 +227,11 @@ class TestAccreditationImport(MasterDataCase):
             before,
         )
         self.assertFalse(
-            self.env[MODEL_TESTING_METHOD].with_context(active_test=False).search(
-                [("code", "in", ["LINK-FAIL-1", "LINK-FAIL-2"])]
-            )
+            self.env[MODEL_TESTING_METHOD]
+            .with_context(active_test=False)
+            .search([("code", "in", ["LINK-FAIL-1", "LINK-FAIL-2"])])
         )
-        self.assertFalse(self.certificate.method_ids)
+        self.assertFalse(self.certificate.scope_line_ids)
 
     def test_concurrent_create_of_same_code_uses_existing(self):
         """A unique violation on create recovers the row inserted by a concurrent create."""

@@ -1,5 +1,6 @@
 from . import (
     account_move,
+    account_move_task,
     account_payment,
     audit_entry,
     cash_flow_report,
@@ -10,6 +11,7 @@ from . import (
     reconciliation_day,
     res_config_settings,
     revenue_report,
+    sale_advance_payment_inv,
     sale_order,
     scheduled_job,
 )

@@ -1,5 +1,6 @@
 import logging
 from datetime import timedelta
+from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError
@@ -31,9 +32,14 @@ EXPIRED_LOT = "ACN-2501"
 BOTTLE = 1000
 OPENING_STOCK = "Opening stock"
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_stock_package as StockPackageBase
+else:
+    StockPackageBase = object
+
 
 # Chai/Lọ
-class StockPackage(models.Model):
+class StockPackage(models.Model, StockPackageBase):
     _inherit = MODEL_STOCK_PACKAGE
 
     @api.model

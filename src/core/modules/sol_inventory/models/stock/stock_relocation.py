@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.fields import Domain
@@ -12,23 +14,29 @@ from odoo.addons.sol_inventory.constants.models import (
 )
 from odoo.addons.sol_inventory.constants.stock import IN_STOCK_STATUSES, INTERNAL_USAGE
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_stock_relocation as StockRelocationBase
+else:
+    StockRelocationBase = object
+
 
 # Chuyển Vị Trí
-class StockRelocation(models.TransientModel):
+class StockRelocation(models.TransientModel, StockRelocationBase):
     _name = MODEL_STOCK_RELOCATION
     _inherit = MODEL_STOCK_OPERATION
     _description = "Move Stock"
 
-    # The location the stock is taken from. A container brings its own.
-    location_id = fields.Many2one(string="From Location")
-    # The location of the same store the stock is put in.
-    location_dest_id = fields.Many2one(
-        MODEL_STOCK_LOCATION,
-        string="To Location",
-        domain="[('usage', '=', 'internal'), ('id', 'child_of', store_ids)]",
-    )
-    # Quantity moved, in the item's unit; a container, or every container of a lot, moves whole.
-    quantity = fields.Float(string="Quantity to Move", digits="Product Unit")
+    if not TYPE_CHECKING:
+        # The location the stock is taken from. A container brings its own.
+        location_id = fields.Many2one(string="From Location")
+        # The location of the same store the stock is put in.
+        location_dest_id = fields.Many2one(
+            MODEL_STOCK_LOCATION,
+            string="To Location",
+            domain="[('usage', '=', 'internal'), ('id', 'child_of', store_ids)]",
+        )
+        # Quantity moved, in the item's unit; a container, or every container of a lot, moves whole.
+        quantity = fields.Float(string="Quantity to Move", digits="Product Unit")
 
     @api.onchange("container_id")
     def _onchange_container_id(self):

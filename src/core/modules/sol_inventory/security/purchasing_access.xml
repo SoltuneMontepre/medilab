@@ -54,19 +54,21 @@
         <field name="domain">[("picking_id", "access", "write")]</field>
     </record>
 
-    <!-- Whoever reads a purchase order reads its receipts and their moves, which the order's screen shows. -->
+    <!-- Whoever reads a purchase order reads its receipts and their moves, which the order's screen shows. The
+         'access' conditions sit inside 'any': an upgrade checks stock's views against these rules before purchase_stock
+         adds purchase_line_id. -->
     <record id="access_stock_picking_purchase_read" model="ir.access">
         <field name="name">stock.picking follows the purchase order</field>
         <field name="model_id" ref="stock.model_stock_picking" />
         <field name="group_id" ref="base.group_user" />
         <field name="operation">r</field>
-        <field name="domain">[("move_ids.purchase_line_id", "access", "read")]</field>
+        <field name="domain">[("move_ids", "any", [("purchase_line_id", "access", "read")])]</field>
     </record>
     <record id="access_stock_move_purchase_read" model="ir.access">
         <field name="name">stock.move follows the purchase order</field>
         <field name="model_id" ref="stock.model_stock_move" />
         <field name="group_id" ref="base.group_user" />
         <field name="operation">r</field>
-        <field name="domain">[("purchase_line_id", "access", "read")]</field>
+        <field name="domain">[("purchase_line_id", "any", [("id", "access", "read")])]</field>
     </record>
 </odoo>

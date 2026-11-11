@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timedelta
+from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
 
 import requests
@@ -14,6 +15,11 @@ from odoo.addons.sol_laboratory.constants.models import MODEL_JOB_ITEM, MODEL_JO
 from odoo.addons.sol_laboratory.constants.notifications import VIETNAM_ZONE
 from odoo.addons.sol_laboratory.models.system.scheduled_job import PermanentJobError
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_scheduled_job as ScheduledJobBase
+else:
+    ScheduledJobBase = object
+
 _logger = logging.getLogger(__name__)
 
 POLL_AGAIN = timedelta(minutes=5)
@@ -27,7 +33,7 @@ class PayosLinkUnavailable(PermanentJobError):
 
 
 # Tác Vụ Định Kỳ
-class ScheduledJob(models.Model):
+class ScheduledJob(models.Model, ScheduledJobBase):
     _inherit = MODEL_SCHEDULED_JOB
 
     def _run_batch(self):

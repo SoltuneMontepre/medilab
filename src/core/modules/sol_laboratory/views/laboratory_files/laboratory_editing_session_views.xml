@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Sessions are opened from Medilab Sync and ended by the editing service; the back office reads them. -->
+<odoo>
+    <record id="view_medilab_laboratory_editing_session_list" model="ir.ui.view">
+        <field name="name">medilab.laboratory.editing.session.list</field>
+        <field name="model">medilab.laboratory.editing.session</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" delete="0" duplicate="0" decoration-warning="status == 'conflict'"
+                decoration-danger="status == 'error'" decoration-muted="status in ('closed', 'expired')">
+                <field name="file_id" />
+                <field name="status" widget="badge" decoration-info="status in ('open', 'saving')"
+                    decoration-success="status == 'committed'" decoration-warning="status == 'conflict'"
+                    decoration-danger="status == 'error'" />
+                <field name="opened_by_id" widget="many2one_avatar_user" />
+                <field name="base_version_id" optional="show" />
+                <field name="committed_version_id" optional="show" />
+                <field name="create_date" string="Opened On" optional="show" />
+                <field name="last_activity_at" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_laboratory_editing_session_form" model="ir.ui.view">
+        <field name="name">medilab.laboratory.editing.session.form</field>
+        <field name="model">medilab.laboratory.editing.session</field>
+        <field name="arch" type="xml">
+            <form create="0" edit="0" delete="0" duplicate="0">
+                <header>
+                    <field name="status" widget="statusbar" statusbar_visible="open,committed" />
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="file_id" /></h1>
+                    </div>
+                    <group>
+                        <group name="session">
+                            <field name="opened_by_id" widget="many2one_avatar_user" />
+                            <field name="create_date" string="Opened On" />
+                            <field name="last_activity_at" />
+                        </group>
+                        <group name="versions">
+                            <field name="base_version_id" />
+                            <field name="committed_version_id" invisible="not committed_version_id" />
+                            <field name="document_key" groups="base.group_no_one" />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_medilab_laboratory_editing_session_search" model="ir.ui.view">
+        <field name="name">medilab.laboratory.editing.session.search</field>
+        <field name="model">medilab.laboratory.editing.session</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="file_id" />
+                <field name="opened_by_id" />
+                <filter name="open" string="Open" domain="[('status', 'in', ('open', 'saving'))]" />
+                <filter name="conflicts" string="Conflicts" domain="[('status', '=', 'conflict')]" />
+                <filter name="errors" string="Errors" domain="[('status', '=', 'error')]" />
+                <separator />
+                <filter name="group_by_status" string="Status" context="{'group_by': 'status'}" />
+                <filter name="group_by_file" string="File" context="{'group_by': 'file_id'}" />
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medilab_laboratory_editing_session" model="ir.actions.act_window">
+        <field name="name">Editing Sessions</field>
+        <field name="res_model">medilab.laboratory.editing.session</field>
+        <field name="path">laboratory-editing-sessions</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_medilab_laboratory_file_form_editing" model="ir.ui.view">
+        <field name="name">medilab.laboratory.file.form.editing</field>
+        <field name="model">medilab.laboratory.file</field>
+        <field name="inherit_id" ref="view_medilab_laboratory_file_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='versions']" position="after">
+                <page string="Editing Sessions" name="editing_sessions" invisible="not editing_session_ids">
+                    <field name="editing_session_ids">
+                        <list decoration-warning="status == 'conflict'" decoration-danger="status == 'error'">
+                            <field name="status" widget="badge" decoration-info="status in ('open', 'saving')"
+                                decoration-success="status == 'committed'" decoration-warning="status == 'conflict'"
+                                decoration-danger="status == 'error'" />
+                            <field name="opened_by_id" widget="many2one_avatar_user" />
+                            <field name="base_version_id" />
+                            <field name="committed_version_id" />
+                            <field name="create_date" string="Opened On" />
+                            <field name="last_activity_at" />
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

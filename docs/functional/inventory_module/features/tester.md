@@ -9,6 +9,7 @@ These are the Inventory module's additions to the [Laboratory tester](../../labo
 - **US-T14** As a tester, I want to scan the containers I use for a test when I enter its result, so that the result records exactly which containers and lots it used.
 - **US-T15** As a tester, I want to record a use outside testing, or waste such as a spill, with its reason, so that stock on hand stays right.
 - **US-T16** As a tester, I want to mark a container empty, so that it no longer counts as stock.
+- **US-T31** As a tester, I want to scan containers with my phone's camera when I open a bottle, prepare a solution or enter a result, so that I need no scanner at the bench.
 
 ## II. Feature details
 
@@ -43,6 +44,20 @@ Acceptance criteria:
 - The scanned containers cannot be changed after the first signature.
 - A use needs a reason and goes to the company's Production location. Waste needs a reason and goes to scrap; a reason of Other needs what happened written out, and Expired is not offered. A sealed container is wasted whole and is then disposed of; a partial waste leaves an opened container opened.
 - Marking an opened container empty uses what remains, with the reason Marked empty, and the container is depleted; a sealed container is not marked empty. A container whose remaining amount reaches zero is depleted, or disposed of when waste emptied it.
+
+### 2. Mobile (US-T31)
+
+Follows [Medilab Mobile](../../laboratory_module/applications/medilab-mobile.md#scanning-us-hd06-us-t30-us-t31).
+
+| Rule     | Description |
+| -------- | ----------- |
+| Scanning | The phone's camera reads a container's QR code wherever a container is scanned on the web: opening, preparation and test use. |
+| Labels   | The label of an opened bottle or a prepared solution opens as a PDF that the tester prints or shares from the phone. |
+
+Acceptance criteria:
+
+- Opening a sealed bottle by scanning it on the phone sets it opened with its opener and usable date, as on the web.
+- Scanning on the phone a container of another store for a test is refused.
 
 ## III. Related documents
 

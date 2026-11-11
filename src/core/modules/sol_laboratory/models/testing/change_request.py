@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 
@@ -15,20 +17,30 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MAIL_MESSAGE,
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
+    MODEL_TEST_REPORT,
+    MODEL_TEST_RESULT,
 )
 from odoo.addons.sol_laboratory.constants.notifications import (
     EVENT_CHANGE_REQUEST_APPROVED,
     EVENT_CHANGE_REQUEST_REJECTED,
 )
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model, is_versioned_document, model_as
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_change_request as ChangeRequestBase
+else:
+    ChangeRequestBase = object
 
 # What the requester asks for; it cannot change once a signature stands.
 CONTENT_FIELDS = frozenset({"document_model", "document_id", "requested_change", "reason"})
 # The statuses of a request its chain has decided; no signature can be withdrawn then.
 DECIDED_STATUSES = (STATE_APPROVED, STATE_REJECTED, STATE_APPLIED)
+# The statuses of a request not applied or rejected yet; a document has one such request at a time.
+OPEN_STATUSES = (STATE_REQUESTED, STATE_APPROVED)
 
 
 # Yêu Cầu Thay Đổi
-class ChangeRequest(models.Model):
+class ChangeRequest(models.Model, ChangeRequestBase):
     _name = MODEL_CHANGE_REQUEST
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_CODE_MIXIN, MODEL_APPROVAL_MIXIN]
     _description = "Change Request"
@@ -37,44 +49,54 @@ class ChangeRequest(models.Model):
     # Whoever can edit a document type raises change requests on it; requests are signed, never edited or deleted.
     _permission_actions = ("read", "sign")
 
-    # Unique code from a sequence, such as YCTD.2026.0001.
-    code = fields.Char(required=True, readonly=True, copy=False)
-    # Technical name of the document to change, such as medilab.test.result.
-    document_model = fields.Char(string="Document Type", required=True, readonly=True)
-    # Id of the version of the document to change.
-    document_id = fields.Many2oneReference(
-        model_field="document_model", string="Document Id", required=True, readonly=True
-    )
-    # The document to change, by its name.
-    document_name = fields.Char(string="Document", compute="_compute_document_name")
-    # Person who asked for the change; when is the creation time.
-    requested_by_id = fields.Many2one(
-        MODEL_PERSON, string="Requested By", required=True, readonly=True, ondelete="restrict"
-    )
-    # What to change.
-    requested_change = fields.Text(string="Change", required=True, readonly=True)
-    # Why the change is needed.
-    reason = fields.Text(required=True, readonly=True)
-    # Requested while its chain signs, then approved, rejected or applied.
-    status = fields.Selection(
-        [
-            (STATE_REQUESTED, "Requested"),
-            (STATE_APPROVED, "Approved"),
-            (STATE_REJECTED, "Rejected"),
-            (STATE_APPLIED, "Applied"),
-        ],
-        required=True,
-        default=STATE_REQUESTED,
-        readonly=True,
-        copy=False,
-        index=True,
-    )
-    # Reason given when the request was rejected.
-    rejection_reason = fields.Text(readonly=True, copy=False)
-    # Id of the new version created when the change was applied.
-    new_document_id = fields.Many2oneReference(
-        model_field="document_model", string="New Version", readonly=True, copy=False
-    )
+    if not TYPE_CHECKING:
+        # Unique code from a sequence, such as YCTD.2026.0001.
+        code = fields.Char(required=True, readonly=True, copy=False)
+        # Technical name of the document to change, such as medilab.test.result.
+        document_model = fields.Char(string="Document Type", required=True, readonly=True)
+        # Id of the version of the document to change.
+        document_id = fields.Many2oneReference(
+            model_field="document_model", string="Document Id", required=True, readonly=True
+        )
+        # The document to change, by its name.
+        document_name = fields.Char(string="Document", compute="_compute_document_name")
+        # Person who asked for the change; when is the creation time.
+        requested_by_id = fields.Many2one(
+            MODEL_PERSON, string="Requested By", required=True, readonly=True, ondelete="restrict"
+        )
+        # What to change.
+        requested_change = fields.Text(string="Change", required=True, readonly=True)
+        # Why the change is needed.
+        reason = fields.Text(required=True, readonly=True)
+        # Requested while its chain signs, then approved, rejected or applied.
+        status = fields.Selection(
+            [
+                (STATE_REQUESTED, "Requested"),
+                (STATE_APPROVED, "Approved"),
+                (STATE_REJECTED, "Rejected"),
+                (STATE_APPLIED, "Applied"),
+            ],
+            required=True,
+            default=STATE_REQUESTED,
+            readonly=True,
+            copy=False,
+            index=True,
+        )
+        # Reason given when the request was rejected.
+        rejection_reason = fields.Text(readonly=True, copy=False)
+        # Id of the new version created when the change was applied.
+        new_document_id = fields.Many2oneReference(
+            model_field="document_model", string="New Version", readonly=True, copy=False
+        )
+        # For a correction of a result printed on an issued report: the change request of that report, which replaces
+        # it once the corrected results are approved.
+        report_change_request_id = fields.Many2one(
+            MODEL_CHANGE_REQUEST, string="Report Change Request", readonly=True, copy=False, ondelete="restrict"
+        )
+        # For a change request on a report: the result corrections that joined it.
+        result_change_request_ids = fields.One2many(
+            MODEL_CHANGE_REQUEST, "report_change_request_id", string="Result Corrections"
+        )
 
     _code_unique = models.Constraint("UNIQUE(code)", "The code of a change request must be unique.")
     _document_idx = models.Index("(document_model, document_id)")
@@ -96,9 +118,11 @@ class ChangeRequest(models.Model):
         person = self.env[MODEL_PERSON]._current()
         if not person:
             raise UserError(self.env._("Only a person can raise a change request."))
-        if not (requested_change or "").strip() or not (reason or "").strip():
+        if not ((requested_change or "").strip()) or not ((reason or "").strip()):
             raise UserError(self.env._("Say what to change and why."))
-        if document_model not in self.env or not isinstance(self.env[document_model], self.env.registry[MODEL_APPROVAL_MIXIN]):
+        if document_model not in self.env or not isinstance(
+            self.env[document_model], self.env.registry[MODEL_APPROVAL_MIXIN]
+        ):
             raise UserError(self.env._("Change requests are raised on signed documents only."))
         document = self.env[document_model].browse(document_id).exists()
         document._check_permission("edit")
@@ -110,11 +134,14 @@ class ChangeRequest(models.Model):
             [
                 ("document_model", "=", document_model),
                 ("document_id", "=", document.id),
-                ("status", "=", STATE_REQUESTED),
+                ("status", "in", OPEN_STATUSES),
             ],
             limit=1,
         ):
             raise UserError(self.env._("%s already has an open change request.", document.sudo().display_name))
+        report_request = self.env[MODEL_CHANGE_REQUEST]
+        if document_model == MODEL_TEST_RESULT:
+            report_request = self.env[MODEL_TEST_REPORT]._correction_request(document, requested_change, reason, person)
         request = self.sudo().create(
             {
                 "document_model": document_model,
@@ -122,6 +149,7 @@ class ChangeRequest(models.Model):
                 "requested_by_id": person.id,
                 "requested_change": requested_change,
                 "reason": reason,
+                "report_change_request_id": report_request.id,
             }
         )
         return request.with_env(self.env)
@@ -132,7 +160,7 @@ class ChangeRequest(models.Model):
 
     def action_open_new_version(self):
         self.ensure_one()
-        return self.env[self.document_model].browse(self.new_document_id)._get_records_action()
+        return dynamic_model(self.env, self.document_model).browse(self.new_document_id)._get_records_action()
 
     def action_reject(self, reason):
         rejected = super().action_reject(reason)
@@ -141,14 +169,20 @@ class ChangeRequest(models.Model):
 
     def _document(self):
         self.ensure_one()
-        return self.env[self.document_model].browse(self.document_id)
+        model = dynamic_model(self.env, self.document_model)
+        if not is_versioned_document(model):
+            raise TypeError(f"Model {self.document_model!r} does not support document versions.")
+        return model.browse(self.document_id)
 
     def _apply(self):
-        """Create the version of the document the approved request asks for, and tell the requester."""
+        """Create the version of the document the approved request asks for, once the document is ready for it, and
+        tell the requester; until then the request stays approved."""
         self.status = STATE_APPROVED
         document = self._document()
         if not document._change_request_open():
             raise UserError(self.env._("%s can no longer be changed; reject the request.", document.display_name))
+        if not document._change_request_ready(self):
+            return
         version = document._new_version(self)
         self.write({"status": STATE_APPLIED, "new_document_id": version.id})
         self._notify_requester(
@@ -174,7 +208,7 @@ class ChangeRequest(models.Model):
 
     def _approval_chain(self, purpose=PURPOSE_CHANGE_REQUEST):
         # A change request is signed through the chain its document type has for change requests.
-        return self.env[self.document_model]._approval_chain(purpose)
+        return model_as(self.env, self.document_model, self.env[MODEL_APPROVAL_MIXIN])._approval_chain(purpose)
 
     def _approval_department(self):
         return self.sudo()._document()._approval_department()
@@ -189,8 +223,12 @@ class ChangeRequest(models.Model):
     def _approval_set_state(self, state):
         if state == STATE_APPROVED:
             self._apply()
-        else:
-            self.status = STATE_REJECTED if state == STATE_REJECTED else STATE_REQUESTED
+            return
+        self.status = STATE_REJECTED if state == STATE_REJECTED else STATE_REQUESTED
+        # A rejected correction no longer holds back the report change request it joined.
+        waiting = self.report_change_request_id.filtered(lambda request: request.status == STATE_APPROVED)
+        if state == STATE_REJECTED and waiting:
+            waiting._apply()
 
     def _approval_notify_rejected(self, reason):
         self.ensure_one()

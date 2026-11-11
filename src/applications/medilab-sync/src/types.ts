@@ -140,61 +140,6 @@ export type AppSettings = {
   part_concurrency?: number;
 };
 
-/** Danh tính người dùng hiện cho ONLYOFFICE Document Server. */
-export type OfficeUser = {
-  id: string;
-  name: string;
-};
-
-/** Toàn bộ cấu hình JS cần truyền cho ONLYOFFICE API để mở editor. */
-export type OfficeEditorConfig = {
-  documentType: string;
-  width?: string;
-  height?: string;
-  document: {
-    fileType: string;
-    key: string;
-    title: string;
-    url: string;
-    permissions: {
-      edit: boolean;
-      download: boolean;
-      print: boolean;
-      comment?: boolean;
-    };
-  };
-  editorConfig: {
-    mode: string;
-    lang: string;
-    type?: string;
-    callbackUrl: string;
-    user: OfficeUser;
-    customization?: {
-      autosave?: boolean;
-      forcesave?: boolean;
-      /** Theme giao diện editor do server chọn (hiện là theme sáng, khớp app). */
-      uiTheme?: string;
-      [key: string]: unknown;
-    };
-  };
-  token: string;
-};
-
-/** Phiên chỉnh sửa ONLYOFFICE cho một tệp: id phiên, version gốc, và cấu hình để nhúng editor. */
-export type OfficeSession = {
-  session_id: number;
-  file_id: number;
-  base_version_id: number;
-  document_key: string;
-  created: boolean;
-  state: string;
-  document_server_url: string;
-  document_type: string;
-  file_type: string;
-  config: OfficeEditorConfig;
-};
-
-
 /** Danh tính tối thiểu của một user do server trả về: chỉ id, tên và login (để phân biệt trùng tên). */
 export type MemberUser = {
   id: number;

@@ -1,5 +1,6 @@
 from collections import defaultdict
 from datetime import timedelta
+from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError
@@ -20,25 +21,33 @@ ODOO_OPERATIONS = {"read": "read", "create": "create", "edit": "write", "archive
 # The last day the quant's container can be used.
 CONTAINER_USABLE_UNTIL = "package_id.usable_until"
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_stock_quant as StockQuantBase
+else:
+    StockQuantBase = object
+
 
 # Tồn Kho
-class StockQuant(models.Model):
+class StockQuant(models.Model, StockQuantBase):
     # _name is required to add mixins to an Odoo model.
     _name = MODEL_STOCK_QUANT
     _inherit = [MODEL_STOCK_QUANT, MODEL_PERMISSION_MIXIN]
     # Reading the stock on hand and its value. Quants change only through moves.
     _permission_actions = ("read",)
 
-    # Value of the stock, from Odoo's costing.
-    value = fields.Monetary(groups=VALUE_GROUPS)
-    # Currency of the value.
-    currency_id = fields.Many2one(groups=VALUE_GROUPS)
-    # Last day the stock can be used: its container's usable date, or its lot's expiry.
-    usable_until = fields.Date(string="Usable Until", compute="_compute_usable_until")
-    # True for stock past its usable date: in a lot that expired, or in a container whose usable date has passed.
-    expired = fields.Boolean(compute="_compute_expiry", search="_search_expired")
-    # True for stock usable for fewer days than the expiry warning.
-    expiring_soon = fields.Boolean(string="Expiring Soon", compute="_compute_expiry", search="_search_expiring_soon")
+    if not TYPE_CHECKING:
+        # Value of the stock, from Odoo's costing.
+        value = fields.Monetary(groups=VALUE_GROUPS)
+        # Currency of the value.
+        currency_id = fields.Many2one(groups=VALUE_GROUPS)
+        # Last day the stock can be used: its container's usable date, or its lot's expiry.
+        usable_until = fields.Date(string="Usable Until", compute="_compute_usable_until")
+        # True for stock past its usable date: in a lot that expired, or in a container whose usable date has passed.
+        expired = fields.Boolean(compute="_compute_expiry", search="_search_expired")
+        # True for stock usable for fewer days than the expiry warning.
+        expiring_soon = fields.Boolean(
+            string="Expiring Soon", compute="_compute_expiry", search="_search_expiring_soon"
+        )
 
     @api.depends(CONTAINER_USABLE_UNTIL, "lot_id.expiration_date")
     def _compute_usable_until(self):

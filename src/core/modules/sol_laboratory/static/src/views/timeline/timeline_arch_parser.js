@@ -10,6 +10,7 @@ export class TimelineArchParser {
       dateDeadline: null,
       statusField: null,
       rowField: null,
+      subtitleField: null,
       scale: "week",
       openAction: null,
     };
@@ -22,6 +23,7 @@ export class TimelineArchParser {
       archInfo.dateDeadline = node.getAttribute("date_deadline");
       archInfo.statusField = node.getAttribute("status_field");
       archInfo.rowField = node.getAttribute("row_field");
+      archInfo.subtitleField = node.getAttribute("subtitle_field");
       archInfo.openAction = node.getAttribute("open_action");
       const scale = node.getAttribute("scale");
       if (SCALES.includes(scale)) {

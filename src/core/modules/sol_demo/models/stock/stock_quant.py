@@ -1,5 +1,6 @@
 import logging
 from datetime import timedelta
+from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.fields import Command
@@ -26,9 +27,14 @@ PLATES_LOT = "PCA-2610"
 PLATES_RECEIVED = 100
 PLATES_EXPIRE_IN_DAYS = 20
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_stock_quant as StockQuantBase
+else:
+    StockQuantBase = object
+
 
 # Tồn Kho
-class StockQuant(models.Model):
+class StockQuant(models.Model, StockQuantBase):
     _inherit = MODEL_STOCK_QUANT
 
     @api.model

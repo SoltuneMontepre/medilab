@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 
@@ -11,32 +13,38 @@ from odoo.addons.sol_inventory.constants.models import (
 )
 from odoo.addons.sol_inventory.constants.stock import IN_STOCK_STATUSES
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_stock_operation as StockOperationBase
+else:
+    StockOperationBase = object
+
 
 # The container, or the item, lot and location, a dialog that keeps the stock of a store acts on, and its reason.
-class StockOperation(models.AbstractModel):
+class StockOperation(models.AbstractModel, StockOperationBase):
     _name = MODEL_STOCK_OPERATION
     _description = "Stock Operation"
 
-    # Code read from a container's label. Empty when a lot or a quantity is chosen.
-    container_scan = fields.Char(string="Container Code")
-    # The container acted on. Empty when a lot or a quantity is chosen.
-    container_id = fields.Many2one(
-        MODEL_STOCK_PACKAGE, string="Container", domain=[("status", "in", IN_STOCK_STATUSES)]
-    )
-    # The item, from the container or chosen.
-    item_id = fields.Many2one(MODEL_PRODUCT, string="Item", domain=[("item_kind", "!=", False)])
-    # The lot, from the container or chosen.
-    lot_id = fields.Many2one(MODEL_STOCK_LOT, string="Lot", domain="[('product_id', '=', item_id)]")
-    # The location the stock is at. A container brings its own.
-    location_id = fields.Many2one(
-        MODEL_STOCK_LOCATION,
-        string="Location",
-        domain="[('usage', '=', 'internal'), ('id', 'child_of', store_ids)]",
-    )
-    # Stores the signed-in person keeps.
-    store_ids = fields.Many2many(MODEL_STOCK_LOCATION, string="Stores", compute="_compute_store_ids")
-    # Why the stock is acted on.
-    reason = fields.Char()
+    if not TYPE_CHECKING:
+        # Code read from a container's label. Empty when a lot or a quantity is chosen.
+        container_scan = fields.Char(string="Container Code")
+        # The container acted on. Empty when a lot or a quantity is chosen.
+        container_id = fields.Many2one(
+            MODEL_STOCK_PACKAGE, string="Container", domain=[("status", "in", IN_STOCK_STATUSES)]
+        )
+        # The item, from the container or chosen.
+        item_id = fields.Many2one(MODEL_PRODUCT, string="Item", domain=[("item_kind", "!=", False)])
+        # The lot, from the container or chosen.
+        lot_id = fields.Many2one(MODEL_STOCK_LOT, string="Lot", domain="[('product_id', '=', item_id)]")
+        # The location the stock is at. A container brings its own.
+        location_id = fields.Many2one(
+            MODEL_STOCK_LOCATION,
+            string="Location",
+            domain="[('usage', '=', 'internal'), ('id', 'child_of', store_ids)]",
+        )
+        # Stores the signed-in person keeps.
+        store_ids = fields.Many2many(MODEL_STOCK_LOCATION, string="Stores", compute="_compute_store_ids")
+        # Why the stock is acted on.
+        reason = fields.Char()
 
     @api.depends_context("uid")
     def _compute_store_ids(self):

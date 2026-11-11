@@ -3,7 +3,6 @@ from odoo.addons.sol_laboratory.constants.approvals import PURPOSE_SIGNING
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_APPROVAL_CHAIN,
     MODEL_APPROVAL_LEVEL,
-    MODEL_PARAMETER_METHOD,
     MODEL_REGULATION,
     MODEL_REGULATION_LIMIT,
     MODEL_ROLE,
@@ -27,17 +26,20 @@ class ResultCase(SchedulingCase):
         cls.grant(cls.head, "sample_test.edit.all")
         (cls.tester | cls.other_tester).role_ids = tester_level.role_id
         cls.head.role_ids = tester_level.role_id | head_level.role_id
-        regulation = cls.env[MODEL_REGULATION].create({"code": "QCVN 01-1:2018/BYT", "name": "Domestic water"})
+        regulation = cls.env[MODEL_REGULATION].create(
+            {"code": "QCVN 01-1:2018/BYT", "name": "Domestic water", "sample_type_ids": cls.sample_type.ids}
+        )
         cls.limit = cls.env[MODEL_REGULATION_LIMIT].create(
             {
                 "regulation_id": regulation.id,
                 "parameter_id": cls.parameter.id,
+                "sample_type_id": cls.sample_type.id,
                 "unit_id": cls.unit.id,
                 "max_set": True,
                 "max_value": 0.01,
             }
         )
-        cls.pair.result_decimals = 3
+        cls.applicability.result_decimals = 3
         cls.request.status = "sample_received"
         cls.sample.write({"status": "received", "regulation_id": regulation.id})
         cls.task = cls.testing_task(cls.test, cls.tester)
@@ -78,26 +80,21 @@ class ResultCase(SchedulingCase):
     def add_test(cls):
         """An arsenic test on the same sample, tested by the same department and assigned to the tester."""
         arsenic = cls.create_parameter("Arsenic (As)", cls.group)
-        cls.env[MODEL_PARAMETER_METHOD].create(
-            {
-                "parameter_id": arsenic.id,
-                "method_id": cls.method.id,
-                "unit_id": cls.unit.id,
-                "department_id": cls.department.id,
-                "is_default": True,
-            }
-        )
+        cls.offer(arsenic, cls.sample_type)
         test = cls.env[MODEL_SAMPLE_TEST].create({"sample_id": cls.sample.id, "parameter_id": arsenic.id})
         cls.testing_task(test, cls.tester)
         return test
 
     @classmethod
     def enter(cls, person=None, test=None, **values):
-        values = {"value": 0.008, "conclusion": "pass", **values}
+        """The person's result for the test, assessed as passing when its regulation limits the parameter."""
+        test = test or cls.test
+        if test.parameter_id in test.sample_id.regulation_id.limit_ids.parameter_id:
+            values = {"conclusion": "pass", **values}
         return (
             cls.env[MODEL_TEST_RESULT]
             .with_user((person or cls.tester).user_id)
-            .create({"sample_test_id": (test or cls.test).id, **values})
+            .create({"sample_test_id": test.id, "value": 0.008, **values})
         )
 
     def send(self, result, person=None):

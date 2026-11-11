@@ -34,15 +34,22 @@ jobs:
           filters: |
             relevant:
               - "src/applications/medilab-sync/**"
+              - "src/core/modules/sol_laboratory/api/openapi.yaml"
+              - "src/core/modules/sol_laboratory/api/sync-updates.openapi.yaml"
+              - "src/applications/medilab-mobile/**"
+              - "tools/scripts/test_apps.sh"
+              - "tools/scripts/host_tools.py"
+              - "tools/scripts/sync*.py"
+              - "tools/scripts/test_sync*.py"
+              - "tools/taskfiles/sync.taskfile.yml"
+              - "tools/taskfiles/test.taskfile.yml"
+              - "taskfile.yml"
               - ".github/workflows/ci.sync-app.yml"
 
   lint:
     needs: changes
     runs-on: ubuntu-24.04
     timeout-minutes: 20
-    permissions:
-      contents: read
-      actions: write
     defaults:
       run:
         working-directory: ${{ env.SYNC_APP_DIR }}
@@ -71,7 +78,7 @@ jobs:
 
       - name: Frontend type check
         if: needs.changes.outputs.relevant == 'true'
-        run: bunx tsc
+        run: bun run tsc
 
       - name: Cache Rust build
         if: needs.changes.outputs.relevant == 'true'
@@ -94,34 +101,28 @@ jobs:
         if: needs.changes.outputs.relevant == 'true'
         run: cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets --all-features -- -D warnings
 
-      - name: Stop the run
-        if: failure()
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh run cancel ${{ github.run_id }} --repo ${{ github.repository }}
-
   compile:
     name: compile (${{ matrix.label }})
     needs: changes
     if: needs.changes.outputs.relevant == 'true'
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
-    permissions:
-      contents: read
-      actions: write
     strategy:
       fail-fast: true
       matrix:
         include:
           - label: Linux
             os: ubuntu-24.04
+            shell: bash
           - label: Windows
             os: windows-2025
+            shell: pwsh
           - label: macOS
             os: macos-15
+            shell: bash
     defaults:
       run:
-        shell: bash
+        shell: ${{ matrix.shell }}
         working-directory: ${{ env.SYNC_APP_DIR }}
     steps:
       - name: Checkout
@@ -129,6 +130,8 @@ jobs:
 
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
 
       - name: Cache Rust build
         uses: swatinem/rust-cache@v2
@@ -152,13 +155,49 @@ jobs:
         run: bun run build
 
       - name: Build the app
-        run: cargo build --manifest-path src-tauri/Cargo.toml
+        if: runner.os != 'Windows'
+        run: cargo build --locked --manifest-path src-tauri/Cargo.toml
 
-      - name: Stop the run
-        if: failure()
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh run cancel ${{ github.run_id }} --repo ${{ github.repository }}
+      - name: Set up Task for native Windows entrypoints
+        if: runner.os == 'Windows'
+        uses: arduino/setup-task@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Exclude external Bash from native Windows Sync checks
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $medilabBlockedShellPath = '(?i)[\\/]Git[\\/](usr[\\/]bin|bin)([\\/]|$)|[\\/]msys64[\\/]'
+          foreach ($sample in @('C:\Program Files\Git\usr\bin', 'C:\Program Files\Git\bin', 'C:/Program Files/Git/usr/bin', 'C:\msys64\usr\bin')) {
+            if ($sample -notmatch $medilabBlockedShellPath) { throw 'External Bash path detection failed its native path contract.' }
+          }
+          if ('C:\Program Files\Git\cmd' -match $medilabBlockedShellPath) { throw 'Native Git cmd must remain available.' }
+          $paths = @($env:PATH -split ';' | Where-Object { $_ -notmatch $medilabBlockedShellPath })
+          if (@($paths | Where-Object { $_ -match $medilabBlockedShellPath }).Count -ne 0) { throw 'Native Windows PATH still exposes external Bash directories.' }
+          $guard = Join-Path $env:RUNNER_TEMP 'medilab-native-shell-guard'
+          New-Item -ItemType Directory -Force $guard | Out-Null
+          foreach ($name in @('bash', 'sh')) {
+            Set-Content -Path (Join-Path $guard "$name.cmd") -Value '@exit /b 97'
+          }
+          Add-Content $env:GITHUB_ENV ('PATH=' + $guard + ';' + ($paths -join ';'))
+          Add-Content $env:GITHUB_ENV 'PYTHONUTF8=1'
+
+      - name: Set up Python for native Windows entrypoints
+        if: runner.os == 'Windows'
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Check native Windows Sync through Task
+        if: runner.os == 'Windows'
+        working-directory: .
+        run: task sync:check
+
+      - name: Package native Windows Sync through Task
+        if: runner.os == 'Windows'
+        working-directory: .
+        run: task sync:build
 
   build:
     needs: [changes, compile]
@@ -186,67 +225,45 @@ jobs:
           fi
 
   test-runner:
-    name: test (${{ matrix.part }})
     needs: changes
     if: needs.changes.outputs.relevant == 'true'
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
-    permissions:
-      contents: read
-      actions: write
-    strategy:
-      fail-fast: true
-      matrix:
-        part: [frontend, backend]
-    defaults:
-      run:
-        working-directory: ${{ env.SYNC_APP_DIR }}
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v7
 
       - name: Set up Bun
-        if: matrix.part == 'frontend'
         uses: oven-sh/setup-bun@v2
 
-      - name: Install frontend dependencies
-        if: matrix.part == 'frontend'
-        run: bun install --frozen-lockfile --ignore-scripts
-
-      - name: Frontend tests
-        if: matrix.part == 'frontend'
-        run: bun test
-
       - name: Set up Rust
-        if: matrix.part == 'backend'
         uses: dtolnay/rust-toolchain@stable
 
+      - name: Set up Task
+        uses: arduino/setup-task@v3
+
       - name: Cache Rust build
-        if: matrix.part == 'backend'
         uses: swatinem/rust-cache@v2
         with:
           workspaces: "${{ env.SYNC_APP_DIR }}/src-tauri -> target"
           key: test
 
       - name: Install Linux build dependencies
-        if: matrix.part == 'backend'
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf xdg-utils
 
-      - name: Stand in for the built frontend
-        if: matrix.part == 'backend'
-        run: mkdir -p dist && touch dist/index.html
+      - name: Build the frontend
+        working-directory: ${{ env.SYNC_APP_DIR }}
+        run: |
+          bun install --frozen-lockfile --ignore-scripts
+          bun run build
 
-      - name: Rust tests
-        if: matrix.part == 'backend'
-        run: cargo test --manifest-path src-tauri/Cargo.toml
+      - name: Verify Rust availability
+        run: cargo --version
 
-      - name: Stop the run
-        if: failure()
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh run cancel ${{ github.run_id }} --repo ${{ github.repository }}
+      - name: Application tests
+        run: task test:apps
 
   test:
     needs: [changes, test-runner]

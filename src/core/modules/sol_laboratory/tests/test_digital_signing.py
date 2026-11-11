@@ -1,11 +1,21 @@
+from datetime import datetime
+
+from odoo import fields
 from odoo.exceptions import UserError
 from odoo.tests import tagged
 
 from .signing_case import CREDENTIAL, SigningCase, self_signed
-from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_ENTRY, MODEL_JOB_ITEM, MODEL_SIGNING_CERTIFICATE
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_ENTRY,
+    MODEL_JOB_ITEM,
+    MODEL_SIGNATURE,
+    MODEL_SIGNING_CERTIFICATE,
+)
 from odoo.addons.sol_laboratory.constants.settings import DIGITAL_SIGNING_PARAMETER
 from odoo.addons.sol_laboratory.constants.xml_ids import TEST_REPORT_REPORT
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
 from odoo.addons.sol_laboratory.services.pdf_signing import check_pdf
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 ISSUED_EVENT = "sol_laboratory.event_test_report_issued"
 SIGNING_JOB = "sol_laboratory.scheduled_job_digital_signing_sign"
@@ -21,6 +31,11 @@ class TestDigitalSigning(SigningCase):
 
     def html(self, report):
         return self.env["ir.actions.report"]._render_qweb_html(TEST_REPORT_REPORT, report.ids)[0].decode()
+
+    def signature_rows(self, report):
+        return self.env[MODEL_SIGNATURE].search(
+            [("document_model", "=", report._name), ("document_id", "=", report.id), ("withdrawn_at", "=", False)]
+        )
 
     def issued_messages(self, report):
         return self.env["mail.message"].search(
@@ -55,12 +70,43 @@ class TestDigitalSigning(SigningCase):
         self.assertEqual(check.certificate, self.der)
         self.assertEqual(self.viettel.signings()[0][1]["credentialID"], CREDENTIAL)
         self.assertEqual(report.digital_signature_id, signature)
+        self.assertEqual(report.digital_signed_at, signature.signed_at)
         self.assertFalse(report.digital_signing_pending)
         self.assertEqual(len(self.issued_messages(report)), 1)
         entries = self.env[MODEL_AUDIT_ENTRY].search(
             [("document_model", "=", report._name), ("document_id", "=", report.id), ("action", "=", "integration")]
         )
-        self.assertIn(signature.certificate_id.name, entries.note)
+        self.assertIn(signature.certificate_id.name, (entries.note or ""))
+
+    def test_signed_timestamp_tracks_signature_state_and_related_updates(self):
+        self.complete()
+        report = self.report()
+        self.assertFalse(report.digital_signature_id)
+        self.assertFalse(report.digital_signed_at)
+        self.assertIn(report, dynamic_model(self.env, report._name).search([("digital_signature_id", "=", False)]))
+
+        self.sign(report)
+        self.print_pdf(report)
+        report.invalidate_recordset(["digital_signature_id", "digital_signed_at"])
+        signature = report.digital_signature_id
+        self.assertTrue(signature)
+        self.assertEqual(report.digital_signed_at, signature.signed_at)
+        self.assertEqual(
+            dynamic_model(self.env, report._name).search([("digital_signature_id", "=", signature.id)]), report
+        )
+        self.assertEqual(
+            dynamic_model(self.env, report._name).search([("digital_signature_id", "in", [signature.id])]), report
+        )
+        self.assertIn(report, dynamic_model(self.env, report._name).search([("digital_signature_id", "!=", False)]))
+        self.assertNotIn(
+            report, dynamic_model(self.env, report._name).search([("digital_signature_id", "not in", [signature.id])])
+        )
+
+        changed_at = fields.Datetime.subtract(assert_instance(signature.signed_at, datetime), minutes=1)
+        signature.sudo().write({"signed_at": changed_at})
+
+        self.assertEqual(report.digital_signed_at, changed_at)
+        self.assertEqual(signature.document_version, report.document_version)
 
     def test_printing_a_fully_signed_report_returns_its_signed_pdf_every_time_without_an_extra_step(self):
         report = self.issue()
@@ -105,18 +151,20 @@ class TestDigitalSigning(SigningCase):
         self.assertNotIn("/verify", printed)
         self.assertEqual(len(self.issued_messages(report)), 1)
 
-    def test_a_report_issued_before_digital_signing_was_on_is_signed_the_first_time_it_is_printed(self):
+    def test_a_report_issued_while_digital_signing_was_off_keeps_its_pdf_once_it_is_on(self):
         self.env["ir.config_parameter"].set_bool(DIGITAL_SIGNING_PARAMETER, False)
         report = self.issue()
+        stored = bytes(report.attachment_id.raw)
         self.env["ir.config_parameter"].set_bool(DIGITAL_SIGNING_PARAMETER, True)
         report.invalidate_recordset()
 
         self.assertFalse(report.digital_signing_pending)
         pdf = self.print_pdf(report, self.courier)
 
-        check = check_pdf(pdf)
-        self.assertTrue(check and check.signature_valid)
-        self.assertEqual(report.attachment_id, self.digital_signature(report).attachment_id)
+        self.assertEqual(pdf, stored)
+        self.assertIsNone(check_pdf(pdf))
+        self.assertFalse(self.digital_signature(report))
+        self.assertFalse(self.viettel.signings())
         self.assertEqual(len(self.issued_messages(report)), 1)
 
     def test_a_provider_outage_leaves_the_report_unsigned_and_the_job_signs_it_later(self):
@@ -124,9 +172,11 @@ class TestDigitalSigning(SigningCase):
 
         report = self.issue()
 
-        self.assertEqual(report.status, "issued")
+        self.assertEqual((report.status, report.request_id.status), ("pending_signing", "completed"))
+        self.assertTrue(report.code)
         self.assertFalse(report.attachment_id)
         self.assertTrue(report.digital_signing_pending)
+        self.assertTrue(self.signature_rows(report))
         self.assertFalse(self.digital_signature(report))
         self.assertFalse(self.issued_messages(report))
         self.assertEqual(self.signing_items(report).status, "pending")
@@ -140,6 +190,7 @@ class TestDigitalSigning(SigningCase):
         self.env.ref(SIGNING_JOB)._run_batch()
 
         self.assertEqual(self.signing_items(report).status, "done")
+        self.assertEqual((report.status, report.request_id.status), ("issued", "reported"))
         self.assertEqual(report.attachment_id, self.digital_signature(report).attachment_id)
         self.assertFalse(report.digital_signing_pending)
         self.assertEqual(len(self.issued_messages(report)), 1)
@@ -163,7 +214,7 @@ class TestDigitalSigning(SigningCase):
 
         item = self.signing_items(report)
         self.assertEqual((item.status, item.attempts), ("pending", 1))
-        self.assertIn("could not be reached", item.last_error)
+        self.assertIn("could not be reached", (item.last_error or ""))
         self.assertTrue(report.digital_signing_pending)
 
     def test_a_person_retries_the_signing_by_hand(self):
@@ -192,3 +243,56 @@ class TestDigitalSigning(SigningCase):
 
         self.assertTrue(report.digital_signing_pending)
         self.assertFalse(self.viettel.signings())
+
+    def test_a_successful_retry_signs_the_reviewed_pdf_and_issues_it_once(self):
+        self.viettel.down = True
+        report = self.issue()
+        candidate = report.candidate_ids
+        self.renders.clear()
+        self.viettel.down = False
+
+        self.as_person(report, self.courier).action_retry_digital_signing()
+        self.env.ref(SIGNING_JOB)._run_batch()
+
+        self.assertFalse(self.renders)
+        self.assertEqual(len(self.viettel.signings()), 1)
+        self.assertEqual((report.status, candidate.status), ("issued", "issued"))
+        self.assertEqual(report.code, candidate.report_number)
+        self.assertEqual(self.signature_rows(report).document_hash, candidate.sha256)
+        self.assertEqual(len(self.issued_messages(report)), 1)
+
+    def test_a_withdrawn_approval_stops_the_pending_signing(self):
+        self.viettel.down = True
+        report = self.issue()
+        self.as_person(report, self.lab_head).action_withdraw()
+        self.viettel.down = False
+
+        self.env.ref(SIGNING_JOB)._run_batch()
+
+        self.assertEqual(report.status, "draft")
+        self.assertFalse(report.digital_signing_pending)
+        self.assertFalse(self.digital_signature(report))
+        self.assertFalse(self.viettel.signings())
+        self.assertFalse(self.issued_messages(report))
+        with self.assertRaises(UserError):
+            self.as_person(report, self.courier).action_retry_digital_signing()
+
+        self.sign(report)
+
+        self.assertEqual(report.status, "issued")
+        self.assertEqual(len(self.issued_messages(report)), 1)
+
+    def test_a_pending_report_whose_pdf_is_out_of_date_is_not_issued(self):
+        self.viettel.down = True
+        report = self.issue()
+        self.customer.name = "An Phu Water Joint Stock Company"
+        self.viettel.down = False
+
+        self.env.ref(SIGNING_JOB)._run_batch()
+
+        self.assertEqual(report.status, "pending_signing")
+        self.assertFalse(self.digital_signature(report))
+        self.assertFalse(self.viettel.signings())
+        self.assertFalse(self.issued_messages(report))
+        with self.assertRaises(UserError):
+            self.as_person(report, self.courier).action_retry_digital_signing()

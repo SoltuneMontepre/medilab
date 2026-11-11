@@ -725,7 +725,20 @@ class TestPayosWebhook(AuditLookup, InvoicingCase, HttpCase):
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(self.transaction.state, "draft")
-        error = self.env[MODEL_AUDIT_ENTRY].sudo().search([("action", "=", "error"), ("document_model", "=", False)])
+        error = (
+            self.env[MODEL_AUDIT_ENTRY]
+            .sudo()
+            .search(
+                [
+                    ("action", "=", "error"),
+                    ("document_model", "=", False),
+                    ("note", "=", "PayOS webhook refused: the signature does not match"),
+                ],
+                order="id desc",
+                limit=1,
+            )
+        )
+        self.assertTrue(error)
         self.assertEqual(error.note, "PayOS webhook refused: the signature does not match")
         self.assertEqual((error.source, error.user_id.id), ("api", False))
 

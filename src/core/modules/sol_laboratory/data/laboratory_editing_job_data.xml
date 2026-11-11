@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="ir_cron_laboratory_editing_sessions_expire" model="ir.cron">
+        <field name="name">Expire editing sessions</field>
+        <field name="model_id" ref="model_medilab_scheduled_job" />
+        <field name="state">code</field>
+        <field name="code">model._run_key("laboratory_editing_sessions.expire")</field>
+        <field name="interval_number">30</field>
+        <field name="interval_type">minutes</field>
+    </record>
+    <record id="scheduled_job_laboratory_editing_sessions_expire" model="medilab.scheduled.job">
+        <field name="key">laboratory_editing_sessions.expire</field>
+        <field name="name">Expire editing sessions</field>
+        <field name="cron_id" ref="ir_cron_laboratory_editing_sessions_expire" />
+        <field name="batch_size">100</field>
+        <field name="max_attempts">3</field>
+    </record>
+</odoo>

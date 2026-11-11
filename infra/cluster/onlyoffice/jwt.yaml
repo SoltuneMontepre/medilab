@@ -1,0 +1,17 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: onlyoffice-jwt
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: doppler
+  target:
+    name: onlyoffice-jwt
+  data:
+    - secretKey: jwt-secret
+      remoteRef:
+        key: ONLYOFFICE_JWT_SECRET

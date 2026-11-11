@@ -71,8 +71,30 @@
             />
             <menuitem id="menu_dispatch_to_carry" action="action_medilab_subcontract_dispatch_carry" sequence="50" />
         </menuitem>
+        <menuitem id="menu_laboratory_documents" name="Documents" sequence="60">
+            <menuitem id="menu_laboratory_folder" action="action_medilab_laboratory_folder" sequence="10" />
+            <menuitem id="menu_laboratory_file" action="action_medilab_laboratory_file" sequence="12" />
+            <menuitem id="menu_laboratory_file_version" action="action_medilab_laboratory_file_version" sequence="14" />
+            <menuitem id="menu_laboratory_file_lock" action="action_medilab_laboratory_file_lock" sequence="16" />
+            <menuitem id="menu_laboratory_editing_session" action="action_medilab_laboratory_editing_session" sequence="18" />
+            <menuitem id="menu_laboratory_folder_member" action="action_medilab_laboratory_folder_member" sequence="20" />
+            <menuitem id="menu_laboratory_sync_rule" action="action_medilab_laboratory_sync_rule" sequence="30" />
+            <!-- Everyone reads their own phones, but only the laboratory files permission shows the list. -->
+            <menuitem
+                id="menu_laboratory_device"
+                action="action_medilab_laboratory_device"
+                sequence="40"
+                groups="group_permission_laboratory_folder_create_all,group_permission_laboratory_device_read_all"
+            />
+        </menuitem>
         <menuitem id="menu_laboratory_configuration" name="Configuration" sequence="100">
             <menuitem id="menu_settings" action="action_medilab_settings" sequence="0" groups="base.group_system" />
+            <menuitem
+                id="menu_public_holiday"
+                action="action_medilab_public_holiday"
+                sequence="5"
+                groups="base.group_system"
+            />
             <menuitem
                 id="menu_signing_certificate"
                 action="action_medilab_signing_certificate"
@@ -84,6 +106,12 @@
                 action="action_medilab_digital_signature"
                 sequence="20"
                 groups="group_permission_digital_signature_read_all"
+            />
+            <menuitem
+                id="menu_report_template"
+                action="action_medilab_report_template"
+                sequence="30"
+                groups="group_permission_report_template_read_all"
             />
         </menuitem>
     </menuitem>
@@ -105,11 +133,26 @@
             <menuitem id="menu_machine" action="action_medilab_machine" sequence="10" />
             <menuitem id="menu_chemical" action="action_medilab_chemical" sequence="20" />
         </menuitem>
+        <menuitem id="menu_location" action="action_medilab_location" sequence="25" />
         <menuitem id="menu_subcontractor" action="action_medilab_subcontractor" sequence="30" />
     </menuitem>
 
+    <menuitem
+        id="menu_location_booking"
+        action="action_medilab_location_booking"
+        parent="calendar.mail_menu_calendar"
+        sequence="5"
+    />
+
     <!-- Departments are Odoo's own menu in the Employees app. -->
     <menuitem id="menu_person" action="action_medilab_person" parent="hr.menu_hr_root" sequence="4" />
+    <menuitem
+        id="menu_unlinked_users"
+        action="action_res_users_unlinked"
+        parent="hr.menu_hr_root"
+        sequence="5"
+        groups="group_role_administrator"
+    />
     <menuitem
         id="menu_team"
         action="action_hr_department_team"

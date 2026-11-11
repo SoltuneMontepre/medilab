@@ -24,4 +24,10 @@
         <field name="channel">popup</field>
         <field name="enabled" eval="True" />
     </record>
+    <record id="demo_notification_preference_tester_lock_push_off" model="medilab.notification.preference">
+        <field name="user_id" ref="demo_res_users_tester" />
+        <field name="event_id" ref="sol_laboratory.event_document_lock_released" />
+        <field name="channel">push</field>
+        <field name="enabled" eval="False" />
+    </record>
 </odoo>

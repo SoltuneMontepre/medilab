@@ -102,4 +102,4 @@ else
 fi
 
 section "Failed units"
-systemctl --failed --no-legend || true
+systemctl --failed --no-legend --no-pager || true

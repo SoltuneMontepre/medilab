@@ -5,13 +5,17 @@ How the [Task](https://taskfile.dev) commands in this repository are written, an
 ## File structure
 
 ```text
-taskfile.yml                    entrypoint: includes the taskfiles, defines setup
+taskfile.yml                    entrypoint: includes the taskfiles and delegates unified setup
 tools/
 ├── ansible/                    Ansible image, its compose file and the entrypoint that loads the SSH key
+├── cloud/                      template of the Claude Code cloud environment variables that ai:env fills
 ├── odoo-intelligence/          Shared OdooLS MCP bridge, local installer, Serena launcher and tests
 ├── taskfiles/
-│   ├── ai.taskfile.yml         AI tooling: local Serena, OdooLS, source mirror, verification and isolated Cursor setup
+│   ├── ai.taskfile.yml         AI tooling: local Serena, OdooLS, source mirror, verification, cloud environment variables and isolated Cursor setup
 │   ├── ansible.taskfile.yml    Ansible in a container: ping, inspect, check, apply, kubeconfig, lint
+│   ├── setup.taskfile.yml      Guarded fresh-demo selection, switching and recovery
+│   ├── onlyoffice.taskfile.yml Owned local ONLYOFFICE lifecycle and verification
+│   ├── sync.taskfile.yml       Native Sync development and verification
 │   ├── app.taskfile.yml        run the app: up, stop, restart, logs, upgrade, reset
 │   ├── dev.taskfile.yml        developer setup and checks: doppler, venv, Odoo source, lint, typecheck
 │   ├── test.taskfile.yml       tests: core, uninstall, typecheck, e2e, apps
@@ -21,15 +25,20 @@ tools/
     ├── log.sh                  output helpers sourced by the tasks
     ├── doppler.sh              Doppler login helper sourced by the tasks
     ├── ai_setup.sh             ai:setup prerequisites and environment
+    ├── ai_env.sh               ai:env: cloud environment variables from Doppler
     ├── odoo_source.sh          dev:odoo-source download and sparse checkout
+    ├── compose_env.py          dev:compose-env: this checkout's compose project in tools/infrastructure/.env
     ├── test_apps.sh            test:apps
     ├── test_shards.py          splits the Odoo test classes into shards for test:core
+    ├── test_openapi.py         test:openapi comparison with the document on main
+    ├── test_openapi_keys.py    test:openapi refusal of duplicate keys
     └── test_core_*.sh          test:core steps run inside a container
 ```
 
 - `taskfile.yml` includes each taskfile with `dir: .` and `flatten: true`, so every task runs from the repository root and is called without a prefix: `task up`, not `task app:up`.
 - A new group of tasks gets its own `tools/taskfiles/<group>.taskfile.yml`, included the same way.
 - The `env:` block of an included taskfile applies to the tasks of every taskfile, and when two taskfiles set the same variable, which value a task gets changes from run to run. Set a variable there only to the value every taskfile uses, such as `COMPOSE_FILE` for the local infrastructure; a task that needs another compose file names it with `docker compose -f`, as the Ansible tasks do.
+- Included taskfile variables also share a scope when flattened. Give group defaults specific names, such as `CORE_MODULES` for test installation, so a test default does not override another task's `MODULES` argument.
 - Shell code shared by several tasks goes in `tools/scripts/`, not copied between tasks.
 
 ## Tasks
@@ -40,10 +49,13 @@ tools/
 - Set `interactive: true` on a task that reads input.
 - Give a task that can be skipped when already done a `status` check, as `doppler` has.
 - Prefer a long, readable name with a short alias: `reset` with `aliases: [wipe]`.
+- `setup` diagnoses host prerequisites, selects the existing guarded fresh bootstrap only for an empty worktree, and prepares/verifies Odoo, ONLYOFFICE and native Sync dependencies. Existing ordinary environments retain authentication/tooling/installed-module upgrades and `MODULES` semantics. Fresh child tasks use sanitized environments and the internal empty-dotenv override rather than reloading caller credentials. Keep native toolchain requirements scoped to setup/new namespaces; listing/logs/up/upgrade/infrastructure commands remain independent. `setup:fresh:select PROJECT=medilab-bootstrap-<name>` selects a new, empty project for this worktree and saves its owner, ports, image, and volume names before creation. `setup:fresh` is an explicit, isolated fresh-demo bootstrap and must not authenticate through Doppler or reuse credentials from the caller's environment. A failed attempt is never retried in place; use `setup:fresh:recover` only after verifying the displayed owner and resource list, then run `setup:fresh` to create a new isolated environment.
+- Route local application and test Compose commands through `tools/scripts/local_compose.py`; it accepts the supported Task operations and rejects project or file overrides and `down` options. Completed fresh demo environments must retain their saved project, image, persistent volume names and ports. `task logs` presents Odoo severity labels from the running container without changing its stored log. `reset` must require verified bootstrap ownership and an explicit owner confirmation before removing resources; it also discards a completed environment whose persistent volumes are missing. Selected host ports stay below the dynamic port ranges of the operating system. `setup:fresh:switch` changes the selected local project only after checking the completed current owner and either an empty new identity or a saved completed owner. Archived owner generations remain separate; an interrupted switch blocks Compose operations until `setup:fresh:switch:recover` verifies the journal and selection.
 
 ## Shell
 
 - Task runs commands in its built-in shell, which understands Bash syntax on every platform, including Windows without Git Bash. Do not rely on programs that are missing from a plain Windows install.
+- New host orchestration uses thin Task commands with `env`/`dir` and Python argument-array subprocess calls. Resolve native executables and Windows launchers explicitly; never add a shared dependency on Bash, Unix utilities, shell aliases or a new runtime manager. Existing sourced Task scripts can remain only when their complete invoked chain is tested in native PowerShell without external Bash.
 - A program started through a wrapper such as `doppler run -- <program>` runs directly, not in a shell, so shell builtins and Unix tools like `env` fail on Windows. Set its environment with the taskfile's `env:` block.
 - Use `printf`, not `echo -e`; it behaves the same in every shell.
 - A multi-line command starts with `set -e` when a failed step must stop the task.
@@ -82,20 +94,24 @@ tasks:
         log_ok "Odoo source ready in .local/odoo-source."
 ```
 
-| Helper                    | Use for                             | Prints                                     |
-| ------------------------- | ----------------------------------- | ------------------------------------------ |
-| `log_step "<title>"`      | The start of each section of a task | Blank line, then bold cyan `==>` and title |
-| `log_info "<text>"`       | Detail about what is happening      | Dimmed, indented line                      |
-| `log_option <n> "<text>"` | One choice in a menu                | Indented line with a cyan `n)`             |
-| `log_prompt "<question>"` | A question before `read`            | Yellow `?`, no line break                  |
-| `log_ok "<text>"`         | The result of a task that succeeded | Green `[COMPLETED]`                        |
-| `log_error "<text>"`      | A failure, followed by `exit 1`     | Red `[ERROR]`, to stderr                   |
-| `log_link "<name>" <url>` | An address the developer opens      | Aligned name and underlined URL            |
+| Helper                    | Use for                             | Prints                                        |
+| ------------------------- | ----------------------------------- | --------------------------------------------- |
+| `log_step "<title>"`      | The start of each section of a task | Blank line, then bold cyan `==>` and title    |
+| `log_info "<text>"`       | Detail about what is happening      | Cyan `[INFO]`; message body uncolored         |
+| `log_option <n> "<text>"` | One choice in a menu                | Indented line with a cyan `n)`                |
+| `log_prompt "<question>"` | A question before `read`            | Yellow `?`, no line break                     |
+| `log_ok "<text>"`         | The result of a task that succeeded | Green `[COMPLETED]`; message body uncolored   |
+| `log_warn "<text>"`       | A warning                           | Yellow `[WARNING]`; message body uncolored    |
+| `log_error "<text>"`      | A failure, followed by `exit 1`     | Red `[ERROR]`, to stderr; body uncolored      |
+| `log_debug "<text>"`      | Diagnostic detail                   | Dim `[DEBUG]`; message body uncolored         |
+| `log_link "<name>" <url>` | An address the developer opens      | Aligned name and underlined URL               |
 
 - A task that runs several steps or asks questions opens with `log_step`. A task that finishes something the developer waits for ends with `log_ok`. A task that only calls other tasks or one tool prints nothing itself.
 - Write messages as short sentences ending with a full stop. An error says what failed and what to do next: "doppler not found. Install: winget install Doppler.doppler".
 - Do not write color escape codes in the taskfiles; add a helper to `log.sh` when a new kind of line is needed.
-- Setting `NO_COLOR=1` prints every helper without colors, for logs and CI.
+- When a Python host utility emits one project status line, capture only that utility's stdout or add a task-only quiet-status option, then report it through `log.sh`. Keep child process stdout/stderr attached, and propagate the original failure status. Do not route an entire external tool through `log.sh`.
+- When a task must present an external tool's structured terminal logs, use a narrowly scoped streaming presenter that keeps stdout and stderr separate, forwards each line immediately, and transforms only the tool's known severity field. Keep the tool's file logs and exit status unchanged.
+- The shared helper decides color separately for stdout and stderr. A non-empty `NO_COLOR` disables color, even if `FORCE_COLOR` is also set. Otherwise `FORCE_COLOR=0` disables color, and `FORCE_COLOR=1`, `2` or `3` enables it. Empty or invalid `FORCE_COLOR` falls through to automatic detection. Without an override, color is used only when that output stream is attached to a terminal that advertises ANSI support; `TERM=dumb` disables it. Redirected output is plain by default. Task's shell model is used on every platform, without requiring `tput`, `stty` or Bash to be installed on Windows.
 
 ## Related documents
 

@@ -1,5 +1,6 @@
 import logging
 from datetime import timedelta
+from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.exceptions import AccessError, UserError
@@ -15,8 +16,6 @@ from odoo.addons.sol_commerce.constants.models import (
 from odoo.addons.sol_commerce.constants.notifications import EVENT_ORDER_UPDATED
 from odoo.addons.sol_commerce.constants.orders import (
     ADVANCE_PAID_STATES,
-    APPROVAL_APPROVED,
-    APPROVAL_NONE,
     CUSTOMER_CANCELLABLE,
     FINISHED_STATUSES,
     FOLLOW_UP_BY_QUOTATION_STATUS,
@@ -41,95 +40,95 @@ from odoo.addons.sol_commerce.constants.orders import (
 )
 from odoo.addons.sol_commerce.constants.settings import DEFAULT_PAYMENT_DEADLINE_DAYS, PAYMENT_DEADLINE_PARAMETER
 from odoo.addons.sol_commerce.constants.xml_ids import QUOTATION_REPORT
-from odoo.addons.sol_laboratory.constants.models import MODEL_MAIL_MESSAGE, MODEL_PERMISSION_MIXIN
+from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_MAIL_MESSAGE, MODEL_PERMISSION_MIXIN
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_sale_order as SaleOrderBase
+else:
+    SaleOrderBase = object
 
 _logger = logging.getLogger(__name__)
 
 
 # Đơn Hàng
-class SaleOrder(models.Model):
+class SaleOrder(models.Model, SaleOrderBase):
     _name = MODEL_SALE_ORDER
-    _inherit = [MODEL_SALE_ORDER, MODEL_PERMISSION_MIXIN]
-    _permission_actions = ("read", "create", "edit", "delete", "sign")
+    _inherit = [MODEL_SALE_ORDER, MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
+    _permission_actions = ("read", "create", "edit", "delete", "invoice")
+    _audit_children = ("order_line", "quotation_ids", "sample_ids", "cancellation_request_ids", "support_request_ids")
 
-    # The customer who orders: the company, or the individual when they order for themselves.
-    customer_id = fields.Many2one("res.partner", string="Customer", ondelete="restrict", index=True)
-    # The contact sales reaches about this order.
-    partner_id = fields.Many2one(string="Contact")
-    # portal when the customer built it, or sales when a salesperson created it for the customer.
-    source = fields.Selection(
-        [(SOURCE_PORTAL, "Portal"), (SOURCE_SALES, "Sales")],
-        string="Order Source",
-        required=True,
-        default=SOURCE_PORTAL,
-    )
-    # draft, submitted, claimed, confirmed, completed or cancelled.
-    order_status = fields.Selection(
-        [
-            (STATUS_DRAFT, "Draft"),
-            (STATUS_SUBMITTED, "Submitted"),
-            (STATUS_CLAIMED, "Claimed"),
-            (STATUS_CONFIRMED, "Confirmed"),
-            (STATUS_COMPLETED, "Completed"),
-            (STATUS_CANCELLED, "Cancelled"),
-        ],
-        required=True,
-        default=STATUS_DRAFT,
-        index=True,
-    )
-    # When the customer submitted the order.
-    submitted_at = fields.Datetime()
-    # When a salesperson claimed the order.
-    claimed_at = fields.Datetime()
-    # The date the customer expects the results.
-    expected_result_date = fields.Date()
-    # The order this one was reordered from.
-    reordered_from_id = fields.Many2one(MODEL_SALE_ORDER, ondelete="set null", index=True)
-    # Orders reordered from this one.
-    reorder_ids = fields.One2many(MODEL_SALE_ORDER, "reordered_from_id")
-    # Catalog items left out of this reorder because they are no longer sold.
-    reorder_note = fields.Text(copy=False)
-    # none, requested, approved or rejected. Approved means the approval is signed.
-    approval_status = fields.Selection(
-        [
-            (APPROVAL_NONE, "Not requested"),
-            ("requested", "Requested"),
-            (APPROVAL_APPROVED, "Approved"),
-            ("rejected", "Rejected"),
-        ],
-        required=True,
-        default=APPROVAL_NONE,
-    )
-    # Total of the catalog prices times their quantities, excluding VAT.
-    catalog_total = fields.Monetary(compute="_compute_catalog_total")
-    # Cancellation requests on the order.
-    cancellation_request_ids = fields.One2many(MODEL_CANCELLATION_REQUEST, "order_id")
-    # When the advance must be paid; 3 days after sending by default, set by sales.
-    payment_deadline = fields.Datetime(copy=False)
-    # online, bank_transfer, cash, or none when the Head of Sales sends without an advance.
-    advance_method = fields.Selection(
-        [("online", "Online"), ("bank_transfer", "Bank transfer"), ("cash", "Cash"), ("none", "No advance")]
-    )
-    # full, percentage or fixed.
-    advance_mode = fields.Selection([("full", "Full amount"), ("percentage", "Percentage"), ("fixed", "Fixed amount")])
-    # The percentage or fixed amount of the advance, depending on the advance mode.
-    advance_value = fields.Float()
-    # Samples the customer will send.
-    sample_ids = fields.One2many(MODEL_ORDER_SAMPLE, "order_id", string="Samples")
-    # Quotations sent for the order, one per revision.
-    quotation_ids = fields.One2many(MODEL_QUOTATION, "order_id", string="Quotations")
-    # Where the latest quotation stands: unpaid until the advance is paid, declined or expired; empty when none was sent.
-    quotation_follow_up = fields.Selection(
-        [
-            (FOLLOW_UP_UNPAID, "Unpaid"),
-            (FOLLOW_UP_PAID, "Paid"),
-            (QUOTATION_DECLINED, "Declined"),
-            (QUOTATION_EXPIRED, "Expired"),
-        ],
-        compute="_compute_quotation_follow_up",
-        store=True,
-        index="btree_not_null",
-    )
+    if not TYPE_CHECKING:
+        # The customer who orders: the company, or the individual when they order for themselves.
+        customer_id = fields.Many2one("res.partner", string="Customer", ondelete="restrict", index=True)
+        # The contact sales reaches about this order.
+        partner_id = fields.Many2one(string="Contact")
+        # portal when the customer built it, or sales when a salesperson created it for the customer.
+        source = fields.Selection(
+            [(SOURCE_PORTAL, "Portal"), (SOURCE_SALES, "Sales")],
+            string="Order Source",
+            required=True,
+            default=SOURCE_PORTAL,
+        )
+        # draft, submitted, claimed, confirmed, completed or cancelled.
+        order_status = fields.Selection(
+            [
+                (STATUS_DRAFT, "Draft"),
+                (STATUS_SUBMITTED, "Submitted"),
+                (STATUS_CLAIMED, "Claimed"),
+                (STATUS_CONFIRMED, "Confirmed"),
+                (STATUS_COMPLETED, "Completed"),
+                (STATUS_CANCELLED, "Cancelled"),
+            ],
+            required=True,
+            default=STATUS_DRAFT,
+            index=True,
+        )
+        # When the customer submitted the order.
+        submitted_at = fields.Datetime()
+        # When a salesperson claimed the order.
+        claimed_at = fields.Datetime()
+        # The date the customer expects the results.
+        expected_result_date = fields.Date()
+        # The order this one was reordered from.
+        reordered_from_id = fields.Many2one(MODEL_SALE_ORDER, ondelete="set null", index=True)
+        # Orders reordered from this one.
+        reorder_ids = fields.One2many(MODEL_SALE_ORDER, "reordered_from_id")
+        # Catalog items left out of this reorder because they are no longer sold.
+        reorder_note = fields.Text(copy=False)
+        # Total of the catalog prices times their quantities, excluding VAT.
+        catalog_total = fields.Monetary(compute="_compute_catalog_total")
+        # Cancellation requests on the order.
+        cancellation_request_ids = fields.One2many(MODEL_CANCELLATION_REQUEST, "order_id")
+        # When the advance must be paid; 3 days after sending by default, set by sales.
+        payment_deadline = fields.Datetime(copy=False)
+        # online, bank_transfer, cash, or none when the Head of Sales sends without an advance.
+        advance_method = fields.Selection(
+            [("online", "Online"), ("bank_transfer", "Bank transfer"), ("cash", "Cash"), ("none", "No advance")]
+        )
+        # full, percentage or fixed.
+        advance_mode = fields.Selection(
+            [("full", "Full amount"), ("percentage", "Percentage"), ("fixed", "Fixed amount")]
+        )
+        # The percentage or fixed amount of the advance, depending on the advance mode.
+        advance_value = fields.Float()
+        # Samples the customer will send.
+        sample_ids = fields.One2many(MODEL_ORDER_SAMPLE, "order_id", string="Samples")
+        # Quotations sent for the order, one per revision.
+        quotation_ids = fields.One2many(MODEL_QUOTATION, "order_id", string="Quotations")
+        # Where the latest quotation stands: unpaid until the advance is paid or, sent without an advance, accepted;
+        # declined or expired; empty when none was sent.
+        quotation_follow_up = fields.Selection(
+            [
+                (FOLLOW_UP_UNPAID, "Unpaid"),
+                (FOLLOW_UP_PAID, "Paid"),
+                (QUOTATION_ACCEPTED, "Accepted"),
+                (QUOTATION_DECLINED, "Declined"),
+                (QUOTATION_EXPIRED, "Expired"),
+            ],
+            compute="_compute_quotation_follow_up",
+            store=True,
+            index="btree_not_null",
+        )
     _customer_status_idx = models.Index("(customer_id, order_status)")
     _status_submitted_idx = models.Index("(order_status, submitted_at)")
     _salesperson_status_idx = models.Index("(user_id, order_status)")
@@ -158,29 +157,47 @@ class SaleOrder(models.Model):
             )
         return vals
 
+    def _compute_user_id(self):
+        # Odoo falls back to the current user only for its own salesman group. A salesperson creating an order
+        # on the orders screen keeps it when the contact changes.
+        result = super()._compute_user_id()
+        if self.env.context.get("medilab_sales_order"):
+            for order in self.filtered(lambda order: not order.user_id and not order._origin.id):
+                order.user_id = self.env.user
+        return result
+
     @api.model_create_multi
     def create(self, vals_list):
+        self._fill_create_values(vals_list)
+        wanted_users = [vals.get("user_id") for vals in vals_list]
+        orders = super().create(vals_list)
+        for order, user_id in zip(orders, wanted_users, strict=True):
+            order._settle_user(user_id)
+        # The catalog prices are the system's, so a salesperson who may not change the new order still locks them.
+        orders.order_line.sudo()._lock_catalog_price()
+        return orders
+
+    def _fill_create_values(self, vals_list):
+        """Default the source, salesperson and status of a sales order, and stamp the submission and claim times."""
         now = fields.Datetime.now()
-        if self.env.context.get("medilab_sales_order"):
-            for vals in vals_list:
+        sales = self.env.context.get("medilab_sales_order")
+        for vals in vals_list:
+            if sales:
                 vals.setdefault("source", SOURCE_SALES)
                 vals.setdefault("user_id", self.env.uid)
                 vals.setdefault("order_status", STATUS_CLAIMED)
-        for vals in vals_list:
             if vals.get("order_status") == STATUS_SUBMITTED and not vals.get("submitted_at"):
                 vals["submitted_at"] = now
             if vals.get("order_status") == STATUS_CLAIMED and not vals.get("claimed_at"):
                 vals["claimed_at"] = now
-        wanted_users = [vals.get("user_id") for vals in vals_list]
-        orders = super().create(vals_list)
-        for order, user_id in zip(orders, wanted_users, strict=True):
-            if order.source == SOURCE_PORTAL and order.order_status in (STATUS_DRAFT, STATUS_SUBMITTED):
-                if order.user_id:
-                    order.with_context(medilab_status_change=True).write({"user_id": False})
-            elif user_id and order.user_id.id != user_id:
-                order.write({"user_id": user_id})
-        orders.order_line._lock_catalog_price()
-        return orders
+
+    def _settle_user(self, user_id):
+        """Leave a portal order unassigned until it is claimed; give any other order the salesperson asked for."""
+        if self.source == SOURCE_PORTAL and self.order_status in (STATUS_DRAFT, STATUS_SUBMITTED):
+            if self.user_id:
+                self.with_context(medilab_status_change=True).write({"user_id": False})
+        elif user_id and self.user_id.id != user_id:
+            self.write({"user_id": user_id})
 
     def write(self, vals):
         self._check_portal_write(vals)
@@ -251,7 +268,7 @@ class SaleOrder(models.Model):
         if others:
             raise AccessError(self.env._("This order is not yours."))
 
-    def add_catalog_product(self, product, quantity=1):
+    def add_catalog_product(self, product, quantity: float = 1):
         """Add a parameter or package to the cart, or raise its quantity."""
         self.ensure_one()
         if self.order_status != STATUS_DRAFT:
@@ -295,16 +312,20 @@ class SaleOrder(models.Model):
         partner = (
             self.env["res.partner"]
             .sudo()
-            .create({"name": name, "email": email, "phone": (visitor.get("phone") or "").strip()})
+            .create({"name": name, "email": email, "phone": ((visitor.get("phone") or "").strip())})
         )
         self.with_context(medilab_status_change=True).write({"partner_id": partner.id, "customer_id": partner.id})
 
     def action_claim(self):
-        """Give the submitted order to the current salesperson."""
+        """Give the submitted order to the current salesperson. An unclaimed order has no owner yet, so a salesperson
+        who may only edit their own orders claims it with full rights once they may read it and edit orders."""
+        self.check_access("read")
+        if not self._has_permission("edit"):
+            raise AccessError(self.env._("You are not allowed to claim orders."))
         for order in self:
             if order.order_status != STATUS_SUBMITTED or order.user_id:
                 raise UserError(self.env._("This order is already claimed."))
-        self._set_status(STATUS_CLAIMED, {"user_id": self.env.uid, "claimed_at": fields.Datetime.now()})
+        self.sudo()._set_status(STATUS_CLAIMED, {"user_id": self.env.uid, "claimed_at": fields.Datetime.now()})
         return True
 
     def action_customer_cancel(self):
@@ -327,7 +348,14 @@ class SaleOrder(models.Model):
                 raise UserError(message)
         return self._cancel_order()
 
+    def action_cancel(self):
+        """Odoo's own cancellation goes through the same checks as the order's."""
+        return self.action_sales_cancel()
+
     def _cancel_order(self):
+        # Every cancellation, by sales or by accepting a request, respects Odoo's lock.
+        if any(order.locked for order in self):
+            raise UserError(self.env._("You cannot cancel a locked order. Please unlock it first."))
         self._cancel_laboratory_documents()
         self._set_status(STATUS_CANCELLED)
         cancellable = self.filtered(lambda order: order.state != "cancel")
@@ -347,16 +375,20 @@ class SaleOrder(models.Model):
         self.ensure_one()
         return "approved" in self.sudo().test_request_id.sample_ids.test_ids.mapped("status")
 
-    def _cancellation_block_message(self):
+    def _samples_collected(self):
+        """True once the laboratory received a sample of the order's request."""
         self.ensure_one()
-        if self.approval_status == APPROVAL_APPROVED:
-            return self.env._(
-                "The approval is signed, so this order cannot be cancelled. The laboratory will contact you."
-            )
+        return any(self.sudo().test_request_id.sample_ids.mapped("received_at"))
+
+    def _cancellation_block_message(self):
+        """Why sales cannot cancel the order on their own; empty when they can."""
+        self.ensure_one()
         if self.order_status == STATUS_COMPLETED or self._laboratory_blocks_cancellation():
+            return self.env._("Testing is completed or results are released, so this order cannot be cancelled.")
+        if self._samples_collected():
             return self.env._(
-                "Testing is completed or results are released, so this order cannot be cancelled. "
-                "The laboratory will contact you."
+                "The samples of this order are collected, so cancelling it needs a change request "
+                "the Head of Sales approves."
             )
         return False
 
@@ -364,6 +396,8 @@ class SaleOrder(models.Model):
         """Create a draft with the same parameters and packages at current prices."""
         self.ensure_one()
         self._check_customer_owner()
+        if not self.can_reorder():
+            raise UserError(self.env._("A draft is changed in the cart, not reordered."))
         omitted = []
         commands = []
         for line in self._catalog_lines():
@@ -409,10 +443,14 @@ class SaleOrder(models.Model):
             .create({"order_id": self.id, "reason": text, "requested_by_id": self.env.uid})
         )
 
-    @api.depends("quotation_ids.status", "quotation_ids.revision")
+    @api.depends("quotation_ids.status", "quotation_ids.revision", "quotation_ids.advance_invoice_id")
     def _compute_quotation_follow_up(self):
         for order in self:
-            order.quotation_follow_up = FOLLOW_UP_BY_QUOTATION_STATUS.get(order._latest_quotation().status, False)
+            quotation = order._latest_quotation()
+            if quotation.status == QUOTATION_ACCEPTED and not quotation.advance_invoice_id:
+                order.quotation_follow_up = QUOTATION_ACCEPTED
+            else:
+                order.quotation_follow_up = FOLLOW_UP_BY_QUOTATION_STATUS.get((quotation.status or ""), False)
 
     def _latest_quotation(self):
         self.ensure_one()
@@ -439,9 +477,12 @@ class SaleOrder(models.Model):
             raise UserError(
                 self.env._(
                     "Give these items a sample before sending the quotation:\n%s",
-                    "\n".join(unassigned.mapped("product_id.display_name")),
+                    "\n".join(name or "" for name in unassigned.mapped("product_id.display_name")),
                 )
             )
+        # The catalog may have stopped offering a parameter on a sample type since the line got its sample.
+        lines._check_offered_on_sample()
+        self.order_line._way_lines()._check_ways_can_be_sent()
         latest = self._latest_quotation()
         if latest.status == QUOTATION_REPLACED:
             raise UserError(self.env._("A replaced quotation cannot be sent. Send the current revision instead."))
@@ -462,16 +503,18 @@ class SaleOrder(models.Model):
             self.payment_deadline = now + timedelta(days=days)
         previous = self._latest_quotation()
         revision = previous.revision + 1
+        code = self.env["ir.sequence"].sudo().next_by_code(MODEL_QUOTATION)
         quotation = (
             self.env[MODEL_QUOTATION]
             .sudo()
             .create(
                 {
+                    "code": code,
                     "order_id": self.id,
                     "revision": revision,
                     "replaces_id": previous.id,
                     "amount_total": self.amount_total,
-                    "attachment_id": self._create_quotation_attachment(revision).id,
+                    "attachment_id": self._create_quotation_attachment(revision, code).id,
                 }
             )
         )
@@ -481,9 +524,10 @@ class SaleOrder(models.Model):
             self.state = "sent"
         return quotation
 
-    def _create_quotation_attachment(self, revision):
+    def _create_quotation_attachment(self, revision, code):
         self.ensure_one()
-        content, _report_type = self.env["ir.actions.report"].sudo()._render_qweb_pdf(QUOTATION_REPORT, self.ids)
+        report = self.env["ir.actions.report"].sudo().with_context(quotation_code=code)
+        content, _report_type = report._render_qweb_pdf(QUOTATION_REPORT, self.ids)
         return (
             self.env["ir.attachment"]
             .sudo()

@@ -1,6 +1,7 @@
 import base64
-import io
+from contextlib import contextmanager
 from datetime import UTC, datetime, timedelta
+from unittest.mock import patch
 
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
@@ -8,22 +9,22 @@ from cryptography.hazmat.primitives.asymmetric import padding, rsa, utils
 from cryptography.x509.oid import NameOID
 
 from odoo import fields
-from odoo.tools.pdf import PdfFileWriter
 
-from odoo.addons.sol_laboratory.constants.models import MODEL_IR_ACTIONS_REPORT, MODEL_SIGNING_CERTIFICATE
+from odoo.addons.sol_laboratory.constants.models import MODEL_JOB_ITEM, MODEL_SIGNING_CERTIFICATE
 from odoo.addons.sol_laboratory.constants.settings import DIGITAL_SIGNING_PARAMETER
-from odoo.addons.sol_laboratory.constants.signing import UNSIGNED_PRINT_CONTEXT
-from odoo.addons.sol_laboratory.constants.xml_ids import TEST_REPORT_REPORT
-from odoo.addons.sol_laboratory.services.pdf_signing import sign_pdf
+from odoo.addons.sol_laboratory.services.viettel_sign_client import ViettelSignError
 
 LABORATORY = "Phòng Thử Nghiệm MediLab"
 CERTIFICATE_AUTHORITY = "Viettel-CA (demo)"
 DAYS_LEFT = 15
+# Why the demo's Viettel Sign fails.
+UNREACHABLE = "Viettel Sign could not be reached: ConnectionError"
 
 
 def seed_signing(env):
-    """The laboratory's certificate at Viettel Sign, 15 days from its expiry, and the report sent by post digitally
-    signed with it. A key made for the demo stands in for Viettel Sign, which the demo cannot call."""
+    """The laboratory's certificate at Viettel Sign, 15 days from its expiry, the report sent by post issued with its
+    PDF digitally signed with it, and a report pending digital signing because Viettel Sign failed when the lab head
+    signed it. A key made for the demo stands in for Viettel Sign, which the demo cannot call."""
     if env.ref("sol_demo.demo_signing_certificate_laboratory", raise_if_not_found=False):
         return
     key, chain = _chain()
@@ -35,22 +36,47 @@ def seed_signing(env):
         "cert": {"status": "valid", "certificates": [base64.b64encode(der).decode() for der in chain]},
     }
     certificate = certificates.create(certificates._reported_values(reported, fields.Datetime.now()))
-    report = env.ref("sol_demo.demo_test_report_by_post")
-    unsigned = report.attachment_id
-    signed = sign_pdf(
-        _report_pdf(env, report),
-        chain,
-        lambda digest: key.sign(digest, padding.PKCS1v15(), utils.Prehashed(hashes.SHA256())),
-    )
-    signature = report._digital_signing_store(signed, certificate)
-    unsigned.unlink()
+    records = [("demo_signing_certificate_laboratory", certificate)]
+    lab_head = env.ref("sol_demo.demo_res_users_lab_head")
+    by_post = env.ref("sol_demo.demo_test_report_by_post")
+    # The reports wait for a prepared PDF when the demo templates could not be seeded.
+    if by_post.candidate_ids:
+        with _viettel_sign(env, lambda digest: key.sign(digest, padding.PKCS1v15(), utils.Prehashed(hashes.SHA256()))):
+            by_post.with_user(lab_head).action_sign()
+        pending = env.ref("sol_demo.demo_test_report_pending")
+        with _viettel_sign(env, None):
+            pending.with_user(lab_head).action_sign()
+        # The signing job gave up after its attempts, so it waits for someone to retry it rather than for the job, which
+        # would issue the report unsigned while digital signing is off.
+        item = env[MODEL_JOB_ITEM].search([("item_key", "=", pending._digital_signing_key())])
+        item.write({"status": "failed", "attempts": item.job_id.max_attempts, "last_error": UNREACHABLE})
+        records.append(("demo_digital_signature_by_post", by_post.digital_signature_id))
 
     env["ir.model.data"]._update_xmlids(
-        [
-            {"xml_id": "sol_demo.demo_signing_certificate_laboratory", "record": certificate, "noupdate": True},
-            {"xml_id": "sol_demo.demo_digital_signature_by_post", "record": signature, "noupdate": True},
-        ]
+        [{"xml_id": f"sol_demo.{xml_id}", "record": record, "noupdate": True} for xml_id, record in records]
     )
+
+
+@contextmanager
+def _viettel_sign(env, sign):
+    """Digital signing on, with Viettel Sign signing hashes through sign, or unreachable when sign is None."""
+
+    class DemoViettelSign:
+        def sign_hash(self, credential_id, digest, name):
+            if sign is None:
+                raise ViettelSignError(UNREACHABLE)
+            return sign(digest)
+
+    parameters = env["ir.config_parameter"].sudo()
+    enabled = parameters.get_bool(DIGITAL_SIGNING_PARAMETER)
+    parameters.set_bool(DIGITAL_SIGNING_PARAMETER, True)
+    try:
+        with patch(
+            "odoo.addons.sol_laboratory.models.mixins.digital_signing_mixin.viettel_sign_client", DemoViettelSign
+        ):
+            yield
+    finally:
+        parameters.set_bool(DIGITAL_SIGNING_PARAMETER, enabled or None)
 
 
 def _chain():
@@ -84,24 +110,3 @@ def _certificate(subject, issuer, key, issuer_key, valid_to):
         .not_valid_after(valid_to)
         .sign(issuer_key, hashes.SHA256())
     )
-
-
-def _report_pdf(env, report):
-    """The report as it prints once digital signing is on, with the address of the verification page."""
-    parameters = env["ir.config_parameter"].sudo()
-    enabled = parameters.get_bool(DIGITAL_SIGNING_PARAMETER)
-    parameters.set_bool(DIGITAL_SIGNING_PARAMETER, True)
-    content, report_type = (
-        env[MODEL_IR_ACTIONS_REPORT]
-        .with_context(**{UNSIGNED_PRINT_CONTEXT: True})
-        ._render_qweb_pdf(TEST_REPORT_REPORT, report.ids)
-    )
-    parameters.set_bool(DIGITAL_SIGNING_PARAMETER, enabled or None)
-    if report_type == "pdf":
-        return content
-    # Tests render reports as HTML, so a blank page stands in for the PDF there.
-    writer = PdfFileWriter()
-    writer.add_blank_page(width=595, height=842)
-    stream = io.BytesIO()
-    writer.write(stream)
-    return stream.getvalue()

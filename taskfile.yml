@@ -2,7 +2,9 @@ version: "3"
 
 set: [pipefail]
 
-dotenv: [src/core/.env.local]
+dotenv:
+  - '{{.MEDILAB_SETUP_DOTENV | default "src/core/.env.local"}}'
+  - '{{.MEDILAB_SETUP_DOTENV | default "tools/infrastructure/.env"}}'
 
 vars:
   DOPPLER_PROJECT: medilab
@@ -30,6 +32,18 @@ includes:
     taskfile: tools/taskfiles/tf.taskfile.yml
     dir: .
     flatten: true
+  setup:
+    taskfile: tools/taskfiles/setup.taskfile.yml
+    dir: .
+    flatten: true
+  onlyoffice:
+    taskfile: tools/taskfiles/onlyoffice.taskfile.yml
+    dir: .
+    flatten: true
+  sync:
+    taskfile: tools/taskfiles/sync.taskfile.yml
+    dir: .
+    flatten: true
   test:
     taskfile: tools/taskfiles/test.taskfile.yml
     dir: .
@@ -42,10 +56,13 @@ tasks:
     silent: true
 
   setup:
-    desc: "Set up repository & start the app"
+    desc: "Set up and verify Odoo, ONLYOFFICE and native Sync development"
     silent: true
+    interactive: true
+    env:
+      MEDILAB_SETUP_MODULES: '{{.MODULES | default "all"}}'
+    preconditions:
+      - sh: python -c "import sys; raise SystemExit(sys.version_info < (3, 12))"
+        msg: "Python 3.12+ is required on PATH. Install Python for Linux or Windows, disable Windows Store aliases if needed, and reopen the terminal. See README.md."
     cmds:
-      - task: doppler
-      - task: dev:setup
-      - task: ai:setup
-      - task: upgrade
+      - python tools/scripts/local_setup.py setup

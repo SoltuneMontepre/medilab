@@ -33,7 +33,7 @@ A patch of Odoo's form controller acts on forms whose model has the mixin:
 - The first change of an existing record takes the lock. While the user keeps editing, each change refreshes the last activity, at most once a minute; a user who stops typing for the inactivity period loses the lock.
 - When the lock is held by someone else, the form shows who holds it, discards the change and reloads.
 - Saving releases the lock on the server. Discarding releases it as `cancelled`, and leaving the record or the form releases it as `left`. A closed browser releases nothing; the lock expires after the inactivity period.
-- Taking and releasing a lock is sent on Odoo's bus to the group of internal users with the document's model and id. An open form of that document that has no unsaved change reloads, so its banner appears or disappears without the user reloading.
+- Taking and releasing a lock is sent on Odoo's bus to the group of internal users with the document's model and id. An open form of that document that has no unsaved change and no dialog open over it reloads, so its banner appears or disappears without the user reloading. A dialog that adds or edits a line of the form keeps its changes outside the form until it is saved, so a reload under it would drop them.
 
 ### Watchers
 

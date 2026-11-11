@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, models
 from odoo.exceptions import UserError
 from odoo.tools import format_list
@@ -8,9 +10,14 @@ from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN
 
 LISTED_MOVES = 10
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_stock_scrap_reason_tag as StockScrapReasonTagBase
+else:
+    StockScrapReasonTagBase = object
+
 
 # Lý Do Loại Bỏ
-class StockScrapReasonTag(models.Model):
+class StockScrapReasonTag(models.Model, StockScrapReasonTagBase):
     # _name is required to add mixins to an Odoo model.
     _name = MODEL_SCRAP_REASON_TAG
     _inherit = [MODEL_AUDIT_MIXIN, MODEL_SCRAP_REASON_TAG]

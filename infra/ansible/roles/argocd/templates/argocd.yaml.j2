@@ -11,10 +11,25 @@ spec:
   targetNamespace: {{ argocd_namespace }}
   createNamespace: true
   valuesContent: |-
+    global:
+      domain: {{ argocd_hostname }}
     dex:
       enabled: false
+    server:
+      ingress:
+        enabled: true
+        ingressClassName: traefik
     configs:
+      params:
+        server.insecure: true
+      rbac:
+        policy.csv: |
+          p, role:release, projects, get, default, allow
+          p, role:release, applications, get, default/odoo, allow
+          p, role:release, logs, get, default/odoo, allow
+          g, release, role:release
       cm:
+        accounts.release: apiKey
         # The root application waits for each sync wave of applications to be healthy.
         resource.customizations.health.argoproj.io_Application: |
           hs = {}

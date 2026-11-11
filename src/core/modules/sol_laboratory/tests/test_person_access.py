@@ -4,6 +4,7 @@ from odoo.tests import tagged
 
 from .people_case import PeopleCase
 from odoo.addons.sol_laboratory.constants.models import MODEL_EMPLOYEE, MODEL_PERSON
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 
 @tagged("post_install", "-at_install")
@@ -47,8 +48,8 @@ class TestPersonAccess(PeopleCase):
         administrator = self.env.ref("sol_laboratory.role_administrator")
 
         for vals in (
-            {"role_ids": [Command.link(administrator.id)]},
-            {"permission_ids": [Command.link(self.permissions("person.edit.all").id)]},
+            {"role_ids": [Command.link(persisted_id(administrator))]},
+            {"permission_ids": [Command.link(persisted_id(self.permissions("person.edit.all")))]},
         ):
             with self.subTest(vals=vals), self.assertRaises(AccessError):
                 own.write(vals)

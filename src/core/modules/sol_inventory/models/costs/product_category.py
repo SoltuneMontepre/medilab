@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, models
 
 from odoo.addons.sol_inventory.constants.costs import KEEP_DONE_VALUES
@@ -6,9 +8,14 @@ from odoo.addons.sol_inventory.constants.settings import COSTING_FIFO, ODOO_COST
 from odoo.addons.sol_inventory.constants.xml_ids import STOCK_ITEM_CATEGORY
 from odoo.addons.sol_laboratory.constants.models import MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_product_category as ProductCategoryBase
+else:
+    ProductCategoryBase = object
+
 
 # Danh Mục Sản Phẩm
-class ProductCategory(models.Model):
+class ProductCategory(models.Model, ProductCategoryBase):
     # _name is required to add mixins to an Odoo model.
     _name = MODEL_PRODUCT_CATEGORY
     _inherit = [MODEL_AUDIT_MIXIN, MODEL_PRODUCT_CATEGORY, MODEL_ARCHIVE_MIXIN]

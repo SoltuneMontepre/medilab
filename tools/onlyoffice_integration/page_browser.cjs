@@ -1,0 +1,140 @@
+// Released-page probe. Loopback proxies provide the isolated HTTP services at approved local origins.
+const http = require("node:http");
+const fs = require("node:fs");
+const os = require("node:os");
+const path = require("node:path");
+const { chromium } = require("playwright");
+const { proxy } = require("./loopback_proxy.cjs");
+const { collectFrameDiagnostics } = require("./frame_diagnostics.cjs");
+
+proxy(8081);
+proxy(3900);
+
+async function openEditor(browser, input, credentials, progress) {
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  progress(page, "login-navigation");
+  const errors = [];
+  page.on("pageerror", () => errors.push("pageerror"));
+  await page.goto(input.url);
+  const login = new URL(page.url());
+  const requested = new URL(input.url);
+  if (login.pathname !== "/web/login" || login.searchParams.get("redirect") !== requested.pathname) {
+    throw new Error("Unsafe browser login return");
+  }
+  await page.locator("input[name=login]").fill(credentials.login);
+  await page.locator("input[name=password]").fill(credentials.password);
+  await page.locator("button[type=submit]").click();
+  progress(page, "login-return");
+  await page.waitForURL(value => value.pathname === requested.pathname);
+  progress(page, "editor-ready");
+  await page.locator("#editor-status").filter({ hasText: "Editor ready." }).waitFor({ timeout: 120000 });
+  const frame = page.frames().find(value => /\/web-apps\/apps\/(documenteditor|spreadsheeteditor|presentationeditor)\//.test(value.url()));
+  if (!frame) throw new Error("Missing native editor frame");
+  const xssAbsent = await page.evaluate(() => window.editorXss === undefined &&
+    document.querySelector("#laboratory-editor img[src=x]") === null);
+  if (!xssAbsent) throw new Error("Unsafe configuration rendering");
+  return { context, page, frame, xssAbsent, errors };
+}
+
+async function edit(editor, extension, marker, secondary) {
+  if (extension === "xlsx") {
+    const address = editor.frame.locator("#ce-cell-name");
+    await address.fill(secondary ? "B1" : "A1");
+    await address.press("Enter");
+    const formula = editor.frame.locator("#ce-cell-content");
+    await formula.fill(marker);
+    await formula.press("Enter");
+  } else {
+    const overlay = editor.frame.locator("#id_viewer_overlay");
+    if (extension === "pptx") {
+      await overlay.dblclick({ position: { x: 300, y: 250 } });
+    } else {
+      await overlay.click({ position: { x: 300, y: 250 } });
+      await editor.page.keyboard.press("Control+Home");
+    }
+    await editor.page.keyboard.type(marker);
+    await editor.page.keyboard.press("Escape");
+  }
+  await editor.page.keyboard.press("Control+s");
+  await editor.page.waitForTimeout(1500);
+}
+
+async function readInput(request) {
+  let raw = "";
+  for await (const part of request) {
+    raw += part;
+    if (raw.length > 4096) throw new Error("Request too large");
+  }
+  const input = JSON.parse(raw);
+  const url = new URL(input.url);
+  if (url.hostname !== "runner" || url.protocol !== "http:" || url.username || url.password || url.hash ||
+      !/^\/medilab\/laboratory-files\/[1-9]\d*\/edit$/.test(url.pathname) || url.search ||
+      !["docx", "xlsx", "pptx"].includes(input.extension ?? "docx") ||
+      !/^MEDILAB_PAGE_[a-f0-9]{32}$/.test(input.marker)) {
+    throw new Error("Unexpected test origin");
+  }
+  return input;
+}
+
+http.createServer(async (request, response) => {
+  response.setHeader("Content-Type", "application/json");
+  if (request.url === "/health") return response.end("{}");
+  if (request.method !== "POST" || request.url !== "/page") {
+    response.writeHead(404); return response.end("{}");
+  }
+  let browser;
+  let page;
+  let stage = "input";
+  try {
+    const input = await readInput(request);
+    browser = await chromium.launch({ headless: true });
+    stage = "login-return";
+    const progress = (current, step) => { page = current; stage = step; };
+    const primary = await openEditor(browser, input, { login: "admin", password: "admin" }, progress);
+    page = primary.page;
+    let secondary;
+    if (input.coeditor) {
+      stage = "coeditor-login";
+      secondary = await openEditor(browser, input, input.coeditor, progress);
+      stage = "coeditor-edit";
+      await edit(secondary, input.extension, input.marker + "_MEMBER", true);
+    }
+    page = primary.page;
+    stage = "edit";
+    await edit(primary, input.extension ?? "docx", input.marker, false);
+    const hold = input.holdSeconds ?? 3;
+    if (!Number.isInteger(hold) || hold < 3 || hold > 960) throw new Error("Invalid hold duration");
+    await page.waitForTimeout(hold * 1000);
+    stage = "close";
+    if (secondary) {
+      await secondary.page.goto("about:blank");
+      await secondary.context.close();
+    }
+    await page.goto("about:blank");
+    await primary.context.close();
+    response.end(JSON.stringify({
+      loginReturn: true, editorReady: true, keyboardEdit: true, holdSeconds: hold,
+      editorSessions: secondary ? 2 : 1, xssAbsent: primary.xssAbsent && (!secondary || secondary.xssAbsent),
+      errors: [...primary.errors, ...(secondary?.errors ?? [])],
+    }));
+  } catch (error) {
+    response.writeHead(500);
+    // Native error messages can contain capabilities; retain only the fixed stage and error type.
+    let frames = [];
+    let editorState = "unavailable";
+    if (page) {
+      const diagnostic = fs.mkdtempSync(path.join(os.tmpdir(), "medilab-page-probe-"));
+      await page.screenshot({ path: path.join(diagnostic, "failure.png") }).catch(() => {});
+      frames = await collectFrameDiagnostics(page);
+      editorState = await page.evaluate(() => {
+        const text = document.getElementById("editor-status")?.textContent;
+        return Array.from(document.querySelectorAll("[data-message]"))
+          .find(node => node.textContent === text)?.dataset.message ?? "unknown";
+      }).catch(() => "unavailable");
+    }
+    response.end(JSON.stringify({ stage, error: error.name, frames, editorState }));
+  } finally {
+    if (browser) await browser.close();
+  }
+}).listen(3000, "0.0.0.0");

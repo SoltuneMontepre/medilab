@@ -1,4 +1,6 @@
-FROM docker.io/library/odoo:20.0 AS builder
+ARG ODOO_IMAGE=docker.io/library/odoo:20.0-20260926@sha256:cdd83e8359b3e8c357895d476396c05021fed9975bf420f353bab25fcaed1533
+
+FROM ${ODOO_IMAGE} AS builder
 
 USER root
 
@@ -12,7 +14,7 @@ RUN uv export --directory /tmp/core --frozen --no-dev \
         -r /tmp/requirements.txt
 
 
-FROM docker.io/library/odoo:20.0
+FROM ${ODOO_IMAGE}
 
 USER root
 

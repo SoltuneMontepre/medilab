@@ -18,14 +18,14 @@ function formatBytes(size: number): string {
 /** Nhãn hiển thị cho nguồn gốc một version (xung đột, phục hồi, ONLYOFFICE, hay đồng bộ từ
  * thiết bị). */
 function versionSourceLabel(version: FileVersion, t: ReturnType<typeof useT>): string {
-  if (version.source === "CONFLICT") {
+  if (version.source === "conflict") {
     return t("source.conflict");
   }
-  if (version.source === "RESTORE") {
+  if (version.source === "restored") {
     const restored = version.restored_from_version_number;
     return restored ? t("source.restoreFrom", { version: restored }) : t("source.restore");
   }
-  if (version.source === "ONLYOFFICE") {
+  if (version.source === "edited_online") {
     return t("source.office");
   }
   const device = version.device?.name;

@@ -1,0 +1,19 @@
+# Isolated mode for a fresh local demo seed. Run only with a new Compose project and owner id.
+services:
+  odoo:
+    command: ["--config=/etc/odoo/odoo.conf", "--max-cron-threads=0"]
+    environment:
+      MEDILAB_DEMO_BOOTSTRAP: "1"
+      MEDILAB_DEMO_BOOTSTRAP_OWNER: ${MEDILAB_DEMO_BOOTSTRAP_OWNER:?A bootstrap owner id is required}
+    ports: !override []
+  postgres:
+    ports: !override []
+  garage:
+    ports: !override []
+  garage-setup:
+  cloudbeaver:
+    profiles: ["not-used-during-bootstrap"]
+
+networks:
+  default:
+    internal: true

@@ -1,11 +1,18 @@
+from typing import TYPE_CHECKING
+
 from odoo import models
 
 from odoo.addons.sol_inventory.constants.xml_ids import STOCK_MANAGER_GROUP, STOCK_REPORTING_MENU, STOCK_SCREEN_MENUS
 from odoo.addons.sol_laboratory.constants.models import MODEL_IR_UI_MENU
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_ir_ui_menu as IrUiMenuBase
+else:
+    IrUiMenuBase = object
+
 
 # Menu
-class IrUiMenu(models.Model):
+class IrUiMenu(models.Model, IrUiMenuBase):
     _inherit = MODEL_IR_UI_MENU
 
     def _load_menus_blacklist(self):

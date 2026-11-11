@@ -1,4 +1,5 @@
 import hashlib
+from typing import TYPE_CHECKING, Self
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError
@@ -13,11 +14,17 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_SIGNATURE,
     MODEL_SIGNING_CERTIFICATE,
 )
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
 from odoo.addons.sol_laboratory.services.pdf_signing import check_pdf
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_digital_signature as DigitalSignatureBase
+else:
+    DigitalSignatureBase = object
 
 
 # Chữ Ký Số
-class DigitalSignature(models.Model):
+class DigitalSignature(models.Model, DigitalSignatureBase):
     _name = MODEL_DIGITAL_SIGNATURE
     _inherit = [MODEL_PERMISSION_MIXIN]
     _description = "Digital Signature"
@@ -25,26 +32,27 @@ class DigitalSignature(models.Model):
     # Printing a fully signed document makes its digital signature; it is never edited or deleted on the screen.
     _permission_actions = ("read",)
 
-    # Technical name of the model of the signed document, such as medilab.test.report.
-    document_model = fields.Char(string="Document Type", required=True, readonly=True)
-    # Id of the signed document.
-    document_id = fields.Integer(string="Document ID", required=True, readonly=True)
-    # Name of the signed document.
-    document_name = fields.Char(string="Document", compute="_compute_document_name")
-    # Version of the document whose PDF was signed.
-    document_version = fields.Integer(required=True, readonly=True)
-    # The laboratory's certificate Viettel Sign signed with.
-    certificate_id = fields.Many2one(
-        MODEL_SIGNING_CERTIFICATE, string="Certificate", required=True, readonly=True, ondelete="restrict"
-    )
-    # The PDF Viettel Sign signed, returned on every download.
-    attachment_id = fields.Many2one(
-        MODEL_IR_ATTACHMENT, string="Signed PDF", required=True, readonly=True, ondelete="restrict"
-    )
-    # When Viettel Sign signed the PDF.
-    signed_at = fields.Datetime(required=True, readonly=True)
-    # SHA-256 of the signed PDF, which finds it when someone verifies a file.
-    file_hash = fields.Char(string="SHA-256", required=True, readonly=True)
+    if not TYPE_CHECKING:
+        # Technical name of the model of the signed document, such as medilab.test.report.
+        document_model = fields.Char(string="Document Type", required=True, readonly=True)
+        # Id of the signed document.
+        document_id = fields.Integer(string="Document ID", required=True, readonly=True)
+        # Name of the signed document.
+        document_name = fields.Char(string="Document", compute="_compute_document_name")
+        # Version of the document whose PDF was signed.
+        document_version = fields.Integer(required=True, readonly=True)
+        # The laboratory's certificate Viettel Sign signed with.
+        certificate_id = fields.Many2one(
+            MODEL_SIGNING_CERTIFICATE, string="Certificate", required=True, readonly=True, ondelete="restrict"
+        )
+        # The PDF Viettel Sign signed, returned on every download.
+        attachment_id = fields.Many2one(
+            MODEL_IR_ATTACHMENT, string="Signed PDF", required=True, readonly=True, ondelete="restrict"
+        )
+        # When Viettel Sign signed the PDF.
+        signed_at = fields.Datetime(required=True, readonly=True)
+        # SHA-256 of the signed PDF, which finds it when someone verifies a file.
+        file_hash = fields.Char(string="SHA-256", required=True, readonly=True)
 
     _version_unique = models.Constraint(
         "UNIQUE(document_model, document_id, document_version)", "A document version is digitally signed once."
@@ -84,7 +92,7 @@ class DigitalSignature(models.Model):
         self.ensure_one()
         if self.document_model not in self.env:
             return None
-        return self.env[self.document_model].sudo().browse(self.document_id).exists() or None
+        return dynamic_model(self.env, self.document_model).sudo().browse(self.document_id).exists() or None
 
     def _approvals(self):
         """The signatures of the document's approval chain that stand on the signed version, in signing order."""
@@ -112,7 +120,7 @@ class DigitalSignature(models.Model):
         if check is None:
             return {"signed": False, "valid": False}
         signature = self.sudo().search([("file_hash", "=", hashlib.sha256(data).hexdigest())], limit=1)
-        result = {
+        result: dict[str, bool | Self] = {
             "signed": True,
             "signature_valid": check.signature_valid,
             "laboratory_certificate": bool(self.env[MODEL_SIGNING_CERTIFICATE]._of_certificate(check.certificate)),

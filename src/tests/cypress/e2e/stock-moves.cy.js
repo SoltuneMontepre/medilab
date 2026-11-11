@@ -1,5 +1,3 @@
-import { signIn } from "../support/session";
-
 const CONTAINER = "K55012345-01";
 
 // Moves a container of the central store to another of its locations through the Move Stock dialog.
@@ -16,7 +14,7 @@ function moveContainer(destination, reason) {
 
 describe("Stock moves, disposal and value", () => {
   beforeEach(() => {
-    signIn("demo.storekeeper");
+    cy.signInAs("storekeeper");
   });
 
   it("moves a container to another room of the central store and back", () => {

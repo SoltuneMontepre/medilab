@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
 
 from odoo import api, fields, models
@@ -6,6 +7,12 @@ from odoo.fields import Command
 
 from odoo.addons.sol_commerce.models.orders.sale_order_confirmation import CONFIRMING_ORDER_IDS
 from odoo.addons.sol_laboratory.constants.notifications import VIETNAM_ZONE
+from odoo.addons.sol_laboratory.services.record_id import persisted_ids
+
+if TYPE_CHECKING:
+    from medilab_model_types import Model_account_move as AccountMoveBase
+else:
+    AccountMoveBase = object
 
 MARKER = "sol_demo.demo_account_move_advance"
 PARTNER_AN_PHU = "sol_demo.demo_res_partner_an_phu"
@@ -15,9 +22,11 @@ MODEL_TAX = "account.tax"
 MODEL_TRANSACTION = "payment.transaction"
 LEAD_IN_WATER = "Lead in water"
 VAT_EIGHT = "VAT 8%"
+# The English and Vietnamese names of the journals the payment demo collects into, by journal type.
+PAYMENT_JOURNALS = {"cash": ("Cash", "Tiền mặt"), "bank": ("Bank", "Ngân hàng")}
 
 
-class AccountMove(models.Model):
+class AccountMove(models.Model, AccountMoveBase):
     _inherit = "account.move"
 
     @api.model
@@ -74,14 +83,7 @@ class AccountMove(models.Model):
         lowering = final.action_adjust(-100_000)
         draft = self._demo_invoice(green, product, vat10, "draft")
         cancelled = self._demo_invoice(green, product, vat10, "cancel")
-        payments = self.env[MODEL_ACCOUNT_PAYMENT]
-        cash = payments.create_pending_payment(advance, 1_000_000, "cash")
-        cash.action_post()
-        transfer = payments.create_pending_payment(advance, 500_000, "bank_transfer")
-        pending = payments.create_pending_payment(final, 200_000, "bank_transfer")
-        rejected = payments.create_pending_payment(final, 100_000, "cash")
-        rejected.rejection_reason = "The cash was not received"
-        rejected.action_reject_payment()
+        cash, transfer, pending, rejected = self._demo_payments(advance, final)
         yesterday = datetime.now(ZoneInfo(VIETNAM_ZONE)).date() - timedelta(days=2)
         overdue = self._demo_invoice(an_phu, product, vat8, "draft")
         overdue.invoice_date_due = yesterday
@@ -119,7 +121,7 @@ class AccountMove(models.Model):
                             "product_id": product.id,
                             "product_uom_qty": 1,
                             "price_unit": 5_000_000,
-                            "tax_ids": [Command.set(tax.ids)],
+                            "tax_ids": [Command.set(persisted_ids(tax))],
                         }
                     )
                 ],
@@ -145,7 +147,7 @@ class AccountMove(models.Model):
                             "product_id": product.id,
                             "quantity": 1,
                             "price_unit": 1_000_000,
-                            "tax_ids": [Command.set(tax.ids)],
+                            "tax_ids": [Command.set(persisted_ids(tax))],
                         }
                     )
                 ],
@@ -156,6 +158,31 @@ class AccountMove(models.Model):
         elif state == "cancel":
             invoice.button_cancel()
         return invoice
+
+    def _demo_payments(self, advance, final):
+        """A confirmed cash payment, a pending transfer on each invoice and a rejected cash payment."""
+        for journal_type in PAYMENT_JOURNALS:
+            self._demo_journal(journal_type)
+        payments = self.env[MODEL_ACCOUNT_PAYMENT]
+        cash = payments.create_pending_payment(advance, 1_000_000, "cash")
+        cash.action_post()
+        transfer = payments.create_pending_payment(advance, 500_000, "bank_transfer")
+        pending = payments.create_pending_payment(final, 200_000, "bank_transfer")
+        rejected = payments.create_pending_payment(final, 100_000, "cash")
+        rejected.rejection_reason = "The cash was not received"
+        rejected.action_reject_payment()
+        return cash, transfer, pending, rejected
+
+    def _demo_journal(self, journal_type):
+        """Add the company's journal of this type when its chart has none, as Odoo's generic chart has no cash one."""
+        company = self.env.company
+        journals = self.env["account.journal"]
+        if journals.search([("type", "=", journal_type), ("company_id", "=", company.id)], limit=1):
+            return
+        name, vietnamese = PAYMENT_JOURNALS[journal_type]
+        journal = journals.create({"name": name, "type": journal_type, "company_id": company.id})
+        journal.with_context(lang="vi_VN").name = vietnamese
+        self._remember({f"demo_account_journal_{journal_type}": journal})
 
     def _demo_payos_days(self, invoice):
         provider = self.env.ref("sol_commerce.payment_provider_payos", raise_if_not_found=False)
@@ -202,7 +229,7 @@ class AccountMove(models.Model):
                     "name": partner.name,
                     "login": login,
                     "partner_id": partner.id,
-                    "group_ids": [Command.set(portal.ids)],
+                    "group_ids": [Command.set(persisted_ids(portal))],
                 }
             )
             self._remember({xml_id: user})
@@ -249,7 +276,7 @@ class AccountMove(models.Model):
                             "product_id": product.id,
                             "quantity": 1,
                             "price_unit": 1_000_000,
-                            "tax_ids": [Command.set(vat8.ids)],
+                            "tax_ids": [Command.set(persisted_ids(vat8))],
                         }
                     ),
                     Command.create(
@@ -257,7 +284,7 @@ class AccountMove(models.Model):
                             "product_id": product.id,
                             "quantity": 1,
                             "price_unit": 2_000_000,
-                            "tax_ids": [Command.set(vat10.ids)],
+                            "tax_ids": [Command.set(persisted_ids(vat10))],
                         }
                     ),
                 ],

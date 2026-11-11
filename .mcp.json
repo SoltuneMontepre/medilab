@@ -45,6 +45,8 @@
       "args": [
         "--python",
         "3.13",
+        "--overrides",
+        "tools/odoo-intelligence/postgres-overrides.txt",
         "--with",
         "mcp<2",
         "postgres-mcp==0.3.0",

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A sample's laboratory folders, created from the sample and opened from it by people with the laboratory files
+     permission. -->
+<odoo>
+    <record id="view_medilab_sample_form_laboratory_folders" model="ir.ui.view">
+        <field name="name">medilab.sample.form.laboratory.folders</field>
+        <field name="model">medilab.sample</field>
+        <field name="inherit_id" ref="view_medilab_sample_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//header/field[@name='status']" position="before">
+                <button
+                    name="action_create_laboratory_folders"
+                    type="object"
+                    string="Create Folders"
+                    class="btn-secondary"
+                    invisible="not laboratory_folders_missing"
+                    groups="sol_laboratory.group_permission_laboratory_folder_create_all"
+                />
+            </xpath>
+            <xpath expr="//div[hasclass('oe_title')]" position="before">
+                <div class="oe_button_box" name="button_box">
+                    <button
+                        name="action_open_laboratory_folders"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-folder-open"
+                        invisible="not laboratory_folder_count"
+                        groups="sol_laboratory.group_permission_laboratory_folder_create_all"
+                    >
+                        <field name="laboratory_folder_count" string="Folders" widget="statinfo" />
+                    </button>
+                </div>
+            </xpath>
+            <xpath expr="//header" position="inside">
+                <field name="laboratory_folders_missing" invisible="1" />
+            </xpath>
+        </field>
+    </record>
+</odoo>
