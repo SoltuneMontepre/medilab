@@ -23,6 +23,7 @@
 - **Unsynced edits of a removed member.** A member removed from a folder keeps the files waiting on their computer, paused for good, and nobody else sees them. Are they handed over, uploaded or discarded? (US-T28)
 - **A shared computer.** Medilab Sync signs in one person per installation. When another person signs in on the same computer, what happens to the first person's files still waiting to sync? (US-T23)
 - **Conflicts on result files.** When a result file changed both on a computer and on the server, keeping the local file does not say which version is the result, and a version can be signed while the conflict is open. Which version counts, and is signing refused until the conflict is resolved? (US-T25, US-HD16)
+- **Uninstalling a module with scheduled jobs.** A job's `cron_id` restricts deleting its cron, and each finished run of a job carries an audit entry that only the cleanup job removes, so uninstalling a module whose scheduled job has run leaves the job and its cron behind. `sol_onboarding` turns its crons off in an uninstall hook; `sol_commerce`, whose jobs follow the same pattern, does not. Should the job framework handle a module's uninstall itself, for every module with scheduled jobs? (SH-09)
 
 ## #173
 
