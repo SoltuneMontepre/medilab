@@ -108,6 +108,11 @@ msgid "Bottled water microbiology"
 msgstr "Vi sinh nước đóng chai"
 
 #. module: sol_demo
+#: model:medilab.onboarding.source,name:sol_demo.demo_onboarding_source_boa
+msgid "Bureau of Accreditation"
+msgstr "Văn phòng Công nhận Chất lượng"
+
+#. module: sol_demo
 #: model:medilab.sample.type,name:sol_demo.demo_sample_type_cabbage
 msgid "Cabbage"
 msgstr "Bắp cải"
