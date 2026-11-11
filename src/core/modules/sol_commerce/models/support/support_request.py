@@ -46,6 +46,8 @@ class SupportRequest(models.Model, SupportRequestBase):
     _order = "id desc"
     _rec_names_search = ("code", "subject")
     _permission_actions = ("read", "create", "edit", "delete")
+    # The Medilab Mobile screen that opens it.
+    _mobile_screen = "support_request"
     # The customer writes on the request from the portal's chatter with read access only.
     _mail_post_access = "read"
 

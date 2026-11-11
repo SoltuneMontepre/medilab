@@ -60,7 +60,13 @@ class TestOrderTemplateConcurrency(BaseCase):
                     "group_ids": [Command.set(persisted_ids(group))],
                 }
             )
-            tax = env["medilab.tax"].create({"name": f"Race tax {key}", "code": key})
+            tax = env["medilab.tax"].create(
+                {
+                    "name": f"Race tax {key}",
+                    "code": key,
+                    "rate_ids": [Command.create({"rate": 10, "valid_from": "2020-01-01"})],
+                }
+            )
             price = env["medilab.parameter.price"].create(
                 {"parameter_id": parameter.id, "list_price": 150000, "tax_id": tax.id}
             )

@@ -94,7 +94,7 @@ class FakeViettelSign:
 
 class SigningCase(ReportCase):
     """Digital signing is on, with a Viettel Sign account whose laboratory certificate is valid for a year. Reports
-    render as a blank PDF, since tests have no PDF engine."""
+    render, and ONLYOFFICE converts prepared reports, as a blank PDF, since tests have no PDF engine."""
 
     @classmethod
     def setUpClass(cls):
@@ -113,12 +113,17 @@ class SigningCase(ReportCase):
         )
         self.startPatcher(patch.dict(os.environ, ACCOUNT))
         pdf = self.pdf
+        # The reports rendered, by their ids.
+        self.renders = renders = []
 
         def pre_render(printing, report_ref, res_ids=None, data=None):
             res_id = res_ids if isinstance(res_ids, int) else (res_ids or [False])[0]
+            renders.append(res_id)
             return {res_id: {"stream": io.BytesIO(pdf), "attachment": None}}, "pdf"
 
         self.patch(type(self.env["ir.actions.report"]), "_pre_render_qweb_pdf", pre_render)
+        # ONLYOFFICE converts the prepared reports to a PDF Viettel Sign can sign.
+        self.conversion.return_value = pdf
         self.env["ir.config_parameter"].set_bool(DIGITAL_SIGNING_PARAMETER, True)
         certificates = self.env[MODEL_SIGNING_CERTIFICATE]
         certificates._refresh()

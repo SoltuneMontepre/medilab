@@ -217,13 +217,9 @@ class DigitalSigningMixin(models.AbstractModel, DigitalSigningMixinBase):
         self.ensure_one()
         if self.digital_signature_id:
             return self.digital_signature_id
+        pdf = self._digital_signing_source()
         client = viettel_sign_client()
         certificate = self.env[MODEL_SIGNING_CERTIFICATE]._signing()
-        pdf, _report_type = (
-            self.env[MODEL_IR_ACTIONS_REPORT]
-            .with_context(**{UNSIGNED_PRINT_CONTEXT: True})
-            ._render_qweb_pdf(self._digital_signing_report, self.ids)
-        )
         chain = certificate_chain(certificate.certificate_chain)
         signed = sign_pdf(
             pdf, chain, lambda digest: client.sign_hash(certificate.credential_id, digest, self.display_name)
@@ -234,6 +230,17 @@ class DigitalSigningMixin(models.AbstractModel, DigitalSigningMixinBase):
                 f"Viettel Sign returned a signature the certificate {certificate.name} does not verify"
             )
         return self._digital_signing_store(signed, certificate)
+
+    def _digital_signing_source(self):
+        """The unsigned PDF Viettel Sign signs: the document's report, rendered now. A host that keeps a reviewed PDF
+        returns that one."""
+        self.ensure_one()
+        pdf, _report_type = (
+            self.env[MODEL_IR_ACTIONS_REPORT]
+            .with_context(**{UNSIGNED_PRINT_CONTEXT: True})
+            ._render_qweb_pdf(self._digital_signing_report, self.ids)
+        )
+        return pdf
 
     def _digital_signing_store(self, pdf, certificate):
         """Store the PDF Viettel Sign signed with the certificate as the document's digital signature."""

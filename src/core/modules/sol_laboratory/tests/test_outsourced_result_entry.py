@@ -37,4 +37,6 @@ class TestOutsourcedResultEntry(DispatchCase):
         self.as_person(result, self.head).action_reject("The blank was contaminated.")
 
         self.assertTrue(self.as_person(self.test, self.tester).can_enter_result)
-        self.assertEqual(self.enter().attempt, 2)
+        retest = self.enter()
+        self.assertEqual(self.test.result_ids, retest | result)
+        self.assertTrue(retest.is_reported)
