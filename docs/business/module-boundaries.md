@@ -2,7 +2,7 @@
 
 - E-commerce and Inventory depend on Laboratory; Laboratory depends on neither.
 - The Medilab Theme module (`sol_theme`) depends on no MediLab module, and no MediLab module depends on it.
-- The Onboarding module (`sol_onboarding`) depends on Laboratory, and no MediLab module depends on it. It writes Laboratory master data only when an administrator accepts a staged record, and Laboratory does not know about it.
+- The Onboarding module (`sol_onboarding`) depends on Laboratory, and only the demo data module (`sol_demo`) depends on it. It writes Laboratory master data only when an administrator accepts a staged record, and Laboratory does not know about it.
 - Customers, tasks and schedules belong to Laboratory, so they work without E-commerce. E-commerce keeps prices, taxes, service packages and each customer's sales terms.
 - Machines and chemical information belong to Laboratory. Departments and their teams belong to Laboratory. Inventory manages stock, stores, containers and their expiry, movement between stores, recipes, suppliers and purchasing, cost centres and budgets, how much of each item one test of a method uses, and which containers and lots each test result used.
 

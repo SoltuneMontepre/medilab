@@ -2,7 +2,7 @@
 
 The Onboarding module (`sol_onboarding`) fills the Laboratory master data of a new installation from public data that trusted sources publish, such as the organisation search of the Bureau of Accreditation (BoA, [boa.gov.vn](https://www.boa.gov.vn/vi/timkiem/tochuc)). It only serves master data: it never touches test requests, samples, results or any other document. The tables are drawn in [onboarding.prisma](../../infrastructure/database/onboarding/onboarding.prisma), and [Onboarding crawler](../../specs/onboarding-crawler.md) specifies how it collects.
 
-The module is optional. It depends on Laboratory, no MediLab module depends on it, and uninstalling it leaves the master data it created in Laboratory.
+The module is optional. It depends on Laboratory, only the demo data module (`sol_demo`) depends on it, and uninstalling it leaves the master data it created in Laboratory.
 
 ## How it works
 
@@ -49,7 +49,7 @@ A staged record is one of these kinds. Accepting it follows the rules of the Lab
 
 | Kind                      | Becomes                                                                                       |
 | ------------------------- | --------------------------------------------------------------------------------------------- |
-| Accreditation certificate | An accreditation certificate with its number, issuing body, validity dates and the methods of its scope |
+| Accreditation certificate | An accreditation certificate with its number, issuing body and validity dates; accepting it adds the methods of its scope to the catalog, not to its scope lines |
 | Testing field             | A testing field, such as Chemistry or Microbiology                                            |
 | Testing method            | A testing method with its standard code and title                                             |
 | Sample type               | A sample type, such as the material or product a test is done on                              |
