@@ -61,7 +61,7 @@ class TestResult(models.Model, TestResultBase):
     def _deduct_usual_use(self):
         """Deduct the testing method's usual use from the store of the person who entered the result."""
         self.ensure_one()
-        way = self._way_of_testing()
+        way = self.sudo().parameter_method_id
         if not way or not way.method_id:
             return None
         consumptions = self.env[MODEL_METHOD_CONSUMPTION].sudo().search([("method_id", "=", way.method_id.id)])
