@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Bottled water: coliforms and E. coli share the sterile glass bottle, pH and lead share the polyethylene bottle
+         with a different preservation, and the coliform colony count states no requirement. -->
+    <record id="demo_sampling_requirement_coliforms_mpn_bottled_water" model="medilab.sampling.requirement">
+        <field name="method_id" ref="demo_testing_method_tcvn_6187_2" />
+        <field name="sample_type_id" ref="demo_sample_type_bottled_water" />
+        <field name="amount">250</field>
+        <field name="unit_id" ref="demo_measurement_unit_ml" />
+        <field name="container_type">Sterile glass bottle</field>
+        <field name="preservation">Chilled at 2–8 °C</field>
+    </record>
+    <record id="demo_sampling_requirement_e_coli_membrane_bottled_water" model="medilab.sampling.requirement">
+        <field name="method_id" ref="demo_testing_method_tcvn_6187_1" />
+        <field name="sample_type_id" ref="demo_sample_type_bottled_water" />
+        <field name="amount">250</field>
+        <field name="unit_id" ref="demo_measurement_unit_ml" />
+        <field name="container_type">Sterile glass bottle</field>
+        <field name="preservation">Chilled at 2–8 °C</field>
+    </record>
+    <record id="demo_sampling_requirement_ph_water_bottled_water" model="medilab.sampling.requirement">
+        <field name="method_id" ref="demo_testing_method_tcvn_6492" />
+        <field name="sample_type_id" ref="demo_sample_type_bottled_water" />
+        <field name="amount">100</field>
+        <field name="unit_id" ref="demo_measurement_unit_ml" />
+        <field name="container_type">Polyethylene bottle</field>
+        <field name="preservation">Chilled at 2–8 °C</field>
+    </record>
+    <record id="demo_sampling_requirement_lead_aas_bottled_water" model="medilab.sampling.requirement">
+        <field name="method_id" ref="demo_testing_method_tcvn_7602" />
+        <field name="sample_type_id" ref="demo_sample_type_bottled_water" />
+        <field name="amount">500</field>
+        <field name="unit_id" ref="demo_measurement_unit_ml" />
+        <field name="container_type">Polyethylene bottle</field>
+        <field name="preservation">Acidified with HNO₃ to pH below 2</field>
+    </record>
+    <record id="demo_sampling_requirement_lead_icpms_bottled_water" model="medilab.sampling.requirement">
+        <field name="method_id" ref="demo_testing_method_iso_17294_2" />
+        <field name="sample_type_id" ref="demo_sample_type_bottled_water" />
+        <field name="amount">100</field>
+        <field name="unit_id" ref="demo_measurement_unit_ml" />
+        <field name="container_type">Polyethylene bottle</field>
+        <field name="preservation">Acidified with HNO₃ to pH below 2</field>
+    </record>
+</odoo>
