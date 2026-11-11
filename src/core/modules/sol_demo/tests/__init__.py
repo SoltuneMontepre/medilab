@@ -7,6 +7,7 @@ from . import (
     test_demo_echo,
     test_demo_quotation_language,
     test_demo_quotations,
+    test_demo_request_orders,
     test_invoice_demo,
     test_laboratory_file_demo,
     test_onboarding_demo,

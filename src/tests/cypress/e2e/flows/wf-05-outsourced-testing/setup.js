@@ -70,8 +70,8 @@ export function clearDrafts(kind = "lead") {
 // A sample test of a received sample whose testing task the head of department assigned to the tester. Its results
 // are promised `days` from today: with none, its due date has passed, so no machine can finish it and the scheduler
 // suggests outsourcing it. `sample` can give another sample type and physical state, and a regulation to compare the
-// sample with, as external IDs. `accepted` is the external ID of the way of testing the customer accepted on the
-// quotation, which the test keeps to.
+// sample with, as external IDs; the regulation can also be a `{ model, id }`. `accepted` is the external ID of the way of testing
+// the customer accepted on the quotation, which the test keeps to.
 export function assignedTest(kind = "lead", { days = 0, sample = {}, accepted } = {}) {
   const { parameter, sampleType, state } = { ...PARAMETERS[kind], ...sample };
   const test = { model: "medilab.sample.test", kind };
@@ -80,7 +80,8 @@ export function assignedTest(kind = "lead", { days = 0, sample = {}, accepted } 
   refAs(RECEPTION, "sol_demo.demo_customer_green_farm").then(({ id }) => (ids.customer = id));
   refAs(RECEPTION, sampleType).then(({ id }) => (ids.sampleType = id));
   refAs(RECEPTION, parameter).then(({ id }) => (ids.parameter = id));
-  if (sample.regulation) refAs(RECEPTION, sample.regulation).then(({ id }) => (ids.regulation = id));
+  if (typeof sample.regulation === "string") refAs(RECEPTION, sample.regulation).then(({ id }) => (ids.regulation = id));
+  else if (sample.regulation) ids.regulation = sample.regulation.id;
   refAs(HEAD, "sol_demo.demo_person_tester").then(({ id }) => (ids.tester = id));
   cy.then(() =>
     callAs(RECEPTION, "medilab.test.request", "create", [

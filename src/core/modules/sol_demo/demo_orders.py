@@ -2,9 +2,13 @@ from odoo import fields
 from odoo.fields import Command
 
 from odoo.addons.sol_commerce.constants.models import MODEL_PRODUCT_TEMPLATE, MODEL_SALE_ORDER
+from odoo.addons.sol_commerce.constants.orders import STATUS_CANCELLED, STATUS_COMPLETED, STATUS_CONFIRMED
 from odoo.addons.sol_commerce.constants.xml_ids import ALL_ORDERS_GROUP
-from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER
+from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER, MODEL_TEST_REQUEST
 from odoo.addons.sol_laboratory.services.record_id import persisted_id
+
+# The status of the order a demo test request came from, by the request's status.
+REQUEST_ORDER_STATUS = {"reported": STATUS_COMPLETED, "cancelled": STATUS_CANCELLED}
 
 
 def seed_orders(env):
@@ -79,6 +83,33 @@ def seed_orders(env):
         ("demo_cancellation_request_accepted", accepted),
     ):
         _xml_id(env, xml_id, record)
+
+
+def seed_request_orders(env):
+    """Give every demo test request the order sales confirmed it from, for the tested parameters: completed once its
+    report is issued, cancelled with the request, confirmed otherwise."""
+    orders = env[MODEL_SALE_ORDER]
+    taken = orders.search([("test_request_id", "!=", False)]).test_request_id
+    sales = env.ref("sol_demo.demo_res_users_sales")
+    lead = _product(env, "parameter_id", env.ref("sol_demo.demo_test_parameter_lead").id)
+    for request in env[MODEL_TEST_REQUEST].search([("id", "not in", taken.ids)], order="id"):
+        products = [
+            _product(env, "parameter_id", parameter.id) for parameter in request.sample_ids.test_ids.parameter_id
+        ]
+        customer = request.customer_id.partner_id
+        orders.create(
+            {
+                "partner_id": customer.id,
+                "customer_id": customer.id,
+                "source": "sales",
+                "order_status": REQUEST_ORDER_STATUS.get(request.status, STATUS_CONFIRMED),
+                "user_id": sales.id,
+                "order_line": [_line(product, 1) for product in products if product] or [_line(lead, 1)],
+                "expected_result_date": request.expected_date,
+                "confirmed_at": request.create_date,
+                "test_request_id": request.id,
+            }
+        )
 
 
 def _product(env, field_name, owner_id):

@@ -1,15 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo noupdate="1">
-    <!-- The lab head signs the reports. -->
-    <record id="sol_laboratory.task_type_report_signing" model="medilab.task.type">
-        <field name="role_id" ref="demo_role_lab_head" />
-    </record>
-    <!-- Sales claim submitted orders. -->
-    <record id="sol_commerce.task_type_order_quotation" model="medilab.task.type">
-        <field name="role_id" ref="demo_role_sales" />
-    </record>
-    <!-- The accountant posts the invoices sales drafts. -->
-    <record id="sol_commerce.task_type_invoice_posting" model="medilab.task.type">
-        <field name="role_id" ref="demo_role_accountant" />
-    </record>
+<odoo>
+    <!-- Sample delivery staff share the queue of collection tasks that sales start on confirmed orders. An update skips
+         the laboratory's own records, so a function routes it on every update too. -->
+    <function
+        model="medilab.task.type"
+        name="write"
+        eval="[[ref('sol_laboratory.task_type_sample_collection')], {'route': 'role', 'role_id': ref('demo_role_sample_delivery_staff')}]"
+    />
+    <data noupdate="1">
+        <!-- The lab head signs the reports. -->
+        <record id="sol_laboratory.task_type_report_signing" model="medilab.task.type">
+            <field name="role_id" ref="demo_role_lab_head" />
+        </record>
+        <!-- Sales claim submitted orders. -->
+        <record id="sol_commerce.task_type_order_quotation" model="medilab.task.type">
+            <field name="role_id" ref="demo_role_sales" />
+        </record>
+        <!-- The accountant posts the invoices sales drafts. -->
+        <record id="sol_commerce.task_type_invoice_posting" model="medilab.task.type">
+            <field name="role_id" ref="demo_role_accountant" />
+        </record>
+    </data>
 </odoo>
