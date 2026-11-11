@@ -83,9 +83,13 @@ class StockPackage(models.Model, StockPackageBase):
         # Last day the container can be used. Empty when its lot has no expiry and it is still sealed.
         usable_until = fields.Date(string="Usable Until", compute="_compute_usable_until", store=True)
         # The item in the container. Kept after the stock is gone, because Odoo deletes a quant at zero.
-        item_id = fields.Many2one(MODEL_PRODUCT, string="Item", compute="_compute_content", store=True, ondelete="restrict")
+        item_id = fields.Many2one(
+            MODEL_PRODUCT, string="Item", compute="_compute_content", store=True, ondelete="restrict"
+        )
         # The lot of the stock in the container. Kept after the stock is gone.
-        lot_id = fields.Many2one(MODEL_STOCK_LOT, string="Lot", compute="_compute_content", store=True, ondelete="restrict")
+        lot_id = fields.Many2one(
+            MODEL_STOCK_LOT, string="Lot", compute="_compute_content", store=True, ondelete="restrict"
+        )
         # Quantity left in the container, in its item's unit.
         quantity = fields.Float(string="Quantity Left", digits="Product Unit", compute="_compute_quantity")
         # Done move lines that took stock from the container or put stock into it.

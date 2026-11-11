@@ -1,22 +1,32 @@
+from typing import TYPE_CHECKING
+
 from odoo import fields, models
 
 from odoo.addons.sol_inventory.constants.models import MODEL_CONTAINER_OPENING, MODEL_STOCK_PACKAGE
 from odoo.addons.sol_laboratory.constants.models import MODEL_RES_USERS
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_container_opening as ContainerOpeningBase
+else:
+    ContainerOpeningBase = object
+
 
 # Ghi Nhận Mở Nắp
-class ContainerOpening(models.TransientModel):
+class ContainerOpening(models.TransientModel, ContainerOpeningBase):
     _name = MODEL_CONTAINER_OPENING
     _description = "Record Opening"
 
-    # The sealed container someone opened.
-    container_id = fields.Many2one(MODEL_STOCK_PACKAGE, string="Container", required=True, readonly=True)
-    # Who opened the container.
-    opened_by_id = fields.Many2one(MODEL_RES_USERS, string="Opened By", required=True, domain=[("share", "=", False)])
-    # When the container was opened.
-    opened_at = fields.Datetime(string="Opened At", required=True, default=fields.Datetime.now)
-    # How the opening came about.
-    note = fields.Char(required=True)
+    if not TYPE_CHECKING:
+        # The sealed container someone opened.
+        container_id = fields.Many2one(MODEL_STOCK_PACKAGE, string="Container", required=True, readonly=True)
+        # Who opened the container.
+        opened_by_id = fields.Many2one(
+            MODEL_RES_USERS, string="Opened By", required=True, domain=[("share", "=", False)]
+        )
+        # When the container was opened.
+        opened_at = fields.Datetime(string="Opened At", required=True, default=fields.Datetime.now)
+        # How the opening came about.
+        note = fields.Char(required=True)
 
     def action_confirm(self):
         self.ensure_one()

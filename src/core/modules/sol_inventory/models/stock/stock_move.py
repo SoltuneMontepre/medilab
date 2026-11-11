@@ -1,4 +1,5 @@
 from collections import defaultdict
+from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError
@@ -35,43 +36,49 @@ DONE_MOVE_FIELDS = frozenset(
     {"product_id", "product_uom_qty", "quantity", "location_id", "location_dest_id", "move_line_ids"}
 )
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_stock_move as StockMoveBase
+else:
+    StockMoveBase = object
+
 
 # Dịch Chuyển Kho
-class StockMove(models.Model):
+class StockMove(models.Model, StockMoveBase):
     # _name is required to add mixins to an Odoo model.
     _name = MODEL_STOCK_MOVE
     _inherit = [MODEL_AUDIT_MIXIN, MODEL_STOCK_MOVE, MODEL_PERMISSION_MIXIN]
     # Reading moves and recording a use or a waste. There is no edit permission: a done move is never changed.
     _permission_actions = ("read", "create")
 
-    # receipt, preparation, consumption, waste or adjustment, from what the move itself does; empty for the
-    # operations later features add.
-    move_kind = fields.Selection(
-        [
-            (MOVE_RECEIPT, "Receipt"),
-            (MOVE_PREPARATION, "Preparation"),
-            (MOVE_CONSUMPTION, "Consumption"),
-            (MOVE_WASTE, "Waste"),
-            (MOVE_ADJUSTMENT, "Adjustment"),
-        ],
-        string="Kind",
-        compute="_compute_move_kind",
-        store=True,
-        precompute=True,
-        index=True,
-    )
-    # The preparation this move belongs to; empty for a use, a waste or a receipt.
-    preparation_id = fields.Many2one(
-        MODEL_PREPARATION, string="Preparation", copy=False, index=True, ondelete="restrict"
-    )
-    # The result whose usual use this move deducted; empty when nobody signed a result for it.
-    test_result_id = fields.Many2one(
-        MODEL_TEST_RESULT, string="Test Result", copy=False, index=True, ondelete="restrict"
-    )
-    # True when signing a result recorded the move, false when a person recorded it.
-    automatic = fields.Boolean(copy=False)
-    # Why the stock was used or marked empty. A waste uses scrap reason tags instead.
-    reason = fields.Char(copy=False)
+    if not TYPE_CHECKING:
+        # receipt, preparation, consumption, waste or adjustment, from what the move itself does; empty for the
+        # operations later features add.
+        move_kind = fields.Selection(
+            [
+                (MOVE_RECEIPT, "Receipt"),
+                (MOVE_PREPARATION, "Preparation"),
+                (MOVE_CONSUMPTION, "Consumption"),
+                (MOVE_WASTE, "Waste"),
+                (MOVE_ADJUSTMENT, "Adjustment"),
+            ],
+            string="Kind",
+            compute="_compute_move_kind",
+            store=True,
+            precompute=True,
+            index=True,
+        )
+        # The preparation this move belongs to; empty for a use, a waste or a receipt.
+        preparation_id = fields.Many2one(
+            MODEL_PREPARATION, string="Preparation", copy=False, index=True, ondelete="restrict"
+        )
+        # The result whose usual use this move deducted; empty when nobody signed a result for it.
+        test_result_id = fields.Many2one(
+            MODEL_TEST_RESULT, string="Test Result", copy=False, index=True, ondelete="restrict"
+        )
+        # True when signing a result recorded the move, false when a person recorded it.
+        automatic = fields.Boolean(copy=False)
+        # Why the stock was used or marked empty. A waste uses scrap reason tags instead.
+        reason = fields.Char(copy=False)
 
     @api.depends(
         "is_scrap",

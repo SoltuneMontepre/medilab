@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import AccessError, UserError
 
@@ -17,38 +19,44 @@ from odoo.addons.sol_laboratory.constants.models import MODEL_PERSON
 USE = "use"
 WASTE = "waste"
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_stock_use as StockUseBase
+else:
+    StockUseBase = object
+
 
 # Sử Dụng Vật Tư
-class StockUse(models.TransientModel):
+class StockUse(models.TransientModel, StockUseBase):
     _name = MODEL_STOCK_USE
     _description = "Record Use or Waste"
 
-    # use or waste.
-    kind = fields.Selection([(USE, "Use"), (WASTE, "Waste")], required=True, default=USE)
-    # Code read from a container's label. Empty when the item is kept by lot or by quantity.
-    container_scan = fields.Char(string="Container Code")
-    # The container the use or waste is taken from. Empty when the item is kept by lot or by quantity.
-    container_id = fields.Many2one(MODEL_STOCK_PACKAGE, string="Container")
-    # The item, from the container or chosen for a lot or a quantity.
-    item_id = fields.Many2one(MODEL_PRODUCT, string="Item", domain=[("item_kind", "!=", False)])
-    # The lot, from the container or chosen when the item is kept by lot.
-    lot_id = fields.Many2one(MODEL_STOCK_LOT, string="Lot")
-    # The store the lot or quantity is taken from. A container brings its own place.
-    location_id = fields.Many2one(MODEL_STOCK_LOCATION, string="Store", domain="[('id', 'in', store_ids)]")
-    # Stores the signed-in person takes stock from.
-    store_ids = fields.Many2many(MODEL_STOCK_LOCATION, string="Stores", compute="_compute_store_ids")
-    # Quantity used or wasted, in the item's unit.
-    quantity = fields.Float(digits="Product Unit")
-    # Why the stock was used, or what happened to wasted stock whose waste reason is Other.
-    reason = fields.Char()
-    # Why the stock was wasted. Expired stock is disposed of, not wasted.
-    scrap_reason_tag_ids = fields.Many2many(
-        MODEL_SCRAP_REASON_TAG,
-        string="Waste Reason",
-        domain=lambda self: [("id", "!=", self.env.ref(SCRAP_EXPIRED).id)],
-    )
-    # True when the reason must be written: for a use, or for a waste whose reasons include Other.
-    reason_needed = fields.Boolean(compute="_compute_reason_needed")
+    if not TYPE_CHECKING:
+        # use or waste.
+        kind = fields.Selection([(USE, "Use"), (WASTE, "Waste")], required=True, default=USE)
+        # Code read from a container's label. Empty when the item is kept by lot or by quantity.
+        container_scan = fields.Char(string="Container Code")
+        # The container the use or waste is taken from. Empty when the item is kept by lot or by quantity.
+        container_id = fields.Many2one(MODEL_STOCK_PACKAGE, string="Container")
+        # The item, from the container or chosen for a lot or a quantity.
+        item_id = fields.Many2one(MODEL_PRODUCT, string="Item", domain=[("item_kind", "!=", False)])
+        # The lot, from the container or chosen when the item is kept by lot.
+        lot_id = fields.Many2one(MODEL_STOCK_LOT, string="Lot")
+        # The store the lot or quantity is taken from. A container brings its own place.
+        location_id = fields.Many2one(MODEL_STOCK_LOCATION, string="Store", domain="[('id', 'in', store_ids)]")
+        # Stores the signed-in person takes stock from.
+        store_ids = fields.Many2many(MODEL_STOCK_LOCATION, string="Stores", compute="_compute_store_ids")
+        # Quantity used or wasted, in the item's unit.
+        quantity = fields.Float(digits="Product Unit")
+        # Why the stock was used, or what happened to wasted stock whose waste reason is Other.
+        reason = fields.Char()
+        # Why the stock was wasted. Expired stock is disposed of, not wasted.
+        scrap_reason_tag_ids = fields.Many2many(
+            MODEL_SCRAP_REASON_TAG,
+            string="Waste Reason",
+            domain=lambda self: [("id", "!=", self.env.ref(SCRAP_EXPIRED).id)],
+        )
+        # True when the reason must be written: for a use, or for a waste whose reasons include Other.
+        reason_needed = fields.Boolean(compute="_compute_reason_needed")
 
     @api.depends("kind", "scrap_reason_tag_ids")
     def _compute_reason_needed(self):

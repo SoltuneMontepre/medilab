@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.fields import Command
@@ -12,18 +14,24 @@ from odoo.addons.sol_inventory.constants.models import (
 from odoo.addons.sol_laboratory.constants.approvals import STATE_NONE
 from odoo.addons.sol_laboratory.constants.models import MODEL_PERSON, MODEL_TEST_RESULT
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_test_result as TestResultBase
+else:
+    TestResultBase = object
+
 
 # Kết Quả Thử Nghiệm
-class TestResult(models.Model):
+class TestResult(models.Model, TestResultBase):
     _inherit = MODEL_TEST_RESULT
     _audit_children = ("container_line_ids",)
 
-    # Containers scanned for this result, in the order they are used up. A new version does not copy them.
-    container_line_ids = fields.One2many(MODEL_RESULT_CONTAINER, "result_id", string="Containers", copy=False)
-    # Code read from a container's label; it adds the container and is not stored.
-    container_scan = fields.Char(string="Scan Container", store=False)
-    # Moves recorded when this result was first signed.
-    move_ids = fields.One2many(MODEL_STOCK_MOVE, "test_result_id", string="Moves", copy=False)
+    if not TYPE_CHECKING:
+        # Containers scanned for this result, in the order they are used up. A new version does not copy them.
+        container_line_ids = fields.One2many(MODEL_RESULT_CONTAINER, "result_id", string="Containers", copy=False)
+        # Code read from a container's label; it adds the container and is not stored.
+        container_scan = fields.Char(string="Scan Container", store=False)
+        # Moves recorded when this result was first signed.
+        move_ids = fields.One2many(MODEL_STOCK_MOVE, "test_result_id", string="Moves", copy=False)
 
     @api.onchange("container_scan")
     def _onchange_container_scan(self):

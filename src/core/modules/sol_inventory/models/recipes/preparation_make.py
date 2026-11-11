@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.fields import Command
@@ -14,40 +16,46 @@ from odoo.addons.sol_inventory.constants.models import (
 from odoo.addons.sol_inventory.constants.xml_ids import CONTAINER_LABEL_REPORT, SCRAP_EXPIRED, SCRAP_OTHER
 from odoo.addons.sol_laboratory.constants.models import MODEL_PERSON
 
+if TYPE_CHECKING:
+    from medilab_model_types import Model_medilab_preparation_make as PreparationMakeBase
+else:
+    PreparationMakeBase = object
+
 
 # Pha Dung Dịch
-class PreparationMake(models.TransientModel):
+class PreparationMake(models.TransientModel, PreparationMakeBase):
     _name = MODEL_PREPARATION_MAKE
     _description = "Prepare Solution"
 
-    # The recipe of the one batch being prepared.
-    recipe_id = fields.Many2one(MODEL_RECIPE, string="Recipe", required=True, domain=[("active", "=", True)])
-    # The store the ingredients are in and the solution is put back into.
-    location_id = fields.Many2one(
-        MODEL_STOCK_LOCATION, string="Store", required=True, domain="[('id', 'in', store_ids)]"
-    )
-    # Stores the signed-in person prepares in.
-    store_ids = fields.Many2many(MODEL_STOCK_LOCATION, string="Stores", compute="_compute_store_ids")
-    # Code read from a container's label; it adds the container to the line of its ingredient and is not stored.
-    container_scan = fields.Char(string="Scan Container", store=False)
-    # One line per ingredient.
-    line_ids = fields.One2many(MODEL_PREPARATION_MAKE_LINE, "wizard_id", string="Ingredients")
-    # Quantity of solution obtained, in the solution's unit. Defaults to the yield and can only be lowered.
-    received_quantity = fields.Float(string="Quantity Obtained", digits="Product Unit")
-    # The unit of the quantity obtained: the solution's.
-    uom_id = fields.Many2one(related="recipe_id.uom_id")
-    # Why the extra ingredient was wasted. Required when an ingredient amount is above the recipe.
-    scrap_reason_tag_ids = fields.Many2many(
-        MODEL_SCRAP_REASON_TAG,
-        string="Reason for the Extra",
-        domain=lambda self: [("id", "!=", self.env.ref(SCRAP_EXPIRED).id)],
-    )
-    # What happened to the extra ingredient, when its reason is Other.
-    extra_reason = fields.Char(string="Other Reason")
-    # True when an ingredient amount is above the recipe.
-    has_extra = fields.Boolean(compute="_compute_has_extra")
-    # True when the extra ingredient's reasons include Other, so what happened must be written.
-    extra_reason_needed = fields.Boolean(compute="_compute_extra_reason_needed")
+    if not TYPE_CHECKING:
+        # The recipe of the one batch being prepared.
+        recipe_id = fields.Many2one(MODEL_RECIPE, string="Recipe", required=True, domain=[("active", "=", True)])
+        # The store the ingredients are in and the solution is put back into.
+        location_id = fields.Many2one(
+            MODEL_STOCK_LOCATION, string="Store", required=True, domain="[('id', 'in', store_ids)]"
+        )
+        # Stores the signed-in person prepares in.
+        store_ids = fields.Many2many(MODEL_STOCK_LOCATION, string="Stores", compute="_compute_store_ids")
+        # Code read from a container's label; it adds the container to the line of its ingredient and is not stored.
+        container_scan = fields.Char(string="Scan Container", store=False)
+        # One line per ingredient.
+        line_ids = fields.One2many(MODEL_PREPARATION_MAKE_LINE, "wizard_id", string="Ingredients")
+        # Quantity of solution obtained, in the solution's unit. Defaults to the yield and can only be lowered.
+        received_quantity = fields.Float(string="Quantity Obtained", digits="Product Unit")
+        # The unit of the quantity obtained: the solution's.
+        uom_id = fields.Many2one(related="recipe_id.uom_id")
+        # Why the extra ingredient was wasted. Required when an ingredient amount is above the recipe.
+        scrap_reason_tag_ids = fields.Many2many(
+            MODEL_SCRAP_REASON_TAG,
+            string="Reason for the Extra",
+            domain=lambda self: [("id", "!=", self.env.ref(SCRAP_EXPIRED).id)],
+        )
+        # What happened to the extra ingredient, when its reason is Other.
+        extra_reason = fields.Char(string="Other Reason")
+        # True when an ingredient amount is above the recipe.
+        has_extra = fields.Boolean(compute="_compute_has_extra")
+        # True when the extra ingredient's reasons include Other, so what happened must be written.
+        extra_reason_needed = fields.Boolean(compute="_compute_extra_reason_needed")
 
     @api.depends("line_ids.quantity", "line_ids.recipe_quantity", "line_ids.item_id")
     def _compute_has_extra(self):
