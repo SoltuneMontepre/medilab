@@ -1,19 +1,7 @@
+# The Odoo application's source: the editor integration. Two Odoo pods fit Server A beside Document Server during a
+# blue-green release, as Odoo is sized for it; see odoo/rollout.yaml.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: medilab
 resources:
   - ../onlyoffice-integration
-patches:
-  - target:
-      kind: Deployment
-      name: odoo
-    patch: |-
-      apiVersion: apps/v1
-      kind: Deployment
-      metadata:
-        name: odoo
-      spec:
-        strategy:
-          rollingUpdate:
-            maxSurge: 0
-            maxUnavailable: 1

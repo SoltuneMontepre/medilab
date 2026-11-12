@@ -6,6 +6,7 @@ resources:
   - applications/external-secrets.yaml
   - applications/secret-store.yaml
   - applications/cloudnative-pg.yaml
+  - applications/argo-rollouts.yaml
   - applications/plugin-barman-cloud.yaml
   - applications/database.yaml
   - applications/cloudflared.yaml

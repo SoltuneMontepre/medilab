@@ -8,6 +8,10 @@ resources:
   - callback-ingress.yaml
 patches:
   - path: odoo.yaml
+    target:
+      group: argoproj.io
+      kind: Rollout
+      name: odoo
   - target:
       group: traefik.io
       version: v1alpha1
@@ -19,12 +23,12 @@ patches:
         value: Host(`lims.soltunemontepre.tech`) && !PathPrefix(`/medilab/laboratory-files/callback/`)
 replacements:
   - source:
-      kind: Deployment
+      kind: Rollout
       name: odoo
       fieldPath: spec.template.spec.containers.[name=odoo].image
     targets:
       - select:
-          kind: Deployment
+          kind: Rollout
           name: odoo
         fieldPaths:
           - spec.template.spec.initContainers.[name=onlyoffice-trust].image

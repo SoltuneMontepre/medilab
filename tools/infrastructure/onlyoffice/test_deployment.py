@@ -179,10 +179,10 @@ class TestDeployment(unittest.TestCase):
         )
 
     def test_readiness_independent_of_document_server(self):
-        base = named(render("infra/cluster/odoo"), "Deployment", "odoo")["spec"][
+        base = named(render("infra/cluster/odoo"), "Rollout", "odoo")["spec"][
             "template"
         ]["spec"]
-        derived = named(self.odoo, "Deployment", "odoo")["spec"]["template"]["spec"]
+        derived = named(self.odoo, "Rollout", "odoo")["spec"]["template"]["spec"]
         self.assertEqual(
             derived["initContainers"][0]["image"], derived["containers"][0]["image"]
         )
@@ -232,8 +232,11 @@ class TestDeployment(unittest.TestCase):
             ],
         )
         references = []
-        for resources, name in [(self.server, "onlyoffice"), (self.odoo, "odoo")]:
-            container = named(resources, "Deployment", name)["spec"]["template"][
+        for resources, kind, name in [
+            (self.server, "Deployment", "onlyoffice"),
+            (self.odoo, "Rollout", "odoo"),
+        ]:
+            container = named(resources, kind, name)["spec"]["template"][
                 "spec"
             ]["containers"][0]
             references += [
@@ -452,15 +455,17 @@ class TestDeployment(unittest.TestCase):
         self.assertEqual(container["resources"]["requests"]["memory"], "3Gi")
         self.assertEqual(container["resources"]["limits"]["memory"], "4Gi")
 
-    def test_demo_odoo_rollouts_fit_without_a_surge_pod(self):
+    def test_demo_odoo_releases_blue_green_within_its_sizing(self):
         resources = render("infra/cluster/onlyoffice-demo-odoo")
-        deployment = named(resources, "Deployment", "odoo")["spec"]
-        self.assertEqual(deployment["replicas"], 1)
-        self.assertEqual(
-            deployment["strategy"]["rollingUpdate"],
-            {"maxSurge": 0, "maxUnavailable": 1},
-        )
-        env = deployment["template"]["spec"]["containers"][0]["env"]
+        rollout = named(resources, "Rollout", "odoo")["spec"]
+        self.assertEqual(rollout["replicas"], 1)
+        strategy = rollout["strategy"]["blueGreen"]
+        self.assertEqual(strategy["activeService"], "odoo")
+        self.assertEqual(strategy["previewService"], "odoo-preview")
+        container = rollout["template"]["spec"]["containers"][0]
+        self.assertEqual(container["resources"]["requests"]["memory"], "3Gi")
+        self.assertEqual(container["resources"]["limits"]["memory"], "4Gi")
+        env = container["env"]
         self.assertIn("ONLYOFFICE_JWT_SECRET", [item["name"] for item in env])
         source = yaml.safe_load(
             (ROOT / "infra/cluster/applications/odoo.yaml").read_text()

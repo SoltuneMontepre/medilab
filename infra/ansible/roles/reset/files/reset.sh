@@ -69,8 +69,10 @@ kubectl get application "$application" -n argocd -o jsonpath='{.status.operation
 test "$phase" = "Succeeded"
 
 section "Odoo"
-kubectl rollout restart deployment/odoo -n "$namespace"
-kubectl rollout status deployment/odoo -n "$namespace" --timeout=600s
+restarted=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+kubectl patch rollout odoo -n "$namespace" --type merge -p "{\"spec\":{\"restartAt\":\"$restarted\"}}"
+kubectl wait rollout/odoo -n "$namespace" --for=jsonpath='{.status.restartedAt}'="$restarted" --timeout=600s
+kubectl wait rollout/odoo -n "$namespace" --for=jsonpath='{.status.phase}'=Healthy --timeout=600s
 
 section "Check"
 currency=$(psql_primary "$database" -Atc \

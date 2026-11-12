@@ -5,4 +5,5 @@ resources:
   - backup-bucket.yaml
   - object-store.yaml
   - cluster.yaml
+  - rehearsal-database.yaml
   - scheduled-backup.yaml

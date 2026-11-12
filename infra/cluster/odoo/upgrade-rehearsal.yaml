@@ -1,0 +1,172 @@
+# Before the backup and the real upgrade, the release upgrades a copy of medilab in medilab_rehearsal with the same
+# modules as odoo-upgrade. A failure fails the sync before anything touches medilab, and keeps the copy to inspect.
+# It is skipped when medilab already records this image's fingerprint, as a sync without a new image does.
+# It has no bucket settings, so it never reads or writes the medilab-filestore bucket; files read as empty. It uses the
+# image's own odoo.conf, as the odoo-config Secret only exists once a first sync applied it.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: odoo-upgrade-rehearsal
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+    argocd.argoproj.io/sync-wave: "-2"
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 1800
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: odoo-upgrade-rehearsal
+    spec:
+      restartPolicy: Never
+      enableServiceLinks: false
+      initContainers:
+        - name: check
+          image: ghcr.io/soltunemontepre/medilab:sha-8e6924723d1121f7e90a11c5074220bac4e23a62
+          command:
+            - bash
+            - /opt/medilab/upgrade/upgrade.sh
+            - check
+          env: &odoo-env
+            - name: MEDILAB_MODULES
+              value: sol_session,sol_laboratory,sol_commerce,sol_inventory,sol_theme,sol_demo
+            - name: SKIP_FILE
+              value: /work/skip
+            - name: HOST
+              value: medilab-db-rw
+            - name: USER
+              valueFrom:
+                secretKeyRef:
+                  name: medilab-db-app
+                  key: username
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: medilab-db-app
+                  key: password
+          resources:
+            requests:
+              cpu: 500m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+          volumeMounts: &odoo-mounts
+            - name: data
+              mountPath: /var/lib/odoo
+            - name: upgrade
+              mountPath: /opt/medilab/upgrade
+              readOnly: true
+            - name: work
+              mountPath: /work
+        - name: copy
+          image: ghcr.io/cloudnative-pg/postgresql:18.4-standard-trixie
+          command:
+            - bash
+            - -euo
+            - pipefail
+            - -c
+            - |
+              if [[ -f /work/skip ]]; then
+                exit 0
+              fi
+              psql -v ON_ERROR_STOP=1 -d medilab_rehearsal -c 'DROP SCHEMA IF EXISTS public CASCADE' -c 'CREATE SCHEMA public'
+              pg_dump --format=custom --no-owner --no-privileges -d medilab |
+                pg_restore --no-owner --no-privileges --exit-on-error -d medilab_rehearsal
+          env:
+            - name: PGHOST
+              value: medilab-db-rw
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: medilab-db-app
+                  key: username
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: medilab-db-app
+                  key: password
+          resources:
+            requests:
+              cpu: "1"
+              memory: 256Mi
+            limits:
+              memory: 1Gi
+          volumeMounts:
+            - name: work
+              mountPath: /work
+      containers:
+        - name: upgrade
+          image: ghcr.io/soltunemontepre/medilab:sha-8e6924723d1121f7e90a11c5074220bac4e23a62
+          command:
+            - bash
+            - /opt/medilab/upgrade/upgrade.sh
+            - rehearse
+          env: *odoo-env
+          resources:
+            requests:
+              cpu: "3"
+              memory: 2Gi
+            limits:
+              memory: 4Gi
+          volumeMounts: *odoo-mounts
+      volumes:
+        - name: data
+          emptyDir: {}
+        - name: upgrade
+          configMap:
+            name: odoo-upgrade
+        - name: work
+          emptyDir: {}
+---
+# Empties medilab_rehearsal once the rehearsal passed, so the copy does not hold disk until the next release.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: odoo-upgrade-rehearsal-cleanup
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 600
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: odoo-upgrade-rehearsal
+    spec:
+      restartPolicy: Never
+      enableServiceLinks: false
+      containers:
+        - name: cleanup
+          image: ghcr.io/cloudnative-pg/postgresql:18.4-standard-trixie
+          command:
+            - psql
+            - -v
+            - ON_ERROR_STOP=1
+            - -d
+            - medilab_rehearsal
+            - -c
+            - DROP SCHEMA IF EXISTS public CASCADE
+            - -c
+            - CREATE SCHEMA public
+          env:
+            - name: PGHOST
+              value: medilab-db-rw
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: medilab-db-app
+                  key: username
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: medilab-db-app
+                  key: password
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              memory: 256Mi

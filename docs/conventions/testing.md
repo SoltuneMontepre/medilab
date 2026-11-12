@@ -8,6 +8,7 @@ How tests are written, where they live and how they run.
 | ------------- | ------------------------------------------------ | ---------------------------------------- | ------------------------------------------------------ |
 | Odoo modules  | Odoo test runner (`TransactionCase`, `HttpCase`) | `src/core/modules/<module>/tests/`       | `task test:core`                                       |
 | Browser       | Cypress                                          | `src/tests/cypress/e2e/`                 | `task test:e2e`                                        |
+| Upgrade       | Odoo on a throwaway Postgres                     | `tools/scripts/test_upgrade.py`          | `task test:upgrade`                                    |
 | Applications  | `bun test`, Jest and `cargo test`                | next to the code, in each application    | `task test:apps`                                       |
 | Type checking | `unittest` and pyright                           | `tools/typecheck/`                       | `task test:typecheck`                                  |
 | Tool scripts  | `unittest`                                       | next to the script in `tools/scripts/`   | the task of the script                                 |
@@ -33,6 +34,16 @@ How tests are written, where they live and how they run.
 - The WF-03 scheduling tests follow the [WF-03 test plan](../reports/wf-03-test-plan.md), which traces each scenario to its test methods. Frozen-clock TransactionCases inherit `ScheduleInvariantsCase` (`schedule_invariants_case.py`), which checks the plan's schedule invariants; `LabTimezoneCase` puts the laboratory in +7 and `CrossDepartmentCase` adds a second department. Races of two committed transactions inherit `ScheduleRaceCase` (`schedule_race_case.py`): each thread stops at a production boundary, the commit order can be forced, and every retry must follow a database conflict that request retrying retries. A race whose outcome is undecided accepts each current outcome only with its full evidence. Races park other tests' queued bookings; `test_schedule_queue_races.py` instead races two departments through the real global queue against a queued booking its own fixture holds, so it does not need the demo data. Committed tests that replan the real queue keep other tests' queued rows and restore them afterwards (`keep_foreign_queue`). `test_schedule_transactions.py` raises a failure once inside a schedule and checks that nothing of it commits.
 - `task test:uninstall` installs Laboratory, E-commerce, Inventory and Onboarding in a guarded throwaway database, uninstalls E-commerce and Inventory, and checks that the Laboratory data is intact and that each test request created from an order keeps the order's number, then uninstalls Onboarding and checks that the master data it accepted remains and that none of its crons is still active. It refuses a selected fresh demo because its standalone test uses the application's filestore.
 - `task test:core` also combines the coverage of the install and of every shard into the report `src/core/modules/coverage.xml`, which is not committed. Task installs its pinned Linux Python 3.12 coverage package into ignored `.local/core-test-coverage` on the host and mounts it read-only in test containers, so a container with restricted DNS can still run coverage without changing the saved application image.
+
+## Upgrade test
+
+`task test:upgrade` checks that a release upgrades the database production has, which the module tests never do since they install the modules fresh:
+
+1. It starts a throwaway Postgres 18.4 container and installs the modules of `src/core/modules.txt` with the image in production, the `newTag` of `infra/cluster/odoo/kustomization.yaml`.
+2. It upgrades that database with this checkout's image, `MEDILAB_ODOO_IMAGE` or `medilab-odoo:local`, with `--update=all` as the production upgrade Job does.
+3. It fails when Odoo exits with an error or any module is left in a state other than installed, then removes its containers, network and volume.
+
+It needs Docker and access to `ghcr.io/soltunemontepre/medilab`, so run `docker login ghcr.io` first. `BASE_IMAGE=<image>` starts from another image. It uses no bucket, so attachment files read as empty, and no production data; each release also rehearses the upgrade on a copy of production; see [Cluster](../infrastructure/cluster.md#odoo).
 
 ## CloudBeaver tests
 
