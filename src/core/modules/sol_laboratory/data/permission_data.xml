@@ -614,6 +614,21 @@
         <field name="document_model">medilab.measurement.unit</field>
         <field name="action">delete</field>
     </record>
+    <record id="permission_parameter_authorization_create_all" model="medilab.permission">
+        <field name="name">Create parameter authorizations</field>
+        <field name="document_model">medilab.parameter.authorization</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_parameter_authorization_edit_all" model="medilab.permission">
+        <field name="name">Edit parameter authorizations</field>
+        <field name="document_model">medilab.parameter.authorization</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_parameter_authorization_delete_all" model="medilab.permission">
+        <field name="name">Delete parameter authorizations</field>
+        <field name="document_model">medilab.parameter.authorization</field>
+        <field name="action">delete</field>
+    </record>
     <record id="permission_parameter_group_create_all" model="medilab.permission">
         <field name="name">Create parameter groups</field>
         <field name="document_model">medilab.parameter.group</field>

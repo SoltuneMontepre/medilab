@@ -2006,6 +2006,7 @@ msgstr "Tạo từ máy tính"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__create_uid
 msgid "Created by"
 msgstr "Người tạo"
 
@@ -2092,6 +2093,7 @@ msgstr "Người tạo"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__create_date
 msgid "Created on"
 msgstr "Ngày tạo"
 
@@ -2658,6 +2660,7 @@ msgstr "Hiển thị báo cáo PDF mẫu hóa đơn"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -3772,6 +3775,7 @@ msgstr "Hr trạng thái hiện diện"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__id
 msgid "ID"
 msgstr "ID"
 
@@ -4486,6 +4490,7 @@ msgstr "Hoạt động gần nhất"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__write_uid
 msgid "Last Updated by"
 msgstr "Cập nhật lần cuối bởi"
 
@@ -4572,6 +4577,7 @@ msgstr "Cập nhật lần cuối bởi"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__write_date
 msgid "Last Updated on"
 msgstr "Cập nhật lần cuối vào"
 
@@ -5469,6 +5475,8 @@ msgstr "Đã thanh toán"
 #: code:addons/sol_laboratory/models/testing/test_report.py:0
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__parameter_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__parameter_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_parameter_authorization_search
 msgid "Parameter"
 msgstr "Chỉ Tiêu"
 
@@ -6528,6 +6536,7 @@ msgstr "Quyền"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__person_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__person_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__person_id
 msgid "Person"
 msgstr "Nhân Sự"
 
@@ -13371,6 +13380,7 @@ msgstr "Đang chỉnh sửa"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__lock_message
 msgid "Editing Lock"
 msgstr "Khóa chỉnh sửa"
 
@@ -13583,6 +13593,7 @@ msgstr "Người chờ"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__lock_watched
 msgid "Watching Lock"
 msgstr "Đang chờ mở khóa"
 
@@ -16773,3 +16784,80 @@ msgstr "Máy đang chạy một phương pháp thử khác vào thời gian đó
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_method_machine_method_unique
 msgid "The machine is already linked to this testing method."
 msgstr "Máy đã được gắn với phương pháp thử này."
+#: code:addons/sol_laboratory/models/master_data/parameter_authorization.py:0
+msgid "%(person)s is not authorized to test %(parameter)s."
+msgstr "%(person)s không được phép thử %(parameter)s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_eligibility.py:0
+msgid "%s is cancelled."
+msgstr "%s đã bị hủy."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_eligibility.py:0
+msgid "%s waits for more sample: its sample is on hold."
+msgstr "%s đang chờ thêm mẫu: mẫu của nó đang tạm giữ."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_eligibility.py:0
+msgid "%s waits until its department receives its sample."
+msgstr "%s chờ đến khi phòng ban của nó nhận mẫu."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__authorization_required
+msgid "Authorization Required"
+msgstr "Cần Quyền Thử Chỉ Tiêu"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__authorized_person_ids
+msgid "Authorized Person"
+msgstr "Nhân Sự Được Phép"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_authorization_create_all
+msgid "Create parameter authorizations"
+msgstr "Tạo quyền thử chỉ tiêu"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_authorization_delete_all
+msgid "Delete parameter authorizations"
+msgstr "Xóa quyền thử chỉ tiêu"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_authorization_edit_all
+msgid "Edit parameter authorizations"
+msgstr "Sửa quyền thử chỉ tiêu"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_parameter_authorization
+msgid "Parameter Authorization"
+msgstr "Quyền Thử Chỉ Tiêu"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_parameter_authorization
+#: model:ir.ui.menu,name:sol_laboratory.menu_parameter_authorization
+msgid "Parameter Authorizations"
+msgstr "Quyền Thử Chỉ Tiêu"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_authorization_create_all
+msgid "Permission: parameter.authorization.create.all"
+msgstr "Quyền: parameter.authorization.create.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_authorization_delete_all
+msgid "Permission: parameter.authorization.delete.all"
+msgstr "Quyền: parameter.authorization.delete.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_authorization_edit_all
+msgid "Permission: parameter.authorization.edit.all"
+msgstr "Quyền: parameter.authorization.edit.all"
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_authorization_person_parameter_unique
+msgid "The person is already authorized to test this parameter."
+msgstr "Nhân sự đã được phép thử chỉ tiêu này."

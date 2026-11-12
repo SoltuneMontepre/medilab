@@ -119,6 +119,7 @@
     <menuitem id="menu_master_data_root" name="Master Data" sequence="20">
         <menuitem id="menu_master_data_catalog" name="Catalog" sequence="10">
             <menuitem id="menu_test_parameter" action="action_medilab_test_parameter" sequence="10" />
+            <menuitem id="menu_parameter_authorization" action="action_medilab_parameter_authorization" sequence="15" />
             <menuitem id="menu_parameter_group" action="action_medilab_parameter_group" sequence="20" />
             <menuitem id="menu_sample_type" action="action_medilab_sample_type" sequence="30" />
             <menuitem id="menu_testing_method" action="action_medilab_testing_method" sequence="40" />

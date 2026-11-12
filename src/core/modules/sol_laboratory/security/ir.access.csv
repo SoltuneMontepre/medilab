@@ -4,6 +4,7 @@ access_medilab_location_user,medilab.location user,medilab.location,base.group_u
 access_medilab_machine_user,medilab.machine user,medilab.machine,base.group_user,r,
 access_medilab_machine_service_user,medilab.machine.service user,medilab.machine.service,base.group_user,r,
 access_medilab_measurement_unit_user,medilab.measurement.unit user,medilab.measurement.unit,base.group_user,r,
+access_medilab_parameter_authorization_user,medilab.parameter.authorization user,medilab.parameter.authorization,base.group_user,r,
 access_medilab_parameter_group_user,medilab.parameter.group user,medilab.parameter.group,base.group_user,r,
 access_medilab_parameter_method_user,medilab.parameter.method user,medilab.parameter.method,base.group_user,r,
 access_medilab_machine_method_user,medilab.machine.method user,medilab.machine.method,base.group_user,r,

@@ -14,6 +14,12 @@ export const PARAMETERS = {
   chromium: "sol_demo.demo_test_parameter_chromium_vi",
 };
 
+// Who in each department scans a sample handed over to it.
+const DEPARTMENT_RECEIVERS = {
+  "sol_demo.demo_hr_department_chemistry": HEAD,
+  "sol_demo.demo_hr_department_microbiology": "demo.microbiology_tester",
+};
+
 export const PEOPLE = {
   tester: "sol_demo.demo_person_tester",
   chemistryTester: "sol_demo.demo_person_chemistry_tester",
@@ -76,6 +82,21 @@ export function testingTasks(sample) {
   );
 }
 
+// Each department the sample is handed over to scans its label, so its tests can be booked.
+function receiveInDepartments(sample) {
+  return callAs(ADMINISTRATOR, "medilab.sample.handover", "search_read", [[["sample_id", "=", sample.id]]], {
+    fields: ["department_id"],
+  }).then((handovers) =>
+    Object.entries(DEPARTMENT_RECEIVERS).forEach(([department, login]) =>
+      refAs(ADMINISTRATOR, department).then(({ id }) => {
+        if (handovers.some((handover) => handover.department_id[0] === id)) {
+          callAs(login, "medilab.sample.handover", "receive_by_label", [sample.code]);
+        }
+      }),
+    ),
+  );
+}
+
 // A sample received in good condition, whose tests, in the order of the parameters, wait as testing tasks in the queues
 // of their departments. Its results are promised `days` from today, so its tests are due that many days less the safety
 // margin.
@@ -112,6 +133,7 @@ export function receivedSample(parameters = [PARAMETERS.lead], { days = 30 } = {
     .then(([read]) => {
       Object.assign(sample, { id: read.id, code: read.code });
       callAs(RECEPTION, "medilab.sample", "action_receive", [[read.id], "1 chai", "good"]);
+      receiveInDepartments(sample);
       return callAs(ADMINISTRATOR, "medilab.sample.test", "read", [read.test_ids, ["parameter_id"]]);
     })
     .then((tests) => {
