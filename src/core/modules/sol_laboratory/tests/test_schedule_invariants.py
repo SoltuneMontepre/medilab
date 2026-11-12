@@ -14,8 +14,10 @@ from odoo.addons.sol_laboratory.constants.scheduling import CALENDAR_SYNC_CONTEX
 SLOT = timedelta(minutes=15)
 OFF_BOUNDARY = MONDAY + timedelta(hours=2, minutes=7)
 OVERLAP_CONSTRAINTS = {
-    "medilab_machine_booking": "medilab_machine_booking_no_overlap",
-    "calendar_event": "calendar_event_location_no_overlap",
+    "medilab_machine_booking_machine_one_method": "medilab_machine_booking",
+    "medilab_machine_booking_machine_same_start": "medilab_machine_booking",
+    "medilab_machine_booking_machine_same_end": "medilab_machine_booking",
+    "calendar_event_location_no_overlap": "calendar_event",
 }
 
 
@@ -37,15 +39,13 @@ class TestScheduleInvariants(ScheduleInvariantsCase, LocationCase):
 
     def drop_overlap_constraints(self):
         # Only inside a rolled-back savepoint: the database refuses the overlaps P1 and P2 look for.
-        for table, constraint in OVERLAP_CONSTRAINTS.items():
+        for constraint, table in OVERLAP_CONSTRAINTS.items():
             self.env.cr.execute(
                 SQL("ALTER TABLE %s DROP CONSTRAINT %s", SQL.identifier(table), SQL.identifier(constraint))
             )
 
     def overlap_constraints(self):
-        self.env.cr.execute(
-            SQL("SELECT conname FROM pg_constraint WHERE conname IN %s", tuple(OVERLAP_CONSTRAINTS.values()))
-        )
+        self.env.cr.execute(SQL("SELECT conname FROM pg_constraint WHERE conname IN %s", tuple(OVERLAP_CONSTRAINTS)))
         return {name for (name,) in self.env.cr.fetchall()}
 
     def test_each_invariant_fails_on_a_schedule_that_breaks_it_and_the_broken_state_is_rolled_back(self):
@@ -61,7 +61,7 @@ class TestScheduleInvariants(ScheduleInvariantsCase, LocationCase):
 
         def overlap_on_one_machine():
             self.drop_overlap_constraints()
-            second._set({"starts_at": first.starts_at, "ends_at": first.ends_at})
+            second._set({"starts_at": first.starts_at + SLOT, "ends_at": first.ends_at + SLOT})
 
         def overlap_in_one_room():
             self.drop_overlap_constraints()
@@ -112,5 +112,5 @@ class TestScheduleInvariants(ScheduleInvariantsCase, LocationCase):
                     with self.assertRaisesRegex(AssertionError, f"{invariant}:"):
                         self.assert_schedule_invariants(tests)
                 self.assertEqual(self.graph(tests), before)
-                self.assertEqual(self.overlap_constraints(), set(OVERLAP_CONSTRAINTS.values()))
+                self.assertEqual(self.overlap_constraints(), set(OVERLAP_CONSTRAINTS))
                 self.assert_schedule_invariants(tests)

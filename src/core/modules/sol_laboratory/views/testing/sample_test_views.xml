@@ -11,7 +11,7 @@
                         type="object"
                         string="Schedule"
                         class="btn-primary"
-                        invisible="not recommended_machine_id"
+                        invisible="not recommended_start"
                     />
                     <button
                         name="%(action_medilab_sample_test_outsource)d"
@@ -100,9 +100,9 @@
                                 Outsourcing this test changes the way of testing the customer accepted: Sales first obtains a revised quotation the customer accepts.
                             </div>
                         </group>
-                        <group string="Recommendation" invisible="not recommended_machine_id">
+                        <group string="Recommendation" invisible="not recommended_start">
                             <field name="recommended_method_id" string="Way of Testing" />
-                            <field name="recommended_machine_id" string="Machine" />
+                            <field name="recommended_machine_id" string="Machine" invisible="not recommended_machine_id" />
                             <field name="recommended_start" string="Start" />
                             <field name="recommended_end" string="End" />
                         </group>

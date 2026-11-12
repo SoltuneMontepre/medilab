@@ -10,7 +10,7 @@ def seed_audit(env):
         return
     administrator = env.ref("sol_demo.demo_res_users_administrator")
     price.with_user(administrator).list_price = RAISED_LEAD_PRICE
-    env.ref("sol_demo.demo_test_parameter_cadmium").with_user(administrator).action_archive()
+    env.ref("sol_demo.demo_test_parameter_mercury").with_user(administrator).action_archive()
     duplicate = (
         env[MODEL_CHEMICAL]
         .with_user(administrator)

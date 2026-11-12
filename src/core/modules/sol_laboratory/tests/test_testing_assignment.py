@@ -6,11 +6,12 @@ from .scheduling_case import MONDAY, SchedulingCase
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MACHINE,
     MODEL_MACHINE_BOOKING,
+    MODEL_MACHINE_METHOD,
     MODEL_PARAMETER_METHOD,
-    MODEL_PARAMETER_METHOD_MACHINE,
     MODEL_SAMPLE_TEST,
     MODEL_TASK,
     MODEL_TASK_REASSIGN,
+    MODEL_TESTING_METHOD,
 )
 
 
@@ -65,17 +66,20 @@ class TestTestingAssignment(SchedulingCase):
 
     def test_a_head_sees_the_bookings_of_their_department_only(self):
         coliforms = self.create_parameter("Coliforms", self.group)
+        method = self.env[MODEL_TESTING_METHOD].create(
+            {"code": "TCVN 6187-2:2020", "name": "Coliforms by MPN", "field_id": self.testing_field.id}
+        )
         way = self.env[MODEL_PARAMETER_METHOD].create(
             {
                 "parameter_id": coliforms.id,
-                "method_id": self.method.id,
+                "method_id": method.id,
                 "department_id": self.microbiology.id,
             }
         )
         self.offer(coliforms, self.sample_type, way)
         incubator = self.env[MODEL_MACHINE].create({"code": "INC-1", "name": "Incubator 1"})
-        self.env[MODEL_PARAMETER_METHOD_MACHINE].create(
-            {"parameter_method_id": way.id, "machine_id": incubator.id, "run_minutes": 60}
+        self.env[MODEL_MACHINE_METHOD].create(
+            {"method_id": way.method_id.id, "machine_id": incubator.id, "duration_minutes": 60}
         )
         self.grant(self.microbiologist, "sample_test.read.all")
         self.microbiologist.tz = "UTC"

@@ -10,8 +10,8 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_LOCK_MIXIN,
     MODEL_MACHINE,
     MODEL_MACHINE_BOOKING,
+    MODEL_MACHINE_METHOD,
     MODEL_MACHINE_SERVICE,
-    MODEL_PARAMETER_METHOD_MACHINE,
     MODEL_PERMISSION_MIXIN,
     MODEL_SAMPLE,
 )
@@ -30,7 +30,7 @@ class Machine(models.Model, MachineBase):
     _order = "code"
     _rec_names_search = ("name", "code", "serial_number")
     _permission_actions = ("create", "edit", "archive", "delete")
-    _audit_children = ("service_ids", "parameter_method_ids")
+    _audit_children = ("service_ids", "method_ids")
 
     if not TYPE_CHECKING:
         # Unique code of the machine.
@@ -59,8 +59,8 @@ class Machine(models.Model, MachineBase):
         next_maintenance_date = fields.Date(compute="_compute_next_service_dates", store=True)
         # Calibration, maintenance and repair records of the machine.
         service_ids = fields.One2many(MODEL_MACHINE_SERVICE, "machine_id", string="Service History")
-        # Parameter and method pairs the machine can run, with the run time of each.
-        parameter_method_ids = fields.One2many(MODEL_PARAMETER_METHOD_MACHINE, "machine_id", string="Ways of Testing")
+        # Testing methods the machine runs, with the booking duration and capacity of each.
+        method_ids = fields.One2many(MODEL_MACHINE_METHOD, "machine_id", string="Testing Methods")
         # Bookings of the machine.
         booking_ids = fields.One2many(MODEL_MACHINE_BOOKING, "machine_id", string="Bookings")
         # False when the machine is archived.

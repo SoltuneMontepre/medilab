@@ -559,7 +559,7 @@ model UnitCategory {
 /// How one parameter is tested with one method, by the laboratory or by a subcontractor, and the unit of its result.
 /// Active rows are unique on (parameter_id, method_id, COALESCE(subcontractor_id, 0)) WHERE active.
 /// Its default per sample type is set on its applicability rows (ParameterMethodSampleType).
-/// duration_minutes is above 0 when set, and capacity is at least 1 (check constraints).
+/// duration_minutes is not negative, empty or 0 meaning none, and capacity is at least 1 (check constraints).
 model ParameterMethod {
   /// Row identifier.
   id               Int             @id @default(autoincrement())

@@ -142,7 +142,7 @@ class SampleTest(models.Model, SampleTestBase):
         )
         # The way of testing the scheduler recommends to the assignee of the test's testing task.
         recommended_method_id = fields.Many2one(MODEL_PARAMETER_METHOD, compute="_compute_recommendation")
-        # The machine the scheduler recommends.
+        # The machine the scheduler recommends; empty when the way needs none.
         recommended_machine_id = fields.Many2one(MODEL_MACHINE, compute="_compute_recommendation")
         # Start of the free slot the scheduler recommends.
         recommended_start = fields.Datetime(compute="_compute_recommendation")
@@ -380,7 +380,7 @@ class SampleTest(models.Model, SampleTestBase):
                 raise UserError(self.env._("%s is already waiting for or holding a machine.", test.display_name))
             if not task.assignee_id:
                 raise UserError(self.env._("Assign %s to a person before scheduling it.", test.display_name))
-            if not test.recommended_machine_id:
+            if not test.recommended_start:
                 raise UserError(self.env._("No machine can finish %s before its due date.", test.display_name))
             bookings = self.env[MODEL_MACHINE_BOOKING]
             bookings = bookings.sudo() if person and task.assignee_id == person else bookings
