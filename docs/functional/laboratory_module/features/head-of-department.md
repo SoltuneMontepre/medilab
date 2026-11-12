@@ -112,8 +112,10 @@ Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling
 | Rule        | Description                                                                                                                 |
 | ----------- | --------------------------------------------------------------------------------------------------------------------------- |
 | Accept | Accept an outsourcing suggestion for a subcontracted way with the test's parameter and method; the customer is neither told nor asked. The head then puts its sample tests in the subcontractor's draft dispatch. |
-| Dispatch | A dispatch holds one subcontractor, sending and due dates, the sample tests sent, the subcontractor's report, and sample delivery staff or a delivery service and tracking number. The way's turnaround includes transport and processing. When the dispatch is carried, the system records the date sent, who took it and the expected date. The head attaches the subcontractor's report to the sent or received dispatch. |
-| Accreditation | A subcontractor whose accreditation has expired cannot be chosen.                                                          |
+| Dispatch | A dispatch holds one subcontractor, sending and due dates, the sample tests sent, the subcontractor's report, and sample delivery staff or a delivery service and tracking number. The way's turnaround includes transport and processing. When the dispatch is carried, the system records the date sent, who took it and the expected date, the date sent plus the way's turnaround. Sample delivery staff who hand it to a delivery service record the service and its tracking number. A printed dispatch shows its code, the subcontractor, the sending and expected dates and the carrier, and for each sample test the lab code, sample type, parameter, method and due date, never the customer, the order or prices. The head attaches the subcontractor's report to the sent or received dispatch. |
+| Accreditation | A subcontractor whose accreditation has expired cannot be chosen. When the accreditation of a draft dispatch's subcontractor lapses, the head is told and either waits for the renewal or cancels the dispatch and moves its tests to another subcontracted way with the same parameter and method. A sent dispatch is still received and its results approved. |
+| Receipt | The subcontractor confirms receipt of a sent dispatch on the portal, which marks it received and notifies the head; for a subcontractor that does not use the portal, the head marks it received. Results are entered only once the dispatch is received. |
+| Failed delivery | A delivery that fails leaves the dispatch in draft: it is cancelled with the carrier's reason and its tests stay outsourced. Once the same sample is received again through WF-02 Sample reception and handover, the head puts them in a new dispatch. |
 | Emergency | The head may initiate outsourcing for a waiting or assigned test with a reason, without waiting for a scheduler suggestion. Only the department testing a test with no suggestion sees the emergency action, and its reason is shown on the test. The head chooses a subcontracted way with the test's parameter and method; the customer is neither told nor asked. Its not-started bookings are cancelled and its sample tests go in a draft dispatch. |
 
 Acceptance criteria:
@@ -123,7 +125,9 @@ Acceptance criteria:
 - A dispatch records either the sample delivery staff who took it or the delivery service and tracking number.
 - Outsourcing a test straight away without a reason is refused; a test already in testing cannot be outsourced straight away.
 - Only subcontracted ways with the test's parameter and method are suggested or can be chosen for outsourcing.
-- Outsourcing, from a suggestion or straight away, through a way other than the one the customer accepted is refused.
+- Outsourcing, from a suggestion or straight away, through a way whose method differs from the one the customer accepted is refused.
+- A test of a customer's own test request cannot be outsourced to that customer as a subcontractor.
+- A subcontractor cannot enter results for a dispatch that is not received.
 - A sample test is in one dispatch that is not cancelled.
 - Only people who can read dispatches read the subcontractor's report; a subcontractor never reads another subcontractor's report or the customer.
 
