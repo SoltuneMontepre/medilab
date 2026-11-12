@@ -27,7 +27,7 @@ The core flows WF-01 to WF-06 carry a test request from order to report. The sup
 ## WF-01 Order to confirmed test request
 
 - **Trigger:** a customer submits a cart on the portal, or sales creates an order for a customer.
-- **Result:** the order is confirmed and its test request is paid, unless its customer may order on credit, with expected samples and their selected ways calculated from the accepted order and sampling requirements, and sample collection can start.
+- **Result:** the order is confirmed and its test request is paid, at once for a customer allowed to order on credit, with expected samples and their selected ways calculated from the accepted order and sampling requirements, and sample collection can start.
 - **Stories:** US-C08, US-C09, US-C10, US-C13, US-C14, US-C15, US-S01, US-S02, US-S05, US-S06, US-S07, US-S08, US-S09, US-S10, US-S12, US-S15, US-A03, US-A06, US-A08.
 - **States:** quotation draft → sent → accepted, approved by the Head of Sales before it is sent when above the thresholds; order submitted → claimed → confirmed; test request draft → confirmed → paid.
 - **Starts from:** a catalog with priced parameters and packages, and demo customers.
@@ -75,7 +75,7 @@ flowchart TD
     s3 --> c3
     c5 -->|online payment is matched automatically| s4
     c5 -->|transfer or cash| a1 --> s4
-    c6 --> s6 --> s3
+    c6 --> s6 --> gate
     s4 --> paid{Paid in full or on credit?}
     paid -->|yes| done(["Test request paid; sample collection can start"])
     paid -->|no| c7 --> done
@@ -227,7 +227,7 @@ flowchart TD
     h2 -->|reject with reason| f1
     h2 -->|sign| signedfile([File version signed with its hash])
     q -->|yes| limit[Show related regulation limit] --> t3
-    t5 --> free[Close the testing task; mark machine available] --> notify[Notify the head] --> h1
+    t5 --> free[Close the testing task; free the machine once no booking still uses it] --> notify[Notify the head] --> h1
     h1 -->|reject with reason| t6 --> start
     h1 -->|approve| done([Reported result approved])
     done --> every{Every remaining test of the sample approved?}
@@ -470,7 +470,7 @@ flowchart TD
     s2 --> ready{All corrected results and report correction approved?}
     link --> ready
     ready -->|yes| draft[Prepare replacement draft and fresh signing task]
-    sp -->|approve| draft
+    sp -->|approve| ready
     draft --> release[WF-06: review, approve, digitally sign when enabled, store PDF and issue]
     release -.->|digital signing fails| pending[Approval stands; replacement unissued; earlier report stays current]
     pending -->|retry same reviewed PDF| release

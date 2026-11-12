@@ -58,7 +58,7 @@ Each document keeps its own status. Tasks keep their own generic lifecycle ([SH-
 stateDiagram-v2
     [*] --> draft
     draft --> confirmed: request confirmed
-    confirmed --> paid: at once, as confirming needs the payment or credit
+    confirmed --> paid: the balance is paid, or at once for a customer allowed credit
     paid --> sample_received: first sample received
     sample_received --> testing: first sample test started
     testing --> awaiting_approval: every remaining test has its reported result sent for approval
