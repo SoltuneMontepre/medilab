@@ -196,8 +196,12 @@ class MailMessage(models.Model, MailMessageBase):
             if visible and not notification.portal_visible:
                 notification.write({"portal_visible": True})
             return notification
-        # A notice shown in the portal whose email is not sent has no email to wait for.
-        status = "sent" if popup else ("canceled" if visible and not emailing else "ready")
+        status = "ready"
+        if popup:
+            status = "sent"
+        elif visible and not emailing:
+            # A notice shown in the portal whose email is not sent has no email to wait for.
+            status = "canceled"
         return (
             self.env[MODEL_MAIL_NOTIFICATION]
             .sudo()
