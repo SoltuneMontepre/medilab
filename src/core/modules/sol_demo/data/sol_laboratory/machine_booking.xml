@@ -71,4 +71,65 @@
         <field name="ends_at" eval="(DateTime.now() + relativedelta(days=1, hour=4, minute=45, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="status">scheduled</field>
     </record>
+    <!-- Six bookings share one ICP-MS interval and take two of its 20 places; the first one books the room. -->
+    <record id="demo_machine_booking_icpms_lead_1" model="medilab.machine.booking">
+        <field name="machine_id" ref="demo_machine_icpms" />
+        <field name="sample_test_id" ref="demo_sample_test_icpms_lead_1" />
+        <field name="task_id" ref="demo_task_sample_test_icpms_lead_1" />
+        <field name="person_id" ref="demo_person_tester" />
+        <field name="queued_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="starts_at" eval="(DateTime.now() + relativedelta(days=2, hour=1, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="ends_at" eval="(DateTime.now() + relativedelta(days=2, hour=5, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="status">scheduled</field>
+    </record>
+    <record id="demo_machine_booking_icpms_cadmium_1" model="medilab.machine.booking">
+        <field name="machine_id" ref="demo_machine_icpms" />
+        <field name="sample_test_id" ref="demo_sample_test_icpms_cadmium_1" />
+        <field name="task_id" ref="demo_task_sample_test_icpms_cadmium_1" />
+        <field name="person_id" ref="demo_person_tester" />
+        <field name="queued_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="starts_at" eval="(DateTime.now() + relativedelta(days=2, hour=1, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="ends_at" eval="(DateTime.now() + relativedelta(days=2, hour=5, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="status">scheduled</field>
+    </record>
+    <record id="demo_machine_booking_icpms_arsenic_1" model="medilab.machine.booking">
+        <field name="machine_id" ref="demo_machine_icpms" />
+        <field name="sample_test_id" ref="demo_sample_test_icpms_arsenic_1" />
+        <field name="task_id" ref="demo_task_sample_test_icpms_arsenic_1" />
+        <field name="person_id" ref="demo_person_tester" />
+        <field name="queued_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="starts_at" eval="(DateTime.now() + relativedelta(days=2, hour=1, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="ends_at" eval="(DateTime.now() + relativedelta(days=2, hour=5, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="status">scheduled</field>
+    </record>
+    <record id="demo_machine_booking_icpms_lead_2" model="medilab.machine.booking">
+        <field name="machine_id" ref="demo_machine_icpms" />
+        <field name="sample_test_id" ref="demo_sample_test_icpms_lead_2" />
+        <field name="task_id" ref="demo_task_sample_test_icpms_lead_2" />
+        <field name="person_id" ref="demo_person_chemistry_tester" />
+        <field name="queued_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="starts_at" eval="(DateTime.now() + relativedelta(days=2, hour=1, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="ends_at" eval="(DateTime.now() + relativedelta(days=2, hour=5, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="status">scheduled</field>
+    </record>
+    <record id="demo_machine_booking_icpms_cadmium_2" model="medilab.machine.booking">
+        <field name="machine_id" ref="demo_machine_icpms" />
+        <field name="sample_test_id" ref="demo_sample_test_icpms_cadmium_2" />
+        <field name="task_id" ref="demo_task_sample_test_icpms_cadmium_2" />
+        <field name="person_id" ref="demo_person_chemistry_tester" />
+        <field name="queued_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="starts_at" eval="(DateTime.now() + relativedelta(days=2, hour=1, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="ends_at" eval="(DateTime.now() + relativedelta(days=2, hour=5, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="status">scheduled</field>
+    </record>
+    <record id="demo_machine_booking_icpms_arsenic_2" model="medilab.machine.booking">
+        <field name="machine_id" ref="demo_machine_icpms" />
+        <field name="sample_test_id" ref="demo_sample_test_icpms_arsenic_2" />
+        <field name="task_id" ref="demo_task_sample_test_icpms_arsenic_2" />
+        <field name="person_id" ref="demo_person_chemistry_tester" />
+        <field name="queued_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="starts_at" eval="(DateTime.now() + relativedelta(days=2, hour=1, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="ends_at" eval="(DateTime.now() + relativedelta(days=2, hour=5, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="status">scheduled</field>
+    </record>
 </odoo>

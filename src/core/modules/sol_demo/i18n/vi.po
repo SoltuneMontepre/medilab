@@ -725,3 +725,13 @@ msgstr "Chai nhựa PE"
 #: model:medilab.sampling.requirement,preservation:sol_demo.demo_sampling_requirement_lead_icpms_bottled_water
 msgid "Acidified with HNO₃ to pH below 2"
 msgstr "Axit hóa bằng HNO₃ đến pH dưới 2"
+
+#. module: sol_demo
+#: model:medilab.test.parameter,name:sol_demo.demo_test_parameter_arsenic
+msgid "Arsenic (As)"
+msgstr "Asen (As)"
+
+#. module: sol_demo
+#: model:medilab.test.parameter,name:sol_demo.demo_test_parameter_mercury
+msgid "Mercury (Hg)"
+msgstr "Thủy ngân (Hg)"
