@@ -462,12 +462,10 @@ flowchart TD
     r1 -->|result| sr
     r1 -->|report| sp
     r1 -->|result in an issued report| link[Create or link the report change request]
-    r1 -->|report awaiting internal or digital signing| stop[Stop pending signing and withdraw signatures before applying correction]
     sr -->|reject an unlinked correction| kept([Signed version unchanged])
     sr -->|reject a linked correction| ready
     sp -->|reject| kept
-    sr -->|approve| result[Create unsigned corrected result version] --> s2
-    stop --> sr
+    sr -->|approve| stop[If a report awaits signing, stop it and withdraw its signatures] --> result[Create unsigned corrected result version] --> s2
     s2 --> ready{All corrected results and report correction approved?}
     link --> sp
     ready -->|yes| draft[Prepare replacement draft and fresh signing task]
