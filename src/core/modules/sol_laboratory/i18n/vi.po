@@ -2016,6 +2016,7 @@ msgstr "Tạo từ máy tính"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__create_uid
 msgid "Created by"
 msgstr "Người tạo"
 
@@ -2102,6 +2103,7 @@ msgstr "Người tạo"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__create_date
 msgid "Created on"
 msgstr "Ngày tạo"
 
@@ -2466,6 +2468,7 @@ msgstr "Ghi chú gửi phiếu"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_person_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_handover_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__department_id
 msgid "Department"
 msgstr "Phòng Ban"
 
@@ -2673,6 +2676,7 @@ msgstr "Hiển thị báo cáo PDF mẫu hóa đơn"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -3792,6 +3796,7 @@ msgstr "Hr trạng thái hiện diện"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__id
 msgid "ID"
 msgstr "ID"
 
@@ -4506,6 +4511,7 @@ msgstr "Hoạt động gần nhất"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__write_uid
 msgid "Last Updated by"
 msgstr "Cập nhật lần cuối bởi"
 
@@ -4592,6 +4598,7 @@ msgstr "Cập nhật lần cuối bởi"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__write_date
 msgid "Last Updated on"
 msgstr "Cập nhật lần cuối vào"
 
@@ -6932,6 +6939,7 @@ msgstr "Xem quy tắc đồng bộ của mọi thư mục phòng thí nghiệm"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__reason
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__reason
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__reason
 msgid "Reason"
 msgstr "Lý do"
 
@@ -7721,6 +7729,7 @@ msgstr "Tên pháp lý của vợ/chồng"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__starts_at
 msgid "Start"
 msgstr "Bắt đầu"
 
@@ -10894,6 +10903,7 @@ msgstr "Sửa lịch đặt máy của phòng ban mình"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__ends_at
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__ends_at
 msgid "End"
 msgstr "Kết thúc"
 
@@ -13418,6 +13428,7 @@ msgstr "Đang chỉnh sửa"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__lock_message
 msgid "Editing Lock"
 msgstr "Khóa chỉnh sửa"
 
@@ -13630,6 +13641,7 @@ msgstr "Người chờ"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__lock_watched
 msgid "Watching Lock"
 msgstr "Đang chờ mở khóa"
 
@@ -16731,3 +16743,118 @@ msgstr "Bạn không được giao nhiệm vụ."
 #: code:addons/sol_laboratory/models/tasks/task_mobile.py:0
 msgid "You may not create tasks."
 msgstr "Bạn không được tạo nhiệm vụ."
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_overtime_create_all
+msgid "Create OverTime"
+msgstr "Tạo làm thêm giờ"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_overtime_create_own_department
+msgid "Create OverTime of their department"
+msgstr "Tạo làm thêm giờ của phòng ban mình"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_overtime_delete_all
+msgid "Delete OverTime"
+msgstr "Xóa làm thêm giờ"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_overtime_delete_own_department
+msgid "Delete OverTime of their department"
+msgstr "Xóa làm thêm giờ của phòng ban mình"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_overtime_edit_all
+msgid "Edit OverTime"
+msgstr "Sửa làm thêm giờ"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_overtime_edit_own_department
+msgid "Edit OverTime of their department"
+msgstr "Sửa làm thêm giờ của phòng ban mình"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_overtime
+#: model:ir.model,name:sol_laboratory.model_medilab_overtime
+#: model:ir.ui.menu,name:sol_laboratory.menu_overtime
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_overtime_calendar
+msgid "OverTime"
+msgstr "Làm Thêm Giờ"
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_overtime_period
+msgid "OverTime ends after it starts."
+msgstr "Làm thêm giờ phải kết thúc sau khi bắt đầu."
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_overtime_create_all
+msgid "Permission: overtime.create.all"
+msgstr "Quyền: overtime.create.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_overtime_create_own_department
+msgid "Permission: overtime.create.own_department"
+msgstr "Quyền: overtime.create.own_department"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_overtime_delete_all
+msgid "Permission: overtime.delete.all"
+msgstr "Quyền: overtime.delete.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_overtime_delete_own_department
+msgid "Permission: overtime.delete.own_department"
+msgstr "Quyền: overtime.delete.own_department"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_overtime_edit_all
+msgid "Permission: overtime.edit.all"
+msgstr "Quyền: overtime.edit.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_overtime_edit_own_department
+msgid "Permission: overtime.edit.own_department"
+msgstr "Quyền: overtime.edit.own_department"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_overtime_read_all
+msgid "Permission: overtime.read.all"
+msgstr "Quyền: overtime.read.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_overtime_read_own_department
+msgid "Permission: overtime.read.own_department"
+msgstr "Quyền: overtime.read.own_department"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_overtime_read_all
+msgid "Read OverTime"
+msgstr "Xem làm thêm giờ"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_overtime_read_own_department
+msgid "Read OverTime of their department"
+msgstr "Xem làm thêm giờ của phòng ban mình"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_overtime_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_overtime_list
+msgid "Recorded By"
+msgstr "Người ghi"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__person_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_overtime_search
+msgid "Tester"
+msgstr "Thử Nghiệm Viên"
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_overtime_no_overlap
+msgid "The tester already has OverTime at that time."
+msgstr "Thử nghiệm viên đã có làm thêm giờ vào thời gian này."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_overtime_form
+msgid "Why the tester works outside normal hours"
+msgstr "Lý do thử nghiệm viên làm ngoài giờ"

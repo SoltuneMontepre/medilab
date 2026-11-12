@@ -58,6 +58,12 @@
                 groups="group_permission_machine_booking_read_all,group_permission_machine_booking_read_own_department"
             />
             <menuitem
+                id="menu_overtime"
+                action="action_medilab_overtime"
+                sequence="25"
+                groups="group_permission_overtime_read_all,group_permission_overtime_read_own_department"
+            />
+            <menuitem
                 id="menu_subcontract_dispatch"
                 action="action_medilab_subcontract_dispatch"
                 sequence="30"

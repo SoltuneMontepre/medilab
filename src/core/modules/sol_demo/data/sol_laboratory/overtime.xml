@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Times are UTC: 10:00 to 14:00 is 17:00 to 21:00 in Vietnam. A booking of the tester sits in the first evening;
+         the second has none yet. -->
+    <record id="demo_overtime_tester_evening" model="medilab.overtime">
+        <field name="person_id" ref="demo_person_tester" />
+        <field name="starts_at" eval="(DateTime.now() + relativedelta(days=1, hour=10, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="ends_at" eval="(DateTime.now() + relativedelta(days=1, hour=14, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="reason">Kết quả chì của khách hàng cần trước hạn nội bộ ngày mai.</field>
+    </record>
+    <record id="demo_overtime_tester_next_evening" model="medilab.overtime">
+        <field name="person_id" ref="demo_person_tester" />
+        <field name="starts_at" eval="(DateTime.now() + relativedelta(days=2, hour=10, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="ends_at" eval="(DateTime.now() + relativedelta(days=2, hour=14, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="reason">Dự phòng cho mẫu khẩn của khách hàng ưu tiên.</field>
+    </record>
+</odoo>

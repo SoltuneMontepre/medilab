@@ -1,6 +1,6 @@
 {
     "name": "Medilab - Testing Data",
-    "version": "20.0.1.26.0",
+    "version": "20.0.1.30.0",
     "summary": "Seeds and configure data for demo purposes.",
     "category": "Services/Laboratory",
     "author": "Soltune Montepre",
@@ -55,6 +55,7 @@
         "data/sol_laboratory/task_type.xml",
         "data/sol_laboratory/task.xml",
         "data/sol_laboratory/machine_booking.xml",
+        "data/sol_laboratory/overtime.xml",
         "data/sol_onboarding/onboarding_source.xml",
         "data/sol_onboarding/onboarding_organisation.xml",
         "data/sol_onboarding/onboarding_run.xml",

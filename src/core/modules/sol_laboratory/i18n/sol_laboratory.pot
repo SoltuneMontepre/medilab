@@ -3467,6 +3467,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__create_uid
 msgid "Created by"
 msgstr ""
 
@@ -3559,6 +3560,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__create_date
 msgid "Created on"
 msgstr ""
 
@@ -4094,6 +4096,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_person_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_handover_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__department_id
 msgid "Department"
 msgstr ""
 
@@ -4384,6 +4387,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -5060,6 +5064,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__lock_message
 msgid "Editing Lock"
 msgstr ""
 
@@ -5217,6 +5222,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__ends_at
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__ends_at
 msgid "End"
 msgstr ""
 
@@ -6183,6 +6189,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__id
 msgid "ID"
 msgstr ""
 
@@ -6992,6 +6999,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__write_uid
 msgid "Last Updated by"
 msgstr ""
 
@@ -7084,6 +7092,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__write_date
 msgid "Last Updated on"
 msgstr ""
 
@@ -11614,6 +11623,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result_reject__reason
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__reason
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__reason
 msgid "Reason"
 msgstr ""
 
@@ -13215,6 +13225,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__starts_at
 msgid "Start"
 msgstr ""
 
@@ -15494,6 +15505,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__lock_watched
 msgid "Watching Lock"
 msgstr ""
 
@@ -16846,4 +16858,119 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch.py:0
 msgid "The subcontractor's report is kept; attach another file to replace it."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_overtime_create_all
+msgid "Create OverTime"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_overtime_create_own_department
+msgid "Create OverTime of their department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_overtime_delete_all
+msgid "Delete OverTime"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_overtime_delete_own_department
+msgid "Delete OverTime of their department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_overtime_edit_all
+msgid "Edit OverTime"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_overtime_edit_own_department
+msgid "Edit OverTime of their department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_overtime
+#: model:ir.model,name:sol_laboratory.model_medilab_overtime
+#: model:ir.ui.menu,name:sol_laboratory.menu_overtime
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_overtime_calendar
+msgid "OverTime"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_overtime_period
+msgid "OverTime ends after it starts."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_overtime_create_all
+msgid "Permission: overtime.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_overtime_create_own_department
+msgid "Permission: overtime.create.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_overtime_delete_all
+msgid "Permission: overtime.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_overtime_delete_own_department
+msgid "Permission: overtime.delete.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_overtime_edit_all
+msgid "Permission: overtime.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_overtime_edit_own_department
+msgid "Permission: overtime.edit.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_overtime_read_all
+msgid "Permission: overtime.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_overtime_read_own_department
+msgid "Permission: overtime.read.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_overtime_read_all
+msgid "Read OverTime"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_overtime_read_own_department
+msgid "Read OverTime of their department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_overtime_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_overtime_list
+msgid "Recorded By"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__person_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_overtime_search
+msgid "Tester"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_overtime_no_overlap
+msgid "The tester already has OverTime at that time."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_overtime_form
+msgid "Why the tester works outside normal hours"
 msgstr ""
