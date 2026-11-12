@@ -2,6 +2,9 @@ import { randomId, removeServiceWorkers } from "../../../support/odoo";
 
 export const API = "/medilab/api/v1";
 
+// The computers the running test signed in, which signOutDevices() signs out.
+const signedIn = [];
+
 // A computer of a person signed in as Medilab Sync signs it in, as a new installation. Yields what the application
 // keeps: its installation id, its name and the device key, which Odoo shows only here.
 export function signInDevice(login, name, platform = "linux") {
@@ -18,7 +21,9 @@ export function signInDevice(login, name, platform = "linux") {
     )
     .then(({ status, body }) => {
       expect(status, `${login} signs in ${name}`).to.eq(200);
-      return { ...device, key: body.key, id: body.device.id };
+      const signed = { ...device, key: body.key, id: body.device.id };
+      signedIn.push(signed);
+      return signed;
     });
 }
 
@@ -34,29 +39,33 @@ export function signInAgain(device) {
   );
 }
 
-// A call of the laboratory files API as a device makes it. Odoo refuses a device key that comes with a browser session of
-// another person, as an invalid key, which a revoked key is answered with too. The call therefore fails when the browser
-// holds a back-office session instead of giving an answer that could be mistaken for a refusal; leaveBackOffice() ends it.
+// A call of the laboratory files API as a device makes it, which carries no browser session: Odoo refuses a device key that
+// comes with a session of another person as an invalid key, which a revoked key is answered with too. The session cookie
+// goes just before the call, since a page of the back office that is still open can start a new one at any moment.
 export function api(device, method, path, { body, qs, headers } = {}) {
-  return cy.getCookie("session_id").then((cookie) => {
-    expect(cookie, "a device call carries no back-office session; call leaveBackOffice() first").to.be.null;
-    return cy.request({
-      method,
-      url: `${API}${path}`,
-      qs,
-      body,
-      headers: { Authorization: `Bearer ${device.key}`, ...headers },
-      failOnStatusCode: false,
-    });
+  cy.clearCookie("session_id");
+  return cy.request({
+    method,
+    url: `${API}${path}`,
+    qs,
+    body,
+    headers: { Authorization: `Bearer ${device.key}`, ...headers },
+    failOnStatusCode: false,
   });
 }
 
-// Ends the back-office session of the browser, so that device calls can follow the last screen of a test. The service
-// worker of the back office goes first, since its update check would open a new session. The next test signs in again
-// through the cached session of cy.signInAs.
+// Ends the back-office session of the browser, after the service worker of the back office, whose update check would open
+// a new one. The next test signs in again through the cached session of cy.signInAs.
 export function leaveBackOffice() {
   removeServiceWorkers();
   return cy.clearCookie("session_id");
+}
+
+// Signs out the computers the test signed in, so that none stays signed in. A revoked computer is refused, as it should be.
+export function signOutDevices() {
+  return cy.then(() => {
+    signedIn.splice(0).forEach((device) => api(device, "POST", "/sign-out"));
+  });
 }
 
 // The answer of a call that must succeed.

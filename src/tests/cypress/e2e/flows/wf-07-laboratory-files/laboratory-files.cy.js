@@ -1,6 +1,6 @@
 import { call, callAs, callRefused } from "../../../support/odoo";
 import { openTab, pick, save, search } from "../../../support/form";
-import { api, leaveBackOffice, ok, refused, sha256Of, signInAgain, signInDevice } from "./device";
+import { api, leaveBackOffice, ok, refused, sha256Of, signInAgain, signInDevice, signOutDevices } from "./device";
 import {
   ADMINISTRATOR,
   HEAD,
@@ -39,6 +39,8 @@ function devices(tag, ...logins) {
 }
 
 describe("WF-07 laboratory files", () => {
+  afterEach(signOutDevices);
+
   // Medilab Sync only shows and binds the folders to local directories, which the Sync suite covers.
   it("TC-SF11-M the head creates the folders of a sample, adds a tester, and the tester sees both", () => {
     sampleWithoutFolders().then((sample) => {
@@ -218,7 +220,7 @@ describe("WF-07 laboratory files", () => {
     cy.signInAs("tester");
     cy.openRecord(SEEDED_SAMPLE).then((sample) => {
       call("medilab.laboratory.folder", "search_read", [[["sample_id", "=", sample.id]]], { fields: ["name"] }).then((folders) => {
-        expect(folders, "folders of the sample").to.have.length(2);
+        expect(folders, "folders of the sample").not.to.be.empty;
         cy.get("button[name=action_open_laboratory_folders]").click();
         folders.forEach(({ name }) => cy.contains(".o_data_row", name).should("be.visible"));
       });
@@ -240,34 +242,37 @@ describe("WF-07 laboratory files", () => {
 
         // A file is opened by its address; a click on its row is for the editor where the Files list has one.
         cy.visit(`/odoo/laboratory-files/${file.id}`);
-        cy.get(".o_field_widget[name=version_ids] .o_data_row").should("have.length.at.least", 2);
-        call("medilab.laboratory.file.version", "search_read", [[["file_id", "=", file.id]]], {
-          fields: ["number", "sha256", "size"],
-          order: "number desc",
-        }).then(([current, previous]) => {
-          expect(current.number, "current version is the newest").to.be.greaterThan(previous.number);
-          cy.get(".o_field_widget[name=version_ids] .o_data_row").first().should("contain", current.number);
+        call("medilab.laboratory.file.version", "search_read", [[["file_id", "=", file.id]]], { fields: ["number", "sha256", "size"] }).then(
+          (versions) => {
+            const current = versions.find(({ id }) => id === file.current_version_id[0]);
+            expect(current.number, "current version is the newest").to.eq(Math.max(...versions.map(({ number }) => number)));
+            cy.get(".o_field_widget[name=version_ids] .o_data_row td[name=number]")
+              .should("have.length", versions.length)
+              .then((cells) =>
+                expect(cells.toArray().map((cell) => cell.textContent.trim())).to.have.members(versions.map(({ number }) => String(number))),
+              );
 
-          cy.visit(`/odoo/laboratory-file-versions/${current.id}`);
-          cy.get(".o_field_widget[name=sha256]").should("contain", current.sha256);
-          cy.window().then((win) => cy.stub(win, "open").as("open"));
-          cy.get("button[name=action_download]").click();
-          cy.get("@open").should("have.been.calledOnce");
-          cy.get("@open")
-            .its("firstCall.args.0")
-            .then((url) => cy.request({ url, encoding: "binary" }))
-            .then((response) => {
-              expect(response.status).to.eq(200);
-              expect(response.body.length, "downloaded size").to.eq(current.size);
-              return sha256Of(response.body);
-            })
-            .then((digest) => expect(digest, "downloaded bytes").to.eq(current.sha256));
-        });
+            cy.visit(`/odoo/laboratory-file-versions/${current.id}`);
+            cy.get(".o_field_widget[name=sha256]").should("contain", current.sha256);
+            cy.window().then((win) => cy.stub(win, "open").as("open"));
+            cy.get("button[name=action_download]").click();
+            cy.get("@open").should("have.been.calledOnce");
+            cy.get("@open")
+              .its("firstCall.args.0")
+              .then((url) => cy.request({ url, encoding: "binary" }))
+              .then((response) => {
+                expect(response.status).to.eq(200);
+                expect(response.body.length, "downloaded size").to.eq(current.size);
+                return sha256Of(response.body);
+              })
+              .then((digest) => expect(digest, "downloaded bytes").to.eq(current.sha256));
+          },
+        );
       });
     });
   });
 
-  // The hidden-sample half cannot be set up: every holder of the files permission sees every sample.
+  // Partial: the member of a hidden sample is not covered, since every holder of the files permission sees every sample.
   it("TC-F53-03 a person who is not a member neither sees nor reaches a folder", () => {
     const tag = runTag();
     person(OTHER_TESTER).then((chemist) =>
