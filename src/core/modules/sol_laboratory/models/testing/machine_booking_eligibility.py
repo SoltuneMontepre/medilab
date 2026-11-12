@@ -22,7 +22,8 @@ class MachineBookingEligibility(models.Model, MachineBookingEligibilityBase):
     def create(self, vals_list):
         # Scheduling books as superuser once the sample test's action checked it.
         if not self.env.su:
-            self.env[MODEL_SAMPLE_TEST].browse([vals.get("sample_test_id") for vals in vals_list])._check_bookable()
+            test_ids = [vals["sample_test_id"] for vals in vals_list if vals.get("sample_test_id")]
+            self.env[MODEL_SAMPLE_TEST].browse(test_ids)._check_bookable()
         return super().create(vals_list)
 
     @api.constrains("person_id", "sample_test_id")
