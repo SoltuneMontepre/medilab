@@ -56,6 +56,7 @@ External Secrets reads the Doppler `infra` config through the `doppler` `Cluster
 | -------------------- | ------------------------------------------------------------------------ | -------------------------- |
 | `backup-bucket`      | `BUCKET_ADDRESS`, `BUCKET_BACKUP_ACCESS_KEY`, `BUCKET_BACKUP_SECRET_KEY` | The `backups` object store |
 | `filestore-bucket`   | `BUCKET_ADDRESS`, `BUCKET_MAIN_ACCESS_KEY`, `BUCKET_MAIN_SECRET_KEY`     | Odoo and the upgrade Job   |
+| `payos`              | `PAYOS_CLIENT_ID`, `PAYOS_API_KEY`, `PAYOS_CHECKSUM_KEY`                 | Odoo                       |
 | `cloudflared-tunnel` | `CLOUDFLARE_TUNNEL_TOKEN`                                                | `cloudflared`              |
 | `odoo-config`        | `ODOO_ADMIN_PASSWORD`, written into `odoo.conf`                          | Odoo and the upgrade Job   |
 | `mailpit-ui-auth`    | `MAILPIT_UI_AUTH`                                                        | Mailpit                    |
@@ -78,6 +79,7 @@ External Secrets reads the Doppler `infra` config through the `doppler` `Cluster
 - The upgrade Job requests three cores and 2 GiB with a 4 GiB limit, on top of those 8 GiB while it runs.
 - With no outgoing mail server stored in Odoo and no Brevo settings in the environment, Odoo sends every e-mail to Mailpit on port 1025, without TLS.
 - Odoo and the upgrade Job get the `medilab-filestore` bucket credentials and endpoint from the `filestore-bucket` Secret as `BUCKET_LABORATORY_*`, with `BUCKET_LABORATORY_NAME=medilab-filestore`, `BUCKET_LABORATORY_REGION=us-east-1` and `BUCKET_FILESTORE=1`. Attachments are kept in the bucket and cached in the pod's `/var/lib/odoo` `emptyDir` alongside the sessions; see [Laboratory files](../specs/laboratory-files.md#filestore).
+- Odoo gets the PayOS client id, API key and checksum key from the `payos` Secret as `PAYOS_CLIENT_ID`, `PAYOS_API_KEY` and `PAYOS_CHECKSUM_KEY`; see [PayOS](../specs/payos.md). The upgrade Job runs no cron and does not get them.
 - Traefik routes `lims.soltunemontepre.tech` to Odoo, and `/websocket` to its websocket port, and tells Odoo the request came over HTTPS.
 - Every sync of the `odoo` application runs, in order:
   1. A `PreSync` hook: the `medilab-db-pre-sync` on-demand `Backup`, which must complete.

@@ -2,6 +2,7 @@ from . import (
     account_move,
     account_move_task,
     account_payment,
+    account_payment_register,
     audit_entry,
     cash_flow_report,
     invoice_adjustment,
