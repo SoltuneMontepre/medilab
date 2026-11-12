@@ -88,6 +88,8 @@ function reminders(invoice) {
 describe("SF-01 Invoicing and payment collection", () => {
   it("TC-SF01-M bills the rest of a paid order, which the customer pays online and receives a receipt for", () => {
     paidOrder().then((order) => {
+      // The final invoice bills what is left after the 30% advance.
+      const billed = Math.round(order.amount_total * 0.7);
       cy.signInAs("accountant");
       cy.openRecord(order);
       openDialog("button#create_invoice").within(() => {
@@ -100,8 +102,7 @@ describe("SF-01 Invoicing and payment collection", () => {
         readInvoice(invoice, ["invoice_kind", "state", "amount_total"]).then((read) => {
           expect(read.invoice_kind).to.equal("final");
           expect(read.state).to.equal("draft");
-          // The final invoice bills what is left after the 30% advance.
-          expect(read.amount_total).to.equal(Math.round(order.amount_total * 0.7));
+          expect(read.amount_total).to.equal(billed);
         });
         cy.get(".o_statusbar_buttons button[name=action_post]:visible").click();
         cy.intercept("POST", "/web/dataset/call_button/account.move/action_send_invoice").as("email");
@@ -130,7 +131,7 @@ describe("SF-01 Invoicing and payment collection", () => {
           cy.visit(`/my/invoices/${invoice.id}`);
           cy.get("#medilab_payment_amount").should("not.exist");
           cy.visit(`/my/invoices/${invoice.id}/receipt/${payment.id}`);
-          cy.contains("body", /215[.,]600/);
+          cy.contains("body", new RegExp(billed.toLocaleString("en-US").replaceAll(",", "[.,]")));
         });
       });
     });
@@ -195,7 +196,7 @@ describe("SF-01 Invoicing and payment collection", () => {
           expect(read.state).to.equal("canceled");
           expect(read.reviewed_by_id[1]).to.be.a("string").and.not.be.empty;
         });
-        readInvoice(invoice, ["payment_state", "amount_residual"]).its("payment_state").should("eq", "not_paid");
+        readInvoice(invoice, ["payment_state"]).its("payment_state").should("eq", "not_paid");
         refAs(SALES, "sol_demo.demo_res_users_sales").then(({ id: salesId }) =>
           callAs(
             ACCOUNTANT,
@@ -242,7 +243,7 @@ describe("SF-01 Invoicing and payment collection", () => {
   it("TC-SF01-A5 reminds the customer of an invoice unpaid after its due date, once each day", () => {
     const due = new Date(Date.now() - 3 * 86400000).toISOString().slice(0, 10);
     finalInvoice({ values: { invoice_date: due, invoice_date_due: due, invoice_payment_term_id: false } }).then((invoice) => {
-      readInvoice(invoice, ["is_overdue", "name"]).its("is_overdue").should("eq", true);
+      readInvoice(invoice, ["is_overdue"]).its("is_overdue").should("eq", true);
       callAs(ACCOUNTANT, "account.move", "search", [[["is_overdue", "=", true]]]).should("include", invoice.id);
       cy.signInAs("administrator");
       runOverdueReminders();
