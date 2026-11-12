@@ -2,9 +2,11 @@ import { fireEvent, screen } from "@testing-library/react-native";
 import { Platform } from "react-native";
 
 import { fakeMediLab, kept, refusal } from "../../testing/fakeMediLab";
+import { GREETING, home } from "../../testing/home";
 import { renderApp } from "../../testing/renderApp";
 
 jest.mock("../../config", () => ({ serverUrl: "https://lab.example" }));
+jest.mock("expo-router", () => ({ router: { push: jest.fn() }, useFocusEffect: jest.fn() }));
 
 const SIGNED_IN = {
   status: 200,
@@ -27,12 +29,12 @@ describe("SignInScreen", () => {
   beforeEach(() => kept().clear());
 
   it("keeps the device key in secure storage and never the password", async () => {
-    const mediLab = fakeMediLab(SIGNED_IN, { status: 200, body: { modules: ["sol_laboratory"] } });
+    const mediLab = fakeMediLab(SIGNED_IN, ...home());
     await renderApp();
 
     await signIn();
 
-    expect(await screen.findByText("Đã đăng nhập")).toBeOnTheScreen();
+    expect(await screen.findByText(GREETING)).toBeOnTheScreen();
     expect(mediLab.sent[0].body).toMatchObject({ login: "demo.tester", name: "Pixel 8", platform: Platform.OS });
     expect(kept().get("medilab.device_key")).toBe("device-key");
     expect([...kept().values()].join(" ")).not.toContain(TYPED);
@@ -40,7 +42,7 @@ describe("SignInScreen", () => {
   });
 
   it("signs in again with the same installation id", async () => {
-    const mediLab = fakeMediLab(SIGNED_IN, { status: 200, body: { modules: [] } });
+    const mediLab = fakeMediLab(SIGNED_IN, ...home());
     kept().set("medilab.installation_id", "kept-installation");
     await renderApp();
 
@@ -61,7 +63,7 @@ describe("SignInScreen", () => {
   });
 
   it("refuses without a connection, changes nothing and signs in on retry", async () => {
-    fakeMediLab("unreachable", SIGNED_IN, { status: 200, body: { modules: [] } });
+    fakeMediLab("unreachable", SIGNED_IN, ...home());
     await renderApp();
 
     await signIn();
@@ -69,7 +71,7 @@ describe("SignInScreen", () => {
     expect(await screen.findByText(/Không kết nối được MediLab/)).toBeOnTheScreen();
     expect(kept().has("medilab.device_key")).toBe(false);
     await fireEvent.press(screen.getByRole("button", { name: "Thử lại" }));
-    expect(await screen.findByText("Đã đăng nhập")).toBeOnTheScreen();
+    expect(await screen.findByText(GREETING)).toBeOnTheScreen();
   });
 
   it("keeps the language chosen for the next start", async () => {
@@ -97,7 +99,7 @@ describe("SignInScreen", () => {
   });
 
   it("keeps the edited server address", async () => {
-    const mediLab = fakeMediLab(SIGNED_IN, { status: 200, body: { modules: [] } });
+    const mediLab = fakeMediLab(SIGNED_IN, ...home());
     await renderApp();
 
     await fireEvent.changeText(await screen.findByLabelText("Địa chỉ MediLab"), "https://other.example/");

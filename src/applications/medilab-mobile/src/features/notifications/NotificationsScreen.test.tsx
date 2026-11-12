@@ -46,10 +46,7 @@ describe("NotificationsScreen", () => {
       method: "POST",
       url: "https://lab.example/medilab/api/v1/notifications/31/read",
     });
-    expect(router.push).toHaveBeenCalledWith({
-      pathname: "/documents/[model]/[id]",
-      params: { model: "medilab.task", id: "4" },
-    });
+    expect(router.push).toHaveBeenCalledWith({ pathname: "/tasks/[id]", params: { id: "4" } });
     expect(await screen.findByRole("button", { name: "Nhắc việc, MT-2026-0012" })).toBeOnTheScreen();
   });
 
