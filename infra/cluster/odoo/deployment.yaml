@@ -39,6 +39,8 @@ spec:
           envFrom:
             - secretRef:
                 name: filestore-bucket
+            - secretRef:
+                name: payos
           env:
             - name: HOST
               value: medilab-db-rw

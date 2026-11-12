@@ -5,6 +5,7 @@ namespace: medilab
 resources:
   - config.yaml
   - filestore.yaml
+  - payos.yaml
   - pre-sync-backup.yaml
   - upgrade-job.yaml
   - deployment.yaml
