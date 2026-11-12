@@ -1,6 +1,6 @@
 import { call, callAs, callRefused } from "../../../support/odoo";
 import { openTab, pick, save, search } from "../../../support/form";
-import { api, leaveBackOffice, ok, refused, sha256Of, signInAgain, signInDevice, signOutDevices } from "./device";
+import { api, leaveBackOffice, ok, refused, sha256Of, signInAgain, signOutDevices } from "./device";
 import {
   ADMINISTRATOR,
   HEAD,
@@ -8,6 +8,9 @@ import {
   OTHER_TESTER,
   SALES,
   TESTER,
+  addMember,
+  confirmDialog,
+  devices,
   foldersOfSample,
   membersOf,
   ownFolder,
@@ -19,24 +22,6 @@ import {
 // The bottled water in testing and the result file of its folders, which the tests only read.
 const SEEDED_SAMPLE = "sol_demo.demo_sample_bottled_water_testing";
 const SEEDED_FILE = "Pb-ket-qua.xlsx";
-
-function confirmDialog() {
-  cy.get(".modal-footer .btn-primary").click();
-}
-
-// A person's device adds a person to a folder, as the owner's Medilab Sync does.
-function addMember(device, folder, user) {
-  return api(device, "POST", `/folders/${folder.id}/members`, { body: { user_id: user.id } }).then(
-    (response) => ok(response, `add ${user.name}`).member,
-  );
-}
-
-// The devices of the people, signed in as computers named after the test.
-function devices(tag, ...logins) {
-  const signedIn = [];
-  logins.forEach((login, index) => signInDevice(login, `PC-${tag}-${index}`).then((device) => signedIn.push(device)));
-  return cy.then(() => signedIn);
-}
 
 describe("WF-07 laboratory files", () => {
   afterEach(signOutDevices);
