@@ -39,6 +39,12 @@ describe("Shared machine intervals", () => {
     snapshot(fixture).then((before) => {
       const [holder, joiner, third] = before.bookings;
       callAs(TESTER, "medilab.machine.booking", "write", [[joiner.id], { starts_at: holder.starts_at }]);
+      snapshot(fixture).then((full) => {
+        const joined = full.bookings.find((row) => row.id === joiner.id);
+        expect(Cypress._.pick(joined, BOOKING), "the second sample joined the interval").to.deep.equal(
+          Cypress._.pick(holder, BOOKING),
+        );
+      });
       cy.signInAs("tester");
       cy.visit(`/odoo/machine-schedule/${third.id}`);
       typeStart(holder.starts_at, fixture.displayZone);
