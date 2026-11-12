@@ -33,7 +33,8 @@ class TestTestingAssignment(SchedulingCase):
             }
         )
         self.offer(copper, self.sample_type, way)
-        second = self.env[MODEL_SAMPLE_TEST].create({"sample_id": self.sample.id, "parameter_id": copper.id})
+        self.authorize(self.tester, copper)
+        second =self.env[MODEL_SAMPLE_TEST].create({"sample_id": self.sample.id, "parameter_id": copper.id})
         lead_task, copper_task = self.testing_task(self.test), self.testing_task(second)
         self.assign_sample(lead_task, self.tester)
         self.assertEqual((lead_task | copper_task).assignee_id, self.tester)

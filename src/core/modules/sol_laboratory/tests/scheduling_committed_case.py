@@ -22,6 +22,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MACHINE_BOOKING,
     MODEL_MAIL_MESSAGE,
     MODEL_MEASUREMENT_UNIT,
+    MODEL_PARAMETER_AUTHORIZATION,
     MODEL_PARAMETER_GROUP,
     MODEL_PARAMETER_METHOD,
     MODEL_PARAMETER_METHOD_MACHINE,
@@ -228,6 +229,13 @@ class SchedulingCommittedCase(TransactionCase):
         self.assertEqual(len(tasks), 2)
         self.task_ids = tasks.ids
         self.owned.setdefault(MODEL_TASK, []).extend(tasks.ids)
+        env[MODEL_SAMPLE_HANDOVER].search([("sample_id", "in", request.sample_ids.ids)]).write(
+            {"received_at": fields.Datetime.now(), "received_by_id": people[0].id}
+        )
+        create(
+            MODEL_PARAMETER_AUTHORIZATION,
+            [{"person_id": person.id, "parameter_id": parameter.id} for person in people],
+        )
 
     def assign(self, env, number=0):
         task = env[MODEL_TASK].browse(self.task_ids[number])

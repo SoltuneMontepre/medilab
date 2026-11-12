@@ -211,6 +211,9 @@
                 ref('sol_laboratory.permission_change_request_sign_all'),
                 ref('sol_inventory.permission_purchase_order_read_all'),
                 ref('sol_inventory.permission_purchase_order_sign_all'),
+                ref('sol_laboratory.permission_parameter_authorization_create_all'),
+                ref('sol_laboratory.permission_parameter_authorization_edit_all'),
+                ref('sol_laboratory.permission_parameter_authorization_delete_all'),
             ])]"
         />
     </record>

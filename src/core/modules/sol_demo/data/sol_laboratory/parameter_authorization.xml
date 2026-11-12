@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- The head and the tester of Chemistry test every Chemistry parameter; the second chemistry tester is not
+         authorized for chlorpyrifos, so is not offered its tests. -->
+    <record id="demo_parameter_authorization_tester_lead" model="medilab.parameter.authorization">
+        <field name="person_id" ref="demo_person_tester" />
+        <field name="parameter_id" ref="demo_test_parameter_lead" />
+    </record>
+    <record id="demo_parameter_authorization_tester_ph" model="medilab.parameter.authorization">
+        <field name="person_id" ref="demo_person_tester" />
+        <field name="parameter_id" ref="demo_test_parameter_ph" />
+    </record>
+    <record id="demo_parameter_authorization_tester_chlorpyrifos" model="medilab.parameter.authorization">
+        <field name="person_id" ref="demo_person_tester" />
+        <field name="parameter_id" ref="demo_test_parameter_chlorpyrifos" />
+    </record>
+    <record id="demo_parameter_authorization_tester_cadmium" model="medilab.parameter.authorization">
+        <field name="person_id" ref="demo_person_tester" />
+        <field name="parameter_id" ref="demo_test_parameter_cadmium" />
+    </record>
+    <record id="demo_parameter_authorization_tester_chromium_vi" model="medilab.parameter.authorization">
+        <field name="person_id" ref="demo_person_tester" />
+        <field name="parameter_id" ref="demo_test_parameter_chromium_vi" />
+    </record>
+    <record id="demo_parameter_authorization_head_of_department_lead" model="medilab.parameter.authorization">
+        <field name="person_id" ref="demo_person_head_of_department" />
+        <field name="parameter_id" ref="demo_test_parameter_lead" />
+    </record>
+    <record id="demo_parameter_authorization_head_of_department_ph" model="medilab.parameter.authorization">
+        <field name="person_id" ref="demo_person_head_of_department" />
+        <field name="parameter_id" ref="demo_test_parameter_ph" />
+    </record>
+    <record id="demo_parameter_authorization_head_of_department_chlorpyrifos" model="medilab.parameter.authorization">
+        <field name="person_id" ref="demo_person_head_of_department" />
+        <field name="parameter_id" ref="demo_test_parameter_chlorpyrifos" />
+    </record>
+    <record id="demo_parameter_authorization_head_of_department_cadmium" model="medilab.parameter.authorization">
+        <field name="person_id" ref="demo_person_head_of_department" />
+        <field name="parameter_id" ref="demo_test_parameter_cadmium" />
+    </record>
+    <record id="demo_parameter_authorization_head_of_department_chromium_vi" model="medilab.parameter.authorization">
+        <field name="person_id" ref="demo_person_head_of_department" />
+        <field name="parameter_id" ref="demo_test_parameter_chromium_vi" />
+    </record>
+    <record id="demo_parameter_authorization_chemistry_tester_lead" model="medilab.parameter.authorization">
+        <field name="person_id" ref="demo_person_chemistry_tester" />
+        <field name="parameter_id" ref="demo_test_parameter_lead" />
+    </record>
+    <record id="demo_parameter_authorization_chemistry_tester_ph" model="medilab.parameter.authorization">
+        <field name="person_id" ref="demo_person_chemistry_tester" />
+        <field name="parameter_id" ref="demo_test_parameter_ph" />
+    </record>
+    <record id="demo_parameter_authorization_chemistry_tester_chromium_vi" model="medilab.parameter.authorization">
+        <field name="person_id" ref="demo_person_chemistry_tester" />
+        <field name="parameter_id" ref="demo_test_parameter_chromium_vi" />
+    </record>
+    <record id="demo_parameter_authorization_microbiology_tester_coliforms" model="medilab.parameter.authorization">
+        <field name="person_id" ref="demo_person_microbiology_tester" />
+        <field name="parameter_id" ref="demo_test_parameter_coliforms" />
+    </record>
+    <record id="demo_parameter_authorization_microbiology_tester_e_coli" model="medilab.parameter.authorization">
+        <field name="person_id" ref="demo_person_microbiology_tester" />
+        <field name="parameter_id" ref="demo_test_parameter_e_coli" />
+    </record>
+</odoo>
