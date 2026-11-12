@@ -2,6 +2,7 @@ from datetime import datetime
 
 from psycopg2 import IntegrityError
 
+from odoo.fields import Domain
 from odoo.tests import tagged
 from odoo.tools import SQL, mute_logger
 
@@ -112,7 +113,7 @@ class TestTestingFigures(ResultCase):
         figures = self.env[MODEL_TESTING_FIGURE].with_context(**{PERIOD_FROM: period[0], PERIOD_TO: period[1]})
         if person:
             figures = figures.with_user(person.user_id)
-        domain = [("department_id", "=", department.id)] if department else []
+        domain = Domain("department_id", "=", department.id) if department else Domain.TRUE
         aggregates = {name: f"{name}:{figures._fields[name].aggregator}" for name in MEASURES}
         groups = figures.formatted_read_group(domain, ["department_id"], list(aggregates.values()))
         return {
