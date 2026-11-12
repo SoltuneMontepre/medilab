@@ -1,1 +1,1 @@
-from . import invoicing, purchasing, system
+from . import catalog, invoicing, purchasing, stock, system

@@ -6,7 +6,7 @@ from .demo_orders import _product, _xml_id
 from .demo_quotations import _pay_advance, _quotable_order, _sales_tax
 from .demo_report_templates import prepare_report, report_templates_seeded
 from .demo_reports import _approve_all
-from .demo_results import _enter, _receive
+from .demo_results import _enter, receive
 from odoo.addons.sol_laboratory.constants.models import MODEL_RES_USERS, MODEL_TEST_REPORT
 from odoo.addons.sol_laboratory.services.model_lookup import reference_as
 
@@ -41,11 +41,11 @@ def seed_tracking(env):
     tax = _sales_tax(env, 8)
 
     testing = _history_order(env, sales, lead_product, tax, "confirmed")
-    _receive(env, testing.test_request_id)
+    receive(env, testing.test_request_id)
     test = testing.test_request_id.sample_ids.test_ids[:1]
     _enter(env, env.ref("sol_demo.demo_res_users_tester"), test, value=0.003, conclusion="pass")
     released = _history_order(env, sales, lead_product, tax, "confirmed")
-    _receive(env, released.test_request_id)
+    receive(env, released.test_request_id)
     _approve_all(env, released.test_request_id)
     report = env[MODEL_TEST_REPORT].search([("request_id", "=", released.test_request_id.id)])
     # Its results are released only when the demo templates could be seeded to prepare its PDF.
