@@ -296,6 +296,11 @@ jobs:
           provenance: false
           sbom: false
 
+      # Odoo checks the PayOS notifications the tests sign with this key; without the other keys it never calls PayOS.
+      - name: Make a PayOS checksum key
+        if: needs.changes.outputs.e2e == 'true'
+        run: echo "PAYOS_CHECKSUM_KEY=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+
       - name: Start Odoo with demo data
         if: needs.changes.outputs.e2e == 'true'
         run: task test:e2e:app

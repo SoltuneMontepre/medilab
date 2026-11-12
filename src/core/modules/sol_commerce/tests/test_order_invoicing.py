@@ -1,8 +1,11 @@
 from odoo.exceptions import AccessError, UserError
+from odoo.fields import Command
 from odoo.tests import tagged
 
 from .order_case import OrderCase
 from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ADVANCE_PAYMENT_INV, MODEL_SALE_ORDER
+from odoo.addons.sol_laboratory.constants.models import MODEL_PERSON
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 
 @tagged("post_install", "-at_install")
@@ -47,6 +50,19 @@ class TestOrderInvoicing(OrderCase):
             self.make_invoice(order, self.sales)
 
         self.assertFalse(order.sudo().invoice_ids)
+
+    def test_the_accountant_creates_the_final_invoice_of_an_order_they_only_read(self):
+        order = self.make_confirmed_order()
+        before = order.sudo().invoice_ids
+        accountant = self.env[MODEL_PERSON].create({"name": "Pham Minh Chau", "login": "orders.accountant"}).user_id
+        accountant.write({"group_ids": [Command.link(persisted_id(self.env.ref("account.group_account_invoice")))]})
+
+        # The dialog sends its overage choice, which Odoo writes on the order.
+        self.make_invoice(order, accountant, {"advance_payment_method": "delivered", "invoice_overages": False})
+
+        created = order.sudo().invoice_ids - before
+        self.assertEqual(len(created), 1)
+        self.assertEqual((created.state, created.invoice_kind, created.order_id), ("draft", "final", order))
 
     def test_each_order_gets_its_own_final_invoice(self):
         orders = self.make_confirmed_order() | self.make_confirmed_order()
