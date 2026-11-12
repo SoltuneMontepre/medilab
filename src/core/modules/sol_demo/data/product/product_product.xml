@@ -7,7 +7,6 @@
         <field name="uom_id" ref="uom.product_uom_milliliter" />
         <field name="chemical_id" ref="demo_chemical_nitric_acid" />
         <field name="use_expiration_date" eval="True" />
-        <field name="use_shelf_life_after_opening" eval="True" />
         <field name="shelf_life_after_opening_days">180</field>
     </record>
     <record id="demo_product_product_sodium_chloride" model="product.product">
@@ -25,7 +24,6 @@
         <field name="uom_id" ref="uom.product_uom_milliliter" />
         <field name="chemical_id" ref="demo_chemical_acetonitrile" />
         <field name="use_expiration_date" eval="True" />
-        <field name="use_shelf_life_after_opening" eval="True" />
         <field name="shelf_life_after_opening_days">90</field>
     </record>
     <record id="demo_product_product_agar_plates" model="product.product">
@@ -62,7 +60,6 @@
         <field name="uom_id" ref="uom.product_uom_milliliter" />
         <field name="chemical_id" ref="demo_chemical_sulfuric_acid" />
         <field name="use_expiration_date" eval="True" />
-        <field name="use_shelf_life_after_opening" eval="True" />
         <field name="shelf_life_after_opening_days">180</field>
     </record>
     <record id="demo_product_product_distilled_water" model="product.product">
@@ -72,7 +69,6 @@
         <field name="uom_id" ref="uom.product_uom_milliliter" />
         <field name="chemical_id" ref="demo_chemical_distilled_water" />
         <field name="use_expiration_date" eval="True" />
-        <field name="use_shelf_life_after_opening" eval="True" />
         <field name="shelf_life_after_opening_days">30</field>
     </record>
     <record id="demo_product_product_sulfuric_acid_005m" model="product.product">

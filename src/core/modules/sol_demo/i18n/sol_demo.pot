@@ -200,9 +200,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_demo.field_account_move__display_name
 #: model:ir.model.fields,field_description:sol_demo.field_medilab_scheduled_job__display_name
 #: model:ir.model.fields,field_description:sol_demo.field_purchase_order__display_name
-#: model:ir.model.fields,field_description:sol_demo.field_stock_package__display_name
-#: model:ir.model.fields,field_description:sol_demo.field_stock_quant__display_name
-#: model:ir.model.fields,field_description:sol_demo.field_stock_warehouse_orderpoint__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -311,9 +308,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_demo.field_account_move__id
 #: model:ir.model.fields,field_description:sol_demo.field_medilab_scheduled_job__id
 #: model:ir.model.fields,field_description:sol_demo.field_purchase_order__id
-#: model:ir.model.fields,field_description:sol_demo.field_stock_package__id
-#: model:ir.model.fields,field_description:sol_demo.field_stock_quant__id
-#: model:ir.model.fields,field_description:sol_demo.field_stock_warehouse_orderpoint__id
 msgid "ID"
 msgstr ""
 
@@ -339,11 +333,6 @@ msgstr ""
 #. module: sol_demo
 #: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_laboratory_file_version_signing
 msgid "Laboratory file signing"
-msgstr ""
-
-#. module: sol_demo
-#: model:ir.model,name:sol_demo.model_stock_package
-msgid "Package"
 msgstr ""
 
 #. module: sol_demo
@@ -432,11 +421,6 @@ msgid ""
 "Microbiology of food and animal feeding stuffs — Enumeration of "
 "β-glucuronidase-positive Escherichia coli — Part 2: Colony-count technique "
 "at 44 °C"
-msgstr ""
-
-#. module: sol_demo
-#: model:ir.model,name:sol_demo.model_stock_warehouse_orderpoint
-msgid "Minimum Inventory Rule"
 msgstr ""
 
 #. module: sol_demo
@@ -535,11 +519,6 @@ msgstr ""
 #. module: sol_demo
 #: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_purchase_order_signing
 msgid "Purchase order signing"
-msgstr ""
-
-#. module: sol_demo
-#: model:ir.model,name:sol_demo.model_stock_quant
-msgid "Quant"
 msgstr ""
 
 #. module: sol_demo
