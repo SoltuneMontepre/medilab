@@ -40,6 +40,7 @@ src/tests/
         ecommerce/portal-navigation/
         ecommerce/uninstall-warning/
         mobile/phone-revocation/
+        mobile/tasks/
       *.cy.js
     support/
     fixtures/
@@ -95,6 +96,7 @@ Start test titles with the issue's `TC-WF…`, `TC-SF…` or `TC-F…` ID. Map f
 | Reach the catalog, My orders, Support and the account from the portal header, as a customer and as a visitor, and filter My orders. | [#452](https://github.com/SoltuneMontepre/medilab/issues/452), [#499](https://github.com/SoltuneMontepre/medilab/issues/499) | `features/ecommerce/portal-navigation/` | `portal-navigation.cy.js` |
 | Warn before uninstalling E-commerce that test requests keep their order's number, and not when Laboratory leaves with it. | [#439](https://github.com/SoltuneMontepre/medilab/issues/439) | `features/ecommerce/uninstall-warning/` | `uninstall-warning.cy.js` |
 | Revoke a phone signed in on Medilab Mobile from the back office; its key is refused at its next call and its push token is off. | [#514](https://github.com/SoltuneMontepre/medilab/issues/514) | `features/mobile/phone-revocation/` | `phone-revocation.cy.js` |
+| Claim a task from the queue on the phone; the web shows it claimed, and a second claim is told it is already claimed. | [#516](https://github.com/SoltuneMontepre/medilab/issues/516) | `features/mobile/tasks/` | `tasks.cy.js` |
 
 Onboarding and solution-preparation scenarios follow their approved feature documents and demo starting data. Reserving a directory does not settle the open requirements in those issues.
 

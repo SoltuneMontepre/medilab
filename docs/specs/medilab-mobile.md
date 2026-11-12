@@ -101,13 +101,14 @@ A push is created when a notification is delivered on the push channel ([SH-11](
 | `POST /tasks` | Creates a task by hand with a name, a note, an assignee and a deadline |
 | `POST /tasks/{task_id}/claim`, `/start`, `/done` | `action_claim()`, `action_start()`, `action_done()` |
 | `POST /tasks/{task_id}/assign` | Assigns or reassigns the task to a person or a department, with a reason when it moves away |
-| `GET /tasks/{task_id}/assignees?q=` | The people and departments the task may go to |
+| `GET /tasks/assignees?q=` | The people and departments the person may give a task to |
 
-- The lists search the person's tasks with `is_mine` and `in_my_queue`, as the web's to-do list and queues do, so both show the same tasks in the same order.
+- The lists search the person's tasks with `is_mine` and `in_my_queue`, as the web's to-do list and queues do, so both show the same tasks in the same order. A page's `next_after` is how many tasks the pages before it gave.
+- The actions of a task are the buttons the web's form shows the person: claim while it waits in their queue, start and mark done while it is theirs, and assign with the permission to edit it. `GET /me` says whether the person may create and assign tasks, from the same permissions, so the app shows the screens only with them.
 - A testing task gives its method's steps from `method_step_ids`: each step's minutes, instruction, note and location. A collection task gives its planned start and end and its sample's sampling location.
 - Claiming a task someone else claimed first is refused with `already_claimed`; a task outside the person's queues with `action_refused`.
-- Assigning and reassigning run the `medilab.task.reassign` wizard's `action_confirm()` on the task, so its checks apply. Moving a task away from its person or department without a reason is refused with `action_refused`: the task refuses it, so the web refuses it the same way.
-- Creating a task by hand creates a task of the general type with the person's rights; a task created on the phone never names a document ([SH-10](../functional/shared.md#sh-10-tasks-and-to-do-list)).
+- Assigning and reassigning run the `medilab.task.reassign` wizard's `action_confirm()` on the task, so its checks apply. Moving a task away from its person or department without a reason is refused with `action_refused`: the task refuses it, so the web refuses it the same way. A person outside the task's department takes the task to their department unless the request names one; naming a department and no person puts the task in that department's queue. A person without the permission to edit the task is refused with `permission_denied`.
+- Creating a task by hand creates a task of the general type with the person's rights, in the assignee's department; a task created on the phone never names a document ([SH-10](../functional/shared.md#sh-10-tasks-and-to-do-list)). The task keeps the phone it was created on and its `Idempotency-Key`. A person without the permission to create tasks is refused with `permission_denied`.
 
 ### Scanning sample labels
 
@@ -217,6 +218,7 @@ Like the Sync updates route, these two are plain `auth='none'` HTTP routes, outs
 
 - `medilab.laboratory.device` takes the platforms `android` and `ios`.
 - `medilab.mobile.device` has `laboratory_device_id`, required and unique: the phone the token belongs to. Its user is the phone's user.
+- `medilab.task` has `created_by_device_id` and `idempotency_key`, unique together where the key is set: the phone a task was created on by hand and the key of its request.
 - `medilab.handover.record.signed_device_id` names the phone's `medilab.laboratory.device`, which is never deleted, rather than its token, which the cleanup job removes once it is off.
 - `medilab.push.delivery` pushes either a notification or a conversation message: `notification_id` or `message_id`, exactly one, each unique with the token.
 - The diagram is [laboratory.prisma](../infrastructure/database/laboratory/laboratory.prisma).

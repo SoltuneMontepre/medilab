@@ -3307,6 +3307,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__created_by_device_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__created_by_device_id
 msgid "Created By Device"
 msgstr ""
 
@@ -6070,6 +6071,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__idempotency_key
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_idempotency_mixin__idempotency_key
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_upload__idempotency_key
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__idempotency_key
 msgid "Idempotency Key"
 msgstr ""
 
@@ -15545,4 +15547,24 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/notifications/mail_notification.py:0
 msgid "This notification is no longer in your inbox."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_task_device_idempotency_key_unique
+msgid "This phone already created a task with this Idempotency-Key."
+msgstr ""
+
+#. module: sol_laboratory
+#: code:addons/sol_laboratory/models/tasks/task_mobile.py:0
+msgid "You may not assign %s."
+msgstr ""
+
+#. module: sol_laboratory
+#: code:addons/sol_laboratory/models/tasks/task_mobile.py:0
+msgid "You may not assign tasks."
+msgstr ""
+
+#. module: sol_laboratory
+#: code:addons/sol_laboratory/models/tasks/task_mobile.py:0
+msgid "You may not create tasks."
 msgstr ""
