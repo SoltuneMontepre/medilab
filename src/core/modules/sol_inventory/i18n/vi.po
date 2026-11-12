@@ -27,6 +27,66 @@ msgstr "# Hóa đơn mua hàng"
 
 #. module: sol_inventory
 #. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "%(container)s holds %(held)s, not %(item)s."
+msgstr "%(container)s đang chứa %(held)s, không phải %(item)s."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation_make.py:0
+msgid "%(container)s holds %(item)s, which this recipe does not use."
+msgstr "%(container)s chứa %(item)s, công thức này không dùng đến."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid "%(container)s holds %(item)s."
+msgstr "%(container)s đang chứa %(item)s."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "%(containers)s are not in %(store)s."
+msgstr "%(containers)s không ở trong %(store)s."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "%(containers)s are not in a store of %(person)s."
+msgstr "%(containers)s không ở trong kho của %(person)s."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_move.py:0
+msgid "%(containers)s do not hold %(item)s."
+msgstr "%(containers)s không chứa %(item)s."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/test_result.py:0
+msgid "%(containers)s hold %(items)s, which this method does not use."
+msgstr "%(containers)s chứa %(items)s, mà phương pháp này không dùng."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid ""
+"%(item)s is still open in %(opened)s. Use it up or mark it empty before "
+"opening %(container)s."
+msgstr ""
+"%(item)s vẫn đang mở ở %(opened)s. Dùng hết hoặc đánh dấu hết trước khi mở "
+"%(container)s."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_move.py:0
+msgid ""
+"%(item)s still needs %(quantity)s %(unit)s. Scan another opened container."
+msgstr ""
+"%(item)s còn thiếu %(quantity)s %(unit)s. Quét thêm một chai đã mở nắp."
+
+#. module: sol_inventory
+#. odoo-python
 #: code:addons/sol_inventory/models/recipes/product_product.py:0
 msgid ""
 "%(items)s cannot be archived while active recipes make or use them: "
@@ -52,6 +112,16 @@ msgid ""
 "%(items)s cannot be ingredients of %(recipe)s: an ingredient is an item "
 "tracked by container or a prepared solution."
 msgstr "%(items)s không thể là thành phần của %(recipe)s: thành phần phải là vật tư theo dõi theo chai/lọ hoặc dung dịch pha chế."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stores/stock_location.py:0
+msgid ""
+"%(locations)s cannot be deleted while these locations are inside: "
+"%(inside)s."
+msgstr ""
+"Không thể xóa %(locations)s khi vẫn còn các vị trí kho bên trong: "
+"%(inside)s."
 
 #. module: sol_inventory
 #. odoo-python
@@ -95,9 +165,31 @@ msgstr "%(store)s do tổ %(team)s giữ nên kho cấp trên phải do %(depart
 
 #. module: sol_inventory
 #. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_move.py:0
+msgid ""
+"%(stores)s holds %(held)s %(unit)s of %(item)s that can be used, short of "
+"%(needed)s %(unit)s."
+msgstr ""
+"%(stores)s còn %(held)s %(unit)s %(item)s dùng được, chưa đủ %(needed)s "
+"%(unit)s."
+
+#. module: sol_inventory
+#. odoo-python
 #: code:addons/sol_inventory/models/recipes/recipe.py:0
 msgid "%s cannot use its own solution as an ingredient."
 msgstr "%s không thể dùng chính dung dịch của nó làm thành phần."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stores/person.py:0
+msgid "%s has no person record, so they have no store."
+msgstr "%s chưa có hồ sơ nhân sự, nên không có kho."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stores/person.py:0
+msgid "%s has no store. Their team and department hold none."
+msgstr "%s không có kho. Tổ và phòng của họ không giữ kho nào."
 
 #. module: sol_inventory
 #. odoo-python
@@ -116,6 +208,31 @@ msgstr "%s là hóa chất nên phải gắn với một hóa chất của phòn
 #: code:addons/sol_inventory/models/catalog/product_product.py:0
 msgid "%s is a prepared solution, so it is tracked by container."
 msgstr "%s là dung dịch pha chế nên phải theo dõi theo chai/lọ."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation_make_line.py:0
+msgid "%s is already on this ingredient."
+msgstr "%s đã có trong thành phần này."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+#: code:addons/sol_inventory/models/recipes/preparation_make.py:0
+msgid "%s is already on this preparation."
+msgstr "%s đã có trong phiếu pha chế này."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/test_result.py:0
+msgid "%s is already on this result."
+msgstr "%s đã có trong kết quả này."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "%s is already used for another ingredient."
+msgstr "%s đã được dùng cho thành phần khác."
 
 #. module: sol_inventory
 #. odoo-python
@@ -139,6 +256,16 @@ msgstr "%s cần ít nhất một thành phần."
 #: model:ir.model.constraint,message:sol_inventory.constraint_medilab_recipe_shelf_life_positive
 msgid "A recipe needs a shelf life of at least one day."
 msgstr "Công thức pha chế cần hạn dùng ít nhất một ngày."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid ""
+"A sealed container is wasted whole. %(container)s holds %(quantity)s "
+"%(unit)s."
+msgstr ""
+"Chai còn nguyên seal phải hao hụt cả chai. %(container)s còn %(quantity)s "
+"%(unit)s."
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__account_move_count
@@ -232,6 +359,11 @@ msgid "Address inline (without name)"
 msgstr "Địa chỉ một dòng (không kèm tên)"
 
 #. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_move__move_kind__adjustment
+msgid "Adjustment"
+msgstr "Điều chỉnh"
+
+#. module: sol_inventory
 #: model:ir.model.fields,help:sol_inventory.field_medilab_supplier__lang
 msgid ""
 "All the emails and documents sent to this contact will be translated in this"
@@ -242,6 +374,11 @@ msgstr "Tất cả email và tài liệu gửi cho liên hệ này sẽ được
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe_line__quantity
 msgid "Amount"
 msgstr "Lượng dùng"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__quantity
+msgid "Amount Used"
+msgstr "Lượng đã dùng"
 
 #. module: sol_inventory
 #: model:ir.model,name:sol_inventory.model_account_analytic_account
@@ -323,6 +460,11 @@ msgstr "Số tệp đính kèm"
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__autopost_bills
 msgid "Auto-post bills"
 msgstr "Tự động vào sổ hoá đơn"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_move__automatic
+msgid "Automatic"
+msgstr "Tự động"
 
 #. module: sol_inventory
 #: model:ir.model.fields,help:sol_inventory.field_medilab_supplier__autopost_bills
@@ -427,6 +569,16 @@ msgid "By Quantity"
 msgstr "Theo số lượng"
 
 #. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_opening_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_scan_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_preparation_make_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_use_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_correction_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_relocation_form
+msgid "Cancel"
+msgstr "Hủy"
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__channel_member_ids
 msgid "Channel Member"
 msgstr "Thành viên kênh"
@@ -462,6 +614,34 @@ msgstr "Hóa chất hoặc thuốc thử"
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_item_search
 msgid "Chemicals and Reagents"
 msgstr "Hóa chất và thuốc thử"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+#: code:addons/sol_inventory/models/recipes/preparation_make.py:0
+msgid "Choose a recipe."
+msgstr "Chọn một công thức pha chế."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid "Choose one of your stores."
+msgstr "Chọn một kho của bạn."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+#: code:addons/sol_inventory/models/stock/stock_correction.py:0
+#: code:addons/sol_inventory/models/stock/stock_relocation.py:0
+msgid "Choose the lot of %s."
+msgstr "Chọn lô của %s."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid "Choose why it was wasted."
+msgstr "Chọn lý do hao hụt."
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__city
@@ -537,6 +717,11 @@ msgid "Consumables"
 msgstr "Dụng cụ tiêu hao"
 
 #. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_move__move_kind__consumption
+msgid "Consumption"
+msgstr "Tiêu hao"
+
+#. module: sol_inventory
 #: model:ir.model,name:sol_inventory.model_res_partner
 msgid "Contact"
 msgstr "Liên Hệ"
@@ -545,6 +730,30 @@ msgstr "Liên Hệ"
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__contact_person_id
 msgid "Contact Person"
 msgstr "Người liên hệ"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_opening__container_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__container_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_container__container_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__container_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__container_id
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_preparation_list
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_correction__container_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_operation__container_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_relocation__container_id
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_on_hand_list
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_on_hand_search
+msgid "Container"
+msgstr "Chai/Lọ"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_scan__code
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__container_scan
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_correction__container_scan
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_operation__container_scan
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_relocation__container_scan
+msgid "Container Code"
+msgstr "Mã chai"
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_location__cost_centre_code
@@ -602,6 +811,16 @@ msgid "Create minimum quantities"
 msgstr "Tạo tồn tối thiểu"
 
 #. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_move_create_all
+msgid "Create moves"
+msgstr "Tạo phiếu xuất kho"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_preparation_create_all
+msgid "Create preparations"
+msgstr "Tạo phiếu pha chế"
+
+#. module: sol_inventory
 #: model:medilab.permission,name:sol_inventory.permission_recipe_line_create_all
 msgid "Create recipe ingredients"
 msgstr "Tạo thành phần pha chế"
@@ -632,6 +851,16 @@ msgstr "Tạo nhà cung cấp"
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe__create_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe_line__create_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__create_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_opening__create_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_scan__create_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__create_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__create_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_container__create_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__create_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__create_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__create_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_correction__create_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_relocation__create_uid
 msgid "Created by"
 msgstr "Người tạo"
 
@@ -641,6 +870,16 @@ msgstr "Người tạo"
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe__create_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe_line__create_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__create_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_opening__create_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_scan__create_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__create_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__create_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_container__create_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__create_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__create_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__create_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_correction__create_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_relocation__create_date
 msgid "Created on"
 msgstr "Ngày tạo"
 
@@ -661,6 +900,7 @@ msgstr "Hạn mức tín dụng riêng cho đối tác này."
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__currency_id
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_quant__currency_id
 msgid "Currency"
 msgstr "Tiền tệ"
 
@@ -698,6 +938,8 @@ msgstr "Thời gian thu hồi tiền hàng tồn đọng (DSO)"
 #: model:ir.model.fields,help:sol_inventory.field_medilab_method_consumption__uom_id
 #: model:ir.model.fields,help:sol_inventory.field_medilab_recipe__uom_id
 #: model:ir.model.fields,help:sol_inventory.field_medilab_recipe_line__uom_id
+#: model:ir.model.fields,help:sol_inventory.field_medilab_preparation_make__uom_id
+#: model:ir.model.fields,help:sol_inventory.field_medilab_preparation_make_line__uom_id
 msgid "Default unit of measure used for all stock operations."
 msgstr "Đơn vị tính mặc định dùng cho mọi nghiệp vụ kho."
 
@@ -798,6 +1040,25 @@ msgstr "Hiển thị báo cáo PDF mẫu hóa đơn"
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_package__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_picking__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_warehouse_orderpoint__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_opening__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_scan__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_person__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_container__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_test_result__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_move__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_scheduled_job__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_correction__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_operation__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_relocation__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_product_category__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_quant__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_scrap_reason_tag__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -815,6 +1076,11 @@ msgstr "Sao chép đối tác ngân hàng"
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__routing_identifier
 msgid "EDI Routing Address"
 msgstr "Địa chỉ định tuyến EDI"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_container_edit_all
+msgid "Edit containers"
+msgstr "Sửa chai/lọ"
 
 #. module: sol_inventory
 #: model:medilab.permission,name:sol_inventory.permission_cost_centre_edit_all
@@ -905,6 +1171,12 @@ msgid "Enforce Cities"
 msgstr "Bắt buộc chọn thành phố"
 
 #. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid "Enter an item and a quantity above zero."
+msgstr "Nhập vật tư và lượng lớn hơn không."
+
+#. module: sol_inventory
 #: model:ir.model.fields,help:sol_inventory.field_medilab_supplier__phone_sanitized
 msgid ""
 "Field used to store sanitized phone number. Helps speeding up searches and "
@@ -959,6 +1231,24 @@ msgid "GLN"
 msgstr "GLN"
 
 #. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "Give a reason for the extra ingredient."
+msgstr "Cho lý do phần nguyên liệu tăng thêm."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid "Give the reason for this use."
+msgstr "Cho lý do của lần sử dụng này."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "Give who opened the container, when, and a note."
+msgstr "Nhập người đã mở chai, thời điểm mở và ghi chú."
+
+#. module: sol_inventory
 #: model:ir.model.fields,help:sol_inventory.field_medilab_supplier__global_location_number
 msgid "Global Location Number"
 msgstr "Mã địa điểm toàn cầu"
@@ -967,6 +1257,11 @@ msgstr "Mã địa điểm toàn cầu"
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__group_rfq
 msgid "Group RFQ"
 msgstr "Gộp yêu cầu báo giá"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__has_extra
+msgid "Has Extra"
+msgstr "Có phần tăng thêm"
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__has_message
@@ -989,6 +1284,11 @@ msgid "House"
 msgstr "Tòa nhà"
 
 #. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_opening_form
+msgid "How the container came to be opened"
+msgstr "Chai đã được mở như thế nào"
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_account_analytic_account__id
 #: model:ir.model.fields,field_description:sol_inventory.field_hr_department__id
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__id
@@ -1008,6 +1308,25 @@ msgstr "Tòa nhà"
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_package__id
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_picking__id
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_warehouse_orderpoint__id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_opening__id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_scan__id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_person__id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_container__id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_test_result__id
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_move__id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_scheduled_job__id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_correction__id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_operation__id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_relocation__id
+#: model:ir.model.fields,field_description:sol_inventory.field_product_category__id
+#: model:ir.model.fields,field_description:sol_inventory.field_res_config_settings__id
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_quant__id
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_scrap_reason_tag__id
 msgid "ID"
 msgstr "ID"
 
@@ -1113,12 +1432,14 @@ msgstr "Ngành"
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe_line__item_id
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_recipe_search
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__item_id
 msgid "Ingredient"
 msgstr "Thành phần"
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe__line_ids
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_recipe_form
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__line_ids
 msgid "Ingredients"
 msgstr "Thành phần"
 
@@ -1201,6 +1522,13 @@ msgstr "Là công ty"
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_item_search
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_supplier_form
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_supplier_search
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__item_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__item_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_correction__item_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_operation__item_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_relocation__item_id
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_on_hand_list
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_on_hand_search
 msgid "Item"
 msgstr "Vật tư"
 
@@ -1226,6 +1554,13 @@ msgid "Job Position"
 msgstr "Chức vụ"
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__kind
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_move__move_kind
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_move_search
+msgid "Kind"
+msgstr "Loại"
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__lang
 msgid "Language"
 msgstr "Ngôn ngữ"
@@ -1242,6 +1577,16 @@ msgstr "Giá gần nhất"
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe__write_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe_line__write_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__write_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_opening__write_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_scan__write_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__write_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__write_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_container__write_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__write_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__write_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__write_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_correction__write_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_relocation__write_uid
 msgid "Last Updated by"
 msgstr "Cập nhật lần cuối bởi"
 
@@ -1251,6 +1596,16 @@ msgstr "Cập nhật lần cuối bởi"
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe__write_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe_line__write_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__write_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_opening__write_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_scan__write_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__write_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__write_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_container__write_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__write_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__write_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__write_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_correction__write_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_relocation__write_date
 msgid "Last Updated on"
 msgstr "Cập nhật lần cuối vào"
 
@@ -1265,9 +1620,17 @@ msgid "Latitude"
 msgstr "Vĩ độ"
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_container__line_id
+msgid "Line"
+msgstr "Dòng"
+
+#. module: sol_inventory
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_search
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_location_list
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_location_search
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_correction__location_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_operation__location_id
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_on_hand_search
 msgid "Location"
 msgstr "Vị trí kho"
 
@@ -1401,12 +1764,19 @@ msgid "Next Meeting"
 msgstr "Cuộc họp tiếp theo"
 
 #. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "No container has the code %s."
+msgstr "Không có chai nào mang mã %s."
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__email_normalized
 msgid "Normalized Email"
 msgstr "Email đã chuẩn hóa"
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__note
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_opening__note
 msgid "Note"
 msgstr "Ghi chú"
 
@@ -1448,11 +1818,35 @@ msgstr "Tỷ lệ giao hàng đúng hạn"
 
 #. module: sol_inventory
 #. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "Only an opened container is marked empty: %s."
+msgstr "Chỉ chai đã mở nắp mới được đánh dấu hết: %s."
+
+#. module: sol_inventory
+#. odoo-python
 #: code:addons/sol_inventory/models/stores/stock_location.py:0
 msgid ""
 "Only the central store has no store above it, but these stores have none: "
 "%s."
 msgstr "Chỉ kho tổng không có kho cấp trên, nhưng các kho sau cũng không có: %s."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "Only the storekeeper of the store that holds %s records its opening."
+msgstr "Chỉ thủ kho của kho đang giữ %s mới ghi nhận được việc mở nắp."
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_scan_form
+msgid "Open"
+msgstr "Mở nắp"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "Open %(containers)s before using them."
+msgstr "Mở nắp %(containers)s trước khi dùng."
 
 #. module: sol_inventory
 #: model:ir.model.fields,help:sol_inventory.field_medilab_supplier__on_time_rate
@@ -1514,6 +1908,11 @@ msgid "Payment Tokens"
 msgstr "Mã thanh toán"
 
 #. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_medilab_person
+msgid "Person"
+msgstr "Nhân Sự"
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__phone
 msgid "Phone"
 msgstr "Điện thoại"
@@ -1529,6 +1928,49 @@ msgid "Phone Number"
 msgstr "Số điện thoại"
 
 #. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_medilab_preparation
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_move__preparation_id
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__preparation_id
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_move__move_kind__preparation
+msgid "Preparation"
+msgstr "Phiếu pha chế"
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_medilab_preparation_make_line
+msgid "Preparation Ingredient"
+msgstr "Thành phần phiếu pha"
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_preparation
+#: model:ir.ui.menu,name:sol_inventory.menu_preparation
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_move_search
+msgid "Preparations"
+msgstr "Phiếu pha chế"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_preparation_make_form
+msgid "Prepare"
+msgstr "Pha"
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_preparation_make
+#: model:ir.model,name:sol_inventory.model_medilab_preparation_make
+#: model:ir.ui.menu,name:sol_inventory.menu_prepare_solution
+msgid "Prepare Solution"
+msgstr "Pha dung dịch"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "Prepare every ingredient of %s."
+msgstr "Pha đủ mọi thành phần của %s."
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.container_label
+msgid "Prepared"
+msgstr "Đã pha"
+
+#. module: sol_inventory
 #: model:ir.model.fields.selection,name:sol_inventory.selection__product_product__item_kind__solution
 msgid "Prepared Solution"
 msgstr "Dung dịch pha chế"
@@ -1542,6 +1984,16 @@ msgstr "Dung dịch pha chế"
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__property_product_pricelist
 msgid "Pricelist"
 msgstr "Bảng giá"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_form
+msgid "Print label"
+msgstr "In tem"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_form
+msgid "Print small label"
+msgstr "In tem nhỏ"
 
 #. module: sol_inventory
 #: model:ir.model,name:sol_inventory.model_product_template
@@ -1587,8 +2039,20 @@ msgstr "Số đơn mua hàng"
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__quantity
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_package__quantity
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__quantity
 msgid "Quantity"
 msgstr "Lượng dùng"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__quantity
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__quantity
+msgid "Quantity Left"
+msgstr "Lượng còn lại"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__received_quantity
+msgid "Quantity Obtained"
+msgstr "Lượng thu được"
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__rating_ids
@@ -1611,6 +2075,11 @@ msgid "Read locations"
 msgstr "Xem vị trí kho"
 
 #. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_move_read_all
+msgid "Read moves"
+msgstr "Xem phiếu xuất kho"
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__receipt_reminder_email
 msgid "Receipt Reminder"
 msgstr "Nhắc nhở nhận hàng"
@@ -1619,8 +2088,15 @@ msgstr "Nhắc nhở nhận hàng"
 #: model:ir.model,name:sol_inventory.model_medilab_recipe
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe_line__recipe_id
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_recipe_search
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__recipe_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__recipe_id
 msgid "Recipe"
 msgstr "Công thức pha chế"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__recipe_quantity
+msgid "Recipe Amount"
+msgstr "Lượng theo công thức"
 
 #. module: sol_inventory
 #: model:ir.model,name:sol_inventory.model_medilab_recipe_line
@@ -1632,6 +2108,30 @@ msgstr "Thành phần pha chế"
 #: model:ir.ui.menu,name:sol_inventory.menu_recipe
 msgid "Recipes"
 msgstr "Công thức pha chế"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_opening_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_use_form
+msgid "Record"
+msgstr "Ghi"
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_container_opening
+#: model:ir.model,name:sol_inventory.model_medilab_container_opening
+msgid "Record Opening"
+msgstr "Ghi nhận mở nắp"
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_stock_use
+#: model:ir.model,name:sol_inventory.model_medilab_stock_use
+#: model:ir.ui.menu,name:sol_inventory.menu_record_use
+msgid "Record Use or Waste"
+msgstr "Ghi sử dụng hoặc hao hụt"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_form
+msgid "Record opening"
+msgstr "Ghi nhận mở nắp"
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__ref
@@ -1657,6 +2157,16 @@ msgstr "Nhân viên liên quan theo địa chỉ riêng"
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__activity_user_id
 msgid "Responsible User"
 msgstr "Người phụ trách"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__result_id
+msgid "Result"
+msgstr "Kết quả"
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_medilab_result_container
+msgid "Result Container"
+msgstr "Chai đã quét"
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__routing_endpoint
@@ -1699,6 +2209,49 @@ msgid "Sanitized Number"
 msgstr "Số đã chuẩn hóa"
 
 #. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_container_scan
+#: model:ir.model,name:sol_inventory.model_medilab_container_scan
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__container_scan
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__container_scan
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_test_result__container_scan
+#: model:ir.ui.menu,name:sol_inventory.menu_container_scan
+msgid "Scan Container"
+msgstr "Quét chai"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_move.py:0
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid "Scan a container of %s."
+msgstr "Quét một chai %s."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/test_result.py:0
+msgid "Scan an opened container of %s."
+msgstr "Quét một chai đã mở nắp của %s."
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_scan_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_preparation_make_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_use_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_test_result_form_containers
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_correction_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_relocation_form
+msgid "Scan or type the container code"
+msgstr "Quét hoặc nhập mã chai"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__container_ids
+msgid "Scanned Containers"
+msgstr "Chai đã quét"
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_medilab_preparation_make_container
+msgid "Scanned Ingredient Container"
+msgstr "Chai nguyên liệu đã quét"
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__self
 msgid "Self"
 msgstr "Chính nó"
@@ -1707,6 +2260,18 @@ msgstr "Chính nó"
 #: model:ir.model.fields,help:sol_inventory.field_medilab_supplier__use_partner_credit_limit
 msgid "Set a value greater than 0.0 to activate a credit limit check"
 msgstr "Đặt giá trị lớn hơn 0,0 để kích hoạt kiểm tra hạn mức tín dụng"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_move.py:0
+msgid "Set the company's Production location before using stock."
+msgstr "Thiết lập vị trí Sản xuất của công ty trước khi sử dụng vật tư."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_move.py:0
+msgid "Set the company's scrap location before wasting stock."
+msgstr "Thiết lập vị trí loại bỏ của công ty trước khi ghi hao hụt."
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__partner_share
@@ -1749,6 +2314,11 @@ msgid "Spare Parts"
 msgstr "Phụ tùng"
 
 #. module: sol_inventory
+#: model:stock.scrap.reason.tag,name:sol_inventory.scrap_reason_spilled
+msgid "Spilled"
+msgstr "Làm đổ"
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__state_id
 msgid "State"
 msgstr "Tỉnh/Thành"
@@ -1774,6 +2344,11 @@ msgid "Stock Items"
 msgstr "Vật tư"
 
 #. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_stock_move
+msgid "Stock Move"
+msgstr "Phiếu xuất kho"
+
+#. module: sol_inventory
 #. odoo-python
 #: code:addons/sol_inventory/models/catalog/product_product.py:0
 msgid "Stock items are archived, never deleted."
@@ -1789,6 +2364,9 @@ msgstr "Điều kiện bảo quản"
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_item_form
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_store_list
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_store_search
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__location_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__location_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__location_id
 msgid "Store"
 msgstr "Kho"
 
@@ -1802,8 +2380,13 @@ msgstr "Kho cấp trên"
 #: model:ir.model.fields,field_description:sol_inventory.field_hr_department__store_ids
 #: model:ir.ui.menu,name:sol_inventory.menu_store
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_location_search
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__store_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__store_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_correction__store_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_operation__store_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_relocation__store_ids
 msgid "Stores"
-msgstr "Kho"
+msgstr "Các kho"
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__street
@@ -1916,6 +2499,12 @@ msgid ""
 msgstr "Trường kỹ thuật cho biết mã số thuế không phải giá trị giữ chỗ. Trả về False với các giá trị giữ chỗ như '/', 'NA', 'na' hoặc chuỗi rỗng."
 
 #. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_medilab_test_result
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_move__test_result_id
+msgid "Test Result"
+msgstr "Kết Quả Thử Nghiệm"
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__method_id
 msgid "Testing Method"
 msgstr "Phương Pháp Thử"
@@ -1926,6 +2515,12 @@ msgid ""
 "The ISO country code in two chars. \n"
 "You can use this field for quick search."
 msgstr "Mã quốc gia ISO gồm hai ký tự. \nBạn có thể dùng trường này để tìm kiếm nhanh."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "The amount of %s cannot be less than the recipe."
+msgstr "Lượng %s không được ít hơn công thức."
 
 #. module: sol_inventory
 #: model:ir.model.constraint,message:sol_inventory.constraint_medilab_recipe_line_quantity_positive
@@ -1949,6 +2544,13 @@ msgstr "Mã nhà cung cấp không được trùng."
 
 #. module: sol_inventory
 #. odoo-python
+#: code:addons/sol_inventory/models/stock/result_container.py:0
+#: code:addons/sol_inventory/models/stock/test_result.py:0
+msgid "The containers of a signed result stay as they were."
+msgstr "Danh sách chai của kết quả đã ký giữ nguyên."
+
+#. module: sol_inventory
+#. odoo-python
 #: code:addons/sol_inventory/models/costs/account_analytic_account.py:0
 msgid "The cost centre %s needs a code and a department or team."
 msgstr "Trung tâm chi phí %s cần có mã và phòng hoặc tổ."
@@ -1963,6 +2565,12 @@ msgstr "Vị trí tài chính quy định các loại thuế/tài khoản đư�
 #: model:ir.model.fields,help:sol_inventory.field_medilab_supplier__user_id
 msgid "The internal user in charge of this contact."
 msgstr "Người dùng nội bộ phụ trách liên hệ này."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "The lot of %s is not available."
+msgstr "Lô của %s không còn dùng được."
 
 #. module: sol_inventory
 #: model:ir.model.constraint,message:sol_inventory.constraint_medilab_method_consumption_method_item_unique
@@ -2032,6 +2640,11 @@ msgstr "Các kho sau chưa có người quản lý nên không nhận được p
 #: model:ir.model.constraint,message:sol_inventory.constraint_medilab_supplier_partner_unique
 msgid "This company is already a supplier."
 msgstr "Công ty này đã là nhà cung cấp."
+
+#. module: sol_inventory
+#: model:ir.model.constraint,message:sol_inventory.constraint_medilab_result_container_result_container_unique
+msgid "This container is already on the result."
+msgstr "Chai này đã có trong kết quả."
 
 #. module: sol_inventory
 #: model:ir.model.fields,help:sol_inventory.field_medilab_supplier__property_purchase_currency_id
@@ -2104,6 +2717,9 @@ msgstr "Loại hoạt động ngoại lệ trên bản ghi."
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_recipe_list
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_item_form
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_item_list
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__uom_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__uom_id
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_on_hand_list
 msgid "Unit"
 msgstr "Đơn vị"
 
@@ -2184,9 +2800,37 @@ msgid "Without Manager"
 msgstr "Chưa có người quản lý"
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__wizard_id
+msgid "Wizard"
+msgstr "Pha dung dịch"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_move.py:0
+msgid "Write what happened, since the waste reason is Other."
+msgstr "Ghi rõ chuyện gì đã xảy ra, vì lý do hao hụt là Khác."
+
+#. module: sol_inventory
+#: model:stock.scrap.reason.tag,name:sol_inventory.scrap_reason_wrongly_prepared
+msgid "Wrongly prepared"
+msgstr "Pha sai"
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe__yield_quantity
 msgid "Yield per Preparation"
 msgstr "Lượng pha mỗi lần"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "You are not allowed to prepare a solution."
+msgstr "Bạn không được phép pha dung dịch."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid "You are not allowed to record a use or a waste."
+msgstr "Bạn không được phép ghi sử dụng hoặc hao hụt."
 
 #. module: sol_inventory
 #: model:ir.model.fields,help:sol_inventory.field_medilab_supplier__vat
@@ -2212,6 +2856,505 @@ msgstr "định dạng Hoá đơn điện tử"
 
 #. module: sol_inventory
 #. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid ""
+"%(container)s of %(item)s is usable until %(date)s. It holds %(quantity)s "
+"%(unit)s in %(store)s."
+msgstr ""
+"%(container)s của %(item)s dùng được đến %(date)s. Chai/lọ còn %(quantity)s "
+"%(unit)s tại %(store)s."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid ""
+"%(container)s of %(item)s was usable until %(date)s. It holds %(quantity)s "
+"%(unit)s in %(store)s to dispose of."
+msgstr ""
+"%(container)s của %(item)s chỉ dùng được đến %(date)s. Chai/lọ còn "
+"%(quantity)s %(unit)s tại %(store)s cần thanh lý."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_correction.py:0
+msgid "%(location)s already holds %(quantity)s %(unit)s."
+msgstr "%(location)s đã có đúng %(quantity)s %(unit)s."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_relocation.py:0
+msgid "%(location)s holds no container of lot %(lot)s."
+msgstr "%(location)s không có chai/lọ nào của lô %(lot)s."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_relocation.py:0
+msgid "%(location)s holds only %(held)s %(unit)s of %(item)s."
+msgstr "%(location)s chỉ có %(held)s %(unit)s %(item)s."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_relocation.py:0
+msgid ""
+"%(location)s is not in %(store)s. Stock goes to another store through a "
+"requisition or a transfer."
+msgstr ""
+"%(location)s không thuộc %(store)s. Hàng sang kho khác phải qua phiếu yêu "
+"cầu cấp hoặc phiếu chuyển kho."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/costs/stock_move.py:0
+msgid "%(quantity)s %(unit)s at %(price)s each"
+msgstr "%(quantity)s %(unit)s, đơn giá %(price)s"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/catalog/stock_warehouse_orderpoint.py:0
+msgid ""
+"%(store)s holds %(held)s %(unit)s of %(item)s, below its minimum of "
+"%(minimum)s %(unit)s."
+msgstr ""
+"%(store)s còn %(held)s %(unit)s %(item)s, dưới mức tồn tối thiểu %(minimum)s"
+" %(unit)s."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_relocation.py:0
+msgid "%s cannot be moved."
+msgstr "Không thể chuyển %s."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid ""
+"%s has no store. Their team and department hold none, and they manage none."
+msgstr ""
+"%s không có kho. Tổ và phòng của họ không giữ kho nào, và họ cũng không quản"
+" lý kho nào."
+
+#. module: sol_inventory
+#: model:mail.message.subtype,description:sol_inventory.event_stock_expiring
+msgid "A lot or a container is usable for fewer days than the expiry warning"
+msgstr ""
+"Một lô hoặc chai/lọ còn dùng được ít ngày hơn số ngày cảnh báo hết hạn"
+
+#. module: sol_inventory
+#: model:mail.message.subtype,description:sol_inventory.event_stock_expired
+msgid "A lot or a container passed its usable date and waits for disposal"
+msgstr "Một lô hoặc chai/lọ đã quá hạn dùng và chờ thanh lý"
+
+#. module: sol_inventory
+#: model:mail.message.subtype,description:sol_inventory.event_stock_below_minimum
+msgid "A store's stock of an item fell below its minimum quantity"
+msgstr "Tồn kho một vật tư của một kho xuống dưới mức tồn tối thiểu"
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_res_config_settings
+msgid "Config Settings"
+msgstr "Cài đặt cấu hình"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_correction_form
+msgid "Correct"
+msgstr "Điều chỉnh"
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_stock_correction
+#: model:ir.model,name:sol_inventory.model_medilab_stock_correction
+#: model:ir.ui.menu,name:sol_inventory.menu_correct_stock
+msgid "Correct Quantity"
+msgstr "Điều chỉnh tồn kho"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.res_config_settings_view_form_costing
+msgid "Costing"
+msgstr "Tính giá"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_res_config_settings__costing_method
+msgid "Costing Method"
+msgstr "Phương pháp tính giá"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_correction__counted_quantity
+msgid "Counted Quantity"
+msgstr "Số lượng đếm được"
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_disposal
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_move__move_kind__disposal
+#: model:ir.ui.menu,name:sol_inventory.menu_disposal
+msgid "Disposal"
+msgstr "Thanh lý"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_disposal_list
+msgid "Dispose"
+msgstr "Thanh lý"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_relocation.py:0
+msgid "Enter a quantity above zero."
+msgstr "Nhập số lượng lớn hơn 0."
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_expiring
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_quant__expiring_soon
+#: model:ir.ui.menu,name:sol_inventory.menu_expiring
+msgid "Expiring Soon"
+msgstr "Sắp hết hạn"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_res_config_settings__expiry_warning_days
+msgid "Expiry Warning Days"
+msgstr "Số ngày cảnh báo hết hạn"
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__res_config_settings__costing_method__fifo
+msgid "First In, First Out"
+msgstr "Nhập trước, xuất trước"
+
+#. module: sol_inventory
+#: model:ir.model.fields,help:sol_inventory.field_res_config_settings__costing_method
+msgid ""
+"First in, first out costs each container at its lot's price and other stock "
+"at its oldest receipts. Moving average costs stock at the average price of "
+"the item's stock. Moves already done keep their cost."
+msgstr ""
+"Nhập trước, xuất trước tính mỗi chai/lọ theo giá của lô và hàng khác theo "
+"các lần nhập cũ nhất. Bình quân gia quyền tính theo giá bình quân của tồn "
+"kho vật tư. Các dịch chuyển đã thực hiện giữ nguyên giá."
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_on_hand_search
+msgid "In Stores"
+msgstr "Trong kho"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_on_hand_search
+msgid "In Transit"
+msgstr "Đang vận chuyển"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_lot.py:0
+msgid ""
+"Lot %(lot)s of %(item)s expired on %(date)s. %(stores)s hold %(quantity)s "
+"%(unit)s to dispose of."
+msgstr ""
+"Lô %(lot)s của %(item)s đã hết hạn ngày %(date)s. %(stores)s còn "
+"%(quantity)s %(unit)s cần thanh lý."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_lot.py:0
+msgid ""
+"Lot %(lot)s of %(item)s expires on %(date)s. %(stores)s hold %(quantity)s "
+"%(unit)s."
+msgstr ""
+"Lô %(lot)s của %(item)s hết hạn ngày %(date)s. %(stores)s còn %(quantity)s "
+"%(unit)s."
+
+#. module: sol_inventory
+#: model:ir.model.fields,help:sol_inventory.field_res_config_settings__expiry_warning_days
+msgid ""
+"Lots and containers usable for fewer days than this are listed and notified "
+"as expiring soon."
+msgstr ""
+"Lô và chai/lọ còn dùng được ít ngày hơn số này được liệt kê và thông báo là "
+"sắp hết hạn."
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_relocation_form
+msgid "Move"
+msgstr "Chuyển"
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_stock_relocation
+#: model:ir.model,name:sol_inventory.model_medilab_stock_relocation
+#: model:ir.ui.menu,name:sol_inventory.menu_move_stock
+msgid "Move Stock"
+msgstr "Chuyển vị trí"
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__res_config_settings__costing_method__moving_average
+msgid "Moving Average"
+msgstr "Bình quân gia quyền"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_correction__on_hand
+msgid "On Hand"
+msgstr "Tồn hiện có"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_quant.py:0
+msgid "Only expired stock is disposed of, not: %s."
+msgstr "Chỉ thanh lý hàng đã hết hạn, không thanh lý: %s."
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_product_category
+msgid "Product Category"
+msgstr "Danh mục sản phẩm"
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_stock_quant
+msgid "Quant"
+msgstr "Tồn kho"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_stock_read_all
+msgid "Read stock on hand"
+msgstr "Xem tồn kho hiện có"
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_move__move_kind__relocation
+msgid "Relocation"
+msgstr "Chuyển vị trí"
+
+#. module: sol_inventory
+#: model:ir.ui.menu,name:sol_inventory.menu_replenishment
+msgid "Replenishment"
+msgstr "Bổ sung hàng"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_relocation.py:0
+msgid "Scan a container of %s, or choose its lot."
+msgstr "Quét một chai/lọ của %s, hoặc chọn lô."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_operation.py:0
+msgid "Scan a container, or choose an item and its location."
+msgstr "Quét một chai/lọ, hoặc chọn vật tư và vị trí kho."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_correction.py:0
+msgid "Scan the container of %s to correct."
+msgstr "Quét chai/lọ %s cần điều chỉnh."
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_medilab_scheduled_job
+msgid "Scheduled Job"
+msgstr "Tác Vụ Định Kỳ"
+
+#. module: sol_inventory
+#: model:mail.message.subtype,name:sol_inventory.event_stock_below_minimum
+msgid "Stock below minimum"
+msgstr "Tồn kho dưới mức tối thiểu"
+
+#. module: sol_inventory
+#: model:mail.message.subtype,name:sol_inventory.event_stock_expired
+msgid "Stock expired"
+msgstr "Hàng đã hết hạn"
+
+#. module: sol_inventory
+#: model:mail.message.subtype,name:sol_inventory.event_stock_expiring
+msgid "Stock expiring soon"
+msgstr "Hàng sắp hết hạn"
+
+#. module: sol_inventory
+#: model:ir.actions.server,name:sol_inventory.ir_cron_stock_expiry_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_inventory.scheduled_job_stock_expiry
+msgid "Stock expiry"
+msgstr "Hạn dùng của hàng"
+
+#. module: sol_inventory
+#: model:product.category,name:sol_inventory.product_category_stock_item
+msgid "Stock items"
+msgstr "Vật tư"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/catalog/product_template.py:0
+msgid ""
+"Stock items stay in their own category, whose costing method follows the "
+"costing setting: %s."
+msgstr ""
+"Vật tư luôn thuộc danh mục riêng, có phương pháp tính giá theo cài đặt tính "
+"giá: %s."
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_stock_on_hand
+#: model:ir.ui.menu,name:sol_inventory.menu_stock_on_hand
+msgid "Stock on Hand"
+msgstr "Tồn kho hiện có"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_on_hand_search
+msgid "Store or Location"
+msgstr "Kho hoặc vị trí kho"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_product_supplierinfo__supplier_archived
+msgid "Supplier Archived"
+msgstr "Nhà cung cấp đã lưu trữ"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_correction.py:0
+msgid "The counted quantity cannot be negative."
+msgstr "Số lượng đếm được không được âm."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/res_config_settings.py:0
+msgid "The days before expiry cannot be negative."
+msgstr "Số ngày trước khi hết hạn không được âm."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_relocation.py:0
+msgid "The stock is already in %s."
+msgstr "Hàng đã ở %s."
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_move__unit_cost
+msgid "Unit Cost"
+msgstr "Đơn giá"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_move__value
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_quant__value
+msgid "Value"
+msgstr "Giá trị"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_warehouse_orderpoint__supplier_id
+msgid "Vendor Pricelist"
+msgstr "Bảng giá nhập hàng"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_disposal_list
+msgid ""
+"What remains of the selected stock moves to the scrap location with the "
+"reason Expired. This cannot be undone."
+msgstr ""
+"Phần còn lại của hàng đã chọn sẽ được chuyển vào vị trí loại bỏ với lý do "
+"Hết hạn. Không thể hoàn tác."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_correction.py:0
+msgid "You are not allowed to correct stock."
+msgstr "Bạn không có quyền điều chỉnh tồn kho."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_quant.py:0
+msgid "You are not allowed to dispose of stock."
+msgstr "Bạn không có quyền thanh lý hàng."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_relocation.py:0
+msgid "You are not allowed to move stock."
+msgstr "Bạn không có quyền chuyển vị trí hàng."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_scrap_reason_tag.py:0
+msgid "Expired is the reason of every disposal, so it cannot be deleted."
+msgstr "Hết hạn là lý do của mọi lần thanh lý nên không thể xóa."
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_location__in_my_stores
+msgid "In My Stores"
+msgstr "Thuộc kho của tôi"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_location__kept_by_me
+msgid "In Stores I Keep"
+msgstr "Thuộc kho tôi quản lý"
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_stock_scrap_reason_tag
+msgid "Scrap Reason Tag"
+msgstr "Lý do loại bỏ"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_scrap_reason_tag.py:0
+msgid "These reasons cannot be deleted while moves name them: %s"
+msgstr "Không thể xóa các lý do này khi còn dịch chuyển kho ghi chúng: %s"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_move_search
+msgid "Adjustments"
+msgstr "Điều chỉnh"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_relocation.py:0
+msgid "Choose where the stock goes."
+msgstr "Chọn nơi chuyển hàng đến."
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_move_search
+msgid "Disposals"
+msgstr "Thanh lý"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_operation.py:0
+msgid "Give the reason."
+msgstr "Nhập lý do."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stores/stock_location.py:0
+msgid "Not in a store you keep: %s."
+msgstr "Không thuộc kho bạn quản lý: %s."
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_move_search
+msgid "Relocations"
+msgstr "Chuyển vị trí"
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_medilab_stock_operation
+msgid "Stock Operation"
+msgstr "Thao tác kho"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_relocation__location_id
+msgid "From Location"
+msgstr "Từ vị trí kho"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_relocation__quantity
+msgid "Quantity to Move"
+msgstr "Số lượng chuyển"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_relocation__location_dest_id
+msgid "To Location"
+msgstr "Đến vị trí kho"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_correction__container_location_id
+msgid "Container Location"
+msgstr "Vị trí kho của chai/lọ"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/catalog/stock_warehouse_orderpoint.py:0
+msgid ""
+"Purchases are received at the central store. %s gets stock through a "
+"requisition."
+msgstr "Hàng mua được nhận tại kho tổng. %s nhận hàng qua phiếu yêu cầu cấp."
+
+#. module: sol_inventory
+#: model:ir.model.fields,help:sol_inventory.field_stock_move__value
+msgid "The current value of the move. It's zero if the move is not valued."
+msgstr "Giá trị hiện tại của dịch chuyển kho. Bằng 0 nếu dịch chuyển không được định giá."
+
+#. module: sol_inventory
+#. odoo-python
 #: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
 msgid "%s cannot be cancelled once goods were received for it."
 msgstr "Không thể hủy %s khi đã nhận hàng của đơn."
@@ -2221,6 +3364,12 @@ msgstr "Không thể hủy %s khi đã nhận hàng của đơn."
 #: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
 msgid "%s cannot be sent before its approval chain has signed it."
 msgstr "Không thể gửi %s trước khi chuỗi phê duyệt ký xong."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid "%s cannot be wasted."
+msgstr "Không thể ghi hao hụt %s."
 
 #. module: sol_inventory
 #. odoo-python
@@ -2256,9 +3405,25 @@ msgid "<span>Use by</span>"
 msgstr "<span>Hạn dùng</span>"
 
 #. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.container_label
+msgid "<span>by</span>"
+msgstr "<span>bởi</span>"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "A container cannot be opened in the future."
+msgstr "Không thể ghi nhận chai được mở ở thời điểm trong tương lai."
+
+#. module: sol_inventory
 #: model:ir.model.constraint,message:sol_inventory.constraint_stock_move_line_container_count_positive
 msgid "A line receives at least one bottle or vial."
 msgstr "Mỗi dòng nhận ít nhất một chai/lọ."
+
+#. module: sol_inventory
+#: model:ir.model.constraint,message:sol_inventory.constraint_stock_package_preparation_unique
+msgid "A preparation fills one container."
+msgstr "Một phiếu pha chế cho ra một chai."
 
 #. module: sol_inventory
 #. odoo-python
@@ -2322,8 +3487,21 @@ msgstr "Tem chai/lọ 2 × 1 in"
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_picking__container_ids
 #: model:ir.ui.menu,name:sol_inventory.menu_container
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_picking_form_medilab
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__container_codes
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_test_result__container_line_ids
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_test_result_form_containers
 msgid "Containers"
 msgstr "Chai/Lọ"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_test_result_form_containers
+msgid "Containers Used"
+msgstr "Chai đã dùng"
+
+#. module: sol_inventory
+#: model:stock.scrap.reason.tag,name:sol_inventory.scrap_reason_contaminated
+msgid "Contaminated"
+msgstr "Nhiễm bẩn"
 
 #. module: sol_inventory
 #: model:medilab.permission,name:sol_inventory.permission_purchase_order_create_all
@@ -2380,6 +3558,7 @@ msgstr "Phiên bản chứng từ"
 #. odoo-python
 #: code:addons/sol_inventory/models/purchasing/stock_move_line.py:0
 #: code:addons/sol_inventory/models/purchasing/stock_picking.py:0
+#: code:addons/sol_inventory/models/stock/stock_move.py:0
 msgid "Done moves are never changed; correct a mistake with another move."
 msgstr "Không được sửa điều chuyển đã hoàn tất; hãy sửa sai bằng một điều chuyển khác."
 
@@ -2405,8 +3584,16 @@ msgstr "Sửa phiếu nhập kho"
 
 #. module: sol_inventory
 #: model:ir.model.fields.selection,name:sol_inventory.selection__stock_lot__status__expired
+#: model:stock.scrap.reason.tag,name:sol_inventory.scrap_reason_expired
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_quant__expired
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_search
 msgid "Expired"
 msgstr "Hết hạn"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__extra_reason_needed
+msgid "Extra Reason Needed"
+msgstr "Cần ghi lý do khác"
 
 #. module: sol_inventory
 #. odoo-python
@@ -2433,6 +3620,11 @@ msgstr "Tem 2 × 1 in"
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_package__lot_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__lot_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_correction__lot_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_operation__lot_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_relocation__lot_id
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_on_hand_search
 msgid "Lot"
 msgstr "Lô"
 
@@ -2442,15 +3634,35 @@ msgid "Lot/Serial"
 msgstr "Lô"
 
 #. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_test_result_form_containers
+msgid "Lots"
+msgstr "Lô"
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_lot__certificate_id
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_move_line__certificate_id
 msgid "Manufacturer's Certificate"
 msgstr "Giấy chứng nhận của nhà sản xuất"
 
 #. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_form
+msgid "Mark empty"
+msgstr "Đánh dấu hết"
+
+#. module: sol_inventory
 #: model:ir.model.fields.selection,name:sol_inventory.selection__stock_package__status__missing
 msgid "Missing"
 msgstr "Thất lạc"
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_stock_move
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__move_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_test_result__move_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__done_line_ids
+#: model:ir.ui.menu,name:sol_inventory.menu_stock_move
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_form
+msgid "Moves"
+msgstr "Dịch chuyển kho"
 
 #. module: sol_inventory
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_search
@@ -2471,13 +3683,46 @@ msgstr "Chỉ ký được đơn chưa gửi."
 #. module: sol_inventory
 #: model:ir.model.fields.selection,name:sol_inventory.selection__stock_package__status__opened
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_search
+#: model_terms:ir.ui.view,arch_db:sol_inventory.container_label
 msgid "Opened"
 msgstr "Đã mở nắp"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_opening__opened_at
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__opened_at
+msgid "Opened At"
+msgstr "Lúc mở nắp"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_opening__opened_by_id
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__opened_by_id
+msgid "Opened By"
+msgstr "Người mở nắp"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__opened_on
+msgid "Opened On"
+msgstr "Ngày mở nắp"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__opening_note
+msgid "Opening Note"
+msgstr "Ghi chú mở nắp"
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_purchase_order_reject__order_id
 msgid "Order"
 msgstr "Đơn mua hàng"
+
+#. module: sol_inventory
+#: model:stock.scrap.reason.tag,name:sol_inventory.scrap_reason_other
+msgid "Other"
+msgstr "Khác"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__extra_reason
+msgid "Other Reason"
+msgstr "Lý do khác"
 
 #. module: sol_inventory
 #: model:ir.model,name:sol_inventory.model_stock_package
@@ -2527,8 +3772,28 @@ msgstr "Xem phiếu nhập kho"
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_purchase_order_reject__reason
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__reason
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_move__reason
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_correction__reason
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_operation__reason
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_relocation__reason
 msgid "Reason"
 msgstr "Lý do"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__reason_needed
+msgid "Reason Needed"
+msgstr "Cần ghi lý do"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__scrap_reason_tag_ids
+msgid "Reason for the Extra"
+msgstr "Lý do phần tăng thêm"
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_move__move_kind__receipt
+msgid "Receipt"
+msgstr "Phiếu nhập kho"
 
 #. module: sol_inventory
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_search
@@ -2538,6 +3803,7 @@ msgstr "Tình trạng nhận hàng"
 #. module: sol_inventory
 #: model:ir.actions.act_window,name:sol_inventory.action_medilab_receipt
 #: model:ir.ui.menu,name:sol_inventory.menu_receipt
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_move_search
 msgid "Receipts"
 msgstr "Phiếu nhập kho"
 
@@ -2588,6 +3854,12 @@ msgstr "Gửi nhà cung cấp"
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_search
 msgid "Sent"
 msgstr "Đã gửi"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_container__sequence
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__sequence
+msgid "Sequence"
+msgstr "Thứ tự"
 
 #. module: sol_inventory
 #. odoo-python
@@ -2647,12 +3919,35 @@ msgid "The order has signatures; withdraw them before changing it."
 msgstr "Đơn đã có chữ ký; hãy rút chữ ký trước khi sửa."
 
 #. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "The prepared solution lot sequence is missing."
+msgstr "Thiếu quy tắc đánh số lô dung dịch pha chế."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid ""
+"The quantity obtained cannot be more than the recipe yield of %(quantity)s "
+"%(unit)s."
+msgstr ""
+"Lượng thu được không được nhiều hơn sản lượng công thức là %(quantity)s "
+"%(unit)s."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "The quantity obtained must be above zero."
+msgstr "Lượng thu được phải lớn hơn không."
+
+#. module: sol_inventory
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_receipt_list
 msgid "To"
 msgstr "Nhập vào"
 
 #. module: sol_inventory
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_list
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_on_hand_list
 msgid "Total"
 msgstr "Tổng cộng"
 
@@ -2674,14 +3969,38 @@ msgstr "Đơn giá chưa VAT"
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_package__usable_until
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_quant__usable_until
 msgid "Usable Until"
 msgstr "Hạn dùng"
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__medilab_stock_use__kind__use
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_move_search
+msgid "Use"
+msgstr "Sử dụng"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_product_product__use_shelf_life_after_opening
+msgid "Use Shelf Life After Opening"
+msgstr "Áp dụng hạn dùng sau khi mở"
 
 #. module: sol_inventory
 #: model:ir.model.fields.selection,name:sol_inventory.selection__purchase_order__approval_status__requested
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_search
 msgid "Waiting for signature"
 msgstr "Chờ ký"
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__medilab_stock_use__kind__waste
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_move__move_kind__waste
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_move_search
+msgid "Waste"
+msgstr "Hao hụt"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__scrap_reason_tag_ids
+msgid "Waste Reason"
+msgstr "Lý do hao hụt"
 
 #. module: sol_inventory
 #: model_terms:ir.ui.view,arch_db:sol_inventory.purchase_order_form_medilab
@@ -2708,6 +4027,11 @@ msgid "Draft"
 msgstr "Nháp"
 
 #. module: sol_inventory
+#: model:stock.scrap.reason.tag,name:sol_inventory.scrap_reason_dropped
+msgid "Dropped"
+msgstr "Làm rơi"
+
+#. module: sol_inventory
 #: model_terms:ir.ui.view,arch_db:sol_inventory.purchase_order_form_medilab
 msgid "<span class=\"o_form_label\">Purchase Order</span>"
 msgstr "<span class=\"o_form_label\">Đơn mua hàng</span>"
@@ -2717,6 +4041,24 @@ msgstr "<span class=\"o_form_label\">Đơn mua hàng</span>"
 #: code:addons/sol_inventory/models/purchasing/purchase_order.py:0
 msgid "%s is not an active supplier, so it cannot be ordered from."
 msgstr "%s không phải nhà cung cấp đang hoạt động nên không thể đặt mua."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "%s is not an ingredient of this recipe."
+msgstr "%s không phải thành phần của công thức này."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "%s is not sealed."
+msgstr "%s không còn nguyên seal."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "%s is past its usable date."
+msgstr "%s đã quá hạn dùng."
 
 #. module: sol_inventory
 #. odoo-python

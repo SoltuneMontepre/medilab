@@ -108,6 +108,11 @@ msgid "Bottled water microbiology"
 msgstr "Vi sinh nước đóng chai"
 
 #. module: sol_demo
+#: model:medilab.onboarding.source,name:sol_demo.demo_onboarding_source_boa
+msgid "Bureau of Accreditation"
+msgstr "Văn phòng Công nhận Chất lượng"
+
+#. module: sol_demo
 #: model:medilab.sample.type,name:sol_demo.demo_sample_type_cabbage
 msgid "Cabbage"
 msgstr "Bắp cải"
@@ -173,6 +178,9 @@ msgstr "Demo: phản hồi"
 #: model:ir.model.fields,field_description:sol_demo.field_account_move__display_name
 #: model:ir.model.fields,field_description:sol_demo.field_medilab_scheduled_job__display_name
 #: model:ir.model.fields,field_description:sol_demo.field_purchase_order__display_name
+#: model:ir.model.fields,field_description:sol_demo.field_stock_package__display_name
+#: model:ir.model.fields,field_description:sol_demo.field_stock_quant__display_name
+#: model:ir.model.fields,field_description:sol_demo.field_stock_warehouse_orderpoint__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -285,6 +293,9 @@ msgstr "Kim loại nặng"
 #: model:ir.model.fields,field_description:sol_demo.field_account_move__id
 #: model:ir.model.fields,field_description:sol_demo.field_medilab_scheduled_job__id
 #: model:ir.model.fields,field_description:sol_demo.field_purchase_order__id
+#: model:ir.model.fields,field_description:sol_demo.field_stock_package__id
+#: model:ir.model.fields,field_description:sol_demo.field_stock_quant__id
+#: model:ir.model.fields,field_description:sol_demo.field_stock_warehouse_orderpoint__id
 msgid "ID"
 msgstr "ID"
 
@@ -671,6 +682,21 @@ msgid "Laboratory file signing"
 msgstr "Ký tệp phòng thí nghiệm"
 
 #. module: sol_demo
+#: model:ir.model,name:sol_demo.model_stock_package
+msgid "Package"
+msgstr "Chai/Lọ"
+
+#. module: sol_demo
+#: model:ir.model,name:sol_demo.model_stock_quant
+msgid "Quant"
+msgstr "Tồn kho"
+
+#. module: sol_demo
+#: model:ir.model,name:sol_demo.model_stock_warehouse_orderpoint
+msgid "Minimum Inventory Rule"
+msgstr "Quy tắc tồn kho tối thiểu"
+
+#. module: sol_demo
 #: model:medilab.location,name:sol_demo.demo_location_preparation_room
 msgid "Sample preparation room"
 msgstr "Phòng chuẩn bị mẫu"
@@ -694,3 +720,29 @@ msgstr "Chất lượng nước — Xác định crom(VI) bằng phương pháp 
 #: model:medilab.location,name:sol_demo.demo_location_store_room
 msgid "Store room"
 msgstr "Kho"
+
+#. module: sol_demo
+#: model:medilab.sampling.requirement,container_type:sol_demo.demo_sampling_requirement_coliforms_mpn_bottled_water
+#: model:medilab.sampling.requirement,container_type:sol_demo.demo_sampling_requirement_e_coli_membrane_bottled_water
+msgid "Sterile glass bottle"
+msgstr "Chai thủy tinh vô trùng"
+
+#. module: sol_demo
+#: model:medilab.sampling.requirement,preservation:sol_demo.demo_sampling_requirement_coliforms_mpn_bottled_water
+#: model:medilab.sampling.requirement,preservation:sol_demo.demo_sampling_requirement_e_coli_membrane_bottled_water
+#: model:medilab.sampling.requirement,preservation:sol_demo.demo_sampling_requirement_ph_water_bottled_water
+msgid "Chilled at 2–8 °C"
+msgstr "Bảo quản lạnh 2–8 °C"
+
+#. module: sol_demo
+#: model:medilab.sampling.requirement,container_type:sol_demo.demo_sampling_requirement_ph_water_bottled_water
+#: model:medilab.sampling.requirement,container_type:sol_demo.demo_sampling_requirement_lead_aas_bottled_water
+#: model:medilab.sampling.requirement,container_type:sol_demo.demo_sampling_requirement_lead_icpms_bottled_water
+msgid "Polyethylene bottle"
+msgstr "Chai nhựa PE"
+
+#. module: sol_demo
+#: model:medilab.sampling.requirement,preservation:sol_demo.demo_sampling_requirement_lead_aas_bottled_water
+#: model:medilab.sampling.requirement,preservation:sol_demo.demo_sampling_requirement_lead_icpms_bottled_water
+msgid "Acidified with HNO₃ to pH below 2"
+msgstr "Axit hóa bằng HNO₃ đến pH dưới 2"

@@ -1471,6 +1471,12 @@ msgid "Order"
 msgstr "Đơn Hàng"
 
 #. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid "Order %s already has an open sample collection task."
+msgstr "Đơn hàng %s đã có một nhiệm vụ lấy mẫu đang mở."
+
+#. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__order_can_edit
 msgid "Order Can Edit"
 msgstr "Có thể sửa đơn hàng"
@@ -1971,6 +1977,12 @@ msgstr "Bản Sửa Đổi"
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 msgid "Revisions"
 msgstr "Các Bản Sửa Đổi"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid "Route the %s task type to the role of sample delivery staff first."
+msgstr "Hãy đặt nơi nhận của loại nhiệm vụ %s là vai trò nhân viên giao nhận mẫu trước."
 
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__source__sales
@@ -3144,6 +3156,7 @@ msgid "Payment was rejected: %(reason)s"
 msgstr "Khoản thanh toán bị từ chối: %(reason)s"
 
 #. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_scheduled_job
 #: model:ir.model,name:sol_commerce.model_medilab_scheduled_job
 msgid "Scheduled Job"
 msgstr "Tác vụ định kỳ"
@@ -4667,6 +4680,13 @@ msgstr "Đơn hàng phải được xác nhận trước khi thu mẫu."
 
 #. module: sol_commerce
 #. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid ""
+"The sample collection task waits in the queue of sample delivery staff."
+msgstr "Nhiệm vụ lấy mẫu đang chờ trong hàng đợi của nhân viên giao nhận mẫu."
+
+#. module: sol_commerce
+#. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order.py:0
 msgid "You cannot cancel a locked order. Please unlock it first."
 msgstr "Không thể hủy đơn hàng đã khóa. Hãy mở khóa trước."
@@ -4769,6 +4789,94 @@ msgid "no sample type"
 msgstr "chưa có loại mẫu"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.expected_sampling
+msgid "Amount per object"
+msgstr "Lượng mẫu mỗi đối tượng"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_sampling__container_type
+#: model_terms:ir.ui.view,arch_db:sol_commerce.expected_sampling
+msgid "Container"
+msgstr "Vật chứa"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__expected_sampling_html
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Expected Samples"
+msgstr "Mẫu Dự Kiến"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__sampling_ids
+msgid "Expected Sampling"
+msgstr "Nhu Cầu Lấy Mẫu"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+msgid "Expected samples"
+msgstr "Mẫu dự kiến"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.expected_sampling
+msgid "Expected samples:"
+msgstr "Số mẫu dự kiến:"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_sampling__group_number
+msgid "Group"
+msgstr "Nhóm"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.expected_sampling
+msgid "Methods without a sampling requirement:"
+msgstr "Phương pháp chưa có yêu cầu lấy mẫu:"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_sampling__objects
+msgid "Objects"
+msgstr "Số đối tượng"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.expected_sampling
+msgid "Objects:"
+msgstr "Số đối tượng:"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_sampling__preservation
+#: model_terms:ir.ui.view,arch_db:sol_commerce.expected_sampling
+msgid "Preservation"
+msgstr "Điều kiện bảo quản"
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_quotation_sampling
+msgid "Quotation Sampling"
+msgstr "Nhu Cầu Lấy Mẫu Của Báo Giá"
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_quotation_sampling_read_all
+msgid "Read quotation sampling"
+msgstr "Xem nhu cầu lấy mẫu của báo giá"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_sampling__method_ids
+msgid "Testing Methods"
+msgstr "Phương Pháp Thử"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.expected_sampling
+msgid "Testing methods"
+msgstr "Phương pháp thử"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.expected_sampling
+msgid "The expected samples are shown once each item has a sample type and a way of testing."
+msgstr "Số mẫu dự kiến được hiển thị khi mỗi mục đã có loại mẫu và cách thử."
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_sampling__unit_id
+msgid "Unit"
+msgstr "Đơn vị"
+
 #: model:product.template,name:sol_commerce.product_quotation_discount_product_template
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 msgid "Discount"

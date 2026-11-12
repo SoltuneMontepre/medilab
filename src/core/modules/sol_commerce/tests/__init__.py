@@ -1,11 +1,13 @@
 from . import (
     test_accounting_localization,
+    test_advance_due_date,
     test_audit_documents,
     test_audit_pricing,
     test_cart_page,
     test_catalog_page,
     test_customer_orders,
     test_customer_portal,
+    test_expected_sampling,
     test_feedback_access,
     test_feedback_portal,
     test_finance_reports,

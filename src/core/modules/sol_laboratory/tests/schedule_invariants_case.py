@@ -4,7 +4,12 @@ from odoo.fields import Command
 from odoo.tools import SQL
 
 from .scheduling_case import SchedulingCase
-from odoo.addons.sol_laboratory.constants.models import MODEL_CALENDAR_EVENT, MODEL_MACHINE_BOOKING, MODEL_TASK
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_CALENDAR_EVENT,
+    MODEL_MACHINE_BOOKING,
+    MODEL_RESOURCE_CALENDAR,
+    MODEL_TASK,
+)
 from odoo.addons.sol_laboratory.models.testing.machine_booking import ACTIVE_STATUSES, OPEN_STATUSES, SLOT_MINUTES
 
 CLOSED_TEST_STATUSES = ("cancelled", "outsourced", "result_entered", "approved")
@@ -24,7 +29,7 @@ class ScheduleInvariantsCase(SchedulingCase):
     @classmethod
     def create_calendar(cls, name, attendances):
         """A working calendar of (weekday, from hour, to hour) attendances."""
-        return cls.env["resource.calendar"].create(
+        return cls.env[MODEL_RESOURCE_CALENDAR].create(
             {
                 "name": name,
                 "attendance_ids": [
@@ -112,8 +117,8 @@ class ScheduleInvariantsCase(SchedulingCase):
         for test in tests:
             task = test._testing_task()
             if task and test.status in ("waiting", "assigned"):
-                expected = "assigned" if task.assignee_id else "waiting"
-                self.assertEqual(test.status, expected, f"P6: test {test.id} does not follow its task")
+                expected = ("assigned", "assigned") if task.assignee_id else ("waiting", "open")
+                self.assertEqual((test.status, task.status), expected, f"P6: test {test.id} does not follow its task")
             if test.status in CLOSED_TEST_STATUSES:
                 self.assertFalse(test.booking_ids._open(), f"P8: closed test {test.id} has an open booking")
         for task in bookings.task_id:

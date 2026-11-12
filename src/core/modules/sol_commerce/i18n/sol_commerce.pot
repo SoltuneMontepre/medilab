@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-05 08:56+0000\n"
-"PO-Revision-Date: 2026-11-05 08:56+0000\n"
+"POT-Creation-Date: 2026-11-07 10:45+0000\n"
+"PO-Revision-Date: 2026-11-07 10:45+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -120,15 +120,10 @@ msgid "61-90 days"
 msgstr ""
 
 #. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
-msgid ""
-"<small class=\"form-text text-muted d-block mb-2\">PNG or JPEG, up to 2 "
-"MB.</small>"
-msgstr ""
-
-#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.portal_invoice_pay
-msgid "<i class=\"oi me-1\" data-icon=\"account_balance\" aria-hidden=\"true\"/>Bank transfer"
+msgid ""
+"<i class=\"oi me-1\" data-icon=\"account_balance\" aria-"
+"hidden=\"true\"/>Bank transfer"
 msgstr ""
 
 #. module: sol_commerce
@@ -163,12 +158,19 @@ msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
-msgid "<i class=\"oi me-1\" data-icon=\"cancel\" aria-hidden=\"true\"/>Request cancellation"
+msgid ""
+"<i class=\"oi me-1\" data-icon=\"cancel\" aria-hidden=\"true\"/>Request "
+"cancellation"
 msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 msgid "<i class=\"oi me-1\" data-icon=\"check\" aria-hidden=\"true\"/>Accept quotation"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
+msgid "<i class=\"oi me-1\" data-icon=\"check\" aria-hidden=\"true\"/>Apply"
 msgstr ""
 
 #. module: sol_commerce
@@ -188,7 +190,9 @@ msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
-msgid "<i class=\"oi me-1\" data-icon=\"credit_card\" aria-hidden=\"true\"/>Pay the advance"
+msgid ""
+"<i class=\"oi me-1\" data-icon=\"credit_card\" aria-hidden=\"true\"/>Pay the"
+" advance"
 msgstr ""
 
 #. module: sol_commerce
@@ -243,7 +247,9 @@ msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_submitted
-msgid "<i class=\"oi me-1\" data-icon=\"science\" aria-hidden=\"true\"/>Back to the catalog"
+msgid ""
+"<i class=\"oi me-1\" data-icon=\"science\" aria-hidden=\"true\"/>Back to the"
+" catalog"
 msgstr ""
 
 #. module: sol_commerce
@@ -283,12 +289,16 @@ msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
-msgid "<i class=\"oi me-1\" data-icon=\"support\" aria-hidden=\"true\"/>Ask for help about this order"
+msgid ""
+"<i class=\"oi me-1\" data-icon=\"support\" aria-hidden=\"true\"/>Ask for "
+"help about this order"
 msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.language_switcher
-msgid "<i class=\"oi me-1\" data-icon=\"translate\" role=\"img\" aria-label=\"Language\" title=\"Language\"/>"
+msgid ""
+"<i class=\"oi me-1\" data-icon=\"translate\" role=\"img\" aria-"
+"label=\"Language\" title=\"Language\"/>"
 msgstr ""
 
 #. module: sol_commerce
@@ -299,6 +309,13 @@ msgstr ""
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
 msgid "<i class=\"oi me-1\" data-icon=\"upload\" aria-hidden=\"true\"/>Upload"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
+msgid ""
+"<small class=\"form-text text-muted d-block mb-2\">PNG or JPEG, up to 2 "
+"MB.</small>"
 msgstr ""
 
 #. module: sol_commerce
@@ -802,6 +819,7 @@ msgstr ""
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_cash_flow_report__amount
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_sampling__amount
 #: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.portal_invoice_pay
@@ -818,6 +836,11 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__amount_total
 msgid "Amount Total"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.expected_sampling
+msgid "Amount per object"
 msgstr ""
 
 #. module: sol_commerce
@@ -891,11 +914,6 @@ msgstr ""
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_support_request__status__answered
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_support_request_search
 msgid "Answered"
-msgstr ""
-
-#. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
-msgid "<i class=\"oi me-1\" data-icon=\"check\" aria-hidden=\"true\"/>Apply"
 msgstr ""
 
 #. module: sol_commerce
@@ -1309,6 +1327,12 @@ msgid "Contacts"
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_sampling__container_type
+#: model_terms:ir.ui.view,arch_db:sol_commerce.expected_sampling
+msgid "Container"
+msgstr ""
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.support_page
 msgid "Conversation"
 msgstr ""
@@ -1439,6 +1463,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_template_save__create_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_parameter_price__create_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__create_uid
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_sampling__create_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_reconciliation_day__create_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package__create_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package_line__create_uid
@@ -1460,6 +1485,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_template_save__create_date
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_parameter_price__create_date
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__create_date
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_sampling__create_date
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_reconciliation_day__create_date
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package__create_date
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package_line__create_date
@@ -1756,6 +1782,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_template_save__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_parameter_price__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_sampling__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_receivable_report__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_reconciliation_day__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_revenue_report__display_name
@@ -1951,8 +1978,30 @@ msgid "Expected Result Date"
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__expected_sampling_html
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Expected Samples"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__sampling_ids
+msgid "Expected Sampling"
+msgstr ""
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
 msgid "Expected results"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+msgid "Expected samples"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.expected_sampling
+msgid "Expected samples:"
 msgstr ""
 
 #. module: sol_commerce
@@ -2086,6 +2135,11 @@ msgid ""
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_sampling__group_number
+msgid "Group"
+msgstr ""
+
+#. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__handled_by_id
 msgid "Handled By"
 msgstr ""
@@ -2126,6 +2180,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_template_save__id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_parameter_price__id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_sampling__id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_receivable_report__id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_reconciliation_day__id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_revenue_report__id
@@ -2318,6 +2373,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_template_save__write_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_parameter_price__write_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__write_uid
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_sampling__write_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_reconciliation_day__write_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package__write_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package_line__write_uid
@@ -2339,6 +2395,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_template_save__write_date
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_parameter_price__write_date
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__write_date
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_sampling__write_date
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_reconciliation_day__write_date
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package__write_date
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package_line__write_date
@@ -2424,6 +2481,11 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__message_ids
 msgid "Messages"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.expected_sampling
+msgid "Methods without a sampling requirement:"
 msgstr ""
 
 #. module: sol_commerce
@@ -2582,6 +2644,16 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields,help:sol_commerce.field_medilab_support_request__message_has_error_counter
 msgid "Number of messages with delivery error"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_sampling__objects
+msgid "Objects"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.expected_sampling
+msgid "Objects:"
 msgstr ""
 
 #. module: sol_commerce
@@ -2751,6 +2823,12 @@ msgstr ""
 
 #. module: sol_commerce
 #. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid "Order %s already has an open sample collection task."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order.py:0
 msgid "Order %s was cancelled."
 msgstr ""
@@ -2779,6 +2857,7 @@ msgstr ""
 
 #. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_medilab_order_sample
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_sampling__order_sample_id
 msgid "Order Sample"
 msgstr ""
 
@@ -3266,6 +3345,12 @@ msgid "Post the missing payments before locking this day."
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_sampling__preservation
+#: model_terms:ir.ui.view,arch_db:sol_commerce.expected_sampling
+msgid "Preservation"
+msgstr ""
+
+#. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_parameter_price__list_price
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package__list_price
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_test_parameter__price_ids
@@ -3319,6 +3404,7 @@ msgstr ""
 
 #. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_medilab_quotation
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_sampling__quotation_id
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 msgid "Quotation"
 msgstr ""
@@ -3345,6 +3431,11 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__quotation_follow_up
 msgid "Quotation Follow Up"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_quotation_sampling
+msgid "Quotation Sampling"
 msgstr ""
 
 #. module: sol_commerce
@@ -3488,6 +3579,11 @@ msgstr ""
 #. module: sol_commerce
 #: model:medilab.permission,name:sol_commerce.permission_parameter_price_read_all
 msgid "Read parameter prices"
+msgstr ""
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_quotation_sampling_read_all
+msgid "Read quotation sampling"
 msgstr ""
 
 #. module: sol_commerce
@@ -3723,6 +3819,12 @@ msgid "Revisions"
 msgstr ""
 
 #. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid "Route the %s task type to the role of sample delivery staff first."
+msgstr ""
+
+#. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__message_has_sms_error
 msgid "SMS Delivery error"
 msgstr ""
@@ -3779,6 +3881,7 @@ msgstr ""
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_sample__sample_type_id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_sampling__sample_type_id
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__sample_type_id
 msgid "Sample Type"
 msgstr ""
@@ -4083,11 +4186,21 @@ msgid "Testing"
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_sampling__method_ids
+msgid "Testing Methods"
+msgstr ""
+
+#. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order.py:0
 msgid ""
 "Testing is completed or results are released, so this order cannot be "
 "cancelled."
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.expected_sampling
+msgid "Testing methods"
 msgstr ""
 
 #. module: sol_commerce
@@ -4168,6 +4281,13 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
 msgid "The customer must accept the quotation before the order is confirmed."
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.expected_sampling
+msgid ""
+"The expected samples are shown once each item has a sample type and a way of"
+" testing."
 msgstr ""
 
 #. module: sol_commerce
@@ -4278,6 +4398,13 @@ msgstr ""
 msgid ""
 "The results of order %(order)s are ready. Download report %(report)s from "
 "your portal."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid ""
+"The sample collection task waits in the queue of sample delivery staff."
 msgstr ""
 
 #. module: sol_commerce
@@ -4520,6 +4647,9 @@ msgid "Unclaimed queue"
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_sampling__unit_id
+msgid "Unit"
+
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_base_module_uninstall
 msgid ""
 "Uninstalling E-commerce deletes its data and the link between orders and "

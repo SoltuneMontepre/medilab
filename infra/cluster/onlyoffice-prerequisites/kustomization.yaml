@@ -1,0 +1,8 @@
+# The JWT and certificates both Odoo and Document Server mount. The Odoo Application owns them, so they are
+# healthy in earlier sync waves before its pod is replaced, and before Document Server is synced manually.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: medilab
+resources:
+  - jwt.yaml
+  - certificates.yaml

@@ -7,7 +7,7 @@ from odoo.addons.sol_laboratory.constants.models import MODEL_TASK, MODEL_TEST_R
 
 @tagged("post_install", "-at_install")
 class TestChangeRequestReport(ChangeRequestCase):
-    def test_an_approved_change_request_on_an_issued_report_creates_a_new_version_the_portal_serves(self):
+    def test_an_approved_change_request_creates_a_new_version_the_portal_serves_once_it_is_issued(self):
         portal = self.portal_user()
         self.complete()
         report = self.report()
@@ -22,7 +22,7 @@ class TestChangeRequestReport(ChangeRequestCase):
         self.sign(request)
 
         version = self.env[MODEL_TEST_REPORT].browse(request.new_document_id)
-        self.assertEqual((report.status, version.status), ("replaced", "draft"))
+        self.assertEqual((report.status, version.status), ("issued", "draft"))
         self.assertEqual((version.version, version.replaces_id), (2, report))
         self.assertIn(version, self.waiting_for("to_sign"))
         task = self.env[MODEL_TASK].search([("document_model", "=", version._name), ("document_id", "=", version.id)])
@@ -30,11 +30,12 @@ class TestChangeRequestReport(ChangeRequestCase):
         with self.assertRaises(UserError):
             self.raise_on(report, person=self.courier)
 
+        reports = self.env[MODEL_TEST_REPORT]
+        self.assertEqual(reports.search(reports._portal_domain(portal)), report)
         self.sign(version)
 
-        self.assertEqual(version.status, "issued")
+        self.assertEqual((version.status, report.status), ("issued", "replaced"))
         self.assertNotEqual(version.code, report.code)
         self.assertEqual(self.request.status, "reported")
         self.assertTrue(report.attachment_id)
-        reports = self.env[MODEL_TEST_REPORT]
         self.assertEqual(reports.search(reports._portal_domain(portal)), version)

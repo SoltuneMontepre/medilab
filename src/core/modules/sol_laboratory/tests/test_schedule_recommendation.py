@@ -16,6 +16,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MACHINE_BOOKING,
     MODEL_PARAMETER_METHOD,
     MODEL_PARAMETER_METHOD_MACHINE,
+    MODEL_RESOURCE_CALENDAR_LEAVES,
     MODEL_SAMPLE_TEST,
     MODEL_SUBCONTRACTOR,
     MODEL_TESTING_METHOD_STEP,
@@ -246,7 +247,7 @@ class TestScheduleRecommendation(CrossDepartmentCase, LocationCase):
             "Office hours in UTC", [(day, 8, 12) for day in WEEKDAYS] + [(day, 13, 17) for day in WEEKDAYS]
         )
         (self.tester | self.other_tester).write({"resource_calendar_id": office_hours.id})
-        leaves = self.env["resource.calendar.leaves"]
+        leaves = self.env[MODEL_RESOURCE_CALENDAR_LEAVES]
         other = self.new_test()
         with self.subTest(leave="personal, Monday morning"), self.rolled_back():
             leaves.create(
@@ -266,16 +267,19 @@ class TestScheduleRecommendation(CrossDepartmentCase, LocationCase):
             booking = self.schedule(self.test, self.tester)
             self.assertEqual((booking.starts_at, booking.ends_at), (afternoon, afternoon + 3 * SLOT))
             self.assert_schedule_invariants(self.test)
-        with self.subTest(leave="the whole calendar, Monday"), self.rolled_back():
-            leaves.create(
-                {
-                    "name": "Public holiday",
-                    "calendar_id": office_hours.id,
-                    "date_from": datetime(2026, 10, 12),
-                    "date_to": datetime(2026, 10, 12, 23, 59, 59),
-                }
-            )
-            self.testing_task(self.test, self.tester)
-            booking = self.schedule(self.test, self.tester)
-            self.assertEqual((booking.starts_at, booking.ends_at), (TUESDAY, TUESDAY + 3 * SLOT))
-            self.assert_schedule_invariants(self.test)
+        # A public holiday on the whole calendar is a day off, unless it counts as working time.
+        for count_as, start in (("absence", TUESDAY), ("working_time", MONDAY)):
+            with self.subTest(leave="the whole calendar, Monday", count_as=count_as), self.rolled_back():
+                leaves.create(
+                    {
+                        "name": "Public holiday",
+                        "calendar_id": office_hours.id,
+                        "date_from": datetime(2026, 10, 12),
+                        "date_to": datetime(2026, 10, 12, 23, 59, 59),
+                        "count_as": count_as,
+                    }
+                )
+                self.testing_task(self.test, self.tester)
+                booking = self.schedule(self.test, self.tester)
+                self.assertEqual((booking.starts_at, booking.ends_at), (start, start + 3 * SLOT))
+                self.assert_schedule_invariants(self.test)

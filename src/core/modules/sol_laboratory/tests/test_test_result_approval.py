@@ -7,15 +7,18 @@ from odoo.addons.sol_laboratory.constants.models import MODEL_APPROVAL_LEVEL, MO
 
 @tagged("post_install", "-at_install")
 class TestTestResultApproval(ResultCase):
-    def test_approving_the_reported_result_closes_the_testing_task(self):
+    def test_sending_the_reported_result_closes_the_testing_task(self):
         result = self.enter()
+        self.assertEqual(self.task.status, "assigned")
+
         self.send(result)
 
-        self.approve(result)
-
-        self.assertEqual(result.status, "approved")
-        self.assertEqual(self.test.status, "approved")
+        self.assertEqual(self.test.status, "result_entered")
         self.assertEqual(self.task.status, "done")
+        self.assertTrue(self.task.done_at)
+        self.approve(result)
+        self.assertEqual(self.test.status, "approved")
+        self.assertFalse(self.test._testing_task())
 
     def test_a_sample_is_completed_once_every_result_is_approved(self):
         arsenic = self.add_test()
@@ -109,7 +112,7 @@ class TestTestResultApproval(ResultCase):
         with self.assertRaises(UserError):
             self.as_person(result, self.tester).action_sign()
 
-    def test_rejecting_keeps_the_result_sends_the_test_back_and_tells_the_tester(self):
+    def test_rejecting_keeps_the_result_opens_a_new_testing_task_and_tells_the_tester(self):
         self.tester.user_id.notification_type = "inbox"
         result = self.enter()
         self.send(result)
@@ -118,7 +121,12 @@ class TestTestResultApproval(ResultCase):
 
         self.assertEqual(result.status, "rejected")
         self.assertEqual(self.test.status, "testing")
-        self.assertEqual(self.task.status, "assigned")
+        self.assertEqual(self.task.status, "done")
+        task = self.test._testing_task()
+        self.assertNotEqual(task, self.task)
+        self.assertEqual((task.status, task.department_id), ("open", self.department))
+        self.assertFalse(task.assignee_id)
+        self.assertIn("The blank read above the limit of detection.", str(task.note))
         message = self.env["mail.message"].search([("model", "=", result._name), ("res_id", "=", result.id)])
         self.assertEqual(message.subtype_id, self.env.ref("sol_laboratory.event_test_result_rejected"))
         self.assertIn("The blank read above the limit of detection.", (message.body or ""))
@@ -135,6 +143,8 @@ class TestTestResultApproval(ResultCase):
 
         self.assertEqual(result.status, "none")
         self.assertEqual(self.test.status, "testing")
+        self.assertEqual((self.task.status, self.task.done_at), ("assigned", False))
+        self.assertEqual(self.test._testing_task(), self.task)
 
     def test_an_approved_or_rejected_result_cannot_be_withdrawn(self):
         arsenic = self.add_test()

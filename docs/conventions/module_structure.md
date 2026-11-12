@@ -14,7 +14,7 @@ How code inside an Odoo module is laid out.
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `master_data`       | What the laboratory can test and with what: parameters, groups, sample types, methods, units, regulations, quality registrations, locations, machines, chemicals, subcontractors, customers |
 | `sample_collection` | Test requests and samples: reception, handover, recollection, subcontract dispatches, and creating a sample's laboratory folders                                                  |
-| `testing`           | Sample tests, results, machine bookings, test reports, change requests                                                                                                           |
+| `testing`           | Sample tests, results, machine bookings, test reports with their templates, drafts and prepared PDFs, change requests                                                                                                           |
 | `tasks`             | Task types and tasks                                                                                                                                                             |
 | `notifications`     | Notification events, preferences, recipients and push deliveries                                                                                                                 |
 | `management`        | Features only managers use                                                                                                                                                       |
@@ -25,11 +25,11 @@ How code inside an Odoo module is laid out.
 | `signing`           | Digital signing: the laboratory's signing certificates, digital signatures, their jobs and the verification page                                                                 |
 | `laboratory_files`  | Laboratory folders, their members and sync rules, and the computers signed in to them                                                                                            |
 | `stores`            | Stores and the locations inside them, with their holders and managers                                                                                                            |
-| `costs`             | Cost centres                                                                                                                                                                     |
+| `costs`             | Cost centres, the costing method and how moves are valued                                                                                                                        |
 | `catalog`           | Stock items with their minimum quantities, suppliers and the items they sell, and how much of each item a test uses                                                              |
 | `purchasing`        | Purchase orders, their lines and signing, and receipts with what each lot line brings in                                                                                         |
-| `stock`             | Lots and containers, their statuses and QR labels                                                                                                                                |
-| `recipes`           | Recipes of prepared solutions and their ingredients                                                                                                                              |
+| `stock`             | Lots and containers, opening them, their usable dates and labels, uses, waste, moves inside a store, corrections, disposal, expiry alerts and stock on hand                       |
+| `recipes`           | Recipes of prepared solutions, their ingredients and the preparations made from them                                                                                             |
 | `onboarding`        | Trusted sources, the organisations they list, sectors, collection runs, snapshots and staged records                                                                             |
 
 ## Files
@@ -66,14 +66,17 @@ Technical names used in Python live in the `constants/` package at the root of t
 | `constants/approvals.py`   | Approval chain purposes, signature decisions and approval states, such as `DECISION_SIGNED` |
 | `constants/customers.py`   | Customer types and sign-up values, such as `SIGNUP_CUSTOMER_KEY`                            |
 | `constants/audit.py`       | How the audit trail masks values, such as `MASK_PERSONAL`                                   |
-| `constants/jobs.py`        | Context keys of scheduled jobs and what the cleanup job removes, such as `CLEANUP_KINDS`    |
+| `constants/jobs.py`        | Keys and context keys of scheduled jobs and what the cleanup job removes, such as `CLEANUP_KINDS` |
+| `constants/notifications.py` | Channels and event codes of notifications, such as `EVENT_STOCK_EXPIRED`                   |
 | `constants/locks.py`       | The bus notification and release reasons of document locks, such as `LOCK_BUS_TYPE`         |
 | `constants/routes.py`      | Route options that `odoo.http` does not declare, such as `FRONTEND_PAGE` and `DEVICE_KEY`   |
-| `constants/stock.py`       | Statuses of lots and containers and the Odoo states receipts rely on, such as `CONTAINER_SEALED` |
+| `constants/stock.py`       | Statuses of lots and containers, the kinds of moves and the Odoo states receipts rely on, such as `CONTAINER_SEALED` |
 | `constants/signing.py`     | Digital signing jobs, certificate statuses, contexts and paths, such as `DIGITAL_SIGNING_JOB` |
 | `constants/items.py`       | Kinds of stock items and how they are tracked, such as `KIND_SOLUTION`                      |
+| `constants/costs.py`       | Context keys of stock costing, such as `KEEP_DONE_VALUES`                                   |
 | `constants/laboratory_files.py` | Member roles, sync modes and access levels of laboratory folders and files, the sources of file versions, Office extensions, and the codes of their refusals, such as `FOLDER_SHARE` |
 | `constants/laboratory_editing.py` | Statuses of online editing sessions and of the editing service's callbacks, the files edited online, the editing service's addresses, secret and token header, and the codes of their refusals, such as `OPEN_STATUSES` |
+| `constants/report_templates.py` | States of report template versions, the data bindings of report DOCX files, the statuses of prepared PDFs and the context key naming the one a signer reviewed, such as `REQUIRED_BINDINGS` |
 | `constants/laboratory_api.py` | The path of the laboratory files API, the HTTP status of each refusal code and the limits on signing in, such as `ERROR_STATUSES` |
 
 - Names are UPPER*SNAKE_CASE; a model constant is `MODEL*<NAME>`and holds the value of`\_name`.

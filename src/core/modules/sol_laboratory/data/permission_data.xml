@@ -220,6 +220,11 @@
         <field name="document_model">medilab.sample</field>
         <field name="action">edit</field>
     </record>
+    <record id="permission_expected_sampling_read_all" model="medilab.permission">
+        <field name="name">Read expected sampling</field>
+        <field name="document_model">medilab.expected.sampling</field>
+        <field name="action">read</field>
+    </record>
     <record id="permission_sample_handover_read_all" model="medilab.permission">
         <field name="name">Read sample handovers</field>
         <field name="document_model">medilab.sample.handover</field>
@@ -352,6 +357,51 @@
         <field name="name">Sign test reports</field>
         <field name="document_model">medilab.test.report</field>
         <field name="action">sign</field>
+    </record>
+    <record id="permission_test_report_draft_read_all" model="medilab.permission">
+        <field name="name">Read generated report drafts</field>
+        <field name="document_model">medilab.test.report.draft</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_test_report_candidate_read_all" model="medilab.permission">
+        <field name="name">Read prepared report PDFs</field>
+        <field name="document_model">medilab.test.report.candidate</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_report_template_read_all" model="medilab.permission">
+        <field name="name">Read report templates</field>
+        <field name="document_model">medilab.report.template</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_report_template_create_all" model="medilab.permission">
+        <field name="name">Create report templates</field>
+        <field name="document_model">medilab.report.template</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_report_template_edit_all" model="medilab.permission">
+        <field name="name">Edit report templates</field>
+        <field name="document_model">medilab.report.template</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_report_template_version_read_all" model="medilab.permission">
+        <field name="name">Read report template versions</field>
+        <field name="document_model">medilab.report.template.version</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_report_template_version_create_all" model="medilab.permission">
+        <field name="name">Create report template versions</field>
+        <field name="document_model">medilab.report.template.version</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_report_template_version_edit_all" model="medilab.permission">
+        <field name="name">Edit report template versions</field>
+        <field name="document_model">medilab.report.template.version</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_report_template_version_archive_all" model="medilab.permission">
+        <field name="name">Archive report template versions</field>
+        <field name="document_model">medilab.report.template.version</field>
+        <field name="action">archive</field>
     </record>
     <record id="permission_change_request_read_all" model="medilab.permission">
         <field name="name">Read change requests</field>
@@ -859,6 +909,21 @@
     <record id="permission_testing_method_step_delete_all" model="medilab.permission">
         <field name="name">Delete testing method steps</field>
         <field name="document_model">medilab.testing.method.step</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_sampling_requirement_create_all" model="medilab.permission">
+        <field name="name">Create sampling requirements</field>
+        <field name="document_model">medilab.sampling.requirement</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_sampling_requirement_edit_all" model="medilab.permission">
+        <field name="name">Edit sampling requirements</field>
+        <field name="document_model">medilab.sampling.requirement</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_sampling_requirement_delete_all" model="medilab.permission">
+        <field name="name">Delete sampling requirements</field>
+        <field name="document_model">medilab.sampling.requirement</field>
         <field name="action">delete</field>
     </record>
     <record id="permission_unit_category_create_all" model="medilab.permission">

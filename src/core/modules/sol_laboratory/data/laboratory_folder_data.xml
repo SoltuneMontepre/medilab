@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- The DOCX files of report templates and report drafts. Their templates and reports decide who reads and edits
+         them; computers never upload to them. -->
+    <record id="laboratory_folder_report_templates" model="medilab.laboratory.folder">
+        <field name="name">Report Templates</field>
+        <field name="root">report-templates</field>
+        <field name="owner_id" ref="base.user_admin" />
+    </record>
+    <record id="laboratory_folder_report_drafts" model="medilab.laboratory.folder">
+        <field name="name">Test Report Drafts</field>
+        <field name="root">test-report-drafts</field>
+        <field name="owner_id" ref="base.user_admin" />
+    </record>
+</odoo>

@@ -39,7 +39,7 @@ class TestTestResultEntry(ResultCase):
         self.offer(self.parameter, still_water)
         self.sample.sample_type_id = still_water
 
-        result = self.enter()
+        result = self.enter(conclusion=False)
 
         self.assertFalse(result.limit_max_set)
         self.assertFalse(result.limit_unit_id)
@@ -88,7 +88,7 @@ class TestTestResultEntry(ResultCase):
         first = self.enter()
         second = self.enter(value=0.009)
 
-        self.assertEqual((first.attempt, second.attempt), (1, 2))
+        self.assertEqual(first.search([("sample_test_id", "=", self.test.id)]).ids, [second.id, first.id])
         self.assertFalse(first.is_reported)
         self.assertTrue(second.is_reported)
         with self.assertRaises(UserError):

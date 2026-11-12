@@ -366,6 +366,9 @@
                         </list>
                     </field>
                 </page>
+                <page string="Expected Samples" name="expected_samples">
+                    <field name="expected_sampling_html" readonly="1" />
+                </page>
                 <page string="Payment" name="payment">
                     <group>
                         <group>

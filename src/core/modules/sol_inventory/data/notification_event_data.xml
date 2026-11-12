@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Each goes to the managers of the stores holding the stock, and to whom the administrator adds. -->
+    <record id="event_stock_expired" model="mail.message.subtype">
+        <field name="name">Stock expired</field>
+        <field name="description">A lot or a container passed its usable date and waits for disposal</field>
+        <field name="code">stock.expired</field>
+        <field name="res_model">stock.lot</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="False" />
+        <field name="enabled" eval="True" />
+    </record>
+    <record id="event_stock_expiring" model="mail.message.subtype">
+        <field name="name">Stock expiring soon</field>
+        <field name="description">A lot or a container is usable for fewer days than the expiry warning</field>
+        <field name="code">stock.expiring</field>
+        <field name="res_model">stock.lot</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="False" />
+        <field name="enabled" eval="True" />
+    </record>
+    <record id="event_stock_below_minimum" model="mail.message.subtype">
+        <field name="name">Stock below minimum</field>
+        <field name="description">A store's stock of an item fell below its minimum quantity</field>
+        <field name="code">stock.below_minimum</field>
+        <field name="res_model">stock.warehouse.orderpoint</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="False" />
+        <field name="enabled" eval="True" />
+    </record>
+</odoo>
