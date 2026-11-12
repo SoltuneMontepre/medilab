@@ -159,6 +159,7 @@ from . import (
     test_module_boundaries,
     test_module_files,
     test_negative_results,
+    test_notice_compat,
     test_notice_migration,
     test_notice_visibility,
     test_notifications,

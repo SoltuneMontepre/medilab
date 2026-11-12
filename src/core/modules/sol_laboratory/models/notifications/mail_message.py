@@ -166,8 +166,9 @@ class MailMessage(models.Model, MailMessageBase):
     def _portal_visible_for(self, partner, event, popup):
         """True when the notice is shown in the portal to this recipient: a mandatory event always is, and any other
         event when the customer chose the portal. Only a recipient with a portal account can open it, so a contact
-        without one has no viewer, whatever its email does."""
-        if not partner.user_ids[:1].share:
+        without one has no viewer, whatever its email does. Any portal account of the contact makes it visible, whatever
+        order its accounts are in."""
+        if not partner.user_ids.filtered("share"):
             return False
         return bool(event.mandatory or popup)
 

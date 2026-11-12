@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
@@ -6,7 +7,12 @@ from odoo.exceptions import AccessError, MissingError
 from odoo.fields import Domain
 from odoo.tools import SQL
 
-from odoo.addons.sol_laboratory.constants.models import MODEL_MAIL_MESSAGE, MODEL_MAIL_NOTIFICATION
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_IR_CONFIG_PARAMETER,
+    MODEL_MAIL_MESSAGE,
+    MODEL_MAIL_NOTIFICATION,
+)
+from odoo.addons.sol_laboratory.constants.settings import NOTICE_PORTAL_SINCE_PARAMETER
 from odoo.addons.sol_laboratory.services.document_code import document_code
 from odoo.addons.sol_laboratory.services.laboratory_api import api_datetime
 from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
@@ -71,10 +77,36 @@ class MailNotification(models.Model, MailNotificationBase):
     def _portal_domain(self, user):
         """The notices the signed-in portal user may read: those addressed to the user's own contact, shown in the
         portal or, as before, delivered to the inbox. Another contact of the same business, or another customer, is
-        never included."""
-        return Domain("res_partner_id", "=", user.partner_id.id) & (
-            Domain("portal_visible", "=", True) | Domain("notification_type", "=", "inbox")
-        )
+        never included.
+
+        Code that does not know the portal columns, an older pod during a release or an older image after a rollback,
+        leaves a mandatory notice unmarked. For a portal user it is shown from its event, when its message was written
+        after the moment the columns were added. Mandatory emails sent before that stay out."""
+        shown = Domain("portal_visible", "=", True) | Domain("notification_type", "=", "inbox")
+        since = self._notice_portal_since() if user.share else None
+        if since:
+            shown |= Domain("mail_message_id.subtype_id.mandatory", "=", True) & Domain(
+                "mail_message_id.create_date", ">=", since
+            )
+        return Domain("res_partner_id", "=", user.partner_id.id) & shown
+
+    @api.model
+    def _notice_portal_since(self):
+        """When the portal columns were added, or None when it was not recorded or cannot be read."""
+        value = self.env[MODEL_IR_CONFIG_PARAMETER].sudo().get_str(NOTICE_PORTAL_SINCE_PARAMETER)
+        if not value:
+            return None
+        try:
+            since = datetime.fromisoformat(value.strip())
+        except ValueError:
+            since = None
+        if since is None or since.tzinfo:
+            _logger.warning(
+                "The value of %s is not a date in UTC; no mandatory notice is shown from it",
+                NOTICE_PORTAL_SINCE_PARAMETER,
+            )
+            return None
+        return since
 
     def _portal_open(self):
         """Record the first time the recipient opened the notice; a later open leaves that time as it is.

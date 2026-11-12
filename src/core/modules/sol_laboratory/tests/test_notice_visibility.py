@@ -156,6 +156,36 @@ class TestNoticeVisibility(TransactionCase):
         for user in (self.hoa, self.khoa):
             self.assertNotIn(notice, self.listed_for(user))
 
+    def second_account(self, partner, name, group):
+        return self.env["res.users"].create(
+            {
+                "name": name,
+                "login": f"notice.{name.lower()}",
+                "partner_id": partner.id,
+                "group_ids": [(6, 0, group.ids)],
+            }
+        )
+
+    def test_two_portal_accounts_of_one_contact_share_the_notice_and_its_seen_mark(self):
+        other = self.second_account(self.hoa.partner_id, "Hoa Two", self.env.ref("base.group_portal"))
+        notice = self.raise_notice(self.hoa.partner_id)
+        # The notice is the contact's, so each of its accounts reads it and the first open is the contact's.
+        self.assertEqual(self.listed_for(self.hoa), notice)
+        self.assertEqual(self.listed_for(other), notice)
+        notice._portal_open()
+        self.assertTrue(notice.portal_seen_at)
+        self.assertNotIn(notice, self.listed_for(self.khoa))
+
+    def test_a_contact_with_an_internal_and_a_portal_account_is_shown_the_notice_in_either_order(self):
+        for first, second in (("Aaa", "Zzz"), ("Zzz", "Aaa")):
+            partner = self.env["res.partner"].create({"name": f"Mixed {first}", "email": f"{first}@example.com"})
+            internal = self.second_account(partner, f"{first} Internal", self.env.ref("base.group_user"))
+            portal = self.second_account(partner, f"{second} Portal", self.env.ref("base.group_portal"))
+            self.assertEqual(partner.user_ids[:1], internal if first < second else portal)
+            notice = self.raise_notice(partner)
+            self.assertTrue(notice.portal_visible, first)
+            self.assertIn(notice, self.listed_for(portal))
+
     def test_a_mandatory_notice_that_reaches_nobody_is_recorded(self):
         contact = self.env["res.partner"].create({"name": "Unreachable", "parent_id": self.business.id})
         entries = self.env[MODEL_AUDIT_ENTRY].search([("note", "like", "Notice not delivered")])

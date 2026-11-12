@@ -1,13 +1,20 @@
 import re
+from datetime import datetime, timedelta
 
 from odoo.tests import HttpCase, tagged
 
 from odoo.addons.sol_commerce.constants.notifications import EVENT_INVOICE_SENT
-from odoo.addons.sol_laboratory.constants.models import MODEL_MAIL_MESSAGE, MODEL_MAIL_NOTIFICATION
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_IR_CONFIG_PARAMETER,
+    MODEL_MAIL_MESSAGE,
+    MODEL_MAIL_NOTIFICATION,
+)
+from odoo.addons.sol_laboratory.constants.settings import NOTICE_PORTAL_SINCE_PARAMETER
 
 LISTED = re.compile(r'id="notification-\d+')
 OLD_OPEN = "2026-01-01 00:00:00"
 PER_PAGE = 20
+CUTOVER = datetime(2026, 3, 1, 8, 0, 0)
 
 
 @tagged("post_install", "-at_install")
@@ -44,6 +51,16 @@ class TestNoticePortal(HttpCase):
             partners=user.partner_id,
         )
         return message.notification_ids.filtered(lambda item: item.res_partner_id == user.partner_id)
+
+    def old_code_notice(self, user, written, subject="Invoice HD-2"):
+        """A notice written by code that does not know the portal columns, in a message created at `written`."""
+        notice = self.raise_notice(user, subject=subject)
+        self.env.cr.execute("UPDATE mail_notification SET portal_visible = NULL WHERE id = %s", (notice.id,))
+        self.env.cr.execute(
+            "UPDATE mail_message SET create_date = %s WHERE id = %s", (written, notice.mail_message_id.id)
+        )
+        self.env.invalidate_all()
+        return notice
 
     def get(self, user, path, **kwargs):
         self.authenticate(user.login, user.login)
@@ -137,3 +154,38 @@ class TestNoticePortal(HttpCase):
         self.assertIn("event-invoice.sent", page.text)
         self.assertIn("notification-preferences", page.text)
         self.assertIn("No notifications yet.", page.text)
+
+    def test_a_notice_old_code_wrote_after_the_cutover_is_read_by_its_recipient_only(self):
+        self.env[MODEL_IR_CONFIG_PARAMETER].sudo().set_str(NOTICE_PORTAL_SINCE_PARAMETER, str(CUTOVER))
+        notice = self.old_code_notice(self.hoa, CUTOVER + timedelta(seconds=1))
+        listed = self.get(self.hoa, "/my/notifications")
+        self.assertIn(f'id="notification-{notice.id}"', listed.text)
+        self.assertEqual(self.url_open(f"/my/notifications/{notice.id}").status_code, 200)
+        for other in (self.khoa, self.binh):
+            self.assertNotIn(f"notification-{notice.id}", self.get(other, "/my/notifications").text)
+            self.assertEqual(self.url_open(f"/my/notifications/{notice.id}").status_code, 404)
+
+    def test_a_notice_written_before_the_cutover_or_with_no_cutover_is_not_found(self):
+        notice = self.old_code_notice(self.hoa, CUTOVER - timedelta(seconds=1))
+        parameters = self.env[MODEL_IR_CONFIG_PARAMETER].sudo()
+        parameters.set_str(NOTICE_PORTAL_SINCE_PARAMETER, str(CUTOVER))
+        self.assertEqual(self.get(self.hoa, f"/my/notifications/{notice.id}").status_code, 404)
+        parameters.search([("key", "=", NOTICE_PORTAL_SINCE_PARAMETER)]).unlink()
+        newer = self.old_code_notice(self.hoa, CUTOVER + timedelta(days=1))
+        self.assertEqual(self.url_open(f"/my/notifications/{newer.id}").status_code, 404)
+        self.assertNotIn(f"notification-{newer.id}", self.url_open("/my/notifications").text)
+
+    def test_every_portal_account_of_a_contact_reads_its_notice(self):
+        twin = self.env["res.users"].create(
+            {
+                "name": "Hoa Twin",
+                "login": "hoa.twin.notice",
+                "password": "hoa.twin.notice",
+                "partner_id": self.hoa.partner_id.id,
+                "group_ids": [(6, 0, self.env.ref("base.group_portal").ids)],
+            }
+        )
+        notice = self.raise_notice(self.hoa)
+        for user in (self.hoa, twin):
+            self.assertEqual(self.get(user, f"/my/notifications/{notice.id}").status_code, 200)
+        self.assertEqual(self.get(self.khoa, f"/my/notifications/{notice.id}").status_code, 404)
