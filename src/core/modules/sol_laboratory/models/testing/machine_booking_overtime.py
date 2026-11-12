@@ -30,8 +30,14 @@ class MachineBookingOverTime(models.Model, MachineBookingOverTimeBase):
                 ["starts_at", "ends_at"],
             )
         )
+        intervals = list(working)
+        for overtime in overtimes:
+            # Both are required; the check narrows their type.
+            begin, finish = overtime.starts_at, overtime.ends_at
+            if begin and finish:
+                intervals.append((max(begin, start), min(finish, end)))
         merged = []
-        for begin, finish in sorted([*working, *((max(o.starts_at, start), min(o.ends_at, end)) for o in overtimes)]):
+        for begin, finish in sorted(intervals):
             if merged and begin <= merged[-1][1]:
                 merged[-1] = (merged[-1][0], max(merged[-1][1], finish))
             else:

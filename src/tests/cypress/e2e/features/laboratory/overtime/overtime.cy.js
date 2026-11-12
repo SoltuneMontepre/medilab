@@ -1,6 +1,7 @@
 import { callAs, callRefused } from "../../../../support/odoo";
 import { newRecord, pick, save } from "../../../../support/form";
-import { ADMIN, HEAD, TESTER, release, schedulingFixture, typeTime } from "../scheduling/setup";
+import { utcTime } from "../scheduling/calendar";
+import { ADMIN, HEAD, TESTER, odooTime, release, schedulingFixture, typeTime } from "../scheduling/setup";
 
 const FIELDS = ["person_id", "starts_at", "ends_at", "reason", "create_uid", "write_date"];
 
@@ -20,9 +21,10 @@ describe("Planned OverTime", () => {
   it("TC-F426-1 books a tester in the OverTime their head records, and moving the booking leaves the OverTime", () => {
     const [booking] = fixture.bookings;
     const working = fixture.slots[0];
-    // 13:00 to 17:00 UTC is 20:00 to midnight in Vietnam, after the tester's working hours.
-    const evening = `${working.slice(0, 10)} 13:00:00`;
-    const night = `${working.slice(0, 10)} 17:00:00`;
+    // From 20:00 to midnight of the working slot's day where the tester works, after their working hours.
+    const day = new Intl.DateTimeFormat("en-CA", { timeZone: fixture.resourceZone }).format(new Date(`${working}Z`));
+    const evening = odooTime(utcTime(day, 20, fixture.resourceZone));
+    const night = odooTime(utcTime(day, 24, fixture.resourceZone));
 
     cy.signInAs("tester");
     callRefused("medilab.machine.booking", "write", [[booking], { starts_at: evening }]).should("contain", "is not free");
