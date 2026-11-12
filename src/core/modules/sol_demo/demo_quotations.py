@@ -19,9 +19,6 @@ PAYMENT_WIZARD = "account.payment.register"
 def seed_quotations(env):
     if env.ref("sol_demo.demo_sale_order_quotation_draft", raise_if_not_found=False):
         return
-    if not env.company.chart_template:
-        # Advance invoices need the sales journal, which a chart of accounts brings; a fresh install has none yet.
-        env["account.chart.template"].try_loading("vn", env.company)
     sales = env.ref("sol_demo.demo_res_users_sales")
     head = env.ref("sol_demo.demo_res_users_head_of_sales")
     vat8 = _sales_tax(env, 8)
@@ -84,6 +81,33 @@ def seed_selected_ways(env):
     _as(order, sales).action_revise_quotation()
     _as(order, sales).action_send_quotation()
     _xml_id(env, "demo_sale_order_quotation_ways", order)
+
+
+def seed_sampling(env):
+    """Two orders of Lead twice and the bottled water microbiology package three times on one bottled water sample:
+    3 objects in two sampling groups, so 6 expected samples. One is sent; the other was accepted and confirmed, so its
+    test request expects the samples."""
+    if env.ref("sol_demo.demo_sale_order_quotation_sampling", raise_if_not_found=False):
+        return
+    sales = env.ref("sol_demo.demo_res_users_sales")
+    head = env.ref("sol_demo.demo_res_users_head_of_sales")
+    lead = _product(env, "parameter_id", env.ref("sol_demo.demo_parameter_price_lead").parameter_id.id)
+    package = _product(
+        env, "service_package_id", env.ref("sol_demo.demo_service_package_bottled_water_microbiology").id
+    )
+    orders = []
+    for _name in ("sent", "confirmed"):
+        order = _quotable_order(env, lead, _sales_tax(env, 10), quantity=2, advance_method="none")
+        order.write(
+            {"order_line": [Command.create({"product_id": package.product_variant_ids.id, "product_uom_qty": 3})]}
+        )
+        order._catalog_lines().filtered(lambda line: not line.sample_id).sample_id = order.sample_ids
+        _as(order, head).action_send_quotation()
+        orders.append(order)
+    orders[1]._latest_quotation()._accept()
+    orders[1].with_user(sales).action_confirm_order()
+    _xml_id(env, "demo_sale_order_quotation_sampling", orders[0])
+    _xml_id(env, "demo_sale_order_quotation_sampling_confirmed", orders[1])
 
 
 def _other_way(line):

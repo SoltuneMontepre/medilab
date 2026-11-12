@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_test_report_template_change_form" model="ir.ui.view">
+        <field name="name">medilab.test.report.template.change.form</field>
+        <field name="model">medilab.test.report.template.change</field>
+        <field name="arch" type="xml">
+            <form>
+                <p>The draft is generated again from the chosen version, which replaces the editors' changes; a PDF waiting for review becomes obsolete.</p>
+                <group>
+                    <field name="report_id" invisible="1" />
+                    <field name="available_version_ids" invisible="1" />
+                    <field name="template_version_id" options="{'no_create': True, 'no_open': True}" />
+                </group>
+                <footer>
+                    <button name="action_apply" type="object" string="Change Template" class="btn-primary" />
+                    <button special="cancel" string="Discard" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_medilab_test_report_template_change" model="ir.actions.act_window">
+        <field name="name">Change the Template</field>
+        <field name="res_model">medilab.test.report.template.change</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

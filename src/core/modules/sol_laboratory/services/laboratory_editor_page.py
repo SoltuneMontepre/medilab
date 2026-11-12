@@ -142,9 +142,12 @@ def open_editor(file_id):
     file = env[MODEL_LABORATORY_FILE].browse(file_id)
     missing = env._("This file does not exist or you do not have access to it.")
     try:
-        # A global permission refusal must not reveal existence through a different status for missing ids.
-        env[MODEL_LABORATORY_FOLDER]._check_laboratory_files_permission()
-        if not 0 < file_id < 2**31 or not file.sudo().exists():
+        exists = 0 < file_id < 2**31 and bool(file.sudo().exists())
+        # Report templates and drafts are opened with the permissions of their template or report. For every other file,
+        # a global permission refusal must not reveal existence through a different status for missing ids.
+        if not (exists and file._is_report_document()):
+            env[MODEL_LABORATORY_FOLDER]._check_laboratory_files_permission()
+        if not exists:
             return render_page(404, message=missing)
         # Roll back a new/joined session if config generation or origin validation fails afterwards.
         with env.cr.savepoint():

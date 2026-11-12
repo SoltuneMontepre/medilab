@@ -8,6 +8,7 @@ from odoo import fields
 from odoo.exceptions import AccessError, UserError
 from odoo.tests import HttpCase, TransactionCase, tagged
 
+from .mobile_phones import push_token
 from odoo.addons.sol_laboratory.constants.notifications import (
     BREVO_SMTP_HOST,
     BREVO_SMTP_PASSWORD,
@@ -149,14 +150,14 @@ class TestNotifications(TransactionCase):
         self.assertEqual(self.env["medilab.job.item"].search_count([("item_key", "=", f"mail:{mail.id}")]), 1)
 
     def test_a_rejected_token_turns_the_device_off_and_a_temporary_error_does_not(self):
-        device = self.env["medilab.mobile.device"].with_user(self.user).register_token("token-1", "android")
+        device = push_token(self.env, self.user, "token-1")
         self.env["medilab.notification.preference"].with_user(self.user).set_own(self.event, "push", True)
         task = self._task()
         self.env["mail.message"].raise_event(EVENT_TASK_REMINDER, task, "push-1", "Body", partners=self.user.partner_id)
         delivery = self.env["medilab.push.delivery"].search([("mobile_device_id", "=", device.id)])
         client = FirebaseClient(object(), "project")
 
-        def permanent(token, title, body):
+        def permanent(token, title, body, data):
             raise PermanentTokenError("UNREGISTERED")
 
         with (
@@ -170,11 +171,11 @@ class TestNotifications(TransactionCase):
         self.assertFalse(device.active)
         self.assertEqual(delivery.status, "skipped")
 
-        device2 = self.env["medilab.mobile.device"].with_user(self.user).register_token("token-2", "ios")
+        device2 = push_token(self.env, self.user, "token-2", "ios")
         self.env["mail.message"].raise_event(EVENT_TASK_REMINDER, task, "push-2", "Body", partners=self.user.partner_id)
         delivery2 = self.env["medilab.push.delivery"].search([("mobile_device_id", "=", device2.id)])
 
-        def temporary(token, title, body):
+        def temporary(token, title, body, data):
             raise TemporaryFirebaseError("503")
 
         with (
@@ -229,7 +230,7 @@ class TestNotifications(TransactionCase):
             "odoo.addons.sol_laboratory.services.firebase_client.requests.post",
             return_value=_Response(200, {}),
         ):
-            client.send("token", "Title", "Body")
+            client.send("token", "Title", "Body", {})
         self.assertTrue(credentials.refreshed)
         ready = FirebaseClient(_Credentials(), "project")
         with (
@@ -239,7 +240,7 @@ class TestNotifications(TransactionCase):
             ),
             self.assertRaises(TemporaryFirebaseError),
         ):
-            ready.send("token", "Title", "Body")
+            ready.send("token", "Title", "Body", {})
 
     def client_from_env(self):
         client = firebase_client.firebase_client_from_env()
@@ -318,7 +319,7 @@ class TestNotifications(TransactionCase):
             item.job_id._handle_notifications_email(item)
 
     def test_a_push_is_sent_and_waits_when_firebase_is_not_configured(self):
-        device = self.env["medilab.mobile.device"].with_user(self.user).register_token("token-sent", "android")
+        device = push_token(self.env, self.user, "token-sent")
         self.env["medilab.notification.preference"].with_user(self.user).set_own(self.event, "push", True)
         task = self._task()
         self.env["mail.message"].raise_event(
@@ -337,7 +338,7 @@ class TestNotifications(TransactionCase):
             self.assertIsNone(item.job_id._handle_notifications_push(item))
         self.assertEqual(delivery.status, "sent")
 
-        waiting = self.env["medilab.mobile.device"].with_user(self.user).register_token("token-wait", "ios")
+        waiting = push_token(self.env, self.user, "token-wait", "ios")
         self.env["mail.message"].raise_event(
             EVENT_TASK_REMINDER, task, "push-wait", "Body", partners=self.user.partner_id
         )

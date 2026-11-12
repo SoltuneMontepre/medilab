@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- The expected samples of each sample: its objects times its sampling groups, with each group's container,
+         preservation and amount per object. Takes the entries of sale.order._expected_sampling(). -->
+    <template id="expected_sampling" name="Expected samples">
+        <div class="o_medilab_expected_sampling">
+            <p t-if="not entries" class="text-muted mb-0">The expected samples are shown once each item has a sample type and a way of testing.</p>
+            <div t-foreach="entries" t-as="entry" class="mb-3" t-att-data-sample="entry['name']">
+                <h5 class="mb-1">
+                    <t t-out="entry['name']" />
+                    <small t-if="entry['name'] != entry['sample_type'].name" class="text-muted"> – <t t-out="entry['sample_type'].name" /></small>
+                </h5>
+                <p class="d-flex flex-wrap gap-3 mb-1">
+                    <span>Objects: <strong class="o_medilab_objects" t-out="entry['objects']" /></span>
+                    <span>Expected samples: <strong class="o_medilab_expected" t-out="entry['expected']" /></span>
+                </p>
+                <div t-if="entry['groups']" class="table-responsive">
+                    <table class="table table-sm mb-1">
+                        <thead>
+                            <tr>
+                                <th>Container</th>
+                                <th>Preservation</th>
+                                <th class="text-end">Amount per object</th>
+                                <th>Testing methods</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="entry['groups']" t-as="group">
+                                <td t-out="group['container_type']" />
+                                <td t-out="group['preservation']" />
+                                <td class="text-end text-nowrap" t-out="' + '.join('%g %s' % (amount, unit.name) for amount, unit in group['amounts'])" />
+                                <td t-out="', '.join(group['methods'].mapped('code'))" />
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p t-if="entry['missing']" class="text-warning mb-0">
+                    Methods without a sampling requirement: <t t-out="', '.join(entry['missing'].mapped('code'))" />
+                </p>
+            </div>
+        </div>
+    </template>
+</odoo>

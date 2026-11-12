@@ -22,6 +22,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 from odoo.addons.sol_laboratory.constants.scheduling import CALENDAR_SYNC_CONTEXT, CALENDAR_SYNC_TOKEN
 from odoo.addons.sol_laboratory.constants.tasks import FINAL_STATUSES, MANUAL_TRIGGER, TESTING_ACTION
+from odoo.addons.sol_laboratory.services.document_code import document_code
 from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
 from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
@@ -50,6 +51,8 @@ class Task(models.Model, TaskBase):
     _description = "Task"
     _order = "deadline, id"
     _permission_actions = ("read", "create", "edit", "delete")
+    # The Medilab Mobile screen that opens it.
+    _mobile_screen = "task"
 
     if not TYPE_CHECKING:
         # The kind of task.
@@ -126,6 +129,12 @@ class Task(models.Model, TaskBase):
         "CHECK(planned_end IS NULL OR planned_start IS NULL OR planned_end >= planned_start)",
         "A task cannot end before it starts.",
     )
+
+    def _document_code(self):
+        """A push and Medilab Mobile name a task by the code of its document; a task without one has none."""
+        if not self.document_model or not self.document_id or self.document_model not in self.env:
+            return ""
+        return document_code(dynamic_model(self.env, self.document_model).browse(self.document_id))
 
     @api.depends("document_model", "document_id", "action", "type_id", "linked_by_system")
     def _compute_sample_test_details(self):

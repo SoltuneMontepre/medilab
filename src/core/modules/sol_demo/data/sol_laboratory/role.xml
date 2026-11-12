@@ -13,6 +13,7 @@
                 ref('sol_laboratory.permission_test_request_create_all'),
                 ref('sol_laboratory.permission_test_request_edit_all'),
                 ref('sol_laboratory.permission_sample_read_all'),
+                ref('sol_laboratory.permission_expected_sampling_read_all'),
                 ref('sol_laboratory.permission_sample_create_all'),
                 ref('sol_laboratory.permission_sample_edit_all'),
                 ref('sol_laboratory.permission_sample_test_read_all'),
@@ -29,6 +30,7 @@
                 ref('sol_commerce.permission_order_sample_edit_all'),
                 ref('sol_commerce.permission_order_sample_delete_all'),
                 ref('sol_commerce.permission_quotation_read_all'),
+                ref('sol_commerce.permission_quotation_sampling_read_all'),
                 ref('sol_commerce.permission_support_request_read_all'),
                 ref('sol_commerce.permission_support_request_create_all'),
                 ref('sol_commerce.permission_support_request_edit_all'),
@@ -48,6 +50,7 @@
                 ref('sol_laboratory.permission_test_request_create_all'),
                 ref('sol_laboratory.permission_test_request_edit_all'),
                 ref('sol_laboratory.permission_sample_read_all'),
+                ref('sol_laboratory.permission_expected_sampling_read_all'),
                 ref('sol_laboratory.permission_sample_create_all'),
                 ref('sol_laboratory.permission_sample_edit_all'),
                 ref('sol_laboratory.permission_sample_test_read_all'),
@@ -64,6 +67,7 @@
                 ref('sol_commerce.permission_order_sample_edit_all'),
                 ref('sol_commerce.permission_order_sample_delete_all'),
                 ref('sol_commerce.permission_quotation_read_all'),
+                ref('sol_commerce.permission_quotation_sampling_read_all'),
                 ref('sol_commerce.permission_customer_sales_terms_read_all'),
                 ref('sol_commerce.permission_customer_sales_terms_create_all'),
                 ref('sol_commerce.permission_customer_sales_terms_edit_all'),
@@ -98,6 +102,7 @@
                 ref('sol_laboratory.permission_test_request_create_all'),
                 ref('sol_laboratory.permission_test_request_edit_all'),
                 ref('sol_laboratory.permission_sample_read_all'),
+                ref('sol_laboratory.permission_expected_sampling_read_all'),
                 ref('sol_laboratory.permission_sample_create_all'),
                 ref('sol_laboratory.permission_sample_edit_all'),
                 ref('sol_laboratory.permission_sample_test_read_all'),
@@ -115,6 +120,9 @@
                 ref('sol_laboratory.permission_handover_record_sample_delete_all'),
                 ref('sol_laboratory.permission_test_report_read_all'),
                 ref('sol_laboratory.permission_test_report_edit_all'),
+                ref('sol_laboratory.permission_test_report_draft_read_all'),
+                ref('sol_laboratory.permission_test_report_candidate_read_all'),
+                ref('sol_laboratory.permission_report_template_version_read_all'),
             ])]"
         />
     </record>
@@ -125,6 +133,7 @@
             name="permission_ids"
             eval="[Command.set([
                 ref('sol_laboratory.permission_sample_read_all'),
+                ref('sol_laboratory.permission_expected_sampling_read_all'),
                 ref('sol_laboratory.permission_sample_edit_all'),
                 ref('sol_laboratory.permission_sample_test_read_all'),
                 ref('sol_laboratory.permission_sample_handover_read_own_department'),
@@ -134,6 +143,10 @@
                 ref('sol_laboratory.permission_test_result_edit_all'),
                 ref('sol_laboratory.permission_test_result_sign_all'),
                 ref('sol_laboratory.permission_laboratory_folder_create_all'),
+                ref('sol_inventory.permission_container_edit_all'),
+                ref('sol_inventory.permission_preparation_create_all'),
+                ref('sol_inventory.permission_move_create_all'),
+                ref('sol_inventory.permission_stock_read_all'),
             ])]"
         />
     </record>
@@ -146,6 +159,7 @@
                 ref('sol_laboratory.permission_person_read_all'),
                 ref('sol_laboratory.permission_department_read_all'),
                 ref('sol_laboratory.permission_sample_read_all'),
+                ref('sol_laboratory.permission_expected_sampling_read_all'),
                 ref('sol_laboratory.permission_sample_edit_all'),
                 ref('sol_laboratory.permission_sample_test_read_all'),
                 ref('sol_laboratory.permission_sample_test_edit_all'),
@@ -180,10 +194,14 @@
                 ref('sol_laboratory.permission_customer_read_all'),
                 ref('sol_laboratory.permission_test_request_read_all'),
                 ref('sol_laboratory.permission_sample_read_all'),
+                ref('sol_laboratory.permission_expected_sampling_read_all'),
                 ref('sol_laboratory.permission_sample_test_read_all'),
                 ref('sol_laboratory.permission_test_result_read_all'),
                 ref('sol_laboratory.permission_test_report_read_all'),
                 ref('sol_laboratory.permission_test_report_sign_all'),
+                ref('sol_laboratory.permission_test_report_draft_read_all'),
+                ref('sol_laboratory.permission_test_report_candidate_read_all'),
+                ref('sol_laboratory.permission_report_template_version_read_all'),
                 ref('sol_laboratory.permission_change_request_read_all'),
                 ref('sol_laboratory.permission_change_request_sign_all'),
                 ref('sol_inventory.permission_purchase_order_read_all'),
@@ -227,6 +245,9 @@
                 ref('sol_inventory.permission_receipt_edit_all'),
                 ref('sol_inventory.permission_receipt_delete_all'),
                 ref('sol_inventory.permission_lot_edit_all'),
+                ref('sol_inventory.permission_move_read_all'),
+                ref('sol_inventory.permission_move_create_all'),
+                ref('sol_inventory.permission_stock_read_all'),
             ])]"
         />
     </record>

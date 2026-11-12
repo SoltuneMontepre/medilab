@@ -4,7 +4,14 @@ from typing import TYPE_CHECKING
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
-from odoo.addons.sol_laboratory.constants.laboratory_files import CONFLICT, EDITED_ONLINE, RESTORED, SYNCED, VERIFIED
+from odoo.addons.sol_laboratory.constants.laboratory_files import (
+    CONFLICT,
+    EDITED_ONLINE,
+    GENERATED,
+    RESTORED,
+    SYNCED,
+    VERIFIED,
+)
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_LABORATORY_CONTENT,
@@ -64,9 +71,15 @@ class LaboratoryFileVersion(models.Model, LaboratoryFileVersionBase):
         restored_from_id = fields.Many2one(
             MODEL_LABORATORY_FILE_VERSION, string="Restored From", ondelete="restrict", readonly=True
         )
-        # synced, conflict, restored or edited_online.
+        # synced, conflict, restored, edited_online or generated.
         source = fields.Selection(
-            [(SYNCED, "Synced"), (CONFLICT, "Conflict"), (RESTORED, "Restored"), (EDITED_ONLINE, "Edited Online")],
+            [
+                (SYNCED, "Synced"),
+                (CONFLICT, "Conflict"),
+                (RESTORED, "Restored"),
+                (EDITED_ONLINE, "Edited Online"),
+                (GENERATED, "Generated"),
+            ],
             required=True,
             readonly=True,
         )

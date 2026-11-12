@@ -37,6 +37,14 @@ class Tax(models.Model, TaxBase):
 
     def _rate_on(self, date):
         """Return the rate in percent in force on the date; refuse when no period covers it."""
+        return self._period_on(date).rate
+
+    def _account_tax_on(self, date, company):
+        """Return the company's Odoo sales tax for the rate in force on the date."""
+        return self._period_on(date)._account_tax(company)
+
+    def _period_on(self, date):
+        """Return the rate period in force on the date; refuse when no period covers it."""
         self.ensure_one()
         rate = self.env[MODEL_TAX_RATE].search(
             Domain("tax_id", "=", self.id)
@@ -48,4 +56,4 @@ class Tax(models.Model, TaxBase):
             raise UserError(
                 self.env._("%(tax)s has no rate on %(date)s.", tax=self.display_name, date=format_date(self.env, date))
             )
-        return rate.rate
+        return rate

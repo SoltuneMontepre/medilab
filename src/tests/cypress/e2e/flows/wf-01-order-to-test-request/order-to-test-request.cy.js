@@ -1,6 +1,6 @@
 import { choose, newRecord, openTab, pick, save, search } from "../../../support/form";
-import { call, callAs, callRefused, refAs, resolveRecord, signIn } from "../../../support/odoo";
-import { CUSTOMERS, clearCarts, declineQuotation, latestQuotation, orderAt, payAdvance, reviseQuotation } from "./setup";
+import { becomeVisitor, call, callAs, callRefused, refAs, resolveRecord, signIn } from "../../../support/odoo";
+import { CUSTOMERS, SAMPLING_LINES, clearCarts, declineQuotation, latestQuotation, orderAt, payAdvance, reviseQuotation } from "./setup";
 
 const REASON = "Giá xét nghiệm chì cao hơn báo giá năm trước.";
 
@@ -11,17 +11,30 @@ const readOrder =
   () =>
     cy.readRecord(order, fields);
 
-// Leaves the back office for a portal page, which sends no requests of its own, then signs out.
-function becomeVisitor() {
-  cy.visit("/catalog");
-  cy.clearCookies();
+// The expected samples a page shows inside `container`: one sample with its objects, expected samples and groups.
+function expectSampling(container, { objects, expected, groups }) {
+  cy.get(container)
+    .find(".o_medilab_expected_sampling")
+    .within(() => {
+      cy.get(".o_medilab_objects").should("have.text", String(objects));
+      cy.get(".o_medilab_expected").should("have.text", String(expected));
+      cy.get("tbody tr").should("have.length", groups);
+    });
 }
 
-// A visitor's first page and the requests it starts can each open a session; the forms need the one that stays.
-function visitCatalogAsVisitor() {
-  cy.visit("/catalog");
-  cy.getCookie("session_id").should("exist");
-  cy.visit("/catalog");
+// The laboratory's calendar day of a UTC datetime read from Odoo; the laboratory is in Vietnam (UTC+7).
+const laboratoryDay = (datetime) =>
+  new Date(Date.parse(`${datetime.replace(" ", "T")}Z`) + 7 * 3600000).toISOString().slice(0, 10);
+
+// The advance invoice of the order's latest quotation is due on the order's payment deadline.
+function expectAdvanceDueOnDeadline(order) {
+  cy.readRecord(order, ["payment_deadline"]).then(({ payment_deadline }) =>
+    latestQuotation(order.id).then(({ advance_invoice_id: [invoice] }) =>
+      call("account.move", "read", [[invoice], ["invoice_date_due"]]).then(([read]) =>
+        expect(read.invoice_date_due).to.equal(laboratoryDay(payment_deadline)),
+      ),
+    ),
+  );
 }
 
 describe("WF-01 Order to confirmed test request", () => {
@@ -80,6 +93,7 @@ describe("WF-01 Order to confirmed test request", () => {
         }).then((lines) =>
           lines.filter((line) => !line.is_downpayment).forEach((line) => expect(line.parameter_method_id).to.be.ok),
         );
+        expectAdvanceDueOnDeadline(order);
         latestQuotation(order.id).then((quotation) => {
           expect(quotation.status).to.equal("sent");
           const invoice = quotation.advance_invoice_id[0];
@@ -129,7 +143,7 @@ describe("WF-01 Order to confirmed test request", () => {
 
   it("TC-WF01-A2 lets a visitor who is not signed in submit a cart with their details", () => {
     const email = `visitor.${Date.now()}@example.com`;
-    visitCatalogAsVisitor();
+    becomeVisitor();
     cy.contains("tr", "Lead (Pb)").find("button[type=submit]").click();
     cy.get("form[action='/cart/submit'] input[name=name]").type("Lê Văn Khách");
     cy.get("form[action='/cart/submit'] input[name=email]").type(email);
@@ -221,6 +235,7 @@ describe("WF-01 Order to confirmed test request", () => {
       cy.contains(".o_datetime_picker button", "Áp dụng").click();
       save();
       cy.readRecord(order, ["quotation_follow_up"]).its("quotation_follow_up").should("eq", "unpaid");
+      expectAdvanceDueOnDeadline(order);
     });
   });
 
@@ -266,7 +281,7 @@ describe("WF-01 Order to confirmed test request", () => {
   });
 
   it("TC-WF01-E2 refuses a cart submitted without an e-mail address", () => {
-    visitCatalogAsVisitor();
+    becomeVisitor();
     cy.contains("tr", "Lead (Pb)").find("button[type=submit]").click();
     cy.get("form[action='/cart/submit'] input[name=email]").should("have.attr", "required");
     // The browser asks for the address first; the server refuses a form sent without it all the same.
@@ -376,6 +391,59 @@ describe("WF-01 feature acceptance criteria", () => {
         expect(message).to.contain("Organophosphates");
       });
       cy.readRecord(pesticides, ["active"]).its("active").should("eq", true);
+    });
+  });
+
+  it("TC-F06-01 lets sales give a line and the whole quotation a discount before sending it", () => {
+    orderAt("claimed").then((order) => {
+      cy.signInAs("sales");
+      cy.openRecord(order);
+      openTab("order_lines");
+      cy.get(".o_field_widget[name=product_line_ids] .o_data_row td[name=discount]").first().click();
+      cy.get(".o_selected_row .o_field_widget[name=discount] input").clear().type("10");
+      save();
+      cy.get("button[name=action_open_discount_wizard]:visible").click();
+      cy.get(".modal:visible").within(() => {
+        cy.get(".o_field_widget[name=discount_type] input[data-value=so_discount]").check();
+        cy.get(".o_field_widget[name=discount_percentage] input").clear().type("5");
+        cy.get("button[name=action_apply_discount]").click();
+      });
+      cy.get(".modal").should("not.exist");
+      cy.get(".o_field_widget[name=product_line_ids] .o_data_row").should("have.length", 2);
+      call("sale.order", "write", [[order.id], { advance_method: "bank_transfer", advance_mode: "percentage", advance_value: 30 }]);
+      cy.reload();
+      cy.sendRecord("action_send_quotation");
+      cy.get(".o_statusbar_buttons button[name=action_revise_quotation]:visible").should("exist");
+      cy.get("button[name=action_open_discount_wizard]:visible").should("not.exist");
+      cy.signInAs("customer");
+      cy.visit(`/orders/${order.id}/quotation`);
+      cy.contains("td", /^10(\.0+)?%$/).should("be.visible");
+      cy.contains("td", /(Discount|Chiết khấu) 5(\.0+)?%/).should("be.visible");
+    });
+  });
+
+  it("TC-F02-01 shows each quotation line's price and the VAT rate in force on the quotation date", () => {
+    const lineTaxes = () => cy.get(".o_field_widget[name=product_line_ids] .o_data_row td[name=tax_ids]").first();
+    orderAt("claimed").then((order) => {
+      cy.signInAs("sales");
+      call("sale.order", "write", [[order.id], { date_order: "2025-03-15 09:00:00" }]);
+      cy.openRecord(order);
+      openTab("order_lines");
+      cy.get(".o_field_widget[name=product_line_ids] .o_data_row").first().should("contain", "280.000");
+      lineTaxes().should("contain", "8%");
+      cy.get(".o_field_widget[name=tax_totals]").should("contain", "22.400").and("contain", "302.400");
+      call("sale.order", "write", [[order.id], { date_order: "2025-07-01 09:00:00" }]);
+      cy.reload();
+      openTab("order_lines");
+      lineTaxes().should("contain", "10%");
+      cy.get(".o_field_widget[name=tax_totals]").should("contain", "28.000").and("contain", "308.000");
+      call("sale.order", "write", [[order.id], { advance_method: "bank_transfer", advance_mode: "percentage", advance_value: 30 }]);
+      cy.reload();
+      cy.sendRecord("action_send_quotation");
+      cy.get(".o_statusbar_buttons button[name=action_revise_quotation]:visible").should("exist");
+      cy.signInAs("customer");
+      cy.visit(`/orders/${order.id}/quotation`);
+      cy.contains("tr", /(Total including VAT|Tổng đã gồm VAT)/).invoke("text").should("match", /308[.,]000/);
     });
   });
 
@@ -494,6 +562,23 @@ describe("WF-01 feature acceptance criteria", () => {
     });
   });
 
+  it("TC-F06-01 shows sales and the customer the expected samples: 3 objects in two groups make 6", () => {
+    orderAt("claimed", { lines: SAMPLING_LINES }).then((order) => {
+      cy.signInAs("sales");
+      cy.openRecord(order);
+      openTab("expected_samples");
+      expectSampling(".o_field_widget[name=expected_sampling_html]", { objects: 3, expected: 6, groups: 2 });
+      callAs("demo.sales", "sale.order", "write", [[order.id], { advance_method: "bank_transfer", advance_mode: "percentage", advance_value: 30 }]);
+      cy.reload();
+      cy.sendRecord("action_send_quotation");
+      cy.get(".o_statusbar_buttons button[name=action_revise_quotation]:visible").should("exist");
+
+      cy.signInAs("customer");
+      cy.visit(`/orders/${order.id}/quotation`);
+      expectSampling("main", { objects: 3, expected: 6, groups: 2 });
+    });
+  });
+
   it("TC-F06-02 keeps a sent quotation's lines unchanged until it is revised", () => {
     orderAt("sent").then((order) => {
       cy.signInAs("sales");
@@ -575,6 +660,23 @@ describe("WF-01 feature acceptance criteria", () => {
         callAs("demo.accountant", "account.payment", "search_read", [[["invoice_ids", "in", [invoice]]]], { fields: ["amount", "state"] }).should(
           (payments) => expect(payments.map((payment) => payment.amount)).to.deep.equal([10000]),
         );
+      });
+    });
+  });
+
+  it("TC-F10-01 carries the accepted quotation's expected samples to the test request", () => {
+    orderAt("confirmed", { lines: SAMPLING_LINES }).then((order) => {
+      callAs("demo.sales", "sale.order", "read", [[order.id], ["test_request_id"]]).then(([read]) => {
+        cy.signInAs("sample_delivery_staff");
+        cy.readRecord({ model: "medilab.test.request", id: read.test_request_id[0] }, ["sample_ids"]).then(({ sample_ids }) => {
+          expect(sample_ids, "samples of the request").to.have.length(1);
+          const sample = { model: "medilab.sample", id: sample_ids[0] };
+          cy.readRecord(sample, ["expected_sample_count"]).its("expected_sample_count").should("eq", 6);
+          cy.openRecord(sample);
+          openTab("expected_sampling");
+          cy.get(".o_field_widget[name=expected_sample_count]").should("contain", "6");
+          cy.get(".o_field_widget[name=expected_sampling_ids] .o_data_row").should("have.length", 2);
+        });
       });
     });
   });

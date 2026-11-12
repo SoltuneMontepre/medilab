@@ -15,6 +15,16 @@ spec:
               kubernetes.io/metadata.name: medilab
           podSelector:
             matchLabels:
+              app.kubernetes.io/name: cloudflared
+      ports:
+        - protocol: TCP
+          port: web
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: medilab
+          podSelector:
+            matchLabels:
               app.kubernetes.io/name: onlyoffice
       ports:
         - protocol: TCP

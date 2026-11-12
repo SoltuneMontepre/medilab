@@ -8,6 +8,8 @@
                 <field name="code" />
                 <field name="name" />
                 <field name="issuing_authority" />
+                <field name="valid_from" optional="show" />
+                <field name="valid_until" optional="show" />
                 <field name="sample_type_ids" widget="many2many_tags" />
             </list>
         </field>
@@ -20,6 +22,10 @@
             <form duplicate="0">
                 <sheet>
                     <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active" />
+                    <div class="alert alert-warning" role="alert" invisible="not missing_limits">
+                        No limit is set on these sample types, though the regulation limits the parameter on another type:
+                        <field name="missing_limits" class="fw-bold" />
+                    </div>
                     <div class="oe_title">
                         <label for="code" />
                         <h1><field name="code" /></h1>
@@ -28,9 +34,18 @@
                         <group>
                             <field name="name" />
                             <field name="issuing_authority" />
+                            <field name="valid_from" />
+                            <field name="valid_until" />
                         </group>
                         <group>
                             <field name="sample_type_ids" widget="many2many_tags" />
+                            <field
+                                name="add_sample_type_ids"
+                                widget="many2many_tags"
+                                domain="[('id', 'child_of', sample_type_ids)]"
+                                invisible="not sample_type_ids"
+                                placeholder="Sample types to add their offered parameters for"
+                            />
                         </group>
                     </group>
                     <notebook>
@@ -38,6 +53,7 @@
                             <field name="limit_ids">
                                 <list editable="bottom">
                                     <field name="parameter_id" />
+                                    <field name="sample_type_id" domain="[('id', 'child_of', parent.sample_type_ids)]" />
                                     <field name="min_set" />
                                     <field name="min_value" invisible="not min_set" />
                                     <field name="max_set" />

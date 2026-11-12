@@ -184,7 +184,7 @@ class Customer(models.Model, CustomerBase):
         merge._update_foreign_keys_generic(MODEL_CUSTOMER, duplicate, target)
         merge._update_reference_fields_generic(MODEL_CUSTOMER, duplicate, target)
         duplicate.unlink()
-        merge._merge((partner | target.partner_id).ids, target.partner_id)
+        merge._merge((partner | target.partner_id).ids, target.partner_id.sudo())
         # The merge moved the references in SQL, so nothing read before it is still true.
         self.env.invalidate_all()
         return {"type": "ir.actions.act_window", "res_model": MODEL_CUSTOMER, "res_id": target.id, "view_mode": "form"}

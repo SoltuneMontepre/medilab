@@ -10,7 +10,7 @@ from odoo import fields
 from odoo.tests import tagged
 
 from .laboratory_upload_case import LaboratoryUploadCase
-from odoo.addons.sol_laboratory.constants.laboratory_bucket import NAME_VARIABLE
+from odoo.addons.sol_laboratory.constants.laboratory_bucket import FILESTORE_PREFIX, NAME_VARIABLE
 from odoo.addons.sol_laboratory.constants.laboratory_reconciliation import MARKER_KEY, RECONCILE_JOB
 from odoo.addons.sol_laboratory.constants.laboratory_uploads import REFUSED, UPLOAD_EXPIRED, VERIFYING
 from odoo.addons.sol_laboratory.constants.models import (
@@ -89,6 +89,26 @@ class TestLaboratoryContentReconcile(LaboratoryUploadCase):
         self.reconcile()
 
         self.assertFalse(self.exists(key))
+
+    def filestore_key(self):
+        # Production keeps Odoo's filestore in the same bucket, under filestore/<database>/<store_fname>.
+        sha1 = hashlib.sha1(self.unique_bytes()).hexdigest()
+        return f"{FILESTORE_PREFIX}/{self.env.cr.dbname}/{sha1[:2]}/{sha1}"
+
+    def test_an_attachment_file_of_the_filestore_is_never_deleted(self):
+        key = self.filestore_key()
+        laboratory_bucket.write(key, iter([self.unique_bytes()]))
+
+        self.reconcile()
+
+        self.assertTrue(self.exists(key))
+
+    def test_a_multipart_upload_of_the_filestore_is_left_alone(self):
+        upload_id = laboratory_bucket.create_upload(self.filestore_key())
+
+        self.reconcile()
+
+        self.assertEqual([upload for _key, upload, _initiated in laboratory_bucket.multipart_uploads()], [upload_id])
 
     def test_the_objects_of_duplicate_and_failed_content_left_in_the_bucket_are_deleted(self):
         data = self.unique_bytes()

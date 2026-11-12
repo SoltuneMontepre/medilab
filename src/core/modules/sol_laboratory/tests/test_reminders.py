@@ -5,12 +5,12 @@ from freezegun import freeze_time
 
 from odoo.tests import tagged
 
+from .mobile_phones import push_token
 from .scheduling_case import MONDAY, SchedulingCase
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MAIL_MAIL,
     MODEL_MAIL_MESSAGE,
     MODEL_MAIL_MESSAGE_SUBTYPE,
-    MODEL_MOBILE_DEVICE,
     MODEL_NOTIFICATION_PREFERENCE,
     MODEL_PUSH_DELIVERY,
     MODEL_SCHEDULED_JOB,
@@ -42,7 +42,7 @@ class TestReminders(SchedulingCase):
         preferences.set_own(cls.event, CHANNEL_POPUP, False)
         preferences.set_own(cls.event, CHANNEL_EMAIL, True)
         preferences.set_own(cls.event, CHANNEL_PUSH, True)
-        cls.device = cls.env[MODEL_MOBILE_DEVICE].with_user(user).register_token("tester-phone", "android")
+        cls.device = push_token(cls.env, user, "tester-phone")
 
     def booked(self, test):
         self.testing_task(test, self.tester)
