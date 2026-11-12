@@ -16731,3 +16731,97 @@ msgstr "Bạn không được giao nhiệm vụ."
 #: code:addons/sol_laboratory/models/tasks/task_mobile.py:0
 msgid "You may not create tasks."
 msgstr "Bạn không được tạo nhiệm vụ."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_figure_list
+msgid "Average"
+msgstr "Trung bình"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_figure__booked_hours
+msgid "Booked Hours"
+msgstr "Số giờ đặt máy"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_testing_figure__kind__booking
+msgid "Booking"
+msgstr "Đặt máy"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_figure__on_time
+msgid "On Time (%)"
+msgstr "Đúng hạn (%)"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_figure__overdue
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_testing_figure__kind__overdue
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_figure_search
+msgid "Overdue"
+msgstr "Quá hạn"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_testing_figure_read_all
+msgid "Permission: testing.figure.read.all"
+msgstr "Quyền: testing.figure.read.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_testing_figure_read_own_department
+msgid "Permission: testing.figure.read.own_department"
+msgstr "Quyền: testing.figure.read.own_department"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_figure_read_all
+msgid "Read the testing figures"
+msgstr "Xem số liệu thử nghiệm"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_figure_read_own_department
+msgid "Read the testing figures of their department"
+msgstr "Xem số liệu thử nghiệm của phòng mình"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_figure__turnaround_days
+msgid "Receipt to Approval (Days)"
+msgstr "Từ nhận mẫu đến phê duyệt (ngày)"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_testing_figure__kind__retest
+msgid "Retest"
+msgstr "Thử nghiệm lại"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_figure__retests
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_figure_search
+msgid "Retests"
+msgstr "Số lần thử nghiệm lại"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_figure_period_form
+msgid "Show Figures"
+msgstr "Xem số liệu"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_testing_figure
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_testing_figure_period
+#: model:ir.model,name:sol_laboratory.model_medilab_testing_figure
+#: model:ir.ui.menu,name:sol_laboratory.menu_testing_figure
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_figure_graph
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_figure_pivot
+msgid "Testing Figures"
+msgstr "Số Liệu Thử Nghiệm"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/testing_figure_period.py:0
+msgid "Testing Figures %(date_from)s – %(date_to)s"
+msgstr "Số Liệu Thử Nghiệm %(date_from)s – %(date_to)s"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_testing_figure_period
+msgid "Testing Figures Period"
+msgstr "Kỳ Số Liệu Thử Nghiệm"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_figure_list
+msgid "Total"
+msgstr "Tổng"

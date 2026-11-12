@@ -157,6 +157,7 @@ Acceptance criteria:
 | Rule | Description |
 | --- | --- |
 | Department figures | For the chosen period show completed sample tests, the share completed on time, average receipt-to-approval time, overdue sample tests, retests and workload per person. The head sees their department; the Lab Head sees all departments. |
+| Measures | A sample test belongs to the department of its latest testing task. It is completed in the period its result is first approved, which a later correction or report rejection does not move, and on time when approved by its due date; the receipt-to-approval time runs from its sample's receipt. It is overdue when its due date is before the end of the period and it was neither approved nor cancelled by then. A retest is a result entered in the period for a sample test that already had one; a correction version is not. Workload per person is the bookings starting in the period and their booked hours. A share or average without completed tests stays empty. |
 
 Acceptance criteria:
 

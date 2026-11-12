@@ -97,8 +97,10 @@ class ResultCase(SchedulingCase):
             .create({"sample_test_id": test.id, "value": 0.008, **values})
         )
 
-    def send(self, result, person=None):
-        self.as_person(result, person or self.tester).action_sign()
+    @classmethod
+    def send(cls, result, person=None):
+        cls.as_person(result, person or cls.tester).action_sign()
 
-    def approve(self, result):
-        self.as_person(result, self.head).action_sign()
+    @classmethod
+    def approve(cls, result):
+        cls.as_person(result, cls.head).action_sign()
