@@ -7,7 +7,7 @@ The tester, also called lab QA, runs assigned tests with a machine when the way 
 ### Planning
 
 - **US-T01** As a tester, I want to see my testing tasks in my to-do list, soonest deadline first, and claim unassigned testing tasks of my department, so that I work on what is due first.
-- **US-T02** As a tester, I want to accept a booking of the agreed way of testing from my department's proposed plan, so that it finishes before its due date.
+- **US-T02** As a tester, I want to be notified when the head approves a booking of my task, so that I know when to test.
 - **US-T03** As a tester, I want to move or cancel my booking, so that my schedule matches what I can do.
 - **US-T04** As a tester, I want to be reminded before a booking starts, so that I am ready to start on time.
 - **US-T19** As a tester, I want to mark one of my tests urgent with a reason, so that a sample I know must come first is scheduled first even when its due date is not close.
@@ -70,7 +70,7 @@ Acceptance criteria:
 - Claiming a task assigns it to the tester; a second tester claiming it at the same time is told it is already claimed.
 - A tester cannot claim a task of another department.
 - A reminder arrives before the booking starts.
-- Accepting a booking checks that the tester, every required location and a machine when required are available; an unavailable room blocks a booking without a machine too.
+- Approving a booking checks that the tester, every required location and a machine when required are available; an unavailable room blocks a booking without a machine too.
 - A sample test whose sample its department has not received, that is held for the customer's agreement or that is cancelled cannot be booked.
 - Moving a booking moves the room bookings of its steps with it.
 - Marking a test urgent without a reason is refused; once marked, the plan places it before tests of lower priority classes, and the reason shows on the test.

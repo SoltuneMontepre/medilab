@@ -264,7 +264,7 @@ Notifications (US-C07, US-C18) repeats stories of Account and profile and of Tra
 
 | Use case | Part of | Stories | Source |
 | --- | --- | --- | --- |
-| Manage Work and Schedule |  |  | [Head of Department §1](../../functional/laboratory_module/features/head-of-department.md#1-work-and-schedule-us-hd01-to-us-hd05-us-hd12-us-hd14) |
+| Manage Work and Schedule |  |  | [Head of Department §1](../../functional/laboratory_module/features/head-of-department.md#1-work-and-schedule-us-hd01-to-us-hd05-us-hd12-us-hd14-us-hd19) |
 | View Department Queue | Manage Work and Schedule | US-HD01 |  |
 | Assign Testing Tasks | Manage Work and Schedule | US-HD02 |  |
 | View Department Schedules | Manage Work and Schedule | US-HD03 |  |
@@ -272,6 +272,7 @@ Notifications (US-C07, US-C18) repeats stories of Account and profile and of Tra
 | View Outsourcing Suggestions | Manage Work and Schedule | US-HD05 |  |
 | Approve Urgent Plan Revision | Manage Work and Schedule | US-HD12 |  |
 | View At-Risk Tests | Manage Work and Schedule | US-HD14 |  |
+| Approve Proposed Booking | Manage Work and Schedule | US-HD19 |  |
 | Manage Samples and Results |  |  | [Head of Department §2](../../functional/laboratory_module/features/head-of-department.md#2-samples-and-results-us-hd06-to-us-hd09) |
 | Receive Handed-Over Sample | Manage Samples and Results | US-HD06 |  |
 | Request Recollection | Manage Samples and Results | US-HD07 |  |
@@ -292,7 +293,7 @@ Notifications (US-C07, US-C18) repeats stories of Account and profile and of Tra
 | --- | --- | --- | --- |
 | Plan Testing Work |  |  | [Tester §1](../../functional/laboratory_module/features/tester.md#1-planning-us-t01-to-us-t04-us-t19-to-us-t21) |
 | View and Claim Testing Tasks | Plan Testing Work | US-T01 |  |
-| Accept Proposed Booking | Plan Testing Work | US-T02 |  |
+| Receive Booking Approval | Plan Testing Work | US-T02 |  |
 | Move or Cancel Booking | Plan Testing Work | US-T03 |  |
 | Mark Test Urgent | Plan Testing Work | US-T19 |  |
 | Check Machine Warnings | Plan Testing Work | US-T21 |  |

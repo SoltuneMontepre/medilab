@@ -17,7 +17,7 @@ Plan every received sample test of a department on the people, machines and room
 | Duration | The machine-and-method link gives the booking duration on that machine. It covers preparation, measurement and the time to repeat a failed measurement, set by the laboratory from experience. A way that needs no machine has its own duration and capacity, capacity 1 by default. Durations round up to 15-minute slots. |
 | No attempt counting | The system does not count or limit measurement attempts. A retest is a new result of the same sample test with a new booking. |
 | States | A booking is proposed, scheduled, in progress, done or cancelled. A proposed booking is a slot of the plan and reserves nothing; accepting it makes it scheduled, which reserves its tester, machine and locations. |
-| Accepting | Accepting a booking reserves its tester, machine and locations together, or nothing when any of them is taken meanwhile. |
+| Approving | Approving a booking reserves its tester, machine and locations together, or nothing when any of them is taken meanwhile. |
 | Eligibility | A sample test can be booked only once its sample is received by its department, is not held for the customer's agreement and is not cancelled. The tester must be on the Lab Head's authorization list for its parameter. |
 | Machine conditions | A machine booking needs valid calibration and cannot end after the machine's calibration validity. Planned maintenance reserves machine time; overdue maintenance blocks new bookings until completion. A machine under repair or retired gets no booking. |
 
@@ -33,7 +33,7 @@ A booking holds its machine until the tester enters its result or marks the meas
 
 ### Plan
 
-Each department has a proposed plan: the system places every received, not-started sample test of the department in a proposed booking with its required resources. The plan is recalculated when work arrives, a booking changes, a resource becomes unavailable or a customer date changes. Testers and heads accept proposed bookings to schedule them. Scheduled bookings move only through an approved plan revision.
+Each department has a proposed plan: the system places every received, not-started sample test of the department in a proposed booking with its required resources. The plan is recalculated when work arrives, a booking changes, a resource becomes unavailable or a customer date changes. Heads approve proposed bookings to schedule them; the tester is notified. Scheduled bookings move only through an approved plan revision.
 
 The plan places sample tests one at a time in priority order, each in the earliest interval where every required resource is free, so the same inputs always give the same plan and each placement can be explained. Pinned bookings are placed first, where the head put them.
 

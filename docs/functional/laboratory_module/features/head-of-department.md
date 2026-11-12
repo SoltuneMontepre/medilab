@@ -13,6 +13,7 @@ The head of department runs the testing work of one department: they assign its 
 - **US-HD05** As a head of department, I want to see the scheduler's outsourcing suggestions for tests that cannot finish in time in-house, so that they still meet their due date.
 - **US-HD12** As a head of department, I want urgent work to get the earliest feasible slot through a plan revision I approve for my department, moving bookings that have not started out of its way, so that a sample needed right away is tested right away.
 - **US-HD14** As a head of department, I want to see my department's tests at risk of missing their due date, so that I can move work, free capacity or outsource in time.
+- **US-HD19** As a head of department, I want to approve a feasible proposed booking of my department, so that it is reserved before its due date.
 
 ### Samples and results
 
@@ -42,7 +43,7 @@ The head of department runs the testing work of one department: they assign its 
 
 ## II. Feature details
 
-### 1. Work and schedule (US-HD01 to US-HD05, US-HD12, US-HD14)
+### 1. Work and schedule (US-HD01 to US-HD05, US-HD12, US-HD14, US-HD19)
 
 Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling), [Scheduling](../../../specs/scheduling.md) and [SH-11](../../shared.md#sh-11-schedules-and-reminders).
 
@@ -51,6 +52,7 @@ Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling
 | Queue | Testing tasks queue by department. The head assigns them or an authorized tester claims them; team membership does not create a separate testing queue. |
 | Assignment | The head assigns a sample's department tasks or one task to a person authorized by the Lab Head for each parameter. The department's plan proposes a booking for the agreed way. Reassignment to another person or department requires a reason. A head who moves a task to another department still reads it, but no longer changes it, so its form stays open, read-only. |
 | Adjusting | The head moves or cancels not-started bookings of the department. Changes synchronize its tester, machine when needed and required location reservations; cancelling returns its sample test to the plan without cancelling it. A booking the head places or moves by hand is pinned: plan revisions do not move it and report a conflict instead. |
+| Booking approval | The department's plan proposes a booking for each assigned or claimed task. When it is feasible before the due date, the head approves it; approving reserves its tester, machine when needed and required locations together and notifies the tester. Neither the tester nor the head reserves a proposed booking without this approval. |
 | Marking urgent      | The head can mark any test of the department urgent, stating why, or remove the mark, as the tester does ([US-T19](tester.md#1-planning-us-t01-to-us-t04-us-t19-to-us-t21)). |
 | Outsourcing | The scheduler suggests viable subcontracted ways with the same parameter and method when in-house resources cannot meet the due date. The head reviews them; outsourcing is internal and needs no customer agreement. |
 | Plan revisions | A recalculation that moves scheduled bookings, such as when urgent work needs a slot others hold, is a plan revision. It lists every moved booking with its new slot, internal due date and committed return date, and the head approves the moves in the department. A move whose planned finish passes its internal due date would miss a committed return date: it is held back, and its booking keeps its slot, until Sales records the customer's agreement to a new date; the other moves are recalculated without it and can be applied. A running booking is never moved. |
@@ -63,7 +65,8 @@ Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling
 Acceptance criteria:
 
 - A testing task in the department queue disappears from the queue once assigned, and appears in the assignee's to-do list.
-- Assigning a sample assigns all of its testing tasks in the department to the chosen person.
+- Assigning a sample assigns all of its testing tasks in the department to the chosen person, who is notified.
+- A proposed booking reserves nothing until the head approves it; approving it notifies its tester.
 - Reassigning a task to another person or department without a reason is refused; the reason is kept on the task.
 - A head of department sees the bookings of their department's people and machines, not those of other departments.
 - A test whose required in-house resources cannot meet its due date shows viable outsourcing alternatives; a way that needs no machine is checked against its tester and required locations.

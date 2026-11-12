@@ -129,17 +129,17 @@ flowchart TD
 ## WF-03 Testing assignment and scheduling
 
 - **Trigger:** a testing task enters the queue of its department.
-- **Result:** the test is assigned to an authorized person and booked in its agreed way, reserving required locations and a fit machine only when needed.
-- **Stories:** US-HD01, US-HD02, US-HD03, US-HD05, US-T01, US-T02, US-T04, US-T21.
+- **Result:** the test is assigned to an authorized person and booked in its agreed way once the head approves the booking, reserving required locations and a fit machine only when needed.
+- **Stories:** US-HD01, US-HD02, US-HD03, US-HD05, US-HD19, US-T01, US-T02, US-T04, US-T21.
 - **States:** sample test waiting → assigned → testing; booking proposed → scheduled → in progress → done, with machine reservations only when needed.
 - **Starts from:** received samples with selected ways and department tasks, authorized people and available required resources.
-- **Main path:** The head assigns an authorized tester, or that tester claims the task; the department's plan proposes a booking of the agreed way in priority order, the tester or head accepts it, and it receives a reminder. Lab Head's person-to-parameter authorization has no validity dates.
+- **Main path:** The head assigns an authorized tester, who is notified, or that tester claims the task; the department's plan proposes a booking of the agreed way in priority order; when it is feasible before the due date, the head approves it, the tester is notified, and it receives a reminder. Lab Head's person-to-parameter authorization has no validity dates.
 - **Alternative paths:**
   - WF-03-A1: A tester claims an unassigned task of their department instead of waiting to be assigned.
   - WF-03-A2: A booking reserves its tester and required rooms, plus a machine only if needed. Bookings whose ways use the same method share a machine for exactly the same interval, within the capacity of the machine-and-method link. A no-machine way supplies its own duration and capacity, default capacity 1.
   - WF-03-A3: The head records planned OverTime for a tester and an outside-hours interval with a reason, without a prerequisite HR overtime shift; the tester can then be booked in that interval.
 - **Exceptions:**
-  - WF-03-E1: The assigned tester cannot do the work; the head moves the task to another person or department with a reason, and an authorized person accepts the booking.
+  - WF-03-E1: The assigned tester cannot do the work; the head moves the task to another person or department with a reason, approves the proposed booking, and the new tester is notified.
   - WF-03-E2: No feasible slot for the agreed way meets the due date; the head reviews viable resources and date options. SF-07 handles the committed return date, and WF-05 handles outsourcing to a subcontractor with the same method.
 - **Acceptance criteria:** See [Tester](laboratory_module/features/tester.md), [Head of department](laboratory_module/features/head-of-department.md) and [SH-10](shared.md#sh-10-tasks-and-to-do-list). A second tester claiming the same task is told it is already claimed. Claiming another department's task or a parameter the tester is not authorized for is refused. Moving a task without a reason is refused. A schedule never silently changes the accepted way. Bookings share a machine only for the same method and interval, within its capacity. A sample test whose sample its department has not received cannot be booked.
 - **Paths in other flows:** WF-05 for outsourcing; SF-05 for machine disruption; SF-07 for result dates and internal due-date changes; SF-10 for urgency, moving or cancelling bookings, reminders and plan revisions.
@@ -148,26 +148,26 @@ flowchart TD
 flowchart TD
     subgraph lane8 ["Head of department"]
         h1[Assign an authorized person]
-        h4[Accept the proposed booking for the tester]
+        approve{Approve the proposed booking?}
         h2[Review risk and feasible alternatives]
         h3[Record planned OverTime with a reason]
     end
     subgraph lane9 ["Tester"]
         t1[Claim an authorized department task]
-        t2[View the proposed booking for the agreed way] --> t3{Feasible booking within capacity?}
-        t3 -->|yes| t4[Accept the proposed booking]
-        t5[Receive reminder and measure]
+        t2[View the proposed booking for the agreed way]
+        t4[Receive booking approval notification]
     end
-    queue([Department queue]) --> h1 --> t2
+    queue([Department queue]) --> h1 --> notify[Notify the assigned tester] --> t2
     queue --> t1 --> t2
-    t3 -->|yes, the head accepts| h4
-    t4 --> reserve[Reserve tester, required locations and machine if needed together]
-    h4 --> reserve --> t5
-    t3 -->|no| h2
+    t2 --> feasible{Feasible booking before the due date?}
+    feasible -->|yes| approve
+    feasible -->|no| h2
+    approve -->|yes| t4 --> reserve[Reserve tester, required locations and machine if needed together]
+    approve -->|no| h2
     h2 --> h3 --> t2
     h2 --> dates([SF-07 agrees a feasible customer date])
     h2 --> outsource([WF-05 outsources to a subcontractor with the same method])
-    t5 --> wf04([WF-04 Result entry and approval])
+    reserve --> remind[Remind the tester before the booking starts] --> wf04([WF-04 Result entry and approval])
 ```
 
 ## WF-04 Result entry and approval
@@ -703,7 +703,7 @@ flowchart TD
 - **Stories:** US-T03, US-T19, US-T20, US-HD04, US-HD09, US-HD12, US-HD14, SH-11.
 - **States:** booking proposed → scheduled → in progress → done, or cancelled; plan revision proposed → approved by each affected department → applied, with moves that would miss a committed date held back.
 - **Starts from:** proposed and scheduled bookings, including bookings sharing a machine interval and ways without machines, with authorized testers and required resources.
-- **Main path:** The plan places received, not-started work one at a time by priority class, urgent, due soon, then normal, then by committed return date and arrival, each in the earliest interval where its tester, machine when needed and required locations are free. An accepted booking keeps those reservations together, then progresses through testing and result entry.
+- **Main path:** The plan places received, not-started work one at a time by priority class, urgent, due soon, then normal, then by committed return date and arrival, each in the earliest interval where its tester, machine when needed and required locations are free. An approved booking keeps those reservations together, then progresses through testing and result entry.
 - **Alternative paths:**
   - SF-10-A1: A tester or head marks an eligible test urgent with a reason, or removes the mark; accepted priority also makes tests urgent.
   - SF-10-A2: The tester moves or cancels their not-started booking, or the head does so for the department, which pins it. Update all required reservations together; cancelling returns the sample test to the plan without cancelling it.
@@ -716,7 +716,7 @@ flowchart TD
   - SF-10-E3: A sample test whose planned finish is after its internal due date, that no free slot lets finish by then, or whose booking overran sends an initial risk notice and daily consolidated summaries to its tester and head until resolved. Sales notifies the customer only when the committed return date is affected or at risk. An overrunning booking keeps its machine and flags the next bookings on it; entering the result clears it.
   - SF-10-E4: Approved leave or a room-unavailable interval returns overlapping not-started bookings to the plan for head assignment or authorized claiming.
 - **Acceptance criteria:** See [Tester](laboratory_module/features/tester.md), [Head of department](laboratory_module/features/head-of-department.md) and [SH-11](shared.md#sh-11-schedules-and-reminders). Marking a test urgent without a reason is refused. A tester cannot mark another person's task urgent. Running bookings, and bookings the head moved by hand, are never moved by a plan revision. Replanning preserves the accepted way and the bookings sharing a machine interval.
-- **Paths in other flows:** WF-03 owns initial assignment and accepting bookings; SF-05 owns machine faults and service availability; WF-05 owns outsourcing; SF-07 owns changes to the committed return date and internal due dates.
+- **Paths in other flows:** WF-03 owns initial assignment and approving bookings; SF-05 owns machine faults and service availability; WF-05 owns outsourcing; SF-07 owns changes to the committed return date and internal due dates.
 
 ```mermaid
 flowchart TD
