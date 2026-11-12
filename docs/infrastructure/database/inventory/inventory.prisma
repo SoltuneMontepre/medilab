@@ -89,31 +89,8 @@ model TestResult {
   id    Int         @id @default(autoincrement())
   /// Stock used by the test, with its lots.
   moves StockMove[]
-  /// Containers scanned for the result, in the order they are used.
-  containers ResultContainer[]
 
   @@map("medilab_test_result")
-}
-
-/// A container scanned for a test result, in scan order. Not copied onto a new version of the result.
-model ResultContainer {
-  /// Row identifier.
-  id           Int            @id @default(autoincrement())
-  /// The result the container was scanned for.
-  result_id    Int
-  /// The container that was scanned.
-  container_id Int
-  /// Place in the scan order. An earlier container is used up before the next.
-  sequence     Int?
-  /// The result the container was scanned for.
-  result       TestResult     @relation(fields: [result_id], references: [id], onDelete: Cascade)
-  /// The container that was scanned.
-  container    StockContainer @relation(fields: [container_id], references: [id], onDelete: Restrict)
-
-  @@unique([result_id, container_id])
-  @@index([result_id])
-  @@index([container_id])
-  @@map("medilab_result_container")
 }
 
 /// Laboratory's machine service record, shown with the columns this module uses.
@@ -192,17 +169,11 @@ model StockItem {
   chemical_id                   Int?                @unique
   /// The unit stock of the item is counted in, such as mL, g or piece.
   uom_id                        Int
-  /// The Stock items category, whose costing method follows the costing setting; a stock item cannot leave it, while Odoo leaves the column optional for other products.
-  categ_id                      Int?
   /// True when lots of the item have an expiry date.
   use_expiration_date           Boolean             @default(false)
-  /// Days before expiry its lots are listed and notified as expiring soon: the expiry warning setting.
-  alert_time                    Int?
-  /// True when opening a container limits its life to the shelf life after opening; false when opening does not shorten it.
-  use_shelf_life_after_opening  Boolean             @default(false)
-  /// Days an opened container stays usable after the day it is opened; 0 when it is used on that day only.
+  /// Days an opened container stays usable; 0 when opening does not shorten its life.
   shelf_life_after_opening_days Int?
-  /// True when each lot keeps its own cost: an item tracked by container or lot under first in, first out, so a container costs its lot's price.
+  /// True when each lot keeps its own cost, so first in, first out costs a container at its lot's price.
   lot_valuated                  Boolean             @default(false)
   /// Cost of one unit of the item's stock, kept by Odoo's costing method; the average cost under moving average.
   standard_price                Decimal?            @db.Decimal
@@ -212,8 +183,6 @@ model StockItem {
   chemical                      Chemical?           @relation(fields: [chemical_id], references: [id], onDelete: Restrict)
   /// The unit stock is counted in.
   uom                           MeasurementUnit     @relation(fields: [uom_id], references: [id], onDelete: Restrict)
-  /// The product category of the item.
-  category                      ProductCategory?    @relation(fields: [categ_id], references: [id], onDelete: SetNull)
   /// Lots of the item.
   lots                          StockLot[]
   /// The minimum quantity of the item in each store.
@@ -228,8 +197,6 @@ model StockItem {
   moves                         StockMove[]
   /// Methods that use the item per test.
   consumptions                  MethodConsumption[]
-  /// Containers that hold the item, including ones whose quantity has reached zero.
-  containers                    StockContainer[]
   /// Suppliers that sell the item.
   suppliers                     SupplierItem[]
   /// Purchase order lines of the item.
@@ -239,22 +206,6 @@ model StockItem {
 
   @@index([item_kind])
   @@map("product_product")
-}
-
-/// Odoo's product category (product.category), shown with the columns this module uses: the Stock items category every stock item is in. Odoo only values the stock: its valuation is periodic and never closed, so moves post no journal entries.
-model ProductCategory {
-  /// Row identifier.
-  id                   Int         @id @default(autoincrement())
-  /// Category name in each language.
-  name                 Json
-  /// Odoo's costing method per company: fifo or average, from the costing setting.
-  property_cost_method Json?
-  /// Odoo's inventory valuation per company: periodic, so no journal entries are posted.
-  property_valuation   Json?
-  /// Stock items in the category.
-  stock_items          StockItem[]
-
-  @@map("product_category")
 }
 
 /// Odoo's reordering rule (stock.warehouse.orderpoint), shown with the columns this module uses: the quantity of an item in a store below which a warning is raised and a purchase is suggested.
@@ -271,16 +222,10 @@ model Orderpoint {
   product_max_qty Decimal       @db.Decimal
   /// The company the rule belongs to.
   company_id      Int
-  /// manual: a purchase is suggested on the Replenishment screen and ordered by a person; Odoo's auto orders it by itself.
-  trigger         String        @db.VarChar
-  /// The vendor price a suggested purchase uses, from an active supplier.
-  supplier_id     Int?
   /// The item.
   item            StockItem     @relation(fields: [product_id], references: [id], onDelete: Cascade)
   /// The store the minimum applies to.
   location        StockLocation @relation(fields: [location_id], references: [id], onDelete: Cascade)
-  /// The vendor price a suggested purchase uses.
-  supplier        SupplierItem? @relation(fields: [supplier_id], references: [id], onDelete: SetNull)
 
   @@unique([product_id, location_id, company_id])
   @@map("stock_warehouse_orderpoint")
@@ -361,20 +306,16 @@ model StockLot {
   expiration_date DateTime?
   /// When the lot is listed as expiring soon: the expiry date less the days of the expiry warning.
   alert_date      DateTime?
-  /// True once the lot reached its alert date; MediLab notifies the stores holding it, so Odoo schedules no activity of its own.
-  product_expiry_reminded Boolean @default(false)
-  /// available, expired once a scheduled job finds its expiry date passed, or disposed once nothing of it is left. An expired lot cannot be used.
+  /// available, expired or disposed. An expired lot cannot be used.
   status          String           @db.VarChar
-  /// Cost of one unit per company, for an item whose lots keep their own cost: its receipt price, or a prepared solution's cost.
-  standard_price  Json?
+  /// Purchase price of one unit, excluding VAT, from its receipt, for an item whose lots keep their own cost.
+  standard_price  Decimal?         @db.Decimal
   /// The manufacturer's certificate that came with the lot, an Odoo attachment; not a result the laboratory issues.
   certificate_id  Int?
   /// The item.
   item            StockItem        @relation(fields: [product_id], references: [id], onDelete: Restrict)
   /// Stock of the lot per location and container.
   quants          StockQuant[]
-  /// Containers of the lot, including ones whose quantity has reached zero.
-  containers      StockContainer[]
   /// Move lines of the lot.
   move_lines      StockMoveLine[]
   /// Stock take lines of the lot.
@@ -393,28 +334,18 @@ model StockContainer {
   name           String         @unique @db.VarChar
   /// The location the container is in.
   location_id    Int?
-  /// The item in the container. Kept when the quantity reaches zero and Odoo removes the quant.
-  item_id        Int?
-  /// The lot in the container. Kept when the quantity reaches zero and Odoo removes the quant.
-  lot_id         Int?
   /// sealed, opened, depleted, disposed or missing.
   status         String         @db.VarChar
   /// When the container was opened or prepared.
   opened_at      DateTime?
   /// The Odoo user who opened or prepared the container.
   opened_by_id   Int?
-  /// How an opening the storekeeper recorded came about, such as a bottle opened outside the rules.
-  opening_note   String?        @db.VarChar
-  /// Last day the container can be used: its lot's expiry date while sealed, then the earlier of that and its opening date plus the item's shelf life after opening when the item uses one; for a solution, the earlier of its preparation date plus the recipe's shelf life and the usable dates of what it was made from.
+  /// Last day the container can be used: its lot's expiry date while sealed, then the earlier of that and its opening date plus the item's shelf life after opening; for a solution, the earlier of its preparation date plus the recipe's shelf life and the usable dates of what it was made from.
   usable_until   DateTime?      @db.Date
   /// The preparation that made the solution.
   preparation_id Int?           @unique
   /// The location the container is in.
   location       StockLocation? @relation(fields: [location_id], references: [id], onDelete: Restrict)
-  /// The item in the container.
-  item           StockItem?     @relation(fields: [item_id], references: [id], onDelete: Restrict)
-  /// The lot in the container.
-  lot            StockLot?      @relation(fields: [lot_id], references: [id], onDelete: Restrict)
   /// The preparation that made the solution.
   preparation    Preparation?   @relation("PreparationOutput", fields: [preparation_id], references: [id], onDelete: Restrict)
   /// The stock in the container.
@@ -425,8 +356,6 @@ model StockContainer {
   result_lines   StockMoveLine[] @relation("MoveLineToContainer")
   /// Stock take lines of the container.
   take_lines     StockTakeLine[]
-  /// Results that scanned this container.
-  result_scans   ResultContainer[]
 
   @@index([location_id, status])
   @@index([status, usable_until])
@@ -467,25 +396,25 @@ model StockQuant {
 /// Who made it and when are Odoo's creation fields. An issue or transfer is done when the receiving side confirms receipt; stock on hand follows done moves. Its lots and containers are on its move lines.
 model StockMove {
   /// Row identifier.
-  id                         Int                    @id @default(autoincrement())
-  /// receipt, preparation, consumption, waste, adjustment, relocation or disposal, from what the move does; empty for any other move.
-  move_kind                  String?                @db.VarChar
+  id                         Int                @id @default(autoincrement())
+  /// receipt, issue, transfer, relocation, preparation, consumption, waste, disposal or adjustment.
+  move_kind                  String             @db.VarChar
   /// The item moved.
   product_id                 Int
   /// Quantity asked for, in the item's unit.
-  product_uom_qty            Decimal                @db.Decimal
+  product_uom_qty            Decimal            @db.Decimal
   /// Quantity moved, in the item's unit.
-  quantity                   Decimal                @db.Decimal
+  quantity                   Decimal            @db.Decimal
   /// Location the stock leaves: a supplier location for a receipt.
   location_id                Int
-  /// Location the stock enters: the company's Production location for a use, its scrap location for waste and disposal.
+  /// Location the stock enters: Odoo's consumption location for a use, its scrap location for waste and disposal.
   location_dest_id           Int
   /// draft, waiting, confirmed, assigned, done or cancel.
-  state                      String                 @db.VarChar
+  state                      String             @db.VarChar
   /// True for a stock take correction.
-  is_inventory               Boolean                @default(false)
-  /// True for waste and disposal; a disposal carries the scrap reason Expired.
-  is_scrap                   Boolean                @default(false)
+  is_inventory               Boolean            @default(false)
+  /// True for waste and disposal.
+  is_scrap                   Boolean            @default(false)
   /// The requisition, transfer or receipt the move belongs to.
   picking_id                 Int?
   /// The purchase order line the stock came in on.
@@ -499,72 +428,41 @@ model StockMove {
   /// When the move was done; empty while issued stock is in transit.
   date                       DateTime?
   /// True when the system made the move from the method's usual use, rather than a person.
-  automatic                  Boolean                @default(false)
-  /// Why the move was made, such as a calibration, cleaning, a move into a fridge or a correction.
-  reason                     String?                @db.VarChar
-  /// Unit price a receipt without a purchase order or a prepared solution comes in at; other moves take their cost from Odoo's costing.
-  price_unit                 Float?
-  /// Value of the move from Odoo's costing, kept when the costing method changes; its unit cost is the value divided by the quantity.
-  value                      Decimal?               @db.Decimal
+  automatic                  Boolean            @default(false)
+  /// Why the move was made, such as a calibration, cleaning or a spill.
+  reason                     String?            @db.Text
+  /// Cost of one unit moved, from the costing method when the move was done.
+  price_unit                 Decimal?           @db.Decimal
+  /// Value of the move, from Odoo's costing.
+  value                      Decimal?           @db.Decimal
+  /// Quantity of an incoming move not yet used up; first in, first out takes stock from the oldest first.
+  remaining_qty              Decimal?           @db.Decimal
   /// The item moved.
-  item                       StockItem              @relation(fields: [product_id], references: [id], onDelete: Restrict)
+  item                       StockItem          @relation(fields: [product_id], references: [id], onDelete: Restrict)
   /// Location the stock leaves.
-  from_location              StockLocation          @relation("MoveFrom", fields: [location_id], references: [id], onDelete: Restrict)
+  from_location              StockLocation      @relation("MoveFrom", fields: [location_id], references: [id], onDelete: Restrict)
   /// Location the stock enters.
-  to_location                StockLocation          @relation("MoveTo", fields: [location_dest_id], references: [id], onDelete: Restrict)
+  to_location                StockLocation      @relation("MoveTo", fields: [location_dest_id], references: [id], onDelete: Restrict)
   /// The requisition, transfer or receipt the move belongs to.
-  picking                    Picking?               @relation(fields: [picking_id], references: [id], onDelete: Restrict)
+  picking                    Picking?           @relation(fields: [picking_id], references: [id], onDelete: Restrict)
   /// The purchase order line the stock came in on.
-  purchase_line              PurchaseOrderLine?     @relation(fields: [purchase_line_id], references: [id], onDelete: Restrict)
+  purchase_line              PurchaseOrderLine? @relation(fields: [purchase_line_id], references: [id], onDelete: Restrict)
   /// The preparation the move belongs to.
-  preparation                Preparation?           @relation("PreparationInput", fields: [preparation_id], references: [id], onDelete: Restrict)
+  preparation                Preparation?       @relation("PreparationInput", fields: [preparation_id], references: [id], onDelete: Restrict)
   /// The test result the stock was used for.
-  test_result                TestResult?            @relation(fields: [test_result_id], references: [id], onDelete: Restrict)
+  test_result                TestResult?        @relation(fields: [test_result_id], references: [id], onDelete: Restrict)
   /// The machine service the spare part was used in.
-  machine_service            MachineService?        @relation(fields: [machine_service_id], references: [id], onDelete: Restrict)
+  machine_service            MachineService?    @relation(fields: [machine_service_id], references: [id], onDelete: Restrict)
   /// The lots and containers moved.
   lines                      StockMoveLine[]
   /// Charges the move made to cost centres.
   charges                    StockCharge[]
   /// The stock take line the correction came from.
   take_line                  StockTakeLine?
-  /// Why a waste or disposal was made.
-  scrap_reasons              StockMoveScrapReason[]
 
   @@index([product_id])
   @@index([test_result_id])
-  @@index([preparation_id])
-  @@index([move_kind])
   @@map("stock_move")
-}
-
-/// Odoo's scrap reason (stock.scrap.reason.tag), shown with the columns this module uses: why stock was wasted, such as dropped, spilled or Other, or Expired for a disposal. Unique on name. A reason a move names, and Expired, cannot be deleted.
-model ScrapReason {
-  /// Row identifier.
-  id       Int                    @id @default(autoincrement())
-  /// Reason name in each language.
-  name     Json
-  /// Order in the list of reasons.
-  sequence Int?
-  /// Moves made for this reason.
-  moves    StockMoveScrapReason[]
-
-  @@map("stock_scrap_reason_tag")
-}
-
-/// Odoo's link between a waste or disposal move and its scrap reasons.
-model StockMoveScrapReason {
-  /// The move.
-  stock_move_id             Int
-  /// A reason of the move.
-  stock_scrap_reason_tag_id Int
-  /// The move.
-  move                      StockMove   @relation(fields: [stock_move_id], references: [id], onDelete: Cascade)
-  /// The reason.
-  reason                    ScrapReason @relation(fields: [stock_scrap_reason_tag_id], references: [id], onDelete: Cascade)
-
-  @@id([stock_move_id, stock_scrap_reason_tag_id])
-  @@map("stock_move_stock_scrap_reason_tag_rel")
 }
 
 /// Odoo's move line (stock.move.line), shown with the columns this module uses and the columns it adds: the part of a move from one lot and container, or into one.
@@ -810,21 +708,19 @@ model MethodConsumption {
 /// Odoo's vendor price (product.supplierinfo), shown with the columns this module uses: an item a supplier sells, with the supplier's own reference and last price. Unique on (partner_id, product_id).
 model SupplierItem {
   /// Row identifier.
-  id           Int          @id @default(autoincrement())
+  id           Int        @id @default(autoincrement())
   /// The supplier.
   partner_id   Int
   /// The item.
   product_id   Int?
   /// The supplier's reference for the item.
-  product_code String?      @db.VarChar
+  product_code String?    @db.VarChar
   /// Last price paid for one unit, excluding VAT.
-  price        Decimal?     @db.Decimal
+  price        Decimal?   @db.Decimal
   /// The supplier.
-  supplier     Contact      @relation(fields: [partner_id], references: [id], onDelete: Cascade)
+  supplier     Contact    @relation(fields: [partner_id], references: [id], onDelete: Cascade)
   /// The item.
-  item         StockItem?   @relation(fields: [product_id], references: [id], onDelete: SetNull)
-  /// Minimum quantities whose suggested purchase uses this price.
-  minimums     Orderpoint[]
+  item         StockItem? @relation(fields: [product_id], references: [id], onDelete: SetNull)
 
   @@unique([partner_id, product_id])
   @@index([product_id])
