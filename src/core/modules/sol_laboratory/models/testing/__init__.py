@@ -3,6 +3,8 @@ from . import (
     change_request_raise,
     change_request_reject,
     machine_booking,
+    machine_booking_overtime,
+    overtime,
     report_template,
     report_template_version,
     res_config_settings,

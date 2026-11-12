@@ -504,6 +504,8 @@ model Department {
   revision_moves    PlanRevisionMove[]
   /// Locations the department uses.
   locations         Location[]
+  /// Planned OverTime of the department's testers.
+  overtimes         OverTime[]
 
   @@index([parent_id])
   @@map("hr_department")
@@ -1412,23 +1414,28 @@ model ParameterAuthorization {
   @@map("medilab_parameter_authorization")
 }
 
-/// Planned work outside normal hours that the head of department records for a tester, with an interval and a reason. The tester can be booked in it; machines and locations keep their own availability. The scheduler never creates, moves or changes it, and actual hours and payroll are not recorded. Who recorded it is Odoo's creation user.
-/// ends_at is after starts_at (check constraint).
+/// Planned work outside normal hours that the head of department records for a tester of their department, with an interval and a reason. The tester can be booked in it; machines and locations keep their own availability. The scheduler never creates, moves or changes it, and actual hours and payroll are not recorded. Who recorded it is Odoo's creation user.
+/// ends_at is after starts_at (check constraint). One person's OverTime intervals do not overlap (exclusion constraint on person_id and tsrange(starts_at, ends_at)).
 model OverTime {
   /// Row identifier.
-  id        Int      @id @default(autoincrement())
+  id            Int         @id @default(autoincrement())
   /// The tester who works the OverTime.
-  person_id Int
+  person_id     Int
+  /// The tester's department, whose head records and changes the OverTime.
+  department_id Int?
   /// Start of the OverTime.
-  starts_at DateTime
+  starts_at     DateTime
   /// End of the OverTime.
-  ends_at   DateTime
+  ends_at       DateTime
   /// Why the OverTime is planned, such as urgent work that would otherwise miss its due date.
-  reason    String   @db.Text
+  reason        String      @db.Text
   /// The tester who works the OverTime.
-  person    Person   @relation(fields: [person_id], references: [id], onDelete: Restrict)
+  person        Person      @relation(fields: [person_id], references: [id], onDelete: Restrict)
+  /// The tester's department.
+  department    Department? @relation(fields: [department_id], references: [id], onDelete: SetNull)
 
   @@index([person_id, starts_at])
+  @@index([department_id])
   @@map("medilab_overtime")
 }
 

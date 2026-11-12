@@ -495,6 +495,50 @@
         <field name="action">edit</field>
         <field name="scope">own_department</field>
     </record>
+    <record id="permission_overtime_read_all" model="medilab.permission">
+        <field name="name">Read OverTime</field>
+        <field name="document_model">medilab.overtime</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_overtime_create_all" model="medilab.permission">
+        <field name="name">Create OverTime</field>
+        <field name="document_model">medilab.overtime</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_overtime_edit_all" model="medilab.permission">
+        <field name="name">Edit OverTime</field>
+        <field name="document_model">medilab.overtime</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_overtime_delete_all" model="medilab.permission">
+        <field name="name">Delete OverTime</field>
+        <field name="document_model">medilab.overtime</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_overtime_read_own_department" model="medilab.permission">
+        <field name="name">Read OverTime of their department</field>
+        <field name="document_model">medilab.overtime</field>
+        <field name="action">read</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_overtime_create_own_department" model="medilab.permission">
+        <field name="name">Create OverTime of their department</field>
+        <field name="document_model">medilab.overtime</field>
+        <field name="action">create</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_overtime_edit_own_department" model="medilab.permission">
+        <field name="name">Edit OverTime of their department</field>
+        <field name="document_model">medilab.overtime</field>
+        <field name="action">edit</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_overtime_delete_own_department" model="medilab.permission">
+        <field name="name">Delete OverTime of their department</field>
+        <field name="document_model">medilab.overtime</field>
+        <field name="action">delete</field>
+        <field name="scope">own_department</field>
+    </record>
     <record id="permission_chemical_create_all" model="medilab.permission">
         <field name="name">Create chemicals</field>
         <field name="document_model">medilab.chemical</field>
