@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from freezegun import freeze_time
 from psycopg2 import IntegrityError
@@ -8,6 +8,7 @@ from odoo.fields import Command
 from odoo.tests import tagged
 from odoo.tools import mute_logger
 
+from .assertions import assert_instance
 from .location_case import LocationCase
 from .schedule_invariants_case import ScheduleInvariantsCase
 from .scheduling_case import MONDAY
@@ -100,7 +101,7 @@ class TestSharedIntervals(ScheduleInvariantsCase, LocationCase):
 
         [(machine, start, _end)] = self.interval(waiting)
         self.assertEqual(machine, self.icp_ms)
-        self.assertGreaterEqual(start, MONDAY + LOAD)
+        self.assertGreaterEqual(assert_instance(start, datetime), MONDAY + LOAD)
 
     def test_several_parameters_of_one_sample_take_one_place(self):
         self.metals.capacity = 1
@@ -110,7 +111,7 @@ class TestSharedIntervals(ScheduleInvariantsCase, LocationCase):
         waiting = self.queue(self.lead(second))
 
         self.assertEqual(self.interval(load), {(self.icp_ms, MONDAY, MONDAY + LOAD)})
-        self.assertGreaterEqual(waiting.starts_at, MONDAY + LOAD)
+        self.assertGreaterEqual(assert_instance(waiting.starts_at, datetime), MONDAY + LOAD)
         with self.assertRaisesRegex(ValidationError, "is full"), self.env.cr.savepoint():
             waiting._set({"starts_at": MONDAY, "ends_at": MONDAY + LOAD})
 
@@ -134,7 +135,7 @@ class TestSharedIntervals(ScheduleInvariantsCase, LocationCase):
 
         self.assertEqual(lead.starts_at, MONDAY)
         self.assertEqual(booking.machine_id, self.icp_ms)
-        self.assertGreaterEqual(booking.starts_at, lead.ends_at)
+        self.assertGreaterEqual(assert_instance(booking.starts_at, datetime), assert_instance(lead.ends_at, datetime))
         with self.assertRaises(IntegrityError), mute_logger("odoo.sql_db"), self.env.cr.savepoint():
             booking._set({"starts_at": lead.starts_at, "ends_at": lead.ends_at})
             self.env.flush_all()
@@ -147,11 +148,15 @@ class TestSharedIntervals(ScheduleInvariantsCase, LocationCase):
         with self.subTest(started="by the tester"), self.rolled_back():
             running._set({"status": "in_progress"})
             late = self.queue(self.lead(second))
-            self.assertGreaterEqual(late.starts_at, running.ends_at)
+            self.assertGreaterEqual(
+                assert_instance(late.starts_at, datetime), assert_instance(running.ends_at, datetime)
+            )
 
         with self.subTest(started="at its start time"), freeze_time(MONDAY + SLOT), self.rolled_back():
             late = self.queue(self.lead(third))
-            self.assertGreaterEqual(late.starts_at, running.ends_at)
+            self.assertGreaterEqual(
+                assert_instance(late.starts_at, datetime), assert_instance(running.ends_at, datetime)
+            )
             with self.assertRaisesRegex(ValidationError, "has started"), self.env.cr.savepoint():
                 late._set({"starts_at": running.starts_at, "ends_at": running.ends_at})
 

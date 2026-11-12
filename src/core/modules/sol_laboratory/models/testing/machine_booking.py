@@ -189,7 +189,7 @@ class MachineBooking(models.Model, MachineBookingBase):
             )
         for booking in placed:
             sharing = booking._sharing().filtered(lambda other: other.status in ACTIVE_STATUSES)
-            if not sharing:
+            if not sharing or not booking.starts_at:
                 continue
             if booking.starts_at <= now or "in_progress" in sharing.mapped("status"):
                 raise ValidationError(self.env._("%s cannot join an interval that has started.", booking.display_name))
@@ -586,15 +586,18 @@ class MachineBooking(models.Model, MachineBookingBase):
             ["starts_at", "ends_at", "status", "machine_id", "method_id", "person_id", "sample_test_id"],
             order="starts_at",
         )
+        spans = [
+            (booking, booking.starts_at, booking.ends_at) for booking in busy if booking.starts_at and booking.ends_at
+        ]
         capacity = self._capacity(machine, way) if way else 0
 
-        def shares(booking, start):
-            # The new booking can join the booking's interval at start.
+        def shares(booking, booking_start, booking_end, start):
+            # The new booking can join the booking's interval when it starts at start.
             return bool(
                 way
                 and booking.status == "scheduled"
                 and start > now
-                and (booking.starts_at, booking.ends_at) == (start, start + length)
+                and (booking_start, booking_end) == (start, start + length)
                 and booking.method_id == way.method_id
                 and (
                     booking.machine_id == machine
@@ -615,17 +618,19 @@ class MachineBooking(models.Model, MachineBookingBase):
                 if start + rooms_end > not_after:
                     return None
                 end = start + length
-                overlapping = busy.filtered(lambda b, start=start, end=end: b.starts_at < end and b.ends_at > start)
-                joined = overlapping.filtered(lambda b, start=start: shares(b, start))
-                blocking = overlapping - joined
+                overlapping = [span for span in spans if span[1] < end and span[2] > start]
+                joined = busy.browse([span[0].id for span in overlapping if shares(*span, start)])
+                blocking = [span for span in overlapping if span[0] not in joined]
                 if joined and len(joined.sample_test_id.sample_id | sample) > capacity:
                     blocking = overlapping
                 if blocking:
                     # Try next where a later interval can be joined or where a blocking booking ends.
                     start = _round_up(
                         min(
-                            b.starts_at if b.starts_at > start and shares(b, b.starts_at) else b.ends_at
-                            for b in blocking
+                            span_start
+                            if span_start > start and shares(booking, span_start, span_end, span_start)
+                            else span_end
+                            for booking, span_start, span_end in blocking
                         )
                     )
                     continue
