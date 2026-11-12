@@ -506,6 +506,7 @@ flowchart TD
     keep -->|yes| retained[Retained until report date plus retention days] --> t1 --> t2
     t1 -->|customer asks for it back| d1 --> returned(["Sample returned"])
     keep -->|no| t2
+    cancelled([Test request cancelled: SF-02 Order cancellation]) --> t2
     t2 --> t3 --> done(["Sample disposed; cannot be undone"])
 ```
 
@@ -546,6 +547,7 @@ flowchart TD
     q --> other{Machine linked to the same method?}
     other -->|yes| t1
     other -->|no| h2 --> wait[Stay unplaced; Sales handles customer impact]
+    serviced([Repair, maintenance or calibration done]) --> a2
     a2 --> fit{All booking conditions satisfied?}
     fit -->|yes| available[Machine can be booked]
     fit -->|no| blocked[No new booking until every condition is satisfied] --> a2
@@ -748,7 +750,7 @@ flowchart TD
         h5[Free capacity with OverTime or another machine]
     end
     q([Received, not-started work]) --> slot[Place by priority class, committed date and arrival]
-    slot --> schedule[Accept: reserve tester, required locations and machine if needed]
+    slot -->|free slot| schedule[On the head's approval: reserve tester, required locations and machine if needed]
     schedule --> t1
     t2 --> done([Booking and result progress under their lifecycles])
     t3 --> sync[Update all reservations and reminders] --> slot
@@ -774,7 +776,7 @@ flowchart TD
 - **Stories:** US-HD15, US-T28, US-T29, US-AD29, US-AD30, US-AD31.
 - **States:** folder in use → turned off → in use, or archived; device signed in → revoked; lock active → released or expired.
 - **Starts from:** samples without folders, folders with members and bound computers, and active or abandoned locks.
-- **Main path:** The head of department creates a sample's raw-data and result folders, and the owner adds testers as members. Testers bind their authorized folders in Medilab Sync.
+- **Main path:** The head of department creates a sample's raw-data and result folders and, as their owner, adds testers as members. Testers bind their authorized folders in Medilab Sync.
 - **Alternative paths:**
   - SF-11-A1: A folder owner adds or removes members under the folder permissions.
   - SF-11-A2: A tester signs in on another authorized computer and binds their folders.
@@ -789,10 +791,10 @@ flowchart TD
 ```mermaid
 flowchart TD
     subgraph lane70 ["Head of department"]
-        h1[Create sample raw-data and result folders]
+        h1[Create sample raw-data and result folders] --> h2[Add testers as folder members]
     end
     subgraph lane71 ["Tester"]
-        t1["[folder owner] Add folder members"] --> t2[Bind authorized folders in Medilab Sync]
+        t2[Bind authorized folders in Medilab Sync]
         t3[Browse and download permitted files]
     end
     subgraph lane72 ["Administrator"]
@@ -801,7 +803,7 @@ flowchart TD
         a3[Turn a folder off or restore its availability]
         a4[Archive a folder]
     end
-    h1 --> t1
+    h2 --> t2
     t2 --> work([WF-04 saves and versions files])
     work -.->|abandoned lock| a1 --> work
     a2 --> revoked[Revoked computer stops syncing; other devices continue]
