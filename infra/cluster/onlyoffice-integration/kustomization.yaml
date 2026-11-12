@@ -4,6 +4,7 @@ kind: Kustomization
 namespace: medilab
 resources:
   - ../odoo
+  - ../onlyoffice-prerequisites
   - callback-ingress.yaml
 patches:
   - path: odoo.yaml

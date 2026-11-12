@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="onboarding_source_boa" model="medilab.onboarding.source">
+        <field name="name">Bureau of Accreditation</field>
+        <field name="adapter">boa</field>
+        <field name="host">www.boa.gov.vn</field>
+        <field name="start_url">https://www.boa.gov.vn/vi/timkiem/tochuc</field>
+        <field name="delay_seconds">2</field>
+        <field name="page_limit">500</field>
+        <field name="enabled" eval="True" />
+    </record>
+    <!-- Its robots.txt asks every crawler for 30 seconds between requests. -->
+    <record id="onboarding_source_fda_bam" model="medilab.onboarding.source">
+        <field name="name">FDA Bacteriological Analytical Manual</field>
+        <field name="adapter">fda_bam</field>
+        <field name="host">www.fda.gov</field>
+        <field name="start_url">https://www.fda.gov/food/laboratory-methods-food/bacteriological-analytical-manual-bam</field>
+        <field name="delay_seconds">30</field>
+        <field name="page_limit">500</field>
+        <field name="enabled" eval="True" />
+    </record>
+</odoo>

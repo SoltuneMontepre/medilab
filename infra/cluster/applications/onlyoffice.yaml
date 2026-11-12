@@ -1,4 +1,4 @@
-# Register and sync manually only after the ONLYOFFICE acceptance and licence gates.
+# Sync after the Odoo rollout and its configuration checks.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -9,7 +9,7 @@ spec:
   source:
     repoURL: https://github.com/SoltuneMontepre/medilab.git
     targetRevision: main
-    path: infra/cluster/onlyoffice
+    path: infra/cluster/onlyoffice-demo
   destination:
     server: https://kubernetes.default.svc
     namespace: medilab

@@ -16,6 +16,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MACHINE_BOOKING,
     MODEL_PARAMETER_METHOD,
     MODEL_PARAMETER_METHOD_MACHINE,
+    MODEL_RESOURCE_CALENDAR_LEAVES,
     MODEL_SAMPLE_TEST,
     MODEL_SUBCONTRACTOR,
     MODEL_TESTING_METHOD_STEP,
@@ -246,7 +247,7 @@ class TestScheduleRecommendation(CrossDepartmentCase, LocationCase):
             "Office hours in UTC", [(day, 8, 12) for day in WEEKDAYS] + [(day, 13, 17) for day in WEEKDAYS]
         )
         (self.tester | self.other_tester).write({"resource_calendar_id": office_hours.id})
-        leaves = self.env["resource.calendar.leaves"]
+        leaves = self.env[MODEL_RESOURCE_CALENDAR_LEAVES]
         other = self.new_test()
         with self.subTest(leave="personal, Monday morning"), self.rolled_back():
             leaves.create(

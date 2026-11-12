@@ -6043,6 +6043,26 @@ msgid "Permission: minimum_quantity.edit.all"
 msgstr "Quyền: minimum_quantity.edit.all"
 
 #. module: sol_laboratory
+msgid "Permission: onboarding.run.create.all"
+msgstr "Quyền: onboarding.run.create.all"
+
+#. module: sol_laboratory
+msgid "Permission: onboarding.run.edit.all"
+msgstr "Quyền: onboarding.run.edit.all"
+
+#. module: sol_laboratory
+msgid "Permission: onboarding.run.read.all"
+msgstr "Quyền: onboarding.run.read.all"
+
+#. module: sol_laboratory
+msgid "Permission: onboarding.staged.record.edit.all"
+msgstr "Quyền: onboarding.staged.record.edit.all"
+
+#. module: sol_laboratory
+msgid "Permission: onboarding.staged.record.read.all"
+msgstr "Quyền: onboarding.staged.record.read.all"
+
+#. module: sol_laboratory
 msgid "Permission: order.create.all"
 msgstr "Quyền: order.create.all"
 
@@ -14692,6 +14712,31 @@ msgid "Tested By My Department"
 msgstr "Do phòng ban của tôi thử nghiệm"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_container_edit_all
+msgid "Permission: container.edit.all"
+msgstr "Quyền: container.edit.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_move_create_all
+msgid "Permission: move.create.all"
+msgstr "Quyền: move.create.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_move_read_all
+msgid "Permission: move.read.all"
+msgstr "Quyền: move.read.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_preparation_create_all
+msgid "Permission: preparation.create.all"
+msgstr "Quyền: preparation.create.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_stock_read_all
+msgid "Permission: stock.read.all"
+msgstr "Quyền: stock.read.all"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__room_event_ids
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
 msgid "Room Bookings"
@@ -15546,6 +15591,95 @@ msgid "The accepted way of testing changes only through a revised quotation."
 msgstr "Cách thử đã chấp nhận chỉ thay đổi qua một báo giá sửa đổi."
 
 #. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_sampling_requirement_method_sample_type_unique
+msgid "A testing method has only one sampling requirement for each sample type."
+msgstr "Mỗi phương pháp thử chỉ có một yêu cầu lấy mẫu cho mỗi loại mẫu."
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sampling_requirement_create_all
+msgid "Create sampling requirements"
+msgstr "Tạo yêu cầu lấy mẫu"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sampling_requirement_delete_all
+msgid "Delete sampling requirements"
+msgstr "Xóa yêu cầu lấy mẫu"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sampling_requirement_edit_all
+msgid "Edit sampling requirements"
+msgstr "Sửa yêu cầu lấy mẫu"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__expected_sample_count
+msgid "Expected Samples"
+msgstr "Số Mẫu Dự Kiến"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_expected_sampling
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__expected_sampling_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+msgid "Expected Sampling"
+msgstr "Nhu Cầu Lấy Mẫu Dự Kiến"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_expected_sampling__objects
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sampling_snapshot_mixin__objects
+msgid "Objects"
+msgstr "Số đối tượng"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_expected_sampling_read_all
+msgid "Permission: expected.sampling.read.all"
+msgstr "Quyền: expected.sampling.read.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_quotation_sampling_read_all
+msgid "Permission: quotation.sampling.read.all"
+msgstr "Quyền: quotation.sampling.read.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_sampling_requirement_create_all
+msgid "Permission: sampling.requirement.create.all"
+msgstr "Quyền: sampling.requirement.create.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_sampling_requirement_delete_all
+msgid "Permission: sampling.requirement.delete.all"
+msgstr "Quyền: sampling.requirement.delete.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_sampling_requirement_edit_all
+msgid "Permission: sampling.requirement.edit.all"
+msgstr "Quyền: sampling.requirement.edit.all"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_expected_sampling__preservation
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sampling_requirement__preservation
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sampling_snapshot_mixin__preservation
+msgid "Preservation"
+msgstr "Điều kiện bảo quản"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_expected_sampling_read_all
+msgid "Read expected sampling"
+msgstr "Xem nhu cầu lấy mẫu dự kiến"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_sampling_requirement
+msgid "Sampling Requirement"
+msgstr "Yêu Cầu Lấy Mẫu"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_sampling_snapshot_mixin
+msgid "Sampling Snapshot"
+msgstr "Bản Lưu Nhu Cầu Lấy Mẫu"
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_sampling_requirement_amount_positive
+msgid "The amount of a sampling requirement must be above 0."
+msgstr "Lượng mẫu của yêu cầu lấy mẫu phải lớn hơn 0."
+
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/report_template_version.py:0
 msgid "%(template)s, version %(number)s"

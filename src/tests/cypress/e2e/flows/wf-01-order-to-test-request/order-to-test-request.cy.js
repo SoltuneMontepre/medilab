@@ -1,6 +1,6 @@
 import { choose, newRecord, openTab, pick, save, search } from "../../../support/form";
 import { becomeVisitor, call, callAs, callRefused, refAs, resolveRecord, signIn } from "../../../support/odoo";
-import { CUSTOMERS, clearCarts, declineQuotation, latestQuotation, orderAt, payAdvance, reviseQuotation } from "./setup";
+import { CUSTOMERS, SAMPLING_LINES, clearCarts, declineQuotation, latestQuotation, orderAt, payAdvance, reviseQuotation } from "./setup";
 
 const REASON = "Giá xét nghiệm chì cao hơn báo giá năm trước.";
 
@@ -10,6 +10,17 @@ const readOrder =
   (order, fields = ORDER_FIELDS) =>
   () =>
     cy.readRecord(order, fields);
+
+// The expected samples a page shows inside `container`: one sample with its objects, expected samples and groups.
+function expectSampling(container, { objects, expected, groups }) {
+  cy.get(container)
+    .find(".o_medilab_expected_sampling")
+    .within(() => {
+      cy.get(".o_medilab_objects").should("have.text", String(objects));
+      cy.get(".o_medilab_expected").should("have.text", String(expected));
+      cy.get("tbody tr").should("have.length", groups);
+    });
+}
 
 // The laboratory's calendar day of a UTC datetime read from Odoo; the laboratory is in Vietnam (UTC+7).
 const laboratoryDay = (datetime) =>
@@ -551,6 +562,23 @@ describe("WF-01 feature acceptance criteria", () => {
     });
   });
 
+  it("TC-F06-01 shows sales and the customer the expected samples: 3 objects in two groups make 6", () => {
+    orderAt("claimed", { lines: SAMPLING_LINES }).then((order) => {
+      cy.signInAs("sales");
+      cy.openRecord(order);
+      openTab("expected_samples");
+      expectSampling(".o_field_widget[name=expected_sampling_html]", { objects: 3, expected: 6, groups: 2 });
+      callAs("demo.sales", "sale.order", "write", [[order.id], { advance_method: "bank_transfer", advance_mode: "percentage", advance_value: 30 }]);
+      cy.reload();
+      cy.sendRecord("action_send_quotation");
+      cy.get(".o_statusbar_buttons button[name=action_revise_quotation]:visible").should("exist");
+
+      cy.signInAs("customer");
+      cy.visit(`/orders/${order.id}/quotation`);
+      expectSampling("main", { objects: 3, expected: 6, groups: 2 });
+    });
+  });
+
   it("TC-F06-02 keeps a sent quotation's lines unchanged until it is revised", () => {
     orderAt("sent").then((order) => {
       cy.signInAs("sales");
@@ -632,6 +660,23 @@ describe("WF-01 feature acceptance criteria", () => {
         callAs("demo.accountant", "account.payment", "search_read", [[["invoice_ids", "in", [invoice]]]], { fields: ["amount", "state"] }).should(
           (payments) => expect(payments.map((payment) => payment.amount)).to.deep.equal([10000]),
         );
+      });
+    });
+  });
+
+  it("TC-F10-01 carries the accepted quotation's expected samples to the test request", () => {
+    orderAt("confirmed", { lines: SAMPLING_LINES }).then((order) => {
+      callAs("demo.sales", "sale.order", "read", [[order.id], ["test_request_id"]]).then(([read]) => {
+        cy.signInAs("sample_delivery_staff");
+        cy.readRecord({ model: "medilab.test.request", id: read.test_request_id[0] }, ["sample_ids"]).then(({ sample_ids }) => {
+          expect(sample_ids, "samples of the request").to.have.length(1);
+          const sample = { model: "medilab.sample", id: sample_ids[0] };
+          cy.readRecord(sample, ["expected_sample_count"]).its("expected_sample_count").should("eq", 6);
+          cy.openRecord(sample);
+          openTab("expected_sampling");
+          cy.get(".o_field_widget[name=expected_sample_count]").should("contain", "6");
+          cy.get(".o_field_widget[name=expected_sampling_ids] .o_data_row").should("have.length", 2);
+        });
       });
     });
   });

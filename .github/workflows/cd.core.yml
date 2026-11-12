@@ -131,7 +131,9 @@ jobs:
     needs: release
     if: needs.release.outputs.released == 'true'
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 50
+    outputs:
+      synced: ${{ steps.wait.outputs.synced }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -147,16 +149,18 @@ jobs:
           ARGOCD_VERSION: v3.5.5
 
       - name: Wait for the release
+        id: wait
         env:
           RELEASE_COMMIT: ${{ needs.release.outputs.commit }}
-          TIMEOUT: "900"
+          # The longest sync that can still succeed: the backup, the upgrade Job's 30 minutes, then the 10-minute rollout.
+          TIMEOUT: "2700"
           ARGOCD_SERVER: ${{ vars.ARGOCD_SERVER }}
           ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
         run: bash tools/scripts/cd_core_verify.sh
 
   rollback:
     needs: [release, verify]
-    if: ${{ failure() && needs.verify.result == 'failure' }}
+    if: ${{ failure() && needs.verify.result == 'failure' && needs.verify.outputs.synced != 'false' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:

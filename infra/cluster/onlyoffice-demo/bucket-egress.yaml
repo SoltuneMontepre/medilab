@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: onlyoffice-demo-bucket
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: onlyoffice
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - ipBlock:
+        cidr: 14.225.203.100/32
+    ports:
+    - protocol: TCP
+      port: 443

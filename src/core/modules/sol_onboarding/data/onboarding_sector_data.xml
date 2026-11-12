@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="sector_food" model="medilab.onboarding.sector">
+        <field name="code">food</field>
+        <field name="name">Food</field>
+    </record>
+    <record id="sector_cosmetics" model="medilab.onboarding.sector">
+        <field name="code">cosmetics</field>
+        <field name="name">Cosmetics</field>
+    </record>
+    <record id="sector_pharmaceuticals" model="medilab.onboarding.sector">
+        <field name="code">pharmaceuticals</field>
+        <field name="name">Pharmaceuticals</field>
+    </record>
+    <record id="sector_environment" model="medilab.onboarding.sector">
+        <field name="code">environment</field>
+        <field name="name">Environment</field>
+    </record>
+</odoo>
