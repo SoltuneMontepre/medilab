@@ -43,7 +43,7 @@ export function signInAgain(device) {
 // comes with a session of another person as an invalid key, which a revoked key is answered with too. The session cookie
 // goes just before the call, since a page of the back office that is still open can start a new one at any moment.
 export function api(device, method, path, { body, qs, headers } = {}) {
-  cy.clearCookie("session_id");
+  endBackOfficeSession();
   return cy.request({
     method,
     url: `${API}${path}`,
@@ -58,6 +58,13 @@ export function api(device, method, path, { body, qs, headers } = {}) {
 // a new one. The next test signs in again through the cached session of cy.signInAs.
 export function leaveBackOffice() {
   removeServiceWorkers();
+  return endBackOfficeSession();
+}
+
+// A back-office page still open when its session ends is refused by Odoo with a session expiry, which is not a failure of
+// the test that ended the session.
+function endBackOfficeSession() {
+  cy.on("uncaught:exception", (error) => !/Session Expired/.test(error.message));
   return cy.clearCookie("session_id");
 }
 
