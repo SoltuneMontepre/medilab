@@ -24,7 +24,7 @@ The head of department runs the testing work of one department: they assign its 
 ### Outsourcing
 
 - **US-HD10** As a head of department, I want to accept an outsourcing suggestion and put its sample tests in a dispatch to the subcontractor, so that tests that cannot finish in time in-house still meet their due date.
-- **US-HD11** As a head of department, I want to see when a dispatch was sent, who or which delivery service took it, and when its results are expected back, so that the outsourcing schedule shows where every outsourced test is.
+- **US-HD11** As a head of department, I want to record when a dispatch is sent, who or which delivery service takes it, and when its results are expected back, so that the outsourcing schedule shows where every outsourced test is.
 - **US-HD13** As a head of department, I want to outsource a test of my department straight away with a reason, without waiting for an outsourcing suggestion, so that an emergency is handled when required in-house resources cannot meet the date.
 
 ### Laboratory files
@@ -36,9 +36,9 @@ The head of department runs the testing work of one department: they assign its 
 
 - **US-HD17** As a head of department, I want to assign my department's tasks and sign or reject its results on my phone, so that work and results do not wait while I am away from my desk.
 
-### Testing statistics
+### Testing figures
 
-- **US-HD18** As a head of department, I want testing statistics for my department over a period, so that I can review turnaround, overdue work, retests and workload.
+- **US-HD18** As a head of department, I want testing figures for my department over a period, so that I can review turnaround, overdue work, retests and workload.
 
 ## II. Feature details
 
@@ -109,7 +109,7 @@ Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling
 | Rule        | Description                                                                                                                 |
 | ----------- | --------------------------------------------------------------------------------------------------------------------------- |
 | Accept | Accept an outsourcing suggestion only for the agreed subcontracted way. If it changes an accepted selection, Sales first obtains customer agreement through a revised quotation. The head then puts its sample tests in the subcontractor's draft dispatch. |
-| Dispatch | A dispatch holds one subcontractor, sending and due dates, the sample tests sent, the subcontractor's report, and sample delivery staff or a delivery service and tracking number. The way's turnaround includes transport and processing. When the dispatch is carried, the system records the date sent, who took it and the expected date. The head attaches the subcontractor's report to the sent or received dispatch. |
+| Dispatch | A dispatch holds one subcontractor, sending and due dates, the sample tests sent, the subcontractor's report, and sample delivery staff or a delivery service and tracking number. The way's turnaround includes transport and processing. The head attaches the subcontractor's report to the sent or received dispatch. |
 | Accreditation | A subcontractor whose accreditation has expired cannot be chosen.                                                          |
 | Emergency | The head may initiate outsourcing for a waiting or assigned test with a reason, without waiting for a scheduler suggestion. Only the department testing a test with no suggestion sees the emergency action, and its reason is shown on the test. Changing an accepted way still requires Sales and customer agreement on a revised quotation. Once agreed, cancel not-started bookings and put its sample tests in a draft dispatch. |
 
@@ -152,11 +152,11 @@ Acceptance criteria:
 - Rejecting a result on the phone without a reason is refused.
 - A head may approve their own result on the phone, as on the web; the Lab Head reviews it when signing the final report.
 
-### 6. Testing statistics (US-HD18)
+### 6. Testing figures (US-HD18)
 
 | Rule | Description |
 | --- | --- |
-| Department statistics | For the chosen period show completed sample tests, the share completed on time, average receipt-to-approval time, overdue sample tests, retests and workload per person. The head sees their department; the Lab Head sees all departments. |
+| Department figures | For the chosen period show completed sample tests, the share completed on time, average receipt-to-approval time, overdue sample tests, retests and workload per person. The head sees their department; the Lab Head sees all departments. |
 
 Acceptance criteria:
 

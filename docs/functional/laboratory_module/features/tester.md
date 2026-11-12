@@ -92,7 +92,7 @@ Follows [Results](../overview.md#results) and [Signing](../overview.md#signing).
 | Rule        | Description                                                                                          |
 | ----------- | ---------------------------------------------------------------------------------------------------- |
 | Limit copy | Creating a result copies its way of testing, sample type, unit, LOD and LOQ from its way and sample type. If comparison is requested, copy the exact regulation, parameter and sample-type limit and unit; missing configuration remains visible. Comparison is requested for a result when the sample's regulation sets a limit for its parameter on some sample type. Only the system writes the copy, and catalog edits never change it. |
-| Measurement | A result measured in the laboratory belongs to exactly one booking; an outsourced result belongs to its sample test, which a subcontract dispatch sends. Its booking supplies the performer, interval and machine when required; entering one result does not complete the other bookings sharing its machine interval. |
+| Measurement | Each result belongs to exactly one booking or subcontract dispatch. Its booking supplies the performer, interval and machine when required; entering one result does not complete the other bookings sharing its machine interval. |
 | Conclusion | No conclusion is needed without requested regulation comparison. For a requested comparison, the tester assesses pass, fail or insufficient basis. Text and below-LOD/LOQ values need professional assessment, never automatic passing or substitution with zero. A result without an exact-type limit can only be assessed as insufficient basis. A result outside the requested comparison takes no conclusion. A value below the LOD, or else below the LOQ, suggests a text such as "<0.05 mg/L (below LOQ)" with the copied threshold and unit, in each language; confirming it keeps the measured value. Reports show the threshold and unit from the result's snapshot. |
 | Retest | A retest is a new result with a new booking; the rejected or interrupted result stays on record. The system does not count or limit retests. |
 | Sanity check | Before a numeric result is sent for approval, it is compared with past approved results and the regulation limit. An unusual value shows a warning with the reason; the tester may still send it, and the warning stays on the result. |
@@ -102,7 +102,7 @@ Follows [Results](../overview.md#results) and [Signing](../overview.md#signing).
 
 Acceptance criteria:
 
-- A result measured in the laboratory identifies its booking and an outsourced result has none; a booking of a way that needs no machine has no machine.
+- A result identifies its booking or subcontract dispatch, never both; a booking of a way that needs no machine has no machine.
 - A below-LOQ result preserves the raw number if available and prints the copied threshold and unit after tester confirmation.
 - Catalog changes do not rewrite an existing result's unit, LOD or LOQ.
 - A requested comparison shows its exact copied limit or missing basis; insufficient basis does not force pass/fail. A result outside comparison scope is sent without a conclusion.
