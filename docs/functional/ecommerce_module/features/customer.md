@@ -164,7 +164,7 @@ stateDiagram-v2
 | Public catalog        | Anyone can browse the catalog and fill a cart without signing in.                                                                      |
 | Details on submit     | A visitor who is not signed in gives their details and e-mail address when submitting; they become the customer's contact.            |
 | Complete order        | Submitting requires at least one parameter or service package in the cart.                                                             |
-| Ways of testing | Select a sample type for each line and choose an applicable way for each parameter, or use its unique default. Only active ways the laboratory can perform are offered, following the [catalog rules](../../laboratory_module/features/admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28). An unavailable default shows a reason and viable alternatives for explicit selection; with none, the pair cannot be ordered. |
+| Ways of testing | Select a sample type for each line and choose an applicable way for each parameter, or use its unique default. A way shows its method only, never whether a department or a subcontractor performs it. Only active ways the laboratory can perform are offered, following the [catalog rules](../../laboratory_module/features/admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28). An unavailable default shows a reason and viable alternatives for explicit selection; with none, the pair cannot be ordered. |
 | Expected samples | Show the expected sample count, containers and amounts calculated from method sampling requirements. The customer orders parameters and quantities, not physical samples; collection staff confirm the actual samples at handover. Extra samples or excess material add no test; the customer gets them back on request, when collecting the report in person or at a separate pickup. |
 | Requested date | The customer may give the date they want the results, kept as the order's requested date. |
 | Priority request | The customer may mark the order as priority and request an earlier date. Sales accepts or declines priority on the quotation after the feasibility check; the request itself does not promise the date. |
@@ -188,6 +188,7 @@ Acceptance criteria:
 
 - A visitor who is not signed in can browse the catalog and fill a cart.
 - The customer can choose an applicable way or accept its sample-type default and sees expected sampling needs.
+- The customer never sees whether a test is outsourced or which subcontractor performs it.
 - An unavailable default is never silently substituted.
 - A portal priority request reaches Sales for acceptance or refusal on the quotation.
 - Submitting without being signed in asks for the visitor's details and e-mail address, and is refused without an e-mail address.

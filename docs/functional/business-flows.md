@@ -130,9 +130,9 @@ flowchart TD
   - WF-03-A3: The head records planned OverTime for a tester and an outside-hours interval with a reason, without a prerequisite HR overtime shift; the tester can then be booked in that interval.
 - **Exceptions:**
   - WF-03-E1: The assigned tester cannot do the work; the head moves the task to another person or department with a reason, and an authorized person accepts the booking.
-  - WF-03-E2: No feasible slot for the agreed way meets the due date; the head reviews viable resources and date options. SF-07 handles the committed return date, and WF-05 handles an agreed subcontracted alternative.
+  - WF-03-E2: No feasible slot for the agreed way meets the due date; the head reviews viable resources and date options. SF-07 handles the committed return date, and WF-05 handles outsourcing to a subcontractor with the same method.
 - **Acceptance criteria:** See [Tester](laboratory_module/features/tester.md), [Head of department](laboratory_module/features/head-of-department.md) and [SH-10](shared.md#sh-10-tasks-and-to-do-list). A second tester claiming the same task is told it is already claimed. Claiming another department's task or a parameter the tester is not authorized for is refused. Moving a task without a reason is refused. A schedule never silently changes the accepted way. Bookings share a machine only for the same method and interval, within its capacity. A sample test whose sample its department has not received cannot be booked.
-- **Paths in other flows:** WF-05 for an agreed subcontracted way; SF-05 for machine disruption; SF-07 for result dates and internal due-date changes; SF-10 for urgency, moving or cancelling bookings, reminders and plan revisions.
+- **Paths in other flows:** WF-05 for outsourcing; SF-05 for machine disruption; SF-07 for result dates and internal due-date changes; SF-10 for urgency, moving or cancelling bookings, reminders and plan revisions.
 
 ```mermaid
 flowchart TD
@@ -156,7 +156,7 @@ flowchart TD
     t3 -->|no| h2
     h2 --> h3 --> t2
     h2 --> dates([SF-07 agrees a feasible customer date])
-    h2 --> outsource([WF-05 agrees any subcontracted alternative])
+    h2 --> outsource([WF-05 outsources to a subcontractor with the same method])
     t5 --> wf04([WF-04 Result entry and approval])
 ```
 
@@ -220,30 +220,29 @@ flowchart TD
 
 ## WF-05 Outsourced testing
 
-- **Trigger:** the agreed way is subcontracted, or a subcontracted alternative is proposed because in-house resources cannot meet the due date, or the head outsources a test urgently with a reason.
+- **Trigger:** a subcontracted way with the test's parameter and method is proposed because in-house resources cannot meet the due date, or the head outsources a test urgently with a reason.
 - **Result:** the subcontractor's result is approved like any other result.
 - **Stories:** US-HD05, US-HD10, US-HD11, US-HD13, US-SD13, US-SUB01, US-SUB02, US-T09, US-HD08.
 - **States:** sample test waiting → outsourced → result entered → approved; dispatch draft → sent → received, or draft → cancelled before any result.
 - **Starts from:** sample tests with an outsourcing suggestion, and accredited subcontractors.
-- **Main path:** The system suggests a subcontracted way; the head accepts it when it is the agreed way and puts the sample tests in a dispatch. Sample delivery staff carry it, and the system records the date sent, who took it and the expected date. The subcontractor receives the samples and enters the results; the head is notified and approves them like any other result. Changing an accepted way first needs customer agreement through a revised quotation.
+- **Main path:** The system suggests a subcontracted way with the test's parameter and method; the head accepts it and puts the sample tests in a dispatch. Sample delivery staff carry it, and the system records the date sent, who took it and the expected date. The subcontractor receives the samples and enters the results; the head is notified and approves them like any other result. Outsourcing is internal: the subcontractor tests the parameter with the method the customer agreed, so the customer is neither told nor asked.
 - **Alternative paths:**
   - WF-05-A1: A dispatch goes by a delivery service with its tracking number.
   - WF-05-A2: A lab QA enters the results the subcontractor sent back.
-  - WF-05-A3: The head initiates an urgent outsourcing proposal with a reason; Sales obtains an agreed revised quotation before replacing an accepted way.
+  - WF-05-A3: The head outsources a waiting or assigned test straight away with a reason, to a subcontractor with the same method, without waiting for a suggestion.
 - **Exceptions:**
   - WF-05-E1: The head rejects the subcontractor's result; the test goes back to outsourced and a new result is entered.
   - WF-05-E2: A dispatch cannot proceed; it is cancelled before any result and its tests stay outsourced for another dispatch.
   - WF-05-E3: Delivery to the subcontractor fails; the same sample is requested again through WF-02 Sample reception and handover.
-- **Acceptance criteria:** See [Head of department](laboratory_module/features/head-of-department.md) and [Subcontractor](laboratory_module/features/subcontractor.md). A dispatch whose tests have results cannot be cancelled. A subcontractor user sees only its own dispatches and never a sample's customer. An emergency proposal needs a reason; a test already running cannot be outsourced directly, and an accepted way cannot change without customer agreement.
+- **Acceptance criteria:** See [Head of department](laboratory_module/features/head-of-department.md) and [Subcontractor](laboratory_module/features/subcontractor.md). A dispatch whose tests have results cannot be cancelled. A subcontractor user sees only its own dispatches and never a sample's customer. An emergency proposal needs a reason; a test already running cannot be outsourced directly. Only a subcontracted way with the test's parameter and method can be chosen. The customer never sees that a test is outsourced or which subcontractor tests it.
 - **Paths in other flows:** SF-06 for subcontractor accreditation expiry; WF-02 for requesting a sample again after a failed delivery.
 
 ```mermaid
 flowchart TD
     suggest[Suggest outsourcing]
     subgraph lane12 ["Head of department"]
-        h1[Review the outsourcing suggestion] --> agreed{Already the agreed way?}
-        h0[Request outsourcing with a reason] --> agreed
-        h2[Put the sample tests in a dispatch]
+        h1[Accept the suggestion] --> h2[Put the sample tests in a dispatch]
+        h0[Request outsourcing with a reason] --> h2
         h4{Approve the result?}
     end
     subgraph lane13 ["Sample delivery staff"]
@@ -253,8 +252,6 @@ flowchart TD
         s1[Receive the samples of the dispatch] --> s2[Enter the results]
     end
     suggest --> h1
-    agreed -->|yes| h2
-    agreed -->|no| revise[Sales obtains customer agreement through a revised quotation] --> h2
     h2 --> d1
     delivered -->|yes| sent[Record when it is sent, who took it and the expected date] --> s1
     delivered -->|no| wf02([Delivery failed: WF-02 requests the same sample again])
@@ -499,10 +496,10 @@ flowchart TD
   - SF-05-A2: Separate windows warn 7 days before calibration, 7 days before maintenance and 7 days after repair by default; warnings do not override a block.
   - SF-05-A3: Planned maintenance reserves downtime; overdue maintenance blocks new bookings until recorded completion.
 - **Exceptions:**
-  - SF-05-E1: Without another machine linked to the same method, keep the work unplaced and notify its tester and head. Sales informs the customer if the committed return date is affected. A different way needs an agreed revised quotation.
+  - SF-05-E1: Without another machine linked to the same method, keep the work unplaced and notify its tester and head. Sales informs the customer if the committed return date is affected. The head may outsource the work to a subcontractor with the same method (WF-05); a different method needs an agreed revised quotation.
   - SF-05-E2: A breakdown or lost calibration interrupts a booking: the booking ends, its recorded data is kept as an interrupted result, and the head assesses it as usable, needing a retest or needing more sample. A retest is a new result with a new booking.
 - **Acceptance criteria:** See [Administrator](laboratory_module/features/admin.md) and [Head of department](laboratory_module/features/head-of-department.md). A machine with queued, scheduled or running bookings cannot be archived.
-- **Paths in other flows:** SF-10 owns queue order and rescheduling; WF-05 owns any customer-agreed change to a subcontracted way.
+- **Paths in other flows:** SF-10 owns queue order and rescheduling; WF-05 owns outsourcing to a subcontractor with the same method.
 
 ```mermaid
 flowchart TD
@@ -582,7 +579,7 @@ flowchart TD
   - SF-07-E1: A committed return date becomes infeasible: Sales offers the earliest feasible replacement and records old date, new date and customer confirmation before changing it. If refused, Sales handles a cancellation request for the unfulfillable part; no automatic cancellation or way change.
   - SF-07-E2: The requested date is infeasible; Sales offers the earliest feasible date instead. Missing outsourced transport or processing turnaround prevents a complete estimate until those values are supplied; no incomplete estimate becomes a committed return date.
 - **Acceptance criteria:** See [Sales](ecommerce_module/features/sales.md), [Head of department](laboratory_module/features/head-of-department.md) and [SH-11](shared.md#sh-11-schedules-and-reminders). A date the laboratory cannot meet is not accepted as a committed return date; show the earliest feasible date. Missing outsourced turnaround means no complete estimate is available. An internal due-date override does not change the committed return date. A feasibility check reserves and moves no bookings. The customer sees the requested and committed dates, never an internal due date.
-- **Paths in other flows:** SF-10 owns priority order and plan revisions; WF-05 owns any agreed subcontracted alternative; SF-02 owns cancellation of an unfulfillable part.
+- **Paths in other flows:** SF-10 owns priority order and plan revisions; WF-05 owns outsourcing; SF-02 owns cancellation of an unfulfillable part.
 
 ```mermaid
 flowchart TD
@@ -705,11 +702,11 @@ flowchart TD
   - SF-10-A5: Entering the result or marking the measurement finished frees the machine before the booking's end.
 - **Exceptions:**
   - SF-10-E1: Urgent work needs a slot that scheduled bookings hold: the recalculation becomes a plan revision listing every moved booking with its new slot, internal due date and committed return date. The head of each affected department approves the moves in their department, and their people are notified once applied; running bookings are never moved.
-  - SF-10-E2: A move would pass its internal due date and so miss a committed return date: it is held back and its booking keeps its slot until Sales records the customer's agreement to a new date (SF-07); the other moves are recalculated without it. The head may instead free capacity with planned OverTime or another machine linked to the same method. A proposed different way follows WF-05 and customer agreement.
+  - SF-10-E2: A move would pass its internal due date and so miss a committed return date: it is held back and its booking keeps its slot until Sales records the customer's agreement to a new date (SF-07); the other moves are recalculated without it. The head may instead free capacity with planned OverTime or another machine linked to the same method. Outsourcing to a subcontractor with the same method follows WF-05 and needs no customer agreement; a different method needs a revised quotation and customer agreement.
   - SF-10-E3: A sample test whose planned finish is after its internal due date, that no free slot lets finish by then, or whose booking overran sends an initial risk notice and daily consolidated summaries to its tester and head until resolved. Sales notifies the customer only when the committed return date is affected or at risk. An overrunning booking keeps its machine and flags the next bookings on it; entering the result clears it.
   - SF-10-E4: Approved leave or a room-unavailable interval returns overlapping not-started bookings to the plan for head assignment or authorized claiming.
 - **Acceptance criteria:** See [Tester](laboratory_module/features/tester.md), [Head of department](laboratory_module/features/head-of-department.md) and [SH-11](shared.md#sh-11-schedules-and-reminders). Marking a test urgent without a reason is refused. A tester cannot mark another person's task urgent. Running bookings, and bookings the head moved by hand, are never moved by a plan revision. Replanning preserves the accepted way and the bookings sharing a machine interval.
-- **Paths in other flows:** WF-03 owns initial assignment and accepting bookings; SF-05 owns machine faults and service availability; WF-05 owns agreed outsourcing; SF-07 owns changes to the committed return date and internal due dates.
+- **Paths in other flows:** WF-03 owns initial assignment and accepting bookings; SF-05 owns machine faults and service availability; WF-05 owns outsourcing; SF-07 owns changes to the committed return date and internal due dates.
 
 ```mermaid
 flowchart TD
@@ -740,7 +737,7 @@ flowchart TD
     schedule -.->|deadline risk or resource disruption| h4
     h4 --> slot
     h4 --> date
-    h4 --> outsource([WF-05 handles agreed outsourcing])
+    h4 --> outsource([WF-05 handles outsourcing])
 ```
 
 
