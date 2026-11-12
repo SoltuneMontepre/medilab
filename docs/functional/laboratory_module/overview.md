@@ -86,6 +86,7 @@ stateDiagram-v2
     expected --> rejected: unusable on arrival
     expected --> on_hold: insufficient on arrival
     on_hold --> received: more sample collected
+    on_hold --> testing: collected again after a failed subcontract delivery, its tests already started
     received --> on_hold: delivery to a subcontractor failed
     testing --> on_hold: delivery to a subcontractor failed
     received --> testing: first sample test started
@@ -103,6 +104,7 @@ stateDiagram-v2
     expected --> cancelled
     received --> cancelled
     testing --> cancelled
+    on_hold --> cancelled
 ```
 
 ### Sample test
