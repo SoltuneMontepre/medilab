@@ -83,10 +83,10 @@ flowchart TD
 
 ## WF-02 Sample reception and handover
 
-- **Trigger:** samples arrive at the laboratory, or sample delivery staff collect them from the customer.
+- **Trigger:** samples arrive at the laboratory, sample delivery staff collect them from the customer, or a sample must be collected again after a failed delivery to a subcontractor (WF-05 Outsourced testing).
 - **Result:** every sample is coded, labelled and received, and its testing tasks wait in the queue of each department that tests it.
 - **Stories:** US-SD01, US-SD02, US-SD03, US-SD04, US-SD05, US-SD07, US-SD08, US-SD09, US-SD10, US-SD11, US-SD12, US-HD06, US-HD07.
-- **States:** sample expected → received, or → on hold → received, or → rejected; test request paid → sample received.
+- **States:** sample expected → received, or → on hold → received, or → rejected, decided by its condition before receipt; a sample whose delivery to a subcontractor failed → on hold → received; test request paid → sample received.
 - **Starts from:** a confirmed order whose test request is paid and expects its samples.
 - **Main path:** The customer brings the samples; sample delivery staff adjust the calculated expected samples to the actual handover, record conditions and differences, obtain the customer's signature, print labels and hand samples to their departments.
 - **Alternative paths:**
@@ -96,7 +96,8 @@ flowchart TD
   - WF-02-E1: An insufficient sample goes on hold; the head of department asks for more; the collection task brings it back to received.
   - WF-02-E2: A mistake in a signed handover record is corrected with a new record; the old one is kept.
   - WF-02-E3: Fewer samples wait for another collection or Sales cancels the missing part.
-  - WF-02-E4: Extra samples and excess material are recorded with the actual handover the customer confirms. Testing stays within the agreed scope: they add no test, change no order and stay with the sample until the customer asks for them back.
+  - WF-02-E4: Extra samples and excess material are recorded with the actual handover the customer confirms. Testing stays within the agreed scope: they add no test, change no order and stay with the sample until the customer asks for them back; SF-04 Sample retention, return and disposal owns the return.
+  - WF-02-E5: A sample whose delivery to a subcontractor failed is requested again: the head of department asks for the same sample, which keeps its lab code and sample tests and waits on hold; its collection task brings it back to received.
 - **Acceptance criteria:** See [Sample delivery staff](laboratory_module/features/sample-delivery-staff.md) and [Head of department](laboratory_module/features/head-of-department.md). An unusable sample is rejected with its condition note and gets no testing task. A person outside the department scanning the label is refused. Confirming a test request without a sample, or a sample without a parameter, is refused. A signed handover record cannot be edited.
 
 ```mermaid
@@ -108,7 +109,6 @@ flowchart TD
     subgraph lane6 ["Sample delivery staff"]
         d1[Adjust expected samples and record differences] --> d2{Condition?}
         d2 -->|good| d3[Record receipt, time, amount and storage]
-        d2 -->|unusable| d6[Reject with a condition note]
         d2 -->|insufficient| d7[Put on hold]
         d4[Print label and hand accepted samples to departments]
         d8[Collect more sample]
@@ -116,11 +116,14 @@ flowchart TD
     subgraph lane7 ["Head of department"]
         h1[Ask for more sample]
         h2[Scan the label to record department receipt]
+        h3[Request the same sample again]
     end
     c1 --> d1
+    d2 -->|unusable| reject[Reject sample] --> rejected([Sample rejected])
     d3 --> c2 --> d4 --> h2 --> done([Testing tasks in department queues])
-    c2 -.->|extra samples or excess material| keep[Kept with the sample, no test added; returned on request]
+    c2 -.->|extra samples or excess material| keep[Kept with the sample, no test added; returned on request] --> sf04([SF-04 Sample retention, return and disposal])
     d7 --> h1 --> d8 --> d1
+    wf05([WF-05: delivery to the subcontractor failed]) --> h3 --> d8
 ```
 
 ## WF-03 Testing assignment and scheduling

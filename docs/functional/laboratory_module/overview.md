@@ -82,10 +82,12 @@ stateDiagram-v2
 ```mermaid
 stateDiagram-v2
     [*] --> expected
-    expected --> received: sample received
-    received --> rejected: unusable on arrival
-    received --> on_hold: insufficient on arrival
+    expected --> received: sample received in good condition
+    expected --> rejected: unusable on arrival
+    expected --> on_hold: insufficient on arrival
     on_hold --> received: more sample collected
+    received --> on_hold: delivery to a subcontractor failed
+    testing --> on_hold: delivery to a subcontractor failed
     received --> testing: first sample test started
     testing --> awaiting_approval: every remaining test has its reported result sent for approval
     awaiting_approval --> testing: a reported result is rejected or withdrawn
@@ -148,7 +150,7 @@ stateDiagram-v2
 
 | Rule            | Description                                                                                                                          |
 | --------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| Receipt         | When a sample arrives, the laboratory records when and by whom it was received, the amount received, its condition (good, damaged or insufficient) with a note, and where it is stored. |
+| Receipt         | When a sample in good condition arrives, the laboratory records when and by whom it was received, the amount received, its condition note and where it is stored. An unusable sample is rejected and an insufficient one is put on hold before receipt. A sample whose delivery to a subcontractor failed keeps its lab code and sample tests and is on hold until it is collected again. |
 | Label           | Each sample has a label printed by sample delivery staff, showing its lab code, its test request's code, the date results are due and a QR code of the lab code. It never shows the customer or the customer's name for the sample. |
 | Identification QR | Sample identification and handover use the sample QR only. Test requests and handover documents do not have separate identification QR codes. |
 | Photos | Sample delivery staff attach sample photos when collecting or receiving it through the web interface. Photos are shown only wherever the customer's sample name is shown, so testers never see them. |

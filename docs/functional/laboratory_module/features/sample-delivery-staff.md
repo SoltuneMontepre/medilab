@@ -17,7 +17,7 @@ Sample delivery staff (nhân viên giao nhận mẫu) collect samples at the cus
 - **US-SD07** As sample delivery staff, I want to see the samples expected for each test request, so that I know what should arrive.
 - **US-SD08** As sample delivery staff, I want to print a label for each sample with its lab code, test request, results due date and a QR code, so that the sample can be identified and scanned without showing the customer.
 - **US-SD09** As sample delivery staff, I want to record a sample's receipt with the amount, its condition and where it is stored, so that its state on arrival is on record.
-- **US-SD10** As sample delivery staff, I want to reject a sample that cannot be tested, with the reason, so that nobody works on it.
+- **US-SD10** As sample delivery staff, I want to record a sample that cannot be tested as unusable, with the reason, so that the system rejects it and nobody works on it.
 - **US-SD11** As sample delivery staff, I want to put an insufficient sample on hold and report it to the head of department, so that it can be collected again.
 - **US-SD12** As sample delivery staff, I want to hand a received sample over to each department that tests it, so that every department knows it has the sample.
 
@@ -72,7 +72,7 @@ Follows the reception rules and the sample lifecycle in the [Laboratory overview
 | Identification QR | Use only the sample's QR for identification and handover; test requests and handover documents have no separate identification QR. |
 | Return estimate | The test request shows the estimated return date of its samples and parameters. |
 | Label         | The label shows the lab code, the test request's code, the date results are due and a QR code of the lab code, and nothing about the customer. |
-| Receipt       | Receipt records when and by whom the sample was received, the amount received, its condition (good, damaged or insufficient) with a note, and where it is stored. |
+| Receipt       | Staff first decide the sample's condition: good, unusable or insufficient. Receipt of a sample in good condition records when and by whom it was received, the amount received, its condition note and where it is stored. The system rejects an unusable sample; an insufficient one is put on hold. |
 | Testing tasks | Receiving a sample creates a testing task for each of its sample tests in the queue of the department that does the work.   |
 | Handover      | The sample is handed over to each department that tests it; the department records when and by whom it received it.         |
 
@@ -80,7 +80,7 @@ Acceptance criteria:
 
 - The samples of a test request are received only once the request is paid.
 - A sample's label shows its lab code, test request code, results due date and QR code, but not the customer or the customer's name for the sample.
-- Recording a sample's receipt sets it to received and creates its testing tasks in each department's queue.
+- Recording the receipt of a sample in good condition sets it to received and creates its testing tasks in each department's queue; an unusable or insufficient sample is never received first.
 - A rejected sample keeps its condition note and gets no testing tasks.
 - An insufficient sample is on hold, and its head of department is told.
 - A sample handed over to two departments shows both handovers and which department has received it.
