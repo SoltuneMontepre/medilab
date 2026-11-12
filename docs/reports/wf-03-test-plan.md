@@ -1101,7 +1101,7 @@ The browser rows that prove a path part also close UI-004, UI-006, UI-008 and UI
 
 - The `chromium_vi` way has one link to the UV-Vis spectrophotometer (60 minutes) and a step in the colorimetry room; the Schedule button books both for a fresh sample (`TC-WF03-A2 partial`).
 - The test asserts the room events at 15 and 45 minutes, the Room Bookings tab, the tester's calendar events, the Calendar list, and that removing or archiving a room event alone is refused with the state unchanged.
-- Still to verify: the test passes again on the same database, the other WF-03 recommendations stay unchanged, and the `e2e` job of `ci-core` passes. The text of #318 and #154 still names `TC-WF03-A5` and needs the new title.
+- Still to verify: the test passes again on the same database, the other WF-03 recommendations stay unchanged, and the `e2e` job of `ci-core` passes. The text of #318 still names `TC-WF03-A5` and needs the new title.
 
 ---
 
