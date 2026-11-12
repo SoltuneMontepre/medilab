@@ -289,41 +289,40 @@ flowchart TD
 - **Trigger:** every sample test of a test request is approved or cancelled, and the system creates the draft report and a signing task for the lab head.
 - **Result:** the signed report is issued, delivered to the customer and downloadable on the portal.
 - **Stories:** US-LH01, US-LH02, US-SD14, US-SD15, US-C07, US-C18, US-C19.
-- **States:** test report draft → signing → issued, where signing retains final internal approval while required digital signing is pending; test request completed → reported and order completed only on issue.
+- **States:** test report draft → signing → issued (→ replaced), where signing retains final internal approval while required digital signing is pending; test request completed → reported and order completed only on issue.
 - **Starts from:** test requests whose sample tests are all approved or cancelled, with their draft reports.
-- **Main path:** MediLab fills the draft from an available template version and approved business data. The Lab Head, through the report edit permission, prepares layout and explanatory text in ONLYOFFICE, finishes saving and prepares the PDF with its reserved number. The Lab Head reviews that PDF, its approved results and any requested regulation basis, then gives final internal approval. With digital signing enabled, MediLab digitally signs that same PDF and stores it before issuing the report. Issue makes the reserved number official, updates the request and order, and enables delivery and customer notification.
+- **Main path:** MediLab fills the draft from an available template version and approved business data, validates it and prepares the read-only PDF with its reserved number, and the Lab Head is notified. Nobody edits the draft. The Lab Head reviews that PDF, its approved results and any requested regulation basis, then gives final internal approval. With digital signing enabled, MediLab digitally signs that same PDF and stores it before issuing the report. Issue makes the reserved number official, updates the request and order, and enables delivery and customer notification.
 - **Alternative paths:**
   - WF-06-A1: The report is delivered in person or by post; recording it sends no e-mail.
   - WF-06-A2: The request asks for an English, a Vietnamese or a bilingual report.
   - WF-06-A3: A request with a cancelled test issues a report without it.
   - WF-06-A4: With digital signing disabled, MediLab stores the reviewed PDF without a digital signature and issues it after final internal approval.
-  - WF-06-A5: Editing an unsigned draft or choosing a different available template invalidates its prepared PDF and requires fresh review. A draft with signatures must first follow the permitted withdrawal order.
+  - WF-06-A5: The Lab Head chooses a different available template; MediLab prepares a new PDF, which needs fresh review. A draft with signatures must first follow the permitted withdrawal order.
   - WF-06-A6: A customer collecting the report in person asks for the extra samples or excess material back; sample delivery staff return them and record what, when, by whom and to whom, without changing the sample's state.
 - **Exceptions:**
   - WF-06-E1: Viettel Sign is unavailable or cannot complete signing: keep the internal approvals and the reviewed PDF, leave the report unissued and retry that same PDF. Issue and notify only after the signed PDF is stored; a replacement leaves the previous report current until then.
-  - WF-06-E2: The lab head rejects the report naming results and a reason; the results go back to the head of department's queue, are approved again and the lab head signs the new task.
+  - WF-06-E2: The lab head rejects the report naming results and a reason; the head of department approves the named results again, or rejects them to the tester for a corrected result, and the lab head reviews the new PDF in the same signing task.
   - WF-06-E3: A regulation expires during testing: testing continues, but before issue the Lab Head confirms the comparison basis. Sales obtains customer agreement for a changed scope; no regulation is switched or dropped automatically.
-  - WF-06-E4: A pending or failed save, editing conflict, business-data mismatch or conversion outage blocks preparation. The Lab Head resolves the save, content or service problem, prepares a new PDF and reviews it again. An unchanged prepared candidate can proceed without reopening ONLYOFFICE, and an outage does not block delivery of an already issued PDF.
+  - WF-06-E4: A business-data mismatch or conversion outage blocks preparation. Once it is resolved, MediLab prepares a new PDF and the Lab Head reviews it again. An outage does not block delivery of an already issued PDF.
 - **Acceptance criteria:** See [Lab head](laboratory_module/features/lab-head.md), [Test reports](../specs/test-reports.md) and [Digital signing](../specs/digital-signing.md). Rejecting a report without a reason or without naming a result is refused. An unissued report cannot be delivered, and a customer downloads only their own reports. Final internal approval does not issue a report whose required digital signature is pending or failed. No customer notification, download, delivery or replacement of an earlier report occurs before issue. The full order lifecycle runs from the portal through reception, testing and approval to the issued report.
 - **Paths in other flows:** SF-03 for correcting results in an initial or replacement report and for a change request on an issued report; SF-04 for samples after issue; SF-08 for report template versions.
 
 ```mermaid
 flowchart TD
     subgraph lane15 ["Lab head"]
-        p1["[report edit permission] Edit the DOCX draft in ONLYOFFICE"] --> p2[Finish saves, validate data, reserve number and prepare PDF]
         l1[Review the PDF, approved results and regulation basis] --> l2{Approve the report?}
     end
     subgraph lane16 ["Head of department"]
-        h1[Results sent back wait in the queue unassigned]
+        h1[Re-approve the named results]
     end
     subgraph lane17 ["Sample delivery staff"]
-        d1[Deliver in person, by post or by e-mail] --> d2[Record the delivery]
+        d2[Record the delivery]
     end
     subgraph lane18 ["Customer"]
-        c1[Notified that the report is issued] --> c2[Download the issued PDF]
+        c2[Download the issued PDF]
     end
-    p2 --> l1
-    l2 -->|reject naming the results and the reason| h1 --> wf04([WF-04 approves them again])
+    draft[Create the draft report] --> prepare[Validate data, reserve number and prepare PDF] --> notifyLab[Notify the lab head] --> l1
+    l2 -->|reject naming the results and the reason| h1 --> prepare
     l2 -->|approve| approved[Keep final internal approval bound to reviewed PDF]
     approved --> enabled{Digital signing enabled?}
     enabled -->|yes| digital[Digitally sign the reviewed PDF]
@@ -333,8 +332,11 @@ flowchart TD
     enabled -->|no| plain[Store reviewed PDF without digital signature]
     stored --> issued[Issue report and make reserved number official]
     plain --> issued
-    issued --> d1
-    issued --> c1
+    issued --> notifyCustomer[Notify the customer]
+    notifyCustomer --> c2
+    notifyCustomer --> d2
+    d2 --> email{Delivered by e-mail?}
+    email -->|yes| send[E-mail the report PDF]
 ```
 
 ## SF-01 Invoicing and payment collection

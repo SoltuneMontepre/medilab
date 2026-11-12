@@ -66,7 +66,7 @@ stateDiagram-v2
     awaiting_approval --> completed: every result approved
     testing --> completed: the remaining tests are approved when one is cancelled
     completed --> reported: report issued
-    completed --> testing: the lab head sends results back
+    completed --> awaiting_approval: the lab head sends results back
     draft --> cancelled
     confirmed --> cancelled
     paid --> cancelled
@@ -94,7 +94,7 @@ stateDiagram-v2
     awaiting_approval --> completed: every result approved
     testing --> completed: the remaining tests are approved when one is cancelled
     completed --> reported: report issued
-    completed --> testing: the lab head sends one of its results back
+    completed --> awaiting_approval: the lab head sends one of its results back
     reported --> retained: kept after testing
     reported --> disposed: not kept
     retained --> disposed: retention period over
@@ -121,7 +121,7 @@ stateDiagram-v2
     result_entered --> outsourced: outsourced result rejected or withdrawn
     result_entered --> testing: result rejected or withdrawn
     result_entered --> approved: result approved
-    approved --> testing: the lab head sends its result back
+    approved --> result_entered: the lab head sends its result back
     waiting --> cancelled
     assigned --> cancelled
     testing --> cancelled
@@ -146,7 +146,7 @@ stateDiagram-v2
     issued --> replaced: the signed replacement is issued
 ```
 
-- A rejected report stays in draft until the results sent back are approved again; the lab head then gets a new signing task. This also applies to replacement reports whose request is already reported.
+- A rejected report stays in draft until the results sent back are approved again; the lab head then reviews it again in the same signing task. This also applies to replacement reports whose request is already reported.
 
 ## Reception
 
@@ -190,11 +190,11 @@ stateDiagram-v2
 | --------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | Test report     | A test request has one test report covering all its samples, issued in Vietnamese, English or both side by side. Its headings and its approvers' level names print in the report's language, both side by side on a bilingual report. Samples have no sign-off of their own: once a sample's results are approved, the next signature is the lab head's on the report. After its approval chain completes, digitally sign the prepared PDF when signing is on, store it, then issue the report with its reserved number ([SH-04](../shared.md#sh-04-signatures-and-digital-signing)). With signing off, store the approved prepared PDF and issue it without a digital signature. |
 | Draft           | When every sample test of a request is approved or cancelled, the system creates the draft report and a signing task for the lab head. |
-| Templates and authoring | Administrators maintain versioned DOCX templates for Vietnamese, English and bilingual reports in ONLYOFFICE. The system fills a working draft from approved business data. People with the report edit permission, the Lab Head by default, may edit its layout and explanatory text, comment and co-edit in ONLYOFFICE; measured results, units, limits, comparison basis and approvers remain controlled by the business records. See [Test reports](../../specs/test-reports.md). |
+| Templates and authoring | Administrators maintain versioned DOCX templates for Vietnamese, English and bilingual reports in ONLYOFFICE. The system fills the report from an available template version and approved business data and prepares its read-only PDF; nobody edits it. Its explanatory text comes from the template and the remarks of the approved results; measured results, units, limits, comparison basis and approvers remain controlled by the business records. The Lab Head may choose another available template version. See [Test reports](../../specs/test-reports.md). |
 | Prepared PDF | Before signing, finish and confirm the draft's saves, validate its business data and prepare the PDF for review. Stale sources block preparation and signing. Approval binds the saved draft, template, data snapshot, result versions and PDF. A changed draft needs fresh review; signatures must first be withdrawn in the permitted order. Digital signing uses the prepared PDF, without regenerating it from a later template or file save. |
 | Report files | DOCX drafts are internal working files. Customers receive the issued PDF, digitally signed when signing is on. Issued files and their source versions stay unchanged; a correction uses the change-request and replacement-report process. |
 | Content | The report identifies the customer, request, receipt and issue dates, report number, samples and lab codes. For each sample, print its sample type, received amount and condition, recorded analysis start and end dates, and report-relevant request or sample notes when provided. The result table prints parameter, measured result, unit and method. Comparison limits and conclusions appear only for the requested regulation scope, with wording limited to that scope and insufficient basis where applicable. Below-LOD/LOQ text prints the snapshot threshold and unit. Print the actual result approvers, including a Head of Department who approved their own result, and the report signer; tester signatures stay internal. Cancelled tests are excluded. |
-| Rejection       | The lab head can reject a report with a reason, naming the results to check again. Those results go back to the queue of their head of department, unassigned and unsigned: their signatures are withdrawn, their sample tests, samples and request go back to testing, and a new testing task with the reason waits unassigned in the queue of the department that tested them. The report waits until they are approved again; the lab head then gets a new signing task. |
+| Rejection       | The lab head can reject a report with a reason, naming the results to check again. Those results go back to their head of department's approval: their approvals are withdrawn, and their sample tests, samples and request wait for approval again. The head approves each again, or rejects it to the tester, whose retest follows WF-04 Result entry and approval. The report waits until they are approved again; the lab head then reviews its new PDF in the same signing task. |
 | Pending digital signing | A signing failure preserves the approvals and leaves the report unissued while signing is retried. It cannot be delivered or downloaded by the customer, sends no release notification and does not replace an earlier report. |
 | Delivery        | The test request records the report language (Vietnamese, English or bilingual, bilingual by default), how the report is delivered (in person by default, by post, by email or another way with a note) and the contact who receives it. Sample delivery staff deliver the issued report that way and record when it was delivered and by whom; recording an email delivery emails the PDF to the recipient. Issuance follows storage of the approved PDF, digitally signed when signing is on. Only then are customers notified, on the order and to its contact when the request came from an order, and the issued PDF is available for delivery and customer-portal download. |
 | Change request  | A change to a document whose process is completed is a change request: what to change, why, who asked and when. Anyone who can edit that type of document can raise one, on an approved result or an issued report. A rejected result is corrected by a retest, and a rejected correction by another change request, since a reported sample takes no retest. A version has one open change request at a time. It is signed through the change-request chain of the document's type ([SH-07](../shared.md#sh-07-signed-documents-are-locked)); approval or rejection is final, and the requester is notified of either. |
