@@ -1,1 +1,1 @@
-from . import hr_department, stock_location
+from . import hr_department, person, stock_location

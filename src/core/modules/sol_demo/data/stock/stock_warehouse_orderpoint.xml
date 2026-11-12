@@ -1,24 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo noupdate="1">
-    <record id="demo_stock_warehouse_orderpoint_nitric_acid" model="stock.warehouse.orderpoint">
-        <field name="product_id" ref="demo_product_product_nitric_acid" />
-        <field name="location_id" ref="stock.stock_location_stock" />
-        <field name="trigger">manual</field>
-        <field name="product_min_qty">1000</field>
-        <field name="product_max_qty">5000</field>
-    </record>
-    <record id="demo_stock_warehouse_orderpoint_agar_plates" model="stock.warehouse.orderpoint">
-        <field name="product_id" ref="demo_product_product_agar_plates" />
-        <field name="location_id" ref="stock.stock_location_stock" />
-        <field name="trigger">manual</field>
-        <field name="product_min_qty">50</field>
-        <field name="product_max_qty">200</field>
-    </record>
-    <record id="demo_stock_warehouse_orderpoint_nitrile_gloves" model="stock.warehouse.orderpoint">
-        <field name="product_id" ref="demo_product_product_nitrile_gloves" />
-        <field name="location_id" ref="stock.stock_location_stock" />
-        <field name="trigger">manual</field>
-        <field name="product_min_qty">200</field>
-        <field name="product_max_qty">1000</field>
-    </record>
+<odoo>
+    <!-- Odoo's Replenishment removes the manual minimums the system made, so the storekeeper sets them, in Python. -->
+    <function model="stock.warehouse.orderpoint" name="_seed_minimum_demo" />
 </odoo>
