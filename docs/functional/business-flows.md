@@ -27,11 +27,11 @@ The core flows WF-01 to WF-06 carry a test request from order to report. The sup
 ## WF-01 Order to confirmed test request
 
 - **Trigger:** a customer submits a cart on the portal, or sales creates an order for a customer.
-- **Result:** the order and its test request are confirmed, with expected samples and their selected ways calculated from the accepted order and sampling requirements, and sample collection can start.
+- **Result:** the order is confirmed and its test request is paid, unless its customer may order on credit, with expected samples and their selected ways calculated from the accepted order and sampling requirements, and sample collection can start.
 - **Stories:** US-C08, US-C09, US-C10, US-C13, US-C14, US-C15, US-S01, US-S02, US-S05, US-S06, US-S07, US-S08, US-S09, US-S10, US-S12, US-S15, US-A03, US-A06, US-A08.
-- **States:** quotation draft → sent → accepted; order submitted → claimed → confirmed; test request draft → confirmed → paid.
+- **States:** quotation draft → sent → accepted, approved by the Head of Sales before it is sent when above the thresholds; order submitted → claimed → confirmed; test request draft → confirmed → paid.
 - **Starts from:** a catalog with priced parameters and packages, and demo customers.
-- **Main path:** A customer orders on the portal; sales claims it, confirms the selected ways and expected sampling needs, obtains Head of Sales approval if its discount or total exceeds a configured threshold, and sends it with an advance; the customer pays online; sales confirms the order, and sample collection can start.
+- **Main path:** A customer orders on the portal; sales claims it, confirms the selected ways and expected sampling needs, obtains Head of Sales approval if its discount or total exceeds a configured threshold, and sends it with an advance; the customer pays online; sales confirms the order, which creates its test request; unless the customer may order on credit, the customer pays the balance online, and sample collection can start.
 - **Alternative paths:**
   - WF-01-A1: Sales creates the order for a customer who called or who brings samples to the laboratory, instead of the customer ordering on the portal. The samples wait at reception until the test request is paid.
   - WF-01-A2: A visitor who is not signed in submits a cart with their details and e-mail address.
@@ -41,6 +41,7 @@ The core flows WF-01 to WF-06 carry a test request from order to report. The sup
 - **Exceptions:**
   - WF-01-E1: The customer declines the quotation with a reason; sales revises it and sends the new version, which the customer accepts.
   - WF-01-E2: The quotation passes its payment deadline and is flagged expired; sales extends it. The customer pays within the extended deadline.
+  - WF-01-E3: The Head of Sales declines a quotation above the approval thresholds with a reason; sales adjusts it and requests approval again, and the Head of Sales approves it.
 - **Acceptance criteria:** See [Sales](ecommerce_module/features/sales.md) and [Customer](ecommerce_module/features/customer.md). An unavailable default is never silently replaced; choose a viable alternative explicitly or do not order that parameter and sample type. A quotation above the approval thresholds cannot be sent before Head of Sales approval. Submitting a cart without an e-mail address is refused. A confirmed order's content changes only through a revised quotation the customer accepts. The old version of a revised quotation cannot be sent or confirmed. The test request of an unpaid order whose customer may not order on credit cannot be confirmed. Another customer opening the quotation, invoice or result is denied.
 - **Paths in other flows:** SF-02 for cancelling an order; SF-07 for the estimated date and priority orders.
 
@@ -51,6 +52,7 @@ flowchart TD
         c3[Read the quotation] --> c4{Accept?}
         c4 -->|pay the advance| c5[Pay online, by transfer or in cash]
         c4 -->|decline with a reason| c6[Quotation declined]
+        c7[Pay the balance online]
     end
     subgraph lane2 ["Sales"]
         s1[Claim the order] --> s2[Confirm ways, expected samples, price and percentage discount]
@@ -58,20 +60,25 @@ flowchart TD
         gate -->|no| s3[Send the quotation with the advance request]
         s4[Confirm the order]
         s6[Revise the quotation]
+        s7[Adjust the quotation]
     end
     subgraph lane3 ["Accountant"]
         a1[Confirm a transfer or cash payment]
     end
     subgraph lane4 ["Head of Sales"]
-        h0[Approve the quotation before Send]
+        h0{Approve the quotation?}
     end
     c2 --> s1
-    gate -->|yes| h0 --> s3
+    gate -->|yes| h0
+    h0 -->|yes| s3
+    h0 -->|decline with a reason| s7 --> h0
     s3 --> c3
     c5 -->|online payment is matched automatically| s4
     c5 -->|transfer or cash| a1 --> s4
     c6 --> s6 --> s3
-    s4 --> done(["Order confirmed; sample collection can start"])
+    s4 --> paid{Paid in full or on credit?}
+    paid -->|yes| done(["Test request paid; sample collection can start"])
+    paid -->|no| c7 --> done
 ```
 
 ## WF-02 Sample reception and handover
@@ -319,8 +326,8 @@ flowchart TD
 - **Result:** every invoice is paid, and each day's online payments match the PayOS transactions and are locked.
 - **Stories:** US-A01, US-A02, US-A04, US-A05, US-A07, US-A08, US-A09, US-A10, US-A11, US-A12, US-A13, US-C16, US-C17, US-S11.
 - **States:** invoice posted → partially paid → paid; payment pending → confirmed or rejected; reconciliation day open → locked.
-- **Starts from:** orders with a paid advance whose testing is completed.
-- **Main path:** The accountant creates and e-mails the final invoice; the customer pays it online; a receipt is issued and the order is paid.
+- **Starts from:** confirmed orders: those of customers who pay before testing, and those of customers on credit whose testing is completed.
+- **Main path:** When sales confirms an order, its final invoice for the balance is posted and e-mailed; the customer pays it online before sample collection; a receipt is issued and the order is paid. For a customer allowed to order on credit, the accountant creates and e-mails the final invoice once testing is completed.
 - **Alternative paths:**
   - SF-01-A1: The customer pays part online, then the rest; the invoice is partially paid, then paid.
   - SF-01-A2: Sales records a cash payment; the accountant confirms it.
