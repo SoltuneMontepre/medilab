@@ -58,9 +58,9 @@ stateDiagram-v2
 | Rule                 | Description                                                                                                                                  |
 | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | Container code       | Each container gets its code and QR label when it is received.                                                                               |
-| Opening              | A tester opens a sealed bottle by scanning its QR code. Opening records when and by whom, and sets the bottle's usable date. The other bottles on the shelf stay sealed. A store opens one bottle of an item at a time: the opened one is used up or marked empty before the next is opened, while another team's or department's store opens its own. When a bottle was opened outside these rules, the storekeeper of its store records the opening with who opened it, when and a note, and a bottle then past its usable date is disposed of as expired. |
-| Usable date          | A sealed container is usable until its lot's expiry date. An opened one is usable until its opening date plus its item's shelf life after opening, usually 3 to 6 months for a chemical, or its lot's expiry date if that is earlier. An item may have no shelf life after opening, and its opened containers keep their lot's expiry date. A shelf life after opening of 0 days means the container is used on the day it is opened. A container with no usable date, such as a lot that prints no expiry, is not expired. |
-| Prepared solution    | A prepared solution (dung dịch pha chế) is made by mixing chemicals from opened bottles with water or another solution, following a recipe, such as about 1.4 ml of 97 % sulfuric acid diluted with water to 1 litre. One preparation is exactly one batch of the recipe. It starts opened, in a new lot numbered from PC.0001 and a container numbered from that lot, such as PC.0001-01. |
+| Opening              | A tester opens a sealed bottle by scanning its QR code. Opening records when and by whom, and sets the bottle's usable date. The other bottles on the shelf stay sealed. |
+| Usable date          | A sealed container is usable until its lot's expiry date. An opened one is usable until its opening date plus its item's shelf life after opening, usually 3 to 6 months for a chemical, or its lot's expiry date if that is earlier. |
+| Prepared solution    | A prepared solution (dung dịch pha chế) is made by mixing chemicals from opened bottles with water or another solution, following a recipe, such as about 1.4 ml of 97 % sulfuric acid diluted with water to 1 litre. It starts opened. |
 | Recipe               | A recipe states the chemicals and the amount of each that one preparation uses, and the shelf life of the solution, usually 1 to 2 weeks.   |
 | Prepared usable date | A prepared solution is usable until its preparation date plus its recipe's shelf life, or until the first container it was made from stops being usable if that is earlier. |
 | Label                | Opening a bottle or preparing a solution prints a label showing the date it was opened or prepared, the person who did it, its usable date and its QR code, on chemical-resistant labels of 2 × 1 inch or 1.5 × 1 inch. |
@@ -78,26 +78,24 @@ stateDiagram-v2
 
 | Rule          | Description                                                                                                                              |
 | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| Tester's store | A person takes stock from every store their team holds. When they have no team, or the team holds no store, they take it from every store their department holds. A store's manager also takes stock from the stores they keep: the store they manage and every store under it. When the person neither holds nor keeps a store, the use is refused. A container counts as in one of those stores when the nearest store at or above its location is one of them. |
-| Opened only   | Stock tracked by container is deducted only from opened containers. A sealed container can be wasted only as a whole bottle.                |
+| Opened only   | Stock tracked by container is deducted only from opened containers.                                                                       |
 | Usual use     | Each testing method states how much of each item one test uses.                                                                           |
-| Automatic use | The first signature of an in-house result, while it is still a draft, deducts the method's usual use from the store of the person who entered it. An item tracked by container is taken from the opened containers scanned for the result, in that order, emptying an earlier container before the next. An item kept by lot or by quantity is taken from the lot with the earliest usable date, and a lot with no usable date after the dated ones. A missing scan or a shortage is refused, and the result is not signed. An outsourced result is not deducted and needs no scan. A retest is deducted again; a new version of a result is not, and it does not keep the scanned containers. After that first signature the scanned containers stay as they are. A move is never edited: correcting a mistake is another move. |
-| Destination   | A use goes to the company's Production location. Waste and disposal go to the company's scrap location. Odoo has no consumption location. |
-| Preparation   | Preparing a solution deducts the recipe's amounts from the opened bottles scanned for it. Each ingredient starts at the recipe's amount and can only be raised; the extra is waste and needs a reason. The quantity obtained starts at the recipe's yield and can only be lowered. The solution costs what those ingredients cost, waste included, divided by the quantity obtained. |
-| Waste         | Stock dropped, spilled, contaminated or wrongly prepared is deducted as waste with one of those reasons, including loss beyond its recipe during a preparation. Waste for another reason is recorded as Other, with what happened written out. |
-| Use by hand   | Other uses, such as calibration, cleaning or a spare part in a machine service, are recorded by hand with a reason, from the person's store or a store they manage or that is under one they manage. |
-| Depleted      | A container whose remaining amount reaches zero is depleted, or disposed of when the move that emptied it was waste. Marking an opened container empty uses what remains, with the reason Marked empty, and the container is then depleted. |
+| Automatic use | Entering a result deducts the method's usual use from the opened containers the tester scans for it, or, for an item not tracked by container, from the lot with the earliest usable date in the tester's store. The lab QA can change the container, lot and quantity. |
+| Preparation   | Preparing a solution deducts its recipe's amounts from the opened bottles the tester scans.                                              |
+| Waste         | Stock dropped, spilled, contaminated or wrongly prepared is deducted as waste with its reason, including loss beyond its recipe during a preparation. |
+| Use by hand   | Other uses, such as calibration, cleaning or a spare part in a machine service, are recorded by hand with a reason.                      |
+| Depleted      | A container whose remaining amount reaches zero, or that its user marks empty, is depleted.                                              |
 | Traceability  | The moves of a result show which containers and lots it used.                                                                             |
-| Expired       | A container whose usable date is before today, or whose lot is not available, cannot be used and is listed for disposal. A container with no usable date is not expired. Disposing of an expired container deducts what remained. |
+| Expired       | A container or lot past its usable date is expired: it cannot be used and is listed for disposal. Disposing of it deducts what remained. |
 
 ## Alerts
 
 | Rule            | Description                                                                                                         |
 | --------------- | ------------------------------------------------------------------------------------------------------------------- |
-| Below minimum   | When a move takes the stock a store holds itself of an item below its minimum quantity, a warning is raised, once each time it falls below. Odoo's Replenishment suggests a purchase for the minimums of the central store, from its active suppliers; its buy rule delivers to the warehouse's stock location, which is the central store. A store below it gets stock through a requisition. |
-| Expiring soon   | Containers and lots whose usable date is within a number of days, a system parameter of 30 by default, are listed and notified, once each. |
-| Expired         | A daily scheduled job marks lots expired once their expiry date has passed, and notifies each lot and container that expired, once. A container has no expired status: it is expired when its usable date has passed or its lot has expired. The daily job marks lots only. A container is notified apart from its lot only when its own usable date ends before the lot's expiry. |
-| Who is warned   | Stock alerts go to the manager of the store holding the stock, or of the nearest store above it that has one, so the central store's alerts reach the storekeeper, plus the roles and departments the administrator adds to each warning ([SH-11](../shared.md#sh-11-schedules-and-reminders)). The manager cannot be removed from them. |
+| Below minimum   | When the stock of an item falls below its minimum quantity, a warning is raised and a purchase is suggested.         |
+| Expiring soon   | Containers and lots whose usable date is within a number of days, a system parameter, are listed and notified.      |
+| Expired         | Containers and lots that expire are marked expired by a scheduled job and notified.                                 |
+| Who is warned   | The roles and departments notified of each warning are configured by the administrator ([SH-11](../shared.md#sh-11-schedules-and-reminders)); by default the storekeepers. |
 
 ## Purchasing
 
@@ -112,7 +110,7 @@ stateDiagram-v2
 
 | Rule            | Description                                                                                                                                  |
 | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| Unit cost       | Each lot records the purchase price of one unit, excluding VAT, from its receipt. Under first in, first out, the lots of an item tracked by container or lot keep that price as their cost; under moving average, the item's average cost applies to every lot. |
+| Unit cost       | Each lot records the purchase price of one unit, excluding VAT, from its receipt.                                                           |
 | Costing method  | A [system parameter](../shared.md#sh-03-configuration-through-settings-and-system-parameters) sets how stock is costed, to match the laboratory's accounting policy: first in, first out, which costs each container at its lot's price, or moving average, which costs at the average price of the item's stock at the time. First in, first out is the default. |
 | Value           | Stock on hand is valued with the costing method. Accounting entries are made in the laboratory's accounting software from the export.       |
 | Cost centre     | Each department and each team is a cost centre, with a code that matches the one in the laboratory's accounting software. Stock is charged to the team or department that holds its store. |
@@ -135,7 +133,7 @@ stateDiagram-v2
 | Rule        | Description                                                                                                                                    |
 | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | Charges     | Every move that charges or credits a cost centre records its posting date, cost centre code, item code, charge type, quantity, unit cost and total value. |
-| Charge types | Issue: stock requisitioned down to a department or team store. Consumption: stock used, billable when a test result used it, non-billable for use by hand. Waste: stock dropped, spilled, contaminated, wrongly prepared or lost for another reason. Disposal: stock past its usable date. Adjustment: stock missing or found at a stock take. Transfer: sealed stock moved sideways. |
+| Charge types | Issue: stock requisitioned down to a department or team store. Consumption: stock used, billable when a test result used it, non-billable for use by hand. Waste: stock dropped, spilled, contaminated or wrongly prepared. Disposal: stock past its usable date. Adjustment: stock missing or found at a stock take. Transfer: sealed stock moved sideways. |
 | File export | The storekeeper exports the charges of a period as CSV or Excel for the accounting software, such as MISA or FAST.                            |
 | API         | The accounting software can also fetch the charges of a period through a REST API, authenticated with a key the administrator issues.         |
 
