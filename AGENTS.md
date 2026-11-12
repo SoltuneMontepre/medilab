@@ -30,9 +30,6 @@ In a Claude Code cloud session, or when asked how to set one up, follow [Working
 | `doppler`          | Look up which secrets and configs exist. Never print a secret's value.                                 |
 | `filesystem`       | Read, write and search files of the worktree.                                                          |
 | `drawio`           | Open a diagram from draw.io XML, CSV or Mermaid in the draw.io editor in the browser.                  |
-| `plantuml-js`      | Check and render PlantUML offline, without Java.                                                       |
-| `plantuml-java`    | Check, render and explain PlantUML with the official server; `task ai:plantuml` builds its jar.        |
-| `plantuml-infobip` | Render PlantUML through the local PlantUML server that `task ai:plantuml-server` starts.               |
 
 The `postgres` server is read-only; [Database access](docs/workflows/odoo-intelligence.md#database-access) says how an authorized write is configured. When a server is not connected, say so, then continue with the shell.
 

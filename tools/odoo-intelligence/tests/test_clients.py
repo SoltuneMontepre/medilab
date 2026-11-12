@@ -89,12 +89,5 @@ def test_launcher_passes_the_git_message_hook_exit_code():
 
 
 def test_claude_and_cursor_start_the_same_diagram_servers():
-    for name in ("drawio", "filesystem", "plantuml-infobip", "plantuml-java", "plantuml-js"):
+    for name in ("drawio", "filesystem"):
         assert CURSOR[name] == CLAUDE[name], name
-
-
-def test_plantuml_servers_use_what_the_ai_tasks_install():
-    variables = yaml.safe_load((ROOT / "tools/taskfiles/ai.taskfile.yml").read_text())["vars"]
-    assert CLAUDE["plantuml-java"]["args"] == ["-jar", variables["PLANTUML_MCP_JAR"]]
-    server = f"http://localhost:{variables['PLANTUML_SERVER_PORT']}"
-    assert CLAUDE["plantuml-infobip"]["env"]["PLANTUML_SERVER_URL"] == server
