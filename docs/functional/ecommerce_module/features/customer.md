@@ -146,7 +146,7 @@ Parameters are grouped by kind of analysis. The catalog shows the group and its 
 - **Total = sum of the selected parameters' and packages' prices.** A package line uses the package price, not the sum of its parameters. For a parameter ordered in a quantity, the price is multiplied by the quantity. The cart shows each parameter's price and a running total as parameters are added or removed.
 - **Cart lines.** Each cart line is removed, or its quantity raised or lowered by one, in one click. **Save as draft** keeps the cart and leads to the order history, which confirms the draft was saved and lists it as Draft.
 - **Prices exclude VAT.** Tax is added on the quotation and the invoice, not in the cart.
-- **The cart total matches the quotation.** The prices come from the catalog, so the quotation uses the same prices unless sales adjusts them (for example a discount) before sending.
+- **The cart total matches the quotation.** The prices come from the catalog, so the quotation uses the same prices unless sales adjusts them (for example a discount) before sending, or a new price period starts before the quotation date.
 
 ```mermaid
 stateDiagram-v2
