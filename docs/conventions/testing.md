@@ -205,7 +205,11 @@ A refresh can skip Mocha teardown. Recovery drains tracked Node RPCs; it cannot 
 
 ### WF-07 fixtures
 
-The WF-07 tests read the seeded bottled-water sample and its result file and change nothing in them. Each test creates its own folders, members, computers and, for the sample folders, a sample, with names and installation ids that carry the run, and signs its computers out when it ends. Folders, members, computers and file versions are never deleted, so one run of the spec leaves about 1 sample, 8 folders, 15 members and 15 computers, one of them revoked. None stays signed in. Tests find their records by id or by their run-tagged name, never by a count or the position in a list.
+The WF-07 tests read the seeded bottled-water sample and its result file and change nothing in them. Each test creates its own folders, members, computers and, for the sample folders, a sample, with names and installation ids that carry the run, and signs its computers out when it ends. Folders, members, computers, uploads and file versions are never deleted, so one run of the two specs leaves 22 folders, 35 computers and 25 file versions. No computer stays signed in. Tests find their records by id or by their run-tagged name, never by a count or the position in a list.
+
+Uploads put real bytes through the presigned address: `cypress/fixtures/laboratory/` holds three small genuine `.xlsx` workbooks and three text files, read with `cy.readFile(path, null)` and sent as a `Blob`, the one `cy.request` body Cypress sends byte for byte; a string or an `ArrayBuffer` body is changed on the way and the upload is refused at its finalizing. A test compares the size and SHA-256 of what Odoo stored and of what it gives back for download with those of the fixture. The lock tests save text files, since Odoo does not lock an Office file.
+
+The editing service is declared for the stack: it is down unless `CYPRESS_editingService=up` is set. The tests that need it down read the declaration, run when it is down and are skipped when it is up. They fail on a declaration that the stack contradicts instead of passing on it.
 
 ## Applications
 
