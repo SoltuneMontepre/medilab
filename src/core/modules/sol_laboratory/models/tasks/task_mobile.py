@@ -2,7 +2,7 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
-from odoo.exceptions import AccessError, MissingError
+from odoo.exceptions import AccessError
 from odoo.fields import Command, Domain
 
 from odoo.addons.sol_laboratory.constants.laboratory_files import IDEMPOTENCY_CONFLICT, PERMISSION_DENIED
@@ -19,7 +19,7 @@ from odoo.addons.sol_laboratory.constants.tasks import FINAL_STATUSES
 from odoo.addons.sol_laboratory.services.document_code import document_code
 from odoo.addons.sol_laboratory.services.laboratory_api import api_datetime
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
-from odoo.addons.sol_laboratory.services.mobile_documents import document_screen
+from odoo.addons.sol_laboratory.services.mobile_documents import document_screen, not_found
 from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
 
 if TYPE_CHECKING:
@@ -184,7 +184,7 @@ class TaskMobile(models.Model, TaskMobileBase):
         assignee's department. A request repeated with its Idempotency-Key gets the task it created."""
         assignee = self.env[MODEL_PERSON].browse(values["assignee_id"]).exists()
         if not assignee:
-            raise MissingError(self.env._("Nothing is found at this address."))
+            raise not_found(self.env)
         task_values = {
             "type_id": self.env.ref(GENERAL_TASK_TYPE).id,
             "name": values["name"],
@@ -223,11 +223,11 @@ class TaskMobile(models.Model, TaskMobileBase):
         if values.get("assignee_id"):
             assignee = assignee.browse(values["assignee_id"]).exists()
             if not assignee:
-                raise MissingError(self.env._("Nothing is found at this address."))
+                raise not_found(self.env)
         if "department_id" in values:
             department = self.env[MODEL_DEPARTMENT].browse(values["department_id"] or []).exists()
             if values["department_id"] and not department:
-                raise MissingError(self.env._("Nothing is found at this address."))
+                raise not_found(self.env)
         elif assignee and self.department_id and assignee.sudo().department_id != self.department_id:
             department = assignee.sudo().department_id
         else:

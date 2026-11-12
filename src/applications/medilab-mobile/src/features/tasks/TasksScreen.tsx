@@ -38,7 +38,8 @@ export function TasksScreen() {
 
   const page = useCallback(
     async (after: number | null): Promise<Listed> => {
-      const answer = await call<TaskPage>(`/tasks?list=${list}${after ? `&after=${after}` : ""}`);
+      const query = after ? `list=${list}&after=${after}` : `list=${list}`;
+      const answer = await call<TaskPage>(`/tasks?${query}`);
       return { tasks: answer?.tasks ?? [], nextAfter: answer?.next_after ?? null };
     },
     [call, list],

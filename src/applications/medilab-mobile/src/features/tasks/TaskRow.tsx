@@ -11,9 +11,8 @@ export function TaskRow({ task, onPress }: Readonly<{ task: Task; onPress: () =>
   const t = useT();
   const { language } = useSession();
   const when = task.status === "done" ? task.done_at : task.deadline;
-  const whenText = when
-    ? t(task.status === "done" ? "task.doneAt" : "task.deadline", { date: formatMoment(when, language) })
-    : "";
+  const whenKey = task.status === "done" ? "task.doneAt" : "task.deadline";
+  const whenText = when ? t(whenKey, { date: formatMoment(when, language) }) : "";
   const overdue = task.status !== "done" && !!task.deadline && new Date(task.deadline) < new Date();
   return (
     <Pressable

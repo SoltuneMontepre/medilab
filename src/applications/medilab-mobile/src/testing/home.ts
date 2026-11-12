@@ -4,10 +4,16 @@ import type { Task, TaskDay } from "../api";
 export const PERSON = "Nguyễn Văn An";
 export const GREETING = `Xin chào, ${PERSON}`;
 
-export function me(can = { create_tasks: false, assign_tasks: false }) {
+export function me(can?: { create_tasks: boolean; assign_tasks: boolean }) {
   return {
     status: 200,
-    body: { name: PERSON, login: "demo.tester", department: "Hoá", roles: ["Tester"], can },
+    body: {
+      name: PERSON,
+      login: "demo.tester",
+      department: "Hoá",
+      roles: ["Tester"],
+      can: can ?? { create_tasks: false, assign_tasks: false },
+    },
   };
 }
 

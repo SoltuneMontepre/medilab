@@ -60,9 +60,13 @@ class TestMedilabMobileTasks(LaboratoryApiCase, TaskCase):
     def on_phone(self, person, method, path, body=None, headers=None):
         return self.api(method, path, body, key=self.key_of(person), headers=headers)
 
-    def answered(self, response, status=200):
+    def answered(self, response, status=200) -> dict:
+        """The JSON object of an answer with the status."""
         self.assertEqual(response.status_code, status, response.text)
-        return response.json() if response.content else None
+        body = response.json()
+        if not isinstance(body, dict):
+            self.fail(f"The answer is not a JSON object: {response.text}")
+        return body
 
     def ids(self, tasks):
         return [task["id"] for task in tasks]

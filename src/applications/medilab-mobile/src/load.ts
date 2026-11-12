@@ -49,7 +49,7 @@ export function useLoad<T>(read: () => Promise<T>) {
   }, [read]);
 
   useEffect(() => {
-    attempt();
+    void attempt();
     return () => {
       // A reading still under way when the screen closes or reads something else is not shown.
       latest.current += 1;

@@ -1,17 +1,18 @@
 from odoo import http
-from odoo.exceptions import MissingError, UserError
+from odoo.exceptions import UserError
 
 from odoo.addons.sol_laboratory.constants.medilab_mobile import ALREADY_CLAIMED, TASK_PAGE_SIZE
 from odoo.addons.sol_laboratory.constants.models import MODEL_TASK
 from odoo.addons.sol_laboratory.services.laboratory_api import laboratory_api_route
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
+from odoo.addons.sol_laboratory.services.mobile_documents import not_found
 
 
 def readable_task(env, task_id):
     """The task of the id once the person may read it; one they may not read is not found."""
     task = env[MODEL_TASK].browse(task_id).exists()
     if not task:
-        raise MissingError(env._("Nothing is found at this address."))
+        raise not_found(env)
     task.check_access("read")
     return task
 
@@ -50,7 +51,7 @@ class LaboratoryApiTasks(http.Controller):
         # claimed it, the claim itself says so.
         task = device.env[MODEL_TASK].browse(task_id).exists()
         if not task:
-            raise MissingError(device.env._("Nothing is found at this address."))
+            raise not_found(device.env)
         try:
             task.action_claim()
         except UserError as error:
