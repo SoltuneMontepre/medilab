@@ -9,6 +9,7 @@ import {
   addMember,
   confirmDialog,
   devices,
+  expectEditorPage,
   foldersOfSample,
   ownFolder,
   person,
@@ -28,17 +29,51 @@ function versionsOf(file, fields = ["number", "source", "size", "sha256", "user_
   return callAs(ADMINISTRATOR, "medilab.laboratory.file.version", "search_read", [[["file_id", "=", file.id]]], { fields, order: "number" });
 }
 
-// Moves the expiry of a lock, as time passing would. A server action does it, as running one needs only the right to change
-// the records of its model; it is deleted at once.
+// A server action moves the expiry of a lock, since nobody may write a lock: running one needs only the right to change the
+// records of its model. Each is named with this prefix, the lock and the run, and is removed by its id and name as soon as it
+// has run, or after the test that left it, or before the next run of the spec.
+const EXPIRY_ACTION = "Cypress WF-07 lock expiry";
+const expiryActions = [];
+
+// Moves the expiry of a lock, as time passing would. The elapsed time and the job that expires locks are not exercised.
 function setLockExpiry(lockId, minutes) {
   const code = `env["medilab.laboratory.file.lock"].browse(${lockId}).sudo().write({"expires_at": datetime.datetime.utcnow() + datetime.timedelta(minutes=${minutes})})`;
   cy.signInAs("administrator");
   call("ir.model", "search", [[["model", "=", "ir.actions.server"]]]).then(([modelId]) =>
-    call("ir.actions.server", "create", [{ name: `Move the expiry of lock ${lockId}`, model_id: modelId, state: "code", code }]).then((actionId) => {
-      call("ir.actions.server", "run", [[actionId]]);
-      call("ir.actions.server", "unlink", [[actionId]]);
-    }),
+    call("ir.actions.server", "create", [{ name: `${EXPIRY_ACTION} ${runTag()}-${lockId}`, model_id: modelId, state: "code", code }]).then(
+      (actionId) => {
+        expiryActions.push(actionId);
+        call("ir.actions.server", "run", [[actionId]]);
+        removeExpiryActions();
+      },
+    ),
   );
+}
+
+// Removes the server actions this run created that are still there, and checks that none remains. The list is read when the
+// command runs, not when it is queued, since a test that fails before it has run leaves it to the hook after the test.
+function removeExpiryActions() {
+  cy.then(() => {
+    const ids = [...expiryActions];
+    if (!ids.length) return;
+    cy.signInAs("administrator");
+    call("ir.actions.server", "search", [
+      [
+        ["id", "in", ids],
+        ["name", "=like", `${EXPIRY_ACTION} %`],
+      ],
+    ]).then((found) => call("ir.actions.server", "unlink", [found]));
+    call("ir.actions.server", "search", [[["id", "in", ids]]]).then((left) => {
+      expect(left, "server actions left").to.deep.eq([]);
+      expiryActions.length = 0;
+    });
+  });
+}
+
+// Removes the actions an earlier run of the spec left when it was stopped before it could.
+function removeStaleExpiryActions() {
+  cy.signInAs("administrator");
+  call("ir.actions.server", "search", [[["name", "=like", `${EXPIRY_ACTION} %`]]]).then((found) => call("ir.actions.server", "unlink", [found]));
 }
 
 function minutesFromNow(isoOrOdoo) {
@@ -46,7 +81,9 @@ function minutesFromNow(isoOrOdoo) {
 }
 
 describe("WF-07 laboratory file versions", () => {
+  before(removeStaleExpiryActions);
   afterEach(signOutDevices);
+  afterEach(removeExpiryActions);
 
   // Writing the downloaded version into the second computer's local folder is Medilab Sync's.
   it("TC-WF04-A6 a version saved on one computer reaches another through the changes feed with the same bytes", () => {
@@ -284,50 +321,45 @@ describe("WF-07 laboratory file versions", () => {
     );
   });
 
-  // Online editing and the saves of the desktop programs are not covered: the service is declared down or up for the
-  // stack, and only the server's side of its absence is asserted.
-  it("TC-WF04-E6 with the editing service down, saving, history, download and restore still work", function () {
-    cy.env(["editingService"]).then(({ editingService = "down" }) => {
-      if (editingService !== "down") this.skip();
-      const tag = runTag();
-      person(TESTER).then((tester) =>
-        sampleWithoutFolders().then((sample) => {
-          callAs(HEAD, "medilab.sample", "action_create_laboratory_folders", [[sample.id]]);
-          foldersOfSample(sample).then((folders) =>
-            devices(tag, HEAD, TESTER).then(([head, saver]) => {
-              const results = folders.find(({ category }) => category === "result");
-              addMember(head, results, tester);
-              upload(saver, results, `result-${tag}.xlsx`, "result-a.xlsx").then(({ upload: first }) =>
-                upload(saver, results, `result-${tag}.xlsx`, "result-b.xlsx", { baseVersionId: first.version.id }).then(({ upload: second }) => {
-                  expect(second.status).to.eq("completed");
-                  fileAt(saver, results, `result-${tag}.xlsx`).then((file) => {
-                    cy.signInAs("tester");
-                    cy.request({ url: `/medilab/laboratory-files/${file.id}/edit`, failOnStatusCode: false }).then((page) => {
-                      expect(page.status, "the editor page").to.eq(503);
-                      expect(page.body).to.contain("Online editing is unavailable");
-                    });
-                    cy.request("/medilab/api/v1/ready").its("status").should("eq", 200);
-                    api(saver, "GET", `/folders/${results.id}/files/${file.id}/versions`).then((response) =>
-                      expect(ok(response, "history").versions.map(({ number }) => number)).to.deep.eq([2, 1]),
+  // Online editing and the saves of the desktop programs are not covered. Saving, history, download and restore work in either
+  // state of the service; the editor page is asserted as the declared state says, and only a stack declared down is the
+  // scenario of this case.
+  it("TC-WF04-E6 with the editing service down, saving, history, download and restore still work", () => {
+    const tag = runTag();
+    person(TESTER).then((tester) =>
+      sampleWithoutFolders().then((sample) => {
+        callAs(HEAD, "medilab.sample", "action_create_laboratory_folders", [[sample.id]]);
+        foldersOfSample(sample).then((folders) =>
+          devices(tag, HEAD, TESTER).then(([head, saver]) => {
+            const results = folders.find(({ category }) => category === "result");
+            addMember(head, results, tester);
+            upload(saver, results, `result-${tag}.xlsx`, "result-a.xlsx").then(({ upload: first }) =>
+              upload(saver, results, `result-${tag}.xlsx`, "result-b.xlsx", { baseVersionId: first.version.id }).then(({ upload: second }) => {
+                expect(second.status).to.eq("completed");
+                fileAt(saver, results, `result-${tag}.xlsx`).then((file) => {
+                  cy.signInAs("tester");
+                  expectEditorPage(file);
+                  cy.request("/medilab/api/v1/ready").its("status").should("eq", 200);
+                  api(saver, "GET", `/folders/${results.id}/files/${file.id}/versions`).then((response) =>
+                    expect(ok(response, "history").versions.map(({ number }) => number)).to.deep.eq([2, 1]),
+                  );
+                  fixture("result-a.xlsx").then((content) => {
+                    downloaded(saver, results, file, first.version.id).then((bytes) =>
+                      expect(bytes).to.deep.eq({ size: content.size, sha256: content.sha256 }),
                     );
-                    fixture("result-a.xlsx").then((content) => {
-                      downloaded(saver, results, file, first.version.id).then((bytes) =>
-                        expect(bytes).to.deep.eq({ size: content.size, sha256: content.sha256 }),
-                      );
-                      api(saver, "POST", `/folders/${results.id}/files/${file.id}/versions/${first.version.id}/restore`, {
-                        headers: { "Idempotency-Key": `${tag}-restore` },
-                      }).then((response) =>
-                        expect(ok(response, "restore").version).to.include({ number: 3, source: "restored", sha256: content.sha256 }),
-                      );
-                    });
+                    api(saver, "POST", `/folders/${results.id}/files/${file.id}/versions/${first.version.id}/restore`, {
+                      headers: { "Idempotency-Key": `${tag}-restore` },
+                    }).then((response) =>
+                      expect(ok(response, "restore").version).to.include({ number: 3, source: "restored", sha256: content.sha256 }),
+                    );
                   });
-                }),
-              );
-            }),
-          );
-        }),
-      );
-    });
+                });
+              }),
+            );
+          }),
+        );
+      }),
+    );
   });
 
   it("TC-SF11-A3 an archived folder keeps its versions for download and refuses new uploads", () => {
@@ -449,8 +481,9 @@ describe("WF-07 laboratory file versions", () => {
     );
   });
 
-  // Only the editor page's answer to a file that is not edited online is the same in every state of the service.
-  it("TC-F55-03 an Office file of a raw-data folder is not edited online, whatever the state of the service", () => {
+  // The raw-data folder's refusal is the same in every state of the service; the result folder's file is answered as the
+  // declared state of the service says.
+  it("TC-F55-03 an Office file of a raw-data folder is not edited online, and one of a result folder is as the service allows", () => {
     const tag = runTag();
     person(TESTER).then((tester) =>
       sampleWithoutFolders().then((sample) => {
@@ -469,10 +502,7 @@ describe("WF-07 laboratory file versions", () => {
                   expect(page.status, "raw-data folder").to.eq(409);
                   expect(page.body).to.contain("Only Word, Excel and PowerPoint files of result and working folders");
                 });
-                // The same file in a result folder is edited online, so what it answers is the service's own: its page or its absence.
-                cy.request({ url: `/medilab/laboratory-files/${resultFile.id}/edit`, failOnStatusCode: false })
-                  .its("status")
-                  .should("be.oneOf", [200, 503]);
+                expectEditorPage(resultFile);
               }),
             );
           }),
@@ -481,8 +511,9 @@ describe("WF-07 laboratory file versions", () => {
     );
   });
 
-  // The thirty minutes are read from the lock; waiting them out, and the job that expires locks, are not exercised.
-  it("TC-F56-02 a lock lasts thirty minutes, renewing extends it, and an expired lock no longer blocks", () => {
+  // The thirty minutes are read from the lock. Expiry is simulated by moving the lock's expiry into the past; waiting the
+  // thirty minutes out and the job that expires locks are not exercised.
+  it("TC-F56-02 a lock is set to thirty minutes, renewing extends it, and a lock with its expiry moved into the past no longer blocks", () => {
     const tag = runTag();
     const path = `notes-${tag}.txt`;
     person(TESTER).then((tester) =>

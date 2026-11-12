@@ -46,6 +46,34 @@ export function membersOf(folderIds) {
   });
 }
 
+// The state the stack declares for the editing service: down unless CYPRESS_editingService says up. Any other value is a
+// mistake of the run, not a state.
+export function editingService() {
+  return cy.env(["editingService"]).then(({ editingService: declared = "down" }) => {
+    expect(["down", "up"], `CYPRESS_editingService is "${declared}"`).to.include(declared);
+    return declared;
+  });
+}
+
+// The editor page of a file that is edited online must answer as the declared state says. A stack in another state fails the
+// test, naming the way to bring them together.
+export function expectEditorPage(file) {
+  return editingService().then((declared) => {
+    const mismatch = `The editing service is declared ${declared}: ${declared === "down" ? "run `task onlyoffice:down`" : "start it"}, or declare it with CYPRESS_editingService`;
+    cy.request({ url: `/medilab/laboratory-files/${file.id}/edit`, failOnStatusCode: false }).then((page) => {
+      if (declared === "down") {
+        expect(page.status, mismatch).to.eq(503);
+        expect(page.body).to.contain("Online editing is unavailable");
+        return;
+      }
+      expect(page.status, mismatch).to.eq(200);
+      const main = new DOMParser().parseFromString(page.body, "text/html").getElementById("laboratory-editor");
+      expect(main.dataset.editorConfig, "editor configuration").to.not.be.empty;
+      cy.request({ url: main.dataset.scriptUrl, failOnStatusCode: false }).its("status", { log: false }).should("eq", 200);
+    });
+  });
+}
+
 export function confirmDialog() {
   cy.get(".modal-footer .btn-primary").click();
 }
