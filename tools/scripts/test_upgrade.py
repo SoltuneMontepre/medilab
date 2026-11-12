@@ -4,6 +4,7 @@ this checkout's image using the arguments of the production upgrade Job, and fai
 import argparse
 import os
 import re
+import secrets
 import subprocess
 import sys
 import time
@@ -17,7 +18,8 @@ REGISTRY = "ghcr.io/soltunemontepre/medilab"
 POSTGRES_IMAGE = "docker.io/library/postgres:18.4"
 DATABASE = "medilab"
 DB_USER = "odoo"
-DB_PASSWORD = "odoo"
+# The throwaway Postgres gets a random password for each run, so no password lives in the repository.
+DB_PASSWORD = secrets.token_urlsafe(24)
 READY_ATTEMPTS = 60
 
 
