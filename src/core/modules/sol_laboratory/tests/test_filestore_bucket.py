@@ -10,6 +10,9 @@ from odoo.addons.sol_laboratory.constants.laboratory_bucket import FILESTORE_VAR
 from odoo.addons.sol_laboratory.constants.models import MODEL_IR_ATTACHMENT
 from odoo.addons.sol_laboratory.services import laboratory_bucket
 
+BUNDLE_VERSION = "0000000"
+BUNDLE_FILE = "web.assets_test.min.js"
+
 
 @tagged("post_install", "-at_install")
 class TestFilestoreBucket(LaboratoryBucketCase):
@@ -82,16 +85,48 @@ class TestFilestoreBucket(LaboratoryBucketCase):
         self.assertEqual(laboratory_bucket.object_size(key), len(content))
 
     def asset_bundle(self):
-        return self.attachments.create(
+        bundle = self.attachments.create(
             {
-                "name": "web.assets_test.min.js",
-                "raw": b"",
+                "name": BUNDLE_FILE,
+                "raw": b"console.log('bundle');",
                 "public": True,
-                "url": "/web/assets/0000000/web.assets_test.min.js",
+                "url": f"/web/assets/{BUNDLE_VERSION}/{BUNDLE_FILE}",
                 "res_model": "ir.ui.view",
                 "res_id": 0,
             }
         )
+        self.addCleanup(laboratory_bucket.delete, self.attachments._bucket_key(bundle.store_fname))
+        return bundle
+
+    def test_an_asset_bundle_whose_file_is_lost_is_deleted_so_it_is_built_again(self):
+        bundle = self.asset_bundle()
+        url = bundle.url
+        self.remove_local_copy(bundle)
+        laboratory_bucket.delete(self.attachments._bucket_key(bundle.store_fname))
+
+        with self.assertLogs("odoo.addons.sol_laboratory.models.system.ir_attachment", "WARNING") as logs:
+            self.attachments._drop_lost_asset_bundle(BUNDLE_FILE, BUNDLE_VERSION, {})
+
+        self.assertFalse(bundle.exists())
+        self.assertIn(url, logs.output[-1])
+
+    def test_an_asset_bundle_whose_file_the_bucket_holds_is_kept_and_read_from_it(self):
+        bundle = self.asset_bundle()
+        self.remove_local_copy(bundle)
+
+        self.attachments._drop_lost_asset_bundle(BUNDLE_FILE, BUNDLE_VERSION, {})
+
+        self.assertTrue(bundle.exists())
+        self.assertTrue(os.path.exists(self.attachments._full_path(bundle.store_fname)))
+
+    def test_a_debug_asset_address_names_no_bundle_to_delete(self):
+        bundle = self.asset_bundle()
+        self.remove_local_copy(bundle)
+        laboratory_bucket.delete(self.attachments._bucket_key(bundle.store_fname))
+
+        self.attachments._drop_lost_asset_bundle(BUNDLE_FILE, "debug", {})
+
+        self.assertTrue(bundle.exists())
 
     def test_an_install_or_update_deletes_the_asset_bundles_so_they_are_built_again(self):
         bundle = self.asset_bundle()

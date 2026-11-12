@@ -13,7 +13,7 @@ from odoo.addons.sol_laboratory.constants.laboratory_bucket import (
     FILESTORE_PREFIX,
     READ_CHUNK_SIZE,
 )
-from odoo.addons.sol_laboratory.constants.models import MODEL_IR_ATTACHMENT
+from odoo.addons.sol_laboratory.constants.models import MODEL_IR_ASSET, MODEL_IR_ATTACHMENT, MODEL_IR_UI_VIEW
 from odoo.addons.sol_laboratory.services import laboratory_bucket, module_files
 
 if TYPE_CHECKING:
@@ -22,6 +22,8 @@ else:
     IrAttachmentBase = object
 
 STORED_FILE = re.compile(r"[0-9a-f]{2}/[0-9a-f]+")
+# Versions of an asset address that name no single bundle file.
+UNVERSIONED_ASSETS = ("debug", "any", "%")
 
 _logger = logging.getLogger(__name__)
 
@@ -50,6 +52,32 @@ class IrAttachment(models.Model, IrAttachmentBase):
         if self.store_fname and laboratory_bucket.filestore_enabled():
             self._download_file(self.store_fname)
         return super()._to_http_stream()
+
+    @api.model
+    def _drop_lost_asset_bundle(self, filename, unique, assets_params):
+        """Delete the attachment of the asset bundle at this address when its file is in neither the local filestore
+        nor the bucket, so that Odoo builds the bundle again. Odoo would otherwise serve it empty, under an address
+        browsers and the CDN keep for a year."""
+        if unique in UNVERSIONED_ASSETS or not laboratory_bucket.filestore_enabled():
+            return
+        url = self.env[MODEL_IR_ASSET]._get_asset_bundle_url(filename, unique, assets_params)
+        bundle = self.sudo().search(
+            [("url", "=", url), ("res_model", "=", MODEL_IR_UI_VIEW), ("res_id", "=", 0), ("public", "=", True)],
+            limit=1,
+        )
+        if not bundle.store_fname:
+            return
+        bundle._download_file(bundle.store_fname)
+        if os.path.exists(self._full_path(bundle.store_fname)):
+            return
+        _logger.warning("Asset bundle %s is built again, as its file %s is lost.", url, bundle.store_fname)
+        if not self.env.cr.readonly:
+            bundle.unlink()
+            return
+        with self.env.registry.cursor() as cr:
+            bundle.with_env(bundle.env(cr=cr)).unlink()
+        # The request's read-only transaction still sees the attachment until it starts again.
+        self.env.cr.rollback()
 
     def _register_hook(self):
         super()._register_hook()
