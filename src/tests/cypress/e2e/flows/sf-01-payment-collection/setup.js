@@ -143,7 +143,8 @@ export function unreconciledDay() {
     limit: 1,
   }).then(([earliest]) => earliest && days.push(earliest.payos_transferred_at.slice(0, 10)));
   return cy.then(() => {
-    const day = new Date(`${days.sort()[0]}T00:00:00Z`);
+    const earliest = days.reduce((first, other) => (other < first ? other : first));
+    const day = new Date(`${earliest}T00:00:00Z`);
     day.setUTCDate(day.getUTCDate() - 1);
     return day.toISOString().slice(0, 10);
   });

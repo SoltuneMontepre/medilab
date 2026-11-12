@@ -2,10 +2,10 @@
 
 const { createHmac } = require("node:crypto");
 
-// PayOS signs the data fields in alphabetical order, joined as key=value, skipping empty ones.
+// PayOS signs the data fields in code point order, as Odoo sorts them, joined as key=value, skipping empty ones.
 function signature(data, key) {
   const raw = Object.keys(data)
-    .sort()
+    .sort((a, b) => (a < b ? -1 : Number(a > b)))
     .filter((name) => data[name] !== null && data[name] !== undefined)
     .map((name) => `${name}=${data[name]}`)
     .join("&");
