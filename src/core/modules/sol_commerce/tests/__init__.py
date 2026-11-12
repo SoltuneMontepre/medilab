@@ -14,6 +14,7 @@ from . import (
     test_invoice_notices,
     test_invoice_tasks,
     test_invoices,
+    test_notice_portal,
     test_notification_portal,
     test_notification_preferences,
     test_order_access,

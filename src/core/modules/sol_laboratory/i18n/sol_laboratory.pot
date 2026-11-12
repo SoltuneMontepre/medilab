@@ -8059,6 +8059,13 @@ msgid "Nothing planned today. Give a task a planned start to see it here."
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/mail_message.py:0
+msgid ""
+"Notice not delivered: %s has no portal account and no usable email address"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__notification_id
 msgid "Notification"
 msgstr ""
@@ -8577,6 +8584,16 @@ msgstr ""
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_accreditation_scope_line_edit_all
 msgid "Permission: accreditation.scope.line.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_notification__portal_seen_at
+msgid "Portal Seen At"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_notification__portal_visible
+msgid "Portal Visible"
 msgstr ""
 
 #. module: sol_laboratory

@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 from odoo import api, fields, models
 from odoo.exceptions import AccessError, MissingError
 from odoo.fields import Domain
+from odoo.tools import SQL
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_MAIL_MESSAGE, MODEL_MAIL_NOTIFICATION
 from odoo.addons.sol_laboratory.services.document_code import document_code
@@ -49,6 +50,12 @@ class MailNotification(models.Model, MailNotificationBase):
     if not TYPE_CHECKING:
         # Delivery status Brevo reported: sent, delivered, opened, bounced, failed or deferred.
         brevo_status = fields.Char(readonly=True, copy=False)
+        # True when the recipient sees this notice in the customer portal, whatever happens to its email. It is kept
+        # apart from notification_type, which Odoo reads as the channel.
+        portal_visible = fields.Boolean(default=False, copy=False)
+        # When the recipient first opened the notice in the portal; empty until then. It is kept apart from is_read,
+        # which belongs to Odoo's inbox.
+        portal_seen_at = fields.Datetime(readonly=True, copy=False)
 
     @api.model
     def _cleanup_domain(self, cutoff):
@@ -59,6 +66,31 @@ class MailNotification(models.Model, MailNotificationBase):
             ("mail_message_id.notification_key", "!=", False),
             ("mail_message_id.date", "<", cutoff),
         ]
+
+    @api.model
+    def _portal_domain(self, user):
+        """The notices the signed-in portal user may read: those addressed to the user's own contact, shown in the
+        portal or, as before, delivered to the inbox. Another contact of the same business, or another customer, is
+        never included."""
+        return Domain("res_partner_id", "=", user.partner_id.id) & (
+            Domain("portal_visible", "=", True) | Domain("notification_type", "=", "inbox")
+        )
+
+    def _portal_open(self):
+        """Record the first time the recipient opened the notice; a later open leaves that time as it is.
+
+        The condition is in the statement because two opens at once must not both write."""
+        self.ensure_one()
+        self.flush_recordset(["portal_seen_at"])
+        self.env.cr.execute(
+            SQL(
+                "UPDATE %s SET portal_seen_at = %s WHERE id = %s AND portal_seen_at IS NULL",
+                SQL.identifier(self._table),
+                fields.Datetime.now(),
+                self.id,
+            )
+        )
+        self.invalidate_recordset(["portal_seen_at"])
 
     def action_open_document(self):
         """Mark this inbox notification read and open the document it belongs to."""

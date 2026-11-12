@@ -9,6 +9,7 @@ from odoo.fields import Command
 from odoo.tools import mute_logger
 
 from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_ENTRY,
     MODEL_MAIL_MESSAGE,
     MODEL_MAIL_NOTIFICATION,
     MODEL_MOBILE_DEVICE,
@@ -105,9 +106,13 @@ class MailMessage(models.Model, MailMessageBase):
         self.ensure_one()
         for partner in partners:
             channels = self._channels_for(partner, event)
-            if not channels:
+            visible = self._portal_visible_for(partner, event, CHANNEL_POPUP in channels)
+            if not channels and not visible:
+                self._log_undelivered(partner, event)
                 continue
-            notification = self._notification_for(partner, CHANNEL_POPUP in channels)
+            notification = self._notification_for(
+                partner, CHANNEL_POPUP in channels, visible, CHANNEL_EMAIL in channels
+            )
             if CHANNEL_EMAIL in channels:
                 self._queue_email(notification, partner, event)
             elif CHANNEL_EMAIL not in channels and not partner.email:
@@ -158,7 +163,26 @@ class MailMessage(models.Model, MailMessageBase):
             popup, email, push = _apply_preference(preference, event, user, popup, email, push)
         return popup, email, push
 
-    def _notification_for(self, partner, popup):
+    def _portal_visible_for(self, partner, event, popup):
+        """True when the notice is shown in the portal to this recipient: a mandatory event always is, and any other
+        event when the customer chose the portal. Only a recipient with a portal account can open it, so a contact
+        without one has no viewer, whatever its email does."""
+        if not partner.user_ids[:1].share:
+            return False
+        return bool(event.mandatory or popup)
+
+    def _log_undelivered(self, partner, event):
+        """Record that a mandatory notice reached nobody: the recipient has no portal account and no usable email."""
+        if event.mandatory:
+            self.env[MODEL_AUDIT_ENTRY]._log_event(
+                "error",
+                self.env._(
+                    "Notice not delivered: %s has no portal account and no usable email address", partner.display_name
+                ),
+                self._audit_document(),
+            )
+
+    def _notification_for(self, partner, popup, visible=False, emailing=True):
         self.ensure_one()
         notification = (
             self.env[MODEL_MAIL_NOTIFICATION]
@@ -169,7 +193,11 @@ class MailMessage(models.Model, MailMessageBase):
             )
         )
         if notification:
+            if visible and not notification.portal_visible:
+                notification.write({"portal_visible": True})
             return notification
+        # A notice shown in the portal whose email is not sent has no email to wait for.
+        status = "sent" if popup else ("canceled" if visible and not emailing else "ready")
         return (
             self.env[MODEL_MAIL_NOTIFICATION]
             .sudo()
@@ -178,7 +206,8 @@ class MailMessage(models.Model, MailMessageBase):
                     "mail_message_id": self.id,
                     "res_partner_id": partner.id,
                     "notification_type": "inbox" if popup else "email",
-                    "notification_status": "sent" if popup else "ready",
+                    "notification_status": status,
+                    "portal_visible": visible,
                 }
             )
         )
