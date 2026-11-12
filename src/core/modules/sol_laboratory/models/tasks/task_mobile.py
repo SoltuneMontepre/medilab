@@ -115,15 +115,14 @@ class TaskMobile(models.Model, TaskMobileBase):
                 by_model.setdefault(task.document_model, []).append(task)
         for model, tasks in by_model.items():
             records = dynamic_model(self.env, model)
-            existing = records.browse([task.document_id for task in tasks]).exists()
+            existing = set(records.browse([task.document_id for task in tasks]).exists().ids)
             screen = document_screen(records)
             for task in tasks:
-                record = existing.filtered(lambda row, document_id=task.document_id: row.id == document_id)
-                if record:
+                if task.document_id in existing:
                     documents[task.id] = {
                         "model": model,
-                        "id": record.id,
-                        "code": document_code(record),
+                        "id": task.document_id,
+                        "code": document_code(records.browse(task.document_id)),
                         "screen": screen,
                     }
         return documents
@@ -160,6 +159,16 @@ class TaskMobile(models.Model, TaskMobileBase):
             "done": open_and_mine and not self.closed_by_system,
             "assign": self._may_assign() and self.can_edit and self.status not in FINAL_STATUSES,
         }
+
+    def _claimed_by_someone_else(self):
+        """Whether the task of the person's queue they could not claim was claimed by someone else, or is being
+        claimed by someone else now: it has an assignee, is no longer open, or another request holds its row. A task
+        outside their queues is not."""
+        self.ensure_one()
+        queued = self.sudo()
+        if not queued._claimable_by(self.env[MODEL_PERSON]._current()):
+            return False
+        return bool(queued.assignee_id or queued.status != "open" or not queued.try_lock_for_update())
 
     @api.model
     def _may_assign(self):

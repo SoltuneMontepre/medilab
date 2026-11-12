@@ -2,7 +2,7 @@ from odoo import http
 from odoo.exceptions import MissingError, UserError
 
 from odoo.addons.sol_laboratory.constants.medilab_mobile import ALREADY_CLAIMED, TASK_PAGE_SIZE
-from odoo.addons.sol_laboratory.constants.models import MODEL_PERSON, MODEL_TASK
+from odoo.addons.sol_laboratory.constants.models import MODEL_TASK
 from odoo.addons.sol_laboratory.services.laboratory_api import laboratory_api_route
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
 
@@ -14,16 +14,6 @@ def readable_task(env, task_id):
         raise MissingError(env._("Nothing is found at this address."))
     task.check_access("read")
     return task
-
-
-def claimed_by_someone_else(task):
-    """Whether the task of the person's queue they could not claim was claimed by someone else, or is being claimed
-    by someone else now: it has an assignee, is no longer open, or another request holds its row."""
-    person = task.env[MODEL_PERSON]._current()
-    queued = task.sudo()
-    if not queued._claimable_by(person):
-        return False
-    return bool(queued.assignee_id or queued.status != "open" or not queued.try_lock_for_update())
 
 
 class LaboratoryApiTasks(http.Controller):
@@ -64,7 +54,7 @@ class LaboratoryApiTasks(http.Controller):
         try:
             task.action_claim()
         except UserError as error:
-            if claimed_by_someone_else(task):
+            if task._claimed_by_someone_else():
                 raise LaboratoryFileError(ALREADY_CLAIMED, error.args[0]) from error
             raise
         return task._mobile_detail()
