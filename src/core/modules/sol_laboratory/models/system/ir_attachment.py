@@ -1,15 +1,18 @@
+import hashlib
 import logging
 import os
 import re
 import tempfile
+from collections import defaultdict
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 
 from odoo import api, models
-from odoo.tools import config
+from odoo.tools import SQL, config
 
 from odoo.addons.sol_laboratory.constants.laboratory_bucket import (
     FILESTORE_GC_GRACE,
+    FILESTORE_LOCK_SCOPE,
     FILESTORE_PREFIX,
     READ_CHUNK_SIZE,
 )
@@ -37,10 +40,15 @@ class IrAttachment(models.Model, IrAttachmentBase):
         return f"{FILESTORE_PREFIX}/{self.env.cr.dbname}/{fname}"
 
     @api.model
+    def _bucket_lock(self, fname):
+        # One of 256 locks, so a transaction that writes many files holds few locks.
+        return hashlib.sha1(fname.encode()).digest()[0]
+
+    @api.model
     def _file_write(self, fname, bin_value):
         result = super()._file_write(fname, bin_value)
         if laboratory_bucket.filestore_enabled():
-            self._upload_file(fname)
+            self._upload_to_bucket(fname)
         return result
 
     def _file_read(self):
@@ -89,26 +97,48 @@ class IrAttachment(models.Model, IrAttachmentBase):
         self._restore_module_files()
         if laboratory_bucket.filestore_enabled():
             for fname in self._local_files():
-                self._upload_file(fname)
+                self._upload_to_bucket(fname)
 
     @api.autovacuum
     def _gc_filestore_bucket(self):
         if not laboratory_bucket.filestore_enabled():
             return
         prefix = self._bucket_key("")
-        kept = set(
+        limit = datetime.now(UTC) - timedelta(seconds=FILESTORE_GC_GRACE)
+        old = {key.removeprefix(prefix) for key, modified in laboratory_bucket.keys(prefix) if modified < limit}
+        by_lock = defaultdict(set)
+        for fname in old - self._used_files(old):
+            by_lock[self._bucket_lock(fname)].add(fname)
+        for lock, fnames in by_lock.items():
+            self._delete_unused_objects(lock, fnames)
+
+    @api.model
+    def _delete_unused_objects(self, lock, fnames):
+        """Delete the objects of the files, under one lock, that no attachment uses. A transaction that relies on one
+        of them holds the lock until it ends, so the files are left to the next cleanup while it is in progress."""
+        [[locked]] = self.env.execute_query(SQL("SELECT pg_try_advisory_lock(%s, %s)", FILESTORE_LOCK_SCOPE, lock))
+        if not locked:
+            return
+        try:
+            # A transaction of its own sees every attachment committed before the lock was taken.
+            with self.env.registry.cursor() as cursor:
+                used = self.with_env(self.env(cr=cursor))._used_files(fnames)
+            for fname in fnames - used:
+                laboratory_bucket.delete(self._bucket_key(fname))
+        finally:
+            self.env.execute_query(SQL("SELECT pg_advisory_unlock(%s, %s)", FILESTORE_LOCK_SCOPE, lock))
+
+    @api.model
+    def _used_files(self, fnames):
+        return set(
             self.sudo()
             .with_context(active_test=False)
             .search_fetch(
-                [("store_fname", "!=", False), "|", ("res_field", "=", False), ("res_field", "!=", False)],
+                [("store_fname", "in", list(fnames)), "|", ("res_field", "=", False), ("res_field", "!=", False)],
                 ["store_fname"],
             )
             .mapped("store_fname")
         )
-        limit = datetime.now(UTC) - timedelta(seconds=FILESTORE_GC_GRACE)
-        for key, modified in list(laboratory_bucket.keys(prefix)):
-            if key.removeprefix(prefix) not in kept and modified < limit:
-                laboratory_bucket.delete(key)
 
     @api.model
     def _move_mounted_files(self):
@@ -204,7 +234,13 @@ class IrAttachment(models.Model, IrAttachmentBase):
         self.env.flush_all()
 
     @api.model
-    def _upload_file(self, fname):
+    def _upload_to_bucket(self, fname):
+        """Write the file to the bucket unless its object is there. The object of a file whose attachment was deleted
+        stays until the cleanup deletes it, so the lock keeps the cleanup from deleting an object found here before this
+        transaction ends."""
+        self.env.cr.execute(
+            SQL("SELECT pg_advisory_xact_lock_shared(%s, %s)", FILESTORE_LOCK_SCOPE, self._bucket_lock(fname))
+        )
         key = self._bucket_key(fname)
         if laboratory_bucket.object_size(key) is not None:
             return

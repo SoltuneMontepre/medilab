@@ -1,6 +1,11 @@
+import contextlib
+import io
 import os
 from unittest.mock import patch
 
+from odoo import api, sql_db
+from odoo.api import SUPERUSER_ID
+from odoo.orm.environments import Transaction
 from odoo.tests import tagged
 from odoo.tools import config, file_open
 
@@ -12,6 +17,8 @@ from odoo.addons.sol_laboratory.services import laboratory_bucket
 
 BUNDLE_VERSION = "0000000"
 BUNDLE_FILE = "web.assets_test.min.js"
+# Every object of the bucket counts as older than the cleanup's grace period.
+ALL_OLD = patch("odoo.addons.sol_laboratory.models.system.ir_attachment.FILESTORE_GC_GRACE", -60)
 
 
 @tagged("post_install", "-at_install")
@@ -32,12 +39,46 @@ class TestFilestoreBucket(LaboratoryBucketCase):
     def remove_local_copy(self, attachment):
         os.unlink(self.attachments._full_path(attachment.store_fname))
 
+    def orphan_object(self, content):
+        """An object of the bucket that no attachment uses any more, as a deleted attachment leaves it."""
+        attachment = self.new_attachment(content)
+        key = self.attachments._bucket_key(attachment.store_fname)
+        attachment.unlink()
+        return key
+
+    def run_cleanup(self):
+        # The cleanup reads the attachments through a cursor of its own, which sees the test's only in test mode.
+        with self.registry_test_mode(), self.registry.cursor() as cursor:
+            self.attachments.with_env(self.env(cr=cursor))._gc_filestore_bucket()
+
+    @contextlib.contextmanager
+    def other_transaction(self):
+        """An environment on a database transaction of its own, rolled back at the end."""
+        with sql_db.db_connect(self.registry.db_name).cursor() as cursor:
+            # An environment looks its registry up by name, which waits on the lock the test run holds.
+            cursor.transaction = Transaction(self.registry)
+            cursor.transaction._check_signaling(cursor)
+            try:
+                yield api.Environment(cursor, SUPERUSER_ID, {})
+            finally:
+                cursor.transaction = None
+                cursor.rollback()
+
     def test_a_new_file_is_written_to_the_bucket(self):
         content = os.urandom(5000)
 
         attachment = self.new_attachment(content)
 
         key = self.attachments._bucket_key(attachment.store_fname)
+        self.assertEqual(laboratory_bucket.object_size(key), len(content))
+
+    def test_a_file_odoo_uploads_is_written_to_the_bucket(self):
+        content = os.urandom(5000)
+
+        attachment = self.attachments._upload_file(io.BytesIO(content), {"name": "file.bin"})
+        key = self.attachments._bucket_key(attachment.store_fname)
+        self.addCleanup(laboratory_bucket.delete, key)
+
         self.assertEqual(laboratory_bucket.object_size(key), len(content))
 
     def test_a_file_missing_on_this_server_is_read_from_the_bucket(self):
@@ -180,8 +221,8 @@ class TestFilestoreBucket(LaboratoryBucketCase):
         laboratory_bucket.write(orphan, [b"orphan"])
         self.addCleanup(laboratory_bucket.delete, orphan)
 
-        with patch("odoo.addons.sol_laboratory.models.system.ir_attachment.FILESTORE_GC_GRACE", -60):
-            self.attachments._gc_filestore_bucket()
+        with ALL_OLD:
+            self.run_cleanup()
 
         self.assertIsNone(laboratory_bucket.object_size(orphan))
         self.assertIsNotNone(laboratory_bucket.object_size(kept))
@@ -191,9 +232,34 @@ class TestFilestoreBucket(LaboratoryBucketCase):
         laboratory_bucket.write(orphan, [b"in flight"])
         self.addCleanup(laboratory_bucket.delete, orphan)
 
-        self.attachments._gc_filestore_bucket()
+        self.run_cleanup()
 
         self.assertIsNotNone(laboratory_bucket.object_size(orphan))
+
+    def test_the_cleanup_keeps_an_old_object_an_attachment_uses_again_while_it_runs(self):
+        content = os.urandom(100)
+        key = self.orphan_object(content)
+        listing = laboratory_bucket.keys
+
+        def listing_then_reuse(prefix):
+            yield from listing(prefix)
+            # An asset bundle built again with the same content finds its object in the bucket and uploads nothing.
+            self.new_attachment(content)
+
+        with ALL_OLD, patch.object(laboratory_bucket, "keys", listing_then_reuse):
+            self.run_cleanup()
+
+        self.assertEqual(laboratory_bucket.object_size(key), 100)
+
+    def test_the_cleanup_leaves_an_old_object_a_transaction_in_progress_relies_on(self):
+        content = os.urandom(100)
+        key = self.orphan_object(content)
+
+        with self.other_transaction() as env, ALL_OLD:
+            env[MODEL_IR_ATTACHMENT].create({"name": "file.bin", "raw": content})
+            self.run_cleanup()
+
+        self.assertEqual(laboratory_bucket.object_size(key), 100)
 
     def mounted_copy(self, attachment, content):
         """Leave the file only where the bucket mounted as the filestore wrote it: at the root, under the database."""
