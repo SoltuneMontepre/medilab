@@ -9,6 +9,7 @@ from odoo.tests import tagged
 
 from .scheduling_case import MONDAY, SchedulingCase
 from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_LOCATION,
     MODEL_MACHINE_BOOKING,
     MODEL_PARAMETER_METHOD,
     MODEL_SAMPLE_TEST,
@@ -86,6 +87,27 @@ class TestMethodStepsInTesting(SchedulingCase):
         self.assertEqual(self.seen(booking, self.runner), [expected])
         with self.assertRaises(AccessError):
             self.as_person(test, self.runner).read(["parameter_method_id"])
+
+    def test_medilab_mobile_gives_the_runner_the_steps_and_the_sample_test_screen(self):
+        test, task, _booking = self.run_test()
+        room = self.env[MODEL_LOCATION].create({"code": "A105", "name": "Ashing room"})
+        self.steps[0].location_id = room
+
+        detail = self.as_person(task, self.runner)._mobile_detail()
+
+        self.assertEqual(
+            [(step["minutes"], step["instruction"], step["note"]) for step in detail["steps"]],
+            [
+                (15, "Weigh the test portion.", ""),
+                (480, "Ash the test portion.", "Raise the temperature gradually."),
+                (30, "Dissolve the ash and make up to volume.", ""),
+            ],
+        )
+        self.assertEqual(detail["steps"][1]["location"], room.display_name)
+        self.assertEqual(
+            detail["document"],
+            {"model": test._name, "id": test.id, "code": test.sample_id.code, "screen": "sample_test"},
+        )
 
     def test_every_way_of_testing_of_the_method_shows_the_same_steps(self):
         cadmium = self.create_parameter("Cadmium (Cd)", self.group)
