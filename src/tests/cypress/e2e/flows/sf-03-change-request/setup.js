@@ -60,11 +60,12 @@ export function assignedTest(parameterId, { name, regulation } = {}) {
     .then((tasks) => {
       ids.tasks = tasks;
       // The Lab Head authorizes the tester for a parameter the demo data does not authorize them for.
-      const authorization = [["person_id", "=", ids.tester], ["parameter_id", "=", parameterId]];
+      const authorization = [
+        ["person_id", "=", ids.tester],
+        ["parameter_id", "=", parameterId],
+      ];
       return callAs(LAB_HEAD, "medilab.parameter.authorization", "search_count", [authorization]).then(
-        (count) =>
-          count ||
-          callAs(LAB_HEAD, "medilab.parameter.authorization", "create", [{ person_id: ids.tester, parameter_id: parameterId }]),
+        (count) => count || callAs(LAB_HEAD, "medilab.parameter.authorization", "create", [{ person_id: ids.tester, parameter_id: parameterId }]),
       );
     })
     .then(() => {
