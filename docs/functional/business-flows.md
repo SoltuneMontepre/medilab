@@ -173,11 +173,11 @@ flowchart TD
 ## WF-04 Result entry and approval
 
 - **Trigger:** a booked test starts.
-- **Result:** The Head of Department approves the measured result, with assessment only for requested regulation comparisons, and the sample completes when all its tests do. Laboratory files retain their versions and the result-file version relied on is signed.
+- **Result:** The Head of Department approves the measured result, with assessment only for requested regulation comparisons, and the sample completes once every remaining test is approved; cancelled tests do not count. Laboratory files retain their versions and the result-file version relied on is signed.
 - **Stories:** US-T05, US-T06, US-T07, US-T08, US-T17, US-T22, US-T23, US-T24, US-T25, US-T26, US-T27, US-HD08, US-HD09, US-HD16, US-LH05.
-- **States:** sample test testing → result entered → approved, or → testing when rejected; sample testing → awaiting approval → completed; upload prepared → uploading → finalizing → completed or conflict; editing session open → saving → committed; result-file version uploaded → signed.
+- **States:** sample test testing → result entered → approved (→ testing when rejected); sample testing → awaiting approval → completed; result file version current or conflict, then signed; machine available → busy → available.
 - **Starts from:** sample tests in testing with their bookings, on samples with and without a regulation; when files are produced, sample folders have members and are bound in Medilab Sync or opened through the back office.
-- **Main path:** The tester follows the agreed method, records the result of the booking with the snapshotted unit and LOD/LOQ, assesses any requested comparison, then sends and signs the result for Head of Department approval; submitting it completes the testing task. When testing produces files, the tester saves them in the sample's folder; Medilab Sync uploads new versions and the head signs the result-file version with its hash.
+- **Main path:** When a booked test starts, the system marks its machine busy. The tester follows the agreed method. When testing produces files, the tester saves them in the sample's folder before recording the result; Medilab Sync uploads new versions and the head signs the result-file version with its hash. The tester records the result of the booking with the snapshotted unit and LOD/LOQ, assesses any requested comparison against the regulation limit the system shows, then sends and signs the result for Head of Department approval, and the head is notified; submitting it completes the testing task and marks the machine available.
 - **Alternative paths:**
   - WF-04-A1: The tester confirms text for a value below LOD/LOQ; the report prints the snapshot threshold and unit and keeps a raw number if available, never zero as a substitute.
   - WF-04-A2: The tester withdraws a result they sent before the head acts.
@@ -193,7 +193,7 @@ flowchart TD
   - WF-04-E1: The head rejects the result with a reason; a new testing task opens, the tester retests with a new booking, the rejected result stays on record and the new one is approved.
   - WF-04-E2: An unusual result warns before sending; the tester sends it anyway and the head sees the warning.
   - WF-04-E3: The head cancels a test that cannot be done, with a reason; the sample completes with its other tests approved.
-  - WF-04-E4: Two testers change the same file from one version; the second upload is kept as a conflict, and the tester takes the server's version with a backup of their own.
+  - WF-04-E4: Two testers change the same file from one version; the second upload is kept as a conflict, and the tester takes the server's version with a backup of their own and saves their changes again.
   - WF-04-E5: The head rejects a result-file version with a reason; the tester saves a corrected version, which is reviewed and signed.
   - WF-04-E6: With the editing service down, testers work in their desktop programs and Medilab Sync uploads their versions; syncing, history and restore keep working.
 - **Acceptance criteria:** See [Tester](laboratory_module/features/tester.md), [Head of department](laboratory_module/features/head-of-department.md) and [Laboratory files](../specs/laboratory-files.md). An entrant other than the Head of Department cannot approve their own result. A missing applicable limit or unresolved text assessment cannot be treated as a pass. Requested comparisons explicitly state insufficient basis when appropriate. Cancelling a test without a reason, or a test with an approved result, is refused. A file outside the folder's sync rules is not uploaded. Rejecting a file version without a reason is refused. Every file version is kept and traceable, including both versions of a conflict. Samples await approval after results are submitted for approval, not merely entered; cancelled tests are excluded under the sample lifecycle rules.
@@ -202,9 +202,10 @@ flowchart TD
 ```mermaid
 flowchart TD
     subgraph lane10 ["Tester"]
-        t1[Follow the method and measure in the booking] --> t2[Record value with snapshot unit and LOD/LOQ]
+        files{Testing produces files?}
+        t2[Enter result with snapshot unit and LOD/LOQ]
         t2 --> q{Regulation comparison requested?}
-        q -->|yes| t3[Assess exact type limit: pass, fail or insufficient basis]
+        t3[Assess the result]
         q -->|no| t4[Check measurement and any sanity warning]
         t3 --> t4 --> t5[Send and sign]
         t6[Retest as a new result with a new booking]
@@ -215,17 +216,23 @@ flowchart TD
         h1{Approve the result, including own entry?}
         h2{Sign the result-file version?}
     end
-    t1 -.->|testing produces files| f1 --> current{Based on current file version?}
+    start[Start booking; mark machine busy] --> files
+    files -->|yes| f1 --> current{Based on current file version?}
+    files -->|no| t2
     current -->|yes| version[New current version]
-    current -->|no| f2
+    current -->|no| f2 --> f1
+    version --> t2
     version --> others[Download to colleagues' two-way folders]
     version --> h2
     h2 -->|reject with reason| f1
     h2 -->|sign| signedfile([File version signed with its hash])
-    t5 --> h1
-    h1 -->|reject with reason| t6 --> t2
+    q -->|yes| limit[Show related regulation limit] --> t3
+    t5 --> free[Close the testing task; mark machine available] --> notify[Notify the head] --> h1
+    h1 -->|reject with reason| t6 --> start
     h1 -->|approve| done([Reported result approved])
-    done --> wf06([WF-06 when every test is approved or cancelled])
+    done --> every{Every remaining test of the sample approved?}
+    every -->|yes| wf06([Sample completed: WF-06 Report signing, release and delivery])
+    every -->|no| wait([Wait for other tests])
 ```
 
 ## WF-05 Outsourced testing
