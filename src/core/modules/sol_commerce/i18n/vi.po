@@ -1595,6 +1595,11 @@ msgid "Parameters"
 msgstr "Chỉ Tiêu"
 
 #. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_account_payment_register
+msgid "Pay"
+msgstr "Thanh toán"
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 msgid "Pay the advance before"
 msgstr "Thanh toán tạm ứng trước"
@@ -2537,6 +2542,7 @@ msgstr "Ngày đã khóa thì giữ nguyên trạng thái khóa."
 #. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/invoicing/account_payment.py:0
+#: code:addons/sol_commerce/models/invoicing/account_payment_register.py:0
 msgid "A payment cannot be more than the amount still owed."
 msgstr "Một khoản thanh toán không được lớn hơn số tiền còn nợ."
 

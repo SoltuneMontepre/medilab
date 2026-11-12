@@ -152,6 +152,7 @@ from . import (
     test_master_data_access,
     test_medilab_mobile_notifications,
     test_medilab_mobile_sign_in,
+    test_medilab_mobile_tasks,
     test_method_step_access,
     test_method_steps,
     test_method_steps_in_testing,

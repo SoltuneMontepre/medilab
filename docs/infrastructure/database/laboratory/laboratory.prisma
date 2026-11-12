@@ -1738,6 +1738,7 @@ model TaskType {
 
 /// Work waiting for a department, a role or a person, with a deadline, that opens the document and action to do it. Tasks are internal: the assignee is a person with an Odoo user.
 /// Points to its document by document_model and document_id, indexed together.
+/// Partial unique index on created_by_device_id and idempotency_key where idempotency_key is set.
 model Task {
   /// Row identifier.
   id             Int          @id @default(autoincrement())
@@ -1775,6 +1776,10 @@ model Task {
   done_at        DateTime?
   /// The calendar event showing the planned time on the assignee's schedule, with its reminder; kept in step both ways.
   calendar_event_id Int?      @unique
+  /// The phone the task was created by hand on; empty for a task created on the web or by the system.
+  created_by_device_id Int?
+  /// The Idempotency-Key the phone sent with the request that created the task; empty when it sent none.
+  idempotency_key String?     @db.VarChar
   /// The kind of task.
   type           TaskType     @relation(fields: [type_id], references: [id], onDelete: Restrict)
   /// Department whose queue holds the task.
@@ -1785,6 +1790,8 @@ model Task {
   assigned_by    Person?      @relation("TaskAssigner", fields: [assigned_by_id], references: [id], onDelete: Restrict)
   /// The calendar event of the planned time.
   calendar_event CalendarEvent? @relation("TaskEvent", fields: [calendar_event_id], references: [id], onDelete: SetNull)
+  /// The phone the task was created on.
+  created_by_device LaboratoryDevice? @relation(fields: [created_by_device_id], references: [id], onDelete: SetNull)
   /// Machine bookings made for the task.
   bookings       MachineBooking[]
   /// Assign-task wizards that include this task.
@@ -3082,6 +3089,8 @@ model LaboratoryDevice {
   mobile_device MobileDevice?
   /// Handover records customers signed on the phone.
   signed_handover_records HandoverRecord[]
+  /// Tasks created by hand on the phone.
+  created_tasks Task[]
 
   @@unique([user_id, client_uid])
   @@map("medilab_laboratory_device")

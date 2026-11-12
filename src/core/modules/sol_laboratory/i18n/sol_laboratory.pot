@@ -3374,6 +3374,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__created_by_device_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__created_by_device_id
 msgid "Created By Device"
 msgstr ""
 
@@ -6221,6 +6222,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__idempotency_key
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_idempotency_mixin__idempotency_key
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_upload__idempotency_key
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__idempotency_key
 msgid "Idempotency Key"
 msgstr ""
 
@@ -9173,11 +9175,6 @@ msgid "Permission: accreditation.certificate.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_container_edit_all
-msgid "Permission: container.edit.all"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_approval_chain_archive_all
 msgid "Permission: approval.chain.archive.all"
 msgstr ""
@@ -9975,11 +9972,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_order_template_line_read_all
 msgid "Permission: order.template.line.read.all"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_preparation_create_all
-msgid "Permission: preparation.create.all"
 msgstr ""
 
 #. module: sol_laboratory
@@ -14899,16 +14891,6 @@ msgid "Title"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_move_create_all
-msgid "Permission: move.create.all"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_move_read_all
-msgid "Permission: move.read.all"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__date_to
 msgid "To"
 msgstr ""
@@ -15927,6 +15909,29 @@ msgid "This notification is no longer in your inbox."
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_task_device_idempotency_key_unique
+msgid "This phone already created a task with this Idempotency-Key."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task_mobile.py:0
+msgid "You may not assign %s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task_mobile.py:0
+msgid "You may not assign tasks."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task_mobile.py:0
+msgid "You may not create tasks."
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/report_template_version.py:0
 msgid "%(template)s, version %(number)s"
@@ -16841,9 +16846,4 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch.py:0
 msgid "The subcontractor's report is kept; attach another file to replace it."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_stock_read_all
-msgid "Permission: stock.read.all"
 msgstr ""

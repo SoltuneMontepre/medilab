@@ -81,7 +81,7 @@ External Secrets reads the Doppler `infra` config through the `doppler` `Cluster
 - Traefik routes `lims.soltunemontepre.tech` to Odoo, and `/websocket` to its websocket port, and tells Odoo the request came over HTTPS.
 - Every sync of the `odoo` application runs, in order:
   1. A `PreSync` hook: the `medilab-db-pre-sync` on-demand `Backup`, which must complete.
-  2. A `Sync` hook: the `odoo-upgrade` Job, which installs `sol_laboratory`, `sol_commerce`, `sol_inventory`, `sol_theme` and `sol_demo` when missing and upgrades every installed module. `MEDILAB_DEMO_PASSWORD` is not set, so the `demo.<role>` users keep the password `demo`. It does not retry; a failure fails the sync.
+  2. A `Sync` hook: the `odoo-upgrade` Job, which installs `sol_laboratory`, `sol_commerce`, `sol_inventory`, `sol_theme` and `sol_demo` when missing and upgrades every installed module. `MEDILAB_DEMO_PASSWORD` is not set, so the `demo.<role>` users keep the password `demo`. It runs without workers: with them, Odoo opens its HTTP port but starts no worker before it stops, so a report the demo data renders would wait forever for its styles; without them, the report is rendered unstyled. It does not retry; a failure fails the sync.
   3. The update of the `odoo` Deployment with a `progressDeadlineSeconds` of 10 minutes. The base configuration uses `maxSurge: 1` and `maxUnavailable: 0`; the active editor demo overlay uses `maxSurge: 0` and `maxUnavailable: 1` to fit Server A, with a brief interruption during replacement.
 - Each hook is replaced at the next sync, so the last backup and Job stay readable until then.
 

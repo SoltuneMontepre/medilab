@@ -55,6 +55,9 @@ class IrAttachment(models.Model, IrAttachmentBase):
         super()._register_hook()
         if not (config["init"] or config["update"]):
             return
+        if laboratory_bucket.filestore_enabled():
+            # A bundle whose file was lost would be served empty, so every bundle is built again on first request.
+            self.regenerate_assets_bundles()
         self._restore_module_files()
         if laboratory_bucket.filestore_enabled():
             for fname in self._local_files():

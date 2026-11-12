@@ -480,6 +480,7 @@ msgstr ""
 #. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/invoicing/account_payment.py:0
+#: code:addons/sol_commerce/models/invoicing/account_payment_register.py:0
 msgid "A payment cannot be more than the amount still owed."
 msgstr ""
 
@@ -3062,6 +3063,11 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_notification_contact__partner_id
 msgid "Partner"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_account_payment_register
+msgid "Pay"
 msgstr ""
 
 #. module: sol_commerce

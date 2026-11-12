@@ -20,7 +20,7 @@ info:
     | `permission_denied`, `device_revoked` | 403 |
     | `not_found` | 404 |
     | `method_not_allowed` | 405 |
-    | `folder_archived`, `folder_disabled`, `folder_exists`, `locked`, `not_locked`, `upload_incomplete`, `upload_closed` | 409 |
+    | `folder_archived`, `folder_disabled`, `folder_exists`, `locked`, `not_locked`, `upload_incomplete`, `upload_closed`, `action_refused`, `already_claimed` | 409 |
     | `not_eligible`, `not_lockable`, `not_editable`, `idempotency_conflict`, `mandatory_event` | 422 |
     | `too_many_attempts` | 429 |
     | `internal_error` | 500 |
@@ -40,6 +40,10 @@ tags:
     description: Which events are pushed to the person's phones.
   - name: Documents
     description: The documents pushes, notifications and tasks open.
+  - name: Me
+    description: The person signed in and what they may do.
+  - name: Tasks
+    description: The person's day, to-do list and queues, and the actions on tasks.
 paths:
   /health:
     get:
@@ -135,6 +139,8 @@ paths:
           $ref: "#/components/responses/NotFound"
         "405":
           $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
         "500":
           $ref: "#/components/responses/InternalError"
         "503":
@@ -192,6 +198,8 @@ paths:
           $ref: "#/components/responses/NotFound"
         "405":
           $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
         "500":
           $ref: "#/components/responses/InternalError"
         "503":
@@ -222,6 +230,8 @@ paths:
           $ref: "#/components/responses/NotFound"
         "405":
           $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
         "500":
           $ref: "#/components/responses/InternalError"
         "503":
@@ -242,6 +252,8 @@ paths:
           $ref: "#/components/responses/NotFound"
         "405":
           $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
         "500":
           $ref: "#/components/responses/InternalError"
         "503":
@@ -266,6 +278,8 @@ paths:
           $ref: "#/components/responses/NotFound"
         "405":
           $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
         "500":
           $ref: "#/components/responses/InternalError"
         "503":
@@ -309,6 +323,8 @@ paths:
           $ref: "#/components/responses/NotFound"
         "405":
           $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
         "500":
           $ref: "#/components/responses/InternalError"
         "503":
@@ -336,6 +352,8 @@ paths:
           $ref: "#/components/responses/NotFound"
         "405":
           $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
         "500":
           $ref: "#/components/responses/InternalError"
         "503":
@@ -363,6 +381,8 @@ paths:
           $ref: "#/components/responses/NotFound"
         "405":
           $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
         "500":
           $ref: "#/components/responses/InternalError"
         "503":
@@ -402,6 +422,8 @@ paths:
           $ref: "#/components/responses/MandatoryEvent"
         "405":
           $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
         "500":
           $ref: "#/components/responses/InternalError"
         "503":
@@ -440,6 +462,370 @@ paths:
           $ref: "#/components/responses/NotFound"
         "405":
           $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /me:
+    get:
+      operationId: getMe
+      tags: [Me]
+      summary: Gives the person signed in and what they may do, as the web's buttons show it.
+      responses:
+        "200":
+          description: The person.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Me"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /tasks/today:
+    get:
+      operationId: getTaskDay
+      tags: [Tasks]
+      summary: Gives the person's day, as the Tasks app opens on it.
+      description: |
+        Today's planned tasks, the next tasks to do, overdue first, and the first tasks waiting in the queues the
+        person can claim from, with their counts. The day is the person's, in their time zone.
+      responses:
+        "200":
+          description: The day.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskDay"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /tasks:
+    get:
+      operationId: listTasks
+      tags: [Tasks]
+      summary: Lists the person's open tasks, their finished tasks or the tasks waiting in their queues.
+      description: |
+        The same tasks in the same order as the web's lists: `open`, the tasks assigned to the person and not
+        finished, soonest deadline first and those without one last; `finished`, their done tasks, latest first;
+        `queue`, the unassigned tasks of the queues they can claim from, soonest deadline first. `next_after` is the
+        `after` of the next page, or empty after the last one.
+      parameters:
+        - name: list
+          in: query
+          required: true
+          schema:
+            enum: [open, finished, queue]
+        - name: after
+          in: query
+          required: false
+          description: The `next_after` of the page before, how many tasks the pages before gave; 0 or none from the start.
+          schema:
+            type: string
+            pattern: "^[0-9]{1,9}$"
+        - name: limit
+          in: query
+          required: false
+          description: How many to give, from 1 to 100; 50 by default.
+          schema:
+            type: string
+            pattern: "^(100|[1-9][0-9]?)$"
+      responses:
+        "200":
+          description: The tasks.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskList"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+    post:
+      operationId: createTask
+      tags: [Tasks]
+      summary: Creates a task by hand, of the general type, for a person and with a deadline.
+      description: |
+        Needs the permission to create tasks; the task goes to the assignee's department and never opens a document.
+        With an `Idempotency-Key`, repeating the request answers with the task it created.
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewTask"
+      responses:
+        "200":
+          description: The task created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskDetail"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /tasks/assignees:
+    get:
+      operationId: searchTaskAssignees
+      tags: [Tasks]
+      summary: Finds the people and the departments the person may give a task to.
+      description: Needs the permission to create or assign tasks. Finds at most 20 people and 20 departments.
+      parameters:
+        - name: q
+          in: query
+          required: false
+          description: Part of the name; none finds the first ones.
+          schema:
+            type: string
+            maxLength: 100
+      responses:
+        "200":
+          description: The people and the departments.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssigneeList"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /tasks/{task_id}:
+    parameters:
+      - name: task_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: getTask
+      tags: [Tasks]
+      summary: Gives the task with its note, its method's steps and the actions the person may take on it.
+      description: A task the person may not read answers `not_found`.
+      responses:
+        "200":
+          description: The task.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskDetail"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /tasks/{task_id}/claim:
+    parameters:
+      - name: task_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      operationId: claimTask
+      tags: [Tasks]
+      summary: Claims a task waiting in the person's queue.
+      description: |
+        A task someone else claimed first is refused with `already_claimed`; a task outside the person's queues with
+        `action_refused`.
+      responses:
+        "200":
+          description: The task, now the person's.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskDetail"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ClaimRefused"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /tasks/{task_id}/start:
+    parameters:
+      - name: task_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      operationId: startTask
+      tags: [Tasks]
+      summary: Starts a task assigned to the person.
+      responses:
+        "200":
+          description: The task, in progress.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskDetail"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /tasks/{task_id}/done:
+    parameters:
+      - name: task_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      operationId: finishTask
+      tags: [Tasks]
+      summary: Marks done a task created by hand and assigned to the person.
+      description: A task the system closes once its work is done is refused with `action_refused`.
+      responses:
+        "200":
+          description: The task, done.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskDetail"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /tasks/{task_id}/assign:
+    parameters:
+      - name: task_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      operationId: assignTask
+      tags: [Tasks]
+      summary: Assigns or reassigns the task to a person or a department, as the web's Assign does.
+      description: |
+        Needs the permission to edit the task. A person outside the task's department takes the task to theirs unless
+        the request names the department. Moving the task away from its person or department without a reason is
+        refused with `action_refused`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskAssignment"
+      responses:
+        "200":
+          description: The task as it now is.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskDetail"
+        "204":
+          description: The task moved where the person no longer reads it.
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
         "500":
           $ref: "#/components/responses/InternalError"
         "503":
@@ -1609,6 +1995,277 @@ components:
         url:
           description: The document's address on the web.
           type: string
+    Me:
+      type: object
+      additionalProperties: false
+      required: [name, login, department, roles, can]
+      properties:
+        name:
+          type: string
+        login:
+          type: string
+        department:
+          description: The person's department; empty when they have none.
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+        can:
+          type: object
+          additionalProperties: false
+          required: [create_tasks, assign_tasks]
+          properties:
+            create_tasks:
+              description: Whether the person creates tasks by hand.
+              type: boolean
+            assign_tasks:
+              description: Whether the person assigns and reassigns tasks.
+              type: boolean
+    TaskDay:
+      type: object
+      additionalProperties: false
+      required:
+        - person
+        - day_start
+        - day_end
+        - open_count
+        - overdue_count
+        - due_today_count
+        - finished_count
+        - finished_week_count
+        - claimable_count
+        - next_up
+        - planned_today
+        - claimable
+      properties:
+        person:
+          type: string
+        day_start:
+          type: string
+          format: date-time
+        day_end:
+          type: string
+          format: date-time
+        open_count:
+          type: integer
+        overdue_count:
+          type: integer
+        due_today_count:
+          type: integer
+        finished_count:
+          type: integer
+        finished_week_count:
+          description: The tasks the person finished in the last 7 days.
+          type: integer
+        claimable_count:
+          type: integer
+        next_up:
+          description: The next open tasks to do, overdue first.
+          type: array
+          items:
+            $ref: "#/components/schemas/Task"
+        planned_today:
+          type: array
+          items:
+            $ref: "#/components/schemas/Task"
+        claimable:
+          description: The first tasks waiting in the person's queues.
+          type: array
+          items:
+            $ref: "#/components/schemas/Task"
+    TaskList:
+      type: object
+      additionalProperties: false
+      required: [tasks, next_after]
+      properties:
+        tasks:
+          type: array
+          items:
+            $ref: "#/components/schemas/Task"
+        next_after:
+          type: [integer, "null"]
+    Task:
+      type: object
+      required:
+        - id
+        - name
+        - type
+        - status
+        - action
+        - deadline
+        - planned_start
+        - planned_end
+        - done_at
+        - department
+        - assignee
+        - location
+        - closed_by_system
+        - document
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        type:
+          description: The task type's name.
+          type: string
+        status:
+          enum: [open, assigned, in_progress, done, cancelled]
+        action:
+          description: The action the task opens its document at, such as `test`; empty when it has none.
+          type: string
+        deadline:
+          type: [string, "null"]
+          format: date-time
+        planned_start:
+          type: [string, "null"]
+          format: date-time
+        planned_end:
+          type: [string, "null"]
+          format: date-time
+        done_at:
+          type: [string, "null"]
+          format: date-time
+        department:
+          description: The department whose queue holds the task; empty when it has none.
+          type: string
+        assignee:
+          description: The person who does the task; empty while it waits in a queue.
+          type: string
+        location:
+          description: Where the sample of a testing task was taken; empty for any other task.
+          type: string
+        closed_by_system:
+          description: Whether the system marks the task done once its work is done, rather than the assignee.
+          type: boolean
+        document:
+          oneOf:
+            - $ref: "#/components/schemas/TaskDocument"
+            - type: "null"
+    TaskDocument:
+      type: object
+      additionalProperties: false
+      required: [model, id, code, screen]
+      properties:
+        model:
+          type: string
+        id:
+          type: integer
+        code:
+          description: The document's code, such as a sample's lab code; empty when it has none.
+          type: string
+        screen:
+          description: The app's screen for the document; `web` for one it shows only with its address on the web.
+          enum: [task, sample, sample_test, test_result, handover_record, support_request, container, conversation, web]
+    TaskDetail:
+      allOf:
+        - $ref: "#/components/schemas/Task"
+        - type: object
+          required: [note, reassign_reason, assigned_by, steps, actions]
+          properties:
+            note:
+              type: string
+            reassign_reason:
+              description: Why the task was last moved to another person or department.
+              type: string
+            assigned_by:
+              type: string
+            steps:
+              description: The steps of a testing task's method, in order; empty for any other task.
+              type: array
+              items:
+                $ref: "#/components/schemas/TaskStep"
+            actions:
+              $ref: "#/components/schemas/TaskActions"
+    TaskStep:
+      type: object
+      additionalProperties: false
+      required: [minutes, instruction, note, location]
+      properties:
+        minutes:
+          type: integer
+        instruction:
+          type: string
+        note:
+          type: string
+        location:
+          type: string
+    TaskActions:
+      description: The actions the web's form shows the person on the task.
+      type: object
+      additionalProperties: false
+      required: [claim, start, done, assign]
+      properties:
+        claim:
+          type: boolean
+        start:
+          type: boolean
+        done:
+          type: boolean
+        assign:
+          type: boolean
+    NewTask:
+      type: object
+      additionalProperties: false
+      required: [name, assignee_id, deadline]
+      properties:
+        name:
+          type: string
+          maxLength: 200
+          pattern: "\\S"
+        note:
+          type: string
+          maxLength: 5000
+        assignee_id:
+          description: The id of the person, as `searchTaskAssignees` gives it.
+          type: integer
+        deadline:
+          type: string
+          format: date-time
+    TaskAssignment:
+      type: object
+      additionalProperties: false
+      properties:
+        assignee_id:
+          description: The person who does the task; none or null leaves it in the department's queue.
+          type: [integer, "null"]
+        department_id:
+          description: The department whose queue holds the task; when left out, the task's, or the assignee's.
+          type: [integer, "null"]
+        reason:
+          description: Why the task moves away from its person or department.
+          type: string
+          maxLength: 2000
+    AssigneeList:
+      type: object
+      additionalProperties: false
+      required: [people, departments]
+      properties:
+        people:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [id, name, department]
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+              department:
+                type: string
+        departments:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [id, name]
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
     Folder:
       type: object
       additionalProperties: false
@@ -2103,6 +2760,8 @@ components:
                 - not_editable
                 - idempotency_conflict
                 - mandatory_event
+                - action_refused
+                - already_claimed
                 - too_many_attempts
                 - internal_error
                 - try_again
@@ -2192,6 +2851,30 @@ components:
                     properties:
                       code:
                         enum: [not_eligible, not_lockable, not_editable, idempotency_conflict]
+    ActionRefused:
+      description: The model refused the action; the message says why.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error"
+              - properties:
+                  error:
+                    properties:
+                      code:
+                        enum: [action_refused]
+    ClaimRefused:
+      description: Someone else claimed the task first, or it waits in a queue the person does not belong to.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error"
+              - properties:
+                  error:
+                    properties:
+                      code:
+                        enum: [already_claimed, action_refused]
     MandatoryEvent:
       description: The push of a mandatory event cannot be turned off.
       content:
