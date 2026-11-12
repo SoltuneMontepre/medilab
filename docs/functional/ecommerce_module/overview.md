@@ -85,6 +85,6 @@ Each actor has its own feature document under `features/<actor>/`, listing the u
 | ----- | ------------------------ | -------- |
 | Customer | Places orders, pays, tracks progress and downloads results | [customer](features/customer.md) |
 | Sales | Claims orders, prepares and sends quotations, confirms orders | [sales](features/sales.md) |
-| Head of Sales | Approves quotations above the thresholds and cancellations of orders whose samples are collected, allows customers to order on credit, handles exceptions | Not written yet |
+| Head of Sales | Approves quotations above the thresholds and cancellations of orders whose samples are collected, handles exceptions | Not written yet |
 | Accountant | Records payments, manages invoices and reports | [accountant](features/accountant.md) |
 | Administrator | Manages accounts, prices, taxes, service packages and settings | [admin](features/admin.md) |

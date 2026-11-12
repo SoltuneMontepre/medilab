@@ -20,18 +20,18 @@ erDiagram
     SAMPLE_TEST }o--|| PARAMETER_METHOD : "is tested by"
     TEST_PARAMETER ||--|{ PARAMETER_METHOD : "is tested by"
     PARAMETER_METHOD }o--|| TESTING_METHOD : uses
-    TESTING_METHOD ||--o{ TESTING_METHOD_STEP : has
-    LOCATION |o--o{ LOCATION : contains
+    TESTING_METHOD ||--o{ TESTING_METHOD_STEP : "is done in"
+    LOCATION ||--o{ LOCATION : contains
     TESTING_METHOD_STEP }o--o| LOCATION : "is done in"
     SAMPLE }o--o| LOCATION : "is taken from"
     ACCREDITATION_CERTIFICATE ||--|{ ACCREDITATION_SCOPE_LINE : contains
     ACCREDITATION_SCOPE_LINE }o--|| TESTING_METHOD : covers
-    ACCREDITATION_SCOPE_LINE }o--|{ TEST_PARAMETER : covers
-    ACCREDITATION_SCOPE_LINE }o--|{ SAMPLE_TYPE : covers
+    ACCREDITATION_SCOPE_LINE }o--o{ TEST_PARAMETER : covers
+    ACCREDITATION_SCOPE_LINE }o--o{ SAMPLE_TYPE : covers
     SAMPLE_TEST ||--o{ TEST_RESULT : has
     SAMPLE_TEST ||--o{ MACHINE_BOOKING : "is booked in"
     MACHINE_BOOKING o|--o{ TEST_RESULT : measures
-    SUBCONTRACT_DISPATCH }o--|{ SAMPLE_TEST : sends
+    SUBCONTRACT_DISPATCH o|--o{ TEST_RESULT : carries
     MACHINE_BOOKING }o--|| PERSON : "is done by"
     MACHINE_BOOKING }o--o| MACHINE : "uses when needed"
 ```
@@ -115,7 +115,7 @@ stateDiagram-v2
     assigned --> testing: test started
     waiting --> testing: test started before it is assigned
     testing --> result_entered: result entered and sent for approval
-    outsourced --> result_entered: outsourced result entered for approval
+    outsourced --> result_entered: subcontractor's result sent for approval
     result_entered --> outsourced: outsourced result rejected or withdrawn
     result_entered --> testing: result rejected or withdrawn
     result_entered --> approved: result approved
@@ -166,12 +166,12 @@ stateDiagram-v2
 
 | Rule            | Description                                                                                                                       |
 | --------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| Results | A sample test can have several results over time: a rejected or interrupted result stays on record, and a retest adds a new result with its own booking. The system does not count or limit retests. A result measured in the laboratory has one booking; an outsourced result belongs to its sample test, which a subcontract dispatch sends to the subcontractor. One result per sample test is reported: the latest entered, and only it is sent for approval. A new result may be entered for a received sample while its test waits, is assigned or is testing, not while its reported result awaits approval. |
+| Results | A sample test can have several results over time: a rejected or interrupted result stays on record, and a retest adds a new result with its own booking. The system does not count or limit retests. Each result is measured in one booking or one subcontract dispatch. One result per sample test is reported: the latest entered, and only it is sent for approval. A new result may be entered for a received sample while its test waits, is assigned or is testing, not while its reported result awaits approval. |
 | Value | A result copies the result unit, LOD and LOQ from the way's configuration for the sample type when created. A value is an exact decimal number with the configured display precision, or text. A number is never negative unless its way of testing allows negative values, such as a redox potential or a temperature in °C. Later catalog edits do not change the snapshot. Below LOD or LOQ, suggest text for the tester to confirm, print the actual threshold and unit, such as "<0.05 mg/L", and state whether it is below LOD or LOQ. Retain the raw number if available; never substitute zero or infer a pass. |
 | Limit copy | For requested comparison, copy the regulation reference, limit and unit for the exact parameter and sample type when the result is created. Missing limits remain visibly missing. Later catalog edits do not change snapshots. Comparison-unit conversion follows [Catalog](features/admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28) and retains the original measurement. |
 | Versions        | A change request on a result whose process is completed creates a new version that replaces it. The signed version stays unchanged and is marked as replaced. |
-| Measurement | The booking supplies the performing person, time and machine when required. An outsourced result has no booking: it belongs to its sample test, which a subcontract dispatch sends, and retains the subcontractor's report. Entering one result does not finish the other bookings sharing its machine interval. |
-| Entered by      | Each result records who entered it. The results of an outsourced test are entered by the subcontractor, whose people sign in to the system, or by a lab QA, once its dispatch is sent. The subcontractor's result comes first: while a result the subcontractor entered waits for approval, a lab QA cannot enter another one for the test. A subcontractor's result goes to approval when entered; a lab QA sends the results they enter like their own. |
+| Measurement | The booking supplies the performing person, time and machine when required. An outsourced result belongs to its dispatch and retains the subcontractor's report. Entering one result does not finish the other bookings sharing its machine interval. A result never belongs to both a booking and a dispatch. |
+| Entered by      | Each result records who entered it. The results of an outsourced test are entered by the subcontractor, whose people sign in to the system, or by a lab QA, once its dispatch is sent. The subcontractor's result comes first: while a result the subcontractor entered waits to be sent, a lab QA cannot enter another one for the test. A lab QA sends them for approval like their own. |
 | Sanity check    | Before a numeric result is sent for approval, it is compared with the approved results of the same parameter, way of testing and sample type, whoever the customer. When there are enough of them, 10 by default, and the value is more than 3 standard deviations from their mean, or the value is within 10% of the regulation limit, the tester is warned with the reason and may still send it. The warning is kept on the result and shown to the approver. The minimum count, the spread and the margin are [system parameters](../shared.md#sh-03-configuration-through-settings-and-system-parameters). A text result is not checked. |
 | Conclusion | Without a requested regulation comparison, no pass/fail conclusion is required. For each comparison the tester assesses pass, fail or insufficient basis, including text and below-LOD/LOQ results. Any assessed failure makes the sample fail within the assessed scope. It passes within the requested scope only when all required comparisons are complete and pass. With no failure but a missing limit or unresolved assessment, the conclusion is insufficient basis. Parameters outside the requested comparison scope do not need a conclusion. |
 | Result approval | The Head of Department approves the department's results and may approve results they entered, including when they are its only result signer. Other entrants cannot approve their own results. Approval is an explicit signing action, not an effect of entering a result. The Lab Head reviews the approved results when signing the report. |
@@ -186,7 +186,7 @@ stateDiagram-v2
 | --------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | Test report     | A test request has one test report covering all its samples, issued in Vietnamese, English or both side by side. Its headings and its approvers' level names print in the report's language, both side by side on a bilingual report. Samples have no sign-off of their own: once a sample's results are approved, the next signature is the lab head's on the report. After its approval chain completes, digitally sign the prepared PDF when signing is on, store it, then issue the report with its reserved number ([SH-04](../shared.md#sh-04-signatures-and-digital-signing)). With signing off, store the approved prepared PDF and issue it without a digital signature. |
 | Draft           | When every sample test of a request is approved or cancelled, the system creates the draft report and a signing task for the lab head. |
-| Templates and authoring | Administrators maintain versioned DOCX templates for Vietnamese, English and bilingual reports in ONLYOFFICE. The system fills a working draft from approved business data. People with the report edit permission, the Lab Head by default, may edit its layout and explanatory text, comment and co-edit in ONLYOFFICE; measured results, units, limits, comparison basis and approvers remain controlled by the business records. See [Test reports](../../specs/test-reports.md). |
+| Templates and authoring | Administrators maintain versioned DOCX templates for Vietnamese, English and bilingual reports in ONLYOFFICE. The system fills a working draft from approved business data. People with report edit permission may edit its layout and explanatory text, comment and co-edit in ONLYOFFICE; measured results, units, limits, comparison basis and approvers remain controlled by the business records. See [Test reports](../../specs/test-reports.md). |
 | Prepared PDF | Before signing, finish and confirm the draft's saves, validate its business data and prepare the PDF for review. Stale sources block preparation and signing. Approval binds the saved draft, template, data snapshot, result versions and PDF. A changed draft needs fresh review; signatures must first be withdrawn in the permitted order. Digital signing uses the prepared PDF, without regenerating it from a later template or file save. |
 | Report files | DOCX drafts are internal working files. Customers receive the issued PDF, digitally signed when signing is on. Issued files and their source versions stay unchanged; a correction uses the change-request and replacement-report process. |
 | Content | The report identifies the customer, request, receipt and issue dates, report number, samples and lab codes. For each sample, print its sample type, received amount and condition, recorded analysis start and end dates, and report-relevant request or sample notes when provided. The result table prints parameter, measured result, unit and method. Comparison limits and conclusions appear only for the requested regulation scope, with wording limited to that scope and insufficient basis where applicable. Below-LOD/LOQ text prints the snapshot threshold and unit. Print the actual result approvers, including a Head of Department who approved their own result, and the report signer; tester signatures stay internal. Cancelled tests are excluded. |
@@ -341,7 +341,7 @@ stateDiagram-v2
 - [Sample delivery staff](features/sample-delivery-staff.md): collect, receive and hand over samples, and carry outsourced samples to subcontractors
 - [Tester](features/tester.md): schedules and runs tests, enters and signs results
 - [Head of department](features/head-of-department.md): assigns testing work, manages the department's schedule, approves results
-- [Lab head](features/lab-head.md): configures parameter authorizations, reviews results when signing reports and reviews laboratory-wide testing statistics
+- [Lab head](features/lab-head.md): configures parameter authorizations, reviews results when signing reports and reviews laboratory-wide testing figures
 - [Subcontractor](features/subcontractor.md): sees the tests sent to it and enters their results
 
 ## Related documents
