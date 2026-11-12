@@ -81,6 +81,34 @@ class TestFilestoreBucket(LaboratoryBucketCase):
 
         self.assertEqual(laboratory_bucket.object_size(key), len(content))
 
+    def asset_bundle(self):
+        return self.attachments.create(
+            {
+                "name": "web.assets_test.min.js",
+                "raw": b"",
+                "public": True,
+                "url": "/web/assets/0000000/web.assets_test.min.js",
+                "res_model": "ir.ui.view",
+                "res_id": 0,
+            }
+        )
+
+    def test_an_install_or_update_deletes_the_asset_bundles_so_they_are_built_again(self):
+        bundle = self.asset_bundle()
+
+        with patch.dict(config._runtime_options, {"update": ["sol_laboratory"]}):
+            self.attachments._register_hook()
+
+        self.assertFalse(bundle.exists())
+
+    def test_a_server_that_neither_installs_nor_updates_keeps_the_asset_bundles(self):
+        bundle = self.asset_bundle()
+
+        with patch.dict(config._runtime_options, {"init": [], "update": []}):
+            self.attachments._register_hook()
+
+        self.assertTrue(bundle.exists())
+
     def test_a_server_that_neither_installs_nor_updates_writes_nothing_at_start(self):
         with patch.dict(os.environ, {FILESTORE_VARIABLE: "0"}):
             attachment = self.new_attachment(os.urandom(100))
