@@ -285,6 +285,7 @@ describe("SF-01 Invoicing and payment collection", () => {
   it("TC-SF01-E1 refuses a payment above the amount still owed", () => {
     finalInvoice().then((invoice) => {
       readInvoice(invoice, ["amount_residual"]).then(({ amount_residual: owed }) => {
+        expect(owed, "amount still owed").to.be.greaterThan(0);
         cy.signInAs("accountant");
         cy.openRecord(invoice);
         cy.expectRefusal({
@@ -305,6 +306,7 @@ describe("SF-01 Invoicing and payment collection", () => {
 
   it("TC-SF01-E2 refuses editing a posted invoice", () => {
     finalInvoice().then((invoice) => {
+      readInvoice(invoice, ["state"]).its("state").should("eq", "posted");
       cy.signInAs("accountant");
       cy.openRecord(invoice);
       cy.expectRefusal({
@@ -318,6 +320,7 @@ describe("SF-01 Invoicing and payment collection", () => {
   it("TC-SF01-E3 refuses changing an online payment of a locked day", () => {
     refAs(ACCOUNTANT, "sol_demo.demo_account_move_payos_locked").then((invoice) =>
       onlinePayments(invoice).then(([payment]) => {
+        expect(payment, "online payment of the locked day").to.exist;
         const record = { model: "account.payment", id: payment.id };
         cy.signInAs("accountant");
         cy.openRecord(record);
