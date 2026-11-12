@@ -85,6 +85,8 @@ Run commands from the repository root in PowerShell, Bash or your usual terminal
 
 Both modes inherit the local environment files loaded by Task. Set `MEDILAB_DEMO_PASSWORD` to the password used when the demo was created if it differs from `demo`.
 
+The SF-01 tests pay online by sending PayOS notifications from the test runner, signed with `PAYOS_CHECKSUM_KEY`. Odoo checks them with the same key, so set it, to any random value, in `tools/infrastructure/.env` before starting Odoo, and leave `PAYOS_CLIENT_ID` and `PAYOS_API_KEY` unset so that nothing calls PayOS. The `e2e` job of `ci-core` makes a new key for each run. The fresh local demo does not forward the key, so those tests fail there.
+
 #### Preparing the application
 
 `task test:e2e:app` prepares the selected local application for browser tests, as CI does:

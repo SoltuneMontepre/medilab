@@ -57,6 +57,17 @@ class TestPayments(InvoicingCase):
             self.env["payment.transaction"].portal_start_payos(self.invoice, 2_000_000)
         self.assertEqual(self.env["payment.transaction"].portal_start_payos(self.invoice, 1_000_000), link)
 
+    def test_registering_a_payment_cannot_exceed_what_is_owed(self):
+        context = {"active_model": "account.move", "active_ids": self.invoice.ids}
+        register = self.env["account.payment.register"].with_context(**context)
+        owed = self.invoice.amount_residual
+
+        with self.assertRaisesRegex(UserError, "more than the amount still owed"):
+            register.create({"amount": owed + 1}).action_create_payments()
+        self.assertEqual(self.invoice.payment_state, "not_paid")
+        register.create({"amount": owed}).action_create_payments()
+        self.assertIn(self.invoice.payment_state, ("in_payment", "paid"))
+
     def test_an_empty_reconciliation_day_prints_zero_totals(self):
         day = self.env["medilab.reconciliation.day"].create({"day": "2020-06-01"})
 
