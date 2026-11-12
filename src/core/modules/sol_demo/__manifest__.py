@@ -1,6 +1,6 @@
 {
     "name": "Medilab - Testing Data",
-    "version": "20.0.1.26.0",
+    "version": "20.0.1.29.0",
     "summary": "Seeds and configure data for demo purposes.",
     "category": "Services/Laboratory",
     "author": "Soltune Montepre",
@@ -38,6 +38,7 @@
         "data/sol_laboratory/approval_chain.xml",
         "data/sol_laboratory/approval_level.xml",
         "data/sol_laboratory/person.xml",
+        "data/sol_laboratory/parameter_authorization.xml",
         "data/sol_laboratory/laboratory_device.xml",
         "data/sol_laboratory/mobile_device.xml",
         "data/sol_laboratory/customer.xml",

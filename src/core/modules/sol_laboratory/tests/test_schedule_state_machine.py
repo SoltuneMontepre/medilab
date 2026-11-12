@@ -49,6 +49,7 @@ class TestScheduleStateMachine(ScheduleInvariantsCase):
         self.assertEqual(task.assignee_id, self.tester)
         self.assert_schedule_invariants(self.test)
 
+        self.receive(self.sample, self.department)
         booking = self.schedule(self.test, self.tester)
         self.assertEqual(self.statuses(self.test), ("assigned", "assigned", "scheduled"))
         self.assertEqual(

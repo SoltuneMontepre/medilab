@@ -9,6 +9,7 @@ from . import (
     machine,
     machine_service,
     measurement_unit,
+    parameter_authorization,
     parameter_group,
     parameter_method,
     parameter_method_machine,
