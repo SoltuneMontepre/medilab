@@ -982,6 +982,11 @@ msgid "Back to my account"
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification
+msgid "Back to notifications"
+msgstr ""
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.portal_payos_pending
 msgid "Back to the invoice"
 msgstr ""
@@ -2547,6 +2552,11 @@ msgid "Name"
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification_preferences
+msgid "New"
+msgstr ""
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.support_new
 msgid "New support request"
 msgstr ""
@@ -2616,10 +2626,20 @@ msgid "Nothing has been paid on this order. It can still be confirmed."
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification
+msgid "Notification"
+msgstr ""
+
+#. module: sol_commerce
 #: model:portal.entry,name:sol_commerce.portal_entry_notifications
 #: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
 #: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification_preferences
 msgid "Notification preferences"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification_preferences
+msgid "Notifications"
 msgstr ""
 
 #. module: sol_commerce
@@ -3667,11 +3687,6 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_medilab_receivable_report
 msgid "Receivables"
-msgstr ""
-
-#. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification_preferences
-msgid "Recent notifications"
 msgstr ""
 
 #. module: sol_commerce

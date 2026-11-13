@@ -5241,6 +5241,13 @@ msgstr ""
 "để thấy ở đây."
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/mail_message.py:0
+msgid ""
+"Notice not delivered: %s has no portal account and no usable email address"
+msgstr "Thông báo chưa được gửi: %s không có tài khoản cổng thông tin và không có địa chỉ email dùng được"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_needaction_counter
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_needaction_counter
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_needaction_counter
@@ -6605,6 +6612,16 @@ msgstr "Kết thúc dự kiến"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__planned_start
 msgid "Planned Start"
 msgstr "Bắt đầu dự kiến"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_notification__portal_seen_at
+msgid "Portal Seen At"
+msgstr "Thời điểm xem trên cổng thông tin"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_notification__portal_visible
+msgid "Portal Visible"
+msgstr "Hiển thị trên cổng thông tin"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__post_test_requirements

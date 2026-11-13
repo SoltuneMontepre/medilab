@@ -17,6 +17,9 @@ SIGNING_CERTIFICATE_ALERT_PARAMETER = "sol_laboratory.signing_certificate_alert_
 DEFAULT_SIGNING_CERTIFICATE_ALERT_DAYS = 30
 QUALITY_REGISTRATION_WARNING_PARAMETER = "sol_laboratory.quality_registration_warning_days"
 DEFAULT_QUALITY_REGISTRATION_WARNING_DAYS = 30
+# Set once by the migration that adds the portal columns: the portal shows the mandatory notices written after it by code
+# that does not know the columns. Nothing is shown from this rule when it is missing.
+NOTICE_PORTAL_SINCE_PARAMETER = "sol_laboratory.notice_portal_since"
 LOCK_TIMEOUT_PARAMETER = "sol_laboratory.lock_timeout_minutes"
 DEFAULT_LOCK_TIMEOUT_MINUTES = 15
 JOB_RETENTION_PARAMETER = "sol_laboratory.job_retention_days"

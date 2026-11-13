@@ -2602,7 +2602,7 @@ model Message {
   @@map("mail_message")
 }
 
-/// Odoo's notification (mail.notification), shown with the columns this schema uses and the column the laboratory adds: one message to one recipient, in their inbox or by e-mail.
+/// Odoo's notification (mail.notification), shown with the columns this schema uses and the columns the laboratory adds: one message to one recipient, in their inbox or by e-mail.
 /// The cleanup job removes read notifications after their retention period.
 model Notification {
   /// Row identifier.
@@ -2621,6 +2621,10 @@ model Notification {
   is_read             Boolean        @default(false)
   /// When the user read it.
   read_date           DateTime?
+  /// True when the notification shows in the recipient's customer portal: a mandatory event, or an event the customer chose to see there.
+  portal_visible      Boolean        @default(false)
+  /// When the recipient first opened the notification in the customer portal.
+  portal_seen_at      DateTime?
   /// The message notified.
   message             Message        @relation(fields: [mail_message_id], references: [id], onDelete: Cascade)
   /// Pushes of the notification to the user's mobile devices.

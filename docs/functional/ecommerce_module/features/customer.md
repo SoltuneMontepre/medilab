@@ -263,7 +263,7 @@ The customer receives one notification per event, through the channels chosen in
 
 The results of an order are released on the order, to the order's contact, once for each issued report.
 
-A notice of a mandatory event always stays visible in the portal, whatever happens to its email ([SH-11](../../shared.md#sh-11-schedules-and-reminders)). When an email to the customer bounces and Sales corrects the address, the new address receives a confirmation link; emails resume once the customer opens it, and until then the customer gets notices in the portal only.
+A notice of a mandatory event always stays visible in the portal of the contact it was sent to, whatever happens to its email ([SH-11](../../shared.md#sh-11-schedules-and-reminders)). The portal lists the contact's notices, newest first, with a mark on those not yet opened; opening one shows its subject, date and text. When an email to the customer bounces and Sales corrects the address, the new address receives a confirmation link; emails resume once the customer opens it, and until then the customer gets notices in the portal only.
 
 ### 6. Support and feedback (US-C20, US-C21)
 
