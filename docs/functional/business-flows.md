@@ -316,7 +316,9 @@ flowchart TD
         h1[Re-approve the named results]
     end
     subgraph lane17 ["Sample delivery staff"]
-        d2[Record the delivery]
+        d0{Deliver by e-mail?}
+        d1[Record e-mail delivery]
+        d3[Hand over in person or by post] --> d2[Record the delivery]
     end
     subgraph lane18 ["Customer"]
         c2[Download the issued PDF]
@@ -334,9 +336,9 @@ flowchart TD
     plain --> issued
     issued --> notifyCustomer[Notify the customer]
     notifyCustomer --> c2
-    notifyCustomer --> d2
-    d2 --> email{Delivered by e-mail?}
-    email -->|yes| send[E-mail the report PDF]
+    notifyCustomer --> d0
+    d0 -->|yes| d1 --> send[E-mail the report PDF]
+    d0 -->|no| d3
 ```
 
 ## SF-01 Invoicing and payment collection

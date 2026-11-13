@@ -105,7 +105,7 @@ Follows [Reports and change requests](../overview.md#reports-and-change-requests
 | Rule     | Description                                                                                                         |
 | -------- | ------------------------------------------------------------------------------------------------------------------- |
 | Waiting  | Issued, undelivered reports are listed with their delivery method, note and the contact who receives them. A report pending digital signing remains unissued and enters this list only after its signed PDF is stored and the report is issued. |
-| Delivery | Sample delivery staff deliver the report as the test request says and record when it was delivered; they are recorded as who delivered it. A report sent by email is emailed to its recipient from the system. |
+| Delivery | Sample delivery staff deliver the report as the test request says. They hand a report over in person or by post and then record when it was delivered; for a report sent by email, recording the delivery has the system email it to its recipient. They are recorded as who delivered it. |
 
 Acceptance criteria:
 
