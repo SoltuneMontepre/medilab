@@ -750,7 +750,7 @@ model Machine {
 }
 
 /// One calibration, maintenance or repair of a machine, done or planned. Only done records give the next calibration and maintenance dates.
-/// downtime_end is after downtime_start when both are set (check constraint).
+/// downtime_start and downtime_end are set together, and downtime_end is after downtime_start (check constraint).
 model MachineService {
   /// Row identifier.
   id           Int       @id @default(autoincrement())

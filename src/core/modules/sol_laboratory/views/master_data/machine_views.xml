@@ -53,6 +53,8 @@
                                 <list editable="top">
                                     <field name="kind" />
                                     <field name="service_date" />
+                                    <field name="downtime_start" optional="show" />
+                                    <field name="downtime_end" optional="show" />
                                     <field name="next_due_date" />
                                     <field name="performed_by" />
                                     <field name="reference" />

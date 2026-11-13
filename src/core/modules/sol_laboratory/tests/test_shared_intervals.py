@@ -11,7 +11,7 @@ from odoo.tools import mute_logger
 from .assertions import assert_instance
 from .location_case import LocationCase
 from .schedule_invariants_case import ScheduleInvariantsCase
-from .scheduling_case import MONDAY
+from .scheduling_case import MONDAY, calibrated
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MACHINE,
     MODEL_MACHINE_BOOKING,
@@ -38,7 +38,7 @@ class TestSharedIntervals(ScheduleInvariantsCase, LocationCase):
     def setUpClass(cls):
         super().setUpClass()
         (cls.fast | cls.slow).write({"status": "under_repair"})
-        cls.icp_ms = cls.env[MODEL_MACHINE].create({"code": "ICPMS-1", "name": "ICP-MS 1"})
+        cls.icp_ms = cls.env[MODEL_MACHINE].create(calibrated({"code": "ICPMS-1", "name": "ICP-MS 1"}))
         cls.metals = cls.env[MODEL_MACHINE_METHOD].create(
             {"machine_id": cls.icp_ms.id, "method_id": cls.method.id, "duration_minutes": 240, "capacity": 20}
         )

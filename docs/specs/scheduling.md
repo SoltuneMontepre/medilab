@@ -31,6 +31,8 @@ A machine that takes several samples in one load, such as an ICP-MS with an auto
 
 A booking holds its machine until the tester enters its result or marks the measurement finished, whichever comes first, which frees the machine early. Bookings sharing the interval free their places one by one. When a booking's end passes without either, the machine stays held, the next bookings on it are flagged at risk, and the tester and the head of department are notified; nothing moves by itself.
 
+A measurement in progress past its end keeps its machine from taking a new booking until its result is entered or it is marked finished. The scheduled job `machine_bookings.overrun` checks every 15 minutes for scheduled and in-progress bookings past their end and sends the mandatory `machine_booking.overrun` notification once for each end: to the testers and heads of the booking and of the next bookings on its machine, the bookings of the earliest later interval, which the notification names as at risk. The booking's form says its end has passed, and the form of each scheduled booking on a held machine says it is at risk.
+
 ### Plan
 
 Each department has a proposed plan: the system places every received, not-started sample test of the department in a proposed booking with its required resources. The plan is recalculated when work arrives, a booking changes, a resource becomes unavailable or a customer date changes. Testers and heads accept proposed bookings to schedule them. Scheduled bookings move only through an approved plan revision.
@@ -86,7 +88,7 @@ The head records planned OverTime for a tester, an outside-hours interval and a 
 
 ### Warnings
 
-The calibration, maintenance and recent-repair warning windows are three independent settings, each 7 days by default. They warn when planning or starting within the window and never allow a blocked booking. Returning a machine to in use after a repair requires a calibration or maintenance record dated after the repair.
+The calibration, maintenance and recent-repair warning windows are three independent settings, each 7 days by default. They warn when planning or starting within the window and never allow a blocked booking. A booking warns when it ends within the calibration window before the end of its machine's calibration date or within the maintenance window before the end of its maintenance due date, and when it starts within the recent-repair window after the day of the machine's latest repair; the booking's form shows the warning. A window of 0 days turns its warning off. Returning a machine to in use after a repair requires a calibration or maintenance record dated after the repair.
 
 ### Data
 

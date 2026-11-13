@@ -21,6 +21,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MACHINE,
     MODEL_MACHINE_BOOKING,
     MODEL_MACHINE_METHOD,
+    MODEL_MACHINE_SERVICE,
     MODEL_MAIL_MESSAGE,
     MODEL_MEASUREMENT_UNIT,
     MODEL_PARAMETER_GROUP,
@@ -178,6 +179,15 @@ class SchedulingCommittedCase(TransactionCase):
             },
         )
         machine = create(MODEL_MACHINE, {"code": self.token, "name": f"Scheduling machine {self.token}"})
+        create(
+            MODEL_MACHINE_SERVICE,
+            {
+                "machine_id": machine.id,
+                "kind": "calibration",
+                "service_date": "2020-01-01",
+                "next_due_date": "2099-12-31",
+            },
+        )
         self.machine_id = machine.id
         create(
             MODEL_MACHINE_METHOD,
@@ -502,6 +512,7 @@ class SchedulingCommittedCase(TransactionCase):
                 MODEL_TEST_REQUEST,
                 MODEL_CUSTOMER,
                 MODEL_MACHINE_METHOD,
+                MODEL_MACHINE_SERVICE,
                 MODEL_TESTING_METHOD_STEP,
                 MODEL_PARAMETER_METHOD_SAMPLE_TYPE,
                 MODEL_PARAMETER_METHOD,

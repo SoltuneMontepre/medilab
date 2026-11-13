@@ -10,7 +10,7 @@ from odoo.tests import tagged
 from .cross_department_case import CrossDepartmentCase
 from .location_case import LocationCase
 from .schedule_invariants_case import WEEKDAYS
-from .scheduling_case import MONDAY
+from .scheduling_case import MONDAY, calibrated
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MACHINE,
     MODEL_MACHINE_BOOKING,
@@ -34,7 +34,7 @@ class TestScheduleRecommendation(CrossDepartmentCase, LocationCase):
     def test_the_machine_that_finishes_first_wins_over_the_one_that_starts_first(self):
         (self.fast | self.slow).write({"status": "under_repair"})
         long_run, short_run = self.env[MODEL_MACHINE].create(
-            [{"code": "AAS-120", "name": "AAS 120"}, {"code": "AAS-40", "name": "AAS 40"}]
+            [calibrated({"code": "AAS-120", "name": "AAS 120"}), calibrated({"code": "AAS-40", "name": "AAS 40"})]
         )
         self.env[MODEL_MACHINE_METHOD].create(
             [

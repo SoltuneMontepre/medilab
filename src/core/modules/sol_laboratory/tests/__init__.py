@@ -145,6 +145,7 @@ from . import (
     test_location_bookings,
     test_locations,
     test_locations_in_testing,
+    test_machine_conditions,
     test_machine_method_migration,
     test_machine_scheduling,
     test_machines_and_chemicals,

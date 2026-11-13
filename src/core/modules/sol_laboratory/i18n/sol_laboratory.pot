@@ -16889,3 +16889,163 @@ msgstr ""
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_method_machine_method_unique
 msgid "The machine is already linked to this testing method."
 msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/machine_booking_scheduled_job.py:0
+msgid "%(booking)s on %(machine)s ended at %(end)s without its result or a finished measurement, so it still holds the machine."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_conditions.py:0
+msgid "%(machine)s was repaired on %(date)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_conditions.py:0
+msgid "%s has no valid calibration until the end of the booking; record a calibration first."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_conditions.py:0
+msgid "%s is not in use."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_conditions.py:0
+msgid "%s is out of use for a planned service at that time."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__calibration_warning_days
+msgid "A booking that ends within this many days before its machine's calibration ends warns its tester."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__maintenance_warning_days
+msgid "A booking that ends within this many days before its machine's maintenance is due warns its tester."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__repair_warning_days
+msgid "A booking that starts within this many days after its machine's repair warns its tester."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_machine_booking_overrun
+msgid "A booking's end passed before its result was entered or its measurement finished"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_service_downtime_period
+msgid "A downtime has a start and an end after it."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/res_config_settings.py:0
+msgid "A machine warning cannot be negative; 0 turns it off."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_conditions.py:0
+msgid "At risk: %(holder)s still holds %(machine)s past its end."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/machine_booking_scheduled_job.py:0
+msgid "At risk: %s."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__booking_id
+msgid "Booking"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__calibration_warning_days
+msgid "Calibration Warning (days)"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__downtime_end
+msgid "Downtime End"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__downtime_start
+msgid "Downtime Start"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_machine_service__service_date
+msgid "Leave empty while the service is planned."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__machine_warning
+msgid "Machine Warning"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_machine_booking_overrun
+msgid "Machine booking overran"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__maintenance_warning_days
+msgid "Maintenance Warning (days)"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_machine_bookings_overrun_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_machine_bookings_overrun
+msgid "Notify overrunning machine bookings"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/machine_service.py:0
+msgid "Planned"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__repair_warning_days
+msgid "Recent Repair Warning (days)"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/machine.py:0
+msgid "Record a calibration or maintenance of %(machine)s done after its repair on %(date)s before putting it back in use."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_conditions.py:0
+msgid "The booking's end has passed: enter its result or mark the measurement finished to free %s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_conditions.py:0
+msgid "The calibration of %(machine)s ends on %(date)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_conditions.py:0
+msgid "The maintenance of %(machine)s is due on %(date)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_conditions.py:0
+msgid "The maintenance of %(machine)s was due on %(date)s; record it before booking the machine."
+msgstr ""

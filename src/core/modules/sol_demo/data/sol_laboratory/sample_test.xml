@@ -120,4 +120,16 @@
         <field name="status">assigned</field>
         <field name="parameter_method_id" ref="demo_parameter_method_arsenic_icpms" />
     </record>
+    <record id="demo_sample_test_lead_overrun" model="medilab.sample.test">
+        <field name="sample_id" ref="demo_sample_lead_overrun" />
+        <field name="parameter_id" ref="demo_test_parameter_lead" />
+        <field name="status">testing</field>
+        <field name="parameter_method_id" ref="demo_parameter_method_lead_icpms" />
+    </record>
+    <record id="demo_sample_test_lead_overrun_next" model="medilab.sample.test">
+        <field name="sample_id" ref="demo_sample_lead_overrun_next" />
+        <field name="parameter_id" ref="demo_test_parameter_lead" />
+        <field name="status">assigned</field>
+        <field name="parameter_method_id" ref="demo_parameter_method_lead_icpms" />
+    </record>
 </odoo>

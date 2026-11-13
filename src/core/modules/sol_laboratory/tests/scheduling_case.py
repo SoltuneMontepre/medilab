@@ -1,5 +1,7 @@
 from datetime import datetime
 
+from odoo.fields import Command
+
 from .people_case import PeopleCase
 from .request_case import RequestCase
 from odoo.addons.sol_laboratory.constants.models import MODEL_MACHINE, MODEL_MACHINE_METHOD, MODEL_TASK
@@ -9,6 +11,17 @@ from odoo.addons.sol_laboratory.constants.tasks import SAMPLE_RECEIVED_TRIGGER
 MONDAY = datetime(2026, 10, 12, 8, 0)
 
 
+def calibrated(values):
+    """The values of a machine with a calibration done long ago and valid long after the tests' dates; a test's own
+    calibration is later, so it gives the due date."""
+    return {
+        **values,
+        "service_ids": [
+            Command.create({"kind": "calibration", "service_date": "2020-01-01", "next_due_date": "2099-12-31"})
+        ],
+    }
+
+
 class SchedulingCase(RequestCase, PeopleCase):
     """Two machines run lead in 40 and 70 minutes. Two testers and their head of department work standard hours in UTC."""
 
@@ -16,7 +29,7 @@ class SchedulingCase(RequestCase, PeopleCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.fast, cls.slow = cls.env[MODEL_MACHINE].create(
-            [{"code": "AAS-1", "name": "AAS 1"}, {"code": "AAS-2", "name": "AAS 2"}]
+            [calibrated({"code": "AAS-1", "name": "AAS 1"}), calibrated({"code": "AAS-2", "name": "AAS 2"})]
         )
         cls.env[MODEL_MACHINE_METHOD].create(
             [

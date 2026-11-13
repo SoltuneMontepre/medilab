@@ -2,7 +2,7 @@ from freezegun import freeze_time
 
 from odoo.tests import Form, tagged
 
-from .scheduling_case import MONDAY, SchedulingCase
+from .scheduling_case import MONDAY, SchedulingCase, calibrated
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MACHINE,
     MODEL_MACHINE_BOOKING,
@@ -77,7 +77,7 @@ class TestTestingAssignment(SchedulingCase):
             }
         )
         self.offer(coliforms, self.sample_type, way)
-        incubator = self.env[MODEL_MACHINE].create({"code": "INC-1", "name": "Incubator 1"})
+        incubator = self.env[MODEL_MACHINE].create(calibrated({"code": "INC-1", "name": "Incubator 1"}))
         self.env[MODEL_MACHINE_METHOD].create(
             {"method_id": way.method_id.id, "machine_id": incubator.id, "duration_minutes": 60}
         )

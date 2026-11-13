@@ -16773,3 +16773,163 @@ msgstr "Máy đang chạy một phương pháp thử khác vào thời gian đó
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_method_machine_method_unique
 msgid "The machine is already linked to this testing method."
 msgstr "Máy đã được gắn với phương pháp thử này."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/machine_booking_scheduled_job.py:0
+msgid "%(booking)s on %(machine)s ended at %(end)s without its result or a finished measurement, so it still holds the machine."
+msgstr "%(booking)s trên %(machine)s đã hết giờ lúc %(end)s mà chưa có kết quả hay chưa được đánh dấu đo xong, nên vẫn đang giữ máy."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_conditions.py:0
+msgid "%(machine)s was repaired on %(date)s."
+msgstr "%(machine)s đã được sửa chữa ngày %(date)s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_conditions.py:0
+msgid "%s has no valid calibration until the end of the booking; record a calibration first."
+msgstr "%s không có hiệu chuẩn còn hiệu lực đến hết lịch đặt; hãy ghi nhận hiệu chuẩn trước."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_conditions.py:0
+msgid "%s is not in use."
+msgstr "%s không ở trạng thái đang sử dụng."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_conditions.py:0
+msgid "%s is out of use for a planned service at that time."
+msgstr "%s ngừng sử dụng vì có lịch bảo trì vào thời gian đó."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__calibration_warning_days
+msgid "A booking that ends within this many days before its machine's calibration ends warns its tester."
+msgstr "Lịch đặt kết thúc trong số ngày này trước khi hiệu chuẩn của máy hết hạn sẽ cảnh báo thử nghiệm viên."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__maintenance_warning_days
+msgid "A booking that ends within this many days before its machine's maintenance is due warns its tester."
+msgstr "Lịch đặt kết thúc trong số ngày này trước hạn bảo trì của máy sẽ cảnh báo thử nghiệm viên."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__repair_warning_days
+msgid "A booking that starts within this many days after its machine's repair warns its tester."
+msgstr "Lịch đặt bắt đầu trong số ngày này sau khi máy được sửa chữa sẽ cảnh báo thử nghiệm viên."
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_machine_booking_overrun
+msgid "A booking's end passed before its result was entered or its measurement finished"
+msgstr "Lịch đặt đã hết giờ trước khi nhập kết quả hoặc đo xong"
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_service_downtime_period
+msgid "A downtime has a start and an end after it."
+msgstr "Khoảng ngừng máy phải có thời điểm bắt đầu và thời điểm kết thúc sau đó."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/res_config_settings.py:0
+msgid "A machine warning cannot be negative; 0 turns it off."
+msgstr "Cảnh báo máy không được âm; 0 là tắt cảnh báo."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_conditions.py:0
+msgid "At risk: %(holder)s still holds %(machine)s past its end."
+msgstr "Có rủi ro: %(holder)s vẫn giữ %(machine)s quá giờ kết thúc."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/machine_booking_scheduled_job.py:0
+msgid "At risk: %s."
+msgstr "Có rủi ro: %s."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__booking_id
+msgid "Booking"
+msgstr "Lịch Đặt Máy"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__calibration_warning_days
+msgid "Calibration Warning (days)"
+msgstr "Cảnh Báo Hiệu Chuẩn (ngày)"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__downtime_end
+msgid "Downtime End"
+msgstr "Ngừng Máy Đến"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__downtime_start
+msgid "Downtime Start"
+msgstr "Ngừng Máy Từ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_machine_service__service_date
+msgid "Leave empty while the service is planned."
+msgstr "Để trống khi lần bảo trì còn đang lên kế hoạch."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__machine_warning
+msgid "Machine Warning"
+msgstr "Cảnh Báo Máy"
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_machine_booking_overrun
+msgid "Machine booking overran"
+msgstr "Lịch đặt máy quá giờ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__maintenance_warning_days
+msgid "Maintenance Warning (days)"
+msgstr "Cảnh Báo Bảo Trì (ngày)"
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_machine_bookings_overrun_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_machine_bookings_overrun
+msgid "Notify overrunning machine bookings"
+msgstr "Thông báo lịch đặt máy quá giờ"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/machine_service.py:0
+msgid "Planned"
+msgstr "Đã lên kế hoạch"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__repair_warning_days
+msgid "Recent Repair Warning (days)"
+msgstr "Cảnh Báo Mới Sửa Chữa (ngày)"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/machine.py:0
+msgid "Record a calibration or maintenance of %(machine)s done after its repair on %(date)s before putting it back in use."
+msgstr "Hãy ghi nhận một lần hiệu chuẩn hoặc bảo trì %(machine)s sau lần sửa chữa ngày %(date)s trước khi đưa máy trở lại sử dụng."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_conditions.py:0
+msgid "The booking's end has passed: enter its result or mark the measurement finished to free %s."
+msgstr "Lịch đặt đã hết giờ: hãy nhập kết quả hoặc đánh dấu đo xong để giải phóng %s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_conditions.py:0
+msgid "The calibration of %(machine)s ends on %(date)s."
+msgstr "Hiệu chuẩn của %(machine)s hết hạn ngày %(date)s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_conditions.py:0
+msgid "The maintenance of %(machine)s is due on %(date)s."
+msgstr "%(machine)s đến hạn bảo trì ngày %(date)s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_conditions.py:0
+msgid "The maintenance of %(machine)s was due on %(date)s; record it before booking the machine."
+msgstr "%(machine)s đã đến hạn bảo trì ngày %(date)s; hãy ghi nhận bảo trì trước khi đặt máy."
