@@ -17,7 +17,7 @@ Sample delivery staff (nhân viên giao nhận mẫu) collect samples at the cus
 - **US-SD07** As sample delivery staff, I want to see the samples expected for each test request, so that I know what should arrive.
 - **US-SD08** As sample delivery staff, I want to print a label for each sample with its lab code, test request, results due date and a QR code, so that the sample can be identified and scanned without showing the customer.
 - **US-SD09** As sample delivery staff, I want to record a sample's receipt with the amount, its condition and where it is stored, so that its state on arrival is on record.
-- **US-SD10** As sample delivery staff, I want to reject a sample that cannot be tested, with the reason, so that nobody works on it.
+- **US-SD10** As sample delivery staff, I want to record a sample that cannot be tested as unusable, with the reason, so that the system rejects it and nobody works on it.
 - **US-SD11** As sample delivery staff, I want to put an insufficient sample on hold and report it to the head of department, so that it can be collected again.
 - **US-SD12** As sample delivery staff, I want to hand a received sample over to each department that tests it, so that every department knows it has the sample.
 
@@ -68,20 +68,21 @@ Follows the reception rules and the sample lifecycle in the [Laboratory overview
 
 | Rule          | Description                                                                                                                  |
 | ------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| Test request | With E-commerce, every test request comes from an order sales confirmed ([Sales, Confirmation](../../ecommerce_module/features/sales.md#4-confirmation-us-s12-us-s15)). A customer who brings samples to the laboratory goes through sales first. Sample delivery staff confirm the request once the order's advance is paid in full or the customer is allowed credit, and receive its samples once the request is paid; until then the samples wait at reception. |
+| Test request | With E-commerce, every test request comes from an order sales confirmed ([Sales, Confirmation](../../ecommerce_module/features/sales.md#4-confirmation-us-s12-us-s15)). A customer who brings samples to the laboratory goes through sales first. Sample delivery staff confirm the request once the order's advance is paid in full or the customer is allowed credit, and receive its samples once the request is paid, which for a customer allowed credit is at once; until then the samples wait at reception. |
 | Identification QR | Use only the sample's QR for identification and handover; test requests and handover documents have no separate identification QR. |
 | Return estimate | The test request shows the estimated return date of its samples and parameters. |
 | Label         | The label shows the lab code, the test request's code, the date results are due and a QR code of the lab code, and nothing about the customer. |
-| Receipt       | Receipt records when and by whom the sample was received, the amount received, its condition (good, damaged or insufficient) with a note, and where it is stored. |
+| Receipt       | Staff first decide the sample's condition: good, unusable or insufficient. Receipt of a sample in good condition records when and by whom it was received, the amount received, its condition note and where it is stored. The system rejects an unusable sample; an insufficient one is put on hold. |
 | Testing tasks | Receiving a sample creates a testing task for each of its sample tests in the queue of the department that does the work.   |
 | Handover      | The sample is handed over to each department that tests it; the department records when and by whom it received it.         |
 
 Acceptance criteria:
 
-- The samples of a test request are received only once the request is paid.
+- The samples of a test request are received only once the request is paid, or at once for a customer allowed to order on credit.
 - A sample's label shows its lab code, test request code, results due date and QR code, but not the customer or the customer's name for the sample.
-- Recording a sample's receipt sets it to received and creates its testing tasks in each department's queue.
+- Recording the receipt of a sample in good condition sets it to received and creates its testing tasks in each department's queue; an unusable or insufficient sample is never received first.
 - A rejected sample keeps its condition note and gets no testing tasks.
+- A sample received again after a failed subcontract delivery keeps its sample tests and testing tasks and gets no new ones.
 - An insufficient sample is on hold, and its head of department is told.
 - A sample handed over to two departments shows both handovers and which department has received it.
 - Scanning identifies the individual sample; the test request and handover document do not add another identification QR.
@@ -90,7 +91,7 @@ Acceptance criteria:
 
 | Rule     | Description                                                                                                     |
 | -------- | --------------------------------------------------------------------------------------------------------------- |
-| Carrier  | A dispatch is carried by sample delivery staff or by a delivery service, as the head of department records on it. Only people holding the sample delivery staff role, which the administrator names in the Laboratory settings, can be chosen. |
+| Carrier  | A dispatch is carried by sample delivery staff or by a delivery service, as recorded on it when it is carried. A failed delivery is recorded with its reason; the dispatch, still draft, is cancelled, and the same sample is requested again through WF-02 Sample reception and handover. Only people holding the sample delivery staff role, which the administrator names in the Laboratory settings, can be chosen. |
 
 Acceptance criteria:
 
@@ -104,7 +105,7 @@ Follows [Reports and change requests](../overview.md#reports-and-change-requests
 | Rule     | Description                                                                                                         |
 | -------- | ------------------------------------------------------------------------------------------------------------------- |
 | Waiting  | Issued, undelivered reports are listed with their delivery method, note and the contact who receives them. A report pending digital signing remains unissued and enters this list only after its signed PDF is stored and the report is issued. |
-| Delivery | Sample delivery staff deliver the report as the test request says and record when it was delivered; they are recorded as who delivered it. A report sent by email is emailed to its recipient from the system. |
+| Delivery | Sample delivery staff deliver the report as the test request says. They hand a report over in person or by post and then record when it was delivered; for a report sent by email, recording the delivery has the system email it to its recipient. They are recorded as who delivered it. |
 
 Acceptance criteria:
 

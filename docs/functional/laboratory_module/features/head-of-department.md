@@ -13,6 +13,7 @@ The head of department runs the testing work of one department: they assign its 
 - **US-HD05** As a head of department, I want to see the scheduler's outsourcing suggestions for tests that cannot finish in time in-house, so that they still meet their due date.
 - **US-HD12** As a head of department, I want urgent work to get the earliest feasible slot through a plan revision I approve for my department, moving bookings that have not started out of its way, so that a sample needed right away is tested right away.
 - **US-HD14** As a head of department, I want to see my department's tests at risk of missing their due date, so that I can move work, free capacity or outsource in time.
+- **US-HD19** As a head of department, I want to approve a feasible proposed booking of my department, so that it is reserved before its due date.
 
 ### Samples and results
 
@@ -24,7 +25,7 @@ The head of department runs the testing work of one department: they assign its 
 ### Outsourcing
 
 - **US-HD10** As a head of department, I want to accept an outsourcing suggestion and put its sample tests in a dispatch to the subcontractor, so that tests that cannot finish in time in-house still meet their due date.
-- **US-HD11** As a head of department, I want to record when a dispatch is sent, who or which delivery service takes it, and when its results are expected back, so that the outsourcing schedule shows where every outsourced test is.
+- **US-HD11** As a head of department, I want to see when a dispatch was sent, who or which delivery service took it, and when its results are expected back, so that the outsourcing schedule shows where every outsourced test is.
 - **US-HD13** As a head of department, I want to outsource a test of my department straight away with a reason, without waiting for an outsourcing suggestion, so that an emergency is handled when required in-house resources cannot meet the date.
 
 ### Laboratory files
@@ -36,13 +37,13 @@ The head of department runs the testing work of one department: they assign its 
 
 - **US-HD17** As a head of department, I want to assign my department's tasks and sign or reject its results on my phone, so that work and results do not wait while I am away from my desk.
 
-### Testing figures
+### Testing statistics
 
-- **US-HD18** As a head of department, I want testing figures for my department over a period, so that I can review turnaround, overdue work, retests and workload.
+- **US-HD18** As a head of department, I want testing statistics for my department over a period, so that I can review turnaround, overdue work, retests and workload.
 
 ## II. Feature details
 
-### 1. Work and schedule (US-HD01 to US-HD05, US-HD12, US-HD14)
+### 1. Work and schedule (US-HD01 to US-HD05, US-HD12, US-HD14, US-HD19)
 
 Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling), [Scheduling](../../../specs/scheduling.md) and [SH-11](../../shared.md#sh-11-schedules-and-reminders).
 
@@ -51,11 +52,12 @@ Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling
 | Queue | Testing tasks queue by department. The head assigns them or an authorized tester claims them; team membership does not create a separate testing queue. |
 | Assignment | The head assigns a sample's department tasks or one task to a person authorized by the Lab Head for each parameter. The department's plan proposes a booking for the agreed way. Reassignment to another person or department requires a reason. A head who moves a task to another department still reads it, but no longer changes it, so its form stays open, read-only. |
 | Adjusting | The head moves or cancels not-started bookings of the department. Changes synchronize its tester, machine when needed and required location reservations; cancelling returns its sample test to the plan without cancelling it. A booking the head places or moves by hand is pinned: plan revisions do not move it and report a conflict instead. |
+| Booking approval | The department's plan proposes a booking for each assigned or claimed task. When it is feasible before the due date, the head approves it; approving reserves its tester, machine when needed and required locations together and notifies the tester. Neither the tester nor the head reserves a proposed booking without this approval. |
 | Marking urgent      | The head can mark any test of the department urgent, stating why, or remove the mark, as the tester does ([US-T19](tester.md#1-planning-us-t01-to-us-t04-us-t19-to-us-t21)). |
-| Outsourcing | The scheduler suggests viable subcontracted ways when in-house resources cannot meet the due date. The head reviews them; changing an accepted way requires a revised quotation and customer agreement through Sales. |
+| Outsourcing | The scheduler suggests viable subcontracted ways with the same parameter and method when in-house resources cannot meet the due date. The head reviews them; outsourcing is internal and needs no customer agreement. |
 | Plan revisions | A recalculation that moves scheduled bookings, such as when urgent work needs a slot others hold, is a plan revision. It lists every moved booking with its new slot, internal due date and committed return date, and the head approves the moves in the department. A move whose planned finish passes its internal due date would miss a committed return date: it is held back, and its booking keeps its slot, until Sales records the customer's agreement to a new date; the other moves are recalculated without it and can be applied. A running booking is never moved. |
 | Deadline risk | Notify the head initially and in a daily consolidated summary while a risk remains. The queue and schedules show affected tests. Sales informs the customer when the committed return date is affected or at risk. |
-| Freeing capacity | Instead of waiting for a customer's agreement, the head may free capacity, such as with planned OverTime or another machine linked to the same method, and recalculate, or pursue an agreed outsourcing alternative. Any change to an accepted way still needs a revised quotation and customer agreement. |
+| Freeing capacity | Instead of waiting for a customer's agreement, the head may free capacity, such as with planned OverTime or another machine linked to the same method, and recalculate, or outsource the test to a subcontractor with the same method. A different method still needs a revised quotation and customer agreement. |
 | Due date override | The head may change an internal due date with a reason. Preserve the override when the committed return date changes, recalculate only automatic dates and report conflicts. Feasibility checks only read: they use the company calendar and holidays, give reasons and the earliest feasible date, and reserve or move no bookings. An infeasible internal date may be kept with a reason and risk flag; it implies no reserved resources. |
 | Outside working hours | The head records planned OverTime for a tester, an outside-hours interval and a reason, without an HR overtime shift; the tester can then be booked in that interval. The scheduler never creates, moves or recalculates OverTime: moving or cancelling a booking leaves it for the head to change. OverTime extends only the tester's availability; machines and locations keep their own. Actual overtime and payroll are outside scope. |
 | Disruption | Downtime, an unavailable room or approved leave returns affected not-started bookings to the plan and notifies the head for reassignment or authorized claiming. Replan only on another machine linked to the same method. A machine that breaks down or loses calibration during a booking ends it; the head assesses the interrupted result as usable, needing a retest or needing more sample. A retest is a new result with a new booking. |
@@ -63,7 +65,8 @@ Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling
 Acceptance criteria:
 
 - A testing task in the department queue disappears from the queue once assigned, and appears in the assignee's to-do list.
-- Assigning a sample assigns all of its testing tasks in the department to the chosen person.
+- Assigning a sample assigns all of its testing tasks in the department to the chosen person, who is notified.
+- A proposed booking reserves nothing until the head approves it; approving it notifies its tester.
 - Reassigning a task to another person or department without a reason is refused; the reason is kept on the task.
 - A head of department sees the bookings of their department's people and machines, not those of other departments.
 - A test whose required in-house resources cannot meet its due date shows viable outsourcing alternatives; a way that needs no machine is checked against its tester and required locations.
@@ -108,10 +111,12 @@ Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling
 
 | Rule        | Description                                                                                                                 |
 | ----------- | --------------------------------------------------------------------------------------------------------------------------- |
-| Accept | Accept an outsourcing suggestion only for the agreed subcontracted way. If it changes an accepted selection, Sales first obtains customer agreement through a revised quotation. The head then puts its sample tests in the subcontractor's draft dispatch. |
-| Dispatch | A dispatch holds one subcontractor, sending and due dates, the sample tests sent, the subcontractor's report, and sample delivery staff or a delivery service and tracking number. The way's turnaround includes transport and processing. The head attaches the subcontractor's report to the sent or received dispatch. |
-| Accreditation | A subcontractor whose accreditation has expired cannot be chosen.                                                          |
-| Emergency | The head may initiate outsourcing for a waiting or assigned test with a reason, without waiting for a scheduler suggestion. Only the department testing a test with no suggestion sees the emergency action, and its reason is shown on the test. Changing an accepted way still requires Sales and customer agreement on a revised quotation. Once agreed, cancel not-started bookings and put its sample tests in a draft dispatch. |
+| Accept | Accept an outsourcing suggestion for a subcontracted way with the test's parameter and method; the customer is neither told nor asked. The head then puts its sample tests in the subcontractor's draft dispatch. |
+| Dispatch | A dispatch holds one subcontractor, sending and due dates, the sample tests sent, the subcontractor's report, and sample delivery staff or a delivery service and tracking number. The way's turnaround includes transport and processing. When the dispatch is carried, the system records the date sent, who took it and the expected date, the date sent plus the way's turnaround. Sample delivery staff who hand it to a delivery service record the service and its tracking number. A printed dispatch shows its code, the subcontractor, the sending and expected dates and the carrier, and for each sample test the lab code, sample type, parameter, method and due date, never the customer, the order or prices. The head attaches the subcontractor's report to the sent or received dispatch. |
+| Accreditation | A subcontractor whose accreditation has expired cannot be chosen. When the accreditation of a draft dispatch's subcontractor lapses, the head is told and either waits for the renewal or cancels the dispatch and moves its tests to another subcontracted way with the same parameter and method. A sent dispatch is still received and its results approved. |
+| Receipt | The subcontractor confirms receipt of a sent dispatch on the portal, which marks it received and notifies the head; for a subcontractor that does not use the portal, the head marks it received. Results are entered only once the dispatch is received. |
+| Failed delivery | A delivery that fails leaves the dispatch in draft: it is cancelled with the carrier's reason and its tests stay outsourced. Once the same sample is received again through WF-02 Sample reception and handover, the head puts them in a new dispatch. |
+| Emergency | The head may initiate outsourcing for a waiting or assigned test with a reason, without waiting for a scheduler suggestion. Only the department testing a test with no suggestion sees the emergency action, and its reason is shown on the test. The head chooses a subcontracted way with the test's parameter and method; the customer is neither told nor asked. Its not-started bookings are cancelled and its sample tests go in a draft dispatch. |
 
 Acceptance criteria:
 
@@ -119,7 +124,10 @@ Acceptance criteria:
 - A sent dispatch appears on the outsourcing schedule with its expected date.
 - A dispatch records either the sample delivery staff who took it or the delivery service and tracking number.
 - Outsourcing a test straight away without a reason is refused; a test already in testing cannot be outsourced straight away.
-- Outsourcing, from a suggestion or straight away, through a way other than the one the customer accepted is refused.
+- Only subcontracted ways with the test's parameter and method are suggested or can be chosen for outsourcing.
+- Outsourcing, from a suggestion or straight away, through a way whose method differs from the one the customer accepted is refused.
+- A test of a customer's own test request cannot be outsourced to that customer as a subcontractor.
+- A subcontractor cannot enter results for a dispatch that is not received.
 - A sample test is in one dispatch that is not cancelled.
 - Only people who can read dispatches read the subcontractor's report; a subcontractor never reads another subcontractor's report or the customer.
 
@@ -152,11 +160,11 @@ Acceptance criteria:
 - Rejecting a result on the phone without a reason is refused.
 - A head may approve their own result on the phone, as on the web; the Lab Head reviews it when signing the final report.
 
-### 6. Testing figures (US-HD18)
+### 6. Testing statistics (US-HD18)
 
 | Rule | Description |
 | --- | --- |
-| Department figures | For the chosen period show completed sample tests, the share completed on time, average receipt-to-approval time, overdue sample tests, retests and workload per person. The head sees their department; the Lab Head sees all departments. |
+| Department statistics | For the chosen period show completed sample tests, the share completed on time, average receipt-to-approval time, overdue sample tests, retests and workload per person. The head sees their department; the Lab Head sees all departments. |
 | Measures | A sample test belongs to the department of its latest testing task. It is completed in the period its result is first approved, which a later correction or report rejection does not move, and on time when approved by its due date; the receipt-to-approval time runs from its sample's receipt. It is overdue when its due date is before the end of the period and it was neither approved nor cancelled by then. A retest is a result entered in the period for a sample test that already had one; a correction version is not. Workload per person is the bookings starting in the period and their booked hours. A share or average without completed tests stays empty. |
 
 Acceptance criteria:
