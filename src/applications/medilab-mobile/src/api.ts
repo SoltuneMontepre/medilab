@@ -196,6 +196,7 @@ export interface SampleHandover {
   department: string;
   received_at: string | null;
   received_by: string;
+  can_receive: boolean;
 }
 
 /** A sample as the person may see it, with its handover to their department and the unassigned testing tasks of

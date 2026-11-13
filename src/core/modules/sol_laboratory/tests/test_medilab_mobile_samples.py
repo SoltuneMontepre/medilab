@@ -109,7 +109,8 @@ class TestMedilabMobileSamples(LaboratoryApiCase, RequestCase):
         self.assertIsNone(sample["customer"])
         self.assertIsNone(sample["customer_sample_name"])
         self.assertEqual(
-            sample["handover"], {"department": self.department.name, "received_at": None, "received_by": ""}
+            sample["handover"],
+            {"department": self.department.name, "received_at": None, "received_by": "", "can_receive": True},
         )
         self.assertEqual([task["id"] for task in sample["tasks"]], self.lead_task.ids)
         microbiology = self.answered(self.look_up(self.microbiologist))
@@ -135,6 +136,23 @@ class TestMedilabMobileSamples(LaboratoryApiCase, RequestCase):
         )
 
     # Recording the receipt
+
+    def test_only_a_person_who_may_edit_the_handover_is_offered_the_receipt(self):
+        reader = self.department_person("Dang Van Duc", "duc.scan", self.department)
+        reader.permission_ids = [
+            Command.set(
+                [
+                    persisted_id(reference_as(self.env[MODEL_PERMISSION], f"sol_laboratory.permission_{code}"))
+                    for code in ("sample_read_all", "sample_handover_read_own_department")
+                ]
+            )
+        ]
+
+        handover = self.answered(self.look_up(reader))["handover"]
+
+        self.assertFalse(handover["can_receive"])
+        self.assertApiRefused(NOT_FOUND, self.on_phone(reader, "POST", "/samples/receive", {"code": self.sample.code}))
+        self.assertFalse(self.handover_of(self.department).received_at)
 
     def test_scanning_records_the_receipt_once_for_the_person_department(self):
         received = self.answered(self.on_phone(self.chemist, "POST", "/samples/receive", {"code": self.sample.code}))

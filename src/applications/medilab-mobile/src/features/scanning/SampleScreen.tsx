@@ -164,18 +164,18 @@ function Handover({ sample, busy, onReceive }: Readonly<{ sample: Sample; busy: 
         </Text>
       )}
       {handover && !handover.received_at && (
-        <>
-          <Text style={shared.detail}>{t("sample.notReceived", { department: handover.department })}</Text>
-          <Pressable
+        <Text style={shared.detail}>{t("sample.notReceived", { department: handover.department })}</Text>
+      )}
+      {handover?.can_receive && (
+        <Pressable
             accessibilityRole="button"
             accessibilityState={{ disabled: busy }}
             disabled={busy}
             style={shared.primaryButton}
             onPress={onReceive}
           >
-            <Text style={shared.primaryButtonText}>{t("sample.receive")}</Text>
-          </Pressable>
-        </>
+          <Text style={shared.primaryButtonText}>{t("sample.receive")}</Text>
+        </Pressable>
       )}
     </View>
   );

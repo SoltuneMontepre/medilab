@@ -53,8 +53,8 @@ class SampleMobile(models.Model, SampleMobileBase):
             "storage_location": sample.storage_location or "",
             "sampling_location": sample.sampling_location_id.display_name or "",
             "note": sample.note or "",
-            "customer": sample.sudo().request_id.customer_id.display_name if customer_visible else None,
-            "customer_sample_name": sample.sudo().customer_sample_name if customer_visible else None,
+            "customer": (sample.sudo().request_id.customer_id.display_name or "") if customer_visible else None,
+            "customer_sample_name": (sample.sudo().customer_sample_name or "") if customer_visible else None,
             "handover": sample._mobile_handover(),
             "tasks": sample._claimable_testing_tasks()._mobile_values(),
         }
@@ -75,6 +75,8 @@ class SampleMobile(models.Model, SampleMobileBase):
             "received_at": api_datetime(handover.received_at),
             # The person who received it is read with full rights, as the web's handover list shows it.
             "received_by": handover.sudo().received_by_id.name or "",
+            # Recording the receipt needs the permission to edit the handover, which receive_by_label() checks.
+            "can_receive": not handover.received_at and bool(handover._filtered_access("write")),
         }
 
     def _testing_tasks_domain(self):

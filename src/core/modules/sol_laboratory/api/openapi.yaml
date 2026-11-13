@@ -2483,7 +2483,7 @@ components:
       description: The sample's handover to the person's department.
       type: object
       additionalProperties: false
-      required: [department, received_at, received_by]
+      required: [department, received_at, received_by, can_receive]
       properties:
         department:
           type: string
@@ -2494,6 +2494,9 @@ components:
         received_by:
           description: The person who recorded the receipt; empty while it is on its way.
           type: string
+        can_receive:
+          description: Whether the person may record the receipt now, the handover being not received yet.
+          type: boolean
     SampleLabel:
       type: object
       additionalProperties: false

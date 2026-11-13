@@ -25,7 +25,7 @@ describe("SampleScreen", () => {
 
   it("shows a tester the sample without its customer and records its receipt by their department", async () => {
     const received = sample({
-      handover: { department: "Hoá", received_at: "2026-11-13T03:00:00+00:00", received_by: "Nguyễn Văn An" },
+      handover: { department: "Hoá", received_at: "2026-11-13T03:00:00+00:00", received_by: "Nguyễn Văn An", can_receive: false },
     });
     const mediLab = fakeMediLab({ status: 200, body: sample() }, { status: 200, body: received });
     await renderSignedIn(<SampleScreen />);
