@@ -1,6 +1,6 @@
 import math
-from datetime import UTC, timedelta
-from typing import TYPE_CHECKING
+from datetime import UTC, datetime, timedelta
+from typing import TYPE_CHECKING, Any, NamedTuple
 from zoneinfo import ZoneInfo
 
 from odoo import api, fields, models
@@ -19,7 +19,6 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PARAMETER_METHOD,
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
-    MODEL_RES_CONFIG_SETTINGS,
     MODEL_SAMPLE_TEST,
     MODEL_TASK,
     MODEL_TESTING_METHOD,
@@ -30,7 +29,6 @@ from odoo.addons.sol_laboratory.constants.scheduling import (
     SCHEDULING_CONTEXT,
     SCHEDULING_TOKEN,
 )
-from odoo.addons.sol_laboratory.models.testing.sample_test import OPEN_STATUSES as OPEN_TEST_STATUSES
 from odoo.addons.sol_laboratory.services.record_id import persisted_ids
 
 if TYPE_CHECKING:
@@ -42,9 +40,18 @@ SLOT_MINUTES = 15
 ACTIVE_STATUSES = ("scheduled", "in_progress")
 # A done booking keeps its interval, so the bookings that shared it still do.
 SHARING_STATUSES = (*ACTIVE_STATUSES, "done")
-OPEN_STATUSES = ("queued", *ACTIVE_STATUSES)
+OPEN_STATUSES = ("proposed", *ACTIVE_STATUSES)
 # ponytail: a test without a due date is fitted within this many days; give it a due date to plan further ahead.
 HORIZON_DAYS = 30
+
+
+class RoomUse(NamedTuple):
+    """A location a proposed booking of the plan being calculated would use, read like a room's calendar event."""
+
+    location_id: Any
+    start: datetime
+    stop: datetime
+    machine_booking_id: Any
 
 
 def _round_up(moment):
@@ -82,7 +89,7 @@ class MachineBooking(models.Model, MachineBookingBase):
     _name = MODEL_MACHINE_BOOKING
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Machine Booking"
-    _order = "starts_at, queued_at, id"
+    _order = "starts_at, id"
     # A booking is cancelled, never deleted.
     _permission_actions = ("read", "create", "edit")
 
@@ -97,36 +104,36 @@ class MachineBooking(models.Model, MachineBookingBase):
         method_id = fields.Many2one(MODEL_TESTING_METHOD, ondelete="restrict", readonly=True, string="Testing Method")
         # The testing task the booking belongs to.
         task_id = fields.Many2one(MODEL_TASK, ondelete="restrict", readonly=True, index=True)
-        # The department of the testing task, whose head sees and adjusts the booking.
+        # The department of the testing task, whose plan holds the booking and whose head sees and adjusts it.
         department_id = fields.Many2one(related="task_id.department_id", store=True, index=True)
-        # Person who runs the test.
+        # Tester who runs the test; empty on a proposed booking while its testing task is unassigned.
         person_id = fields.Many2one(MODEL_PERSON, ondelete="restrict", readonly=True)
-        # Due date of the sample test, copied so the queue is ordered without a join.
-        due_date = fields.Datetime(related="sample_test_id.due_date", store=True)
-        # When the booking joined the machine's queue; earlier bookings come first among equally urgent ones.
-        queued_at = fields.Datetime(required=True, default=fields.Datetime.now, readonly=True)
-        # Start of the slot; empty while the booking waits in the queue.
+        # Start of the slot; empty on a proposed booking the plan found no slot for.
         starts_at = fields.Datetime(string="Start")
         # End of the slot: the start plus the duration, rounded up to whole slots.
         ends_at = fields.Datetime(string="End", readonly=True)
-        # Queued, scheduled, in progress, done or cancelled.
+        # Proposed, scheduled, in progress, done or cancelled.
         status = fields.Selection(
             [
-                ("queued", "Queued"),
+                ("proposed", "Proposed"),
                 ("scheduled", "Scheduled"),
                 ("in_progress", "In progress"),
                 ("done", "Done"),
                 ("cancelled", "Cancelled"),
             ],
             required=True,
-            default="queued",
+            default="proposed",
             readonly=True,
             index=True,
         )
-        # The calendar event showing the booking on the person's schedule; empty while the booking waits in the queue.
+        # The calendar event showing a scheduled booking on the person's schedule; empty while the booking is proposed.
         calendar_event_id = fields.Many2one("calendar.event", ondelete="set null", readonly=True, copy=False)
-        # True when the due date is within the urgency threshold, so the booking goes first in the queue.
-        is_urgent = fields.Boolean(related="sample_test_id.is_urgent")
+        # The internal due date of the sample test.
+        due_date = fields.Datetime(related="sample_test_id.due_date")
+        # The priority class the plan places the sample test in.
+        priority = fields.Selection(related="sample_test_id.priority")
+        # True when the sample test is at risk of missing its internal due date.
+        at_risk = fields.Boolean(related="sample_test_id.at_risk")
         # Steps of the testing method of the sample test's way of testing, which the person follows.
         method_step_ids = fields.One2many(
             related="sample_test_id.parameter_method_id.method_id.step_ids", string="Method Steps"
@@ -136,7 +143,7 @@ class MachineBooking(models.Model, MachineBookingBase):
 
     _machine_start_idx = models.Index("(machine_id, starts_at)")
     _person_start_idx = models.Index("(person_id, starts_at)")
-    _queue_idx = models.Index("(machine_id, status, due_date, queued_at)")
+    _department_status_idx = models.Index("(department_id, status)")
     _calendar_event_unique = models.Constraint("UNIQUE(calendar_event_id)", "A calendar event shows one booking.")
     _slot_period = models.Constraint("CHECK(ends_at > starts_at)", "A booking ends after it starts.")
     # Bookings overlap on a machine only when they share its interval: the same method, start and end.
@@ -167,15 +174,11 @@ class MachineBooking(models.Model, MachineBookingBase):
             test = booking.sudo().sample_test_id
             booking.display_name = f"{test.sample_id.code}: {test.parameter_id.name}"
 
-    @api.model
-    def _urgent_until(self):
-        hours = self.env[MODEL_RES_CONFIG_SETTINGS]._get_parameter("urgency_hours")
-        return fields.Datetime.now() + timedelta(hours=hours)
-
-    @api.constrains("starts_at", "machine_id")
+    @api.constrains("starts_at", "machine_id", "status")
     def _check_shared_interval(self):
         now = fields.Datetime.now()
-        placed = self.filtered(lambda booking: booking.status in ACTIVE_STATUSES)
+        # A booking joins an interval when it is scheduled, or moves or changes machine while it is.
+        placed = self.filtered(lambda booking: booking.status == "scheduled")
         if placed.machine_id:
             # Two transactions do not see each other's bookings, so each could take the last place of an interval.
             # Writing the machine row makes the later one fail on a concurrent update, which retries its request.
@@ -315,14 +318,15 @@ class MachineBooking(models.Model, MachineBookingBase):
                 )
             )
         self._set({"starts_at": start, "ends_at": start + length})
-        self._process_queue()
+        self._plan(self.sudo().department_id)
 
     def action_cancel(self):
+        """Cancel scheduled bookings; their sample tests go back to the plan."""
         self._check_adjustable()
-        if any(booking.status not in ("queued", "scheduled") for booking in self):
-            raise UserError(self.env._("Only a queued or scheduled booking can be cancelled."))
+        if any(booking.status != "scheduled" for booking in self):
+            raise UserError(self.env._("Only a scheduled booking can be cancelled."))
         self._set({"status": "cancelled"})
-        self._process_queue()
+        self._plan(self.sudo().department_id)
 
     def action_start(self):
         self._check_adjustable()
@@ -336,6 +340,7 @@ class MachineBooking(models.Model, MachineBookingBase):
         if any(booking.status != "in_progress" for booking in self):
             raise UserError(self.env._("Only a booking in progress can be done."))
         self._set({"status": "done"})
+        self._plan(self.sudo().department_id)
 
     def _sync_schedule(self):
         """Show each active booking on its person's calendar and as the planned time of its testing task.
@@ -370,19 +375,22 @@ class MachineBooking(models.Model, MachineBookingBase):
             else:
                 booking._set({"calendar_event_id": events.create(values).id})
         for task in self.sudo().task_id:
-            slots = task.booking_ids.filtered(lambda booking: bool(booking.status != "cancelled" and booking.starts_at))
-            # Writing the planned time also drops the task's own event: the bookings' events show it.
-            task.write(
-                {
-                    "planned_start": min(slots.mapped("starts_at"), default=False),
-                    "planned_end": max(slots.mapped("ends_at"), default=False),
-                }
+            # A proposed slot reserves nothing, so only accepted bookings plan the task.
+            slots = task.booking_ids.filtered(
+                lambda booking: bool(booking.status not in ("proposed", "cancelled") and booking.starts_at)
             )
+            planned = {
+                "planned_start": min(slots.mapped("starts_at"), default=False),
+                "planned_end": max(slots.mapped("ends_at"), default=False),
+            }
+            # Writing the planned time also drops the task's own event: the bookings' events show it.
+            if (task.planned_start, task.planned_end) != (planned["planned_start"], planned["planned_end"]):
+                task.write(planned)
 
     def _sync_room_events(self):
         """Book the locations of the method's steps for the step times of an active booking, on its person's calendar.
 
-        A queued or cancelled booking frees them; a done one keeps them as the time the steps ran. Bookings sharing an
+        A proposed or cancelled booking frees them; a done one keeps them as the time the steps ran. Bookings sharing an
         interval book each room once, so a booking leaves the steps another one of them holds.
         """
         self.ensure_one()
@@ -431,36 +439,9 @@ class MachineBooking(models.Model, MachineBookingBase):
         return rooms
 
     @api.model
-    def _process_queue(self):
-        """Give each queued booking the next free slot: urgent ones first, then in the order they joined the queue.
-
-        A booking that no machine can finish before its due date stays queued, and its test is suggested for outsourcing.
-        """
-        # ponytail: the whole queue is replanned on every change; plan per machine if the queue grows long.
-        queued = self.sudo().search([("status", "=", "queued")])
-        for booking in queued.sorted(lambda b: (not b.is_urgent, b.queued_at, b.id)):
-            test = booking.sample_test_id
-            found = self._recommend(test, booking.person_id, booking.department_id)
-            if not found:
-                test.outsourcing_suggested = True
-                continue
-            way, machine, start, length = found
-            # The way of testing is set first: its steps give the rooms the booking books.
-            test.write({"parameter_method_id": way.id, "outsourcing_suggested": False})
-            booking._set(
-                {
-                    "machine_id": machine.id,
-                    "method_id": way.method_id.id,
-                    "starts_at": start,
-                    "ends_at": start + length,
-                    "status": "scheduled",
-                }
-            )
-
-    @api.model
     def _requeue(self, machines):
-        """Put the scheduled bookings that end after their machine stops being fit to use back in the queue, then replan
-        it."""
+        """Return the scheduled bookings that end after their machine stops being fit to use to the plan, then
+        recalculate every plan, since any of them may now use or lose the machines."""
         late = self.browse()
         for machine in machines:
             late |= self.sudo().search(
@@ -470,43 +451,30 @@ class MachineBooking(models.Model, MachineBookingBase):
                     ("ends_at", ">", machine._usable_until()),
                 ]
             )
-        late._set({"status": "queued", "starts_at": False, "ends_at": False})
-        self._process_queue()
+        late._set({"status": "proposed", "starts_at": False, "ends_at": False})
+        self._plan(self.sudo().search([("status", "=", "proposed")]).department_id)
 
     @api.model
     def _follow_assignment(self, tasks):
         """Hand the bookings of reassigned testing tasks over to the new assignee.
 
-        A booking not yet running goes back to the queue for a slot in the new assignee's working time, or is cancelled
-        when the task goes back to a queue. For a newly assigned test, check that a machine can finish it in time, and
-        suggest outsourcing it when none can.
+        A running booking keeps running for the new assignee. One not yet running returns to its department's plan for a
+        slot in the new assignee's working time, or without a tester when the task goes back to a queue.
         """
-        released = False
         for task in tasks.sudo().filtered_domain(self.env[MODEL_TASK]._testing_domain()):
             bookings = task.booking_ids._open()
             waiting = bookings.filtered(lambda booking: booking.status != "in_progress")
             (bookings - waiting)._set({"person_id": task.assignee_id.id})
-            if waiting and task.assignee_id:
-                waiting._set(
-                    {"person_id": task.assignee_id.id, "status": "queued", "starts_at": False, "ends_at": False}
-                )
-            elif waiting:
-                waiting._set({"status": "cancelled"})
-            elif not bookings and task.assignee_id:
-                test = self.env[MODEL_SAMPLE_TEST].sudo().browse(task.document_id)
-                # Only an open test can be suggested for outsourcing; an outsourced one has left the machines.
-                if test.status in OPEN_TEST_STATUSES:
-                    test.outsourcing_suggested = not self._recommend(test, task.assignee_id, task.department_id)
-            released = released or bool(waiting)
-        if released:
-            self._process_queue()
+            waiting._set({"person_id": task.assignee_id.id, "status": "proposed", "starts_at": False, "ends_at": False})
+        self._plan(tasks.sudo().department_id)
 
     @api.model
-    def _recommend(self, test, person, department):
+    def _recommend(self, test, person, department, planned=None):
         """The way of testing, machine, start and slot length that finish the test soonest by its due date, from the
         department's ways of testing that apply to the sample's type, or only the way the customer accepted: on each
         machine linked to the way's method, or without a machine for the way's own duration when the method has none,
-        with every bookable room of the way's steps free; None when there is no such slot."""
+        with every bookable room of the way's steps free; None when there is no such slot. planned are the proposed
+        bookings the plan being calculated has placed already, which hold their resources as scheduled ones do."""
         now = fields.Datetime.now()
         not_after = test.due_date or now + timedelta(days=HORIZON_DAYS)
         if not_after <= now:
@@ -538,7 +506,15 @@ class MachineBooking(models.Model, MachineBookingBase):
             length = _slot_length(minutes)
             rooms = self._room_steps(way)
             start = self._free_slot(
-                machine, length, person, not_after, working=working, rooms=rooms, way=way, sample=sample
+                machine,
+                length,
+                person,
+                not_after,
+                working=working,
+                rooms=rooms,
+                way=way,
+                sample=sample,
+                planned=planned,
             )
             if start and (best_end is None or start + length < best_end):
                 best, best_end = (way, machine, start, length), start + length
@@ -557,6 +533,7 @@ class MachineBooking(models.Model, MachineBookingBase):
         rooms=(),
         way=None,
         sample=None,
+        planned=None,
     ):
         """The earliest start of a free slot of the given length on the machine, or without a machine when it is empty,
         within the person's working time and clear of their other bookings.
@@ -565,8 +542,10 @@ class MachineBooking(models.Model, MachineBookingBase):
         still fit to use. working gives the person's working intervals when the caller has them already. rooms are the
         steps done in a bookable location, from _room_steps: each location must be free for its step's time, which
         ends by not_after. With the way of testing and the sample, the slot may be an interval of the same method, start
-        and end that has not started and has a place for the sample. Returns None when there is no such slot.
+        and end that has not started and has a place for the sample. planned are proposed bookings that hold their
+        machine, person and rooms like scheduled ones. Returns None when there is no such slot.
         """
+        planned = planned or self.browse()
         now = fields.Datetime.now()
         start_from = _round_up(max(not_before or now, now))
         limit = min(not_after, machine._usable_until()) if machine else not_after
@@ -579,7 +558,7 @@ class MachineBooking(models.Model, MachineBookingBase):
             holders |= Domain("person_id", "=", person.id)
         busy = self.sudo().search_fetch(
             holders
-            & Domain("status", "in", ACTIVE_STATUSES)
+            & (Domain("status", "in", ACTIVE_STATUSES) | Domain("id", "in", planned.ids))
             & Domain("starts_at", "<", limit)
             & Domain("ends_at", ">", start_from)
             & Domain("id", "not in", ignore.ids if ignore else []),
@@ -595,7 +574,7 @@ class MachineBooking(models.Model, MachineBookingBase):
             # The new booking can join the booking's interval when it starts at start.
             return bool(
                 way
-                and booking.status == "scheduled"
+                and booking.status != "in_progress"
                 and start > now
                 and (booking_start, booking_end) == (start, start + length)
                 and booking.method_id == way.method_id
@@ -609,7 +588,7 @@ class MachineBooking(models.Model, MachineBookingBase):
             )
 
         rooms_end = _rooms_end(rooms)
-        room_busy = self._room_bookings(rooms, start_from, not_after, ignore) if rooms else []
+        room_busy = [*self._room_bookings(rooms, start_from, not_after, ignore), *planned._room_uses()] if rooms else []
         if working is None:
             working = self._working_time(person, start_from, limit)
         for work_start, work_end in working:
@@ -657,6 +636,19 @@ class MachineBooking(models.Model, MachineBookingBase):
                 ["location_id", "start", "stop", "machine_booking_id"],
             )
         )
+
+    def _room_uses(self):
+        """The rooms placed proposed bookings would use, as their scheduled bookings would book them."""
+        uses = []
+        for booking in self:
+            start = booking.starts_at
+            if not start:
+                continue
+            uses += [
+                RoomUse(step.location_id, start + offset, start + offset + length, booking)
+                for step, offset, length in self._room_steps(booking._proposed_way())
+            ]
+        return uses
 
     @api.model
     def _working_time(self, person, start, end):

@@ -10,4 +10,5 @@ from . import (
     scheduled_job,
     subcontract_dispatch,
     test_request,
+    test_request_plan,
 )

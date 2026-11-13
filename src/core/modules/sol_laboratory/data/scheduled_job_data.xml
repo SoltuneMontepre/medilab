@@ -70,6 +70,13 @@
         <field name="batch_size">100</field>
         <field name="max_attempts">3</field>
     </record>
+    <record id="scheduled_job_sample_tests_at_risk_summary" model="medilab.scheduled.job">
+        <field name="key">sample_tests.at_risk_summary</field>
+        <field name="name">Summary of sample tests at risk</field>
+        <field name="cron_id" ref="ir_cron_sample_tests_at_risk_summary" />
+        <field name="batch_size">100</field>
+        <field name="max_attempts">3</field>
+    </record>
     <record id="scheduled_job_laboratory_file_locks_expire" model="medilab.scheduled.job">
         <field name="key">laboratory_file_locks.expire</field>
         <field name="name">Expire laboratory file locks</field>

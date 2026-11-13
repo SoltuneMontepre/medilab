@@ -107,6 +107,7 @@
         "views/laboratory_files/laboratory_upload_settings_views.xml",
         "views/testing/sample_test_cancel_views.xml",
         "views/testing/sample_test_due_date_change_views.xml",
+        "views/testing/sample_test_urgent_mark_views.xml",
         "views/testing/sample_test_outsource_views.xml",
         "views/testing/sample_test_views.xml",
         "views/testing/report_template_views.xml",

@@ -46,7 +46,7 @@ class TestBookingEligibility(SchedulingCase):
             self.as_person(self.env[MODEL_MACHINE_BOOKING], self.head).create(
                 {"machine_id": self.fast.id, "sample_test_id": self.test.id, "task_id": task.id}
             )
-        self.assertFalse(self.test.booking_ids)
+        self.assertNotIn("scheduled", self.test.booking_ids.mapped("status"))
 
     def test_a_cancelled_sample_test_is_not_booked(self):
         self.testing_task(self.test, self.tester)
@@ -54,7 +54,7 @@ class TestBookingEligibility(SchedulingCase):
 
         with self.assertRaisesRegex(UserError, "is cancelled"):
             self.schedule(self.test, self.tester)
-        self.assertFalse(self.test.booking_ids)
+        self.assertNotIn("scheduled", self.test.booking_ids.mapped("status"))
 
     def test_a_booking_cannot_be_created_through_rpc_for_an_unreceived_sample(self):
         test, task = self.assigned_unreceived()

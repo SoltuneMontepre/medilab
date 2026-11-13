@@ -490,7 +490,7 @@ flowchart TD
 - **Exceptions:**
   - SF-05-E1: Without another machine linked to the same method, keep the work unplaced and notify its tester and head. Sales informs the customer if the committed return date is affected. A different way needs an agreed revised quotation.
   - SF-05-E2: A breakdown or lost calibration interrupts a booking: the booking ends, its recorded data is kept as an interrupted result, and the head assesses it as usable, needing a retest or needing more sample. A retest is a new result with a new booking.
-- **Acceptance criteria:** See [Administrator](laboratory_module/features/admin.md) and [Head of department](laboratory_module/features/head-of-department.md). A machine with queued, scheduled or running bookings cannot be archived.
+- **Acceptance criteria:** See [Administrator](laboratory_module/features/admin.md) and [Head of department](laboratory_module/features/head-of-department.md). A machine with scheduled or running bookings cannot be archived.
 - **Paths in other flows:** SF-10 owns queue order and rescheduling; WF-05 owns any customer-agreed change to a subcontracted way.
 
 ```mermaid

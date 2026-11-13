@@ -31,11 +31,10 @@ WRITE_STAMP = ("write_uid", "write_date")
 
 @tagged("post_install", "-at_install")
 class TestScheduleQueueRaces(SchedulingConcurrencyCase):
-    """Two departments, each with its own tester, machine and room, schedule at once through the real global queue.
+    """Two departments, each with its own tester, machine and room, schedule at once through their plans.
 
-    A third department of the fixture holds a queued booking that no machine can place, so every replan of the queue
-    meets it. Other tests' queued bookings stay in the queue too and are put back as they were. No fairness or
-    department isolation is assumed; whether one department's replan may touch another's bookings is open (Q-scope)."""
+    A third department of the fixture holds a proposed booking that no machine can place. Each department's plan is
+    recalculated on its own, so neither touches it nor other tests' proposed bookings."""
 
     def setUp(self):
         super().setUp()
@@ -70,7 +69,7 @@ class TestScheduleQueueRaces(SchedulingConcurrencyCase):
 
     def hold_queue(self, env):
         """The holding department schedules its first test, then its only machine goes under repair: the booking goes
-        back to the queue, where no machine can place it. Returns the booking's and its test's ids, by table."""
+        back to the plan, where no machine can place it. Returns the booking's and its test's ids, by table."""
         self.use(self.holder)
         self.assign(env)
         test = env[MODEL_SAMPLE_TEST].browse(self.test_ids[0])
@@ -79,7 +78,7 @@ class TestScheduleQueueRaces(SchedulingConcurrencyCase):
         # The repair deletes the booking's events; owning them lets the cleanup remove the audit rows of the deletion.
         self.owned.setdefault(MODEL_CALENDAR_EVENT, []).extend((booking.calendar_event_id | booking.room_event_ids).ids)
         env[MODEL_MACHINE].browse(self.machine_id).status = "under_repair"
-        self.assertEqual((booking.status, booking.starts_at, booking.ends_at), ("queued", False, False))
+        self.assertEqual((booking.status, booking.starts_at, booking.ends_at), ("proposed", False, False))
         self.assertFalse(booking.calendar_event_id | booking.room_event_ids)
         self.assertTrue(test.outsourcing_suggested)
         self.assertIsNone(booking._recommend(test, booking.person_id, booking.department_id))
@@ -96,13 +95,9 @@ class TestScheduleQueueRaces(SchedulingConcurrencyCase):
         return action
 
     def queueing(self, number):
-        """The department's first test's booking is about to be created."""
+        """The department's first test's proposed booking is about to be accepted."""
         test_id = self.departments[number]["test_ids"][0]
-        return (
-            MODEL_MACHINE_BOOKING,
-            "create",
-            lambda _bookings, args: any(values.get("sample_test_id") == test_id for values in self.values(args[0])),
-        )
+        return (MODEL_MACHINE_BOOKING, "action_accept", lambda bookings, _args: test_id in bookings.sample_test_id.ids)
 
     def refusing(self, number):
         """The department's booking is about to book its rooms, after the queue was replanned: refuse it with a message

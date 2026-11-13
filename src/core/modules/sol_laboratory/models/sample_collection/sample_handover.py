@@ -8,6 +8,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_DEPARTMENT,
     MODEL_LOCK_MIXIN,
+    MODEL_MACHINE_BOOKING,
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
     MODEL_SAMPLE,
@@ -64,7 +65,9 @@ class SampleHandover(models.Model, SampleHandoverBase):
             for vals in vals_list:
                 for name in RECEIPT_FIELDS:
                     vals.pop(name, None)
-        return super().create(vals_list)
+        handovers = super().create(vals_list)
+        handovers.filtered("received_at")._plan_departments()
+        return handovers
 
     def write(self, vals):
         if not self.env.su:
@@ -72,7 +75,14 @@ class SampleHandover(models.Model, SampleHandoverBase):
                 raise UserError(self.env._("A department records receiving a sample by scanning its label."))
             if {"sample_id", "department_id"} & set(vals) and any(handover.received_at for handover in self):
                 raise UserError(self.env._("A received handover cannot move to another sample or department."))
-        return super().write(vals)
+        result = super().write(vals)
+        if "received_at" in vals:
+            self._plan_departments()
+        return result
+
+    def _plan_departments(self):
+        """A sample the departments received brings work to their plans."""
+        self.env[MODEL_MACHINE_BOOKING]._plan(self.sudo().department_id)
 
     @api.model
     def receive_by_label(self, code):

@@ -22,7 +22,6 @@ import {
   plannedTask,
   receivedSample,
   recommendation,
-  queueChromium,
   restoreSettings,
   releaseFixtures,
   resetFixtures,
@@ -230,7 +229,7 @@ describe("WF-03 baseline assignment and scheduling", () => {
         scheduleState(test).then((before) => {
           callRefused("medilab.machine.booking", "action_cancel", [[booking.id]]).should(
             "eq",
-            "Only a queued or scheduled booking can be cancelled.",
+            "Only a scheduled booking can be cancelled.",
           );
           scheduleState(test).should("deep.equal", before);
         });
@@ -469,16 +468,13 @@ describe("WF-03 feature acceptance criteria", () => {
     });
   });
 
-  it("TC-F24-02 RPC queue orders urgent work before earlier arrivals and other work by queue time", () => {
+  it("TC-F24-02 the department plan places due-soon work before other work, then earlier arrivals first", () => {
     saveSettings({ urgency_hours: 12 * 24 });
-    const now = Date.now();
     assignedChromium({ days: 60 }).then(({ test: ordinary }) =>
-      assignedChromium({ days: 12 }).then(({ test: urgent }) => {
-        queueChromium(ordinary, now - 60000);
-        queueChromium(urgent, now);
-        assignedChromium({ days: 60 }).then(({ test: trigger }) => book(trigger));
-        openBooking(urgent).then((first) =>
+      assignedChromium({ days: 12 }).then(({ test: dueSoon }) => {
+        openBooking(dueSoon).then((first) =>
           openBooking(ordinary).then((second) => {
+            expect([first.status, second.status]).to.deep.equal(["proposed", "proposed"]);
             expect(first.machine_id).to.deep.equal(second.machine_id);
             expect(time(first.ends_at)).to.be.at.most(time(second.starts_at));
             expect(time(first.ends_at) - time(first.starts_at)).to.equal(60 * 60000);
@@ -488,9 +484,6 @@ describe("WF-03 feature acceptance criteria", () => {
     );
     assignedChromium({ days: 60 }).then(({ test: older }) =>
       assignedChromium({ days: 60 }).then(({ test: newer }) => {
-        queueChromium(newer, now - 120000);
-        queueChromium(older, now - 180000);
-        assignedChromium({ days: 60 }).then(({ test: trigger }) => book(trigger));
         openBooking(older).then((first) =>
           openBooking(newer).then((second) => {
             expect(first.machine_id).to.deep.equal(second.machine_id);

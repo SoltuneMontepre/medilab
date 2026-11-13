@@ -37,6 +37,7 @@ src/tests/
         theme/navbar-more-menu/
         laboratory/unlinked-users/
         laboratory/shared-intervals/
+        laboratory/department-plan/
         ecommerce/portal-language/
         ecommerce/portal-navigation/
         ecommerce/uninstall-warning/
@@ -95,6 +96,7 @@ Start test titles with the issue's `TC-WF…`, `TC-SF…` or `TC-F…` ID. Map f
 | Link an internal user that no person links to, and refuse creating one outside a person. | [#438](https://github.com/SoltuneMontepre/medilab/issues/438) | `features/laboratory/unlinked-users/` | `unlinked-users.cy.js` |
 | Give a backup the head of department's role until a date, who approves a result or sends one at a lower level in their own name. | [#430](https://github.com/SoltuneMontepre/medilab/issues/430) | `features/laboratory/backup-signers/` | `backup-signers.cy.js` |
 | Offer the head only people authorized for a testing task's parameter and refuse another, assign an authorized tester, and let only the lab head authorize a person. | [#421](https://github.com/SoltuneMontepre/medilab/issues/421) | `features/laboratory/parameter-authorization/` | `parameter-authorization.cy.js` |
+| Accept the booking the department's plan proposes, which reserves the machine and the calendar, and mark a test urgent with a reason. | [#422](https://github.com/SoltuneMontepre/medilab/issues/422) | `features/laboratory/department-plan/` | `department-plan.cy.js` |
 | Switch the portal language from the header and the account page, as a customer and as a visitor. | [#451](https://github.com/SoltuneMontepre/medilab/issues/451) | `features/ecommerce/portal-language/` | `portal-language.cy.js` |
 | Reach the catalog, My orders, Support and the account from the portal header, as a customer and as a visitor, and filter My orders. | [#452](https://github.com/SoltuneMontepre/medilab/issues/452), [#499](https://github.com/SoltuneMontepre/medilab/issues/499) | `features/ecommerce/portal-navigation/` | `portal-navigation.cy.js` |
 | Warn before uninstalling E-commerce that test requests keep their order's number, and not when Laboratory leaves with it. | [#439](https://github.com/SoltuneMontepre/medilab/issues/439) | `features/ecommerce/uninstall-warning/` | `uninstall-warning.cy.js` |

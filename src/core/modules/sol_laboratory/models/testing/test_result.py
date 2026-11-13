@@ -330,13 +330,13 @@ class TestResult(models.Model, TestResultBase):
         entered = results.filtered(lambda result: not result.replaces_id)
         tests = entered.sample_test_id.sudo()
         tests._start()
-        # Entering the result is when the measurement is done; a booking still waiting for a slot is not needed.
+        # Entering the result is when the measurement is done; a proposed booking is not needed.
         bookings = tests.booking_ids._open()
-        bookings.filtered(lambda booking: booking.status == "queued")._set({"status": "cancelled"})
+        bookings.filtered(lambda booking: booking.status == "proposed")._set({"status": "cancelled"})
         measured = bookings.filtered(lambda booking: booking.status in ACTIVE_STATUSES)
-        if measured:
-            measured._set({"status": "done"})
-            measured._process_queue()
+        measured._set({"status": "done"})
+        if bookings:
+            bookings._plan(bookings.department_id)
         return results
 
     @api.constrains("machine_id")

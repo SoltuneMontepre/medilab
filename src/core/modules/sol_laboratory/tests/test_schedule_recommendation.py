@@ -100,7 +100,7 @@ class TestScheduleRecommendation(CrossDepartmentCase, LocationCase):
                 self.assertEqual(running.status, "in_progress")
                 self.assertEqual(
                     (waiting.status, waiting.machine_id, waiting.starts_at, waiting.ends_at),
-                    ("scheduled", self.slow, MONDAY, MONDAY + 5 * SLOT),
+                    ("proposed", self.slow, MONDAY, MONDAY + 5 * SLOT),
                 )
                 later = self.new_test()
                 self.testing_task(later, self.tester)
@@ -119,7 +119,7 @@ class TestScheduleRecommendation(CrossDepartmentCase, LocationCase):
         self.assertEqual((self.fast.active, self.fast.status), (True, "in_use"))
         self.assert_schedule_invariants(tests)
 
-    def test_a_booking_whose_machine_is_lost_with_no_other_goes_back_to_the_queue_and_frees_its_calendar(self):
+    def test_a_booking_whose_machine_is_lost_with_no_other_goes_back_to_the_plan_and_frees_its_calendar(self):
         self.env[MODEL_TESTING_METHOD_STEP].create(
             {
                 "method_id": self.method.id,
@@ -139,7 +139,7 @@ class TestScheduleRecommendation(CrossDepartmentCase, LocationCase):
         self.assert_schedule_invariants(self.test)
 
         self.fast.status = "under_repair"
-        self.assertEqual((booking.status, booking.starts_at, booking.ends_at), ("queued", False, False))
+        self.assertEqual((booking.status, booking.starts_at, booking.ends_at), ("proposed", False, False))
         self.assertEqual(booking.person_id, self.tester)
         self.assertFalse(booking.calendar_event_id)
         self.assertFalse(booking.room_event_ids)
@@ -173,7 +173,7 @@ class TestScheduleRecommendation(CrossDepartmentCase, LocationCase):
         message = f"No machine can finish {test.display_name} before its due date."
         with self.assertRaisesRegex(UserError, re.escape(message)), self.rolled_back():
             self.schedule(test, self.tester)
-        self.assertFalse(test.booking_ids)
+        self.assertFalse(test.booking_ids.filtered(lambda booking: booking.status != "proposed" or booking.starts_at))
         self.assertEqual(test.status, "assigned")
         self.assert_schedule_invariants(test)
 

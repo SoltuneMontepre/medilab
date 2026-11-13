@@ -146,7 +146,7 @@ Acceptance criteria:
 - Setting a repaired machine back to in use without a calibration or maintenance record dated after the repair is refused.
 - A machine can be linked to a testing method only once; the link's duration is at least one minute and its capacity at least one sample.
 - A testing method shows the chemicals it uses, and a chemical shows the methods that use it.
-- A machine with a queued, scheduled or running booking cannot be archived; once its bookings are done or cancelled, it can be archived.
+- A machine with a scheduled or running booking cannot be archived; once its bookings are done or cancelled, it can be archived.
 - A machine that is in use, has any booking or service record, or is linked to a testing method cannot be deleted.
 - A chemical cannot be deleted while a testing method uses it.
 

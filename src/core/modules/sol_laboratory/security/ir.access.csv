@@ -34,6 +34,7 @@ access_medilab_test_report_reject_user,medilab.test.report.reject user,medilab.t
 access_medilab_test_report_template_change_user,medilab.test.report.template.change user,medilab.test.report.template.change,base.group_user,crud,
 access_medilab_sample_test_cancel_user,medilab.sample.test.cancel user,medilab.sample.test.cancel,base.group_user,crud,
 access_medilab_sample_test_due_date_change_user,medilab.sample.test.due.date.change user,medilab.sample.test.due.date.change,base.group_user,crud,
+access_medilab_sample_test_urgent_mark_user,medilab.sample.test.urgent.mark user,medilab.sample.test.urgent.mark,base.group_user,crud,
 access_medilab_sample_test_outsource_user,medilab.sample.test.outsource user,medilab.sample.test.outsource,base.group_user,crud,
 access_medilab_subcontract_dispatch_courier,medilab.subcontract.dispatch courier,medilab.subcontract.dispatch,base.group_user,r,"[('courier_id.user_id', '=', user.id)]"
 access_medilab_notification_event_recipient_user,medilab.notification.event.recipient user,medilab.notification.event.recipient,base.group_user,r,

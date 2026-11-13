@@ -6,7 +6,6 @@
         <field name="sample_test_id" ref="demo_sample_test_lead_done" />
         <field name="task_id" ref="demo_task_sample_test_lead_done" />
         <field name="person_id" ref="demo_person_tester" />
-        <field name="queued_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="starts_at" eval="(DateTime.now() + relativedelta(hour=1, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="ends_at" eval="(DateTime.now() + relativedelta(hour=1, minute=45, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="status">done</field>
@@ -16,7 +15,6 @@
         <field name="sample_test_id" ref="demo_sample_test_lead_running" />
         <field name="task_id" ref="demo_task_sample_test_lead_running" />
         <field name="person_id" ref="demo_person_chemistry_tester" />
-        <field name="queued_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="starts_at" eval="(DateTime.now() + relativedelta(hour=2, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="ends_at" eval="(DateTime.now() + relativedelta(hour=2, minute=30, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="status">in_progress</field>
@@ -26,7 +24,6 @@
         <field name="sample_test_id" ref="demo_sample_test_lead_today" />
         <field name="task_id" ref="demo_task_sample_test_lead_today" />
         <field name="person_id" ref="demo_person_tester" />
-        <field name="queued_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="starts_at" eval="(DateTime.now() + relativedelta(hour=7, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="ends_at" eval="(DateTime.now() + relativedelta(hour=7, minute=45, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="status">scheduled</field>
@@ -36,18 +33,16 @@
         <field name="sample_test_id" ref="demo_sample_test_lead_tomorrow" />
         <field name="task_id" ref="demo_task_sample_test_lead_tomorrow" />
         <field name="person_id" ref="demo_person_chemistry_tester" />
-        <field name="queued_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="starts_at" eval="(DateTime.now() + relativedelta(days=1, hour=2, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="ends_at" eval="(DateTime.now() + relativedelta(days=1, hour=2, minute=30, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="status">scheduled</field>
     </record>
-    <record id="demo_machine_booking_lead_queued" model="medilab.machine.booking">
+    <record id="demo_machine_booking_lead_proposed" model="medilab.machine.booking">
         <field name="machine_id" ref="demo_machine_aas_2" />
-        <field name="sample_test_id" ref="demo_sample_test_lead_queued" />
-        <field name="task_id" ref="demo_task_sample_test_lead_queued" />
+        <field name="sample_test_id" ref="demo_sample_test_lead_proposed" />
+        <field name="task_id" ref="demo_task_sample_test_lead_proposed" />
         <field name="person_id" ref="demo_person_tester" />
-        <field name="queued_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
-        <field name="status">queued</field>
+        <field name="status">proposed</field>
     </record>
     <!-- Digesting in the preparation room books it from 15 minutes after the start for an hour. -->
     <record id="demo_machine_booking_lead_room_booked" model="medilab.machine.booking">
@@ -55,7 +50,6 @@
         <field name="sample_test_id" ref="demo_sample_test_lead_room_booked" />
         <field name="task_id" ref="demo_task_sample_test_lead_room_booked" />
         <field name="person_id" ref="demo_person_tester" />
-        <field name="queued_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="starts_at" eval="(DateTime.now() + relativedelta(days=1, hour=1, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="ends_at" eval="(DateTime.now() + relativedelta(days=1, hour=1, minute=30, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="status">scheduled</field>
@@ -66,7 +60,6 @@
         <field name="sample_test_id" ref="demo_sample_test_lead_room_waiting" />
         <field name="task_id" ref="demo_task_sample_test_lead_room_waiting" />
         <field name="person_id" ref="demo_person_chemistry_tester" />
-        <field name="queued_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="starts_at" eval="(DateTime.now() + relativedelta(days=1, hour=4, minute=15, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="ends_at" eval="(DateTime.now() + relativedelta(days=1, hour=4, minute=45, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="status">scheduled</field>
@@ -77,7 +70,6 @@
         <field name="sample_test_id" ref="demo_sample_test_icpms_lead_1" />
         <field name="task_id" ref="demo_task_sample_test_icpms_lead_1" />
         <field name="person_id" ref="demo_person_tester" />
-        <field name="queued_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="starts_at" eval="(DateTime.now() + relativedelta(days=2, hour=1, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="ends_at" eval="(DateTime.now() + relativedelta(days=2, hour=5, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="status">scheduled</field>
@@ -87,7 +79,6 @@
         <field name="sample_test_id" ref="demo_sample_test_icpms_cadmium_1" />
         <field name="task_id" ref="demo_task_sample_test_icpms_cadmium_1" />
         <field name="person_id" ref="demo_person_tester" />
-        <field name="queued_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="starts_at" eval="(DateTime.now() + relativedelta(days=2, hour=1, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="ends_at" eval="(DateTime.now() + relativedelta(days=2, hour=5, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="status">scheduled</field>
@@ -97,7 +88,6 @@
         <field name="sample_test_id" ref="demo_sample_test_icpms_arsenic_1" />
         <field name="task_id" ref="demo_task_sample_test_icpms_arsenic_1" />
         <field name="person_id" ref="demo_person_tester" />
-        <field name="queued_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="starts_at" eval="(DateTime.now() + relativedelta(days=2, hour=1, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="ends_at" eval="(DateTime.now() + relativedelta(days=2, hour=5, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="status">scheduled</field>
@@ -107,7 +97,6 @@
         <field name="sample_test_id" ref="demo_sample_test_icpms_lead_2" />
         <field name="task_id" ref="demo_task_sample_test_icpms_lead_2" />
         <field name="person_id" ref="demo_person_chemistry_tester" />
-        <field name="queued_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="starts_at" eval="(DateTime.now() + relativedelta(days=2, hour=1, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="ends_at" eval="(DateTime.now() + relativedelta(days=2, hour=5, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="status">scheduled</field>
@@ -117,7 +106,6 @@
         <field name="sample_test_id" ref="demo_sample_test_icpms_cadmium_2" />
         <field name="task_id" ref="demo_task_sample_test_icpms_cadmium_2" />
         <field name="person_id" ref="demo_person_chemistry_tester" />
-        <field name="queued_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="starts_at" eval="(DateTime.now() + relativedelta(days=2, hour=1, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="ends_at" eval="(DateTime.now() + relativedelta(days=2, hour=5, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="status">scheduled</field>
@@ -127,9 +115,18 @@
         <field name="sample_test_id" ref="demo_sample_test_icpms_arsenic_2" />
         <field name="task_id" ref="demo_task_sample_test_icpms_arsenic_2" />
         <field name="person_id" ref="demo_person_chemistry_tester" />
-        <field name="queued_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="starts_at" eval="(DateTime.now() + relativedelta(days=2, hour=1, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="ends_at" eval="(DateTime.now() + relativedelta(days=2, hour=5, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="status">scheduled</field>
     </record>
+    <!-- Chemistry receives the samples of its plan: its plan keeps the proposed booking at risk and proposes slots for
+         the urgent-marked and due-soon tests. -->
+    <function model="medilab.sample.handover" name="write">
+        <value
+            eval="[ref('demo_sample_handover_lead_proposed'), ref('demo_sample_handover_lead_marked_urgent'), ref('demo_sample_handover_lead_due_soon')]"
+        />
+        <value
+            eval="{'received_at': DateTime.now().strftime('%Y-%m-%d %H:%M:%S'), 'received_by_id': ref('demo_person_head_of_department')}"
+        />
+    </function>
 </odoo>

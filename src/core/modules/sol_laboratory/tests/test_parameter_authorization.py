@@ -141,4 +141,4 @@ class TestParameterAuthorization(SchedulingCase):
         self.assertFalse(self.test.recommended_machine_id)
         with self.assertRaisesRegex(ValidationError, "Le Van Cuong is not authorized to test Lead"):
             self.schedule(self.test, self.tester)
-        self.assertFalse(self.test.booking_ids)
+        self.assertNotIn("scheduled", self.test.booking_ids.mapped("status"))

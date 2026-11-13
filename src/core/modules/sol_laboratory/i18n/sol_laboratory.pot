@@ -319,12 +319,6 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/testing/sample_test.py:0
-msgid "%s is already waiting for or holding a machine."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
 #: code:addons/sol_laboratory/models/mixins/digital_signing_mixin.py:0
 msgid ""
 "%s is approved, but Viettel Sign could not sign its PDF. It is retried "
@@ -535,12 +529,6 @@ msgstr ""
 msgid ""
 "<p>Your task <t t-out=\"object.name\"/> is about to start.</p>\n"
 "        "
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
-msgid "<span class=\"badge text-bg-danger\" invisible=\"not is_urgent\">Urgent</span>"
 msgstr ""
 
 #. module: sol_laboratory
@@ -8255,12 +8243,6 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/testing/machine_booking.py:0
-msgid "Only a queued or scheduled booking can be cancelled."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/sample_handover.py:0
 msgid ""
 "Only a received sample can be handed over to a department. Not received: %s"
@@ -11264,17 +11246,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
 msgid "Queue"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine_booking__status__queued
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
-msgid "Queued"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__queued_at
-msgid "Queued At"
 msgstr ""
 
 #. module: sol_laboratory
@@ -16979,4 +16950,171 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_authorization_person_parameter_unique
 msgid "The person is already authorized to test this parameter."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "%s is already holding a machine."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_priority.py:0
+msgid "%s is at risk of missing its internal due date."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+msgid ""
+"<span class=\"badge text-bg-danger ms-2\" invisible=\"not at_risk\">At "
+"Risk</span>"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_sample_test_at_risk
+msgid ""
+"A sample test you test or your department tests may miss its internal due "
+"date"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "Accept"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_plan.py:0
+msgid "Assign %s to a tester before accepting its booking."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__at_risk
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__at_risk
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
+msgid "At Risk"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__can_mark_urgent
+msgid "Can Mark Urgent"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_test__priority__due_soon
+msgid "Due Soon"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_priority.py:0
+msgid "Give a reason for marking the test urgent."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_urgent_mark_form
+msgid "Mark Urgent"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_sample_test_urgent_mark
+msgid "Mark a Sample Test Urgent"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_sample_test_urgent_mark
+msgid "Mark the Test Urgent"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__marked_urgent
+msgid "Marked Urgent"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__marked_urgent_by_id
+msgid "Marked Urgent By"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_test__priority__normal
+msgid "Normal"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_plan.py:0
+msgid "Only a proposed booking can be accepted."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking.py:0
+msgid "Only a scheduled booking can be cancelled."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_priority.py:0
+msgid ""
+"Only the tester of %s or the head of the department testing it marks it "
+"urgent, while it is open."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
+msgid "Plan"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__priority
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__priority
+msgid "Priority"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine_booking__status__proposed
+msgid "Proposed"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "Remove Urgent Mark"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_sample_test_at_risk
+msgid "Sample test at risk"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_plan.py:0
+msgid ""
+"The slot of %s was taken meanwhile; open the plan again for its new slot."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "This test is at risk of missing its internal due date."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__urgent_reason
+msgid "Urgent Reason"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/scheduled_job.py:0
+msgid "Sample tests still at risk of missing their internal due date: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_sample_tests_at_risk_summary_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_sample_tests_at_risk_summary
+msgid "Summary of sample tests at risk"
 msgstr ""

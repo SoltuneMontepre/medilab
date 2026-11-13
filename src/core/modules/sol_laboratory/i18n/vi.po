@@ -10775,18 +10775,6 @@ msgid "%(machine)s is not free for %(booking)s at that time."
 msgstr "%(machine)s không trống cho %(booking)s vào lúc đó."
 
 #. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/sample_test.py:0
-msgid "%s is already waiting for or holding a machine."
-msgstr "%s đã đang chờ hoặc đang giữ một máy."
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
-msgid "<span class=\"badge text-bg-danger\" invisible=\"not is_urgent\">Urgent</span>"
-msgstr "<span class=\"badge text-bg-danger\" invisible=\"not is_urgent\">Khẩn</span>"
-
-#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_booking_slot_period
 msgid "A booking ends after it starts."
 msgstr "Lịch đặt máy phải kết thúc sau khi bắt đầu."
@@ -10895,12 +10883,6 @@ msgstr "Chỉ lịch đặt máy đang thực hiện mới có thể hoàn thàn
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/machine_booking.py:0
-msgid "Only a queued or scheduled booking can be cancelled."
-msgstr "Chỉ lịch đặt máy đang chờ hoặc đã xếp lịch mới có thể hủy."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/machine_booking.py:0
 msgid "Only a scheduled booking can be moved."
 msgstr "Chỉ lịch đặt máy đã xếp lịch mới có thể dời."
 
@@ -10956,17 +10938,6 @@ msgstr "Quyền: machine.booking.read.all"
 #: model:res.groups,name:sol_laboratory.group_permission_machine_booking_read_own_department
 msgid "Permission: machine.booking.read.own_department"
 msgstr "Quyền: machine.booking.read.own_department"
-
-#. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine_booking__status__queued
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
-msgid "Queued"
-msgstr "Đang chờ"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__queued_at
-msgid "Queued At"
-msgstr "Thời điểm vào hàng đợi"
 
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_machine_booking_read_all
@@ -16864,3 +16835,170 @@ msgstr "Quyền: parameter.authorization.edit.all"
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_authorization_person_parameter_unique
 msgid "The person is already authorized to test this parameter."
 msgstr "Nhân sự đã được phép thử chỉ tiêu này."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "%s is already holding a machine."
+msgstr "%s đang giữ máy."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_priority.py:0
+msgid "%s is at risk of missing its internal due date."
+msgstr "%s có nguy cơ trễ hạn nội bộ."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+msgid ""
+"<span class=\"badge text-bg-danger ms-2\" invisible=\"not at_risk\">At "
+"Risk</span>"
+msgstr "<span class=\"badge text-bg-danger ms-2\" invisible=\"not at_risk\">Có nguy cơ trễ hạn</span>"
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_sample_test_at_risk
+msgid ""
+"A sample test you test or your department tests may miss its internal due "
+"date"
+msgstr "Một chỉ tiêu của mẫu bạn hoặc phòng của bạn thử nghiệm có thể trễ hạn nội bộ"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "Accept"
+msgstr "Chấp nhận"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_plan.py:0
+msgid "Assign %s to a tester before accepting its booking."
+msgstr "Hãy giao %s cho một thử nghiệm viên trước khi chấp nhận lịch đặt."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__at_risk
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__at_risk
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
+msgid "At Risk"
+msgstr "Có nguy cơ trễ hạn"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__can_mark_urgent
+msgid "Can Mark Urgent"
+msgstr "Có thể đánh dấu khẩn"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_test__priority__due_soon
+msgid "Due Soon"
+msgstr "Sắp đến hạn"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_priority.py:0
+msgid "Give a reason for marking the test urgent."
+msgstr "Hãy nêu lý do đánh dấu khẩn chỉ tiêu."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_urgent_mark_form
+msgid "Mark Urgent"
+msgstr "Đánh dấu khẩn"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_sample_test_urgent_mark
+msgid "Mark a Sample Test Urgent"
+msgstr "Đánh Dấu Khẩn Chỉ Tiêu Của Mẫu"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_sample_test_urgent_mark
+msgid "Mark the Test Urgent"
+msgstr "Đánh dấu khẩn chỉ tiêu"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__marked_urgent
+msgid "Marked Urgent"
+msgstr "Đã đánh dấu khẩn"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__marked_urgent_by_id
+msgid "Marked Urgent By"
+msgstr "Người đánh dấu khẩn"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_test__priority__normal
+msgid "Normal"
+msgstr "Bình thường"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_plan.py:0
+msgid "Only a proposed booking can be accepted."
+msgstr "Chỉ lịch đặt đề xuất mới có thể chấp nhận."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking.py:0
+msgid "Only a scheduled booking can be cancelled."
+msgstr "Chỉ lịch đặt đã xếp mới có thể hủy."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_priority.py:0
+msgid ""
+"Only the tester of %s or the head of the department testing it marks it "
+"urgent, while it is open."
+msgstr "Chỉ thử nghiệm viên của %s hoặc trưởng phòng thử nghiệm chỉ tiêu này mới đánh dấu khẩn được, khi chỉ tiêu còn mở."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
+msgid "Plan"
+msgstr "Kế hoạch"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__priority
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__priority
+msgid "Priority"
+msgstr "Mức ưu tiên"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine_booking__status__proposed
+msgid "Proposed"
+msgstr "Đề xuất"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "Remove Urgent Mark"
+msgstr "Bỏ đánh dấu khẩn"
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_sample_test_at_risk
+msgid "Sample test at risk"
+msgstr "Chỉ tiêu của mẫu có nguy cơ trễ hạn"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_plan.py:0
+msgid ""
+"The slot of %s was taken meanwhile; open the plan again for its new slot."
+msgstr "Khung giờ của %s vừa bị chiếm; hãy mở lại kế hoạch để xem khung giờ mới."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "This test is at risk of missing its internal due date."
+msgstr "Chỉ tiêu này có nguy cơ trễ hạn nội bộ."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__urgent_reason
+msgid "Urgent Reason"
+msgstr "Lý do khẩn"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/scheduled_job.py:0
+msgid "Sample tests still at risk of missing their internal due date: %s"
+msgstr "Các chỉ tiêu của mẫu vẫn có nguy cơ trễ hạn nội bộ: %s"
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_sample_tests_at_risk_summary_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_sample_tests_at_risk_summary
+msgid "Summary of sample tests at risk"
+msgstr "Tổng hợp chỉ tiêu của mẫu có nguy cơ trễ hạn"
