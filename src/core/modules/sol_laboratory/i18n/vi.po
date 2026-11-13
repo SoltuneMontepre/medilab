@@ -118,6 +118,7 @@ msgstr "%s không có người dùng nên quyền trên đó không thể giới
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_mobile.py:0
 #: code:addons/sol_laboratory/models/tasks/task.py:0
 msgid "%s is already claimed."
 msgstr "%s đã có người nhận."
@@ -16731,3 +16732,9 @@ msgstr "Bạn không được giao nhiệm vụ."
 #: code:addons/sol_laboratory/models/tasks/task_mobile.py:0
 msgid "You may not create tasks."
 msgstr "Bạn không được tạo nhiệm vụ."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_mobile.py:0
+msgid "Only the unassigned testing tasks of your department on %s can be claimed here."
+msgstr "Chỉ nhận được ở đây các nhiệm vụ kiểm nghiệm chưa giao của phòng ban bạn trên %s."
