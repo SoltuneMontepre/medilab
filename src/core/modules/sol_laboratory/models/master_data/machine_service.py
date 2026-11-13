@@ -91,7 +91,7 @@ class MachineService(models.Model, MachineServiceBase):
         return result
 
     def _scheduling_machines(self):
-        return self.filtered(lambda service: service.kind == "calibration" or service.downtime_start).machine_id
+        return self.filtered(lambda service: service.kind == "calibration" or bool(service.downtime_start)).machine_id
 
     @api.model
     def _requeue_bookings(self, machines):

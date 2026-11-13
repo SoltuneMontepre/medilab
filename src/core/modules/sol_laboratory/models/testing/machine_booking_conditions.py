@@ -6,6 +6,7 @@ from odoo.exceptions import ValidationError
 from odoo.tools import format_date
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_MACHINE_BOOKING, MODEL_RES_CONFIG_SETTINGS
+from odoo.addons.sol_laboratory.services.type_values import value_as
 
 if TYPE_CHECKING:
     from medilab_model_types import Model_medilab_machine_booking as MachineBookingConditionsBase
@@ -27,7 +28,7 @@ class MachineBookingConditions(models.Model, MachineBookingConditionsBase):
     def _compute_machine_warning(self):
         settings = self.env[MODEL_RES_CONFIG_SETTINGS]
         windows = {
-            name: timedelta(days=settings._get_parameter(name))
+            name: timedelta(days=value_as(settings._get_parameter(name), int))
             for name in ("calibration_warning_days", "maintenance_warning_days", "repair_warning_days")
         }
         now = fields.Datetime.now()
@@ -91,7 +92,7 @@ class MachineBookingConditions(models.Model, MachineBookingConditionsBase):
 
     @api.constrains("status", "starts_at", "ends_at", "machine_id")
     def _check_machine_conditions(self):
-        for booking in self.filtered(lambda booking: booking.status == "scheduled" and booking.machine_id):
+        for booking in self.filtered(lambda booking: booking.status == "scheduled" and bool(booking.machine_id)):
             refusal = booking._machine_refusal(booking.machine_id.sudo(), booking.starts_at, booking.ends_at)
             if refusal:
                 raise ValidationError(refusal)
