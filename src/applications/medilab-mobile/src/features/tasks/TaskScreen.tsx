@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useCallback, useState } from "react";
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { ApiError, type TaskDetail } from "../../api";
@@ -10,6 +10,7 @@ import { failed, useLoad, type Load } from "../../load";
 import { useT } from "../../locale";
 import { useSession } from "../../session";
 import { colors, styles as shared } from "../../styles";
+import { LoadNotice } from "../connection/LoadNotice";
 import { Unreachable } from "../connection/Unreachable";
 import { documentPath } from "../documents/documentPath";
 import { formatMoment, statusKey } from "./taskText";
@@ -58,14 +59,7 @@ export function TaskScreen() {
 
   return (
     <SafeAreaView style={styles.screen}>
-      {load.state === "loading" && <ActivityIndicator accessibilityLabel={t("loading")} />}
-      {load.state === "unreachable" && <Unreachable onRetry={reload} />}
-      {load.state === "gone" && (
-        <Text accessibilityRole="alert" style={shared.error}>
-          {t("task.gone")}
-        </Text>
-      )}
-      {load.state === "refused" && <Text style={shared.error}>{load.message}</Text>}
+      <LoadNotice load={load} gone={t("task.gone")} onRetry={reload} />
       {load.state === "ready" && (
         <ScrollView contentContainerStyle={styles.content}>
           <Details task={load.value} />

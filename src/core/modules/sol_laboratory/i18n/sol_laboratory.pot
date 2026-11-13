@@ -301,6 +301,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_mobile.py:0
 #: code:addons/sol_laboratory/models/tasks/task.py:0
 msgid "%s is already claimed."
 msgstr ""
@@ -1957,6 +1958,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__specific_property_product_pricelist
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__specific_property_product_pricelist
 msgid "Assigned Pricelist"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_ir_asset
+msgid "Asset"
 msgstr ""
 
 #. module: sol_laboratory
@@ -17048,4 +17054,9 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/machine_booking_conditions.py:0
 msgid "The maintenance of %(machine)s was due on %(date)s; record it before booking the machine."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_mobile.py:0
+msgid "Only the unassigned testing tasks of your department on %s can be claimed here."
 msgstr ""

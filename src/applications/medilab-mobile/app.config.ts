@@ -32,6 +32,15 @@ export default function appConfig({ config }: ConfigContext): ExpoConfig {
     plugins: [
       "expo-router",
       "expo-secure-store",
+      // The camera reads sample labels; the app records no sound.
+      [
+        "expo-camera",
+        {
+          cameraPermission: "MediLab reads the QR code on sample labels with the camera.",
+          microphonePermission: false,
+          recordAudioAndroid: false,
+        },
+      ],
       // React Native Firebase reaches the Firebase Apple SDK through Swift Package Manager, which needs dynamic
       // frameworks.
       ["expo-build-properties", { ios: { useFrameworks: "dynamic" } }],

@@ -395,7 +395,7 @@
     </record>
     <record id="demo_sample_lead_overrun" model="medilab.sample">
         <field name="request_id" ref="demo_test_request_reception" />
-        <field name="customer_sample_name">Nước giếng khoan Sóc Sơn 1 L</field>
+        <field name="customer_sample_name">Nước giếng khoan Thanh Trì 1 L</field>
         <field name="sample_type_id" ref="demo_sample_type_bottled_water" />
         <field name="physical_state">liquid</field>
         <field name="status">testing</field>
@@ -406,7 +406,7 @@
     </record>
     <record id="demo_sample_lead_overrun_next" model="medilab.sample">
         <field name="request_id" ref="demo_test_request_reception" />
-        <field name="customer_sample_name">Nước giếng khoan Mê Linh 1 L</field>
+        <field name="customer_sample_name">Nước giếng khoan Hoài Đức 1 L</field>
         <field name="sample_type_id" ref="demo_sample_type_bottled_water" />
         <field name="physical_state">liquid</field>
         <field name="status">testing</field>
@@ -414,5 +414,20 @@
         <field name="received_by_id" ref="demo_person_sample_delivery_staff" />
         <field name="received_quantity">2 bottles</field>
         <field name="condition">good</field>
+    </record>
+    <!-- Handed over to Chemistry and Microbiology and received by neither: its label is scanned on Medilab Mobile. -->
+    <record id="demo_sample_label_scan" model="medilab.sample">
+        <field name="request_id" ref="demo_test_request_reception" />
+        <field name="customer_sample_name">Nước khoáng Núi Xanh 500 mL</field>
+        <field name="sample_type_id" ref="demo_sample_type_bottled_water" />
+        <field name="physical_state">liquid</field>
+        <field name="sample_form">Sealed bottle</field>
+        <field name="container_type">500 mL PET bottle</field>
+        <field name="status">received</field>
+        <field name="received_at" eval="(DateTime.now() - relativedelta(hours=2)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="received_by_id" ref="demo_person_sample_delivery_staff" />
+        <field name="received_quantity">2 bottles of 500 mL</field>
+        <field name="condition">good</field>
+        <field name="storage_location">Fridge 1, shelf A</field>
     </record>
 </odoo>
