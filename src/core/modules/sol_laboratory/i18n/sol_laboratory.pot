@@ -1965,6 +1965,11 @@ msgid "Assigned Pricelist"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_ir_asset
+msgid "Asset"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__assignee_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__assignee_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search

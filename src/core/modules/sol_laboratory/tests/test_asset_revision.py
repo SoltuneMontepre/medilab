@@ -33,4 +33,6 @@ class TestAssetRevision(TransactionCase):
             paths, unrevised, strict=True
         ):
             self.assertEqual(path, same_path)
+            if original is None:
+                self.fail(f"{path} has no modification time")
             self.assertEqual(time, original + ASSET_REVISION)
