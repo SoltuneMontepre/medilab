@@ -95,7 +95,8 @@ class TestMedilabMobileSamples(LaboratoryApiCase, RequestCase):
         return response.json()
 
     def look_up(self, person, code=None):
-        return self.on_phone(person, "GET", f"/samples/lookup?code={quote(code or self.sample.code)}")
+        label = code or self.sample.code or ""
+        return self.on_phone(person, "GET", f"/samples/lookup?code={quote(label)}")
 
     def handover_of(self, department):
         return self.sample.handover_ids.filtered(lambda handover: handover.department_id == department)

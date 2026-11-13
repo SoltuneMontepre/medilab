@@ -43,10 +43,10 @@ class SampleMobile(models.Model, SampleMobileBase):
         statuses = dict(sample._fields["status"]._description_selection(self.env))
         return {
             "id": sample.id,
-            "code": sample.code,
-            "status": statuses[sample.status],
+            "code": sample.code or "",
+            "status": statuses.get(sample.status or "", ""),
             "sample_type": sample.sample_type_id.display_name or "",
-            "physical_state": states.get(sample.physical_state, ""),
+            "physical_state": states.get(sample.physical_state or "", ""),
             "form": sample.sample_form or "",
             "container": sample.container_type or "",
             "received_at": api_datetime(sample.received_at),
