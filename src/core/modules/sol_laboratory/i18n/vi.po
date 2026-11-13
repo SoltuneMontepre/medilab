@@ -119,6 +119,7 @@ msgstr "%s không có người dùng nên quyền trên đó không thể giới
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/tasks/task.py:0
+#: code:addons/sol_laboratory/models/sample_collection/sample_mobile.py:0
 msgid "%s is already claimed."
 msgstr "%s đã có người nhận."
 
@@ -17002,3 +17003,14 @@ msgstr "Các chỉ tiêu của mẫu vẫn có nguy cơ trễ hạn nội bộ: 
 #: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_sample_tests_at_risk_summary
 msgid "Summary of sample tests at risk"
 msgstr "Tổng hợp chỉ tiêu của mẫu có nguy cơ trễ hạn"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_ir_asset
+msgid "Asset"
+msgstr "Tài Nguyên Giao Diện"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_mobile.py:0
+msgid "Only the unassigned testing tasks of your department on %s can be claimed here."
+msgstr "Chỉ nhận được ở đây các nhiệm vụ kiểm nghiệm chưa giao của phòng ban bạn trên %s."

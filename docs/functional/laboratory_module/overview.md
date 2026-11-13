@@ -20,18 +20,18 @@ erDiagram
     SAMPLE_TEST }o--|| PARAMETER_METHOD : "is tested by"
     TEST_PARAMETER ||--|{ PARAMETER_METHOD : "is tested by"
     PARAMETER_METHOD }o--|| TESTING_METHOD : uses
-    TESTING_METHOD ||--o{ TESTING_METHOD_STEP : "is done in"
-    LOCATION ||--o{ LOCATION : contains
+    TESTING_METHOD ||--o{ TESTING_METHOD_STEP : has
+    LOCATION |o--o{ LOCATION : contains
     TESTING_METHOD_STEP }o--o| LOCATION : "is done in"
     SAMPLE }o--o| LOCATION : "is taken from"
     ACCREDITATION_CERTIFICATE ||--|{ ACCREDITATION_SCOPE_LINE : contains
     ACCREDITATION_SCOPE_LINE }o--|| TESTING_METHOD : covers
-    ACCREDITATION_SCOPE_LINE }o--o{ TEST_PARAMETER : covers
-    ACCREDITATION_SCOPE_LINE }o--o{ SAMPLE_TYPE : covers
+    ACCREDITATION_SCOPE_LINE }o--|{ TEST_PARAMETER : covers
+    ACCREDITATION_SCOPE_LINE }o--|{ SAMPLE_TYPE : covers
     SAMPLE_TEST ||--o{ TEST_RESULT : has
     SAMPLE_TEST ||--o{ MACHINE_BOOKING : "is booked in"
     MACHINE_BOOKING o|--o{ TEST_RESULT : measures
-    SUBCONTRACT_DISPATCH o|--o{ TEST_RESULT : carries
+    SUBCONTRACT_DISPATCH }o--|{ SAMPLE_TEST : sends
     MACHINE_BOOKING }o--|| PERSON : "is done by"
     MACHINE_BOOKING }o--o| MACHINE : "uses when needed"
 ```
@@ -46,7 +46,7 @@ erDiagram
 | Lab code          | Each sample gets a unique lab code (mã PTN) from a sequence, such as PTN.2026.0001, numbered again each year. Testers see only the lab code, never the customer or the customer's name for the sample: only people who can read test requests see those. |
 | Sample details    | A sample has the customer's name for it, its sample type, its physical state (solid, liquid, gas or semi-solid), and its form and container as text. It can name the [location](features/admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28) it was taken from, such as a sampling point. |
 | Regulation | Comparison with a regulation such as QCVN is optional. The main flow tests by the selected method, such as a TCVN, and returns measured results. A regulation defines comparison requirements and may refer to several testing standards; it is not a testing method. Only the parameters for which comparison is requested are assessed. |
-| Sample test | One way of testing applied to one sample, with quantity and due date. The way is required from creation and determines the parameter. The customer or Sales selects it before quotation acceptance, otherwise the default for that parameter and sample type is used. Accepted selections change only through a revised quotation and customer agreement. |
+| Sample test | One way of testing applied to one sample, with quantity and due date. The way is required from creation and determines the parameter. The customer or Sales selects it before quotation acceptance, otherwise the default for that parameter and sample type is used. The customer sees only its parameter and method. A different method needs a revised quotation and customer agreement; outsourcing to a subcontracted way with the same parameter and method is internal. |
 
 ## Lifecycles
 
@@ -58,7 +58,7 @@ Each document keeps its own status. Tasks keep their own generic lifecycle ([SH-
 stateDiagram-v2
     [*] --> draft
     draft --> confirmed: request confirmed
-    confirmed --> paid: at once, as confirming needs the payment or credit
+    confirmed --> paid: the balance is paid, or at once for a customer allowed credit
     paid --> sample_received: first sample received
     sample_received --> testing: first sample test started
     testing --> awaiting_approval: every remaining test has its reported result sent for approval
@@ -66,7 +66,7 @@ stateDiagram-v2
     awaiting_approval --> completed: every result approved
     testing --> completed: the remaining tests are approved when one is cancelled
     completed --> reported: report issued
-    completed --> testing: the lab head sends results back
+    completed --> awaiting_approval: the lab head sends results back
     draft --> cancelled
     confirmed --> cancelled
     paid --> cancelled
@@ -74,7 +74,7 @@ stateDiagram-v2
     testing --> cancelled
 ```
 
-- With E-commerce, every test request comes from an order sales confirmed and goes through the paid step, which E-commerce sets: confirming it needs the order's advance paid in full or the customer allowed credit, so a confirmed request is paid at once.
+- With E-commerce, every test request comes from an order sales confirmed and goes through the paid step, which E-commerce sets: confirming it needs the order's advance paid in full or the customer allowed credit. A confirmed request is paid once the order's balance is paid, or at once for a customer allowed credit.
 - Creating a test request directly, with the permission `test_request.create.all`, is a temporary shortcut for developers to set up flows. It is removed once every browser test and demo record creates its test requests from orders ([#485](https://github.com/SoltuneMontepre/medilab/issues/485)).
 
 ### Sample
@@ -82,17 +82,20 @@ stateDiagram-v2
 ```mermaid
 stateDiagram-v2
     [*] --> expected
-    expected --> received: sample received
-    received --> rejected: unusable on arrival
-    received --> on_hold: insufficient on arrival
+    expected --> received: sample received in good condition
+    expected --> rejected: unusable on arrival
+    expected --> on_hold: insufficient on arrival
     on_hold --> received: more sample collected
+    on_hold --> testing: collected again after a failed subcontract delivery, its tests already started
+    received --> on_hold: delivery to a subcontractor failed
+    testing --> on_hold: delivery to a subcontractor failed
     received --> testing: first sample test started
     testing --> awaiting_approval: every remaining test has its reported result sent for approval
     awaiting_approval --> testing: a reported result is rejected or withdrawn
     awaiting_approval --> completed: every result approved
     testing --> completed: the remaining tests are approved when one is cancelled
     completed --> reported: report issued
-    completed --> testing: the lab head sends one of its results back
+    completed --> awaiting_approval: the lab head sends one of its results back
     reported --> retained: kept after testing
     reported --> disposed: not kept
     retained --> disposed: retention period over
@@ -101,6 +104,7 @@ stateDiagram-v2
     expected --> cancelled
     received --> cancelled
     testing --> cancelled
+    on_hold --> cancelled
 ```
 
 ### Sample test
@@ -115,14 +119,16 @@ stateDiagram-v2
     assigned --> testing: test started
     waiting --> testing: test started before it is assigned
     testing --> result_entered: result entered and sent for approval
-    outsourced --> result_entered: subcontractor's result sent for approval
+    outsourced --> result_entered: outsourced result entered for approval
     result_entered --> outsourced: outsourced result rejected or withdrawn
     result_entered --> testing: result rejected or withdrawn
     result_entered --> approved: result approved
-    approved --> testing: the lab head sends its result back
+    approved --> result_entered: the lab head sends its result back
     waiting --> cancelled
     assigned --> cancelled
     testing --> cancelled
+    outsourced --> cancelled
+    result_entered --> cancelled
 ```
 
 ### Test report
@@ -142,13 +148,13 @@ stateDiagram-v2
     issued --> replaced: the signed replacement is issued
 ```
 
-- A rejected report stays in draft until the results sent back are approved again; the lab head then gets a new signing task. This also applies to replacement reports whose request is already reported.
+- A rejected report stays in draft until the results sent back are approved again; the lab head then reviews it again in the same signing task. This also applies to replacement reports whose request is already reported.
 
 ## Reception
 
 | Rule            | Description                                                                                                                          |
 | --------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| Receipt         | When a sample arrives, the laboratory records when and by whom it was received, the amount received, its condition (good, damaged or insufficient) with a note, and where it is stored. |
+| Receipt         | When a sample in good condition arrives, the laboratory records when and by whom it was received, the amount received, its condition note and where it is stored. An unusable sample is rejected and an insufficient one is put on hold before receipt. A sample whose delivery to a subcontractor failed keeps its lab code and sample tests and is on hold until it is collected again. |
 | Label           | Each sample has a label printed by sample delivery staff, showing its lab code, its test request's code, the date results are due and a QR code of the lab code. It never shows the customer or the customer's name for the sample. |
 | Identification QR | Sample identification and handover use the sample QR only. Test requests and handover documents do not have separate identification QR codes. |
 | Photos | Sample delivery staff attach sample photos when collecting or receiving it through the web interface. Photos are shown only wherever the customer's sample name is shown, so testers never see them. |
@@ -166,12 +172,12 @@ stateDiagram-v2
 
 | Rule            | Description                                                                                                                       |
 | --------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| Results | A sample test can have several results over time: a rejected or interrupted result stays on record, and a retest adds a new result with its own booking. The system does not count or limit retests. Each result is measured in one booking or one subcontract dispatch. One result per sample test is reported: the latest entered, and only it is sent for approval. A new result may be entered for a received sample while its test waits, is assigned or is testing, not while its reported result awaits approval. |
+| Results | A sample test can have several results over time: a rejected or interrupted result stays on record, and a retest adds a new result with its own booking. The system does not count or limit retests. A result measured in the laboratory has one booking; an outsourced result belongs to its sample test, which a subcontract dispatch sends to the subcontractor. One result per sample test is reported: the latest entered, and only it is sent for approval. A new result may be entered for a received sample while its test waits, is assigned or is testing, not while its reported result awaits approval. |
 | Value | A result copies the result unit, LOD and LOQ from the way's configuration for the sample type when created. A value is an exact decimal number with the configured display precision, or text. A number is never negative unless its way of testing allows negative values, such as a redox potential or a temperature in °C. Later catalog edits do not change the snapshot. Below LOD or LOQ, suggest text for the tester to confirm, print the actual threshold and unit, such as "<0.05 mg/L", and state whether it is below LOD or LOQ. Retain the raw number if available; never substitute zero or infer a pass. |
 | Limit copy | For requested comparison, copy the regulation reference, limit and unit for the exact parameter and sample type when the result is created. Missing limits remain visibly missing. Later catalog edits do not change snapshots. Comparison-unit conversion follows [Catalog](features/admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28) and retains the original measurement. |
 | Versions        | A change request on a result whose process is completed creates a new version that replaces it. The signed version stays unchanged and is marked as replaced. |
-| Measurement | The booking supplies the performing person, time and machine when required. An outsourced result belongs to its dispatch and retains the subcontractor's report. Entering one result does not finish the other bookings sharing its machine interval. A result never belongs to both a booking and a dispatch. |
-| Entered by      | Each result records who entered it. The results of an outsourced test are entered by the subcontractor, whose people sign in to the system, or by a lab QA, once its dispatch is sent. The subcontractor's result comes first: while a result the subcontractor entered waits to be sent, a lab QA cannot enter another one for the test. A lab QA sends them for approval like their own. |
+| Measurement | The booking supplies the performing person, time and machine when required. An outsourced result has no booking: it belongs to its sample test, which a subcontract dispatch sends, and retains the subcontractor's report. Entering one result does not finish the other bookings sharing its machine interval. |
+| Entered by      | Each result records who entered it. The results of an outsourced test are entered by the subcontractor, whose people sign in to the system, or by a lab QA, once its dispatch is received. The subcontractor's result comes first: while a result the subcontractor entered waits for approval, a lab QA cannot enter another one for the test. A subcontractor's result goes to approval when entered; a lab QA sends the results they enter like their own. |
 | Sanity check    | Before a numeric result is sent for approval, it is compared with the approved results of the same parameter, way of testing and sample type, whoever the customer. When there are enough of them, 10 by default, and the value is more than 3 standard deviations from their mean, or the value is within 10% of the regulation limit, the tester is warned with the reason and may still send it. The warning is kept on the result and shown to the approver. The minimum count, the spread and the margin are [system parameters](../shared.md#sh-03-configuration-through-settings-and-system-parameters). A text result is not checked. |
 | Conclusion | Without a requested regulation comparison, no pass/fail conclusion is required. For each comparison the tester assesses pass, fail or insufficient basis, including text and below-LOD/LOQ results. Any assessed failure makes the sample fail within the assessed scope. It passes within the requested scope only when all required comparisons are complete and pass. With no failure but a missing limit or unresolved assessment, the conclusion is insufficient basis. Parameters outside the requested comparison scope do not need a conclusion. |
 | Result approval | The Head of Department approves the department's results and may approve results they entered, including when they are its only result signer. Other entrants cannot approve their own results. Approval is an explicit signing action, not an effect of entering a result. The Lab Head reviews the approved results when signing the report. |
@@ -186,11 +192,11 @@ stateDiagram-v2
 | --------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | Test report     | A test request has one test report covering all its samples, issued in Vietnamese, English or both side by side. Its headings and its approvers' level names print in the report's language, both side by side on a bilingual report. Samples have no sign-off of their own: once a sample's results are approved, the next signature is the lab head's on the report. After its approval chain completes, digitally sign the prepared PDF when signing is on, store it, then issue the report with its reserved number ([SH-04](../shared.md#sh-04-signatures-and-digital-signing)). With signing off, store the approved prepared PDF and issue it without a digital signature. |
 | Draft           | When every sample test of a request is approved or cancelled, the system creates the draft report and a signing task for the lab head. |
-| Templates and authoring | Administrators maintain versioned DOCX templates for Vietnamese, English and bilingual reports in ONLYOFFICE. The system fills a working draft from approved business data. People with report edit permission may edit its layout and explanatory text, comment and co-edit in ONLYOFFICE; measured results, units, limits, comparison basis and approvers remain controlled by the business records. See [Test reports](../../specs/test-reports.md). |
+| Templates and authoring | Administrators maintain versioned DOCX templates for Vietnamese, English and bilingual reports in ONLYOFFICE. The system fills the report from an available template version and approved business data and prepares its read-only PDF; nobody edits it. Its explanatory text comes from the template and the remarks of the approved results; measured results, units, limits, comparison basis and approvers remain controlled by the business records. The Lab Head may choose another available template version. See [Test reports](../../specs/test-reports.md). |
 | Prepared PDF | Before signing, finish and confirm the draft's saves, validate its business data and prepare the PDF for review. Stale sources block preparation and signing. Approval binds the saved draft, template, data snapshot, result versions and PDF. A changed draft needs fresh review; signatures must first be withdrawn in the permitted order. Digital signing uses the prepared PDF, without regenerating it from a later template or file save. |
 | Report files | DOCX drafts are internal working files. Customers receive the issued PDF, digitally signed when signing is on. Issued files and their source versions stay unchanged; a correction uses the change-request and replacement-report process. |
 | Content | The report identifies the customer, request, receipt and issue dates, report number, samples and lab codes. For each sample, print its sample type, received amount and condition, recorded analysis start and end dates, and report-relevant request or sample notes when provided. The result table prints parameter, measured result, unit and method. Comparison limits and conclusions appear only for the requested regulation scope, with wording limited to that scope and insufficient basis where applicable. Below-LOD/LOQ text prints the snapshot threshold and unit. Print the actual result approvers, including a Head of Department who approved their own result, and the report signer; tester signatures stay internal. Cancelled tests are excluded. |
-| Rejection       | The lab head can reject a report with a reason, naming the results to check again. Those results go back to the queue of their head of department, unassigned and unsigned: their signatures are withdrawn, their sample tests, samples and request go back to testing, and a new testing task with the reason waits unassigned in the queue of the department that tested them. The report waits until they are approved again; the lab head then gets a new signing task. |
+| Rejection       | The lab head can reject a report with a reason, naming the results to check again. Those results go back to their head of department's approval: their approvals are withdrawn, and their sample tests, samples and request wait for approval again. The head approves each again, or rejects it to the tester, whose retest follows WF-04 Result entry and approval. The report waits until they are approved again; the lab head then reviews its new PDF in the same signing task. |
 | Pending digital signing | A signing failure preserves the approvals and leaves the report unissued while signing is retried. It cannot be delivered or downloaded by the customer, sends no release notification and does not replace an earlier report. |
 | Delivery        | The test request records the report language (Vietnamese, English or bilingual, bilingual by default), how the report is delivered (in person by default, by post, by email or another way with a note) and the contact who receives it. Sample delivery staff deliver the issued report that way and record when it was delivered and by whom; recording an email delivery emails the PDF to the recipient. Issuance follows storage of the approved PDF, digitally signed when signing is on. Only then are customers notified, on the order and to its contact when the request came from an order, and the issued PDF is available for delivery and customer-portal download. |
 | Change request  | A change to a document whose process is completed is a change request: what to change, why, who asked and when. Anyone who can edit that type of document can raise one, on an approved result or an issued report. A rejected result is corrected by a retest, and a rejected correction by another change request, since a reported sample takes no retest. A version has one open change request at a time. It is signed through the change-request chain of the document's type ([SH-07](../shared.md#sh-07-signed-documents-are-locked)); approval or rejection is final, and the requester is notified of either. |
@@ -225,7 +231,7 @@ flowchart LR
     received[Sample received] --> queue[Department testing queue]
     queue --> assign[Authorized tester claims or head assigns]
     received --> plan[Plan proposes a booking in priority order]
-    plan --> accept[Tester or head accepts the booking]
+    plan --> accept[Head approves the feasible booking]
     assign --> accept
     plan -->|no slot before the internal due date| risk[Flag at risk and notify the head]
     risk --> sales[Sales agrees a changed date or revised quotation with customer]
@@ -245,13 +251,13 @@ flowchart LR
 | Duration | The machine-and-method link gives the booking duration, which covers preparation, measurement and time to repeat a failed measurement. A way needing no machine has its own duration and capacity, default capacity 1. Durations round up to 15-minute slots. The system does not count or limit measurement attempts. |
 | Sharing a machine | Bookings may share a machine for exactly the same interval when their ways use the same testing method on that machine, up to the capacity of the machine-and-method link, counted in samples and 1 by default. Several parameters of one sample measured together take one place, so an ICP-MS measuring three metals on 20 samples in one load holds 60 bookings in 20 places. Nothing joins a machine once its interval has started. |
 | Releasing the machine | A booking holds its machine until the tester enters its result or marks the measurement finished, whichever comes first, which frees the machine early. When the booking's end passes without either, the machine stays held, the next bookings on it are flagged at risk, and the tester and Head of Department are notified; nothing moves by itself. |
-| Plan | Each department has a proposed plan: the system places every received, not-started sample test in a proposed booking, one at a time in priority order, each in the earliest interval where every required resource is free. A proposed booking reserves nothing; the tester or head accepts it, which reserves its tester, machine and locations together, or nothing when any is taken. The plan is recalculated when work arrives, a booking changes, a resource becomes unavailable or a customer date changes. |
+| Plan | Each department has a proposed plan: the system places every received, not-started sample test in a proposed booking, one at a time in priority order, each in the earliest interval where every required resource is free. A proposed booking reserves nothing; the head approves it, which notifies the tester and reserves its tester, machine and locations together, or nothing when any is taken. The plan is recalculated when work arrives, a booking changes, a resource becomes unavailable or a customer date changes. |
 | Priority | Priority has three classes: urgent, for an accepted priority order or a test its tester or head marked urgent with a reason; due soon, within a configurable threshold of 24 hours; and normal. Within a class, the earlier committed return date goes first, then the earlier arrival. |
 | No overlap | A tester or bookable location cannot have overlapping reservations or unavailable intervals, and a machine's bookings overlap only when they share its interval. A machine needs valid calibration and must be in use; a booking cannot end after its calibration validity, and never-calibrated, expired-calibration, under-repair and retired machines get no bookings. Planned maintenance reserves machine time; overdue maintenance blocks new bookings until completed. |
-| Suggest outsourcing | When no feasible resource slot can meet the due date, show subcontracted alternatives with their turnaround. An alternative that changes the agreed way or performing party requires Sales to obtain customer agreement through a revised quotation. While Sales waits for that agreement, the sample test is flagged at risk and keeps its accepted way; nothing is booked on an unapproved way or subcontractor. Never substitute a method or subcontractor silently. |
+| Suggest outsourcing | When no feasible resource slot can meet the due date, show subcontracted ways with the same parameter and method, with their turnaround. Outsourcing is internal: the customer is neither told nor asked. A subcontractor with another method is not suggested; a different method needs Sales to obtain customer agreement through a revised quotation, and while Sales waits for it the sample test is flagged at risk and keeps its accepted way. Never substitute a method silently. |
 | Machine unavailable | Not-started bookings affected by machine downtime or lost calibration validity return to the plan and are replanned on another machine linked to the same method. If none is available they stay unplaced, and the tester and Head of Department are notified. A machine that breaks down or loses calibration during a booking ends that booking: the data recorded so far is kept as an interrupted result, and the head assesses it as usable, needing a retest or needing more sample. A retest is a new result with a new booking. |
 | Locations          | A step of a testing method can name the [location](features/admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28) where it is done, such as a fume hood or a water point. A sample can name the location it was taken from. The person running a test sees the locations of its steps and of its sample, on the testing task, the schedule, the to-do list and the timeline of their day, and opens it on its parent location's map. A bookable location, such as a shared room, is booked on the calendar ([SH-11](../shared.md#sh-11-schedules-and-reminders)), by people or by the scheduler for a step done in it. |
-| Rooms | Reserve every bookable step location for its rounded step interval, in step order from the booking start, alongside the tester and a machine only when needed. A booking is accepted only when all required resources are available. Each location reservation is a calendar event on the tester's calendar and the location's schedule ([SH-11](../shared.md#sh-11-schedules-and-reminders)). Moving, rescheduling or cancelling the booking moves or cancels its location reservations; they cannot be moved or cancelled independently. A location may have unavailable intervals: reject overlapping new bookings, replan affected not-started bookings and notify the responsible people. |
+| Rooms | Reserve every bookable step location for its rounded step interval, in step order from the booking start, alongside the tester and a machine only when needed. A booking is approved only when all required resources are available. Each location reservation is a calendar event on the tester's calendar and the location's schedule ([SH-11](../shared.md#sh-11-schedules-and-reminders)). Moving, rescheduling or cancelling the booking moves or cancels its location reservations; they cannot be moved or cancelled independently. A location may have unavailable intervals: reject overlapping new bookings, replan affected not-started bookings and notify the responsible people. |
 | Approved leave | Read shifts and approved leave from the HR people source. Approved leave returns overlapping not-started bookings to the plan and their testing tasks to the department queue, and notifies the head. The head reassigns it or an authorized tester claims it; the system does not pick another person automatically. |
 | Planned overtime | The Head of Department records planned OverTime for a tester, an outside-hours interval and a reason; a pre-created HR overtime shift is not required. The tester can then be booked in that interval. The scheduler never creates, moves or recalculates OverTime: moving or cancelling a booking leaves it for the head to change. OverTime extends only the tester's availability; machines and locations keep their own. Only planned overtime is recorded; actual-hours confirmation and payroll are outside scope. |
 | Customer date change | When the committed return date cannot be met, propose the earliest feasible replacement. Sales obtains customer agreement before changing it and records old date, new date and confirmation. If declined, Sales handles a cancellation request for the unfulfillable part; do not cancel automatically or change the method. |
@@ -264,11 +270,11 @@ flowchart LR
 | Deadline risk | A sample test is at risk when its planned finish is after its internal due date, when no free slot lets it finish by then, or when its booking overran. Notify its responsible tester and Head of Department initially, then include unresolved risks in a daily consolidated summary until resolved. Recheck on schedule changes and through a scheduled job. Overdue approvals are reminded through their signing tasks. Sales tells the customer only when the committed return date changes or is at risk. |
 | Machine heads-up | Use three independent system settings, each defaulting to 7 days: before calibration, before maintenance and after a recorded repair. Warn when planning or starting within the applicable window. Warnings do not override blocked calibration, maintenance or unavailable-resource conditions. Returning a machine to in use after a repair requires a calibration or maintenance record dated after the repair. |
 | Bookings as tasks  | A scheduled booking appears on the person's schedule and in their to-do list as part of their testing task, due at its start.                |
-| Outsourcing | The Head of Department organizes dispatches for the selected subcontracted way, including an agreed revision when replacing an accepted way. A dispatch records subcontractor, sending date, due date, sample tests sent, carrier and subcontractor report. It is draft, sent, received or cancelled. A sample test has one non-cancelled dispatch; cancelling leaves its tests available for another dispatch, and a dispatch with results cannot be cancelled. |
+| Outsourcing | The Head of Department organizes dispatches for the selected subcontracted way. A dispatch records subcontractor, sending date, due date, sample tests sent, carrier and subcontractor report. It is draft, sent, received or cancelled. The subcontractor's confirmation of receipt, or the head's for a subcontractor not using the portal, marks a sent dispatch received. A sample test has one non-cancelled dispatch; cancelling leaves its tests available for another dispatch, and a dispatch with results cannot be cancelled. Cancelling a test request cancels its outsourced tests without an approved result: a draft dispatch drops them and is cancelled when left empty, and a sent dispatch shows them as cancelled. |
 
 ## Laboratory files
 
-Laboratory files are the files the testing work produces and uses outside MediLab's forms: raw data from instruments, working spreadsheets, result files and report drafts. The Laboratory module keeps them the way an object store does: folders of files, each file a series of versions, with the bytes in an S3 bucket and only their description in the database. People work on the files in their own programs on the laboratory's computers through [Medilab Sync](applications/medilab-sync.md), browse and download them in the Documents menu of the back office, and edit Office documents together in the browser. Medilab Sync reaches the module through its REST API.
+Laboratory files are the files the testing work produces and uses outside MediLab's forms: raw data from instruments, working spreadsheets, result files and report drafts. The Laboratory module keeps them the way an object store does: folders of files, each file a series of versions, with the bytes in an S3 bucket and only their description in the database. People work on the files in their own programs on the laboratory's computers through [Medilab Sync](applications/medilab-sync.md), browse and download them in the Documents menu of the back office, where a click on an Office file opens it in the browser editor, and edit Office documents together in the browser. Medilab Sync reaches the module through its REST API.
 
 | Rule            | Description |
 | --------------- | ----------- |
@@ -341,7 +347,7 @@ stateDiagram-v2
 - [Sample delivery staff](features/sample-delivery-staff.md): collect, receive and hand over samples, and carry outsourced samples to subcontractors
 - [Tester](features/tester.md): schedules and runs tests, enters and signs results
 - [Head of department](features/head-of-department.md): assigns testing work, manages the department's schedule, approves results
-- [Lab head](features/lab-head.md): configures parameter authorizations, reviews results when signing reports and reviews laboratory-wide testing figures
+- [Lab head](features/lab-head.md): configures parameter authorizations, reviews results when signing reports and reviews laboratory-wide testing statistics
 - [Subcontractor](features/subcontractor.md): sees the tests sent to it and enters their results
 
 ## Related documents

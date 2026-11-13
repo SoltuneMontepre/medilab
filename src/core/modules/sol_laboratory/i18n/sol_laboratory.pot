@@ -302,6 +302,7 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/tasks/task.py:0
+#: code:addons/sol_laboratory/models/sample_collection/sample_mobile.py:0
 msgid "%s is already claimed."
 msgstr ""
 
@@ -17117,4 +17118,15 @@ msgstr ""
 #: model:ir.actions.server,name:sol_laboratory.ir_cron_sample_tests_at_risk_summary_ir_actions_server
 #: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_sample_tests_at_risk_summary
 msgid "Summary of sample tests at risk"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_ir_asset
+msgid "Asset"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_mobile.py:0
+msgid "Only the unassigned testing tasks of your department on %s can be claimed here."
 msgstr ""

@@ -6,8 +6,8 @@
                 <meta charset="utf-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <title>Online editor · MediLab</title>
-                <link rel="stylesheet" t-att-href="assets + 'editor.css'" />
-                <script t-if="config_json" defer="defer" t-att-src="assets + 'editor.js'" />
+                <link rel="stylesheet" t-att-href="assets + 'editor.css?v=' + asset_version" />
+                <script t-if="config_json" defer="defer" t-att-src="assets + 'editor.js?v=' + asset_version" />
             </head>
             <body>
                 <main id="laboratory-editor" t-att-data-editor-config="config_json" t-att-data-script-url="script_url">

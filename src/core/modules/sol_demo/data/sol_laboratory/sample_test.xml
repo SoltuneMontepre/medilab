@@ -136,4 +136,12 @@
         <field name="status">assigned</field>
         <field name="parameter_method_id" ref="demo_parameter_method_arsenic_icpms" />
     </record>
+    <record id="demo_sample_test_label_scan_lead" model="medilab.sample.test">
+        <field name="sample_id" ref="demo_sample_label_scan" />
+        <field name="parameter_id" ref="demo_test_parameter_lead" />
+    </record>
+    <record id="demo_sample_test_label_scan_coliforms" model="medilab.sample.test">
+        <field name="sample_id" ref="demo_sample_label_scan" />
+        <field name="parameter_id" ref="demo_test_parameter_coliforms" />
+    </record>
 </odoo>
