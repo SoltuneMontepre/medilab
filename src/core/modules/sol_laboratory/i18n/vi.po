@@ -118,6 +118,7 @@ msgstr "%s không có người dùng nên quyền trên đó không thể giới
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_mobile.py:0
 #: code:addons/sol_laboratory/models/tasks/task.py:0
 msgid "%s is already claimed."
 msgstr "%s đã có người nhận."
@@ -1089,6 +1090,11 @@ msgid "Assigned Pricelist"
 msgstr "Bảng giá được gán"
 
 #. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_ir_asset
+msgid "Asset"
+msgstr "Tài Nguyên Giao Diện"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__assignee_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__assignee_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
@@ -1929,6 +1935,7 @@ msgstr "Tạo cách thử của phòng ban mình"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__created_by_device_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__created_by_device_id
 msgid "Created By Device"
 msgstr "Tạo từ máy tính"
 
@@ -14255,6 +14262,7 @@ msgstr "Một yêu cầu khác vừa tạo cùng bản ghi này; yêu cầu đư
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__idempotency_key
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_idempotency_mixin__idempotency_key
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__idempotency_key
 msgid "Idempotency Key"
 msgstr "Khóa chống lặp yêu cầu"
 
@@ -14710,31 +14718,6 @@ msgstr "Chỉ phòng ban đang thử nghiệm %s mới gửi thầu phụ ngay �
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__tested_by_my_department
 msgid "Tested By My Department"
 msgstr "Do phòng ban của tôi thử nghiệm"
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_container_edit_all
-msgid "Permission: container.edit.all"
-msgstr "Quyền: container.edit.all"
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_move_create_all
-msgid "Permission: move.create.all"
-msgstr "Quyền: move.create.all"
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_move_read_all
-msgid "Permission: move.read.all"
-msgstr "Quyền: move.read.all"
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_preparation_create_all
-msgid "Permission: preparation.create.all"
-msgstr "Quyền: preparation.create.all"
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_stock_read_all
-msgid "Permission: stock.read.all"
-msgstr "Quyền: stock.read.all"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__room_event_ids
@@ -16731,3 +16714,32 @@ msgstr ""
 #: code:addons/sol_laboratory/models/notifications/mail_notification.py:0
 msgid "This notification is no longer in your inbox."
 msgstr "Thông báo này không còn trong hộp thư của bạn."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_task_device_idempotency_key_unique
+msgid "This phone already created a task with this Idempotency-Key."
+msgstr "Điện thoại này đã tạo một nhiệm vụ với Idempotency-Key này."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task_mobile.py:0
+msgid "You may not assign %s."
+msgstr "Bạn không được giao %s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task_mobile.py:0
+msgid "You may not assign tasks."
+msgstr "Bạn không được giao nhiệm vụ."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task_mobile.py:0
+msgid "You may not create tasks."
+msgstr "Bạn không được tạo nhiệm vụ."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_mobile.py:0
+msgid "Only the unassigned testing tasks of your department on %s can be claimed here."
+msgstr "Chỉ nhận được ở đây các nhiệm vụ kiểm nghiệm chưa giao của phòng ban bạn trên %s."

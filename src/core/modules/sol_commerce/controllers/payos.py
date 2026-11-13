@@ -4,7 +4,7 @@ from odoo import http
 from odoo.http import request
 
 from odoo.addons.sol_commerce.constants.models import MODEL_PAYMENT_TRANSACTION
-from odoo.addons.sol_commerce.services.payos_client import payos_client_from_env
+from odoo.addons.sol_commerce.services.payos_client import payos_webhook_client_from_env
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_ENTRY
 from odoo.addons.sol_laboratory.services.request_env import request_env
 
@@ -18,7 +18,7 @@ class PayosController(http.Controller):
         except json.JSONDecodeError:
             entries._log_event("error", request_env()._("PayOS webhook refused: the body is not JSON"))
             return request.make_response("invalid", status=400)
-        client = payos_client_from_env()
+        client = payos_webhook_client_from_env()
         data = body.get("data")
         if client is None or not client.matches(data, body.get("signature")):
             entries._log_event("error", request_env()._("PayOS webhook refused: the signature does not match"))

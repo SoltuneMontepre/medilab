@@ -1,19 +1,24 @@
+import hashlib
 import logging
 import os
 import re
 import tempfile
+from collections import defaultdict
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 
 from odoo import api, models
-from odoo.tools import config
+from odoo.api import SUPERUSER_ID
+from odoo.tools import SQL, config
 
+from odoo.addons.base.models.assetsbundle import ANY_UNIQUE
 from odoo.addons.sol_laboratory.constants.laboratory_bucket import (
     FILESTORE_GC_GRACE,
+    FILESTORE_LOCK_SCOPE,
     FILESTORE_PREFIX,
     READ_CHUNK_SIZE,
 )
-from odoo.addons.sol_laboratory.constants.models import MODEL_IR_ATTACHMENT
+from odoo.addons.sol_laboratory.constants.models import MODEL_IR_ASSET, MODEL_IR_ATTACHMENT, MODEL_IR_UI_VIEW
 from odoo.addons.sol_laboratory.services import laboratory_bucket, module_files
 
 if TYPE_CHECKING:
@@ -22,6 +27,10 @@ else:
     IrAttachmentBase = object
 
 STORED_FILE = re.compile(r"[0-9a-f]{2}/[0-9a-f]+")
+# The version of an asset address that serves the files themselves, not a bundle.
+DEBUG_ASSETS = "debug"
+# The versions of an asset address that stand for any version of the bundle.
+ANY_VERSIONS = ("any", "%")
 
 _logger = logging.getLogger(__name__)
 
@@ -35,10 +44,15 @@ class IrAttachment(models.Model, IrAttachmentBase):
         return f"{FILESTORE_PREFIX}/{self.env.cr.dbname}/{fname}"
 
     @api.model
+    def _bucket_lock(self, fname):
+        # One of 256 locks, so a transaction that writes many files holds few locks.
+        return hashlib.sha1(fname.encode()).digest()[0]
+
+    @api.model
     def _file_write(self, fname, bin_value):
         result = super()._file_write(fname, bin_value)
         if laboratory_bucket.filestore_enabled():
-            self._upload_file(fname)
+            self._upload_to_bucket(fname)
         return result
 
     def _file_read(self):
@@ -51,33 +65,96 @@ class IrAttachment(models.Model, IrAttachmentBase):
             self._download_file(self.store_fname)
         return super()._to_http_stream()
 
+    @api.model
+    def _drop_lost_asset_bundle(self, filename, unique, assets_params):
+        """Delete the attachments of the asset bundle at this address whose file is in neither the local filestore
+        nor the bucket, so that Odoo builds the bundle again. Odoo would otherwise serve one empty, under an address
+        browsers and the CDN keep for a year."""
+        if unique == DEBUG_ASSETS or not laboratory_bucket.filestore_enabled():
+            return
+        if unique in ANY_VERSIONS:
+            unique = ANY_UNIQUE
+        url = self.env[MODEL_IR_ASSET]._get_asset_bundle_url(filename, unique, assets_params)
+        # The attachments Odoo's assets route chooses from, as it finds them: two requests may each have built one.
+        bundles = self.sudo().search(
+            [
+                ("public", "=", True),
+                ("url", "!=", False),
+                ("url", "=like", url),
+                ("res_model", "=", MODEL_IR_UI_VIEW),
+                ("res_id", "=", 0),
+                ("create_uid", "=", SUPERUSER_ID),
+            ]
+        )
+        lost = bundles.filtered(lambda bundle: bool(bundle.store_fname) and not bundle._file_available())
+        if not lost:
+            return
+        fnames = ", ".join(fname for fname in lost.mapped("store_fname") if fname)
+        _logger.warning("Asset bundle %s is built again, as its file %s is lost.", url, fnames)
+        if not self.env.cr.readonly:
+            lost.unlink()
+            return
+        with self.env.registry.cursor() as cr:
+            lost.with_env(lost.env(cr=cr)).unlink()
+        # The request's read-only transaction still sees the attachments until it starts again.
+        self.env.cr.rollback()
+
+    def _file_available(self):
+        self._download_file(self.store_fname)
+        return os.path.exists(self._full_path(self.store_fname))
+
     def _register_hook(self):
         super()._register_hook()
         if not (config["init"] or config["update"]):
             return
+        if laboratory_bucket.filestore_enabled():
+            # A bundle whose file was lost would be served empty, so every bundle is built again on first request.
+            self.regenerate_assets_bundles()
         self._restore_module_files()
         if laboratory_bucket.filestore_enabled():
             for fname in self._local_files():
-                self._upload_file(fname)
+                self._upload_to_bucket(fname)
 
     @api.autovacuum
     def _gc_filestore_bucket(self):
         if not laboratory_bucket.filestore_enabled():
             return
         prefix = self._bucket_key("")
-        kept = set(
+        limit = datetime.now(UTC) - timedelta(seconds=FILESTORE_GC_GRACE)
+        old = {key.removeprefix(prefix) for key, modified in laboratory_bucket.keys(prefix) if modified < limit}
+        by_lock = defaultdict(set)
+        for fname in old - self._used_files(old):
+            by_lock[self._bucket_lock(fname)].add(fname)
+        for lock, fnames in by_lock.items():
+            self._delete_unused_objects(lock, fnames)
+
+    @api.model
+    def _delete_unused_objects(self, lock, fnames):
+        """Delete the objects of the files, under one lock, that no attachment uses. A transaction that relies on one
+        of them holds the lock until it ends, so the files are left to the next cleanup while it is in progress."""
+        [[locked]] = self.env.execute_query(SQL("SELECT pg_try_advisory_lock(%s, %s)", FILESTORE_LOCK_SCOPE, lock))
+        if not locked:
+            return
+        try:
+            # A transaction of its own sees every attachment committed before the lock was taken.
+            with self.env.registry.cursor() as cursor:
+                used = self.with_env(self.env(cr=cursor))._used_files(fnames)
+            for fname in fnames - used:
+                laboratory_bucket.delete(self._bucket_key(fname))
+        finally:
+            self.env.execute_query(SQL("SELECT pg_advisory_unlock(%s, %s)", FILESTORE_LOCK_SCOPE, lock))
+
+    @api.model
+    def _used_files(self, fnames):
+        return set(
             self.sudo()
             .with_context(active_test=False)
             .search_fetch(
-                [("store_fname", "!=", False), "|", ("res_field", "=", False), ("res_field", "!=", False)],
+                [("store_fname", "in", list(fnames)), "|", ("res_field", "=", False), ("res_field", "!=", False)],
                 ["store_fname"],
             )
             .mapped("store_fname")
         )
-        limit = datetime.now(UTC) - timedelta(seconds=FILESTORE_GC_GRACE)
-        for key, modified in list(laboratory_bucket.keys(prefix)):
-            if key.removeprefix(prefix) not in kept and modified < limit:
-                laboratory_bucket.delete(key)
 
     @api.model
     def _move_mounted_files(self):
@@ -173,7 +250,13 @@ class IrAttachment(models.Model, IrAttachmentBase):
         self.env.flush_all()
 
     @api.model
-    def _upload_file(self, fname):
+    def _upload_to_bucket(self, fname):
+        """Write the file to the bucket unless its object is there. The object of a file whose attachment was deleted
+        stays until the cleanup deletes it, so the lock keeps the cleanup from deleting an object found here before this
+        transaction ends."""
+        self.env.cr.execute(
+            SQL("SELECT pg_advisory_xact_lock_shared(%s, %s)", FILESTORE_LOCK_SCOPE, self._bucket_lock(fname))
+        )
         key = self._bucket_key(fname)
         if laboratory_bucket.object_size(key) is not None:
             return

@@ -74,6 +74,10 @@ class TestOrderReadScope(OrderCase):
                 self.assertIn("not order_can_edit", button.get("invisible") or "")
         claim = self._nodes("//header/button[@name='action_claim']")[0]
         self.assertNotIn("order_can_edit", claim.get("invisible") or "")
+        # The accountant only reads orders and still creates their invoices.
+        for button in self._nodes("//header/button[@id='create_invoice' or @id='create_invoice_percentage']"):
+            with self.subTest(button=button.get("id")):
+                self.assertNotIn("order_can_edit", button.get("invisible") or "")
         customer = self._nodes("//sheet//field[@name='customer_id']")[0]
         self.assertIn("not order_can_edit", customer.get("readonly") or "")
 

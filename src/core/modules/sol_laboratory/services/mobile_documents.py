@@ -13,6 +13,14 @@ def not_found(env: Environment) -> MissingError:
     return MissingError(env._("Nothing is found at this address."))
 
 
+def document_screen(records) -> str:
+    """The app's screen for documents of the model; web for a model the app has no screen of its own for."""
+    screen = getattr(records, "_mobile_screen", None)
+    if screen:
+        return screen
+    return CONVERSATION_SCREEN if records._name == MODEL_DISCUSS_CHANNEL else WEB_SCREEN
+
+
 def document_values(env: Environment, model: str, record_id: int):
     """The document as the person may read it: its code, its title, the app's screen for it and its address on the web.
     A document that does not exist, or that the person may not read, raises MissingError or AccessError, which the API
@@ -27,9 +35,7 @@ def document_values(env: Environment, model: str, record_id: int):
         raise not_found(env)
     record.check_access("read")
     code = document_code(record)
-    screen = getattr(record, "_mobile_screen", None)
-    if not screen:
-        screen = CONVERSATION_SCREEN if model == MODEL_DISCUSS_CHANNEL else WEB_SCREEN
+    screen = document_screen(record)
     # The web client reads a model name without a dot only with its m- prefix.
     web_path = model if "." in model else f"m-{model}"
     return {
