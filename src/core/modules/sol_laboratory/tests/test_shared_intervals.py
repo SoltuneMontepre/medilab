@@ -46,6 +46,7 @@ class TestSharedIntervals(ScheduleInvariantsCase, LocationCase):
         cls.arsenic = cls.create_parameter("Arsenic (As)", cls.group)
         for parameter in (cls.cadmium, cls.arsenic):
             cls.offer(parameter, cls.sample_type)
+            cls.authorize(cls.tester, parameter)
 
     @classmethod
     def samples(cls, count):
@@ -124,6 +125,7 @@ class TestSharedIntervals(ScheduleInvariantsCase, LocationCase):
             {"parameter_id": chromium.id, "method_id": colorimetry.id, "department_id": self.department.id}
         )
         self.offer(chromium, self.sample_type, way)
+        self.authorize(self.tester, chromium)
         self.env[MODEL_MACHINE_METHOD].create(
             {"machine_id": self.icp_ms.id, "method_id": colorimetry.id, "duration_minutes": 240, "capacity": 20}
         )
