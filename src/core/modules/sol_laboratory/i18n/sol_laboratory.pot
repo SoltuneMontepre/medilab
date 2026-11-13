@@ -16883,8 +16883,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_machine_method_edit_all
 msgid "Permission: machine.method.edit.all"
-#: code:addons/sol_laboratory/models/master_data/parameter_authorization.py:0
-msgid "%(person)s is not authorized to test %(parameter)s."
 msgstr ""
 
 #. module: sol_laboratory
@@ -16901,6 +16899,16 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_method_machine_method_unique
 msgid "The machine is already linked to this testing method."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/parameter_authorization.py:0
+msgid "%(person)s is not authorized to test %(parameter)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/testing/sample_test_eligibility.py:0
 msgid "%s is cancelled."
 msgstr ""

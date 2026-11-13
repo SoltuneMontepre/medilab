@@ -16784,6 +16784,9 @@ msgstr "Máy đang chạy một phương pháp thử khác vào thời gian đó
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_method_machine_method_unique
 msgid "The machine is already linked to this testing method."
 msgstr "Máy đã được gắn với phương pháp thử này."
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/master_data/parameter_authorization.py:0
 msgid "%(person)s is not authorized to test %(parameter)s."
 msgstr "%(person)s không được phép thử %(parameter)s."
