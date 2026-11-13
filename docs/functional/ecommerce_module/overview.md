@@ -26,7 +26,7 @@ Dependencies: [core laboratory module](../laboratory_module/overview.md). It bui
 
 - Sales prepares parameters, ways and prices. When a quotation's discount or total exceeds a threshold the Head of Sales sets, the Head of Sales approves it before Sales sends it; below the thresholds Sales sends it alone. This is the only approval of an order.
 - Quotations can be revised; each revision keeps a link to the one it replaces.
-- The customer accepts a quotation by paying the advance invoice, or declines it with a reason.
+- The customer accepts a quotation by paying its advance payment request, or declines it with a reason.
 - Once the customer accepts, Sales confirms the sale order and the laboratory can collect samples. From confirmation, the order changes only through a revised quotation the customer accepts.
 - Each quotation version keeps its package prices and package contents; later catalog changes do not alter it.
 - An order keeps the customer's requested date and the committed return date Sales promises; the customer never sees the laboratory's internal due dates.
@@ -39,7 +39,7 @@ Dependencies: [core laboratory module](../laboratory_module/overview.md). It bui
 
 ### IV. Invoices and Payments
 
-- Advance and final invoices, with support for full, percentage and fixed-amount collection.
+- Advance and balance payment requests, with support for full, percentage and fixed-amount collection; advance and final invoices are posted when the money is collected.
 - Online payment, and cash or bank transfer recorded by the accountant; partial payments are supported.
 - Payment status on every order: not paid, partially paid, paid.
 - Invoices and receipts can be sent by email and downloaded as PDF.
@@ -69,9 +69,10 @@ The tables are drawn in [ecommerce.prisma](../../infrastructure/database/ecommer
 | Revisions        | A revision is a new quotation that replaces the previous one; the previous one becomes read-only.                                              |
 | Dates | An order keeps the customer's requested date and the committed return date Sales promises on the quotation, by default the requested date when the laboratory can meet it and otherwise the estimate. Only Sales changes the committed date, with the customer's agreement. Each sample test has an internal due date the customer never sees. |
 | Numbers          | Orders, quotations, invoices and receipts get numbers from sequences whose format the administrator configures, such as `0001 26/BG-VTT` for quotations. Quotation, invoice and receipt numbers start again each year. |
-| Invoices         | An invoice is an advance, final or adjustment invoice, and uses its quotation's prices and tax rates. The final invoice deducts the advance on a line of its own. A posted invoice is never edited; an adjustment invoice corrects it with only the difference. Invoices are Odoo invoices and are not issued through an e-invoice provider. |
-| Payments         | A payment is pending, confirmed or rejected; only confirmed payments count toward an invoice's paid amount. Each confirmed payment gets a receipt number. The order keeps its payment status (not paid, partially paid, paid) up to date. |
-| Online payment   | Each online payment is a PayOS payment link for an invoice with a unique order code, so a repeated PayOS notification never records a second payment. |
+| Payment requests | A payment request asks for the advance when a quotation is sent, or for the balance when the order is confirmed. It is not an invoice and posts no receivable or revenue. |
+| Invoices         | An invoice is an advance, final or adjustment invoice, and uses its quotation's prices and tax rates. Advance and final invoices are posted when their payment is verified; a customer on credit gets the final invoice after testing. The final invoice deducts the advance on a line of its own. A posted invoice is never edited; an adjustment invoice corrects it with only the difference. Invoices are Odoo invoices and are not issued through an e-invoice provider. |
+| Payments         | A payment is pending, confirmed or rejected; only confirmed payments count toward a payment request or an invoice. While a payment is pending, the quotation cannot be revised, declined or cancelled. Each confirmed payment gets a receipt number. The order keeps its payment status (not paid, partially paid, paid) up to date. |
+| Online payment   | Each online payment is a PayOS payment link for a payment request, or a final invoice of a customer on credit, with a unique order code, so a repeated PayOS notification never records a second payment. |
 | Templates        | An order template belongs to one customer and holds parameters, packages and quantities, without prices.                                      |
 | Cancellation | An order has at most one open cancellation request. A request may cover the whole order or an unfulfillable part; Sales records its decision and preserves work outside the accepted cancellation scope. Once samples are collected, cancelling goes through a change request the Head of Sales approves. |
 | Support          | A support request is a conversation of messages between the customer and sales, optionally about one order.                       |

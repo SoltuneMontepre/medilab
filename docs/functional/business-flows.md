@@ -27,17 +27,17 @@ The core flows WF-01 to WF-06 carry a test request from order to report. The sup
 ## WF-01 Order to confirmed test request
 
 - **Trigger:** a customer submits a cart on the portal, or sales creates an order for a customer.
-- **Result:** the order is confirmed and its test request is paid, at once for a customer allowed to order on credit, with expected samples and their selected ways calculated from the accepted order and sampling requirements, and sample collection can start.
+- **Result:** the order is confirmed and its test request is paid, or On credit for a customer allowed to order on credit, with expected samples and their selected ways calculated from the accepted order and sampling requirements, and sample collection can start.
 - **Stories:** US-C08, US-C09, US-C10, US-C13, US-C14, US-C15, US-S01, US-S02, US-S05, US-S06, US-S07, US-S08, US-S09, US-S10, US-S12, US-S15, US-A03, US-A06, US-A08.
-- **States:** quotation draft → sent → accepted, approved by the Head of Sales before it is sent when above the thresholds; order submitted → claimed → confirmed; test request draft → confirmed → paid.
+- **States:** quotation draft → sent → accepted, approved by the Head of Sales before it is sent when above the thresholds; order submitted → claimed → confirmed; payment request open → funded; test request draft → confirmed → paid, or → On credit.
 - **Starts from:** a catalog with priced parameters and packages, and demo customers.
-- **Main path:** A customer orders on the portal; sales claims it, confirms the selected ways and expected sampling needs, obtains Head of Sales approval if its discount or total exceeds a configured threshold, and sends it with an advance; the customer pays online; sales confirms the order, which creates its test request; unless the customer may order on credit, the customer pays the balance online, and sample collection can start.
+- **Main path:** A customer orders on the portal; sales claims it, confirms the selected ways and expected sampling needs, obtains Head of Sales approval if its discount or total exceeds a configured threshold, and sends it with an advance payment request, which is not an invoice; the customer pays online and each verified payment posts its invoice; sales confirms the order, which creates its test request; unless the customer may order on credit, the customer pays the balance request online, and sample collection can start.
 - **Alternative paths:**
-  - WF-01-A1: Sales creates the order for a customer who called or who brings samples to the laboratory, instead of the customer ordering on the portal. The samples wait at reception until the test request is paid.
+  - WF-01-A1: Sales creates the order for a customer who called or who brings samples to the laboratory, instead of the customer ordering on the portal. The samples wait at reception until the test request is paid, or On credit.
   - WF-01-A2: A visitor who is not signed in submits a cart with their details and e-mail address.
   - WF-01-A3: A returning customer reorders a completed order, or sales creates the order from the customer's template.
-  - WF-01-A4: The customer pays the advance by bank transfer or in cash; sales records it and the accountant confirms it.
-  - WF-01-A5: The Head of Sales sends a quotation without an advance to a customer allowed to order on credit; the customer accepts it on the portal and the order goes ahead unpaid.
+  - WF-01-A4: The customer pays the advance by bank transfer or in cash; sales records it as a pending payment and the accountant confirms it, which posts its invoice. While it is pending, the quotation cannot be revised, declined or cancelled.
+  - WF-01-A5: The Head of Sales sends a quotation without an advance to a customer allowed to order on credit; the customer accepts it on the portal and the order goes ahead without a payment request; its test request is On credit.
 - **Exceptions:**
   - WF-01-E1: The customer declines the quotation with a reason; sales revises it and sends the new version, which the customer accepts.
   - WF-01-E2: The quotation passes its payment deadline and is flagged expired; sales extends it. The customer pays within the extended deadline.
@@ -52,12 +52,12 @@ flowchart TD
         c3[Read the quotation] --> c4{Accept?}
         c4 -->|pay the advance| c5[Pay online, by transfer or in cash]
         c4 -->|decline with a reason| c6[Quotation declined]
-        c7[Pay the balance online]
+        c7[Pay the balance request online]
     end
     subgraph lane2 ["Sales"]
         s1[Claim the order] --> s2[Confirm ways, expected samples, price and percentage discount]
         s2 --> gate{Above quotation approval thresholds?}
-        gate -->|no| s3[Send the quotation with the advance request]
+        gate -->|no| s3[Send the quotation with the advance payment request]
         s4[Confirm the order]
         s6[Revise the quotation]
         s7[Adjust the quotation]
@@ -73,11 +73,11 @@ flowchart TD
     h0 -->|yes| s3
     h0 -->|decline with a reason| s7 --> h0
     s3 --> c3
-    c5 -->|online payment is matched automatically| s4
-    c5 -->|transfer or cash| a1 --> s4
+    c5 -->|online payment is verified automatically| posted[Post the invoice of the verified payment] --> s4
+    c5 -->|transfer or cash| a1 --> posted
     c6 --> s6 --> gate
     s4 --> paid{Paid in full or on credit?}
-    paid -->|yes| done(["Test request paid; sample collection can start"])
+    paid -->|yes| done(["Test request paid or On credit; sample collection can start"])
     paid -->|no| c7 --> done
 ```
 
@@ -344,25 +344,25 @@ flowchart TD
 ## SF-01 Invoicing and payment collection
 
 - **Trigger:** an order needs its final invoice, or a payment arrives.
-- **Result:** every invoice is paid, and each day's online payments match the PayOS transactions and are locked.
+- **Result:** every payment request is funded and every invoice is paid, and each day's online payments match the PayOS transactions and are locked.
 - **Stories:** US-A01, US-A02, US-A04, US-A05, US-A07, US-A08, US-A09, US-A10, US-A11, US-A12, US-A13, US-C16, US-C17, US-S11.
-- **States:** invoice posted → partially paid → paid; payment pending → confirmed or rejected; reconciliation day open → locked.
+- **States:** payment request open → funded, or → expired or superseded; invoice posted → partially paid → paid; payment pending → confirmed or rejected; reconciliation day open → locked.
 - **Starts from:** confirmed orders: those of customers who pay before testing, and those of customers on credit whose testing is completed.
-- **Main path:** When sales confirms an order, its final invoice for the balance is posted and e-mailed; the customer pays it online before sample collection; a receipt is issued and the order is paid. For a customer allowed to order on credit, the accountant creates and e-mails the final invoice once testing is completed.
+- **Main path:** When sales confirms an order, MediLab sends the balance payment request; the customer pays it online before sample collection, and the verified payment posts the final invoice, issues a receipt and pays the order. For a customer allowed to order on credit, the accountant creates and e-mails the final invoice once testing is completed.
 - **Alternative paths:**
-  - SF-01-A1: The customer pays part online, then the rest; the invoice is partially paid, then paid.
+  - SF-01-A1: The customer pays part online, then the rest; each verified part posts its invoice, and the request is funded when the parts reach its amount.
   - SF-01-A2: Sales records a cash payment; the accountant confirms it.
   - SF-01-A3: An adjustment invoice lowers or raises what is owed; the original invoice is unchanged.
 - **Exceptions:**
   - SF-01-E1: The accountant rejects a payment sales recorded; the salesperson is told the reason and the invoice returns to its previous status.
-  - SF-01-E2: An invoice unpaid after its due date reminds the customer at each interval.
+  - SF-01-E2: A posted invoice unpaid after its due date, such as the final invoice of a customer on credit, reminds the customer at each interval. An expired payment request sends no reminder.
   - SF-01-E3: A PayOS transaction with no payment is flagged; the accountant creates its payment, the flag clears and the day is locked.
 - **Acceptance criteria:** See [Accountant](ecommerce_module/features/accountant.md) and [Customer](ecommerce_module/features/customer.md). A payment above the amount still owed is refused. A posted invoice cannot be edited. An online payment of a locked day cannot be changed. A repeated PayOS notification records no second payment.
 
 ```mermaid
 flowchart TD
     subgraph lane19 ["Accountant"]
-        a1["Create the final invoice: total minus the advance"] --> a2[E-mail the invoice]
+        a1["Create the final invoice of a customer on credit: total minus the advances"] --> a2[E-mail the invoice]
         a3{Confirm the payment?}
         a4[Reconcile the day's PayOS transactions] --> a5{All matched?}
         a5 -->|yes| a6[Lock the day]

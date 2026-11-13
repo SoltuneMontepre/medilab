@@ -8,7 +8,7 @@ The accountant is the laboratory's financial user. The accountant issues and tra
 
 - **US-A01** As an accountant, I want to see every invoice, filtered by customer, status and date, so that I know what has been billed.
 - **US-A02** As an accountant, I want to create the final invoice for an order, so that the customer is billed for the work done beyond the advance.
-- **US-A03** As an accountant, I want advance invoices to be created and posted automatically when sales sends a quotation, so that I do not create them by hand.
+- **US-A03** As an accountant, I want the invoice of each verified payment to be posted automatically, so that invoices are posted when the money is collected and I do not create them by hand.
 - **US-A04** As an accountant, I want to send an invoice by email and download it as PDF, so that I can give the customer a document in the format they need.
 - **US-A05** As an accountant, I want tax to be calculated according to the applicable rules, so that invoices comply with local regulations.
 
@@ -35,11 +35,11 @@ The accountant is the laboratory's financial user. The accountant issues and tra
 
 | Invoice                                 | Created by                                                   | Purpose                                                                                  |
 | --------------------------------------- | ------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
-| Advance invoice                         | System, when sales sends a quotation with an advance request | Collect the amount (full, percentage or fixed) the customer pays to accept the quotation |
-| Final invoice                           | System, when sales confirms the order of a customer who may not order on credit; for a customer on credit, the accountant, or sales with the Create invoices permission, and the accountant posts it | Bill the remaining amount: before sample collection, or once the work is done for a customer on credit |
+| Advance invoice                         | System, when a payment against the advance payment request is verified | Record the money collected towards the advance; the request itself is not an invoice |
+| Final invoice                           | System, when the payment of the balance request is verified; for a customer on credit, the accountant, or sales with the Create invoices permission, and the accountant posts it | Bill the remaining amount: when it is collected before sample collection, or once the work is done for a customer on credit |
 | Adjustment invoice (hóa đơn điều chỉnh) | Accountant, from a posted invoice                            | Correct a posted invoice with only the difference, raising or lowering the amount        |
 
-- An advance invoice is posted automatically; the accountant does not need to create or post it.
+- Advance invoices and the final invoice of a balance request are posted automatically when their payment is verified; a payment request is never an invoice ([Payment requests](../../../specs/payment-requests.md)).
 - **Posting task.** A draft advance or final invoice drafted by someone who cannot post it, such as a salesperson, puts a posting task in the queue of the Accountant role ([SH-10](../../shared.md#sh-10-tasks-and-to-do-list)); the administrator chooses the role on the task type. The task opens the invoice. It is done when the invoice is posted, and cancelled when the invoice is cancelled or deleted. It is due 24 elapsed hours after the invoice is drafted; the administrator changes this default on the task type.
 - The final invoice deducts the advance already paid, so the customer is never billed twice for the same parameters.
 - Invoices are sent by email with the PDF attached, and can be downloaded at any time. Customers see their posted invoices on the portal.
@@ -48,9 +48,9 @@ The accountant is the laboratory's financial user. The accountant issues and tra
 
 Acceptance criteria:
 
-- Sending a quotation with an advance request creates one posted advance invoice.
+- Sending a quotation with an advance request posts no invoice; verifying each payment against it posts one advance invoice for that amount.
 - A draft invoice a salesperson creates is a task in the accountants' queue; posting the invoice marks the task done.
-- The final invoice total equals the order total minus the advance.
+- The final invoice total equals the order total minus the advances.
 - An adjustment invoice of −500,000 VND on a 5,000,000 VND invoice leaves 4,500,000 VND owed, and the original invoice is unchanged.
 - A posted invoice cannot be edited; only an adjustment invoice changes what is owed.
 - An invoice shows net, tax and total, and can be downloaded as PDF.
@@ -68,24 +68,24 @@ stateDiagram-v2
 
 | Source                                            | How it is recorded                                                                                                                                                                                                                                        |
 | ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Online payment                                    | The gateway confirms the payment with a signed notification; the system records it and matches it to the invoice. Returning to the website without that confirmation does not count as payment. A repeated notification does not create a second payment. |
-| Cash or bank transfer, recorded by the accountant | The accountant selects the invoice, amount, date and method.                                                                                                                                                                                              |
+| Online payment                                    | The gateway confirms the payment with a signed notification; the system records it against its payment request and posts its invoice. Returning to the website without that confirmation does not count as payment. A repeated notification does not create a second payment. |
+| Cash or bank transfer, recorded by the accountant | The accountant selects the payment request, or the final invoice of a customer on credit, the amount, date and method.                                                                                                                                                                                              |
 | Cash or bank transfer, recorded by sales          | Sales creates a pending record; it counts only after the accountant confirms it.                                                                                                                                                                          |
 | Bank transfer by QR code                          | Each invoice, on its PDF and in the portal, shows a VietQR code for the laboratory's bank account with the amount and invoice number, from Odoo's Vietnamese localisation. The customer pays by bank transfer; the accountant confirms the payment once it reaches the account. |
 
 Rules:
 
 - **Partial payments.** A payment can be less than the amount due; the invoice is then partially paid and the remaining amount stays open. A payment cannot exceed the remaining amount.
-- **Payment status.** Every order shows not paid, partially paid or paid, calculated from the confirmed payments on its posted invoices.
+- **Payment status.** Every order shows not paid, partially paid or paid, calculated from its confirmed payments against the order total.
 - **Receipts.** A receipt is issued for each confirmed payment and is available to the customer.
 - **Pending amounts.** The accountant sees the pending amount per order so that a payment recorded by sales is not entered a second time.
-- **Overdue reminders.** When an invoice passes its due date unpaid, the customer is reminded by their chosen notification channel at a fixed interval until it is paid; the accountant sees the list of overdue invoices.
-- **Credit customers.** For a customer allowed to order on credit, an order can proceed without payment; the invoice then follows the normal due-date and reminder rules.
+- **Overdue reminders.** When a posted invoice, such as the final invoice of a customer on credit, passes its due date unpaid, the customer is reminded by their chosen notification channel at a fixed interval until it is paid; the accountant sees the list of overdue invoices.
+- **Credit customers.** For a customer allowed to order on credit, an order proceeds without a payment request and its test request is On credit; the final invoice, posted after testing, follows the normal due-date and reminder rules.
 
 Acceptance criteria:
 
 - A payment recorded by sales does not change the payment status until the accountant confirms it.
-- A rejected payment returns the invoice to its previous status and notifies the salesperson with the reason.
+- A rejected payment leaves the payment request or invoice as it was and notifies the salesperson with the reason.
 - A repeated gateway notification for the same payment is ignored.
 - A payment larger than the remaining amount is refused.
 
@@ -120,7 +120,7 @@ Acceptance criteria:
 - Revenue excludes VAT and counts on the invoice date. A credit note and the advance deducted on a final invoice count as negative revenue. The collected amount is the share of the invoiced amount that confirmed payments have settled.
 - A package line is spread by rounding the running total of its parameters' shares, so its parts add up to the line to the dong.
 - The age of a debt counts the days since the due date: not due, 1 to 30, 31 to 60, 61 to 90 or over 90 days.
-- An invoice is sent when it is emailed; an advance invoice goes out with its quotation. It is paid on the date of its last confirmed payment: on time when that date is on or before its due date, late when it is after, or when the invoice is still open after its due date.
+- An invoice is sent when it is emailed; an advance invoice is posted and sent when its payment is verified. It is paid on the date of its last confirmed payment: on time when that date is on or before its due date, late when it is after, or when the invoice is still open after its due date.
 - The reports are under the Reporting menu of the Sales app, for those holding the read permission of the report. Each has a pivot table that downloads as a spreadsheet with the rows and totals it shows.
 
 ## IV. Related documents

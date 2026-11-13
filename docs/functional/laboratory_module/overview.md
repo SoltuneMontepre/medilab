@@ -58,7 +58,8 @@ Each document keeps its own status. Tasks keep their own generic lifecycle ([SH-
 stateDiagram-v2
     [*] --> draft
     draft --> confirmed: request confirmed
-    confirmed --> paid: the balance is paid, or at once for a customer allowed credit
+    confirmed --> paid: the balance payment request is verified
+    confirmed --> on_credit: at once for a customer allowed credit
     paid --> sample_received: first sample received
     sample_received --> testing: first sample test started
     testing --> awaiting_approval: every remaining test has its reported result sent for approval
@@ -74,7 +75,7 @@ stateDiagram-v2
     testing --> cancelled
 ```
 
-- With E-commerce, every test request comes from an order sales confirmed and goes through the paid step, which E-commerce sets: confirming it needs the order's advance paid in full or the customer allowed credit. A confirmed request is paid once the order's balance is paid, or at once for a customer allowed credit.
+- With E-commerce, every test request comes from an order sales confirmed and goes through the paid step, which E-commerce sets: confirming it needs the order's advance verified in full or the customer allowed credit. A confirmed request is paid once the order's balance payment request is verified. For a customer allowed credit it is On credit at once: not paid, and the customer pays the final invoice after testing.
 - Creating a test request directly, with the permission `test_request.create.all`, is a temporary shortcut for developers to set up flows. It is removed once every browser test and demo record creates its test requests from orders ([#485](https://github.com/SoltuneMontepre/medilab/issues/485)).
 
 ### Sample

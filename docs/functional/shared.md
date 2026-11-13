@@ -320,9 +320,9 @@ The system sends all e-mail through Brevo's SMTP relay, set as Odoo's outgoing m
 
 ### 2. PayOS (payments)
 
-The system takes online payments through PayOS, added as a payment provider of Odoo's payment framework (`payment.provider`). Each payment is an Odoo payment transaction, and a confirmed one posts an Odoo payment on the invoice. The PayOS keys come from the configuration file, not from the provider record.
+The system takes online payments through PayOS, added as a payment provider of Odoo's payment framework (`payment.provider`). Each payment is an Odoo payment transaction, and a confirmed one posts an Odoo payment and the invoice for its amount. The PayOS keys come from the configuration file, not from the provider record.
 
-- Used for the advance and final invoices. The customer pays from the portal or from a payment link in an e-mail.
+- Used for advance and balance payment requests and for the final invoices of customers on credit. The customer pays from the portal or from a payment link in an e-mail.
 - Payment methods are whatever PayOS offers (for example bank transfer by QR code); administrators enable or disable them in the settings, and the portal shows only those enabled.
 - A payment is confirmed only by the provider's signed notification, never by the customer's browser returning to the website. The signature is verified, and a repeated notification creates no second payment.
 - A confirmed payment is recorded against the invoice and updates its payment status automatically; partial payments are supported.

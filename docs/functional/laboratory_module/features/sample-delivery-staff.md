@@ -68,7 +68,7 @@ Follows the reception rules and the sample lifecycle in the [Laboratory overview
 
 | Rule          | Description                                                                                                                  |
 | ------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| Test request | With E-commerce, every test request comes from an order sales confirmed ([Sales, Confirmation](../../ecommerce_module/features/sales.md#4-confirmation-us-s12-us-s15)). A customer who brings samples to the laboratory goes through sales first. Sample delivery staff confirm the request once the order's advance is paid in full or the customer is allowed credit, and receive its samples once the request is paid, which for a customer allowed credit is at once; until then the samples wait at reception. |
+| Test request | With E-commerce, every test request comes from an order sales confirmed ([Sales, Confirmation](../../ecommerce_module/features/sales.md#4-confirmation-us-s12-us-s15)). A customer who brings samples to the laboratory goes through sales first. Sample delivery staff confirm the request once the order's advance is paid in full or the customer is allowed credit, and receive its samples once the request is paid, or On credit for a customer allowed credit; until then the samples wait at reception. |
 | Identification QR | Use only the sample's QR for identification and handover; test requests and handover documents have no separate identification QR. |
 | Return estimate | The test request shows the estimated return date of its samples and parameters. |
 | Label         | The label shows the lab code, the test request's code, the date results are due and a QR code of the lab code, and nothing about the customer. |
@@ -78,7 +78,7 @@ Follows the reception rules and the sample lifecycle in the [Laboratory overview
 
 Acceptance criteria:
 
-- The samples of a test request are received only once the request is paid, or at once for a customer allowed to order on credit.
+- The samples of a test request are received only once the request is paid or On credit.
 - A sample's label shows its lab code, test request code, results due date and QR code, but not the customer or the customer's name for the sample.
 - Recording the receipt of a sample in good condition sets it to received and creates its testing tasks in each department's queue; an unusable or insufficient sample is never received first.
 - A rejected sample keeps its condition note and gets no testing tasks.
