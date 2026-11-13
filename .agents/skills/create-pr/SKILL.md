@@ -11,4 +11,5 @@ Read [AGENTS.md](../../../AGENTS.md) and the docs index first; they override any
 - Title the pull request as [Git](../../../docs/conventions/git.md#pull-request-titles) says: `[<type>] <title>`, or `[<type>] | #<issue> <title>` for an issue.
 - The body summarises what changed and what was tested, contains `Closes #<issue>` when there is an issue, and carries no co-author or attribution lines.
 - After opening it, wait for every pipeline and check SonarQube as the workflow says; fix, push and repeat until both pass.
+- Once it is approved, select **Merge when ready**, or run `gh pr merge <pr>`, as [Git](../../../docs/conventions/git.md#merging) says. Do not update the branch with `main` by hand unless it conflicts, and never bypass the merge queue with `--admin`.
 - Reply with the pull request link, which pipelines passed, the quality gate and issue count, and the design choices the owner did not give.

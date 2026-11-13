@@ -16,6 +16,7 @@ How an open bug issue is fixed, proven by a test and opened as a pull request.
    - Commit and push. The title follows [Git](../conventions/git.md): `[fix] | #<issue number> <title>`.
    - The body states the cause, the fix, `Closes #<issue number>`, and what was tested.
    - Then follow [Creating a pull request](creating-pr.md) until the pipelines pass and SonarQube reports no issue.
+   - Once it is approved, select **Merge when ready**, as [Git](../conventions/git.md#merging) says; do not update the branch with `main` by hand.
 10. Reply with the pull request link, the cause, and what was checked.
 
 ## Related documents
