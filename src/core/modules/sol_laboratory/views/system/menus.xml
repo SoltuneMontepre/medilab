@@ -48,6 +48,12 @@
                 sequence="40"
                 groups="group_permission_test_report_edit_all"
             />
+            <menuitem
+                id="menu_testing_figure"
+                action="action_medilab_testing_figure_period"
+                sequence="50"
+                groups="group_permission_testing_figure_read_all,group_permission_testing_figure_read_own_department"
+            />
         </menuitem>
         <menuitem id="menu_laboratory_schedule" name="Schedule" sequence="50">
             <menuitem id="menu_machine_booking" action="action_medilab_machine_booking" sequence="10" />
