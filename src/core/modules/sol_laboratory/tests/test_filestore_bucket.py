@@ -1,6 +1,11 @@
+import contextlib
+import io
 import os
 from unittest.mock import patch
 
+from odoo import api, sql_db
+from odoo.api import SUPERUSER_ID
+from odoo.orm.environments import Transaction
 from odoo.tests import tagged
 from odoo.tools import config, file_open
 
@@ -9,6 +14,11 @@ from .test_module_files import MODULE_IMAGE
 from odoo.addons.sol_laboratory.constants.laboratory_bucket import FILESTORE_VARIABLE
 from odoo.addons.sol_laboratory.constants.models import MODEL_IR_ATTACHMENT
 from odoo.addons.sol_laboratory.services import laboratory_bucket
+
+BUNDLE_VERSION = "0000000"
+BUNDLE_FILE = "web.assets_test.min.js"
+# Every object of the bucket counts as older than the cleanup's grace period.
+ALL_OLD = patch("odoo.addons.sol_laboratory.models.system.ir_attachment.FILESTORE_GC_GRACE", -60)
 
 
 @tagged("post_install", "-at_install")
@@ -29,12 +39,46 @@ class TestFilestoreBucket(LaboratoryBucketCase):
     def remove_local_copy(self, attachment):
         os.unlink(self.attachments._full_path(attachment.store_fname))
 
+    def orphan_object(self, content):
+        """An object of the bucket that no attachment uses any more, as a deleted attachment leaves it."""
+        attachment = self.new_attachment(content)
+        key = self.attachments._bucket_key(attachment.store_fname)
+        attachment.unlink()
+        return key
+
+    def run_cleanup(self):
+        # The cleanup reads the attachments through a cursor of its own, which sees the test's only in test mode.
+        with self.registry_test_mode(), self.registry.cursor() as cursor:
+            self.attachments.with_env(self.env(cr=cursor))._gc_filestore_bucket()
+
+    @contextlib.contextmanager
+    def other_transaction(self):
+        """An environment on a database transaction of its own, rolled back at the end."""
+        with sql_db.db_connect(self.registry.db_name).cursor() as cursor:
+            # An environment looks its registry up by name, which waits on the lock the test run holds.
+            cursor.transaction = Transaction(self.registry)
+            cursor.transaction._check_signaling(cursor)
+            try:
+                yield api.Environment(cursor, SUPERUSER_ID, {})
+            finally:
+                cursor.transaction = None
+                cursor.rollback()
+
     def test_a_new_file_is_written_to_the_bucket(self):
         content = os.urandom(5000)
 
         attachment = self.new_attachment(content)
 
         key = self.attachments._bucket_key(attachment.store_fname)
+        self.assertEqual(laboratory_bucket.object_size(key), len(content))
+
+    def test_a_file_odoo_uploads_is_written_to_the_bucket(self):
+        content = os.urandom(5000)
+
+        attachment = self.attachments._upload_file(io.BytesIO(content), {"name": "file.bin"})
+        key = self.attachments._bucket_key(attachment.store_fname)
+        self.addCleanup(laboratory_bucket.delete, key)
+
         self.assertEqual(laboratory_bucket.object_size(key), len(content))
 
     def test_a_file_missing_on_this_server_is_read_from_the_bucket(self):
@@ -81,17 +125,83 @@ class TestFilestoreBucket(LaboratoryBucketCase):
 
         self.assertEqual(laboratory_bucket.object_size(key), len(content))
 
-    def asset_bundle(self):
-        return self.attachments.create(
+    def asset_bundle(self, content=b"console.log('bundle');"):
+        bundle = self.attachments.create(
             {
-                "name": "web.assets_test.min.js",
-                "raw": b"",
+                "name": BUNDLE_FILE,
+                "raw": content,
                 "public": True,
-                "url": "/web/assets/0000000/web.assets_test.min.js",
+                "url": f"/web/assets/{BUNDLE_VERSION}/{BUNDLE_FILE}",
                 "res_model": "ir.ui.view",
                 "res_id": 0,
             }
         )
+        self.addCleanup(laboratory_bucket.delete, self.attachments._bucket_key(bundle.store_fname))
+        return bundle
+
+    def test_an_asset_bundle_whose_file_is_lost_is_deleted_so_it_is_built_again(self):
+        bundle = self.asset_bundle()
+        url = bundle.url
+        self.remove_local_copy(bundle)
+        laboratory_bucket.delete(self.attachments._bucket_key(bundle.store_fname))
+
+        with self.assertLogs("odoo.addons.sol_laboratory.models.system.ir_attachment", "WARNING") as logs:
+            self.attachments._drop_lost_asset_bundle(BUNDLE_FILE, BUNDLE_VERSION, {})
+
+        self.assertFalse(bundle.exists())
+        self.assertIn(url, logs.output[-1])
+
+    def lose(self, attachment):
+        self.remove_local_copy(attachment)
+        laboratory_bucket.delete(self.attachments._bucket_key(attachment.store_fname))
+
+    def test_every_lost_attachment_of_a_bundle_built_twice_is_deleted(self):
+        first = self.asset_bundle()
+        second = self.asset_bundle()
+        self.lose(first)
+
+        with self.assertLogs("odoo.addons.sol_laboratory.models.system.ir_attachment", "WARNING"):
+            self.attachments._drop_lost_asset_bundle(BUNDLE_FILE, BUNDLE_VERSION, {})
+
+        self.assertFalse((first | second).exists())
+
+    def test_a_lost_attachment_is_deleted_and_one_with_its_file_kept_at_the_same_address(self):
+        lost = self.asset_bundle(b"console.log('lost');")
+        kept = self.asset_bundle(b"console.log('kept');")
+        self.lose(lost)
+
+        with self.assertLogs("odoo.addons.sol_laboratory.models.system.ir_attachment", "WARNING"):
+            self.attachments._drop_lost_asset_bundle(BUNDLE_FILE, BUNDLE_VERSION, {})
+
+        self.assertFalse(lost.exists())
+        self.assertTrue(kept.exists())
+
+    def test_a_lost_bundle_asked_for_at_any_version_is_deleted(self):
+        bundle = self.asset_bundle()
+        self.lose(bundle)
+
+        with self.assertLogs("odoo.addons.sol_laboratory.models.system.ir_attachment", "WARNING"):
+            self.attachments._drop_lost_asset_bundle(BUNDLE_FILE, "any", {})
+
+        self.assertFalse(bundle.exists())
+
+    def test_an_asset_bundle_whose_file_the_bucket_holds_is_kept_and_read_from_it(self):
+        bundle = self.asset_bundle()
+        self.remove_local_copy(bundle)
+
+        self.attachments._drop_lost_asset_bundle(BUNDLE_FILE, BUNDLE_VERSION, {})
+
+        self.assertTrue(bundle.exists())
+        self.assertTrue(os.path.exists(self.attachments._full_path(bundle.store_fname)))
+
+    def test_a_debug_asset_address_names_no_bundle_to_delete(self):
+        bundle = self.asset_bundle()
+        self.remove_local_copy(bundle)
+        laboratory_bucket.delete(self.attachments._bucket_key(bundle.store_fname))
+
+        self.attachments._drop_lost_asset_bundle(BUNDLE_FILE, "debug", {})
+
+        self.assertTrue(bundle.exists())
 
     def test_an_install_or_update_deletes_the_asset_bundles_so_they_are_built_again(self):
         bundle = self.asset_bundle()
@@ -145,8 +255,8 @@ class TestFilestoreBucket(LaboratoryBucketCase):
         laboratory_bucket.write(orphan, [b"orphan"])
         self.addCleanup(laboratory_bucket.delete, orphan)
 
-        with patch("odoo.addons.sol_laboratory.models.system.ir_attachment.FILESTORE_GC_GRACE", -60):
-            self.attachments._gc_filestore_bucket()
+        with ALL_OLD:
+            self.run_cleanup()
 
         self.assertIsNone(laboratory_bucket.object_size(orphan))
         self.assertIsNotNone(laboratory_bucket.object_size(kept))
@@ -156,9 +266,34 @@ class TestFilestoreBucket(LaboratoryBucketCase):
         laboratory_bucket.write(orphan, [b"in flight"])
         self.addCleanup(laboratory_bucket.delete, orphan)
 
-        self.attachments._gc_filestore_bucket()
+        self.run_cleanup()
 
         self.assertIsNotNone(laboratory_bucket.object_size(orphan))
+
+    def test_the_cleanup_keeps_an_old_object_an_attachment_uses_again_while_it_runs(self):
+        content = os.urandom(100)
+        key = self.orphan_object(content)
+        listing = laboratory_bucket.keys
+
+        def listing_then_reuse(prefix):
+            yield from listing(prefix)
+            # An asset bundle built again with the same content finds its object in the bucket and uploads nothing.
+            self.new_attachment(content)
+
+        with ALL_OLD, patch.object(laboratory_bucket, "keys", listing_then_reuse):
+            self.run_cleanup()
+
+        self.assertEqual(laboratory_bucket.object_size(key), 100)
+
+    def test_the_cleanup_leaves_an_old_object_a_transaction_in_progress_relies_on(self):
+        content = os.urandom(100)
+        key = self.orphan_object(content)
+
+        with self.other_transaction() as env, ALL_OLD:
+            env[MODEL_IR_ATTACHMENT].create({"name": "file.bin", "raw": content})
+            self.run_cleanup()
+
+        self.assertEqual(laboratory_bucket.object_size(key), 100)
 
     def mounted_copy(self, attachment, content):
         """Leave the file only where the bucket mounted as the filestore wrote it: at the root, under the database."""

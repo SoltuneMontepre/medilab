@@ -86,3 +86,8 @@ def test_launcher_passes_the_git_message_hook_exit_code():
     )
     assert result.returncode == 2
     assert "must be '[<type>] <title>'" in result.stderr
+
+
+def test_claude_and_cursor_start_the_same_diagram_servers():
+    for name in ("drawio", "filesystem"):
+        assert CURSOR[name] == CLAUDE[name], name
