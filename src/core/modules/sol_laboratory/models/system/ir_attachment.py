@@ -8,8 +8,10 @@ from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 
 from odoo import api, models
+from odoo.api import SUPERUSER_ID
 from odoo.tools import SQL, config
 
+from odoo.addons.base.models.assetsbundle import ANY_UNIQUE
 from odoo.addons.sol_laboratory.constants.laboratory_bucket import (
     FILESTORE_GC_GRACE,
     FILESTORE_LOCK_SCOPE,
@@ -25,8 +27,10 @@ else:
     IrAttachmentBase = object
 
 STORED_FILE = re.compile(r"[0-9a-f]{2}/[0-9a-f]+")
-# Versions of an asset address that name no single bundle file.
-UNVERSIONED_ASSETS = ("debug", "any", "%")
+# The version of an asset address that serves the files themselves, not a bundle.
+DEBUG_ASSETS = "debug"
+# The versions of an asset address that stand for any version of the bundle.
+ANY_VERSIONS = ("any", "%")
 
 _logger = logging.getLogger(__name__)
 
@@ -63,29 +67,42 @@ class IrAttachment(models.Model, IrAttachmentBase):
 
     @api.model
     def _drop_lost_asset_bundle(self, filename, unique, assets_params):
-        """Delete the attachment of the asset bundle at this address when its file is in neither the local filestore
-        nor the bucket, so that Odoo builds the bundle again. Odoo would otherwise serve it empty, under an address
+        """Delete the attachments of the asset bundle at this address whose file is in neither the local filestore
+        nor the bucket, so that Odoo builds the bundle again. Odoo would otherwise serve one empty, under an address
         browsers and the CDN keep for a year."""
-        if unique in UNVERSIONED_ASSETS or not laboratory_bucket.filestore_enabled():
+        if unique == DEBUG_ASSETS or not laboratory_bucket.filestore_enabled():
             return
+        if unique in ANY_VERSIONS:
+            unique = ANY_UNIQUE
         url = self.env[MODEL_IR_ASSET]._get_asset_bundle_url(filename, unique, assets_params)
-        bundle = self.sudo().search(
-            [("url", "=", url), ("res_model", "=", MODEL_IR_UI_VIEW), ("res_id", "=", 0), ("public", "=", True)],
-            limit=1,
+        # The attachments Odoo's assets route chooses from, as it finds them: two requests may each have built one.
+        bundles = self.sudo().search(
+            [
+                ("public", "=", True),
+                ("url", "!=", False),
+                ("url", "=like", url),
+                ("res_model", "=", MODEL_IR_UI_VIEW),
+                ("res_id", "=", 0),
+                ("create_uid", "=", SUPERUSER_ID),
+            ]
         )
-        if not bundle.store_fname:
+        lost = bundles.filtered(lambda bundle: bundle.store_fname and not bundle._file_available())
+        if not lost:
             return
-        bundle._download_file(bundle.store_fname)
-        if os.path.exists(self._full_path(bundle.store_fname)):
-            return
-        _logger.warning("Asset bundle %s is built again, as its file %s is lost.", url, bundle.store_fname)
+        _logger.warning(
+            "Asset bundle %s is built again, as its file %s is lost.", url, ", ".join(lost.mapped("store_fname"))
+        )
         if not self.env.cr.readonly:
-            bundle.unlink()
+            lost.unlink()
             return
         with self.env.registry.cursor() as cr:
-            bundle.with_env(bundle.env(cr=cr)).unlink()
-        # The request's read-only transaction still sees the attachment until it starts again.
+            lost.with_env(lost.env(cr=cr)).unlink()
+        # The request's read-only transaction still sees the attachments until it starts again.
         self.env.cr.rollback()
+
+    def _file_available(self):
+        self._download_file(self.store_fname)
+        return os.path.exists(self._full_path(self.store_fname))
 
     def _register_hook(self):
         super()._register_hook()

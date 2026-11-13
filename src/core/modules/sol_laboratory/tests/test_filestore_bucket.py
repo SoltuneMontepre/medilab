@@ -125,11 +125,11 @@ class TestFilestoreBucket(LaboratoryBucketCase):
 
         self.assertEqual(laboratory_bucket.object_size(key), len(content))
 
-    def asset_bundle(self):
+    def asset_bundle(self, content=b"console.log('bundle');"):
         bundle = self.attachments.create(
             {
                 "name": BUNDLE_FILE,
-                "raw": b"console.log('bundle');",
+                "raw": content,
                 "public": True,
                 "url": f"/web/assets/{BUNDLE_VERSION}/{BUNDLE_FILE}",
                 "res_model": "ir.ui.view",
@@ -150,6 +150,40 @@ class TestFilestoreBucket(LaboratoryBucketCase):
 
         self.assertFalse(bundle.exists())
         self.assertIn(url, logs.output[-1])
+
+    def lose(self, attachment):
+        self.remove_local_copy(attachment)
+        laboratory_bucket.delete(self.attachments._bucket_key(attachment.store_fname))
+
+    def test_every_lost_attachment_of_a_bundle_built_twice_is_deleted(self):
+        first = self.asset_bundle()
+        second = self.asset_bundle()
+        self.lose(first)
+
+        with self.assertLogs("odoo.addons.sol_laboratory.models.system.ir_attachment", "WARNING"):
+            self.attachments._drop_lost_asset_bundle(BUNDLE_FILE, BUNDLE_VERSION, {})
+
+        self.assertFalse((first | second).exists())
+
+    def test_a_lost_attachment_is_deleted_and_one_with_its_file_kept_at_the_same_address(self):
+        lost = self.asset_bundle(b"console.log('lost');")
+        kept = self.asset_bundle(b"console.log('kept');")
+        self.lose(lost)
+
+        with self.assertLogs("odoo.addons.sol_laboratory.models.system.ir_attachment", "WARNING"):
+            self.attachments._drop_lost_asset_bundle(BUNDLE_FILE, BUNDLE_VERSION, {})
+
+        self.assertFalse(lost.exists())
+        self.assertTrue(kept.exists())
+
+    def test_a_lost_bundle_asked_for_at_any_version_is_deleted(self):
+        bundle = self.asset_bundle()
+        self.lose(bundle)
+
+        with self.assertLogs("odoo.addons.sol_laboratory.models.system.ir_attachment", "WARNING"):
+            self.attachments._drop_lost_asset_bundle(BUNDLE_FILE, "any", {})
+
+        self.assertFalse(bundle.exists())
 
     def test_an_asset_bundle_whose_file_the_bucket_holds_is_kept_and_read_from_it(self):
         bundle = self.asset_bundle()
