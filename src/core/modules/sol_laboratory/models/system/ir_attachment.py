@@ -86,12 +86,11 @@ class IrAttachment(models.Model, IrAttachmentBase):
                 ("create_uid", "=", SUPERUSER_ID),
             ]
         )
-        lost = bundles.filtered(lambda bundle: bundle.store_fname and not bundle._file_available())
+        lost = bundles.filtered(lambda bundle: bool(bundle.store_fname) and not bundle._file_available())
         if not lost:
             return
-        _logger.warning(
-            "Asset bundle %s is built again, as its file %s is lost.", url, ", ".join(lost.mapped("store_fname"))
-        )
+        fnames = ", ".join(fname for fname in lost.mapped("store_fname") if fname)
+        _logger.warning("Asset bundle %s is built again, as its file %s is lost.", url, fnames)
         if not self.env.cr.readonly:
             lost.unlink()
             return
