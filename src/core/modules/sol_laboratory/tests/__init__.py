@@ -11,6 +11,7 @@ from . import (
     test_administrator_role,
     test_approval_chain,
     test_archiving_and_deleting,
+    test_asset_revision,
     test_audit_access,
     test_audit_downloads,
     test_audit_files,
