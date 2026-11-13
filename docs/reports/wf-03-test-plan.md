@@ -17,7 +17,7 @@ This is the test plan for WF-03, built from the repository's evidence: code, doc
 - A confirmed defect's reproduction stays out of the passing suite until its fix is approved.
 
 **Two schedulers.**
-- **AS-IS (code):** a machine queue. A booking goes `queued → scheduled → in_progress → done`, or to `cancelled`. One booking per machine interval. There is no capacity sharing, parameter authorization, pinning, OverTime or at-risk flag.
+- **AS-IS (code):** a machine queue. A booking goes `queued → scheduled → in_progress → done`, or to `cancelled`. Bookings of one method share a machine interval up to the capacity of the machine-and-method link. There is no parameter authorization, pinning, OverTime or at-risk flag.
 - **TARGET (spec):** `docs/specs/scheduling.md` and `docs/business/testing-schedule.md`. A booking goes `proposed → scheduled → in progress → done`, with a department plan, capacity sharing, authorization, OverTime, pinning and revisions. These are planned in epic #405 (#419 to #427, #179, #433). All of those issues are open and none has a pull request.
 
 ### 0.1 How each scenario is classified
@@ -64,7 +64,7 @@ An existing test that asserts a CH outcome is listed under "Impact on existing t
 | Calibration cutoff | A machine is usable until `D+1 00:00` company-local of its calibration date D (`models/sample_collection/sample.py:427-429`, `models/master_data/machine.py:95`). The slot end is inclusive (`start + length <= limit`, `models/testing/machine_booking.py:415,432`); a requeue uses `ends_at > limit` (`:340`) |
 | Urgency | With urgency 0, only tests already due are urgent (`<=`, `models/testing/sample_test.py:159`) |
 | After a result | The test stays `testing`. `result_entered` comes from WF-04 sending (`tests/test_test_result_entry.py:81`) |
-| Archiving a machine | Refused while any booking (any status) or active way link refers to the machine (`models/mixins/archive_mixin.py:72-79`), so the requeue-on-archive branch is unreachable for linked machines (SCH-034) |
+| Archiving a machine | Refused while any booking (any status) or link to an active method refers to the machine (`models/mixins/archive_mixin.py:72-79`), so the requeue-on-archive branch is unreachable for linked machines (SCH-034) |
 | Moving one's own booking | A tester cannot today (#315, PR #373), so SCH-026's runner cell is group D |
 | Foreign queued bookings | Every replan rewrites the test of a queued booking no machine can place, so two schedules conflict on it (Section 8.1, rule 2) |
 | Mixed-method lock races | The claim-against-claim handshake does not fit a claim against a wizard (Section 8.1, rule 3) |
@@ -83,8 +83,8 @@ An existing test that asserts a CH outcome is listed under "Impact on existing t
 | Sample test `medilab.sample.test` (`models/testing/sample_test.py:39`) | The work | `status`: waiting / assigned / testing / outsourced / result_entered / approved / cancelled. `due_date` (stored compute, editable). `parameter_method_id` (way, empty until chosen). `outsourcing_suggested`. Non-stored `recommended_*` |
 | Task `medilab.task` (`models/tasks/task.py:36`) | Queue item | `status`: open / assigned / in_progress / done / cancelled. `department_id`, `assignee_id`, `assigned_by_id`, `reassign_reason`, `planned_start/end`, `linked_by_system` |
 | Reassign wizard `medilab.task.reassign` (`models/tasks/task_reassign.py`) | Head assigns or moves | Reason when the person or department changes. Assignee must be in the department (`:49`) |
-| Machine booking `medilab.machine.booking` (`models/testing/machine_booking.py:68`) | Reservation | `status`: queued / scheduled / in_progress / done / cancelled. `EXCLUDE gist(machine_id =, tsrange &&) WHERE status IN (scheduled, in_progress)` (`:124-128`). `CHECK(ends_at > starts_at)`, which passes on NULL. `UNIQUE(calendar_event_id)` |
-| Way-machine link (`models/master_data/parameter_method_machine.py`) | Eligibility, duration | `run_minutes > 0`, `UNIQUE(way, machine)`. No capacity field. `_in_use_domain` = way active |
+| Machine booking `medilab.machine.booking` (`models/testing/machine_booking.py:68`) | Reservation | `status`: queued / scheduled / in_progress / done / cancelled. `machine_id` empty when the way needs no machine; `method_id`. Three `EXCLUDE gist(machine_id =, method_id <> / starts_at <> / ends_at <>, tsrange &&) WHERE status IN (scheduled, in_progress)`: bookings overlap on a machine only with the same method, start and end. Capacity in samples and joining before the start are checked in code (`_check_shared_interval`). `CHECK(ends_at > starts_at)`, which passes on NULL. `UNIQUE(calendar_event_id)` |
+| Machine-and-method link (`models/master_data/machine_method.py`) | Eligibility, duration, capacity | `duration_minutes > 0`, `capacity >= 1`, `UNIQUE(machine, method)`. `_in_use_domain` = method active. A way whose method has no link uses its own `duration_minutes` and `capacity` |
 | Machine (`models/master_data/machine.py`) | Resource | `status`: in_use / under_repair / retired. `active`, `next_calibration_date`, `_usable_until()` (`:85-95`). Archive mixin |
 | Calendar event (`models/tasks/calendar_event.py`) | Person and room reservations | `machine_booking_id`, `step_id`, `location_id`. `EXCLUDE (location_id, tsrange, id <>) WHERE location_id NOT NULL AND active` (`:47-51`). Token-guarded links |
 
@@ -172,8 +172,8 @@ sequenceDiagram
 | R04 | A move of person or department needs a non-blank reason. Done or cancelled tasks cannot be moved. The wizard refuses an assignee outside the department and writes `status` assigned or open | `task.py:248-256`, `task_reassign.py:49-69` |
 | R05 | The test follows its task (waiting ↔ assigned) only from waiting or assigned. The first booking start or result moves it to testing | `sample_test.py:239-244, 387-389` |
 | R06 | Schedule refuses an open booking, no assignee, or no recommendation. The assignee schedules with sudo; others need booking create permission | `sample_test.py:252-276` |
-| R07 | Earliest **finish** ≤ due (or now + 30 days) among the department's ways and links. Strict `<`, so ties keep the first link (machine code order). A due date ≤ now gives none | `machine_booking.py:374-401`, `parameter_method_machine.py:20` |
-| R08 | 15-minute boundaries. Length `ceil(run/15)*15`. Start ≥ now, rounded up. Inside **one** working interval. End ≤ min(due, usable_until), **inclusive**. No machine overlap. Each bookable and active step room free for its offset. The last room step ends ≤ due | `machine_booking.py:37-50, 297-307, 403-441` |
+| R07 | Earliest **finish** ≤ due (or now + 30 days) among the department's ways and the machines linked to their methods, or no machine for a way whose method has none. Strict `<`, so ties keep the first link (machine code order). A due date ≤ now gives none | `machine_booking.py` `_recommend`, `machine_method.py` |
+| R08 | 15-minute boundaries. Length `ceil(duration/15)*15`. Start ≥ now, rounded up. Inside **one** working interval. End ≤ min(due, usable_until), **inclusive**. No machine overlap, except joining a not-started interval of the same method, start and end with a place for the sample. Each bookable and active step room free for its offset. The last room step ends ≤ due | `machine_booking.py:37-50, 297-307, 403-441` |
 | R09 | Usable while `in_use` and active, until `D+1 00:00` company-local of the calibration due date D. No calibration record means no limit | `machine.py:85-95`, `sample.py:427-429` |
 | R10 | DB refuses overlapping active machine bookings and active room events, using half-open ranges | `machine_booking.py:124-128`, `calendar_event.py:47-51` |
 | R11 | Global queue: urgent (due ≤ now + `urgency_hours`, default 24), then `queued_at`, then id. A booking with no slot stays queued and sets `outsourcing_suggested` | `machine_booking.py:309-328`, `sample_test.py:156-159` |
@@ -185,7 +185,7 @@ sequenceDiagram
 | R17 | Creating a result cancels queued bookings, marks active ones done and replans | `test_result.py:237-246` |
 | R18 | An active booking has one person event with no alarm (when the person has a user), room events per bookable active step, and task planned = min/max. Links are token-guarded | `machine_booking.py:221-295`, `calendar_event.py:140-150` |
 | R19 | A tester reads their own bookings, and their own or claimable tasks. A head reads and edits bookings and tasks of their department, and edits sample tests of **all** departments | `security/ir.access.csv:24-25,41`, `sol_demo/.../role.xml:121-171` |
-| R20 | A machine cannot be archived while any booking (any status) or any active way link refers to it | `archive_mixin.py:10-13,72-79`, `parameter_method_machine.py:41` |
+| R20 | A machine cannot be archived while any booking (any status) or any link to an active method refers to it | `archive_mixin.py:10-13,72-79`, `machine_method.py` `_in_use_domain` |
 
 ### 3.2 Inferred
 
@@ -826,9 +826,9 @@ The UTC conversions above were checked once more: +7 local `HH:MM` = UTC `HH−7
 
 | ID | Scenario | Expected | Lvl / P / Cov / Grp |
 |---|---|---|---|
-| DAT-001 | DB constraints | `run_minutes ≤ 0`, duplicate link, `quantity = 0`, `ends ≤ starts`, duplicate event. **CT:** `IntegrityError` in a savepoint, one `subTest` each | U, P1, Part, A |
+| DAT-001 | DB constraints | `duration_minutes ≤ 0`, `capacity < 1`, duplicate link, `quantity = 0`, `ends ≤ starts`, duplicate event. **CT:** `IntegrityError` in a savepoint, one `subTest` each | U, P1, Part, A |
 | DAT-002 | Active booking with NULL times | DC-04. **CT (Q4):** impossible. **DF:** possible | U, P0, Miss, B |
-| DAT-003 | Deletes | Booking unlink gives `AccessError` (**CT**). Unlinking a way-machine link with active bookings: **CH**, pending | U, P1, Miss, C |
+| DAT-003 | Deletes | Booking unlink gives `AccessError` (**CT**). Unlinking a machine-and-method link with active bookings: **CH**, pending | U, P1, Miss, C |
 | DAT-004 | Way changed with an open booking | **CH:** booking keeps the old machine and length. Pending Q6/Q5 | U, P0, Miss, C |
 | DAT-005 | Due date changed after scheduling; override lost | DC-11. (a) **CH:** no requeue or flag (Q10, T10 #179). (b) **CT:** the override is kept and a later one is flagged (`test_sample_test_due_date_change.py`) | U, P1, Part, C |
 | DAT-006 | Invariants over demo data | Mandatory invariants must hold. Conditional ones are report-only | U, P1, Miss, A |

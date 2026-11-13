@@ -33,6 +33,8 @@ model TestParameter {
   sample_tests      SampleTest[]
   /// Accreditation scope lines that name the parameter.
   scope_lines       AccreditationScopeLineParameter[]
+  /// People the Lab Head authorized to test the parameter.
+  authorizations    ParameterAuthorization[]
 
   @@index([main_group_id])
   @@map("medilab_test_parameter")
@@ -239,6 +241,10 @@ model TestingMethod {
   sampling_requirements SamplingRequirement[]
   /// Expected sampling rows that add or list the method.
   expected_sampling ExpectedSamplingMethod[]
+  /// Machines that run the method, with the duration and capacity on each; a way of testing needs a machine when its method has one.
+  machines   MachineMethod[]
+  /// Bookings measured by the method.
+  bookings   MachineBooking[]
 
   @@index([field_id])
   @@map("medilab_testing_method")
@@ -337,10 +343,32 @@ model Location {
   bookings      CalendarEvent[]
   /// Machines standing in the location.
   machines      Machine[]
+  /// Intervals the location cannot be used.
+  unavailabilities LocationUnavailability[]
 
   @@index([parent_id])
   @@index([department_id])
   @@map("medilab_location")
+}
+
+/// An interval a bookable location cannot be used, such as a room closed for cleaning. New bookings that overlap it are refused, and not-started bookings it overlaps return to the plan.
+/// ends_at is after starts_at (check constraint).
+model LocationUnavailability {
+  /// Row identifier.
+  id          Int      @id @default(autoincrement())
+  /// The location that cannot be used.
+  location_id Int
+  /// Start of the interval.
+  starts_at   DateTime
+  /// End of the interval.
+  ends_at     DateTime
+  /// Why the location cannot be used.
+  reason      String   @db.Text
+  /// The location that cannot be used.
+  location    Location @relation(fields: [location_id], references: [id], onDelete: Cascade)
+
+  @@index([location_id, starts_at])
+  @@map("medilab_location_unavailability")
 }
 
 /// An ISO 17025 accreditation certificate of the laboratory (Giấy chứng nhận công nhận). Trigram index on code serves search.
@@ -470,8 +498,10 @@ model Department {
   task_reassigns    TaskReassign[]
   /// Samples handed over to the department.
   handovers         SampleHandover[]
-  /// Machine bookings of the department's testing tasks.
+  /// Machine bookings of the department's testing tasks: its plan.
   bookings          MachineBooking[]
+  /// Plan revision moves the department's head approves.
+  revision_moves    PlanRevisionMove[]
   /// Locations the department uses.
   locations         Location[]
 
@@ -529,6 +559,7 @@ model UnitCategory {
 /// How one parameter is tested with one method, by the laboratory or by a subcontractor, and the unit of its result.
 /// Active rows are unique on (parameter_id, method_id, COALESCE(subcontractor_id, 0)) WHERE active.
 /// Its default per sample type is set on its applicability rows (ParameterMethodSampleType).
+/// duration_minutes is not negative, empty or 0 meaning none, and capacity is at least 1 (check constraints).
 model ParameterMethod {
   /// Row identifier.
   id               Int             @id @default(autoincrement())
@@ -542,6 +573,10 @@ model ParameterMethod {
   department_id    Int?
   /// True when its results may be negative, such as a redox potential or a temperature in °C.
   allows_negative  Boolean         @default(false)
+  /// Minutes a booking of the way takes when its method is linked to no machine, covering preparation, measurement and time to repeat a failed measurement; rounded up to 15-minute slots. Empty when the method has a machine, whose link gives the duration; an in-house way without either cannot be booked.
+  duration_minutes Int?
+  /// Samples one interval of a tester holds for bookings of the way when its method is linked to no machine; at least 1.
+  capacity         Int             @default(1)
   /// False when this way of testing is archived.
   active           Boolean         @default(true)
   /// The parameter being tested.
@@ -552,8 +587,6 @@ model ParameterMethod {
   subcontractor    Subcontractor?  @relation(fields: [subcontractor_id], references: [id], onDelete: Restrict)
   /// The department that tests it in-house.
   department       Department?     @relation(fields: [department_id], references: [id], onDelete: Restrict)
-  /// Machines that can run it.
-  machines         ParameterMethodMachine[]
   /// Quality registration dossiers that cover it.
   registrations    QualityRegistrationParameterMethod[]
   /// Sample tests done this way.
@@ -702,10 +735,12 @@ model Machine {
   active                Boolean                @default(true)
   /// Calibration, maintenance and repair records of the machine.
   services              MachineService[]
-  /// Parameter and method pairs the machine can run.
-  parameter_methods     ParameterMethodMachine[]
+  /// Testing methods the machine runs, with the duration and capacity of each.
+  methods               MachineMethod[]
   /// Bookings of the machine.
   bookings              MachineBooking[]
+  /// Plan revision moves that move a booking to the machine.
+  revision_moves        PlanRevisionMove[]
   /// Results measured on the machine.
   results               TestResult[]
 
@@ -714,7 +749,8 @@ model Machine {
   @@map("medilab_machine")
 }
 
-/// One calibration, maintenance or repair done on a machine.
+/// One calibration, maintenance or repair of a machine, done or planned. Only done records give the next calibration and maintenance dates.
+/// downtime_start and downtime_end are set together, and downtime_end is after downtime_start (check constraint).
 model MachineService {
   /// Row identifier.
   id           Int       @id @default(autoincrement())
@@ -722,8 +758,12 @@ model MachineService {
   machine_id   Int
   /// calibration, maintenance or repair.
   kind         String    @db.VarChar
-  /// Date the service was done.
-  service_date DateTime  @db.Date
+  /// Date the service was done; empty while it is planned.
+  service_date DateTime? @db.Date
+  /// Start of the time the service takes the machine out of use; a planned maintenance reserves it, so no booking overlaps it.
+  downtime_start DateTime?
+  /// End of the time the service takes the machine out of use.
+  downtime_end DateTime?
   /// Date the next service of this kind is due, such as the calibration certificate's expiry.
   next_due_date DateTime? @db.Date
   /// Person or company that did the service.
@@ -736,27 +776,31 @@ model MachineService {
   machine      Machine   @relation(fields: [machine_id], references: [id], onDelete: Restrict)
 
   @@index([machine_id, kind, service_date])
+  @@index([machine_id, downtime_start])
   @@map("medilab_machine_service")
 }
 
-/// A machine that can run a parameter and method pair, and how long one run takes. Unique on (parameter_method_id, machine_id).
-model ParameterMethodMachine {
+/// Links testing methods to the machines that run them, with the booking duration and the samples one interval holds. Every way of testing that uses the method can be booked on the machine. Unique on (machine_id, method_id).
+/// duration_minutes is above 0 and capacity at least 1 (check constraints).
+model MachineMethod {
   /// Row identifier.
-  id                  Int             @id @default(autoincrement())
-  /// The parameter and method pair.
-  parameter_method_id Int
-  /// A machine that can run it.
-  machine_id          Int
-  /// Minutes one run takes on the machine; the booking rounds it up to whole slots.
-  run_minutes         Int
-  /// The parameter and method pair.
-  parameter_method    ParameterMethod @relation(fields: [parameter_method_id], references: [id], onDelete: Cascade)
+  id               Int           @id @default(autoincrement())
   /// The machine.
-  machine             Machine         @relation(fields: [machine_id], references: [id], onDelete: Restrict)
+  machine_id       Int
+  /// The testing method the machine runs.
+  method_id        Int
+  /// Minutes a booking of the method takes on the machine, covering preparation, measurement and time to repeat a failed measurement; rounded up to 15-minute slots.
+  duration_minutes Int
+  /// Samples one interval of the machine holds for bookings of the method; several parameters of one sample take one place.
+  capacity         Int           @default(1)
+  /// The machine.
+  machine          Machine       @relation(fields: [machine_id], references: [id], onDelete: Restrict)
+  /// The testing method.
+  method           TestingMethod @relation(fields: [method_id], references: [id], onDelete: Cascade)
 
-  @@unique([parameter_method_id, machine_id])
-  @@index([machine_id])
-  @@map("medilab_parameter_method_machine")
+  @@unique([machine_id, method_id])
+  @@index([method_id])
+  @@map("medilab_machine_method")
 }
 
 /// The sample type a way of testing applies to, with the result unit, detection limits and decimals there; a narrower or broader type shares none of it. Unique on (parameter_method_id, sample_type_id); one default per parameter and sample type.
@@ -924,9 +968,11 @@ model TestRequest {
   customer_id  Int
   /// Date the request was made.
   request_date DateTime @db.Date
-  /// Date sales promised the customer the results.
-  expected_date DateTime? @db.Date
-  /// True for a priority request: the expected date is earlier than the estimate and the check said it can be met, so its tests are urgent.
+  /// Date the customer wants the results.
+  requested_date DateTime? @db.Date
+  /// Committed return date: the date Sales promised the customer the results. Only Sales changes it, with the customer's agreement; each change is a CommittedDateChange.
+  committed_date DateTime? @db.Date
+  /// True for an accepted priority request: the requested date is earlier than the estimate and the check said it can be met, so its tests are urgent.
   priority      Boolean  @default(false)
   /// Language the customer wants the report in: vi, en or bilingual.
   report_language String @default("bilingual") @db.VarChar
@@ -952,12 +998,33 @@ model TestRequest {
   reports      TestReport[]
   /// Handover records of the request's samples.
   handover_records HandoverRecord[]
+  /// Changes of the committed return date, the latest first.
+  committed_date_changes CommittedDateChange[]
 
   @@index([customer_id])
   @@index([request_date])
   @@index([status])
   @@index([report_recipient_id])
   @@map("medilab_test_request")
+}
+
+/// A change of a test request's committed return date that Sales recorded with the customer's agreement. Records are never edited or deleted; who recorded it and when are Odoo's creation fields.
+model CommittedDateChange {
+  /// Row identifier.
+  id           Int         @id @default(autoincrement())
+  /// The test request whose date changed.
+  request_id   Int
+  /// The committed return date before the change.
+  old_date     DateTime?   @db.Date
+  /// The committed return date after the change.
+  new_date     DateTime    @db.Date
+  /// How the customer confirmed the new date, such as the email or call it was agreed in.
+  confirmation String      @db.Text
+  /// The test request whose date changed.
+  request      TestRequest @relation(fields: [request_id], references: [id], onDelete: Restrict)
+
+  @@index([request_id])
+  @@map("medilab_committed_date_change")
 }
 
 /// Material a customer submits to be tested: the thing someone holds in their hand.
@@ -1105,7 +1172,7 @@ model SampleTest {
   quantity            Int              @default(1)
   /// waiting, assigned, testing, outsourced, result_entered, approved or cancelled.
   status              String           @db.VarChar
-  /// When the laboratory plans to finish the test: the end of the day, in the company's time zone, the safety margin before the request's expected date, worked out when the sample test is created or that date changes, unless the head of department changed it by hand. Changing the safety margin does not change due dates already worked out. A test whose due date is close is scheduled first.
+  /// Internal due date, by which the result must be submitted: the end of the day, in the company's time zone, the safety margin before the request's committed return date, worked out when the sample test is created or that date changes, unless the head of department changed it by hand. Changing the safety margin does not change due dates already worked out.
   due_date            DateTime?
   /// Why the head of department changed the due date by hand; empty while it is worked out from the safety margin.
   due_date_reason     String?          @db.Text
@@ -1115,11 +1182,11 @@ model SampleTest {
   cancelled_by_id     Int?
   /// When the test was cancelled.
   cancelled_at        DateTime?
-  /// True when no machine can finish the test before its due date, so the scheduler suggests outsourcing it.
+  /// True when no in-house slot lets the test finish by its due date, so the scheduler suggests outsourcing it.
   outsourcing_suggested Boolean        @default(false)
-  /// True when the test has no booking that finishes before its due date, or its booking ended without a result; its tester and head of department are told when it turns true.
+  /// True when the test's planned finish is after its internal due date, no free slot lets it finish by then, or its booking or the booking before it on the machine overran; its tester and head of department are told when it turns true, then daily until it is false.
   at_risk             Boolean          @default(false)
-  /// True when a person marked the test urgent, so it is scheduled first whatever its due date.
+  /// True when its tester or head of department marked the test urgent, so the plan places it in the urgent class whatever its due date.
   marked_urgent       Boolean          @default(false)
   /// Why the test was marked urgent.
   urgent_reason       String?          @db.Text
@@ -1204,10 +1271,16 @@ model TestResult {
   entered_by_id  Int
   /// When the result was entered, which is when the measurement counts as done.
   entered_at     DateTime
+  /// The booking the measurement ran in; entering the result frees its machine. Empty for an outsourced test. A retest is a new result with a new booking.
+  booking_id     Int?
   /// The machine the measurement ran on, taken from the booking and correctable by the lab QA; empty for an outsourced test.
   machine_id     Int?
   /// When the measurement started, taken from the booking's start and correctable by the lab QA.
   started_at     DateTime?
+  /// True when the machine broke down or lost calibration during the booking, so the result keeps the data recorded until then.
+  is_interrupted Boolean          @default(false)
+  /// usable, retest or more_sample: the head of department's assessment of an interrupted result; empty until assessed and for a result not interrupted.
+  interruption_assessment String? @db.VarChar
   /// Why the sanity check found the value unusual when it was sent, shown to the approver; empty when nothing was found.
   check_warning  String?          @db.Text
   /// pass, fail or insufficient (insufficient basis), set by the tester for a requested comparison and required before the result is sent; empty outside it. A missing exact-type limit allows only insufficient. The system never infers it.
@@ -1226,6 +1299,8 @@ model TestResult {
   sample_test    SampleTest       @relation(fields: [sample_test_id], references: [id], onDelete: Restrict)
   /// The Odoo user who entered the result.
   entered_by     User             @relation(fields: [entered_by_id], references: [id], onDelete: Restrict)
+  /// The booking the measurement ran in.
+  booking        MachineBooking?  @relation(fields: [booking_id], references: [id], onDelete: Restrict)
   /// The machine the measurement ran on.
   machine        Machine?         @relation(fields: [machine_id], references: [id], onDelete: Restrict)
   /// The way of testing the result is measured by.
@@ -1248,6 +1323,7 @@ model TestResult {
   report_candidates TestReportCandidateResult[]
 
   @@index([sample_test_id])
+  @@index([booking_id])
   @@index([parameter_method_id])
   @@index([status])
   @@map("medilab_test_result")
@@ -1307,9 +1383,53 @@ model Person {
   task_reassigns TaskReassign[]
   /// Wizards that link a user to the person.
   user_links     UserLink[]
+  /// Parameters the Lab Head authorized the person to test.
+  parameter_authorizations ParameterAuthorization[]
+  /// Planned OverTime the head of department recorded for the person.
+  overtimes      OverTime[]
+  /// Moves of plan revisions the person approved as head of department.
+  approved_moves PlanRevisionMove[]
 
   @@index([team_id])
   @@map("medilab_person")
+}
+
+/// A parameter the Lab Head authorized a person to test, without validity dates. Only authorized people are offered for, assigned, claim or are booked for its sample tests. Unique on (person_id, parameter_id).
+model ParameterAuthorization {
+  /// Row identifier.
+  id           Int           @id @default(autoincrement())
+  /// The person authorized.
+  person_id    Int
+  /// The parameter the person may test.
+  parameter_id Int
+  /// The person authorized.
+  person       Person        @relation(fields: [person_id], references: [id], onDelete: Cascade)
+  /// The parameter the person may test.
+  parameter    TestParameter @relation(fields: [parameter_id], references: [id], onDelete: Cascade)
+
+  @@unique([person_id, parameter_id])
+  @@index([parameter_id])
+  @@map("medilab_parameter_authorization")
+}
+
+/// Planned work outside normal hours that the head of department records for a tester, with an interval and a reason. The tester can be booked in it; machines and locations keep their own availability. The scheduler never creates, moves or changes it, and actual hours and payroll are not recorded. Who recorded it is Odoo's creation user.
+/// ends_at is after starts_at (check constraint).
+model OverTime {
+  /// Row identifier.
+  id        Int      @id @default(autoincrement())
+  /// The tester who works the OverTime.
+  person_id Int
+  /// Start of the OverTime.
+  starts_at DateTime
+  /// End of the OverTime.
+  ends_at   DateTime
+  /// Why the OverTime is planned, such as urgent work that would otherwise miss its due date.
+  reason    String   @db.Text
+  /// The tester who works the OverTime.
+  person    Person   @relation(fields: [person_id], references: [id], onDelete: Restrict)
+
+  @@index([person_id, starts_at])
+  @@map("medilab_overtime")
 }
 
 /// Odoo's employee (hr.employee), shown with the columns this schema uses: the Odoo record a person delegates to. Trigram indexes on name and work email serve search.
@@ -1910,55 +2030,112 @@ model CalendarEvent {
   @@map("calendar_event")
 }
 
-/// A sample test waiting for, or holding, a slot on a machine.
-/// Scheduled and running bookings of one machine do not overlap: an exclusion constraint on (machine_id, time range) where status is scheduled or in_progress, using btree_gist.
+/// The booking of one sample test for one tester and one interval (Lịch Đặt Máy), on a machine only when the test's way needs one. A proposed booking is a slot of its department's plan and reserves nothing; a scheduled one reserves its tester, machine and step locations.
+/// Scheduled and running bookings of one machine overlap only when they share its interval, with the same method_id, starts_at and ends_at: three exclusion constraints on (machine_id =, time range &&) with method_id <>, starts_at <> and ends_at <> respectively, where machine_id is set and status is scheduled or in_progress, using btree_gist. The scheduler keeps a shared interval within the capacity of the machine-and-method link.
+/// ends_at is after starts_at (check constraint).
 model MachineBooking {
   /// Row identifier.
   id               Int        @id @default(autoincrement())
-  /// The machine booked.
-  machine_id       Int
-  /// The sample test run on the machine.
+  /// The machine booked; empty when the way of the sample test needs no machine.
+  machine_id       Int?
+  /// The sample test booked.
   sample_test_id   Int
+  /// The testing method of the sample test's way, stored for the shared-interval constraints.
+  method_id        Int?
   /// The testing task the booking belongs to.
   task_id          Int?
-  /// The department of the testing task, whose head sees and adjusts the booking.
+  /// The department of the testing task, whose plan holds the booking and whose head sees and adjusts it.
   department_id    Int?
-  /// Person who runs the test.
+  /// Tester who runs the test, authorized for its parameter; empty on a proposed booking while its testing task is unassigned.
   person_id        Int?
-  /// Due date of the sample test, copied so the queue is ordered without a join.
-  due_date         DateTime?
-  /// When the booking joined the machine's queue; earlier bookings come first among equally urgent ones.
-  queued_at        DateTime
-  /// Start of the slot; empty while the booking waits in the queue.
+  /// Start of the interval; empty on a proposed booking the plan found no slot for.
   starts_at        DateTime?
-  /// End of the slot: the start plus the run time, rounded up to whole slots.
+  /// End of the interval: the start plus the duration, rounded up to 15-minute slots. The machine stays held after it until the result is entered or the measurement is marked finished.
   ends_at          DateTime?
-  /// queued, scheduled, in_progress, done or cancelled.
+  /// proposed, scheduled, in_progress, done or cancelled. Done frees the machine.
   status           String     @db.VarChar
-  /// Why the head of department bumped the test to the earliest slot.
-  bump_reason      String?    @db.Text
-  /// The calendar event showing a scheduled booking on the person's schedule, with its reminder; empty while the booking waits in the queue.
+  /// True when the head of department placed or moved the booking by hand; plan revisions never move it and report a conflict instead.
+  is_pinned        Boolean    @default(false)
+  /// The calendar event showing a scheduled booking on the person's schedule, with its reminder; empty while the booking is proposed.
   calendar_event_id Int?     @unique
   /// The calendar event of the booking.
   calendar_event   CalendarEvent? @relation("BookingEvent", fields: [calendar_event_id], references: [id], onDelete: SetNull)
   /// The machine booked.
-  machine          Machine    @relation(fields: [machine_id], references: [id], onDelete: Restrict)
-  /// The sample test run on the machine.
+  machine          Machine?   @relation(fields: [machine_id], references: [id], onDelete: Restrict)
+  /// The sample test booked.
   sample_test      SampleTest @relation(fields: [sample_test_id], references: [id], onDelete: Restrict)
+  /// The testing method of the sample test's way.
+  method           TestingMethod? @relation(fields: [method_id], references: [id], onDelete: Restrict)
   /// The testing task the booking belongs to.
   task             Task?      @relation(fields: [task_id], references: [id], onDelete: Restrict)
   /// The department of the testing task.
   department       Department? @relation(fields: [department_id], references: [id], onDelete: SetNull)
-  /// Person who runs the test.
+  /// Tester who runs the test.
   person           Person?    @relation(fields: [person_id], references: [id], onDelete: Restrict)
   /// Calendar events booking the locations of the method's steps for this booking.
   room_events      CalendarEvent[] @relation("BookingRoomEvents")
+  /// Results measured in the booking.
+  results          TestResult[]
+  /// Moves of plan revisions that move the booking.
+  revision_moves   PlanRevisionMove[]
 
   @@index([machine_id, starts_at])
   @@index([person_id, starts_at])
-  @@index([machine_id, status, due_date, queued_at])
-  @@index([department_id])
+  @@index([department_id, status])
+  @@index([sample_test_id])
   @@map("medilab_machine_booking")
+}
+
+/// A recalculation of the plan that moves scheduled bookings (Phương Án Xếp Lại Lịch), such as to give urgent work a slot others hold. It is applied once the head of each affected department has approved its moves; a held-back move is left out.
+model PlanRevision {
+  /// Row identifier.
+  id     Int                @id @default(autoincrement())
+  /// Why the plan was recalculated, such as the urgent sample test it makes room for.
+  reason String             @db.Text
+  /// proposed, applied or cancelled; a newer recalculation cancels a revision not yet applied.
+  status String             @db.VarChar
+  /// The bookings the revision moves.
+  moves  PlanRevisionMove[]
+
+  @@index([status])
+  @@map("medilab_plan_revision")
+}
+
+/// One booking a plan revision moves, with its new interval. Its internal due date and committed return date are shown from its sample test and test request. Unique on (revision_id, booking_id).
+model PlanRevisionMove {
+  /// Row identifier.
+  id             Int            @id @default(autoincrement())
+  /// The plan revision.
+  revision_id    Int
+  /// The scheduled booking moved.
+  booking_id     Int
+  /// The department of the booking, whose head approves the move.
+  department_id  Int
+  /// The machine the booking moves to, one linked to the same method; empty when the way needs no machine.
+  machine_id     Int?
+  /// New start of the booking.
+  starts_at      DateTime
+  /// New end of the booking.
+  ends_at        DateTime
+  /// proposed, approved, held_back, conflict, applied or cancelled. A move whose new end passes the internal due date is held back, keeping the booking's slot, until Sales records the customer's agreement to a new committed return date. A pinned booking the plan would move is a conflict and is never applied.
+  status         String         @db.VarChar
+  /// The head of department who approved the move.
+  approved_by_id Int?
+  /// The plan revision.
+  revision       PlanRevision   @relation(fields: [revision_id], references: [id], onDelete: Cascade)
+  /// The scheduled booking moved.
+  booking        MachineBooking @relation(fields: [booking_id], references: [id], onDelete: Restrict)
+  /// The department whose head approves the move.
+  department     Department     @relation(fields: [department_id], references: [id], onDelete: Restrict)
+  /// The machine the booking moves to.
+  machine        Machine?       @relation(fields: [machine_id], references: [id], onDelete: Restrict)
+  /// The head of department who approved the move.
+  approved_by    Person?        @relation(fields: [approved_by_id], references: [id], onDelete: Restrict)
+
+  @@unique([revision_id, booking_id])
+  @@index([booking_id, status])
+  @@index([department_id, status])
+  @@map("medilab_plan_revision_move")
 }
 
 /// A batch of sample tests sent to one subcontractor, with when it was sent and when the results are expected back.

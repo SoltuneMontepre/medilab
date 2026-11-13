@@ -19,6 +19,8 @@ CLEANUP_JOB = "cleanup"
 QUALITY_REGISTRATION_EXPIRY_JOB = "quality_registration.expiry"
 # Key of the job that removes the roles given until a date once that date ends.
 ROLE_GRANTS_EXPIRE_JOB = "role_grants.expire"
+# Key of the job that notifies the bookings whose end passed while they still hold their machine.
+MACHINE_BOOKINGS_OVERRUN_JOB = "machine_bookings.overrun"
 # What the cleanup job removes: each kind, its model and the settings field holding its retention period in days.
 CLEANUP_KINDS = {
     "job_items": (MODEL_JOB_ITEM, "job_retention_days"),

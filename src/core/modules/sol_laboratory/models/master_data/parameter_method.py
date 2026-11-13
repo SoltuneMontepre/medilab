@@ -12,8 +12,8 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_DEPARTMENT,
     MODEL_LOCK_MIXIN,
+    MODEL_MACHINE_METHOD,
     MODEL_PARAMETER_METHOD,
-    MODEL_PARAMETER_METHOD_MACHINE,
     MODEL_PARAMETER_METHOD_SAMPLE_TYPE,
     MODEL_PERMISSION_MIXIN,
     MODEL_SAMPLE_TEST,
@@ -57,6 +57,12 @@ class ParameterMethod(models.Model, ParameterMethodBase):
         department_id = fields.Many2one(MODEL_DEPARTMENT, ondelete="restrict", index=True, domain=DEPARTMENT_DOMAIN)
         # True when its results may be negative, such as a redox potential or a temperature in °C.
         allows_negative = fields.Boolean(string="Negative Results")
+        # Minutes a booking of the way takes when its method is linked to no machine, covering preparation, measurement
+        # and time to repeat a failed measurement; empty when a machine link gives it. An in-house way whose method has
+        # no machine cannot be booked without it.
+        duration_minutes = fields.Integer(string="Duration (minutes)")
+        # Samples one interval of a tester holds for bookings of the way when its method is linked to no machine.
+        capacity = fields.Integer(required=True, default=1)
         # The sample types the way applies to, with the unit, detection limits and default on each.
         applicability_ids = fields.One2many(
             MODEL_PARAMETER_METHOD_SAMPLE_TYPE, "parameter_method_id", string="Sample Types"
@@ -68,6 +74,8 @@ class ParameterMethod(models.Model, ParameterMethodBase):
         "(parameter_id, method_id, COALESCE(subcontractor_id, 0)) WHERE active",
         "The parameter is already tested with this method by the same laboratory.",
     )
+    _duration_not_negative = models.Constraint("CHECK(duration_minutes >= 0)", "A duration cannot be negative.")
+    _capacity_positive = models.Constraint("CHECK(capacity >= 1)", "A way of testing holds at least one sample.")
 
     @api.depends("parameter_id", "method_id", "subcontractor_id")
     def _compute_display_name(self):
@@ -176,7 +184,7 @@ class ParameterMethod(models.Model, ParameterMethodBase):
                 subcontractor=subcontractor.display_name,
                 date=format_date(self.env, subcontractor.accreditation_expiry),
             )
-        links = self.env[MODEL_PARAMETER_METHOD_MACHINE].sudo().search([("parameter_method_id", "=", self.id)])
+        links = self.env[MODEL_MACHINE_METHOD].sudo().search([("method_id", "=", self.method_id.id)])
         now = fields.Datetime.now()
         if links and not any(link.machine_id._usable_until() > now for link in links):
             return self.env._("No machine that runs it is in use with a valid calibration.")

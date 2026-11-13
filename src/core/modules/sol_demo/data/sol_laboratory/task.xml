@@ -226,6 +226,94 @@
         <field name="document_model">medilab.sample.test</field>
         <field name="document_id" eval="ref('demo_sample_test_lead_room_waiting')" />
     </record>
+    <record id="demo_task_sample_test_icpms_lead_1" model="medilab.task">
+        <field name="type_id" ref="sol_laboratory.task_type_sample_test" />
+        <field name="name" model="medilab.sample" eval="obj(ref('demo_sample_icpms_metals_1')).code + ': Lead (Pb)'" />
+        <field name="department_id" ref="demo_hr_department_chemistry" />
+        <field name="assignee_id" ref="demo_person_tester" />
+        <field name="assigned_by_id" ref="demo_person_head_of_department" />
+        <field name="status">assigned</field>
+        <field name="deadline" eval="(DateTime.now() + relativedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="document_model">medilab.sample.test</field>
+        <field name="document_id" eval="ref('demo_sample_test_icpms_lead_1')" />
+    </record>
+    <record id="demo_task_sample_test_icpms_cadmium_1" model="medilab.task">
+        <field name="type_id" ref="sol_laboratory.task_type_sample_test" />
+        <field name="name" model="medilab.sample" eval="obj(ref('demo_sample_icpms_metals_1')).code + ': Cadmium (Cd)'" />
+        <field name="department_id" ref="demo_hr_department_chemistry" />
+        <field name="assignee_id" ref="demo_person_tester" />
+        <field name="assigned_by_id" ref="demo_person_head_of_department" />
+        <field name="status">assigned</field>
+        <field name="deadline" eval="(DateTime.now() + relativedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="document_model">medilab.sample.test</field>
+        <field name="document_id" eval="ref('demo_sample_test_icpms_cadmium_1')" />
+    </record>
+    <record id="demo_task_sample_test_icpms_arsenic_1" model="medilab.task">
+        <field name="type_id" ref="sol_laboratory.task_type_sample_test" />
+        <field name="name" model="medilab.sample" eval="obj(ref('demo_sample_icpms_metals_1')).code + ': Arsenic (As)'" />
+        <field name="department_id" ref="demo_hr_department_chemistry" />
+        <field name="assignee_id" ref="demo_person_tester" />
+        <field name="assigned_by_id" ref="demo_person_head_of_department" />
+        <field name="status">assigned</field>
+        <field name="deadline" eval="(DateTime.now() + relativedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="document_model">medilab.sample.test</field>
+        <field name="document_id" eval="ref('demo_sample_test_icpms_arsenic_1')" />
+    </record>
+    <record id="demo_task_sample_test_icpms_lead_2" model="medilab.task">
+        <field name="type_id" ref="sol_laboratory.task_type_sample_test" />
+        <field name="name" model="medilab.sample" eval="obj(ref('demo_sample_icpms_metals_2')).code + ': Lead (Pb)'" />
+        <field name="department_id" ref="demo_hr_department_chemistry" />
+        <field name="assignee_id" ref="demo_person_chemistry_tester" />
+        <field name="assigned_by_id" ref="demo_person_head_of_department" />
+        <field name="status">assigned</field>
+        <field name="deadline" eval="(DateTime.now() + relativedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="document_model">medilab.sample.test</field>
+        <field name="document_id" eval="ref('demo_sample_test_icpms_lead_2')" />
+    </record>
+    <record id="demo_task_sample_test_icpms_cadmium_2" model="medilab.task">
+        <field name="type_id" ref="sol_laboratory.task_type_sample_test" />
+        <field name="name" model="medilab.sample" eval="obj(ref('demo_sample_icpms_metals_2')).code + ': Cadmium (Cd)'" />
+        <field name="department_id" ref="demo_hr_department_chemistry" />
+        <field name="assignee_id" ref="demo_person_chemistry_tester" />
+        <field name="assigned_by_id" ref="demo_person_head_of_department" />
+        <field name="status">assigned</field>
+        <field name="deadline" eval="(DateTime.now() + relativedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="document_model">medilab.sample.test</field>
+        <field name="document_id" eval="ref('demo_sample_test_icpms_cadmium_2')" />
+    </record>
+    <record id="demo_task_sample_test_icpms_arsenic_2" model="medilab.task">
+        <field name="type_id" ref="sol_laboratory.task_type_sample_test" />
+        <field name="name" model="medilab.sample" eval="obj(ref('demo_sample_icpms_metals_2')).code + ': Arsenic (As)'" />
+        <field name="department_id" ref="demo_hr_department_chemistry" />
+        <field name="assignee_id" ref="demo_person_chemistry_tester" />
+        <field name="assigned_by_id" ref="demo_person_head_of_department" />
+        <field name="status">assigned</field>
+        <field name="deadline" eval="(DateTime.now() + relativedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="document_model">medilab.sample.test</field>
+        <field name="document_id" eval="ref('demo_sample_test_icpms_arsenic_2')" />
+    </record>
+    <record id="demo_task_sample_test_lead_overrun" model="medilab.task">
+        <field name="type_id" ref="sol_laboratory.task_type_sample_test" />
+        <field name="name" model="medilab.sample" eval="obj(ref('demo_sample_lead_overrun')).code + ': Lead (Pb)'" />
+        <field name="department_id" ref="demo_hr_department_chemistry" />
+        <field name="assignee_id" ref="demo_person_chemistry_tester" />
+        <field name="assigned_by_id" ref="demo_person_head_of_department" />
+        <field name="status">in_progress</field>
+        <field name="deadline" eval="(DateTime.now() + relativedelta(days=3)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="document_model">medilab.sample.test</field>
+        <field name="document_id" eval="ref('demo_sample_test_lead_overrun')" />
+    </record>
+    <record id="demo_task_sample_test_lead_overrun_next" model="medilab.task">
+        <field name="type_id" ref="sol_laboratory.task_type_sample_test" />
+        <field name="name" model="medilab.sample" eval="obj(ref('demo_sample_lead_overrun_next')).code + ': Lead (Pb)'" />
+        <field name="department_id" ref="demo_hr_department_chemistry" />
+        <field name="assignee_id" ref="demo_person_chemistry_tester" />
+        <field name="assigned_by_id" ref="demo_person_head_of_department" />
+        <field name="status">assigned</field>
+        <field name="deadline" eval="(DateTime.now() + relativedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="document_model">medilab.sample.test</field>
+        <field name="document_id" eval="ref('demo_sample_test_lead_overrun_next')" />
+    </record>
     <record id="demo_task_sample_test_label_scan_lead" model="medilab.task">
         <field name="type_id" ref="sol_laboratory.task_type_sample_test" />
         <field name="name" model="medilab.sample" eval="obj(ref('demo_sample_label_scan')).code + ': Lead (Pb)'" />

@@ -953,11 +953,6 @@ msgid "A role with this code already exists."
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_method_machine_run_minutes_positive
-msgid "A run takes at least one minute."
-msgstr ""
-
-#. module: sol_laboratory
 #: model:mail.message.subtype,description:sol_laboratory.event_sample_insufficient
 msgid "A sample arrived insufficient and is on hold"
 msgstr ""
@@ -3199,11 +3194,6 @@ msgid "Create machines"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_machine_create_all
-msgid "Create machines for ways of testing"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_measurement_unit_create_all
 msgid "Create measurement units"
 msgstr ""
@@ -3428,7 +3418,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__create_uid
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__create_uid
@@ -3473,6 +3462,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__create_uid
 msgid "Created by"
 msgstr ""
 
@@ -3520,7 +3510,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__create_date
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__create_date
@@ -3565,6 +3554,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__create_date
 msgid "Created on"
 msgstr ""
 
@@ -3927,11 +3917,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_machine_delete_all
 msgid "Delete machines"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_machine_delete_all
-msgid "Delete machines for ways of testing"
 msgstr ""
 
 #. module: sol_laboratory
@@ -4337,7 +4322,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__display_name
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission_mixin__display_name
@@ -4390,6 +4374,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -4794,11 +4779,6 @@ msgid "Edit machines"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_machine_edit_all
-msgid "Edit machines for ways of testing"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_measurement_unit_edit_all
 msgid "Edit measurement units"
 msgstr ""
@@ -5035,7 +5015,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__lock_message
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__lock_message
@@ -5066,6 +5045,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__lock_message
 msgid "Editing Lock"
 msgstr ""
 
@@ -6136,7 +6116,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__id
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission_mixin__id
@@ -6189,6 +6168,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__id
 msgid "ID"
 msgstr ""
 
@@ -6953,7 +6933,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__write_uid
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__write_uid
@@ -6998,6 +6977,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__write_uid
 msgid "Last Updated by"
 msgstr ""
 
@@ -7045,7 +7025,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__write_date
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__write_date
@@ -7090,6 +7069,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__write_date
 msgid "Last Updated on"
 msgstr ""
 
@@ -7331,10 +7311,10 @@ msgstr ""
 #: model:ir.model,name:sol_laboratory.model_medilab_machine
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__machine_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__machine_id
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__machine_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__machine_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__machine_id
 msgid "Machine"
 msgstr ""
 
@@ -7359,11 +7339,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_machine_service
 msgid "Machine Service"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model,name:sol_laboratory.model_medilab_parameter_method_machine
-msgid "Machine for a Way of Testing"
 msgstr ""
 
 #. module: sol_laboratory
@@ -10036,21 +10011,6 @@ msgid "Permission: parameter.method.edit.own_department"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_machine_create_all
-msgid "Permission: parameter.method.machine.create.all"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_machine_delete_all
-msgid "Permission: parameter.method.machine.delete.all"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_machine_edit_all
-msgid "Permission: parameter.method.machine.edit.all"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_parameter_method_sample_type_create_all
 msgid "Permission: parameter.method.sample.type.create.all"
 msgstr ""
@@ -12411,11 +12371,6 @@ msgid "Rtc Session"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__run_minutes
-msgid "Run Minutes"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__run_requested_at
 msgid "Run Requested At"
 msgstr ""
@@ -13707,6 +13662,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sampling_requirement__method_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__method_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__method_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__method_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__method_id
 msgid "Testing Method"
 msgstr ""
 
@@ -13723,6 +13680,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sampling_snapshot_mixin__method_ids
 #: model:ir.ui.menu,name:sol_laboratory.menu_testing_method
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_chemical_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__method_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_form
 msgid "Testing Methods"
 msgstr ""
 
@@ -14230,13 +14189,9 @@ msgid "The logo must be a PNG or JPEG image of at most 2 MB."
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_booking_no_overlap
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_booking_machine_same_end
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_booking_machine_same_start
 msgid "The machine already has a booking at that time."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_method_machine_pair_machine_unique
-msgid "The machine is already linked to this way of testing."
 msgstr ""
 
 #. module: sol_laboratory
@@ -15469,7 +15424,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__lock_watched
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__lock_watched
@@ -15500,12 +15454,12 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__lock_watched
 msgid "Watching Lock"
 msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_parameter_method
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__parameter_method_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__parameter_method_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__parameter_method_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__parameter_method_id
@@ -15517,7 +15471,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__parameter_method_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__method_ids
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_parameter_form
 msgid "Ways of Testing"
 msgstr ""
@@ -16853,6 +16806,254 @@ msgstr ""
 #: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch.py:0
 msgid "The subcontractor's report is kept; attach another file to replace it."
 msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking.py:0
+msgid "%s cannot join an interval that has started."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_method_duration_positive
+msgid "A booking takes at least one minute."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_method_duration_not_negative
+msgid "A duration cannot be negative."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_method_capacity_positive
+msgid "A machine holds at least one sample."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_method_capacity_positive
+msgid "A way of testing holds at least one sample."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__capacity
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__capacity
+msgid "Capacity"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_method_create_all
+msgid "Create machines for testing methods"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_method_delete_all
+msgid "Delete machines for testing methods"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__duration_minutes
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__duration_minutes
+msgid "Duration (minutes)"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_method_edit_all
+msgid "Edit machines for testing methods"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_machine_method
+msgid "Machine for a Testing Method"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_machine_method_create_all
+msgid "Permission: machine.method.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_machine_method_delete_all
+msgid "Permission: machine.method.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_machine_method_edit_all
+msgid "Permission: machine.method.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking.py:0
+msgid "The interval of %(booking)s is full: it holds %(capacity)s samples."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_booking_machine_one_method
+msgid "The machine already runs another testing method at that time."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_method_machine_method_unique
+msgid "The machine is already linked to this testing method."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/machine_booking_scheduled_job.py:0
+msgid "%(booking)s on %(machine)s ended at %(end)s without its result or a finished measurement, so it still holds the machine."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_conditions.py:0
+msgid "%(machine)s was repaired on %(date)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_conditions.py:0
+msgid "%s has no valid calibration until the end of the booking; record a calibration first."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_conditions.py:0
+msgid "%s is not in use."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_conditions.py:0
+msgid "%s is out of use for a planned service at that time."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__calibration_warning_days
+msgid "A booking that ends within this many days before its machine's calibration ends warns its tester."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__maintenance_warning_days
+msgid "A booking that ends within this many days before its machine's maintenance is due warns its tester."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__repair_warning_days
+msgid "A booking that starts within this many days after its machine's repair warns its tester."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_machine_booking_overrun
+msgid "A booking's end passed before its result was entered or its measurement finished"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_service_downtime_period
+msgid "A downtime has a start and an end after it."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/res_config_settings.py:0
+msgid "A machine warning cannot be negative; 0 turns it off."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_conditions.py:0
+msgid "At risk: %(holder)s still holds %(machine)s past its end."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/machine_booking_scheduled_job.py:0
+msgid "At risk: %s."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__booking_id
+msgid "Booking"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__calibration_warning_days
+msgid "Calibration Warning (days)"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__downtime_end
+msgid "Downtime End"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__downtime_start
+msgid "Downtime Start"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_machine_service__service_date
+msgid "Leave empty while the service is planned."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__machine_warning
+msgid "Machine Warning"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_machine_booking_overrun
+msgid "Machine booking overran"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__maintenance_warning_days
+msgid "Maintenance Warning (days)"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_machine_bookings_overrun_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_machine_bookings_overrun
+msgid "Notify overrunning machine bookings"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/machine_service.py:0
+msgid "Planned"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__repair_warning_days
+msgid "Recent Repair Warning (days)"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/machine.py:0
+msgid "Record a calibration or maintenance of %(machine)s done after its repair on %(date)s before putting it back in use."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_conditions.py:0
+msgid "The booking's end has passed: enter its result or mark the measurement finished to free %s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_conditions.py:0
+msgid "The calibration of %(machine)s ends on %(date)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_conditions.py:0
+msgid "The maintenance of %(machine)s is due on %(date)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_conditions.py:0
+msgid "The maintenance of %(machine)s was due on %(date)s; record it before booking the machine."
 
 #. module: sol_laboratory
 #. odoo-python

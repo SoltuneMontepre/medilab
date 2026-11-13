@@ -29,6 +29,7 @@ const BOOKING_FIELDS = [
   "display_name",
   "sample_test_id",
   "machine_id",
+  "method_id",
   "person_id",
   "starts_at",
   "ends_at",

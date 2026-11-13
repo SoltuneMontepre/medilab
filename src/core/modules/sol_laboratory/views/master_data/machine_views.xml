@@ -53,6 +53,8 @@
                                 <list editable="top">
                                     <field name="kind" />
                                     <field name="service_date" />
+                                    <field name="downtime_start" optional="show" />
+                                    <field name="downtime_end" optional="show" />
                                     <field name="next_due_date" />
                                     <field name="performed_by" />
                                     <field name="reference" />
@@ -60,11 +62,12 @@
                                 </list>
                             </field>
                         </page>
-                        <page string="Ways of Testing" name="parameter_methods">
-                            <field name="parameter_method_ids">
+                        <page string="Testing Methods" name="methods">
+                            <field name="method_ids">
                                 <list editable="bottom">
-                                    <field name="parameter_method_id" />
-                                    <field name="run_minutes" />
+                                    <field name="method_id" />
+                                    <field name="duration_minutes" />
+                                    <field name="capacity" />
                                 </list>
                             </field>
                         </page>

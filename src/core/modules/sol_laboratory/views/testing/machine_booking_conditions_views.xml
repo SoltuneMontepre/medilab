@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_machine_booking_form_conditions" model="ir.ui.view">
+        <field name="name">medilab.machine.booking.form.conditions</field>
+        <field name="model">medilab.machine.booking</field>
+        <field name="inherit_id" ref="view_medilab_machine_booking_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="before">
+                <div
+                    class="alert alert-warning mb-0"
+                    role="alert"
+                    invisible="not machine_warning or status not in ('scheduled', 'in_progress')"
+                >
+                    <field name="machine_warning" />
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_medilab_machine_booking_list_conditions" model="ir.ui.view">
+        <field name="name">medilab.machine.booking.list.conditions</field>
+        <field name="model">medilab.machine.booking</field>
+        <field name="inherit_id" ref="view_medilab_machine_booking_list" />
+        <field name="arch" type="xml">
+            <field name="ends_at" position="after">
+                <field name="machine_warning" optional="show" />
+            </field>
+        </field>
+    </record>
+</odoo>

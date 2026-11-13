@@ -57,4 +57,39 @@
         <field name="name">UV-Vis spectrophotometer 1</field>
         <field name="location_id" ref="demo_location_chemistry_bench_2" />
     </record>
+    <!-- Installed and not yet calibrated, so it cannot be booked. -->
+    <record id="demo_machine_hplc" model="medilab.machine">
+        <field name="code">HPLC-01</field>
+        <field name="name">High-performance liquid chromatograph 1</field>
+        <field name="model">1260 Infinity II</field>
+        <field name="manufacturer">Agilent</field>
+        <field name="serial_number">DEAEX01234</field>
+        <field name="location_id" ref="demo_location_chemistry_bench_3" />
+    </record>
+    <!-- Its maintenance is overdue, so it takes no new booking until the planned maintenance is recorded. -->
+    <record id="demo_machine_gc" model="medilab.machine">
+        <field name="code">GC-01</field>
+        <field name="name">Gas chromatograph 1</field>
+        <field name="model">GC-2030</field>
+        <field name="manufacturer">Shimadzu</field>
+        <field name="serial_number">C11845200871</field>
+        <field name="location_id" ref="demo_location_chemistry_bench_3" />
+        <field name="maintenance_interval_days">90</field>
+    </record>
+    <record id="demo_machine_balance" model="medilab.machine">
+        <field name="code">BAL-01</field>
+        <field name="name">Analytical balance 1</field>
+        <field name="model">XPR205</field>
+        <field name="manufacturer">Mettler Toledo</field>
+        <field name="serial_number">B915302741</field>
+        <field name="location_id" ref="demo_location_chemistry_bench_2" />
+    </record>
+    <record id="demo_machine_ph_meter" model="medilab.machine">
+        <field name="code">PH-01</field>
+        <field name="name">pH meter 1</field>
+        <field name="model">SevenExcellence S400</field>
+        <field name="manufacturer">Mettler Toledo</field>
+        <field name="serial_number">B935017722</field>
+        <field name="location_id" ref="demo_location_chemistry_bench_2" />
+    </record>
 </odoo>

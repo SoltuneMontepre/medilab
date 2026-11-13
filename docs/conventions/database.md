@@ -38,8 +38,8 @@ Code-first: changes and updates are available later.
   ```
 
   ```python
-  # Links parameter and method pairs to the machines that can run them, with the run time.
-  class ParameterMethodMachine(models.Model):
+  # Links testing methods to the machines that run them, with the booking duration and capacity.
+  class MachineMethod(models.Model):
   ```
 
 - Every field has a comment on the line above it saying what data it holds, including relational fields:
