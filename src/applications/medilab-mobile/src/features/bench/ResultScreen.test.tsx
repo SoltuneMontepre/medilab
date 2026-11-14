@@ -56,6 +56,15 @@ describe("ResultScreen", () => {
     expect(mediLab.sent[1].body).toEqual({ confirmed: true, warnings_acknowledged: true });
   });
 
+  it("keeps the measured decimals of a draft it changes", async () => {
+    fakeMediLab({ status: 200, body: result({ value: 0.0095, decimals: 3 }) });
+    await renderSignedIn(<ResultScreen />);
+
+    await fireEvent.press(await screen.findByRole("button", { name: "Sửa kết quả" }));
+
+    expect(screen.getByLabelText("Giá trị (mg/L)")).toHaveDisplayValue("0.0095");
+  });
+
   it("changes a draft", async () => {
     const mediLab = fakeMediLab(
       { status: 200, body: result() },

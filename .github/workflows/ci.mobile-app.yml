@@ -31,7 +31,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      # A nightly run has no change to compare; it runs only the Maestro flows.
       - name: Detect relevant changes
+        if: github.event_name != 'schedule'
         id: filter
         uses: dorny/paths-filter@v4
         with:

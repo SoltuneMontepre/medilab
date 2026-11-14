@@ -17,7 +17,9 @@ export function parseNumber(typed: string): { value: number; decimals: number } 
   return { value: Number(`${match[1]}.${match[2] ?? "0"}`), decimals };
 }
 
-/** The value as the tester typed it, with its decimals. */
+/** The value with its decimals, and never fewer than it was measured with, so changing a draft keeps its value. */
 export function typedNumber(value: number, decimals: number): string {
-  return value.toFixed(decimals);
+  const written = String(value);
+  const measured = written.includes("e") ? decimals : (written.split(".")[1]?.length ?? 0);
+  return value.toFixed(Math.min(Math.max(decimals, measured), MOST_DECIMALS));
 }
