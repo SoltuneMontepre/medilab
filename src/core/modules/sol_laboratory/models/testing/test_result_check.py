@@ -78,7 +78,7 @@ class TestResultCheck(models.Model, TestResultCheckBase):
         return self.env._(
             "%(value)s is more than %(deviations)s standard deviations from %(mean)s, the mean of the %(count)s "
             "approved results of this way of testing on this sample type.",
-            value=self._with_unit(self.value, self.value_decimals, self.unit_id),
+            value=self._shown_value(),
             deviations=plain_number(self.env, deviations),
             mean=self._with_unit(mean, self.value_decimals, self.unit_id),
             count=len(values),
@@ -97,7 +97,7 @@ class TestResultCheck(models.Model, TestResultCheckBase):
                 warnings.append(
                     self.env._(
                         "%(value)s is within %(margin)s%% of the regulation limit %(limit)s.",
-                        value=self._with_unit(self.value, self.value_decimals, self.unit_id),
+                        value=self._shown_value(),
                         margin=plain_number(self.env, margin),
                         limit=self._with_unit(limit, self.limit_decimals or plain_digits(limit), unit),
                     )
@@ -112,6 +112,11 @@ class TestResultCheck(models.Model, TestResultCheckBase):
         if limit_unit.category_id != unit.category_id:
             return None
         return limit * limit_unit.factor / unit.factor
+
+    def _shown_value(self):
+        """The value with its unit and at least the decimals it was measured with, so a value close to a limit is not
+        rounded onto it."""
+        return self._with_unit(self.value, max(self.value_decimals, plain_digits(self.value)), self.unit_id)
 
     def _with_unit(self, number, digits, unit):
         shown = formatLang(self.env, number, digits=digits, rounding_method="HALF-UP")

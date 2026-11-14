@@ -4,6 +4,7 @@ from .result_case import ResultCase
 from odoo.addons.sol_laboratory.constants.models import MODEL_MEASUREMENT_UNIT, MODEL_TEST_RESULT
 from odoo.addons.sol_laboratory.constants.settings import RESULT_CHECK_MARGIN_PARAMETER, RESULT_CHECK_MINIMUM_PARAMETER
 
+
 def text(value) -> str:
     """The warning a text field holds; empty when it holds none."""
     return value if isinstance(value, str) else ""
@@ -58,7 +59,7 @@ class TestResultSanityCheck(SanityCheckCase):
         far = self.enter(value=0.0062)
         self.assertFalse(far.check_preview)
         near_limit = self.enter(value=0.0095)
-        self.assertIn("is within 10% of the regulation limit 0.01 mg/g", text(near_limit.check_preview))
+        self.assertIn("0.0095 mg/g is within 10% of the regulation limit 0.01 mg/g", text(near_limit.check_preview))
         self.assertNotIn("standard deviations", text(near_limit.check_preview))
 
     def test_the_minimum_count_and_the_margin_are_system_parameters(self):
