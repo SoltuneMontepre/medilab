@@ -1,4 +1,3 @@
-from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
@@ -23,12 +22,14 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_REGULATION,
     MODEL_SAMPLE_TEST,
     MODEL_SAMPLE_TYPE,
+    MODEL_SIGNATURE,
     MODEL_TEST_REPORT,
     MODEL_TEST_RESULT,
 )
 from odoo.addons.sol_laboratory.constants.notifications import EVENT_TEST_RESULT_REJECTED
 from odoo.addons.sol_laboratory.fields.nullable_float import NullableFloat
 from odoo.addons.sol_laboratory.models.testing.machine_booking import ACTIVE_STATUSES
+from odoo.addons.sol_laboratory.services.number_text import plain_digits, plain_number
 
 if TYPE_CHECKING:
     from medilab_model_types import Model_medilab_test_result as TestResultBase
@@ -62,6 +63,7 @@ SYSTEM_FIELDS = frozenset(
         "version",
         "replaces_id",
         "is_replaced",
+        "check_warning",
         *SOURCE_FIELDS,
         *LIMIT_FIELDS,
     }
@@ -210,6 +212,8 @@ class TestResult(models.Model, TestResultBase):
         replaces_id = fields.Many2one(MODEL_TEST_RESULT, readonly=True, copy=False, ondelete="restrict")
         # True when a newer version replaces this result.
         is_replaced = fields.Boolean(string="Replaced", readonly=True, copy=False)
+        # The signatures and rejections given on the result, withdrawn ones included.
+        signature_ids = fields.Many2many(MODEL_SIGNATURE, compute="_compute_signature_ids", string="Signatures")
 
     _replaces_unique = models.Constraint("UNIQUE(replaces_id)", "A result is replaced by one newer version.")
     _one_reported = models.UniqueIndex(
@@ -226,6 +230,11 @@ class TestResult(models.Model, TestResultBase):
             test = result.sudo().sample_test_id
             entered = format_datetime(self.env, result.entered_at)
             result.display_name = f"{test.sample_id.code} – {test.parameter_id.name} ({entered})"
+
+    def _compute_signature_ids(self):
+        signatures = self._approval_signatures()
+        for result in self:
+            result.signature_ids = signatures.get(result.id, self.env[MODEL_SIGNATURE])
 
     def _document_code(self):
         """A push and Medilab Mobile name a result by its sample's lab code."""
@@ -267,7 +276,7 @@ class TestResult(models.Model, TestResultBase):
             regulation = result.sample_test_id.sudo().sample_id.regulation_id
             limit = result._regulation_limit()
             result.regulation_id = regulation
-            result.comparison_requested = result.sample_test_id.parameter_id in regulation.limit_ids.parameter_id
+            result.comparison_requested = result.sample_test_id._comparison_requested()
             result.limit_unit_id = limit.unit_id
             result.limit_min_set = limit.min_set
             result.limit_min = limit.min_value
@@ -431,6 +440,22 @@ class TestResult(models.Model, TestResultBase):
             )
         )
 
+    def _limit_range(self, env):
+        """The copied minimum and maximum in the language of env, such as "≤ 0.010", with their decimals, or else the
+        decimals they have; empty when neither is set."""
+        self.ensure_one()
+        low = self.limit_min_set and formatLang(
+            env, self.limit_min, digits=self.limit_decimals or plain_digits(self.limit_min)
+        )
+        high = self.limit_max_set and formatLang(
+            env, self.limit_max, digits=self.limit_decimals or plain_digits(self.limit_max)
+        )
+        if low and high:
+            return f"{low} – {high}"
+        if high:
+            return f"≤ {high}"
+        return f"≥ {low}" if low else ""
+
     def _applicability(self):
         # The decimals of the way of testing on the sample type; empty when it does not apply to it.
         self.ensure_one()
@@ -444,8 +469,7 @@ class TestResult(models.Model, TestResultBase):
         self.ensure_one()
         for threshold, which in ((self.lod, env._("below LOD")), (self.loq, env._("below LOQ"))):
             if threshold is not False and self.value < threshold:
-                digits = max(0, -int(Decimal(repr(threshold)).normalize().as_tuple().exponent))
-                shown = formatLang(env, threshold, digits=digits)
+                shown = plain_number(env, threshold)
                 unit = self.unit_id.with_env(env).name
                 return f"<{shown} {unit} ({which})" if unit else f"<{shown} ({which})"
         return False

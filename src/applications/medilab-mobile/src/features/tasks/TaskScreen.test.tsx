@@ -2,6 +2,7 @@ import { fireEvent, screen } from "@testing-library/react-native";
 import { router, useLocalSearchParams } from "expo-router";
 
 import type { TaskDetail } from "../../api";
+import { sampleTest } from "../../testing/bench";
 import { fakeMediLab, kept, refusal } from "../../testing/fakeMediLab";
 import { task } from "../../testing/home";
 import { renderSignedIn } from "../../testing/renderSignedIn";
@@ -38,6 +39,8 @@ const QUEUED = detail({
   ],
   actions: { ...NO_ACTIONS, claim: true },
 });
+// The sample test the testing task opens, which takes no result while the task waits in the queue.
+const TEST = { status: 200, body: sampleTest({ can_enter_result: false }) };
 
 describe("TaskScreen", () => {
   beforeEach(() => {
@@ -46,28 +49,29 @@ describe("TaskScreen", () => {
     jest.mocked(useLocalSearchParams).mockReturnValue({ id: "11" });
   });
 
-  it("shows a testing task with its method's steps and claims it", async () => {
+  it("shows a testing task with its test and its method's steps and claims it", async () => {
     const claimed = { ...QUEUED, status: "assigned" as const, assignee: "Nguyễn Văn An", actions: NO_ACTIONS };
-    const mediLab = fakeMediLab({ status: 200, body: QUEUED }, { status: 200, body: claimed });
+    const mediLab = fakeMediLab({ status: 200, body: QUEUED }, TEST, { status: 200, body: claimed });
     await renderSignedIn(<TaskScreen />);
 
     expect(await screen.findByText("Bước 1 · 15 phút")).toBeOnTheScreen();
+    expect(await screen.findByText("Chì (Pb) – TCVN 7602:2007")).toBeOnTheScreen();
+    expect(screen.getByText("PTN.2026.0042")).toBeOnTheScreen();
+    expect(screen.queryByRole("button", { name: "Nhập kết quả" })).toBeNull();
     expect(screen.getByText("Ash the test portion.")).toBeOnTheScreen();
     expect(screen.getByText("Tại: Balance room")).toBeOnTheScreen();
     expect(screen.queryByRole("button", { name: "Đánh dấu xong" })).toBeNull();
 
     await fireEvent.press(screen.getByRole("button", { name: "Nhận việc" }));
 
-    expect(mediLab.sent[1]).toMatchObject({ method: "POST", url: "https://lab.example/medilab/api/v1/tasks/11/claim" });
+    expect(mediLab.sent[1].url).toBe("https://lab.example/medilab/api/v1/sample-tests/4");
+    expect(mediLab.sent[2]).toMatchObject({ method: "POST", url: "https://lab.example/medilab/api/v1/tasks/11/claim" });
     expect(await screen.findByText("Nguyễn Văn An")).toBeOnTheScreen();
     expect(screen.queryByRole("button", { name: "Nhận việc" })).toBeNull();
   });
 
   it("tells the second person to claim a task that it is already claimed", async () => {
-    fakeMediLab(
-      { status: 200, body: QUEUED },
-      refusal(409, "already_claimed", "Lead (Pb) đã có người nhận."),
-    );
+    fakeMediLab({ status: 200, body: QUEUED }, TEST, refusal(409, "already_claimed", "Lead (Pb) đã có người nhận."));
     await renderSignedIn(<TaskScreen />);
 
     await fireEvent.press(await screen.findByRole("button", { name: "Nhận việc" }));
@@ -95,16 +99,25 @@ describe("TaskScreen", () => {
   });
 
   it("opens the task's document at its action, and assigns it with the permission", async () => {
-    fakeMediLab({ status: 200, body: { ...QUEUED, actions: { ...NO_ACTIONS, assign: true } } });
+    fakeMediLab({ status: 200, body: { ...QUEUED, actions: { ...NO_ACTIONS, assign: true } } }, TEST);
     await renderSignedIn(<TaskScreen />);
 
     await fireEvent.press(await screen.findByRole("button", { name: "Mở MS-2026-0042" }));
-    expect(router.push).toHaveBeenCalledWith({
-      pathname: "/documents/[model]/[id]",
-      params: { model: "medilab.sample.test", id: "4" },
-    });
+    expect(router.push).toHaveBeenCalledWith({ pathname: "/sample-tests/[id]", params: { id: "4" } });
     await fireEvent.press(screen.getByRole("button", { name: "Giao việc" }));
     expect(router.push).toHaveBeenLastCalledWith({ pathname: "/tasks/[id]/assign", params: { id: "11" } });
+  });
+
+  it("opens the result entry of the testing task the person works on", async () => {
+    fakeMediLab(
+      { status: 200, body: { ...QUEUED, status: "in_progress", actions: { ...NO_ACTIONS, done: false } } },
+      { status: 200, body: sampleTest() },
+    );
+    await renderSignedIn(<TaskScreen />);
+
+    await fireEvent.press(await screen.findByRole("button", { name: "Nhập kết quả" }));
+
+    expect(router.push).toHaveBeenCalledWith({ pathname: "/sample-tests/[id]", params: { id: "4" } });
   });
 
   it("says when the person can no longer see the task", async () => {
@@ -115,7 +128,7 @@ describe("TaskScreen", () => {
   });
 
   it("keeps the task as it was when an action cannot reach MediLab", async () => {
-    const mediLab = fakeMediLab({ status: 200, body: QUEUED }, "unreachable");
+    const mediLab = fakeMediLab({ status: 200, body: QUEUED }, TEST, "unreachable");
     await renderSignedIn(<TaskScreen />);
 
     await fireEvent.press(await screen.findByRole("button", { name: "Nhận việc" }));
@@ -123,6 +136,6 @@ describe("TaskScreen", () => {
     expect(await screen.findByText(/Không kết nối được MediLab/)).toBeOnTheScreen();
     mediLab.plan({ status: 200, body: { ...QUEUED, actions: NO_ACTIONS } });
     await fireEvent.press(screen.getByRole("button", { name: "Thử lại" }));
-    expect(mediLab.sent[2].url).toBe("https://lab.example/medilab/api/v1/tasks/11/claim");
+    expect(mediLab.sent[3].url).toBe("https://lab.example/medilab/api/v1/tasks/11/claim");
   });
 });

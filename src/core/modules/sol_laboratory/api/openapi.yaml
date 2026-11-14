@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: MediLab laboratory files API
-  version: 1.8.0
+  version: 1.9.0
   description: |
     The API Medilab Sync signs computers in with and reaches laboratory files through, and Medilab Mobile signs phones
     in with. Every refusal answers `{"error": {"code", "message"}}` with the HTTP status of its code; a device acts on
@@ -20,7 +20,7 @@ info:
     | `permission_denied`, `device_revoked` | 403 |
     | `not_found` | 404 |
     | `method_not_allowed` | 405 |
-    | `folder_archived`, `folder_disabled`, `folder_exists`, `locked`, `not_locked`, `upload_incomplete`, `upload_closed`, `action_refused`, `already_claimed` | 409 |
+    | `folder_archived`, `folder_disabled`, `folder_exists`, `locked`, `not_locked`, `upload_incomplete`, `upload_closed`, `action_refused`, `already_claimed`, `result_warning` | 409 |
     | `not_eligible`, `not_lockable`, `not_editable`, `idempotency_conflict`, `mandatory_event` | 422 |
     | `too_many_attempts` | 429 |
     | `internal_error` | 500 |
@@ -46,6 +46,8 @@ tags:
     description: The person's day, to-do list and queues, and the actions on tasks.
   - name: Samples
     description: Scanning a sample's label to record its receipt or claim its testing tasks.
+  - name: Results
+    description: Testing at the bench, entering results and signing or rejecting them.
 paths:
   /health:
     get:
@@ -977,6 +979,297 @@ paths:
           $ref: "#/components/responses/MethodNotAllowed"
         "409":
           $ref: "#/components/responses/ClaimRefused"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /sample-tests/{sample_test_id}:
+    parameters:
+      - name: sample_test_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: getSampleTest
+      tags: [Results]
+      summary: Gives the sample test a testing task opens, with its reported result.
+      description: |
+        Its lab code, parameter, way of testing and due date, the unit and decimals of the way on the sample's type,
+        whether the sample's regulation is compared, whether the person may enter a result now and the reported result
+        as they may read it. A test the person may not read answers `not_found`.
+      responses:
+        "200":
+          description: The sample test.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SampleTest"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /sample-tests/{sample_test_id}/results:
+    parameters:
+      - name: sample_test_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      operationId: enterSampleTestResult
+      tags: [Results]
+      summary: Enters a result of the sample test, as a number or a text, with its conclusion.
+      description: |
+        The result is entered with the person's rights, so its unit, its copied limit, its machine and its start are
+        worked out as on the web, and it becomes the test's reported result. A test that takes no result now is refused
+        with `action_refused`, a person without the permission to enter results with `permission_denied`. With an
+        `Idempotency-Key`, repeating the request answers with the result it entered.
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewResult"
+      responses:
+        "200":
+          description: The result entered.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Result"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /results:
+    get:
+      operationId: listResults
+      tags: [Results]
+      summary: Lists the results waiting for the person's signature.
+      description: |
+        The results awaiting approval that the person may read and may sign now, oldest first: for a head of
+        department, those of their department at their level. `next_after` is the `after` of the next page, or empty
+        after the last one.
+      parameters:
+        - name: awaiting
+          in: query
+          required: true
+          schema:
+            enum: [me]
+        - name: after
+          in: query
+          required: false
+          description: The `next_after` of the page before, how many results the pages before gave; 0 or none from the start.
+          schema:
+            type: string
+            pattern: "^[0-9]{1,9}$"
+        - name: limit
+          in: query
+          required: false
+          description: How many to give, from 1 to 100; 50 by default.
+          schema:
+            type: string
+            pattern: "^(100|[1-9][0-9]?)$"
+      responses:
+        "200":
+          description: The results.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResultList"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /results/{result_id}:
+    parameters:
+      - name: result_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: getResult
+      tags: [Results]
+      summary: Gives the result with its status, its warnings and what the person may do with it.
+      description: |
+        A result that is approved, or waits for someone else's signature, takes no action. A result the person may not
+        read answers `not_found`.
+      responses:
+        "200":
+          description: The result.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Result"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+    patch:
+      operationId: changeResult
+      tags: [Results]
+      summary: Changes a draft result as the web's form does.
+      description: |
+        Only the values sent change. A result that is not a draft is refused with `action_refused`, a person without
+        the permission to change it with `permission_denied`. The machine and the start are changed on the web only.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResultChange"
+      responses:
+        "200":
+          description: The result changed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Result"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /results/{result_id}/sign:
+    parameters:
+      - name: result_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      operationId: signResult
+      tags: [Results]
+      summary: Sends the result for approval or approves it with the person's signature.
+      description: |
+        `confirmed` is sent only from the app's confirmation step, so signing is a deliberate action. The approval
+        chain decides the level: a tester's signature sends the result, a head of department's approves it, and a head
+        may approve a result they entered. Sending a draft the sanity check warns about without
+        `warnings_acknowledged` is refused with `result_warning`; any other refusal of the approval with
+        `action_refused`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResultSignature"
+      responses:
+        "200":
+          description: The result signed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Result"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/SigningRefused"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /results/{result_id}/reject:
+    parameters:
+      - name: result_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      operationId: rejectResult
+      tags: [Results]
+      summary: Rejects the result with a reason, which the person who entered it receives.
+      description: |
+        An empty or blank reason, or a person who may not reject the result at its level, is refused with
+        `action_refused`. The rejected result stays on record and a new testing task opens for its test.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResultRejection"
+      responses:
+        "200":
+          description: The result rejected.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Result"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
         "500":
           $ref: "#/components/responses/InternalError"
         "503":
@@ -2520,6 +2813,253 @@ components:
           uniqueItems: true
           items:
             type: integer
+    SampleTest:
+      description: A sample test at the bench, as the person may see it.
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - code
+        - parameter
+        - way
+        - due_date
+        - status
+        - unit
+        - decimals
+        - regulation
+        - comparison_requested
+        - can_enter_result
+        - result
+      properties:
+        id:
+          type: integer
+        code:
+          description: The sample's lab code.
+          type: string
+        parameter:
+          type: string
+        way:
+          description: The way of testing chosen for the test; empty until one is chosen.
+          type: string
+        due_date:
+          type: [string, "null"]
+          format: date-time
+        status:
+          description: The test's status as the web shows it, in the person's language.
+          type: string
+        unit:
+          description: The unit a result is entered in, that of the way of testing on the sample's type.
+          type: string
+        decimals:
+          description: The decimals a result shows unless the tester sets others.
+          type: integer
+        regulation:
+          description: The sample's regulation; empty when it has none.
+          type: string
+        comparison_requested:
+          description: Whether a result is assessed against the regulation, so it needs a conclusion before it is sent.
+          type: boolean
+        can_enter_result:
+          description: Whether the person may enter a result now; a draft reported result is changed instead.
+          type: boolean
+        result:
+          description: The test's reported result; null before one is entered.
+          oneOf:
+            - $ref: "#/components/schemas/Result"
+            - type: "null"
+    ResultChange:
+      description: The values of a result to set; a value left out stays as it is.
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        value:
+          description: The measured value in the unit; kept beside a text, such as a value below the LOD.
+          type: number
+        value_text:
+          description: The result as a text when it is not a number, such as "Not detected"; null clears it.
+          type: [string, "null"]
+          maxLength: 500
+        decimals:
+          description: The decimals the value shows.
+          type: integer
+          minimum: 0
+          maximum: 15
+        conclusion:
+          description: The assessment against the regulation limit, only for a requested comparison; null clears it.
+          enum: [pass, fail, insufficient, null]
+    NewResult:
+      description: A result entered as a number or as a text.
+      allOf:
+        - $ref: "#/components/schemas/ResultChange"
+        - anyOf:
+            - required: [value]
+            - required: [value_text]
+    ResultSignature:
+      type: object
+      additionalProperties: false
+      required: [confirmed]
+      properties:
+        confirmed:
+          description: Sent only from the app's confirmation step.
+          const: true
+        warnings_acknowledged:
+          description: The person read the warnings of the sanity check and sends the result all the same.
+          type: boolean
+    ResultRejection:
+      type: object
+      additionalProperties: false
+      required: [reason]
+      properties:
+        reason:
+          description: Why the result is rejected; the person who entered it receives it.
+          type: string
+          maxLength: 2000
+    ResultList:
+      type: object
+      additionalProperties: false
+      required: [results, next_after]
+      properties:
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/ResultSummary"
+        next_after:
+          type: [integer, "null"]
+    ResultStatus:
+      description: draft (`none`), awaiting approval (`requested`), approved or rejected.
+      enum: [none, requested, approved, rejected]
+    ResultSummary:
+      type: object
+      additionalProperties: false
+      required: [id, code, parameter, value_display, unit, status, entered_by, entered_at, warned]
+      properties:
+        id:
+          type: integer
+        code:
+          description: The sample's lab code.
+          type: string
+        parameter:
+          type: string
+        value_display:
+          description: The result as shown, its text or its value with its decimals and its unit.
+          type: string
+        unit:
+          type: string
+        status:
+          $ref: "#/components/schemas/ResultStatus"
+        entered_by:
+          type: string
+        entered_at:
+          type: [string, "null"]
+          format: date-time
+        warned:
+          description: Whether the result was sent with a warning of the sanity check.
+          type: boolean
+    Result:
+      description: A result with its limit, its warnings and what the person may do with it.
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - code
+        - parameter
+        - value_display
+        - unit
+        - status
+        - entered_by
+        - entered_at
+        - warned
+        - sample_test_id
+        - way
+        - value
+        - value_text
+        - decimals
+        - value_suggestion
+        - comparison_requested
+        - conclusion
+        - conclusion_label
+        - limit
+        - limit_missing
+        - status_label
+        - warnings
+        - rejection_reason
+        - actions
+      properties:
+        id:
+          type: integer
+        code:
+          description: The sample's lab code.
+          type: string
+        parameter:
+          type: string
+        value_display:
+          type: string
+        unit:
+          type: string
+        status:
+          $ref: "#/components/schemas/ResultStatus"
+        entered_by:
+          type: string
+        entered_at:
+          type: [string, "null"]
+          format: date-time
+        warned:
+          type: boolean
+        sample_test_id:
+          type: integer
+        way:
+          type: string
+        value:
+          description: The measured value; null for a text result.
+          type: [number, "null"]
+        value_text:
+          type: string
+        decimals:
+          type: integer
+        value_suggestion:
+          description: The text suggested for a value below the LOD or LOQ; empty otherwise.
+          type: string
+        comparison_requested:
+          type: boolean
+        conclusion:
+          enum: [pass, fail, insufficient, null]
+        conclusion_label:
+          description: The conclusion in the person's language; empty without one.
+          type: string
+        limit:
+          description: The copied regulation limit with its unit; empty without one.
+          type: string
+        limit_missing:
+          description: The regulation sets no limit on the sample's type, so only insufficient basis can be concluded.
+          type: boolean
+        status_label:
+          description: The status in the person's language.
+          type: string
+        warnings:
+          description: |
+            Why the sanity check finds a draft's value unusual now, or found it unusual when the result was sent.
+          type: array
+          items:
+            type: string
+        rejection_reason:
+          description: Why the result was rejected; empty unless it was.
+          type: string
+        actions:
+          $ref: "#/components/schemas/ResultActions"
+    ResultActions:
+      description: What the web's form lets the person do with the result now.
+      type: object
+      additionalProperties: false
+      required: [edit, sign, reject]
+      properties:
+        edit:
+          type: boolean
+        sign:
+          description: Send the draft for approval, or approve the result awaiting the person's signature.
+          type: boolean
+        reject:
+          type: boolean
     Folder:
       type: object
       additionalProperties: false
@@ -3016,6 +3556,7 @@ components:
                 - mandatory_event
                 - action_refused
                 - already_claimed
+                - result_warning
                 - too_many_attempts
                 - internal_error
                 - try_again
@@ -3129,6 +3670,18 @@ components:
                     properties:
                       code:
                         enum: [already_claimed, action_refused]
+    SigningRefused:
+      description: The person did not acknowledge the result's warnings, or the approval refused the signature.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error"
+              - properties:
+                  error:
+                    properties:
+                      code:
+                        enum: [result_warning, action_refused]
     MandatoryEvent:
       description: The push of a mandatory event cannot be turned off.
       content:

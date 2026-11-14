@@ -64,24 +64,7 @@
             <xpath expr="//sheet" position="inside">
                 <notebook groups="sol_laboratory.group_permission_signature_read_all">
                     <page string="Signatures" name="signatures">
-                        <field name="signature_ids">
-                            <list decoration-muted="withdrawn_at">
-                                <field name="signer_name" string="Signer" />
-                                <field name="signer_role" string="Role" />
-                                <field name="level_name" string="Level" />
-                                <field
-                                    name="decision"
-                                    widget="badge"
-                                    decoration-success="decision == 'signed'"
-                                    decoration-danger="decision == 'rejected'"
-                                />
-                                <field name="reason" />
-                                <field name="document_version" string="Round" optional="hide" />
-                                <field name="document_hash" string="SHA-256" optional="hide" />
-                                <field name="create_date" string="Signed On" />
-                                <field name="withdrawn_at" optional="show" />
-                            </list>
-                        </field>
+                        <field name="signature_ids" />
                     </page>
                 </notebook>
             </xpath>

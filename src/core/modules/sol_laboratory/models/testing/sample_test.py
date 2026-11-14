@@ -309,6 +309,11 @@ class SampleTest(models.Model, SampleTestBase):
             )
         return ""
 
+    def _comparison_requested(self):
+        """Whether its results are assessed against the sample's regulation: the regulation limits its parameter on some
+        sample type. An empty test has none."""
+        return self.parameter_id in self.sudo().sample_id.regulation_id.limit_ids.parameter_id
+
     def _compute_recommendation(self):
         bookings = self.env[MODEL_MACHINE_BOOKING]
         for test in self:

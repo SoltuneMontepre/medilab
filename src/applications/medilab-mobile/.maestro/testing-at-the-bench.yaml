@@ -1,0 +1,73 @@
+# demo.tester signs in, scans the label of the sample handed over to Chemistry, claims its lead task, enters the result
+# and signs it. The development build loads its JavaScript from Metro at METRO_URL; MediLab answers at localhost:8069
+# through adb reverse. LAB_CODE is the lab code of sol_demo.demo_sample_label_scan.
+appId: com.medilab.mobile
+name: Testing at the bench
+env:
+  LOGIN: demo.tester
+  PASSWORD: demo
+  METRO_URL: http%3A%2F%2Flocalhost%3A8081
+---
+- launchApp:
+    clearState: true
+- openLink: exp+medilab-mobile://expo-development-client/?url=${METRO_URL}
+- extendedWaitUntil:
+    visible: "English"
+    timeout: 300000
+- tapOn:
+    text: "Continue"
+    optional: true
+- tapOn: "English"
+- tapOn: "Login"
+- inputText: ${LOGIN}
+- tapOn: "Password"
+- inputText: ${PASSWORD}
+- hideKeyboard
+- tapOn: "Sign in"
+- extendedWaitUntil:
+    visible: "Scan a sample label"
+    timeout: 60000
+- tapOn: "Scan a sample label"
+- tapOn:
+    text: "Don.t allow"
+    optional: true
+- tapOn: "Lab code"
+- inputText: ${LAB_CODE}
+- hideKeyboard
+- tapOn: "Open the sample"
+- extendedWaitUntil:
+    visible: ".*Lead \(Pb\).*"
+    timeout: 30000
+- tapOn: ".*Lead \(Pb\).*"
+- tapOn: "Claim the chosen tasks \(1\)"
+- assertVisible: "Tasks claimed: 1."
+- repeat:
+    while:
+      notVisible: "To-do list"
+    commands:
+      - back
+- tapOn: "To-do list"
+- tapOn: "${LAB_CODE}: Lead \(Pb\).*"
+- extendedWaitUntil:
+    visible: "Enter the result"
+    timeout: 30000
+- assertVisible: "Method steps"
+- tapOn: "Enter the result"
+- tapOn: "Value \(.*\)"
+- inputText: "0.008"
+- hideKeyboard
+- tapOn:
+    text: "Pass"
+    optional: true
+- tapOn: "Save the result"
+- extendedWaitUntil:
+    visible: "Send for approval"
+    timeout: 30000
+- tapOn: "Send for approval"
+- tapOn:
+    text: "I checked the warnings and send the result anyway."
+    optional: true
+- tapOn: "Sign"
+- extendedWaitUntil:
+    visible: "The result is approved or waits for someone else's signature, so you can only read it."
+    timeout: 30000

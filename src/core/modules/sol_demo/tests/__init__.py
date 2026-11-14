@@ -1,4 +1,5 @@
 from . import (
+    test_bench_demo,
     test_demo_binary_data,
     test_demo_booking_migration,
     test_demo_bootstrap,
