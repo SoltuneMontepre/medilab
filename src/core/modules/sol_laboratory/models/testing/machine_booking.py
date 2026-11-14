@@ -29,6 +29,7 @@ from odoo.addons.sol_laboratory.constants.scheduling import (
     SCHEDULING_CONTEXT,
     SCHEDULING_TOKEN,
 )
+from odoo.addons.sol_laboratory.models.testing.sample_test import OPEN_STATUSES as OPEN_TEST_STATUSES
 from odoo.addons.sol_laboratory.services.record_id import persisted_ids
 
 if TYPE_CHECKING:
@@ -459,13 +460,19 @@ class MachineBooking(models.Model, MachineBookingBase):
         """Hand the bookings of reassigned testing tasks over to the new assignee.
 
         A running booking keeps running for the new assignee. One not yet running returns to its department's plan for a
-        slot in the new assignee's working time, or without a tester when the task goes back to a queue.
+        slot in the new assignee's working time, or without a tester when the task goes back to a queue. For a newly
+        assigned test, check that a machine can finish it in time, and suggest outsourcing it when none can.
         """
         for task in tasks.sudo().filtered_domain(self.env[MODEL_TASK]._testing_domain()):
             bookings = task.booking_ids._open()
             waiting = bookings.filtered(lambda booking: booking.status != "in_progress")
             (bookings - waiting)._set({"person_id": task.assignee_id.id})
             waiting._set({"person_id": task.assignee_id.id, "status": "proposed", "starts_at": False, "ends_at": False})
+            if not bookings and task.assignee_id:
+                test = self.env[MODEL_SAMPLE_TEST].sudo().browse(task.document_id)
+                # A test not received by its department is not in the plan yet: tell now whether a machine can finish it.
+                if test.status in OPEN_TEST_STATUSES:
+                    test.outsourcing_suggested = not self._recommend(test, task.assignee_id, task.department_id)
         self._plan(tasks.sudo().department_id)
 
     @api.model

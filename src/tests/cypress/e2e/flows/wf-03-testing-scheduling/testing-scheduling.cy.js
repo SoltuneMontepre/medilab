@@ -4,6 +4,7 @@ import { eventsGone, scheduleState } from "./state";
 import {
   ADMINISTRATOR,
   HEAD,
+  OTHER_TESTER,
   PARAMETERS,
   PEOPLE,
   TESTER,
@@ -163,11 +164,15 @@ describe("WF-03 baseline assignment and scheduling", () => {
         expect(read.assignee_id[1]).to.equal("Ly Van Hung");
         expect(read.reassign_reason).to.equal(REASON);
       });
-      // The booking goes to the new assignee, planned again in their working time.
+      // The booking returns to the plan, which proposes a slot in the new assignee's working time; the new assignee
+      // accepts it.
       openBooking(test, HEAD).should((moved) => {
         expect(moved.person_id[1]).to.equal("Ly Van Hung");
-        expect(moved.status).to.equal("scheduled");
+        expect(moved.status).to.equal("proposed");
+        expect(moved.calendar_event_id).to.equal(false);
       });
+      callAs(OTHER_TESTER, "medilab.machine.booking", "action_accept", [[booking.id]]);
+      openBooking(test, HEAD).should("have.property", "status", "scheduled");
       scheduleState(test).then((state) => {
         const moved = state.bookings.find(({ id }) => id === booking.id);
         expect(state.tasks[0].planned_start).to.equal(moved.starts_at);
@@ -369,8 +374,13 @@ describe("WF-03 baseline assignment and scheduling", () => {
         expect(after.tasks[0].assignee_id[1]).to.equal("Ly Van Hung");
         expect(after.tasks[0].reassign_reason).to.equal(REASON);
         expect(after.bookings[0].person_id[1]).to.equal("Ly Van Hung");
-        expect(after.events).to.have.length(2);
+        expect(after.bookings[0].status).to.equal("proposed");
+        expect(after.events).to.be.empty;
       });
+      scheduleState(lead).then((proposed) =>
+        callAs(OTHER_TESTER, "medilab.machine.booking", "action_accept", [[proposed.bookings[0].id]]),
+      );
+      scheduleState(lead).should((accepted) => expect(accepted.events).to.have.length(2));
     });
   });
 });
