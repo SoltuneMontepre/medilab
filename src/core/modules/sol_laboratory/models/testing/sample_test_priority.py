@@ -81,7 +81,7 @@ class SampleTestPriority(models.Model, SampleTestPriorityBase):
             .search(Domain("sample_id", "=", test.sample_id.id) & Domain("department_id", "=", department.id), limit=1)
         )
         return (
-            PRIORITY_RANKS[test.priority],
+            PRIORITY_RANKS[test.priority or "normal"],
             test.sample_id.request_id.expected_date or date.max,
             handover.received_at or datetime.max,
             test.id,

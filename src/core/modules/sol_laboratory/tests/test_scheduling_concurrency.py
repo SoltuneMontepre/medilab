@@ -58,7 +58,7 @@ class TestSchedulingConcurrency(SchedulingConcurrencyCase):
             schedule,
             MODEL_MACHINE_BOOKING,
             "action_accept",
-            lambda bookings, _args: test_id in bookings.sample_test_id.ids,
+            lambda bookings, _args: test_id in bookings.mapped("sample_test_id").ids,
         )
         self.assertEqual(sorted(status for status, _result in outcomes.values()), ["committed", "refused"], outcomes)
         self.assertIn(
@@ -86,7 +86,7 @@ class TestSchedulingConcurrency(SchedulingConcurrencyCase):
             schedule(1),
             MODEL_MACHINE_BOOKING,
             "action_accept",
-            lambda bookings, _args: bool(set(bookings.sample_test_id.ids) & set(self.test_ids)),
+            lambda bookings, _args: bool(set(bookings.mapped("sample_test_id").ids) & set(self.test_ids)),
         )
         graph = self.committed(self.graph)
         self.assertGreaterEqual(sum(status == "committed" for status, _result in outcomes.values()), 1, outcomes)

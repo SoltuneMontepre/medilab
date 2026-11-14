@@ -31,7 +31,9 @@ class TestScheduleTimeBoundaries(LabTimezoneCase):
         self.assertTrue(test.outsourcing_suggested)
         with self.assertRaisesRegex(UserError, "No machine can finish"), self.rolled_back():
             self.schedule(test, self.tester)
-        self.assertFalse(test.booking_ids.filtered(lambda booking: booking.status != "proposed" or booking.starts_at))
+        self.assertFalse(
+            test.booking_ids.filtered(lambda booking: booking.status != "proposed" or bool(booking.starts_at))
+        )
 
     def test_a_run_may_end_at_its_due_date(self):
         self.slow.status = "under_repair"

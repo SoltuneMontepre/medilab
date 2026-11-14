@@ -173,7 +173,9 @@ class TestScheduleRecommendation(CrossDepartmentCase, LocationCase):
         message = f"No machine can finish {test.display_name} before its due date."
         with self.assertRaisesRegex(UserError, re.escape(message)), self.rolled_back():
             self.schedule(test, self.tester)
-        self.assertFalse(test.booking_ids.filtered(lambda booking: booking.status != "proposed" or booking.starts_at))
+        self.assertFalse(
+            test.booking_ids.filtered(lambda booking: booking.status != "proposed" or bool(booking.starts_at))
+        )
         self.assertEqual(test.status, "assigned")
         self.assert_schedule_invariants(test)
 

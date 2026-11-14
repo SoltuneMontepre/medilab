@@ -305,7 +305,9 @@ class SampleTest(models.Model, SampleTestBase):
     def _proposed_booking(self):
         """The test's proposed booking that has a slot in its department's plan."""
         self.ensure_one()
-        return self.sudo().booking_ids.filtered(lambda booking: booking.status == "proposed" and booking.starts_at)[:1]
+        return self.sudo().booking_ids.filtered(
+            lambda booking: booking.status == "proposed" and bool(booking.starts_at)
+        )[:1]
 
     def _compute_recommendation(self):
         for test in self:

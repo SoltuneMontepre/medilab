@@ -176,4 +176,4 @@ class TestDepartmentPlan(SchedulingCase):
             sorted(summaries.mapped("res_id")),
             sorted((self.tester.user_id.partner_id | self.head.user_id.partner_id).ids),
         )
-        self.assertIn(test.sample_id.code, summaries[0].body)
+        self.assertIn(test.sample_id.code, str(summaries[0].body))
