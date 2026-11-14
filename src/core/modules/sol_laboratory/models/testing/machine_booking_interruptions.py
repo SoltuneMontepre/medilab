@@ -131,7 +131,7 @@ class MachineBookingInterruptions(models.Model, MachineBookingInterruptionsBase)
         if not self:
             return
         zone = self.env.company.tz or "UTC"
-        starts = {booking: booking.starts_at for booking in self}
+        starts = {booking: start for booking in self if isinstance(start := booking.starts_at, datetime)}
         self._set({"status": "queued", "starts_at": False, "ends_at": False})
         self._process_queue()
         for booking in self:
