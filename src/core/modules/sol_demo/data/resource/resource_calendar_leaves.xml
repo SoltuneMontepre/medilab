@@ -12,4 +12,11 @@
         <field name="date_to">2027-04-30 16:59:59</field>
         <field name="count_as">working_time</field>
     </record>
+    <!-- The chemistry tester is on leave for two days from the third day. -->
+    <record id="demo_resource_calendar_leaves_chemistry_tester" model="resource.calendar.leaves">
+        <field name="name">Nghỉ phép năm</field>
+        <field name="resource_id" model="medilab.person" eval="obj(ref('demo_person_chemistry_tester')).employee_id.resource_id.id" />
+        <field name="date_from" eval="(DateTime.now() + relativedelta(days=3, hour=0, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="date_to" eval="(DateTime.now() + relativedelta(days=4, hour=16, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+    </record>
 </odoo>

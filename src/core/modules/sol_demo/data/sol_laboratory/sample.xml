@@ -430,4 +430,37 @@
         <field name="condition">good</field>
         <field name="storage_location">Fridge 1, shelf A</field>
     </record>
+    <record id="demo_sample_lead_interrupted" model="medilab.sample">
+        <field name="request_id" ref="demo_test_request_reception" />
+        <field name="customer_sample_name">Nước giếng khoan Phúc Thọ 1 L</field>
+        <field name="sample_type_id" ref="demo_sample_type_bottled_water" />
+        <field name="physical_state">liquid</field>
+        <field name="status">testing</field>
+        <field name="received_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="received_by_id" ref="demo_person_sample_delivery_staff" />
+        <field name="received_quantity">2 bottles</field>
+        <field name="condition">good</field>
+    </record>
+    <record id="demo_sample_lead_leave" model="medilab.sample">
+        <field name="request_id" ref="demo_test_request_reception" />
+        <field name="customer_sample_name">Nước giếng khoan Ba Vì 1 L</field>
+        <field name="sample_type_id" ref="demo_sample_type_bottled_water" />
+        <field name="physical_state">liquid</field>
+        <field name="status">testing</field>
+        <field name="received_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="received_by_id" ref="demo_person_sample_delivery_staff" />
+        <field name="received_quantity">2 bottles</field>
+        <field name="condition">good</field>
+    </record>
+    <record id="demo_sample_icpms_metals_3" model="medilab.sample">
+        <field name="request_id" ref="demo_test_request_reception" />
+        <field name="customer_sample_name">Nước giếng khoan Thạch Thất 1 L</field>
+        <field name="sample_type_id" ref="demo_sample_type_bottled_water" />
+        <field name="physical_state">liquid</field>
+        <field name="status">testing</field>
+        <field name="received_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="received_by_id" ref="demo_person_sample_delivery_staff" />
+        <field name="received_quantity">2 bottles</field>
+        <field name="condition">good</field>
+    </record>
 </odoo>

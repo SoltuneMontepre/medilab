@@ -518,6 +518,10 @@ class MachineBooking(models.Model, MachineBookingBase):
         domain &= Domain("department_id", "=", department.id) if department else Domain("department_id", "!=", False)
         if test.accepted_method_id:
             domain &= Domain("id", "=", test.accepted_method_id.id)
+        # A retest runs by the testing method of the earlier measurement.
+        measured = test.sudo().result_ids.booking_id.method_id
+        if measured:
+            domain &= Domain("method_id", "in", measured.ids)
         ways = self.env[MODEL_PARAMETER_METHOD].sudo().search(domain)
         links = self.env[MODEL_MACHINE_METHOD].sudo().search([("method_id", "in", ways.method_id.ids)])
         # Links come in machine order, so of two machines that finish together the first one wins.

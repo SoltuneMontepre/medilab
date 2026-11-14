@@ -18,6 +18,8 @@ EVENT_SIGNING_CERTIFICATE_ALERT = "signing_certificate.alert"
 EVENT_QUALITY_REGISTRATION_EXPIRY = "quality_registration.expiry"
 EVENT_LABORATORY_FILE_VERSION_REJECTED = "laboratory_file_version.rejected"
 EVENT_MACHINE_BOOKING_OVERRUN = "machine_booking.overrun"
+EVENT_MACHINE_BOOKING_RETURNED = "machine_booking.returned"
+EVENT_TEST_RESULT_INTERRUPTED = "test_result.interrupted"
 # Brevo's create-webhook auth.type bearer. The token is compared, never stored.
 BREVO_WEBHOOK_TOKEN = "BREVO_WEBHOOK_TOKEN"
 BREVO_SMTP_HOST = "BREVO_SMTP_HOST"

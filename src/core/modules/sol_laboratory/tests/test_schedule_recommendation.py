@@ -25,7 +25,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 
 SLOT = timedelta(minutes=15)
 TUESDAY = MONDAY + timedelta(days=1)
-BOOKING_FIELDS = ["status", "machine_id", "person_id", "starts_at", "ends_at", "calendar_event_id"]
+BOOKING_FIELDS = ["machine_id", "person_id", "starts_at", "ends_at", "calendar_event_id"]
 
 
 @freeze_time(MONDAY)
@@ -90,14 +90,16 @@ class TestScheduleRecommendation(CrossDepartmentCase, LocationCase):
         self.slow.status = "in_use"
         return running, waiting
 
-    def test_a_machine_out_of_use_hands_its_scheduled_bookings_on_and_keeps_its_running_one(self):
+    def test_a_machine_out_of_use_hands_its_scheduled_bookings_on_and_ends_its_running_one(self):
         for status in ("under_repair", "retired"):
             with self.subTest(status=status), self.rolled_back():
                 running, waiting = self.running_and_waiting_on_fast()
+                running.sample_test_id.sample_id.status = "received"
                 before = running.read(BOOKING_FIELDS)
                 self.fast.status = status
                 self.assertEqual(running.read(BOOKING_FIELDS), before)
-                self.assertEqual(running.status, "in_progress")
+                self.assertEqual(running.status, "done")
+                self.assertTrue(running.sample_test_id.result_ids.is_interrupted)
                 self.assertEqual(
                     (waiting.status, waiting.machine_id, waiting.starts_at, waiting.ends_at),
                     ("scheduled", self.slow, MONDAY, MONDAY + 5 * SLOT),

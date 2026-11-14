@@ -16945,3 +16945,191 @@ msgstr "%(machine)s đã đến hạn bảo trì ngày %(date)s; hãy ghi nhận
 #: code:addons/sol_laboratory/models/sample_collection/sample_mobile.py:0
 msgid "Only the unassigned testing tasks of your department on %s can be claimed here."
 msgstr "Chỉ nhận được ở đây các nhiệm vụ kiểm nghiệm chưa giao của phòng ban bạn trên %s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_interruptions.py:0
+msgid "%(booking)s, planned from %(start)s, went back to the plan. %(reason)s"
+msgstr "%(booking)s, dự kiến từ %(start)s, đã được trả về kế hoạch. %(reason)s"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/location_unavailability.py:0
+#: code:addons/sol_laboratory/models/tasks/calendar_event_unavailability.py:0
+msgid "%(location)s cannot be used from %(start)s to %(end)s: %(reason)s"
+msgstr "%(location)s không thể sử dụng từ %(start)s đến %(end)s: %(reason)s"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_interruptions.py:0
+msgid "%(machine)s stopped during %(booking)s, so its measurement ended. Record the data measured so far on the interrupted result, which the head of department assesses as usable, needing a retest or needing more sample."
+msgstr "%(machine)s dừng trong lúc thực hiện %(booking)s nên phép đo kết thúc. Hãy ghi dữ liệu đã đo được vào kết quả bị gián đoạn; trưởng phòng đánh giá kết quả dùng được, cần thử lại hoặc cần thêm mẫu."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/resource_calendar_leaves.py:0
+msgid "%(person)s is on leave from %(start)s to %(end)s."
+msgstr "%(person)s nghỉ phép từ %(start)s đến %(end)s."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form_interruption
+msgid "<span invisible=\"interruption_assessment\">\n                        The machine stopped during this measurement. Record the data measured so far; the head of\n                        department assesses it before it is sent.\n                    </span>"
+msgstr "<span invisible=\"interruption_assessment\">\n                        Máy đã dừng trong lúc đo. Hãy ghi dữ liệu đã đo được; trưởng phòng đánh giá kết quả\n                        trước khi gửi.\n                    </span>"
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_test_result_interrupted
+msgid "A machine broke down or lost calibration during a measurement, which awaits assessment"
+msgstr "Máy hỏng hoặc mất hiệu chuẩn trong lúc đo, kết quả đang chờ đánh giá"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_interruptions.py:0
+msgid "A retest of %(booking)s runs by %(method)s, only on a machine linked to it."
+msgstr "Thử lại %(booking)s theo %(method)s, chỉ trên máy được liên kết với phương pháp đó."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result_interruption.py:0
+msgid "An interrupted result is sent only once the head of department assesses it as usable."
+msgstr "Kết quả bị gián đoạn chỉ được gửi khi trưởng phòng đánh giá là dùng được."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_location_unavailability_period
+msgid "An unavailable interval ends after it starts."
+msgstr "Thời gian ngưng sử dụng phải kết thúc sau khi bắt đầu."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__interruption_assessment
+msgid "Assessment"
+msgstr "Đánh Giá"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_search_interruption
+msgid "Awaiting Assessment"
+msgstr "Chờ Đánh Giá"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__can_assess_interruption
+msgid "Can Assess Interruption"
+msgstr "Được Đánh Giá Gián Đoạn"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_location_unavailability_create_all
+msgid "Create location unavailable times"
+msgstr "Tạo thời gian ngưng sử dụng vị trí"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_location_unavailability_delete_all
+msgid "Delete location unavailable times"
+msgstr "Xóa thời gian ngưng sử dụng vị trí"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_location_unavailability_edit_all
+msgid "Edit location unavailable times"
+msgstr "Sửa thời gian ngưng sử dụng vị trí"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__is_interrupted
+msgid "Interrupted"
+msgstr "Bị Gián Đoạn"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_interruptions.py:0
+msgid "It is now planned from %s."
+msgstr "Hiện dự kiến từ %s."
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_machine_booking_returned
+msgid "Leave or an unavailable location returned a booking that had not started to the plan"
+msgstr "Nghỉ phép hoặc vị trí ngưng sử dụng đã trả lịch đặt chưa bắt đầu về kế hoạch"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_location_unavailability
+msgid "Location Unavailability"
+msgstr "Thời Gian Ngưng Sử Dụng Vị Trí"
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_machine_booking_returned
+msgid "Machine booking returned to the plan"
+msgstr "Lịch đặt máy được trả về kế hoạch"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_result__interruption_assessment__more_sample
+msgid "More Sample Needed"
+msgstr "Cần Thêm Mẫu"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form_interruption
+msgid "Needs More Sample"
+msgstr "Cần Thêm Mẫu"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form_interruption
+msgid "Needs a Retest"
+msgstr "Cần Thử Lại"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_interruptions.py:0
+msgid "No free slot finishes it by its due date."
+msgstr "Không có khung giờ trống nào hoàn thành trước hạn."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result_interruption.py:0
+msgid "Only the head of the department that tested %s assesses it, while it is interrupted and not sent."
+msgstr "Chỉ trưởng phòng đã thử %s mới đánh giá được, khi kết quả bị gián đoạn và chưa gửi."
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_location_unavailability_create_all
+msgid "Permission: location.unavailability.create.all"
+msgstr "Quyền: location.unavailability.create.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_location_unavailability_delete_all
+msgid "Permission: location.unavailability.delete.all"
+msgstr "Quyền: location.unavailability.delete.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_location_unavailability_edit_all
+msgid "Permission: location.unavailability.edit.all"
+msgstr "Quyền: location.unavailability.edit.all"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_resource_calendar_leaves
+msgid "Resource Time Off Detail"
+msgstr "Chi Tiết Nghỉ Phép"
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_test_result_interrupted
+msgid "Result interrupted"
+msgstr "Kết quả bị gián đoạn"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_result__interruption_assessment__retest
+msgid "Retest Needed"
+msgstr "Cần Thử Lại"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result_interruption.py:0
+msgid "The head of department assesses an interrupted result with its buttons."
+msgstr "Trưởng phòng đánh giá kết quả bị gián đoạn bằng các nút trên kết quả."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form_interruption
+msgid "The machine stopped during this measurement. The head of department assessed it:"
+msgstr "Máy đã dừng trong lúc đo. Trưởng phòng đã đánh giá:"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__unavailability_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_form
+msgid "Unavailable Times"
+msgstr "Thời Gian Ngưng Sử Dụng"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_result__interruption_assessment__usable
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form_interruption
+msgid "Usable"
+msgstr "Dùng Được"

@@ -47,6 +47,7 @@ from . import (
     test_filestore_bucket,
     test_handover_record,
     test_internal_users,
+    test_interruptions,
     test_is_accredited,
     test_job_claim_commit,
     test_job_claim_timeout,

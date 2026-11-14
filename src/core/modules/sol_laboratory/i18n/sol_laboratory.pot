@@ -17060,3 +17060,191 @@ msgid "The maintenance of %(machine)s was due on %(date)s; record it before book
 #: code:addons/sol_laboratory/models/sample_collection/sample_mobile.py:0
 msgid "Only the unassigned testing tasks of your department on %s can be claimed here."
 msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_interruptions.py:0
+msgid "%(booking)s, planned from %(start)s, went back to the plan. %(reason)s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/location_unavailability.py:0
+#: code:addons/sol_laboratory/models/tasks/calendar_event_unavailability.py:0
+msgid "%(location)s cannot be used from %(start)s to %(end)s: %(reason)s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_interruptions.py:0
+msgid "%(machine)s stopped during %(booking)s, so its measurement ended. Record the data measured so far on the interrupted result, which the head of department assesses as usable, needing a retest or needing more sample."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/resource_calendar_leaves.py:0
+msgid "%(person)s is on leave from %(start)s to %(end)s."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form_interruption
+msgid "<span invisible=\"interruption_assessment\">\n                        The machine stopped during this measurement. Record the data measured so far; the head of\n                        department assesses it before it is sent.\n                    </span>"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_test_result_interrupted
+msgid "A machine broke down or lost calibration during a measurement, which awaits assessment"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_interruptions.py:0
+msgid "A retest of %(booking)s runs by %(method)s, only on a machine linked to it."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result_interruption.py:0
+msgid "An interrupted result is sent only once the head of department assesses it as usable."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_location_unavailability_period
+msgid "An unavailable interval ends after it starts."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__interruption_assessment
+msgid "Assessment"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_search_interruption
+msgid "Awaiting Assessment"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__can_assess_interruption
+msgid "Can Assess Interruption"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_location_unavailability_create_all
+msgid "Create location unavailable times"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_location_unavailability_delete_all
+msgid "Delete location unavailable times"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_location_unavailability_edit_all
+msgid "Edit location unavailable times"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__is_interrupted
+msgid "Interrupted"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_interruptions.py:0
+msgid "It is now planned from %s."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_machine_booking_returned
+msgid "Leave or an unavailable location returned a booking that had not started to the plan"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_location_unavailability
+msgid "Location Unavailability"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_machine_booking_returned
+msgid "Machine booking returned to the plan"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_result__interruption_assessment__more_sample
+msgid "More Sample Needed"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form_interruption
+msgid "Needs More Sample"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form_interruption
+msgid "Needs a Retest"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_interruptions.py:0
+msgid "No free slot finishes it by its due date."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result_interruption.py:0
+msgid "Only the head of the department that tested %s assesses it, while it is interrupted and not sent."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_location_unavailability_create_all
+msgid "Permission: location.unavailability.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_location_unavailability_delete_all
+msgid "Permission: location.unavailability.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_location_unavailability_edit_all
+msgid "Permission: location.unavailability.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_resource_calendar_leaves
+msgid "Resource Time Off Detail"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_test_result_interrupted
+msgid "Result interrupted"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_result__interruption_assessment__retest
+msgid "Retest Needed"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result_interruption.py:0
+msgid "The head of department assesses an interrupted result with its buttons."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form_interruption
+msgid "The machine stopped during this measurement. The head of department assessed it:"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__unavailability_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_form
+msgid "Unavailable Times"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_result__interruption_assessment__usable
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form_interruption
+msgid "Usable"
+msgstr ""

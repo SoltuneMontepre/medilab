@@ -38,6 +38,7 @@ src/tests/
         laboratory/unlinked-users/
         laboratory/shared-intervals/
         laboratory/machine-conditions/
+        laboratory/interruptions/
         ecommerce/portal-language/
         ecommerce/portal-navigation/
         ecommerce/uninstall-warning/
@@ -94,6 +95,7 @@ Start test titles with the issue's `TC-WF…`, `TC-SF…` or `TC-F…` ID. Map f
 | Move the menu bar sections that do not fit a narrow window into the More menu, in every app. | [#393](https://github.com/SoltuneMontepre/medilab/issues/393) | `features/theme/navbar-more-menu/` | `navbar-more-menu.cy.js` |
 | Move a booking into another sample's machine interval of the same method, which books its room once, and refuse a sample once the interval is full. | [#420](https://github.com/SoltuneMontepre/medilab/issues/420) | `features/laboratory/shared-intervals/` | `shared-intervals.cy.js` |
 | See that a booking whose end passed still holds its machine and puts the next booking on it at risk, which stays where it is. | [#424](https://github.com/SoltuneMontepre/medilab/issues/424) | `features/laboratory/machine-conditions/` | `machine-conditions.cy.js` |
+| Assess the interrupted result a machine failure keeps as usable, needing a retest or needing more sample, as the head of the department that tested it; the tester cannot. | [#425](https://github.com/SoltuneMontepre/medilab/issues/425) | `features/laboratory/interruptions/` | `interruptions.cy.js` |
 | Link an internal user that no person links to, and refuse creating one outside a person. | [#438](https://github.com/SoltuneMontepre/medilab/issues/438) | `features/laboratory/unlinked-users/` | `unlinked-users.cy.js` |
 | Give a backup the head of department's role until a date, who approves a result or sends one at a lower level in their own name. | [#430](https://github.com/SoltuneMontepre/medilab/issues/430) | `features/laboratory/backup-signers/` | `backup-signers.cy.js` |
 | Switch the portal language from the header and the account page, as a customer and as a visitor. | [#451](https://github.com/SoltuneMontepre/medilab/issues/451) | `features/ecommerce/portal-language/` | `portal-language.cy.js` |

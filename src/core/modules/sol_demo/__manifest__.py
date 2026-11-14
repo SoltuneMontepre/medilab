@@ -1,6 +1,6 @@
 {
     "name": "Medilab - Testing Data",
-    "version": "20.0.1.32.0",
+    "version": "20.0.1.34.0",
     "summary": "Seeds and configure data for demo purposes.",
     "category": "Services/Laboratory",
     "author": "Soltune Montepre",
@@ -9,7 +9,6 @@
     "data": [
         "data/hr/hr_department.xml",
         "data/base/res_company.xml",
-        "data/resource/resource_calendar_leaves.xml",
         "data/base/res_partner.xml",
         "data/base/res_users.xml",
         "data/sol_laboratory/location.xml",
@@ -38,6 +37,7 @@
         "data/sol_laboratory/approval_chain.xml",
         "data/sol_laboratory/approval_level.xml",
         "data/sol_laboratory/person.xml",
+        "data/resource/resource_calendar_leaves.xml",
         "data/sol_laboratory/laboratory_device.xml",
         "data/sol_laboratory/mobile_device.xml",
         "data/sol_laboratory/customer.xml",
@@ -55,6 +55,8 @@
         "data/sol_laboratory/task_type.xml",
         "data/sol_laboratory/task.xml",
         "data/sol_laboratory/machine_booking.xml",
+        "data/sol_laboratory/test_result.xml",
+        "data/sol_laboratory/location_unavailability.xml",
         "data/sol_onboarding/onboarding_source.xml",
         "data/sol_onboarding/onboarding_organisation.xml",
         "data/sol_onboarding/onboarding_run.xml",

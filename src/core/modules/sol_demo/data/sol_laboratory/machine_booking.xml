@@ -154,4 +154,35 @@
         <field name="ends_at" eval="(DateTime.now() + relativedelta(hour=10, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="status">scheduled</field>
     </record>
+    <!-- AAS-03 broke down during the measurement, which ended: the booking is done and its result interrupted. -->
+    <record id="demo_machine_booking_lead_interrupted" model="medilab.machine.booking">
+        <field name="machine_id" ref="demo_machine_aas_3" />
+        <field name="sample_test_id" ref="demo_sample_test_lead_interrupted" />
+        <field name="task_id" ref="demo_task_sample_test_lead_interrupted" />
+        <field name="person_id" ref="demo_person_chemistry_tester" />
+        <field name="queued_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="starts_at" eval="(DateTime.now() + relativedelta(hour=1, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="ends_at" eval="(DateTime.now() + relativedelta(hour=2, minute=15, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="status">done</field>
+    </record>
+    <!-- The chemistry tester is on leave from the third day, so this booking went back to the plan for a new slot. -->
+    <record id="demo_machine_booking_lead_leave" model="medilab.machine.booking">
+        <field name="machine_id" ref="demo_machine_aas" />
+        <field name="sample_test_id" ref="demo_sample_test_lead_leave" />
+        <field name="task_id" ref="demo_task_sample_test_lead_leave" />
+        <field name="person_id" ref="demo_person_chemistry_tester" />
+        <field name="queued_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="status">queued</field>
+    </record>
+    <!-- The cancelled test's own booking ended; the six bookings of the interval stay as they were. -->
+    <record id="demo_machine_booking_icpms_lead_3" model="medilab.machine.booking">
+        <field name="machine_id" ref="demo_machine_icpms" />
+        <field name="sample_test_id" ref="demo_sample_test_icpms_lead_3" />
+        <field name="task_id" ref="demo_task_sample_test_icpms_lead_3" />
+        <field name="person_id" ref="demo_person_chemistry_tester" />
+        <field name="queued_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="starts_at" eval="(DateTime.now() + relativedelta(days=2, hour=1, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="ends_at" eval="(DateTime.now() + relativedelta(days=2, hour=5, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="status">cancelled</field>
+    </record>
 </odoo>
