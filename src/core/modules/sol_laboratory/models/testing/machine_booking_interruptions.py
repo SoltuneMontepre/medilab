@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
@@ -140,9 +141,10 @@ class MachineBookingInterruptions(models.Model, MachineBookingInterruptionsBase)
                 start=format_datetime(self.env, starts[booking], tz=zone),
                 reason=reason,
             )
+            planned = booking.starts_at
             body += " " + (
-                self.env._("It is now planned from %s.", format_datetime(self.env, booking.starts_at, tz=zone))
-                if booking.status == "scheduled"
+                self.env._("It is now planned from %s.", format_datetime(self.env, planned, tz=zone))
+                if isinstance(planned, datetime)
                 else self.env._("No free slot finishes it by its due date.")
             )
             self.env[MODEL_MAIL_MESSAGE].raise_event(
