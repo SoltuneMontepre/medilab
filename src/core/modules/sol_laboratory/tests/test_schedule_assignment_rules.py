@@ -16,7 +16,9 @@ AFTERNOON = MONDAY + timedelta(hours=5)
 @freeze_time(MONDAY)
 @tagged("post_install", "-at_install")
 class TestScheduleAssignmentRules(ScheduleInvariantsCase, LocationCase):
-    def test_a_reassigned_booking_moves_into_the_new_assignees_working_time_with_its_calendar_and_rooms(self):
+    def test_a_reassigned_booking_returns_to_the_plan_in_the_new_assignees_working_time_with_its_calendar_and_rooms(
+        self,
+    ):
         self.env[MODEL_TESTING_METHOD_STEP].create(
             {
                 "method_id": self.method.id,
@@ -41,10 +43,12 @@ class TestScheduleAssignmentRules(ScheduleInvariantsCase, LocationCase):
         ).action_confirm()
 
         self.assertEqual((task.status, task.assignee_id), ("assigned", self.other_tester))
-        self.assertEqual((booking.status, booking.person_id), ("scheduled", self.other_tester))
+        # The booking returns to the plan, which proposes it in the new assignee's working time.
+        self.assertEqual((booking.status, booking.person_id), ("proposed", self.other_tester))
         self.assertEqual((booking.starts_at, booking.ends_at), (AFTERNOON, AFTERNOON + 3 * SLOT))
         self.assertFalse(old_event.exists())
         self.assertFalse(old_rooms.exists())
+        booking.with_user(self.other_tester.user_id).action_accept()
         event, rooms = booking.calendar_event_id, booking.room_event_ids
         self.assertEqual(event.user_id, self.other_tester.user_id)
         self.assertEqual((event.start, event.stop), (AFTERNOON, AFTERNOON + 3 * SLOT))

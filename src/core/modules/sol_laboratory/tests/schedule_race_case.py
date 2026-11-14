@@ -20,7 +20,7 @@ ROOM_STEP = timedelta(minutes=30)
 
 
 class ScheduleRaceCase(SchedulingConcurrencyCase):
-    """The actors and production boundaries of the scheduling races, with other tests' queued bookings parked so the
+    """The actors and production boundaries of the scheduling races, with other tests' proposed bookings parked so the
     two transactions meet only on the rows of the race.
 
     Each action reads what it acts on before its boundary, as its form would, so its snapshot is taken before the
@@ -93,13 +93,9 @@ class ScheduleRaceCase(SchedulingConcurrencyCase):
     # Boundaries
 
     def queueing(self, number=0):
-        """The booking of the fixture's test of the number is about to be created."""
+        """The proposed booking of the fixture's test of the number is about to be accepted."""
         test_id = self.test_ids[number]
-        return (
-            MODEL_MACHINE_BOOKING,
-            "create",
-            lambda _bookings, args: any(values.get("sample_test_id") == test_id for values in self.values(args[0])),
-        )
+        return (MODEL_MACHINE_BOOKING, "action_accept", lambda bookings, _args: test_id in bookings.sample_test_id.ids)
 
     def setting(self, status, number=0):
         """The booking of the fixture's test of the number is about to take the status."""

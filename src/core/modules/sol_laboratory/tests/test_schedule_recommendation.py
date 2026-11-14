@@ -14,11 +14,12 @@ from .scheduling_case import MONDAY
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MACHINE,
     MODEL_MACHINE_BOOKING,
+    MODEL_MACHINE_METHOD,
     MODEL_PARAMETER_METHOD,
-    MODEL_PARAMETER_METHOD_MACHINE,
     MODEL_RESOURCE_CALENDAR_LEAVES,
     MODEL_SAMPLE_TEST,
     MODEL_SUBCONTRACTOR,
+    MODEL_TESTING_METHOD,
     MODEL_TESTING_METHOD_STEP,
 )
 
@@ -35,10 +36,10 @@ class TestScheduleRecommendation(CrossDepartmentCase, LocationCase):
         long_run, short_run = self.env[MODEL_MACHINE].create(
             [{"code": "AAS-120", "name": "AAS 120"}, {"code": "AAS-40", "name": "AAS 40"}]
         )
-        self.env[MODEL_PARAMETER_METHOD_MACHINE].create(
+        self.env[MODEL_MACHINE_METHOD].create(
             [
-                {"parameter_method_id": self.pair.id, "machine_id": long_run.id, "run_minutes": 120},
-                {"parameter_method_id": self.pair.id, "machine_id": short_run.id, "run_minutes": 40},
+                {"method_id": self.pair.method_id.id, "machine_id": long_run.id, "duration_minutes": 120},
+                {"method_id": self.pair.method_id.id, "machine_id": short_run.id, "duration_minutes": 40},
             ]
         )
         self.occupy(short_run, MONDAY, MONDAY + 2 * SLOT)
@@ -99,7 +100,7 @@ class TestScheduleRecommendation(CrossDepartmentCase, LocationCase):
                 self.assertEqual(running.status, "in_progress")
                 self.assertEqual(
                     (waiting.status, waiting.machine_id, waiting.starts_at, waiting.ends_at),
-                    ("scheduled", self.slow, MONDAY, MONDAY + 5 * SLOT),
+                    ("proposed", self.slow, MONDAY, MONDAY + 5 * SLOT),
                 )
                 later = self.new_test()
                 self.testing_task(later, self.tester)
@@ -118,7 +119,7 @@ class TestScheduleRecommendation(CrossDepartmentCase, LocationCase):
         self.assertEqual((self.fast.active, self.fast.status), (True, "in_use"))
         self.assert_schedule_invariants(tests)
 
-    def test_a_booking_whose_machine_is_lost_with_no_other_goes_back_to_the_queue_and_frees_its_calendar(self):
+    def test_a_booking_whose_machine_is_lost_with_no_other_goes_back_to_the_plan_and_frees_its_calendar(self):
         self.env[MODEL_TESTING_METHOD_STEP].create(
             {
                 "method_id": self.method.id,
@@ -138,7 +139,7 @@ class TestScheduleRecommendation(CrossDepartmentCase, LocationCase):
         self.assert_schedule_invariants(self.test)
 
         self.fast.status = "under_repair"
-        self.assertEqual((booking.status, booking.starts_at, booking.ends_at), ("queued", False, False))
+        self.assertEqual((booking.status, booking.starts_at, booking.ends_at), ("proposed", False, False))
         self.assertEqual(booking.person_id, self.tester)
         self.assertFalse(booking.calendar_event_id)
         self.assertFalse(booking.room_event_ids)
@@ -172,23 +173,28 @@ class TestScheduleRecommendation(CrossDepartmentCase, LocationCase):
         message = f"No machine can finish {test.display_name} before its due date."
         with self.assertRaisesRegex(UserError, re.escape(message)), self.rolled_back():
             self.schedule(test, self.tester)
-        self.assertFalse(test.booking_ids)
+        self.assertFalse(
+            test.booking_ids.filtered(lambda booking: booking.status != "proposed" or bool(booking.starts_at))
+        )
         self.assertEqual(test.status, "assigned")
         self.assert_schedule_invariants(test)
 
     def test_a_short_run_fills_a_gap_a_longer_run_skips_whichever_is_scheduled_first(self):
         self.slow.status = "under_repair"
         copper = self.create_parameter("Copper (Cu)", self.group)
+        copper_method = self.env[MODEL_TESTING_METHOD].create(
+            {"code": "TCVN 6193:1996", "name": "Copper by AAS", "field_id": self.testing_field.id}
+        )
         copper_way = self.env[MODEL_PARAMETER_METHOD].create(
             {
                 "parameter_id": copper.id,
-                "method_id": self.method.id,
+                "method_id": copper_method.id,
                 "department_id": self.department.id,
             }
         )
         self.offer(copper, self.sample_type, copper_way)
-        self.env[MODEL_PARAMETER_METHOD_MACHINE].create(
-            {"parameter_method_id": copper_way.id, "machine_id": self.fast.id, "run_minutes": 25}
+        self.env[MODEL_MACHINE_METHOD].create(
+            {"method_id": copper_way.method_id.id, "machine_id": self.fast.id, "duration_minutes": 25}
         )
         self.occupy(self.fast, MONDAY, MONDAY + 3 * SLOT)
         self.occupy(self.fast, MONDAY + 5 * SLOT, MONDAY + 8 * SLOT)

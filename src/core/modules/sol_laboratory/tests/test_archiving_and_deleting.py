@@ -9,10 +9,10 @@ from odoo.addons.base.models.ir_model import MODULE_UNINSTALL_FLAG
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_CHEMICAL,
     MODEL_MACHINE,
+    MODEL_MACHINE_METHOD,
     MODEL_MACHINE_SERVICE,
     MODEL_MEASUREMENT_UNIT,
     MODEL_PARAMETER_METHOD,
-    MODEL_PARAMETER_METHOD_MACHINE,
     MODEL_REGULATION,
     MODEL_REGULATION_LIMIT,
     MODEL_SAMPLE_TYPE,
@@ -157,9 +157,9 @@ class TestArchivingAndDeleting(MasterDataCase):
         with self.assertRaises(UserError):
             self.machine.unlink()
 
-    def test_machine_of_active_way_of_testing_cannot_be_archived_or_deleted(self):
-        self.env[MODEL_PARAMETER_METHOD_MACHINE].create(
-            {"parameter_method_id": self.pair.id, "machine_id": self.machine.id, "run_minutes": 30}
+    def test_machine_of_active_testing_method_cannot_be_archived_or_deleted(self):
+        self.env[MODEL_MACHINE_METHOD].create(
+            {"method_id": self.pair.method_id.id, "machine_id": self.machine.id, "duration_minutes": 30}
         )
 
         for action in (self.machine.action_archive, self.machine.unlink):

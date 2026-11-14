@@ -79,7 +79,7 @@ class TestSchedulingHttp(SchedulingHttpCase):
         internals = {
             "_set": [[booking_id], {"status": "cancelled"}],
             "_move": [[booking_id], later],
-            "_process_queue": [[]],
+            "_plan": [[], [self.department_id]],
             "_requeue": [[], [self.machine_id]],
             "_follow_assignment": [[], [self.task_ids[0]]],
             "_recommend": [[], self.test_ids[0], self.person_ids[1], self.department_id],
@@ -120,7 +120,7 @@ class TestSchedulingHttp(SchedulingHttpCase):
         again = self.call(browser, MODEL_SAMPLE_TEST, "action_schedule", [[self.test_ids[0]]])
 
         self.assertEqual(again["error"]["data"]["name"], "odoo.exceptions.UserError", again)
-        self.assertRegex(again["error"]["data"]["message"], r"^.+ is already waiting for or holding a machine\.$")
+        self.assertRegex(again["error"]["data"]["message"], r"^.+ is already holding a machine\.$")
         self.assertEqual(self.committed(self.graph), scheduled)
         self.assertEqual(self.committed(self.table_counts), counts)
         self.committed(self.assert_committed_invariants)

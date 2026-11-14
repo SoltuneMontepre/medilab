@@ -118,8 +118,8 @@ msgstr "%s không có người dùng nên quyền trên đó không thể giới
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/sample_collection/sample_mobile.py:0
 #: code:addons/sol_laboratory/models/tasks/task.py:0
+#: code:addons/sol_laboratory/models/sample_collection/sample_mobile.py:0
 msgid "%s is already claimed."
 msgstr "%s đã có người nhận."
 
@@ -431,11 +431,6 @@ msgstr "Một kết quả đã báo cáo đang được hiệu chỉnh."
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_role_code_unique
 msgid "A role with this code already exists."
 msgstr "Đã có vai trò với mã này."
-
-#. module: sol_laboratory
-#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_method_machine_run_minutes_positive
-msgid "A run takes at least one minute."
-msgstr "Một lần chạy mất ít nhất một phút."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -1088,11 +1083,6 @@ msgstr "Người giao"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__specific_property_product_pricelist
 msgid "Assigned Pricelist"
 msgstr "Bảng giá được gán"
-
-#. module: sol_laboratory
-#: model:ir.model,name:sol_laboratory.model_ir_asset
-msgid "Asset"
-msgstr "Tài Nguyên Giao Diện"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__assignee_id
@@ -1819,11 +1809,6 @@ msgid "Create machines"
 msgstr "Tạo máy"
 
 #. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_machine_create_all
-msgid "Create machines for ways of testing"
-msgstr "Tạo máy cho cách thử"
-
-#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_measurement_unit_create_all
 msgid "Create measurement units"
 msgstr "Tạo đơn vị đo"
@@ -1957,7 +1942,6 @@ msgstr "Tạo từ máy tính"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__create_uid
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__create_uid
@@ -2022,6 +2006,8 @@ msgstr "Tạo từ máy tính"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__create_uid
 msgid "Created by"
 msgstr "Người tạo"
 
@@ -2043,7 +2029,6 @@ msgstr "Người tạo"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__create_date
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__create_date
@@ -2108,6 +2093,8 @@ msgstr "Người tạo"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__create_date
 msgid "Created on"
 msgstr "Ngày tạo"
 
@@ -2362,11 +2349,6 @@ msgid "Delete machines"
 msgstr "Xóa máy"
 
 #. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_machine_delete_all
-msgid "Delete machines for ways of testing"
-msgstr "Xóa máy cho cách thử"
-
-#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_measurement_unit_delete_all
 msgid "Delete measurement units"
 msgstr "Xóa đơn vị đo"
@@ -2601,7 +2583,6 @@ msgstr "Hiển thị báo cáo PDF mẫu hóa đơn"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__display_name
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission_mixin__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__display_name
@@ -2679,6 +2660,8 @@ msgstr "Hiển thị báo cáo PDF mẫu hóa đơn"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -2951,11 +2934,6 @@ msgstr "Sửa lịch sử bảo trì máy"
 #: model:medilab.permission,name:sol_laboratory.permission_machine_edit_all
 msgid "Edit machines"
 msgstr "Sửa máy"
-
-#. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_machine_edit_all
-msgid "Edit machines for ways of testing"
-msgstr "Sửa máy cho cách thử"
 
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_measurement_unit_edit_all
@@ -3720,7 +3698,6 @@ msgstr "Hr trạng thái hiện diện"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__id
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission_mixin__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__id
@@ -3798,6 +3775,8 @@ msgstr "Hr trạng thái hiện diện"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__id
 msgid "ID"
 msgstr "ID"
 
@@ -4447,7 +4426,6 @@ msgstr "Hoạt động gần nhất"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__write_uid
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__write_uid
@@ -4512,6 +4490,8 @@ msgstr "Hoạt động gần nhất"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__write_uid
 msgid "Last Updated by"
 msgstr "Cập nhật lần cuối bởi"
 
@@ -4533,7 +4513,6 @@ msgstr "Cập nhật lần cuối bởi"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__write_date
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__write_date
@@ -4598,6 +4577,8 @@ msgstr "Cập nhật lần cuối bởi"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__write_date
 msgid "Last Updated on"
 msgstr "Cập nhật lần cuối vào"
 
@@ -4724,10 +4705,10 @@ msgstr "Kinh độ"
 #: model:ir.model,name:sol_laboratory.model_medilab_machine
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__machine_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__machine_id
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__machine_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__machine_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__machine_id
 msgid "Machine"
 msgstr "Máy"
 
@@ -4735,11 +4716,6 @@ msgstr "Máy"
 #: model:ir.model,name:sol_laboratory.model_medilab_machine_service
 msgid "Machine Service"
 msgstr "Lịch Sử Bảo Trì Máy"
-
-#. module: sol_laboratory
-#: model:ir.model,name:sol_laboratory.model_medilab_parameter_method_machine
-msgid "Machine for a Way of Testing"
-msgstr "Máy cho cách thử"
 
 #. module: sol_laboratory
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_machine
@@ -5500,6 +5476,8 @@ msgstr "Đã thanh toán"
 #: code:addons/sol_laboratory/models/testing/test_report.py:0
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__parameter_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__parameter_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_parameter_authorization_search
 msgid "Parameter"
 msgstr "Chỉ Tiêu"
 
@@ -6559,6 +6537,7 @@ msgstr "Quyền"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__person_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__person_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__person_id
 msgid "Person"
 msgstr "Nhân Sự"
 
@@ -7258,11 +7237,6 @@ msgstr "ID định tuyến"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__rtc_session_ids
 msgid "Rtc Session"
 msgstr "Phiên gọi"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__run_minutes
-msgid "Run Minutes"
-msgstr "Thời gian chạy (phút)"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__run_requested_at
@@ -8064,6 +8038,8 @@ msgstr "Lĩnh Vực Thử Nghiệm"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__method_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__method_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__method_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__method_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__method_id
 msgid "Testing Method"
 msgstr "Phương Pháp Thử"
 
@@ -8078,6 +8054,8 @@ msgstr "Bước Phương Pháp Thử"
 #: model:ir.ui.menu,name:sol_laboratory.menu_testing_method
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_chemical_form
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate__method_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__method_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_form
 msgid "Testing Methods"
 msgstr "Phương Pháp Thử"
 
@@ -8360,11 +8338,6 @@ msgstr "Vị trí đã được đặt vào thời gian đó."
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
 msgid "The login or the password is wrong."
 msgstr "Tên đăng nhập hoặc mật khẩu không đúng."
-
-#. module: sol_laboratory
-#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_method_machine_pair_machine_unique
-msgid "The machine is already linked to this way of testing."
-msgstr "Máy đã được gắn với cách thử này."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -9028,7 +9001,6 @@ msgstr "Đang chờ"
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_parameter_method
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__parameter_method_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__parameter_method_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__parameter_method_id
@@ -9040,7 +9012,6 @@ msgstr "Cách Thử"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__parameter_method_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__method_ids
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_parameter_form
 msgid "Ways of Testing"
 msgstr "Cách Thử"
@@ -9429,21 +9400,6 @@ msgstr "Quyền: parameter.method.edit.all"
 #: model:res.groups,name:sol_laboratory.group_permission_parameter_method_edit_own_department
 msgid "Permission: parameter.method.edit.own_department"
 msgstr "Quyền: parameter.method.edit.own_department"
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_machine_create_all
-msgid "Permission: parameter.method.machine.create.all"
-msgstr "Quyền: parameter.method.machine.create.all"
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_machine_delete_all
-msgid "Permission: parameter.method.machine.delete.all"
-msgstr "Quyền: parameter.method.machine.delete.all"
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_machine_edit_all
-msgid "Permission: parameter.method.machine.edit.all"
-msgstr "Quyền: parameter.method.machine.edit.all"
 
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_quality_registration_archive_all
@@ -10820,18 +10776,6 @@ msgid "%(machine)s is not free for %(booking)s at that time."
 msgstr "%(machine)s không trống cho %(booking)s vào lúc đó."
 
 #. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/sample_test.py:0
-msgid "%s is already waiting for or holding a machine."
-msgstr "%s đã đang chờ hoặc đang giữ một máy."
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
-msgid "<span class=\"badge text-bg-danger\" invisible=\"not is_urgent\">Urgent</span>"
-msgstr "<span class=\"badge text-bg-danger\" invisible=\"not is_urgent\">Khẩn</span>"
-
-#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_booking_slot_period
 msgid "A booking ends after it starts."
 msgstr "Lịch đặt máy phải kết thúc sau khi bắt đầu."
@@ -10940,12 +10884,6 @@ msgstr "Chỉ lịch đặt máy đang thực hiện mới có thể hoàn thàn
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/machine_booking.py:0
-msgid "Only a queued or scheduled booking can be cancelled."
-msgstr "Chỉ lịch đặt máy đang chờ hoặc đã xếp lịch mới có thể hủy."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/machine_booking.py:0
 msgid "Only a scheduled booking can be moved."
 msgstr "Chỉ lịch đặt máy đã xếp lịch mới có thể dời."
 
@@ -11003,17 +10941,6 @@ msgid "Permission: machine.booking.read.own_department"
 msgstr "Quyền: machine.booking.read.own_department"
 
 #. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine_booking__status__queued
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
-msgid "Queued"
-msgstr "Đang chờ"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__queued_at
-msgid "Queued At"
-msgstr "Thời điểm vào hàng đợi"
-
-#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_machine_booking_read_all
 msgid "Read machine bookings"
 msgstr "Xem lịch đặt máy"
@@ -11059,7 +10986,8 @@ msgid "Subcontracted Ways"
 msgstr "Cách thử thuê ngoài"
 
 #. module: sol_laboratory
-#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_booking_no_overlap
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_booking_machine_same_end
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_booking_machine_same_start
 msgid "The machine already has a booking at that time."
 msgstr "Máy đã có lịch đặt vào thời gian đó."
 
@@ -13391,7 +13319,6 @@ msgstr "Đang chỉnh sửa"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__lock_message
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__lock_message
@@ -13424,6 +13351,8 @@ msgstr "Đang chỉnh sửa"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__lock_message
 msgid "Editing Lock"
 msgstr "Khóa chỉnh sửa"
 
@@ -13603,7 +13532,6 @@ msgstr "Người chờ"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__lock_watched
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__lock_watched
@@ -13636,6 +13564,8 @@ msgstr "Người chờ"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_scope_line__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__lock_watched
 msgid "Watching Lock"
 msgstr "Đang chờ mở khóa"
 
@@ -16737,6 +16667,347 @@ msgstr "Bạn không được giao nhiệm vụ."
 #: code:addons/sol_laboratory/models/tasks/task_mobile.py:0
 msgid "You may not create tasks."
 msgstr "Bạn không được tạo nhiệm vụ."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking.py:0
+msgid "%s cannot join an interval that has started."
+msgstr "%s không thể tham gia khung giờ đã bắt đầu."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_method_duration_positive
+msgid "A booking takes at least one minute."
+msgstr "Một lịch đặt kéo dài ít nhất một phút."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_method_duration_not_negative
+msgid "A duration cannot be negative."
+msgstr "Thời lượng không được âm."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_method_capacity_positive
+msgid "A machine holds at least one sample."
+msgstr "Một máy chứa ít nhất một mẫu."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_method_capacity_positive
+msgid "A way of testing holds at least one sample."
+msgstr "Một cách thử chứa ít nhất một mẫu."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__capacity
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__capacity
+msgid "Capacity"
+msgstr "Sức Chứa"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_method_create_all
+msgid "Create machines for testing methods"
+msgstr "Tạo máy cho phương pháp thử"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_method_delete_all
+msgid "Delete machines for testing methods"
+msgstr "Xóa máy cho phương pháp thử"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__duration_minutes
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__duration_minutes
+msgid "Duration (minutes)"
+msgstr "Thời Lượng (phút)"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_method_edit_all
+msgid "Edit machines for testing methods"
+msgstr "Sửa máy cho phương pháp thử"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_machine_method
+msgid "Machine for a Testing Method"
+msgstr "Máy cho phương pháp thử"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_machine_method_create_all
+msgid "Permission: machine.method.create.all"
+msgstr "Quyền: machine.method.create.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_machine_method_delete_all
+msgid "Permission: machine.method.delete.all"
+msgstr "Quyền: machine.method.delete.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_machine_method_edit_all
+msgid "Permission: machine.method.edit.all"
+msgstr "Quyền: machine.method.edit.all"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking.py:0
+msgid "The interval of %(booking)s is full: it holds %(capacity)s samples."
+msgstr "Khung giờ của %(booking)s đã đầy: chỉ chứa %(capacity)s mẫu."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_booking_machine_one_method
+msgid "The machine already runs another testing method at that time."
+msgstr "Máy đang chạy một phương pháp thử khác vào thời gian đó."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_method_machine_method_unique
+msgid "The machine is already linked to this testing method."
+msgstr "Máy đã được gắn với phương pháp thử này."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/parameter_authorization.py:0
+msgid "%(person)s is not authorized to test %(parameter)s."
+msgstr "%(person)s không được phép thử %(parameter)s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_eligibility.py:0
+msgid "%s is cancelled."
+msgstr "%s đã bị hủy."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_eligibility.py:0
+msgid "%s waits for more sample: its sample is on hold."
+msgstr "%s đang chờ thêm mẫu: mẫu của nó đang tạm giữ."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_eligibility.py:0
+msgid "%s waits until its department receives its sample."
+msgstr "%s chờ đến khi phòng ban của nó nhận mẫu."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__authorization_required
+msgid "Authorization Required"
+msgstr "Cần Quyền Thử Chỉ Tiêu"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__authorized_person_ids
+msgid "Authorized Person"
+msgstr "Nhân Sự Được Phép"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_authorization_create_all
+msgid "Create parameter authorizations"
+msgstr "Tạo quyền thử chỉ tiêu"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_authorization_delete_all
+msgid "Delete parameter authorizations"
+msgstr "Xóa quyền thử chỉ tiêu"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_authorization_edit_all
+msgid "Edit parameter authorizations"
+msgstr "Sửa quyền thử chỉ tiêu"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_parameter_authorization
+msgid "Parameter Authorization"
+msgstr "Quyền Thử Chỉ Tiêu"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_parameter_authorization
+#: model:ir.ui.menu,name:sol_laboratory.menu_parameter_authorization
+msgid "Parameter Authorizations"
+msgstr "Quyền Thử Chỉ Tiêu"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_authorization_create_all
+msgid "Permission: parameter.authorization.create.all"
+msgstr "Quyền: parameter.authorization.create.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_authorization_delete_all
+msgid "Permission: parameter.authorization.delete.all"
+msgstr "Quyền: parameter.authorization.delete.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_authorization_edit_all
+msgid "Permission: parameter.authorization.edit.all"
+msgstr "Quyền: parameter.authorization.edit.all"
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_authorization_person_parameter_unique
+msgid "The person is already authorized to test this parameter."
+msgstr "Nhân sự đã được phép thử chỉ tiêu này."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "%s is already holding a machine."
+msgstr "%s đang giữ máy."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_priority.py:0
+msgid "%s is at risk of missing its internal due date."
+msgstr "%s có nguy cơ trễ hạn nội bộ."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+msgid ""
+"<span class=\"badge text-bg-danger ms-2\" invisible=\"not at_risk\">At "
+"Risk</span>"
+msgstr "<span class=\"badge text-bg-danger ms-2\" invisible=\"not at_risk\">Có nguy cơ trễ hạn</span>"
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_sample_test_at_risk
+msgid ""
+"A sample test you test or your department tests may miss its internal due "
+"date"
+msgstr "Một chỉ tiêu của mẫu bạn hoặc phòng của bạn thử nghiệm có thể trễ hạn nội bộ"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "Accept"
+msgstr "Chấp nhận"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_plan.py:0
+msgid "Assign %s to a tester before accepting its booking."
+msgstr "Hãy giao %s cho một thử nghiệm viên trước khi chấp nhận lịch đặt."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__at_risk
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__at_risk
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
+msgid "At Risk"
+msgstr "Có nguy cơ trễ hạn"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__can_mark_urgent
+msgid "Can Mark Urgent"
+msgstr "Có thể đánh dấu khẩn"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_test__priority__due_soon
+msgid "Due Soon"
+msgstr "Sắp đến hạn"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_priority.py:0
+msgid "Give a reason for marking the test urgent."
+msgstr "Hãy nêu lý do đánh dấu khẩn chỉ tiêu."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_urgent_mark_form
+msgid "Mark Urgent"
+msgstr "Đánh dấu khẩn"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_sample_test_urgent_mark
+msgid "Mark a Sample Test Urgent"
+msgstr "Đánh Dấu Khẩn Chỉ Tiêu Của Mẫu"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_sample_test_urgent_mark
+msgid "Mark the Test Urgent"
+msgstr "Đánh dấu khẩn chỉ tiêu"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__marked_urgent
+msgid "Marked Urgent"
+msgstr "Đã đánh dấu khẩn"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__marked_urgent_by_id
+msgid "Marked Urgent By"
+msgstr "Người đánh dấu khẩn"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_test__priority__normal
+msgid "Normal"
+msgstr "Bình thường"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_plan.py:0
+msgid "Only a proposed booking can be accepted."
+msgstr "Chỉ lịch đặt đề xuất mới có thể chấp nhận."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking.py:0
+msgid "Only a scheduled booking can be cancelled."
+msgstr "Chỉ lịch đặt đã xếp mới có thể hủy."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_priority.py:0
+msgid ""
+"Only the tester of %s or the head of the department testing it marks it "
+"urgent, while it is open."
+msgstr "Chỉ thử nghiệm viên của %s hoặc trưởng phòng thử nghiệm chỉ tiêu này mới đánh dấu khẩn được, khi chỉ tiêu còn mở."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
+msgid "Plan"
+msgstr "Kế hoạch"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__priority
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__priority
+msgid "Priority"
+msgstr "Mức ưu tiên"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine_booking__status__proposed
+msgid "Proposed"
+msgstr "Đề xuất"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "Remove Urgent Mark"
+msgstr "Bỏ đánh dấu khẩn"
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_sample_test_at_risk
+msgid "Sample test at risk"
+msgstr "Chỉ tiêu của mẫu có nguy cơ trễ hạn"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_plan.py:0
+msgid ""
+"The slot of %s was taken meanwhile; open the plan again for its new slot."
+msgstr "Khung giờ của %s vừa bị chiếm; hãy mở lại kế hoạch để xem khung giờ mới."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "This test is at risk of missing its internal due date."
+msgstr "Chỉ tiêu này có nguy cơ trễ hạn nội bộ."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__urgent_reason
+msgid "Urgent Reason"
+msgstr "Lý do khẩn"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/scheduled_job.py:0
+msgid "Sample tests still at risk of missing their internal due date: %s"
+msgstr "Các chỉ tiêu của mẫu vẫn có nguy cơ trễ hạn nội bộ: %s"
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_sample_tests_at_risk_summary_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_sample_tests_at_risk_summary
+msgid "Summary of sample tests at risk"
+msgstr "Tổng hợp chỉ tiêu của mẫu có nguy cơ trễ hạn"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_ir_asset
+msgid "Asset"
+msgstr "Tài Nguyên Giao Diện"
 
 #. module: sol_laboratory
 #. odoo-python

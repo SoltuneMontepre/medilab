@@ -7,21 +7,22 @@
             <list
                 create="0"
                 decoration-muted="status in ('done', 'cancelled')"
-                decoration-danger="is_urgent and status in ('queued', 'scheduled')"
+                decoration-danger="at_risk and status in ('proposed', 'scheduled')"
             >
-                <field name="is_urgent" column_invisible="1" />
+                <field name="at_risk" column_invisible="1" />
                 <field name="display_name" string="Sample Test" />
                 <field name="machine_id" />
+                <field name="method_id" optional="hide" />
                 <field name="person_id" />
                 <field name="department_id" optional="hide" />
                 <field name="starts_at" />
                 <field name="ends_at" />
                 <field name="due_date" optional="show" />
-                <field name="queued_at" optional="hide" />
+                <field name="priority" widget="badge" decoration-danger="priority == 'urgent'" decoration-warning="priority == 'due_soon'" optional="show" />
                 <field
                     name="status"
                     widget="badge"
-                    decoration-warning="status == 'queued'"
+                    decoration-warning="status == 'proposed'"
                     decoration-info="status in ('scheduled', 'in_progress')"
                     decoration-success="status == 'done'"
                     decoration-danger="status == 'cancelled'"
@@ -36,6 +37,7 @@
         <field name="arch" type="xml">
             <form create="0" duplicate="0">
                 <header>
+                    <button name="action_accept" type="object" string="Accept" class="btn-primary" invisible="status != 'proposed'" />
                     <button name="action_start" type="object" string="Start" class="btn-primary" invisible="status != 'scheduled'" />
                     <button name="action_done" type="object" string="Done" class="btn-primary" invisible="status != 'in_progress'" />
                     <button
@@ -43,20 +45,22 @@
                         type="object"
                         string="Cancel Booking"
                         class="btn-danger"
-                        invisible="status not in ('queued', 'scheduled')"
+                        invisible="status != 'scheduled'"
                     />
-                    <field name="status" widget="statusbar" statusbar_visible="queued,scheduled,in_progress,done" />
+                    <field name="status" widget="statusbar" statusbar_visible="proposed,scheduled,in_progress,done" />
                 </header>
                 <sheet>
                     <div class="oe_title">
                         <h1><field name="display_name" /></h1>
-                        <field name="is_urgent" invisible="1" />
-                        <span class="badge text-bg-danger" invisible="not is_urgent">Urgent</span>
+                        <field name="priority" widget="badge" decoration-danger="priority == 'urgent'" decoration-warning="priority == 'due_soon'" />
+                        <field name="at_risk" invisible="1" />
+                        <span class="badge text-bg-danger ms-2" invisible="not at_risk">At Risk</span>
                     </div>
                     <group>
                         <group>
                             <field name="sample_test_id" />
                             <field name="machine_id" />
+                            <field name="method_id" />
                             <field name="person_id" />
                             <field name="task_id" />
                         </group>
@@ -64,7 +68,6 @@
                             <field name="starts_at" readonly="status != 'scheduled'" />
                             <field name="ends_at" />
                             <field name="due_date" />
-                            <field name="queued_at" />
                         </group>
                     </group>
                     <notebook>
@@ -125,12 +128,15 @@
                 <field name="machine_id" />
                 <field name="person_id" />
                 <field name="sample_test_id" />
-                <filter name="open" string="Not Finished" domain="[('status', 'in', ('queued', 'scheduled', 'in_progress'))]" />
-                <filter name="queued" string="Queued" domain="[('status', '=', 'queued')]" />
+                <field name="department_id" />
+                <filter name="open" string="Not Finished" domain="[('status', 'in', ('proposed', 'scheduled', 'in_progress'))]" />
+                <filter name="proposed" string="Plan" domain="[('status', '=', 'proposed')]" />
+                <filter name="at_risk" string="At Risk" domain="[('sample_test_id.at_risk', '=', True)]" />
                 <group>
                     <filter name="group_machine" string="Machine" context="{'group_by': 'machine_id'}" />
                     <filter name="group_person" string="Person" context="{'group_by': 'person_id'}" />
                     <filter name="group_status" string="Status" context="{'group_by': 'status'}" />
+                    <filter name="group_department" string="Department" context="{'group_by': 'department_id'}" />
                 </group>
             </search>
         </field>

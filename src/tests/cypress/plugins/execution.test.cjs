@@ -103,7 +103,7 @@ function server({ active = true, databaseUuid = randomUUID() } = {}) {
       assert.deepEqual(args, [
         [
           ["sample_test_id.sample_id.request_id", "in", [200]],
-          ["status", "in", ["queued", "scheduled"]],
+          ["status", "=", "scheduled"],
         ],
       ]);
       return method === "search" ? (fixtures.bookingActive ? [300] : []) : Number(fixtures.bookingActive);

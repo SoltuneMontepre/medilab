@@ -5,7 +5,7 @@ export const ADMIN = "demo.administrator";
 export const HEAD = "demo.head_of_department";
 export const TESTER = "demo.tester";
 const RECEPTION = "demo.sample_delivery_staff";
-const OPEN = ["queued", "scheduled", "in_progress"];
+const OPEN = ["proposed", "scheduled", "in_progress"];
 
 export const odooTime = (milliseconds) => new Date(milliseconds).toISOString().slice(0, 19).replace("T", " ");
 export const milliseconds = (value) => new Date(`${value}Z`).getTime();
@@ -42,7 +42,7 @@ function create(login, model, values) {
 }
 
 // Each test owns its catalog and resources; no seeded booking or shared machine is moved to force availability.
-export function schedulingFixture(count = 2, register = () => {}) {
+export function schedulingFixture(count = 2, register = () => {}, capacity = 1) {
   const fixture = { tag: `Cu-UI-${Date.now()}`, tasks: [], tests: [], bookings: [], eventIds: [] };
   register(fixture);
   const refs = {
@@ -74,6 +74,7 @@ export function schedulingFixture(count = 2, register = () => {}) {
     main_group_id: fixture.group,
     group_ids: [[6, 0, [fixture.group]]],
   })).then((id) => (fixture.parameter = id));
+  cy.then(() => create(ADMIN, "medilab.parameter.authorization", { person_id: fixture.tester, parameter_id: fixture.parameter }));
   cy.then(() => create(ADMIN, "medilab.parameter.method", {
     parameter_id: fixture.parameter,
     method_id: fixture.method,
@@ -84,7 +85,7 @@ export function schedulingFixture(count = 2, register = () => {}) {
     code: fixture.tag,
     name: `Copper spectrometer ${fixture.tag}`,
     location_id: fixture.room,
-    parameter_method_ids: [[0, 0, { parameter_method_id: fixture.way, run_minutes: 30 }]],
+    method_ids: [[0, 0, { method_id: fixture.method, duration_minutes: 30, capacity }]],
     service_ids: [[0, 0, {
       kind: "calibration",
       service_date: odooTime(Date.now()).slice(0, 10),
@@ -103,10 +104,11 @@ export function schedulingFixture(count = 2, register = () => {}) {
       }]],
     })).then((request) => {
       callAs(RECEPTION, "medilab.test.request", "action_confirm", [[request]]);
-      return callAs(RECEPTION, "medilab.sample", "search_read", [[["request_id", "=", request]]], { fields: ["test_ids"] });
+      return callAs(RECEPTION, "medilab.sample", "search_read", [[["request_id", "=", request]]], { fields: ["code", "test_ids"] });
     }).then(([sample]) => {
       fixture.tests.push(sample.test_ids[0]);
       callAs(RECEPTION, "medilab.sample", "action_receive", [[sample.id], "1 chai", "good"]);
+      callAs(TESTER, "medilab.sample.handover", "receive_by_label", [sample.code]);
       return callAs(ADMIN, "medilab.task", "search_read", [
         [["document_model", "=", "medilab.sample.test"], ["document_id", "=", sample.test_ids[0]]],
       ], { fields: ["name"] });
@@ -156,7 +158,7 @@ export function snapshot(fixture) {
 export function release(fixture) {
   if (!fixture?.machine) return null;
   return callAs(ADMIN, "medilab.machine.booking", "search", [
-    [["machine_id", "=", fixture.machine], ["status", "in", ["queued", "scheduled"]]],
+    [["machine_id", "=", fixture.machine], ["status", "=", "scheduled"]],
   ]).then((ids) => ids.length ? callAs(ADMIN, "medilab.machine.booking", "action_cancel", [ids]) : null);
 }
 

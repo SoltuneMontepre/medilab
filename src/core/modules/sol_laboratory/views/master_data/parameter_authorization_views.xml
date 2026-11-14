@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_parameter_authorization_list" model="ir.ui.view">
+        <field name="name">medilab.parameter.authorization.list</field>
+        <field name="model">medilab.parameter.authorization</field>
+        <field name="arch" type="xml">
+            <list editable="bottom" duplicate="0">
+                <field name="person_id" options="{'no_create': True}" />
+                <field name="parameter_id" options="{'no_create': True}" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_parameter_authorization_search" model="ir.ui.view">
+        <field name="name">medilab.parameter.authorization.search</field>
+        <field name="model">medilab.parameter.authorization</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="person_id" />
+                <field name="parameter_id" />
+                <filter name="group_by_person" string="Person" context="{'group_by': 'person_id'}" />
+                <filter name="group_by_parameter" string="Parameter" context="{'group_by': 'parameter_id'}" />
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medilab_parameter_authorization" model="ir.actions.act_window">
+        <field name="name">Parameter Authorizations</field>
+        <field name="res_model">medilab.parameter.authorization</field>
+        <field name="path">parameter-authorizations</field>
+        <field name="view_mode">list</field>
+    </record>
+</odoo>

@@ -86,6 +86,7 @@ class TestTaskDocumentLink(TaskLinkCase):
     def test_a_system_testing_task_still_shows_its_steps(self):
         task = self.testing_task(self.test, self.tester)
         runner = self.create_person("Vo Thi Giang", self.department, "giang.vo")
+        self.authorize(runner, self.parameter)
         task.write({"assignee_id": runner.id, "reassign_reason": "Giang has the free slot."})
         self.env.invalidate_all()
 

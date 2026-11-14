@@ -10,6 +10,19 @@
         <field name="sample_id" ref="demo_sample_reception_good" />
         <field name="department_id" ref="demo_hr_department_microbiology" />
     </record>
+    <!-- Chemistry receives these samples in machine_booking.xml, once their bookings exist. -->
+    <record id="demo_sample_handover_lead_proposed" model="medilab.sample.handover">
+        <field name="sample_id" ref="demo_sample_lead_proposed" />
+        <field name="department_id" ref="demo_hr_department_chemistry" />
+    </record>
+    <record id="demo_sample_handover_lead_marked_urgent" model="medilab.sample.handover">
+        <field name="sample_id" ref="demo_sample_lead_marked_urgent" />
+        <field name="department_id" ref="demo_hr_department_chemistry" />
+    </record>
+    <record id="demo_sample_handover_lead_due_soon" model="medilab.sample.handover">
+        <field name="sample_id" ref="demo_sample_lead_due_soon" />
+        <field name="department_id" ref="demo_hr_department_chemistry" />
+    </record>
     <record id="demo_sample_handover_label_scan_chemistry" model="medilab.sample.handover">
         <field name="sample_id" ref="demo_sample_label_scan" />
         <field name="department_id" ref="demo_hr_department_chemistry" />

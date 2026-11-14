@@ -113,7 +113,7 @@ function executionTasks({
     if (scope.requests.size) {
       const domain = [
         ["sample_test_id.sample_id.request_id", "in", [...scope.requests]],
-        ["status", "in", ["queued", "scheduled"]],
+        ["status", "=", "scheduled"],
       ];
       const ids = await rpc("medilab.machine.booking", "search", [domain]);
       if (ids.length) await rpc("medilab.machine.booking", "action_cancel", [ids]);

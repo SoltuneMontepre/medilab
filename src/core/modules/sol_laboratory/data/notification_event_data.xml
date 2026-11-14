@@ -44,6 +44,17 @@
         <field name="enabled" eval="True" />
     </record>
 
+    <record id="event_sample_test_at_risk" model="mail.message.subtype">
+        <field name="name">Sample test at risk</field>
+        <field name="description">A sample test you test or your department tests may miss its internal due date</field>
+        <field name="code">sample_test.at_risk</field>
+        <field name="res_model">medilab.sample.test</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="False" />
+        <field name="enabled" eval="True" />
+    </record>
+
     <record id="event_test_result_rejected" model="mail.message.subtype">
         <field name="name">Test result rejected</field>
         <field name="description">A test result you entered was rejected</field>

@@ -20,11 +20,12 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_LOCATION,
     MODEL_MACHINE,
     MODEL_MACHINE_BOOKING,
+    MODEL_MACHINE_METHOD,
     MODEL_MAIL_MESSAGE,
     MODEL_MEASUREMENT_UNIT,
+    MODEL_PARAMETER_AUTHORIZATION,
     MODEL_PARAMETER_GROUP,
     MODEL_PARAMETER_METHOD,
-    MODEL_PARAMETER_METHOD_MACHINE,
     MODEL_PARAMETER_METHOD_SAMPLE_TYPE,
     MODEL_PERSON,
     MODEL_RES_PARTNER,
@@ -55,7 +56,7 @@ HEAD_PERMISSIONS = (
     "machine_booking_create_own_department",
     "machine_booking_edit_own_department",
 )
-# The columns of other tests' queued bookings, and of their tests, that a replan of the queue can write.
+# The columns of other tests' proposed bookings, and of their tests, that a recalculation of a plan can write.
 FOREIGN_COLUMNS = {
     "medilab_machine_booking": (
         "status",
@@ -180,8 +181,8 @@ class SchedulingCommittedCase(TransactionCase):
         machine = create(MODEL_MACHINE, {"code": self.token, "name": f"Scheduling machine {self.token}"})
         self.machine_id = machine.id
         create(
-            MODEL_PARAMETER_METHOD_MACHINE,
-            {"parameter_method_id": pair.id, "machine_id": machine.id, "run_minutes": 40},
+            MODEL_MACHINE_METHOD,
+            {"method_id": pair.method_id.id, "machine_id": machine.id, "duration_minutes": 40},
         )
         room = create(MODEL_LOCATION, {"code": self.token, "name": "Scheduling room", "is_bookable": True})
         self.room_id = room.id
@@ -228,6 +229,13 @@ class SchedulingCommittedCase(TransactionCase):
         self.assertEqual(len(tasks), 2)
         self.task_ids = tasks.ids
         self.owned.setdefault(MODEL_TASK, []).extend(tasks.ids)
+        env[MODEL_SAMPLE_HANDOVER].search([("sample_id", "in", request.sample_ids.ids)]).write(
+            {"received_at": fields.Datetime.now(), "received_by_id": people[0].id}
+        )
+        create(
+            MODEL_PARAMETER_AUTHORIZATION,
+            [{"person_id": person.id, "parameter_id": parameter.id} for person in people],
+        )
 
     def assign(self, env, number=0):
         task = env[MODEL_TASK].browse(self.task_ids[number])
@@ -236,7 +244,10 @@ class SchedulingCommittedCase(TransactionCase):
     def graph(self, env):
         tasks = env[MODEL_TASK].browse(self.task_ids)
         tests = env[MODEL_SAMPLE_TEST].browse(self.test_ids)
-        bookings = env[MODEL_MACHINE_BOOKING].search([("sample_test_id", "in", self.test_ids)], order="id")
+        # Proposed bookings reserve nothing; the graph holds the reservations.
+        bookings = env[MODEL_MACHINE_BOOKING].search(
+            [("sample_test_id", "in", self.test_ids), ("status", "!=", "proposed")], order="id"
+        )
         events = (
             env[MODEL_CALENDAR_EVENT].search([("user_id", "in", self.user_ids)])
             | bookings.calendar_event_id
@@ -302,18 +313,18 @@ class SchedulingCommittedCase(TransactionCase):
             ),
             "P4: a test has more than one open booking": SQL(
                 "SELECT sample_test_id FROM medilab_machine_booking WHERE sample_test_id = ANY(%s)"
-                " AND status IN ('queued', 'scheduled', 'in_progress') GROUP BY 1 HAVING count(*) > 1",
+                " AND status IN ('proposed', 'scheduled', 'in_progress') GROUP BY 1 HAVING count(*) > 1",
                 self.test_ids,
             ),
             "P5: a booking's person is not its task's assignee": SQL(
                 "SELECT b.id FROM medilab_machine_booking b JOIN medilab_task t ON t.id = b.task_id"
-                " WHERE b.sample_test_id = ANY(%s) AND b.status IN ('queued', 'scheduled')"
+                " WHERE b.sample_test_id = ANY(%s) AND b.status IN ('proposed', 'scheduled')"
                 " AND b.person_id IS DISTINCT FROM t.assignee_id",
                 self.test_ids,
             ),
             "P8: a closed test has an open booking": SQL(
                 "SELECT b.id FROM medilab_machine_booking b JOIN medilab_sample_test s ON s.id = b.sample_test_id"
-                " WHERE b.sample_test_id = ANY(%s) AND b.status IN ('queued', 'scheduled', 'in_progress')"
+                " WHERE b.sample_test_id = ANY(%s) AND b.status IN ('proposed', 'scheduled', 'in_progress')"
                 " AND s.status IN ('cancelled', 'outsourced', 'approved', 'result_entered')",
                 self.test_ids,
             ),
@@ -347,7 +358,9 @@ class SchedulingCommittedCase(TransactionCase):
                     booking.ends_at, booking.machine_id._usable_until(), f"P9: {label} ends after its machine is fit"
                 )
         for task in env[MODEL_TASK].browse(self.task_ids):
-            slots = task.booking_ids.filtered(lambda booking: booking.status != "cancelled" and booking.starts_at)
+            slots = task.booking_ids.filtered(
+                lambda booking: booking.status not in ("proposed", "cancelled") and booking.starts_at
+            )
             self.assertEqual(
                 (task.planned_start, task.planned_end),
                 (min(slots.mapped("starts_at"), default=False), max(slots.mapped("ends_at"), default=False)),
@@ -355,19 +368,15 @@ class SchedulingCommittedCase(TransactionCase):
             )
 
     def keep_foreign_queue(self, env):
-        """Leave other tests' queued bookings in the queue, so every replan in the test meets them, and put their rows
-        and their tests' rows back as they were when the test ends. Returns their ids and those rows.
-
-        Only bookings that no machine can place are kept: a placed one would gain events the restore does not remove.
+        """Leave other tests' proposed bookings in their plans, and put their rows and their tests' rows back as they
+        were when the test ends. Returns their ids and those rows. A proposed booking reserves nothing, so it gains no
+        event the restore would have to remove.
         """
         bookings = (
             env[MODEL_MACHINE_BOOKING]
             .sudo()
-            .search([("status", "=", "queued"), ("sample_test_id", "not in", self.owned[MODEL_SAMPLE_TEST])])
+            .search([("status", "=", "proposed"), ("sample_test_id", "not in", self.owned[MODEL_SAMPLE_TEST])])
         )
-        for booking in bookings:
-            found = booking._recommend(booking.sample_test_id, booking.person_id, booking.department_id)
-            self.assertIsNone(found, f"Queued booking {booking.id} could be placed by a replan")
         ids = {"medilab_machine_booking": bookings.ids, "medilab_sample_test": bookings.sample_test_id.ids}
         before = self.foreign_rows(env, ids)
 
@@ -378,7 +387,7 @@ class SchedulingCommittedCase(TransactionCase):
                         SQL("%s = %s", SQL.identifier(column), value) for column, value in values.items()
                     )
                     env.cr.execute(SQL("UPDATE %s SET %s WHERE id = %s", SQL.identifier(table), assignments, row_id))
-            self.assertEqual(self.foreign_rows(env, ids), before, "A foreign queued booking was not restored")
+            self.assertEqual(self.foreign_rows(env, ids), before, "A foreign proposed booking was not restored")
 
         self.addCleanup(self.committed, restore)
         return ids, before
@@ -501,7 +510,7 @@ class SchedulingCommittedCase(TransactionCase):
                 MODEL_SAMPLE,
                 MODEL_TEST_REQUEST,
                 MODEL_CUSTOMER,
-                MODEL_PARAMETER_METHOD_MACHINE,
+                MODEL_MACHINE_METHOD,
                 MODEL_TESTING_METHOD_STEP,
                 MODEL_PARAMETER_METHOD_SAMPLE_TYPE,
                 MODEL_PARAMETER_METHOD,

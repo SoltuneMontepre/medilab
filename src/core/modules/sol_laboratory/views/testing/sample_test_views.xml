@@ -11,7 +11,7 @@
                         type="object"
                         string="Schedule"
                         class="btn-primary"
-                        invisible="not recommended_machine_id"
+                        invisible="not recommended_start"
                     />
                     <button
                         name="%(action_medilab_sample_test_outsource)d"
@@ -41,6 +41,21 @@
                         groups="sol_laboratory.group_permission_sample_test_edit_all"
                     />
                     <button
+                        name="%(action_medilab_sample_test_urgent_mark)d"
+                        type="action"
+                        string="Mark Urgent"
+                        context="{'default_sample_test_id': id}"
+                        invisible="not can_mark_urgent or marked_urgent"
+                    />
+                    <button
+                        name="action_unmark_urgent"
+                        type="object"
+                        string="Remove Urgent Mark"
+                        invisible="not can_mark_urgent or not marked_urgent"
+                    />
+                    <field name="can_mark_urgent" invisible="1" />
+                    <field name="marked_urgent" invisible="1" />
+                    <button
                         name="%(action_medilab_sample_test_due_date_change)d"
                         type="action"
                         string="Change Due Date"
@@ -57,6 +72,10 @@
                     <field name="status" widget="statusbar" />
                 </header>
                 <sheet>
+                    <div class="alert alert-danger" role="alert" invisible="not at_risk">
+                        This test is at risk of missing its internal due date.
+                    </div>
+                    <field name="at_risk" invisible="1" />
                     <div class="alert alert-warning" role="alert" invisible="not outsourcing_suggested">
                         No machine can finish this test before its due date. Outsource it through a subcontracted way of testing.
                     </div>
@@ -79,14 +98,15 @@
                     <div class="oe_title">
                         <h1><field name="sample_id" readonly="1" /></h1>
                         <h2><field name="parameter_id" readonly="1" /></h2>
-                        <field name="is_urgent" invisible="1" />
-                        <span class="badge text-bg-danger" invisible="not is_urgent">Urgent</span>
+                        <field name="priority" widget="badge" decoration-danger="priority == 'urgent'" decoration-warning="priority == 'due_soon'" />
                     </div>
                     <group>
                         <group>
                             <field name="quantity" readonly="1" />
                             <field name="due_date" readonly="1" />
                             <field name="due_date_reason" invisible="not due_date_reason" />
+                            <field name="urgent_reason" invisible="not marked_urgent" />
+                            <field name="marked_urgent_by_id" invisible="not marked_urgent" />
                             <field name="parameter_method_id" readonly="1" />
                             <field name="is_accredited" />
                             <field name="accepted_method_id" invisible="not accepted_method_id" />
@@ -100,9 +120,9 @@
                                 Outsourcing this test changes the way of testing the customer accepted: Sales first obtains a revised quotation the customer accepts.
                             </div>
                         </group>
-                        <group string="Recommendation" invisible="not recommended_machine_id">
+                        <group string="Recommendation" invisible="not recommended_start">
                             <field name="recommended_method_id" string="Way of Testing" />
-                            <field name="recommended_machine_id" string="Machine" />
+                            <field name="recommended_machine_id" string="Machine" invisible="not recommended_machine_id" />
                             <field name="recommended_start" string="Start" />
                             <field name="recommended_end" string="End" />
                         </group>
@@ -168,13 +188,14 @@
                                     <field name="starts_at" />
                                     <field name="ends_at" />
                                     <field name="status" widget="badge" />
+                                    <button name="action_accept" type="object" string="Accept" invisible="status != 'proposed'" />
                                     <button name="action_start" type="object" string="Start" invisible="status != 'scheduled'" />
                                     <button name="action_done" type="object" string="Done" invisible="status != 'in_progress'" />
                                     <button
                                         name="action_cancel"
                                         type="object"
                                         string="Cancel"
-                                        invisible="status not in ('queued', 'scheduled')"
+                                        invisible="status != 'scheduled'"
                                     />
                                 </list>
                             </field>
@@ -190,10 +211,10 @@
         <field name="model">medilab.sample.test</field>
         <field name="arch" type="xml">
             <list create="0" delete="0">
-                <field name="is_urgent" column_invisible="1" />
                 <field name="sample_id" />
                 <field name="parameter_id" />
-                <field name="due_date" decoration-danger="is_urgent" />
+                <field name="due_date" />
+                <field name="priority" widget="badge" decoration-danger="priority == 'urgent'" decoration-warning="priority == 'due_soon'" />
                 <field name="subcontracted_method_ids" widget="many2many_tags" />
                 <field name="outsourcing_method_ids" column_invisible="1" />
                 <field name="status" widget="badge" />

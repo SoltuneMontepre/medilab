@@ -4,7 +4,14 @@ from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 
 from odoo.addons.sol_laboratory.constants.departments import DEPARTMENT_DOMAIN
-from odoo.addons.sol_laboratory.constants.models import MODEL_DEPARTMENT, MODEL_PERSON, MODEL_TASK, MODEL_TASK_REASSIGN
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_DEPARTMENT,
+    MODEL_PARAMETER_AUTHORIZATION,
+    MODEL_PERSON,
+    MODEL_TASK,
+    MODEL_TASK_REASSIGN,
+    MODEL_TEST_PARAMETER,
+)
 from odoo.addons.sol_laboratory.services.record_id import persisted_ids
 
 if TYPE_CHECKING:
@@ -29,6 +36,10 @@ class TaskReassign(models.TransientModel, TaskReassignBase):
         reason = fields.Text()
         # True when a task moves away from its person or department, so a reason is needed.
         reason_required = fields.Boolean(compute="_compute_reason_required")
+        # True when a task is a testing task, so only people authorized to test its parameter are offered.
+        authorization_required = fields.Boolean(compute="_compute_authorized_person_ids")
+        # People authorized to test the parameters of every testing task among the tasks.
+        authorized_person_ids = fields.Many2many(MODEL_PERSON, compute="_compute_authorized_person_ids")
 
     @api.model
     def default_get(self, fields_list):
@@ -48,6 +59,18 @@ class TaskReassign(models.TransientModel, TaskReassignBase):
                 task.department_id != wizard.department_id
                 or (task.assignee_id and task.assignee_id != wizard.assignee_id)
                 for task in wizard.task_ids
+            )
+
+    @api.depends("task_ids")
+    def _compute_authorized_person_ids(self):
+        authorizations = self.env[MODEL_PARAMETER_AUTHORIZATION].sudo()
+        # As superuser: the people offered are read by the dialog's domain, not shown.
+        for wizard in self.sudo():
+            parameters = self.env[MODEL_TEST_PARAMETER].union(*(task._parameter() for task in wizard.task_ids))
+            wizard.authorization_required = bool(parameters)
+            candidates = authorizations.search([("parameter_id", "in", parameters.ids)]).person_id
+            wizard.authorized_person_ids = candidates.filtered(
+                lambda person, parameters=parameters: authorizations._authorized(person, parameters)
             )
 
     @api.onchange("department_id")

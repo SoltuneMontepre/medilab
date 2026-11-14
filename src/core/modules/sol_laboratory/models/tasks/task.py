@@ -239,6 +239,8 @@ class Task(models.Model, TaskBase):
                     vals.setdefault("assigned_by_id", person.id)
         tasks = super().create(vals_list)
         tasks._sync_calendar_event()
+        # A new testing task brings work to its department's plan.
+        self.env[MODEL_MACHINE_BOOKING]._plan(tasks.sudo().filtered_domain(self._testing_domain()).department_id)
         return tasks
 
     def write(self, vals):
@@ -255,6 +257,7 @@ class Task(models.Model, TaskBase):
         moved_out = self.filtered(
             lambda task: vals.get("department_id", task.department_id.id) != task.department_id.id
         )
+        left = moved_out.sudo().department_id
         result = super().write(vals)
         person = self.env[MODEL_PERSON]._current()
         if moved_out and person and not self.env.su:
@@ -263,6 +266,9 @@ class Task(models.Model, TaskBase):
         if "assignee_id" in vals:
             self.env[MODEL_SAMPLE_TEST]._follow_assignment(self)
             self.env[MODEL_MACHINE_BOOKING]._follow_assignment(self)
+        if moved_out:
+            # The departments the tasks moved between plan without and with them.
+            self.env[MODEL_MACHINE_BOOKING]._plan(left | moved_out.sudo().department_id)
         if self.env.context.get(CALENDAR_SYNC_CONTEXT) is not CALENDAR_SYNC_TOKEN and {
             "planned_start",
             "planned_end",
