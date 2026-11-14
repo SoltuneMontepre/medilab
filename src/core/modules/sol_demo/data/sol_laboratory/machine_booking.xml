@@ -119,14 +119,18 @@
         <field name="ends_at" eval="(DateTime.now() + relativedelta(days=2, hour=5, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="status">scheduled</field>
     </record>
-    <!-- Chemistry receives the samples of its plan: its plan keeps the proposed booking at risk and proposes slots for
-         the urgent-marked and due-soon tests. -->
-    <function model="medilab.sample.handover" name="write">
-        <value
-            eval="[ref('demo_sample_handover_lead_proposed'), ref('demo_sample_handover_lead_marked_urgent'), ref('demo_sample_handover_lead_due_soon')]"
-        />
-        <value
-            eval="{'received_at': DateTime.now().strftime('%Y-%m-%d %H:%M:%S'), 'received_by_id': ref('demo_person_head_of_department')}"
-        />
-    </function>
+    <!-- Chemistry receives the samples of its plan once the bookings exist; receiving them recalculates its plan, which
+         keeps the proposed booking at risk and proposes slots for the urgent-marked and due-soon tests. -->
+    <record id="demo_sample_handover_lead_proposed" model="medilab.sample.handover">
+        <field name="received_at" eval="DateTime.now().strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="received_by_id" ref="demo_person_head_of_department" />
+    </record>
+    <record id="demo_sample_handover_lead_marked_urgent" model="medilab.sample.handover">
+        <field name="received_at" eval="DateTime.now().strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="received_by_id" ref="demo_person_head_of_department" />
+    </record>
+    <record id="demo_sample_handover_lead_due_soon" model="medilab.sample.handover">
+        <field name="received_at" eval="DateTime.now().strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="received_by_id" ref="demo_person_head_of_department" />
+    </record>
 </odoo>

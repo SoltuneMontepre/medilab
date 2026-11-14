@@ -10,7 +10,7 @@
         <field name="sample_id" ref="demo_sample_reception_good" />
         <field name="department_id" ref="demo_hr_department_microbiology" />
     </record>
-    <!-- Chemistry receives these samples once their bookings are seeded; receiving them recalculates its plan. -->
+    <!-- Chemistry receives these samples in machine_booking.xml, once their bookings exist. -->
     <record id="demo_sample_handover_lead_proposed" model="medilab.sample.handover">
         <field name="sample_id" ref="demo_sample_lead_proposed" />
         <field name="department_id" ref="demo_hr_department_chemistry" />
