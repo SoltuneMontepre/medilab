@@ -1,12 +1,25 @@
 from datetime import datetime
 
+from odoo.fields import Command
+
 from .people_case import PeopleCase
 from .request_case import RequestCase
-from odoo.addons.sol_laboratory.constants.models import MODEL_MACHINE, MODEL_PARAMETER_METHOD_MACHINE, MODEL_TASK
+from odoo.addons.sol_laboratory.constants.models import MODEL_MACHINE, MODEL_MACHINE_METHOD, MODEL_TASK
 from odoo.addons.sol_laboratory.constants.tasks import SAMPLE_RECEIVED_TRIGGER
 
 # A Monday at the start of the working day, in UTC.
 MONDAY = datetime(2026, 10, 12, 8, 0)
+
+
+def calibrated(values):
+    """The values of a machine with a calibration done long ago and valid long after the tests' dates; a test's own
+    calibration is later, so it gives the due date."""
+    return {
+        **values,
+        "service_ids": [
+            Command.create({"kind": "calibration", "service_date": "2020-01-01", "next_due_date": "2099-12-31"})
+        ],
+    }
 
 
 class SchedulingCase(RequestCase, PeopleCase):
@@ -16,12 +29,12 @@ class SchedulingCase(RequestCase, PeopleCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.fast, cls.slow = cls.env[MODEL_MACHINE].create(
-            [{"code": "AAS-1", "name": "AAS 1"}, {"code": "AAS-2", "name": "AAS 2"}]
+            [calibrated({"code": "AAS-1", "name": "AAS 1"}), calibrated({"code": "AAS-2", "name": "AAS 2"})]
         )
-        cls.env[MODEL_PARAMETER_METHOD_MACHINE].create(
+        cls.env[MODEL_MACHINE_METHOD].create(
             [
-                {"parameter_method_id": cls.pair.id, "machine_id": cls.fast.id, "run_minutes": 40},
-                {"parameter_method_id": cls.pair.id, "machine_id": cls.slow.id, "run_minutes": 70},
+                {"method_id": cls.pair.method_id.id, "machine_id": cls.fast.id, "duration_minutes": 40},
+                {"method_id": cls.pair.method_id.id, "machine_id": cls.slow.id, "duration_minutes": 70},
             ]
         )
         cls.tester = cls.create_person(

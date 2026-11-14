@@ -11,6 +11,17 @@
                         <field name="quality_registration_warning_days" class="o_light_label" />
                     </setting>
                 </block>
+                <block title="Machines" name="machine_setting_container">
+                    <setting id="calibration_warning_setting">
+                        <field name="calibration_warning_days" class="o_light_label" />
+                    </setting>
+                    <setting id="maintenance_warning_setting">
+                        <field name="maintenance_warning_days" class="o_light_label" />
+                    </setting>
+                    <setting id="repair_warning_setting">
+                        <field name="repair_warning_days" class="o_light_label" />
+                    </setting>
+                </block>
             </xpath>
         </field>
     </record>

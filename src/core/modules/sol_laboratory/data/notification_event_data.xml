@@ -142,6 +142,39 @@
         <field name="enabled" eval="True" />
     </record>
 
+    <record id="event_machine_booking_overrun" model="mail.message.subtype">
+        <field name="name">Machine booking overran</field>
+        <field name="description">A booking's end passed before its result was entered or its measurement finished</field>
+        <field name="code">machine_booking.overrun</field>
+        <field name="res_model">medilab.machine.booking</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="True" />
+        <field name="enabled" eval="True" />
+    </record>
+
+    <record id="event_machine_booking_returned" model="mail.message.subtype">
+        <field name="name">Machine booking returned to the plan</field>
+        <field name="description">Leave or an unavailable location returned a booking that had not started to the plan</field>
+        <field name="code">machine_booking.returned</field>
+        <field name="res_model">medilab.machine.booking</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="True" />
+        <field name="enabled" eval="True" />
+    </record>
+
+    <record id="event_test_result_interrupted" model="mail.message.subtype">
+        <field name="name">Result interrupted</field>
+        <field name="description">A machine broke down or lost calibration during a measurement, which awaits assessment</field>
+        <field name="code">test_result.interrupted</field>
+        <field name="res_model">medilab.test.result</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="True" />
+        <field name="enabled" eval="True" />
+    </record>
+
     <!-- Administrators are alerted out of the box; they choose other recipients afterwards. -->
     <data noupdate="1">
         <record id="event_recipient_signing_certificate_alert" model="medilab.notification.event.recipient">

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_location_unavailability_preparation_room" model="medilab.location.unavailability">
+        <field name="location_id" ref="demo_location_preparation_room" />
+        <field name="starts_at" eval="(DateTime.now() + relativedelta(days=10, hour=1, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="ends_at" eval="(DateTime.now() + relativedelta(days=10, hour=9, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="reason">Vệ sinh và thay bộ lọc tủ hút.</field>
+    </record>
+</odoo>

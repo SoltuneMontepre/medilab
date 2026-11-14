@@ -9,6 +9,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_DEPARTMENT,
     MODEL_IR_ATTACHMENT,
     MODEL_LOCATION,
+    MODEL_LOCATION_UNAVAILABILITY,
     MODEL_LOCK_MIXIN,
     MODEL_PERMISSION_MIXIN,
 )
@@ -30,6 +31,7 @@ class Location(models.Model, LocationBase):
     _order = "code"
     _rec_names_search = ("code", "name")
     _permission_actions = ("create", "edit", "archive", "delete")
+    _audit_children = ("unavailability_ids",)
 
     if not TYPE_CHECKING:
         # Unique code of the location, such as RO-01.
@@ -56,6 +58,8 @@ class Location(models.Model, LocationBase):
         map_y = fields.Float(string="Map Y")
         # True when people can book the location on their calendar.
         is_bookable = fields.Boolean(string="Bookable")
+        # Intervals the location cannot be used.
+        unavailability_ids = fields.One2many(MODEL_LOCATION_UNAVAILABILITY, "location_id", string="Unavailable Times")
         # False when the location is archived.
         active = fields.Boolean(default=True)
 

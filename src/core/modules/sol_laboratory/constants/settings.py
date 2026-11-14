@@ -12,6 +12,10 @@ URGENCY_HOURS_PARAMETER = "sol_laboratory.urgency_hours"
 # No default: nobody carries dispatches until the administrator names the role.
 SAMPLE_DELIVERY_ROLE_PARAMETER = "sol_laboratory.sample_delivery_role_id"
 DEFAULT_URGENCY_HOURS = 24
+CALIBRATION_WARNING_PARAMETER = "sol_laboratory.calibration_warning_days"
+MAINTENANCE_WARNING_PARAMETER = "sol_laboratory.maintenance_warning_days"
+REPAIR_WARNING_PARAMETER = "sol_laboratory.repair_warning_days"
+DEFAULT_MACHINE_WARNING_DAYS = 7
 DIGITAL_SIGNING_PARAMETER = "sol_laboratory.digital_signing_enabled"
 SIGNING_CERTIFICATE_ALERT_PARAMETER = "sol_laboratory.signing_certificate_alert_days"
 DEFAULT_SIGNING_CERTIFICATE_ALERT_DAYS = 30

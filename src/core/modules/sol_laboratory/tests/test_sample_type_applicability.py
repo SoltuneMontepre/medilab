@@ -12,10 +12,10 @@ from .common import MasterDataCase
 from .result_case import ResultCase
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MACHINE,
+    MODEL_MACHINE_METHOD,
     MODEL_MACHINE_SERVICE,
     MODEL_MEASUREMENT_UNIT,
     MODEL_PARAMETER_METHOD,
-    MODEL_PARAMETER_METHOD_MACHINE,
     MODEL_SAMPLE_TYPE,
     MODEL_SUBCONTRACTOR,
     MODEL_TESTING_METHOD,
@@ -224,21 +224,24 @@ class TestSampleTypeApplicability(MasterDataCase):
         self.icp_ms.applicability_ids.unlink()
         self.assertIn("no other way is", assert_instance(self.parameter._order_refusal(self.cabbage), str))
 
-    def test_a_machine_way_without_a_fit_machine_is_unavailable(self):
+    def test_a_machine_way_without_a_calibrated_machine_is_unavailable(self):
         machine = self.env[MODEL_MACHINE].create({"code": "AAS-1", "name": "AAS 1"})
-        self.env[MODEL_PARAMETER_METHOD_MACHINE].create(
-            {"parameter_method_id": self.pair.id, "machine_id": machine.id, "run_minutes": 30}
+        self.env[MODEL_MACHINE_METHOD].create(
+            {"method_id": self.pair.method_id.id, "machine_id": machine.id, "duration_minutes": 30}
         )
-        self.assertFalse(self.pair._unavailable_reason())
+        self.assertIn("No machine that runs it", assert_instance(self.pair._unavailable_reason(), str))
 
-        self.env[MODEL_MACHINE_SERVICE].create(
+        calibration = self.env[MODEL_MACHINE_SERVICE].create(
             {
                 "machine_id": machine.id,
                 "kind": "calibration",
                 "service_date": fields.Date.today() - timedelta(days=400),
-                "next_due_date": fields.Date.today() - timedelta(days=1),
+                "next_due_date": fields.Date.today() + timedelta(days=1),
             }
         )
+        self.assertFalse(self.pair._unavailable_reason())
+
+        calibration.next_due_date = fields.Date.today() - timedelta(days=1)
 
         self.assertIn("No machine that runs it", assert_instance(self.pair._unavailable_reason(), str))
 

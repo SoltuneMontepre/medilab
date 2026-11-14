@@ -1,6 +1,6 @@
 # Scheduling
 
-Stories: US-T01, US-T02, US-T03, US-T19, US-T20, US-T21, US-HD03, US-HD04, US-HD05, US-HD12, US-HD14
+Stories: US-T01, US-T02, US-T03, US-T19, US-T20, US-T21, US-HD03, US-HD04, US-HD05, US-HD09, US-HD12, US-HD14, US-LH04
 
 ## Goal
 
@@ -30,6 +30,8 @@ A machine that takes several samples in one load, such as an ICP-MS with an auto
 ### Releasing the machine
 
 A booking holds its machine until the tester enters its result or marks the measurement finished, whichever comes first, which frees the machine early. Bookings sharing the interval free their places one by one. When a booking's end passes without either, the machine stays held, the next bookings on it are flagged at risk, and the tester and the head of department are notified; nothing moves by itself.
+
+A measurement in progress past its end keeps its machine from taking a new booking until its result is entered or it is marked finished. The scheduled job `machine_bookings.overrun` checks every 15 minutes for scheduled and in-progress bookings past their end and sends the mandatory `machine_booking.overrun` notification once for each end: to the testers and heads of the booking and of the next bookings on its machine, the bookings of the earliest later interval, which the notification names as at risk. The booking's form says its end has passed, and the form of each scheduled booking on a held machine says it is at risk.
 
 ### Plan
 
@@ -76,8 +78,8 @@ The feasibility check only reads: it simulates in-house resources and outsourced
 
 | Rule | Description |
 | --- | --- |
-| People and rooms | Approved leave or an unavailable required location returns the not-started bookings it overlaps to the plan and notifies the head. The system does not assign another person by itself. |
-| Machines | A machine that breaks down or loses calibration during a booking ends that booking. The data recorded so far is kept as an interrupted result, and the head assesses it as usable, needing a retest or needing more sample. A retest is a new result with a new booking, on another machine only when that machine is linked to the same method. |
+| People and rooms | Approved leave or an unavailable required location returns the scheduled bookings it overlaps to the plan, for a location also those sharing the machine interval of one it overlaps, which use the same room, and notifies the head of the booking's department with the mandatory `machine_booking.returned` notification. A measurement already started stays. The system does not assign another person by itself, and a new booking never reserves a location in an interval it cannot be used. Leave is a time-off entry of the person's resource on the working calendar; an unavailable interval is recorded on the location. |
+| Machines | A machine that breaks down or loses calibration during a booking ends that booking, which becomes done and frees the machine. The data recorded so far is kept as an interrupted result, and the mandatory `test_result.interrupted` notification tells the tester and the head. The head of the department that tested it assesses it as usable, needing a retest or needing more sample; it is sent for approval only once assessed as usable. The sample test stays in testing. A retest is a new result with a new booking, on another machine only when that machine is linked to the same method: it runs by the testing method of the earlier measurement. |
 | Cancelling | Cancelling a sample test ends only its own booking. Bookings sharing its machine interval continue unchanged; a measurement already started keeps its place on the machine until the interval ends, and the cancelled test keeps any recorded data with its cancellation reason. |
 
 ### Outside working hours
@@ -86,7 +88,49 @@ The head records planned OverTime for a tester, an outside-hours interval and a 
 
 ### Warnings
 
-The calibration, maintenance and recent-repair warning windows are three independent settings, each 7 days by default. They warn when planning or starting within the window and never allow a blocked booking. Returning a machine to in use after a repair requires a calibration or maintenance record dated after the repair.
+The calibration, maintenance and recent-repair warning windows are three independent settings, each 7 days by default. They warn when planning or starting within the window and never allow a blocked booking. A booking warns when it ends within the calibration window before the end of its machine's calibration date or within the maintenance window before the end of its maintenance due date, and when it starts within the recent-repair window after the day of the machine's latest repair; the booking's form shows the warning. A window of 0 days turns its warning off. Returning a machine to in use after a repair requires a calibration or maintenance record dated after the repair.
+
+### Data
+
+The tables are drawn in [laboratory.prisma](../infrastructure/database/laboratory/laboratory.prisma). A department's plan is its proposed bookings and has no table of its own. A sample test's arrival is when its department received the sample, and its planned finish is the end of its booking.
+
+| Table | Holds |
+| --- | --- |
+| `medilab_machine_method` | A machine linked to a testing method, with the booking duration and the capacity in samples |
+| `medilab_parameter_method` | The duration and capacity of a way whose method has no machine |
+| `medilab_machine_booking` | A booking: its sample test, method, tester, interval, machine when needed, state and pinned flag |
+| `calendar_event` | The tester's event of a scheduled booking, and a reservation of each bookable step location |
+| `medilab_plan_revision`, `medilab_plan_revision_move` | A plan revision and each booking it moves, with the new interval, the approving head and the held-back or conflict state |
+| `medilab_parameter_authorization` | The parameters the Lab Head authorized each person to test |
+| `medilab_overtime` | Planned OverTime of a tester |
+| `medilab_location_unavailability` | Intervals a location cannot be used |
+| `medilab_machine_service` | Done and planned services, with the downtime a planned maintenance reserves |
+| `medilab_test_request`, `medilab_committed_date_change` | The requested and committed return dates, and each change of the committed date with the customer's confirmation |
+| `medilab_sample_test` | The internal due date and the head's override with its reason, the urgent mark with its reason, and the at-risk flag |
+| `medilab_test_result` | The booking a result was measured in, and the head's assessment of an interrupted result |
+
+The three warning windows, the due-soon threshold and the safety margin are settings.
+
+### Upgrading today's bookings
+
+The upgrade keeps every booking, calendar event and reminder, and creates nothing the laboratory did not record.
+
+| Data | After the upgrade |
+| --- | --- |
+| Way-and-machine links | One machine-and-method link for each machine and method of the ways linked to it, with capacity 1. Its duration is the run time of those links, or the longest of them when they differ; the upgrade logs each such link. The way-and-machine table is dropped, and the permissions of its links move to the new links, so roles keep them. |
+| Ways | Every way of a method linked to a machine can be booked on that machine. An in-house way whose method has no machine keeps capacity 1 and an empty duration, and cannot be booked until it has one; the upgrade logs each. |
+| Queued bookings | Proposed, keeping their sample test, task, department and tester. They had no interval, calendar event or location reservation; the first recalculation of the plan places them. |
+| Scheduled, in-progress, done and cancelled bookings | Unchanged, with their machine, interval, calendar event, location reservations and reminders; reminders follow their calendar event. None is pinned. Their method is filled from the sample test's way. |
+| Queue order | The time a booking joined the queue and its copied due date are dropped: the plan orders by priority class, committed return date and arrival. |
+| Results | Linked to the booking of their sample test whose machine and start they match, when exactly one does; otherwise left without a booking. None is interrupted. |
+| Test requests | The expected date becomes the committed return date. The requested date stays empty. |
+| Machine services | Every existing record is a done service without downtime. |
+
+No authorization, OverTime, location unavailability, plan revision or urgent mark is created. After the upgrade:
+
+- The administrator sets the capacity of each machine-and-method link of a machine that takes several samples in one load, such as an ICP-MS or an incubator, and checks the durations the upgrade logged.
+- The administrator enters the duration of each logged in-house way without a machine, and removes a machine-and-method link where a machine must not run every way of that method.
+- The Lab Head enters the authorization list. Existing assignments and bookings stay, but nobody is assigned, claims or is booked for a parameter they are not authorized for.
 
 ## Related documents
 

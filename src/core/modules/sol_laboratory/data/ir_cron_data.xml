@@ -96,4 +96,12 @@
         <field name="interval_number">5</field>
         <field name="interval_type">minutes</field>
     </record>
+    <record id="ir_cron_machine_bookings_overrun" model="ir.cron">
+        <field name="name">Notify overrunning machine bookings</field>
+        <field name="model_id" ref="model_medilab_scheduled_job" />
+        <field name="state">code</field>
+        <field name="code">model._run_key("machine_bookings.overrun")</field>
+        <field name="interval_number">15</field>
+        <field name="interval_type">minutes</field>
+    </record>
 </odoo>
