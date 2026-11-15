@@ -208,7 +208,7 @@ sequenceDiagram
 
 | ID | Rule | Spec | Issue |
 |---|---|---|---|
-| T01 | Proposed plan; accepting is all-or-nothing | `scheduling.md:19-20,36-38` | #419, #422 |
+| T01 | A feasible proposed booking reserves all required resources when the head approves it, or none if a resource is taken meanwhile. The tester receives an approval notice and a reminder before the booking starts | [Scheduling plan](../specs/scheduling.md#plan), [WF-03](../functional/business-flows.md#wf-03-testing-assignment-and-scheduling) | #419, #422, #427 |
 | T02 | Capacity sharing | `scheduling.md:26-28` | #420 |
 | T03 | Person-to-parameter authorization | `scheduling.md:21` | #421 |
 | T04 | Priority classes, then committed date, then arrival | `scheduling.md:42-48` | #422 |
@@ -1066,22 +1066,22 @@ TXN-003 raises its exception once per run at each injection point, after the tra
 
 ### 12.5 Browser test traceability
 
-The browser tests live in `src/tests/cypress/e2e/flows/wf-03-testing-scheduling/`. A title starts with the approved path ID of [Business flows](../functional/business-flows.md); `partial` follows it when the path needs a feature that does not exist yet. No path is covered in full. The tests do not assert head approval, the new assignee's notification or outsourcing semantics, which the pending revision of the baseline changes.
+The browser tests live in `src/tests/cypress/e2e/flows/wf-03-testing-scheduling/`. A title starts with the approved path ID of [Business flows](../functional/business-flows.md). The `partial` label marks coverage of part of the path. All covered paths are partial. The current WF-03 baseline requires head approval for every feasible proposed booking, a notice to the tester when it is approved and a reminder before it starts. Those steps remain uncovered by the WF-03 path tests.
 
 | Path | Browser test | Proved | Still blocked by |
 |---|---|---|---|
-| WF-03-M | `TC-WF03-M partial` | Head assigns; tester books the recommended machine and slot; machine schedule, calendar event and task times | #420 shared runs and capacity, #421 authorization |
+| WF-03-M | `TC-WF03-M partial` | The head assigns the test. Today's tester-facing Schedule action books the recommended machine and slot and updates Machine Schedule, the calendar event and task times | #420 shared runs and capacity, #421 authorization, #422 proposed plan and head approval under the current baseline, #427 booking reminder |
 | WF-03-A1 | `TC-WF03-A1 partial` | Tester claims an unassigned task of their department | #421 parameter authorization |
-| WF-03-A2 | `TC-WF03-A2 partial` | Machine and step-room booking together; room events cannot be removed apart | #420 booking without a machine |
+| WF-03-A2 | `TC-WF03-A2 partial` | Machine and step-room bookings are made together. Room events cannot be removed separately | #420 shared intervals, capacity and booking without a machine |
 | WF-03-A3 | none | – | #426 OverTime |
-| WF-03-E1 | `TC-WF03-E1 partial` (2 tests) | Head moves a task to another person and department with a reason; the new assignee sees the task and its booking, the previous one neither | #421; head approval of the moved booking and the new assignee's notification |
-| WF-03-E2 | `TC-WF03-E2 partial` | The outsourcing warning shows, Schedule is hidden and refused, no booking or event | #179 viable options and earliest date |
-| SF-10-M | `TC-F24-02` (RPC order only) | Queue order by urgency then queue time | #422 priority classes, #179 |
+| WF-03-E1 | `TC-WF03-E1 partial` (2 tests) | The head moves a task to another person and department with a reason. Only the new assignee sees the moved task and its booking | #421 authorization, plus head approval of the new proposal and the new assignee's notification |
+| WF-03-E2 | `TC-WF03-E2 partial` | The outsourcing warning shows, Schedule is hidden and refused, and no booking or event is created | #179 viable options and earliest date. SF-07 owns changes to the committed return date. WF-05 owns outsourcing to a subcontractor with the same method |
+| SF-10-M | `TC-F24-02` (RPC order only) | Queue order by urgency then queue time | #422 priority classes, tie-breaks, proposed plan and head approval under the current baseline, plus #179 risk |
 | SF-10-A1 | none | – | #422, #164 |
 | SF-10-A2 | `TC-SF10-A2 partial` (5 tests) | Tester cancels a booking; head moves a booking through its form and by calendar drag with every reservation moving together; a drop onto a busy slot is refused; head cancels a booking and the test stays assigned | #423 pinning, #420 shared runs |
-| SF-10-A3 | `TC-SF10-A3 partial` (2 tests) | Head cancels a booked test with a reason; only its own task, booking and events end; a tester cannot | #420 shared-run reservations; cancelling a running booking is not asserted |
+| SF-10-A3 | `TC-SF10-A3 partial` (2 tests) | The head cancels a booked test with a reason, ending only its own task, booking and events. A tester's cancellation is refused | #420 shared-run reservations and #425 cancellation after a measurement starts |
 | SF-10-A4 | none | – | #427 reminders |
-| SF-10-A5 | none | – | Not in #154; waits for the answer on early finish |
+| SF-10-A5 | none | – | Outside #154. The [spec](../specs/scheduling.md#releasing-the-machine) requires result entry or marking the measurement finished to release the machine early |
 | SF-10-E1 to E4 | none | – | #423, #179 / #405, #425 |
 
 The browser rows that prove a path part also close UI-004, UI-006, UI-008 and UI-009 (Section 10, I), and add a browser view of SCH-022 and SCH-026 (head cancels and head moves a booking).
@@ -1097,11 +1097,11 @@ The browser rows that prove a path part also close UI-004, UI-006, UI-008 and UI
 | `TC-F24-03` hides Schedule when no machine can finish | `TC-WF03-E2 partial` |
 | `TC-WF03-M`, `TC-WF03-A1` | `TC-WF03-M partial`, `TC-WF03-A1 partial` |
 
-**Issue #318** asks for demo data whose recommendation always books a room, and for `TC-WF03-A5` to book through Schedule on a fresh sample. Evidence in the repository:
+**Issue #318** asks for demo data whose recommendation always books a room, and for `TC-WF03-A2 partial` (formerly `TC-WF03-A5`) to book through Schedule on a fresh sample. Evidence in the repository:
 
 - The `chromium_vi` way has one link to the UV-Vis spectrophotometer (60 minutes) and a step in the colorimetry room; the Schedule button books both for a fresh sample (`TC-WF03-A2 partial`).
 - The test asserts the room events at 15 and 45 minutes, the Room Bookings tab, the tester's calendar events, the Calendar list, and that removing or archiving a room event alone is refused with the state unchanged.
-- Still to verify: the test passes again on the same database, the other WF-03 recommendations stay unchanged, and the `e2e` job of `ci-core` passes. The text of #318 still names `TC-WF03-A5` and needs the new title.
+- The issue requires a passing rerun on the same database, unchanged recommendations in the other WF-03 tests and a green `e2e` job in `ci-core`.
 
 ---
 
