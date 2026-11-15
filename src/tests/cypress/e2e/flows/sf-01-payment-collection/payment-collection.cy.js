@@ -1,5 +1,5 @@
 import { choose, save } from "../../../support/form";
-import { callAs, portalPostAs, refAs } from "../../../support/odoo";
+import { call, callAs, portalPostAs, refAs } from "../../../support/odoo";
 import {
   ACCOUNTANT,
   ADMINISTRATOR,
@@ -151,7 +151,11 @@ describe("SF-01 Invoicing and payment collection", () => {
         openDialog(`button[name="${id}"]`)
           .find(".o_field_widget[name=amount] input")
           .type(String(order.request.amount));
-        choose("method", "Tiền mặt");
+        call("medilab.payment.collection", "fields_get", [["method"]], { attributes: ["selection"] }).then(({ method }) => {
+          const cash = new Map(method.selection).get("cash");
+          expect(cash, "cash payment option").to.be.a("string").and.not.be.empty;
+          choose("method", cash);
+        });
         cy.get(".modal:visible button[name=action_record]").click();
       });
       cy.get(".modal:visible").should("not.exist");
