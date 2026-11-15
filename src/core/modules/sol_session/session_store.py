@@ -15,7 +15,8 @@ _logger = logging.getLogger(__name__)
 TABLE = "sol_http_session"
 # Serializes creating the table, which every worker tries on its first use.
 CREATE_LOCK = 0x501_5E55
-IDENTIFIER_LENGTH = http_session.STORED_SESSION_BYTES
+# The identifier of a session in a device log: its first STORED_SESSION_BYTES characters, which Odoo sets to 42.
+IDENTIFIER = "left(sid, 42)"
 
 
 def database_name():
@@ -30,7 +31,7 @@ class DatabaseSessionStore(http_session.SessionStore):
 
     def __init__(self, /, path=None, session_cls=http_session.Session, database=None):
         super().__init__(path=path, session_cls=session_cls)
-        self.database = database or database_name()
+        self.database = database or database_name() or ""
         self.table_ready = False
 
     def _cursor(self):
@@ -53,7 +54,7 @@ class DatabaseSessionStore(http_session.SessionStore):
                 data jsonb NOT NULL,
                 write_date timestamp NOT NULL
             );
-            CREATE INDEX IF NOT EXISTS {TABLE}_identifier_index ON {TABLE} (left(sid, {IDENTIFIER_LENGTH}));
+            CREATE INDEX IF NOT EXISTS {TABLE}_identifier_index ON {TABLE} ({IDENTIFIER});
             CREATE INDEX IF NOT EXISTS {TABLE}_write_date_index ON {TABLE} (write_date);
             """
         )
@@ -100,8 +101,7 @@ class DatabaseSessionStore(http_session.SessionStore):
             return identifiers
         with self._cursor() as cursor:
             cursor.execute(
-                f"SELECT DISTINCT left(sid, {IDENTIFIER_LENGTH}) FROM {TABLE} "
-                f"WHERE left(sid, {IDENTIFIER_LENGTH}) = ANY(%s)",
+                f"SELECT DISTINCT {IDENTIFIER} FROM {TABLE} WHERE {IDENTIFIER} = ANY(%s)",
                 [list(identifiers)],
             )
             found = {row[0] for row in cursor.fetchall()}
@@ -112,7 +112,7 @@ class DatabaseSessionStore(http_session.SessionStore):
         if not valid:
             return
         with self._cursor() as cursor:
-            cursor.execute(f"DELETE FROM {TABLE} WHERE left(sid, {IDENTIFIER_LENGTH}) = ANY(%s)", [valid])
+            cursor.execute(f"DELETE FROM {TABLE} WHERE {IDENTIFIER} = ANY(%s)", [valid])
 
 
 def use_database_sessions():
@@ -123,6 +123,6 @@ def use_database_sessions():
         return
     if issubclass(http_session.SessionStore, DatabaseSessionStore):
         return
-    http_session.SessionStore = DatabaseSessionStore
+    setattr(http_session, "SessionStore", DatabaseSessionStore)
     http_session.session_store.cache_clear()
     _logger.info("Sessions are kept in the %s table of %s.", TABLE, database_name())

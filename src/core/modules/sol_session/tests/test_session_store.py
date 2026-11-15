@@ -4,7 +4,7 @@ import secrets
 from odoo import sql_db
 from odoo.tests import HttpCase, tagged
 
-from odoo.addons.sol_session.session_store import TABLE, DatabaseSessionStore
+from odoo.addons.sol_session.session_store import IDENTIFIER, TABLE, DatabaseSessionStore
 
 http_session = importlib.import_module("odoo.http.session")
 
@@ -30,6 +30,9 @@ class TestDatabaseSessionStore(HttpCase):
         self.store.save(session)
         self.sids.append(session.sid)
         return session
+
+    def test_identifier_is_as_long_as_odoo_stores_it(self):
+        self.assertEqual(IDENTIFIER, f"left(sid, {http_session.STORED_SESSION_BYTES})")
 
     def test_store_is_used_for_requests(self):
         self.assertIsInstance(http_session.session_store(), DatabaseSessionStore)
