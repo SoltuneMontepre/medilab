@@ -82,10 +82,6 @@
                             <field name="customer_sample_name" />
                             <field name="sample_type_id" />
                             <field name="physical_state" />
-                        </group>
-                        <group>
-                            <field name="sample_form" />
-                            <field name="container_type" />
                             <field
                                 name="regulation_id"
                                 domain="[
@@ -95,23 +91,36 @@
                                 ]"
                             />
                         </group>
-                    </group>
-                    <group string="Receipt">
                         <group>
-                            <field name="received_quantity" readonly="status not in ('expected', 'on_hold')" />
+                            <field
+                                name="storage_location"
+                                readonly="status not in ('expected', 'on_hold')"
+                                invisible="not storage_location and status not in ('expected', 'on_hold')"
+                            />
+                            <field
+                                name="sampling_location_id"
+                                readonly="status != 'expected'"
+                                invisible="not sampling_location_id and status != 'expected'"
+                            />
+                            <field name="received_at" invisible="not received_at" />
+                        </group>
+                    </group>
+                    <!-- Receipt is entered inline while reception works on the sample, then kept in its own page. -->
+                    <group string="Receipt" invisible="status not in ('expected', 'on_hold')">
+                        <group>
+                            <field name="received_quantity" />
                             <field name="condition" readonly="status != 'expected'" />
                             <field name="condition_note" readonly="status != 'expected'" />
-                            <field name="storage_location" readonly="status not in ('expected', 'on_hold')" />
-                            <field name="sampling_location_id" readonly="status != 'expected'" />
+                            <field name="sample_form" />
+                            <field name="container_type" />
                         </group>
                         <group>
-                            <field name="received_at" />
                             <field name="received_by_id" />
                             <field name="recollection_requested_at" />
                             <field name="recollection_requested_by_id" />
                         </group>
                     </group>
-                    <group string="Retention">
+                    <group string="Retention" invisible="status not in ('reported', 'retained', 'cancelled', 'disposed')">
                         <group>
                             <field name="retained_until" />
                             <field name="disposal_note" readonly="status == 'disposed'" />
@@ -124,14 +133,59 @@
                     <notebook>
                         <page string="Tests" name="tests">
                             <field name="test_ids">
-                                <list editable="bottom">
+                                <list editable="bottom" decoration-bf="can_enter_result">
                                     <field name="parameter_id" />
+                                    <field name="parameter_method_id" readonly="1" optional="show" />
                                     <field name="quantity" />
-                                    <field name="due_date" readonly="1" />
+                                    <field name="due_date" readonly="1" decoration-danger="is_urgent" />
+                                    <field name="is_urgent" column_invisible="1" />
                                     <field name="is_accredited" optional="show" />
-                                    <field name="status" widget="badge" />
+                                    <field
+                                        name="status"
+                                        widget="badge"
+                                        decoration-warning="status in ('waiting', 'result_entered')"
+                                        decoration-info="status in ('assigned', 'testing', 'outsourced')"
+                                        decoration-success="status == 'approved'"
+                                        decoration-danger="status == 'cancelled'"
+                                    />
+                                    <field name="can_claim" column_invisible="1" />
+                                    <field name="can_enter_result" column_invisible="1" />
+                                    <button
+                                        name="action_claim_testing_task"
+                                        type="object"
+                                        string="Claim"
+                                        invisible="not can_claim"
+                                    />
+                                    <button
+                                        name="action_enter_result"
+                                        type="object"
+                                        string="Enter Result"
+                                        class="btn-primary"
+                                        invisible="not can_enter_result"
+                                        groups="sol_laboratory.group_permission_test_result_create_all"
+                                    />
                                 </list>
                             </field>
+                        </page>
+                        <page string="Receipt" name="receipt" invisible="status in ('expected', 'on_hold')">
+                            <group>
+                                <group>
+                                    <field name="received_quantity" readonly="1" />
+                                    <field name="condition" readonly="1" />
+                                    <field name="condition_note" readonly="1" />
+                                    <field name="sample_form" />
+                                    <field name="container_type" />
+                                </group>
+                                <group>
+                                    <field name="received_by_id" />
+                                    <field name="recollection_requested_at" />
+                                    <field name="recollection_requested_by_id" />
+                                    <field
+                                        name="retained_until"
+                                        invisible="status in ('reported', 'retained', 'cancelled', 'disposed')"
+                                    />
+                                </group>
+                            </group>
                         </page>
                         <page
                             string="Expected Sampling"

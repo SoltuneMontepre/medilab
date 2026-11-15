@@ -154,7 +154,8 @@ class TestSchedulingConcurrency(SchedulingConcurrencyCase):
         )
         self.assertEqual(sorted(status for status, _result in outcomes.values()), ["committed", "refused"], outcomes)
         refusal = next(result for status, result in outcomes.values() if status == "refused")
-        self.assertRegex(refusal, r"(The machine already has a booking|Scheduling room is already booked)")
+        # The machine row serializes the moves: the later one is retried and finds the slot taken.
+        self.assertRegex(refusal, r"(The machine already has a booking|Scheduling room is already booked|is not free)")
         after = self.committed(self.graph)
         self.assertEqual(len(after["bookings"]), 2)
         self.assertEqual(len(after["events"]), 4)

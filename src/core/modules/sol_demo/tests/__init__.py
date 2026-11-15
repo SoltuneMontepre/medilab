@@ -1,10 +1,12 @@
 from . import (
+    test_bench_demo,
     test_demo_binary_data,
     test_demo_booking_migration,
     test_demo_bootstrap,
     test_demo_contacts,
     test_demo_data_convention,
     test_demo_echo,
+    test_demo_mandatory_notices,
     test_demo_quotation_language,
     test_demo_quotations,
     test_demo_request_orders,

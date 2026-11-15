@@ -6,8 +6,8 @@ from .people_case import PeopleCase
 from .request_case import RequestCase
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MACHINE,
+    MODEL_MACHINE_METHOD,
     MODEL_PARAMETER_AUTHORIZATION,
-    MODEL_PARAMETER_METHOD_MACHINE,
     MODEL_SAMPLE_HANDOVER,
     MODEL_TASK,
 )
@@ -26,10 +26,10 @@ class SchedulingCase(RequestCase, PeopleCase):
         cls.fast, cls.slow = cls.env[MODEL_MACHINE].create(
             [{"code": "AAS-1", "name": "AAS 1"}, {"code": "AAS-2", "name": "AAS 2"}]
         )
-        cls.env[MODEL_PARAMETER_METHOD_MACHINE].create(
+        cls.env[MODEL_MACHINE_METHOD].create(
             [
-                {"parameter_method_id": cls.pair.id, "machine_id": cls.fast.id, "run_minutes": 40},
-                {"parameter_method_id": cls.pair.id, "machine_id": cls.slow.id, "run_minutes": 70},
+                {"method_id": cls.pair.method_id.id, "machine_id": cls.fast.id, "duration_minutes": 40},
+                {"method_id": cls.pair.method_id.id, "machine_id": cls.slow.id, "duration_minutes": 70},
             ]
         )
         cls.tester = cls.create_person(

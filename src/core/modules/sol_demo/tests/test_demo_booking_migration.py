@@ -11,7 +11,7 @@ from odoo.tests import tagged
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MACHINE_BOOKING,
-    MODEL_PARAMETER_METHOD_MACHINE,
+    MODEL_MACHINE_METHOD,
 )
 from odoo.addons.sol_laboratory.services.record_id import persisted_id
 from odoo.addons.sol_laboratory.tests.scheduling_case import SchedulingCase
@@ -30,7 +30,7 @@ class TestDemoBookingMigration(SchedulingCase):
             self.fail("The database clock query returned no row.")
         self.now = row[0].replace(microsecond=0)
         self.test.due_date = self.now + timedelta(minutes=30)
-        self.env[MODEL_PARAMETER_METHOD_MACHINE].search([("machine_id", "=", self.fast.id)]).run_minutes = 15
+        self.env[MODEL_MACHINE_METHOD].search([("machine_id", "=", self.fast.id)]).duration_minutes = 15
         task = self.testing_task(self.test, self.tester)
         self.booking = self.env[MODEL_MACHINE_BOOKING].create(
             {

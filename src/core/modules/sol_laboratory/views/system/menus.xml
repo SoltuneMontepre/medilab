@@ -20,6 +20,7 @@
         </menuitem>
         <menuitem id="menu_laboratory_samples" name="Samples" sequence="20">
             <menuitem id="menu_sample" action="action_medilab_sample" sequence="10" />
+            <menuitem id="menu_sample_test" action="action_medilab_sample_test" sequence="15" />
             <menuitem id="menu_handover_record" action="action_medilab_handover_record" sequence="20" />
             <menuitem id="menu_sample_handover" action="action_medilab_sample_handover" sequence="30" />
             <menuitem id="menu_sample_scan" action="action_medilab_sample_scan" sequence="40" />
@@ -85,6 +86,14 @@
                 action="action_medilab_laboratory_device"
                 sequence="40"
                 groups="group_permission_laboratory_folder_create_all,group_permission_laboratory_device_read_all"
+            />
+        </menuitem>
+        <menuitem id="menu_laboratory_reporting" name="Reporting" sequence="90">
+            <menuitem
+                id="menu_testing_statistic"
+                action="action_medilab_testing_statistic_period"
+                sequence="10"
+                groups="group_permission_testing_statistic_read_all,group_permission_testing_statistic_read_own_department"
             />
         </menuitem>
         <menuitem id="menu_laboratory_configuration" name="Configuration" sequence="100">

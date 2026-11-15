@@ -14,6 +14,8 @@ from . import (
     laboratory_api_notification_preferences,
     laboratory_api_notifications,
     laboratory_api_push_token,
+    laboratory_api_results,
+    laboratory_api_samples,
     laboratory_api_sign_in,
     laboratory_api_status,
     laboratory_api_tasks,

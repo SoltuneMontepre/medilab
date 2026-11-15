@@ -18,3 +18,6 @@ READ_CHUNK_SIZE = 8 * 1024 * 1024
 FILESTORE_VARIABLE = "BUCKET_FILESTORE"
 FILESTORE_PREFIX = "filestore"
 FILESTORE_GC_GRACE = 24 * 60 * 60
+# The first key of the advisory locks that keep the filestore cleanup from deleting an object a transaction relies on,
+# used by no other lock; the second key is one of 256, chosen by the file name.
+FILESTORE_LOCK_SCOPE = 17010171

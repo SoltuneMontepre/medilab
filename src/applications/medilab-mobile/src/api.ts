@@ -20,7 +20,7 @@ export class ApiError extends Error {
 export class UnreachableError extends Error {}
 
 export interface Call {
-  method?: "GET" | "POST" | "PUT" | "DELETE";
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: unknown;
   key?: string | null;
   headers?: Record<string, string>;
@@ -189,4 +189,89 @@ export interface TaskPage {
 export interface Assignees {
   people: { id: number; name: string; department: string }[];
   departments: { id: number; name: string }[];
+}
+
+/** A sample's handover to the person's department and its receipt. */
+export interface SampleHandover {
+  department: string;
+  received_at: string | null;
+  received_by: string;
+  can_receive: boolean;
+}
+
+/** A sample as the person may see it, with its handover to their department and the unassigned testing tasks of
+ * their department on it. The customer is null for a person who may not see it, such as a tester. */
+export interface Sample {
+  id: number;
+  code: string;
+  status: string;
+  sample_type: string;
+  physical_state: string;
+  form: string;
+  container: string;
+  received_at: string | null;
+  storage_location: string;
+  sampling_location: string;
+  note: string;
+  customer: string | null;
+  customer_sample_name: string | null;
+  handover: SampleHandover | null;
+  tasks: Task[];
+}
+
+export type ResultStatus = "none" | "requested" | "approved" | "rejected";
+
+export type Conclusion = "pass" | "fail" | "insufficient";
+
+/** A result as the list of results waiting for the person's signature shows it. */
+export interface ResultSummary {
+  id: number;
+  code: string;
+  parameter: string;
+  value_display: string;
+  unit: string;
+  status: ResultStatus;
+  entered_by: string;
+  entered_at: string | null;
+  warned: boolean;
+}
+
+/** A result with its limit, its warnings and what the person may do with it, as the web's form shows them. */
+export interface Result extends ResultSummary {
+  sample_test_id: number;
+  way: string;
+  value: number | null;
+  value_text: string;
+  decimals: number;
+  value_suggestion: string;
+  comparison_requested: boolean;
+  conclusion: Conclusion | null;
+  conclusion_label: string;
+  limit: string;
+  limit_missing: boolean;
+  status_label: string;
+  warnings: string[];
+  rejection_reason: string;
+  actions: { edit: boolean; sign: boolean; reject: boolean };
+}
+
+export interface ResultPage {
+  results: ResultSummary[];
+  next_after: number | null;
+}
+
+/** A sample test at the bench, with the unit and decimals of its way of testing and its reported result. */
+export interface SampleTest {
+  id: number;
+  code: string;
+  parameter: string;
+  way: string;
+  due_date: string | null;
+  status: string;
+  unit: string;
+  decimals: number;
+  regulation: string;
+  comparison_requested: boolean;
+  can_enter_result: boolean;
+  result: Result | null;
 }
