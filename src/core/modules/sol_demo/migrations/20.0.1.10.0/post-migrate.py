@@ -10,7 +10,7 @@ DATA_FILES = (
     "parameter_method",
     "machine",
     "machine_service",
-    "parameter_method_machine",
+    "machine_method",
 )
 
 

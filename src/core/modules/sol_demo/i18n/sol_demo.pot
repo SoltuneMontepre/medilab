@@ -707,3 +707,13 @@ msgstr ""
 #: model:medilab.chemical,name:sol_demo.demo_chemical_ph_buffer
 msgid "pH buffer solution 7.00"
 msgstr ""
+
+#. module: sol_demo
+#: model:medilab.test.parameter,name:sol_demo.demo_test_parameter_arsenic
+msgid "Arsenic (As)"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.test.parameter,name:sol_demo.demo_test_parameter_mercury
+msgid "Mercury (Hg)"
+msgstr ""

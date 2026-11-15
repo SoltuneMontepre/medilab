@@ -36,6 +36,7 @@ src/tests/
         theme/chatter-resize/
         theme/navbar-more-menu/
         laboratory/unlinked-users/
+        laboratory/shared-intervals/
         ecommerce/portal-language/
         ecommerce/portal-navigation/
         ecommerce/uninstall-warning/
@@ -108,6 +109,7 @@ Issue [#318](https://github.com/SoltuneMontepre/medilab/issues/318) tracks `TC-W
 | Prepare a solution from scanned bottles; verify the resulting stock movements and container. | [#181](https://github.com/SoltuneMontepre/medilab/issues/181) | `features/inventory/solution-preparation/` | `solution-preparation.cy.js` |
 | Resize and collapse the chatter that sits beside a form, and keep its width and state. | [#282](https://github.com/SoltuneMontepre/medilab/issues/282) | `features/theme/chatter-resize/` | `chatter-resize.cy.js` |
 | Move the menu bar sections that do not fit a narrow window into the More menu, in every app. | [#393](https://github.com/SoltuneMontepre/medilab/issues/393) | `features/theme/navbar-more-menu/` | `navbar-more-menu.cy.js` |
+| Move a booking into another sample's machine interval of the same method, which books its room once, and refuse a sample once the interval is full. | [#420](https://github.com/SoltuneMontepre/medilab/issues/420) | `features/laboratory/shared-intervals/` | `shared-intervals.cy.js` |
 | Link an internal user that no person links to, and refuse creating one outside a person. | [#438](https://github.com/SoltuneMontepre/medilab/issues/438) | `features/laboratory/unlinked-users/` | `unlinked-users.cy.js` |
 | Give a backup the head of department's role until a date, who approves a result or sends one at a lower level in their own name. | [#430](https://github.com/SoltuneMontepre/medilab/issues/430) | `features/laboratory/backup-signers/` | `backup-signers.cy.js` |
 | Open the testing statistics of a period: a head of department sees their department; the Lab Head compares departments and a department filter gives what its head sees. | [#440](https://github.com/SoltuneMontepre/medilab/issues/440) | `features/laboratory/testing-statistics/` | `testing-statistics.cy.js` |
