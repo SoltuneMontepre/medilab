@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.fields import Domain
-from odoo.tools import format_date, formatLang
+from odoo.tools import format_date
 
 from odoo.addons.sol_laboratory.constants.approvals import DECISION_SIGNED, STATE_APPROVED
 from odoo.addons.sol_laboratory.constants.models import (
@@ -455,15 +455,8 @@ class TestReport(models.Model, TestReportBase):
             return self._in_langs(lambda lang_env: lang_env._("No limit for this sample type"))
         if result.limit_text:
             return self._in_langs(lambda lang_env: result.with_env(lang_env).limit_text)
-        low = result.limit_min_set and formatLang(env, result.limit_min, digits=result.limit_decimals)
-        high = result.limit_max_set and formatLang(env, result.limit_max, digits=result.limit_decimals)
-        if low and high:
-            limit = f"{low} – {high}"
-        elif high:
-            limit = f"≤ {high}"
-        elif low:
-            limit = f"≥ {low}"
-        else:
+        limit = result._limit_range(env)
+        if not limit:
             return ""
         unit = result.limit_unit_id
         return f"{limit} {unit.name}" if unit and unit != result.unit_id else limit

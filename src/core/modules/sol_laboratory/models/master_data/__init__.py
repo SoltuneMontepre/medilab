@@ -11,6 +11,7 @@ from . import (
     machine_method,
     machine_service,
     measurement_unit,
+    parameter_authorization,
     parameter_group,
     parameter_method,
     parameter_method_sample_type,

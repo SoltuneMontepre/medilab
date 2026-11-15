@@ -2,11 +2,13 @@ from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.fields import Domain
+from odoo.tools import SQL
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_LOCK_MIXIN,
     MODEL_MACHINE,
+    MODEL_MACHINE_BOOKING,
     MODEL_MACHINE_METHOD,
     MODEL_PERMISSION_MIXIN,
     MODEL_TESTING_METHOD,
@@ -50,6 +52,23 @@ class MachineMethod(models.Model, MachineMethodBase):
     def _compute_display_name(self):
         for link in self:
             link.display_name = f"{link.machine_id.code} – {link.method_id.code}"
+
+    def write(self, vals):
+        if "capacity" in vals and self.machine_id:
+            # Booking placement writes the same rows, so a concurrent capacity change retries with a fresh snapshot.
+            self.env.cr.execute(
+                SQL(
+                    "UPDATE %s SET write_date = write_date WHERE id IN %s",
+                    SQL.identifier(self.env[MODEL_MACHINE]._table),
+                    tuple(self.machine_id.ids),
+                )
+            )
+        return super().write(vals)
+
+    @api.constrains("capacity")
+    def _check_booked_capacity(self):
+        for link in self:
+            self.env[MODEL_MACHINE_BOOKING]._check_machine_method_capacity(link)
 
     def _in_use_domain(self):
         # A link keeps its machine in use while its testing method is active.

@@ -1,21 +1,15 @@
 def migrate(cr, _version):
-    # The column is added before Odoo computes it for every result: a result is linked only to the one booking of its
-    # sample test whose machine and start it matches, and stays without one when none or several do.
-    cr.execute("ALTER TABLE medilab_test_result ADD COLUMN IF NOT EXISTS booking_id integer")
+    # Queued bookings become proposed bookings of their department's plan, keeping their sample test, task and tester.
+    # They had no interval; the first recalculation of the plan places them.
+    cr.execute(
+        "UPDATE medilab_machine_booking SET status = 'proposed', starts_at = NULL, ends_at = NULL WHERE status = 'queued'"
+    )
+    # The plan orders by priority class, committed return date and arrival, so the queue's own order goes.
     cr.execute(
         """
-        UPDATE medilab_test_result result
-           SET booking_id = matched.booking_id
-          FROM (
-                SELECT result.id AS result_id, MIN(booking.id) AS booking_id
-                  FROM medilab_test_result result
-                  JOIN medilab_machine_booking booking
-                    ON booking.sample_test_id = result.sample_test_id
-                   AND booking.machine_id IS NOT DISTINCT FROM result.machine_id
-                   AND booking.starts_at = result.started_at
-                 GROUP BY result.id
-                HAVING COUNT(*) = 1
-               ) matched
-         WHERE result.id = matched.result_id AND result.booking_id IS NULL
+        ALTER TABLE medilab_machine_booking
+            DROP COLUMN IF EXISTS queued_at,
+            DROP COLUMN IF EXISTS due_date,
+            DROP COLUMN IF EXISTS bump_reason
         """
     )

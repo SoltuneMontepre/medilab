@@ -245,6 +245,32 @@ class TestSampleTypeApplicability(MasterDataCase):
 
         self.assertIn("No machine that runs it", assert_instance(self.pair._unavailable_reason(), str))
 
+    def test_subcontracting_does_not_need_a_usable_laboratory_machine(self):
+        machine = self.env[MODEL_MACHINE].create(
+            {"code": "AAS-OUTSIDE", "name": "AAS under repair", "status": "under_repair"}
+        )
+        self.env[MODEL_MACHINE_METHOD].create(
+            {"method_id": self.method.id, "machine_id": machine.id, "duration_minutes": 30}
+        )
+        subcontractor = self.env[MODEL_SUBCONTRACTOR].create(
+            {"name": "Independent laboratory", "accreditation_expiry": fields.Date.today() + timedelta(days=30)}
+        )
+        outside = self.env[MODEL_PARAMETER_METHOD].create(
+            {"parameter_id": self.parameter.id, "method_id": self.method.id, "subcontractor_id": subcontractor.id}
+        )
+        self.offer(self.parameter, self.water, outside)
+
+        self.assertTrue(self.pair._unavailable_reason())
+        self.assertFalse(outside._unavailable_reason())
+        self.assertFalse(self.parameter._order_refusal(self.water))
+
+        subcontractor.accreditation_expiry = fields.Date.today() - timedelta(days=1)
+        self.assertIn("expired", assert_instance(outside._unavailable_reason(), str))
+        outside.applicability_ids.unlink()
+        outside.action_archive()
+        subcontractor.action_archive()
+        self.assertIn("archived", assert_instance(outside._unavailable_reason(), str))
+
 
 @tagged("post_install", "-at_install")
 class TestResultSnapshotOfApplicability(ResultCase):

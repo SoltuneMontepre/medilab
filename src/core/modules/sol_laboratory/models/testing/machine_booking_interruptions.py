@@ -126,14 +126,14 @@ class MachineBookingInterruptions(models.Model, MachineBookingInterruptionsBase)
             )
 
     def _return_to_plan(self, reason):
-        """Put the scheduled bookings back in the queue for a new slot, and tell the head of each one's department why;
-        nobody else is assigned."""
+        """Return the scheduled bookings to their department's plan for a new slot, and tell the head of each one's
+        department why; nobody else is assigned."""
         if not self:
             return
         zone = self.env.company.tz or "UTC"
         starts = {booking: start for booking in self if isinstance(start := booking.starts_at, datetime)}
-        self._set({"status": "queued", "starts_at": False, "ends_at": False})
-        self._process_queue()
+        self._set({"status": "proposed", "starts_at": False, "ends_at": False})
+        self._plan(self.sudo().department_id)
         for booking in self:
             body = self.env._(
                 "%(booking)s, planned from %(start)s, went back to the plan. %(reason)s",

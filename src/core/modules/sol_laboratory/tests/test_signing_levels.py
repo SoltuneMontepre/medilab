@@ -59,6 +59,7 @@ class TestSigningLevels(ResultCase):
             self.as_person(result, self.other_tester).action_sign()
 
     def test_a_head_without_the_tester_role_sends_then_approves_a_result_they_entered(self):
+        self.take_task(self.head)
         result = self.enter(person=self.head)
 
         self.send(result, self.head)

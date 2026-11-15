@@ -3,7 +3,7 @@ const SLOT = 15 * MINUTE;
 const RUN = 30 * MINUTE;
 
 // Convert an attendance's local wall time using that resource's timezone, including its date's UTC offset.
-function utcTime(date, hour, zone) {
+export function utcTime(date, hour, zone) {
   const wall = Date.parse(`${date}T00:00:00Z`) + Math.round(hour * 60) * MINUTE;
   const formatter = new Intl.DateTimeFormat("en-US", {
     timeZone: zone, year: "numeric", month: "2-digit", day: "2-digit",

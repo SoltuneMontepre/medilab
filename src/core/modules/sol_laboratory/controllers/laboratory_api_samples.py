@@ -2,16 +2,7 @@ from odoo import http
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_SAMPLE, MODEL_SAMPLE_HANDOVER
 from odoo.addons.sol_laboratory.services.laboratory_api import laboratory_api_route
-from odoo.addons.sol_laboratory.services.mobile_documents import not_found
-
-
-def readable_sample(env, sample_id):
-    """The sample of the id once the person may read it; one they may not read is not found."""
-    sample = env[MODEL_SAMPLE].browse(sample_id).exists()
-    if not sample:
-        raise not_found(env)
-    sample.check_access("read")
-    return sample
+from odoo.addons.sol_laboratory.services.mobile_documents import readable
 
 
 class LaboratoryApiSamples(http.Controller):
@@ -29,10 +20,10 @@ class LaboratoryApiSamples(http.Controller):
 
     @laboratory_api_route("/samples/<int:sample_id>", ["GET"], "getSample", permission=False)
     def get_sample(self, device, _body, sample_id):
-        return readable_sample(device.env, sample_id)._mobile_detail()
+        return readable(device.env[MODEL_SAMPLE].browse(sample_id))._mobile_detail()
 
     @laboratory_api_route("/samples/<int:sample_id>/claim", ["POST"], "claimSampleTasks", permission=False)
     def claim(self, device, body, sample_id):
-        sample = readable_sample(device.env, sample_id)
+        sample = readable(device.env[MODEL_SAMPLE].browse(sample_id))
         sample._claim_from_phone(body["task_ids"])
         return sample._mobile_detail()

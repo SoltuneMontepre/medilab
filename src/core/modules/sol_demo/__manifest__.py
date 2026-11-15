@@ -55,6 +55,7 @@
         "data/sol_laboratory/task_type.xml",
         "data/sol_laboratory/task.xml",
         "data/sol_laboratory/machine_booking.xml",
+        "data/sol_laboratory/overtime.xml",
         "data/sol_laboratory/test_result.xml",
         "data/sol_laboratory/location_unavailability.xml",
         "data/sol_onboarding/onboarding_source.xml",

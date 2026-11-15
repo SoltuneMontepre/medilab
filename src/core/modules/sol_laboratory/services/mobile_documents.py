@@ -2,6 +2,7 @@
 
 from odoo.api import Environment
 from odoo.exceptions import MissingError
+from odoo.models import BaseModel
 
 from odoo.addons.sol_laboratory.constants.medilab_mobile import CONVERSATION_SCREEN, WEB_SCREEN
 from odoo.addons.sol_laboratory.constants.models import MODEL_DISCUSS_CHANNEL
@@ -11,6 +12,15 @@ from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
 
 def not_found(env: Environment) -> MissingError:
     return MissingError(env._("Nothing is found at this address."))
+
+
+def readable[RecordT: BaseModel](records: RecordT) -> RecordT:
+    """The record once it exists and the person may read it; one they may not read is not found."""
+    record = records.exists()
+    if not record:
+        raise not_found(records.env)
+    record.check_access("read")
+    return record
 
 
 def document_screen(records) -> str:

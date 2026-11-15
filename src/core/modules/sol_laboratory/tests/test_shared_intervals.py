@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from freezegun import freeze_time
 from psycopg2 import IntegrityError
 
+from odoo import fields
 from odoo.exceptions import ValidationError
 from odoo.fields import Command
 from odoo.tests import tagged
@@ -14,14 +15,16 @@ from .schedule_invariants_case import ScheduleInvariantsCase
 from .scheduling_case import MONDAY, calibrated
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MACHINE,
-    MODEL_MACHINE_BOOKING,
     MODEL_MACHINE_METHOD,
     MODEL_PARAMETER_METHOD,
+    MODEL_SAMPLE_HANDOVER,
     MODEL_SAMPLE_TEST,
+    MODEL_TASK,
     MODEL_TEST_REQUEST,
     MODEL_TESTING_METHOD,
     MODEL_TESTING_METHOD_STEP,
 )
+from odoo.addons.sol_laboratory.constants.tasks import SAMPLE_RECEIVED_TRIGGER
 
 SLOT = timedelta(minutes=15)
 LOAD = timedelta(hours=4)
@@ -46,6 +49,7 @@ class TestSharedIntervals(ScheduleInvariantsCase, LocationCase):
         cls.arsenic = cls.create_parameter("Arsenic (As)", cls.group)
         for parameter in (cls.cadmium, cls.arsenic):
             cls.offer(parameter, cls.sample_type)
+            cls.authorize(cls.tester, parameter)
 
     @classmethod
     def samples(cls, count):
@@ -76,15 +80,30 @@ class TestSharedIntervals(ScheduleInvariantsCase, LocationCase):
         return samples.test_ids.filtered(lambda test: test.parameter_id == self.parameter)
 
     def queue(self, tests):
-        """Queue a booking of each test for the tester, then give the queue its slots."""
-        bookings = self.env[MODEL_MACHINE_BOOKING].create(
-            [{"sample_test_id": test.id, "person_id": self.tester.id} for test in tests]
+        """Assign the testing tasks of the tests to the tester, have the department receive their samples in one go,
+        then accept the bookings its plan proposes."""
+        tasks = self.env[MODEL_TASK]
+        for test in tests:
+            tasks |= tasks._create_for_event(SAMPLE_RECEIVED_TRIGGER, document=test, department=self.department)
+        tasks.write({"assignee_id": self.tester.id, "status": "assigned"})
+        samples = tests.sample_id
+        samples.filtered(lambda sample: sample.status == "expected").status = "received"
+        handovers = self.env[MODEL_SAMPLE_HANDOVER]
+        received = handovers.search(
+            [("sample_id", "in", samples.ids), ("department_id", "=", self.department.id)]
+        ).sample_id
+        handovers.create(
+            [
+                {"sample_id": sample.id, "department_id": self.department.id, "received_at": fields.Datetime.now()}
+                for sample in samples - received
+            ]
         )
-        bookings._process_queue()
+        bookings = tests.booking_ids.filtered(lambda booking: booking.status == "proposed")
+        bookings.action_accept()
         return bookings
 
     def interval(self, bookings):
-        return set(zip(bookings.mapped("machine_id"), bookings.mapped("starts_at"), bookings.mapped("ends_at")))
+        return {(booking.machine_id, booking.starts_at, booking.ends_at) for booking in bookings}
 
     def test_the_icp_ms_example_shares_one_interval_among_60_bookings_of_20_samples(self):
         samples = self.samples(21)
@@ -115,6 +134,38 @@ class TestSharedIntervals(ScheduleInvariantsCase, LocationCase):
         with self.assertRaisesRegex(ValidationError, "is full"), self.env.cr.savepoint():
             waiting._set({"starts_at": MONDAY, "ends_at": MONDAY + LOAD})
 
+    def test_reducing_capacity_below_a_booked_load_is_refused(self):
+        bookings = self.queue(self.samples(2).test_ids)
+        for status in ("scheduled", "in_progress"):
+            with self.subTest(status=status), self.rolled_back():
+                bookings._set({"status": status})
+                with self.assertRaisesRegex(ValidationError, "capacity"), self.env.cr.savepoint():
+                    self.metals.capacity = 1
+                self.assertEqual(self.metals.capacity, 20)
+
+        self.metals.capacity = 2
+        self.assertEqual(self.metals.capacity, 2)
+        self.metals.capacity = 3
+        self.assertEqual(self.metals.capacity, 3)
+
+    def test_capacity_counts_samples_per_interval_and_ignores_released_bookings(self):
+        self.metals.capacity = 1
+        first, second = self.samples(2)
+        first_load = self.queue(first.test_ids)
+        second_load = self.queue(second.test_ids)
+        self.assertNotEqual(first_load[0].starts_at, second_load[0].starts_at)
+        self.assertEqual(len(self.interval(first_load | second_load)), 2)
+        self.metals.capacity = 2
+        self.metals.capacity = 1
+
+        self.metals.capacity = 2
+        second_load._set({"starts_at": MONDAY, "ends_at": MONDAY + LOAD})
+        for status in ("done", "cancelled"):
+            with self.subTest(status=status), self.rolled_back():
+                second_load._set({"status": status})
+                self.metals.capacity = 1
+                self.assertEqual(self.metals.capacity, 1)
+
     def test_a_booking_of_another_method_waits_even_with_places_left(self):
         chromium = self.create_parameter("Chromium (VI)", self.group)
         colorimetry = self.env[MODEL_TESTING_METHOD].create(
@@ -124,6 +175,7 @@ class TestSharedIntervals(ScheduleInvariantsCase, LocationCase):
             {"parameter_id": chromium.id, "method_id": colorimetry.id, "department_id": self.department.id}
         )
         self.offer(chromium, self.sample_type, way)
+        self.authorize(self.tester, chromium)
         self.env[MODEL_MACHINE_METHOD].create(
             {"machine_id": self.icp_ms.id, "method_id": colorimetry.id, "duration_minutes": 240, "capacity": 20}
         )

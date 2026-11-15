@@ -6,6 +6,8 @@ MANDATORY_EVENT = "mandatory_event"
 ACTION_REFUSED = "action_refused"
 # Claiming a task someone else claimed first.
 ALREADY_CLAIMED = "already_claimed"
+# Signing a result whose warnings the person did not acknowledge.
+RESULT_WARNING = "result_warning"
 # The screen of a document the app has no screen of its own for: its code and title, and "Open on the web".
 WEB_SCREEN = "web"
 # The screen of a conversation, an Odoo Discuss channel.
@@ -16,3 +18,5 @@ NOTIFICATION_PAGE_SIZE = 50
 TASK_PAGE_SIZE = 50
 # How many people and how many departments a search for a task's assignee finds at most.
 ASSIGNEE_LIMIT = 20
+# How many results waiting for the person's signature a page gives when the app names no limit.
+RESULT_PAGE_SIZE = 50

@@ -46,7 +46,7 @@ class TestBookingRaces(ScheduleRaceCase):
         )
 
         self.assert_won_first_time("first")
-        self.assertEqual(outcomes["second"], ("refused", "Only a queued or scheduled booking can be cancelled."))
+        self.assertEqual(outcomes["second"], ("refused", "Only a scheduled booking can be cancelled."))
         self.assert_retried_on_conflict("second")
         graph = self.committed(self.graph)
         self.assert_running(graph)

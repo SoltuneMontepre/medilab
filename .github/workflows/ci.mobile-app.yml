@@ -10,6 +10,9 @@ concurrency:
 on:
   pull_request:
   workflow_dispatch:
+  # The Maestro flows on an Android emulator run every night, not on pull requests.
+  schedule:
+    - cron: "0 19 * * *"
 
 env:
   MOBILE_APP_DIR: src/applications/medilab-mobile
@@ -28,7 +31,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      # A nightly run has no change to compare; it runs only the Maestro flows.
       - name: Detect relevant changes
+        if: github.event_name != 'schedule'
         id: filter
         uses: dorny/paths-filter@v4
         with:
@@ -218,3 +223,127 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh run cancel ${{ github.run_id }} --repo ${{ github.repository }}
+
+  maestro:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      COMPOSE_FILE: tools/infrastructure/docker-compose.yml
+      MEDILAB_ODOO_IMAGE: medilab-odoo:ci
+      NO_COLOR: 1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Task
+        uses: arduino/setup-task@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Set up Java
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Set up Docker Build
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build image from cache
+        uses: docker/build-push-action@v7
+        env:
+          DOCKER_BUILD_RECORD_UPLOAD: false
+        with:
+          context: .
+          file: tools/dockerfiles/prod.dockerfile
+          tags: ${{ env.MEDILAB_ODOO_IMAGE }}
+          load: true
+          cache-from: type=gha
+          provenance: false
+          sbom: false
+
+      # Odoo checks the PayOS notifications with this key; without the other keys it never calls PayOS.
+      - name: Make a PayOS checksum key
+        run: echo "PAYOS_CHECKSUM_KEY=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+
+      - name: Start Odoo with demo data
+        run: task test:e2e:app
+
+      - name: Read the lab code of the sample to scan
+        run: |
+          code=$(docker compose exec -T postgres psql -U root -d medilab -tAc "SELECT s.code FROM medilab_sample s JOIN ir_model_data d ON d.model = 'medilab.sample' AND d.res_id = s.id WHERE d.module = 'sol_demo' AND d.name = 'demo_sample_label_scan'")
+          test -n "$code"
+          echo "LAB_CODE=$code" >> "$GITHUB_ENV"
+
+      - name: Install dependencies
+        working-directory: ${{ env.MOBILE_APP_DIR }}
+        run: bun install --frozen-lockfile --ignore-scripts
+
+      - name: Build the Android app
+        working-directory: ${{ env.MOBILE_APP_DIR }}
+        run: |
+          bun run expo prebuild --platform android
+          cd android && ./gradlew assembleDebug -PreactNativeArchitectures=x86_64
+
+      - name: Start Metro
+        working-directory: ${{ env.MOBILE_APP_DIR }}
+        run: |
+          nohup bun run expo start --port 8081 > metro.log 2>&1 &
+          curl -fsS --retry 30 --retry-delay 5 --retry-all-errors http://localhost:8081/status
+
+      - name: Install Maestro
+        env:
+          MAESTRO_VERSION: 2.12.1
+          MAESTRO_SHA256: 54dbb0716425626604973cbb374c585ca30272375d9ce15177a1152765ddd9d7
+        run: |
+          curl -fsSL --proto '=https' -o "$RUNNER_TEMP/maestro.zip" "https://github.com/mobile-dev-inc/maestro/releases/download/cli-$MAESTRO_VERSION/maestro.zip"
+          echo "$MAESTRO_SHA256  $RUNNER_TEMP/maestro.zip" | sha256sum --check --strict
+          unzip -q "$RUNNER_TEMP/maestro.zip" -d "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/maestro/bin" >> "$GITHUB_PATH"
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Maestro flows
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          working-directory: ${{ env.MOBILE_APP_DIR }}
+          script: |
+            adb reverse tcp:8069 tcp:8069
+            adb reverse tcp:8081 tcp:8081
+            adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+            maestro test --env LAB_CODE="$LAB_CODE" --debug-output maestro-output .maestro || { adb exec-out screencap -p > maestro-output/screen.png; adb logcat -d > maestro-output/logcat.txt; exit 1; }
+
+      - name: Upload the Maestro output
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: maestro-output
+          path: |
+            ${{ env.MOBILE_APP_DIR }}/maestro-output
+            ${{ env.MOBILE_APP_DIR }}/metro.log
+          if-no-files-found: ignore
+          include-hidden-files: true
+          retention-days: 1
+
+      - name: Odoo log
+        if: failure()
+        run: docker compose logs --no-color odoo

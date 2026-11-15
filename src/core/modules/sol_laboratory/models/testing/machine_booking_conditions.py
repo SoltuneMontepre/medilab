@@ -165,7 +165,7 @@ class MachineBookingConditions(models.Model, MachineBookingConditionsBase):
 
     @api.model
     def _requeue(self, machines):
-        """Also put the scheduled bookings that overlap a downtime of their machine back in the queue."""
+        """Also return the scheduled bookings that overlap a downtime of their machine to the plan."""
         for machine in machines.sudo():
             if not machine.service_ids.filtered("downtime_start"):
                 continue
@@ -174,5 +174,5 @@ class MachineBookingConditions(models.Model, MachineBookingConditionsBase):
             )
             bookings.filtered(
                 lambda booking, machine=machine: bool(machine._downtimes(booking.starts_at, booking.ends_at))
-            )._set({"status": "queued", "starts_at": False, "ends_at": False})
+            )._set({"status": "proposed", "starts_at": False, "ends_at": False})
         return super()._requeue(machines)

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_overtime_list" model="ir.ui.view">
+        <field name="name">medilab.overtime.list</field>
+        <field name="model">medilab.overtime</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="person_id" />
+                <field name="department_id" optional="hide" />
+                <field name="starts_at" />
+                <field name="ends_at" />
+                <field name="reason" />
+                <field name="create_uid" string="Recorded By" optional="show" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_overtime_form" model="ir.ui.view">
+        <field name="name">medilab.overtime.form</field>
+        <field name="model">medilab.overtime</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="person_id" options="{'no_create': True}" />
+                            <field name="department_id" />
+                            <field name="create_uid" string="Recorded By" invisible="not id" />
+                        </group>
+                        <group>
+                            <field name="starts_at" />
+                            <field name="ends_at" />
+                        </group>
+                    </group>
+                    <field name="reason" placeholder="Why the tester works outside normal hours" />
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_medilab_overtime_calendar" model="ir.ui.view">
+        <field name="name">medilab.overtime.calendar</field>
+        <field name="model">medilab.overtime</field>
+        <field name="arch" type="xml">
+            <calendar string="OverTime" date_start="starts_at" date_stop="ends_at" color="person_id" mode="week" quick_create="0">
+                <field name="person_id" filters="1" />
+                <field name="reason" />
+            </calendar>
+        </field>
+    </record>
+
+    <record id="view_medilab_overtime_search" model="ir.ui.view">
+        <field name="name">medilab.overtime.search</field>
+        <field name="model">medilab.overtime</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="person_id" />
+                <field name="department_id" />
+                <group>
+                    <filter name="group_person" string="Tester" context="{'group_by': 'person_id'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medilab_overtime" model="ir.actions.act_window">
+        <field name="name">OverTime</field>
+        <field name="res_model">medilab.overtime</field>
+        <field name="path">overtimes</field>
+        <field name="view_mode">list,calendar,form</field>
+    </record>
+</odoo>
