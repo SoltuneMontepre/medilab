@@ -10,7 +10,7 @@ What each GitHub Actions workflow in `.github/workflows/` does. How workflows ar
 | `ci-infra`      | every pull request                                                                      | Checks Terraform, Ansible, origin isolation, ONLYOFFICE contracts and CloudBeaver when their paths change.         |
 | `ci-tools`      | every pull request                                                                      | Runs the AI tooling tests, Ruff and the typecheck tooling tests when that tooling changes.                         |
 | `ci-sync-app`   | every pull request                                                                      | Checks the format, lints, tests and builds the sync app when it changes.                                           |
-| `ci-mobile-app` | every pull request                                                                      | Type-checks, lints and tests the mobile app, and builds it for Android and iOS, when it changes.                   |
+| `ci-mobile-app` | every pull request, and every night for the Maestro flows                               | Type-checks, lints and tests the mobile app, and builds it for Android and iOS, when it changes.                   |
 | `cd-core`       | a push to `main` that changes `src/core` or the Dockerfile, and hourly in `window` mode | Publishes the image, releases it through Argo CD at once or in the maintenance window, and rolls back if it fails. |
 | `cd-infra`      | a push to `main` that changes `infra/`                                                  | Runs `terraform apply`.                                                                                            |
 | `cd-ansible`    | a manual run on `main`                                                                  | Runs the Ansible playbooks against the nodes: `ping`, `inspect`, `check` or `apply`.                               |
@@ -150,6 +150,7 @@ flowchart LR
 - `test` runs the Jest tests.
 - Each job sets up Node 24, which Expo needs, and Bun, which installs the dependencies.
 - When any job fails, its last step cancels the whole run, as in `ci-core`.
+- `maestro` runs only every night at 02:00 in Asia/Ho_Chi_Minh and when the workflow is started by hand, never on a pull request, so it is not a required check. It starts Odoo with the demo data as `ci-core`'s `e2e` does, builds the Android development build for `x86_64`, serves its JavaScript with Metro, and runs the Maestro flows of `.maestro` on an Android 14 emulator, which reaches Odoo and Metro through `adb reverse`. A failed run uploads Maestro's screenshots and Metro's log.
 
 ## cd-core
 

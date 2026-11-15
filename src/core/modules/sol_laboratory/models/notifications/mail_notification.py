@@ -1,11 +1,18 @@
 import logging
+from datetime import datetime
 from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.exceptions import AccessError, MissingError
 from odoo.fields import Domain
+from odoo.tools import SQL
 
-from odoo.addons.sol_laboratory.constants.models import MODEL_MAIL_MESSAGE, MODEL_MAIL_NOTIFICATION
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_IR_CONFIG_PARAMETER,
+    MODEL_MAIL_MESSAGE,
+    MODEL_MAIL_NOTIFICATION,
+)
+from odoo.addons.sol_laboratory.constants.settings import NOTICE_PORTAL_SINCE_PARAMETER
 from odoo.addons.sol_laboratory.services.document_code import document_code
 from odoo.addons.sol_laboratory.services.laboratory_api import api_datetime
 from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
@@ -49,6 +56,12 @@ class MailNotification(models.Model, MailNotificationBase):
     if not TYPE_CHECKING:
         # Delivery status Brevo reported: sent, delivered, opened, bounced, failed or deferred.
         brevo_status = fields.Char(readonly=True, copy=False)
+        # True when the recipient sees this notice in the customer portal, whatever happens to its email. It is kept
+        # apart from notification_type, which Odoo reads as the channel.
+        portal_visible = fields.Boolean(default=False, copy=False)
+        # When the recipient first opened the notice in the portal; empty until then. It is kept apart from is_read,
+        # which belongs to Odoo's inbox.
+        portal_seen_at = fields.Datetime(readonly=True, copy=False)
 
     @api.model
     def _cleanup_domain(self, cutoff):
@@ -59,6 +72,57 @@ class MailNotification(models.Model, MailNotificationBase):
             ("mail_message_id.notification_key", "!=", False),
             ("mail_message_id.date", "<", cutoff),
         ]
+
+    @api.model
+    def _portal_domain(self, user):
+        """The notices the signed-in portal user may read: those addressed to the user's own contact, shown in the
+        portal or, as before, delivered to the inbox. Another contact of the same business, or another customer, is
+        never included.
+
+        Code that does not know the portal columns, an older pod during a release or an older image after a rollback,
+        leaves a mandatory notice unmarked. For a portal user it is shown from its event, when its message was written
+        after the moment the columns were added. Mandatory emails sent before that stay out."""
+        shown = Domain("portal_visible", "=", True) | Domain("notification_type", "=", "inbox")
+        since = self._notice_portal_since() if user.share else None
+        if since:
+            shown |= Domain("mail_message_id.subtype_id.mandatory", "=", True) & Domain(
+                "mail_message_id.create_date", ">=", since
+            )
+        return Domain("res_partner_id", "=", user.partner_id.id) & shown
+
+    @api.model
+    def _notice_portal_since(self):
+        """When the portal columns were added, or None when it was not recorded or cannot be read."""
+        value = self.env[MODEL_IR_CONFIG_PARAMETER].sudo().get_str(NOTICE_PORTAL_SINCE_PARAMETER)
+        if not value:
+            return None
+        try:
+            since = datetime.fromisoformat(value.strip())
+        except ValueError:
+            since = None
+        if since is None or since.tzinfo:
+            _logger.warning(
+                "The value of %s is not a date in UTC; no mandatory notice is shown from it",
+                NOTICE_PORTAL_SINCE_PARAMETER,
+            )
+            return None
+        return since
+
+    def _portal_open(self):
+        """Record the first time the recipient opened the notice; a later open leaves that time as it is.
+
+        The condition is in the statement because two opens at once must not both write."""
+        self.ensure_one()
+        self.flush_recordset(["portal_seen_at"])
+        self.env.cr.execute(
+            SQL(
+                "UPDATE %s SET portal_seen_at = %s WHERE id = %s AND portal_seen_at IS NULL",
+                SQL.identifier(self._table),
+                fields.Datetime.now(),
+                self.id,
+            )
+        )
+        self.invalidate_recordset(["portal_seen_at"])
 
     def action_open_document(self):
         """Mark this inbox notification read and open the document it belongs to."""

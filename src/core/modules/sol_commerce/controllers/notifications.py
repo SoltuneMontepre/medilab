@@ -1,6 +1,10 @@
+from werkzeug.exceptions import NotFound
+
 from odoo import http
+from odoo.fields import Domain
 from odoo.http import request
 
+from odoo.addons.portal.controllers.portal import pager as portal_pager
 from odoo.addons.sol_commerce.constants.models import MODEL_NOTIFICATION_CONTACT
 from odoo.addons.sol_commerce.constants.notifications import (
     EVENT_INVOICE_OVERDUE,
@@ -14,6 +18,7 @@ from odoo.addons.sol_commerce.constants.notifications import (
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MAIL_MESSAGE,
     MODEL_MAIL_MESSAGE_SUBTYPE,
+    MODEL_MAIL_NOTIFICATION,
     MODEL_NOTIFICATION_PREFERENCE,
 )
 from odoo.addons.sol_laboratory.constants.notifications import CHANNEL_EMAIL, CHANNEL_POPUP
@@ -30,13 +35,38 @@ CUSTOMER_EVENTS = (
     EVENT_PAYMENT_REJECTED,
     EVENT_RESULT_RELEASED,
 )
-RECENT_NOTIFICATIONS = 20
+NOTIFICATIONS_PATH = "/my/notifications"
+NOTIFICATIONS_PER_PAGE = 20
 
 
 class NotificationPortal(http.Controller):
-    @http.route("/my/notifications", type="http", auth="user", methods=["GET"], **FRONTEND_PAGE)
-    def portal_notifications(self, **kwargs):
-        return request.render("sol_commerce.portal_notification_preferences", self._page_values())
+    @http.route(
+        [NOTIFICATIONS_PATH, f"{NOTIFICATIONS_PATH}/page/<int:page>"],
+        type="http",
+        auth="user",
+        methods=["GET"],
+        **FRONTEND_PAGE,
+    )
+    def portal_notifications(self, page=1, **kwargs):
+        return request.render("sol_commerce.portal_notification_preferences", self._page_values(page))
+
+    @http.route(
+        f"{NOTIFICATIONS_PATH}/<int:notification_id>", type="http", auth="user", methods=["GET"], **FRONTEND_PAGE
+    )
+    def portal_notification(self, notification_id, **kwargs):
+        """Open one of the signed-in user's own notices; its first open is recorded. A notice that is someone else's
+        answers like one that does not exist."""
+        model = request_env()[MODEL_MAIL_NOTIFICATION].sudo()
+        notification = model.search(
+            model._portal_domain(request_env().user) & Domain("id", "=", notification_id), limit=1
+        )
+        if not notification:
+            raise NotFound()
+        notification._portal_open()
+        return request.render(
+            "sol_commerce.portal_notification",
+            {"notification": notification, "message": notification.mail_message_id, "page_name": "notifications"},
+        )
 
     @http.route("/my/notifications", type="http", auth="user", methods=["POST"], **FRONTEND_PAGE)
     def portal_save_notifications(self, **post):
@@ -65,7 +95,7 @@ class NotificationPortal(http.Controller):
         events = request_env()[MODEL_MAIL_MESSAGE_SUBTYPE].sudo().search([("code", "in", CUSTOMER_EVENTS)])
         return events.sorted(key=lambda event: CUSTOMER_EVENTS.index(event.code))
 
-    def _page_values(self):
+    def _page_values(self, page=1):
         user = request_env().user
         messages = request_env()[MODEL_MAIL_MESSAGE].sudo()
         business = self._business()
@@ -82,19 +112,18 @@ class NotificationPortal(http.Controller):
                     "contact_id": routes.filtered(lambda route, event=event: route.event_id == event).contact_id.id,
                 }
             )
-        inbox = (
-            request_env()["mail.notification"]
-            .sudo()
-            .search(
-                [("res_partner_id", "in", user.partner_id.ids), ("notification_type", "=", "inbox")],
-                order="id desc",
-                limit=RECENT_NOTIFICATIONS,
-            )
+        notices = request_env()[MODEL_MAIL_NOTIFICATION].sudo()
+        domain = notices._portal_domain(user)
+        pager = portal_pager(
+            url=NOTIFICATIONS_PATH, total=notices.search_count(domain), page=page, step=NOTIFICATIONS_PER_PAGE
         )
         return {
             "rows": rows,
             "is_business": business.is_company,
             "contacts": self._contacts(business),
-            "notifications": inbox.mail_message_id,
+            "notifications": notices.search(
+                domain, order="id desc", limit=NOTIFICATIONS_PER_PAGE, offset=pager["offset"]
+            ),
+            "pager": pager,
             "page_name": "notifications",
         }

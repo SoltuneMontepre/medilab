@@ -128,15 +128,16 @@ A push is created when a notification is delivered on the push channel ([SH-11](
 
 | Route | Does |
 | ----- | ---- |
-| `GET /sample-tests/{sample_test_id}` | The test's lab code, parameter, way of testing and due date, the unit and decimals of the way on the sample's type, whether the sample has a regulation, and its reported result |
-| `POST /sample-tests/{sample_test_id}/results` | Enters a result: a number with its decimals, or a text, and its conclusion |
+| `GET /sample-tests/{sample_test_id}` | The test's lab code, parameter, way of testing and due date, the unit and decimals of the way on the sample's type, whether the sample's regulation is compared, whether the person may enter a result now, and its reported result |
+| `POST /sample-tests/{sample_test_id}/results` | Enters a result: a number with the decimals typed, or a text, and its conclusion |
 | `GET /results/{result_id}`, `PATCH /results/{result_id}` | The result with its status, its warnings and what the person may do with it; changes a draft result |
 | `POST /results/{result_id}/sign` | Sends the result for approval or approves it, through `action_sign()` |
 | `POST /results/{result_id}/reject` | Rejects the result with a reason, through `action_reject()` |
 | `GET /results?awaiting=me` | The results waiting for the person's signature |
 
-- A result is created and changed with the person's rights, so the unit, the copied limit, the machine and the start time are worked out as on the web; the machine and the start are corrected on the web only.
-- The warnings are those of the sanity check before sending ([US-T22](../functional/laboratory_module/features/tester.md#2-results-us-t05-to-us-t09-us-t17-us-t18-us-t22)): one model method that both the web and the route call. Signing a result with warnings needs `warnings_acknowledged`; without it, it is refused with `result_warning`.
+- A result is created and changed with the person's rights, so the unit, the copied limit, the machine and the start time are worked out as on the web; the machine and the start are corrected on the web only. Until a way of testing is chosen, the test gives the unit and decimals of the parameter's default way on the sample's type, which the result copies.
+- The person may enter a result while the web's Enter Result button lets them and the test has no draft reported result; a draft is changed with `PATCH` instead, and only the values sent change.
+- The warnings are those of the sanity check before sending ([US-T22](../functional/laboratory_module/features/tester.md#2-results-us-t05-to-us-t09-us-t17-us-t18-us-t22)): one model method that both the web's form and the route call. A draft gives the warnings its value has now; a sent result gives those it was sent with, which the result keeps for the approver. Signing a draft with warnings needs `warnings_acknowledged`; without it, it is refused with `result_warning`.
 - Signing takes `confirmed: true`, which the app sends only from its confirmation step, so signing is a deliberate action ([SH-04](../functional/shared.md#sh-04-signatures-and-digital-signing)). The approval mixin decides the level: a tester's signature sends the result, a head of department's approves it, and a head may approve a result they entered.
 - Rejecting needs a reason; an empty or blank one is refused by `action_reject()` with `action_refused`.
 - The results waiting for the person are the results awaiting approval that they may read, kept when `approval_can_sign` is true for them; it is computed, not stored, so the route filters them before paging. A result that is approved or waits for someone else's signature answers that nothing can be done with it.
@@ -220,6 +221,7 @@ Like the Sync updates route, these two are plain `auth='none'` HTTP routes, outs
 - `medilab.laboratory.device` takes the platforms `android` and `ios`.
 - `medilab.mobile.device` has `laboratory_device_id`, required and unique: the phone the token belongs to. Its user is the phone's user.
 - `medilab.task` has `created_by_device_id` and `idempotency_key`, unique together where the key is set: the phone a task was created on by hand and the key of its request.
+- `medilab.test.result` has `created_by_device_id` and `idempotency_key` the same way, for a result entered on a phone, and `check_warning`, the warnings of the sanity check it was sent with.
 - `medilab.handover.record.signed_device_id` names the phone's `medilab.laboratory.device`, which is never deleted, rather than its token, which the cleanup job removes once it is off.
 - `medilab.push.delivery` pushes either a notification or a conversation message: `notification_id` or `message_id`, exactly one, each unique with the token.
 - The diagram is [laboratory.prisma](../infrastructure/database/laboratory/laboratory.prisma).
@@ -228,7 +230,7 @@ Like the Sync updates route, these two are plain `auth='none'` HTTP routes, outs
 
 - Every route has an `HttpCase` through `LaboratoryApiCase`, which checks its answers against the OpenAPI document, including refusals for a portal user, a revoked phone and a person without the permission the route needs.
 - The app's screens are tested with Jest and React Native Testing Library ([Testing](../conventions/testing.md)).
-- A Maestro flow on an Android emulator signs `demo.tester` in, scans a sample's label, claims its task, enters the result and signs it. It runs locally and in a nightly job, not as a required check of pull requests.
+- A Maestro flow on an Android emulator signs `demo.tester` in, scans a sample's label, claims its task, enters the result and signs it. The flows are in `src/applications/medilab-mobile/.maestro`; they run locally ([Running Medilab Mobile](../workflows/running-mobile-app.md)) and every night in the `maestro` job of [ci-mobile-app](../infrastructure/pipelines.md#ci-mobile-app), not as a required check of pull requests.
 - A Cypress test of each feature checks on the web what the phone did, such as a result waiting for `demo.head_of_department`.
 
 ## Related documents
