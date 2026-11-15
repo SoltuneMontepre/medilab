@@ -1,6 +1,6 @@
 {
     "name": "Medilab - Laboratory",
-    "version": "20.0.1.39.0",
+    "version": "20.0.1.40.0",
     "summary": "Laboratory testing core: test catalog, parameters, samples, results and machines.",
     "category": "Services/Laboratory",
     "author": "Soltune Montepre",
@@ -110,6 +110,7 @@
         "views/laboratory_files/laboratory_upload_settings_views.xml",
         "views/testing/sample_test_cancel_views.xml",
         "views/testing/sample_test_due_date_change_views.xml",
+        "views/testing/sample_test_urgent_mark_views.xml",
         "views/testing/sample_test_outsource_views.xml",
         "views/testing/sample_test_views.xml",
         "views/testing/report_template_views.xml",

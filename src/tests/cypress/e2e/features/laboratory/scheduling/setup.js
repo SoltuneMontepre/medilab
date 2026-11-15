@@ -5,7 +5,7 @@ export const ADMIN = "demo.administrator";
 export const HEAD = "demo.head_of_department";
 export const TESTER = "demo.tester";
 const RECEPTION = "demo.sample_delivery_staff";
-const OPEN = ["queued", "scheduled", "in_progress"];
+const OPEN = ["proposed", "scheduled", "in_progress"];
 
 export const odooTime = (milliseconds) => new Date(milliseconds).toISOString().slice(0, 19).replace("T", " ");
 export const milliseconds = (value) => new Date(`${value}Z`).getTime();
@@ -158,7 +158,7 @@ export function snapshot(fixture) {
 export function release(fixture) {
   if (!fixture?.machine) return null;
   return callAs(ADMIN, "medilab.machine.booking", "search", [
-    [["machine_id", "=", fixture.machine], ["status", "in", ["queued", "scheduled"]]],
+    [["machine_id", "=", fixture.machine], ["status", "=", "scheduled"]],
   ]).then((ids) => ids.length ? callAs(ADMIN, "medilab.machine.booking", "action_cancel", [ids]) : null);
 }
 

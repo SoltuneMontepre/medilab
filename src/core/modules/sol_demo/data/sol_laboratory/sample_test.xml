@@ -32,13 +32,29 @@
         <field name="status">assigned</field>
         <field name="parameter_method_id" ref="demo_parameter_method_lead_aas" />
     </record>
-    <!-- No machine can finish it by its due date, so its booking waits in the queue. -->
-    <record id="demo_sample_test_lead_queued" model="medilab.sample.test">
-        <field name="sample_id" ref="demo_sample_lead_queued" />
+    <!-- No machine can finish it by its due date: its proposed booking has no slot and it is at risk. -->
+    <record id="demo_sample_test_lead_proposed" model="medilab.sample.test">
+        <field name="sample_id" ref="demo_sample_lead_proposed" />
         <field name="parameter_id" ref="demo_test_parameter_lead" />
         <field name="status">assigned</field>
         <field name="due_date" eval="(DateTime.now() + relativedelta(minutes=30)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="outsourcing_suggested" eval="True" />
+    </record>
+    <!-- The tester marked it urgent, so the plan places it first whatever its due date. -->
+    <record id="demo_sample_test_lead_marked_urgent" model="medilab.sample.test">
+        <field name="sample_id" ref="demo_sample_lead_marked_urgent" />
+        <field name="parameter_id" ref="demo_test_parameter_lead" />
+        <field name="status">assigned</field>
+        <field name="marked_urgent" eval="True" />
+        <field name="urgent_reason">Khách hàng cần kết quả gấp để thông quan lô hàng.</field>
+        <field name="marked_urgent_by_id" ref="demo_person_tester" />
+    </record>
+    <!-- Its due date is within the urgency threshold, so the plan places it before normal tests. -->
+    <record id="demo_sample_test_lead_due_soon" model="medilab.sample.test">
+        <field name="sample_id" ref="demo_sample_lead_due_soon" />
+        <field name="parameter_id" ref="demo_test_parameter_lead" />
+        <field name="status">assigned</field>
+        <field name="due_date" eval="(DateTime.now() + relativedelta(hours=20)).strftime('%Y-%m-%d %H:%M:%S')" />
     </record>
     <record id="demo_sample_test_lead_outsourcing" model="medilab.sample.test">
         <field name="sample_id" ref="demo_sample_lead_outsourcing" />

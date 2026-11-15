@@ -38,6 +38,7 @@ from . import (
     test_customer,
     test_customer_profile,
     test_customer_signup,
+    test_department_plan,
     test_digital_signing,
     test_direct_outsourcing,
     test_dispatch_courier,

@@ -180,7 +180,7 @@ export function openBooking(test, login = TESTER) {
     [
       [
         ["sample_test_id", "=", test.id],
-        ["status", "in", ["queued", "scheduled", "in_progress"]],
+        ["status", "in", ["proposed", "scheduled", "in_progress"]],
       ],
     ],
     { fields: BOOKING_FIELDS },
@@ -219,23 +219,6 @@ export function bookedLead() {
 
 export function assignedChromium(options) {
   return receivedSample([PARAMETERS.chromium], options).then((sample) => assign(sample).then(() => ({ sample, test: sample.tests[0] })));
-}
-
-// Queue timestamps are explicit fixture data so insertion order cannot accidentally prove FIFO.
-export function queueChromium(test, queuedAt) {
-  return refAs(HEAD, "sol_demo.demo_machine_uvvis").then((machine) =>
-    refAs(HEAD, PEOPLE.tester).then((person) =>
-      callAs(HEAD, "medilab.machine.booking", "create", [
-        {
-          sample_test_id: test.id,
-          task_id: test.task.id,
-          person_id: person.id,
-          machine_id: machine.id,
-          queued_at: odooTime(queuedAt),
-        },
-      ]),
-    ),
-  );
 }
 
 // The dedicated colour-development method has one machine, so this does not fill unrelated machines' queues.
@@ -354,7 +337,7 @@ export function releaseFixtures() {
     callAs(ADMINISTRATOR, "medilab.machine.booking", "search", [
       [
         ["sample_test_id", "in", ownedTests],
-        ["status", "in", ["queued", "scheduled"]],
+        ["status", "=", "scheduled"],
       ],
     ]).then((ids) => ids.length && callAs(ADMINISTRATOR, "medilab.machine.booking", "action_cancel", [ids]));
   }

@@ -8,6 +8,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MACHINE_BOOKING,
     MODEL_MACHINE_METHOD,
     MODEL_PARAMETER_METHOD,
+    MODEL_PERSON,
     MODEL_SAMPLE_TEST,
     MODEL_TASK,
     MODEL_TASK_REASSIGN,
@@ -35,7 +36,7 @@ class TestTestingAssignment(SchedulingCase):
         )
         self.offer(copper, self.sample_type, way)
         self.authorize(self.tester, copper)
-        second =self.env[MODEL_SAMPLE_TEST].create({"sample_id": self.sample.id, "parameter_id": copper.id})
+        second = self.env[MODEL_SAMPLE_TEST].create({"sample_id": self.sample.id, "parameter_id": copper.id})
         lead_task, copper_task = self.testing_task(self.test), self.testing_task(second)
         self.assign_sample(lead_task, self.tester)
         self.assertEqual((lead_task | copper_task).assignee_id, self.tester)
@@ -58,11 +59,13 @@ class TestTestingAssignment(SchedulingCase):
         self.assertEqual((task.department_id, task.status), (self.department, "open"))
         self.assertEqual(task.deadline, self.test.due_date)
 
-    def test_a_reassigned_testing_task_moves_its_booking_to_the_new_assignee(self):
+    def test_a_reassigned_testing_task_returns_its_booking_to_the_plan_for_the_new_assignee(self):
         task = self.testing_task(self.test, self.tester)
         booking = self.schedule(self.test, self.tester)
         task.write({"assignee_id": self.other_tester.id, "reassign_reason": "On leave"})
-        self.assertEqual(booking.person_id, self.other_tester)
+        self.assertEqual((booking.status, booking.person_id), ("proposed", self.other_tester))
+        self.assertFalse(booking.calendar_event_id)
+        booking.with_user(self.other_tester.user_id).action_accept()
         self.assertEqual(booking.calendar_event_id.partner_ids, self.other_tester.user_id.partner_id)
 
     def test_a_head_sees_the_bookings_of_their_department_only(self):
@@ -94,11 +97,11 @@ class TestTestingAssignment(SchedulingCase):
         self.assertNotIn(other, seen)
         self.assertEqual(self.env[MODEL_MACHINE_BOOKING].with_user(self.tester.user_id).search([]), own)
 
-    def test_sending_a_testing_task_back_to_the_queue_cancels_its_booking(self):
+    def test_sending_a_testing_task_back_to_the_queue_returns_its_booking_to_the_plan_without_a_tester(self):
         task = self.testing_task(self.test, self.tester)
         booking = self.schedule(self.test, self.tester)
         task.write({"assignee_id": False, "status": "open", "reassign_reason": "Back to the queue"})
-        self.assertEqual(booking.status, "cancelled")
+        self.assertEqual((booking.status, booking.person_id), ("proposed", self.env[MODEL_PERSON]))
         self.assertFalse(booking.calendar_event_id)
 
     def test_the_test_is_assigned_with_its_testing_task_and_waits_again_back_in_the_queue(self):

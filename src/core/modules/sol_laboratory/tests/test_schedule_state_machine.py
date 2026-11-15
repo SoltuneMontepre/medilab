@@ -8,18 +8,19 @@ from odoo.tests import tagged
 
 from .schedule_invariants_case import ScheduleInvariantsCase
 from .scheduling_case import MONDAY
-from odoo.addons.sol_laboratory.constants.models import MODEL_MACHINE_BOOKING, MODEL_TEST_RESULT
+from odoo.addons.sol_laboratory.constants.models import MODEL_TEST_RESULT
 
 SLOT = timedelta(minutes=15)
 MOVED_TO = MONDAY + timedelta(hours=6)
 REFUSALS = {
     "start": "Only a scheduled booking can be started.",
     "done": "Only a booking in progress can be done.",
-    "cancel": "Only a queued or scheduled booking can be cancelled.",
+    "cancel": "Only a scheduled booking can be cancelled.",
     "move": "Only a scheduled booking can be moved.",
+    "accept": "Only a proposed booking can be accepted.",
 }
 ALLOWED = {
-    ("queued", "cancel"),
+    ("proposed", "accept"),
     ("scheduled", "start"),
     ("scheduled", "cancel"),
     ("scheduled", "move"),
@@ -74,20 +75,11 @@ class TestScheduleStateMachine(ScheduleInvariantsCase):
 
     def booking_in(self, status):
         """A booking of a new lead test for the tester, brought to the status by its own actions."""
-        if status == "queued":
-            # No machine can finish a 40-minute run within 30 minutes.
-            test = self.new_test(MONDAY + 2 * SLOT)
-            task = self.testing_task(test, self.tester)
-            booking = self.env[MODEL_MACHINE_BOOKING].create(
-                {
-                    "machine_id": self.fast.id,
-                    "sample_test_id": test.id,
-                    "task_id": task.id,
-                    "person_id": self.tester.id,
-                }
-            )
-            self.env[MODEL_MACHINE_BOOKING]._process_queue()
-            self.assertEqual(booking.status, "queued")
+        if status == "proposed":
+            test = self.new_test()
+            self.testing_task(test, self.tester)
+            booking = test.booking_ids.with_user(self.tester.user_id)
+            self.assertEqual(booking.status, "proposed")
             return booking
         test = self.new_test()
         self.testing_task(test, self.tester)
@@ -109,7 +101,7 @@ class TestScheduleStateMachine(ScheduleInvariantsCase):
             getattr(booking, f"action_{action}")()
 
     def test_a_booking_takes_only_the_transitions_of_its_status(self):
-        for status in ("queued", "scheduled", "in_progress", "done", "cancelled"):
+        for status in ("proposed", "scheduled", "in_progress", "done", "cancelled"):
             for action, refusal in REFUSALS.items():
                 with self.subTest(status=status, action=action), self.rolled_back():
                     booking = self.booking_in(status)
@@ -132,6 +124,12 @@ class TestScheduleStateMachine(ScheduleInvariantsCase):
             self.assertFalse(booking.calendar_event_id)
             self.assertEqual((task.planned_start, task.planned_end), (False, False))
             self.assertEqual(test.status, "assigned")
+            # The test goes back to the plan.
+            self.assertTrue(test.booking_ids.filtered(lambda other: other.status == "proposed"))
+        elif action == "accept":
+            self.assertEqual(booking.status, "scheduled")
+            self.assertTrue(booking.calendar_event_id)
+            self.assertEqual((task.planned_start, task.planned_end), (booking.starts_at, booking.ends_at))
         elif action == "start":
             self.assertEqual((booking.status, test.status), ("in_progress", "testing"))
             self.assertTrue(booking.calendar_event_id)

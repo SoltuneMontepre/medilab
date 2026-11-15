@@ -21,9 +21,10 @@ class ScheduleInvariantsCase(SchedulingCase):
 
     @classmethod
     def occupy(cls, machine, start, end):
-        """A booking of another test that holds the machine from start to end."""
+        """A booking of another test that holds the machine from start to end; the department's plan makes room for it."""
         blocker = cls.env[MODEL_MACHINE_BOOKING].create({"machine_id": machine.id, "sample_test_id": cls.new_test().id})
         blocker._set({"status": "scheduled", "starts_at": start, "ends_at": end})
+        blocker._plan(cls.department)
         return blocker
 
     @classmethod
@@ -110,7 +111,7 @@ class ScheduleInvariantsCase(SchedulingCase):
                 self.assertEqual(
                     (start.minute % SLOT_MINUTES, start.second, start.microsecond), (0, 0, 0), f"P3: {label}"
                 )
-            if booking.status in ("queued", "scheduled"):
+            if booking.status in ("proposed", "scheduled"):
                 self.assertEqual(booking.person_id, booking.task_id.assignee_id, f"P5: {label} person")
             if booking.status == "scheduled" and booking.machine_id:
                 self.assertLessEqual(booking.ends_at, booking.machine_id._usable_until(), f"P9: {label}")
@@ -123,7 +124,9 @@ class ScheduleInvariantsCase(SchedulingCase):
             if test.status in CLOSED_TEST_STATUSES:
                 self.assertFalse(test.booking_ids._open(), f"P8: closed test {test.id} has an open booking")
         for task in bookings.task_id:
-            slots = task.booking_ids.filtered(lambda booking: booking.status != "cancelled" and booking.starts_at)
+            slots = task.booking_ids.filtered(
+                lambda booking: booking.status not in ("proposed", "cancelled") and booking.starts_at
+            )
             self.assertEqual(
                 (task.planned_start, task.planned_end),
                 (min(slots.mapped("starts_at"), default=False), max(slots.mapped("ends_at"), default=False)),

@@ -82,7 +82,7 @@ describe("WF-03 current permission and validation boundaries", () => {
       scheduleThroughScreen();
       openBooking(test).should("have.property", "status", "scheduled");
       scheduleState(test).then((before) => {
-        callRefused("medilab.sample.test", "action_schedule", [[test.id]]).should("match", /is already waiting for or holding a machine\.$/);
+        callRefused("medilab.sample.test", "action_schedule", [[test.id]]).should("match", /is already holding a machine\.$/);
         scheduleState(test).should("deep.equal", before);
         expect(before.bookings).to.have.length(1);
         expect(before.events).to.have.length(2);
@@ -103,7 +103,8 @@ describe("WF-03 current permission and validation boundaries", () => {
         expect(before.tests[0].status).to.equal("assigned");
         expect(before.tests[0].outsourcing_suggested).to.equal(true);
         expect(before.tests[0].parameter_method_id).to.equal(false);
-        expect(before.bookings).to.be.empty;
+        // The department's plan holds the test without a slot, and nothing is reserved.
+        expect(before.bookings.filter((booking) => booking.status !== "proposed" || booking.starts_at)).to.be.empty;
         expect(before.events).to.be.empty;
       });
     });
