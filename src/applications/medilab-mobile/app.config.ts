@@ -14,9 +14,6 @@ export default function appConfig({ config }: ConfigContext): ExpoConfig {
   const firebasePlugins: NonNullable<ExpoConfig["plugins"]> = googleServicesFile
     ? ["@react-native-firebase/app", ["@react-native-firebase/messaging", { installationIdEnabled: true }]]
     : [];
-  const serverUrl = process.env.MEDILAB_URL || DEFAULT_SERVER_URL;
-  // A build made for a MediLab served over HTTP, such as the local app, may reach one; other builds use HTTPS only.
-  const allowsHttp = serverUrl.startsWith("http:");
   return {
     ...config,
     name: "MediLab",
@@ -46,15 +43,11 @@ export default function appConfig({ config }: ConfigContext): ExpoConfig {
       ],
       // React Native Firebase reaches the Firebase Apple SDK through Swift Package Manager, which needs dynamic
       // frameworks.
-      [
-        "expo-build-properties",
-        { ios: { useFrameworks: "dynamic" }, android: allowsHttp ? { usesCleartextTraffic: true } : {} },
-      ],
+      ["expo-build-properties", { ios: { useFrameworks: "dynamic" } }],
       ...firebasePlugins,
     ],
     extra: {
-      serverUrl,
-      allowsHttp,
+      serverUrl: process.env.MEDILAB_URL || DEFAULT_SERVER_URL,
     },
   };
 }
