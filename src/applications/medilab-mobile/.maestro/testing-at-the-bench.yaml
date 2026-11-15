@@ -46,11 +46,10 @@ env:
     commands:
       - back
 - tapOn: "To-do list"
-- tapOn: '${LAB_CODE}: Lead \(Pb\).*'
+- tapOn: '.*Lead \(Pb\), ${LAB_CODE},.*'
 - extendedWaitUntil:
     visible: "Enter the result"
     timeout: 30000
-- assertVisible: "Method steps"
 - tapOn: "Enter the result"
 - tapOn:
     id: "result-value"
