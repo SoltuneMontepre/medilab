@@ -37,6 +37,7 @@
         "data/sol_laboratory/approval_chain.xml",
         "data/sol_laboratory/approval_level.xml",
         "data/sol_laboratory/person.xml",
+        "data/sol_laboratory/parameter_authorization.xml",
         "data/resource/resource_calendar_leaves.xml",
         "data/sol_laboratory/laboratory_device.xml",
         "data/sol_laboratory/mobile_device.xml",
