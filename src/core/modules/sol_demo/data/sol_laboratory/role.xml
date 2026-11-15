@@ -185,6 +185,7 @@
                 ref('sol_laboratory.permission_subcontract_dispatch_edit_all'),
                 ref('sol_laboratory.permission_laboratory_file_version_sign_all'),
                 ref('sol_laboratory.permission_signature_read_all'),
+                ref('sol_laboratory.permission_testing_figure_read_own_department'),
             ])]"
         />
     </record>
@@ -209,6 +210,7 @@
                 ref('sol_laboratory.permission_report_template_version_read_all'),
                 ref('sol_laboratory.permission_change_request_read_all'),
                 ref('sol_laboratory.permission_change_request_sign_all'),
+                ref('sol_laboratory.permission_testing_figure_read_all'),
                 ref('sol_inventory.permission_purchase_order_read_all'),
                 ref('sol_inventory.permission_purchase_order_sign_all'),
             ])]"
