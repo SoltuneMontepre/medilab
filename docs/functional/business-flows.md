@@ -527,7 +527,7 @@ flowchart TD
 - **Exceptions:**
   - SF-05-E1: Without another machine linked to the same method, keep the work unplaced and notify its tester and head. Sales informs the customer if the committed return date is affected. The head may outsource the work to a subcontractor with the same method (WF-05); a different method needs an agreed revised quotation.
   - SF-05-E2: A breakdown or lost calibration interrupts a booking: the booking ends, its recorded data is kept as an interrupted result, and the head assesses it as usable, needing a retest or needing more sample. A retest is a new result with a new booking.
-- **Acceptance criteria:** See [Administrator](laboratory_module/features/admin.md) and [Head of department](laboratory_module/features/head-of-department.md). A machine with queued, scheduled or running bookings cannot be archived.
+- **Acceptance criteria:** See [Administrator](laboratory_module/features/admin.md) and [Head of department](laboratory_module/features/head-of-department.md). A machine with proposed, scheduled or running bookings cannot be archived.
 - **Paths in other flows:** SF-10 owns queue order and rescheduling; WF-05 owns outsourcing to a subcontractor with the same method.
 
 ```mermaid
@@ -538,7 +538,7 @@ flowchart TD
     end
     subgraph lane28 ["Head of department"]
         h1[Assess the interrupted result: usable, retest or more sample]
-        h2[Review queued work and deadline risk]
+        h2[Review unplaced work and deadline risk]
     end
     subgraph lane27 ["Tester"]
         t1[Receive revised schedule or risk notice]
@@ -729,7 +729,7 @@ flowchart TD
   - SF-10-A2: The tester moves or cancels their not-started booking, or the head does so for the department, which pins it. Update all required reservations together; cancelling returns the sample test to the plan without cancelling it.
   - SF-10-A3: The head cancels a sample test with no approved result and a reason. Cancel its testing task and end only its own booking; bookings sharing its machine interval continue.
   - SF-10-A4: Moving a booking cancels its unsent old reminder and schedules the new one; send immediately inside the warning window and deduplicate the update.
-  - SF-10-A5: Entering the result or marking the measurement finished frees the machine before the booking's end.
+  - SF-10-A5: Submitting the result or marking the measurement finished frees the machine before the booking's end.
 - **Exceptions:**
   - SF-10-E1: Urgent work needs a slot that scheduled bookings hold: the recalculation becomes a plan revision listing every moved booking with its new slot, internal due date and committed return date. The head of each affected department approves the moves in their department, and their people are notified once applied; running bookings are never moved. A head who rejects the moves leaves the department's bookings in their slots; the urgent work stays unplaced with its deadline risk shown, and the head may free capacity with planned OverTime or another machine linked to the same method, or outsource the test (WF-05 Outsourced testing).
   - SF-10-E2: A move would pass its internal due date and so miss a committed return date: it is held back and its booking keeps its slot until Sales records the customer's agreement to a new date (SF-07); the other moves are recalculated without it. The head may instead free capacity with planned OverTime or another machine linked to the same method. Outsourcing to a subcontractor with the same method follows WF-05 and needs no customer agreement; a different method needs a revised quotation and customer agreement.
@@ -741,7 +741,7 @@ flowchart TD
 ```mermaid
 flowchart TD
     subgraph lane64 ["Tester"]
-        t1[Start the booking] --> t2[Enter the result and free the machine]
+        t1[Start the booking] --> t2[Submit the result and free the machine]
         t3[Move or cancel own not-started booking]
         t4[Mark own test urgent with a reason]
     end
