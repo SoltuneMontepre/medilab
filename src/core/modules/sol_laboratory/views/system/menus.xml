@@ -88,6 +88,14 @@
                 groups="group_permission_laboratory_folder_create_all,group_permission_laboratory_device_read_all"
             />
         </menuitem>
+        <menuitem id="menu_laboratory_reporting" name="Reporting" sequence="90">
+            <menuitem
+                id="menu_testing_statistic"
+                action="action_medilab_testing_statistic_period"
+                sequence="10"
+                groups="group_permission_testing_statistic_read_all,group_permission_testing_statistic_read_own_department"
+            />
+        </menuitem>
         <menuitem id="menu_laboratory_configuration" name="Configuration" sequence="100">
             <menuitem id="menu_settings" action="action_medilab_settings" sequence="0" groups="base.group_system" />
             <menuitem

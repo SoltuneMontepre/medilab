@@ -60,11 +60,12 @@
                                 </list>
                             </field>
                         </page>
-                        <page string="Ways of Testing" name="parameter_methods">
-                            <field name="parameter_method_ids">
+                        <page string="Testing Methods" name="methods">
+                            <field name="method_ids">
                                 <list editable="bottom">
-                                    <field name="parameter_method_id" />
-                                    <field name="run_minutes" />
+                                    <field name="method_id" />
+                                    <field name="duration_minutes" />
+                                    <field name="capacity" />
                                 </list>
                             </field>
                         </page>

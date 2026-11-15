@@ -62,7 +62,7 @@ Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling
 | Marking urgent | The tester marks a test of their own testing task urgent, stating why, or removes the mark. A marked test is urgent whatever its due date. |
 | Deadline risk | Notify the tester and Head of Department when risk first appears, then include unresolved risks in a daily summary. Show the flag on tasks and schedules. Sales contacts the customer only when the committed return date is affected or at risk. |
 | Machine heads-up | Warn within the separate calibration, maintenance or recent-repair windows, each defaulting to 7 days. Valid warnings allow booking only while calibration, maintenance and availability requirements are satisfied. |
-| Releasing the machine | Entering the result or marking the measurement finished frees the machine before the booking's end. A booking whose end passes without either keeps the machine, flags the next bookings on it at risk and notifies the tester and head. |
+| Releasing the machine | Submitting the result or marking the measurement finished frees the machine before the booking's end. A booking whose end passes without either keeps the machine, flags the next bookings on it at risk and notifies the tester and head. |
 | Adjusting | Move or cancel their own not-started booking, keeping all required reservations synchronized under SH-11. Cancelling the booking returns its sample test to the plan without cancelling it. A move is made from the booking's form or by dragging it on the machine schedule, only to a free slot. |
 
 Acceptance criteria:
@@ -81,7 +81,7 @@ Acceptance criteria:
 - A tester not authorized for its parameter cannot claim or be scheduled for the test.
 - A booking cannot join a machine interval that has started, that is full, or that holds a booking of another method.
 - Measuring three parameters of one sample with the same method on a shared machine takes one place of its capacity.
-- A booking whose end passed without a result or a finished measurement keeps its machine, and the next bookings on the machine are flagged at risk; entering the result frees the machine.
+- A booking whose end passed without a result or a finished measurement keeps its machine, and the next bookings on the machine are flagged at risk; submitting the result frees the machine.
 - A machine booking cannot end after the machine's calibration validity.
 - A currently valid calibration due within the warning window shows its date; booking proceeds only if all other maintenance and resource conditions hold.
 - A machine with a repair recorded within the warning days shows a warning naming the repair.

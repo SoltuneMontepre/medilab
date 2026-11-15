@@ -110,6 +110,9 @@ class SampleTest(models.Model, SampleTestBase):
         )
         # When the test was cancelled.
         cancelled_at = fields.Datetime(readonly=True, copy=False)
+        # When the test's result was first approved; empty until then, and kept when the result is sent back or
+        # corrected.
+        first_approved_at = fields.Datetime(readonly=True, copy=False)
         # True when the due date is within the urgency threshold.
         is_urgent = fields.Boolean(string="Urgent", compute="_compute_is_urgent")
         # The parameter's subcontracted ways of testing whose subcontractor can be chosen, shown as the alternatives of
@@ -142,7 +145,7 @@ class SampleTest(models.Model, SampleTestBase):
         )
         # The way of testing the scheduler recommends to the assignee of the test's testing task.
         recommended_method_id = fields.Many2one(MODEL_PARAMETER_METHOD, compute="_compute_recommendation")
-        # The machine the scheduler recommends.
+        # The machine the scheduler recommends; empty when the way needs none.
         recommended_machine_id = fields.Many2one(MODEL_MACHINE, compute="_compute_recommendation")
         # Start of the free slot the scheduler recommends.
         recommended_start = fields.Datetime(compute="_compute_recommendation")
@@ -384,7 +387,7 @@ class SampleTest(models.Model, SampleTestBase):
                 raise UserError(self.env._("%s is already waiting for or holding a machine.", test.display_name))
             if not task.assignee_id:
                 raise UserError(self.env._("Assign %s to a person before scheduling it.", test.display_name))
-            if not test.recommended_machine_id:
+            if not test.recommended_start:
                 raise UserError(self.env._("No machine can finish %s before its due date.", test.display_name))
             bookings = self.env[MODEL_MACHINE_BOOKING]
             bookings = bookings.sudo() if person and task.assignee_id == person else bookings
@@ -490,6 +493,8 @@ class SampleTest(models.Model, SampleTestBase):
 
     def _cancel(self):
         tests = self.filtered(lambda test: test.status in OPEN_STATUSES)
+        # A test cancelled with its sample or request has no reason of its own, but still the time it was cancelled.
+        tests.filtered(lambda test: not test.cancelled_at).cancelled_at = fields.Datetime.now()
         tests.status = "cancelled"
         self.env[MODEL_TASK]._cancel_for_document(tests, TESTING_ACTION)
         tests._release_bookings()
@@ -514,6 +519,9 @@ class SampleTest(models.Model, SampleTestBase):
     def _progress(self, status):
         tests = self.sudo()
         tests.status = status
+        if status == "approved":
+            # The first approval stays: the lab head sending the result back or a correction does not move it.
+            tests.filtered(lambda test: not test.first_approved_at).first_approved_at = fields.Datetime.now()
         # Submitting the result is the tester's work done; approving it is the head's.
         if status in ("result_entered", "approved"):
             self.env[MODEL_TASK]._close_for_document(tests, TESTING_ACTION)

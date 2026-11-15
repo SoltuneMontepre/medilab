@@ -101,8 +101,10 @@ class ResultCase(SchedulingCase):
         """The test's testing task moved to the person, so that they enter its result."""
         self.task.write({"assignee_id": person.id, "reassign_reason": "Measured by another person."})
 
-    def send(self, result, person=None):
-        self.as_person(result, person or self.tester).action_sign()
+    @classmethod
+    def send(cls, result, person=None):
+        cls.as_person(result, person or cls.tester).action_sign()
 
-    def approve(self, result):
-        self.as_person(result, self.head).action_sign()
+    @classmethod
+    def approve(cls, result):
+        cls.as_person(result, cls.head).action_sign()
