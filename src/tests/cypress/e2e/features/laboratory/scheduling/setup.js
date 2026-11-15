@@ -42,7 +42,7 @@ function create(login, model, values) {
 }
 
 // Each test owns its catalog and resources; no seeded booking or shared machine is moved to force availability.
-export function schedulingFixture(count = 2, register = () => {}) {
+export function schedulingFixture(count = 2, register = () => {}, capacity = 1) {
   const fixture = { tag: `Cu-UI-${Date.now()}`, tasks: [], tests: [], bookings: [], eventIds: [] };
   register(fixture);
   const refs = {
@@ -84,7 +84,7 @@ export function schedulingFixture(count = 2, register = () => {}) {
     code: fixture.tag,
     name: `Copper spectrometer ${fixture.tag}`,
     location_id: fixture.room,
-    parameter_method_ids: [[0, 0, { parameter_method_id: fixture.way, run_minutes: 30 }]],
+    method_ids: [[0, 0, { method_id: fixture.method, duration_minutes: 30, capacity }]],
     service_ids: [[0, 0, {
       kind: "calibration",
       service_date: odooTime(Date.now()).slice(0, 10),
