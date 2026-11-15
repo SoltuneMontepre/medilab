@@ -7,7 +7,8 @@ import { HEAD, TESTER, awayFromQuarterHour, bookedOnOneMachine, book, assignedCh
 
 beforeEach(() => {
   resetFixtures();
-  cy.viewport(1440, 900);
+  // Tall enough for the calendar to show the whole day, so a drag never needs it to scroll.
+  cy.viewport(1440, 1800);
 });
 afterEach(releaseFixtures);
 
