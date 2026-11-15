@@ -11,8 +11,9 @@ import { useT } from "../../locale";
 import { useSession } from "../../session";
 import { colors, styles as shared } from "../../styles";
 import { LoadNotice } from "../connection/LoadNotice";
-import { Unreachable } from "../connection/Unreachable";
+import { ActionProblem } from "../connection/ActionProblem";
 import { documentPath } from "../documents/documentPath";
+import { Facts } from "../documents/Facts";
 import { formatMoment, statusKey } from "./taskText";
 
 type Action = "claim" | "start" | "done";
@@ -63,12 +64,11 @@ export function TaskScreen() {
       {load.state === "ready" && (
         <ScrollView contentContainerStyle={styles.content}>
           <Details task={load.value} />
-          {problem?.load.state === "unreachable" && <Unreachable onRetry={() => act(problem.action)} />}
-          {(problem?.load.state === "refused" || problem?.load.state === "gone") && (
-            <Text accessibilityRole="alert" style={shared.error}>
-              {problem.load.state === "refused" ? problem.load.message : t("task.gone")}
-            </Text>
-          )}
+          <ActionProblem
+            problem={problem?.load}
+            gone={t("task.gone")}
+            onRetry={() => problem && act(problem.action)}
+          />
           {ACTIONS.filter(({ action }) => load.value.actions[action]).map(({ action, label }) => (
             <Pressable
               key={action}
@@ -127,14 +127,7 @@ function Details({ task }: Readonly<{ task: TaskDetail }>) {
     <>
       <Text style={shared.title}>{task.name}</Text>
       {!!task.document?.code && <Text style={shared.detail}>{task.document.code}</Text>}
-      {facts
-        .filter(([, value]) => value)
-        .map(([label, value]) => (
-          <View key={label} style={styles.fact}>
-            <Text style={shared.detail}>{t(label)}</Text>
-            <Text style={shared.label}>{value}</Text>
-          </View>
-        ))}
+      <Facts facts={facts} />
       {!!task.note && <Text style={styles.note}>{task.note}</Text>}
       {task.steps.length > 0 && (
         <View style={styles.steps}>
@@ -160,7 +153,6 @@ function Details({ task }: Readonly<{ task: TaskDetail }>) {
 const styles = StyleSheet.create({
   screen: { flex: 1, padding: 24 },
   content: { gap: 12, paddingBottom: 24 },
-  fact: { gap: 2 },
   note: { fontSize: 15, color: colors.text },
   steps: { gap: 8 },
   heading: { fontSize: 18, fontWeight: "600", color: colors.text },

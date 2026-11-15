@@ -4923,3 +4923,30 @@ msgstr ""
 #: code:addons/sol_commerce/models/pricing/tax_rate.py:0
 msgid "The accounting tax of %(rate)s must be a sales tax of %(percent)s%%."
 msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_mail_message__idempotency_key
+msgid "Idempotency Key"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_mail_message__posted_by_device_id
+msgid "Posted By Device"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.constraint,message:sol_commerce.constraint_mail_message_device_idempotency_key_unique
+msgid "This phone already posted a message with this Idempotency-Key."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/support/support_request_mobile.py:0
+msgid "This Idempotency-Key was already sent with another request."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/support/support_request_mobile.py:0
+msgid "You may not answer this support request."
+msgstr ""

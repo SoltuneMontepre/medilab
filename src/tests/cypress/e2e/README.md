@@ -41,6 +41,7 @@ src/tests/
         ecommerce/uninstall-warning/
         mobile/phone-revocation/
         mobile/tasks/
+        mobile/support/
       *.cy.js
     support/
     fixtures/
@@ -115,6 +116,7 @@ Issue [#318](https://github.com/SoltuneMontepre/medilab/issues/318) tracks `TC-W
 | Warn before uninstalling E-commerce that test requests keep their order's number, and not when Laboratory leaves with it. | [#439](https://github.com/SoltuneMontepre/medilab/issues/439) | `features/ecommerce/uninstall-warning/` | `uninstall-warning.cy.js` |
 | Revoke a phone signed in on Medilab Mobile from the back office; its key is refused at its next call and its push token is off. | [#514](https://github.com/SoltuneMontepre/medilab/issues/514) | `features/mobile/phone-revocation/` | `phone-revocation.cy.js` |
 | Claim a task from the queue on the phone; the web shows it claimed, and a second claim is told it is already claimed. | [#516](https://github.com/SoltuneMontepre/medilab/issues/516) | `features/mobile/tasks/` | `tasks.cy.js` |
+| Take a waiting support request and answer it on the phone; the customer reads the answer on the portal and is notified. | [#522](https://github.com/SoltuneMontepre/medilab/issues/522) | `features/mobile/support/` | `support.cy.js` |
 | Let a tester move their own booking and keep a moved task open for its head. | [#315](https://github.com/SoltuneMontepre/medilab/issues/315) | `features/laboratory/scheduling/` | `booking-adjustments.cy.js` |
 
 Onboarding and solution-preparation scenarios follow their approved feature documents and demo starting data. Reserving a directory does not settle the open requirements in those issues.

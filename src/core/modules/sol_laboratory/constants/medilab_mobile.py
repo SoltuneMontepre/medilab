@@ -6,6 +6,8 @@ MANDATORY_EVENT = "mandatory_event"
 ACTION_REFUSED = "action_refused"
 # Claiming a task someone else claimed first.
 ALREADY_CLAIMED = "already_claimed"
+# Taking a support request someone else took first.
+ALREADY_TAKEN = "already_taken"
 # The screen of a document the app has no screen of its own for: its code and title, and "Open on the web".
 WEB_SCREEN = "web"
 # The screen of a conversation, an Odoo Discuss channel.

@@ -1,20 +1,20 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useCallback, useState } from "react";
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import type { Task, TaskList, TaskPage } from "../../api";
 import { useReloadOnReturn } from "../../focus";
-import type { MessageKey } from "../../i18n";
 import { failed, useLoad, type Load } from "../../load";
 import { useT } from "../../locale";
 import { useSession } from "../../session";
-import { colors, styles as shared } from "../../styles";
+import { styles as shared } from "../../styles";
 import { Unreachable } from "../connection/Unreachable";
 import { taskPath } from "../documents/documentPath";
+import { chosenTab, ListTabs, type ListTab } from "../lists/ListTabs";
 import { TaskRow } from "./TaskRow";
 
-const LISTS: { list: TaskList; label: MessageKey; empty: MessageKey }[] = [
+const LISTS: ListTab<TaskList>[] = [
   { list: "open", label: "tasks.open", empty: "tasks.openEmpty" },
   { list: "finished", label: "tasks.finished", empty: "tasks.finishedEmpty" },
   { list: "queue", label: "tasks.queue", empty: "tasks.queueEmpty" },
@@ -31,9 +31,7 @@ export function TasksScreen() {
   const t = useT();
   const { call } = useSession();
   const params = useLocalSearchParams<{ list?: string }>();
-  const [list, setList] = useState<TaskList>(
-    LISTS.some((item) => item.list === params.list) ? (params.list as TaskList) : "open",
-  );
+  const [list, setList] = useState(() => chosenTab(LISTS, params.list));
   const [problem, setProblem] = useState<Load<never> | null>(null);
 
   const page = useCallback(
@@ -65,22 +63,14 @@ export function TasksScreen() {
   return (
     <SafeAreaView style={styles.screen}>
       <Text style={shared.title}>{t("tasks.title")}</Text>
-      <View accessibilityRole="tablist" style={styles.tabs}>
-        {LISTS.map((item) => (
-          <Pressable
-            key={item.list}
-            accessibilityRole="tab"
-            accessibilityState={{ selected: item.list === list }}
-            style={[styles.tab, item.list === list && styles.selected]}
-            onPress={() => {
-              setProblem(null);
-              setList(item.list);
-            }}
-          >
-            <Text style={[styles.tabText, item.list === list && styles.selectedText]}>{t(item.label)}</Text>
-          </Pressable>
-        ))}
-      </View>
+      <ListTabs
+        tabs={LISTS}
+        chosen={list}
+        onChoose={(chosen) => {
+          setProblem(null);
+          setList(chosen);
+        }}
+      />
       {load.state === "loading" && <ActivityIndicator accessibilityLabel={t("loading")} />}
       {load.state === "unreachable" && <Unreachable onRetry={reload} />}
       {load.state === "refused" && <Text style={shared.error}>{load.message}</Text>}
@@ -105,10 +95,5 @@ export function TasksScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, padding: 24, gap: 16 },
-  tabs: { flexDirection: "row", gap: 8 },
-  tab: { flex: 1, borderWidth: 1, borderColor: colors.primary, borderRadius: 8, paddingVertical: 8, alignItems: "center" },
-  selected: { backgroundColor: colors.primary },
-  tabText: { color: colors.primary, fontWeight: "500" },
-  selectedText: { color: "#ffffff" },
   list: { gap: 8 },
 });

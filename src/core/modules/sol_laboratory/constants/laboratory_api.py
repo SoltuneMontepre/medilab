@@ -28,7 +28,12 @@ from odoo.addons.sol_laboratory.constants.laboratory_uploads import (
     UPLOAD_CLOSED,
     UPLOAD_INCOMPLETE,
 )
-from odoo.addons.sol_laboratory.constants.medilab_mobile import ACTION_REFUSED, ALREADY_CLAIMED, MANDATORY_EVENT
+from odoo.addons.sol_laboratory.constants.medilab_mobile import (
+    ACTION_REFUSED,
+    ALREADY_CLAIMED,
+    ALREADY_TAKEN,
+    MANDATORY_EVENT,
+)
 
 # Every route of the API is under this path.
 API_PREFIX = "/medilab/api/v1"
@@ -50,6 +55,7 @@ ERROR_STATUSES = {
     UPLOAD_CLOSED: 409,
     ACTION_REFUSED: 409,
     ALREADY_CLAIMED: 409,
+    ALREADY_TAKEN: 409,
     NOT_ELIGIBLE: 422,
     NOT_LOCKABLE: 422,
     NOT_EDITABLE: 422,

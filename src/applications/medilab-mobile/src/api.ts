@@ -122,7 +122,12 @@ export interface Me {
   login: string;
   department: string;
   roles: string[];
-  can: { create_tasks: boolean; assign_tasks: boolean };
+  can: { create_tasks: boolean; assign_tasks: boolean; take_support_requests?: boolean };
+}
+
+/** The installed MediLab modules, so the app shows only the screens of the modules installed. */
+export interface ModuleList {
+  modules: string[];
 }
 
 export type TaskStatus = "open" | "assigned" | "in_progress" | "done" | "cancelled";
@@ -217,4 +222,34 @@ export interface Sample {
   customer_sample_name: string | null;
   handover: SampleHandover | null;
   tasks: Task[];
+}
+
+export type SupportRequestStatus = "open" | "answered" | "closed";
+
+export type SupportRequestList = "mine" | "waiting";
+
+/** A customer's support request, as sales handle it on the web. */
+export interface SupportRequest {
+  id: number;
+  code: string;
+  subject: string;
+  status: SupportRequestStatus;
+  customer: string;
+  order: string;
+  handled_by: string;
+  opened_at: string;
+}
+
+export interface SupportMessage {
+  id: number;
+  author: string;
+  body: string;
+  date: string;
+  from_customer: boolean;
+}
+
+/** A support request with the messages the customer and sales wrote, and what the person may do with it. */
+export interface SupportRequestDetail extends SupportRequest {
+  messages: SupportMessage[];
+  actions: { take: boolean; answer: boolean };
 }

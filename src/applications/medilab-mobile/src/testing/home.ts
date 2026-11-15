@@ -4,7 +4,9 @@ import type { Task, TaskDay } from "../api";
 export const PERSON = "Nguyễn Văn An";
 export const GREETING = `Xin chào, ${PERSON}`;
 
-export function me(can?: { create_tasks: boolean; assign_tasks: boolean }) {
+type Can = { create_tasks: boolean; assign_tasks: boolean; take_support_requests?: boolean };
+
+export function me(can?: Can) {
   return {
     status: 200,
     body: {
@@ -58,7 +60,12 @@ export function day(values: Partial<TaskDay> = {}) {
   };
 }
 
+/** The installed MediLab modules, without E-commerce unless it is named. */
+export function modules(...names: string[]) {
+  return { status: 200, body: { modules: ["sol_laboratory", ...names] } };
+}
+
 /** The answers the home reads once it opens. */
-export function home(can?: { create_tasks: boolean; assign_tasks: boolean }) {
-  return [me(can), day()] as const;
+export function home(can?: Can, installed = modules()) {
+  return [me(can), day(), installed] as const;
 }
