@@ -161,6 +161,9 @@ class TestInterruptions(ResultCase):
         booking = self.fail_during_measurement()
         interrupted = self.test.result_ids
         self.as_person(interrupted, self.head).action_assess_retest()
+        # The assessment puts the retest in the department's plan, by the method of the interrupted measurement.
+        proposed = self.test.booking_ids.filtered(lambda booking: booking.status == "proposed")
+        self.assertEqual((proposed.method_id, bool(proposed.starts_at)), (self.method, True))
         # Another way of testing lead would finish sooner, on a machine of another method.
         icp_method = self.env[MODEL_TESTING_METHOD].create(
             {"code": "SMEWW 3125B", "name": "Metals by ICP-MS", "field_id": self.testing_field.id}
