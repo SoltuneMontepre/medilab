@@ -323,14 +323,14 @@
         <field name="document_model">medilab.subcontract.dispatch</field>
         <field name="action">edit</field>
     </record>
-    <record id="permission_testing_figure_read_all" model="medilab.permission">
-        <field name="name">Read the testing figures</field>
-        <field name="document_model">medilab.testing.figure</field>
+    <record id="permission_testing_statistic_read_all" model="medilab.permission">
+        <field name="name">Read the testing statistics</field>
+        <field name="document_model">medilab.testing.statistic</field>
         <field name="action">read</field>
     </record>
-    <record id="permission_testing_figure_read_own_department" model="medilab.permission">
-        <field name="name">Read the testing figures of their department</field>
-        <field name="document_model">medilab.testing.figure</field>
+    <record id="permission_testing_statistic_read_own_department" model="medilab.permission">
+        <field name="name">Read the testing statistics of their department</field>
+        <field name="document_model">medilab.testing.statistic</field>
         <field name="action">read</field>
         <field name="scope">own_department</field>
     </record>
