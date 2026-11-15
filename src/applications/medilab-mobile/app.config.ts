@@ -27,6 +27,7 @@ export default function appConfig({ config }: ConfigContext): ExpoConfig {
     ios: {
       bundleIdentifier: "com.medilab.mobile",
       supportsTablet: true,
+      ...(allowsHttp ? { infoPlist: { NSAppTransportSecurity: { NSAllowsArbitraryLoads: true } } } : {}),
     },
     android: {
       package: "com.medilab.mobile",

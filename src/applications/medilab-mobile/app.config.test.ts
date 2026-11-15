@@ -24,6 +24,7 @@ describe("app config", () => {
     process.env.MEDILAB_URL = "http://localhost:8069";
     const config = appConfig({ config: {} } as never);
     expect(config.extra?.allowsHttp).toBe(true);
+    expect(config.ios?.infoPlist).toEqual({ NSAppTransportSecurity: { NSAllowsArbitraryLoads: true } });
     expect(config.plugins).toContainEqual([
       "expo-build-properties",
       { ios: { useFrameworks: "dynamic" }, android: { usesCleartextTraffic: true } },
@@ -34,6 +35,7 @@ describe("app config", () => {
     process.env.MEDILAB_URL = "https://lab.example";
     const config = appConfig({ config: {} } as never);
     expect(config.extra?.allowsHttp).toBe(false);
+    expect(config.ios?.infoPlist).toBeUndefined();
     expect(config.plugins).toContainEqual(["expo-build-properties", { ios: { useFrameworks: "dynamic" }, android: {} }]);
   });
 });
