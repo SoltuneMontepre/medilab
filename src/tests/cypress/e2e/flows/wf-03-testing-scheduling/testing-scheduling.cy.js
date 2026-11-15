@@ -75,7 +75,7 @@ function openAssign() {
 }
 
 describe("WF-03 baseline assignment and scheduling", () => {
-  it("TC-WF03-M lets the head of department assign a sample and the tester book the recommended machine and slot", () => {
+  it("TC-WF03-M partial lets the head of department assign a sample and the tester book the recommended machine and slot", () => {
     receivedSample([PARAMETERS.chromium, PARAMETERS.ph]).then((sample) => {
       const [chromium] = sample.tests;
       cy.signInAs("head_of_department");
@@ -132,7 +132,7 @@ describe("WF-03 baseline assignment and scheduling", () => {
     });
   });
 
-  it("TC-WF03-A1 lets a tester claim an unassigned task of their department", () => {
+  it("TC-WF03-A1 partial lets a tester claim an unassigned task of their department", () => {
     receivedSample().then(({ tests: [lead] }) => {
       cy.signInAs("tester");
       cy.visit("/odoo/awaiting-tasks");
@@ -150,7 +150,7 @@ describe("WF-03 baseline assignment and scheduling", () => {
     });
   });
 
-  it("TC-WF03-A2 lets the head of department move a task to another person, then to another department, with a reason", () => {
+  it("TC-WF03-E1 partial lets the head of department move a task to another person, then to another department, with a reason", () => {
     bookedLead().then(({ sample, test, booking }) => {
       const task = { model: "medilab.task", id: booking.task_id[0] };
       cy.signInAs("head_of_department");
@@ -205,7 +205,7 @@ describe("WF-03 baseline assignment and scheduling", () => {
     });
   });
 
-  it("TC-WF03-A3 lets the tester cancel a booking, and its slot goes back to the queue", () => {
+  it("TC-SF10-A2 partial lets the tester cancel a booking, and its slot goes back to the queue", () => {
     assignedChromium().then(({ test }) => {
       // The freed slot must still lie ahead when the test is recommended again.
       awayFromQuarterHour();
@@ -248,7 +248,7 @@ describe("WF-03 baseline assignment and scheduling", () => {
     });
   });
 
-  it("TC-WF03-A5 creates a machine and step-room booking through Schedule and keeps them together", () => {
+  it("TC-WF03-A2 partial creates a machine and step-room booking through Schedule and keeps them together", () => {
     assignedChromium().then(({ sample, test }) => {
       cy.signInAs("tester");
       cy.openRecord(test);
@@ -294,7 +294,7 @@ describe("WF-03 baseline assignment and scheduling", () => {
     });
   });
 
-  it("TC-WF03-E1 baseline / TC-F23-03 rejects a claim from a stale list without changing the winner", () => {
+  it("TC-F23-03 rejects a claim from a stale list without changing the winner", () => {
     receivedSample().then(({ tests: [lead] }) => {
       cy.signInAs("chemistry_tester");
       cy.visit("/odoo/awaiting-tasks");
@@ -320,7 +320,7 @@ describe("WF-03 baseline assignment and scheduling", () => {
     });
   });
 
-  it("TC-WF03-E2 baseline / TC-F23-03 hides another department's task and refuses its claim over RPC", () => {
+  it("TC-F23-03 hides another department's task and refuses its claim over RPC", () => {
     receivedSample([PARAMETERS.coliforms]).then(({ tests: [coliforms] }) => {
       cy.signInAs("tester");
       cy.visit("/odoo/awaiting-tasks");
@@ -340,7 +340,7 @@ describe("WF-03 baseline assignment and scheduling", () => {
     });
   });
 
-  it("TC-WF03-E3 baseline / TC-F23-03 preserves reservations after a missing reason and lets the head retry", () => {
+  it("TC-F23-03 preserves reservations after a missing reason and lets the head retry", () => {
     assignedChromium().then(({ test: lead }) => {
       book(lead);
       cy.signInAs("head_of_department");
