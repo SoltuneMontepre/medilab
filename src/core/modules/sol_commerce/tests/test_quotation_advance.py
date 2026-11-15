@@ -89,6 +89,23 @@ class TestQuotationAdvance(OrderCase):
         self.assertEqual(order.test_request_id.status, "paid")
         self.assertEqual(order.payment_status, "paid")
 
+    def test_a_preexisting_advance_invoice_still_controls_acceptance(self):
+        order = self.make_quotable_order()
+        invoice = order.create_advance_invoice(percentage=50)
+        order.with_user(self.sales).action_send_quotation()
+        quotation = order._latest_quotation()
+        request = order.payment_request_id
+        order.payment_request_id = False
+        request.unlink()
+        quotation.write({"advance_invoice_id": invoice.id})
+
+        with self.assertRaisesRegex(UserError, "Pay the requested advance"):
+            self.as_customer(order).action_accept()
+        self.env["account.payment"].create_pending_payment(invoice, invoice.amount_total, "cash").action_post()
+        self.assertEqual(quotation.status, "accepted")
+        order.with_user(self.sales).action_confirm_order()
+        self.assertEqual(order.payment_request_id.amount, order.amount_total - invoice.amount_total)
+
     def test_sales_open_an_order_that_has_an_advance_invoice(self):
         order = self.make_quotable_order()
         order.with_user(self.sales).action_send_quotation()

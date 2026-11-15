@@ -215,6 +215,76 @@ class TestPayments(InvoicingCase):
         self.assertEqual(day.status, "locked")
         self.assertEqual(transaction.payment_id.amount, paid)
 
+    def _payos_receipt_after_the_deadline(self):
+        attachment = self.env["ir.attachment"].create({"name": "Quotation", "type": "binary"})
+        quotation = self.env["medilab.quotation"].create(
+            {"order_id": self.order.id, "amount_total": 5_000_000, "attachment_id": attachment.id}
+        )
+        request = self.env["medilab.payment.request"].create(
+            {
+                "order_id": self.order.id,
+                "quotation_id": quotation.id,
+                "kind": "advance",
+                "amount": 2_000_000,
+                "deadline": "2020-06-03 04:00:00",
+            }
+        )
+        self.order.payment_request_id = request
+        self.env.ref("sol_commerce.payment_provider_payos").is_published = True
+        self.env.ref("sol_commerce.payment_method_payos_qr").active = True
+        transactions = self.env["payment.transaction"]
+        link = transactions._create_payos_transaction(request, 1_000_000)
+        receipt = transactions._payos_apply_webhook(
+            {
+                "orderCode": int(link.reference),
+                "amount": 1_000_000,
+                "code": "00",
+                "reference": "FT-AFTER-DEADLINE",
+                "transactionDateTime": "2020-06-03 12:00:00",
+            }
+        )
+        day = self.env["medilab.reconciliation.day"].create({"day": "2020-06-03"})
+        self.assertEqual(receipt.payment_id.collection_review, "late")
+        self.assertEqual(receipt.payment_id.state, "draft")
+        return day, receipt
+
+    def test_a_draft_payos_receipt_blocks_the_day_lock_until_confirmed(self):
+        day, receipt = self._payos_receipt_after_the_deadline()
+        draft = receipt.payment_id
+
+        self.assertEqual(day.missing_payment_count, 0)
+        day.action_post_missing_payments()
+        self.assertEqual(receipt.payment_id, draft)
+        self.assertEqual(draft.state, "draft")
+        day.discrepancies_acknowledged = True
+        with self.assertRaises(UserError):
+            day.action_lock()
+        self.assertEqual(day.status, "open")
+
+        receipt.payment_request_id.deadline = datetime(2020, 6, 3, 6)
+        draft.action_post()
+        day.discrepancies_acknowledged = False
+        day.action_lock()
+
+        self.assertEqual(day.status, "locked")
+        self.assertEqual((day.transfer_total, day.payment_total, day.difference_total), (1_000_000, 1_000_000, 0))
+
+    def test_a_rejected_payos_receipt_leaves_an_acknowledgeable_difference(self):
+        day, receipt = self._payos_receipt_after_the_deadline()
+
+        self.assertEqual((day.transfer_total, day.payment_total, day.difference_total), (1_000_000, 0, 1_000_000))
+        receipt.payment_id.rejection_reason = "Requires separate settlement"
+        receipt.payment_id.action_reject_payment()
+        with self.assertRaises(UserError):
+            day.action_lock()
+        self.assertEqual(day.missing_payment_count, 0)
+        self.assertEqual(day.mismatch_count, 1)
+        self.assertEqual((day.transfer_total, day.payment_total, day.difference_total), (1_000_000, 0, 1_000_000))
+
+        day.discrepancies_acknowledged = True
+        day.action_lock()
+        self.assertEqual(day.status, "locked")
+
     def test_payos_after_the_lock_is_stored_as_recorded_after_the_lock(self):
         self.env.ref("sol_commerce.payment_provider_payos").is_published = True
         self.env.ref("sol_commerce.payment_method_payos_qr").active = True

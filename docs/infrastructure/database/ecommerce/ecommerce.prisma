@@ -638,6 +638,10 @@ model Quotation {
   attachment_id  Int
   /// The order quoted.
   order          SaleOrder  @relation(fields: [order_id], references: [id], onDelete: Restrict)
+  /// The posted advance invoice of a quotation issued before payment requests.
+  advance_invoice_id Int?
+  /// The invoice linked to that earlier quotation.
+  advance_invoice Invoice? @relation(fields: [advance_invoice_id], references: [id], onDelete: Restrict)
   /// Payment requests tied to this quotation revision.
   payment_requests PaymentRequest[]
   /// The revision this one replaces.
@@ -649,6 +653,7 @@ model Quotation {
 
   @@unique([order_id, revision])
   @@index([status])
+  @@index([advance_invoice_id])
   @@map("medilab_quotation")
 }
 
@@ -844,6 +849,8 @@ model Invoice {
   adjusted_invoice Invoice?     @relation("RaisingAdjustments", fields: [adjusted_invoice_id], references: [id], onDelete: Restrict)
   /// Raising adjustments of this invoice.
   raising_adjustments Invoice[] @relation("RaisingAdjustments")
+  /// Quotations that sent this invoice as their advance.
+  advance_for    Quotation[]
   /// Lines of the invoice.
   lines           InvoiceLine[]
   /// Payments against the invoice.

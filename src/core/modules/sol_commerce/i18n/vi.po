@@ -2575,6 +2575,12 @@ msgid "Acknowledge the amount differences before locking this day."
 msgstr "Xác nhận các khoản chênh lệch trước khi khóa ngày này."
 
 #. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/reconciliation_day.py:0
+msgid "Confirm or reject the draft PayOS payments before locking this day."
+msgstr "Xác nhận hoặc từ chối các khoản thanh toán PayOS nháp trước khi khóa ngày này."
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_invoice_form
 msgid "Adjust"
 msgstr "Điều chỉnh"
@@ -5397,3 +5403,9 @@ msgstr "Xác nhận đã thanh toán số dư đơn hàng trước khi thu mẫu
 #: code:addons/sol_commerce/models/invoicing/payment_request.py:0
 msgid "Balance payment requests have no deadline."
 msgstr "Yêu cầu thanh toán số dư không có thời hạn."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_advance.py:0
+msgid "Settle the existing advance invoice before sending a revision."
+msgstr "Tất toán hóa đơn tạm ứng hiện tại trước khi gửi bản sửa đổi."

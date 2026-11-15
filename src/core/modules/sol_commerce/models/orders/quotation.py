@@ -4,6 +4,7 @@ from odoo import api, fields, models
 from odoo.exceptions import AccessError, UserError
 
 from odoo.addons.sol_commerce.constants.models import (
+    MODEL_ACCOUNT_MOVE,
     MODEL_PAYMENT_REQUEST,
     MODEL_QUOTATION,
     MODEL_QUOTATION_SAMPLING,
@@ -70,6 +71,10 @@ class Quotation(models.Model, QuotationBase):
         decline_reason = fields.Text()
         # Payment requests tied to this quotation revision.
         payment_request_ids = fields.One2many(MODEL_PAYMENT_REQUEST, "quotation_id")
+        # Posted advance invoice of a quotation issued before payment requests.
+        advance_invoice_id = fields.Many2one(
+            MODEL_ACCOUNT_MOVE, ondelete="restrict", copy=False, index="btree_not_null", readonly=True
+        )
         # Reference of the customer's email or written agreement recorded by Sales.
         agreement_reference = fields.Char(readonly=True, copy=False)
         # The PDF sent to the customer.
@@ -116,7 +121,7 @@ class Quotation(models.Model, QuotationBase):
             raise UserError(self.env._("This quotation is being revised."))
         if order.payment_deadline and order.payment_deadline < fields.Datetime.now():
             raise UserError(self.env._("This quotation has expired."))
-        if order.payment_request_id.amount:
+        if order.payment_request_id.amount or self.sudo().advance_invoice_id:
             raise UserError(self.env._("Pay the requested advance to accept this quotation."))
 
     def _accept(self):

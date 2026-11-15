@@ -15,7 +15,10 @@
                     This quotation is being revised. Its items are shown again when the new revision is sent.
                 </div>
                 <t t-if="advance and not revising" t-call="sol_commerce.payment_request_summary" />
-                <p t-if="order.payment_deadline and not advance">Accept the quotation before <t t-out="order.payment_deadline" t-options="{'widget': 'datetime'}" />.</p>
+                <p t-if="legacy_invoice and not revising">
+                    <a t-if="legacy_invoice.amount_residual and quotation.status == 'sent'" class="btn btn-primary" t-att-href="legacy_invoice_url"><i class="oi me-1" data-icon="credit_card" aria-hidden="true" />Pay the advance</a>
+                </p>
+                <p t-if="order.payment_deadline and not advance and not legacy_invoice">Accept the quotation before <t t-out="order.payment_deadline" t-options="{'widget': 'datetime'}" />.</p>
                 <t t-set="show_discount" t-value="any(lines.mapped('discount'))" />
                 <div class="table-responsive">
                     <table class="table">
@@ -64,7 +67,7 @@
                     <t t-call="sol_commerce.expected_sampling" />
                 </section>
                 <p t-if="quotation.decline_reason">Reason for declining: <t t-out="quotation.decline_reason" /></p>
-                <form t-if="quotation.status == 'sent' and not advance.amount and not revising" t-att-action="'/orders/%s/quotation/accept' % order.id" method="post" class="mb-4">
+                <form t-if="quotation.status == 'sent' and not advance.amount and not legacy_invoice and not revising" t-att-action="'/orders/%s/quotation/accept' % order.id" method="post" class="mb-4">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
                     <input type="hidden" name="quotation_id" t-att-value="quotation.id" />
                     <button type="submit" class="btn btn-success"><i class="oi me-1" data-icon="check" aria-hidden="true" />Accept quotation</button>

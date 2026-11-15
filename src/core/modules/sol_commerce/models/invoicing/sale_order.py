@@ -58,6 +58,8 @@ class SaleOrder(models.Model, SaleOrderBase):
         "invoice_ids.state",
         "invoice_ids.move_type",
         "invoice_ids.amount_residual",
+        "invoice_ids.line_ids.matched_credit_ids",
+        "invoice_ids.line_ids.matched_debit_ids",
         "payment_request_ids.verified_amount",
         "amount_total",
     )
@@ -78,7 +80,15 @@ class SaleOrder(models.Model, SaleOrderBase):
                 move.state == "posted" and move.move_type == "out_invoice" and move.invoice_kind != "adjustment"
             )
         )
-        return sum(invoices.mapped("amount_total")) - sum(invoices.mapped("amount_residual"))
+        total = 0.0
+        for invoice in invoices:
+            partials, _exchange_moves = invoice._get_reconciled_invoices_partials()
+            total += sum(
+                amount
+                for _partial, amount, counterpart in partials
+                if counterpart.move_id.origin_payment_id or counterpart.move_id.statement_line_id
+            )
+        return total
 
     @api.depends(
         "invoice_ids", "invoice_ids.payment_state", "invoice_ids.amount_residual", "payment_request_ids.pending_amount"

@@ -14,6 +14,7 @@ Ask the customer for money without posting a customer invoice before the money i
 - Confirming the order of a customer who is not allowed to order on credit creates its **balance payment request**: the order total less the verified money already applied to the order. The request has no deadline. Verified installments stay applied to the order and the request remains open until the full balance is verified. Sample collection starts once the balance is verified.
 - A customer allowed to order on credit gets no payment request. Their quotation is sent without an advance and accepted on the portal, and the accountant posts the final invoice once testing is completed ([Invoices](invoices.md)).
 - The portal shows each request's amount, the verified money applied to it, the payments awaiting verification and the amount still needed. An unpaid advance request past its deadline is expired, not an overdue invoice.
+- A quotation that already has a posted advance invoice keeps that invoice. Its existing payment still accepts the quotation. Sales settles the posted advance before sending a revision.
 
 ### Payments and their invoices
 

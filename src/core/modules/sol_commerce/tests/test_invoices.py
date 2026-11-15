@@ -42,11 +42,13 @@ class TestInvoices(InvoicingCase):
         self.assertEqual(credit.amount_residual, 0)
         self.assertEqual(invoice.amount_residual, 4_500_000)
         self.assertEqual(invoice.amount_owed, 4_500_000)
+        self.assertEqual(self.order.payment_status, "not_paid")
 
         payment = self.env["account.payment"].create_pending_payment(invoice, 4_500_000, "cash")
         payment.action_post()
         self.assertEqual(invoice.amount_residual, 0)
         self.assertEqual(invoice.amount_owed, 0)
+        self.assertEqual(self.order._verified_order_amount(), 4_500_000)
 
     def test_an_adjustment_uses_the_tax_of_the_invoice_line(self):
         tax = self.env["account.tax"].create(

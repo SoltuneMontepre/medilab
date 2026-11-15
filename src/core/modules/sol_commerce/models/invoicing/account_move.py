@@ -6,7 +6,12 @@ from odoo import api, fields, models
 from odoo.exceptions import AccessError, UserError
 from odoo.fields import Command, Domain
 
-from odoo.addons.sol_commerce.constants.models import MODEL_ACCOUNT_MOVE, MODEL_PAYMENT_REQUEST, MODEL_SALE_ORDER
+from odoo.addons.sol_commerce.constants.models import (
+    MODEL_ACCOUNT_MOVE,
+    MODEL_PAYMENT_REQUEST,
+    MODEL_QUOTATION,
+    MODEL_SALE_ORDER,
+)
 from odoo.addons.sol_commerce.constants.notifications import EVENT_INVOICE_SENT
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN
 from odoo.addons.sol_laboratory.constants.notifications import VIETNAM_ZONE
@@ -145,6 +150,13 @@ class AccountMove(models.Model, AccountMoveBase):
             partners=self.partner_id,
             attachments=attachment,
         )
+
+    def _invoice_paid_hook(self):
+        result = super()._invoice_paid_hook()
+        quotations = self.env[MODEL_QUOTATION].sudo().search([("advance_invoice_id", "in", self.ids)])
+        for quotation in quotations:
+            quotation._accept_payment()
+        return result
 
     def _check_posted_laboratory_invoices(self):
         if self.filtered(lambda move: bool(move.invoice_kind) and move.state == "posted"):

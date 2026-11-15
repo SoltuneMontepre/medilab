@@ -96,7 +96,9 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
         if latest.status != QUOTATION_ACCEPTED:
             raise UserError(self.env._("The customer must accept the quotation before the order is confirmed."))
         payment_request = self.sudo().payment_request_id
-        if payment_request.kind == "advance" and payment_request.state != "funded":
+        if (
+            payment_request.kind == "advance" and payment_request.state != "funded"
+        ) or latest.sudo().advance_invoice_id.amount_residual:
             raise UserError(self.env._("Verify the full requested advance before confirming the order."))
 
     def _confirm_order(self):

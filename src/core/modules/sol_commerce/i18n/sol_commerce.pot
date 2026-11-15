@@ -1393,6 +1393,12 @@ msgid "Confirm order"
 msgstr ""
 
 #. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/reconciliation_day.py:0
+msgid "Confirm or reject the draft PayOS payments before locking this day."
+msgstr ""
+
+#. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_cash_flow_report__status__confirmed
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__order_status__confirmed
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__pipeline_stage__confirmed
@@ -5297,4 +5303,10 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_line.py:0
 msgid "no sample type"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_advance.py:0
+msgid "Settle the existing advance invoice before sending a revision."
 msgstr ""

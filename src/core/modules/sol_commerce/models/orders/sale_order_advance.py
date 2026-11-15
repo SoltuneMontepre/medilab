@@ -27,6 +27,8 @@ class SaleOrderAdvance(models.Model, SaleOrderAdvanceBase):
 
     def _check_quotation_can_be_sent(self):
         super()._check_quotation_can_be_sent()
+        if self.sudo()._latest_quotation().advance_invoice_id.amount_residual:
+            raise UserError(self.env._("Settle the existing advance invoice before sending a revision."))
         if not self.advance_method:
             raise UserError(self.env._("Choose how the advance is paid, or no advance, before sending the quotation."))
         if self.advance_method == ADVANCE_NONE:

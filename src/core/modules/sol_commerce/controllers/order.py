@@ -121,6 +121,7 @@ class CustomerOrder(InvoicePortal):
         if not current:
             return request.not_found()
         advance = current.payment_request_ids.filtered(lambda payment_request: payment_request.kind == "advance")
+        legacy_invoice = current.advance_invoice_id.filtered(lambda invoice: invoice.state == "posted")
         return request.render(
             "sol_commerce.quotation_page",
             {
@@ -132,6 +133,8 @@ class CustomerOrder(InvoicePortal):
                 "discount_lines": order._discount_lines(),
                 "advance": advance,
                 "payment_request": advance,
+                "legacy_invoice": legacy_invoice,
+                "legacy_invoice_url": legacy_invoice.get_portal_url() if legacy_invoice else False,
             },
         )
 
