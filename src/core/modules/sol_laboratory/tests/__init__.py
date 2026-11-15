@@ -220,6 +220,7 @@ from . import (
     test_scheduling_concurrency,
     test_scheduling_http,
     test_settings,
+    test_shared_capacity_races,
     test_shared_intervals,
     test_signed_pdf_verification,
     test_signing_certificates,

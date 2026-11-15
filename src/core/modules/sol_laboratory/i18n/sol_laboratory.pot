@@ -17005,3 +17005,10 @@ msgstr ""
 #: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_reporting
 msgid "Reporting"
 msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_capacity.py:0
+#, python-format
+msgid "Cannot reduce the capacity of %(link)s to %(capacity)s: a booked interval holds %(samples)s samples. Adjust its bookings first."
+msgstr ""
