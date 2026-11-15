@@ -5,6 +5,7 @@ from odoo.fields import Command
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_IR_MODEL_DATA,
+    MODEL_PERSON,
     MODEL_SAMPLE_TEST,
     MODEL_TASK,
     MODEL_TEST_REQUEST,
@@ -173,7 +174,12 @@ def _test(sample, parameter):
 
 
 def _enter(env, user, test, conclusion: str | None = None, **values):
-    """The user's result for the test; the conclusion is set only when the result is in the requested comparison."""
+    """The user's result for the test, whose testing task moves to the user first when another person holds it; the
+    conclusion is set only when the result is in the requested comparison."""
+    task = test._testing_task() if test.status != "outsourced" else None
+    person = env[MODEL_PERSON].search([("user_id", "=", user.id)], limit=1)
+    if task and task.assignee_id != person:
+        task.write({"assignee_id": person.id, "reassign_reason": "Measured by another person."})
     result = env[MODEL_TEST_RESULT].with_user(user).create({"sample_test_id": test.id, **values})
     if conclusion and result.comparison_requested:
         result.conclusion = conclusion
