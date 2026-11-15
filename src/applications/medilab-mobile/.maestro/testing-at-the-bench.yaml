@@ -36,10 +36,10 @@ env:
 - hideKeyboard
 - tapOn: "Open the sample"
 - extendedWaitUntil:
-    visible: ".*Lead \(Pb\).*"
+    visible: '.*Lead \(Pb\).*'
     timeout: 30000
-- tapOn: ".*Lead \(Pb\).*"
-- tapOn: "Claim the chosen tasks \(1\)"
+- tapOn: '.*Lead \(Pb\).*'
+- tapOn: 'Claim the chosen tasks \(1\)'
 - assertVisible: "Tasks claimed: 1."
 - repeat:
     while:
@@ -47,13 +47,13 @@ env:
     commands:
       - back
 - tapOn: "To-do list"
-- tapOn: "${LAB_CODE}: Lead \(Pb\).*"
+- tapOn: '${LAB_CODE}: Lead \(Pb\).*'
 - extendedWaitUntil:
     visible: "Enter the result"
     timeout: 30000
 - assertVisible: "Method steps"
 - tapOn: "Enter the result"
-- tapOn: "Value \(.*\)"
+- tapOn: 'Value \(.*\)'
 - inputText: "0.008"
 - hideKeyboard
 - tapOn:

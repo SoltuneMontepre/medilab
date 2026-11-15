@@ -294,19 +294,24 @@ jobs:
       - name: Build the Android app
         working-directory: ${{ env.MOBILE_APP_DIR }}
         run: |
-          bun x expo prebuild --platform android
+          bun run expo prebuild --platform android
           cd android && ./gradlew assembleDebug -PreactNativeArchitectures=x86_64
 
       - name: Start Metro
         working-directory: ${{ env.MOBILE_APP_DIR }}
         run: |
-          nohup bun x expo start --port 8081 > metro.log 2>&1 &
+          nohup bun run expo start --port 8081 > metro.log 2>&1 &
           curl -fsS --retry 30 --retry-delay 5 --retry-all-errors http://localhost:8081/status
 
       - name: Install Maestro
+        env:
+          MAESTRO_VERSION: 2.12.1
+          MAESTRO_SHA256: 54dbb0716425626604973cbb374c585ca30272375d9ce15177a1152765ddd9d7
         run: |
-          curl -fsSL https://get.maestro.mobile.dev | bash
-          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+          curl -fsSL --proto '=https' -o "$RUNNER_TEMP/maestro.zip" "https://github.com/mobile-dev-inc/maestro/releases/download/cli-$MAESTRO_VERSION/maestro.zip"
+          echo "$MAESTRO_SHA256  $RUNNER_TEMP/maestro.zip" | sha256sum --check --strict
+          unzip -q "$RUNNER_TEMP/maestro.zip" -d "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/maestro/bin" >> "$GITHUB_PATH"
 
       - name: Enable KVM
         run: |
