@@ -5,7 +5,7 @@ from odoo.tests import TransactionCase, tagged
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_MAIL_MESSAGE, MODEL_MAIL_NOTIFICATION
 
-POST_MIGRATE = Path(__file__).resolve().parents[1] / "migrations" / "20.0.1.37.0" / "post-migrate.py"
+POST_MIGRATE = Path(__file__).resolve().parents[1] / "migrations" / "20.0.1.38.0" / "post-migrate.py"
 # load_script names the module, and so the script's logger, after its second argument.
 MIGRATION_LOGGER = "post_migrate"
 

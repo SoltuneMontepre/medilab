@@ -1,6 +1,6 @@
 # Releasing and rolling back portal notices
 
-How to deploy the release that adds `portal_visible` and `portal_seen_at` to `mail.notification` (`sol_laboratory` 20.0.1.37.0) so that no mandatory notice or first-open time is lost, and how to roll it back and forward. The portal behaviour is in [Shared requirements](../functional/shared.md) (SH-11) and [Customer features](../functional/ecommerce_module/features/customer.md); the rollout is in [Cluster](../infrastructure/cluster.md).
+How to deploy the release that adds `portal_visible` and `portal_seen_at` to `mail.notification` (`sol_laboratory` 20.0.1.38.0) so that no mandatory notice or first-open time is lost, and how to roll it back and forward. The portal behaviour is in [Shared requirements](../functional/shared.md) (SH-11) and [Customer features](../functional/ecommerce_module/features/customer.md); the rollout is in [Cluster](../infrastructure/cluster.md).
 
 ## What the release leaves in the database
 
