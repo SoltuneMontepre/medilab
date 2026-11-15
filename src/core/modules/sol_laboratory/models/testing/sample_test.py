@@ -110,6 +110,9 @@ class SampleTest(models.Model, SampleTestBase):
         )
         # When the test was cancelled.
         cancelled_at = fields.Datetime(readonly=True, copy=False)
+        # When the test's result was first approved; empty until then, and kept when the result is sent back or
+        # corrected.
+        first_approved_at = fields.Datetime(readonly=True, copy=False)
         # The parameter's subcontracted ways of testing whose subcontractor can be chosen, shown as the alternatives of
         # an outsourcing suggestion.
         subcontracted_method_ids = fields.Many2many(
@@ -278,8 +281,9 @@ class SampleTest(models.Model, SampleTestBase):
             test.can_enter_result = not test._result_refusal()
 
     def _result_refusal(self):
-        """Why no result can be entered for the test now; empty when one can. An outsourced test takes results once
-        its dispatch is sent, and its subcontractor's result waiting to be sent comes before any other."""
+        """Why no result can be entered for the test now; empty when one can. A test the laboratory measures takes
+        results only from the person who claimed its testing task. An outsourced test takes results once its dispatch
+        is sent, and its subcontractor's result waiting to be sent comes before any other."""
         self.ensure_one()
         test = self.sudo()
         if test.status not in MEASURABLE_STATUSES or test.sample_id.status not in OPEN_SAMPLE_STATUSES:
@@ -289,7 +293,10 @@ class SampleTest(models.Model, SampleTestBase):
                 test.display_name,
             )
         if test.status != "outsourced":
-            return ""
+            assignee = test._testing_task().assignee_id
+            if self.env.su or (assignee and assignee == self.env[MODEL_PERSON]._current()):
+                return ""
+            return self.env._("Claim the testing task of %s before entering its result.", test.display_name)
         if not test.dispatch_ids.filtered(lambda dispatch: dispatch.status in SENT_STATUSES):
             return self.env._("Send %s to its subcontractor before entering its result.", test.display_name)
         if test.result_ids.filtered(
@@ -301,6 +308,11 @@ class SampleTest(models.Model, SampleTestBase):
                 test.display_name,
             )
         return ""
+
+    def _comparison_requested(self):
+        """Whether its results are assessed against the sample's regulation: the regulation limits its parameter on some
+        sample type. An empty test has none."""
+        return self.parameter_id in self.sudo().sample_id.regulation_id.limit_ids.parameter_id
 
     def _proposed_booking(self):
         """The test's proposed booking that has a slot in its department's plan."""
@@ -474,6 +486,8 @@ class SampleTest(models.Model, SampleTestBase):
 
     def _cancel(self):
         tests = self.filtered(lambda test: test.status in OPEN_STATUSES)
+        # A test cancelled with its sample or request has no reason of its own, but still the time it was cancelled.
+        tests.filtered(lambda test: not test.cancelled_at).cancelled_at = fields.Datetime.now()
         tests.status = "cancelled"
         self.env[MODEL_TASK]._cancel_for_document(tests, TESTING_ACTION)
         tests._release_bookings()
@@ -498,6 +512,9 @@ class SampleTest(models.Model, SampleTestBase):
     def _progress(self, status):
         tests = self.sudo()
         tests.status = status
+        if status == "approved":
+            # The first approval stays: the lab head sending the result back or a correction does not move it.
+            tests.filtered(lambda test: not test.first_approved_at).first_approved_at = fields.Datetime.now()
         # Submitting the result is the tester's work done; approving it is the head's.
         if status in ("result_entered", "approved"):
             self.env[MODEL_TASK]._close_for_document(tests, TESTING_ACTION)

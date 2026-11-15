@@ -103,7 +103,7 @@ class TestSharedIntervals(ScheduleInvariantsCase, LocationCase):
         return bookings
 
     def interval(self, bookings):
-        return set(zip(bookings.mapped("machine_id"), bookings.mapped("starts_at"), bookings.mapped("ends_at")))
+        return {(booking.machine_id, booking.starts_at, booking.ends_at) for booking in bookings}
 
     def test_the_icp_ms_example_shares_one_interval_among_60_bookings_of_20_samples(self):
         samples = self.samples(21)
@@ -133,6 +133,38 @@ class TestSharedIntervals(ScheduleInvariantsCase, LocationCase):
         self.assertGreaterEqual(assert_instance(waiting.starts_at, datetime), MONDAY + LOAD)
         with self.assertRaisesRegex(ValidationError, "is full"), self.env.cr.savepoint():
             waiting._set({"starts_at": MONDAY, "ends_at": MONDAY + LOAD})
+
+    def test_reducing_capacity_below_a_booked_load_is_refused(self):
+        bookings = self.queue(self.samples(2).test_ids)
+        for status in ("scheduled", "in_progress"):
+            with self.subTest(status=status), self.rolled_back():
+                bookings._set({"status": status})
+                with self.assertRaisesRegex(ValidationError, "capacity"), self.env.cr.savepoint():
+                    self.metals.capacity = 1
+                self.assertEqual(self.metals.capacity, 20)
+
+        self.metals.capacity = 2
+        self.assertEqual(self.metals.capacity, 2)
+        self.metals.capacity = 3
+        self.assertEqual(self.metals.capacity, 3)
+
+    def test_capacity_counts_samples_per_interval_and_ignores_released_bookings(self):
+        self.metals.capacity = 1
+        first, second = self.samples(2)
+        first_load = self.queue(first.test_ids)
+        second_load = self.queue(second.test_ids)
+        self.assertNotEqual(first_load[0].starts_at, second_load[0].starts_at)
+        self.assertEqual(len(self.interval(first_load | second_load)), 2)
+        self.metals.capacity = 2
+        self.metals.capacity = 1
+
+        self.metals.capacity = 2
+        second_load._set({"starts_at": MONDAY, "ends_at": MONDAY + LOAD})
+        for status in ("done", "cancelled"):
+            with self.subTest(status=status), self.rolled_back():
+                second_load._set({"status": status})
+                self.metals.capacity = 1
+                self.assertEqual(self.metals.capacity, 1)
 
     def test_a_booking_of_another_method_waits_even_with_places_left(self):
         chromium = self.create_parameter("Chromium (VI)", self.group)

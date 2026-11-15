@@ -102,6 +102,7 @@ class TestTestReportSigning(ReportCase):
         self.assertNotIn(arsenic.parameter_id.name, printed)
 
     def test_a_report_with_a_result_the_head_approved_themself_waits_for_the_lab_head(self):
+        self.take_task(self.head)
         result = self.enter(person=self.head)
         self.send(result, self.head)
         self.approve(result)

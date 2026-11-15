@@ -119,6 +119,16 @@
         <field name="ends_at" eval="(DateTime.now() + relativedelta(days=2, hour=5, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="status">scheduled</field>
     </record>
+    <!-- Booked in the tester's OverTime tomorrow evening, 17:00 in Vietnam. -->
+    <record id="demo_machine_booking_lead_overtime" model="medilab.machine.booking">
+        <field name="machine_id" ref="demo_machine_aas_2" />
+        <field name="sample_test_id" ref="demo_sample_test_lead_overtime" />
+        <field name="task_id" ref="demo_task_sample_test_lead_overtime" />
+        <field name="person_id" ref="demo_person_tester" />
+        <field name="starts_at" eval="(DateTime.now() + relativedelta(days=1, hour=10, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="ends_at" eval="(DateTime.now() + relativedelta(days=1, hour=10, minute=45, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="status">scheduled</field>
+    </record>
     <!-- Chemistry receives the samples of its plan once the bookings exist; receiving them recalculates its plan, which
          keeps the proposed booking at risk and proposes slots for the urgent-marked and due-soon tests. -->
     <record id="demo_sample_handover_lead_proposed" model="medilab.sample.handover">

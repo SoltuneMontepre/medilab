@@ -504,6 +504,8 @@ model Department {
   revision_moves    PlanRevisionMove[]
   /// Locations the department uses.
   locations         Location[]
+  /// Planned OverTime of the department's testers.
+  overtimes         OverTime[]
 
   @@index([parent_id])
   @@map("hr_department")
@@ -723,7 +725,7 @@ model Machine {
   location_id           Int?
   /// The location the machine stands in.
   location              Location?              @relation(fields: [location_id], references: [id], onDelete: Restrict)
-  /// in_use, under_repair or retired.
+  /// in_use, under_repair or retired. A machine in use is busy while a booking on it is in progress, until every booking sharing that interval is done or cancelled, and available otherwise; busy is worked out from its bookings, not stored, and returns no booking to the plan.
   status                String                 @db.VarChar
   /// Date the next calibration is due, taken from the latest calibration record; the machine cannot be used after it.
   next_calibration_date DateTime?              @db.Date
@@ -1008,7 +1010,7 @@ model TestRequest {
   @@map("medilab_test_request")
 }
 
-/// A change of a test request's committed return date that Sales recorded with the customer's agreement. Records are never edited or deleted; who recorded it and when are Odoo's creation fields.
+/// A change of a test request's committed return date (Thay Đổi Ngày Hẹn Trả Kết Quả) that Sales recorded with the customer's agreement. Records are never edited or deleted; who recorded it and when are Odoo's creation fields.
 model CommittedDateChange {
   /// Row identifier.
   id           Int         @id @default(autoincrement())
@@ -1180,8 +1182,10 @@ model SampleTest {
   cancel_reason       String?          @db.Text
   /// Head of department who cancelled the test.
   cancelled_by_id     Int?
-  /// When the test was cancelled.
+  /// When the test was cancelled, also with its sample or request.
   cancelled_at        DateTime?
+  /// When its result was first approved; kept when the result is sent back or corrected.
+  first_approved_at   DateTime?
   /// True when no in-house slot lets the test finish by its due date, so the scheduler suggests outsourcing it.
   outsourcing_suggested Boolean        @default(false)
   /// True when the test's planned finish is after its internal due date, no free slot lets it finish by then, or its booking or the booking before it on the machine overran; its tester and head of department are told when it turns true, then daily until it is false.
@@ -1226,6 +1230,7 @@ model SampleTest {
 /// One version of one measurement of a sample test. Retests add results without being counted; the earlier ones are kept, ordered by when they were entered, and one per sample test is the reported result.
 /// A change request on a result whose process is completed creates a new row with the next version that replaces it; the signed row stays unchanged and is marked as replaced.
 /// At most one reported result per sample test among rows not replaced (partial unique index on sample_test_id where is_reported and not is_replaced).
+/// Partial unique index on created_by_device_id and idempotency_key where idempotency_key is set.
 model TestResult {
   /// Row identifier.
   id             Int              @id @default(autoincrement())
@@ -1271,7 +1276,7 @@ model TestResult {
   entered_by_id  Int
   /// When the result was entered, which is when the measurement counts as done.
   entered_at     DateTime
-  /// The booking the measurement ran in; entering the result frees its machine. Empty for an outsourced test. A retest is a new result with a new booking.
+  /// The booking the measurement ran in; submitting the result ends the booking. Empty for an outsourced test. A retest is a new result with a new booking.
   booking_id     Int?
   /// The machine the measurement ran on, taken from the booking and correctable by the lab QA; empty for an outsourced test.
   machine_id     Int?
@@ -1283,6 +1288,10 @@ model TestResult {
   interruption_assessment String? @db.VarChar
   /// Why the sanity check found the value unusual when it was sent, shown to the approver; empty when nothing was found.
   check_warning  String?          @db.Text
+  /// The phone the result was entered on; empty for a result entered on the web.
+  created_by_device_id Int?
+  /// The Idempotency-Key the phone sent with the request that entered the result; empty when it sent none.
+  idempotency_key String?         @db.VarChar
   /// pass, fail or insufficient (insufficient basis), set by the tester for a requested comparison and required before the result is sent; empty outside it. A missing exact-type limit allows only insufficient. The system never infers it.
   conclusion     String?          @db.VarChar
   /// none, requested, approved or rejected: where the result stands in its approval chain, kept in step with its signatures. Approved and rejected are final; only the lab head's rejection of the report sends an approved result back to none. Only the system writes it, with is_reported, entered_by_id, entered_at and the version fields.
@@ -1321,6 +1330,8 @@ model TestResult {
   report_drafts  TestReportDraftResult[]
   /// The prepared report PDFs that print the result.
   report_candidates TestReportCandidateResult[]
+  /// The phone the result was entered on.
+  created_by_device LaboratoryDevice? @relation(fields: [created_by_device_id], references: [id], onDelete: SetNull)
 
   @@index([sample_test_id])
   @@index([booking_id])
@@ -1412,23 +1423,28 @@ model ParameterAuthorization {
   @@map("medilab_parameter_authorization")
 }
 
-/// Planned work outside normal hours that the head of department records for a tester, with an interval and a reason. The tester can be booked in it; machines and locations keep their own availability. The scheduler never creates, moves or changes it, and actual hours and payroll are not recorded. Who recorded it is Odoo's creation user.
-/// ends_at is after starts_at (check constraint).
+/// Planned work outside normal hours that the head of department records for a tester of their department, with an interval and a reason. The tester can be booked in it; machines and locations keep their own availability. The scheduler never creates, moves or changes it, and actual hours and payroll are not recorded. Who recorded it is Odoo's creation user.
+/// ends_at is after starts_at (check constraint). One person's OverTime intervals do not overlap (exclusion constraint on person_id and tsrange(starts_at, ends_at)).
 model OverTime {
   /// Row identifier.
-  id        Int      @id @default(autoincrement())
+  id            Int         @id @default(autoincrement())
   /// The tester who works the OverTime.
-  person_id Int
+  person_id     Int
+  /// The tester's department, whose head records and changes the OverTime.
+  department_id Int?
   /// Start of the OverTime.
-  starts_at DateTime
+  starts_at     DateTime
   /// End of the OverTime.
-  ends_at   DateTime
+  ends_at       DateTime
   /// Why the OverTime is planned, such as urgent work that would otherwise miss its due date.
-  reason    String   @db.Text
+  reason        String      @db.Text
   /// The tester who works the OverTime.
-  person    Person   @relation(fields: [person_id], references: [id], onDelete: Restrict)
+  person        Person      @relation(fields: [person_id], references: [id], onDelete: Restrict)
+  /// The tester's department.
+  department    Department? @relation(fields: [department_id], references: [id], onDelete: SetNull)
 
   @@index([person_id, starts_at])
+  @@index([department_id])
   @@map("medilab_overtime")
 }
 
@@ -2030,9 +2046,9 @@ model CalendarEvent {
   @@map("calendar_event")
 }
 
-/// The booking of one sample test for one tester and one interval (Lịch Đặt Máy), on a machine only when the test's way needs one. A proposed booking is a slot of its department's plan and reserves nothing; a scheduled one reserves its tester, machine and step locations.
+/// The booking of one sample test for one tester and one interval (Lịch Đặt Máy), on a machine only when the test's way needs one. A proposed booking is a slot of its department's plan and reserves nothing; the head of department approves it once it has a tester, which makes it scheduled and reserves its tester, machine and step locations.
 /// Scheduled and running bookings of one machine overlap only when they share its interval, with the same method_id, starts_at and ends_at: three exclusion constraints on (machine_id =, time range &&) with method_id <>, starts_at <> and ends_at <> respectively, where machine_id is set and status is scheduled or in_progress, using btree_gist. The scheduler keeps a shared interval within the capacity of the machine-and-method link.
-/// ends_at is after starts_at (check constraint).
+/// ends_at is after starts_at, and a booking that is not proposed has person_id, starts_at and ends_at (check constraints).
 model MachineBooking {
   /// Row identifier.
   id               Int        @id @default(autoincrement())
@@ -2041,18 +2057,18 @@ model MachineBooking {
   /// The sample test booked.
   sample_test_id   Int
   /// The testing method of the sample test's way, stored for the shared-interval constraints.
-  method_id        Int?
+  method_id        Int
   /// The testing task the booking belongs to.
   task_id          Int?
   /// The department of the testing task, whose plan holds the booking and whose head sees and adjusts it.
   department_id    Int?
-  /// Tester who runs the test, authorized for its parameter; empty on a proposed booking while its testing task is unassigned.
+  /// Tester who runs the test, authorized for its parameter; empty on a proposed booking while its testing task is unassigned, which the head cannot approve until it has a tester.
   person_id        Int?
   /// Start of the interval; empty on a proposed booking the plan found no slot for.
   starts_at        DateTime?
-  /// End of the interval: the start plus the duration, rounded up to 15-minute slots. The machine stays held after it until the result is entered or the measurement is marked finished.
+  /// End of the interval: the start plus the duration, rounded up to 15-minute slots. A booking still in progress after it keeps its machine busy.
   ends_at          DateTime?
-  /// proposed, scheduled, in_progress, done or cancelled. Done frees the machine.
+  /// proposed, scheduled, in_progress, done or cancelled. Done once its result is submitted or its measurement is marked finished; its machine is available again once no booking sharing the interval is in progress.
   status           String     @db.VarChar
   /// True when the head of department placed or moved the booking by hand; plan revisions never move it and report a conflict instead.
   is_pinned        Boolean    @default(false)
@@ -2065,7 +2081,7 @@ model MachineBooking {
   /// The sample test booked.
   sample_test      SampleTest @relation(fields: [sample_test_id], references: [id], onDelete: Restrict)
   /// The testing method of the sample test's way.
-  method           TestingMethod? @relation(fields: [method_id], references: [id], onDelete: Restrict)
+  method           TestingMethod @relation(fields: [method_id], references: [id], onDelete: Restrict)
   /// The testing task the booking belongs to.
   task             Task?      @relation(fields: [task_id], references: [id], onDelete: Restrict)
   /// The department of the testing task.
@@ -2086,7 +2102,7 @@ model MachineBooking {
   @@map("medilab_machine_booking")
 }
 
-/// A recalculation of the plan that moves scheduled bookings (Phương Án Xếp Lại Lịch), such as to give urgent work a slot others hold. It is applied once the head of each affected department has approved its moves; a held-back move is left out.
+/// A recalculation of the plan that moves scheduled bookings (Phương Án Xếp Lại Lịch), such as to give urgent work a slot others hold. It is applied as soon as the head of each affected department has approved its moves, with no separate approved state; a held-back move is left out.
 model PlanRevision {
   /// Row identifier.
   id     Int                @id @default(autoincrement())
@@ -2117,7 +2133,7 @@ model PlanRevisionMove {
   starts_at      DateTime
   /// New end of the booking.
   ends_at        DateTime
-  /// proposed, approved, held_back, conflict, applied or cancelled. A move whose new end passes the internal due date is held back, keeping the booking's slot, until Sales records the customer's agreement to a new committed return date. A pinned booking the plan would move is a conflict and is never applied.
+  /// proposed, approved, held_back, conflict, applied or cancelled. A move whose new end passes the internal due date is held back, keeping the booking's slot, until Sales records the customer's agreement to a new committed return date. A held-back move is then cancelled: when the customer agrees, a new revision proposes the move; when the customer refuses, the booking stays where it is. A pinned booking the plan would move is a conflict and is never applied.
   status         String         @db.VarChar
   /// The head of department who approved the move.
   approved_by_id Int?
@@ -2779,7 +2795,7 @@ model Message {
   @@map("mail_message")
 }
 
-/// Odoo's notification (mail.notification), shown with the columns this schema uses and the column the laboratory adds: one message to one recipient, in their inbox or by e-mail.
+/// Odoo's notification (mail.notification), shown with the columns this schema uses and the columns the laboratory adds: one message to one recipient, in their inbox or by e-mail.
 /// The cleanup job removes read notifications after their retention period.
 model Notification {
   /// Row identifier.
@@ -2798,6 +2814,10 @@ model Notification {
   is_read             Boolean        @default(false)
   /// When the user read it.
   read_date           DateTime?
+  /// True when the notification shows in the recipient's customer portal: a mandatory event, or an event the customer chose to see there.
+  portal_visible      Boolean        @default(false)
+  /// When the recipient first opened the notification in the customer portal.
+  portal_seen_at      DateTime?
   /// The message notified.
   message             Message        @relation(fields: [mail_message_id], references: [id], onDelete: Cascade)
   /// Pushes of the notification to the user's mobile devices.
@@ -3268,6 +3288,8 @@ model LaboratoryDevice {
   signed_handover_records HandoverRecord[]
   /// Tasks created by hand on the phone.
   created_tasks Task[]
+  /// Results entered on the phone.
+  entered_results TestResult[]
 
   @@unique([user_id, client_uid])
   @@map("medilab_laboratory_device")

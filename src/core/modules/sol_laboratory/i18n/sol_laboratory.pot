@@ -301,8 +301,14 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
+#: code:addons/sol_laboratory/models/testing/sample_test_claim.py:0
+msgid "%s has no testing task to claim."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/sample_mobile.py:0
+#: code:addons/sol_laboratory/models/tasks/task.py:0
 msgid "%s is already claimed."
 msgstr ""
 
@@ -1949,6 +1955,11 @@ msgid "Assigned Pricelist"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_ir_asset
+msgid "Asset"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__assignee_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__assignee_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
@@ -2343,6 +2354,11 @@ msgid "Can Change Due Date"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__can_claim
+msgid "Can Claim"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__can_edit
 msgid "Can Edit"
 msgstr ""
@@ -2714,6 +2730,8 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-javascript
 #: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_list
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_awaiting_list
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_list
@@ -3354,6 +3372,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__created_by_device_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__created_by_device_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__created_by_device_id
 msgid "Created By Device"
 msgstr ""
 
@@ -3447,6 +3466,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__create_uid
 msgid "Created by"
 msgstr ""
 
@@ -3540,6 +3560,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__create_date
 msgid "Created on"
 msgstr ""
 
@@ -4070,6 +4091,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_person_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_handover_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__department_id
 msgid "Department"
 msgstr ""
 
@@ -4361,6 +4383,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -5033,6 +5056,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__lock_message
 msgid "Editing Lock"
 msgstr ""
 
@@ -5190,6 +5214,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__ends_at
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__ends_at
 msgid "End"
 msgstr ""
 
@@ -5242,7 +5267,9 @@ msgid "Enter"
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_list
 msgid "Enter Result"
 msgstr ""
 
@@ -6157,6 +6184,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__id
 msgid "ID"
 msgstr ""
 
@@ -6197,6 +6225,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_idempotency_mixin__idempotency_key
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_upload__idempotency_key
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__idempotency_key
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__idempotency_key
 msgid "Idempotency Key"
 msgstr ""
 
@@ -6967,6 +6996,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__write_uid
 msgid "Last Updated by"
 msgstr ""
 
@@ -7060,6 +7090,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_template_change__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__write_date
 msgid "Last Updated on"
 msgstr ""
 
@@ -7088,7 +7119,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__level_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.verify_page
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_form_signing
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_signature_list
 msgid "Level"
 msgstr ""
 
@@ -7575,6 +7606,12 @@ msgid "Method Steps"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__is_mine
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_search
+msgid "Mine"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__min_value
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__limit_min
 msgid "Minimum"
@@ -8008,6 +8045,7 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/services/laboratory_api.py:0
+#: code:addons/sol_laboratory/services/mobile_documents.py:0
 msgid "Nothing is found at this address."
 msgstr ""
 
@@ -8027,6 +8065,13 @@ msgstr ""
 #. odoo-javascript
 #: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
 msgid "Nothing planned today. Give a task a planned start to see it here."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/mail_message.py:0
+msgid ""
+"Notice not delivered: %s has no portal account and no usable email address"
 msgstr ""
 
 #. module: sol_laboratory
@@ -8545,6 +8590,16 @@ msgid "Permission: accreditation.scope.line.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_notification__portal_seen_at
+msgid "Portal Seen At"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_notification__portal_visible
+msgid "Portal Visible"
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/master_data/accreditation_certificate_import.py:0
 msgid "Row %(row)s has no code. Nothing was imported."
@@ -8574,6 +8629,11 @@ msgstr ""
 msgid ""
 "The scope line of %(method)s on %(certificate)s needs at least one parameter"
 " and one sample type."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_search
+msgid "To Claim"
 msgstr ""
 
 #. module: sol_laboratory
@@ -11556,6 +11616,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result_reject__reason
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__reason
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__reason
 msgid "Reason"
 msgstr ""
 
@@ -12226,7 +12287,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__role_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__role_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.verify_page
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_form_signing
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_signature_list
 msgid "Role"
 msgstr ""
 
@@ -12313,7 +12374,7 @@ msgid "Root"
 msgstr ""
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_form_signing
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_signature_list
 msgid "Round"
 msgstr ""
 
@@ -12385,8 +12446,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signature__file_hash
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_content__sha256
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__sha256
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_form_signing
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__sha256
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_signature_list
 msgid "SHA-256"
 msgstr ""
 
@@ -12945,6 +13006,8 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__signature_ids
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_form_signing
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__signature_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
 msgid "Signatures"
 msgstr ""
 
@@ -12976,7 +13039,7 @@ msgid "Signed In"
 msgstr ""
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_form_signing
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_signature_list
 msgid "Signed On"
 msgstr ""
 
@@ -13010,7 +13073,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__signer_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.verify_page
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_form_signing
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_signature_list
 msgid "Signer"
 msgstr ""
 
@@ -13152,6 +13215,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__starts_at
 msgid "Start"
 msgstr ""
 
@@ -13257,6 +13321,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__storage_location
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__storage_location
 msgid "Storage Location"
 msgstr ""
 
@@ -14482,6 +14547,7 @@ msgstr ""
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_history.py:0
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder_api.py:0
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload_flow.py:0
+#: code:addons/sol_laboratory/models/testing/sample_test_mobile.py:0
 msgid "This Idempotency-Key was already sent with another request."
 msgstr ""
 
@@ -15432,6 +15498,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__lock_watched
 msgid "Watching Lock"
 msgstr ""
 
@@ -16855,6 +16922,94 @@ msgstr ""
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_machine_method_edit_all
 msgid "Permission: machine.method.edit.all"
+#: code:addons/sol_laboratory/models/master_data/parameter_authorization.py:0
+msgid "%(person)s is not authorized to test %(parameter)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_mobile.py:0
+msgid "Only the unassigned testing tasks of your department on %s can be claimed here."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_statistic_list
+msgid "Average"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_statistic__booked_hours
+msgid "Booked Hours"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_testing_statistic__kind__booking
+msgid "Booking"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_statistic__on_time
+msgid "On Time (%)"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_statistic__overdue
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_testing_statistic__kind__overdue
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_statistic_search
+msgid "Overdue"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_testing_statistic_read_all
+msgid "Permission: testing.statistic.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_testing_statistic_read_own_department
+msgid "Permission: testing.statistic.read.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_statistic_read_all
+msgid "Read the testing statistics"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_statistic_read_own_department
+msgid "Read the testing statistics of their department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_statistic__turnaround_days
+msgid "Receipt to Approval (Days)"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_testing_statistic__kind__retest
+msgid "Retest"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_statistic__retests
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_statistic_search
+msgid "Retests"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_statistic_period_form
+msgid "Show Statistics"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_testing_statistic
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_testing_statistic_period
+#: model:ir.model,name:sol_laboratory.model_medilab_testing_statistic
+#: model:ir.ui.menu,name:sol_laboratory.menu_testing_statistic
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_statistic_graph
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_statistic_pivot
+msgid "Testing Statistics"
+#: code:addons/sol_laboratory/models/testing/sample_test_eligibility.py:0
+msgid "%s is cancelled."
 msgstr ""
 
 #. module: sol_laboratory
@@ -16871,28 +17026,144 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_method_machine_method_unique
 msgid "The machine is already linked to this testing method."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/master_data/parameter_authorization.py:0
-msgid "%(person)s is not authorized to test %(parameter)s."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/sample_test_eligibility.py:0
-msgid "%s is cancelled."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
 #: code:addons/sol_laboratory/models/testing/sample_test_eligibility.py:0
 msgid "%s waits for more sample: its sample is on hold."
 msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/testing/testing_statistic_period.py:0
+msgid "Testing Statistics %(date_from)s – %(date_to)s"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_testing_statistic_period
+msgid "Testing Statistics Period"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_statistic_list
+msgid "Total"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__first_approved_at
+msgid "First Approved At"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_reporting
+msgid "Reporting"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result_check.py:0
+msgid ""
+"%(value)s is more than %(deviations)s standard deviations from %(mean)s, the"
+" mean of the %(count)s approved results of this way of testing on this "
+"sample type."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result_check.py:0
+msgid "%(value)s is within %(margin)s%% of the regulation limit %(limit)s."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+msgid ""
+"<span>Check this value before sending it; you may still send it.</span>"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+msgid "<span>Sent with a warning:</span>"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__result_check_minimum_count
+msgid ""
+"A numeric result is compared with the approved results of its way of testing"
+" on its sample type only once there are at least this many."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__result_check_deviations
+msgid ""
+"A result further than this many standard deviations from the mean of the "
+"approved results is unusual."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/result_check_settings.py:0
+msgid "A result is compared with at least 2 approved results."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__result_check_limit_margin_percent
+msgid ""
+"A result within this percentage of its regulation limit is warned about "
+"before it is sent."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__result_check_minimum_count
+msgid "Approved Results to Compare"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result_mobile.py:0
+msgid "Check the result before sending it: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__result_check_limit_margin_percent
+msgid "Limit Margin (%)"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result_mobile.py:0
+msgid "Only a draft result can be changed; %s is not one."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form_result_check
+msgid "Result Check"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__check_warning
+msgid "Sent With Warning"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/result_check_settings.py:0
+msgid ""
+"The unusual spread must be above 0 and the limit margin cannot be negative."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_test_result_device_idempotency_key_unique
+msgid "This phone already entered a result with this Idempotency-Key."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__result_check_deviations
+msgid "Unusual Spread (standard deviations)"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__check_preview
+msgid "Warning"
+#: code:addons/sol_laboratory/models/testing/machine_booking_capacity.py:0
+#, python-format
+msgid "Cannot reduce the capacity of %(link)s to %(capacity)s: a booked interval holds %(samples)s samples. Adjust its bookings first."
 #: code:addons/sol_laboratory/models/testing/sample_test_eligibility.py:0
 msgid "%s waits until its department receives its sample."
 msgstr ""
@@ -16951,6 +17222,118 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_authorization_person_parameter_unique
 msgid "The person is already authorized to test this parameter."
+#: model:medilab.permission,name:sol_laboratory.permission_overtime_create_all
+msgid "Create OverTime"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_overtime_create_own_department
+msgid "Create OverTime of their department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_overtime_delete_all
+msgid "Delete OverTime"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_overtime_delete_own_department
+msgid "Delete OverTime of their department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_overtime_edit_all
+msgid "Edit OverTime"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_overtime_edit_own_department
+msgid "Edit OverTime of their department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_overtime
+#: model:ir.model,name:sol_laboratory.model_medilab_overtime
+#: model:ir.ui.menu,name:sol_laboratory.menu_overtime
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_overtime_calendar
+msgid "OverTime"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_overtime_period
+msgid "OverTime ends after it starts."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_overtime_create_all
+msgid "Permission: overtime.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_overtime_create_own_department
+msgid "Permission: overtime.create.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_overtime_delete_all
+msgid "Permission: overtime.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_overtime_delete_own_department
+msgid "Permission: overtime.delete.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_overtime_edit_all
+msgid "Permission: overtime.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_overtime_edit_own_department
+msgid "Permission: overtime.edit.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_overtime_read_all
+msgid "Permission: overtime.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_overtime_read_own_department
+msgid "Permission: overtime.read.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_overtime_read_all
+msgid "Read OverTime"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_overtime_read_own_department
+msgid "Read OverTime of their department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_overtime_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_overtime_list
+msgid "Recorded By"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__person_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_overtime_search
+msgid "Tester"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_overtime_no_overlap
+msgid "The tester already has OverTime at that time."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_overtime_form
+msgid "Why the tester works outside normal hours"
 msgstr ""
 
 #. module: sol_laboratory
@@ -17118,15 +17501,4 @@ msgstr ""
 #: model:ir.actions.server,name:sol_laboratory.ir_cron_sample_tests_at_risk_summary_ir_actions_server
 #: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_sample_tests_at_risk_summary
 msgid "Summary of sample tests at risk"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model,name:sol_laboratory.model_ir_asset
-msgid "Asset"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/sample_collection/sample_mobile.py:0
-msgid "Only the unassigned testing tasks of your department on %s can be claimed here."
 msgstr ""

@@ -184,8 +184,9 @@ class ParameterMethod(models.Model, ParameterMethodBase):
                 subcontractor=subcontractor.display_name,
                 date=format_date(self.env, subcontractor.accreditation_expiry),
             )
-        links = self.env[MODEL_MACHINE_METHOD].sudo().search([("method_id", "=", self.method_id.id)])
-        now = fields.Datetime.now()
-        if links and not any(link.machine_id._usable_until() > now for link in links):
-            return self.env._("No machine that runs it is in use with a valid calibration.")
+        if not subcontractor:
+            links = self.env[MODEL_MACHINE_METHOD].sudo().search([("method_id", "=", self.method_id.id)])
+            now = fields.Datetime.now()
+            if links and not any(link.machine_id._usable_until() > now for link in links):
+                return self.env._("No machine that runs it is in use with a valid calibration.")
         return False
