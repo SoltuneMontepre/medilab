@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_test_result_form_interruption" model="ir.ui.view">
+        <field name="name">medilab.test.result.form.interruption</field>
+        <field name="model">medilab.test.result</field>
+        <field name="inherit_id" ref="view_medilab_test_result_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//header/field[@name='status']" position="before">
+                <button
+                    name="action_assess_usable"
+                    type="object"
+                    string="Usable"
+                    class="btn-primary"
+                    invisible="not can_assess_interruption"
+                />
+                <button
+                    name="action_assess_retest"
+                    type="object"
+                    string="Needs a Retest"
+                    class="btn-secondary"
+                    invisible="not can_assess_interruption"
+                />
+                <button
+                    name="action_assess_more_sample"
+                    type="object"
+                    string="Needs More Sample"
+                    class="btn-secondary"
+                    invisible="not can_assess_interruption"
+                />
+            </xpath>
+            <xpath expr="//sheet" position="before">
+                <div class="alert alert-warning mb-0" role="alert" invisible="not is_interrupted">
+                    <span invisible="interruption_assessment">
+                        The machine stopped during this measurement. Record the data measured so far; the head of
+                        department assesses it before it is sent.
+                    </span>
+                    <span invisible="not interruption_assessment">
+                        The machine stopped during this measurement. The head of department assessed it:
+                        <field name="interruption_assessment" class="fw-bold" />
+                    </span>
+                </div>
+            </xpath>
+            <field name="is_reported" position="after">
+                <field name="is_interrupted" invisible="not is_interrupted" />
+                <field name="can_assess_interruption" invisible="1" />
+            </field>
+        </field>
+    </record>
+
+    <record id="view_medilab_test_result_list_interruption" model="ir.ui.view">
+        <field name="name">medilab.test.result.list.interruption</field>
+        <field name="model">medilab.test.result</field>
+        <field name="inherit_id" ref="view_medilab_test_result_list" />
+        <field name="arch" type="xml">
+            <field name="is_reported" position="after">
+                <field name="is_interrupted" optional="show" />
+                <field name="interruption_assessment" optional="show" />
+            </field>
+        </field>
+    </record>
+
+    <record id="view_medilab_test_result_search_interruption" model="ir.ui.view">
+        <field name="name">medilab.test.result.search.interruption</field>
+        <field name="model">medilab.test.result</field>
+        <field name="inherit_id" ref="view_medilab_test_result_search" />
+        <field name="arch" type="xml">
+            <filter name="rejected" position="after">
+                <filter
+                    name="awaiting_assessment"
+                    string="Awaiting Assessment"
+                    domain="[('is_interrupted', '=', True), ('interruption_assessment', '=', False)]"
+                />
+            </filter>
+        </field>
+    </record>
+</odoo>

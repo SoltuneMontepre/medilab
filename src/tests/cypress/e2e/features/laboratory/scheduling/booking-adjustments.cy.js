@@ -1,6 +1,6 @@
 import { call, callAs, callRefused } from "../../../../support/odoo";
 import { pick, save } from "../../../../support/form";
-import { ADMIN, milliseconds, release, schedulingFixture, snapshot, typeStart } from "./setup";
+import { ADMIN, milliseconds, release, schedulingFixture, snapshot, typeTime } from "./setup";
 
 function findFixtureBookings(fixture) {
   const { tag } = fixture;
@@ -34,14 +34,14 @@ describe("WF-03 booking adjustments", () => {
       cy.signInAs("tester");
       cy.visit(`/odoo/machine-schedule/${booking.id}`);
       cy.get('.o_field_widget[name="starts_at"]').should("not.have.class", "o_readonly_modifier");
-      typeStart(taken.starts_at, fixture.displayZone);
+      typeTime(taken.starts_at, fixture.displayZone);
       cy.expectRefusal({
         read: () => snapshot(fixture),
         action: () => cy.get(".o_form_button_save").click(),
         message: `${booking.machine_id[1]} is not free`,
       });
       cy.contains(".o_error_dialog .modal-footer button", "Close").click();
-      typeStart(valid, fixture.displayZone);
+      typeTime(valid, fixture.displayZone);
       cy.intercept("POST", "/web/dataset/call_kw/medilab.machine.booking/web_save").as("savedBooking");
       save();
       cy.wait("@savedBooking").its("response.body.error").should("not.exist");

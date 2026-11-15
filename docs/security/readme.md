@@ -22,6 +22,7 @@ One document per role, in `permissions/<role>.md`.
 
 - [Administrator](permissions/admin.md): every permission, as Odoo's default administrator
 - [Head of department](permissions/head-of-department.md): the testing work of their department
+- [Lab head](permissions/lab-head.md): the parameters each person is authorized to test
 
 ## Related documents
 

@@ -137,8 +137,8 @@
                                     <field name="parameter_id" />
                                     <field name="parameter_method_id" readonly="1" optional="show" />
                                     <field name="quantity" />
-                                    <field name="due_date" readonly="1" decoration-danger="is_urgent" />
-                                    <field name="is_urgent" column_invisible="1" />
+                                    <field name="due_date" readonly="1" decoration-danger="priority == 'urgent'" />
+                                    <field name="priority" column_invisible="1" />
                                     <field name="is_accredited" optional="show" />
                                     <field
                                         name="status"

@@ -5,7 +5,7 @@ export const ADMIN = "demo.administrator";
 export const HEAD = "demo.head_of_department";
 export const TESTER = "demo.tester";
 const RECEPTION = "demo.sample_delivery_staff";
-const OPEN = ["queued", "scheduled", "in_progress"];
+const OPEN = ["proposed", "scheduled", "in_progress"];
 
 export const odooTime = (milliseconds) => new Date(milliseconds).toISOString().slice(0, 19).replace("T", " ");
 export const milliseconds = (value) => new Date(`${value}Z`).getTime();
@@ -74,6 +74,7 @@ export function schedulingFixture(count = 2, register = () => {}, capacity = 1) 
     main_group_id: fixture.group,
     group_ids: [[6, 0, [fixture.group]]],
   })).then((id) => (fixture.parameter = id));
+  cy.then(() => create(ADMIN, "medilab.parameter.authorization", { person_id: fixture.tester, parameter_id: fixture.parameter }));
   cy.then(() => create(ADMIN, "medilab.parameter.method", {
     parameter_id: fixture.parameter,
     method_id: fixture.method,
@@ -103,10 +104,11 @@ export function schedulingFixture(count = 2, register = () => {}, capacity = 1) 
       }]],
     })).then((request) => {
       callAs(RECEPTION, "medilab.test.request", "action_confirm", [[request]]);
-      return callAs(RECEPTION, "medilab.sample", "search_read", [[["request_id", "=", request]]], { fields: ["test_ids"] });
+      return callAs(RECEPTION, "medilab.sample", "search_read", [[["request_id", "=", request]]], { fields: ["code", "test_ids"] });
     }).then(([sample]) => {
       fixture.tests.push(sample.test_ids[0]);
       callAs(RECEPTION, "medilab.sample", "action_receive", [[sample.id], "1 chai", "good"]);
+      callAs(TESTER, "medilab.sample.handover", "receive_by_label", [sample.code]);
       return callAs(ADMIN, "medilab.task", "search_read", [
         [["document_model", "=", "medilab.sample.test"], ["document_id", "=", sample.test_ids[0]]],
       ], { fields: ["name"] });
@@ -156,17 +158,17 @@ export function snapshot(fixture) {
 export function release(fixture) {
   if (!fixture?.machine) return null;
   return callAs(ADMIN, "medilab.machine.booking", "search", [
-    [["machine_id", "=", fixture.machine], ["status", "in", ["queued", "scheduled"]]],
+    [["machine_id", "=", fixture.machine], ["status", "=", "scheduled"]],
   ]).then((ids) => ids.length ? callAs(ADMIN, "medilab.machine.booking", "action_cancel", [ids]) : null);
 }
 
-export function typeStart(value, zone) {
+export function typeTime(value, zone, field = "starts_at") {
   const parts = new Intl.DateTimeFormat("en-US", {
     timeZone: zone, year: "numeric", month: "2-digit", day: "2-digit",
     hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true,
   }).formatToParts(new Date(`${value}Z`));
   const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
   const text = `${values.month}/${values.day}/${values.year} ${values.hour}:${values.minute}:${values.second} ${values.dayPeriod}`;
-  cy.get('.o_field_widget[name="starts_at"] .o_input').first().focus();
-  cy.get('.o_field_widget[name="starts_at"] input').clear().type(text).blur();
+  cy.get(`.o_field_widget[name="${field}"] .o_input`).first().focus();
+  cy.get(`.o_field_widget[name="${field}"] input`).clear().type(text).blur();
 }

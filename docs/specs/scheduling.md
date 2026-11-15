@@ -33,6 +33,8 @@ A machine that takes several samples in one load, such as an ICP-MS with an auto
 
 A booking holds its machine until the tester submits its result or marks the measurement finished, whichever comes first, which frees the machine early. Bookings sharing the interval free their places one by one. A machine is busy from the start of a booking on it until every booking sharing that interval has its result submitted, its measurement marked finished or is cancelled, and available otherwise. Busy is not unavailability: it returns no booking to the plan. A way that needs no machine has no machine to mark. When a booking's end passes without either, the machine stays held, the next bookings on it are flagged at risk, and the tester and the head of department are notified; nothing moves by itself.
 
+A measurement in progress past its end keeps its machine from taking a new booking until its result is entered or it is marked finished. The scheduled job `machine_bookings.overrun` checks every 15 minutes for scheduled and in-progress bookings past their end and sends the mandatory `machine_booking.overrun` notification once for each end: to the testers and heads of the booking and of the next bookings on its machine, the bookings of the earliest later interval, which the notification names as at risk. The booking's form says its end has passed, and the form of each scheduled booking on a held machine says it is at risk.
+
 ### Plan
 
 Each department has a proposed plan: the system places every received, not-started sample test of the department in a proposed booking with its required resources. While its testing task is unassigned, a proposed booking has no tester: the plan checks that an authorized tester of the department is free, without naming one, and the head can approve the booking only once its task is assigned or claimed. The plan is recalculated when work arrives, a booking changes, a resource becomes unavailable or a customer date changes. Heads approve proposed bookings to schedule them; the tester is notified. Scheduled bookings move only through an approved plan revision.
@@ -78,8 +80,8 @@ The feasibility check only reads: it simulates in-house resources and outsourced
 
 | Rule | Description |
 | --- | --- |
-| People and rooms | Approved leave or an unavailable required location returns the not-started bookings it overlaps to the plan and notifies the head. The system does not assign another person by itself. |
-| Machines | A machine that breaks down or loses calibration during a booking ends that booking. The data recorded so far is kept as an interrupted result, and the head assesses it as usable, needing a retest or needing more sample. A retest is a new result with a new booking, on another machine only when that machine is linked to the same method. |
+| People and rooms | Approved leave or an unavailable required location returns the scheduled bookings it overlaps to the plan, for a location also those sharing the machine interval of one it overlaps, which use the same room, and notifies the head of the booking's department with the mandatory `machine_booking.returned` notification. A measurement already started stays. The system does not assign another person by itself, and a new booking never reserves a location in an interval it cannot be used. Leave is a time-off entry of the person's resource on the working calendar; an unavailable interval is recorded on the location. |
+| Machines | A machine that breaks down or loses calibration during a booking ends that booking, which becomes done and frees the machine. The data recorded so far is kept as an interrupted result, and the mandatory `test_result.interrupted` notification tells the tester and the head. The head of the department that tested it assesses it as usable, needing a retest or needing more sample; it is sent for approval only once assessed as usable. The sample test stays in testing. A retest is a new result with a new booking, on another machine only when that machine is linked to the same method: it runs by the testing method of the earlier measurement. |
 | Cancelling | Cancelling a sample test ends only its own booking. Bookings sharing its machine interval continue unchanged; a measurement already started keeps its place on the machine until the interval ends, and the cancelled test keeps any recorded data with its cancellation reason. |
 
 ### Outside working hours
@@ -88,7 +90,7 @@ The head records planned OverTime for a tester, an outside-hours interval and a 
 
 ### Warnings
 
-The calibration, maintenance and recent-repair warning windows are three independent settings, each 7 days by default. They warn when planning or starting within the window and never allow a blocked booking. Returning a machine to in use after a repair requires a calibration or maintenance record dated after the repair.
+The calibration, maintenance and recent-repair warning windows are three independent settings, each 7 days by default. They warn when planning or starting within the window and never allow a blocked booking. A booking warns when it ends within the calibration window before the end of its machine's calibration date or within the maintenance window before the end of its maintenance due date, and when it starts within the recent-repair window after the day of the machine's latest repair; the booking's form shows the warning. A window of 0 days turns its warning off. Returning a machine to in use after a repair requires a calibration or maintenance record dated after the repair.
 
 ### Data
 

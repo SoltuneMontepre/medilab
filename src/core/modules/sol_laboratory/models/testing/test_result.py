@@ -14,6 +14,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_APPROVAL_MIXIN,
     MODEL_LOCK_MIXIN,
     MODEL_MACHINE,
+    MODEL_MACHINE_BOOKING,
     MODEL_MAIL_MESSAGE,
     MODEL_MEASUREMENT_UNIT,
     MODEL_PARAMETER_METHOD,
@@ -64,6 +65,7 @@ SYSTEM_FIELDS = frozenset(
         "replaces_id",
         "is_replaced",
         "check_warning",
+        "booking_id",
         *SOURCE_FIELDS,
         *LIMIT_FIELDS,
     }
@@ -183,6 +185,16 @@ class TestResult(models.Model, TestResultBase):
         )
         # When the result was entered, which is when the measurement counts as done.
         entered_at = fields.Datetime(string="Entered At", required=True, readonly=True, default=fields.Datetime.now)
+        # The booking the measurement ran in; entering the result frees its machine. Empty for an outsourced test.
+        booking_id = fields.Many2one(
+            MODEL_MACHINE_BOOKING,
+            string="Booking",
+            compute="_compute_measurement",
+            store=True,
+            readonly=True,
+            ondelete="restrict",
+            index=True,
+        )
         # The machine the measurement ran on, taken from the booking and correctable by the tester; empty when outsourced.
         machine_id = fields.Many2one(
             MODEL_MACHINE, compute="_compute_measurement", store=True, readonly=False, ondelete="restrict"
@@ -299,6 +311,8 @@ class TestResult(models.Model, TestResultBase):
                 lambda other: other.status in (*ACTIVE_STATUSES, "done")
             )
             booking = bookings.sorted("starts_at")[-1:]
+            # A new version keeps the booking of the version it replaces.
+            result.booking_id = result.replaces_id.booking_id if result.replaces_id else booking
             result.machine_id = booking.machine_id
             result.started_at = booking.starts_at
 
@@ -340,13 +354,13 @@ class TestResult(models.Model, TestResultBase):
         entered = results.filtered(lambda result: not result.replaces_id)
         tests = entered.sample_test_id.sudo()
         tests._start()
-        # Entering the result is when the measurement is done; a booking still waiting for a slot is not needed.
+        # Entering the result is when the measurement is done; a proposed booking is not needed.
         bookings = tests.booking_ids._open()
-        bookings.filtered(lambda booking: booking.status == "queued")._set({"status": "cancelled"})
+        bookings.filtered(lambda booking: booking.status == "proposed")._set({"status": "cancelled"})
         measured = bookings.filtered(lambda booking: booking.status in ACTIVE_STATUSES)
-        if measured:
-            measured._set({"status": "done"})
-            measured._process_queue()
+        measured._set({"status": "done"})
+        if bookings:
+            bookings._plan(bookings.department_id)
         return results
 
     @api.constrains("machine_id")
