@@ -11,7 +11,7 @@ import { useSession } from "../../session";
 import { styles as shared } from "../../styles";
 import { Unreachable } from "../connection/Unreachable";
 import { taskPath } from "../documents/documentPath";
-import { chosenTab, ListTabs, type ListTab } from "../lists/ListTabs";
+import { chosenTab, ListTabs, type ListTab } from "../shared/ListTabs";
 import { TaskRow } from "./TaskRow";
 
 const LISTS: ListTab<TaskList>[] = [

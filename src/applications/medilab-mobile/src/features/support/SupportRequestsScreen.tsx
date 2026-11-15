@@ -11,7 +11,7 @@ import { useSession } from "../../session";
 import { styles as shared } from "../../styles";
 import { LoadNotice } from "../connection/LoadNotice";
 import { supportRequestPath } from "../documents/documentPath";
-import { chosenTab, ListTabs, type ListTab } from "../lists/ListTabs";
+import { chosenTab, ListTabs, type ListTab } from "../shared/ListTabs";
 import { supportStatusKey } from "./supportText";
 
 const LISTS: ListTab<SupportRequestList>[] = [
