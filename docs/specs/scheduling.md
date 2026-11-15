@@ -25,6 +25,8 @@ Plan every received sample test of a department on the people, machines and room
 
 Bookings may share a machine for exactly the same interval when their ways use the same testing method on that machine. The machine-and-method link gives a capacity in samples, 1 by default. Several parameters of one sample measured together take one place. Nothing joins a machine once its interval has started: a sample test that misses the start waits for a later interval.
 
+Reducing a machine-and-method link's capacity is refused when any scheduled or in-progress interval holds more distinct samples than the new capacity. Adjust those bookings before reducing the capacity. Each interval is checked separately, counting the samples still occupying places. A capacity change and a concurrent booking cannot together exceed the new capacity.
+
 A machine that takes several samples in one load, such as an ICP-MS with an autosampler or an incubator, is shared this way. For example, ICP-MS-01 is linked to a metals method by ICP-MS with a duration of 4 hours and a capacity of 20 samples. Pb, Cd and As are three ways of testing that use this method. Measuring Pb, Cd and As on 20 samples in one load gives 60 bookings with the same machine and interval, and they take 20 places. A 21st sample waits for the next interval, and so does a sample test of another method, even if the machine has places left.
 
 ### Releasing the machine

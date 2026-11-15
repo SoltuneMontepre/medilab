@@ -56,6 +56,7 @@ Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling
 | Rule           | Description                                                                                                              |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------ |
 | Claiming | A tester may claim an unassigned testing task of their department only when the Lab Head's authorization list includes its parameter. There are no team queues and no authorization validity dates. A task someone else claimed first cannot be claimed. |
+| Worklist | The sample tests list opens on the tester's open tests and those they may claim, soonest due date first, with the way of testing and where the sample is kept. A test is claimed, and its result entered, from its row there and in the sample's tests. |
 | Proposed booking | The department's plan proposes a booking of the already agreed way, with its explicit sample-type applicability; it does not select a different method or performing party. The head approves it, which notifies the tester and reserves the tester, the required locations and the machine together, or nothing when any is taken. |
 | Booking | A booking has one sample test, one person, one time interval and a machine only if needed. Bookings whose ways use the same method share a machine only for exactly the same interval, within the capacity of the machine-and-method link. The plan places work by priority class: urgent, due soon, then normal. |
 | Marking urgent | The tester marks a test of their own testing task urgent, stating why, or removes the mark. A marked test is urgent whatever its due date. |
@@ -68,6 +69,7 @@ Acceptance criteria:
 
 - Each assigned testing task shows its booking in the tester's to-do list; the booking appears on the tester's schedule and on the schedules of its required resources; a booking of a way that needs no machine has no machine reservation.
 - Claiming a task assigns it to the tester; a second tester claiming it at the same time is told it is already claimed.
+- Claiming a test from the sample tests list or the sample claims its testing task; the test then shows among the tester's own and offers Enter Result.
 - A tester cannot claim a task of another department.
 - A reminder arrives before the booking starts.
 - Approving a booking checks that the tester, every required location and a machine when required are available; an unavailable room blocks a booking without a machine too.
@@ -96,6 +98,7 @@ Follows [Results](../overview.md#results) and [Signing](../overview.md#signing).
 | Conclusion | No conclusion is needed without requested regulation comparison. For a requested comparison, the tester assesses pass, fail or insufficient basis. Text and below-LOD/LOQ values need professional assessment, never automatic passing or substitution with zero. A result without an exact-type limit can only be assessed as insufficient basis. A result outside the requested comparison takes no conclusion. A value below the LOD, or else below the LOQ, suggests a text such as "<0.05 mg/L (below LOQ)" with the copied threshold and unit, in each language; confirming it keeps the measured value. Reports show the threshold and unit from the result's snapshot. |
 | Retest | A retest is a new result with a new booking; the rejected or interrupted result stays on record. The system does not count or limit retests. |
 | Sanity check | Before a numeric result is sent for approval, it is compared with past approved results and the regulation limit. An unusual value shows a warning with the reason; the tester may still send it, and the warning stays on the result. |
+| Claimed first | Only the person a testing task is assigned to, by claiming it or by the head's assignment, enters the result of its sample test; anyone else, the head of department included, claims or is assigned the task first. A rejected result's new testing task is claimed again. |
 | Task done   | The testing task is done when the tester submits the result; approving it is the head's work at the result approval level. A rejected result keeps its record and review, and opens a new testing task for the same sample test, for a correction or a new measurement. |
 | Outsourced  | The results of an outsourced test are entered by the subcontractor or by a lab QA; each result records who entered it. |
 | Method steps | A tester sees the steps of the testing method of the way of testing chosen for their sample test, in step number order, from the testing task and the booking. They only read them; the administrator maintains them ([Administrator](admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28)). |
@@ -116,6 +119,7 @@ Acceptance criteria:
 - A tester cannot change a step.
 - A rejected result stays on record, the sample test goes back to testing and a new testing task opens for it.
 - Submitting the result closes the tester's testing task.
+- No result is entered for a sample test whose testing task is unassigned or assigned to someone else, and Enter Result is not shown.
 
 ### 3. Samples (US-T10)
 

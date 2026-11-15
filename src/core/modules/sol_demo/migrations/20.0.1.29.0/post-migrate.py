@@ -1,8 +1,8 @@
-from odoo import api
-from odoo.api import SUPERUSER_ID
-
-from odoo.addons.sol_demo.demo_mandatory_notices import seed_mandatory_notices
-
-
 def migrate(cr, _version):
-    seed_mandatory_notices(api.Environment(cr, SUPERUSER_ID, {}))
+    # Mercury replaces cadmium as the parameter the demo no longer offers.
+    cr.execute(
+        """
+        UPDATE medilab_test_parameter SET active = FALSE
+         WHERE id = (SELECT res_id FROM ir_model_data WHERE module = 'sol_demo' AND name = 'demo_test_parameter_mercury')
+        """
+    )

@@ -36,6 +36,7 @@ src/tests/
         theme/chatter-resize/
         theme/navbar-more-menu/
         laboratory/unlinked-users/
+        laboratory/shared-intervals/
         ecommerce/mandatory-notices/
         ecommerce/portal-language/
         ecommerce/portal-navigation/
@@ -109,6 +110,7 @@ Issue [#318](https://github.com/SoltuneMontepre/medilab/issues/318) tracks `TC-W
 | Prepare a solution from scanned bottles; verify the resulting stock movements and container. | [#181](https://github.com/SoltuneMontepre/medilab/issues/181) | `features/inventory/solution-preparation/` | `solution-preparation.cy.js` |
 | Resize and collapse the chatter that sits beside a form, and keep its width and state. | [#282](https://github.com/SoltuneMontepre/medilab/issues/282) | `features/theme/chatter-resize/` | `chatter-resize.cy.js` |
 | Move the menu bar sections that do not fit a narrow window into the More menu, in every app. | [#393](https://github.com/SoltuneMontepre/medilab/issues/393) | `features/theme/navbar-more-menu/` | `navbar-more-menu.cy.js` |
+| Move a booking into another sample's machine interval of the same method, which books its room once, and refuse a sample once the interval is full. | [#420](https://github.com/SoltuneMontepre/medilab/issues/420) | `features/laboratory/shared-intervals/` | `shared-intervals.cy.js` |
 | Link an internal user that no person links to, and refuse creating one outside a person. | [#438](https://github.com/SoltuneMontepre/medilab/issues/438) | `features/laboratory/unlinked-users/` | `unlinked-users.cy.js` |
 | Give a backup the head of department's role until a date, who approves a result or sends one at a lower level in their own name. | [#430](https://github.com/SoltuneMontepre/medilab/issues/430) | `features/laboratory/backup-signers/` | `backup-signers.cy.js` |
 | Keep a mandatory notice in the portal of a customer whose email bounced, mark it seen when opened, and show it to no other customer. | [#436](https://github.com/SoltuneMontepre/medilab/issues/436) | `features/ecommerce/mandatory-notices/` | `mandatory-notices.cy.js` |
@@ -132,7 +134,7 @@ The [open-issue query](https://github.com/SoltuneMontepre/medilab/issues?q=is%3A
 | [#170](https://github.com/SoltuneMontepre/medilab/issues/170) | `flows/wf-07-laboratory-files/` | File/version history, downloads, conflicts and restore; the remaining large-file, deployed-concurrency and bucket-policy evidence stays with its staging and infrastructure checks. |
 | [#171](https://github.com/SoltuneMontepre/medilab/issues/171) | `flows/wf-07-laboratory-files/` | Online editing and saving, including WF-04-A8; callback HTTP, transaction and concurrency tests remain in the module suite. |
 | [#179](https://github.com/SoltuneMontepre/medilab/issues/179) | `flows/sf-07-priority-order/` | Changing and checking a due date, including SF-07-A3. |
-| [#184](https://github.com/SoltuneMontepre/medilab/issues/184) | `flows/wf-04-result-approval/` | Web verification that a mobile-signed result awaits the head of department; native screens and the Android emulator path belong to the mobile app suite. |
+| [#184](https://github.com/SoltuneMontepre/medilab/issues/184), [#518](https://github.com/SoltuneMontepre/medilab/issues/518) | `flows/wf-04-result-approval/`; `mobile-bench.cy.js` | Web verification that a mobile-signed result awaits the head of department with the tester's signature; native screens and the Android emulator path belong to the mobile app's Jest tests and Maestro flows. |
 | [#203](https://github.com/SoltuneMontepre/medilab/issues/203) | `flows/wf-07-laboratory-files/` | Real Document Server browser editing and service-down behavior; deployment, network, persistence, monitoring and licence gates keep their infrastructure ownership. |
 | [#220](https://github.com/SoltuneMontepre/medilab/issues/220) | `login.cy.js` | Reproduce and fix the existing wrong-password browser case. The other failures listed in the issue are Odoo module tests. |
 | [#431](https://github.com/SoltuneMontepre/medilab/issues/431) | `flows/wf-06-report-release/` | Editing, preparing and reviewing a report's PDF, WF-06-A5 and WF-06-E4, and the template versions an administrator sees. Preparing runs against a running editing service; without one, only the outage path runs. Template lifecycle, binding and callback rules remain in the module suite. |

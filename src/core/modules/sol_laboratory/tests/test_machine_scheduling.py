@@ -65,7 +65,7 @@ class TestMachineScheduling(SchedulingCase):
         second = self.schedule(second_test, self.other_tester)
         self.assertEqual(second.starts_at, first.ends_at)
         with self.assertRaises(IntegrityError), mute_logger("odoo.sql_db"), self.env.cr.savepoint():
-            second._set({"starts_at": first.starts_at, "ends_at": first.ends_at})
+            second._set({"starts_at": first.starts_at + SLOT, "ends_at": first.ends_at + SLOT})
             self.env.flush_all()
 
     def test_a_machine_under_repair_gets_no_bookings_and_its_bookings_move_to_another(self):

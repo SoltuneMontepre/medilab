@@ -14,7 +14,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 from odoo.addons.sol_laboratory.constants.notifications import EVENT_TASK_REMINDER, EVENT_TEST_REPORT_ISSUED
 from odoo.addons.sol_laboratory.constants.settings import NOTICE_PORTAL_SINCE_PARAMETER
 
-POST_MIGRATE = Path(__file__).resolve().parents[1] / "migrations" / "20.0.1.38.0" / "post-migrate.py"
+POST_MIGRATE = Path(__file__).resolve().parents[1] / "migrations" / "20.0.1.39.0" / "post-migrate.py"
 CUTOVER = datetime(2026, 3, 1, 8, 0, 0)
 SECOND = timedelta(seconds=1)
 

@@ -448,16 +448,22 @@ class Task(models.Model, TaskBase):
 
     @api.model
     def _system_tasks_of(self, document, action):
+        return self.sudo().search(
+            self._system_tasks_domain(document._name, action) & Domain("document_id", "in", document.ids)
+        )
+
+    @api.model
+    def _system_tasks_domain(self, document_model, action):
+        """The open tasks the system created and linked for documents of the model, of the action when one is given."""
         domain = (
-            Domain("document_model", "=", document._name)
-            & Domain("document_id", "in", document.ids)
+            Domain("document_model", "=", document_model)
             & Domain("status", NOT_IN, FINAL_STATUSES)
             & Domain("type_id.trigger", "!=", MANUAL_TRIGGER)
             & Domain(LINKED_BY_SYSTEM, "=", True)
         )
         if action:
             domain &= Domain("action", "=", action)
-        return self.sudo().search(domain)
+        return domain
 
     def _in_use_domain(self):
         return Domain("status", NOT_IN, FINAL_STATUSES)
