@@ -91,7 +91,7 @@ Acceptance criteria:
 
 | Rule     | Description                                                                                                     |
 | -------- | --------------------------------------------------------------------------------------------------------------- |
-| Carrier  | A dispatch is carried by sample delivery staff or by a delivery service, as recorded on it when it is carried. A failed delivery is recorded with its reason; the dispatch, still draft, is cancelled, and the same sample is requested again through WF-02 Sample reception and handover. Only people holding the sample delivery staff role, which the administrator names in the Laboratory settings, can be chosen. |
+| Carrier  | A dispatch is carried by sample delivery staff or by a delivery service, as recorded on it when it is carried. The dispatch is sent once its carrier takes it. A failed delivery is recorded with its reason; the sent dispatch is cancelled, and the same sample is requested again through WF-02 Sample reception and handover. Only people holding the sample delivery staff role, which the administrator names in the Laboratory settings, can be chosen. |
 
 Acceptance criteria:
 
