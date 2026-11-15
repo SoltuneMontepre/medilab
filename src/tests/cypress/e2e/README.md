@@ -31,6 +31,7 @@ src/tests/
         catalog/sample-type-applicability/
         laboratory/accreditation-scope/
         laboratory/backup-signers/
+        laboratory/overtime/
         onboarding/master-data-staging/
         inventory/solution-preparation/
         theme/chatter-resize/
@@ -122,6 +123,7 @@ Issue [#318](https://github.com/SoltuneMontepre/medilab/issues/318) tracks `TC-W
 | Revoke a phone signed in on Medilab Mobile from the back office; its key is refused at its next call and its push token is off. | [#514](https://github.com/SoltuneMontepre/medilab/issues/514) | `features/mobile/phone-revocation/` | `phone-revocation.cy.js` |
 | Claim a task from the queue on the phone; the web shows it claimed, and a second claim is told it is already claimed. | [#516](https://github.com/SoltuneMontepre/medilab/issues/516) | `features/mobile/tasks/` | `tasks.cy.js` |
 | Let a tester move their own booking and keep a moved task open for its head. | [#315](https://github.com/SoltuneMontepre/medilab/issues/315) | `features/laboratory/scheduling/` | `booking-adjustments.cy.js` |
+| Record planned OverTime for a tester as their head of department; the tester is booked in it only once it is recorded, and moving the booking leaves it. | [#426](https://github.com/SoltuneMontepre/medilab/issues/426) | `features/laboratory/overtime/` | `overtime.cy.js` |
 
 Solution-preparation scenarios follow their approved feature document and demo starting data. Reserving a directory does not settle the open requirements in that issue.
 

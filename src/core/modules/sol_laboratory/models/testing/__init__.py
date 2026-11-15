@@ -5,6 +5,8 @@ from . import (
     machine_booking,
     machine_booking_capacity,
     machine_booking_eligibility,
+    machine_booking_overtime,
+    overtime,
     report_template,
     report_template_version,
     res_config_settings,
