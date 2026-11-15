@@ -330,7 +330,7 @@ jobs:
             adb reverse tcp:8069 tcp:8069
             adb reverse tcp:8081 tcp:8081
             adb install -r android/app/build/outputs/apk/debug/app-debug.apk
-            maestro test --env LAB_CODE="$LAB_CODE" --debug-output maestro-output .maestro
+            maestro test --env LAB_CODE="$LAB_CODE" --debug-output maestro-output .maestro || { adb exec-out screencap -p > maestro-output/screen.png; adb logcat -d > maestro-output/logcat.txt; exit 1; }
 
       - name: Upload the Maestro output
         if: failure()
@@ -341,6 +341,7 @@ jobs:
             ${{ env.MOBILE_APP_DIR }}/maestro-output
             ${{ env.MOBILE_APP_DIR }}/metro.log
           if-no-files-found: ignore
+          include-hidden-files: true
           retention-days: 1
 
       - name: Odoo log
