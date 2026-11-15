@@ -54,6 +54,11 @@
         <field name="person_id" ref="demo_person_chemistry_tester" />
         <field name="parameter_id" ref="demo_test_parameter_chromium_vi" />
     </record>
+    <!-- The testing statistics count lead tests the microbiology tester measured. -->
+    <record id="demo_parameter_authorization_microbiology_tester_lead" model="medilab.parameter.authorization">
+        <field name="person_id" ref="demo_person_microbiology_tester" />
+        <field name="parameter_id" ref="demo_test_parameter_lead" />
+    </record>
     <record id="demo_parameter_authorization_microbiology_tester_coliforms" model="medilab.parameter.authorization">
         <field name="person_id" ref="demo_person_microbiology_tester" />
         <field name="parameter_id" ref="demo_test_parameter_coliforms" />
