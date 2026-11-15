@@ -323,6 +323,17 @@
         <field name="document_model">medilab.subcontract.dispatch</field>
         <field name="action">edit</field>
     </record>
+    <record id="permission_testing_statistic_read_all" model="medilab.permission">
+        <field name="name">Read the testing statistics</field>
+        <field name="document_model">medilab.testing.statistic</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_testing_statistic_read_own_department" model="medilab.permission">
+        <field name="name">Read the testing statistics of their department</field>
+        <field name="document_model">medilab.testing.statistic</field>
+        <field name="action">read</field>
+        <field name="scope">own_department</field>
+    </record>
     <record id="permission_test_result_read_all" model="medilab.permission">
         <field name="name">Read test results</field>
         <field name="document_model">medilab.test.result</field>
@@ -495,6 +506,50 @@
         <field name="action">edit</field>
         <field name="scope">own_department</field>
     </record>
+    <record id="permission_overtime_read_all" model="medilab.permission">
+        <field name="name">Read OverTime</field>
+        <field name="document_model">medilab.overtime</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_overtime_create_all" model="medilab.permission">
+        <field name="name">Create OverTime</field>
+        <field name="document_model">medilab.overtime</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_overtime_edit_all" model="medilab.permission">
+        <field name="name">Edit OverTime</field>
+        <field name="document_model">medilab.overtime</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_overtime_delete_all" model="medilab.permission">
+        <field name="name">Delete OverTime</field>
+        <field name="document_model">medilab.overtime</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_overtime_read_own_department" model="medilab.permission">
+        <field name="name">Read OverTime of their department</field>
+        <field name="document_model">medilab.overtime</field>
+        <field name="action">read</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_overtime_create_own_department" model="medilab.permission">
+        <field name="name">Create OverTime of their department</field>
+        <field name="document_model">medilab.overtime</field>
+        <field name="action">create</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_overtime_edit_own_department" model="medilab.permission">
+        <field name="name">Edit OverTime of their department</field>
+        <field name="document_model">medilab.overtime</field>
+        <field name="action">edit</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_overtime_delete_own_department" model="medilab.permission">
+        <field name="name">Delete OverTime of their department</field>
+        <field name="document_model">medilab.overtime</field>
+        <field name="action">delete</field>
+        <field name="scope">own_department</field>
+    </record>
     <record id="permission_chemical_create_all" model="medilab.permission">
         <field name="name">Create chemicals</field>
         <field name="document_model">medilab.chemical</field>
@@ -559,6 +614,21 @@
         <field name="action">delete</field>
         <field name="scope">own_department</field>
     </record>
+    <record id="permission_location_unavailability_create_all" model="medilab.permission">
+        <field name="name">Create location unavailable times</field>
+        <field name="document_model">medilab.location.unavailability</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_location_unavailability_edit_all" model="medilab.permission">
+        <field name="name">Edit location unavailable times</field>
+        <field name="document_model">medilab.location.unavailability</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_location_unavailability_delete_all" model="medilab.permission">
+        <field name="name">Delete location unavailable times</field>
+        <field name="document_model">medilab.location.unavailability</field>
+        <field name="action">delete</field>
+    </record>
     <record id="permission_machine_create_all" model="medilab.permission">
         <field name="name">Create machines</field>
         <field name="document_model">medilab.machine</field>
@@ -614,6 +684,21 @@
         <field name="document_model">medilab.measurement.unit</field>
         <field name="action">delete</field>
     </record>
+    <record id="permission_parameter_authorization_create_all" model="medilab.permission">
+        <field name="name">Create parameter authorizations</field>
+        <field name="document_model">medilab.parameter.authorization</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_parameter_authorization_edit_all" model="medilab.permission">
+        <field name="name">Edit parameter authorizations</field>
+        <field name="document_model">medilab.parameter.authorization</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_parameter_authorization_delete_all" model="medilab.permission">
+        <field name="name">Delete parameter authorizations</field>
+        <field name="document_model">medilab.parameter.authorization</field>
+        <field name="action">delete</field>
+    </record>
     <record id="permission_parameter_group_create_all" model="medilab.permission">
         <field name="name">Create parameter groups</field>
         <field name="document_model">medilab.parameter.group</field>
@@ -667,19 +752,19 @@
         <field name="action">archive</field>
         <field name="scope">own_department</field>
     </record>
-    <record id="permission_parameter_method_machine_create_all" model="medilab.permission">
-        <field name="name">Create machines for ways of testing</field>
-        <field name="document_model">medilab.parameter.method.machine</field>
+    <record id="permission_machine_method_create_all" model="medilab.permission">
+        <field name="name">Create machines for testing methods</field>
+        <field name="document_model">medilab.machine.method</field>
         <field name="action">create</field>
     </record>
-    <record id="permission_parameter_method_machine_edit_all" model="medilab.permission">
-        <field name="name">Edit machines for ways of testing</field>
-        <field name="document_model">medilab.parameter.method.machine</field>
+    <record id="permission_machine_method_edit_all" model="medilab.permission">
+        <field name="name">Edit machines for testing methods</field>
+        <field name="document_model">medilab.machine.method</field>
         <field name="action">edit</field>
     </record>
-    <record id="permission_parameter_method_machine_delete_all" model="medilab.permission">
-        <field name="name">Delete machines for ways of testing</field>
-        <field name="document_model">medilab.parameter.method.machine</field>
+    <record id="permission_machine_method_delete_all" model="medilab.permission">
+        <field name="name">Delete machines for testing methods</field>
+        <field name="document_model">medilab.machine.method</field>
         <field name="action">delete</field>
     </record>
     <record id="permission_parameter_method_sample_type_create_all" model="medilab.permission">

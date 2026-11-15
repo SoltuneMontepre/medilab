@@ -40,6 +40,9 @@ PERMISSION_ACCESS_DOMAINS = {
 ORDER_EDIT_GROUPS = ("sol_laboratory.group_permission_order_edit_all", "sol_laboratory.group_permission_order_edit_own")
 # Header actions that stay on an order the user may only read: claiming the unclaimed order makes it theirs.
 READER_ACTIONS = ("action_claim",)
+# Header buttons that stay too: the accountant, who only reads orders, creates their invoices. Their groups and the
+# invoice permission decide who sees them.
+READER_BUTTON_IDS = ("create_invoice", "create_invoice_percentage")
 
 
 # Đơn Hàng: a salesperson who may read another salesperson's order opens it read-only.
@@ -87,14 +90,15 @@ class SaleOrder(models.Model, SaleOrderBase):
 
     @api.model
     def _get_view(self, view_id=None, view_type="form", **options):
-        """Make the order form read-only, and hide its actions but Claim, on an order the user may not change."""
+        """Make the order form read-only, and hide its actions but Claim and Create Invoice, on an order the user may
+        not change."""
         arch, view = super()._get_view(view_id, view_type, **options)
         if view_type != "form":
             return arch, view
         for node in arch.xpath("//sheet//field[not(ancestor::field)]"):
             node.set("readonly", self._or_locked(node.get("readonly")))
         for node in arch.xpath("//header/button"):
-            if node.get("name") not in READER_ACTIONS:
+            if node.get("name") not in READER_ACTIONS and node.get("id") not in READER_BUTTON_IDS:
                 node.set("invisible", self._or_locked(node.get("invisible")))
         sheet = arch.find(".//sheet")
         if sheet is not None:

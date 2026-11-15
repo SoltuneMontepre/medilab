@@ -480,6 +480,7 @@ msgstr ""
 #. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/invoicing/account_payment.py:0
+#: code:addons/sol_commerce/models/invoicing/account_payment_register.py:0
 msgid "A payment cannot be more than the amount still owed."
 msgstr ""
 
@@ -978,6 +979,11 @@ msgstr ""
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
 msgid "Back to my account"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification
+msgid "Back to notifications"
 msgstr ""
 
 #. module: sol_commerce
@@ -2546,6 +2552,11 @@ msgid "Name"
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification_preferences
+msgid "New"
+msgstr ""
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.support_new
 msgid "New support request"
 msgstr ""
@@ -2615,10 +2626,20 @@ msgid "Nothing has been paid on this order. It can still be confirmed."
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification
+msgid "Notification"
+msgstr ""
+
+#. module: sol_commerce
 #: model:portal.entry,name:sol_commerce.portal_entry_notifications
 #: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
 #: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification_preferences
 msgid "Notification preferences"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification_preferences
+msgid "Notifications"
 msgstr ""
 
 #. module: sol_commerce
@@ -3062,6 +3083,11 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_notification_contact__partner_id
 msgid "Partner"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_account_payment_register
+msgid "Pay"
 msgstr ""
 
 #. module: sol_commerce
@@ -3661,11 +3687,6 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_medilab_receivable_report
 msgid "Receivables"
-msgstr ""
-
-#. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification_preferences
-msgid "Recent notifications"
 msgstr ""
 
 #. module: sol_commerce

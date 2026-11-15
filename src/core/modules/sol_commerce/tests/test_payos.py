@@ -758,6 +758,21 @@ class TestPayosWebhook(AuditLookup, InvoicingCase, HttpCase):
             [f"PayOS reported a transfer for the payment link {self.transaction.reference}"] * 2,
         )
 
+    def test_the_checksum_key_alone_checks_the_webhook(self):
+        data = {"orderCode": int(self.transaction.reference), "amount": 1000000, "code": "00", "reference": "FT1"}
+
+        with patch.dict(os.environ, {"PAYOS_CHECKSUM_KEY": CHECKSUM}):
+            os.environ.pop("PAYOS_CLIENT_ID", None)
+            os.environ.pop("PAYOS_API_KEY", None)
+            response = self.url_open(
+                "/payment/payos/webhook",
+                data=signed_body(data).encode(),
+                headers={"Content-Type": "application/json"},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.transaction.state, "done")
+
     def test_a_second_bank_reference_is_another_transaction_for_the_same_invoice(self):
         order_code = int(self.transaction.reference)
         self.post_webhook({"orderCode": order_code, "amount": 1000000, "code": "00", "reference": "FT1"})

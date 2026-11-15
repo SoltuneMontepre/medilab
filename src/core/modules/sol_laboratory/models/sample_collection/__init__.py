@@ -6,8 +6,10 @@ from . import (
     sample,
     sample_handover,
     sample_laboratory_folders,
+    sample_mobile,
     sample_scan,
     scheduled_job,
     subcontract_dispatch,
     test_request,
+    test_request_plan,
 )

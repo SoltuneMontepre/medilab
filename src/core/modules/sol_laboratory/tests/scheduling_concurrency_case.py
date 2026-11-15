@@ -179,12 +179,12 @@ class SchedulingConcurrencyCase(SchedulingCommittedCase):
             return cursor.fetchall()
 
     def park_foreign_queue(self, env):
-        """Take other tests' queued bookings out of the queue until the test ends. Every replan rewrites them, so they
-        would make any two scheduling transactions conflict on rows outside the race."""
+        """Take other tests' proposed bookings out of their plans until the test ends, so that two scheduling
+        transactions meet only on the rows of the race."""
         env.cr.execute(
             SQL(
                 "UPDATE medilab_machine_booking SET status = 'cancelled'"
-                " WHERE status = 'queued' AND sample_test_id <> ALL(%s) RETURNING id",
+                " WHERE status = 'proposed' AND sample_test_id <> ALL(%s) RETURNING id",
                 self.test_ids,
             )
         )
@@ -193,7 +193,7 @@ class SchedulingConcurrencyCase(SchedulingCommittedCase):
         def restore(env):
             env.cr.execute(
                 SQL(
-                    "UPDATE medilab_machine_booking SET status = 'queued' WHERE id = ANY(%s) AND status = 'cancelled'",
+                    "UPDATE medilab_machine_booking SET status = 'proposed' WHERE id = ANY(%s) AND status = 'cancelled'",
                     parked,
                 )
             )

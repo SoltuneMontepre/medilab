@@ -5,7 +5,7 @@ from odoo.tests import tagged
 
 from .result_case import ResultCase
 from .scheduling_case import MONDAY
-from odoo.addons.sol_laboratory.constants.models import MODEL_SAMPLE_TYPE
+from odoo.addons.sol_laboratory.constants.models import MODEL_SAMPLE_TEST, MODEL_SAMPLE_TYPE
 
 
 @freeze_time(MONDAY)
@@ -121,6 +121,24 @@ class TestTestResultEntry(ResultCase):
 
         with self.assertRaises(UserError):
             self.enter()
+
+    def test_only_the_assignee_of_the_testing_task_enters_its_result(self):
+        self.assertFalse(self.test.with_user(self.other_tester.user_id).can_enter_result)
+        with self.assertRaises(UserError):
+            self.enter(self.other_tester)
+
+        self.assertTrue(self.test.with_user(self.tester.user_id).can_enter_result)
+        self.assertTrue(self.enter())
+
+    def test_no_result_is_entered_before_the_testing_task_is_claimed(self):
+        arsenic = self.create_parameter("Arsenic (As)", self.group)
+        self.offer(arsenic, self.sample_type)
+        test = self.env[MODEL_SAMPLE_TEST].create({"sample_id": self.sample.id, "parameter_id": arsenic.id})
+        self.testing_task(test)
+
+        for person in (self.tester, self.head):
+            with self.subTest(person=person.name), self.assertRaises(UserError):
+                self.enter(person, test)
 
     def test_no_result_is_entered_for_a_sample_not_received(self):
         with self.assertRaises(UserError):

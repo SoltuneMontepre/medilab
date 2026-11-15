@@ -4,6 +4,7 @@ import { eventsGone, scheduleState } from "./state";
 import {
   ADMINISTRATOR,
   HEAD,
+  OTHER_TESTER,
   PARAMETERS,
   PEOPLE,
   TESTER,
@@ -22,7 +23,6 @@ import {
   plannedTask,
   receivedSample,
   recommendation,
-  queueChromium,
   restoreSettings,
   releaseFixtures,
   resetFixtures,
@@ -75,7 +75,7 @@ function openAssign() {
 }
 
 describe("WF-03 baseline assignment and scheduling", () => {
-  it("TC-WF03-M lets the head of department assign a sample and the tester book the recommended machine and slot", () => {
+  it("TC-WF03-M partial lets the head of department assign a sample and the tester book the recommended machine and slot", () => {
     receivedSample([PARAMETERS.chromium, PARAMETERS.ph]).then((sample) => {
       const [chromium] = sample.tests;
       cy.signInAs("head_of_department");
@@ -132,7 +132,7 @@ describe("WF-03 baseline assignment and scheduling", () => {
     });
   });
 
-  it("TC-WF03-A1 lets a tester claim an unassigned task of their department", () => {
+  it("TC-WF03-A1 partial lets a tester claim an unassigned task of their department", () => {
     receivedSample().then(({ tests: [lead] }) => {
       cy.signInAs("tester");
       cy.visit("/odoo/awaiting-tasks");
@@ -150,7 +150,7 @@ describe("WF-03 baseline assignment and scheduling", () => {
     });
   });
 
-  it("TC-WF03-A2 lets the head of department move a task to another person, then to another department, with a reason", () => {
+  it("TC-WF03-E1 partial lets the head of department move a task to another person, then to another department, with a reason", () => {
     bookedLead().then(({ sample, test, booking }) => {
       const task = { model: "medilab.task", id: booking.task_id[0] };
       cy.signInAs("head_of_department");
@@ -164,11 +164,15 @@ describe("WF-03 baseline assignment and scheduling", () => {
         expect(read.assignee_id[1]).to.equal("Ly Van Hung");
         expect(read.reassign_reason).to.equal(REASON);
       });
-      // The booking goes to the new assignee, planned again in their working time.
+      // The booking returns to the plan, which proposes a slot in the new assignee's working time; the new assignee
+      // accepts it.
       openBooking(test, HEAD).should((moved) => {
         expect(moved.person_id[1]).to.equal("Ly Van Hung");
-        expect(moved.status).to.equal("scheduled");
+        expect(moved.status).to.equal("proposed");
+        expect(moved.calendar_event_id).to.equal(false);
       });
+      callAs(OTHER_TESTER, "medilab.machine.booking", "action_accept", [[booking.id]]);
+      openBooking(test, HEAD).should("have.property", "status", "scheduled");
       scheduleState(test).then((state) => {
         const moved = state.bookings.find(({ id }) => id === booking.id);
         expect(state.tasks[0].planned_start).to.equal(moved.starts_at);
@@ -205,7 +209,7 @@ describe("WF-03 baseline assignment and scheduling", () => {
     });
   });
 
-  it("TC-WF03-A3 lets the tester cancel a booking, and its slot goes back to the queue", () => {
+  it("TC-SF10-A2 partial lets the tester cancel a booking, and its slot goes back to the queue", () => {
     assignedChromium().then(({ test }) => {
       // The freed slot must still lie ahead when the test is recommended again.
       awayFromQuarterHour();
@@ -230,7 +234,7 @@ describe("WF-03 baseline assignment and scheduling", () => {
         scheduleState(test).then((before) => {
           callRefused("medilab.machine.booking", "action_cancel", [[booking.id]]).should(
             "eq",
-            "Only a queued or scheduled booking can be cancelled.",
+            "Only a scheduled booking can be cancelled.",
           );
           scheduleState(test).should("deep.equal", before);
         });
@@ -248,7 +252,7 @@ describe("WF-03 baseline assignment and scheduling", () => {
     });
   });
 
-  it("TC-WF03-A5 creates a machine and step-room booking through Schedule and keeps them together", () => {
+  it("TC-WF03-A2 partial creates a machine and step-room booking through Schedule and keeps them together", () => {
     assignedChromium().then(({ sample, test }) => {
       cy.signInAs("tester");
       cy.openRecord(test);
@@ -294,7 +298,7 @@ describe("WF-03 baseline assignment and scheduling", () => {
     });
   });
 
-  it("TC-WF03-E1 baseline / TC-F23-03 rejects a claim from a stale list without changing the winner", () => {
+  it("TC-F23-03 rejects a claim from a stale list without changing the winner", () => {
     receivedSample().then(({ tests: [lead] }) => {
       cy.signInAs("chemistry_tester");
       cy.visit("/odoo/awaiting-tasks");
@@ -320,7 +324,7 @@ describe("WF-03 baseline assignment and scheduling", () => {
     });
   });
 
-  it("TC-WF03-E2 baseline / TC-F23-03 hides another department's task and refuses its claim over RPC", () => {
+  it("TC-F23-03 hides another department's task and refuses its claim over RPC", () => {
     receivedSample([PARAMETERS.coliforms]).then(({ tests: [coliforms] }) => {
       cy.signInAs("tester");
       cy.visit("/odoo/awaiting-tasks");
@@ -340,7 +344,7 @@ describe("WF-03 baseline assignment and scheduling", () => {
     });
   });
 
-  it("TC-WF03-E3 baseline / TC-F23-03 preserves reservations after a missing reason and lets the head retry", () => {
+  it("TC-F23-03 preserves reservations after a missing reason and lets the head retry", () => {
     assignedChromium().then(({ test: lead }) => {
       book(lead);
       cy.signInAs("head_of_department");
@@ -370,8 +374,13 @@ describe("WF-03 baseline assignment and scheduling", () => {
         expect(after.tasks[0].assignee_id[1]).to.equal("Ly Van Hung");
         expect(after.tasks[0].reassign_reason).to.equal(REASON);
         expect(after.bookings[0].person_id[1]).to.equal("Ly Van Hung");
-        expect(after.events).to.have.length(2);
+        expect(after.bookings[0].status).to.equal("proposed");
+        expect(after.events).to.be.empty;
       });
+      scheduleState(lead).then((proposed) =>
+        callAs(OTHER_TESTER, "medilab.machine.booking", "action_accept", [[proposed.bookings[0].id]]),
+      );
+      scheduleState(lead).should((accepted) => expect(accepted.events).to.have.length(2));
     });
   });
 });
@@ -469,16 +478,13 @@ describe("WF-03 feature acceptance criteria", () => {
     });
   });
 
-  it("TC-F24-02 RPC queue orders urgent work before earlier arrivals and other work by queue time", () => {
+  it("TC-F24-02 the department plan places due-soon work before other work, then earlier arrivals first", () => {
     saveSettings({ urgency_hours: 12 * 24 });
-    const now = Date.now();
     assignedChromium({ days: 60 }).then(({ test: ordinary }) =>
-      assignedChromium({ days: 12 }).then(({ test: urgent }) => {
-        queueChromium(ordinary, now - 60000);
-        queueChromium(urgent, now);
-        assignedChromium({ days: 60 }).then(({ test: trigger }) => book(trigger));
-        openBooking(urgent).then((first) =>
+      assignedChromium({ days: 12 }).then(({ test: dueSoon }) => {
+        openBooking(dueSoon).then((first) =>
           openBooking(ordinary).then((second) => {
+            expect([first.status, second.status]).to.deep.equal(["proposed", "proposed"]);
             expect(first.machine_id).to.deep.equal(second.machine_id);
             expect(time(first.ends_at)).to.be.at.most(time(second.starts_at));
             expect(time(first.ends_at) - time(first.starts_at)).to.equal(60 * 60000);
@@ -488,9 +494,6 @@ describe("WF-03 feature acceptance criteria", () => {
     );
     assignedChromium({ days: 60 }).then(({ test: older }) =>
       assignedChromium({ days: 60 }).then(({ test: newer }) => {
-        queueChromium(newer, now - 120000);
-        queueChromium(older, now - 180000);
-        assignedChromium({ days: 60 }).then(({ test: trigger }) => book(trigger));
         openBooking(older).then((first) =>
           openBooking(newer).then((second) => {
             expect(first.machine_id).to.deep.equal(second.machine_id);
@@ -501,10 +504,13 @@ describe("WF-03 feature acceptance criteria", () => {
       }),
     );
     bookedLead().then(({ booking }) =>
-      callAs(ADMINISTRATOR, "medilab.parameter.method.machine", "search_read", [[["machine_id", "=", booking.machine_id[0]]]], {
-        fields: ["run_minutes"],
+      callAs(ADMINISTRATOR, "medilab.machine.method", "search_read", [[
+        ["machine_id", "=", booking.machine_id[0]],
+        ["method_id", "=", booking.method_id[0]],
+      ]], {
+        fields: ["duration_minutes"],
       }).then(([link]) => {
-        expect((time(booking.ends_at) - time(booking.starts_at)) / 60000).to.equal(Math.ceil(link.run_minutes / 15) * 15);
+        expect((time(booking.ends_at) - time(booking.starts_at)) / 60000).to.equal(Math.ceil(link.duration_minutes / 15) * 15);
       }),
     );
   });

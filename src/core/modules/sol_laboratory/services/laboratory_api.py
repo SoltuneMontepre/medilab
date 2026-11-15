@@ -29,6 +29,7 @@ from odoo.addons.sol_laboratory.constants.laboratory_files import (
     NOT_FOUND,
     TRY_AGAIN,
 )
+from odoo.addons.sol_laboratory.constants.medilab_mobile import ACTION_REFUSED
 from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_DEVICE, MODEL_LABORATORY_FOLDER, MODEL_RES_LANG
 from odoo.addons.sol_laboratory.constants.routes import DEVICE_KEY
 from odoo.addons.sol_laboratory.services import openapi_document
@@ -112,12 +113,25 @@ def serve(endpoint, controller, params, declared):
         device = env[MODEL_LABORATORY_DEVICE]._from_key(bearer_key())
         if declared.permission:
             env[MODEL_LABORATORY_FOLDER]._check_laboratory_files_permission()
-        result = endpoint(controller, device, body, **path_arguments, **values)
+            result = endpoint(controller, device, body, **path_arguments, **values)
+        else:
+            result = serve_phone_route(endpoint, controller, device, body, path_arguments, values)
     else:
         result = endpoint(controller, body, **path_arguments, **values)
     if isinstance(result, http.Response):
         return result
     return json_answer(result)
+
+
+def serve_phone_route(endpoint, controller, device, body, path_arguments, values):
+    """Serve a route of Medilab Mobile, which needs no laboratory files permission: a refusal of the model method it
+    calls answers action_refused with Odoo's message, which the app shows as it is."""
+    try:
+        return endpoint(controller, device, body, **path_arguments, **values)
+    except (LaboratoryFileError, AccessError, MissingError):
+        raise
+    except UserError as error:
+        raise LaboratoryFileError(ACTION_REFUSED, error.args[0] if error.args else "") from error
 
 
 def serve_in_requested_language():

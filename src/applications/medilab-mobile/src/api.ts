@@ -20,14 +20,19 @@ export class ApiError extends Error {
 export class UnreachableError extends Error {}
 
 export interface Call {
-  method?: "GET" | "POST" | "PUT" | "DELETE";
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: unknown;
   key?: string | null;
+  headers?: Record<string, string>;
 }
 
 /** Calls MediLab's API at the path and answers its JSON, or null for an answer without content. */
 export async function callApi<T>(serverUrl: string, language: Locale, path: string, call: Call = {}): Promise<T | null> {
-  const headers: Record<string, string> = { Accept: "application/json", "Accept-Language": language };
+  const headers: Record<string, string> = {
+    ...call.headers,
+    Accept: "application/json",
+    "Accept-Language": language,
+  };
   if (call.body !== undefined) {
     headers["Content-Type"] = "application/json";
   }
@@ -109,4 +114,164 @@ export interface MediLabDocument extends DocumentReference {
   title: string;
   screen: string;
   url: string;
+}
+
+/** The person signed in and what they may do, as the web's buttons show it. */
+export interface Me {
+  name: string;
+  login: string;
+  department: string;
+  roles: string[];
+  can: { create_tasks: boolean; assign_tasks: boolean };
+}
+
+export type TaskStatus = "open" | "assigned" | "in_progress" | "done" | "cancelled";
+
+/** The document a task opens, with the app's screen for it. */
+export interface TaskDocument extends DocumentReference {
+  screen: string;
+}
+
+export interface Task {
+  id: number;
+  name: string;
+  type: string;
+  status: TaskStatus;
+  action: string;
+  deadline: string | null;
+  planned_start: string | null;
+  planned_end: string | null;
+  done_at: string | null;
+  department: string;
+  assignee: string;
+  location: string;
+  closed_by_system: boolean;
+  document: TaskDocument | null;
+}
+
+export interface TaskStep {
+  minutes: number;
+  instruction: string;
+  note: string;
+  location: string;
+}
+
+/** A task with its note, its method's steps and the actions the person may take on it. */
+export interface TaskDetail extends Task {
+  note: string;
+  reassign_reason: string;
+  assigned_by: string;
+  steps: TaskStep[];
+  actions: { claim: boolean; start: boolean; done: boolean; assign: boolean };
+}
+
+/** The person's day, as the Tasks app opens on it. */
+export interface TaskDay {
+  person: string;
+  open_count: number;
+  overdue_count: number;
+  due_today_count: number;
+  finished_count: number;
+  claimable_count: number;
+  next_up: Task[];
+  planned_today: Task[];
+  claimable: Task[];
+}
+
+export type TaskList = "open" | "finished" | "queue";
+
+export interface TaskPage {
+  tasks: Task[];
+  next_after: number | null;
+}
+
+/** The people and the departments a task may go to. */
+export interface Assignees {
+  people: { id: number; name: string; department: string }[];
+  departments: { id: number; name: string }[];
+}
+
+/** A sample's handover to the person's department and its receipt. */
+export interface SampleHandover {
+  department: string;
+  received_at: string | null;
+  received_by: string;
+  can_receive: boolean;
+}
+
+/** A sample as the person may see it, with its handover to their department and the unassigned testing tasks of
+ * their department on it. The customer is null for a person who may not see it, such as a tester. */
+export interface Sample {
+  id: number;
+  code: string;
+  status: string;
+  sample_type: string;
+  physical_state: string;
+  form: string;
+  container: string;
+  received_at: string | null;
+  storage_location: string;
+  sampling_location: string;
+  note: string;
+  customer: string | null;
+  customer_sample_name: string | null;
+  handover: SampleHandover | null;
+  tasks: Task[];
+}
+
+export type ResultStatus = "none" | "requested" | "approved" | "rejected";
+
+export type Conclusion = "pass" | "fail" | "insufficient";
+
+/** A result as the list of results waiting for the person's signature shows it. */
+export interface ResultSummary {
+  id: number;
+  code: string;
+  parameter: string;
+  value_display: string;
+  unit: string;
+  status: ResultStatus;
+  entered_by: string;
+  entered_at: string | null;
+  warned: boolean;
+}
+
+/** A result with its limit, its warnings and what the person may do with it, as the web's form shows them. */
+export interface Result extends ResultSummary {
+  sample_test_id: number;
+  way: string;
+  value: number | null;
+  value_text: string;
+  decimals: number;
+  value_suggestion: string;
+  comparison_requested: boolean;
+  conclusion: Conclusion | null;
+  conclusion_label: string;
+  limit: string;
+  limit_missing: boolean;
+  status_label: string;
+  warnings: string[];
+  rejection_reason: string;
+  actions: { edit: boolean; sign: boolean; reject: boolean };
+}
+
+export interface ResultPage {
+  results: ResultSummary[];
+  next_after: number | null;
+}
+
+/** A sample test at the bench, with the unit and decimals of its way of testing and its reported result. */
+export interface SampleTest {
+  id: number;
+  code: string;
+  parameter: string;
+  way: string;
+  due_date: string | null;
+  status: string;
+  unit: string;
+  decimals: number;
+  regulation: string;
+  comparison_requested: boolean;
+  can_enter_result: boolean;
+  result: Result | null;
 }

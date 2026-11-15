@@ -10,7 +10,7 @@ What each GitHub Actions workflow in `.github/workflows/` does. How workflows ar
 | `ci-infra`      | every pull request                                                                      | Checks Terraform, Ansible, origin isolation, ONLYOFFICE contracts and CloudBeaver when their paths change.         |
 | `ci-tools`      | every pull request                                                                      | Runs the AI tooling tests, Ruff and the typecheck tooling tests when that tooling changes.                         |
 | `ci-sync-app`   | every pull request                                                                      | Checks the format, lints, tests and builds the sync app when it changes.                                           |
-| `ci-mobile-app` | every pull request                                                                      | Type-checks, lints and tests the mobile app, and builds it for Android and iOS, when it changes.                   |
+| `ci-mobile-app` | every pull request, and every night for the Maestro flows                               | Type-checks, lints and tests the mobile app, and builds it for Android and iOS, when it changes.                   |
 | `cd-core`       | a push to `main` that changes `src/core` or the Dockerfile, and hourly in `window` mode | Publishes the image, releases it through Argo CD at once or in the maintenance window, and rolls back if it fails. |
 | `cd-infra`      | a push to `main` that changes `infra/`                                                  | Runs `terraform apply`.                                                                                            |
 | `cd-ansible`    | a manual run on `main`                                                                  | Runs the Ansible playbooks against the nodes: `ping`, `inspect`, `check` or `apply`.                               |
@@ -43,7 +43,7 @@ flowchart LR
 - Four test runners each build the image again from that cache and load it as `medilab-odoo:ci`, so the tests run on the image that ships, with its Python requirements. Each runs its own copy of the test database per shard, four shards at once, one per runner CPU, and uploads its raw coverage data as a `coverage-data-<n>` artifact. The runners skip when the change is not relevant.
   - `test (1/3)` to `test (3/3)` install every module except `sol_demo`, without coverage, and each run four of the twelve shards: `task test:core RUNNER=<n> RUNNERS=3 EXCLUDE=sol_demo INSTALL_COVERAGE=false`. No other module's tests use the demo data, and coverage makes the install about 60% slower.
   - `test (install)` installs every module with coverage and runs the `sol_demo` tests: `task test:core TEST_MODULES=sol_demo`. It records the code that only runs while the modules install and checks that the demo data loads, alongside the other runners.
-- `e2e` builds the image from the same cache, installs every module with the demo data and starts Odoo with `task test:e2e:app`, then runs the Cypress browser tests with `task test:e2e`. When a step fails it prints the Odoo log.
+- `e2e` builds the image from the same cache, makes a random `PAYOS_CHECKSUM_KEY` for the PayOS notifications the tests sign, installs every module with the demo data and starts Odoo with `task test:e2e:app`, then runs the Cypress browser tests with `task test:e2e`. When a step fails it prints the Odoo log.
 - `upgrade` runs `task test:upgrade` on pull requests that touch the core and on manual runs: it logs in to the GitHub Container Registry, installs every module with the image in production, the `newTag` of `infra/cluster/odoo/kustomization.yaml`, on a throwaway Postgres 18.4, then upgrades that database with the pull request's image using the arguments of the production upgrade Job. It fails when Odoo exits with an error or a module is not left installed. A pull request from a fork cannot pull the released image, so `upgrade` fails on it.
 - `test` is the required check for the tests: it fails unless every runner, `e2e` and `upgrade` passed.
 - `coverage` combines the coverage data of the four runners with `task test:core:coverage` and uploads the report as the `coverage` artifact. Independent callback HTTP workers inherit their parent tracing settings and save parallel data for the combined Odoo report.
@@ -152,6 +152,7 @@ flowchart LR
 - `test` runs the Jest tests.
 - Each job sets up Node 24, which Expo needs, and Bun, which installs the dependencies.
 - When any job fails, its last step cancels the whole run, as in `ci-core`.
+- `maestro` runs only every night at 02:00 in Asia/Ho_Chi_Minh and when the workflow is started by hand, never on a pull request, so it is not a required check. It starts Odoo with the demo data as `ci-core`'s `e2e` does, builds the Android development build for `x86_64`, serves its JavaScript with Metro, and runs the Maestro flows of `.maestro` on an Android 14 emulator, which reaches Odoo and Metro through `adb reverse`. A failed run uploads Maestro's screenshots and Metro's log.
 
 ## cd-core
 

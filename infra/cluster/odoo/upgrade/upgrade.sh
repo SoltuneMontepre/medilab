@@ -19,8 +19,10 @@ read_recorded() {
   recorded=$(python3 "$here/fingerprint.py" read medilab)
 }
 
+# With workers, Odoo opens its HTTP port but starts no worker before it stops, so a report rendered during the install,
+# such as the demo's, waits forever for wkhtmltopdf to fetch its styles.
 upgrade() {
-  /entrypoint.sh odoo --database="$1" --init="$MEDILAB_MODULES" --update=all --max-cron-threads=0 --stop-after-init
+  /entrypoint.sh odoo --database="$1" --init="$MEDILAB_MODULES" --update=all --max-cron-threads=0 --workers=0     --stop-after-init
 }
 
 case "$step" in

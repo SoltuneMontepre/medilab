@@ -64,6 +64,14 @@ class PayosClient:
         return body
 
 
+def payos_webhook_client_from_env():
+    """A client that checks webhook signatures when the checksum key is set. It never calls PayOS."""
+    checksum_key = os.environ.get(CHECKSUM_KEY)
+    if not checksum_key:
+        return None
+    return PayosClient(None, None, checksum_key)
+
+
 def payos_client_from_env():
     """A client when all three secrets are set; otherwise nothing, and PayOS is not called."""
     client_id = os.environ.get(CLIENT_ID)

@@ -18,16 +18,28 @@ class SaleAdvancePaymentInv(models.TransientModel, SaleAdvancePaymentInvBase):
     _inherit = MODEL_SALE_ADVANCE_PAYMENT_INV
 
     def create_invoices(self):
-        """Let a holder of the order's invoice permission create the invoices of confirmed orders, which only the
-        accountant posts. Odoo opens the new invoices on screens only the accountant reads, so sales goes back to the
-        order."""
-        if self.env.su or self.env.user.has_group(BILLING_GROUP):
+        """Let the accountant, and a holder of the order's invoice permission, create the invoices of confirmed orders,
+        which only the accountant posts. Neither may edit the order Odoo writes the invoiced lines on. Odoo opens the
+        new invoices on screens only the accountant reads, so sales goes back to the order."""
+        if self.env.su:
             return super().create_invoices()
+        if self.env.user.has_group(BILLING_GROUP):
+            return super(SaleAdvancePaymentInv, self.sudo()).create_invoices()
         self.sale_order_ids._check_permission("invoice")
         if any(order.order_status != STATUS_CONFIRMED for order in self.sale_order_ids):
             raise UserError(self.env._("Invoices are created only from confirmed orders."))
         super(SaleAdvancePaymentInv, self.sudo()).create_invoices()
         return {"type": "ir.actions.act_window_close"}
+
+    def _inverse_invoice_overages(self):
+        """Odoo writes the dialog's overage choice on its orders, which the accountant only reads. Only a change is
+        written, and for the accountant with full rights."""
+        changed = self.filtered(
+            lambda wizard: any(order.invoice_overages != wizard.invoice_overages for order in wizard.sale_order_ids)
+        )
+        if changed and not self.env.su and self.env.user.has_group(BILLING_GROUP):
+            changed = changed.sudo()
+        return super(SaleAdvancePaymentInv, changed)._inverse_invoice_overages()
 
     def _create_invoices(self, sale_orders):
         """Create one invoice per order and mark it as the final or advance invoice of that order, as MediLab's own

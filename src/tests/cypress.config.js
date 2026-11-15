@@ -2,6 +2,7 @@ const { defineConfig } = require("cypress");
 const { plugin: grepPlugin } = require("@cypress/grep/plugin");
 const { odooTasks } = require("./cypress/plugins/odoo");
 const { executionTasks } = require("./cypress/plugins/execution");
+const { payosTasks } = require("./cypress/plugins/payos");
 const { appendFileSync } = require("node:fs");
 
 const demoPassword = process.env.MEDILAB_DEMO_PASSWORD || "demo";
@@ -34,6 +35,7 @@ module.exports = defineConfig({
       });
       on("task", {
         ...backend,
+        ...payosTasks(config.baseUrl),
         odooCall: execution.call,
         odooCheckpointSettings: execution.checkpoint,
         odooRestoreSettings: execution.restore,

@@ -130,7 +130,7 @@ export function NotificationsScreen() {
           ))}
           {load.nextAfter !== null && (
             <Pressable accessibilityRole="button" style={shared.secondaryButton} onPress={more}>
-              <Text style={shared.secondaryButtonText}>{t("notifications.more")}</Text>
+              <Text style={shared.secondaryButtonText}>{t("more")}</Text>
             </Pressable>
           )}
         </ScrollView>

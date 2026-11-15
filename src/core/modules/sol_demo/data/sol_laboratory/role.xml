@@ -87,6 +87,15 @@
                 ref('sol_commerce.permission_revenue_report_read_all'),
                 ref('sol_commerce.permission_receivable_report_read_all'),
                 ref('sol_commerce.permission_cash_flow_report_read_all'),
+                ref('sol_commerce.permission_order_read_all'),
+                ref('sol_commerce.permission_order_sample_read_all'),
+                ref('sol_commerce.permission_invoice_adjustment_read_all'),
+                ref('sol_commerce.permission_invoice_adjustment_create_all'),
+                ref('sol_commerce.permission_invoice_adjustment_edit_all'),
+                ref('sol_commerce.permission_invoice_adjustment_delete_all'),
+                ref('sol_commerce.permission_reconciliation_day_read_all'),
+                ref('sol_commerce.permission_reconciliation_day_create_all'),
+                ref('sol_commerce.permission_reconciliation_day_edit_all'),
             ])]"
         />
     </record>
@@ -171,11 +180,16 @@
                 ref('sol_laboratory.permission_machine_booking_read_own_department'),
                 ref('sol_laboratory.permission_machine_booking_create_own_department'),
                 ref('sol_laboratory.permission_machine_booking_edit_own_department'),
+                ref('sol_laboratory.permission_overtime_read_own_department'),
+                ref('sol_laboratory.permission_overtime_create_own_department'),
+                ref('sol_laboratory.permission_overtime_edit_own_department'),
+                ref('sol_laboratory.permission_overtime_delete_own_department'),
                 ref('sol_laboratory.permission_subcontract_dispatch_read_all'),
                 ref('sol_laboratory.permission_subcontract_dispatch_create_all'),
                 ref('sol_laboratory.permission_subcontract_dispatch_edit_all'),
                 ref('sol_laboratory.permission_laboratory_file_version_sign_all'),
                 ref('sol_laboratory.permission_signature_read_all'),
+                ref('sol_laboratory.permission_testing_statistic_read_own_department'),
             ])]"
         />
     </record>
@@ -200,8 +214,12 @@
                 ref('sol_laboratory.permission_report_template_version_read_all'),
                 ref('sol_laboratory.permission_change_request_read_all'),
                 ref('sol_laboratory.permission_change_request_sign_all'),
+                ref('sol_laboratory.permission_testing_statistic_read_all'),
                 ref('sol_inventory.permission_purchase_order_read_all'),
                 ref('sol_inventory.permission_purchase_order_sign_all'),
+                ref('sol_laboratory.permission_parameter_authorization_create_all'),
+                ref('sol_laboratory.permission_parameter_authorization_edit_all'),
+                ref('sol_laboratory.permission_parameter_authorization_delete_all'),
             ])]"
         />
     </record>

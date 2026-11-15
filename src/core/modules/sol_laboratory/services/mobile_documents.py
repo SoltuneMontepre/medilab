@@ -2,6 +2,7 @@
 
 from odoo.api import Environment
 from odoo.exceptions import MissingError
+from odoo.models import BaseModel
 
 from odoo.addons.sol_laboratory.constants.medilab_mobile import CONVERSATION_SCREEN, WEB_SCREEN
 from odoo.addons.sol_laboratory.constants.models import MODEL_DISCUSS_CHANNEL
@@ -11,6 +12,23 @@ from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
 
 def not_found(env: Environment) -> MissingError:
     return MissingError(env._("Nothing is found at this address."))
+
+
+def readable[RecordT: BaseModel](records: RecordT) -> RecordT:
+    """The record once it exists and the person may read it; one they may not read is not found."""
+    record = records.exists()
+    if not record:
+        raise not_found(records.env)
+    record.check_access("read")
+    return record
+
+
+def document_screen(records) -> str:
+    """The app's screen for documents of the model; web for a model the app has no screen of its own for."""
+    screen = getattr(records, "_mobile_screen", None)
+    if screen:
+        return screen
+    return CONVERSATION_SCREEN if records._name == MODEL_DISCUSS_CHANNEL else WEB_SCREEN
 
 
 def document_values(env: Environment, model: str, record_id: int):
@@ -27,9 +45,7 @@ def document_values(env: Environment, model: str, record_id: int):
         raise not_found(env)
     record.check_access("read")
     code = document_code(record)
-    screen = getattr(record, "_mobile_screen", None)
-    if not screen:
-        screen = CONVERSATION_SCREEN if model == MODEL_DISCUSS_CHANNEL else WEB_SCREEN
+    screen = document_screen(record)
     # The web client reads a model name without a dot only with its m- prefix.
     web_path = model if "." in model else f"m-{model}"
     return {

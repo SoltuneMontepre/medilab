@@ -5,6 +5,7 @@ namespace: medilab
 resources:
   - config.yaml
   - filestore.yaml
+  - payos.yaml
   - upgrade-rehearsal.yaml
   - pre-sync-backup.yaml
   - upgrade-job.yaml
@@ -33,4 +34,4 @@ configMapGenerator:
       disableNameSuffixHash: true
 images:
   - name: ghcr.io/soltunemontepre/medilab
-    newTag: sha-326f76d56e64664e366feb760d1b5f61e8026008
+    newTag: sha-8e77c802c800f0f254886e64a231567f6ecc7e6d

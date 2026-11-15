@@ -2,8 +2,7 @@ from odoo.tests import tagged
 
 from .schedule_race_case import ROOM_STEP, ScheduleRaceCase
 from .scheduling_committed_case import HEAD_PERMISSIONS
-from .scheduling_concurrency_case import NAMES
-from odoo.addons.sol_laboratory.constants.models import MODEL_SAMPLE_TEST
+from odoo.addons.sol_laboratory.constants.models import MODEL_MACHINE_BOOKING, MODEL_SAMPLE_TEST
 
 CANCEL_PERMISSIONS = (*HEAD_PERMISSIONS, "sample_test_edit_all")
 
@@ -12,32 +11,34 @@ CANCEL_PERMISSIONS = (*HEAD_PERMISSIONS, "sample_test_edit_all")
 class TestScheduleRaces(ScheduleRaceCase):
     """A schedule racing another scheduling action, the other action's transaction overlapping the schedule's."""
 
-    def test_two_tests_placed_in_one_machine_slot_at_once_leave_one_booking_there(self):
+    def test_two_tests_scheduled_at_once_take_the_two_slots_of_the_plan(self):
         self.committed(lambda env: (self.assign(env, 0), self.assign(env, 1)))
-        before = self.committed(self.graph)
 
-        self.race(self.schedule(0), self.schedule(1), boundaries={"first": self.placing(0), "second": self.placing(1)})
+        outcomes = self.race(
+            self.schedule(0), self.schedule(1), boundaries={"first": self.placing(0), "second": self.placing(1)}
+        )
 
-        reached = self.race_evidence["reached"]
-        slots = {name: (reached[name][2][0]["machine_id"], reached[name][2][0]["starts_at"]) for name in NAMES}
-        self.assertEqual(slots["first"], slots["second"], "Both transactions must place their test in the same slot")
-        machine_id, start = slots["first"]
-        self.assertEqual(machine_id, self.machine_id)
+        self.assertEqual({outcome[0] for outcome in outcomes.values()}, {"committed"}, outcomes)
         graph = self.committed(self.graph)
-        holders = [
-            booking
-            for booking in graph["bookings"]
-            if booking["status"] == "scheduled" and booking["starts_at"] == start
-        ]
-        self.assertEqual(len(holders), 1, graph)
-        winner = self.person_ids.index(holders[0]["person_id"][0])
-        loser = 1 - winner
-        self.assert_won_first_time(NAMES[winner])
-        self.assert_consistent_booking(graph, winner)
-        [holder_event] = holders[0]["room_event_ids"]
-        self.assert_lost_slot(NAMES[loser], loser, start, holder_event, before)
+        first, second = sorted(graph["bookings"], key=lambda booking: booking["starts_at"])
+        self.assertEqual((first["status"], second["status"]), ("scheduled", "scheduled"), graph)
+        self.assertLessEqual(first["ends_at"], second["starts_at"], graph)
+        for number in (0, 1):
+            self.assert_consistent_booking(graph, number)
+        self.committed(self.assert_committed_invariants)
 
-    def test_a_reassignment_committed_while_the_first_assignee_schedules_hands_the_new_booking_over(self):
+    def proposed(self):
+        """The proposed bookings of the fixture's first test, as (person id or False)."""
+        return self.committed(
+            lambda env: [
+                booking.person_id.id
+                for booking in env[MODEL_MACHINE_BOOKING].search(
+                    [("sample_test_id", "=", self.test_ids[0]), ("status", "=", "proposed")]
+                )
+            ]
+        )
+
+    def test_a_reassignment_committed_while_the_first_assignee_schedules_returns_the_booking_to_the_plan(self):
         self.committed(lambda env: (self.grant(env, 1, HEAD_PERMISSIONS), self.assign(env, 0)))
 
         outcomes = self.race(
@@ -54,9 +55,9 @@ class TestScheduleRaces(ScheduleRaceCase):
         task, test = graph["tasks"][0], graph["tests"][0]
         self.assertEqual((task["status"], task["assignee_id"][0]), ("assigned", self.person_ids[1]))
         self.assertEqual(test["status"], "assigned")
-        [booking] = graph["bookings"]
-        self.assertEqual((booking["status"], booking["person_id"][0]), ("scheduled", self.person_ids[1]))
-        self.assertEqual([event["user_id"][0] for event in graph["events"]], [self.user_ids[1]] * 2)
+        self.assertFalse(graph["bookings"])
+        self.assertFalse(graph["events"])
+        self.assertEqual(self.proposed(), [self.person_ids[1]])
         self.committed(self.assert_committed_invariants)
 
     def test_a_schedule_racing_a_committed_reassignment_is_refused_and_books_nothing(self):
@@ -115,11 +116,12 @@ class TestScheduleRaces(ScheduleRaceCase):
         self.assert_retried_on_conflict("first")
         graph = self.committed(self.graph)
         self.assertEqual((graph["tests"][0]["status"], graph["tasks"][0]["status"]), ("cancelled", "cancelled"))
-        self.assertFalse(graph["bookings"])
+        # The proposed booking left the plan with the test.
+        self.assertEqual([booking["status"] for booking in graph["bookings"]], ["cancelled"])
         self.assertFalse(graph["events"])
         self.committed(self.assert_committed_invariants)
 
-    def test_a_return_to_the_queue_after_a_committed_schedule_cancels_the_new_booking(self):
+    def test_a_return_to_the_queue_after_a_committed_schedule_returns_the_booking_to_the_plan(self):
         self.committed(lambda env: (self.grant(env, 1, HEAD_PERMISSIONS), self.assign(env, 0)))
 
         outcomes = self.race(
@@ -137,9 +139,9 @@ class TestScheduleRaces(ScheduleRaceCase):
         self.assertEqual((task["status"], task["assignee_id"]), ("open", False))
         self.assertEqual((task["planned_start"], task["planned_end"]), (False, False))
         self.assertEqual(test["status"], "waiting")
-        [booking] = graph["bookings"]
-        self.assertEqual(booking["status"], "cancelled")
+        self.assertFalse(graph["bookings"])
         self.assertFalse(graph["events"])
+        self.assertEqual(self.proposed(), [False])
         self.committed(self.assert_committed_invariants)
 
     def test_a_schedule_racing_a_committed_return_to_the_queue_is_refused_and_books_nothing(self):
