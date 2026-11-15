@@ -1182,8 +1182,10 @@ model SampleTest {
   cancel_reason       String?          @db.Text
   /// Head of department who cancelled the test.
   cancelled_by_id     Int?
-  /// When the test was cancelled.
+  /// When the test was cancelled, also with its sample or request.
   cancelled_at        DateTime?
+  /// When its result was first approved; kept when the result is sent back or corrected.
+  first_approved_at   DateTime?
   /// True when no in-house slot lets the test finish by its due date, so the scheduler suggests outsourcing it.
   outsourcing_suggested Boolean        @default(false)
   /// True when the test's planned finish is after its internal due date, no free slot lets it finish by then, or its booking or the booking before it on the machine overran; its tester and head of department are told when it turns true, then daily until it is false.

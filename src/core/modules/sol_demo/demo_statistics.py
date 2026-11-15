@@ -9,11 +9,11 @@ from odoo.addons.sol_laboratory.constants.models import MODEL_MACHINE_BOOKING
 SAMPLE_NAMES = tuple(f"Nước suối Green Farm 500 mL lô {lot}" for lot in range(1001, 1006))
 
 
-def seed_figures(env):
-    """Lead tests for the testing figures of last month and this month, in UTC. Last month Chemistry approves one test
-    on time, cancels one and leaves one overdue; Microbiology approves one late. A Microbiology result rejected last
-    month is retested and approved on time this month. Each test tested has a booking."""
-    if env.ref("sol_demo.demo_test_request_figures", raise_if_not_found=False):
+def seed_statistics(env):
+    """Lead tests for the testing statistics of last month and this month, in UTC. Last month Chemistry approves one
+    test on time, cancels one and leaves one overdue; Microbiology approves one late. A Microbiology result rejected
+    last month is retested and approved on time this month. Each test tested has a booking."""
+    if env.ref("sol_demo.demo_test_request_statistics", raise_if_not_found=False):
         return
     tester = env.ref("sol_demo.demo_res_users_tester")
     head = env.ref("sol_demo.demo_res_users_head_of_department")
@@ -40,13 +40,19 @@ def seed_figures(env):
     last_due = last_month + timedelta(days=9, hours=15)
     # The dates below are set in the database; pending writes would overwrite them.
     env.flush_all()
-    # (test, received, due date, cancellation)
-    for test, received, due, cancelled_at in (
-        (on_time, last_month + timedelta(days=2), last_due, None),
-        (late, last_month + timedelta(days=3), last_due, None),
-        (cancelled, last_month + timedelta(days=3), last_due, last_month + timedelta(days=5)),
-        (overdue, last_month + timedelta(days=4), last_due, None),
-        (retested, last_month + timedelta(days=20), this_month + timedelta(days=5), None),
+    # (test, received, due date, cancellation, first approval)
+    for test, received, due, cancelled_at, approved_at in (
+        (on_time, last_month + timedelta(days=2), last_due, None, last_month + timedelta(days=6)),
+        (late, last_month + timedelta(days=3), last_due, None, last_month + timedelta(days=12)),
+        (cancelled, last_month + timedelta(days=3), last_due, last_month + timedelta(days=5), None),
+        (overdue, last_month + timedelta(days=4), last_due, None, None),
+        (
+            retested,
+            last_month + timedelta(days=20),
+            this_month + timedelta(days=5),
+            None,
+            this_month + timedelta(hours=3),
+        ),
     ):
         env.cr.execute(
             SQL(
@@ -58,10 +64,21 @@ def seed_figures(env):
         )
         env.cr.execute(
             SQL(
-                "UPDATE medilab_sample_test SET create_date = %s, due_date = %s, cancelled_at = %s WHERE id = %s",
+                "UPDATE medilab_sample_test SET create_date = %s, due_date = %s, cancelled_at = %s, "
+                "first_approved_at = %s WHERE id = %s",
                 received,
                 due,
                 cancelled_at,
+                approved_at,
+                test.id,
+            )
+        )
+        # The test reached its department when its sample was received.
+        env.cr.execute(
+            SQL(
+                "UPDATE medilab_task SET create_date = %s WHERE document_model = 'medilab.sample.test' "
+                "AND document_id = %s",
+                received,
                 test.id,
             )
         )
@@ -105,9 +122,9 @@ def seed_figures(env):
 
     env["ir.model.data"]._update_xmlids(
         [
-            {"xml_id": "sol_demo.demo_test_request_figures", "record": request, "noupdate": True},
-            {"xml_id": "sol_demo.demo_sample_test_figures_late", "record": late, "noupdate": True},
-            {"xml_id": "sol_demo.demo_sample_test_figures_overdue", "record": overdue, "noupdate": True},
+            {"xml_id": "sol_demo.demo_test_request_statistics", "record": request, "noupdate": True},
+            {"xml_id": "sol_demo.demo_sample_test_statistics_late", "record": late, "noupdate": True},
+            {"xml_id": "sol_demo.demo_sample_test_statistics_overdue", "record": overdue, "noupdate": True},
         ]
     )
 

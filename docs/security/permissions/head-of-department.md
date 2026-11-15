@@ -8,9 +8,9 @@ The head of department runs the testing work of their department: its tasks, mac
 - Still reads a task they moved to another department, but no longer changes it; its form stays open, read-only.
 - Reads, creates, moves and cancels the machine bookings of their department's tasks.
 
-## Testing figures
+## Testing statistics
 
-- Reads the testing figures of their department only; the Lab Head reads those of every department.
+- Reads the testing statistics of their department only; the Lab Head reads those of every department.
 
 ## Related documents
 
