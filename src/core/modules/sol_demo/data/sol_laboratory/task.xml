@@ -226,4 +226,20 @@
         <field name="document_model">medilab.sample.test</field>
         <field name="document_id" eval="ref('demo_sample_test_lead_room_waiting')" />
     </record>
+    <record id="demo_task_sample_test_label_scan_lead" model="medilab.task">
+        <field name="type_id" ref="sol_laboratory.task_type_sample_test" />
+        <field name="name" model="medilab.sample" eval="obj(ref('demo_sample_label_scan')).code + ': Lead (Pb)'" />
+        <field name="department_id" ref="demo_hr_department_chemistry" />
+        <field name="deadline" eval="(DateTime.now() + relativedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="document_model">medilab.sample.test</field>
+        <field name="document_id" eval="ref('demo_sample_test_label_scan_lead')" />
+    </record>
+    <record id="demo_task_sample_test_label_scan_coliforms" model="medilab.task">
+        <field name="type_id" ref="sol_laboratory.task_type_sample_test" />
+        <field name="name" model="medilab.sample" eval="obj(ref('demo_sample_label_scan')).code + ': Coliforms'" />
+        <field name="department_id" ref="demo_hr_department_microbiology" />
+        <field name="deadline" eval="(DateTime.now() + relativedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="document_model">medilab.sample.test</field>
+        <field name="document_id" eval="ref('demo_sample_test_label_scan_coliforms')" />
+    </record>
 </odoo>

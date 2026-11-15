@@ -190,3 +190,31 @@ export interface Assignees {
   people: { id: number; name: string; department: string }[];
   departments: { id: number; name: string }[];
 }
+
+/** A sample's handover to the person's department and its receipt. */
+export interface SampleHandover {
+  department: string;
+  received_at: string | null;
+  received_by: string;
+  can_receive: boolean;
+}
+
+/** A sample as the person may see it, with its handover to their department and the unassigned testing tasks of
+ * their department on it. The customer is null for a person who may not see it, such as a tester. */
+export interface Sample {
+  id: number;
+  code: string;
+  status: string;
+  sample_type: string;
+  physical_state: string;
+  form: string;
+  container: string;
+  received_at: string | null;
+  storage_location: string;
+  sampling_location: string;
+  note: string;
+  customer: string | null;
+  customer_sample_name: string | null;
+  handover: SampleHandover | null;
+  tasks: Task[];
+}

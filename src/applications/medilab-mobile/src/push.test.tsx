@@ -19,7 +19,7 @@ const SIGNED_IN = {
   body: { key: "device-key", device: { id: 7, name: "Pixel 8", platform: "android", status: "signed_in" } },
 };
 const SAMPLE_PUSH = { data: { event: "sample.insufficient", model: "medilab.sample", id: "12", code: "MS-2026-0042" } };
-const OPENED = { pathname: "/documents/[model]/[id]", params: { model: "medilab.sample", id: "12" } };
+const OPENED = { pathname: "/samples/[id]", params: { id: "12" } };
 
 function renderOpener() {
   return render(
@@ -78,7 +78,7 @@ describe("Pushes", () => {
 
     await waitFor(() => expect(router.push).toHaveBeenCalledWith(OPENED));
     await act(async () => messaging.tapPush({ data: { ...SAMPLE_PUSH.data, id: "13" } }));
-    expect(router.push).toHaveBeenLastCalledWith({ ...OPENED, params: { model: "medilab.sample", id: "13" } });
+    expect(router.push).toHaveBeenLastCalledWith({ ...OPENED, params: { id: "13" } });
     await act(async () => messaging.tapPush({ data: {} }));
     expect(router.push).toHaveBeenCalledTimes(2);
   });
