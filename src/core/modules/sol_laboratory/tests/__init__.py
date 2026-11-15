@@ -201,6 +201,7 @@ from . import (
     test_sample_photo,
     test_sample_reception,
     test_sample_test_cancellation,
+    test_sample_test_claiming,
     test_sample_test_due_date,
     test_sample_test_due_date_change,
     test_sample_type_applicability,

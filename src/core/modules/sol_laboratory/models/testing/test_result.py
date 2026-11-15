@@ -316,10 +316,11 @@ class TestResult(models.Model, TestResultBase):
             if vals.get("replaces_id"):
                 # A new version is the system's copy of the result it replaces, not a measurement.
                 continue
-            test = self.env[MODEL_SAMPLE_TEST].browse(vals.get("sample_test_id")).sudo()
+            test = self.env[MODEL_SAMPLE_TEST].browse(vals.get("sample_test_id"))
             refusal = test._result_refusal()
             if refusal:
                 raise UserError(refusal)
+            test = test.sudo()
             # A retest becomes the reported result; the earlier ones stay on record.
             vals["is_reported"] = True
             reported = test.result_ids.filtered("is_reported")
