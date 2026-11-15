@@ -27,8 +27,13 @@ env:
     id: "sign-in-submit"
 - extendedWaitUntil:
     visible:
-      id: "home-scan"
+      id: "home"
     timeout: 60000
+- scrollUntilVisible:
+    element:
+      id: "home-scan"
+    direction: DOWN
+    timeout: 30000
 - tapOn:
     id: "home-scan"
 # Android asks for the camera; the flow types the label's code instead.
@@ -65,9 +70,14 @@ env:
 - repeat:
     while:
       notVisible:
-        id: "home-todo"
+        id: "home"
     commands:
       - back
+- scrollUntilVisible:
+    element:
+      id: "home-todo"
+    direction: DOWN
+    timeout: 30000
 - tapOn:
     id: "home-todo"
 - scrollUntilVisible:

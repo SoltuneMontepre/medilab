@@ -55,7 +55,7 @@ export function HomeScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.screen}>
+    <SafeAreaView style={styles.screen} testID="home">
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={shared.title}>MediLab</Text>
         <Text style={shared.detail}>{t("home.server", { url: session.serverUrl })}</Text>
