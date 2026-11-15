@@ -6,6 +6,7 @@ from . import (
     chemical,
     customer,
     location,
+    location_unavailability,
     machine,
     machine_method,
     machine_service,

@@ -28,6 +28,7 @@ from . import (
     res_groups,
     res_partner,
     res_users,
+    resource_calendar_leaves,
     role,
     role_grant,
     scheduled_job,

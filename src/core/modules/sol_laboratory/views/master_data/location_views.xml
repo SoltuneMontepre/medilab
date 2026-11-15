@@ -55,6 +55,15 @@
                         <page string="On the Map" name="position" invisible="not parent_id">
                             <widget name="location_map" of_parent="1" />
                         </page>
+                        <page string="Unavailable Times" name="unavailability" invisible="not is_bookable">
+                            <field name="unavailability_ids">
+                                <list editable="bottom">
+                                    <field name="starts_at" />
+                                    <field name="ends_at" />
+                                    <field name="reason" />
+                                </list>
+                            </field>
+                        </page>
                         <page string="Locations Inside" name="children" invisible="not child_ids">
                             <field name="child_ids" readonly="1">
                                 <list>

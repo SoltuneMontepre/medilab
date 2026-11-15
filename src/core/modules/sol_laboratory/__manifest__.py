@@ -122,6 +122,7 @@
         "views/testing/test_report_portal_templates.xml",
         "views/testing/test_result_reject_views.xml",
         "views/testing/test_result_views.xml",
+        "views/testing/test_result_interruption_views.xml",
         "views/testing/testing_statistic_views.xml",
         "views/system/menus.xml",
     ],
