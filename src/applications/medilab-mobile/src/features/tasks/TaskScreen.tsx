@@ -1,18 +1,21 @@
 import { router, useLocalSearchParams } from "expo-router";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { ApiError, type TaskDetail } from "../../api";
-import { useReloadOnReturn } from "../../focus";
+import type { SampleTest, TaskDetail } from "../../api";
 import type { MessageKey } from "../../i18n";
-import { failed, useLoad, type Load } from "../../load";
+import { failed, type Load } from "../../load";
 import { useT } from "../../locale";
+import { useRecord } from "../../record";
 import { useSession } from "../../session";
 import { colors, styles as shared } from "../../styles";
+import { TestFacts } from "../bench/TestFacts";
+import { ActionProblem } from "../connection/ActionProblem";
 import { LoadNotice } from "../connection/LoadNotice";
-import { Unreachable } from "../connection/Unreachable";
-import { documentPath } from "../documents/documentPath";
+import { documentPath, resultPath, SAMPLE_TEST_MODEL, sampleTestPath } from "../documents/documentPath";
+import { Button } from "../shared/Button";
+import { Facts, type Fact } from "../shared/Facts";
 import { formatMoment, statusKey } from "./taskText";
 
 type Action = "claim" | "start" | "done";
@@ -32,15 +35,7 @@ export function TaskScreen() {
   const [problem, setProblem] = useState<{ action: Action; load: Load<never> } | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const read = useCallback(async () => {
-    const task = await call<TaskDetail>(`/tasks/${encodeURIComponent(id)}`);
-    if (!task) {
-      throw new ApiError("not_found", "", 404);
-    }
-    return task;
-  }, [call, id]);
-  const { load, setLoad, reload } = useLoad(read);
-  useReloadOnReturn(reload);
+  const { load, setLoad, reload } = useRecord<TaskDetail>(`/tasks/${encodeURIComponent(id)}`);
 
   async function act(action: Action) {
     setProblem(null);
@@ -58,17 +53,16 @@ export function TaskScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.screen}>
+    <SafeAreaView style={shared.page}>
       <LoadNotice load={load} gone={t("task.gone")} onRetry={reload} />
       {load.state === "ready" && (
-        <ScrollView contentContainerStyle={styles.content}>
+        <ScrollView contentContainerStyle={shared.pageContent}>
           <Details task={load.value} />
-          {problem?.load.state === "unreachable" && <Unreachable onRetry={() => act(problem.action)} />}
-          {(problem?.load.state === "refused" || problem?.load.state === "gone") && (
-            <Text accessibilityRole="alert" style={shared.error}>
-              {problem.load.state === "refused" ? problem.load.message : t("task.gone")}
-            </Text>
-          )}
+          <ActionProblem
+            problem={problem?.load ?? null}
+            gone={t("task.gone")}
+            onRetry={() => problem && act(problem.action)}
+          />
           {ACTIONS.filter(({ action }) => load.value.actions[action]).map(({ action, label }) => (
             <Pressable
               key={action}
@@ -110,7 +104,7 @@ export function TaskScreen() {
 function Details({ task }: Readonly<{ task: TaskDetail }>) {
   const t = useT();
   const { language } = useSession();
-  const facts: [MessageKey, string][] = [
+  const facts: Fact[] = [
     ["task.type", task.type],
     ["task.statusLabel", t(statusKey(task.status))],
     ["task.deadlineLabel", task.deadline ? formatMoment(task.deadline, language) : ""],
@@ -127,18 +121,12 @@ function Details({ task }: Readonly<{ task: TaskDetail }>) {
     <>
       <Text style={shared.title}>{task.name}</Text>
       {!!task.document?.code && <Text style={shared.detail}>{task.document.code}</Text>}
-      {facts
-        .filter(([, value]) => value)
-        .map(([label, value]) => (
-          <View key={label} style={styles.fact}>
-            <Text style={shared.detail}>{t(label)}</Text>
-            <Text style={shared.label}>{value}</Text>
-          </View>
-        ))}
-      {!!task.note && <Text style={styles.note}>{task.note}</Text>}
+      <Facts facts={facts} />
+      {task.document?.model === SAMPLE_TEST_MODEL && <BenchTest id={task.document.id} />}
+      {!!task.note && <Text style={shared.text}>{task.note}</Text>}
       {task.steps.length > 0 && (
-        <View style={styles.steps}>
-          <Text accessibilityRole="header" style={styles.heading}>
+        <View style={shared.section}>
+          <Text accessibilityRole="header" style={shared.heading}>
             {t("task.steps")}
           </Text>
           {task.steps.map((step, index) => (
@@ -146,7 +134,7 @@ function Details({ task }: Readonly<{ task: TaskDetail }>) {
               <Text style={shared.label}>
                 {t("task.step", { number: index + 1, minutes: step.minutes })}
               </Text>
-              <Text style={styles.note}>{step.instruction}</Text>
+              <Text style={shared.text}>{step.instruction}</Text>
               {!!step.note && <Text style={shared.detail}>{step.note}</Text>}
               {!!step.location && <Text style={shared.detail}>{t("task.stepLocation", { location: step.location })}</Text>}
             </View>
@@ -157,12 +145,28 @@ function Details({ task }: Readonly<{ task: TaskDetail }>) {
   );
 }
 
+/** The sample test a testing task opens: its lab code, parameter, way of testing and due date, and the way to enter or
+ * open its result. */
+function BenchTest({ id }: Readonly<{ id: number }>) {
+  const t = useT();
+  const { load } = useRecord<SampleTest>(`/sample-tests/${id}`);
+  if (load.state !== "ready") {
+    return null;
+  }
+  const test = load.value;
+  return (
+    <View style={shared.section}>
+      <TestFacts test={test} />
+      {test.can_enter_result && (
+        <Button label={t("test.enterResult")} onPress={() => router.push(sampleTestPath(id))} primary />
+      )}
+      {!test.can_enter_result && test.result && (
+        <Button label={t("test.openResult")} onPress={() => test.result && router.push(resultPath(test.result.id))} />
+      )}
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
-  screen: { flex: 1, padding: 24 },
-  content: { gap: 12, paddingBottom: 24 },
-  fact: { gap: 2 },
-  note: { fontSize: 15, color: colors.text },
-  steps: { gap: 8 },
-  heading: { fontSize: 18, fontWeight: "600", color: colors.text },
   step: { borderLeftWidth: 3, borderLeftColor: colors.border, paddingLeft: 12, gap: 2 },
 });

@@ -50,15 +50,9 @@ class LaboratoryFileVersionSigning(models.Model, LaboratoryFileVersionSigningBas
         signature_ids = fields.Many2many(MODEL_SIGNATURE, compute="_compute_signature_ids", string="Signatures")
 
     def _compute_signature_ids(self):
-        # The form lists them only to people who read signatures.
-        signatures = (
-            self.env[MODEL_SIGNATURE]
-            .sudo()
-            .search([("document_model", "=", self._name), ("document_id", "in", self.ids)])
-        )
-        by_version = signatures.grouped("document_id")
+        signatures = self._approval_signatures()
         for version in self:
-            version.signature_ids = by_version.get(version.id, signatures.browse()).with_env(self.env)
+            version.signature_ids = signatures.get(version.id, self.env[MODEL_SIGNATURE])
 
     def write(self, vals):
         if "approval_state" in vals and not self.env.su:

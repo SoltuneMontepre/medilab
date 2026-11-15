@@ -236,7 +236,7 @@ class TestScheduleIntegrity(SchedulingCase, LocationCase):
             lambda: own.write({"starts_at": MONDAY + timedelta(hours=2)}),
             "Only a scheduled booking can be moved",
         )
-        self.assert_refused_unchanged(booking, own.action_cancel, "Only a queued or scheduled booking can be cancelled")
+        self.assert_refused_unchanged(booking, own.action_cancel, "Only a scheduled booking can be cancelled")
 
     def test_a_running_booking_cannot_be_moved_or_cancelled(self):
         booking = self.scheduled()
@@ -247,4 +247,4 @@ class TestScheduleIntegrity(SchedulingCase, LocationCase):
             lambda: own.write({"starts_at": MONDAY + timedelta(hours=2)}),
             "Only a scheduled booking can be moved",
         )
-        self.assert_refused_unchanged(booking, own.action_cancel, "Only a queued or scheduled booking can be cancelled")
+        self.assert_refused_unchanged(booking, own.action_cancel, "Only a scheduled booking can be cancelled")

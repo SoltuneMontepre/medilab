@@ -82,7 +82,7 @@ describe("WF-03 current permission and validation boundaries", () => {
       scheduleThroughScreen();
       openBooking(test).should("have.property", "status", "scheduled");
       scheduleState(test).then((before) => {
-        callRefused("medilab.sample.test", "action_schedule", [[test.id]]).should("match", /is already waiting for or holding a machine\.$/);
+        callRefused("medilab.sample.test", "action_schedule", [[test.id]]).should("match", /is already holding a machine\.$/);
         scheduleState(test).should("deep.equal", before);
         expect(before.bookings).to.have.length(1);
         expect(before.events).to.have.length(2);
@@ -90,15 +90,21 @@ describe("WF-03 current permission and validation boundaries", () => {
     });
   });
 
-  it("TC-F24-03 baseline hides Schedule when no machine can finish before the due date and refuses RPC", () => {
+  it("TC-WF03-E2 partial flags a test no machine can finish before its due date, hides Schedule and refuses RPC", () => {
     assignedChromium({ days: 0 }).then(({ test }) => {
       cy.signInAs("tester");
       cy.openRecord(test);
+      cy.get(".o_form_view .o_field_widget[name=status]").should("be.visible");
+      cy.get(".o_form_view .alert.alert-warning").should("be.visible");
       cy.get(".o_statusbar_buttons button[name=action_schedule]").should("not.exist");
       scheduleState(test).then((before) => {
         callRefused("medilab.sample.test", "action_schedule", [[test.id]]).should("match", /^No machine can finish .+ before its due date\.$/);
         scheduleState(test).should("deep.equal", before);
-        expect(before.bookings).to.be.empty;
+        expect(before.tests[0].status).to.equal("assigned");
+        expect(before.tests[0].outsourcing_suggested).to.equal(true);
+        expect(before.tests[0].parameter_method_id).to.equal(false);
+        // The department's plan holds the test without a slot, and nothing is reserved.
+        expect(before.bookings.filter((booking) => booking.status !== "proposed" || booking.starts_at)).to.be.empty;
         expect(before.events).to.be.empty;
       });
     });

@@ -5,16 +5,7 @@ from odoo.addons.sol_laboratory.constants.medilab_mobile import ALREADY_CLAIMED,
 from odoo.addons.sol_laboratory.constants.models import MODEL_TASK
 from odoo.addons.sol_laboratory.services.laboratory_api import laboratory_api_route
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
-from odoo.addons.sol_laboratory.services.mobile_documents import not_found
-
-
-def readable_task(env, task_id):
-    """The task of the id once the person may read it; one they may not read is not found."""
-    task = env[MODEL_TASK].browse(task_id).exists()
-    if not task:
-        raise not_found(env)
-    task.check_access("read")
-    return task
+from odoo.addons.sol_laboratory.services.mobile_documents import not_found, readable
 
 
 class LaboratoryApiTasks(http.Controller):
@@ -43,7 +34,7 @@ class LaboratoryApiTasks(http.Controller):
 
     @laboratory_api_route("/tasks/<int:task_id>", ["GET"], "getTask", permission=False)
     def get_task(self, device, _body, task_id):
-        return readable_task(device.env, task_id)._mobile_detail()
+        return readable(device.env[MODEL_TASK].browse(task_id))._mobile_detail()
 
     @laboratory_api_route("/tasks/<int:task_id>/claim", ["POST"], "claimTask", permission=False)
     def claim_task(self, device, _body, task_id):
@@ -62,19 +53,19 @@ class LaboratoryApiTasks(http.Controller):
 
     @laboratory_api_route("/tasks/<int:task_id>/start", ["POST"], "startTask", permission=False)
     def start_task(self, device, _body, task_id):
-        task = readable_task(device.env, task_id)
+        task = readable(device.env[MODEL_TASK].browse(task_id))
         task.action_start()
         return task._mobile_detail()
 
     @laboratory_api_route("/tasks/<int:task_id>/done", ["POST"], "finishTask", permission=False)
     def finish_task(self, device, _body, task_id):
-        task = readable_task(device.env, task_id)
+        task = readable(device.env[MODEL_TASK].browse(task_id))
         task.action_done()
         return task._mobile_detail()
 
     @laboratory_api_route("/tasks/<int:task_id>/assign", ["POST"], "assignTask", permission=False)
     def assign_task(self, device, body, task_id):
-        task = readable_task(device.env, task_id)
+        task = readable(device.env[MODEL_TASK].browse(task_id))
         task._assign_from_phone(body)
         # A task moved to someone the person no longer sees is not read back.
         if not task._filtered_access("read"):

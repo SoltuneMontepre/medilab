@@ -146,7 +146,7 @@ Once a document is signed it cannot be modified. Because approving is signing (S
 
 - From the first signature the document is read-only for everyone, including administrators.
 - **Until the document's process is completed**, a signer at any level, the final level included, may withdraw their own signature, even after losing the permission or the role of their level, once every signature given after theirs is withdrawn. This reopens the document for editing; every withdrawal is audited and the document must be signed again from that level.
-- **After the document's process is completed**, such as a completed result or order or an issued report, it cannot be reopened. A person allowed to edit that document type raises a **change request** with the proposed changes and reason. This applies to results, reports, quotations and orders.
+- **After the document's process is completed**, such as a completed result or order or an issued report, it cannot be reopened. The one exception is the Lab Head's rejection of an unissued report, which withdraws the approvals of the results it names. A person allowed to edit that document type raises a **change request** with the proposed changes and reason. This applies to results, reports, quotations and orders.
 - The change request follows an approval chain defined per document type, for example the Head of Sales for a quotation or the Head of Department for a test result and the Lab Head for a test report.
 - When the chain approves, create an unsigned **new version** linked to the unchanged signed one, and sign the new version again. Results mark the previous version replaced at correction. An issued report remains the issued version until its signed replacement is issued; [linked result and report corrections](laboratory_module/overview.md#reports-and-change-requests) wait for all required result approvals and use a fresh report signing task.
 - Anyone concerned can follow the status of the change request: requested, approved, rejected, applied.
@@ -157,7 +157,7 @@ Acceptance criteria:
 - No screen or API changes a signed document.
 - A signer can withdraw their signature while no signature given after theirs stands and the document's process is not completed, and the document is then editable again.
 - A signer who has lost the permission or the role of their level can still withdraw.
-- After the document's process is completed, no signature can be withdrawn.
+- After the document's process is completed, no signature can be withdrawn, except the result approvals a Lab Head's rejection of an unissued report names.
 - An approved change request produces a new version linked to the old one; the old one stays readable.
 - The status of a change request is visible to the requester at every step.
 
@@ -259,7 +259,7 @@ Tasks with a planned time, bookings of sample tests and resource reservations ap
 - **Recipients.** For each event, the administrator chooses who is notified: the holders of one or more roles, the people of one or more departments, or both, on top of the person the event concerns directly, such as the assignee of a task.
 - **Notifications.** Every notification belongs to an event, such as a booking reminder, and has a key, so the same notification is never created twice. It is delivered once on each channel the person keeps on for that event. Mandatory events, such as a password reset or a payment receipt, cannot be turned off.
 - **Own actions.** Nobody is notified of their own action, such as claiming a task. Task notifications are for events that need attention, such as a task assigned to the person by someone else or a task coming due; a person has at most one open notice per task and event type.
-- **Mandatory notices to customers.** A notice of a mandatory event always stays in the customer portal, whatever happens to its email. It tracks three states: shown in the portal; its email, queued, sent, delivered, failed temporarily or bounced; and seen, from the first time the customer opens it in the portal. Whether the business it is about is done, such as an invoice paid or a report downloaded, stays the state of that document. Every delivery attempt and bounce is recorded in the audit trail.
+- **Mandatory notices to customers.** A notice of a mandatory event always stays in the customer portal, whatever happens to its email. It tracks three states: shown in the portal; its email, queued, sent, delivered, failed temporarily or bounced; and seen, from the first time the customer opens it in the portal. Whether the business it is about is done, such as an invoice paid or a report downloaded, stays the state of that document. Every delivery attempt and bounce is recorded in the audit trail. A notice is shown only to the contact it was sent to, in that contact's own portal; another contact or user of the same business does not see it. Seen belongs to each recipient, not to the business, and opening a notice again does not change when it was first seen. A contact without a portal account has nobody who can open the notice in the portal, and the failure to reach it is recorded in the audit trail.
 - **Undelivered email.** An email that failed temporarily is sent again up to a number of times at an interval an administrator sets, 3 times 1 hour apart by default; when the last attempt fails, it is handled as a permanent bounce. A permanent bounce flags the address, and no automatic email goes to it until Sales corrects it. The salesperson of the order the notice is about, or otherwise the Sales queue, gets a task to contact the customer, done when the customer sees the notice or the salesperson records how they reached the customer. A corrected address receives a confirmation link; emails to it resume once the customer opens the link, and until then the customer gets notices in the portal only.
 - **Built on Odoo Discuss.** A notification is an Odoo message (`mail.message`) on the document it is about, and an event is a message subtype (`mail.message.subtype`). In the application it is an Odoo inbox notification, shown as a pop-up through the bus. By e-mail it goes through Odoo's mail queue, which retries it. On Medilab Mobile it is a push through Firebase Cloud Messaging, which the push job sends and retries.
 - **Channel choices.** A person's choice of channels extends Odoo's own notification preference on their user: Odoo's choice, in the application or by e-mail, is their default for every event, and their preferences add a choice per event and supported channel. A push to Medilab Mobile is on for every event once the person has a signed-in phone, until they turn it off for the event; a mandatory event's push cannot be turned off.
@@ -267,14 +267,14 @@ Tasks with a planned time, bookings of sample tests and resource reservations ap
 Acceptance criteria:
 
 - A booking appears on its tester's personal schedule and on each required resource schedule; a booking without a machine needs no machine reservation.
-- A slot of the proposed plan has no calendar event and reserves nothing until it is accepted.
+- A slot of the proposed plan has no calendar event and reserves nothing until the head approves it.
 - Two bookings share a machine interval only when they use the same testing method, have exactly that interval and the capacity has room; a booking cannot join an interval that has started.
 - A location booking appears on the calendars of its organiser and attendees and on the location's schedule.
 - Booking a location for a time that overlaps another of its bookings is refused with a message naming the existing booking.
 - A location that is not bookable cannot be chosen for a booking.
 - A reminder arrives 15 minutes before a booking starts, once on each selected channel.
 - Moving a booking cancels only unsent old reminders, schedules the new one and sends immediately if already inside the reminder window. Reprocessing the same update creates no duplicate.
-- A booking cannot be accepted or moved into an unavailable interval of any required location.
+- A booking cannot be approved or moved into an unavailable interval of any required location.
 - Moving a booking to a slot with a busy tester, machine or required location is refused without changing any reservation.
 - A booking's location reservation cannot be dragged or deleted on its own; a permitted move of the booking updates its event and every reservation together.
 - Cancelling a not-started booking releases all its reservations and returns its sample test to the queue without cancelling it; ordinary move and cancel actions on a started booking are refused.

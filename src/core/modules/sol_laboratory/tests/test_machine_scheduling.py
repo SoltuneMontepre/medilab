@@ -10,7 +10,6 @@ from odoo.tools import mute_logger
 
 from .scheduling_case import MONDAY, SchedulingCase
 from odoo.addons.sol_laboratory.constants.models import (
-    MODEL_MACHINE_BOOKING,
     MODEL_PARAMETER_METHOD,
     MODEL_SUBCONTRACTOR,
     MODEL_TASK,
@@ -22,17 +21,10 @@ SLOT = timedelta(minutes=15)
 @freeze_time(MONDAY)
 @tagged("post_install", "-at_install")
 class TestMachineScheduling(SchedulingCase):
-    def queue(self, test, person, queued_at):
-        task = self.testing_task(test, person)
-        return self.env[MODEL_MACHINE_BOOKING].create(
-            {
-                "machine_id": self.fast.id,
-                "sample_test_id": test.id,
-                "task_id": task.id,
-                "person_id": person.id,
-                "queued_at": queued_at,
-            }
-        )
+    def propose(self, test, person):
+        """The booking the department's plan proposes for the test once it is assigned to the person."""
+        self.testing_task(test, person)
+        return test.booking_ids
 
     def test_a_forty_minute_run_takes_three_slots(self):
         self.testing_task(self.test, self.tester)
@@ -48,12 +40,11 @@ class TestMachineScheduling(SchedulingCase):
         self.assertEqual(self.test.recommended_method_id, self.pair)
         self.assertEqual((self.test.recommended_start, self.test.recommended_end), (MONDAY, MONDAY + 3 * SLOT))
 
-    def test_an_urgent_test_gets_the_next_free_slot_before_one_that_queued_earlier(self):
+    def test_a_test_due_soon_gets_the_next_free_slot_before_one_that_arrived_earlier(self):
         self.slow.status = "under_repair"
-        earlier = self.queue(self.new_test(), self.tester, MONDAY - timedelta(hours=1))
-        urgent = self.queue(self.new_test(MONDAY + timedelta(hours=8)), self.other_tester, MONDAY)
-        self.env[MODEL_MACHINE_BOOKING]._process_queue()
-        self.assertEqual(urgent.starts_at, MONDAY)
+        earlier = self.propose(self.new_test(), self.tester)
+        due_soon = self.propose(self.new_test(MONDAY + timedelta(hours=8)), self.other_tester)
+        self.assertEqual(due_soon.starts_at, MONDAY)
         self.assertEqual(earlier.starts_at, MONDAY + 3 * SLOT)
 
     def test_bookings_of_one_machine_never_overlap(self):
@@ -73,7 +64,7 @@ class TestMachineScheduling(SchedulingCase):
         booking = self.schedule(self.test, self.tester)
         self.fast.status = "under_repair"
         self.assertEqual(booking.machine_id, self.slow)
-        self.assertEqual(booking.status, "scheduled")
+        self.assertEqual(booking.status, "proposed")
         self.assertEqual((booking.starts_at, booking.ends_at), (MONDAY, MONDAY + 5 * SLOT))
         other = self.new_test()
         self.testing_task(other, self.other_tester)
@@ -116,18 +107,19 @@ class TestMachineScheduling(SchedulingCase):
         self.assertEqual((task.planned_start, task.planned_end), (booking.starts_at, booking.ends_at))
         self.assertFalse(self.env["calendar.event"].search([("medilab_task_id", "=", task.id)]))
 
-    def test_cancelling_a_booking_gives_its_slot_to_the_queue(self):
+    def test_cancelling_a_booking_gives_its_slot_to_the_plan_and_returns_its_test_to_it(self):
         self.slow.status = "under_repair"
         self.testing_task(self.test, self.tester)
         booking = self.schedule(self.test, self.tester)
-        waiting = self.queue(self.new_test(MONDAY + timedelta(minutes=50)), self.other_tester, MONDAY)
-        self.env[MODEL_MACHINE_BOOKING]._process_queue()
-        self.assertEqual(waiting.status, "queued")
+        waiting = self.propose(self.new_test(MONDAY + timedelta(minutes=50)), self.other_tester)
+        self.assertEqual((waiting.status, waiting.starts_at), ("proposed", False))
         self.assertTrue(waiting.sample_test_id.outsourcing_suggested)
         booking.with_user(self.tester.user_id).action_cancel()
         self.assertFalse(booking.calendar_event_id)
-        self.assertEqual((waiting.status, waiting.starts_at), ("scheduled", MONDAY))
+        self.assertEqual((waiting.status, waiting.starts_at), ("proposed", MONDAY))
         self.assertFalse(waiting.sample_test_id.outsourcing_suggested)
+        returned = self.test.booking_ids - booking
+        self.assertEqual((returned.status, returned.starts_at), ("proposed", MONDAY + 3 * SLOT))
 
     def test_moving_the_calendar_event_moves_the_booking_only_to_a_free_slot(self):
         self.slow.status = "under_repair"
@@ -148,8 +140,7 @@ class TestMachineScheduling(SchedulingCase):
         self.slow.status = "under_repair"
         self.testing_task(self.test, self.tester)
         booking = self.schedule(self.test, self.tester)
-        waiting = self.queue(self.new_test(MONDAY + timedelta(minutes=50)), self.other_tester, MONDAY)
-        self.env[MODEL_MACHINE_BOOKING]._process_queue()
+        waiting = self.propose(self.new_test(MONDAY + timedelta(minutes=50)), self.other_tester)
         own = booking.with_user(self.tester.user_id)
         for view_type in ("form", "calendar"):
             self.assertNotIn('edit="False"', own.get_view(view_type=view_type)["arch"])
@@ -158,7 +149,7 @@ class TestMachineScheduling(SchedulingCase):
         own.write({"starts_at": later, "ends_at": later + SLOT})
 
         self.assertEqual((booking.starts_at, booking.ends_at), (later, later + 3 * SLOT))
-        self.assertEqual((waiting.status, waiting.starts_at), ("scheduled", MONDAY))
+        self.assertEqual((waiting.status, waiting.starts_at), ("proposed", MONDAY))
         with self.assertRaises(AccessError):
             own.write({"person_id": self.other_tester.id})
         own.action_start()
@@ -207,4 +198,4 @@ class TestMachineScheduling(SchedulingCase):
         self.fast.service_ids = [
             Command.create({"kind": "calibration", "service_date": "2025-10-10", "next_due_date": "2026-10-10"})
         ]
-        self.assertEqual((booking.machine_id, booking.status), (self.slow, "scheduled"))
+        self.assertEqual((booking.machine_id, booking.status), (self.slow, "proposed"))
