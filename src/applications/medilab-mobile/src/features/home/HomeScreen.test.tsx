@@ -62,6 +62,14 @@ describe("HomeScreen", () => {
     expect(screen.queryByRole("header", { name: "Kế hoạch hôm nay" })).toBeNull();
   });
 
+  it("opens the scanner of sample labels", async () => {
+    fakeMediLab(...home());
+    await renderApp();
+
+    await fireEvent.press(await screen.findByRole("button", { name: "Quét tem mẫu" }));
+    expect(router.push).toHaveBeenCalledWith("/scan");
+  });
+
   it("offers to create a task only with the permission", async () => {
     fakeMediLab(...home({ create_tasks: true, assign_tasks: true }));
     await renderApp();

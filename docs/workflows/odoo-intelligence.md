@@ -53,7 +53,11 @@ Blocking LSP operations run in worker threads so MCP cancellation and disconnect
 
 The MCP tools and the editor's native LSP run separate OdooLS processes on the same `odools.toml`. Cursor Agent and the Cursor editor are configured and checked separately: the Agent uses MCP, the editor uses the extension.
 
-Start a new session after setup; existing agents keep their processes and configurations. Cursor's project configuration also holds the Doppler, SonarQube, Postgres and Context7 servers of `.mcp.json`. Codex's project configuration holds only Odoo and Serena and leaves global MCP definitions alone.
+Start a new session after setup; existing agents keep their processes and configurations. Cursor's project configuration also holds the Doppler, SonarQube, Postgres, Context7 and diagram servers of `.mcp.json`. Codex's project configuration holds only Odoo and Serena and leaves global MCP definitions alone.
+
+### Diagram servers
+
+`filesystem`, `drawio`, `plantuml-js` and `plantuml-infobip` start through npx. `plantuml-java` runs the jar that `task ai:plantuml` builds with Java 21 or newer from a pinned commit of [plantuml/plantuml-mcp](https://github.com/plantuml/plantuml-mcp) into `.local/plantuml-mcp`, because upstream publishes no jar. `plantuml-infobip` renders through the PlantUML server that `task ai:plantuml-server` starts in the local container engine on `127.0.0.1:8090`; the server connects without it, and only rendering fails. Start a new session after either task.
 
 ### Database access
 

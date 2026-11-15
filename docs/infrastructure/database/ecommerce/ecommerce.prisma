@@ -199,7 +199,7 @@ model Product {
   type           String          @db.VarChar
   /// Short unique code of a package; a parameter product uses its parameter's code.
   default_code   String?         @unique @db.VarChar
-  /// Catalog price of one test or of the whole package, excluding VAT.
+  /// Catalog price in force today of one test or of the whole package, excluding VAT, kept from the product's price periods.
   list_price     Decimal         @db.Decimal
   /// True when the product can be sold.
   sale_ok        Boolean         @default(true)
@@ -211,6 +211,8 @@ model Product {
   parameter      TestParameter?  @relation(fields: [parameter_id], references: [id], onDelete: Restrict)
   /// Taxes added to the price on quotations and invoices.
   taxes          ProductTax[]
+  /// The product's price over time.
+  prices         ProductPrice[]
   /// The parts of a package, one combo per parameter.
   combos         PackageCombo[]
   /// Combo items that include the product.
@@ -223,6 +225,25 @@ model Product {
   template_lines OrderTemplateLine[]
 
   @@map("product_template")
+}
+
+/// The catalog price of a parameter or package product for a period (Giá Theo Kỳ). The periods of one product do not overlap; valid_until is empty or not before valid_from; list_price is not negative.
+model ProductPrice {
+  /// Row identifier.
+  id          Int       @id @default(autoincrement())
+  /// The parameter or package product the price is for.
+  product_id  Int
+  /// Price of one test or of the whole package for the period, excluding VAT.
+  list_price  Decimal   @db.Decimal
+  /// First day the price applies.
+  valid_from  DateTime  @db.Date
+  /// Last day the price applies; empty when it applies until further notice.
+  valid_until DateTime? @db.Date
+  /// The product.
+  product     Product   @relation(fields: [product_id], references: [id], onDelete: Cascade)
+
+  @@index([product_id, valid_from])
+  @@map("medilab_product_price")
 }
 
 /// Odoo's tax (account.tax), shown with the columns this module uses: a tax added to prices, such as VAT 10% or not subject to VAT.

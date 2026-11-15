@@ -8,9 +8,9 @@
 - An order can mix package lines and single parameter lines.
 - A package is not a quotation template. A template is a saved order a returning customer reuses to create the next order faster; it has no price of its own.
 - Sales maintains customers. An order keeps the customer's requested date and the committed return date Sales promises on the quotation, by default the requested date when the laboratory can meet it and otherwise the estimate. Only Sales changes the committed date, with the customer's agreement. Each sample test has an internal due date; the customer sees the requested and committed dates, never an internal due date.
-- Each line records its sample type and quantity, with a chosen or default way for every parameter. Accepted ways change only through a revised quotation and customer agreement.
+- Each line records its sample type and quantity, with a chosen or default way for every parameter. Accepted methods change only through a revised quotation and customer agreement; who performs a test, a department or a subcontractor, is internal and never shown to the customer.
 - Sampling requirements calculate expected sample counts, containers and amounts. Confirming creates the request, expected samples and their sample tests; collection staff record the actual handover, including extra samples and excess material, for customer confirmation. Testing stays within the agreed scope: what is not tested stays with the sample and is returned only when the customer asks.
-- From confirmation, an order's customer, prices, validity date, parameters and ways change only through a revised quotation the customer accepts. A confirmed order needs no further approval; only a quotation above the Head of Sales's thresholds is approved, before it is sent.
+- From confirmation, an order's customer, prices, validity date, parameters and methods change only through a revised quotation the customer accepts. A confirmed order needs no further approval; only a quotation above the Head of Sales's thresholds is approved, before it is sent.
 - A customer can cancel an order until it is confirmed; after that the customer can only request cancellation. Sales decides it before the samples are collected; once they are collected, cancelling goes through a change request the Head of Sales approves.
 
 ## Related documents

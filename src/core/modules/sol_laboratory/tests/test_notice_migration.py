@@ -5,7 +5,7 @@ from odoo.tests import TransactionCase, tagged
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_MAIL_MESSAGE, MODEL_MAIL_NOTIFICATION
 
-POST_MIGRATE = Path(__file__).resolve().parents[1] / "migrations" / "20.0.1.36.0" / "post-migrate.py"
+POST_MIGRATE = Path(__file__).resolve().parents[1] / "migrations" / "20.0.1.37.0" / "post-migrate.py"
 # load_script names the module, and so the script's logger, after its second argument.
 MIGRATION_LOGGER = "post_migrate"
 
@@ -50,7 +50,7 @@ class TestNoticeMigration(TransactionCase):
         cls.before = {item.id: (item.notification_type, item.notification_status, item.is_read) for item in cls.all}
 
     def migrate(self):
-        load_script(str(POST_MIGRATE), "post_migrate").migrate(self.env.cr, "20.0.1.35.0")
+        load_script(str(POST_MIGRATE), "post_migrate").migrate(self.env.cr, "20.0.1.36.0")
         self.env.invalidate_all()
 
     def test_a_notice_in_a_portal_inbox_keeps_showing_in_the_portal(self):
