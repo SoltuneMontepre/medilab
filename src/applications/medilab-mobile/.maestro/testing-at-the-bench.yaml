@@ -15,9 +15,11 @@ env:
     visible: "Connect"
     timeout: 60000
 - openLink: exp+medilab-mobile://expo-development-client/?url=${METRO_URL}
+# On its first start the development build covers the app with its developer menu.
 - extendedWaitUntil:
-    visible: "English"
+    visible: 'Continue|English'
     timeout: 300000
+- waitForAnimationToEnd
 - tapOn:
     text: "Continue"
     optional: true
