@@ -55,13 +55,7 @@ def seed_results(env):
     retest = _enter(env, tester, _test(retested, lead), value_text="Not detected", conclusion="pass")
     retest.with_context(lang="vi_VN").value_text = "Không phát hiện"
     waiting_result = _test(waiting, lead).result_ids
-    # Only the assignee of a testing task enters its result, so the head of department takes this one over.
-    _test(by_head, lead)._testing_task().with_user(head).write(
-        {
-            "assignee_id": env.ref("sol_demo.demo_person_head_of_department").id,
-            "reassign_reason": "The head of department measures this sample.",
-        }
-    )
+    _hand_to_head(env, _test(by_head, lead))
     head_result = _enter(env, head, _test(by_head, lead), value=0.006, conclusion="pass")
     head_result.with_user(head).action_sign()
 
@@ -177,6 +171,16 @@ def _receive(env, request):
 
 def _test(sample, parameter):
     return sample.test_ids.filtered(lambda test: test.parameter_id == parameter)
+
+
+def _hand_to_head(env, test):
+    """Give the test's testing task to the head of department, as only its assignee enters the result."""
+    test._testing_task().with_user(env.ref("sol_demo.demo_res_users_head_of_department")).write(
+        {
+            "assignee_id": env.ref("sol_demo.demo_person_head_of_department").id,
+            "reassign_reason": "The head of department measures this sample.",
+        }
+    )
 
 
 def _enter(env, user, test, conclusion: str | None = None, **values):

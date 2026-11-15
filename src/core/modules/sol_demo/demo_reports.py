@@ -4,7 +4,7 @@ from datetime import timedelta
 from odoo import fields
 
 from .demo_report_templates import prepare_report, report_templates_seeded
-from .demo_results import _enter, _received_request, _test
+from .demo_results import _enter, _hand_to_head, _received_request, _test
 from odoo.addons.sol_laboratory.constants.models import MODEL_TEST_REPORT
 
 REJECTION = "Lead in sample 1 reads above last month's blank; check the digestion blank and measure again."
@@ -98,7 +98,10 @@ def _approve_all(env, request, cancelled=(), by_head=()):
                 test.with_user(head).action_cancel("Too little sample was left for pH after the lead digestion.")
                 continue
             value = 0.004 if test.parameter_id == env.ref("sol_demo.demo_test_parameter_lead") else 7.2
-            entrant = head if (index, test.parameter_id) in by_head else tester
+            entrant = tester
+            if (index, test.parameter_id) in by_head:
+                entrant = head
+                _hand_to_head(env, test)
             result = _enter(env, entrant, test, value=value, conclusion="pass")
             result.with_user(entrant).action_sign()
             result.with_user(head).action_sign()
