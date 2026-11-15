@@ -10,6 +10,7 @@ from odoo.addons.sol_laboratory.constants.laboratory_files import INVALID_REQUES
 from odoo.addons.sol_laboratory.constants.medilab_mobile import ACTION_REFUSED, ALREADY_CLAIMED
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_DEPARTMENT,
+    MODEL_PARAMETER_AUTHORIZATION,
     MODEL_PARAMETER_METHOD,
     MODEL_PERMISSION,
     MODEL_PERSON,
@@ -48,6 +49,17 @@ class TestMedilabMobileSamples(LaboratoryApiCase, RequestCase):
         cls.chemist = cls.department_person("Nguyen Van An", "an.scan", cls.department)
         cls.second_chemist = cls.department_person("Pham Thi Dung", "dung.scan", cls.department)
         cls.microbiologist = cls.department_person("Tran Thi Binh", "binh.scan", cls.microbiology)
+        # The Lab Head authorizes the chemists for lead and the microbiologist for coliforms.
+        cls.env[MODEL_PARAMETER_AUTHORIZATION].create(
+            [
+                {"person_id": person.id, "parameter_id": parameter.id}
+                for person, parameter in (
+                    (cls.chemist, cls.parameter),
+                    (cls.second_chemist, cls.parameter),
+                    (cls.microbiologist, coliforms),
+                )
+            ]
+        )
         physics = cls.env[MODEL_DEPARTMENT].create({"name": "Physics"})
         cls.physicist = cls.department_person("Le Van Cuong", "cuong.scan", physics)
         cls.receptionist = cls.department_person(

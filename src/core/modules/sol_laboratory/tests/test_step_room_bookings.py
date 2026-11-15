@@ -117,7 +117,9 @@ class TestStepRoomBookings(SchedulingCase, LocationCase):
     def test_a_machine_becoming_unavailable_reschedules_the_room_bookings(self):
         booking = self.scheduled()
         self.fast.status = "under_repair"
-        self.assertEqual((booking.machine_id, booking.starts_at), (self.slow, MONDAY))
+        self.assertEqual((booking.status, booking.machine_id, booking.starts_at), ("proposed", self.slow, MONDAY))
+        self.assertFalse(booking.room_event_ids)
+        booking.with_user(self.tester.user_id).action_accept()
         self.assertEqual(len(booking.room_event_ids), 2)
 
     def test_a_room_booking_follows_its_machine_booking_only(self):

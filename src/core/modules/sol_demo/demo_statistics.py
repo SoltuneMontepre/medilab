@@ -113,7 +113,6 @@ def seed_statistics(env):
                 "sample_test_id": test.id,
                 "task_id": test._latest_testing_task().id,
                 "person_id": person.id,
-                "queued_at": start - timedelta(days=1),
                 "starts_at": start,
                 "ends_at": start + timedelta(minutes=45),
                 "status": "done",

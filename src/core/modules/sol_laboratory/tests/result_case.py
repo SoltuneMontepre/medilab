@@ -97,6 +97,10 @@ class ResultCase(SchedulingCase):
             .create({"sample_test_id": test.id, "value": 0.008, **values})
         )
 
+    def take_task(self, person):
+        """The test's testing task moved to the person, so that they enter its result."""
+        self.task.write({"assignee_id": person.id, "reassign_reason": "Measured by another person."})
+
     @classmethod
     def send(cls, result, person=None):
         cls.as_person(result, person or cls.tester).action_sign()

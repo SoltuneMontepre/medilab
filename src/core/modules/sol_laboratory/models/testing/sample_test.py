@@ -113,8 +113,6 @@ class SampleTest(models.Model, SampleTestBase):
         # When the test's result was first approved; empty until then, and kept when the result is sent back or
         # corrected.
         first_approved_at = fields.Datetime(readonly=True, copy=False)
-        # True when the due date is within the urgency threshold.
-        is_urgent = fields.Boolean(string="Urgent", compute="_compute_is_urgent")
         # The parameter's subcontracted ways of testing whose subcontractor can be chosen, shown as the alternatives of
         # an outsourcing suggestion.
         subcontracted_method_ids = fields.Many2many(
@@ -143,13 +141,13 @@ class SampleTest(models.Model, SampleTestBase):
             string="Dispatches",
             readonly=True,
         )
-        # The way of testing the scheduler recommends to the assignee of the test's testing task.
+        # The way of testing of the slot the department's plan proposes for the test.
         recommended_method_id = fields.Many2one(MODEL_PARAMETER_METHOD, compute="_compute_recommendation")
-        # The machine the scheduler recommends.
+        # The machine of the proposed slot; empty when the way needs none.
         recommended_machine_id = fields.Many2one(MODEL_MACHINE, compute="_compute_recommendation")
-        # Start of the free slot the scheduler recommends.
+        # Start of the proposed slot.
         recommended_start = fields.Datetime(compute="_compute_recommendation")
-        # End of the free slot the scheduler recommends.
+        # End of the proposed slot.
         recommended_end = fields.Datetime(compute="_compute_recommendation")
 
     _quantity_positive = models.Constraint("CHECK(quantity >= 1)", "A parameter is tested at least once on a sample.")
@@ -214,11 +212,6 @@ class SampleTest(models.Model, SampleTestBase):
                 ("status", "not in", FINISHED_STATUSES),
             ]
         )._refresh_accreditation()
-
-    def _compute_is_urgent(self):
-        until = self.env[MODEL_MACHINE_BOOKING]._urgent_until()
-        for test in self:
-            test.is_urgent = bool(test.due_date) and test.due_date <= until
 
     @api.constrains("parameter_method_id", "sample_id")
     def _check_way_applies(self):
@@ -288,8 +281,9 @@ class SampleTest(models.Model, SampleTestBase):
             test.can_enter_result = not test._result_refusal()
 
     def _result_refusal(self):
-        """Why no result can be entered for the test now; empty when one can. An outsourced test takes results once
-        its dispatch is sent, and its subcontractor's result waiting to be sent comes before any other."""
+        """Why no result can be entered for the test now; empty when one can. A test the laboratory measures takes
+        results only from the person who claimed its testing task. An outsourced test takes results once its dispatch
+        is sent, and its subcontractor's result waiting to be sent comes before any other."""
         self.ensure_one()
         test = self.sudo()
         if test.status not in MEASURABLE_STATUSES or test.sample_id.status not in OPEN_SAMPLE_STATUSES:
@@ -299,7 +293,10 @@ class SampleTest(models.Model, SampleTestBase):
                 test.display_name,
             )
         if test.status != "outsourced":
-            return ""
+            assignee = test._testing_task().assignee_id
+            if self.env.su or (assignee and assignee == self.env[MODEL_PERSON]._current()):
+                return ""
+            return self.env._("Claim the testing task of %s before entering its result.", test.display_name)
         if not test.dispatch_ids.filtered(lambda dispatch: dispatch.status in SENT_STATUSES):
             return self.env._("Send %s to its subcontractor before entering its result.", test.display_name)
         if test.result_ids.filtered(
@@ -312,24 +309,31 @@ class SampleTest(models.Model, SampleTestBase):
             )
         return ""
 
+    def _comparison_requested(self):
+        """Whether its results are assessed against the sample's regulation: the regulation limits its parameter on some
+        sample type. An empty test has none."""
+        return self.parameter_id in self.sudo().sample_id.regulation_id.limit_ids.parameter_id
+
+    def _proposed_booking(self):
+        """The test's proposed booking that has a slot in its department's plan."""
+        self.ensure_one()
+        return self.sudo().booking_ids.filtered(
+            lambda booking: booking.status == "proposed" and bool(booking.starts_at)
+        )[:1]
+
     def _compute_recommendation(self):
-        bookings = self.env[MODEL_MACHINE_BOOKING]
         for test in self:
-            found = None
-            task = test._testing_task() if test.status in OPEN_STATUSES else None
-            if task and task.assignee_id and not test.sudo().booking_ids._open():
-                found = bookings._recommend(test, task.assignee_id, task.department_id)
-            if not found:
+            proposal = test._proposed_booking() if test.status in OPEN_STATUSES else None
+            if not proposal:
                 test.recommended_method_id = False
                 test.recommended_machine_id = False
                 test.recommended_start = False
                 test.recommended_end = False
                 continue
-            way, machine, start, length = found
-            test.recommended_method_id = way
-            test.recommended_machine_id = machine
-            test.recommended_start = start
-            test.recommended_end = start + length
+            test.recommended_method_id = proposal._proposed_way()
+            test.recommended_machine_id = proposal.machine_id
+            test.recommended_start = proposal.starts_at
+            test.recommended_end = proposal.ends_at
 
     def _testing_task(self):
         self.ensure_one()
@@ -372,30 +376,22 @@ class SampleTest(models.Model, SampleTestBase):
             task.write({"status": "assigned" if task.assignee_id else "open", "done_at": False})
 
     def action_schedule(self):
-        """Queue each test for the machine the scheduler recommends, then give the queue its slots.
+        """Accept the slot the department's plan proposes for each test, recalculated first.
 
-        The assignee of the testing task schedules their own test; anyone else needs the permission to create bookings.
+        The assignee of the testing task accepts it; anyone else needs the permission to edit bookings.
         """
         person = self.env[MODEL_PERSON]._current()
         for test in self:
             task = test._testing_task()
-            if test.sudo().booking_ids._open():
-                raise UserError(self.env._("%s is already waiting for or holding a machine.", test.display_name))
+            if test.sudo().booking_ids.filtered(lambda booking: booking.status in ("scheduled", "in_progress")):
+                raise UserError(self.env._("%s is already holding a machine.", test.display_name))
             if not task.assignee_id:
                 raise UserError(self.env._("Assign %s to a person before scheduling it.", test.display_name))
-            if not test.recommended_machine_id:
+            self.env[MODEL_MACHINE_BOOKING]._plan(task.sudo().department_id)
+            proposal = test._proposed_booking()
+            if not proposal:
                 raise UserError(self.env._("No machine can finish %s before its due date.", test.display_name))
-            bookings = self.env[MODEL_MACHINE_BOOKING]
-            bookings = bookings.sudo() if person and task.assignee_id == person else bookings
-            bookings.create(
-                {
-                    "machine_id": test.recommended_machine_id.id,
-                    "sample_test_id": test.id,
-                    "task_id": task.id,
-                    "person_id": task.assignee_id.id,
-                }
-            )
-        self.env[MODEL_MACHINE_BOOKING]._process_queue()
+            (proposal if person and task.assignee_id == person else proposal.with_env(self.env)).action_accept()
 
     def action_enter_result(self):
         self.ensure_one()
@@ -459,8 +455,9 @@ class SampleTest(models.Model, SampleTestBase):
                 "emergency_outsource_reason": emergency_reason,
             }
         )
-        test._release_bookings()
         test._progress("outsourced")
+        # Once outsourced, the test leaves its department's plan.
+        test._release_bookings()
         dispatches = self.env[MODEL_SUBCONTRACT_DISPATCH]
         dispatch = dispatches.search(
             [("subcontractor_id", "=", way.subcontractor_id.id), ("status", "=", "draft")], order="id", limit=1
@@ -497,11 +494,11 @@ class SampleTest(models.Model, SampleTestBase):
         tests.sample_id._follow_tests()
 
     def _release_bookings(self):
-        """The tests leave the machines: their open bookings are cancelled and the queue gets the slots."""
+        """The tests leave the machines: their open bookings are cancelled and their departments' plans recalculated."""
         bookings = self.sudo().booking_ids._open()
         if bookings:
             bookings._set({"status": "cancelled"})
-            bookings._process_queue()
+            bookings._plan(bookings.department_id)
 
     def _work_status(self):
         """The status of the test while it is worked on: by the laboratory, or by the subcontractor of its way."""

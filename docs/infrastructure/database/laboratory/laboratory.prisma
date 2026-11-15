@@ -502,10 +502,10 @@ model Department {
   bookings          MachineBooking[]
   /// Plan revision moves the department's head approves.
   revision_moves    PlanRevisionMove[]
-  /// Planned OverTime of the department's testers.
-  overtimes         OverTime[]
   /// Locations the department uses.
   locations         Location[]
+  /// Planned OverTime of the department's testers.
+  overtimes         OverTime[]
 
   @@index([parent_id])
   @@map("hr_department")
@@ -561,7 +561,7 @@ model UnitCategory {
 /// How one parameter is tested with one method, by the laboratory or by a subcontractor, and the unit of its result.
 /// Active rows are unique on (parameter_id, method_id, COALESCE(subcontractor_id, 0)) WHERE active.
 /// Its default per sample type is set on its applicability rows (ParameterMethodSampleType).
-/// duration_minutes is above 0 when set, and capacity is at least 1 (check constraints).
+/// duration_minutes is not negative, empty or 0 meaning none, and capacity is at least 1 (check constraints).
 model ParameterMethod {
   /// Row identifier.
   id               Int             @id @default(autoincrement())
@@ -752,7 +752,7 @@ model Machine {
 }
 
 /// One calibration, maintenance or repair of a machine, done or planned. Only done records give the next calibration and maintenance dates.
-/// downtime_end is after downtime_start when both are set (check constraint).
+/// downtime_start and downtime_end are set together, and downtime_end is after downtime_start (check constraint).
 model MachineService {
   /// Row identifier.
   id           Int       @id @default(autoincrement())
@@ -1230,6 +1230,7 @@ model SampleTest {
 /// One version of one measurement of a sample test. Retests add results without being counted; the earlier ones are kept, ordered by when they were entered, and one per sample test is the reported result.
 /// A change request on a result whose process is completed creates a new row with the next version that replaces it; the signed row stays unchanged and is marked as replaced.
 /// At most one reported result per sample test among rows not replaced (partial unique index on sample_test_id where is_reported and not is_replaced).
+/// Partial unique index on created_by_device_id and idempotency_key where idempotency_key is set.
 model TestResult {
   /// Row identifier.
   id             Int              @id @default(autoincrement())
@@ -1287,6 +1288,10 @@ model TestResult {
   interruption_assessment String? @db.VarChar
   /// Why the sanity check found the value unusual when it was sent, shown to the approver; empty when nothing was found.
   check_warning  String?          @db.Text
+  /// The phone the result was entered on; empty for a result entered on the web.
+  created_by_device_id Int?
+  /// The Idempotency-Key the phone sent with the request that entered the result; empty when it sent none.
+  idempotency_key String?         @db.VarChar
   /// pass, fail or insufficient (insufficient basis), set by the tester for a requested comparison and required before the result is sent; empty outside it. A missing exact-type limit allows only insufficient. The system never infers it.
   conclusion     String?          @db.VarChar
   /// none, requested, approved or rejected: where the result stands in its approval chain, kept in step with its signatures. Approved and rejected are final; only the lab head's rejection of the report sends an approved result back to none. Only the system writes it, with is_reported, entered_by_id, entered_at and the version fields.
@@ -1325,6 +1330,8 @@ model TestResult {
   report_drafts  TestReportDraftResult[]
   /// The prepared report PDFs that print the result.
   report_candidates TestReportCandidateResult[]
+  /// The phone the result was entered on.
+  created_by_device LaboratoryDevice? @relation(fields: [created_by_device_id], references: [id], onDelete: SetNull)
 
   @@index([sample_test_id])
   @@index([booking_id])
@@ -1416,28 +1423,28 @@ model ParameterAuthorization {
   @@map("medilab_parameter_authorization")
 }
 
-/// Planned work outside normal hours that the head of department records for a tester, with an interval and a reason. The tester can be booked in it; machines and locations keep their own availability. The scheduler never creates, moves or changes it, and actual hours and payroll are not recorded. Who recorded it is Odoo's creation user.
-/// ends_at is after starts_at (check constraint).
+/// Planned work outside normal hours that the head of department records for a tester of their department, with an interval and a reason. The tester can be booked in it; machines and locations keep their own availability. The scheduler never creates, moves or changes it, and actual hours and payroll are not recorded. Who recorded it is Odoo's creation user.
+/// ends_at is after starts_at (check constraint). One person's OverTime intervals do not overlap (exclusion constraint on person_id and tsrange(starts_at, ends_at)).
 model OverTime {
   /// Row identifier.
-  id        Int      @id @default(autoincrement())
+  id            Int         @id @default(autoincrement())
   /// The tester who works the OverTime.
-  person_id Int
-  /// The tester's department, whose head records the OverTime.
-  department_id Int
+  person_id     Int
+  /// The tester's department, whose head records and changes the OverTime.
+  department_id Int?
   /// Start of the OverTime.
-  starts_at DateTime
+  starts_at     DateTime
   /// End of the OverTime.
-  ends_at   DateTime
+  ends_at       DateTime
   /// Why the OverTime is planned, such as urgent work that would otherwise miss its due date.
-  reason    String   @db.Text
+  reason        String      @db.Text
   /// The tester who works the OverTime.
-  person    Person   @relation(fields: [person_id], references: [id], onDelete: Restrict)
+  person        Person      @relation(fields: [person_id], references: [id], onDelete: Restrict)
   /// The tester's department.
-  department Department @relation(fields: [department_id], references: [id], onDelete: Restrict)
+  department    Department? @relation(fields: [department_id], references: [id], onDelete: SetNull)
 
   @@index([person_id, starts_at])
-  @@index([department_id, starts_at])
+  @@index([department_id])
   @@map("medilab_overtime")
 }
 
@@ -2788,7 +2795,7 @@ model Message {
   @@map("mail_message")
 }
 
-/// Odoo's notification (mail.notification), shown with the columns this schema uses and the column the laboratory adds: one message to one recipient, in their inbox or by e-mail.
+/// Odoo's notification (mail.notification), shown with the columns this schema uses and the columns the laboratory adds: one message to one recipient, in their inbox or by e-mail.
 /// The cleanup job removes read notifications after their retention period.
 model Notification {
   /// Row identifier.
@@ -2807,6 +2814,10 @@ model Notification {
   is_read             Boolean        @default(false)
   /// When the user read it.
   read_date           DateTime?
+  /// True when the notification shows in the recipient's customer portal: a mandatory event, or an event the customer chose to see there.
+  portal_visible      Boolean        @default(false)
+  /// When the recipient first opened the notification in the customer portal.
+  portal_seen_at      DateTime?
   /// The message notified.
   message             Message        @relation(fields: [mail_message_id], references: [id], onDelete: Cascade)
   /// Pushes of the notification to the user's mobile devices.
@@ -3277,6 +3288,8 @@ model LaboratoryDevice {
   signed_handover_records HandoverRecord[]
   /// Tasks created by hand on the phone.
   created_tasks Task[]
+  /// Results entered on the phone.
+  entered_results TestResult[]
 
   @@unique([user_id, client_uid])
   @@map("medilab_laboratory_device")

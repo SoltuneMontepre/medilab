@@ -25,7 +25,6 @@
         <field name="group_ids" eval="[Command.set([ref('demo_parameter_group_organophosphates')])]" />
         <field name="main_group_id" ref="demo_parameter_group_organophosphates" />
     </record>
-    <!-- No longer offered: the demo archives it. -->
     <record id="demo_test_parameter_cadmium" model="medilab.test.parameter">
         <field name="name">Cadmium (Cd)</field>
         <field name="group_ids" eval="[Command.set([ref('demo_parameter_group_heavy_metals')])]" />
@@ -33,6 +32,17 @@
     </record>
     <record id="demo_test_parameter_chromium_vi" model="medilab.test.parameter">
         <field name="name">Chromium (VI)</field>
+        <field name="group_ids" eval="[Command.set([ref('demo_parameter_group_heavy_metals')])]" />
+        <field name="main_group_id" ref="demo_parameter_group_heavy_metals" />
+    </record>
+    <record id="demo_test_parameter_arsenic" model="medilab.test.parameter">
+        <field name="name">Arsenic (As)</field>
+        <field name="group_ids" eval="[Command.set([ref('demo_parameter_group_heavy_metals')])]" />
+        <field name="main_group_id" ref="demo_parameter_group_heavy_metals" />
+    </record>
+    <!-- No longer offered: the demo archives it. -->
+    <record id="demo_test_parameter_mercury" model="medilab.test.parameter">
+        <field name="name">Mercury (Hg)</field>
         <field name="group_ids" eval="[Command.set([ref('demo_parameter_group_heavy_metals')])]" />
         <field name="main_group_id" ref="demo_parameter_group_heavy_metals" />
     </record>

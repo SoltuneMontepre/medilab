@@ -31,11 +31,17 @@ src/tests/
         catalog/sample-type-applicability/
         laboratory/accreditation-scope/
         laboratory/backup-signers/
+        laboratory/overtime/
         onboarding/master-data-staging/
         inventory/solution-preparation/
         theme/chatter-resize/
         theme/navbar-more-menu/
         laboratory/unlinked-users/
+        laboratory/shared-intervals/
+        ecommerce/mandatory-notices/
+        laboratory/department-plan/
+        laboratory/machine-conditions/
+        laboratory/interruptions/
         ecommerce/portal-language/
         ecommerce/portal-navigation/
         ecommerce/uninstall-warning/
@@ -108,15 +114,22 @@ Issue [#318](https://github.com/SoltuneMontepre/medilab/issues/318) tracks `TC-W
 | Prepare a solution from scanned bottles; verify the resulting stock movements and container. | [#181](https://github.com/SoltuneMontepre/medilab/issues/181) | `features/inventory/solution-preparation/` | `solution-preparation.cy.js` |
 | Resize and collapse the chatter that sits beside a form, and keep its width and state. | [#282](https://github.com/SoltuneMontepre/medilab/issues/282) | `features/theme/chatter-resize/` | `chatter-resize.cy.js` |
 | Move the menu bar sections that do not fit a narrow window into the More menu, in every app. | [#393](https://github.com/SoltuneMontepre/medilab/issues/393) | `features/theme/navbar-more-menu/` | `navbar-more-menu.cy.js` |
+| Move a booking into another sample's machine interval of the same method, which books its room once, and refuse a sample once the interval is full. | [#420](https://github.com/SoltuneMontepre/medilab/issues/420) | `features/laboratory/shared-intervals/` | `shared-intervals.cy.js` |
+| See that a booking whose end passed still holds its machine and puts the next booking on it at risk, which stays where it is. | [#424](https://github.com/SoltuneMontepre/medilab/issues/424) | `features/laboratory/machine-conditions/` | `machine-conditions.cy.js` |
+| Assess the interrupted result a machine failure keeps as usable, needing a retest or needing more sample, as the head of the department that tested it; the tester cannot. | [#425](https://github.com/SoltuneMontepre/medilab/issues/425) | `features/laboratory/interruptions/` | `interruptions.cy.js` |
 | Link an internal user that no person links to, and refuse creating one outside a person. | [#438](https://github.com/SoltuneMontepre/medilab/issues/438) | `features/laboratory/unlinked-users/` | `unlinked-users.cy.js` |
 | Give a backup the head of department's role until a date, who approves a result or sends one at a lower level in their own name. | [#430](https://github.com/SoltuneMontepre/medilab/issues/430) | `features/laboratory/backup-signers/` | `backup-signers.cy.js` |
+| Keep a mandatory notice in the portal of a customer whose email bounced, mark it seen when opened, and show it to no other customer. | [#436](https://github.com/SoltuneMontepre/medilab/issues/436) | `features/ecommerce/mandatory-notices/` | `mandatory-notices.cy.js` |
 | Open the testing statistics of a period: a head of department sees their department; the Lab Head compares departments and a department filter gives what its head sees. | [#440](https://github.com/SoltuneMontepre/medilab/issues/440) | `features/laboratory/testing-statistics/` | `testing-statistics.cy.js` |
+| Offer the head only people authorized for a testing task's parameter and refuse another, assign an authorized tester, and let only the lab head authorize a person. | [#421](https://github.com/SoltuneMontepre/medilab/issues/421) | `features/laboratory/parameter-authorization/` | `parameter-authorization.cy.js` |
+| Accept the booking the department's plan proposes, which reserves the machine and the calendar, and mark a test urgent with a reason. | [#422](https://github.com/SoltuneMontepre/medilab/issues/422) | `features/laboratory/department-plan/` | `department-plan.cy.js` |
 | Switch the portal language from the header and the account page, as a customer and as a visitor. | [#451](https://github.com/SoltuneMontepre/medilab/issues/451) | `features/ecommerce/portal-language/` | `portal-language.cy.js` |
 | Reach the catalog, My orders, Support and the account from the portal header, as a customer and as a visitor, and filter My orders. | [#452](https://github.com/SoltuneMontepre/medilab/issues/452), [#499](https://github.com/SoltuneMontepre/medilab/issues/499) | `features/ecommerce/portal-navigation/` | `portal-navigation.cy.js` |
 | Warn before uninstalling E-commerce that test requests keep their order's number, and not when Laboratory leaves with it. | [#439](https://github.com/SoltuneMontepre/medilab/issues/439) | `features/ecommerce/uninstall-warning/` | `uninstall-warning.cy.js` |
 | Revoke a phone signed in on Medilab Mobile from the back office; its key is refused at its next call and its push token is off. | [#514](https://github.com/SoltuneMontepre/medilab/issues/514) | `features/mobile/phone-revocation/` | `phone-revocation.cy.js` |
 | Claim a task from the queue on the phone; the web shows it claimed, and a second claim is told it is already claimed. | [#516](https://github.com/SoltuneMontepre/medilab/issues/516) | `features/mobile/tasks/` | `tasks.cy.js` |
 | Let a tester move their own booking and keep a moved task open for its head. | [#315](https://github.com/SoltuneMontepre/medilab/issues/315) | `features/laboratory/scheduling/` | `booking-adjustments.cy.js` |
+| Record planned OverTime for a tester as their head of department; the tester is booked in it only once it is recorded, and moving the booking leaves it. | [#426](https://github.com/SoltuneMontepre/medilab/issues/426) | `features/laboratory/overtime/` | `overtime.cy.js` |
 
 Solution-preparation scenarios follow their approved feature document and demo starting data. Reserving a directory does not settle the open requirements in that issue.
 
@@ -130,7 +143,7 @@ The [open-issue query](https://github.com/SoltuneMontepre/medilab/issues?q=is%3A
 | [#170](https://github.com/SoltuneMontepre/medilab/issues/170) | `flows/wf-07-laboratory-files/` | File/version history, downloads, conflicts and restore; the remaining large-file, deployed-concurrency and bucket-policy evidence stays with its staging and infrastructure checks. |
 | [#171](https://github.com/SoltuneMontepre/medilab/issues/171) | `flows/wf-07-laboratory-files/` | Online editing and saving, including WF-04-A8; callback HTTP, transaction and concurrency tests remain in the module suite. |
 | [#179](https://github.com/SoltuneMontepre/medilab/issues/179) | `flows/sf-07-priority-order/` | Changing and checking a due date, including SF-07-A3. |
-| [#184](https://github.com/SoltuneMontepre/medilab/issues/184) | `flows/wf-04-result-approval/` | Web verification that a mobile-signed result awaits the head of department; native screens and the Android emulator path belong to the mobile app suite. |
+| [#184](https://github.com/SoltuneMontepre/medilab/issues/184), [#518](https://github.com/SoltuneMontepre/medilab/issues/518) | `flows/wf-04-result-approval/`; `mobile-bench.cy.js` | Web verification that a mobile-signed result awaits the head of department with the tester's signature; native screens and the Android emulator path belong to the mobile app's Jest tests and Maestro flows. |
 | [#203](https://github.com/SoltuneMontepre/medilab/issues/203) | `flows/wf-07-laboratory-files/` | Real Document Server browser editing and service-down behavior; deployment, network, persistence, monitoring and licence gates keep their infrastructure ownership. |
 | [#220](https://github.com/SoltuneMontepre/medilab/issues/220) | `login.cy.js` | Reproduce and fix the existing wrong-password browser case. The other failures listed in the issue are Odoo module tests. |
 | [#431](https://github.com/SoltuneMontepre/medilab/issues/431) | `flows/wf-06-report-release/` | Editing, preparing and reviewing a report's PDF, WF-06-A5 and WF-06-E4, and the template versions an administrator sees. Preparing runs against a running editing service; without one, only the outage path runs. Template lifecycle, binding and callback rules remain in the module suite. |

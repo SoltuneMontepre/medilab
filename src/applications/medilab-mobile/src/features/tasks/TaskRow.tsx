@@ -18,7 +18,7 @@ export function TaskRow({ task, onPress }: Readonly<{ task: Task; onPress: () =>
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={[task.name, task.document?.code, t(statusKey(task.status)), whenText].filter(Boolean).join(", ")}
-      style={styles.item}
+      style={shared.card}
       onPress={onPress}
     >
       <Text style={shared.label}>{task.name}</Text>
@@ -30,6 +30,5 @@ export function TaskRow({ task, onPress }: Readonly<{ task: Task; onPress: () =>
 }
 
 const styles = StyleSheet.create({
-  item: { borderWidth: 1, borderColor: colors.border, borderRadius: 8, padding: 12, gap: 4 },
   overdue: { color: colors.error },
 });

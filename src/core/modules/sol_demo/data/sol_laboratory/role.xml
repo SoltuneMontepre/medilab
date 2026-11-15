@@ -180,6 +180,10 @@
                 ref('sol_laboratory.permission_machine_booking_read_own_department'),
                 ref('sol_laboratory.permission_machine_booking_create_own_department'),
                 ref('sol_laboratory.permission_machine_booking_edit_own_department'),
+                ref('sol_laboratory.permission_overtime_read_own_department'),
+                ref('sol_laboratory.permission_overtime_create_own_department'),
+                ref('sol_laboratory.permission_overtime_edit_own_department'),
+                ref('sol_laboratory.permission_overtime_delete_own_department'),
                 ref('sol_laboratory.permission_subcontract_dispatch_read_all'),
                 ref('sol_laboratory.permission_subcontract_dispatch_create_all'),
                 ref('sol_laboratory.permission_subcontract_dispatch_edit_all'),
@@ -213,6 +217,9 @@
                 ref('sol_laboratory.permission_testing_statistic_read_all'),
                 ref('sol_inventory.permission_purchase_order_read_all'),
                 ref('sol_inventory.permission_purchase_order_sign_all'),
+                ref('sol_laboratory.permission_parameter_authorization_create_all'),
+                ref('sol_laboratory.permission_parameter_authorization_edit_all'),
+                ref('sol_laboratory.permission_parameter_authorization_delete_all'),
             ])]"
         />
     </record>

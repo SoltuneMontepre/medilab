@@ -2,6 +2,8 @@ from datetime import datetime, timedelta
 from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
+from odoo.exceptions import ValidationError
+from odoo.tools import format_date
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
@@ -10,8 +12,8 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_LOCK_MIXIN,
     MODEL_MACHINE,
     MODEL_MACHINE_BOOKING,
+    MODEL_MACHINE_METHOD,
     MODEL_MACHINE_SERVICE,
-    MODEL_PARAMETER_METHOD_MACHINE,
     MODEL_PERMISSION_MIXIN,
     MODEL_SAMPLE,
 )
@@ -30,7 +32,7 @@ class Machine(models.Model, MachineBase):
     _order = "code"
     _rec_names_search = ("name", "code", "serial_number")
     _permission_actions = ("create", "edit", "archive", "delete")
-    _audit_children = ("service_ids", "parameter_method_ids")
+    _audit_children = ("service_ids", "method_ids")
 
     if not TYPE_CHECKING:
         # Unique code of the machine.
@@ -59,8 +61,8 @@ class Machine(models.Model, MachineBase):
         next_maintenance_date = fields.Date(compute="_compute_next_service_dates", store=True)
         # Calibration, maintenance and repair records of the machine.
         service_ids = fields.One2many(MODEL_MACHINE_SERVICE, "machine_id", string="Service History")
-        # Parameter and method pairs the machine can run, with the run time of each.
-        parameter_method_ids = fields.One2many(MODEL_PARAMETER_METHOD_MACHINE, "machine_id", string="Ways of Testing")
+        # Testing methods the machine runs, with the booking duration and capacity of each.
+        method_ids = fields.One2many(MODEL_MACHINE_METHOD, "machine_id", string="Testing Methods")
         # Bookings of the machine.
         booking_ids = fields.One2many(MODEL_MACHINE_BOOKING, "machine_id", string="Bookings")
         # False when the machine is archived.
@@ -73,7 +75,7 @@ class Machine(models.Model, MachineBase):
     )
     def _compute_next_service_dates(self):
         for machine in self:
-            services = machine.service_ids.sorted("service_date", reverse=True)
+            services = machine._done_services()
             calibration = services.filtered(lambda service: service.kind == "calibration")[:1]
             maintenance = services.filtered(lambda service: service.kind == "maintenance")[:1]
             machine.next_calibration_date = calibration.next_due_date
@@ -83,20 +85,64 @@ class Machine(models.Model, MachineBase):
                 else False
             )
 
+    @api.constrains("status")
+    def _check_return_after_repair(self):
+        for machine in self.filtered(lambda machine: machine.status == "in_use"):
+            services = machine._done_services()
+            repair = services.filtered(lambda service: service.kind == "repair")[:1]
+            if repair and services[:1].kind == "repair":
+                raise ValidationError(
+                    self.env._(
+                        "Record a calibration or maintenance of %(machine)s done after its repair on %(date)s before "
+                        "putting it back in use.",
+                        machine=machine.display_name,
+                        date=format_date(self.env, repair.service_date),
+                    )
+                )
+
     def write(self, vals):
         result = super().write(vals)
         if {"status", "active"} & set(vals):
             self.env[MODEL_MACHINE_BOOKING]._requeue(self)
         return result
 
+    def _done_services(self):
+        """The services done, latest first; of one day, the one recorded last first."""
+        self.ensure_one()
+        return self.service_ids.filtered("service_date").sorted(
+            lambda service: (service.service_date, service._origin.id or 0), reverse=True
+        )
+
     def _usable_until(self):
         """When the machine stops being fit to use, as naive UTC: at the end of its calibration due date.
 
-        A machine under repair, retired or archived is not fit to use at all.
+        A machine under repair, retired, archived or never calibrated is not fit to use at all.
         """
         self.ensure_one()
         if self.status != "in_use" or not self.active:
             return datetime.min
         if not self.next_calibration_date:
-            return datetime.max
-        return self.env[MODEL_SAMPLE]._company_datetime(self.next_calibration_date + timedelta(days=1), 0)
+            calibrated = any(service.kind == "calibration" for service in self._done_services())
+            return datetime.max if calibrated else datetime.min
+        return self._day_end(self.next_calibration_date)
+
+    def _maintenance_due_end(self):
+        """When the machine's maintenance becomes overdue, as naive UTC: at the end of its due date; None without a
+        maintenance schedule."""
+        self.ensure_one()
+        return self._day_end(self.next_maintenance_date) if self.next_maintenance_date else None
+
+    def _day_end(self, day):
+        return self.env[MODEL_SAMPLE]._company_datetime(day + timedelta(days=1), 0)
+
+    def _downtimes(self, start, end):
+        """The services whose downtime overlaps start to end."""
+        self.ensure_one()
+        return self.service_ids.filtered(
+            lambda service: bool(
+                service.downtime_start
+                and service.downtime_end
+                and service.downtime_start < end
+                and service.downtime_end > start
+            )
+        )

@@ -176,4 +176,24 @@
         <field name="result_decimals">3</field>
         <field name="is_default" eval="True" />
     </record>
+    <record id="demo_parameter_method_sample_type_cadmium_icpms_bottled_water" model="medilab.parameter.method.sample.type">
+        <field name="parameter_id" ref="demo_test_parameter_cadmium" />
+        <field name="parameter_method_id" ref="demo_parameter_method_cadmium_icpms" />
+        <field name="sample_type_id" ref="demo_sample_type_bottled_water" />
+        <field name="unit_id" ref="demo_measurement_unit_ug_l" />
+        <field name="lod">0.05</field>
+        <field name="loq">0.15</field>
+        <field name="result_decimals">2</field>
+        <field name="is_default" eval="True" />
+    </record>
+    <record id="demo_parameter_method_sample_type_arsenic_icpms_bottled_water" model="medilab.parameter.method.sample.type">
+        <field name="parameter_id" ref="demo_test_parameter_arsenic" />
+        <field name="parameter_method_id" ref="demo_parameter_method_arsenic_icpms" />
+        <field name="sample_type_id" ref="demo_sample_type_bottled_water" />
+        <field name="unit_id" ref="demo_measurement_unit_ug_l" />
+        <field name="lod">0.1</field>
+        <field name="loq">0.3</field>
+        <field name="result_decimals">2</field>
+        <field name="is_default" eval="True" />
+    </record>
 </odoo>

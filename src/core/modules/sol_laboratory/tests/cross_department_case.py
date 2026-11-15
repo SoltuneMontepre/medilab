@@ -1,8 +1,9 @@
 from .schedule_invariants_case import ScheduleInvariantsCase
+from .scheduling_case import calibrated
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MACHINE,
+    MODEL_MACHINE_METHOD,
     MODEL_PARAMETER_METHOD,
-    MODEL_PARAMETER_METHOD_MACHINE,
     MODEL_TESTING_METHOD,
 )
 
@@ -38,11 +39,13 @@ class CrossDepartmentCase(ScheduleInvariantsCase):
             ),
         )
         cls.microbiology_head.tz = "UTC"
-        cls.microbiology_machine = cls.env[MODEL_MACHINE].create({"code": "AAS-M1", "name": "Microbiology AAS"})
-        cls.env[MODEL_PARAMETER_METHOD_MACHINE].create(
+        cls.microbiology_machine = cls.env[MODEL_MACHINE].create(
+            calibrated({"code": "AAS-M1", "name": "Microbiology AAS"})
+        )
+        cls.env[MODEL_MACHINE_METHOD].create(
             {
-                "parameter_method_id": cls.microbiology_way.id,
+                "method_id": cls.microbiology_way.method_id.id,
                 "machine_id": cls.microbiology_machine.id,
-                "run_minutes": 40,
+                "duration_minutes": 40,
             }
         )

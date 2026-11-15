@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- The data AAS-03 gave before it broke down; the head of Chemistry has not assessed it yet. -->
+    <record id="demo_test_result_lead_interrupted" model="medilab.test.result">
+        <field name="sample_test_id" ref="demo_sample_test_lead_interrupted" />
+        <field name="entered_by_id" ref="demo_res_users_chemistry_tester" />
+        <field name="value">0.004</field>
+        <field name="is_interrupted" eval="True" />
+    </record>
+</odoo>

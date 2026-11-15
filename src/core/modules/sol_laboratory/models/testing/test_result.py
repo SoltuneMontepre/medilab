@@ -1,4 +1,3 @@
-from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
@@ -15,6 +14,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_APPROVAL_MIXIN,
     MODEL_LOCK_MIXIN,
     MODEL_MACHINE,
+    MODEL_MACHINE_BOOKING,
     MODEL_MAIL_MESSAGE,
     MODEL_MEASUREMENT_UNIT,
     MODEL_PARAMETER_METHOD,
@@ -23,12 +23,14 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_REGULATION,
     MODEL_SAMPLE_TEST,
     MODEL_SAMPLE_TYPE,
+    MODEL_SIGNATURE,
     MODEL_TEST_REPORT,
     MODEL_TEST_RESULT,
 )
 from odoo.addons.sol_laboratory.constants.notifications import EVENT_TEST_RESULT_REJECTED
 from odoo.addons.sol_laboratory.fields.nullable_float import NullableFloat
 from odoo.addons.sol_laboratory.models.testing.machine_booking import ACTIVE_STATUSES
+from odoo.addons.sol_laboratory.services.number_text import plain_digits, plain_number
 
 if TYPE_CHECKING:
     from medilab_model_types import Model_medilab_test_result as TestResultBase
@@ -62,6 +64,8 @@ SYSTEM_FIELDS = frozenset(
         "version",
         "replaces_id",
         "is_replaced",
+        "check_warning",
+        "booking_id",
         *SOURCE_FIELDS,
         *LIMIT_FIELDS,
     }
@@ -181,6 +185,16 @@ class TestResult(models.Model, TestResultBase):
         )
         # When the result was entered, which is when the measurement counts as done.
         entered_at = fields.Datetime(string="Entered At", required=True, readonly=True, default=fields.Datetime.now)
+        # The booking the measurement ran in; entering the result frees its machine. Empty for an outsourced test.
+        booking_id = fields.Many2one(
+            MODEL_MACHINE_BOOKING,
+            string="Booking",
+            compute="_compute_measurement",
+            store=True,
+            readonly=True,
+            ondelete="restrict",
+            index=True,
+        )
         # The machine the measurement ran on, taken from the booking and correctable by the tester; empty when outsourced.
         machine_id = fields.Many2one(
             MODEL_MACHINE, compute="_compute_measurement", store=True, readonly=False, ondelete="restrict"
@@ -210,6 +224,8 @@ class TestResult(models.Model, TestResultBase):
         replaces_id = fields.Many2one(MODEL_TEST_RESULT, readonly=True, copy=False, ondelete="restrict")
         # True when a newer version replaces this result.
         is_replaced = fields.Boolean(string="Replaced", readonly=True, copy=False)
+        # The signatures and rejections given on the result, withdrawn ones included.
+        signature_ids = fields.Many2many(MODEL_SIGNATURE, compute="_compute_signature_ids", string="Signatures")
 
     _replaces_unique = models.Constraint("UNIQUE(replaces_id)", "A result is replaced by one newer version.")
     _one_reported = models.UniqueIndex(
@@ -226,6 +242,11 @@ class TestResult(models.Model, TestResultBase):
             test = result.sudo().sample_test_id
             entered = format_datetime(self.env, result.entered_at)
             result.display_name = f"{test.sample_id.code} – {test.parameter_id.name} ({entered})"
+
+    def _compute_signature_ids(self):
+        signatures = self._approval_signatures()
+        for result in self:
+            result.signature_ids = signatures.get(result.id, self.env[MODEL_SIGNATURE])
 
     def _document_code(self):
         """A push and Medilab Mobile name a result by its sample's lab code."""
@@ -267,7 +288,7 @@ class TestResult(models.Model, TestResultBase):
             regulation = result.sample_test_id.sudo().sample_id.regulation_id
             limit = result._regulation_limit()
             result.regulation_id = regulation
-            result.comparison_requested = result.sample_test_id.parameter_id in regulation.limit_ids.parameter_id
+            result.comparison_requested = result.sample_test_id._comparison_requested()
             result.limit_unit_id = limit.unit_id
             result.limit_min_set = limit.min_set
             result.limit_min = limit.min_value
@@ -290,6 +311,8 @@ class TestResult(models.Model, TestResultBase):
                 lambda other: other.status in (*ACTIVE_STATUSES, "done")
             )
             booking = bookings.sorted("starts_at")[-1:]
+            # A new version keeps the booking of the version it replaces.
+            result.booking_id = result.replaces_id.booking_id if result.replaces_id else booking
             result.machine_id = booking.machine_id
             result.started_at = booking.starts_at
 
@@ -316,10 +339,11 @@ class TestResult(models.Model, TestResultBase):
             if vals.get("replaces_id"):
                 # A new version is the system's copy of the result it replaces, not a measurement.
                 continue
-            test = self.env[MODEL_SAMPLE_TEST].browse(vals.get("sample_test_id")).sudo()
+            test = self.env[MODEL_SAMPLE_TEST].browse(vals.get("sample_test_id"))
             refusal = test._result_refusal()
             if refusal:
                 raise UserError(refusal)
+            test = test.sudo()
             # A retest becomes the reported result; the earlier ones stay on record.
             vals["is_reported"] = True
             reported = test.result_ids.filtered("is_reported")
@@ -330,13 +354,13 @@ class TestResult(models.Model, TestResultBase):
         entered = results.filtered(lambda result: not result.replaces_id)
         tests = entered.sample_test_id.sudo()
         tests._start()
-        # Entering the result is when the measurement is done; a booking still waiting for a slot is not needed.
+        # Entering the result is when the measurement is done; a proposed booking is not needed.
         bookings = tests.booking_ids._open()
-        bookings.filtered(lambda booking: booking.status == "queued")._set({"status": "cancelled"})
+        bookings.filtered(lambda booking: booking.status == "proposed")._set({"status": "cancelled"})
         measured = bookings.filtered(lambda booking: booking.status in ACTIVE_STATUSES)
-        if measured:
-            measured._set({"status": "done"})
-            measured._process_queue()
+        measured._set({"status": "done"})
+        if bookings:
+            bookings._plan(bookings.department_id)
         return results
 
     @api.constrains("machine_id")
@@ -431,6 +455,22 @@ class TestResult(models.Model, TestResultBase):
             )
         )
 
+    def _limit_range(self, env):
+        """The copied minimum and maximum in the language of env, such as "≤ 0.010", with their decimals, or else the
+        decimals they have; empty when neither is set."""
+        self.ensure_one()
+        low = self.limit_min_set and formatLang(
+            env, self.limit_min, digits=self.limit_decimals or plain_digits(self.limit_min)
+        )
+        high = self.limit_max_set and formatLang(
+            env, self.limit_max, digits=self.limit_decimals or plain_digits(self.limit_max)
+        )
+        if low and high:
+            return f"{low} – {high}"
+        if high:
+            return f"≤ {high}"
+        return f"≥ {low}" if low else ""
+
     def _applicability(self):
         # The decimals of the way of testing on the sample type; empty when it does not apply to it.
         self.ensure_one()
@@ -444,8 +484,7 @@ class TestResult(models.Model, TestResultBase):
         self.ensure_one()
         for threshold, which in ((self.lod, env._("below LOD")), (self.loq, env._("below LOQ"))):
             if threshold is not False and self.value < threshold:
-                digits = max(0, -int(Decimal(repr(threshold)).normalize().as_tuple().exponent))
-                shown = formatLang(env, threshold, digits=digits)
+                shown = plain_number(env, threshold)
                 unit = self.unit_id.with_env(env).name
                 return f"<{shown} {unit} ({which})" if unit else f"<{shown} ({which})"
         return False

@@ -4,11 +4,16 @@ from odoo import fields
 from odoo.fields import Command
 
 from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_IR_MODEL_DATA,
+    MODEL_PERSON,
     MODEL_SAMPLE_TEST,
     MODEL_TASK,
     MODEL_TEST_REQUEST,
     MODEL_TEST_RESULT,
 )
+
+TESTER = "sol_demo.demo_res_users_tester"
+LEAD = "sol_demo.demo_test_parameter_lead"
 
 SAMPLE_NAMES = (
     "Nước khoáng An Phú 500 mL lô 0925",
@@ -24,9 +29,9 @@ def seed_results(env):
     department entered and sent, awaiting their own approval."""
     if env.ref("sol_demo.demo_test_request_results", raise_if_not_found=False):
         return
-    tester = env.ref("sol_demo.demo_res_users_tester")
+    tester = env.ref(TESTER)
     head = env.ref("sol_demo.demo_res_users_head_of_department")
-    lead = env.ref("sol_demo.demo_test_parameter_lead")
+    lead = env.ref(LEAD)
     ph = env.ref("sol_demo.demo_test_parameter_ph")
     request = _received_request(
         env,
@@ -50,13 +55,17 @@ def seed_results(env):
     _test(retested, lead)._testing_task().with_user(tester).action_claim()
     retest = _enter(env, tester, _test(retested, lead), value_text="Not detected", conclusion="pass")
     retest.with_context(lang="vi_VN").value_text = "Không phát hiện"
-    _enter(env, head, _test(by_head, lead), value=0.006, conclusion="pass").with_user(head).action_sign()
+    waiting_result = _test(waiting, lead).result_ids
+    head_result = _enter(env, head, _test(by_head, lead), value=0.006, conclusion="pass")
+    head_result.with_user(head).action_sign()
 
-    env["ir.model.data"]._update_xmlids(
+    env[MODEL_IR_MODEL_DATA]._update_xmlids(
         [
             {"xml_id": "sol_demo.demo_test_request_results", "record": request, "noupdate": True},
             {"xml_id": "sol_demo.demo_test_result_rejected", "record": rejected, "noupdate": True},
             {"xml_id": "sol_demo.demo_test_result_retest", "record": retest, "noupdate": True},
+            {"xml_id": "sol_demo.demo_test_result_awaiting_head", "record": waiting_result, "noupdate": True},
+            {"xml_id": "sol_demo.demo_test_result_by_head", "record": head_result, "noupdate": True},
         ]
     )
 
@@ -67,8 +76,8 @@ def seed_assessments(env):
     as insufficient basis."""
     if env.ref("sol_demo.demo_test_result_below_lod", raise_if_not_found=False):
         return
-    tester = env.ref("sol_demo.demo_res_users_tester")
-    lead = env.ref("sol_demo.demo_test_parameter_lead")
+    tester = env.ref(TESTER)
+    lead = env.ref(LEAD)
     customer = env.ref("sol_demo.demo_customer_green_farm")
     water = _received_request(env, customer, [("Nước suối Green Farm 500 mL lô 1103", (lead,))])
     below_lod = _enter(env, tester, _test(water.sample_ids, lead), value=0.003)
@@ -85,11 +94,28 @@ def seed_assessments(env):
     no_limit = _enter(env, tester, _test(lettuce.sample_ids, lead), value=0.12, conclusion="insufficient")
     no_limit.with_user(tester).action_sign()
 
-    env["ir.model.data"]._update_xmlids(
+    env[MODEL_IR_MODEL_DATA]._update_xmlids(
         [
             {"xml_id": "sol_demo.demo_test_result_below_lod", "record": below_lod, "noupdate": True},
             {"xml_id": "sol_demo.demo_test_result_insufficient_basis", "record": no_limit, "noupdate": True},
         ]
+    )
+
+
+def seed_warned_result(env):
+    """A lead result 5% under the limit of QCVN 6-1:2010/BYT, which the sanity check warns about: the tester sent it
+    anyway, and it waits for the head of department with its warning."""
+    if env.ref("sol_demo.demo_test_result_warned", raise_if_not_found=False):
+        return
+    tester = env.ref(TESTER)
+    lead = env.ref(LEAD)
+    request = _received_request(
+        env, env.ref("sol_demo.demo_customer_an_phu"), [("Nước khoáng An Phú 500 mL lô 0929", (lead,))]
+    )
+    warned = _enter(env, tester, _test(request.sample_ids, lead), value=0.0095, conclusion="pass")
+    warned.with_user(tester).action_sign()
+    env[MODEL_IR_MODEL_DATA]._update_xmlids(
+        [{"xml_id": "sol_demo.demo_test_result_warned", "record": warned, "noupdate": True}]
     )
 
 
@@ -149,7 +175,12 @@ def _test(sample, parameter):
 
 
 def _enter(env, user, test, conclusion: str | None = None, **values):
-    """The user's result for the test; the conclusion is set only when the result is in the requested comparison."""
+    """The user's result for the test, whose testing task moves to the user first when another person holds it; the
+    conclusion is set only when the result is in the requested comparison."""
+    task = test._testing_task() if test.status != "outsourced" else None
+    person = env[MODEL_PERSON].search([("user_id", "=", user.id)], limit=1)
+    if task and task.assignee_id != person:
+        task.write({"assignee_id": person.id, "reassign_reason": "Measured by another person."})
     result = env[MODEL_TEST_RESULT].with_user(user).create({"sample_test_id": test.id, **values})
     if conclusion and result.comparison_requested:
         result.conclusion = conclusion

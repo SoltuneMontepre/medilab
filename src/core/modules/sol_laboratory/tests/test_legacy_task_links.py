@@ -49,8 +49,9 @@ class TestLegacyTaskLinks(TaskLinkCase):
 
         self.assertFalse(forged.method_step_ids)
         self.assertEqual(forged.action_assign_sample()["context"]["active_ids"], [task.id])
+        suggested = self.test.outsourcing_suggested
         forged.write({"assignee_id": self.tester.id, "reassign_reason": "Cuong is free."})
-        self.assertEqual([self.test.status, self.test.outsourcing_suggested], ["waiting", False])
+        self.assertEqual([self.test.status, self.test.outsourcing_suggested], ["waiting", suggested])
         self.assertEqual(self.test._tested_by(), self.department)
         self.assertEqual(self.test._testing_task(), self.genuine)
         self.assertEqual(self.env[MODEL_TASK]._system_tasks_of(self.test, TESTING_ACTION), self.genuine)
@@ -150,8 +151,9 @@ class TestLegacyTaskLinks(TaskLinkCase):
                 changed = self.as_person(task, self.planner)
                 self.assertFalse(changed.method_step_ids)
                 self.assertEqual(changed.action_assign_sample()["context"]["active_ids"], [task.id])
+                suggested = test.outsourcing_suggested
                 changed.write({"assignee_id": self.tester.id, "reassign_reason": "Cuong is free."})
-                self.assertEqual([test.status, test.outsourcing_suggested], ["waiting", False])
+                self.assertEqual([test.status, test.outsourcing_suggested], ["waiting", suggested])
         self.assertFalse(other._tested_by())
         self.assertEqual(self.test._tested_by(), self.department)
         self.assertEqual(self.test._testing_task(), self.genuine)

@@ -28,6 +28,7 @@ from . import (
     res_groups,
     res_partner,
     res_users,
+    resource_calendar_leaves,
     role,
     role_grant,
     scheduled_job,
@@ -36,8 +37,8 @@ from . import (
     user_link,
 )
 
-# Accreditation, laboratory content, laboratory file lock, editing session, upload, quality registration and role
-# grant job handlers inherit medilab.scheduled.job; load after the base model.
+# Accreditation, laboratory content, laboratory file lock, editing session, upload, machine booking overrun, quality
+# registration and role grant job handlers inherit medilab.scheduled.job; load after the base model.
 # isort: split
 from . import (
     accreditation_scheduled_job,
@@ -45,6 +46,7 @@ from . import (
     laboratory_editing_scheduled_job,
     laboratory_file_lock_scheduled_job,
     laboratory_upload_scheduled_job,
+    machine_booking_scheduled_job,
     quality_registration_scheduled_job,
     role_grant_scheduled_job,
 )

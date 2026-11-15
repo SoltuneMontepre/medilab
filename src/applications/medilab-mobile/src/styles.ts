@@ -34,4 +34,13 @@ export const styles = StyleSheet.create({
     alignItems: "center",
   },
   secondaryButtonText: { color: colors.primary, fontSize: 16, fontWeight: "500" },
+  // A screen that scrolls the record it shows, and its parts.
+  page: { flex: 1, padding: 24 },
+  pageContent: { gap: 12, paddingBottom: 24 },
+  section: { gap: 8 },
+  heading: { fontSize: 18, fontWeight: "600", color: colors.text },
+  text: { fontSize: 15, color: colors.text },
+  disabled: { opacity: 0.5 },
+  // A record in a list, which opens it.
+  card: { borderWidth: 1, borderColor: colors.border, borderRadius: 8, padding: 12, gap: 4 },
 });
