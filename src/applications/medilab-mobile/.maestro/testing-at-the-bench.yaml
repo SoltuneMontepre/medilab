@@ -10,9 +10,11 @@ env:
 - launchApp:
     clearState: true
 - extendedWaitUntil:
-    visible: "English"
+    visible:
+      id: "language-en"
     timeout: 60000
-- tapOn: "English"
+- tapOn:
+    id: "language-en"
 - tapOn:
     id: "sign-in-login"
 - inputText: ${LOGIN}
@@ -21,11 +23,15 @@ env:
     id: "sign-in-password"
 - inputText: ${PASSWORD}
 - hideKeyboard
-- tapOn: "Sign in"
+- tapOn:
+    id: "sign-in-submit"
 - extendedWaitUntil:
-    visible: "Scan a sample label"
+    visible:
+      id: "home-scan"
     timeout: 60000
-- tapOn: "Scan a sample label"
+- tapOn:
+    id: "home-scan"
+# Android asks for the camera; the flow types the label's code instead.
 - tapOn:
     text: "Don.t allow"
     optional: true
@@ -33,40 +39,91 @@ env:
     id: "scan-code"
 - inputText: ${LAB_CODE}
 - hideKeyboard
-- tapOn: "Open the sample"
-- extendedWaitUntil:
-    visible: '.*Lead \(Pb\).*'
+- tapOn:
+    id: "scan-open"
+- scrollUntilVisible:
+    element:
+      id: "claimable-task"
+      text: '.*Lead \(Pb\).*'
+    direction: DOWN
     timeout: 30000
-- tapOn: '.*Lead \(Pb\).*'
-- tapOn: 'Claim the chosen tasks \(1\)'
-- assertVisible: "Tasks claimed: 1."
+- tapOn:
+    id: "claimable-task"
+    text: '.*Lead \(Pb\).*'
+- scrollUntilVisible:
+    element:
+      id: "sample-claim"
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: "sample-claim"
+- scrollUntilVisible:
+    element:
+      text: "Tasks claimed: 1."
+    direction: DOWN
+    timeout: 30000
 - repeat:
     while:
-      notVisible: "To-do list"
+      notVisible:
+        id: "home-todo"
     commands:
       - back
-- tapOn: "To-do list"
-- tapOn: '.*Lead \(Pb\), ${LAB_CODE},.*'
-- extendedWaitUntil:
-    visible: "Enter the result"
+- tapOn:
+    id: "home-todo"
+- scrollUntilVisible:
+    element:
+      id: "task-row"
+      text: '.*Lead \(Pb\), ${LAB_CODE},.*'
+    direction: DOWN
     timeout: 30000
-- tapOn: "Enter the result"
+- tapOn:
+    id: "task-row"
+    text: '.*Lead \(Pb\), ${LAB_CODE},.*'
+- scrollUntilVisible:
+    element:
+      id: "task-enter-result"
+    direction: DOWN
+    timeout: 30000
+- tapOn:
+    id: "task-enter-result"
+- scrollUntilVisible:
+    element:
+      id: "result-value"
+    direction: DOWN
+    timeout: 30000
 - tapOn:
     id: "result-value"
 - inputText: "0.008"
 - hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: "result-save"
+    direction: DOWN
+    timeout: 10000
 - tapOn:
-    text: "Pass"
+    id: "choice-pass"
     optional: true
-- tapOn: "Save the result"
-- extendedWaitUntil:
-    visible: "Send for approval"
+- tapOn:
+    id: "result-save"
+- scrollUntilVisible:
+    element:
+      id: "result-send"
+    direction: DOWN
     timeout: 30000
-- tapOn: "Send for approval"
 - tapOn:
-    text: "I checked the warnings and send the result anyway."
+    id: "result-send"
+- scrollUntilVisible:
+    element:
+      id: "result-sign"
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: "result-acknowledge"
     optional: true
-- tapOn: "Sign"
-- extendedWaitUntil:
-    visible: "The result is approved or waits for someone else's signature, so you can only read it."
+- tapOn:
+    id: "result-sign"
+- scrollUntilVisible:
+    element:
+      id: "result-read-only"
+    direction: DOWN
     timeout: 30000

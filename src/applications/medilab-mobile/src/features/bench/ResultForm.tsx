@@ -119,7 +119,7 @@ export function ResultForm({
           {invalid}
         </Text>
       )}
-      <Button label={t("result.save")} onPress={submit} primary disabled={busy} />
+      <Button label={t("result.save")} onPress={submit} primary disabled={busy} testID="result-save" />
       {onCancel && (
         <Button label={t("result.cancel")} onPress={onCancel} />
       )}
@@ -141,6 +141,7 @@ function Choices<T extends string>({
           accessibilityRole="radio"
           accessibilityState={{ checked: chosen === value }}
           style={[styles.choice, chosen === value && styles.chosen]}
+          testID={`choice-${value}`}
           onPress={() => onChoose(value)}
         >
           <Text style={shared.label}>{t(label)}</Text>

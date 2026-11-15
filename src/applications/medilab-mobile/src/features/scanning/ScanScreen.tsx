@@ -103,7 +103,7 @@ export function ScanScreen() {
           onSubmitEditing={() => open(typed)}
         />
         {missing && <Text style={shared.error}>{t("scan.missing")}</Text>}
-        <Pressable accessibilityRole="button" style={shared.primaryButton} onPress={() => open(typed)}>
+        <Pressable accessibilityRole="button" style={shared.primaryButton} testID="scan-open" onPress={() => open(typed)}>
           <Text style={shared.primaryButtonText}>{t("scan.open")}</Text>
         </Pressable>
         {problem?.load.state === "unreachable" && <Unreachable onRetry={() => open(problem.code)} />}
