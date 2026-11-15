@@ -240,9 +240,9 @@ flowchart TD
 - **Trigger:** a subcontracted way with the test's parameter and method is proposed because in-house resources cannot meet the due date, or the head outsources a test urgently with a reason.
 - **Result:** the subcontractor's result is approved like any other result.
 - **Stories:** US-HD05, US-HD10, US-HD11, US-HD13, US-SD13, US-SUB01, US-SUB02, US-T09, US-HD08.
-- **States:** sample test waiting or assigned → outsourced → result entered → approved (→ outsourced when rejected); dispatch draft → sent → received, or draft → cancelled before any result.
+- **States:** sample test waiting or assigned → outsourced → result entered → approved (→ outsourced when rejected); dispatch draft → sent → received, or draft or sent → cancelled before any result.
 - **Starts from:** sample tests in WF-03 Testing assignment and scheduling that no in-house resource can finish before their due date, or that the head outsources urgently, and accredited subcontractors.
-- **Main path:** The system suggests a subcontracted way with the test's parameter and method; the head accepts it and puts the sample tests in a dispatch. Sample delivery staff carry it, and the system records the date sent, who took it and the expected date, which is the date sent plus the way's turnaround. The subcontractor confirms receipt of the samples on the portal, which marks the dispatch received, and enters the results; the head is notified and approves them like any other result. When every remaining test of the sample is approved, the sample completes and goes to WF-06 Report signing, release and delivery. Outsourcing is internal: the subcontractor tests the parameter with the method the customer agreed, so the customer is neither told nor asked.
+- **Main path:** The system suggests a subcontracted way with the test's parameter and method; the head accepts it and puts the sample tests in a dispatch. When sample delivery staff take the dispatch to carry it, the system marks it sent and records the date sent, who took it and the expected date, which is the date sent plus the way's turnaround. The subcontractor confirms receipt of the samples on the portal, which marks the dispatch received, and enters the results; the head is notified and approves them like any other result. When every remaining test of the sample is approved, the sample completes and goes to WF-06 Report signing, release and delivery. Outsourcing is internal: the subcontractor tests the parameter with the method the customer agreed, so the customer is neither told nor asked.
 - **Alternative paths:**
   - WF-05-A1: A dispatch goes by a delivery service; the sample delivery staff who hand it over record the service and its tracking number.
   - WF-05-A2: A lab QA enters the results the subcontractor sent back; for a subcontractor that does not use the portal, the head marks the dispatch received.
@@ -250,7 +250,7 @@ flowchart TD
 - **Exceptions:**
   - WF-05-E1: The head rejects the subcontractor's result; the test goes back to outsourced and a new result is entered.
   - WF-05-E2: A dispatch cannot proceed; it is cancelled before any result and its tests stay outsourced for another dispatch.
-  - WF-05-E3: Delivery to the subcontractor fails; the carrier records why, the dispatch, still draft, is cancelled and its tests stay outsourced. The same sample is requested again through WF-02 Sample reception and handover, and once it is received the head puts its tests in a new dispatch.
+  - WF-05-E3: Delivery to the subcontractor fails; the carrier records why, the sent dispatch is cancelled and its tests stay outsourced. The same sample is requested again through WF-02 Sample reception and handover, and once it is received the head puts its tests in a new dispatch.
   - WF-05-E4: The accreditation of a draft dispatch's subcontractor lapses before it is sent; the head is told, and either waits for the renewal or cancels the dispatch and moves its tests to another subcontracted way with the same parameter and method. A sent dispatch is still received and its results approved.
 - **Acceptance criteria:** See [Head of department](laboratory_module/features/head-of-department.md) and [Subcontractor](laboratory_module/features/subcontractor.md). A dispatch whose tests have results cannot be cancelled. A subcontractor user sees only its own dispatches and never a sample's customer. An emergency proposal needs a reason; a test already running cannot be outsourced directly. Only a subcontracted way with the test's parameter and method can be chosen. The customer never sees that a test is outsourced or which subcontractor tests it. Results are entered only once the dispatch is received. A test of a customer's own test request is never outsourced to that customer as a subcontractor. Cancelling a test request cancels its outsourced tests without an approved result: a draft dispatch drops them, and a sent dispatch shows them as cancelled and takes no more results for them.
 - **Paths in other flows:** SF-06 for subcontractor accreditation expiry; WF-02 for requesting a sample again after a failed delivery; SF-02 for cancelling a test request; WF-06 once the sample completes.
@@ -264,7 +264,8 @@ flowchart TD
         h4{Approve the result?}
     end
     subgraph lane13 ["Sample delivery staff"]
-        d1[Carry the dispatch to the subcontractor] --> delivered{Delivered?}
+        d1[Carry the dispatch to the subcontractor]
+        delivered{Delivered?}
     end
     subgraph lane14 ["Subcontractor"]
         s1[Receive the samples of the dispatch]
@@ -272,8 +273,8 @@ flowchart TD
     end
     wf03([WF-03: no machine meets the due date]) --> suggest --> h1
     urgent([WF-03: emergency, no suggestion yet]) --> h0
-    h2 --> d1
-    delivered -->|yes| sent[Record when it is sent, who took it and the expected date] --> s1
+    h2 --> d1 --> sent[Mark it sent; record when, who took it and the expected date] --> delivered
+    delivered -->|yes| s1
     delivered -->|no| cancel[Cancel the dispatch; its tests stay outsourced] --> wf02([Delivery failed: WF-02 requests the same sample again])
     s1 --> received[Mark the dispatch received] --> s2
     s2 --> notify[Notify the head] --> h4
@@ -526,7 +527,7 @@ flowchart TD
 - **Exceptions:**
   - SF-05-E1: Without another machine linked to the same method, keep the work unplaced and notify its tester and head. Sales informs the customer if the committed return date is affected. The head may outsource the work to a subcontractor with the same method (WF-05); a different method needs an agreed revised quotation.
   - SF-05-E2: A breakdown or lost calibration interrupts a booking: the booking ends, its recorded data is kept as an interrupted result, and the head assesses it as usable, needing a retest or needing more sample. A retest is a new result with a new booking.
-- **Acceptance criteria:** See [Administrator](laboratory_module/features/admin.md) and [Head of department](laboratory_module/features/head-of-department.md). A machine with queued, scheduled or running bookings cannot be archived.
+- **Acceptance criteria:** See [Administrator](laboratory_module/features/admin.md) and [Head of department](laboratory_module/features/head-of-department.md). A machine with proposed, scheduled or running bookings cannot be archived.
 - **Paths in other flows:** SF-10 owns queue order and rescheduling; WF-05 owns outsourcing to a subcontractor with the same method.
 
 ```mermaid
@@ -537,7 +538,7 @@ flowchart TD
     end
     subgraph lane28 ["Head of department"]
         h1[Assess the interrupted result: usable, retest or more sample]
-        h2[Review queued work and deadline risk]
+        h2[Review unplaced work and deadline risk]
     end
     subgraph lane27 ["Tester"]
         t1[Receive revised schedule or risk notice]
@@ -728,9 +729,9 @@ flowchart TD
   - SF-10-A2: The tester moves or cancels their not-started booking, or the head does so for the department, which pins it. Update all required reservations together; cancelling returns the sample test to the plan without cancelling it.
   - SF-10-A3: The head cancels a sample test with no approved result and a reason. Cancel its testing task and end only its own booking; bookings sharing its machine interval continue.
   - SF-10-A4: Moving a booking cancels its unsent old reminder and schedules the new one; send immediately inside the warning window and deduplicate the update.
-  - SF-10-A5: Entering the result or marking the measurement finished frees the machine before the booking's end.
+  - SF-10-A5: Submitting the result or marking the measurement finished frees the machine before the booking's end.
 - **Exceptions:**
-  - SF-10-E1: Urgent work needs a slot that scheduled bookings hold: the recalculation becomes a plan revision listing every moved booking with its new slot, internal due date and committed return date. The head of each affected department approves the moves in their department, and their people are notified once applied; running bookings are never moved.
+  - SF-10-E1: Urgent work needs a slot that scheduled bookings hold: the recalculation becomes a plan revision listing every moved booking with its new slot, internal due date and committed return date. The head of each affected department approves the moves in their department, and their people are notified once applied; running bookings are never moved. A head who rejects the moves leaves the department's bookings in their slots; the urgent work stays unplaced with its deadline risk shown, and the head may free capacity with planned OverTime or another machine linked to the same method, or outsource the test (WF-05 Outsourced testing).
   - SF-10-E2: A move would pass its internal due date and so miss a committed return date: it is held back and its booking keeps its slot until Sales records the customer's agreement to a new date (SF-07); the other moves are recalculated without it. The head may instead free capacity with planned OverTime or another machine linked to the same method. Outsourcing to a subcontractor with the same method follows WF-05 and needs no customer agreement; a different method needs a revised quotation and customer agreement.
   - SF-10-E3: A sample test whose planned finish is after its internal due date, that no free slot lets finish by then, or whose booking overran sends an initial risk notice and daily consolidated summaries to its tester and head until resolved. Sales notifies the customer only when the committed return date is affected or at risk. An overrunning booking keeps its machine and flags the next bookings on it; entering the result clears it.
   - SF-10-E4: Approved leave or a room-unavailable interval returns overlapping not-started bookings to the plan for head assignment or authorized claiming.
@@ -740,7 +741,7 @@ flowchart TD
 ```mermaid
 flowchart TD
     subgraph lane64 ["Tester"]
-        t1[Start the booking] --> t2[Enter the result and free the machine]
+        t1[Start the booking] --> t2[Submit the result and free the machine]
         t3[Move or cancel own not-started booking]
         t4[Mark own test urgent with a reason]
     end
@@ -760,6 +761,7 @@ flowchart TD
     slot -->|urgent work needs scheduled slots| revision[Plan revision lists every moved booking]
     revision --> h2
     h2 -->|approve| apply[Apply the moves; running bookings never move] --> schedule
+    h2 -->|reject: bookings keep their slots| h5
     revision -->|a move would miss a committed date| held[Hold it back; its booking keeps its slot]
     held --> date([SF-07 Sales asks the customer for a new date])
     held --> h5 --> slot
