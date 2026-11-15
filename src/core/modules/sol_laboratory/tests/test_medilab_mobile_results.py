@@ -208,6 +208,7 @@ class TestMedilabMobileResults(SanityCheckCase, LaboratoryApiCase):
         self.assertApiRefused(ACTION_REFUSED, self.on_phone(self.other_tester, "POST", path, {"reason": "Too high."}))
 
     def test_a_head_approves_their_own_result_on_the_phone(self):
+        self.take_task(self.head)
         result = self.answered(self.enter_on_phone(self.head))
 
         sent = self.answered(self.signed_on_phone(self.head, result["id"]))
