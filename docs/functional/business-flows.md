@@ -181,7 +181,7 @@ flowchart TD
 - **Alternative paths:**
   - WF-04-A1: The tester confirms text for a value below LOD/LOQ; the report prints the snapshot threshold and unit and keeps a raw number if available, never zero as a substitute.
   - WF-04-A2: The tester withdraws a result they sent before the head acts.
-  - WF-04-A3: The Head of Department may enter and approve their own result; the Lab Head reviews it when signing the report before issue.
+  - WF-04-A3: The Head of Department may enter and approve their own result once its testing task is assigned to them; the Lab Head reviews it when signing the report before issue.
   - WF-04-A4: Without requested QCVN comparison, return measurements with no pass/fail conclusion. For requested scope, any assessed failure fails that scope; all required comparisons must pass to conclude pass; otherwise record insufficient basis.
   - WF-04-A5: Changing a sample's regulation refreshes applicable limits only after confirmation and clears old comparison conversions and conclusions; signed results first require withdrawal where permitted, or change requests and new versions. Raw measurement, way and LOD/LOQ snapshots stay, and retesting requires professional assessment.
   - WF-04-A6: A colleague's new version downloads to a two-way folder on another computer.

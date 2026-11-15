@@ -882,6 +882,7 @@ msgstr "Phê duyệt bằng chữ ký"
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_test__status__approved
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_result__status__approved
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_change_request__status__approved
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_search
 msgid "Approved"
 msgstr "Đã duyệt"
 
@@ -1375,6 +1376,7 @@ msgstr "Hủy yêu cầu thử nghiệm này cùng các mẫu và chỉ tiêu c�
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_search
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_subcontract_dispatch__status__cancelled
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__release_reason__cancelled
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_search
 msgid "Cancelled"
 msgstr "Đã hủy"
 
@@ -1495,6 +1497,8 @@ msgstr "Mã thành phố"
 #. module: sol_laboratory
 #. odoo-javascript
 #: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_list
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_awaiting_list
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_list
@@ -5392,6 +5396,7 @@ msgstr "Chỉ người đã ký mới có thể rút lại chữ ký."
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_search
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_editing_session__status__open
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_editing_session_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_search
 msgid "Open"
 msgstr "Đang mở"
 
@@ -5500,6 +5505,7 @@ msgstr "Đã thanh toán"
 #: code:addons/sol_laboratory/models/testing/test_report.py:0
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__parameter_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_search
 msgid "Parameter"
 msgstr "Chỉ Tiêu"
 
@@ -7144,6 +7150,7 @@ msgstr "Số chữ số thập phân của kết quả"
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_test__status__result_entered
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_search
 msgid "Result Entered"
 msgstr "Đã nhập kết quả"
 
@@ -7791,6 +7798,7 @@ msgstr "Thống kê"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_editing_session_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__status
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__state
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_search
 msgid "Status"
 msgstr "Trạng thái"
 
@@ -10779,6 +10787,7 @@ msgstr "Thiết bị ký"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__storage_location
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__storage_location
 msgid "Storage Location"
 msgstr "Vị trí lưu mẫu"
 
@@ -11310,7 +11319,9 @@ msgid "Edit test results"
 msgstr "Sửa kết quả thử nghiệm"
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_list
 msgid "Enter Result"
 msgstr "Nhập kết quả"
 
@@ -11596,6 +11607,34 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "Claim the testing task of %s before entering its result."
+msgstr "Hãy nhận nhiệm vụ kiểm nghiệm của %s trước khi nhập kết quả."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_claim.py:0
+msgid "%s has no testing task to claim."
+msgstr "%s không có nhiệm vụ kiểm nghiệm để nhận."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__can_claim
+msgid "Can Claim"
+msgstr "Có thể nhận việc"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__is_mine
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_search
+msgid "Mine"
+msgstr "Của tôi"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_search
+msgid "To Claim"
+msgstr "Chờ nhận việc"
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch.py:0
 msgid "A dispatch whose sample tests have results cannot be cancelled."
 msgstr "Không thể hủy phiếu gửi có chỉ tiêu của mẫu đã có kết quả."
@@ -11835,6 +11874,8 @@ msgstr "Nhân Viên Giao Nhận Mẫu"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__sample_test_ids
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatches
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_form
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_sample_test
+#: model:ir.ui.menu,name:sol_laboratory.menu_sample_test
 msgid "Sample Tests"
 msgstr "Chỉ Tiêu Của Mẫu"
 
