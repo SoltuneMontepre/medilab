@@ -39,8 +39,8 @@ How tests are written, where they live and how they run.
 
 `task test:upgrade` checks that a release upgrades the database production has, which the module tests never do since they install the modules fresh:
 
-1. It starts a throwaway Postgres 18.4 container and installs the modules of `src/core/modules.txt` with the image in production, the `newTag` of `infra/cluster/odoo/kustomization.yaml`.
-2. It upgrades that database with this checkout's image, `MEDILAB_ODOO_IMAGE` or `medilab-odoo:local`, with `--update=all` as the production upgrade Job does.
+1. It starts a throwaway Postgres 18.4 container and installs the modules of `src/core/modules.txt` except `sol_demo` with the image in production, the `newTag` of `infra/cluster/odoo/kustomization.yaml`. The demo module only seeds when it is installed, so the released image's seeding never decides whether an upgrade works.
+2. It upgrades that database with this checkout's image, `MEDILAB_ODOO_IMAGE` or `medilab-odoo:local`, with the production upgrade Job's `--init` of every module and `--update=all`, which installs `sol_demo`.
 3. It fails when Odoo exits with an error or any module is left in a state other than installed, then removes its containers, network and volume.
 
 It needs Docker and access to `ghcr.io/soltunemontepre/medilab`, so run `docker login ghcr.io` first. `BASE_IMAGE=<image>` starts from another image. It uses no bucket, so attachment files read as empty, and no production data; each release also rehearses the upgrade on a copy of production; see [Cluster](../infrastructure/cluster.md#odoo).

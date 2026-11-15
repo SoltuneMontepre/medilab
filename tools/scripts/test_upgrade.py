@@ -21,6 +21,7 @@ DB_USER = "odoo"
 # The throwaway Postgres gets a random password for each run, so no password lives in the repository.
 DB_PASSWORD = secrets.token_urlsafe(24)
 READY_ATTEMPTS = 60
+DEMO_MODULE = "sol_demo"
 
 
 def released_image():
@@ -104,9 +105,11 @@ def main():
             capture=True,
         )  # fmt: skip
         wait_for_postgres(postgres)
-        init = f"--init={','.join(names)}"
-        run_odoo(args.base, network, volume, postgres, [init])
-        run_odoo(args.image, network, volume, postgres, [init, "--update=all"])
+        # The demo module only seeds at install, so the released image installs the rest and this image installs it,
+        # as the upgrade Job does for a missing module; the released image's seeding is no upgrade concern.
+        base = [name for name in names if name != DEMO_MODULE]
+        run_odoo(args.base, network, volume, postgres, [f"--init={','.join(base)}"])
+        run_odoo(args.image, network, volume, postgres, [f"--init={','.join(names)}", "--update=all"])
         check_modules(postgres, names)
     finally:
         docker("rm", "-f", "-v", postgres, check=False, capture=True)
