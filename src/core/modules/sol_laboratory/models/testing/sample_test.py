@@ -288,8 +288,9 @@ class SampleTest(models.Model, SampleTestBase):
             test.can_enter_result = not test._result_refusal()
 
     def _result_refusal(self):
-        """Why no result can be entered for the test now; empty when one can. An outsourced test takes results once
-        its dispatch is sent, and its subcontractor's result waiting to be sent comes before any other."""
+        """Why no result can be entered for the test now; empty when one can. A test the laboratory measures takes
+        results only from the person who claimed its testing task. An outsourced test takes results once its dispatch
+        is sent, and its subcontractor's result waiting to be sent comes before any other."""
         self.ensure_one()
         test = self.sudo()
         if test.status not in MEASURABLE_STATUSES or test.sample_id.status not in OPEN_SAMPLE_STATUSES:
@@ -299,7 +300,10 @@ class SampleTest(models.Model, SampleTestBase):
                 test.display_name,
             )
         if test.status != "outsourced":
-            return ""
+            assignee = test._testing_task().assignee_id
+            if self.env.su or (assignee and assignee == self.env[MODEL_PERSON]._current()):
+                return ""
+            return self.env._("Claim the testing task of %s before entering its result.", test.display_name)
         if not test.dispatch_ids.filtered(lambda dispatch: dispatch.status in SENT_STATUSES):
             return self.env._("Send %s to its subcontractor before entering its result.", test.display_name)
         if test.result_ids.filtered(
@@ -311,6 +315,11 @@ class SampleTest(models.Model, SampleTestBase):
                 test.display_name,
             )
         return ""
+
+    def _comparison_requested(self):
+        """Whether its results are assessed against the sample's regulation: the regulation limits its parameter on some
+        sample type. An empty test has none."""
+        return self.parameter_id in self.sudo().sample_id.regulation_id.limit_ids.parameter_id
 
     def _compute_recommendation(self):
         bookings = self.env[MODEL_MACHINE_BOOKING]

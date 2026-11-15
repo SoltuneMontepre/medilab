@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_signature_list" model="ir.ui.view">
+        <field name="name">medilab.signature.list</field>
+        <field name="model">medilab.signature</field>
+        <field name="arch" type="xml">
+            <list create="0" delete="0" decoration-muted="withdrawn_at">
+                <field name="signer_name" string="Signer" />
+                <field name="signer_role" string="Role" />
+                <field name="level_name" string="Level" />
+                <field
+                    name="decision"
+                    widget="badge"
+                    decoration-success="decision == 'signed'"
+                    decoration-danger="decision == 'rejected'"
+                />
+                <field name="reason" />
+                <field name="document_version" string="Round" optional="hide" />
+                <field name="document_hash" string="SHA-256" optional="hide" />
+                <field name="create_date" string="Signed On" />
+                <field name="withdrawn_at" optional="show" />
+            </list>
+        </field>
+    </record>
+</odoo>

@@ -33,6 +33,7 @@ from odoo.addons.sol_laboratory.constants.medilab_mobile import (
     ALREADY_CLAIMED,
     ALREADY_TAKEN,
     MANDATORY_EVENT,
+    RESULT_WARNING,
 )
 
 # Every route of the API is under this path.
@@ -55,6 +56,7 @@ ERROR_STATUSES = {
     UPLOAD_CLOSED: 409,
     ACTION_REFUSED: 409,
     ALREADY_CLAIMED: 409,
+    RESULT_WARNING: 409,
     ALREADY_TAKEN: 409,
     NOT_ELIGIBLE: 422,
     NOT_LOCKABLE: 422,

@@ -20,7 +20,7 @@ export class ApiError extends Error {
 export class UnreachableError extends Error {}
 
 export interface Call {
-  method?: "GET" | "POST" | "PUT" | "DELETE";
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: unknown;
   key?: string | null;
   headers?: Record<string, string>;
@@ -222,6 +222,63 @@ export interface Sample {
   customer_sample_name: string | null;
   handover: SampleHandover | null;
   tasks: Task[];
+}
+
+export type ResultStatus = "none" | "requested" | "approved" | "rejected";
+
+export type Conclusion = "pass" | "fail" | "insufficient";
+
+/** A result as the list of results waiting for the person's signature shows it. */
+export interface ResultSummary {
+  id: number;
+  code: string;
+  parameter: string;
+  value_display: string;
+  unit: string;
+  status: ResultStatus;
+  entered_by: string;
+  entered_at: string | null;
+  warned: boolean;
+}
+
+/** A result with its limit, its warnings and what the person may do with it, as the web's form shows them. */
+export interface Result extends ResultSummary {
+  sample_test_id: number;
+  way: string;
+  value: number | null;
+  value_text: string;
+  decimals: number;
+  value_suggestion: string;
+  comparison_requested: boolean;
+  conclusion: Conclusion | null;
+  conclusion_label: string;
+  limit: string;
+  limit_missing: boolean;
+  status_label: string;
+  warnings: string[];
+  rejection_reason: string;
+  actions: { edit: boolean; sign: boolean; reject: boolean };
+}
+
+export interface ResultPage {
+  results: ResultSummary[];
+  next_after: number | null;
+}
+
+/** A sample test at the bench, with the unit and decimals of its way of testing and its reported result. */
+export interface SampleTest {
+  id: number;
+  code: string;
+  parameter: string;
+  way: string;
+  due_date: string | null;
+  status: string;
+  unit: string;
+  decimals: number;
+  regulation: string;
+  comparison_requested: boolean;
+  can_enter_result: boolean;
+  result: Result | null;
 }
 
 export type SupportRequestStatus = "open" | "answered" | "closed";

@@ -246,6 +246,11 @@ msgid "Ask the laboratory for help and follow the conversation"
 msgstr "Nhờ phòng thí nghiệm hỗ trợ và theo dõi trao đổi"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification
+msgid "Back to notifications"
+msgstr "Quay lại thông báo"
+
+#. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_base_module_uninstall__commerce_warning
 msgid "Commerce Warning"
 msgstr "Cảnh Báo Gỡ Thương Mại Điện Tử"
@@ -1360,6 +1365,11 @@ msgid "Name"
 msgstr "Tên"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification_preferences
+msgid "New"
+msgstr "Mới"
+
+#. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__advance_method__none
 msgid "No advance"
 msgstr "Không tạm ứng"
@@ -1368,6 +1378,16 @@ msgstr "Không tạm ứng"
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 msgid "Nothing has been paid on this order. It can still be confirmed."
 msgstr "Đơn hàng này chưa được thanh toán khoản nào. Vẫn có thể xác nhận đơn hàng."
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification
+msgid "Notification"
+msgstr "Thông báo"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification_preferences
+msgid "Notifications"
+msgstr "Thông báo"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
@@ -4243,11 +4263,6 @@ msgstr "Báo giá đã gửi"
 #: model:medilab.permission,name:sol_commerce.permission_notification_contact_read_all
 msgid "Read customer notification contacts"
 msgstr "Xem người nhận thông báo của khách hàng"
-
-#. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification_preferences
-msgid "Recent notifications"
-msgstr "Thông báo gần đây"
 
 #. module: sol_commerce
 #: model:mail.message.subtype,name:sol_commerce.event_result_released

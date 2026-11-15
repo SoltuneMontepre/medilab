@@ -44,6 +44,7 @@ def seed_demo(env):
     )
     from .demo_laboratory_uploads import seed_laboratory_uploads
     from .demo_locks import seed_locks
+    from .demo_mandatory_notices import seed_mandatory_notices
     from .demo_notifications import seed_notifications
     from .demo_order_templates import seed_order_templates
     from .demo_orders import seed_orders, seed_request_orders
@@ -51,7 +52,7 @@ def seed_demo(env):
     from .demo_quotations import seed_quotations, seed_sampling, seed_selected_ways
     from .demo_report_templates import seed_report_templates
     from .demo_reports import seed_reports
-    from .demo_results import seed_assessments, seed_results
+    from .demo_results import seed_assessments, seed_results, seed_warned_result
     from .demo_signing import seed_signing
     from .demo_signing_levels import seed_signing_levels
     from .demo_statistics import seed_statistics
@@ -69,6 +70,7 @@ def seed_demo(env):
     seed_sampling(env)
     seed_results(env)
     seed_assessments(env)
+    seed_warned_result(env)
     seed_statistics(env)
     seed_report_templates(env)
     seed_reports(env)
@@ -89,6 +91,7 @@ def seed_demo(env):
     seed_laboratory_editing(env)
     seed_phones(env)
     seed_notifications(env)
+    seed_mandatory_notices(env)
     seed_cleanup(env)
     seed_support(env)
     seed_signing_levels(env)

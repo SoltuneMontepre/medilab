@@ -8,7 +8,7 @@ import { useReloadOnReturn } from "../../focus";
 import { useLoad } from "../../load";
 import { useT } from "../../locale";
 import { useSession } from "../../session";
-import { colors, styles as shared } from "../../styles";
+import { styles as shared } from "../../styles";
 import { LoadNotice } from "../connection/LoadNotice";
 import { supportRequestPath } from "../documents/documentPath";
 import { chosenTab, ListTabs, type ListTab } from "../lists/ListTabs";
@@ -58,7 +58,7 @@ function SupportRequestRow({ request }: Readonly<{ request: SupportRequest }>) {
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={[request.subject, request.code, request.customer, status].join(", ")}
-      style={styles.item}
+      style={shared.card}
       onPress={() => router.push(supportRequestPath(request.id))}
     >
       <Text style={shared.label}>{request.subject}</Text>
@@ -71,5 +71,4 @@ function SupportRequestRow({ request }: Readonly<{ request: SupportRequest }>) {
 const styles = StyleSheet.create({
   screen: { flex: 1, padding: 24, gap: 16 },
   list: { gap: 8 },
-  item: { borderWidth: 1, borderColor: colors.border, borderRadius: 8, padding: 12, gap: 4 },
 });

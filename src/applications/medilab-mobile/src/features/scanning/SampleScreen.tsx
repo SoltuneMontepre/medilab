@@ -1,18 +1,17 @@
 import { useLocalSearchParams } from "expo-router";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { ApiError, type Sample, type Task } from "../../api";
-import { useReloadOnReturn } from "../../focus";
-import type { MessageKey } from "../../i18n";
-import { failed, useLoad, type Load } from "../../load";
+import type { Sample, Task } from "../../api";
+import { failed, type Load } from "../../load";
 import { useT } from "../../locale";
+import { useRecord } from "../../record";
 import { useSession } from "../../session";
 import { colors, styles as shared } from "../../styles";
-import { LoadNotice } from "../connection/LoadNotice";
-import { Facts } from "../documents/Facts";
 import { ActionProblem } from "../connection/ActionProblem";
+import { LoadNotice } from "../connection/LoadNotice";
+import { Facts, type Fact } from "../shared/Facts";
 import { formatMoment } from "../tasks/taskText";
 
 type Action = "receive" | "claim";
@@ -28,15 +27,7 @@ export function SampleScreen() {
   const [claimed, setClaimed] = useState(0);
   const [busy, setBusy] = useState(false);
 
-  const read = useCallback(async () => {
-    const sample = await call<Sample>(`/samples/${encodeURIComponent(id)}`);
-    if (!sample) {
-      throw new ApiError("not_found", "", 404);
-    }
-    return sample;
-  }, [call, id]);
-  const { load, setLoad, reload } = useLoad(read);
-  useReloadOnReturn(reload);
+  const { load, setLoad, reload } = useRecord<Sample>(`/samples/${encodeURIComponent(id)}`);
 
   // The chosen tasks the sample still offers: one claimed by someone else meanwhile is gone once the sample is read again.
   const picked = load.state === "ready" ? chosen.filter((taskId) => load.value.tasks.some((task) => task.id === taskId)) : [];
@@ -69,14 +60,14 @@ export function SampleScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.screen}>
+    <SafeAreaView style={shared.page}>
       <LoadNotice load={load} gone={t("sample.gone")} onRetry={reload} />
       {load.state === "ready" && (
-        <ScrollView contentContainerStyle={styles.content}>
+        <ScrollView contentContainerStyle={shared.pageContent}>
           <Details sample={load.value} />
           <Handover sample={load.value} busy={busy} onReceive={() => act("receive", load.value)} />
-          <View style={styles.section}>
-            <Text accessibilityRole="header" style={styles.heading}>
+          <View style={shared.section}>
+            <Text accessibilityRole="header" style={shared.heading}>
               {t("sample.tasks")}
             </Text>
             {!load.value.tasks.length && <Text style={shared.detail}>{t("sample.noTasks")}</Text>}
@@ -88,7 +79,7 @@ export function SampleScreen() {
                 accessibilityRole="button"
                 accessibilityState={{ disabled: busy || !picked.length }}
                 disabled={busy || !picked.length}
-                style={[shared.primaryButton, !picked.length && styles.disabled]}
+                style={[shared.primaryButton, !picked.length && shared.disabled]}
                 onPress={() => act("claim", load.value)}
               >
                 <Text style={shared.primaryButtonText}>{t("sample.claim", { count: picked.length })}</Text>
@@ -97,7 +88,7 @@ export function SampleScreen() {
             {claimed > 0 && <Text style={shared.label}>{t("sample.claimed", { count: claimed })}</Text>}
           </View>
           <ActionProblem
-            problem={problem?.load}
+            problem={problem?.load ?? null}
             gone={t("sample.gone")}
             onRetry={() => problem && act(problem.action, load.value)}
           />
@@ -109,7 +100,7 @@ export function SampleScreen() {
 
 function Details({ sample }: Readonly<{ sample: Sample }>) {
   const { language } = useSession();
-  const facts: [MessageKey, string | null][] = [
+  const facts: Fact[] = [
     ["sample.status", sample.status],
     ["sample.customer", sample.customer],
     ["sample.customerName", sample.customer_sample_name],
@@ -125,7 +116,7 @@ function Details({ sample }: Readonly<{ sample: Sample }>) {
     <>
       <Text style={shared.title}>{sample.code}</Text>
       <Facts facts={facts} />
-      {!!sample.note && <Text style={styles.note}>{sample.note}</Text>}
+      {!!sample.note && <Text style={shared.text}>{sample.note}</Text>}
     </>
   );
 }
@@ -135,8 +126,8 @@ function Handover({ sample, busy, onReceive }: Readonly<{ sample: Sample; busy: 
   const { language } = useSession();
   const { handover } = sample;
   return (
-    <View style={styles.section}>
-      <Text accessibilityRole="header" style={styles.heading}>
+    <View style={shared.section}>
+      <Text accessibilityRole="header" style={shared.heading}>
         {t("sample.handover")}
       </Text>
       {!handover && <Text style={shared.detail}>{t("sample.notHandedOver")}</Text>}
@@ -186,12 +177,6 @@ function ClaimableTask({ task, chosen, onToggle }: Readonly<{ task: Task; chosen
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, padding: 24 },
-  content: { gap: 12, paddingBottom: 24 },
-  note: { fontSize: 15, color: colors.text },
-  section: { gap: 8 },
-  heading: { fontSize: 18, fontWeight: "600", color: colors.text },
   task: { borderWidth: 1, borderColor: colors.border, borderRadius: 8, padding: 12, gap: 4 },
   chosen: { borderColor: colors.primary, borderWidth: 2 },
-  disabled: { opacity: 0.5 },
 });

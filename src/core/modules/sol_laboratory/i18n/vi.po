@@ -877,6 +877,7 @@ msgstr "Phê duyệt bằng chữ ký"
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_test__status__approved
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_result__status__approved
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_change_request__status__approved
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_search
 msgid "Approved"
 msgstr "Đã duyệt"
 
@@ -1370,6 +1371,7 @@ msgstr "Hủy yêu cầu thử nghiệm này cùng các mẫu và chỉ tiêu c�
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_search
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_subcontract_dispatch__status__cancelled
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__release_reason__cancelled
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_search
 msgid "Cancelled"
 msgstr "Đã hủy"
 
@@ -1490,6 +1492,8 @@ msgstr "Mã thành phố"
 #. module: sol_laboratory
 #. odoo-javascript
 #: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_list
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_awaiting_list
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_list
@@ -1926,6 +1930,7 @@ msgstr "Tạo cách thử của phòng ban mình"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__created_by_device_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__created_by_device_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__created_by_device_id
 msgid "Created By Device"
 msgstr "Tạo từ máy tính"
 
@@ -4601,6 +4606,7 @@ msgstr "Tên pháp lý"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__level_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.verify_page
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_signature_list
 msgid "Level"
 msgstr "Cấp"
 
@@ -5221,6 +5227,13 @@ msgstr ""
 "để thấy ở đây."
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/mail_message.py:0
+msgid ""
+"Notice not delivered: %s has no portal account and no usable email address"
+msgstr "Thông báo chưa được gửi: %s không có tài khoản cổng thông tin và không có địa chỉ email dùng được"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_needaction_counter
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_needaction_counter
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_needaction_counter
@@ -5367,6 +5380,7 @@ msgstr "Chỉ người đã ký mới có thể rút lại chữ ký."
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_search
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_editing_session__status__open
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_editing_session_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_search
 msgid "Open"
 msgstr "Đang mở"
 
@@ -5475,6 +5489,7 @@ msgstr "Đã thanh toán"
 #: code:addons/sol_laboratory/models/testing/test_report.py:0
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_sample_type__parameter_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_search
 msgid "Parameter"
 msgstr "Chỉ Tiêu"
 
@@ -6587,6 +6602,16 @@ msgid "Planned Start"
 msgstr "Bắt đầu dự kiến"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_notification__portal_seen_at
+msgid "Portal Seen At"
+msgstr "Thời điểm xem trên cổng thông tin"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_notification__portal_visible
+msgid "Portal Visible"
+msgstr "Hiển thị trên cổng thông tin"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__post_test_requirements
 msgid "Post Test Requirements"
 msgstr "Yêu cầu sau thử nghiệm"
@@ -7119,6 +7144,7 @@ msgstr "Số chữ số thập phân của kết quả"
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_test__status__result_entered
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_search
 msgid "Result Entered"
 msgstr "Đã nhập kết quả"
 
@@ -7189,6 +7215,7 @@ msgstr "Thu hồi lúc"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.verify_page
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder_member__role
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__role_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_signature_list
 msgid "Role"
 msgstr "Vai Trò"
 
@@ -7618,6 +7645,7 @@ msgstr "Đã đăng xuất"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__signer_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.verify_page
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_signature_list
 msgid "Signer"
 msgstr "Người Ký"
 
@@ -7761,6 +7789,7 @@ msgstr "Thống kê"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_editing_session_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__status
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__state
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_search
 msgid "Status"
 msgstr "Trạng thái"
 
@@ -10731,6 +10760,7 @@ msgstr "Thiết bị ký"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__storage_location
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__storage_location
 msgid "Storage Location"
 msgstr "Vị trí lưu mẫu"
 
@@ -11263,7 +11293,9 @@ msgid "Edit test results"
 msgstr "Sửa kết quả thử nghiệm"
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_list
 msgid "Enter Result"
 msgstr "Nhập kết quả"
 
@@ -11549,6 +11581,34 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "Claim the testing task of %s before entering its result."
+msgstr "Hãy nhận nhiệm vụ kiểm nghiệm của %s trước khi nhập kết quả."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_claim.py:0
+msgid "%s has no testing task to claim."
+msgstr "%s không có nhiệm vụ kiểm nghiệm để nhận."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__can_claim
+msgid "Can Claim"
+msgstr "Có thể nhận việc"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__is_mine
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_search
+msgid "Mine"
+msgstr "Của tôi"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_search
+msgid "To Claim"
+msgstr "Chờ nhận việc"
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch.py:0
 msgid "A dispatch whose sample tests have results cannot be cancelled."
 msgstr "Không thể hủy phiếu gửi có chỉ tiêu của mẫu đã có kết quả."
@@ -11788,6 +11848,8 @@ msgstr "Nhân Viên Giao Nhận Mẫu"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__sample_test_ids
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatches
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_form
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_sample_test
+#: model:ir.ui.menu,name:sol_laboratory.menu_sample_test
 msgid "Sample Tests"
 msgstr "Chỉ Tiêu Của Mẫu"
 
@@ -13088,6 +13150,7 @@ msgstr "Đã thu hồi"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__checksum
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__sha256
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__sha256
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_signature_list
 msgid "SHA-256"
 msgstr "SHA-256"
 
@@ -14017,18 +14080,20 @@ msgid "Reject the Version"
 msgstr "Từ chối phiên bản"
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_form_signing
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_signature_list
 msgid "Round"
 msgstr "Lượt ký"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__signature_ids
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_form_signing
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__signature_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
 msgid "Signatures"
 msgstr "Chữ ký"
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_form_signing
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_signature_list
 msgid "Signed On"
 msgstr "Ký lúc"
 
@@ -14119,6 +14184,7 @@ msgstr "Lượt đăng nhập sai"
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/services/laboratory_api.py:0
+#: code:addons/sol_laboratory/services/mobile_documents.py:0
 msgid "Nothing is found at this address."
 msgstr "Không tìm thấy gì tại địa chỉ này."
 
@@ -14216,6 +14282,7 @@ msgstr "Một yêu cầu khác vừa tạo cùng bản ghi này; yêu cầu đư
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__idempotency_key
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_idempotency_mixin__idempotency_key
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__idempotency_key
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__idempotency_key
 msgid "Idempotency Key"
 msgstr "Khóa chống lặp yêu cầu"
 
@@ -14246,6 +14313,7 @@ msgstr "Tham số %(name)s không khớp với API: %(error)s"
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder_api.py:0
+#: code:addons/sol_laboratory/models/testing/sample_test_mobile.py:0
 msgid "This Idempotency-Key was already sent with another request."
 msgstr "Idempotency-Key này đã được gửi kèm một yêu cầu khác."
 
@@ -16892,6 +16960,121 @@ msgstr "Báo cáo"
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result_check.py:0
+msgid ""
+"%(value)s is more than %(deviations)s standard deviations from %(mean)s, the"
+" mean of the %(count)s approved results of this way of testing on this "
+"sample type."
+msgstr ""
+"%(value)s lệch quá %(deviations)s độ lệch chuẩn so với %(mean)s, giá trị "
+"trung bình của %(count)s kết quả đã duyệt của cách thử này trên nền mẫu này."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result_check.py:0
+msgid "%(value)s is within %(margin)s%% of the regulation limit %(limit)s."
+msgstr ""
+"%(value)s nằm trong khoảng %(margin)s%% của giới hạn quy chuẩn %(limit)s."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+msgid ""
+"<span>Check this value before sending it; you may still send it.</span>"
+msgstr ""
+"<span>Kiểm tra lại giá trị này trước khi gửi; bạn vẫn có thể gửi.</span>"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+msgid "<span>Sent with a warning:</span>"
+msgstr "<span>Đã gửi kèm cảnh báo:</span>"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__result_check_minimum_count
+msgid ""
+"A numeric result is compared with the approved results of its way of testing"
+" on its sample type only once there are at least this many."
+msgstr ""
+"Kết quả dạng số chỉ được so với các kết quả đã duyệt của cùng cách thử trên "
+"cùng nền mẫu khi có ít nhất ngần này kết quả."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__result_check_deviations
+msgid ""
+"A result further than this many standard deviations from the mean of the "
+"approved results is unusual."
+msgstr ""
+"Kết quả lệch quá ngần này độ lệch chuẩn so với giá trị trung bình của các "
+"kết quả đã duyệt là bất thường."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/result_check_settings.py:0
+msgid "A result is compared with at least 2 approved results."
+msgstr "Kết quả được so với ít nhất 2 kết quả đã duyệt."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__result_check_limit_margin_percent
+msgid ""
+"A result within this percentage of its regulation limit is warned about "
+"before it is sent."
+msgstr ""
+"Kết quả nằm trong khoảng phần trăm này của giới hạn quy chuẩn được cảnh báo "
+"trước khi gửi."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__result_check_minimum_count
+msgid "Approved Results to Compare"
+msgstr "Số kết quả đã duyệt để so sánh"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result_mobile.py:0
+msgid "Check the result before sending it: %s"
+msgstr "Kiểm tra kết quả trước khi gửi: %s"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__result_check_limit_margin_percent
+msgid "Limit Margin (%)"
+msgstr "Khoảng cách tới giới hạn (%)"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result_mobile.py:0
+msgid "Only a draft result can be changed; %s is not one."
+msgstr "Chỉ sửa được kết quả nháp; %s không phải kết quả nháp."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form_result_check
+msgid "Result Check"
+msgstr "Kiểm tra kết quả"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__check_warning
+msgid "Sent With Warning"
+msgstr "Gửi kèm cảnh báo"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/result_check_settings.py:0
+msgid ""
+"The unusual spread must be above 0 and the limit margin cannot be negative."
+msgstr ""
+"Độ lệch bất thường phải lớn hơn 0 và khoảng cách tới giới hạn không được âm."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_test_result_device_idempotency_key_unique
+msgid "This phone already entered a result with this Idempotency-Key."
+msgstr "Điện thoại này đã nhập một kết quả với Idempotency-Key này."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__result_check_deviations
+msgid "Unusual Spread (standard deviations)"
+msgstr "Độ lệch bất thường (độ lệch chuẩn)"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__check_preview
+msgid "Warning"
+msgstr "Cảnh báo"
 #: code:addons/sol_laboratory/models/testing/machine_booking_capacity.py:0
 #, python-format
 msgid "Cannot reduce the capacity of %(link)s to %(capacity)s: a booked interval holds %(samples)s samples. Adjust its bookings first."

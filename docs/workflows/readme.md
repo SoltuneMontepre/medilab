@@ -19,4 +19,5 @@ Step-by-step procedures for recurring tasks.
 - [Working in a cloud session](cloud-session.md): set up a Claude Code cloud environment with `task ai:env` and a setup script, then start the tools, database and app in a session
 - [Type checking](type-checking.md): prepare registry interfaces, investigate diagnostics and recover owned preparation resources
 - [Odoo intelligence](odoo-intelligence.md): install and verify Odoo navigation across coding clients and isolated worktrees
+- [Releasing and rolling back portal notices](portal-notices-release.md): deploy the portal notice columns without losing a mandatory notice, and back up and restore first-open times around a rollback
 - [Reviewing task links](reviewing-task-links.md): after the upgrade that locks task links, review the tasks the audit trail cannot verify before calling production secure
