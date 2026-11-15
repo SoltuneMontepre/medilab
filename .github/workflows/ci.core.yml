@@ -134,6 +134,8 @@ jobs:
       - name: Typecheck
         id: typecheck
         if: needs.changes.outputs.lint == 'true'
+        env:
+          NODE_OPTIONS: --max-old-space-size=6144
         run: task typecheck
 
       - name: Upload typecheck diagnostics
