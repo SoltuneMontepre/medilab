@@ -23,6 +23,11 @@ env:
 - tapOn:
     text: "Continue"
     optional: true
+- runFlow:
+    when:
+      visible: "Reload"
+    commands:
+      - back
 - tapOn: "English"
 - tapOn: "Login"
 - inputText: ${LOGIN}
