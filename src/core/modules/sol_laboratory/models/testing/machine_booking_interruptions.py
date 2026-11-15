@@ -59,6 +59,7 @@ class MachineBookingInterruptions(models.Model, MachineBookingInterruptionsBase)
         rooms=(),
         way=None,
         sample=None,
+        planned=None,
     ):
         """The free slot, with the room of each step usable for the step's time."""
         closures = (
@@ -73,7 +74,7 @@ class MachineBookingInterruptions(models.Model, MachineBookingInterruptionsBase)
         )
         while True:
             start = super()._free_slot(
-                machine, length, person, not_after, not_before, ignore, working, rooms, way, sample
+                machine, length, person, not_after, not_before, ignore, working, rooms, way, sample, planned
             )
             if not start:
                 return start
