@@ -241,18 +241,22 @@ class TestPayments(InvoicingCase):
         self.assertTrue(transaction.payment_id)
 
     def test_an_overdue_reminder_is_queued_once(self):
-        state = self.invoice.payment_state
+        invoice = self.order.copy()
+        self.confirm_sale(invoice)
+        invoice = invoice.create_final_invoice()
+        invoice.action_post()
+        state = invoice.payment_state
         today = datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).date()
-        self.invoice.invoice_date_due = today - timedelta(days=1)
-        item = self.env[MODEL_SCHEDULED_JOB].queue("overdue.reminders", self.invoice.name, document=self.invoice)
+        invoice.invoice_date_due = today - timedelta(days=1)
+        item = self.env[MODEL_SCHEDULED_JOB].queue("overdue.reminders", invoice.name, document=invoice)
 
         item.job_id._handle_overdue_reminders(item)
         item.job_id._handle_overdue_reminders(item)
 
-        self.assertEqual(self.invoice.payment_state, state)
+        self.assertEqual(invoice.payment_state, state)
         self.assertEqual(
             self.env["mail.message"].search_count(
-                [("notification_key", "=", f"invoice:{self.invoice.id}:overdue:{today.isoformat()}")]
+                [("notification_key", "=", f"invoice:{invoice.id}:overdue:{today.isoformat()}")]
             ),
             1,
         )

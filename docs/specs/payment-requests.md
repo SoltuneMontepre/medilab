@@ -11,9 +11,9 @@ Ask the customer for money without posting a customer invoice before the money i
 ### Requests
 
 - Sending a quotation with an advance creates its **advance payment request**: the order, the quotation version, the requested amount (full, a percentage or a fixed amount), the payment deadline and the payment means (PayOS online, bank transfer, cash). The request and its notice are written in the customer's language. Only the current request takes new payments.
-- Confirming the order of a customer who is not allowed to order on credit creates its **balance payment request**: the order total less the verified money already applied to the order. Sample collection starts once the balance is verified.
+- Confirming the order of a customer who is not allowed to order on credit creates its **balance payment request**: the order total less the verified money already applied to the order. The request has no deadline. Verified installments stay applied to the order and the request remains open until the full balance is verified. Sample collection starts once the balance is verified.
 - A customer allowed to order on credit gets no payment request. Their quotation is sent without an advance and accepted on the portal, and the accountant posts the final invoice once testing is completed ([Invoices](invoices.md)).
-- The portal shows each request's amount, the verified money applied to it, the payments awaiting verification and the amount still needed. An unpaid request past its deadline is expired, not an overdue invoice.
+- The portal shows each request's amount, the verified money applied to it, the payments awaiting verification and the amount still needed. An unpaid advance request past its deadline is expired, not an overdue invoice.
 
 ### Payments and their invoices
 
@@ -45,7 +45,7 @@ Once the accountant confirms the payment, the rules for verified money apply; on
 
 ### Expiry
 
-- At the payment deadline the request stops taking new payments and its open PayOS links are cancelled. The quotation and its payments are kept; Sales extends it or sends a revision. Expiry neither cancels the order nor creates a refund.
+- At the advance payment deadline the request stops taking new payments and its open PayOS links are cancelled. The quotation and its payments are kept; Sales extends it or sends a revision. Expiry neither cancels the order nor creates a refund.
 - A payment received before the deadline and verified after it still counts: an unchanged quotation that was not declined, replaced or cancelled is accepted at verification when the full advance arrived before the deadline. Money received after the deadline is recorded and reviewed, and Sales extends the quotation before it counts.
 - A partial advance received before the deadline stays on the same order while Sales agrees with the customer to extend, revise or cancel.
 
@@ -53,7 +53,7 @@ Once the accountant confirms the payment, the rules for verified money apply; on
 stateDiagram-v2
     [*] --> open: quotation sent with an advance, or order confirmed with a balance due
     open --> funded: verified payments reach the requested amount
-    open --> expired: deadline passes before the full amount is received
+    open --> expired: the advance deadline passes before the full amount is received
     open --> superseded: revision sent
     expired --> open: Sales extends the quotation
     expired --> funded: full amount received before the deadline, verified later

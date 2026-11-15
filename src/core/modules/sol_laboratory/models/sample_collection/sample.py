@@ -245,6 +245,7 @@ class Sample(models.Model, SampleBase):
         return Domain("status", "not in", FINISHED_STATUSES)
 
     def action_receive(self, quantity, condition, condition_note=None, storage_location=None):
+        self.request_id.sudo()._check_sample_intake()
         if condition not in RECEIPT_STATUS:
             raise UserError(self.env._("Condition must be good, damaged or insufficient."))
         if not quantity:

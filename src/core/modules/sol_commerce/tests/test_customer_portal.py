@@ -55,6 +55,7 @@ class TestCustomerPortal(HttpCase, OrderCase):
     def test_signing_up_registers_the_customer_who_sees_only_their_own_documents(self):
         order = self.make_quotable_order()
         order.with_user(self.sales).action_send_quotation()
+        self.pay_advance(order)
 
         self.post("/web/signup", SIGNUP, page="/web/signup")
 

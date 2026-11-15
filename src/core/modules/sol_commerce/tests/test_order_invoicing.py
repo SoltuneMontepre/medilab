@@ -3,7 +3,11 @@ from odoo.fields import Command
 from odoo.tests import tagged
 
 from .order_case import OrderCase
-from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ADVANCE_PAYMENT_INV, MODEL_SALE_ORDER
+from odoo.addons.sol_commerce.constants.models import (
+    MODEL_CUSTOMER_SALES_TERMS,
+    MODEL_SALE_ADVANCE_PAYMENT_INV,
+    MODEL_SALE_ORDER,
+)
 from odoo.addons.sol_laboratory.constants.models import MODEL_PERSON
 from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
@@ -12,17 +16,29 @@ from odoo.addons.sol_laboratory.services.record_id import persisted_id
 class TestOrderInvoicing(OrderCase):
     """Sales with the order's invoice permission create invoices from a confirmed order; the accountant posts them."""
 
+    def completed_credit_order(self):
+        terms = self.env[MODEL_CUSTOMER_SALES_TERMS]
+        if not terms.search_count([("customer_id", "=", self.customer_record.id)]):
+            terms.create({"customer_id": self.customer_record.id, "allow_credit": True})
+        order = self.make_quotable_order()
+        order.advance_method = "none"
+        order.with_user(self.head).action_send_quotation()
+        order._latest_quotation().with_user(self.portal).sudo().action_accept()
+        order.with_user(self.sales).action_confirm_order()
+        order.test_request_id.status = "completed"
+        return order
+
     def make_invoice(self, orders, user, values=None):
         dialog = (
             self.env[MODEL_SALE_ADVANCE_PAYMENT_INV]
             .with_user(user)
             .with_context(active_model=MODEL_SALE_ORDER, active_ids=orders.ids)
-            .create(values or {"advance_payment_method": "percentage", "amount": 10})
+            .create(values or {"advance_payment_method": "delivered"})
         )
         return dialog.create_invoices()
 
     def test_a_holder_of_the_invoice_permission_creates_a_draft_invoice(self):
-        order = self.make_confirmed_order()
+        order = self.completed_credit_order()
         before = order.sudo().invoice_ids
         self.sales_person.permission_ids |= self.env.ref("sol_commerce.permission_order_invoice_all")
 
@@ -31,10 +47,10 @@ class TestOrderInvoicing(OrderCase):
         created = order.sudo().invoice_ids - before
         self.assertEqual(len(created), 1)
         self.assertEqual(created.state, "draft")
-        self.assertEqual((created.invoice_kind, created.order_id), ("advance", order))
+        self.assertEqual((created.invoice_kind, created.order_id), ("final", order))
 
     def test_sales_without_the_invoice_permission_cannot_create_invoices(self):
-        order = self.make_confirmed_order()
+        order = self.completed_credit_order()
         before = order.sudo().invoice_ids
 
         with self.assertRaises(AccessError):
@@ -52,7 +68,7 @@ class TestOrderInvoicing(OrderCase):
         self.assertFalse(order.sudo().invoice_ids)
 
     def test_the_accountant_creates_the_final_invoice_of_an_order_they_only_read(self):
-        order = self.make_confirmed_order()
+        order = self.completed_credit_order()
         before = order.sudo().invoice_ids
         accountant = self.env[MODEL_PERSON].create({"name": "Pham Minh Chau", "login": "orders.accountant"}).user_id
         accountant.write({"group_ids": [Command.link(persisted_id(self.env.ref("account.group_account_invoice")))]})
@@ -65,7 +81,7 @@ class TestOrderInvoicing(OrderCase):
         self.assertEqual((created.state, created.invoice_kind, created.order_id), ("draft", "final", order))
 
     def test_each_order_gets_its_own_final_invoice(self):
-        orders = self.make_confirmed_order() | self.make_confirmed_order()
+        orders = self.completed_credit_order() | self.completed_credit_order()
         before = orders.sudo().invoice_ids
         admin = self.env.ref("base.user_admin")
 

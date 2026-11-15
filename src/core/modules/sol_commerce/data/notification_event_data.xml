@@ -50,6 +50,15 @@
         <field name="mandatory" eval="False" />
         <field name="enabled" eval="True" />
     </record>
+    <record id="event_balance_requested" model="mail.message.subtype">
+        <field name="name">Balance payment requested</field>
+        <field name="description">A balance payment request was sent to the customer</field>
+        <field name="code">payment.balance_requested</field>
+        <field name="res_model">sale.order</field>
+        <field name="default" eval="False" />
+        <field name="internal" eval="False" />
+        <field name="enabled" eval="True" />
+    </record>
     <record id="event_quotation_sent" model="mail.message.subtype">
         <field name="name">Quotation sent</field>
         <field name="description">A quotation was sent to the customer</field>

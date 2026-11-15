@@ -6,7 +6,7 @@ from odoo import api, fields, models
 from odoo.exceptions import AccessError, UserError
 from odoo.fields import Command, Domain
 
-from odoo.addons.sol_commerce.constants.models import MODEL_ACCOUNT_MOVE, MODEL_SALE_ORDER
+from odoo.addons.sol_commerce.constants.models import MODEL_ACCOUNT_MOVE, MODEL_PAYMENT_REQUEST, MODEL_SALE_ORDER
 from odoo.addons.sol_commerce.constants.notifications import EVENT_INVOICE_SENT
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN
 from odoo.addons.sol_laboratory.constants.notifications import VIETNAM_ZONE
@@ -36,6 +36,8 @@ class AccountMove(models.Model, AccountMoveBase):
         )
         # The order this invoice bills. Empty until orders are installed; the sale lines still link the invoice.
         order_id = fields.Many2one(MODEL_SALE_ORDER, string="Order", index=True, ondelete="restrict")
+        # Request whose payment triggered this invoice.
+        payment_request_id = fields.Many2one(MODEL_PAYMENT_REQUEST, ondelete="restrict", index=True, copy=False)
         # The posted invoice a raising adjustment adds to.
         adjusted_invoice_id = fields.Many2one(
             MODEL_ACCOUNT_MOVE, string="Adjusted Invoice", ondelete="restrict", index=True
@@ -46,7 +48,7 @@ class AccountMove(models.Model, AccountMoveBase):
         )
         # What is still owed: the residual, minus posted lowering adjustments, plus posted raising ones.
         amount_owed = fields.Monetary(compute="_compute_amount_owed", currency_field="currency_id")
-        # Posted advance or final invoice whose due date in Vietnam has passed and that is not fully paid.
+        # Posted final invoice or raising adjustment whose due date in Vietnam has passed and that is not fully paid.
         is_overdue = fields.Boolean(compute="_compute_is_overdue", search="_search_is_overdue")
         # When the invoice first went to the customer: by email, or with its quotation for an advance invoice.
         sent_at = fields.Datetime(compute="_compute_sent_at", store=True, copy=False)
@@ -91,7 +93,7 @@ class AccountMove(models.Model, AccountMoveBase):
             move.is_overdue = bool(
                 move.move_type == "out_invoice"
                 and move.state == "posted"
-                and move.invoice_kind in ("advance", "final")
+                and move.invoice_kind in ("final", "adjustment")
                 and move.payment_state in ("not_paid", "partial")
                 and move.invoice_date_due
                 and move.invoice_date_due < today
@@ -103,7 +105,7 @@ class AccountMove(models.Model, AccountMoveBase):
             [
                 ("move_type", "=", "out_invoice"),
                 ("state", "=", "posted"),
-                ("invoice_kind", "in", ("advance", "final")),
+                ("invoice_kind", "in", ("final", "adjustment")),
                 ("payment_state", "in", ("not_paid", "partial")),
                 ("invoice_date_due", "<", today),
             ]
@@ -144,13 +146,17 @@ class AccountMove(models.Model, AccountMoveBase):
             attachments=attachment,
         )
 
-    def button_draft(self):
-        locked = self.filtered(lambda move: bool(move.invoice_kind and move.state == "posted"))
-        if self.env.context.get("medilab_cancel_unpaid_advance"):
-            locked = locked.filtered(lambda move: move.payment_state != "not_paid")
-        if locked:
+    def _check_posted_laboratory_invoices(self):
+        if self.filtered(lambda move: move.invoice_kind and move.state == "posted"):
             raise UserError(self.env._("A posted invoice cannot be edited. Correct it with an adjustment invoice."))
+
+    def button_draft(self):
+        self._check_posted_laboratory_invoices()
         return super().button_draft()
+
+    def button_cancel(self):
+        self._check_posted_laboratory_invoices()
+        return super().button_cancel()
 
     def action_post(self):
         if self.filtered("invoice_kind"):
@@ -175,9 +181,9 @@ class AccountMove(models.Model, AccountMoveBase):
             self._reconcile_adjustment(move)
         return move
 
+    @api.model
     def _portal_payos_available(self):
         """Whether this customer may start PayOS. Credentials stay on the server."""
-        self.ensure_one()
         provider = self.env.ref("sol_commerce.payment_provider_payos", raise_if_not_found=False)
         method = self.env.ref("sol_commerce.payment_method_payos_qr", raise_if_not_found=False)
         if not provider or not method:

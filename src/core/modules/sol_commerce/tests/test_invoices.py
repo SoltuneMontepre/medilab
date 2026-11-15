@@ -28,12 +28,6 @@ class TestInvoices(InvoicingCase):
         self.assertEqual(final.invoice_kind, "final")
         self.assertEqual(final.amount_total, self.order.amount_total - advance.amount_total)
 
-    def test_sending_a_quotation_is_the_hook_that_posts_the_advance(self):
-        invoice = self.order._on_quotation_sent(percentage=20)
-
-        self.assertEqual(len(invoice), 1)
-        self.assertEqual((invoice.invoice_kind, invoice.state, invoice.amount_total), ("advance", "posted", 1_000_000))
-
     def test_a_lowering_adjustment_reduces_what_is_owed_and_leaves_the_invoice(self):
         invoice = self.order.create_advance_invoice()
         self.assertEqual(invoice.amount_total, 5_000_000)

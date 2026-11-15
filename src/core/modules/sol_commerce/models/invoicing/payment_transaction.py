@@ -1,4 +1,5 @@
 from datetime import timedelta
+from math import isfinite
 from typing import TYPE_CHECKING
 
 from psycopg2 import IntegrityError
@@ -7,7 +8,11 @@ from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.fields import Command
 
-from odoo.addons.sol_commerce.constants.models import MODEL_ACCOUNT_PAYMENT, MODEL_PAYMENT_TRANSACTION
+from odoo.addons.sol_commerce.constants.models import (
+    MODEL_ACCOUNT_PAYMENT,
+    MODEL_PAYMENT_REQUEST,
+    MODEL_PAYMENT_TRANSACTION,
+)
 from odoo.addons.sol_commerce.models.invoicing.res_config_settings import DEFAULT_PAYOS_EXPIRY_HOURS
 from odoo.addons.sol_laboratory.constants.audit import MASK_PERSONAL
 from odoo.addons.sol_laboratory.constants.models import (
@@ -32,6 +37,12 @@ class PaymentTransaction(models.Model, PaymentTransactionBase):
     _inherit = [MODEL_AUDIT_MIXIN, MODEL_PAYMENT_TRANSACTION]
 
     if not TYPE_CHECKING:
+        # Request for which this link or transfer was created.
+        payment_request_id = fields.Many2one(MODEL_PAYMENT_REQUEST, ondelete="restrict", index=True, copy=False)
+        # Original amount asked by the link before its first transfer changes the transaction amount.
+        payos_requested_amount = fields.Monetary(copy=False, currency_field="currency_id")
+        # True after the link stops accepting transfers for MediLab.
+        payos_link_closed = fields.Boolean(copy=False)
         # The bank reference of this transfer. Empty until PayOS reports one.
         payos_bank_reference = fields.Char(copy=False, index=True)
         # The PayOS checkout page for the link. Empty until the call succeeds.
@@ -124,19 +135,32 @@ class PaymentTransaction(models.Model, PaymentTransactionBase):
         link = self.search([("reference", "=", order_code), ("provider_code", "=", "payos")], limit=1)
         if not link:
             return self.browse()
+        link.payment_request_id.order_id._lock_payment_orders()
         self.env[MODEL_ACCOUNT_PAYMENT]._lock_invoices(link.invoice_ids)
         self._payos_lock_order(order_code)
         link = self.search([("reference", "=", order_code), ("provider_code", "=", "payos")], limit=1)
         recorded = self.browse()
         for transfer in transfers:
             recorded |= self._payos_record_one(link, transfer)
+        if (
+            link.payos_requested_amount
+            and not link.payos_link_closed
+            and link._payos_received_amount() >= link.payos_requested_amount
+        ):
+            link.with_context(payment_safe_write=True).payos_link_closed = True
         return recorded
 
     def _payos_record_one(self, link, transfer):
         reference = str(transfer.get("reference") or "").strip()
         amount = transfer.get("amount")
         # A missing reference must not be stored on the link, or the next transfer would look like this one.
-        if not reference or not isinstance(amount, (int, float)) or isinstance(amount, bool):
+        if (
+            not reference
+            or not isinstance(amount, (int, float))
+            or isinstance(amount, bool)
+            or not isfinite(amount)
+            or amount <= 0
+        ):
             return self.browse()
         days = self.env["medilab.reconciliation.day"]
         moment = days._payos_moment(transfer.get("transactionDateTime"))
@@ -198,7 +222,8 @@ class PaymentTransaction(models.Model, PaymentTransactionBase):
                 "payos_bank_reference": bank_reference,
                 "payos_transferred_at": transferred_at,
                 "recorded_after_lock": recorded_after_lock,
-                "invoice_ids": [Command.set(persisted_ids(link.invoice_ids))],
+                "invoice_ids": [Command.set(persisted_ids(link.invoice_ids))] if not link.payment_request_id else [],
+                "payment_request_id": link.payment_request_id.id,
             }
         )
 
@@ -211,11 +236,33 @@ class PaymentTransaction(models.Model, PaymentTransactionBase):
         self.env[MODEL_SCHEDULED_JOB].queue("payos.calls", self.reference, document=self)
         return self
 
+    def _payos_received_amount(self):
+        self.ensure_one()
+        transfers = self.search(
+            [
+                ("provider_code", "=", "payos"),
+                ("provider_reference", "=", self._payos_order_code()),
+                ("payos_bank_reference", "!=", False),
+                ("state", "=", "done"),
+            ]
+        )
+        return sum(transfers.mapped("amount"))
+
+    def _payos_close_request_links(self):
+        jobs = self.env[MODEL_SCHEDULED_JOB]
+        for link in self.filtered(lambda tx: tx.payos_requested_amount and not tx.payos_link_closed):
+            link.with_context(payment_safe_write=True).payos_link_closed = True
+            if link.state in ("draft", "pending"):
+                link.with_context(payment_safe_write=True)._set_canceled()
+            if link._payos_received_amount() < link.payos_requested_amount:
+                jobs.queue("payos.cancel", link.reference, document=link)
+
     @api.model
     def _create_payos_transaction(self, invoice, amount=None):
         provider = self.env.ref("sol_commerce.payment_provider_payos")
         method = self.env.ref("sol_commerce.payment_method_payos_qr")
         order_code = self.env["ir.sequence"].next_by_code("medilab.payos.order")
+        request = invoice._name == MODEL_PAYMENT_REQUEST
         transaction = self.create(
             {
                 "provider_id": provider.id,
@@ -226,7 +273,9 @@ class PaymentTransaction(models.Model, PaymentTransactionBase):
                 "currency_id": invoice.currency_id.id,
                 "partner_id": invoice.partner_id.id,
                 "operation": "online_redirect",
-                "invoice_ids": [Command.set(persisted_ids(invoice))],
+                "invoice_ids": [Command.set(persisted_ids(invoice))] if not request else [],
+                "payment_request_id": invoice.id if request else False,
+                "payos_requested_amount": amount if request else 0,
             }
         )
         return transaction.action_payos_checkout()
@@ -258,22 +307,54 @@ class PaymentTransaction(models.Model, PaymentTransactionBase):
         amount = payments._validated_collection_amount(invoice, amount)
         return self.sudo()._create_payos_transaction(invoice, amount)
 
-    def _create_online_payment(self):
-        """Post the payment PayOS confirmed. The amount is PayOS's amount, even when it is more than the invoice."""
-        self.ensure_one()
-        if self.payment_id or self.state != "done" or not self.invoice_ids:
-            return self.payment_id
-        invoice = self.invoice_ids[:1]
-        payment = (
-            self.env[MODEL_ACCOUNT_PAYMENT]
-            .sudo()
-            .create(
-                {
-                    **self.env[MODEL_ACCOUNT_PAYMENT]._payment_values(invoice, self.amount, "online"),
-                    "payment_transaction_id": self.id,
-                }
-            )
+    @api.model
+    def _portal_start_request_payos(self, request, amount=None):
+        request.order_id._lock_payment_orders()
+        request._check_takes_payments()
+        if not request.order_id._payment_request_payos_available():
+            raise UserError(self.env._("PayOS is turned off."))
+        existing = self.sudo().search(
+            [
+                ("payment_request_id", "=", request.id),
+                ("provider_code", "=", "payos"),
+                ("payos_requested_amount", ">", 0),
+                ("payos_link_closed", "=", False),
+                ("state", "in", ("draft", "pending", "done")),
+            ],
+            limit=1,
         )
-        payment.action_post()
-        self.with_context(payment_safe_write=True).write({"payment_id": payment.id})
+        if existing:
+            return existing
+        amount = self.env[MODEL_ACCOUNT_PAYMENT]._validated_collection_amount(request, amount)
+        return self.sudo()._create_payos_transaction(request, amount)
+
+    def _create_online_payment(self):
+        """Record the payment PayOS confirmed. Transfers for past requests wait for the accountant."""
+        self.ensure_one()
+        request = self.payment_request_id
+        target = request or self.invoice_ids[:1]
+        if self.payment_id or self.state != "done" or not target:
+            return self.payment_id
+        request.order_id._lock_payment_orders()
+        payments = self.env[MODEL_ACCOUNT_PAYMENT].sudo()
+        values = {
+            **payments._payment_values(target, self.amount, "online"),
+            "payment_transaction_id": self.id,
+            "received_at": self.payos_transferred_at,
+        }
+        if request:
+            values["memo"] = self.payos_bank_reference
+            if request != request.order_id.payment_request_id or request.state == "superseded":
+                values["collection_review"] = "previous_request"
+            elif not self.payos_transferred_at or (request.deadline and self.payos_transferred_at > request.deadline):
+                values["collection_review"] = "late"
+        payment = payments.create(values)
+        if not payment.collection_review:
+            payment.action_post()
+        self.with_context(payment_safe_write=True).write(
+            {
+                "payment_id": payment.id,
+                "invoice_ids": [Command.set(persisted_ids(payment.invoice_ids))],
+            }
+        )
         return payment

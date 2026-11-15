@@ -17,7 +17,7 @@ export const CUSTOMERS = {
   },
 };
 
-const STAGES = ["submitted", "claimed", "sent", "accepted", "confirmed"];
+const STAGES = ["submitted", "claimed", "sent", "accepted", "confirmed", "paid"];
 
 // Lead twice and E. coli three times on bottled water: Lead needs an acidified polyethylene bottle and E. coli a chilled
 // sterile glass bottle, so 3 objects in two sampling groups make 6 expected samples.
@@ -33,10 +33,10 @@ export function parameterProduct(xmlId) {
     .then(([id]) => id);
 }
 
-// The latest quotation of an order and its advance invoice, as sales reads them.
+// The latest quotation of an order, as sales reads it.
 export function latestQuotation(orderId) {
   return callAs(SALES, "medilab.quotation", "search_read", [[["order_id", "=", orderId]]], {
-    fields: ["code", "revision", "status", "advance_invoice_id"],
+    fields: ["code", "revision", "status", "payment_request_ids"],
     order: "revision desc",
     limit: 1,
   }).then(([quotation]) => quotation);
@@ -76,17 +76,32 @@ function addSample(order) {
     );
 }
 
-// Pays the advance the way a customer who transfers it does: declared on the portal, confirmed by the accountant.
+export function currentRequest(order) {
+  return callAs(SALES, "sale.order", "read", [[order.id], ["payment_request_id"]]).then(([read]) => {
+    expect(read.payment_request_id, "current payment request").to.be.an("array");
+    const [id] = read.payment_request_id;
+    return callAs(SALES, "medilab.payment.request", "read", [[id], ["kind", "amount", "remaining_amount", "deadline", "state"]]).then(
+      ([paymentRequest]) => paymentRequest,
+    );
+  });
+}
+
+export function requestPaymentPath(order, request) {
+  return `/orders/${order.id}/payment-requests/${request.id}/pay`;
+}
+
+// The customer reports the bank transfer and the accountant verifies the receipt.
 export function payAdvance(order, customer = CUSTOMERS.nuocSach) {
-  return latestQuotation(order.id).then(({ advance_invoice_id: [invoice] }) => {
-    portalPostAs(customer.login, `/my/invoices/${invoice}`, `/my/invoices/${invoice}/pay`, { method: "bank_transfer" });
+  return currentRequest(order).then((request) => {
+    const page = `/orders/${order.id}${request.kind === "advance" ? "/quotation" : ""}`;
+    portalPostAs(customer.login, page, requestPaymentPath(order, request), { method: "bank_transfer" });
     return callAs("demo.accountant", "account.payment", "search", [
       [
-        ["invoice_ids", "in", [invoice]],
+        ["payment_request_id", "=", request.id],
         ["state", "=", "draft"],
       ],
     ]).then((ids) => {
-      expect(ids, "declared transfer").to.have.length(1);
+      expect(ids, "reported transfer").to.have.length(1);
       return callAs("demo.accountant", "account.payment", "action_post", [ids]);
     });
   });
@@ -151,6 +166,9 @@ export function orderAt(
   }
   if (reached("confirmed")) {
     step(SALES, "action_confirm_order");
+  }
+  if (reached("paid")) {
+    cy.then(() => payAdvance(order, customer));
   }
   return cy.then(() => order);
 }

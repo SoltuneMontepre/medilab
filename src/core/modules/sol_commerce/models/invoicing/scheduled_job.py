@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
 
@@ -55,6 +55,11 @@ class ScheduledJob(models.Model, ScheduledJobBase):
         transaction = item._document()
         if not transaction or transaction.payos_checkout_url:
             return None
+        request = transaction.payment_request_id
+        if request:
+            request.order_id._lock_payment_orders()
+            if transaction.payos_link_closed or not request._takes_payments():
+                return None
         client = payos_client_from_env()
         if client is None:
             # The item stays queued. Setting the secrets later lets the same item continue.
@@ -75,7 +80,11 @@ class ScheduledJob(models.Model, ScheduledJobBase):
         remote = client.request("GET", f"/v2/payment-requests/{order_code}")
         transaction._audit("integration", self.env._("PayOS read the payment link %s", order_code))
         if remote is None:
-            checkout_url = self._payos_create_link(client, order_code, amount)
+            deadline = transaction.payment_request_id.deadline
+            if deadline:
+                checkout_url = self._payos_create_link(client, order_code, amount, deadline=deadline)
+            else:
+                checkout_url = self._payos_create_link(client, order_code, amount)
             transaction._audit("integration", self.env._("PayOS created the payment link %s", order_code))
             return checkout_url
         data = remote.get("data") if isinstance(remote, dict) else None
@@ -97,7 +106,7 @@ class ScheduledJob(models.Model, ScheduledJobBase):
         if document:
             self.env[MODEL_SCHEDULED_JOB].queue("payos.poll", document.reference, document=document)
 
-    def _payos_create_link(self, client, order_code, amount):
+    def _payos_create_link(self, client, order_code, amount, *, deadline=None):
         base = self.env["ir.config_parameter"].sudo().get_str("web.base.url")
         return_url = f"{base}/payment/payos/return"
         description = self._payos_description(order_code)
@@ -109,6 +118,8 @@ class ScheduledJob(models.Model, ScheduledJobBase):
             "returnUrl": return_url,
             "signature": client.payment_request_signature(amount, return_url, description, order_code, return_url),
         }
+        if deadline:
+            payload["expiredAt"] = int(deadline.replace(tzinfo=UTC).timestamp())
         body = client.request("POST", "/v2/payment-requests", payload) or {}
         data = body.get("data") or {}
         if ("orderCode" in data or "amount" in data) and not self._payos_link_matches(data, amount, order_code):
@@ -163,6 +174,24 @@ class ScheduledJob(models.Model, ScheduledJobBase):
             return False
         return remote_amount == int(amount) and remote_code == int(order_code)
 
+    def _handle_payos_cancel(self, item):
+        transaction = item._document()
+        if not transaction:
+            return None
+        transaction.payment_request_id.order_id._lock_payment_orders()
+        client = payos_client_from_env()
+        if client is None:
+            return fields.Datetime.now() + POLL_AGAIN
+        code = transaction._payos_order_code()
+        path = f"/v2/payment-requests/{code}"
+        data = (client.request("GET", path) or {}).get("data") or {}
+        if data.get("status") in ("PENDING", "PROCESSING", "UNDERPAID"):
+            data = (
+                client.request("POST", f"{path}/cancel", {"cancellationReason": "Payment request closed"}) or {}
+            ).get("data") or {}
+        self.env["payment.transaction"]._payos_record_transfers(code, data.get("transactions") or [])
+        return None
+
     def _handle_payos_poll(self, item):
         transaction = item._document()
         if not transaction:
@@ -176,6 +205,12 @@ class ScheduledJob(models.Model, ScheduledJobBase):
         data = body.get("data") or body
         # amount on the payment request is what was asked. Money received is each transfer.
         self.env["payment.transaction"]._payos_record_transfers(order_code, data.get("transactions") or [])
+        if transaction.payos_link_closed:
+            return None
+        if data.get("status") in ("CANCELLED", "EXPIRED"):
+            if transaction.state in ("draft", "pending"):
+                transaction.with_context(payment_safe_write=True)._process({"expired": True})
+            return None
         remaining = data.get("amountRemaining")
         if isinstance(remaining, (int, float)) and not isinstance(remaining, bool) and remaining > 0:
             return fields.Datetime.now() + POLL_AGAIN

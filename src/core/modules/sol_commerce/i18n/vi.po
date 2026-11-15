@@ -4929,3 +4929,462 @@ msgstr "Thuế bán hàng cùng thuế suất"
 #: code:addons/sol_commerce/models/pricing/tax_rate.py:0
 msgid "The accounting tax of %(rate)s must be a sales tax of %(percent)s%%."
 msgstr "Thuế kế toán của %(rate)s phải là thuế bán hàng %(percent)s%%."
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.payment_request_summary
+msgid ""
+"<i class=\"oi me-1\" data-icon=\"check\" aria-hidden=\"true\"/>Report bank "
+"transfer"
+msgstr ""
+"<i class=\"oi me-1\" data-icon=\"check\" aria-hidden=\"true\"/>Báo đã chuyển"
+" khoản"
+
+
+#. module: sol_commerce
+#: model:mail.message.subtype,description:sol_commerce.event_balance_requested
+msgid "A balance payment request was sent to the customer"
+msgstr "Đã gửi yêu cầu thanh toán số dư cho khách hàng"
+
+
+#. module: sol_commerce
+#: model:ir.model.constraint,message:sol_commerce.constraint_medilab_payment_request_per_quotation_kind
+msgid "A quotation has one request of each kind."
+msgstr "Mỗi báo giá có một yêu cầu thanh toán cho mỗi loại."
+
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.payment_request_summary
+msgid "Advance payment request"
+msgstr "Yêu cầu thanh toán tạm ứng"
+
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__account_payment__collection_review__late
+msgid "After the deadline"
+msgstr "Sau hạn thanh toán"
+
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__agreement_reference
+msgid "Agreement Reference"
+msgstr "Tham chiếu chấp thuận"
+
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.payment_request_summary
+msgid "Already applied to the order"
+msgstr "Đã áp dụng cho đơn hàng"
+
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_payos_pending
+msgid "Back to payment"
+msgstr "Quay lại thanh toán"
+
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_payment_request__kind__balance
+msgid "Balance"
+msgstr "Số dư"
+
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.payment_request_summary
+msgid "Balance payment request"
+msgstr "Yêu cầu thanh toán số dư"
+
+
+#. module: sol_commerce
+#: model:mail.message.subtype,name:sol_commerce.event_balance_requested
+msgid "Balance payment requested"
+msgstr "Đã yêu cầu thanh toán số dư"
+
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__can_invoice_credit_order
+msgid "Can Invoice Credit Order"
+msgstr "Có thể lập hóa đơn mua chịu"
+
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__can_record_agreement
+msgid "Can Record Agreement"
+msgstr "Có thể ghi nhận chấp thuận"
+
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__can_record_collection
+msgid "Can Record Collection"
+msgstr "Có thể ghi nhận thanh toán"
+
+
+#. module: sol_commerce
+#: model:ir.actions.server,name:sol_commerce.ir_cron_payos_cancel_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_commerce.scheduled_job_payos_cancel
+msgid "Cancel PayOS links"
+msgstr "Hủy liên kết PayOS"
+
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_payment_request__carried_amount
+msgid "Carried Amount"
+msgstr "Số tiền chuyển tiếp"
+
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_account_payment__collection_review
+msgid "Collection Review"
+msgstr "Lý do cần xác nhận"
+
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/sale_order.py:0
+msgid ""
+"Confirm or reject the pending payment before changing the quotation or "
+"order."
+msgstr ""
+"Hãy xác nhận hoặc từ chối khoản thanh toán đang chờ trước khi thay đổi báo "
+"giá hoặc đơn hàng."
+
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_payment_request__deadline
+msgid "Deadline"
+msgstr "Hạn thanh toán"
+
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "Enter a reference to the customer's written agreement."
+msgstr "Nhập tham chiếu văn bản chấp thuận của khách hàng."
+
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/controllers/order.py:0
+#: code:addons/sol_commerce/models/invoicing/account_payment.py:0
+msgid "Enter the date and time the money was received."
+msgstr "Nhập ngày và giờ nhận tiền."
+
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_payment_request__state__funded
+msgid "Funded"
+msgstr "Đã thu đủ"
+
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_payment_request__kind
+msgid "Kind"
+msgstr "Loại"
+
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_payment_collection__method
+msgid "Method"
+msgstr "Phương thức"
+
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__on_credit
+msgid "On Credit"
+msgstr "Mua chịu"
+
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/sale_order.py:0
+msgid "Only Sales can record a collection on behalf of the customer."
+msgstr ""
+"Chỉ bộ phận Kinh doanh mới có thể ghi nhận khoản thanh toán thay khách hàng."
+
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "Only Sales can record a customer's written agreement."
+msgstr ""
+"Chỉ bộ phận Kinh doanh mới có thể ghi nhận văn bản chấp thuận của khách "
+"hàng."
+
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "Only a claimed order can be revised."
+msgstr "Chỉ được sửa đơn hàng đã tiếp nhận."
+
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/account_payment.py:0
+msgid "Only a draft payment can be confirmed."
+msgstr "Chỉ có thể xác nhận khoản thanh toán ở trạng thái nháp."
+
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid ""
+"Only a revision covered by previous payments can use written agreement."
+msgstr ""
+"Chỉ ghi nhận chấp thuận bằng văn bản khi các khoản đã thanh toán đủ tạm ứng "
+"cho bản sửa đổi."
+
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid ""
+"Only the order workflow can change its payment request or credit state."
+msgstr ""
+"Chỉ quy trình đơn hàng mới có thể thay đổi yêu cầu thanh toán hoặc trạng "
+"thái mua chịu."
+
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid ""
+"Pay the remaining %(amount)s for order %(order)s before sample collection."
+msgstr ""
+"Thanh toán số tiền còn lại %(amount)s cho đơn %(order)s trước khi thu mẫu."
+
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/quotation.py:0
+msgid "Pay the requested advance to accept this quotation."
+msgstr "Thanh toán tiền tạm ứng được yêu cầu để chấp nhận báo giá này."
+
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_payment_request
+#: model:ir.model.fields,field_description:sol_commerce.field_account_bank_statement_line__payment_request_id
+#: model:ir.model.fields,field_description:sol_commerce.field_account_move__payment_request_id
+#: model:ir.model.fields,field_description:sol_commerce.field_account_payment__payment_request_id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__payment_request_ids
+#: model:ir.model.fields,field_description:sol_commerce.field_payment_transaction__payment_request_id
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__payment_request_id
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__payment_request_ids
+msgid "Payment Request"
+msgstr "Yêu Cầu Thanh Toán"
+
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.payment_request_summary
+msgid "Payment deadline"
+msgstr "Hạn thanh toán"
+
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_payment_transaction__payos_link_closed
+msgid "Payos Link Closed"
+msgstr "Đã đóng liên kết PayOS"
+
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_payment_transaction__payos_requested_amount
+msgid "Payos Requested Amount"
+msgstr "Số tiền yêu cầu qua PayOS"
+
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_payment_request__pending_amount
+msgid "Pending Amount"
+msgstr "Số Tiền Chờ Xác Nhận"
+
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.payment_request_summary
+msgid "Pending verification"
+msgstr "Chờ xác nhận"
+
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__account_payment__collection_review__previous_request
+msgid "Previous request"
+msgstr "Yêu cầu thanh toán trước"
+
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_payment_request_read_all
+msgid "Read payment requests"
+msgstr "Xem yêu cầu thanh toán"
+
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.payment_request_summary
+msgid "Receipt time (Vietnam)"
+msgstr "Thời điểm nhận tiền (giờ Việt Nam)"
+
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_account_payment__received_at
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_payment_collection__received_at
+msgid "Received At"
+msgstr "Thời Điểm Nhận Tiền"
+
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_payment_collection
+msgid "Record Payment"
+msgstr "Ghi Nhận Thanh Toán"
+
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_quotation_agreement
+msgid "Record Quotation Agreement"
+msgstr "Ghi Nhận Chấp Thuận Báo Giá"
+
+
+#. module: sol_commerce
+#: model:ir.actions.act_window,name:sol_commerce.action_quotation_agreement
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_quotation_agreement_form
+msgid "Record agreement"
+msgstr "Ghi nhận chấp thuận"
+
+
+#. module: sol_commerce
+#: model:ir.actions.act_window,name:sol_commerce.action_payment_collection
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_payment_collection_form
+msgid "Record payment"
+msgstr "Ghi nhận thanh toán"
+
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_payment_collection__reference
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_agreement__reference
+msgid "Reference"
+msgstr "Tham Chiếu"
+
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_payment_request__remaining_amount
+msgid "Remaining Amount"
+msgstr "Số Tiền Còn Lại"
+
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.payment_request_summary
+msgid "Requested amount"
+msgstr "Số tiền yêu cầu"
+
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/account_payment.py:0
+msgid ""
+"Sales must extend the payment deadline before this collection can be "
+"applied."
+msgstr ""
+"Bộ phận Kinh doanh phải gia hạn thanh toán trước khi áp dụng khoản tiền này."
+
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_payment_request__state
+msgid "State"
+msgstr "Trạng thái"
+
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.payment_request_summary
+msgid "Still needed"
+msgstr "Còn phải thanh toán"
+
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_payment_request__state__superseded
+msgid "Superseded"
+msgstr "Đã thay thế"
+
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/sale_advance_payment_inv.py:0
+#: code:addons/sol_commerce/models/invoicing/sale_order.py:0
+msgid "The advance invoice is posted when its payment is verified."
+msgstr "Hóa đơn tạm ứng được ghi sổ khi khoản thanh toán được xác nhận."
+
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/sale_order.py:0
+msgid "The final invoice is created after testing for orders on credit."
+msgstr "Hóa đơn cuối của đơn mua chịu được lập sau khi hoàn tất thử nghiệm."
+
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/account_payment.py:0
+msgid "The receipt time cannot be in the future."
+msgstr "Thời điểm nhận tiền không thể ở trong tương lai."
+
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/account_payment.py:0
+msgid ""
+"This collection needs a current payment request before it can be applied."
+msgstr "Cần có yêu cầu thanh toán hiện hành để áp dụng khoản thu này."
+
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/sale_order.py:0
+msgid "This order has no payment request or unpaid final invoice."
+msgstr ""
+"Đơn hàng này không có yêu cầu thanh toán hoặc hóa đơn cuối chưa thanh toán."
+
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/account_payment.py:0
+#: code:addons/sol_commerce/models/invoicing/payment_request.py:0
+msgid "This payment request no longer takes new payments."
+msgstr "Yêu cầu thanh toán này đã ngừng nhận khoản thanh toán mới."
+
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/quotation.py:0
+msgid "This quotation has expired."
+msgstr "Báo giá này đã hết hạn."
+
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_payment_request__verified_amount
+msgid "Verified Amount"
+msgstr "Số Tiền Đã Xác Nhận"
+
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.payment_request_summary
+msgid "Verified payments"
+msgstr "Các khoản đã xác nhận"
+
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid "Verify the full requested advance before confirming the order."
+msgstr "Xác nhận đủ số tiền tạm ứng trước khi xác nhận đơn hàng."
+
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+#: code:addons/sol_commerce/models/orders/test_request.py:0
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Verify the order balance before collecting its samples."
+msgstr "Xác nhận đã thanh toán số dư đơn hàng trước khi thu mẫu."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/payment_request.py:0
+msgid "Balance payment requests have no deadline."
+msgstr "Yêu cầu thanh toán số dư không có thời hạn."

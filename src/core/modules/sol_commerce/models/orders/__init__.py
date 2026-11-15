@@ -1,5 +1,4 @@
 from . import (
-    account_move,
     cancellation_request,
     customer_sales_terms,
     order_sample,
@@ -8,6 +7,7 @@ from . import (
     order_template_save,
     product_template,
     quotation,
+    quotation_agreement,
     quotation_sampling,
     res_company,
     res_config_settings,

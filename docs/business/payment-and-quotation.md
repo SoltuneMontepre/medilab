@@ -1,6 +1,6 @@
 # Payment and quotation
 
-- Sending a quotation with an advance creates a payment request, not an invoice: it names the quotation version, the amount, the deadline and the payment means, and posts no receivable or revenue. Confirming the order of a customer not allowed to order on credit creates a payment request for the balance.
+- Sending a quotation with an advance creates a payment request, not an invoice: it names the quotation version, the amount, the deadline and the payment means, and posts no receivable or revenue. Confirming the order of a customer not allowed to order on credit creates a payment request for the balance. It has no deadline and stays open across partial payments until fully funded.
 - The invoice is posted when the money is collected: verifying a payment posts an invoice for the amount received. For a customer allowed to order on credit, the final invoice is posted once testing is completed.
 - A customer accepts a quotation with an advance when the verified payments reach the requested advance; a partial advance does not accept it. A quotation sent without an advance is accepted on the portal. There is no separate customer signature.
 - A payment counts once it is verified: PayOS confirms online payments, the accountant confirms cash and bank transfers. While a payment awaits verification, a revision cannot be sent, the quotation cannot be declined and the order cannot be cancelled.

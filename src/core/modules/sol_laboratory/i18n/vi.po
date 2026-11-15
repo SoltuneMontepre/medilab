@@ -16743,3 +16743,14 @@ msgstr "Bạn không được tạo nhiệm vụ."
 #: code:addons/sol_laboratory/models/sample_collection/sample_mobile.py:0
 msgid "Only the unassigned testing tasks of your department on %s can be claimed here."
 msgstr "Chỉ nhận được ở đây các nhiệm vụ kiểm nghiệm chưa giao của phòng ban bạn trên %s."
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__status__on_credit
+msgid "On credit"
+msgstr "Mua chịu"
+
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_payment_request_read_all
+msgid "Permission: payment.request.read.all"
+msgstr "Quyền: xem mọi yêu cầu thanh toán"

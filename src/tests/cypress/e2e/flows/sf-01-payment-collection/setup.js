@@ -1,20 +1,21 @@
 import { callAs, portalPostAs, randomId, refAs } from "../../../support/odoo";
-import { CUSTOMERS, orderAt } from "../wf-01-order-to-test-request/setup";
+import { CUSTOMERS, currentRequest, orderAt, requestPaymentPath } from "../wf-01-order-to-test-request/setup";
 
 export const ACCOUNTANT = "demo.accountant";
 export const ADMINISTRATOR = "demo.administrator";
 export const SALES = "demo.sales";
-export const CUSTOMER = CUSTOMERS.nuocSach;
+export const CUSTOMER = CUSTOMERS.anPhu;
+export const PREPAYING_CUSTOMER = CUSTOMERS.nuocSach;
 
 const INVOICE = "account.move";
 
-// A confirmed order for Lead (Pb) whose 30% advance the customer paid and the accountant confirmed. The final invoice
-// does not wait for testing: the catalog bills on the ordered quantity.
-export function paidOrder() {
+// A confirmed order whose advance is verified and whose balance payment request is open.
+export function balanceOrder() {
   return orderAt("confirmed").then((order) =>
-    callAs(SALES, "sale.order", "read", [[order.id], ["name", "amount_total", "payment_status"]]).then(([read]) => {
-      expect(read.payment_status, "advance paid").to.equal("paid");
-      return { ...order, ...read };
+    currentRequest(order).then((request) => {
+      expect(request.kind).to.equal("balance");
+      expect(request.state).to.equal("open");
+      return { ...order, request };
     }),
   );
 }
@@ -24,10 +25,15 @@ export function readInvoice(invoice, fields) {
   return callAs(ACCOUNTANT, INVOICE, "read", [[invoice.id], fields]).then(([read]) => read);
 }
 
-// The final invoice of a paid order, which the accountant drafts and, unless `post` is false, posts. Yields `{ model, id }`.
+// The posted final invoice of a customer allowed to buy on credit, whose testing is completed.
 export function finalInvoice({ post = true, values } = {}) {
-  return paidOrder()
-    .then((order) => callAs(ACCOUNTANT, "sale.order", "create_final_invoice", [[order.id]]))
+  return orderAt("confirmed", { customer: CUSTOMER, advance: false })
+    .then((order) =>
+      callAs(SALES, "sale.order", "read", [[order.id], ["test_request_id"]]).then(([read]) => {
+        callAs(ADMINISTRATOR, "medilab.test.request", "write", [[read.test_request_id[0]], { status: "completed" }]);
+        return callAs(ACCOUNTANT, "sale.order", "create_final_invoice", [[order.id]]);
+      }),
+    )
     .then(([id]) => {
       const invoice = { model: INVOICE, id };
       if (values) {
@@ -38,6 +44,37 @@ export function finalInvoice({ post = true, values } = {}) {
       }
       return cy.wrap(invoice, { log: false });
     });
+}
+
+export function openRequestPayosLink(request) {
+  return callAs(
+    ACCOUNTANT,
+    "payment.transaction",
+    "search_read",
+    [
+      [
+        ["payment_request_id", "=", request.id],
+        ["payos_requested_amount", ">", 0],
+        ["payos_link_closed", "=", false],
+      ],
+    ],
+    { fields: ["reference", "amount"], limit: 1 },
+  ).then(([link]) => {
+    expect(link, "open PayOS link").to.exist;
+    return link;
+  });
+}
+
+export function startRequestPayos(order) {
+  return portalPostAs(PREPAYING_CUSTOMER.login, `/orders/${order.id}`, requestPaymentPath(order, order.request), {
+    method: "payos",
+  }).then(() => openRequestPayosLink(order.request));
+}
+
+export function requestInvoices(request) {
+  return callAs(ACCOUNTANT, INVOICE, "search_read", [[["payment_request_id", "=", request.id]]], {
+    fields: ["invoice_kind", "state", "amount_total", "amount_residual", "payment_state"],
+  });
 }
 
 // The PayOS link the customer started on the invoice and that is still waiting for money.

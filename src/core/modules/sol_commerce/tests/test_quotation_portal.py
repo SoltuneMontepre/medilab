@@ -42,44 +42,45 @@ class TestQuotationPortal(AuditLookup, HttpCase, OrderCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(self.quotation.code, response.text)
         self.assertIn(self.lead_product.name, response.text)
-        self.assertIn("Pay the advance before", response.text)
+        self.assertIn("Advance payment request", response.text)
         self.assertIn("Revisions", response.text)
         self.assertIn(f"/orders/{self.order.id}/quotation/{self.quotation.id}/pdf", response.text)
         self.assertNotIn("Earlier revisions were replaced", response.text)
 
-    def test_the_quotation_leads_to_paying_its_advance_invoice(self):
-        advance = self.quotation.sudo().advance_invoice_id
-
+    def test_the_quotation_shows_its_payment_request_and_reuses_a_reported_transfer(self):
+        request = self.order.payment_request_id
+        path = f"/orders/{self.order.id}/payment-requests/{request.id}/pay"
         response = self.page()
+        self.assertIn(path, response.text)
+        self.assertIn('id="payment_request_remaining"', response.text)
+        self.assertNotIn("/my/invoices/", response.text)
 
-        self.assertIn(advance.name, response.text)
-        self.assertIn("Pay the advance</a>", response.text)
-        link = re.search(r'href="([^"]*)"[^>]*>(?:<i [^>]*/?>(?:</i>)?)?Pay the advance</a>', response.text)
-        if link is None:
-            self.fail("The quotation page has no link to pay the advance.")
-        url = link.group(1).replace("&amp;", "&")
-        self.assertIn(f"/my/invoices/{advance.id}?access_token=", url)
-        self.assertIn("payment=True", url)
-        self.assertEqual(self.url_open(url).status_code, 200)
+        for amount in (1000, 2000):
+            response = self.url_open(
+                path,
+                data={
+                    "csrf_token": self.csrf_token(),
+                    "amount": amount,
+                    "method": "bank_transfer",
+                    "reference": "FT1212",
+                },
+                allow_redirects=False,
+            )
+            self.assertEqual(response.status_code, 303)
+            self.assertNotIn("error=", response.headers["Location"])
+
+        self.assertEqual(len(request.payment_ids), 1)
+        self.assertEqual(request.pending_amount, 1000)
+        self.assertEqual(request.verified_amount, 0)
+        self.assertEqual(request.remaining_amount, request.amount)
 
     def test_a_declined_quotation_offers_no_payment(self):
         self.post_decline("Too expensive")
 
         response = self.page()
 
-        self.assertIn(self.quotation.sudo().advance_invoice_id.name, response.text)
-        self.assertNotIn("Pay the advance", response.text)
-
-    def test_a_paid_advance_with_an_unpaid_raising_adjustment_shows_what_is_owed(self):
-        advance = self.quotation.sudo().advance_invoice_id
-        self.env["account.payment"].create_pending_payment(advance, advance.amount_residual, "cash").action_post()
-        advance.action_adjust(500_000)
-
-        response = self.page()
-
-        self.assertEqual((advance.amount_residual, advance.amount_owed), (0, 550_000))
-        self.assertIn(f"Advance invoice {advance.name}:", response.text)
-        self.assertNotIn(f"Advance invoice {advance.name} is paid.", response.text)
+        self.assertIn("Advance payment request", response.text)
+        self.assertNotIn('name="method" value="bank_transfer"', response.text)
 
     def test_a_revision_shows_the_replaced_banner_and_the_list(self):
         self.order.with_user(self.sales).action_revise_quotation()
@@ -142,7 +143,7 @@ class TestQuotationPortal(AuditLookup, HttpCase, OrderCase):
 
         self.assertIn("Accept quotation", self.page().text)
 
-    def test_accept_follows_the_advance_invoice_of_the_quotation(self):
+    def test_accept_follows_the_payment_request_of_the_quotation(self):
         self.order.with_user(self.sales).action_revise_quotation()
         self.order.with_user(self.sales).write({"advance_method": "none"})
 

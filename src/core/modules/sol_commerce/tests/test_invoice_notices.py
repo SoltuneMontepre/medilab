@@ -28,7 +28,8 @@ class TestInvoiceNotices(InvoicingCase):
 
     def test_an_overdue_invoice_is_reminded_once_per_vietnam_day(self):
         self.partner.email = "an@example.com"
-        invoice = self.order.create_advance_invoice()
+        invoice = self.order.create_final_invoice()
+        invoice.action_post()
         today = datetime.now(ZoneInfo(VIETNAM_ZONE)).date()
         invoice.invoice_date_due = today - timedelta(days=1)
         self.assertTrue(invoice.is_overdue)
