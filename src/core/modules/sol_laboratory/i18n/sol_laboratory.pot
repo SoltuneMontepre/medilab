@@ -16878,6 +16878,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_machine_method_edit_all
 msgid "Permission: machine.method.edit.all"
+msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
@@ -16886,81 +16887,81 @@ msgid "Only the unassigned testing tasks of your department on %s can be claimed
 msgstr ""
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_figure_list
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_statistic_list
 msgid "Average"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_figure__booked_hours
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_statistic__booked_hours
 msgid "Booked Hours"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_testing_figure__kind__booking
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_testing_statistic__kind__booking
 msgid "Booking"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_figure__on_time
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_statistic__on_time
 msgid "On Time (%)"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_figure__overdue
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_testing_figure__kind__overdue
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_figure_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_statistic__overdue
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_testing_statistic__kind__overdue
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_statistic_search
 msgid "Overdue"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_testing_figure_read_all
-msgid "Permission: testing.figure.read.all"
+#: model:res.groups,name:sol_laboratory.group_permission_testing_statistic_read_all
+msgid "Permission: testing.statistic.read.all"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_testing_figure_read_own_department
-msgid "Permission: testing.figure.read.own_department"
+#: model:res.groups,name:sol_laboratory.group_permission_testing_statistic_read_own_department
+msgid "Permission: testing.statistic.read.own_department"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_testing_figure_read_all
-msgid "Read the testing figures"
+#: model:medilab.permission,name:sol_laboratory.permission_testing_statistic_read_all
+msgid "Read the testing statistics"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_testing_figure_read_own_department
-msgid "Read the testing figures of their department"
+#: model:medilab.permission,name:sol_laboratory.permission_testing_statistic_read_own_department
+msgid "Read the testing statistics of their department"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_figure__turnaround_days
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_statistic__turnaround_days
 msgid "Receipt to Approval (Days)"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_testing_figure__kind__retest
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_testing_statistic__kind__retest
 msgid "Retest"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_figure__retests
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_figure_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_statistic__retests
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_statistic_search
 msgid "Retests"
 msgstr ""
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_figure_period_form
-msgid "Show Figures"
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_statistic_period_form
+msgid "Show Statistics"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_testing_figure
-#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_testing_figure_period
-#: model:ir.model,name:sol_laboratory.model_medilab_testing_figure
-#: model:ir.ui.menu,name:sol_laboratory.menu_testing_figure
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_figure_graph
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_figure_pivot
-msgid "Testing Figures"
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_testing_statistic
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_testing_statistic_period
+#: model:ir.model,name:sol_laboratory.model_medilab_testing_statistic
+#: model:ir.ui.menu,name:sol_laboratory.menu_testing_statistic
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_statistic_graph
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_statistic_pivot
+msgid "Testing Statistics"
 msgstr ""
 
 #. module: sol_laboratory
@@ -16977,19 +16978,30 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_method_machine_method_unique
 msgid "The machine is already linked to this testing method."
+msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/testing/testing_figure_period.py:0
-msgid "Testing Figures %(date_from)s – %(date_to)s"
+#: code:addons/sol_laboratory/models/testing/testing_statistic_period.py:0
+msgid "Testing Statistics %(date_from)s – %(date_to)s"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model,name:sol_laboratory.model_medilab_testing_figure_period
-msgid "Testing Figures Period"
+#: model:ir.model,name:sol_laboratory.model_medilab_testing_statistic_period
+msgid "Testing Statistics Period"
 msgstr ""
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_figure_list
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_statistic_list
 msgid "Total"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__first_approved_at
+msgid "First Approved At"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_reporting
+msgid "Reporting"
 msgstr ""

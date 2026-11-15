@@ -11,7 +11,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TESTING_METHOD,
 )
 
-MIGRATIONS = Path(__file__).resolve().parents[1] / "migrations" / "20.0.1.37.0"
+MIGRATIONS = Path(__file__).resolve().parents[1] / "migrations" / "20.0.1.38.0"
 
 
 @tagged("post_install", "-at_install")

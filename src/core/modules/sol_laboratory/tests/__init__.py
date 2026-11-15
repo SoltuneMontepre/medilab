@@ -252,7 +252,7 @@ from . import (
     test_test_result_approval,
     test_test_result_entry,
     test_testing_assignment,
-    test_testing_figures,
+    test_testing_statistics,
     test_translations,
     test_tree_filters,
     test_uninstall,

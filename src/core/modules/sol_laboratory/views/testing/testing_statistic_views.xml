@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="view_medilab_testing_figure_list" model="ir.ui.view">
-        <field name="name">medilab.testing.figure.list</field>
-        <field name="model">medilab.testing.figure</field>
+    <record id="view_medilab_testing_statistic_list" model="ir.ui.view">
+        <field name="name">medilab.testing.statistic.list</field>
+        <field name="model">medilab.testing.statistic</field>
         <field name="arch" type="xml">
             <list>
                 <field name="date" />
@@ -21,11 +21,11 @@
         </field>
     </record>
 
-    <record id="view_medilab_testing_figure_pivot" model="ir.ui.view">
-        <field name="name">medilab.testing.figure.pivot</field>
-        <field name="model">medilab.testing.figure</field>
+    <record id="view_medilab_testing_statistic_pivot" model="ir.ui.view">
+        <field name="name">medilab.testing.statistic.pivot</field>
+        <field name="model">medilab.testing.statistic</field>
         <field name="arch" type="xml">
-            <pivot string="Testing Figures">
+            <pivot string="Testing Statistics">
                 <field name="department_id" type="row" />
                 <field name="completed" type="measure" />
                 <field name="on_time" type="measure" />
@@ -38,20 +38,20 @@
         </field>
     </record>
 
-    <record id="view_medilab_testing_figure_graph" model="ir.ui.view">
-        <field name="name">medilab.testing.figure.graph</field>
-        <field name="model">medilab.testing.figure</field>
+    <record id="view_medilab_testing_statistic_graph" model="ir.ui.view">
+        <field name="name">medilab.testing.statistic.graph</field>
+        <field name="model">medilab.testing.statistic</field>
         <field name="arch" type="xml">
-            <graph string="Testing Figures" type="bar">
+            <graph string="Testing Statistics" type="bar">
                 <field name="department_id" />
                 <field name="completed" type="measure" />
             </graph>
         </field>
     </record>
 
-    <record id="view_medilab_testing_figure_search" model="ir.ui.view">
-        <field name="name">medilab.testing.figure.search</field>
-        <field name="model">medilab.testing.figure</field>
+    <record id="view_medilab_testing_statistic_search" model="ir.ui.view">
+        <field name="name">medilab.testing.statistic.search</field>
+        <field name="model">medilab.testing.statistic</field>
         <field name="arch" type="xml">
             <search>
                 <field name="department_id" />
@@ -70,16 +70,16 @@
         </field>
     </record>
 
-    <record id="action_medilab_testing_figure" model="ir.actions.act_window">
-        <field name="name">Testing Figures</field>
-        <field name="res_model">medilab.testing.figure</field>
-        <field name="path">testing-figures</field>
+    <record id="action_medilab_testing_statistic" model="ir.actions.act_window">
+        <field name="name">Testing Statistics</field>
+        <field name="res_model">medilab.testing.statistic</field>
+        <field name="path">testing-statistics</field>
         <field name="view_mode">pivot,graph,list</field>
     </record>
 
-    <record id="view_medilab_testing_figure_period_form" model="ir.ui.view">
-        <field name="name">medilab.testing.figure.period.form</field>
-        <field name="model">medilab.testing.figure.period</field>
+    <record id="view_medilab_testing_statistic_period_form" model="ir.ui.view">
+        <field name="name">medilab.testing.statistic.period.form</field>
+        <field name="model">medilab.testing.statistic.period</field>
         <field name="arch" type="xml">
             <form>
                 <group>
@@ -87,16 +87,16 @@
                     <field name="date_to" />
                 </group>
                 <footer>
-                    <button name="action_show" type="object" string="Show Figures" class="btn-primary" />
+                    <button name="action_show" type="object" string="Show Statistics" class="btn-primary" />
                     <button special="cancel" string="Discard" />
                 </footer>
             </form>
         </field>
     </record>
 
-    <record id="action_medilab_testing_figure_period" model="ir.actions.act_window">
-        <field name="name">Testing Figures</field>
-        <field name="res_model">medilab.testing.figure.period</field>
+    <record id="action_medilab_testing_statistic_period" model="ir.actions.act_window">
+        <field name="name">Testing Statistics</field>
+        <field name="res_model">medilab.testing.statistic.period</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
     </record>

@@ -1,45 +1,48 @@
-OLD_MODEL = "medilab.parameter.method.machine"
-NEW_MODEL = "medilab.machine.method"
-NAMES = {
-    "create": "Create machines for testing methods",
-    "edit": "Edit machines for testing methods",
-    "delete": "Delete machines for testing methods",
-}
+from odoo.tools import SQL
+
+# The testing statistics were called testing figures: the model names before and after.
+RENAMED_MODELS = (
+    ("medilab.testing.figure.period", "medilab.testing.statistic.period"),
+    ("medilab.testing.figure", "medilab.testing.statistic"),
+)
 
 
 def migrate(cr, _version):
-    # Bookings of one testing method now share a machine interval. The constraint that kept each booking alone on its
-    # machine goes before any data loads; the module adds the constraints that replace it.
-    cr.execute("ALTER TABLE medilab_machine_booking DROP CONSTRAINT IF EXISTS medilab_machine_booking_no_overlap")
-    # The permissions on the way-and-machine links become the permissions on the machine-and-method links, so the roles
-    # and people that hold them keep them. Their ids, groups and accesses take the new model's names before the shipped
-    # permissions load.
-    for action, name in NAMES.items():
-        cr.execute(
-            """
-            UPDATE medilab_permission
-               SET document_model = %s, code = %s, name = jsonb_build_object('en_US', %s)
-             WHERE document_model = %s AND action = %s
-            """,
-            (NEW_MODEL, f"machine.method.{action}.all", name, OLD_MODEL, action),
-        )
-        cr.execute(
-            """
-            UPDATE res_groups SET name = jsonb_build_object('en_US', %s)
-             WHERE id = (SELECT group_id FROM medilab_permission WHERE document_model = %s AND action = %s)
-            """,
-            (f"Permission: machine.method.{action}.all", NEW_MODEL, action),
-        )
+    # The period holds nothing to keep; Odoo creates the table under its new name.
+    cr.execute("DROP TABLE IF EXISTS medilab_testing_figure_period")
+    cr.execute("DELETE FROM ir_model_constraint WHERE name LIKE 'medilab\\_testing\\_figure\\_period%'")
+    # The models keep their ids, so their fields, views, action, menu and the permissions roles and people hold move
+    # with them.
+    for old, new in RENAMED_MODELS:
+        cr.execute(SQL("UPDATE ir_model SET model = %s WHERE model = %s", new, old))
+        cr.execute(SQL("UPDATE ir_model_fields SET model = %s WHERE model = %s", new, old))
+        cr.execute(SQL("UPDATE ir_model_fields SET relation = %s WHERE relation = %s", new, old))
+        cr.execute(SQL("UPDATE ir_ui_view SET model = %s WHERE model = %s", new, old))
+        cr.execute(SQL("UPDATE ir_act_window SET res_model = %s WHERE res_model = %s", new, old))
+        cr.execute(SQL("UPDATE ir_filters SET model_id = %s WHERE model_id = %s", new, old))
+        cr.execute(SQL("UPDATE medilab_permission SET document_model = %s WHERE document_model = %s", new, old))
     cr.execute(
         """
-        UPDATE ir_access SET name = replace(name, 'parameter.method.machine.', 'machine.method.')
-         WHERE name LIKE 'Permission: parameter.method.machine.%'
+        UPDATE ir_model_data SET name = replace(name, 'testing_figure', 'testing_statistic')
+         WHERE module = 'sol_laboratory' AND name LIKE '%testing\\_figure%'
+        """
+    )
+    # A permission's code, and the names of its group and access, follow the document type.
+    cr.execute(
+        """
+        UPDATE medilab_permission SET code = replace(code, 'testing.figure.', 'testing.statistic.')
+         WHERE code LIKE 'testing.figure.%'
         """
     )
     cr.execute(
         """
-        UPDATE ir_model_data SET name = replace(name, 'parameter_method_machine_', 'machine_method_')
-         WHERE module = 'sol_laboratory'
-           AND name ~ '^(group_|access_)?permission_parameter_method_machine_'
+        UPDATE res_groups SET name = replace(name::text, 'testing.figure.', 'testing.statistic.')::jsonb
+         WHERE name::text LIKE '%testing.figure.%'
+        """
+    )
+    cr.execute(
+        """
+        UPDATE ir_access SET name = replace(name, 'testing.figure.', 'testing.statistic.')
+         WHERE name LIKE 'Permission: testing.figure.%'
         """
     )
