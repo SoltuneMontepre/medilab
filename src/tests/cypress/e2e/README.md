@@ -36,6 +36,7 @@ src/tests/
         theme/chatter-resize/
         theme/navbar-more-menu/
         laboratory/unlinked-users/
+        laboratory/shared-intervals/
         ecommerce/portal-language/
         ecommerce/portal-navigation/
         ecommerce/uninstall-warning/
@@ -66,7 +67,7 @@ Paths below are relative to `cypress/e2e/`. The issue descriptions use flat path
 | WF-04 | Result entry and approval | [#155](https://github.com/SoltuneMontepre/medilab/issues/155) | `flows/wf-04-result-approval/` | `result-approval.cy.js` |
 | WF-05 | Outsourced testing | [#156](https://github.com/SoltuneMontepre/medilab/issues/156) | `flows/wf-05-outsourced-testing/` | `outsourced-testing.cy.js` |
 | WF-06 | Report signing, release and delivery | [#157](https://github.com/SoltuneMontepre/medilab/issues/157), [#431](https://github.com/SoltuneMontepre/medilab/issues/431), [#432](https://github.com/SoltuneMontepre/medilab/issues/432) | `flows/wf-06-report-release/` | `report-release.cy.js`, `report-preparation.cy.js` |
-| WF-04, SF-11 | Result files and laboratory file administration | [#168](https://github.com/SoltuneMontepre/medilab/issues/168) | `flows/wf-07-laboratory-files/` | `laboratory-files.cy.js` |
+| WF-04, SF-11 | Result files and laboratory file administration: the back-office screens that browse, download, sign and administer folders, members, versions, locks and devices, and the device API calls a Medilab Sync computer makes against them, uploads with real bytes included. Medilab Sync's own screens and saves in the real editor are not exercised here, lock expiry is simulated, and TC-F53-03 leaves the folder of a hidden sample uncovered. | [#168](https://github.com/SoltuneMontepre/medilab/issues/168) | `flows/wf-07-laboratory-files/` | `laboratory-files.cy.js`, `laboratory-file-versions.cy.js` |
 | SF-01 | Invoicing and payment collection | [#158](https://github.com/SoltuneMontepre/medilab/issues/158) | `flows/sf-01-payment-collection/` | `payment-collection.cy.js` |
 | SF-02 | Order cancellation | [#159](https://github.com/SoltuneMontepre/medilab/issues/159) | `flows/sf-02-order-cancellation/` | `order-cancellation.cy.js` |
 | SF-03 | Change request on a signed document | [#160](https://github.com/SoltuneMontepre/medilab/issues/160) | `flows/sf-03-change-request/` | `change-request.cy.js` |
@@ -109,8 +110,10 @@ Issue [#318](https://github.com/SoltuneMontepre/medilab/issues/318) tracks `TC-W
 | Prepare a solution from scanned bottles; verify the resulting stock movements and container. | [#181](https://github.com/SoltuneMontepre/medilab/issues/181) | `features/inventory/solution-preparation/` | `solution-preparation.cy.js` |
 | Resize and collapse the chatter that sits beside a form, and keep its width and state. | [#282](https://github.com/SoltuneMontepre/medilab/issues/282) | `features/theme/chatter-resize/` | `chatter-resize.cy.js` |
 | Move the menu bar sections that do not fit a narrow window into the More menu, in every app. | [#393](https://github.com/SoltuneMontepre/medilab/issues/393) | `features/theme/navbar-more-menu/` | `navbar-more-menu.cy.js` |
+| Move a booking into another sample's machine interval of the same method, which books its room once, and refuse a sample once the interval is full. | [#420](https://github.com/SoltuneMontepre/medilab/issues/420) | `features/laboratory/shared-intervals/` | `shared-intervals.cy.js` |
 | Link an internal user that no person links to, and refuse creating one outside a person. | [#438](https://github.com/SoltuneMontepre/medilab/issues/438) | `features/laboratory/unlinked-users/` | `unlinked-users.cy.js` |
 | Give a backup the head of department's role until a date, who approves a result or sends one at a lower level in their own name. | [#430](https://github.com/SoltuneMontepre/medilab/issues/430) | `features/laboratory/backup-signers/` | `backup-signers.cy.js` |
+| Open the testing statistics of a period: a head of department sees their department; the Lab Head compares departments and a department filter gives what its head sees. | [#440](https://github.com/SoltuneMontepre/medilab/issues/440) | `features/laboratory/testing-statistics/` | `testing-statistics.cy.js` |
 | Switch the portal language from the header and the account page, as a customer and as a visitor. | [#451](https://github.com/SoltuneMontepre/medilab/issues/451) | `features/ecommerce/portal-language/` | `portal-language.cy.js` |
 | Reach the catalog, My orders, Support and the account from the portal header, as a customer and as a visitor, and filter My orders. | [#452](https://github.com/SoltuneMontepre/medilab/issues/452), [#499](https://github.com/SoltuneMontepre/medilab/issues/499) | `features/ecommerce/portal-navigation/` | `portal-navigation.cy.js` |
 | Warn before uninstalling E-commerce that test requests keep their order's number, and not when Laboratory leaves with it. | [#439](https://github.com/SoltuneMontepre/medilab/issues/439) | `features/ecommerce/uninstall-warning/` | `uninstall-warning.cy.js` |
@@ -119,7 +122,7 @@ Issue [#318](https://github.com/SoltuneMontepre/medilab/issues/318) tracks `TC-W
 | Take a waiting support request and answer it on the phone; the customer reads the answer on the portal and is notified. | [#522](https://github.com/SoltuneMontepre/medilab/issues/522) | `features/mobile/support/` | `support.cy.js` |
 | Let a tester move their own booking and keep a moved task open for its head. | [#315](https://github.com/SoltuneMontepre/medilab/issues/315) | `features/laboratory/scheduling/` | `booking-adjustments.cy.js` |
 
-Onboarding and solution-preparation scenarios follow their approved feature documents and demo starting data. Reserving a directory does not settle the open requirements in those issues.
+Solution-preparation scenarios follow their approved feature document and demo starting data. Reserving a directory does not settle the open requirements in that issue.
 
 ## Related issue ownership
 

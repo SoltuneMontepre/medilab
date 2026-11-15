@@ -501,10 +501,13 @@ describe("WF-03 feature acceptance criteria", () => {
       }),
     );
     bookedLead().then(({ booking }) =>
-      callAs(ADMINISTRATOR, "medilab.parameter.method.machine", "search_read", [[["machine_id", "=", booking.machine_id[0]]]], {
-        fields: ["run_minutes"],
+      callAs(ADMINISTRATOR, "medilab.machine.method", "search_read", [[
+        ["machine_id", "=", booking.machine_id[0]],
+        ["method_id", "=", booking.method_id[0]],
+      ]], {
+        fields: ["duration_minutes"],
       }).then(([link]) => {
-        expect((time(booking.ends_at) - time(booking.starts_at)) / 60000).to.equal(Math.ceil(link.run_minutes / 15) * 15);
+        expect((time(booking.ends_at) - time(booking.starts_at)) / 60000).to.equal(Math.ceil(link.duration_minutes / 15) * 15);
       }),
     );
   });

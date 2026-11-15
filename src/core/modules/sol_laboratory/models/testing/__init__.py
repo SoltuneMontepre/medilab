@@ -3,6 +3,7 @@ from . import (
     change_request_raise,
     change_request_reject,
     machine_booking,
+    machine_booking_capacity,
     report_template,
     report_template_version,
     res_config_settings,
@@ -21,4 +22,6 @@ from . import (
     test_report_template_change,
     test_result,
     test_result_reject,
+    testing_statistic,
+    testing_statistic_period,
 )

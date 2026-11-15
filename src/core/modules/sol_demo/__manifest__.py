@@ -32,7 +32,7 @@
         "data/sol_laboratory/accreditation_scope_line.xml",
         "data/sol_laboratory/machine.xml",
         "data/sol_laboratory/machine_service.xml",
-        "data/sol_laboratory/parameter_method_machine.xml",
+        "data/sol_laboratory/machine_method.xml",
         "data/sol_laboratory/chemical.xml",
         "data/sol_laboratory/role.xml",
         "data/sol_laboratory/approval_chain.xml",

@@ -438,8 +438,10 @@ model SaleOrder {
   revenue           Decimal?              @db.Decimal
   /// When sales confirmed the order: Odoo's order date once confirmed.
   date_order        DateTime
-  /// The date the customer expects the results.
-  expected_result_date DateTime?          @db.Date
+  /// Requested date: the date the customer wants the results.
+  requested_date    DateTime?             @db.Date
+  /// Committed return date Sales promises on the quotation: the requested date when the laboratory can meet it, otherwise the estimate; the confirmed order gives it to its test request.
+  committed_date    DateTime?             @db.Date
   /// The earliest date the laboratory estimated it can return the results, worked out when the quotation's samples or parameters change.
   estimated_result_date DateTime?         @db.Date
   /// True when the customer asked for results earlier than the estimate and the laboratory's check said it can meet them.
