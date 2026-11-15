@@ -74,6 +74,7 @@ export function schedulingFixture(count = 2, register = () => {}, capacity = 1) 
     main_group_id: fixture.group,
     group_ids: [[6, 0, [fixture.group]]],
   })).then((id) => (fixture.parameter = id));
+  cy.then(() => create(ADMIN, "medilab.parameter.authorization", { person_id: fixture.tester, parameter_id: fixture.parameter }));
   cy.then(() => create(ADMIN, "medilab.parameter.method", {
     parameter_id: fixture.parameter,
     method_id: fixture.method,
@@ -103,10 +104,11 @@ export function schedulingFixture(count = 2, register = () => {}, capacity = 1) 
       }]],
     })).then((request) => {
       callAs(RECEPTION, "medilab.test.request", "action_confirm", [[request]]);
-      return callAs(RECEPTION, "medilab.sample", "search_read", [[["request_id", "=", request]]], { fields: ["test_ids"] });
+      return callAs(RECEPTION, "medilab.sample", "search_read", [[["request_id", "=", request]]], { fields: ["code", "test_ids"] });
     }).then(([sample]) => {
       fixture.tests.push(sample.test_ids[0]);
       callAs(RECEPTION, "medilab.sample", "action_receive", [[sample.id], "1 chai", "good"]);
+      callAs(TESTER, "medilab.sample.handover", "receive_by_label", [sample.code]);
       return callAs(ADMIN, "medilab.task", "search_read", [
         [["document_model", "=", "medilab.sample.test"], ["document_id", "=", sample.test_ids[0]]],
       ], { fields: ["name"] });
