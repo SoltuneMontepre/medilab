@@ -4,6 +4,7 @@ from . import (
     change_request_reject,
     machine_booking,
     machine_booking_capacity,
+    machine_booking_conditions,
     machine_booking_eligibility,
     machine_booking_overtime,
     machine_booking_plan,
