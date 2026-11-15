@@ -132,6 +132,7 @@ class MachineBookingConditions(models.Model, MachineBookingConditionsBase):
         rooms=(),
         way=None,
         sample=None,
+        planned=None,
     ):
         """The free slot, on a machine not overdue for maintenance, not held by a measurement past its end and after the
         downtime of its services."""
@@ -154,7 +155,7 @@ class MachineBookingConditions(models.Model, MachineBookingConditionsBase):
                 return None
         while True:
             start = super()._free_slot(
-                machine, length, person, not_after, not_before, ignore, working, rooms, way, sample
+                machine, length, person, not_after, not_before, ignore, working, rooms, way, sample, planned
             )
             if not start or not machine:
                 return start
