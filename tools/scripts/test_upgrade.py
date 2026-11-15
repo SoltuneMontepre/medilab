@@ -68,9 +68,12 @@ def run_odoo(image, network, volume, postgres, odoo_args):
 
 
 def check_modules(postgres, expected):
+    # A module left half installed, upgraded or removed is wrong as much as one of ours not installed; modules the
+    # addons path only lists, such as Odoo Enterprise's uninstallable ones, are not.
     names = ",".join(expected)
     query = (
-        f"select name || ' ' || state from ir_module_module where state <> 'uninstalled' or name = any('{{{names}}}')"
+        "select name || ' ' || state from ir_module_module "
+        f"where state in ('to install', 'to upgrade', 'to remove') or name = any('{{{names}}}')"
     )
     result = docker("exec", postgres, "psql", "-U", DB_USER, "-d", DATABASE, "-Atc", query, capture=True)
     states = dict(line.split(" ", 1) for line in result.stdout.splitlines() if line)
