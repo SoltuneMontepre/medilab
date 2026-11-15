@@ -1,33 +1,17 @@
 # demo.tester signs in, scans the label of the sample handed over to Chemistry, claims its lead task, enters the result
-# and signs it. The development build loads its JavaScript from Metro at METRO_URL; MediLab answers at localhost:8069
-# through adb reverse. LAB_CODE is the lab code of sol_demo.demo_sample_label_scan.
+# and signs it, on a release build made for the MediLab at localhost:8069, which it reaches through adb reverse.
+# LAB_CODE is the lab code of sol_demo.demo_sample_label_scan.
 appId: com.medilab.mobile
 name: Testing at the bench
 env:
   LOGIN: demo.tester
   PASSWORD: demo
-  METRO_URL: http%3A%2F%2Flocalhost%3A8081
 ---
 - launchApp:
     clearState: true
-# The development build drops a link that arrives before its launcher is ready.
 - extendedWaitUntil:
-    visible: "Connect"
+    visible: "English"
     timeout: 60000
-- openLink: exp+medilab-mobile://expo-development-client/?url=${METRO_URL}
-# On its first start the development build covers the app with its developer menu.
-- extendedWaitUntil:
-    visible: 'Continue|English'
-    timeout: 300000
-- waitForAnimationToEnd
-- tapOn:
-    text: "Continue"
-    optional: true
-- runFlow:
-    when:
-      visible: "Reload"
-    commands:
-      - back
 - tapOn: "English"
 - tapOn: "Login"
 - inputText: ${LOGIN}
