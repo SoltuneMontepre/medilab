@@ -179,7 +179,7 @@
         <field name="sample_test_id" ref="demo_sample_test_lead_leave" />
         <field name="task_id" ref="demo_task_sample_test_lead_leave" />
         <field name="person_id" ref="demo_person_chemistry_tester" />
-        <field name="status">queued</field>
+        <field name="status">proposed</field>
     </record>
     <!-- The cancelled test's own booking ended; the six bookings of the interval stay as they were. -->
     <record id="demo_machine_booking_icpms_lead_3" model="medilab.machine.booking">
