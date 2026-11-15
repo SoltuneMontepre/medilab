@@ -110,6 +110,9 @@ class SampleTest(models.Model, SampleTestBase):
         )
         # When the test was cancelled.
         cancelled_at = fields.Datetime(readonly=True, copy=False)
+        # When the test's result was first approved; empty until then, and kept when the result is sent back or
+        # corrected.
+        first_approved_at = fields.Datetime(readonly=True, copy=False)
         # True when the due date is within the urgency threshold.
         is_urgent = fields.Boolean(string="Urgent", compute="_compute_is_urgent")
         # The parameter's subcontracted ways of testing whose subcontractor can be chosen, shown as the alternatives of
@@ -486,6 +489,8 @@ class SampleTest(models.Model, SampleTestBase):
 
     def _cancel(self):
         tests = self.filtered(lambda test: test.status in OPEN_STATUSES)
+        # A test cancelled with its sample or request has no reason of its own, but still the time it was cancelled.
+        tests.filtered(lambda test: not test.cancelled_at).cancelled_at = fields.Datetime.now()
         tests.status = "cancelled"
         self.env[MODEL_TASK]._cancel_for_document(tests, TESTING_ACTION)
         tests._release_bookings()
@@ -510,6 +515,9 @@ class SampleTest(models.Model, SampleTestBase):
     def _progress(self, status):
         tests = self.sudo()
         tests.status = status
+        if status == "approved":
+            # The first approval stays: the lab head sending the result back or a correction does not move it.
+            tests.filtered(lambda test: not test.first_approved_at).first_approved_at = fields.Datetime.now()
         # Submitting the result is the tester's work done; approving it is the head's.
         if status in ("result_entered", "approved"):
             self.env[MODEL_TASK]._close_for_document(tests, TESTING_ACTION)
