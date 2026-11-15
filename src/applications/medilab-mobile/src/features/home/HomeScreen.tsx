@@ -96,6 +96,9 @@ function Day({ home }: Readonly<{ home: Home }>) {
       >
         <Text style={shared.primaryButtonText}>{t("home.todo")}</Text>
       </Pressable>
+      <Pressable accessibilityRole="button" style={shared.secondaryButton} onPress={() => router.push("/scan")}>
+        <Text style={shared.secondaryButtonText}>{t("home.scan")}</Text>
+      </Pressable>
       {me.can.create_tasks && (
         <Pressable accessibilityRole="button" style={shared.secondaryButton} onPress={() => router.push("/tasks/new")}>
           <Text style={shared.secondaryButtonText}>{t("home.newTask")}</Text>

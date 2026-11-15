@@ -12,6 +12,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_IR_ACCESS,
     MODEL_IR_ACTIONS_ACT_WINDOW_VIEW,
     MODEL_IR_ACTIONS_REPORT,
+    MODEL_IR_ASSET,
     MODEL_IR_MAIL_SERVER,
     MODEL_IR_UI_MENU,
     MODEL_IR_UI_VIEW,
@@ -110,6 +111,7 @@ class TestAuditAccess(AuditCase):
             MODEL_IR_ACCESS,
             MODEL_IR_ACTIONS_ACT_WINDOW_VIEW,
             MODEL_IR_ACTIONS_REPORT,
+            MODEL_IR_ASSET,
             MODEL_IR_MAIL_SERVER,
         }
 

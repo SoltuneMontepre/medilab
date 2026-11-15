@@ -119,9 +119,10 @@ A push is created when a notification is delivered on the push channel ([SH-11](
 | `POST /samples/{sample_id}/claim` | Claims the listed testing tasks of the sample through `action_claim()` |
 | `GET /samples/{sample_id}` | The sample as the person may see it |
 
-- The sample is read with the person's rights and answers only the fields they may read: a tester never gets the customer, the customer's name for the sample or its photos.
-- A sample not handed over to the person's department, or a person in no department, is refused by `receive_by_label()` with `action_refused` and records nothing. Scanning a received sample again keeps the first receipt.
-- The tasks offered and claimed are the sample's open testing tasks in the person's own department's queue; any other task is refused.
+- The label's QR code holds the sample's lab code. The app reads it with `expo-camera`, only while the scan screen is shown, and takes the code typed when the label cannot be read.
+- The sample is read with the person's rights and answers only the fields they may read: a tester never gets the customer, the customer's name for the sample or its photos. The customer and the customer's name come only to a person who reads every test request, and are null for anyone else.
+- A sample not handed over to the person's department, or a person in no department, is refused by `receive_by_label()` with `action_refused` and records nothing. Scanning a received sample again keeps the first receipt. The app offers to record the receipt only while the sample's handover to the person's department is not received and they may edit it (`can_receive`), and says that a sample without one was not handed over to their department.
+- The tasks offered and claimed are the sample's open testing tasks in the person's own department's queue; any other task is refused with `action_refused`, and one someone else claimed first with `already_claimed`. A claim takes every listed task or none.
 
 ### Testing at the bench
 

@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: MediLab laboratory files API
-  version: 1.7.0
+  version: 1.8.0
   description: |
     The API Medilab Sync signs computers in with and reaches laboratory files through, and Medilab Mobile signs phones
     in with. Every refusal answers `{"error": {"code", "message"}}` with the HTTP status of its code; a device acts on
@@ -44,6 +44,8 @@ tags:
     description: The person signed in and what they may do.
   - name: Tasks
     description: The person's day, to-do list and queues, and the actions on tasks.
+  - name: Samples
+    description: Scanning a sample's label to record its receipt or claim its testing tasks.
 paths:
   /health:
     get:
@@ -826,6 +828,155 @@ paths:
           $ref: "#/components/responses/MethodNotAllowed"
         "409":
           $ref: "#/components/responses/ActionRefused"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /samples/lookup:
+    get:
+      operationId: lookUpSample
+      tags: [Samples]
+      summary: Gives the sample of a scanned or typed lab code, as the person may see it.
+      description: |
+        With its handover to the person's department and the unassigned testing tasks of their department's queue on
+        it. A code of no sample, or of a sample the person may not read, answers `not_found`.
+      parameters:
+        - name: code
+          in: query
+          required: true
+          description: The lab code read from the sample's label.
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 64
+      responses:
+        "200":
+          description: The sample.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Sample"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /samples/receive:
+    post:
+      operationId: receiveSample
+      tags: [Samples]
+      summary: Records that the person's department received the sample of the scanned code.
+      description: |
+        A sample not handed over to the person's department, a person in no department or a code of no sample the
+        person may read is refused with `action_refused` and records nothing. Scanning a received sample again keeps
+        the first receipt.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SampleLabel"
+      responses:
+        "200":
+          description: The sample, with its receipt by the person's department.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Sample"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /samples/{sample_id}:
+    parameters:
+      - name: sample_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: getSample
+      tags: [Samples]
+      summary: Gives the sample as the person may see it.
+      description: A sample the person may not read answers `not_found`.
+      responses:
+        "200":
+          description: The sample.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Sample"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /samples/{sample_id}/claim:
+    parameters:
+      - name: sample_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      operationId: claimSampleTasks
+      tags: [Samples]
+      summary: Claims the listed testing tasks of the sample.
+      description: |
+        Every task must be an unassigned testing task of the sample in the person's own department's queue; the claim
+        takes all of them or none. A task someone else claimed first is refused with `already_claimed`; any other task
+        with `action_refused`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SampleTaskClaim"
+      responses:
+        "200":
+          description: The sample, without the tasks now the person's.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Sample"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ClaimRefused"
         "500":
           $ref: "#/components/responses/InternalError"
         "503":
@@ -2266,6 +2417,109 @@ components:
                 type: integer
               name:
                 type: string
+    Sample:
+      description: |
+        A sample as the person may see it. `customer` and `customer_sample_name` are null for a person who may not
+        read every test request, such as a tester.
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - code
+        - status
+        - sample_type
+        - physical_state
+        - form
+        - container
+        - received_at
+        - storage_location
+        - sampling_location
+        - note
+        - customer
+        - customer_sample_name
+        - handover
+        - tasks
+      properties:
+        id:
+          type: integer
+        code:
+          description: The lab code on the sample's label.
+          type: string
+        status:
+          description: The sample's status as the web shows it, in the person's language.
+          type: string
+        sample_type:
+          type: string
+        physical_state:
+          type: string
+        form:
+          type: string
+        container:
+          type: string
+        received_at:
+          description: When the laboratory received the sample.
+          type: [string, "null"]
+          format: date-time
+        storage_location:
+          type: string
+        sampling_location:
+          type: string
+        note:
+          type: string
+        customer:
+          type: [string, "null"]
+        customer_sample_name:
+          type: [string, "null"]
+        handover:
+          oneOf:
+            - $ref: "#/components/schemas/SampleHandover"
+            - type: "null"
+        tasks:
+          description: The sample's unassigned testing tasks in the person's own department's queue.
+          type: array
+          items:
+            $ref: "#/components/schemas/Task"
+    SampleHandover:
+      description: The sample's handover to the person's department.
+      type: object
+      additionalProperties: false
+      required: [department, received_at, received_by, can_receive]
+      properties:
+        department:
+          type: string
+        received_at:
+          description: When the department recorded receiving the sample; null while it is on its way.
+          type: [string, "null"]
+          format: date-time
+        received_by:
+          description: The person who recorded the receipt; empty while it is on its way.
+          type: string
+        can_receive:
+          description: Whether the person may record the receipt now, the handover being not received yet.
+          type: boolean
+    SampleLabel:
+      type: object
+      additionalProperties: false
+      required: [code]
+      properties:
+        code:
+          description: The lab code read from the sample's label, or typed when the label cannot be read.
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: "\\S"
+    SampleTaskClaim:
+      type: object
+      additionalProperties: false
+      required: [task_ids]
+      properties:
+        task_ids:
+          description: The testing tasks to claim, among the sample's `tasks`.
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: integer
     Folder:
       type: object
       additionalProperties: false
