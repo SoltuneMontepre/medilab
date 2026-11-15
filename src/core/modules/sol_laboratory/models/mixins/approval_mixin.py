@@ -210,6 +210,16 @@ class ApprovalMixin(models.AbstractModel, ApprovalMixinBase):
             )
         )
 
+    def _approval_signatures(self):
+        """The signatures and rejections of each document, withdrawn ones included, by document id. A form lists them only
+        to people who read signatures."""
+        signatures = (
+            self.env[MODEL_SIGNATURE]
+            .sudo()
+            .search([("document_model", "=", self._name), ("document_id", "in", self.filtered("id").ids)])
+        )
+        return {document_id: rows.with_env(self.env) for document_id, rows in signatures.grouped("document_id").items()}
+
     def _approval_rejection_reason(self):
         """The reason of the document's rejection that stands; empty when it is not rejected."""
         rows = self._approval_open_rows().filtered(lambda row: row.decision == DECISION_REJECTED)

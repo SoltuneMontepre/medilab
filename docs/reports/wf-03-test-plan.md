@@ -17,7 +17,7 @@ This is the test plan for WF-03, built from the repository's evidence: code, doc
 - A confirmed defect's reproduction stays out of the passing suite until its fix is approved.
 
 **Two schedulers.**
-- **AS-IS (code):** a machine queue. A booking goes `queued → scheduled → in_progress → done`, or to `cancelled`. One booking per machine interval. There is no capacity sharing, parameter authorization, pinning, OverTime or at-risk flag.
+- **AS-IS (code):** a machine queue. A booking goes `queued → scheduled → in_progress → done`, or to `cancelled`. Bookings of one method share a machine interval up to the capacity of the machine-and-method link. There is no parameter authorization, pinning, OverTime or at-risk flag.
 - **TARGET (spec):** `docs/specs/scheduling.md` and `docs/business/testing-schedule.md`. A booking goes `proposed → scheduled → in progress → done`, with a department plan, capacity sharing, authorization, OverTime, pinning and revisions. These are planned in epic #405 (#419 to #427, #179, #433). All of those issues are open and none has a pull request.
 
 ### 0.1 How each scenario is classified
@@ -64,13 +64,13 @@ An existing test that asserts a CH outcome is listed under "Impact on existing t
 | Calibration cutoff | A machine is usable until `D+1 00:00` company-local of its calibration date D (`models/sample_collection/sample.py:427-429`, `models/master_data/machine.py:95`). The slot end is inclusive (`start + length <= limit`, `models/testing/machine_booking.py:415,432`); a requeue uses `ends_at > limit` (`:340`) |
 | Urgency | With urgency 0, only tests already due are urgent (`<=`, `models/testing/sample_test.py:159`) |
 | After a result | The test stays `testing`. `result_entered` comes from WF-04 sending (`tests/test_test_result_entry.py:81`) |
-| Archiving a machine | Refused while any booking (any status) or active way link refers to the machine (`models/mixins/archive_mixin.py:72-79`), so the requeue-on-archive branch is unreachable for linked machines (SCH-034) |
+| Archiving a machine | Refused while any booking (any status) or link to an active method refers to the machine (`models/mixins/archive_mixin.py:72-79`), so the requeue-on-archive branch is unreachable for linked machines (SCH-034) |
 | Moving one's own booking | A tester cannot today (#315, PR #373), so SCH-026's runner cell is group D |
 | Foreign queued bookings | Every replan rewrites the test of a queued booking no machine can place, so two schedules conflict on it (Section 8.1, rule 2) |
 | Mixed-method lock races | The claim-against-claim handshake does not fit a claim against a wizard (Section 8.1, rule 3) |
 | AS-IS defect outcomes | Outcomes that contradict the spec are CH or DF (SCH-006/012, STA-006, ASG-012/013, SCH-017/024, DAT-005, TXN-004), never committed as regressions |
 
-**Inventory:** 135 scenarios. Section 11 counts them by coverage, group and priority. These are counts of scenarios, not code coverage.
+**Inventory:** 137 scenarios. Section 11 counts them by coverage, group and priority. These are counts of scenarios, not code coverage.
 
 ---
 
@@ -83,8 +83,8 @@ An existing test that asserts a CH outcome is listed under "Impact on existing t
 | Sample test `medilab.sample.test` (`models/testing/sample_test.py:39`) | The work | `status`: waiting / assigned / testing / outsourced / result_entered / approved / cancelled. `due_date` (stored compute, editable). `parameter_method_id` (way, empty until chosen). `outsourcing_suggested`. Non-stored `recommended_*` |
 | Task `medilab.task` (`models/tasks/task.py:36`) | Queue item | `status`: open / assigned / in_progress / done / cancelled. `department_id`, `assignee_id`, `assigned_by_id`, `reassign_reason`, `planned_start/end`, `linked_by_system` |
 | Reassign wizard `medilab.task.reassign` (`models/tasks/task_reassign.py`) | Head assigns or moves | Reason when the person or department changes. Assignee must be in the department (`:49`) |
-| Machine booking `medilab.machine.booking` (`models/testing/machine_booking.py:68`) | Reservation | `status`: queued / scheduled / in_progress / done / cancelled. `EXCLUDE gist(machine_id =, tsrange &&) WHERE status IN (scheduled, in_progress)` (`:124-128`). `CHECK(ends_at > starts_at)`, which passes on NULL. `UNIQUE(calendar_event_id)` |
-| Way-machine link (`models/master_data/parameter_method_machine.py`) | Eligibility, duration | `run_minutes > 0`, `UNIQUE(way, machine)`. No capacity field. `_in_use_domain` = way active |
+| Machine booking `medilab.machine.booking` (`models/testing/machine_booking.py:68`) | Reservation | `status`: queued / scheduled / in_progress / done / cancelled. `machine_id` empty when the way needs no machine; `method_id`. Three `EXCLUDE gist(machine_id =, method_id <> / starts_at <> / ends_at <>, tsrange &&) WHERE status IN (scheduled, in_progress)`: bookings overlap on a machine only with the same method, start and end. Capacity in samples and joining before the start are checked in code (`_check_shared_interval`). `CHECK(ends_at > starts_at)`, which passes on NULL. `UNIQUE(calendar_event_id)` |
+| Machine-and-method link (`models/master_data/machine_method.py`) | Eligibility, duration, capacity | `duration_minutes > 0`, `capacity >= 1`, `UNIQUE(machine, method)`. `_in_use_domain` = method active. A way whose method has no link uses its own `duration_minutes` and `capacity` |
 | Machine (`models/master_data/machine.py`) | Resource | `status`: in_use / under_repair / retired. `active`, `next_calibration_date`, `_usable_until()` (`:85-95`). Archive mixin |
 | Calendar event (`models/tasks/calendar_event.py`) | Person and room reservations | `machine_booking_id`, `step_id`, `location_id`. `EXCLUDE (location_id, tsrange, id <>) WHERE location_id NOT NULL AND active` (`:47-51`). Token-guarded links |
 
@@ -172,8 +172,8 @@ sequenceDiagram
 | R04 | A move of person or department needs a non-blank reason. Done or cancelled tasks cannot be moved. The wizard refuses an assignee outside the department and writes `status` assigned or open | `task.py:248-256`, `task_reassign.py:49-69` |
 | R05 | The test follows its task (waiting ↔ assigned) only from waiting or assigned. The first booking start or result moves it to testing | `sample_test.py:239-244, 387-389` |
 | R06 | Schedule refuses an open booking, no assignee, or no recommendation. The assignee schedules with sudo; others need booking create permission | `sample_test.py:252-276` |
-| R07 | Earliest **finish** ≤ due (or now + 30 days) among the department's ways and links. Strict `<`, so ties keep the first link (machine code order). A due date ≤ now gives none | `machine_booking.py:374-401`, `parameter_method_machine.py:20` |
-| R08 | 15-minute boundaries. Length `ceil(run/15)*15`. Start ≥ now, rounded up. Inside **one** working interval. End ≤ min(due, usable_until), **inclusive**. No machine overlap. Each bookable and active step room free for its offset. The last room step ends ≤ due | `machine_booking.py:37-50, 297-307, 403-441` |
+| R07 | Earliest **finish** ≤ due (or now + 30 days) among the department's ways and the machines linked to their methods, or no machine for a way whose method has none. Strict `<`, so ties keep the first link (machine code order). A due date ≤ now gives none | `machine_booking.py` `_recommend`, `machine_method.py` |
+| R08 | 15-minute boundaries. Length `ceil(duration/15)*15`. Start ≥ now, rounded up. Inside **one** working interval. End ≤ min(due, usable_until), **inclusive**. No machine overlap, except joining a not-started interval of the same method, start and end with a place for the sample. Each bookable and active step room free for its offset. The last room step ends ≤ due | `machine_booking.py:37-50, 297-307, 403-441` |
 | R09 | Usable while `in_use` and active, until `D+1 00:00` company-local of the calibration due date D. No calibration record means no limit | `machine.py:85-95`, `sample.py:427-429` |
 | R10 | DB refuses overlapping active machine bookings and active room events, using half-open ranges | `machine_booking.py:124-128`, `calendar_event.py:47-51` |
 | R11 | Global queue: urgent (due ≤ now + `urgency_hours`, default 24), then `queued_at`, then id. A booking with no slot stays queued and sets `outsourcing_suggested` | `machine_booking.py:309-328`, `sample_test.py:156-159` |
@@ -185,7 +185,7 @@ sequenceDiagram
 | R17 | Creating a result cancels queued bookings, marks active ones done and replans | `test_result.py:237-246` |
 | R18 | An active booking has one person event with no alarm (when the person has a user), room events per bookable active step, and task planned = min/max. Links are token-guarded | `machine_booking.py:221-295`, `calendar_event.py:140-150` |
 | R19 | A tester reads their own bookings, and their own or claimable tasks. A head reads and edits bookings and tasks of their department, and edits sample tests of **all** departments | `security/ir.access.csv:24-25,41`, `sol_demo/.../role.xml:121-171` |
-| R20 | A machine cannot be archived while any booking (any status) or any active way link refers to it | `archive_mixin.py:10-13,72-79`, `parameter_method_machine.py:41` |
+| R20 | A machine cannot be archived while any booking (any status) or any link to an active method refers to it | `archive_mixin.py:10-13,72-79`, `machine_method.py` `_in_use_domain` |
 
 ### 3.2 Inferred
 
@@ -208,7 +208,7 @@ sequenceDiagram
 
 | ID | Rule | Spec | Issue |
 |---|---|---|---|
-| T01 | Proposed plan; accepting is all-or-nothing | `scheduling.md:19-20,36-38` | #419, #422 |
+| T01 | A feasible proposed booking reserves all required resources when the head approves it, or none if a resource is taken meanwhile. The tester receives an approval notice and a reminder before the booking starts | [Scheduling plan](../specs/scheduling.md#plan), [WF-03](../functional/business-flows.md#wf-03-testing-assignment-and-scheduling) | #419, #422, #427 |
 | T02 | Capacity sharing | `scheduling.md:26-28` | #420 |
 | T03 | Person-to-parameter authorization | `scheduling.md:21` | #421 |
 | T04 | Priority classes, then committed date, then arrival | `scheduling.md:42-48` | #422 |
@@ -229,7 +229,7 @@ Every recommendation is **provisional**, not a business approval. **All 16 rows 
 
 | Q | Current implementation | TARGET (spec) | Requirement evidence | Provisional recommendation | Impact on existing tests | Scenarios |
 |---|---|---|---|---|---|---|
-| Q2 Tester overlap | Allowed: `_free_slot` checks machine and rooms only | A booking is for one tester; accepting reserves the tester | `scheduling.md:15,20`; `testing-schedule.md` ("reserves its tester") | No overlapping bookings for one tester unless the business model explicitly allows it. The fix needs a DB-level guard, because two transactions would otherwise write-skew (I-l) | None asserts overlap. Re-run `test_step_room_bookings.py:82`, `test_scheduling_concurrency.py:69` and the Cypress M/A2 after a fix | SCH-018, CON-014, invariant P1 |
+| Q2 Tester overlap | Allowed: `_free_slot` checks machine and rooms only | A booking is for one tester; accepting reserves the tester | `scheduling.md:15,20`; `testing-schedule.md` ("reserves its tester") | No overlapping bookings for one tester unless the business model explicitly allows it. The fix needs a DB-level guard, because two transactions would otherwise write-skew (I-l) | None asserts overlap. Re-run `test_step_room_bookings.py:82`, `test_scheduling_concurrency.py:69` and the browser tests `TC-WF03-M partial` and `TC-WF03-A2 partial` after a fix | SCH-018, CON-014, invariant P1 |
 | Q3 Slot-race loser | Depends on timing (Section 4.1): a deadlock is retried and places the loser in the next slot silently; an exclusion violation (23P01) is not retried and refuses with the constraint's message, which names the first constraint flushed (the room's for a machine-slot race) | Accept reserves all or nothing; silent on retry | `scheduling.md:20` | The contract in Section 4.1: every slot conflict replans within the retry budget, then ends in a business error, with nothing raw shown | `test_scheduling_concurrency.py:69`, CON-003 and CON-013 accept both outcomes, each with its full evidence (Section 12.2), so they stay valid | CON-003, CON-013, CON-015 |
 | Q4 Direct state writes | Not guarded (suspected): readonly fields writable over RPC with edit permission; `create` accepts any times | States change by actions; only the scheduler places bookings | `scheduling.md:19-20`; `machine_booking.py:153` guards only times | Refuse external ORM/RPC writes and creates of state fields (booking status, machine, person, test, task; sample-test status; task status). Keep internal paths (`_set` with token, `env.su`) | Fixtures write status as superuser (`scheduling_case.py:63-64`, `scheduling_committed_case.py:185`) and stay valid under an `env.su` exemption. `test_machine_scheduling.py:59` uses `_set`, which is internal | STA-008/009, DAT-002, ASG-007 |
 | Q5 Head scope on sample tests | `sample_test_edit_all` lets any head edit any department's tests. Department checks exist only in cancel and outsource | Head acts on own department | `head-of-department.md:68`, `overview.md:175`; `questions/security.md:81-82` open | Department-scoped head permissions unless explicitly authorized otherwise. Needs a department on the sample test (`permissions.md:49`), so it is a model change | Tests granting `sample_test.edit.all` to heads (cancellation and result cases) would need own-department grants | SEC-002, DAT-004 |
@@ -704,7 +704,7 @@ One class per file, named after the file, tagged `post_install`/`-at_install` (`
 
 | ID | Scenario | Setup and steps | Expected | Lvl / P / Cov / Grp |
 |---|---|---|---|---|
-| ASG-001 | Claim within own department | – | Covered by `assignment :101`, `claiming :18`, Cypress A1. No new test | U, P0, Cov, A |
+| ASG-001 | Claim within own department | – | Covered by `assignment :101`, `claiming :18`, the browser test `TC-WF03-A1 partial`. No new test | U, P0, Cov, A |
 | ASG-002 | Claim another department's task | F2 | **CT:** "waits in a queue you do not belong to", graph unchanged, not in `in_my_queue` | U, P1, Part, A |
 | ASG-003 | Claim by task status | Status in {assigned, in_progress, done, cancelled} | **CT:** "already claimed", unchanged | U, P1, Part, A |
 | ASG-004 | Claimer without a person or department | – | **CT:** refused "waits in a queue…" (`task.py:259-263`), no traceback | U, P1, Miss, A |
@@ -826,9 +826,9 @@ The UTC conversions above were checked once more: +7 local `HH:MM` = UTC `HH−7
 
 | ID | Scenario | Expected | Lvl / P / Cov / Grp |
 |---|---|---|---|
-| DAT-001 | DB constraints | `run_minutes ≤ 0`, duplicate link, `quantity = 0`, `ends ≤ starts`, duplicate event. **CT:** `IntegrityError` in a savepoint, one `subTest` each | U, P1, Part, A |
+| DAT-001 | DB constraints | `duration_minutes ≤ 0`, `capacity < 1`, duplicate link, `quantity = 0`, `ends ≤ starts`, duplicate event. **CT:** `IntegrityError` in a savepoint, one `subTest` each | U, P1, Part, A |
 | DAT-002 | Active booking with NULL times | DC-04. **CT (Q4):** impossible. **DF:** possible | U, P0, Miss, B |
-| DAT-003 | Deletes | Booking unlink gives `AccessError` (**CT**). Unlinking a way-machine link with active bookings: **CH**, pending | U, P1, Miss, C |
+| DAT-003 | Deletes | Booking unlink gives `AccessError` (**CT**). Unlinking a machine-and-method link with active bookings: **CH**, pending | U, P1, Miss, C |
 | DAT-004 | Way changed with an open booking | **CH:** booking keeps the old machine and length. Pending Q6/Q5 | U, P0, Miss, C |
 | DAT-005 | Due date changed after scheduling; override lost | DC-11. (a) **CH:** no requeue or flag (Q10, T10 #179). (b) **CT:** the override is kept and a later one is flagged (`test_sample_test_due_date_change.py`) | U, P1, Part, C |
 | DAT-006 | Invariants over demo data | Mandatory invariants must hold. Conditional ones are report-only | U, P1, Miss, A |
@@ -858,10 +858,12 @@ All rows are group A, kind CT.
 | UI-001 | Happy path | Add: Start and End shown equal the DB; the pH test has no Schedule button | E, P0, Part |
 | UI-002 | Stale Schedule button | Refusal through `expectRefusal`; one booking | E, P1, Miss |
 | UI-003 | Double click on Schedule | One booking | E, P1, Miss |
-| UI-004 | Calendar drag (as the head) | Free slot moves the booking and its rooms; busy slot gives a refusal | E, P1, Miss |
+| UI-004 | Calendar drag (as the head) | Free slot moves the booking and its rooms; busy slot gives a refusal | E, P1, Cov |
 | UI-005 | Tester in +7 sees local times | Form and calendar show DB + 7 h | E, P1, Miss |
-| UI-006 | Outsourcing alert | Visible | E, P2, Part |
+| UI-006 | Outsourcing alert | Visible | E, P2, Cov |
 | UI-007 | Dashboard Claim | Claimed | E, P2, Miss |
+| UI-008 | Head cancels a booked test | A blank reason is refused; with a reason the test, its task, its booking and their events are cancelled and no other booking or test changes; a tester has no Cancel Test button and RPC refuses it | E, P1, Cov |
+| UI-009 | New assignee after a reassignment | The task is in the new assignee's My Tasks and its booking in their Machine Schedule; the previous assignee sees neither | E, P1, Cov |
 
 ### J. Performance (WF03-PRF), opt-in
 
@@ -897,10 +899,10 @@ These are scenario counts, not code coverage. A scenario counts as covered when 
 | F Transactions (7) | 3 | 1 | 3 | 6 | 0 | 1 | 0 | 3 | 4 | 0 |
 | G Data integrity (9) | 0 | 2 | 7 | 3 | 1 | 5 | 0 | 2 | 5 | 2 |
 | H Authorization (8) | 3 | 2 | 3 | 6 | 1 | 1 | 0 | 4 | 3 | 1 |
-| I UI/E2E (7) | 0 | 2 | 5 | 7 | 0 | 0 | 0 | 1 | 4 | 2 |
+| I UI/E2E (9) | 4 | 1 | 4 | 9 | 0 | 0 | 0 | 1 | 6 | 2 |
 | J Performance (4) | 0 | 0 | 4 | 4 | 0 | 0 | 0 | 0 | 0 | 4 |
 | K Property-based (2) | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 0 | 2 | 0 |
-| **Total (135)** | **41** | **21** | **73** | **91** | **11** | **26** | **7** | **51** | **65** | **19** |
+| **Total (137)** | **45** | **20** | **72** | **93** | **11** | **26** | **7** | **51** | **67** | **19** |
 
 **New and extended tests:** 32 scenarios, 28 fully covered and 3 partly, in 44 new test methods and 3 extended ones (Section 12.2).
 
@@ -1059,8 +1061,47 @@ TXN-003 raises its exception once per run at each injection point, after the tra
 | Defect fixes | DC-07 with CON-012, DC-08 and DC-12 (Section 5.1), each with its failing-first tests; DC-13 after Q3 and Q-room; the other group B candidates (DC-01…DC-06, DC-09…DC-11) reproduced first | Owner authorization to report | M |
 | Group C | CON-003's loser outcome, CON-005, SCH-006, SCH-012, DAT-004, then the P1/P2 C rows | Owner answers Q2–Q17 | M |
 | Group D | With #419–#427 / #179 / #433; SCH-026's runner cell after PR #373 merges | Epic #405, PR #373 | Per issue |
-| Remaining group A | P1 rows, PBT-001/002, Cypress UI-002…005; the fragile items of Section 7 | The helpers of Section 9.2 | L |
+| Remaining group A | P1 rows, PBT-001/002, Cypress UI-002, UI-003, UI-005 and UI-007; the fragile items of Section 7 | The helpers of Section 9.2 | L |
 | P2 and performance | Opt-in baselines | Q19 | S |
+
+### 12.5 Browser test traceability
+
+The browser tests live in `src/tests/cypress/e2e/flows/wf-03-testing-scheduling/`. A title starts with the approved path ID of [Business flows](../functional/business-flows.md). The `partial` label marks coverage of part of the path. All covered paths are partial. The current WF-03 baseline requires head approval for every feasible proposed booking, a notice to the tester when it is approved and a reminder before it starts. Those steps remain uncovered by the WF-03 path tests.
+
+| Path | Browser test | Proved | Still blocked by |
+|---|---|---|---|
+| WF-03-M | `TC-WF03-M partial` | The head assigns the test. Today's tester-facing Schedule action books the recommended machine and slot and updates Machine Schedule, the calendar event and task times | #420 shared runs and capacity, #421 authorization, #422 proposed plan and head approval under the current baseline, #427 booking reminder |
+| WF-03-A1 | `TC-WF03-A1 partial` | Tester claims an unassigned task of their department | #421 parameter authorization |
+| WF-03-A2 | `TC-WF03-A2 partial` | Machine and step-room bookings are made together. Room events cannot be removed separately | #420 shared intervals, capacity and booking without a machine |
+| WF-03-A3 | none | – | #426 OverTime |
+| WF-03-E1 | `TC-WF03-E1 partial` (2 tests) | The head moves a task to another person and department with a reason. Only the new assignee sees the moved task and its booking | #421 authorization, plus head approval of the new proposal and the new assignee's notification |
+| WF-03-E2 | `TC-WF03-E2 partial` | The outsourcing warning shows, Schedule is hidden and refused, and no booking or event is created | #179 viable options and earliest date. SF-07 owns changes to the committed return date. WF-05 owns outsourcing to a subcontractor with the same method |
+| SF-10-M | `TC-F24-02` (RPC order only) | Queue order by urgency then queue time | #422 priority classes, tie-breaks, proposed plan and head approval under the current baseline, plus #179 risk |
+| SF-10-A1 | none | – | #422, #164 |
+| SF-10-A2 | `TC-SF10-A2 partial` (5 tests) | Tester cancels a booking; head moves a booking through its form and by calendar drag with every reservation moving together; a drop onto a busy slot is refused; head cancels a booking and the test stays assigned | #423 pinning, #420 shared runs |
+| SF-10-A3 | `TC-SF10-A3 partial` (2 tests) | The head cancels a booked test with a reason, ending only its own task, booking and events. A tester's cancellation is refused | #420 shared-run reservations and #425 cancellation after a measurement starts |
+| SF-10-A4 | none | – | #427 reminders |
+| SF-10-A5 | none | – | Outside #154. The [spec](../specs/scheduling.md#releasing-the-machine) requires result entry or marking the measurement finished to release the machine early |
+| SF-10-E1 to E4 | none | – | #423, #179 / #405, #425 |
+
+The browser rows that prove a path part also close UI-004, UI-006, UI-008 and UI-009 (Section 10, I), and add a browser view of SCH-022 and SCH-026 (head cancels and head moves a booking).
+
+**Titles that changed.** The first title of each pair no longer exists.
+
+| Earlier title | Current title |
+|---|---|
+| `TC-WF03-A2` move a task to another person | `TC-WF03-E1 partial` |
+| `TC-WF03-A3` cancel a booking | `TC-SF10-A2 partial` |
+| `TC-WF03-A5` machine and step-room booking | `TC-WF03-A2 partial` |
+| `TC-WF03-E1`, `E2` and `E3` baseline with `TC-F23-03` | `TC-F23-03` |
+| `TC-F24-03` hides Schedule when no machine can finish | `TC-WF03-E2 partial` |
+| `TC-WF03-M`, `TC-WF03-A1` | `TC-WF03-M partial`, `TC-WF03-A1 partial` |
+
+**Issue #318** asks for demo data whose recommendation always books a room, and for `TC-WF03-A2 partial` (formerly `TC-WF03-A5`) to book through Schedule on a fresh sample. Evidence in the repository:
+
+- The `chromium_vi` way has one link to the UV-Vis spectrophotometer (60 minutes) and a step in the colorimetry room; the Schedule button books both for a fresh sample (`TC-WF03-A2 partial`).
+- The test asserts the room events at 15 and 45 minutes, the Room Bookings tab, the tester's calendar events, the Calendar list, and that removing or archiving a room event alone is refused with the state unchanged.
+- The issue requires a passing rerun on the same database, unchanged recommendations in the other WF-03 tests and a green `e2e` job in `ci-core`.
 
 ---
 

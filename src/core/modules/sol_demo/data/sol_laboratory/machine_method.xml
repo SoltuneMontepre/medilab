@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_machine_method_aas_lead" model="medilab.machine.method">
+        <field name="machine_id" ref="demo_machine_aas" />
+        <field name="method_id" ref="demo_testing_method_tcvn_7602" />
+        <field name="duration_minutes">30</field>
+    </record>
+    <!-- The autosampler loads 20 samples, which ICP-MS measures for lead, cadmium and arsenic together. -->
+    <record id="demo_machine_method_icpms_metals" model="medilab.machine.method">
+        <field name="machine_id" ref="demo_machine_icpms" />
+        <field name="method_id" ref="demo_testing_method_iso_17294_2" />
+        <field name="duration_minutes">240</field>
+        <field name="capacity">20</field>
+    </record>
+    <record id="demo_machine_method_incubator_coliforms" model="medilab.machine.method">
+        <field name="machine_id" ref="demo_machine_incubator" />
+        <field name="method_id" ref="demo_testing_method_tcvn_6187_2" />
+        <field name="duration_minutes">2880</field>
+    </record>
+    <record id="demo_machine_method_incubator_e_coli" model="medilab.machine.method">
+        <field name="machine_id" ref="demo_machine_incubator" />
+        <field name="method_id" ref="demo_testing_method_tcvn_6187_1" />
+        <field name="duration_minutes">1440</field>
+    </record>
+    <record id="demo_machine_method_incubator_2_coliforms" model="medilab.machine.method">
+        <field name="machine_id" ref="demo_machine_incubator_2" />
+        <field name="method_id" ref="demo_testing_method_tcvn_6187_2" />
+        <field name="duration_minutes">2880</field>
+    </record>
+    <record id="demo_machine_method_incubator_2_e_coli" model="medilab.machine.method">
+        <field name="machine_id" ref="demo_machine_incubator_2" />
+        <field name="method_id" ref="demo_testing_method_tcvn_6187_1" />
+        <field name="duration_minutes">1440</field>
+    </record>
+    <record id="demo_machine_method_aas_2_lead" model="medilab.machine.method">
+        <field name="machine_id" ref="demo_machine_aas_2" />
+        <field name="method_id" ref="demo_testing_method_tcvn_7602" />
+        <field name="duration_minutes">40</field>
+    </record>
+    <record id="demo_machine_method_aas_3_lead" model="medilab.machine.method">
+        <field name="machine_id" ref="demo_machine_aas_3" />
+        <field name="method_id" ref="demo_testing_method_tcvn_7602" />
+        <field name="duration_minutes">70</field>
+    </record>
+    <record id="demo_machine_method_uvvis_chromium_vi" model="medilab.machine.method">
+        <field name="machine_id" ref="demo_machine_uvvis" />
+        <field name="method_id" ref="demo_testing_method_chromium_vi_colorimetry" />
+        <field name="duration_minutes">60</field>
+    </record>
+</odoo>

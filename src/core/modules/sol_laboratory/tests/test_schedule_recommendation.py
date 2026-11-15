@@ -14,11 +14,12 @@ from .scheduling_case import MONDAY
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MACHINE,
     MODEL_MACHINE_BOOKING,
+    MODEL_MACHINE_METHOD,
     MODEL_PARAMETER_METHOD,
-    MODEL_PARAMETER_METHOD_MACHINE,
     MODEL_RESOURCE_CALENDAR_LEAVES,
     MODEL_SAMPLE_TEST,
     MODEL_SUBCONTRACTOR,
+    MODEL_TESTING_METHOD,
     MODEL_TESTING_METHOD_STEP,
 )
 
@@ -35,10 +36,10 @@ class TestScheduleRecommendation(CrossDepartmentCase, LocationCase):
         long_run, short_run = self.env[MODEL_MACHINE].create(
             [{"code": "AAS-120", "name": "AAS 120"}, {"code": "AAS-40", "name": "AAS 40"}]
         )
-        self.env[MODEL_PARAMETER_METHOD_MACHINE].create(
+        self.env[MODEL_MACHINE_METHOD].create(
             [
-                {"parameter_method_id": self.pair.id, "machine_id": long_run.id, "run_minutes": 120},
-                {"parameter_method_id": self.pair.id, "machine_id": short_run.id, "run_minutes": 40},
+                {"method_id": self.pair.method_id.id, "machine_id": long_run.id, "duration_minutes": 120},
+                {"method_id": self.pair.method_id.id, "machine_id": short_run.id, "duration_minutes": 40},
             ]
         )
         self.occupy(short_run, MONDAY, MONDAY + 2 * SLOT)
@@ -179,16 +180,19 @@ class TestScheduleRecommendation(CrossDepartmentCase, LocationCase):
     def test_a_short_run_fills_a_gap_a_longer_run_skips_whichever_is_scheduled_first(self):
         self.slow.status = "under_repair"
         copper = self.create_parameter("Copper (Cu)", self.group)
+        copper_method = self.env[MODEL_TESTING_METHOD].create(
+            {"code": "TCVN 6193:1996", "name": "Copper by AAS", "field_id": self.testing_field.id}
+        )
         copper_way = self.env[MODEL_PARAMETER_METHOD].create(
             {
                 "parameter_id": copper.id,
-                "method_id": self.method.id,
+                "method_id": copper_method.id,
                 "department_id": self.department.id,
             }
         )
         self.offer(copper, self.sample_type, copper_way)
-        self.env[MODEL_PARAMETER_METHOD_MACHINE].create(
-            {"parameter_method_id": copper_way.id, "machine_id": self.fast.id, "run_minutes": 25}
+        self.env[MODEL_MACHINE_METHOD].create(
+            {"method_id": copper_way.method_id.id, "machine_id": self.fast.id, "duration_minutes": 25}
         )
         self.occupy(self.fast, MONDAY, MONDAY + 3 * SLOT)
         self.occupy(self.fast, MONDAY + 5 * SLOT, MONDAY + 8 * SLOT)

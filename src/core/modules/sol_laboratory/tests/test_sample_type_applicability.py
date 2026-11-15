@@ -12,10 +12,10 @@ from .common import MasterDataCase
 from .result_case import ResultCase
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MACHINE,
+    MODEL_MACHINE_METHOD,
     MODEL_MACHINE_SERVICE,
     MODEL_MEASUREMENT_UNIT,
     MODEL_PARAMETER_METHOD,
-    MODEL_PARAMETER_METHOD_MACHINE,
     MODEL_SAMPLE_TYPE,
     MODEL_SUBCONTRACTOR,
     MODEL_TESTING_METHOD,
@@ -226,8 +226,8 @@ class TestSampleTypeApplicability(MasterDataCase):
 
     def test_a_machine_way_without_a_fit_machine_is_unavailable(self):
         machine = self.env[MODEL_MACHINE].create({"code": "AAS-1", "name": "AAS 1"})
-        self.env[MODEL_PARAMETER_METHOD_MACHINE].create(
-            {"parameter_method_id": self.pair.id, "machine_id": machine.id, "run_minutes": 30}
+        self.env[MODEL_MACHINE_METHOD].create(
+            {"method_id": self.pair.method_id.id, "machine_id": machine.id, "duration_minutes": 30}
         )
         self.assertFalse(self.pair._unavailable_reason())
 
@@ -241,6 +241,32 @@ class TestSampleTypeApplicability(MasterDataCase):
         )
 
         self.assertIn("No machine that runs it", assert_instance(self.pair._unavailable_reason(), str))
+
+    def test_subcontracting_does_not_need_a_usable_laboratory_machine(self):
+        machine = self.env[MODEL_MACHINE].create(
+            {"code": "AAS-OUTSIDE", "name": "AAS under repair", "status": "under_repair"}
+        )
+        self.env[MODEL_MACHINE_METHOD].create(
+            {"method_id": self.method.id, "machine_id": machine.id, "duration_minutes": 30}
+        )
+        subcontractor = self.env[MODEL_SUBCONTRACTOR].create(
+            {"name": "Independent laboratory", "accreditation_expiry": fields.Date.today() + timedelta(days=30)}
+        )
+        outside = self.env[MODEL_PARAMETER_METHOD].create(
+            {"parameter_id": self.parameter.id, "method_id": self.method.id, "subcontractor_id": subcontractor.id}
+        )
+        self.offer(self.parameter, self.water, outside)
+
+        self.assertTrue(self.pair._unavailable_reason())
+        self.assertFalse(outside._unavailable_reason())
+        self.assertFalse(self.parameter._order_refusal(self.water))
+
+        subcontractor.accreditation_expiry = fields.Date.today() - timedelta(days=1)
+        self.assertIn("expired", assert_instance(outside._unavailable_reason(), str))
+        outside.applicability_ids.unlink()
+        outside.action_archive()
+        subcontractor.action_archive()
+        self.assertIn("archived", assert_instance(outside._unavailable_reason(), str))
 
 
 @tagged("post_install", "-at_install")

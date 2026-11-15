@@ -1,3 +1,5 @@
+import { assign, receivedSample } from "./flows/wf-03-testing-scheduling/setup";
+
 const PASSWORD = "demo";
 // The lead results of the bottled water in testing: version 1 is signed by the head of chemistry, version 2 and
 // version 3, edited online, are newer.
@@ -19,15 +21,19 @@ function openCurrentResultVersion() {
 
 describe("Sample folders and signing file versions", () => {
   it("lets the head of department create the folders of a sample they test", () => {
-    signIn("demo.head_of_department");
-    cy.visit("/odoo/samples");
+    // A sample of its own, received and assigned, so that it has no folders whatever other specs left.
+    receivedSample().then((sample) => {
+      assign(sample);
+      signIn("demo.head_of_department");
+      cy.visit("/odoo/samples");
 
-    cy.contains(".o_data_row", "Received").click();
-    cy.get("button[name=action_create_laboratory_folders]").click();
+      cy.contains(".o_data_row", sample.code).should("contain", "Received").click();
+      cy.get("button[name=action_create_laboratory_folders]").click();
 
-    cy.get(".o_data_row").should("have.length", 2);
-    cy.contains(".o_data_row", "Raw Data").should("be.visible");
-    cy.contains(".o_data_row", "Results").should("be.visible");
+      cy.get(".o_data_row").should("have.length", 2);
+      cy.contains(".o_data_row", "Raw Data").should("be.visible");
+      cy.contains(".o_data_row", "Results").should("be.visible");
+    });
   });
 
   it("lets the head of department sign the current version of a result file", () => {

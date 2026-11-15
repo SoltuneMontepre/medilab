@@ -9,6 +9,10 @@ The head of department runs the testing work of their department: its tasks, mac
 - Reads, creates, moves and cancels the machine bookings of their department's tasks.
 - Reads, records, changes and deletes the planned OverTime of their department's testers.
 
+## Testing statistics
+
+- Reads the testing statistics of their department only; the Lab Head reads those of every department.
+
 ## Related documents
 
 - [Security](../readme.md)

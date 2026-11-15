@@ -20,11 +20,12 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_LOCATION,
     MODEL_MACHINE,
     MODEL_MACHINE_BOOKING,
+    MODEL_MACHINE_METHOD,
     MODEL_MAIL_MESSAGE,
     MODEL_MEASUREMENT_UNIT,
+    MODEL_PARAMETER_AUTHORIZATION,
     MODEL_PARAMETER_GROUP,
     MODEL_PARAMETER_METHOD,
-    MODEL_PARAMETER_METHOD_MACHINE,
     MODEL_PARAMETER_METHOD_SAMPLE_TYPE,
     MODEL_PERSON,
     MODEL_RES_PARTNER,
@@ -180,8 +181,8 @@ class SchedulingCommittedCase(TransactionCase):
         machine = create(MODEL_MACHINE, {"code": self.token, "name": f"Scheduling machine {self.token}"})
         self.machine_id = machine.id
         create(
-            MODEL_PARAMETER_METHOD_MACHINE,
-            {"parameter_method_id": pair.id, "machine_id": machine.id, "run_minutes": 40},
+            MODEL_MACHINE_METHOD,
+            {"method_id": pair.method_id.id, "machine_id": machine.id, "duration_minutes": 40},
         )
         room = create(MODEL_LOCATION, {"code": self.token, "name": "Scheduling room", "is_bookable": True})
         self.room_id = room.id
@@ -228,6 +229,13 @@ class SchedulingCommittedCase(TransactionCase):
         self.assertEqual(len(tasks), 2)
         self.task_ids = tasks.ids
         self.owned.setdefault(MODEL_TASK, []).extend(tasks.ids)
+        env[MODEL_SAMPLE_HANDOVER].search([("sample_id", "in", request.sample_ids.ids)]).write(
+            {"received_at": fields.Datetime.now(), "received_by_id": people[0].id}
+        )
+        create(
+            MODEL_PARAMETER_AUTHORIZATION,
+            [{"person_id": person.id, "parameter_id": parameter.id} for person in people],
+        )
 
     def assign(self, env, number=0):
         task = env[MODEL_TASK].browse(self.task_ids[number])
@@ -501,7 +509,7 @@ class SchedulingCommittedCase(TransactionCase):
                 MODEL_SAMPLE,
                 MODEL_TEST_REQUEST,
                 MODEL_CUSTOMER,
-                MODEL_PARAMETER_METHOD_MACHINE,
+                MODEL_MACHINE_METHOD,
                 MODEL_TESTING_METHOD_STEP,
                 MODEL_PARAMETER_METHOD_SAMPLE_TYPE,
                 MODEL_PARAMETER_METHOD,
