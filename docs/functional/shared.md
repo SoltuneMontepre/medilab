@@ -267,14 +267,14 @@ Tasks with a planned time, bookings of sample tests and resource reservations ap
 Acceptance criteria:
 
 - A booking appears on its tester's personal schedule and on each required resource schedule; a booking without a machine needs no machine reservation.
-- A slot of the proposed plan has no calendar event and reserves nothing until it is accepted.
+- A slot of the proposed plan has no calendar event and reserves nothing until the head approves it.
 - Two bookings share a machine interval only when they use the same testing method, have exactly that interval and the capacity has room; a booking cannot join an interval that has started.
 - A location booking appears on the calendars of its organiser and attendees and on the location's schedule.
 - Booking a location for a time that overlaps another of its bookings is refused with a message naming the existing booking.
 - A location that is not bookable cannot be chosen for a booking.
 - A reminder arrives 15 minutes before a booking starts, once on each selected channel.
 - Moving a booking cancels only unsent old reminders, schedules the new one and sends immediately if already inside the reminder window. Reprocessing the same update creates no duplicate.
-- A booking cannot be accepted or moved into an unavailable interval of any required location.
+- A booking cannot be approved or moved into an unavailable interval of any required location.
 - Moving a booking to a slot with a busy tester, machine or required location is refused without changing any reservation.
 - A booking's location reservation cannot be dragged or deleted on its own; a permitted move of the booking updates its event and every reservation together.
 - Cancelling a not-started booking releases all its reservations and returns its sample test to the queue without cancelling it; ordinary move and cancel actions on a started booking are refused.
