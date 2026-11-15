@@ -78,7 +78,7 @@ class TestInterruptions(ResultCase):
         )
 
         self.assertEqual((running.status, running.starts_at), ("in_progress", MONDAY))
-        self.assertEqual((waiting.status, waiting.person_id), ("scheduled", self.tester))
+        self.assertEqual((waiting.status, waiting.person_id), ("proposed", self.tester))
         self.assertGreaterEqual(assert_instance(waiting.starts_at, datetime), MONDAY + timedelta(hours=12))
         self.assertEqual((colleague.status, colleague.starts_at), before)
         self.assertIn(self.head.user_id.partner_id, self.notified(RETURNED_EVENT, waiting))
@@ -107,8 +107,10 @@ class TestInterruptions(ResultCase):
             }
         )
 
-        self.assertEqual(booking.status, "scheduled")
-        self.assertGreaterEqual(booking.room_event_ids.start, assert_instance(closure.ends_at, datetime))
+        self.assertEqual((booking.status, booking.room_event_ids), ("proposed", self.env[MODEL_CALENDAR_EVENT]))
+        self.assertGreaterEqual(
+            assert_instance(booking.starts_at, datetime), assert_instance(closure.ends_at, datetime)
+        )
         self.assertIn(self.head.user_id.partner_id, self.notified(RETURNED_EVENT, booking))
         with self.assertRaisesRegex(ValidationError, "cannot be used"), self.env.cr.savepoint():
             self.env[MODEL_CALENDAR_EVENT].create(
