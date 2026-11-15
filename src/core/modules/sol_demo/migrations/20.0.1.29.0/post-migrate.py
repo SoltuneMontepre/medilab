@@ -1,4 +1,5 @@
-from odoo import SUPERUSER_ID, api
+from odoo import api
+from odoo.api import SUPERUSER_ID
 
 from odoo.addons.sol_demo.demo_payment_requests import seed_payment_requests
 

@@ -117,7 +117,9 @@ describe("WF-01 Order to confirmed test request", () => {
     orderAt("accepted").then((paid) => {
       cy.signInAs("sales");
       cy.openRecord(paid);
+      cy.intercept("POST", "**/web/dataset/call_button/sale.order/action_confirm_order*").as("confirmOrder");
       cy.get(".o_statusbar_buttons button[name=action_confirm_order]:visible").click();
+      cy.wait("@confirmOrder").its("response.body").should("not.have.property", "error");
       cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]:visible").should("not.exist");
       currentRequest(paid).its("kind").should("eq", "balance");
       payAdvance(paid);
@@ -213,8 +215,9 @@ describe("WF-01 Order to confirmed test request", () => {
 
       cy.signInAs("sales");
       cy.openRecord(order);
+      cy.intercept("POST", "**/web/dataset/call_button/sale.order/action_send_quotation*").as("sendRevision");
       cy.sendRecord("action_send_quotation");
-      cy.get(".o_statusbar_buttons button[name=action_revise_quotation]:visible").should("exist");
+      cy.wait("@sendRevision").its("response.body").should("not.have.property", "error");
       latestQuotation(order.id).its("revision").should("eq", 2);
       payAdvance(order);
       cy.signInAs("sales");
@@ -334,7 +337,10 @@ describe("WF-01 Order to confirmed test request", () => {
       cy.signInAs("sales");
       cy.openRecord(order);
       cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]:visible").should("not.exist");
-      callRefused("sale.order", "action_start_sample_collection", [[order.id]]).should("contain", "số dư");
+      callRefused("sale.order", "action_start_sample_collection", [[order.id]]).should(
+        "match",
+        /^(Xác nhận đã thanh toán số dư đơn hàng trước khi thu mẫu\.|Verify the order balance before collecting its samples\.)$/,
+      );
     });
   });
 
@@ -687,13 +693,17 @@ describe("WF-01 feature acceptance criteria", () => {
     });
   });
 
-  it("TC-F10-02 starts collecting samples as soon as the order is confirmed", () => {
+  it("TC-F10-02 starts collecting samples once the confirmed order's balance is verified", () => {
     orderAt("accepted", { advance: false }).then((order) => {
       cy.signInAs("sales");
       cy.openRecord(order);
       cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]").should("not.exist");
       callRefused("sale.order", "action_start_sample_collection", [[order.id]]).should("eq", "Đơn hàng phải được xác nhận trước khi thu mẫu.");
+      cy.intercept("POST", "**/web/dataset/call_button/sale.order/action_confirm_order*").as("confirmOrder");
       cy.get(".o_statusbar_buttons button[name=action_confirm_order]:visible").click();
+      cy.wait("@confirmOrder").its("response.body").should("not.have.property", "error");
+      payAdvance(order);
+      cy.openRecord(order);
       cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]:visible").click();
       cy.readRecord(order, ["order_status"]).its("order_status").should("eq", "confirmed");
     });

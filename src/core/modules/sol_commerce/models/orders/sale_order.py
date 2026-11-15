@@ -574,11 +574,12 @@ class SaleOrder(models.Model, SaleOrderBase):
         for order in self.sudo():
             latest = order._latest_quotation()
             request = order.payment_request_id
+            deadline = order.payment_deadline
             if request.kind == "advance" and request.state in ("open", "expired"):
-                request.deadline = order.payment_deadline
-                if request.state == "expired" and request.deadline and request.deadline > now:
+                request.deadline = deadline
+                if request.state == "expired" and deadline and deadline > now:
                     request.state = "open"
-            if latest.status == QUOTATION_EXPIRED and order.payment_deadline and order.payment_deadline > now:
+            if latest.status == QUOTATION_EXPIRED and deadline and deadline > now:
                 latest.write({"status": QUOTATION_SENT})
 
     def action_record_quotation_agreement(self, reference):

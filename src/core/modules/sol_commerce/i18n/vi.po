@@ -516,6 +516,8 @@ msgstr "Cho phép ghi nợ"
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.portal_invoice_pay
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_payment_collection__amount
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_payment_request__amount
 msgid "Amount"
 msgstr "Thành tiền"
 
@@ -589,6 +591,8 @@ msgstr "Quay lại đơn hàng"
 #: model:ir.model.fields.selection,name:sol_commerce.selection__account_payment__method__bank_transfer
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_cash_flow_report__method__bank_transfer
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__advance_method__bank_transfer
+#: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_payment_collection__method__bank_transfer
+#: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_payment_request__advance_method__bank_transfer
 msgid "Bank transfer"
 msgstr "Chuyển khoản"
 
@@ -648,6 +652,8 @@ msgstr "Giỏ hàng"
 #: model:ir.model.fields.selection,name:sol_commerce.selection__account_payment__method__cash
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_cash_flow_report__method__cash
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__advance_method__cash
+#: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_payment_collection__method__cash
+#: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_payment_request__advance_method__cash
 msgid "Cash"
 msgstr "Tiền mặt"
 
@@ -1467,6 +1473,9 @@ msgstr "Mở"
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_table
 #: model_terms:ir.ui.view,arch_db:sol_commerce.support_list
 #: model_terms:ir.ui.view,arch_db:sol_commerce.support_new
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_payment_collection__order_id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_payment_request__order_id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_agreement__order_id
 msgid "Order"
 msgstr "Đơn Hàng"
 

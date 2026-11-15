@@ -250,7 +250,7 @@ class PaymentTransaction(models.Model, PaymentTransactionBase):
 
     def _payos_close_request_links(self):
         jobs = self.env[MODEL_SCHEDULED_JOB]
-        for link in self.filtered(lambda tx: tx.payos_requested_amount and not tx.payos_link_closed):
+        for link in self.filtered(lambda tx: bool(tx.payos_requested_amount) and not tx.payos_link_closed):
             link.with_context(payment_safe_write=True).payos_link_closed = True
             if link.state in ("draft", "pending"):
                 link.with_context(payment_safe_write=True)._set_canceled()

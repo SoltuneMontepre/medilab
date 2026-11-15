@@ -100,12 +100,14 @@ class AccountPayment(models.Model, AccountPaymentBase):
             received_at = fields.Datetime.to_datetime(received_at) if received_at else now
         except (TypeError, ValueError) as error:
             raise UserError(self.env._("Enter the date and time the money was received.")) from error
+        if received_at is None:
+            raise UserError(self.env._("Enter the date and time the money was received."))
         if received_at > now:
             raise UserError(self.env._("The receipt time cannot be in the future."))
         return received_at
 
     def _verified_for_request(self):
-        return self.reviewed_at and self.state not in ("draft", "canceled", "rejected") and self.invoice_ids
+        return bool(self.reviewed_at and self.invoice_ids) and self.state not in ("draft", "canceled", "rejected")
 
     def _pending_manual_collection(self):
         return self.state == "draft" and self.method in ("cash", "bank_transfer")

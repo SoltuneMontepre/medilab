@@ -1,4 +1,4 @@
-import { save } from "../../../support/form";
+import { choose, save } from "../../../support/form";
 import { callAs, portalPostAs, refAs } from "../../../support/odoo";
 import {
   ACCOUNTANT,
@@ -148,17 +148,13 @@ describe("SF-01 Invoicing and payment collection", () => {
       cy.signInAs("sales");
       cy.openRecord(order);
       refAs(ADMINISTRATOR, "sol_commerce.action_payment_collection").then(({ id }) => {
-        openDialog(`button[name="${id}"]`).within(() => {
-          cy.get(".o_field_widget[name=amount] input").type(String(order.request.amount));
-          cy.get(".o_field_widget[name=method] select option")
-            .contains("Tiền mặt")
-            .invoke("val")
-            .then((value) => {
-              cy.get(".o_field_widget[name=method] select").select(value);
-            });
-          cy.get("button[name=action_record]").click();
-        });
+        openDialog(`button[name="${id}"]`)
+          .find(".o_field_widget[name=amount] input")
+          .type(String(order.request.amount));
+        choose("method", "Tiền mặt");
+        cy.get(".modal:visible button[name=action_record]").click();
       });
+      cy.get(".modal:visible").should("not.exist");
       callAs(ACCOUNTANT, "account.payment", "search_read", [[["payment_request_id", "=", order.request.id]]], {
         fields: ["state", "method"],
       }).then(([payment]) => {
@@ -167,7 +163,9 @@ describe("SF-01 Invoicing and payment collection", () => {
         requestInvoices(order.request).should("be.empty");
         cy.signInAs("accountant");
         cy.openRecord({ model: "account.payment", id: payment.id });
+        cy.intercept("POST", "**/web/dataset/call_button/account.payment/action_post*").as("verifyPayment");
         cy.get(".o_statusbar_buttons button[name=action_post]:visible").click();
+        cy.wait("@verifyPayment").its("response.body").should("not.have.property", "error");
       });
       requestInvoices(order.request).its("0.state").should("eq", "posted");
     });

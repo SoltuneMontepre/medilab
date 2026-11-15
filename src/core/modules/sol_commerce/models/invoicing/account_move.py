@@ -147,7 +147,7 @@ class AccountMove(models.Model, AccountMoveBase):
         )
 
     def _check_posted_laboratory_invoices(self):
-        if self.filtered(lambda move: move.invoice_kind and move.state == "posted"):
+        if self.filtered(lambda move: bool(move.invoice_kind) and move.state == "posted"):
             raise UserError(self.env._("A posted invoice cannot be edited. Correct it with an adjustment invoice."))
 
     def button_draft(self):

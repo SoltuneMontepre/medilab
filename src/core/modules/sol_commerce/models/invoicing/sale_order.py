@@ -13,7 +13,7 @@ from odoo.addons.sol_commerce.constants.models import (
     MODEL_SALE_ORDER,
 )
 from odoo.addons.sol_commerce.constants.tasks import AUTO_POST_CONTEXT
-from odoo.addons.sol_laboratory.services.record_id import persisted_ids
+from odoo.addons.sol_laboratory.services.record_id import persisted_id, persisted_ids
 
 if TYPE_CHECKING:
     from medilab_model_types import Model_sale_order as SaleOrderBase
@@ -159,7 +159,7 @@ class SaleOrder(models.Model, SaleOrderBase):
         if order.on_credit:
             return order.invoice_ids.filtered(
                 lambda invoice: (
-                    invoice.state == "posted" and invoice.invoice_kind == "final" and invoice.amount_residual
+                    invoice.state == "posted" and invoice.invoice_kind == "final" and bool(invoice.amount_residual)
                 )
             )[:1]
         return self.env[MODEL_PAYMENT_REQUEST]
@@ -187,7 +187,7 @@ class SaleOrder(models.Model, SaleOrderBase):
         else:
             payment = payments.create_pending_payment(target, amount, method)
             payment.write({"received_at": payments._receipt_time(received_at), "memo": reference or payment.memo})
-        return payment.id
+        return persisted_id(payment)
 
     def create_advance_invoice(self, amount=None, percentage=None):
         """Post one down-payment invoice for this order, due on its payment deadline when it has one."""
@@ -222,7 +222,7 @@ class SaleOrder(models.Model, SaleOrderBase):
         return self._draft_final_invoice()
 
     def _check_manual_invoice_allowed(self):
-        for order in self.filtered(lambda item: item._latest_quotation()):
+        for order in self.filtered(lambda item: bool(item._latest_quotation())):
             if not order._credit_invoice_eligible():
                 raise UserError(self.env._("The final invoice is created after testing for orders on credit."))
 
