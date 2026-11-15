@@ -131,6 +131,7 @@ Pop-Location
 | `Odoo is not reachable` / `Cypress could not verify that this server is running` | Check the printed URL. Run `task up` in the checkout that owns that demo, open the URL yourself, and inspect `task logs`. Pass `MEDILAB_URL` when the running demo uses another port. |
 | `curl: (23) client returned ERROR on write` after `Starting Odoo` | This is a response-output error in the readiness probe. Open the printed Odoo URL to check the server. The Task readiness command discards the response through its portable shell redirection. |
 | Demo login fails | Confirm demo data was installed and `MEDILAB_DEMO_PASSWORD` matches the password set at installation. |
+| Odoo screens stay empty in Cypress Electron under Wayland | Electron draws no frames there, so Odoo never mounts. Start the run with `ELECTRON_EXTRA_LAUNCH_ARGS=--ozone-platform=x11`. |
 
 The Cypress package and its downloaded application binary are installed separately; an unchanged dependency lock does not restore a removed binary cache. See the official [installation options](https://docs.cypress.io/app/references/advanced-installation) and [CLI reference](https://docs.cypress.io/app/references/command-line).
 
@@ -201,6 +202,14 @@ Each scoped Node task carries an execution and invocation ID. A new execution cl
 The explicit suite hooks run in both headed and headless modes. `experimentalInteractiveRunEvents` enables an additional `after:run` fallback when the Cypress project closes. Browser-close `after:spec` is deliberately not used to restore an execution because it does not identify each interactive rerun.
 
 A refresh can skip Mocha teardown. Recovery drains tracked Node RPCs; it cannot establish completion of browser-originated requests still executing in Odoo. After interrupting an active UI operation, close the Cypress project gracefully and check the owned database before restarting. Forced process termination can lose private in-memory checkpoints and leave a lease: inspect its owning PID and database activity, restore the known settings and cron state or recreate the owned disposable environment through the supported setup workflow, then remove only that verified stale lease. Never delete a live lease or assume a timeout makes it safe to steal ownership.
+
+### WF-07 fixtures
+
+The WF-07 tests read the seeded bottled-water sample and its result file and change nothing in them. Each test creates its own folders, members, computers and, for the sample folders, a sample, with names and installation ids that carry the run, and signs its computers out when it ends. Folders, members, computers, uploads and file versions are never deleted, so one run of the two specs leaves 22 folders, 35 computers and 25 file versions. No computer stays signed in. Tests find their records by id or by their run-tagged name, never by a count or the position in a list.
+
+Uploads put real bytes through the presigned address: `cypress/fixtures/laboratory/` holds three small genuine `.xlsx` workbooks and three text files, read with `cy.readFile(path, null)` and sent as a `Blob`, the one `cy.request` body Cypress sends byte for byte; a string or an `ArrayBuffer` body is changed on the way and the upload is refused at its finalizing. A test compares the size and SHA-256 of what Odoo stored and of what it gives back for download with those of the fixture. The lock tests save text files, since Odoo does not lock an Office file. A lock's expiry is moved into the past with a server action that the test names "Cypress WF-07 lock expiry …", removes by id and name as soon as it has run, and again after the test; the next run of the spec removes any a stopped run left. This simulates expiry: neither thirty real minutes nor the job that expires locks run.
+
+The editing service is declared for the stack: `CYPRESS_editingService` is `down` unless it is set to `up`, and any other value fails the test. The editor page of an eligible result-folder file must answer as the declaration says: 503 "Online editing is unavailable" when down; when up, 200 with the editor configuration and the service's script reachable. A stack in the other state fails the test, naming the way to bring them together (`task onlyoffice:down`, or the declaration); a test is never skipped for it. Only the down state is exercised by the CI stack, so the up state stays unverified until it runs against a stack with the editor.
 
 ## Applications
 

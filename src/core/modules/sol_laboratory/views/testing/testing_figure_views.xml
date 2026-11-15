@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_testing_figure_list" model="ir.ui.view">
+        <field name="name">medilab.testing.figure.list</field>
+        <field name="model">medilab.testing.figure</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="date" />
+                <field name="kind" />
+                <field name="department_id" />
+                <field name="person_id" />
+                <field name="sample_test_id" />
+                <field name="completed" sum="Total" />
+                <field name="on_time" avg="Average" />
+                <field name="turnaround_days" avg="Average" />
+                <field name="overdue" sum="Total" />
+                <field name="retests" sum="Total" />
+                <field name="bookings" sum="Total" />
+                <field name="booked_hours" sum="Total" widget="float_time" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_testing_figure_pivot" model="ir.ui.view">
+        <field name="name">medilab.testing.figure.pivot</field>
+        <field name="model">medilab.testing.figure</field>
+        <field name="arch" type="xml">
+            <pivot string="Testing Figures">
+                <field name="department_id" type="row" />
+                <field name="completed" type="measure" />
+                <field name="on_time" type="measure" />
+                <field name="turnaround_days" type="measure" />
+                <field name="overdue" type="measure" />
+                <field name="retests" type="measure" />
+                <field name="bookings" type="measure" />
+                <field name="booked_hours" type="measure" />
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_medilab_testing_figure_graph" model="ir.ui.view">
+        <field name="name">medilab.testing.figure.graph</field>
+        <field name="model">medilab.testing.figure</field>
+        <field name="arch" type="xml">
+            <graph string="Testing Figures" type="bar">
+                <field name="department_id" />
+                <field name="completed" type="measure" />
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_medilab_testing_figure_search" model="ir.ui.view">
+        <field name="name">medilab.testing.figure.search</field>
+        <field name="model">medilab.testing.figure</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="department_id" />
+                <field name="person_id" />
+                <field name="sample_test_id" />
+                <filter name="completed" string="Completed" domain="[('kind', '=', 'completed')]" />
+                <filter name="overdue" string="Overdue" domain="[('kind', '=', 'overdue')]" />
+                <filter name="retest" string="Retests" domain="[('kind', '=', 'retest')]" />
+                <filter name="booking" string="Bookings" domain="[('kind', '=', 'booking')]" />
+                <group>
+                    <filter name="group_department" string="Department" context="{'group_by': 'department_id'}" />
+                    <filter name="group_person" string="Person" context="{'group_by': 'person_id'}" />
+                    <filter name="group_kind" string="Kind" context="{'group_by': 'kind'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medilab_testing_figure" model="ir.actions.act_window">
+        <field name="name">Testing Figures</field>
+        <field name="res_model">medilab.testing.figure</field>
+        <field name="path">testing-figures</field>
+        <field name="view_mode">pivot,graph,list</field>
+    </record>
+
+    <record id="view_medilab_testing_figure_period_form" model="ir.ui.view">
+        <field name="name">medilab.testing.figure.period.form</field>
+        <field name="model">medilab.testing.figure.period</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="date_from" />
+                    <field name="date_to" />
+                </group>
+                <footer>
+                    <button name="action_show" type="object" string="Show Figures" class="btn-primary" />
+                    <button special="cancel" string="Discard" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_medilab_testing_figure_period" model="ir.actions.act_window">
+        <field name="name">Testing Figures</field>
+        <field name="res_model">medilab.testing.figure.period</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

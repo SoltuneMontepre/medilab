@@ -20,14 +20,16 @@ In a Claude Code cloud session, or when asked how to set one up, follow [Working
 
 `.mcp.json`, `.codex/config.toml` and `.cursor/mcp.json` configure the clients; `task ai:setup` installs worktree-local AI tooling. [Odoo intelligence](docs/workflows/odoo-intelligence.md) covers installation and verification. Use them whenever the task calls for them, before falling back to the shell:
 
-| Server      | Use it to                                                                                              |
-| ----------- | ------------------------------------------------------------------------------------------------------ |
-| `odoo`      | Resolve Odoo model names, fields, inheritance and Python/XML references through OdooLS.                |
-| `serena`    | Find symbols, references and definitions in the modules, and edit code by symbol, instead of grepping. |
-| `postgres`  | Read the local database to check records, schema and constraints after an install or upgrade.          |
-| `context7`  | Read current documentation of Odoo and other libraries before relying on an API.                       |
-| `sonarqube` | Read the quality gate and issues of a branch or pull request, and fix what it reports.                 |
-| `doppler`   | Look up which secrets and configs exist. Never print a secret's value.                                 |
+| Server             | Use it to                                                                                              |
+| ------------------ | ------------------------------------------------------------------------------------------------------ |
+| `odoo`             | Resolve Odoo model names, fields, inheritance and Python/XML references through OdooLS.                |
+| `serena`           | Find symbols, references and definitions in the modules, and edit code by symbol, instead of grepping. |
+| `postgres`         | Read the local database to check records, schema and constraints after an install or upgrade.          |
+| `context7`         | Read current documentation of Odoo and other libraries before relying on an API.                       |
+| `sonarqube`        | Read the quality gate and issues of a branch or pull request, and fix what it reports.                 |
+| `doppler`          | Look up which secrets and configs exist. Never print a secret's value.                                 |
+| `filesystem`       | Read, write and search files of the worktree.                                                          |
+| `drawio`           | Open a diagram from draw.io XML, CSV or Mermaid in the draw.io editor in the browser.                  |
 
 The `postgres` server is read-only; [Database access](docs/workflows/odoo-intelligence.md#database-access) says how an authorized write is configured. When a server is not connected, say so, then continue with the shell.
 

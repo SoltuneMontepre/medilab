@@ -21,4 +21,6 @@ from . import (
     test_report_template_change,
     test_result,
     test_result_reject,
+    testing_figure,
+    testing_figure_period,
 )
