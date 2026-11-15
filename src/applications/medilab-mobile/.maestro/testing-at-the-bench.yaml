@@ -10,6 +10,10 @@ env:
 ---
 - launchApp:
     clearState: true
+# The development build drops a link that arrives before its launcher is ready.
+- extendedWaitUntil:
+    visible: "Connect"
+    timeout: 60000
 - openLink: exp+medilab-mobile://expo-development-client/?url=${METRO_URL}
 - extendedWaitUntil:
     visible: "English"
