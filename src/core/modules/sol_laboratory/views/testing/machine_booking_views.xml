@@ -12,6 +12,7 @@
                 <field name="is_urgent" column_invisible="1" />
                 <field name="display_name" string="Sample Test" />
                 <field name="machine_id" />
+                <field name="method_id" optional="hide" />
                 <field name="person_id" />
                 <field name="department_id" optional="hide" />
                 <field name="starts_at" />
@@ -57,6 +58,7 @@
                         <group>
                             <field name="sample_test_id" />
                             <field name="machine_id" />
+                            <field name="method_id" />
                             <field name="person_id" />
                             <field name="task_id" />
                         </group>
