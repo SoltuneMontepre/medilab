@@ -84,6 +84,7 @@ export function SignInScreen() {
         <Text style={shared.label}>{t("signIn.login")}</Text>
         <TextInput
           accessibilityLabel={t("signIn.login")}
+          testID="sign-in-login"
           style={shared.input}
           value={login}
           onChangeText={setLogin}
@@ -96,6 +97,7 @@ export function SignInScreen() {
         <Text style={shared.label}>{t("signIn.password")}</Text>
         <TextInput
           accessibilityLabel={t("signIn.password")}
+          testID="sign-in-password"
           style={shared.input}
           value={password}
           onChangeText={setPassword}

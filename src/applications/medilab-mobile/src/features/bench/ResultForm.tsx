@@ -91,6 +91,7 @@ export function ResultForm({
       {kind === "number" ? (
         <TextInput
           accessibilityLabel={t("result.value", { unit })}
+          testID="result-value"
           placeholder={t("result.value", { unit })}
           keyboardType="decimal-pad"
           style={shared.input}

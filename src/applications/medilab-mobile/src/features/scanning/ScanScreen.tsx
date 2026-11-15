@@ -92,6 +92,7 @@ export function ScanScreen() {
         )}
         <TextInput
           accessibilityLabel={t("scan.code")}
+          testID="scan-code"
           placeholder={t("scan.code")}
           autoCapitalize="characters"
           autoCorrect={false}

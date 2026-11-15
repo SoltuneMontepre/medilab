@@ -13,9 +13,11 @@ env:
     visible: "English"
     timeout: 60000
 - tapOn: "English"
-- tapOn: "Login"
+- tapOn:
+    id: "sign-in-login"
 - inputText: ${LOGIN}
-- tapOn: "Password"
+- tapOn:
+    id: "sign-in-password"
 - inputText: ${PASSWORD}
 - hideKeyboard
 - tapOn: "Sign in"
@@ -26,7 +28,8 @@ env:
 - tapOn:
     text: "Don.t allow"
     optional: true
-- tapOn: "Lab code"
+- tapOn:
+    id: "scan-code"
 - inputText: ${LAB_CODE}
 - hideKeyboard
 - tapOn: "Open the sample"
@@ -48,7 +51,8 @@ env:
     timeout: 30000
 - assertVisible: "Method steps"
 - tapOn: "Enter the result"
-- tapOn: 'Value \(.*\)'
+- tapOn:
+    id: "result-value"
 - inputText: "0.008"
 - hideKeyboard
 - tapOn:
