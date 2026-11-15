@@ -55,6 +55,10 @@ def seed_results(env):
     retest = _enter(env, tester, _test(retested, lead), value_text="Not detected", conclusion="pass")
     retest.with_context(lang="vi_VN").value_text = "Không phát hiện"
     waiting_result = _test(waiting, lead).result_ids
+    # Only the assignee of a testing task enters its result, so the head of department takes this one over.
+    _test(by_head, lead)._testing_task().with_user(head).write(
+        {"assignee_id": env.ref("sol_demo.demo_person_head_of_department").id}
+    )
     head_result = _enter(env, head, _test(by_head, lead), value=0.006, conclusion="pass")
     head_result.with_user(head).action_sign()
 
