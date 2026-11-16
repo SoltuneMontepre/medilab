@@ -1940,8 +1940,6 @@ msgstr "Tạo cách thử của phòng ban mình"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__created_by_device_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__created_by_device_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_discuss_channel__created_by_device_id
-#: model:ir.model.fields,field_description:sol_laboratory.field_mail_mail__created_by_device_id
-#: model:ir.model.fields,field_description:sol_laboratory.field_mail_message__created_by_device_id
 msgid "Created By Device"
 msgstr "Tạo từ máy tính"
 
@@ -18123,3 +18121,9 @@ msgstr "Hãy viết tin nhắn hoặc đính kèm tệp."
 #: model:ir.model,name:sol_laboratory.model_medilab_chatter_mixin
 msgid "Chatter of a Document"
 msgstr "Trao đổi của tài liệu"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_mail__posted_by_device_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_message__posted_by_device_id
+msgid "Posted By Device"
+msgstr "Gửi từ điện thoại"

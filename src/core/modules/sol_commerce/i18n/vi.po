@@ -4944,3 +4944,15 @@ msgstr "Thuế bán hàng cùng thuế suất"
 #: code:addons/sol_commerce/models/pricing/tax_rate.py:0
 msgid "The accounting tax of %(rate)s must be a sales tax of %(percent)s%%."
 msgstr "Thuế kế toán của %(rate)s phải là thuế bán hàng %(percent)s%%."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/support/support_request_mobile.py:0
+msgid "This Idempotency-Key was already sent with another request."
+msgstr "Idempotency-Key này đã được gửi kèm một yêu cầu khác."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/support/support_request_mobile.py:0
+msgid "You may not answer this support request."
+msgstr "Bạn không được trả lời yêu cầu hỗ trợ này."

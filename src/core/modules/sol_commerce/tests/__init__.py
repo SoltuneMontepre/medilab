@@ -63,6 +63,7 @@ from . import (
     test_quotation_taxes,
     test_sales_analysis,
     test_service_package,
+    test_support_mobile,
     test_support_portal,
     test_support_portal_security,
     test_support_request,

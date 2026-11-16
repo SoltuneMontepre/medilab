@@ -3376,8 +3376,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__created_by_device_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__created_by_device_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_discuss_channel__created_by_device_id
-#: model:ir.model.fields,field_description:sol_laboratory.field_mail_mail__created_by_device_id
-#: model:ir.model.fields,field_description:sol_laboratory.field_mail_message__created_by_device_id
 msgid "Created By Device"
 msgstr ""
 
@@ -18198,4 +18196,10 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_chatter_mixin
 msgid "Chatter of a Document"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_mail__posted_by_device_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_message__posted_by_device_id
+msgid "Posted By Device"
 msgstr ""

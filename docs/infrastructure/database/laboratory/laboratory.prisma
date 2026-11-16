@@ -2807,7 +2807,7 @@ model NotificationPreference {
 }
 
 /// Odoo's message (mail.message), shown with the columns this schema uses and the columns the laboratory adds: one notification of one event about one document, sent to its recipients, a message of a conversation, or a message or note of a document's chatter.
-/// Partial unique index on notification_key where it is set, and on created_by_device_id and idempotency_key where idempotency_key is set.
+/// Partial unique index on notification_key where it is set, and on posted_by_device_id and idempotency_key where idempotency_key is set.
 model Message {
   /// Row identifier.
   id               Int               @id @default(autoincrement())
@@ -2824,13 +2824,13 @@ model Message {
   /// Unique key that stops the same notification being created twice, such as booking:42:reminder.
   notification_key String?           @db.VarChar
   /// The phone the message or the note was posted from; empty for one posted on the web.
-  created_by_device_id Int?
+  posted_by_device_id Int?
   /// The Idempotency-Key the phone sent with the request that posted it; empty when it sent none.
   idempotency_key  String?           @db.VarChar
   /// The event notified.
   event            NotificationEvent? @relation(fields: [subtype_id], references: [id], onDelete: SetNull)
   /// The phone the message or the note was posted from.
-  created_by_device LaboratoryDevice? @relation(fields: [created_by_device_id], references: [id], onDelete: SetNull)
+  posted_by_device LaboratoryDevice? @relation(fields: [posted_by_device_id], references: [id], onDelete: SetNull)
   /// One notification per recipient.
   notifications    Notification[]
   /// Pushes of the message to the phones of the conversation's members and of the people it mentions.

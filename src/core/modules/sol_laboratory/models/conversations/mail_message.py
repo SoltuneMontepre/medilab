@@ -36,14 +36,14 @@ ODOO_CHANNELS = {CHANNEL_POPUP: "inbox", CHANNEL_EMAIL: "email"}
 class MailMessageConversation(models.Model, MailMessageConversationBase):
     _name = MODEL_MAIL_MESSAGE
     _inherit = [MODEL_MAIL_MESSAGE, MODEL_LABORATORY_IDEMPOTENCY_MIXIN]
-    _idempotency_device_field = "created_by_device_id"
+    _idempotency_device_field = "posted_by_device_id"
 
     if not TYPE_CHECKING:
         # The phone the message or the note was posted from; empty for one posted on the web.
-        created_by_device_id = fields.Many2one(MODEL_LABORATORY_DEVICE, readonly=True, copy=False, ondelete="set null")
+        posted_by_device_id = fields.Many2one(MODEL_LABORATORY_DEVICE, readonly=True, copy=False, ondelete="set null")
 
     _device_idempotency_key_unique = models.UniqueIndex(
-        "(created_by_device_id, idempotency_key) WHERE idempotency_key IS NOT NULL",
+        "(posted_by_device_id, idempotency_key) WHERE idempotency_key IS NOT NULL",
         "This phone already posted a message with this Idempotency-Key.",
     )
 

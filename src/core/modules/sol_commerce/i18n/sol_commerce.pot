@@ -4938,3 +4938,15 @@ msgstr ""
 #: code:addons/sol_commerce/models/pricing/tax_rate.py:0
 msgid "The accounting tax of %(rate)s must be a sales tax of %(percent)s%%."
 msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/support/support_request_mobile.py:0
+msgid "This Idempotency-Key was already sent with another request."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/support/support_request_mobile.py:0
+msgid "You may not answer this support request."
+msgstr ""

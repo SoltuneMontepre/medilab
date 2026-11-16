@@ -18,6 +18,8 @@ ERROR_SCHEMA = "/components/schemas/Error"
 # The media type of the bodies the document describes with a schema.
 JSON = "application/json"
 OPERATION_METHODS = ("get", "put", "post", "delete", "patch", "head", "options", "trace")
+# The module that declares an operation's route, when it is not sol_laboratory; the route exists only with it installed.
+MODULE_EXTENSION = "x-medilab-module"
 
 
 @functools.cache

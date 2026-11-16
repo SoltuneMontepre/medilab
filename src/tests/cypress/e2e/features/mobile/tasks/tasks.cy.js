@@ -1,35 +1,9 @@
 import { randomId, refAs, signIn } from "../../../../support/odoo";
+import { onPhone, signedInPhone } from "../../../../support/mobile";
 
 const TESTER = "demo.tester";
 const SECOND_TESTER = "demo.chemistry_tester";
 const HEAD = "demo.head_of_department";
-const API = "/medilab/api/v1";
-
-// A phone of the person signed in as Medilab Mobile signs it in, as a new installation. Yields its device key.
-function signedInPhone(login) {
-  return cy
-    .env(["demoPassword"])
-    .then(({ demoPassword }) =>
-      cy.request("POST", `${API}/sign-in`, {
-        login,
-        password: demoPassword,
-        client_uid: randomId(),
-        name: `Pixel ${Date.now()}`,
-        platform: "android",
-      }),
-    )
-    .its("body.key");
-}
-
-function onPhone(key, method, path, body, headers = {}) {
-  return cy.request({
-    method,
-    url: `${API}${path}`,
-    headers: { Authorization: `Bearer ${key}`, ...headers },
-    body,
-    failOnStatusCode: false,
-  });
-}
 
 // A task the head of Chemistry creates on the phone and puts in Chemistry's queue, as one a sample would wait in.
 function queuedTask(name) {
