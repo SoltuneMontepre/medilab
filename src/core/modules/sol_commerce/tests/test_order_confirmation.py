@@ -208,7 +208,7 @@ class TestOrderConfirmation(OrderCase):
         request.action_confirm()
 
         self.assertEqual(request.status, "paid")
-        request.sample_ids[:1].with_user(self.sales).sudo().action_receive(1, "damaged", "The bottle leaked")
+        request.sample_ids[:1].with_user(self.sales).sudo().action_receive(1, "good")
         self.assertEqual(request.status, "sample_received")
 
     def test_the_request_of_a_credit_customer_is_paid_on_confirmation(self):
