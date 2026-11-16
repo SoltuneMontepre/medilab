@@ -14,10 +14,7 @@ const APPROVED = "sol_laboratory.event_machine_booking_approved";
 const REASON = "Khách hàng cần kết quả gấp để thông quan.";
 
 describe("Department plan", () => {
-  beforeEach(() => {
-    resetFixtures();
-    cy.viewport(1440, 900);
-  });
+  beforeEach(resetFixtures);
   afterEach(releaseFixtures);
 
   it("TC-F422-1 lets the head approve the booking the plan proposes, which then reserves the machine and the calendar and tells the tester", () => {

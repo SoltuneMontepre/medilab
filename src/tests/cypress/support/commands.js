@@ -1,4 +1,5 @@
 import { readRecord, recordRef, signIn } from "./odoo";
+import { quietly } from "./steps";
 
 const ACTIONS = ".o_form_view .o_statusbar_buttons";
 const REFUSAL_MESSAGES = ".o_error_dialog, .o_notification, .modal .alert";
@@ -11,9 +12,10 @@ function clickAction(name) {
     .click();
 }
 
+// Shows as one line with the login; the role's check shows only when it fails.
 Cypress.Commands.add("signInAs", (role) => {
-  expect(role, "demo role").to.match(/^[a-z][a-z0-9_]*$/);
-  return signIn(`demo.${role}`);
+  if (!/^[a-z][a-z0-9_]*$/.test(role)) expect(role, "demo role").to.match(/^[a-z][a-z0-9_]*$/);
+  return quietly("signInAs", `demo.${role}`, () => signIn(`demo.${role}`));
 });
 
 Cypress.Commands.add("openRecord", (record) => {

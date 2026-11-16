@@ -47,13 +47,17 @@ src/tests/
         ecommerce/uninstall-warning/
         mobile/phone-revocation/
         mobile/tasks/
+        laboratory/document-locking/
+        laboratory/audit-trail/
+        laboratory/scheduled-jobs/
       *.cy.js
     support/
     fixtures/
 ```
 
 - `flows/` holds the scenarios for WF-01 to WF-06 and SF-01 to SF-11. The table below maps each owning flow to its spec directory; one file suite can exercise both result-file work and file administration.
-- `features/` holds browser scenarios whose feature has no owning business flow.
+- `features/` holds browser scenarios whose feature has no owning business flow, such as a feature that every flow uses.
+- The tests of a feature's acceptance criteria live in the directory of the flow that owns the feature: its Workflow in the [feature list](../../../../docs/reports/feature-list/readme.md). A flow keeps its path tests in its first spec below and its features' tests in specs named after those features.
 - `support/` holds shared authentication, record, action, refusal and form commands; `fixtures/` holds browser fixtures.
 - `flows/<flow>/setup.js` builds the flow's starting records, such as an order taken to a given stage, so a spec runs again on the same database. `sol_demo` provides the catalog, customers, people and other records they read.
 - Keep a directory's `.gitkeep` until its first real spec is added. Do not add empty `.cy.js` files or skipped placeholder tests.
@@ -65,9 +69,9 @@ Paths below are relative to `cypress/e2e/`. The issue descriptions use flat path
 
 | Flow | Scope | Issue | Directory | Spec basename |
 | --- | --- | --- | --- | --- |
-| WF-01 | Order to confirmed test request | [#152](https://github.com/SoltuneMontepre/medilab/issues/152) | `flows/wf-01-order-to-test-request/` | `order-to-test-request.cy.js` |
+| WF-01 | Order to confirmed test request | [#152](https://github.com/SoltuneMontepre/medilab/issues/152) | `flows/wf-01-order-to-test-request/` | `order-to-test-request.cy.js`, `cart-and-claiming.cy.js`, `quotation.cy.js`, `payment-and-confirmation.cy.js` |
 | WF-02 | Sample reception and handover | [#153](https://github.com/SoltuneMontepre/medilab/issues/153) | `flows/wf-02-sample-reception/` | `sample-reception.cy.js` |
-| WF-03 | Testing assignment and scheduling | [#154](https://github.com/SoltuneMontepre/medilab/issues/154) | `flows/wf-03-testing-scheduling/` | `testing-scheduling.cy.js`, `unhappy-paths.cy.js`, `reassignment-reasons.cy.js`, `reassignment-handover.cy.js`, `sample-test-cancellation.cy.js`, `booking-rescheduling.cy.js`, `plan-revision.cy.js`, `notification-integrity.cy.js` |
+| WF-03 | Testing assignment and scheduling | [#154](https://github.com/SoltuneMontepre/medilab/issues/154), [#315](https://github.com/SoltuneMontepre/medilab/issues/315) | `flows/wf-03-testing-scheduling/` | `testing-scheduling.cy.js`, `unhappy-paths.cy.js`, `reassignment-reasons.cy.js`, `reassignment-handover.cy.js`, `sample-test-cancellation.cy.js`, `booking-rescheduling.cy.js`, `plan-revision.cy.js`, `notification-integrity.cy.js`, `booking-adjustments.cy.js` |
 | WF-04 | Result entry and approval | [#155](https://github.com/SoltuneMontepre/medilab/issues/155) | `flows/wf-04-result-approval/` | `result-approval.cy.js` |
 | WF-05 | Outsourced testing | [#156](https://github.com/SoltuneMontepre/medilab/issues/156) | `flows/wf-05-outsourced-testing/` | `outsourced-testing.cy.js` |
 | WF-06 | Report signing, release and delivery | [#157](https://github.com/SoltuneMontepre/medilab/issues/157), [#431](https://github.com/SoltuneMontepre/medilab/issues/431), [#432](https://github.com/SoltuneMontepre/medilab/issues/432) | `flows/wf-06-report-release/` | `report-release.cy.js`, `report-preparation.cy.js` |
@@ -77,13 +81,13 @@ Paths below are relative to `cypress/e2e/`. The issue descriptions use flat path
 | SF-03 | Change request on a signed document | [#160](https://github.com/SoltuneMontepre/medilab/issues/160) | `flows/sf-03-change-request/` | `change-request.cy.js` |
 | SF-04 | Sample retention, return and disposal | [#161](https://github.com/SoltuneMontepre/medilab/issues/161) | `flows/sf-04-sample-disposal/` | `sample-disposal.cy.js` |
 | SF-05 | Machine calibration and unavailability | [#162](https://github.com/SoltuneMontepre/medilab/issues/162) | `flows/sf-05-machine-unavailability/` | `machine-unavailability.cy.js` |
-| SF-06 | Accreditation and registration renewal | [#163](https://github.com/SoltuneMontepre/medilab/issues/163) | `flows/sf-06-accreditation-renewal/` | `accreditation-renewal.cy.js` |
+| SF-06 | Accreditation and registration renewal | [#163](https://github.com/SoltuneMontepre/medilab/issues/163) | `flows/sf-06-accreditation-renewal/` | `accreditation-renewal.cy.js`, `accreditation-and-registrations.cy.js` |
 | SF-07 | Result dates and priority orders | [#164](https://github.com/SoltuneMontepre/medilab/issues/164) | `flows/sf-07-priority-order/` | `priority-order.cy.js` |
-| SF-08 | Laboratory setup | [#165](https://github.com/SoltuneMontepre/medilab/issues/165) | `flows/sf-08-laboratory-setup/` | `laboratory-setup.cy.js` |
-| SF-09 | Customer support and feedback | [#166](https://github.com/SoltuneMontepre/medilab/issues/166) | `flows/sf-09-support-feedback/` | `support-feedback.cy.js` |
+| SF-08 | Laboratory setup | [#165](https://github.com/SoltuneMontepre/medilab/issues/165) | `flows/sf-08-laboratory-setup/` | `laboratory-setup.cy.js`, `catalog-and-prices.cy.js`, `parameters-and-chemicals.cy.js`, `people-and-approval-chains.cy.js`, `settings.cy.js` |
+| SF-09 | Customer support and feedback | [#166](https://github.com/SoltuneMontepre/medilab/issues/166) | `flows/sf-09-support-feedback/` | `support-feedback.cy.js`, `customer-accounts.cy.js` |
 | SF-10 | Scheduling plan and revisions | [#154](https://github.com/SoltuneMontepre/medilab/issues/154), [#164](https://github.com/SoltuneMontepre/medilab/issues/164) | `flows/wf-03-testing-scheduling/`, `flows/sf-07-priority-order/` | `testing-scheduling.cy.js`, `sample-test-cancellation.cy.js`, `booking-rescheduling.cy.js`, `priority-order.cy.js` |
 
-Start test titles with the issue's `TC-WF…`, `TC-SF…` or `TC-F…` ID. Map feature acceptance criteria to an existing path test when that path already checks them; add a separate test only for a criterion not covered by a path. Use the issue's explicit exclusions to keep another flow's paths with their owner.
+Start test titles with the issue's `TC-WF…`, `TC-SF…` or `TC-F…` ID. When a path test checks the whole of a feature acceptance criterion, its title carries the path ID, then the criterion's ID, such as `TC-SF08-E2 TC-F01-03 refuses archiving…`, and no other test checks that criterion; add a separate test only for a criterion no path test checks whole. Use the issue's explicit exclusions to keep another flow's paths with their owner.
 
 ### WF-03 and SF-10 path coverage
 
@@ -128,7 +132,9 @@ Issue [#318](https://github.com/SoltuneMontepre/medilab/issues/318) tracks `TC-W
 | Warn before uninstalling E-commerce that test requests keep their order's number, and not when Laboratory leaves with it. | [#439](https://github.com/SoltuneMontepre/medilab/issues/439) | `features/ecommerce/uninstall-warning/` | `uninstall-warning.cy.js` |
 | Revoke a phone signed in on Medilab Mobile from the back office; its key is refused at its next call and its push token is off. | [#514](https://github.com/SoltuneMontepre/medilab/issues/514) | `features/mobile/phone-revocation/` | `phone-revocation.cy.js` |
 | Claim a task from the queue on the phone; the web shows it claimed, and a second claim is told it is already claimed. | [#516](https://github.com/SoltuneMontepre/medilab/issues/516) | `features/mobile/tasks/` | `tasks.cy.js` |
-| Let a tester move their own booking and keep a moved task open for its head. | [#315](https://github.com/SoltuneMontepre/medilab/issues/315) | `features/laboratory/scheduling/` | `booking-adjustments.cy.js` |
+| See who holds the lock of a document another user is editing, and keep a signed document read-only for everyone, administrators included. | [#157](https://github.com/SoltuneMontepre/medilab/issues/157) | `features/laboratory/document-locking/` | `document-locking.cy.js` |
+| Record who changed a price, when, and its old and new value; include a request's samples and sample tests in its history; let nobody change or delete an audit entry. | [#157](https://github.com/SoltuneMontepre/medilab/issues/157) | `features/laboratory/audit-trail/` | `audit-trail.cy.js` |
+| List every scheduled job with its runs and run one by hand, and keep old audit entries in a checked archive file once the cleanup removes them. | [#157](https://github.com/SoltuneMontepre/medilab/issues/157) | `features/laboratory/scheduled-jobs/` | `scheduled-jobs.cy.js` |
 | Record planned OverTime for a tester as their head of department; the tester is booked in it only once it is recorded, and moving the booking leaves it. | [#426](https://github.com/SoltuneMontepre/medilab/issues/426) | `features/laboratory/overtime/` | `overtime.cy.js` |
 
 Solution-preparation scenarios follow their approved feature document and demo starting data. Reserving a directory does not settle the open requirements in that issue.
