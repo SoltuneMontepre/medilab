@@ -52,3 +52,22 @@ def phone_person(env, name, login, department, permissions):
     )
     person.user_id.password = PASSWORD
     return person
+
+
+class PhoneCalls:
+    """Calls of Medilab Mobile made by people of a LaboratoryApiCase, each on a phone of their own signed in once."""
+
+    def setUp(self):
+        super().setUp()
+        self.keys = {}
+
+    def on_phone(self, person, method, path, body=None, headers=None):
+        if person not in self.keys:
+            self.keys[person] = self.signed_in_key(
+                person.user_id, f"phone-{person.id}", name="Pixel 8", platform="android"
+            )
+        return self.api(method, path, body, key=self.keys[person], headers=headers)
+
+    def answered(self, response) -> dict:
+        self.assertEqual(response.status_code, 200, response.text)
+        return response.json()

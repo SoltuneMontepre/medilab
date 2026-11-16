@@ -4,7 +4,7 @@ from unittest.mock import patch
 from odoo.tests import tagged
 
 from .laboratory_api_case import LaboratoryApiCase
-from .mobile_phones import phone_person
+from .mobile_phones import PhoneCalls, phone_person
 from .request_case import RequestCase
 from odoo.addons.sol_laboratory.constants.laboratory_files import (
     IDEMPOTENCY_CONFLICT,
@@ -31,7 +31,7 @@ def photo_body(photo=PHOTO, name="collected.png"):
 
 
 @tagged("post_install", "-at_install")
-class TestMedilabMobilePhotos(LaboratoryApiCase, RequestCase):
+class TestMedilabMobilePhotos(PhoneCalls, LaboratoryApiCase, RequestCase):
     """Collecting samples on Medilab Mobile: a member of sample delivery staff sees a collection task with its time and
     place, marks it done and photographs the sample, which a tester never sees."""
 
@@ -62,21 +62,6 @@ class TestMedilabMobilePhotos(LaboratoryApiCase, RequestCase):
                 "document_id": cls.sample.id,
             }
         )
-
-    def setUp(self):
-        super().setUp()
-        self.keys = {}
-
-    def on_phone(self, person, method, path, body=None, headers=None):
-        if person not in self.keys:
-            self.keys[person] = self.signed_in_key(
-                person.user_id, f"phone-{person.id}", name="Pixel 8", platform="android"
-            )
-        return self.api(method, path, body, key=self.keys[person], headers=headers)
-
-    def answered(self, response) -> dict:
-        self.assertEqual(response.status_code, 200, response.text)
-        return response.json()
 
     def attach(self, person, body=None, key="photo-1"):
         return self.on_phone(

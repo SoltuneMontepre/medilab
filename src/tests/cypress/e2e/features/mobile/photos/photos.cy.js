@@ -1,5 +1,5 @@
 import { randomId, refAs, signIn } from "../../../../support/odoo";
-import { onPhone, signedInPhone } from "../../../../support/phone";
+import { onPhone, signedInPhone } from "../../../../support/mobile";
 
 const STAFF = "demo.sample_delivery_staff";
 const TESTER = "demo.tester";
