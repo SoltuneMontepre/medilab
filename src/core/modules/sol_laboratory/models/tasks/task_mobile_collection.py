@@ -15,7 +15,7 @@ SAMPLE_OF_DOCUMENT = {MODEL_SAMPLE: "id", MODEL_TEST_REQUEST: "request_id"}
 
 
 # Nhiệm Vụ: the samples a sample collection task is for and where they are taken from, which Medilab Mobile shows so
-# sample delivery staff open each sample to photograph it.
+# sample delivery staff open each sample to photograph it. It extends task_mobile, so it loads after it.
 class TaskCollectionMobile(models.Model, TaskCollectionMobileBase):
     _name = MODEL_TASK
     _inherit = MODEL_TASK
