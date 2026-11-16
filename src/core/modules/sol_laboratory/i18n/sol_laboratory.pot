@@ -16911,6 +16911,8 @@ msgstr ""
 msgid "Permission: machine.method.edit.all"
 msgstr ""
 
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/master_data/parameter_authorization.py:0
 msgid "%(person)s is not authorized to test %(parameter)s."
 msgstr ""
@@ -17002,6 +17004,8 @@ msgstr ""
 msgid "Testing Statistics"
 msgstr ""
 
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/testing/sample_test_eligibility.py:0
 msgid "%s is cancelled."
 msgstr ""
@@ -17022,6 +17026,8 @@ msgstr ""
 msgid "The machine is already linked to this testing method."
 msgstr ""
 
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/testing/sample_test_eligibility.py:0
 msgid "%s waits for more sample: its sample is on hold."
 msgstr ""
@@ -17158,6 +17164,8 @@ msgstr ""
 msgid "Warning"
 msgstr ""
 
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/testing/machine_booking_capacity.py:0
 #, python-format
 msgid ""
@@ -17165,6 +17173,8 @@ msgid ""
 "holds %(samples)s samples. Adjust its bookings first."
 msgstr ""
 
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/testing/sample_test_eligibility.py:0
 msgid "%s waits until its department receives its sample."
 msgstr ""
@@ -17225,6 +17235,7 @@ msgstr ""
 msgid "The person is already authorized to test this parameter."
 msgstr ""
 
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_overtime_create_all
 msgid "Create OverTime"
 msgstr ""
