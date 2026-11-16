@@ -8,6 +8,7 @@ const { appendFileSync } = require("node:fs");
 const demoPassword = process.env.MEDILAB_DEMO_PASSWORD || "demo";
 
 module.exports = defineConfig({
+  projectId: "kry6yc",
   env: {
     demoPassword,
   },
