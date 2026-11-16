@@ -51,7 +51,7 @@ class TestTaskAssignmentNotice(TaskCase):
         self.assign(task, self.chemist)
 
         self.assertEqual(self.told(task), self.chemist.user_id.partner_id)
-        self.assertIn(self.head.name, self.notices(task).body)
+        self.assertIn(self.head.name, self.notices(task).body or "")
 
     def test_claiming_a_task_tells_nobody(self):
         task = self.receive_sample(self.chemistry)
