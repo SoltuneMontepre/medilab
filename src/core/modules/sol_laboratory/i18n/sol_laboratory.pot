@@ -17998,3 +17998,8 @@ msgstr ""
 #: code:addons/sol_laboratory/services/mobile_messages.py:0
 msgid "Write a message or attach a file."
 msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_chatter_mixin
+msgid "Chatter of a Document"
+msgstr ""
