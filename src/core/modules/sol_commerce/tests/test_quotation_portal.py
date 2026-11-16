@@ -59,15 +59,20 @@ class TestQuotationPortal(AuditLookup, HttpCase, OrderCase):
             self.fail("The quotation page has no link to pay the advance.")
         url = link.group(1).replace("&amp;", "&")
         self.assertIn(f"/my/invoices/{advance.id}?access_token=", url)
-        self.assertIn("payment=True", url)
-        self.assertEqual(self.url_open(url).status_code, 200)
+        self.assertNotIn("payment=True", url)
+        page = self.url_open(url)
+        self.assertEqual(page.status_code, 200)
+        self.assertIn("medilab_payment_amount", page.text)
+        self.assertNotIn('data-bs-target="#pay_with"', page.text)
 
     def test_a_declined_quotation_offers_no_payment(self):
         self.post_decline("Too expensive")
 
         response = self.page()
 
-        self.assertIn(self.quotation.sudo().advance_invoice_id.name, response.text)
+        # Declining cancels the advance invoice, which the page no longer lists.
+        self.assertEqual(self.quotation.sudo().advance_invoice_id.state, "cancel")
+        self.assertNotIn(self.quotation.sudo().advance_invoice_id.name, response.text)
         self.assertNotIn("Pay the advance", response.text)
 
     def test_a_paid_advance_with_an_unpaid_raising_adjustment_shows_what_is_owed(self):

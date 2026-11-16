@@ -1,4 +1,4 @@
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
 from odoo.tests import tagged
 
 from .order_case import OrderCase
@@ -84,3 +84,34 @@ class TestOrderSamples(OrderCase):
 
         with self.assertRaises(ValidationError):
             order._catalog_lines().sample_id = self.make_sample(other)
+
+    def test_sending_gives_each_line_a_sample_of_its_sample_type(self):
+        order = self.make_order(
+            [(self.lead_product, 1)],
+            status="claimed",
+            user_id=self.sales.id,
+            advance_method="cash",
+            advance_mode="full",
+        )
+        line = order._catalog_lines()
+        line.sample_type_id = self.sample_type
+        self.assertFalse(line.sample_id)
+
+        order.with_user(self.sales).action_send_quotation()
+
+        self.assertEqual(line.sample_id.sample_type_id, line.sample_type_id)
+        self.assertEqual(line.sample_id.customer_sample_name, line.sample_type_id.name)
+        self.assertFalse(line.sample_id.physical_state)
+
+    def test_a_line_without_a_sample_type_keeps_the_quotation_from_being_sent(self):
+        order = self.make_order(
+            [(self.lead_product, 1)],
+            status="claimed",
+            user_id=self.sales.id,
+            advance_method="cash",
+            advance_mode="full",
+        )
+        order._catalog_lines().sample_type_id = False
+
+        with self.assertRaisesRegex(UserError, "Choose a sample type"):
+            order.with_user(self.sales).action_send_quotation()

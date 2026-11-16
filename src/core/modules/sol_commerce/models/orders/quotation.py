@@ -23,6 +23,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_CODE_MIXIN,
     MODEL_PERMISSION_MIXIN,
 )
+from odoo.addons.sol_laboratory.services.staff_language import staff_env
 
 if TYPE_CHECKING:
     from medilab_model_types import Model_medilab_quotation as QuotationBase
@@ -144,14 +145,18 @@ class Quotation(models.Model, QuotationBase):
         if self.status != QUOTATION_SENT:
             raise UserError(self.env._("Only a quotation that was sent can be declined."))
         self.sudo().write({"status": QUOTATION_DECLINED, "decline_reason": text})
+        # The advance of a declined quotation is no longer due; a revision sends its own.
+        self._cancel_advance_invoice()
         self._notify_declined(text)
         return True
 
     def _notify_declined(self, reason):
         self.ensure_one()
         order = self.order_id.sudo()
+        # The note is for the salesperson, in their language, not the customer's.
+        env = staff_env(self.env, order.user_id)
         order.message_post(
-            body=self.env._("The customer declined quotation %(code)s: %(reason)s", code=self.code, reason=reason),
+            body=env._("The customer declined quotation %(code)s: %(reason)s", code=self.code, reason=reason),
             partner_ids=order.user_id.partner_id.ids,
             subtype_xmlid="mail.mt_comment",
         )

@@ -108,7 +108,7 @@ describe("WF-01 Order to confirmed test request", () => {
       cy.signInAs("sales");
       cy.openRecord(paid);
       cy.get(".o_statusbar_buttons button[name=action_confirm_order]:visible").click();
-      cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]:visible").should("exist");
+      cy.get(".o_statusbar_buttons button.o_start_sample_collection:visible").should("exist");
       cy.readRecord(paid, ["order_status", "test_request_id", "sample_ids"]).then((read) => {
         expect(read.order_status).to.equal("confirmed");
         call("medilab.test.request", "read", [[read.test_request_id[0]], ["status", "sample_ids"]]).then(([request]) =>
@@ -257,26 +257,42 @@ describe("WF-01 Order to confirmed test request", () => {
       cy.signInAs("sales");
       cy.openRecord(order);
       cy.get(".o_statusbar_buttons button[name=action_confirm_order]:visible").click();
-      cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]:visible").should("exist");
+      cy.get(".o_statusbar_buttons button.o_start_sample_collection:visible").should("exist");
       cy.readRecord(order, ["payment_status", "test_request_id"]).then(({ payment_status, test_request_id: [id] }) => {
         expect(payment_status).to.equal("not_paid");
+        // The customer may order on credit, so confirming the order confirms its request too.
         cy.signInAs("sample_delivery_staff");
-        cy.openRecord({ model: "medilab.test.request", id });
-        cy.get(".o_statusbar_buttons button[name=action_confirm]:visible").click();
         cy.readRecord({ model: "medilab.test.request", id }, ["status"]).its("status").should("not.eq", "draft");
       });
     });
   });
 
-  it("TC-WF01-E1 refuses to send a quotation with a line not on a sample", () => {
+  it("TC-WF01-E1 refuses to send a quotation with a line of no sample type", () => {
     orderAt("claimed", { sample: false }).then((order) => {
       cy.signInAs("sales");
+      cy.readRecord(order, ["order_line"]).then(({ order_line }) =>
+        call("sale.order.line", "write", [order_line, { sample_type_id: false }]),
+      );
       cy.openRecord(order);
       cy.expectRefusal({
         read: readOrder(order),
         action: () => cy.sendRecord("action_send_quotation"),
-        message: "Gán mẫu cho các mục sau trước khi gửi báo giá:",
+        message: "Chọn loại mẫu cho các mục sau trước khi gửi báo giá:",
       });
+    });
+  });
+
+  it("TC-WF01-A8 gives the lines a sample of their sample type when the quotation is sent", () => {
+    orderAt("claimed", { sample: false }).then((order) => {
+      cy.signInAs("sales");
+      refAs("demo.sales", "sol_demo.demo_sample_type_bottled_water").then(({ id }) =>
+        cy.readRecord(order, ["order_line"]).then(({ order_line }) =>
+          call("sale.order.line", "write", [order_line, { sample_type_id: id }]),
+        ),
+      );
+      call("sale.order", "write", [[order.id], { advance_method: "cash", advance_mode: "full" }]);
+      call("sale.order", "action_send_quotation", [[order.id]]);
+      cy.readRecord(order, ["sample_ids"]).its("sample_ids").should("have.length", 1);
     });
   });
 
@@ -685,10 +701,16 @@ describe("WF-01 feature acceptance criteria", () => {
     orderAt("accepted", { advance: false }).then((order) => {
       cy.signInAs("sales");
       cy.openRecord(order);
-      cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]").should("not.exist");
+      cy.get(".o_statusbar_buttons button.o_start_sample_collection").should("not.exist");
       callRefused("sale.order", "action_start_sample_collection", [[order.id]]).should("eq", "Đơn hàng phải được xác nhận trước khi thu mẫu.");
       cy.get(".o_statusbar_buttons button[name=action_confirm_order]:visible").click();
-      cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]:visible").click();
+      cy.get(".o_statusbar_buttons button.o_start_sample_collection:visible").click();
+      // Sales enters when and where the samples are collected; the address starts as the customer's.
+      cy.get(".modal .o_field_widget[name=address] textarea").invoke("val").should("not.be.empty");
+      cy.get(".modal .o_field_widget[name=appointment] input").type("31/12/2099 09:00").type("{enter}");
+      cy.get(".modal button[name=action_start]").click();
+      cy.get(".modal").should("not.exist");
+      cy.get(".o_statusbar_buttons button.o_start_sample_collection").should("not.exist");
       cy.readRecord(order, ["order_status"]).its("order_status").should("eq", "confirmed");
     });
   });

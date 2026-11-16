@@ -17920,3 +17920,63 @@ msgstr "Thời Gian Trả Kết Quả (ngày làm việc)"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__current_date
 msgid "Current Committed Return Date"
 msgstr "Ngày Hẹn Trả Kết Quả Hiện Tại"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task_reassign.py:0
+msgid "%(count)s tasks go to %(holder)s."
+msgstr "%(count)s công việc được chuyển cho %(holder)s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_scan.py:0
+msgid "%(department)s received %(sample)s."
+msgstr "%(department)s đã nhận %(sample)s."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+msgid ""
+"Enter the physical state, the amount received and the condition under "
+"Receipt, then press Receive."
+msgstr ""
+"Nhập trạng thái vật lý, lượng mẫu nhận và tình trạng mẫu ở mục Tiếp nhận, "
+"rồi bấm Tiếp nhận."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid ""
+"Enter whether %s is solid, liquid, gas or semi-solid before receiving it."
+msgstr ""
+"Hãy nhập %s ở trạng thái rắn, lỏng, khí hay bán rắn trước khi tiếp nhận."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__agreed_on_order
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__from_order
+msgid "From Order"
+msgstr "Theo Đơn Hàng"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__method_hours
+msgid "Method Takes (hours)"
+msgstr "Thời Gian Phương Pháp (giờ)"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid ""
+"The customer agreed this sample's type, regulation and tests on the order; "
+"change them with a revised quotation."
+msgstr ""
+"Loại mẫu, quy chuẩn và phép thử của mẫu này đã được khách hàng thống nhất "
+"trên đơn hàng; hãy thay đổi bằng báo giá điều chỉnh."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+msgid "The method takes"
+msgstr "Phương pháp mất"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+msgid "hours in all; this booking holds the machine only for its measurement."
+msgstr "giờ tổng cộng; lượt đặt này chỉ giữ máy trong thời gian đo."

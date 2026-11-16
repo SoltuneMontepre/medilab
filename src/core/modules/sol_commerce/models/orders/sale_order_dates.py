@@ -1,3 +1,4 @@
+from datetime import datetime, time
 from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
 
@@ -35,7 +36,7 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
             string="Turnaround (working days)", compute="_compute_turnaround_days", store=True, readonly=False
         )
         # The ways of testing of the order that have no standard turnaround yet, which keep the quotation from being sent.
-        turnaround_missing = fields.Char(string="Missing Turnaround", compute="_compute_turnaround_days")
+        turnaround_missing = fields.Char(string="Missing Turnaround", compute="_compute_turnaround_missing")
         # The date results would be returned if the samples were received today.
         estimated_result_date = fields.Date(string="Estimated Return Date", compute="_compute_estimated_result_date")
 
@@ -59,7 +60,13 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
             # A sent quotation keeps the turnaround it was sent with.
             frozen = order in order._frozen_by_quotation()
             order.turnaround_days = order.turnaround_days if frozen else turnaround["days"]
-            order.turnaround_missing = ", ".join(turnaround["missing"].mapped("display_name")) or False
+
+    @api.depends("order_line.parameter_method_id")
+    def _compute_turnaround_missing(self):
+        requests = self.env[MODEL_TEST_REQUEST]
+        for order in self:
+            missing = requests._turnaround(order._ways())["missing"]
+            order.turnaround_missing = ", ".join(missing.mapped("display_name")) or False
 
     @api.depends("turnaround_days")
     def _compute_estimated_result_date(self):
@@ -125,6 +132,15 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
             )
         if self.priority_request == "requested":
             raise UserError(self.env._("Accept or decline the customer's priority request before sending."))
+        deadline = self._priority_payment_deadline()
+        if deadline and deadline <= fields.Datetime.now():
+            raise UserError(
+                self.env._(
+                    "The advance would have to be paid before now for the results to be ready on %s. Agree a later "
+                    "date with the customer.",
+                    format_date(self.env, self.committed_date),
+                )
+            )
         estimate = self.estimated_result_date
         if not self.committed_date and self.requested_date and estimate and self.requested_date >= estimate:
             # A requested date the standard turnaround meets is the date Sales promises.
@@ -137,6 +153,20 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
                     format_date(self.env, estimate),
                 )
             )
+
+    def _priority_payment_deadline(self):
+        """The latest moment the advance of a priority order can be paid for the turnaround to meet its committed date:
+        the end of the day the turnaround must start; False for any other order."""
+        self.ensure_one()
+        if not (self.priority and self.committed_date and self.turnaround_days):
+            return False
+        start = self.env[MODEL_TEST_REQUEST]._date_after_working_days(self.committed_date, -self.turnaround_days)
+        zone = ZoneInfo(self.env.company.tz or "UTC")
+        end_of_day = datetime.combine(start, time(23, 59, 59), tzinfo=zone)
+        return end_of_day.astimezone(ZoneInfo("UTC")).replace(tzinfo=None)
+
+    def _latest_payment_deadline(self):
+        return self._priority_payment_deadline() or super()._latest_payment_deadline()
 
     def action_change_committed_date(self):
         """Open the change of the confirmed order's committed return date, recorded with the customer's agreement."""

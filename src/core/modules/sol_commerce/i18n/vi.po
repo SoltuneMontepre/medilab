@@ -5147,3 +5147,99 @@ msgstr "ngày làm việc kể từ khi nhận mẫu."
 #: model:ir.model,name:sol_commerce.model_medilab_committed_date_change
 msgid "Committed Date Change"
 msgstr "Thay Đổi Ngày Hẹn Trả Kết Quả"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_invoice_pay
+msgid "Account holder"
+msgstr "Chủ tài khoản"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_invoice_pay
+msgid "Account number"
+msgstr "Số tài khoản"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_sample_collection_start__appointment
+msgid "Appointment"
+msgstr "Lịch Hẹn"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_invoice_pay
+msgid "Bank"
+msgstr "Ngân hàng"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid ""
+"Choose a sample type for these items before sending the quotation:\n"
+"%s"
+msgstr ""
+"Chọn loại mẫu cho các mục sau trước khi gửi báo giá:\n"
+"%s"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_sample_collection_start__address
+msgid "Collection Address"
+msgstr "Địa Chỉ Thu Mẫu"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_invoice_pay
+msgid "Contact us for the bank account details."
+msgstr "Vui lòng liên hệ với chúng tôi để nhận thông tin tài khoản ngân hàng."
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__has_open_collection
+msgid "Has Open Collection"
+msgstr "Đang Có Lượt Thu Mẫu"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_advance.py:0
+msgid ""
+"Only the Head of Sales can send a quotation without an advance. Choose how "
+"it is paid."
+msgstr ""
+"Chỉ Trưởng phòng kinh doanh mới được gửi báo giá không có tạm ứng. Hãy chọn "
+"cách thanh toán."
+
+#. module: sol_commerce
+#: model:medilab.task.type,name:sol_commerce.task_type_payment_review
+msgid "Payment confirmation"
+msgstr "Xác nhận thanh toán"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sample_collection_start_form
+msgid ""
+"Sample delivery staff collect the samples at the time and place agreed with "
+"the customer."
+msgstr ""
+"Nhân viên giao nhận mẫu thu mẫu theo thời gian và địa điểm đã thống nhất với"
+" khách hàng."
+
+#. module: sol_commerce
+#: model:ir.actions.act_window,name:sol_commerce.action_medilab_sample_collection_start
+#: model:ir.model,name:sol_commerce.model_medilab_sample_collection_start
+msgid "Start Sample Collection"
+msgstr "Bắt Đầu Thu Mẫu"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_dates.py:0
+msgid ""
+"The advance would have to be paid before now for the results to be ready on "
+"%s. Agree a later date with the customer."
+msgstr ""
+"Để có kết quả vào ngày %s, khoản tạm ứng lẽ ra phải được thanh toán trước "
+"thời điểm này. Hãy thống nhất ngày muộn hơn với khách hàng."
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_invoice_pay
+msgid "Transfer reference"
+msgstr "Nội dung chuyển khoản"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_invoice_pay
+msgid ""
+"to the account below. The accountant confirms it once the money arrives."
+msgstr "vào tài khoản dưới đây. Kế toán sẽ xác nhận khi nhận được tiền."

@@ -34,10 +34,10 @@ function scanLabel(code) {
   cy.get(".modal button[name=action_confirm]").click();
 }
 
-// A department's receipt of a sample, once its label has been scanned.
+// A department's receipt of a sample, once its label has been scanned; the scan opens again for the next label.
 function scanned(code) {
   scanLabel(code);
-  cy.get(".modal").should("not.exist");
+  cy.contains(".o_notification", code).should("be.visible");
 }
 
 describe("WF-02 Sample reception and handover", () => {

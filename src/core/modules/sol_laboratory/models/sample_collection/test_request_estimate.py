@@ -9,8 +9,11 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MACHINE_METHOD,
     MODEL_PARAMETER_AUTHORIZATION,
     MODEL_RES_CONFIG_SETTINGS,
+    MODEL_TASK,
+    MODEL_TASK_TYPE,
     MODEL_TEST_REQUEST,
 )
+from odoo.addons.sol_laboratory.constants.tasks import SAMPLE_COLLECTION_CODE
 from odoo.addons.sol_laboratory.models.sample_collection.committed_date_change import CHANGING_COMMITTED_DATE
 from odoo.addons.sol_laboratory.models.testing.machine_booking import HORIZON_DAYS, _slot_length
 
@@ -22,7 +25,8 @@ else:
 UTC = ZoneInfo("UTC")
 
 
-# Yêu Cầu Thử Nghiệm: the standard turnaround of its ways of testing, and the feasibility check of a priority date.
+# Yêu Cầu Thử Nghiệm: what happens to its dates and collection: the standard turnaround of its ways of testing, the
+# feasibility check of a priority date, and the committed date and collection tasks settled at sample receipt.
 class TestRequestEstimate(models.Model, TestRequestEstimateBase):
     _inherit = MODEL_TEST_REQUEST
 
@@ -114,3 +118,17 @@ class TestRequestEstimate(models.Model, TestRequestEstimateBase):
             request.with_context(**{CHANGING_COMMITTED_DATE: True}).committed_date = self._date_after_working_days(
                 today, request.turnaround_days
             )
+
+    def _finish_collections(self):
+        """Mark done the open sample collection tasks of requests none of whose samples are still expected."""
+        tasks = self.env[MODEL_TASK].sudo()
+        task_type = self.env[MODEL_TASK_TYPE].sudo().search([("code", "=", SAMPLE_COLLECTION_CODE)], limit=1)
+        for request in self.sudo().filtered(lambda request: "expected" not in request.sample_ids.mapped("status")):
+            tasks.search(
+                [
+                    ("document_model", "=", request._name),
+                    ("document_id", "=", request.id),
+                    ("type_id", "=", task_type.id),
+                    ("status", "in", ("open", "assigned", "in_progress")),
+                ]
+            ).write({"status": "done", "done_at": fields.Datetime.now()})

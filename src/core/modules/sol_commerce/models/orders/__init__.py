@@ -30,6 +30,7 @@ from . import (
     sale_order_tax,
     sale_order_template,
     sale_order_totals,
+    sample_collection_start,
     task,
     test_report,
     test_request,

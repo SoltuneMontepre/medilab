@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 from odoo import api, fields, models
 from odoo.exceptions import AccessError, UserError
 from odoo.fields import Command
+from odoo.tools.misc import formatLang
 
 from odoo.addons.sol_commerce.constants.models import MODEL_ACCOUNT_PAYMENT
 from odoo.addons.sol_commerce.constants.notifications import EVENT_PAYMENT_RECEIPT, EVENT_PAYMENT_REJECTED
@@ -174,9 +175,12 @@ class AccountPayment(models.Model, AccountPaymentBase):
         partner = self.partner_id
         if not partner:
             return
-        body = self.env._("Payment of %(amount)s was recorded.", amount=self.amount)
+        # The notice goes to the customer, in their language and with the amount written as money.
+        env = self.with_context(lang=partner.lang or self.env.lang).env
+        amount = formatLang(env, self.amount, currency_obj=self.currency_id)
+        body = env._("Payment of %(amount)s was recorded.", amount=amount)
         if kind == "rejected":
-            body = self.env._("Payment was rejected: %(reason)s", reason=self.rejection_reason or "")
+            body = env._("Payment was rejected: %(reason)s", reason=self.rejection_reason or "")
         try:
             with self.env.cr.savepoint():
                 self.env["mail.message"].raise_event(

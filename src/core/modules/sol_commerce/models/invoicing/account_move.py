@@ -6,7 +6,7 @@ from odoo import api, fields, models
 from odoo.exceptions import AccessError, UserError
 from odoo.fields import Command, Domain
 
-from odoo.addons.sol_commerce.constants.models import MODEL_ACCOUNT_MOVE, MODEL_SALE_ORDER
+from odoo.addons.sol_commerce.constants.models import MODEL_ACCOUNT_MOVE, MODEL_ACCOUNT_PAYMENT, MODEL_SALE_ORDER
 from odoo.addons.sol_commerce.constants.notifications import EVENT_INVOICE_SENT
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN
 from odoo.addons.sol_laboratory.constants.notifications import VIETNAM_ZONE
@@ -185,6 +185,28 @@ class AccountMove(models.Model, AccountMoveBase):
         provider = provider.sudo()
         method = method.sudo()
         return bool(provider.is_published and method.active)
+
+    def _portal_pending_transfer(self):
+        """The bank transfer the customer said they made for this invoice and the accountant has not confirmed yet."""
+        self.ensure_one()
+        return (
+            self.env[MODEL_ACCOUNT_PAYMENT]
+            .sudo()
+            .search(
+                [("invoice_ids", "in", self.ids), ("method", "=", "bank_transfer"), ("state", "=", "draft")], limit=1
+            )
+        )
+
+    def _portal_bank_account(self):
+        """The company account the customer transfers to: the invoice's own, else the company's first."""
+        self.ensure_one()
+        move = self.sudo()
+        return move.partner_bank_id or move.company_id.partner_id.bank_ids[:1]
+
+    def _portal_amount_text(self, amount):
+        """The amount as the payment field shows it, with the currency's decimals only."""
+        self.ensure_one()
+        return f"{amount:.{self.currency_id.decimal_places}f}"
 
     def action_print_invoice(self):
         self._check_billing()
