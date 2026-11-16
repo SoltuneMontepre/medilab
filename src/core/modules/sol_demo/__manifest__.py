@@ -1,6 +1,6 @@
 {
     "name": "Medilab - Testing Data",
-    "version": "20.0.1.34.0",
+    "version": "20.0.1.37.0",
     "summary": "Seeds and configure data for demo purposes.",
     "category": "Services/Laboratory",
     "author": "Soltune Montepre",
@@ -85,6 +85,10 @@
         "data/sol_laboratory/laboratory_folder.xml",
         "data/sol_laboratory/laboratory_folder_member.xml",
         "data/sol_laboratory/laboratory_sync_rule.xml",
+        "data/mail/discuss_channel.xml",
+        "data/mail/discuss_channel_member.xml",
+        "data/mail/mail_message.xml",
+        "data/mail/mail_notification.xml",
     ],
     "post_init_hook": "post_init_hook",
     "application": True,

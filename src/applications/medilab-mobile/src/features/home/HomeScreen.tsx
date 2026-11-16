@@ -10,6 +10,7 @@ import { useT } from "../../locale";
 import { useSession } from "../../session";
 import { styles as shared } from "../../styles";
 import { Unreachable } from "../connection/Unreachable";
+import { Button } from "../shared/Button";
 import { taskPath } from "../documents/documentPath";
 import { TaskRow } from "../tasks/TaskRow";
 
@@ -107,6 +108,7 @@ function Day({ home }: Readonly<{ home: Home }>) {
           <Text style={shared.secondaryButtonText}>{t("home.newTask")}</Text>
         </Pressable>
       )}
+      <Button testID="home-conversations" label={t("home.conversations")} onPress={() => router.push("/conversations")} />
       <Pressable accessibilityRole="button" style={shared.secondaryButton} onPress={() => router.push("/notifications")}>
         <Text style={shared.secondaryButtonText}>{t("home.notifications")}</Text>
       </Pressable>

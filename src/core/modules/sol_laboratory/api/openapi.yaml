@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: MediLab laboratory files API
-  version: 1.9.0
+  version: 1.10.0
   description: |
     The API Medilab Sync signs computers in with and reaches laboratory files through, and Medilab Mobile signs phones
     in with. Every refusal answers `{"error": {"code", "message"}}` with the HTTP status of its code; a device acts on
@@ -22,6 +22,7 @@ info:
     | `method_not_allowed` | 405 |
     | `folder_archived`, `folder_disabled`, `folder_exists`, `locked`, `not_locked`, `upload_incomplete`, `upload_closed`, `action_refused`, `already_claimed`, `result_warning` | 409 |
     | `not_eligible`, `not_lockable`, `not_editable`, `idempotency_conflict`, `mandatory_event` | 422 |
+    | `too_large` | 413 |
     | `too_many_attempts` | 429 |
     | `internal_error` | 500 |
     | `try_again`, `editing_unavailable`, `storage_unavailable` | 503 |
@@ -48,6 +49,12 @@ tags:
     description: Scanning a sample's label to record its receipt or claim its testing tasks.
   - name: Results
     description: Testing at the bench, entering results and signing or rejecting them.
+  - name: Conversations
+    description: The person's direct and group conversations, the same as Discuss on the web.
+  - name: Chatter
+    description: The messages and notes of a task's, a sample's or a test request's chatter.
+  - name: Attachments
+    description: The files the app shows, downloaded with the person's rights.
 paths:
   /health:
     get:
@@ -458,6 +465,426 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Document"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /conversations:
+    get:
+      operationId: listConversations
+      tags: [Conversations]
+      summary: Lists the person's direct and group conversations, the latest first.
+      description: |
+        The conversations Discuss on the web shows the person, each with its unread count, whether the person muted
+        it, its members and its last message.
+      responses:
+        "200":
+          description: The conversations.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConversationList"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+    post:
+      operationId: openConversation
+      tags: [Conversations]
+      summary: Opens the direct conversation with one person, or creates a group with a name and members.
+      description: |
+        `person_id` opens the direct conversation with that person, the same one Discuss on the web opens, creating it
+        the first time. `member_ids` creates a group of those people and the person, with an optional name; with an
+        `Idempotency-Key`, repeating the request answers with the group it created. Only active people of the
+        laboratory take part in conversations: anyone else is refused with `invalid_request`.
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewConversation"
+      responses:
+        "200":
+          description: The conversation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Conversation"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /conversations/{channel_id}/messages:
+    parameters:
+      - name: channel_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: listConversationMessages
+      tags: [Conversations]
+      summary: Lists a page of the conversation's messages, newest first.
+      description: |
+        `before` pages back from the oldest message the app has; `after` gives the messages newer than the newest it
+        has, which the app asks for while the conversation is open. A conversation the person is not a member of
+        answers `not_found`.
+      parameters:
+        - name: before
+          in: query
+          required: false
+          description: The id of the oldest message the app has; the page gives the messages before it.
+          schema:
+            type: string
+            pattern: "^[0-9]{1,18}$"
+        - name: after
+          in: query
+          required: false
+          description: The id of the newest message the app has; the page gives the messages after it.
+          schema:
+            type: string
+            pattern: "^[0-9]{1,18}$"
+        - name: limit
+          in: query
+          required: false
+          description: How many to give, from 1 to 100; 30 by default.
+          schema:
+            type: string
+            pattern: "^(100|[1-9][0-9]?)$"
+      responses:
+        "200":
+          description: The messages.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageList"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+    post:
+      operationId: postConversationMessage
+      tags: [Conversations]
+      summary: Posts a message with its text, mentions and files, as Discuss on the web posts it.
+      description: |
+        The message is pushed at once to the phones of the conversation's members, except its author and those who
+        muted it, and the people it mentions are notified on each channel they keep on. A file over 10 MiB, or files
+        over 25 MiB together, once decoded, are refused with `too_large` before anything is stored. With an
+        `Idempotency-Key`, repeating the request answers with the message it posted.
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewMessage"
+      responses:
+        "200":
+          description: The message posted.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
+        "413":
+          $ref: "#/components/responses/TooLarge"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /conversations/{channel_id}/seen:
+    parameters:
+      - name: channel_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      operationId: markConversationSeen
+      tags: [Conversations]
+      summary: Marks the conversation read up to the message, as Discuss on the web does.
+      description: Marking it read up to an older message changes nothing.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SeenMessage"
+      responses:
+        "204":
+          description: The conversation is read up to the message, on the web as well.
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /conversations/{channel_id}/mute:
+    parameters:
+      - name: channel_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    put:
+      operationId: muteConversation
+      tags: [Conversations]
+      summary: Mutes or unmutes the conversation for the person, as Discuss on the web does.
+      description: A muted conversation's messages are not pushed to the person, unless a message mentions them.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MuteChoice"
+      responses:
+        "200":
+          description: The conversation as it now is.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Conversation"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /people:
+    get:
+      operationId: searchPeople
+      tags: [Conversations]
+      summary: Finds the active people of the laboratory by name, for new conversations and mentions.
+      description: The person is left out; at most 20 people are given.
+      parameters:
+        - name: q
+          in: query
+          required: false
+          description: Part of the name.
+          schema:
+            type: string
+            maxLength: 100
+      responses:
+        "200":
+          description: The people.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PeopleList"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /documents/{model}/{record_id}/messages:
+    parameters:
+      - name: model
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: record_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: listDocumentMessages
+      tags: [Chatter]
+      summary: Lists a page of the messages and notes of a task's, a sample's or a test request's chatter, newest first.
+      description: |
+        The messages people wrote that the web's chatter shows the person, read with their rights. Any other document,
+        or one the person may not read, answers `not_found`.
+      parameters:
+        - name: before
+          in: query
+          required: false
+          description: The id of the oldest message the app has; the page gives the messages before it.
+          schema:
+            type: string
+            pattern: "^[0-9]{1,18}$"
+        - name: limit
+          in: query
+          required: false
+          description: How many to give, from 1 to 100; 30 by default.
+          schema:
+            type: string
+            pattern: "^(100|[1-9][0-9]?)$"
+      responses:
+        "200":
+          description: The messages.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageList"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /documents/{model}/{record_id}/notes:
+    parameters:
+      - name: model
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: record_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      operationId: postDocumentNote
+      tags: [Chatter]
+      summary: Posts a note with its text and mentions on a task's, a sample's or a test request's chatter.
+      description: |
+        A note is internal: it reaches the people it mentions and the internal followers, never a customer. Anyone who
+        may read the document posts a note on it. With an `Idempotency-Key`, repeating the request answers with the
+        note it posted.
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewNote"
+      responses:
+        "200":
+          description: The note posted.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /attachments/{attachment_id}:
+    parameters:
+      - name: attachment_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: downloadAttachment
+      tags: [Attachments]
+      summary: Downloads the file with the person's rights.
+      description: A file the person may not read, such as a file of a conversation they are not in, answers `not_found`.
+      responses:
+        "200":
+          description: The file's content, with its type.
+          content:
+            "*/*":
+              schema:
+                type: string
+                format: binary
         "400":
           $ref: "#/components/responses/InvalidRequest"
         "401":
@@ -2439,6 +2866,191 @@ components:
         url:
           description: The document's address on the web.
           type: string
+    ConversationList:
+      type: object
+      additionalProperties: false
+      required: [conversations]
+      properties:
+        conversations:
+          type: array
+          items:
+            $ref: "#/components/schemas/Conversation"
+    Conversation:
+      type: object
+      additionalProperties: false
+      required: [id, type, name, unread, muted, members, last_message]
+      properties:
+        id:
+          type: integer
+        type:
+          description: "`chat` for a direct conversation, `group` for a group."
+          enum: [chat, group]
+        name:
+          description: A group's name, or the other people's names.
+          type: string
+        unread:
+          description: How many messages the person has not read.
+          type: integer
+        muted:
+          description: Whether the person muted it, so its messages are not pushed to them.
+          type: boolean
+        members:
+          type: array
+          items:
+            $ref: "#/components/schemas/PersonName"
+        last_message:
+          oneOf:
+            - $ref: "#/components/schemas/Message"
+            - type: "null"
+    PersonName:
+      type: object
+      additionalProperties: false
+      required: [id, name]
+      properties:
+        id:
+          description: The person's user.
+          type: integer
+        name:
+          type: string
+    PeopleList:
+      type: object
+      additionalProperties: false
+      required: [people]
+      properties:
+        people:
+          type: array
+          items:
+            $ref: "#/components/schemas/PersonName"
+    NewConversation:
+      type: object
+      additionalProperties: false
+      properties:
+        person_id:
+          description: The user of the person of a direct conversation.
+          type: integer
+        name:
+          description: The group's name.
+          type: string
+          maxLength: 100
+        member_ids:
+          description: The users of the people of a group, besides the person.
+          type: array
+          minItems: 1
+          maxItems: 50
+          items:
+            type: integer
+      oneOf:
+        - required: [person_id]
+        - required: [member_ids]
+    MessageList:
+      type: object
+      additionalProperties: false
+      required: [messages]
+      properties:
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/Message"
+    Message:
+      type: object
+      additionalProperties: false
+      required: [id, author, mine, date, text, note, attachments]
+      properties:
+        id:
+          type: integer
+        author:
+          description: The author's name.
+          type: string
+        mine:
+          description: Whether the person wrote it.
+          type: boolean
+        date:
+          type: string
+          format: date-time
+        text:
+          description: The message's text, without its formatting.
+          type: string
+        note:
+          description: Whether it is an internal note of a document's chatter.
+          type: boolean
+        attachments:
+          type: array
+          items:
+            $ref: "#/components/schemas/MessageAttachment"
+    MessageAttachment:
+      type: object
+      additionalProperties: false
+      required: [id, name, mimetype]
+      properties:
+        id:
+          description: The attachment, downloaded from `/attachments/{attachment_id}`.
+          type: integer
+        name:
+          type: string
+        mimetype:
+          type: string
+    NewMessage:
+      type: object
+      additionalProperties: false
+      properties:
+        text:
+          type: string
+          maxLength: 10000
+        mentions:
+          $ref: "#/components/schemas/Mentions"
+        files:
+          type: array
+          maxItems: 10
+          items:
+            $ref: "#/components/schemas/NewFile"
+    NewNote:
+      type: object
+      additionalProperties: false
+      required: [text]
+      properties:
+        text:
+          type: string
+          minLength: 1
+          maxLength: 10000
+        mentions:
+          $ref: "#/components/schemas/Mentions"
+    Mentions:
+      description: The users of the people of the laboratory the message mentions with @.
+      type: array
+      maxItems: 50
+      items:
+        type: integer
+    NewFile:
+      type: object
+      additionalProperties: false
+      required: [name, mimetype, data]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        mimetype:
+          type: string
+          maxLength: 100
+        data:
+          description: The file's content in base64.
+          type: string
+          contentEncoding: base64
+    SeenMessage:
+      type: object
+      additionalProperties: false
+      required: [message_id]
+      properties:
+        message_id:
+          description: The newest message the person read.
+          type: integer
+    MuteChoice:
+      type: object
+      additionalProperties: false
+      required: [muted]
+      properties:
+        muted:
+          type: boolean
     Me:
       type: object
       additionalProperties: false
@@ -3554,6 +4166,7 @@ components:
                 - not_editable
                 - idempotency_conflict
                 - mandatory_event
+                - too_large
                 - action_refused
                 - already_claimed
                 - result_warning
@@ -3682,6 +4295,18 @@ components:
                     properties:
                       code:
                         enum: [result_warning, action_refused]
+    TooLarge:
+      description: A file over its limit.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error"
+              - properties:
+                  error:
+                    properties:
+                      code:
+                        enum: [too_large]
     MandatoryEvent:
       description: The push of a mandatory event cannot be turned off.
       content:

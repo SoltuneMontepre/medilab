@@ -33,6 +33,7 @@ from odoo.addons.sol_laboratory.constants.medilab_mobile import (
     ALREADY_CLAIMED,
     MANDATORY_EVENT,
     RESULT_WARNING,
+    TOO_LARGE,
 )
 
 # Every route of the API is under this path.
@@ -61,6 +62,7 @@ ERROR_STATUSES = {
     NOT_EDITABLE: 422,
     IDEMPOTENCY_CONFLICT: 422,
     MANDATORY_EVENT: 422,
+    TOO_LARGE: 413,
     TOO_MANY_ATTEMPTS: 429,
     INTERNAL_ERROR: 500,
     TRY_AGAIN: 503,

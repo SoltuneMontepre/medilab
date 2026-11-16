@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_mail_message_tester_head_question" model="mail.message">
+        <field name="model">discuss.channel</field>
+        <field name="res_id" ref="demo_discuss_channel_tester_head" />
+        <field name="message_type">comment</field>
+        <field name="subtype_id" ref="mail.mt_comment" />
+        <field name="author_id" ref="demo_res_partner_head_of_department" />
+        <field name="body"><![CDATA[<p>Em chạy lại mẫu trắng cho lô bắp cải chiều nay nhé.</p>]]></field>
+    </record>
+    <record id="demo_mail_message_chemistry_morning_plan" model="mail.message">
+        <field name="model">discuss.channel</field>
+        <field name="res_id" ref="demo_discuss_channel_chemistry_morning" />
+        <field name="message_type">comment</field>
+        <field name="subtype_id" ref="mail.mt_comment" />
+        <field name="author_id" ref="demo_res_partner_head_of_department" />
+        <field name="body"><![CDATA[<p>Sáng nay ưu tiên các mẫu nước uống đóng chai, máy HPLC số 2 đang hiệu chuẩn.</p>]]></field>
+    </record>
+    <record id="demo_mail_message_chemistry_morning_reagent" model="mail.message">
+        <field name="model">discuss.channel</field>
+        <field name="res_id" ref="demo_discuss_channel_chemistry_morning" />
+        <field name="message_type">comment</field>
+        <field name="subtype_id" ref="mail.mt_comment" />
+        <field name="author_id" ref="demo_res_partner_chemistry_tester" />
+        <field name="body"><![CDATA[<p>Chai acetonitrile mới đã mở, nhãn dán trên tủ hoá chất số 3.</p>]]></field>
+    </record>
+    <record id="demo_mail_message_sample_cabbage_note" model="mail.message">
+        <field name="model">medilab.sample</field>
+        <field name="res_id" ref="sol_demo.demo_sample_cabbage_received" />
+        <field name="message_type">comment</field>
+        <field name="subtype_id" ref="mail.mt_note" />
+        <field name="author_id" ref="demo_res_partner_head_of_department" />
+        <field name="partner_ids" eval="[Command.set([ref('demo_res_partner_tester')])]" />
+        <field name="body"><![CDATA[<p>@Dang Thi Lan Mẫu này cần đồng nhất lại trước khi cân, lá ngoài còn ướt.</p>]]></field>
+    </record>
+</odoo>

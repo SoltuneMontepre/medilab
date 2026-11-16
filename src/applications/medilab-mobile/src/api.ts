@@ -26,6 +26,11 @@ export interface Call {
   headers?: Record<string, string>;
 }
 
+/** The address of MediLab's API at the path. */
+export function apiUrl(serverUrl: string, path: string): string {
+  return serverUrl + API_PATH + path;
+}
+
 /** Calls MediLab's API at the path and answers its JSON, or null for an answer without content. */
 export async function callApi<T>(serverUrl: string, language: Locale, path: string, call: Call = {}): Promise<T | null> {
   const headers: Record<string, string> = {
@@ -43,7 +48,7 @@ export async function callApi<T>(serverUrl: string, language: Locale, path: stri
   const timeout = setTimeout(() => controller.abort(), TIMEOUT_SECONDS * 1000);
   let response: Response;
   try {
-    response = await fetch(serverUrl + API_PATH + path, {
+    response = await fetch(apiUrl(serverUrl, path), {
       method: call.method ?? "GET",
       headers,
       body: call.body === undefined ? undefined : JSON.stringify(call.body),
@@ -274,4 +279,49 @@ export interface SampleTest {
   comparison_requested: boolean;
   can_enter_result: boolean;
   result: Result | null;
+}
+
+/** A person of the laboratory, for conversations and mentions. */
+export interface PersonName {
+  id: number;
+  name: string;
+}
+
+export interface MessageAttachment {
+  id: number;
+  name: string;
+  mimetype: string;
+}
+
+/** A message of a conversation or of a document's chatter, as people wrote it. */
+export interface Message {
+  id: number;
+  author: string;
+  mine: boolean;
+  date: string;
+  text: string;
+  note: boolean;
+  attachments: MessageAttachment[];
+}
+
+export interface MessagePage {
+  messages: Message[];
+}
+
+/** A direct or group conversation of the person, as Discuss on the web has it. */
+export interface Conversation {
+  id: number;
+  type: "chat" | "group";
+  name: string;
+  unread: number;
+  muted: boolean;
+  members: PersonName[];
+  last_message: Message | null;
+}
+
+/** A file the app sends with a message, in base64. */
+export interface NewFile {
+  name: string;
+  mimetype: string;
+  data: string;
 }

@@ -11,6 +11,7 @@ import { useSession } from "../../session";
 import { colors, styles as shared } from "../../styles";
 import { ActionProblem } from "../connection/ActionProblem";
 import { LoadNotice } from "../connection/LoadNotice";
+import { ChatterButton } from "../messages/ChatterButton";
 import { Facts, type Fact } from "../shared/Facts";
 import { formatMoment } from "../tasks/taskText";
 
@@ -92,6 +93,7 @@ export function SampleScreen() {
             gone={t("sample.gone")}
             onRetry={() => problem && act(problem.action, load.value)}
           />
+          <ChatterButton document={{ model: "medilab.sample", id: load.value.id, code: load.value.code }} />
         </ScrollView>
       )}
     </SafeAreaView>

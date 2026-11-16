@@ -8,9 +8,11 @@ export function Button({
   onPress,
   primary = false,
   disabled = false,
-}: Readonly<{ label: string; onPress: () => void; primary?: boolean; disabled?: boolean }>) {
+  testID,
+}: Readonly<{ label: string; onPress: () => void; primary?: boolean; disabled?: boolean; testID?: string }>) {
   return (
     <Pressable
+      testID={testID}
       accessibilityRole="button"
       accessibilityState={{ disabled }}
       disabled={disabled}

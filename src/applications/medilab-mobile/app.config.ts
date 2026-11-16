@@ -41,6 +41,15 @@ export default function appConfig({ config }: ConfigContext): ExpoConfig {
           recordAudioAndroid: false,
         },
       ],
+      // Conversations send photos from the camera or the gallery; the app records no sound.
+      [
+        "expo-image-picker",
+        {
+          photosPermission: "MediLab sends photos from your gallery in conversations.",
+          cameraPermission: "MediLab takes photos to send in conversations.",
+          microphonePermission: false,
+        },
+      ],
       // React Native Firebase reaches the Firebase Apple SDK through Swift Package Manager, which needs dynamic
       // frameworks.
       ["expo-build-properties", { ios: { useFrameworks: "dynamic" } }],

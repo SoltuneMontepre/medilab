@@ -1,7 +1,9 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react-native";
 import { router } from "expo-router";
 
+import { documentPath } from "./features/documents/documentPath";
 import { PushOpener } from "./features/documents/PushOpener";
+import { watchMessagePushes } from "./push";
 import { SessionProvider } from "./session";
 import { fakeMediLab, kept } from "./testing/fakeMediLab";
 import { GREETING, home } from "./testing/home";
@@ -89,5 +91,22 @@ describe("Pushes", () => {
 
     await act(async () => undefined);
     expect(router.push).not.toHaveBeenCalled();
+  });
+
+  it("tells the screens of each conversation message pushed while the app is open, and opens its conversation", async () => {
+    const pushed = jest.fn();
+    const stop = watchMessagePushes(pushed);
+    const message = { data: { event: "message", model: "discuss.channel", id: "5" } };
+
+    messaging.receivePush(message);
+    messaging.receivePush(SAMPLE_PUSH);
+    stop();
+    messaging.receivePush(message);
+
+    expect(pushed.mock.calls).toEqual([[{ model: "discuss.channel", id: 5 }]]);
+    expect(documentPath({ model: "discuss.channel", id: 5 })).toEqual({
+      pathname: "/conversations/[id]",
+      params: { id: "5" },
+    });
   });
 });
