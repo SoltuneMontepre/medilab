@@ -6,6 +6,7 @@ from odoo.tests import tagged
 from .request_case import RequestCase
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PERSON,
+    MODEL_ROLE,
     MODEL_SAMPLE,
     MODEL_SCHEDULED_JOB,
     MODEL_TASK,
@@ -63,6 +64,10 @@ class TestSampleCollection(RequestCase):
         self.assertEqual(task.status, "done")
 
     def test_recollection_task_shows_the_sample_it_is_for(self):
+        role = self.env[MODEL_ROLE].create({"code": "collector", "name": "Sample delivery staff"})
+        self.env[MODEL_TASK_TYPE].search([("code", "=", SAMPLE_COLLECTION_CODE)]).write(
+            {"route": "role", "role_id": role.id}
+        )
         sample = self.sample.with_user(self.staff.user_id)
         sample.action_receive("50 mL", "insufficient")
 
@@ -77,4 +82,4 @@ class TestSampleCollection(RequestCase):
 
         self.assertEqual((task.document_model, task.document_id), (MODEL_SAMPLE, sample.id))
         self.assertEqual(task.action_open_document()["res_id"], sample.id)
-        self.assertTrue(self.env["calendar.event"].search([("medilab_task_id", "=", task.id)]))
+        self.assertEqual(task.note, self.customer.partner_id._display_address())

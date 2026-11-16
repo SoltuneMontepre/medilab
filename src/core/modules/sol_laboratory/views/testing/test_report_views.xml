@@ -160,6 +160,34 @@
                         </group>
                     </group>
                     <notebook>
+                        <page
+                            string="Samples"
+                            name="samples"
+                            invisible="status != 'issued'"
+                            groups="sol_laboratory.group_permission_sample_return_create_all"
+                        >
+                            <field name="sample_ids" readonly="1">
+                                <list>
+                                    <field name="code" />
+                                    <field name="customer_sample_name" />
+                                    <field name="sample_type_id" />
+                                    <field
+                                        name="status"
+                                        widget="badge"
+                                        decoration-success="status in ('reported', 'retained')"
+                                        decoration-danger="status in ('rejected', 'cancelled')"
+                                    />
+                                    <field name="returnable" />
+                                    <button
+                                        name="action_open_return"
+                                        type="object"
+                                        string="Return"
+                                        class="btn-primary"
+                                        invisible="not returnable"
+                                    />
+                                </list>
+                            </field>
+                        </page>
                         <page string="Results" name="results" groups="sol_laboratory.group_permission_test_result_read_all">
                             <field name="result_ids">
                                 <list>
