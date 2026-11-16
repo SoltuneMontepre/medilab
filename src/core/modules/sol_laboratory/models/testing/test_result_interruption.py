@@ -4,7 +4,7 @@ from odoo import api, fields, models
 from odoo.exceptions import UserError
 
 from odoo.addons.sol_laboratory.constants.approvals import STATE_NONE
-from odoo.addons.sol_laboratory.constants.models import MODEL_TEST_RESULT
+from odoo.addons.sol_laboratory.constants.models import MODEL_MACHINE_BOOKING, MODEL_TEST_RESULT
 
 if TYPE_CHECKING:
     from medilab_model_types import Model_medilab_test_result as TestResultInterruptionBase
@@ -77,6 +77,8 @@ class TestResultInterruption(models.Model, TestResultInterruptionBase):
                     )
                 )
         self.sudo().interruption_assessment = assessment
+        # A retest awaits the plan of the department that measured the test.
+        self.env[MODEL_MACHINE_BOOKING]._plan(self.sudo().sample_test_id.booking_ids.department_id)
 
     def action_sign(self):
         self.ensure_one()

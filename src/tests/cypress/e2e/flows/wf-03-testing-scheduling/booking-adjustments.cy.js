@@ -1,6 +1,6 @@
-import { call, callAs, callRefused } from "../../../../support/odoo";
-import { pick, save } from "../../../../support/form";
-import { ADMIN, milliseconds, release, schedulingFixture, snapshot, typeTime } from "./setup";
+import { call, callAs, callRefused } from "../../../support/odoo";
+import { pick, save } from "../../../support/form";
+import { ADMIN, milliseconds, release, schedulingFixture, snapshot, typeTime } from "../../features/laboratory/scheduling/setup";
 
 function findFixtureBookings(fixture) {
   const { tag } = fixture;

@@ -78,7 +78,7 @@ class TestInterruptions(ResultCase):
         )
 
         self.assertEqual((running.status, running.starts_at), ("in_progress", MONDAY))
-        self.assertEqual((waiting.status, waiting.person_id), ("scheduled", self.tester))
+        self.assertEqual((waiting.status, waiting.person_id), ("proposed", self.tester))
         self.assertGreaterEqual(assert_instance(waiting.starts_at, datetime), MONDAY + timedelta(hours=12))
         self.assertEqual((colleague.status, colleague.starts_at), before)
         self.assertIn(self.head.user_id.partner_id, self.notified(RETURNED_EVENT, waiting))
@@ -107,8 +107,10 @@ class TestInterruptions(ResultCase):
             }
         )
 
-        self.assertEqual(booking.status, "scheduled")
-        self.assertGreaterEqual(booking.room_event_ids.start, assert_instance(closure.ends_at, datetime))
+        self.assertEqual((booking.status, booking.room_event_ids), ("proposed", self.env[MODEL_CALENDAR_EVENT]))
+        self.assertGreaterEqual(
+            assert_instance(booking.starts_at, datetime), assert_instance(closure.ends_at, datetime)
+        )
         self.assertIn(self.head.user_id.partner_id, self.notified(RETURNED_EVENT, booking))
         with self.assertRaisesRegex(ValidationError, "cannot be used"), self.env.cr.savepoint():
             self.env[MODEL_CALENDAR_EVENT].create(
@@ -159,6 +161,9 @@ class TestInterruptions(ResultCase):
         booking = self.fail_during_measurement()
         interrupted = self.test.result_ids
         self.as_person(interrupted, self.head).action_assess_retest()
+        # The assessment puts the retest in the department's plan, by the method of the interrupted measurement.
+        proposed = self.test.booking_ids.filtered(lambda booking: booking.status == "proposed")
+        self.assertEqual((proposed.method_id, bool(proposed.starts_at)), (self.method, True))
         # Another way of testing lead would finish sooner, on a machine of another method.
         icp_method = self.env[MODEL_TESTING_METHOD].create(
             {"code": "SMEWW 3125B", "name": "Metals by ICP-MS", "field_id": self.testing_field.id}

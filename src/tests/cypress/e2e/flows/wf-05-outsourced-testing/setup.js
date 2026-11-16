@@ -1,4 +1,5 @@
 import { callAs, portalPostAs, refAs } from "../../../support/odoo";
+import { helper } from "../../../support/steps";
 
 const RECEPTION = "demo.sample_delivery_staff";
 const HEAD = "demo.head_of_department";
@@ -28,7 +29,7 @@ export const PARAMETERS = {
 export const EXPIRED_SUBCONTRACTOR = "sol_demo.demo_subcontractor_coastal_analytics";
 
 // The subcontractor sol_demo seeds archived, which an external ID does not resolve to.
-export function archivedSubcontractor() {
+export const archivedSubcontractor = helper("archivedSubcontractor", function archivedSubcontractor() {
   return callAs(ADMINISTRATOR, "medilab.subcontractor", "search", [
     [
       ["active", "=", false],
@@ -38,7 +39,7 @@ export function archivedSubcontractor() {
     expect(ids, "archived subcontractor").to.have.length(1);
     return { model: "medilab.subcontractor", id: ids[0] };
   });
-}
+});
 
 // Today's date plus some days, as Odoo stores a date.
 export function inDays(days) {
@@ -54,7 +55,7 @@ function subcontractorOf(kind) {
 
 // The head of department cancels the subcontractor's draft dispatches, which a test outsourced next would otherwise
 // join.
-export function clearDrafts(kind = "lead") {
+export const clearDrafts = helper("clearDrafts", function clearDrafts(kind = "lead") {
   return subcontractorOf(kind)
     .then((id) =>
       callAs(HEAD, "medilab.subcontract.dispatch", "search", [
@@ -65,14 +66,14 @@ export function clearDrafts(kind = "lead") {
       ]),
     )
     .then((ids) => ids.length && callAs(HEAD, "medilab.subcontract.dispatch", "action_cancel", [ids]));
-}
+});
 
 // A sample test of a received sample whose testing task the head of department assigned to the tester. Its results
 // are promised `days` from today: with none, its due date has passed, so no machine can finish it and the scheduler
 // suggests outsourcing it. `sample` can give another sample type and physical state, and a regulation to compare the
 // sample with, as external IDs; the regulation can also be a `{ model, id }`. `accepted` is the external ID of the way of testing
 // the customer accepted on the quotation, which the test keeps to.
-export function assignedTest(kind = "lead", { days = 0, sample = {}, accepted } = {}) {
+export const assignedTest = helper("assignedTest", function assignedTest(kind = "lead", { days = 0, sample = {}, accepted } = {}) {
   const { parameter, sampleType, state } = { ...PARAMETERS[kind], ...sample };
   const test = { model: "medilab.sample.test", kind };
   const ids = { regulation: false, way: {} };
@@ -130,29 +131,29 @@ export function assignedTest(kind = "lead", { days = 0, sample = {}, accepted } 
       );
     });
   return cy.then(() => test);
-}
+});
 
 // A sample test the scheduler suggests outsourcing.
-export function suggestedTest(kind = "lead") {
+export const suggestedTest = helper("suggestedTest", function suggestedTest(kind = "lead") {
   return assignedTest(kind).then((test) =>
     callAs(HEAD, "medilab.sample.test", "read", [[test.id], ["outsourcing_suggested"]]).then(([read]) => {
       expect(read.outsourcing_suggested, "outsourcing suggested").to.be.true;
       return test;
     }),
   );
-}
+});
 
 // The outsource dialog of a sample test as the head of department fills it, through the parameter's subcontracted
 // way of testing, which the dialog offers first.
-export function outsourceDialog(test, values = {}) {
+export const outsourceDialog = helper("outsourceDialog", function outsourceDialog(test, values = {}) {
   return refAs(HEAD, PARAMETERS[test.kind].way).then((way) =>
     callAs(HEAD, "medilab.sample.test.outsource", "create", [{ sample_test_id: test.id, parameter_method_id: way.id, ...values }]),
   );
-}
+});
 
 // The head of department accepts the suggestion through the outsource dialog; the test waits in a draft dispatch of
 // its own.
-export function outsourcedTest(kind = "lead") {
+export const outsourcedTest = helper("outsourcedTest", function outsourcedTest(kind = "lead") {
   clearDrafts(kind);
   return suggestedTest(kind).then((test) =>
     outsourceDialog(test)
@@ -164,21 +165,21 @@ export function outsourcedTest(kind = "lead") {
         })),
       ),
   );
-}
+});
 
 // The head of department sends the dispatch of an outsourced test with sample delivery staff, its results expected in
 // a week.
-export function sentDispatch(kind = "lead") {
+export const sentDispatch = helper("sentDispatch", function sentDispatch(kind = "lead") {
   return outsourcedTest(kind).then(({ test, dispatch }) =>
     refAs(HEAD, "sol_demo.demo_person_sample_delivery_staff").then((courier) => {
       callAs(HEAD, "medilab.subcontract.dispatch", "write", [[dispatch.id], { courier_id: courier.id, expected_date: inDays(7) }]);
       return callAs(HEAD, "medilab.subcontract.dispatch", "action_send", [[dispatch.id]]).then(() => ({ test, dispatch }));
     }),
   );
-}
+});
 
 // The reported result of a sample test, as the head of department reads it.
-export function reportedResult(test) {
+export const reportedResult = helper("reportedResult", function reportedResult(test) {
   return callAs(
     HEAD,
     "medilab.test.result",
@@ -191,45 +192,51 @@ export function reportedResult(test) {
     ],
     { fields: ["status", "entered_by_id", "value"] },
   ).then(([result]) => ({ ...result, model: "medilab.test.result" }));
-}
+});
 
 // The subcontractor's person enters a test's result on the portal page of its dispatch.
-export function subcontractorResult({ test, dispatch }, value = "4.2") {
+export const subcontractorResult = helper("subcontractorResult", function subcontractorResult({ test, dispatch }, value = "4.2") {
   const page = `/my/dispatches/${dispatch.id}`;
   portalPostAs(SUBCONTRACTOR, page, `${page}/results`, { sample_test_id: test.id, value });
   return reportedResult(test);
-}
+});
 
 // A sent dispatch whose test has the subcontractor's result, which the tester sent for approval.
-export function resultAwaitingApproval(kind = "lead") {
+export const resultAwaitingApproval = helper("resultAwaitingApproval", function resultAwaitingApproval(kind = "lead") {
   return sentDispatch(kind).then((sent) =>
     subcontractorResult(sent).then((result) =>
       callAs(TESTER, "medilab.test.result", "action_sign", [[result.id]]).then(() => ({ ...sent, result })),
     ),
   );
-}
+});
 
 // A testing method that sol_demo seeds, to make ways of testing with.
-export function wayParts() {
+export const wayParts = helper("wayParts", function wayParts() {
   const parts = {};
   refAs(ADMINISTRATOR, "sol_demo.demo_testing_method_iso_17294_2").then(({ id }) => (parts.methodId = id));
   return cy.then(() => parts);
-}
+});
 
 // A heavy-metal parameter the administrator creates without ways of testing.
-export function newParameter() {
+export const newParameter = helper("newParameter", function newParameter() {
   const name = `Kim loại thầu phụ ${Date.now()}`;
   return refAs(ADMINISTRATOR, "sol_demo.demo_parameter_group_heavy_metals").then((group) =>
     callAs(ADMINISTRATOR, "medilab.test.parameter", "create", [{ name, main_group_id: group.id, group_ids: [[6, 0, [group.id]]] }]).then(
       (id) => ({ model: "medilab.test.parameter", id, name }),
     ),
   );
-}
+});
 
 // A subcontractor the administrator records, its accreditation valid for a year.
-export function newSubcontractor() {
+export const newSubcontractor = helper("newSubcontractor", function newSubcontractor() {
   const name = `Phòng thử nghiệm ${Date.now()}`;
   return callAs(ADMINISTRATOR, "medilab.subcontractor", "create", [
     { name, is_company: true, accreditation_number: "VILAS 909", accreditation_expiry: inDays(365) },
   ]).then((id) => ({ model: "medilab.subcontractor", id, name }));
+});
+
+// A date as the English back office shows it.
+export function shownDate(date) {
+  const [year, month, day] = date.split("-");
+  return `${month}/${day}/${year}`;
 }
