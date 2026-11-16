@@ -1,12 +1,16 @@
 import { callAs } from "../../../../support/odoo";
 import {
   ADMINISTRATOR,
+  TESTER,
   assignedChromium,
+  notices,
   openBooking,
+  partnerOf,
   releaseFixtures,
   resetFixtures,
 } from "../../../flows/wf-03-testing-scheduling/setup";
 
+const APPROVED = "sol_laboratory.event_machine_booking_approved";
 const REASON = "Khách hàng cần kết quả gấp để thông quan.";
 
 describe("Department plan", () => {
@@ -16,7 +20,7 @@ describe("Department plan", () => {
   });
   afterEach(releaseFixtures);
 
-  it("TC-F422-1 lets the tester accept the booking the plan proposes, which then reserves the machine and the calendar", () => {
+  it("TC-F422-1 lets the head approve the booking the plan proposes, which then reserves the machine and the calendar and tells the tester", () => {
     assignedChromium().then(({ test }) => {
       openBooking(test).then((proposed) => {
         expect(proposed.status).to.equal("proposed");
@@ -24,16 +28,22 @@ describe("Department plan", () => {
         expect(proposed.calendar_event_id, "a proposed slot reserves nothing").to.equal(false);
         cy.signInAs("tester");
         cy.visit(`/odoo/machine-schedule/${proposed.id}`);
-        cy.intercept("POST", "**/medilab.machine.booking/action_accept").as("accepted");
-        cy.get(".o_statusbar_buttons button[name=action_accept]").should("be.visible").click();
-        cy.wait("@accepted").its("response.body.error").should("not.exist");
-        cy.get(".o_statusbar_buttons button[name=action_accept]").should("not.exist");
+        cy.get(".o_statusbar_buttons button[name=action_approve]").should("not.exist");
+        cy.signInAs("head_of_department");
+        cy.visit(`/odoo/machine-schedule/${proposed.id}`);
+        cy.intercept("POST", "**/medilab.machine.booking/action_approve").as("approved");
+        cy.get(".o_statusbar_buttons button[name=action_approve]").should("be.visible").click();
+        cy.wait("@approved").its("response.body.error").should("not.exist");
+        cy.get(".o_statusbar_buttons button[name=action_approve]").should("not.exist");
         openBooking(test).should((scheduled) => {
           expect(scheduled.id).to.equal(proposed.id);
           expect(scheduled.status).to.equal("scheduled");
           expect([scheduled.starts_at, scheduled.ends_at]).to.deep.equal([proposed.starts_at, proposed.ends_at]);
           expect(scheduled.calendar_event_id).to.be.an("array");
         });
+        partnerOf(TESTER).then((tester) =>
+          notices(APPROVED, proposed).should(({ partners }) => expect(partners).to.deep.equal([tester])),
+        );
       });
     });
   });

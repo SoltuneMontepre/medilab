@@ -7489,7 +7489,6 @@ msgstr "Tỷ lệ"
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_form_bookings
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 #: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_schedule
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_form
@@ -10835,12 +10834,6 @@ msgid "A sample test due within this many hours is urgent: it gets the next free
 msgstr "Chỉ tiêu của mẫu đến hạn trong số giờ này là khẩn: được xếp khung giờ trống tiếp theo của máy trước."
 
 #. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/sample_test.py:0
-msgid "Assign %s to a person before scheduling it."
-msgstr "Hãy giao %s cho một người trước khi xếp lịch."
-
-#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_list
 msgid "Assign Sample"
@@ -11220,6 +11213,8 @@ msgstr "Một kết quả thử nghiệm bạn nhập đã bị từ chối"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_form
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__approve
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 msgid "Approve"
 msgstr "Phê Duyệt"
 
@@ -17292,18 +17287,6 @@ msgid ""
 msgstr "Một chỉ tiêu của mẫu bạn hoặc phòng của bạn thử nghiệm có thể trễ hạn nội bộ"
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
-msgid "Accept"
-msgstr "Chấp nhận"
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/machine_booking_plan.py:0
-msgid "Assign %s to a tester before accepting its booking."
-msgstr "Hãy giao %s cho một thử nghiệm viên trước khi chấp nhận lịch đặt."
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__at_risk
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__at_risk
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
@@ -17356,12 +17339,6 @@ msgstr "Người đánh dấu khẩn"
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_test__priority__normal
 msgid "Normal"
 msgstr "Bình thường"
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/machine_booking_plan.py:0
-msgid "Only a proposed booking can be accepted."
-msgstr "Chỉ lịch đặt đề xuất mới có thể chấp nhận."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -17691,6 +17668,77 @@ msgstr "Thời Gian Ngưng Sử Dụng Vị Trí"
 #: model:mail.message.subtype,name:sol_laboratory.event_machine_booking_returned
 msgid "Machine booking returned to the plan"
 msgstr "Lịch đặt máy được trả về kế hoạch"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_approval.py:0
+msgid "A booking is reserved only when the head of the department approves it."
+msgstr "Lịch đặt chỉ được giữ chỗ khi trưởng phòng phê duyệt."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_approval.py:0
+msgid "Only a proposed booking can be approved."
+msgstr "Chỉ lịch đặt đề xuất mới có thể phê duyệt."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_approval.py:0
+msgid "Assign %s to a tester before approving its booking."
+msgstr "Hãy giao %s cho một thử nghiệm viên trước khi phê duyệt lịch đặt."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_approval.py:0
+msgid "%(booking)s is approved: it starts at %(start)s."
+msgstr "%(booking)s đã được phê duyệt: bắt đầu lúc %(start)s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "Assign %s to a person before approving its booking."
+msgstr "Hãy giao %s cho một người trước khi phê duyệt lịch đặt."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task_assignment_notice.py:0
+msgid "%(person)s assigned you %(task)s."
+msgstr "%(person)s đã giao cho bạn %(task)s."
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_task_assigned
+msgid "A task was assigned to you"
+msgstr "Một nhiệm vụ đã được giao cho bạn"
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_task_assigned
+msgid "Task assigned"
+msgstr "Nhiệm vụ được giao"
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_machine_booking_approved
+msgid "The head of department approved a booking of your task"
+msgstr "Trưởng phòng đã phê duyệt lịch đặt của nhiệm vụ của bạn"
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_machine_booking_approved
+msgid "Machine booking approved"
+msgstr "Lịch đặt máy được phê duyệt"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "Approve Booking"
+msgstr "Phê Duyệt Lịch Đặt"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
+msgid "To Approve"
+msgstr "Chờ Phê Duyệt"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
+msgid "To Review"
+msgstr "Cần Xem Xét"
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_result__interruption_assessment__more_sample

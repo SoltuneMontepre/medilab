@@ -77,8 +77,8 @@ describe("SF-10 the head moves and cancels a department booking", () => {
         cy.wait("@cancelledByHead").its("response.body.error").should("not.exist");
         cy.get(".o_statusbar_buttons button[name=action_cancel]").should("not.exist");
         scheduleState([test]).should((after) => {
-          expect(after.bookings).to.have.length(1);
-          expect(after.bookings[0].status).to.equal("cancelled");
+          // The test goes back to the plan, which proposes a new booking that reserves nothing.
+          expect(after.bookings.map(({ status }) => status)).to.deep.equal(["cancelled", "proposed"]);
           expect(after.bookings[0].calendar_event_id).to.equal(false);
           expect(after.bookings[0].room_event_ids).to.be.empty;
           expect(after.tasks[0].planned_start).to.equal(false);
@@ -88,9 +88,8 @@ describe("SF-10 the head moves and cancels a department booking", () => {
           expect(after.events).to.be.empty;
         });
         eventsGone(eventIds);
-        cy.signInAs("tester");
         cy.openRecord(test);
-        cy.get(".o_statusbar_buttons button[name=action_schedule]").should("be.visible");
+        cy.get(".o_statusbar_buttons button[name=action_approve_booking]").should("be.visible");
       });
     });
   });

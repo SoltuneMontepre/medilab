@@ -37,7 +37,14 @@
         <field name="arch" type="xml">
             <form create="0" duplicate="0">
                 <header>
-                    <button name="action_accept" type="object" string="Accept" class="btn-primary" invisible="status != 'proposed'" />
+                    <button
+                        name="action_approve"
+                        type="object"
+                        string="Approve"
+                        class="btn-primary"
+                        invisible="status != 'proposed' or not starts_at"
+                        groups="sol_laboratory.group_permission_machine_booking_edit_all,sol_laboratory.group_permission_machine_booking_edit_own_department"
+                    />
                     <button name="action_start" type="object" string="Start" class="btn-primary" invisible="status != 'scheduled'" />
                     <button name="action_done" type="object" string="Done" class="btn-primary" invisible="status != 'in_progress'" />
                     <button
@@ -132,6 +139,9 @@
                 <filter name="open" string="Not Finished" domain="[('status', 'in', ('proposed', 'scheduled', 'in_progress'))]" />
                 <filter name="proposed" string="Plan" domain="[('status', '=', 'proposed')]" />
                 <filter name="at_risk" string="At Risk" domain="[('sample_test_id.at_risk', '=', True)]" />
+                <separator />
+                <filter name="to_approve" string="To Approve" domain="[('status', '=', 'proposed'), ('starts_at', '!=', False), ('person_id', '!=', False)]" />
+                <filter name="to_review" string="To Review" domain="[('status', '=', 'proposed'), ('starts_at', '=', False)]" />
                 <group>
                     <filter name="group_machine" string="Machine" context="{'group_by': 'machine_id'}" />
                     <filter name="group_person" string="Person" context="{'group_by': 'person_id'}" />

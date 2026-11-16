@@ -17,7 +17,7 @@ class TestBookingRaces(ScheduleRaceCase):
         def scheduled(env):
             self.grant(env, 1, (*HEAD_PERMISSIONS, "sample_test_edit_all"))
             self.assign(env)
-            env[MODEL_SAMPLE_TEST].browse(self.test_ids[0]).with_user(self.user_ids[0]).action_schedule()
+            env[MODEL_SAMPLE_TEST].browse(self.test_ids[0]).with_user(self.user_ids[0]).action_approve_booking()
 
         self.committed(scheduled)
         self.before = self.committed(self.graph)

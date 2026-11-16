@@ -72,6 +72,7 @@ Acceptance criteria:
 - Claiming a test from the sample tests list or the sample claims its testing task; the test then shows among the tester's own and offers Enter Result.
 - A tester cannot claim a task of another department.
 - A reminder arrives before the booking starts.
+- Assigning a task to a tester notifies them; claiming a task notifies nobody.
 - Approving a booking checks that the tester, every required location and a machine when required are available; an unavailable room blocks a booking without a machine too.
 - A sample test whose sample its department has not received, that is held for the customer's agreement or that is cancelled cannot be booked.
 - Moving a booking moves the room bookings of its steps with it.

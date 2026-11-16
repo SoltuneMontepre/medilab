@@ -13,7 +13,7 @@ import {
   receivedSample,
   resetFixtures,
   releaseFixtures,
-  scheduleThroughScreen,
+  approveThroughScreen,
 } from "./setup";
 
 beforeEach(() => {
@@ -45,16 +45,24 @@ describe("WF-03 current permission and validation boundaries", () => {
     });
   });
 
-  it("TC-F24-03 RPC refuses another tester's scheduling and allows the assignee to use Schedule", () => {
+  it("TC-F24-03 RPC refuses approval by another tester and by the assignee, and lets the head use Approve Booking", () => {
     assignedChromium().then(({ test }) => {
       cy.signInAs("chemistry_tester");
       scheduleState(test).then((before) => {
-        callRefused("medilab.sample.test", "action_schedule", [[test.id]]).should("match", /not allowed|access/i);
+        callRefused("medilab.sample.test", "action_approve_booking", [[test.id]]).should("match", /not allowed|access/i);
         scheduleState(test).should("deep.equal", before);
       });
       cy.signInAs("tester");
       cy.openRecord(test);
-      scheduleThroughScreen();
+      cy.get(".o_statusbar_buttons button[name=action_approve_booking]").should("not.exist");
+      scheduleState(test).then((before) => {
+        callRefused("medilab.sample.test", "action_approve_booking", [[test.id]]).should("match", /not allowed|access/i);
+        scheduleState(test).should("deep.equal", before);
+        expect(before.events, "a proposed slot reserves nothing").to.be.empty;
+      });
+      cy.signInAs("head_of_department");
+      cy.openRecord(test);
+      approveThroughScreen();
       openBooking(test).then((booking) => {
         expect(booking.status).to.equal("scheduled");
         cy.signInAs("chemistry_tester");
@@ -69,20 +77,20 @@ describe("WF-03 current permission and validation boundaries", () => {
     });
   });
 
-  it("TC-F24-03 RPC refuses an unassigned test and a duplicate Schedule without creating extra events", () => {
+  it("TC-F24-03 RPC refuses an unassigned test and a duplicate approval without creating extra events", () => {
     receivedSample([PARAMETERS.chromium]).then((sample) => {
       const [test] = sample.tests;
-      cy.signInAs("tester");
+      cy.signInAs("head_of_department");
       scheduleState(test).then((before) => {
-        callRefused("medilab.sample.test", "action_schedule", [[test.id]]).should("match", /^Assign .+ to a person before scheduling it\.$/);
+        callRefused("medilab.sample.test", "action_approve_booking", [[test.id]]).should("match", /^Assign .+ to a person before approving its booking\.$/);
         scheduleState(test).should("deep.equal", before);
       });
       assign(sample);
       cy.openRecord(test);
-      scheduleThroughScreen();
+      approveThroughScreen();
       openBooking(test).should("have.property", "status", "scheduled");
       scheduleState(test).then((before) => {
-        callRefused("medilab.sample.test", "action_schedule", [[test.id]]).should("match", /is already holding a machine\.$/);
+        callRefused("medilab.sample.test", "action_approve_booking", [[test.id]]).should("match", /is already holding a machine\.$/);
         scheduleState(test).should("deep.equal", before);
         expect(before.bookings).to.have.length(1);
         expect(before.events).to.have.length(2);
@@ -90,15 +98,20 @@ describe("WF-03 current permission and validation boundaries", () => {
     });
   });
 
-  it("TC-WF03-E2 partial flags a test no machine can finish before its due date, hides Schedule and refuses RPC", () => {
-    assignedChromium({ days: 0 }).then(({ test }) => {
-      cy.signInAs("tester");
+  it("TC-WF03-E2 partial flags a test no machine can finish before its due date for the head's review, hides Approve Booking and refuses RPC", () => {
+    assignedChromium({ days: 0 }).then(({ sample, test }) => {
+      cy.signInAs("head_of_department");
       cy.openRecord(test);
       cy.get(".o_form_view .o_field_widget[name=status]").should("be.visible");
       cy.get(".o_form_view .alert.alert-warning").should("be.visible");
-      cy.get(".o_statusbar_buttons button[name=action_schedule]").should("not.exist");
+      cy.get(".o_statusbar_buttons button[name=action_approve_booking]").should("not.exist");
+      // The booking without a slot is in the head's review list, not among those to approve.
+      cy.visit("/odoo/machine-schedule?view_type=list");
+      cy.get(".o_searchview_dropdown_toggler").click();
+      cy.contains(".o-dropdown-item", "To Review").click();
+      cy.contains(".o_data_row", sample.code).should("be.visible");
       scheduleState(test).then((before) => {
-        callRefused("medilab.sample.test", "action_schedule", [[test.id]]).should("match", /^No machine can finish .+ before its due date\.$/);
+        callRefused("medilab.sample.test", "action_approve_booking", [[test.id]]).should("match", /^No machine can finish .+ before its due date\.$/);
         scheduleState(test).should("deep.equal", before);
         expect(before.tests[0].status).to.equal("assigned");
         expect(before.tests[0].outsourcing_suggested).to.equal(true);
@@ -147,7 +160,7 @@ describe("WF-03 current permission and validation boundaries", () => {
     );
   });
 
-  it("TC-F24-03 rejects Start from a stale cancelled booking form and lets the tester book again", () => {
+  it("TC-F24-03 rejects Start from a stale cancelled booking form and lets the head approve a new booking", () => {
     assignedChromium().then(({ test }) =>
       book(test).then((booking) => {
         cy.signInAs("tester");
@@ -162,8 +175,9 @@ describe("WF-03 current permission and validation boundaries", () => {
         cy.reload();
         cy.get(".o_statusbar_buttons button[name=action_start]").should("not.exist");
         eventsGone([booking.calendar_event_id[0], ...booking.room_event_ids]);
+        cy.signInAs("head_of_department");
         cy.openRecord(test);
-        scheduleThroughScreen();
+        approveThroughScreen();
         openBooking(test).should((replacement) => {
           expect(replacement.id).not.to.equal(booking.id);
           expect(replacement.status).to.equal("scheduled");

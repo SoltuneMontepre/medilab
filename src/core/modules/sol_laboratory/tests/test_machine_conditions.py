@@ -160,7 +160,13 @@ class TestMachineConditions(ResultCase):
             self.env[MODEL_SCHEDULED_JOB]._run_key(MACHINE_BOOKINGS_OVERRUN_JOB)
 
         self.assertFalse(
-            self.env["mail.message"].search([("model", "=", MODEL_MACHINE_BOOKING), ("res_id", "=", booking.id)])
+            self.env["mail.message"].search(
+                [
+                    ("model", "=", MODEL_MACHINE_BOOKING),
+                    ("res_id", "=", booking.id),
+                    ("subtype_id", "=", self.env.ref("sol_laboratory.event_machine_booking_overrun").id),
+                ]
+            )
         )
 
     def test_bookings_warn_within_the_calibration_maintenance_and_repair_windows(self):

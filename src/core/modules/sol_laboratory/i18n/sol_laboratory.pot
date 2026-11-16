@@ -1677,6 +1677,8 @@ msgstr ""
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__approve
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 msgid "Approve"
 msgstr ""
 
@@ -1918,12 +1920,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_reassign_form
 msgid "Assign"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/sample_test.py:0
-msgid "Assign %s to a person before scheduling it."
 msgstr ""
 
 #. module: sol_laboratory
@@ -12772,7 +12768,6 @@ msgstr ""
 #: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_schedule
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_form_bookings
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
 msgid "Schedule"
 msgstr ""
@@ -17363,18 +17358,6 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
-msgid "Accept"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/machine_booking_plan.py:0
-msgid "Assign %s to a tester before accepting its booking."
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__at_risk
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__at_risk
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
@@ -17426,12 +17409,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_test__priority__normal
 msgid "Normal"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/machine_booking_plan.py:0
-msgid "Only a proposed booking can be accepted."
 msgstr ""
 
 #. module: sol_laboratory
@@ -17769,6 +17746,77 @@ msgstr ""
 #. module: sol_laboratory
 #: model:mail.message.subtype,name:sol_laboratory.event_machine_booking_returned
 msgid "Machine booking returned to the plan"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_approval.py:0
+msgid "A booking is reserved only when the head of the department approves it."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_approval.py:0
+msgid "Only a proposed booking can be approved."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_approval.py:0
+msgid "Assign %s to a tester before approving its booking."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_approval.py:0
+msgid "%(booking)s is approved: it starts at %(start)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "Assign %s to a person before approving its booking."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task_assignment_notice.py:0
+msgid "%(person)s assigned you %(task)s."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_task_assigned
+msgid "A task was assigned to you"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_task_assigned
+msgid "Task assigned"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_machine_booking_approved
+msgid "The head of department approved a booking of your task"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_machine_booking_approved
+msgid "Machine booking approved"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "Approve Booking"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
+msgid "To Approve"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
+msgid "To Review"
 msgstr ""
 
 #. module: sol_laboratory

@@ -89,7 +89,14 @@ class TestReminders(SchedulingCase):
         self.event.enabled = False
         self.env[MODEL_SCHEDULED_JOB]._run_key(REMIND)
         self.assertFalse(self.reminders(first))
-        self.assertFalse(self.env[MODEL_PUSH_DELIVERY].search([("mobile_device_id", "=", self.device.id)]))
+        self.assertFalse(
+            self.env[MODEL_PUSH_DELIVERY].search(
+                [
+                    ("mobile_device_id", "=", self.device.id),
+                    ("notification_id.mail_message_id.subtype_id", "=", self.event.id),
+                ]
+            )
+        )
 
         self.event.enabled = True
         second = self.booked(self.new_test())
