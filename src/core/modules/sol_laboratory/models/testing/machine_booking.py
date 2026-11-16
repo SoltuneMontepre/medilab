@@ -476,14 +476,16 @@ class MachineBooking(models.Model, MachineBookingBase):
         self._plan(tasks.sudo().department_id)
 
     @api.model
-    def _recommend(self, test, person, department, planned=None):
+    def _recommend(self, test, person, department, planned=None, due_date=None, ignore=None):
         """The way of testing, machine, start and slot length that finish the test soonest by its due date, from the
         department's ways of testing that apply to the sample's type, or only the way the customer accepted: on each
         machine linked to the way's method, or without a machine for the way's own duration when the method has none,
         with every bookable room of the way's steps free; None when there is no such slot. planned are the proposed
-        bookings the plan being calculated has placed already, which hold their resources as scheduled ones do."""
+        bookings the plan being calculated has placed already, which hold their resources as scheduled ones do. The
+        due date check asks what-if questions with a due_date other than the test's and with ignore, bookings that
+        count as not there."""
         now = fields.Datetime.now()
-        not_after = test.due_date or now + timedelta(days=HORIZON_DAYS)
+        not_after = due_date or test.due_date or now + timedelta(days=HORIZON_DAYS)
         if not_after <= now:
             return None
         sample = test.sudo().sample_id
@@ -526,6 +528,7 @@ class MachineBooking(models.Model, MachineBookingBase):
                 way=way,
                 sample=sample,
                 planned=planned,
+                ignore=ignore,
             )
             if start and (best_end is None or start + length < best_end):
                 best, best_end = (way, machine, start, length), start + length
@@ -554,7 +557,8 @@ class MachineBooking(models.Model, MachineBookingBase):
         steps done in a bookable location, from _room_steps: each location must be free for its step's time, which
         ends by not_after. With the way of testing and the sample, the slot may be an interval of the same method, start
         and end that has not started and has a place for the sample. planned are proposed bookings that hold their
-        machine, person and rooms like scheduled ones. Returns None when there is no such slot.
+        machine, person and rooms like scheduled ones; they may be unsaved records of a simulation. Returns None when
+        there is no such slot.
         """
         planned = planned or self.browse()
         now = fields.Datetime.now()
@@ -569,7 +573,7 @@ class MachineBooking(models.Model, MachineBookingBase):
             holders |= Domain("person_id", "=", person.id)
         busy = self.sudo().search_fetch(
             holders
-            & (Domain("status", "in", ACTIVE_STATUSES) | Domain("id", "in", planned.ids))
+            & (Domain("status", "in", ACTIVE_STATUSES) | Domain("id", "in", [id_ for id_ in planned.ids if id_]))
             & Domain("starts_at", "<", limit)
             & Domain("ends_at", ">", start_from)
             & Domain("id", "not in", ignore.ids if ignore else []),
@@ -578,6 +582,15 @@ class MachineBooking(models.Model, MachineBookingBase):
         )
         spans = [
             (booking, booking.starts_at, booking.ends_at) for booking in busy if booking.starts_at and booking.ends_at
+        ]
+        # An unsaved planned booking has no id to search by.
+        spans += [
+            (booking, booking.starts_at, booking.ends_at)
+            for booking in planned.filtered(lambda booking: not booking.id)
+            if booking.starts_at
+            and booking.starts_at < limit
+            and booking.ends_at > start_from
+            and ((machine and booking.machine_id == machine) or (person and booking.person_id == person))
         ]
         capacity = self._capacity(machine, way) if way else 0
 

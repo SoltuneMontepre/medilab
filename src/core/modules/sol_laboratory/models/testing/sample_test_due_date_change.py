@@ -24,6 +24,15 @@ class SampleTestDueDateChange(models.TransientModel, SampleTestDueDateChangeBase
         reason = fields.Text(required=True)
         # True when the company's working calendar has no working time on the day of the new due date.
         due_on_non_working_day = fields.Boolean(compute="_compute_due_on_non_working_day")
+        # What the due date check finds: a free slot, a slot that moving scheduled bookings makes free, or none.
+        feasibility = fields.Selection(
+            [("free", "Free Slot"), ("moves", "Needs Moves"), ("infeasible", "Cannot Be Met")],
+            compute="_compute_check",
+        )
+        # Why the date cannot be met, or which bookings would move for it.
+        check_message = fields.Text(compute="_compute_check")
+        # The end of the earliest day the test can finish by, when the date cannot be met.
+        earliest_feasible_date = fields.Datetime(compute="_compute_check")
 
     @api.depends("due_date")
     def _compute_due_on_non_working_day(self):
@@ -31,7 +40,29 @@ class SampleTestDueDateChange(models.TransientModel, SampleTestDueDateChangeBase
         for change in self:
             change.due_on_non_working_day = bool(change.due_date) and not tests._is_working_day(change.due_date)
 
+    @api.depends("due_date", "sample_test_id")
+    def _compute_check(self):
+        for change in self:
+            change.feasibility = change.check_message = change.earliest_feasible_date = False
+            test = change.sample_test_id
+            # Only the head who changes the date reads what the department's plan holds.
+            if not (change.due_date and test.can_change_due_date):
+                continue
+            check = test._check_due_date(change.due_date)
+            if check.feasible:
+                change.feasibility = "moves" if check.moves else "free"
+            else:
+                change.feasibility = "infeasible"
+                change.earliest_feasible_date = check.earliest
+            change.check_message = test.sudo()._due_date_check_text(check)
+
     def action_change(self):
         self.ensure_one()
         self.sample_test_id._change_due_date(self.due_date, self.reason)
+        return {"type": "ir.actions.act_window_close"}
+
+    def action_keep_at_risk(self):
+        """The head keeps a due date the laboratory cannot meet, with the reason; the test is flagged at risk."""
+        self.ensure_one()
+        self.sample_test_id._change_due_date(self.due_date, self.reason, keep_at_risk=True)
         return {"type": "ir.actions.act_window_close"}

@@ -17850,3 +17850,115 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form_interruption
 msgid "Usable"
 msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_due_date_check.py:0
+msgid "%s has already passed."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_due_date_check.py:0
+msgid "The measurement in progress is planned to end %s, after the due date."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_due_date_check.py:0
+msgid "The earliest free slot, on %(resource)s, ends %(end)s, after the due date."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_due_date_check.py:0
+msgid "No machine, tester and room are free to test it within the next %s days."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_due_date_check.py:0
+msgid "%s is not free before the due date: booked, on leave or outside working hours."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_due_date_check.py:0
+msgid "Moving %s to make room would pass its own due date."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_due_date_check.py:0
+msgid "none within the next %s days"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_due_date_check.py:0
+msgid ""
+"The laboratory cannot meet this due date:\n"
+"%(reasons)s\n"
+"The earliest feasible date is %(earliest)s. Keep the date at risk, or choose another."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_due_date_check.py:0
+msgid "%(booking)s would move to %(start)s."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_due_date_change_form
+msgid "The laboratory cannot meet this date."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_due_date_change_form
+msgid "<strong>Earliest feasible date:</strong>"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_due_date_change_form
+msgid "No date within the next 30 days is feasible."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_due_date_change_form
+msgid "A free slot needs these bookings to move; each keeps its due date. The check moves nothing."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_due_date_change_form
+msgid "Keep at Risk"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__feasibility
+msgid "Feasibility"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__check_message
+msgid "Check Message"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__earliest_feasible_date
+msgid "Earliest Feasible Date"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_test_due_date_change__feasibility__free
+msgid "Free Slot"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_test_due_date_change__feasibility__moves
+msgid "Needs Moves"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_test_due_date_change__feasibility__infeasible
+msgid "Cannot Be Met"
+msgstr ""

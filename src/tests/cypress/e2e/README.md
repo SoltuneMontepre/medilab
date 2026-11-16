@@ -78,7 +78,7 @@ Paths below are relative to `cypress/e2e/`. The issue descriptions use flat path
 | SF-04 | Sample retention and disposal | [#161](https://github.com/SoltuneMontepre/medilab/issues/161) | `flows/sf-04-sample-disposal/` | `sample-disposal.cy.js` |
 | SF-05 | Machine calibration and unavailability | [#162](https://github.com/SoltuneMontepre/medilab/issues/162) | `flows/sf-05-machine-unavailability/` | `machine-unavailability.cy.js` |
 | SF-06 | Accreditation and registration renewal | [#163](https://github.com/SoltuneMontepre/medilab/issues/163) | `flows/sf-06-accreditation-renewal/` | `accreditation-renewal.cy.js` |
-| SF-07 | Result dates and priority orders | [#164](https://github.com/SoltuneMontepre/medilab/issues/164) | `flows/sf-07-priority-order/` | `priority-order.cy.js` |
+| SF-07 | Result dates and priority orders | [#164](https://github.com/SoltuneMontepre/medilab/issues/164) | `flows/sf-07-priority-order/` | `priority-order.cy.js`, `due-date-check.cy.js` |
 | SF-08 | Laboratory setup | [#165](https://github.com/SoltuneMontepre/medilab/issues/165) | `flows/sf-08-laboratory-setup/` | `laboratory-setup.cy.js` |
 | SF-09 | Customer support and feedback | [#166](https://github.com/SoltuneMontepre/medilab/issues/166) | `flows/sf-09-support-feedback/` | `support-feedback.cy.js` |
 | SF-10 | Scheduling plan and revisions | [#154](https://github.com/SoltuneMontepre/medilab/issues/154), [#164](https://github.com/SoltuneMontepre/medilab/issues/164) | `flows/wf-03-testing-scheduling/`, `flows/sf-07-priority-order/` | `testing-scheduling.cy.js`, `sample-test-cancellation.cy.js`, `booking-rescheduling.cy.js`, `priority-order.cy.js` |

@@ -17771,3 +17771,118 @@ msgstr "Thời Gian Ngưng Sử Dụng"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form_interruption
 msgid "Usable"
 msgstr "Dùng Được"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_due_date_check.py:0
+msgid "%s has already passed."
+msgstr "%s đã qua."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_due_date_check.py:0
+msgid "The measurement in progress is planned to end %s, after the due date."
+msgstr "Phép đo đang chạy dự kiến kết thúc lúc %s, sau hạn hoàn thành."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_due_date_check.py:0
+msgid "The earliest free slot, on %(resource)s, ends %(end)s, after the due date."
+msgstr "Khung giờ trống sớm nhất, trên %(resource)s, kết thúc lúc %(end)s, sau hạn hoàn thành."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_due_date_check.py:0
+msgid "No machine, tester and room are free to test it within the next %s days."
+msgstr "Không có máy, người thử nghiệm và phòng nào cùng rảnh để thử chỉ tiêu này trong %s ngày tới."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_due_date_check.py:0
+msgid "%s is not free before the due date: booked, on leave or outside working hours."
+msgstr "%s không rảnh trước hạn hoàn thành: đã có lịch, nghỉ phép hoặc ngoài giờ làm việc."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_due_date_check.py:0
+msgid "Moving %s to make room would pass its own due date."
+msgstr "Dời %s để nhường chỗ sẽ làm nó trễ hạn hoàn thành của chính nó."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_due_date_check.py:0
+msgid "none within the next %s days"
+msgstr "không có ngày nào trong %s ngày tới"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_due_date_check.py:0
+msgid ""
+"The laboratory cannot meet this due date:\n"
+"%(reasons)s\n"
+"The earliest feasible date is %(earliest)s. Keep the date at risk, or choose another."
+msgstr ""
+"Phòng thí nghiệm không thể đáp ứng hạn hoàn thành này:\n"
+"%(reasons)s\n"
+"Ngày khả thi sớm nhất là %(earliest)s. Hãy giữ ngày này ở trạng thái có nguy cơ, hoặc chọn ngày khác."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_due_date_check.py:0
+msgid "%(booking)s would move to %(start)s."
+msgstr "%(booking)s sẽ dời sang %(start)s."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_due_date_change_form
+msgid "The laboratory cannot meet this date."
+msgstr "Phòng thí nghiệm không thể đáp ứng ngày này."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_due_date_change_form
+msgid "<strong>Earliest feasible date:</strong>"
+msgstr "<strong>Ngày khả thi sớm nhất:</strong>"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_due_date_change_form
+msgid "No date within the next 30 days is feasible."
+msgstr "Không có ngày nào trong 30 ngày tới khả thi."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_due_date_change_form
+msgid "A free slot needs these bookings to move; each keeps its due date. The check moves nothing."
+msgstr "Muốn có khung giờ trống cần dời các lịch đặt sau; mỗi lịch vẫn giữ hạn hoàn thành của nó. Việc kiểm tra không dời lịch nào."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_due_date_change_form
+msgid "Keep at Risk"
+msgstr "Giữ và đánh dấu nguy cơ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__feasibility
+msgid "Feasibility"
+msgstr "Khả Thi"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__check_message
+msgid "Check Message"
+msgstr "Kết Quả Kiểm Tra"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__earliest_feasible_date
+msgid "Earliest Feasible Date"
+msgstr "Ngày Khả Thi Sớm Nhất"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_test_due_date_change__feasibility__free
+msgid "Free Slot"
+msgstr "Có Khung Giờ Trống"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_test_due_date_change__feasibility__moves
+msgid "Needs Moves"
+msgstr "Cần Dời Lịch"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_test_due_date_change__feasibility__infeasible
+msgid "Cannot Be Met"
+msgstr "Không Đáp Ứng Được"
