@@ -100,6 +100,7 @@ Follows [Results](../overview.md#results) and [Signing](../overview.md#signing).
 | Sanity check | Before a numeric result is sent for approval, it is compared with past approved results and the regulation limit. An unusual value shows a warning with the reason; the tester may still send it, and the warning stays on the result. |
 | Claimed first | Only the person a testing task is assigned to, by claiming it or by the head's assignment, enters the result of its sample test; anyone else, the head of department included, claims or is assigned the task first. A rejected result's new testing task is claimed again. |
 | Task done   | The testing task is done when the tester submits the result; approving it is the head's work at the result approval level. A rejected result keeps its record and review, and opens a new testing task for the same sample test, for a correction or a new measurement. |
+| Telling the head | Submitting a result tells the head of the department that tested it, unless the head submitted it, through the mandatory `test_result.sent` notification. A result submitted again after its tester withdrew it tells the head again. |
 | Outsourced  | The results of an outsourced test are entered by the subcontractor or by a lab QA; each result records who entered it. |
 | Method steps | A tester sees the steps of the testing method of the way of testing chosen for their sample test, in step number order, from the testing task and the booking. They only read them; the administrator maintains them ([Administrator](admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28)). |
 
@@ -118,7 +119,8 @@ Acceptance criteria:
 - A testing task whose sample names a location shows that location on the task, the schedule, the to-do list and the timeline, and opening it shows it marked on its parent location's map.
 - A tester cannot change a step.
 - A rejected result stays on record, the sample test goes back to testing and a new testing task opens for it.
-- Submitting the result closes the tester's testing task.
+- Submitting the result closes the tester's testing task and tells the head of the department that tested it.
+- Submitting a result again after withdrawing it tells the head again; approving it tells the head nothing more.
 - No result is entered for a sample test whose testing task is unassigned or assigned to someone else, and Enter Result is not shown.
 
 ### 3. Samples (US-T10)

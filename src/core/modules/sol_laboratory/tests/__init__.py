@@ -265,6 +265,7 @@ from . import (
     test_test_request_paid_step_migration,
     test_test_result_approval,
     test_test_result_entry,
+    test_test_result_sent,
     test_testing_assignment,
     test_testing_statistics,
     test_translations,

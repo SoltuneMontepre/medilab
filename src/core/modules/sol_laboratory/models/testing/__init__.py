@@ -37,6 +37,7 @@ from . import (
     test_result_check,
     test_result_interruption,
     test_result_mobile,
+    test_result_notification,
     test_result_reject,
     testing_statistic,
     testing_statistic_period,
