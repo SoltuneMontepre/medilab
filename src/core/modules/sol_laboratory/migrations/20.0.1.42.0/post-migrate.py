@@ -1,5 +1,6 @@
-from odoo import Command, api
+from odoo import api
 from odoo.api import SUPERUSER_ID
+from odoo.fields import Command
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_PERMISSION, MODEL_TEST_REPORT
 

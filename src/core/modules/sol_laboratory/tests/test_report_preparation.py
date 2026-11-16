@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from odoo import fields
 from odoo.exceptions import AccessError, UserError
 from odoo.tests import tagged
@@ -213,7 +215,9 @@ class TestReportPreparation(ReportPreparationCase):
         self.run_preparation()
         item = self.env[MODEL_JOB_ITEM].search([("document_model", "=", report._name), ("document_id", "=", report.id)])
         self.assertEqual((item.status, item.attempts), ("pending", 0))
-        self.assertGreater(item.next_attempt_at, fields.Datetime.now())
+        next_attempt_at = item.next_attempt_at
+        self.assertIsInstance(next_attempt_at, datetime)
+        self.assertGreater(next_attempt_at, fields.Datetime.now())
 
         self.health_check.return_value = True
         self.conversion.side_effect = ConversionUnavailable("The editing service did not answer.")

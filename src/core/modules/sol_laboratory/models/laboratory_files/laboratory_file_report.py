@@ -73,7 +73,7 @@ class LaboratoryFile(models.Model, LaboratoryFileBase):
             elif device:
                 raise LaboratoryFileError(PERMISSION_DENIED, self.env._("Report templates are only edited online."))
             else:
-                owner._check_docx_writable()
+                self.env[MODEL_REPORT_TEMPLATE].browse(owner.ids)._check_docx_writable()
         return result
 
     def _open_editing_sessions(self):
