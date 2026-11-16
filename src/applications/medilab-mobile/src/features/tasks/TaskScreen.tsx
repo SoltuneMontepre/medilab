@@ -175,7 +175,7 @@ function BenchTest({ id }: Readonly<{ id: number }>) {
     <View style={shared.section}>
       <TestFacts test={test} />
       {test.can_enter_result && (
-        <Button label={t("test.enterResult")} onPress={() => router.push(sampleTestPath(id))} primary />
+        <Button label={t("test.enterResult")} onPress={() => router.push(sampleTestPath(id))} primary testID="task-enter-result" />
       )}
       {!test.can_enter_result && test.result && (
         <Button label={t("test.openResult")} onPress={() => test.result && router.push(resultPath(test.result.id))} />
