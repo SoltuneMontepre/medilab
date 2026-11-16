@@ -1,6 +1,6 @@
 import { callAs } from "../../../../support/odoo";
 import { save } from "../../../../support/form";
-import { TESTER, release, schedulingFixture, snapshot, typeStart } from "../scheduling/setup";
+import { TESTER, release, schedulingFixture, snapshot, typeTime } from "../scheduling/setup";
 
 const BOOKING = ["status", "machine_id", "starts_at", "ends_at"];
 
@@ -18,7 +18,7 @@ describe("Shared machine intervals", () => {
       const [holder, joiner] = before.bookings;
       cy.signInAs("tester");
       cy.visit(`/odoo/machine-schedule/${joiner.id}`);
-      typeStart(holder.starts_at, fixture.displayZone);
+      typeTime(holder.starts_at, fixture.displayZone);
       cy.intercept("POST", "/web/dataset/call_kw/medilab.machine.booking/web_save").as("savedBooking");
       save();
       cy.wait("@savedBooking").its("response.body.error").should("not.exist");
@@ -47,7 +47,7 @@ describe("Shared machine intervals", () => {
       });
       cy.signInAs("tester");
       cy.visit(`/odoo/machine-schedule/${third.id}`);
-      typeStart(holder.starts_at, fixture.displayZone);
+      typeTime(holder.starts_at, fixture.displayZone);
       cy.expectRefusal({
         read: () => snapshot(fixture),
         action: () => cy.get(".o_form_button_save").click(),

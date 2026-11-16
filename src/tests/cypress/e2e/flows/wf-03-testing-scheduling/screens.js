@@ -60,13 +60,19 @@ export function dragBookingToSlot(booking, slot, zone) {
       const weeks = Math.floor((Date.parse(`${from.date}T00:00:00Z`) - Date.parse(`${weekStart}T00:00:00Z`)) / (7 * 86400000));
       Cypress._.times(weeks, () => cy.get(".o_calendar_button_next").click());
     });
-  // The booking's slot goes to the upper part of the calendar's own scroller, away from the edges where a drag scrolls it.
+  // The booking's slot goes to the upper part of the calendar's own scroller, away from the edges where a drag scrolls it,
+  // as far as the scroller goes: a slot late in the day stays lower.
   const fromLane = `.fc-timegrid-slot-lane[data-time="${from.time}"]`;
   const offsetInScroller = ($lane) => $lane[0].getBoundingClientRect().top - $lane.closest(".fc-scroller")[0].getBoundingClientRect().top;
+  const scrolledTop = ($lane) => {
+    const scroller = $lane.closest(".fc-scroller")[0];
+    const wanted = scroller.scrollTop + offsetInScroller($lane) - SCROLLED_SLOT_OFFSET;
+    return Math.max(0, Math.min(wanted, scroller.scrollHeight - scroller.clientHeight));
+  };
   cy.get(fromLane).then(($lane) => {
-    $lane.closest(".fc-scroller")[0].scrollTop += offsetInScroller($lane) - SCROLLED_SLOT_OFFSET;
+    $lane.closest(".fc-scroller")[0].scrollTop = scrolledTop($lane);
   });
-  cy.get(fromLane).should(($lane) => expect(offsetInScroller($lane)).to.be.closeTo(SCROLLED_SLOT_OFFSET, 1));
+  cy.get(fromLane).should(($lane) => expect($lane.closest(".fc-scroller")[0].scrollTop).to.be.closeTo(scrolledTop($lane), 1));
   cy.contains(".fc-event", booking.display_name)
     .should("be.visible")
     .then(($event) => {
