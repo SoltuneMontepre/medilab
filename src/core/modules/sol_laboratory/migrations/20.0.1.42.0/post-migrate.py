@@ -3,6 +3,7 @@ from odoo.api import SUPERUSER_ID
 from odoo.fields import Command
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_PERMISSION, MODEL_TEST_REPORT
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 
 def migrate(cr, _version):
@@ -16,6 +17,6 @@ def migrate(cr, _version):
         [("document_model", "=", MODEL_TEST_REPORT), ("action", "=", "deliver"), ("scope", "=", "all")]
     )
     for holders in (edit.role_ids, edit.person_ids):
-        holders.write({"permission_ids": [Command.link(deliver.id)]})
+        holders.write({"permission_ids": [Command.link(persisted_id(deliver))]})
     env["ir.model.data"].search([("model", "=", MODEL_PERMISSION), ("res_id", "in", edit.ids)]).unlink()
     edit.unlink()

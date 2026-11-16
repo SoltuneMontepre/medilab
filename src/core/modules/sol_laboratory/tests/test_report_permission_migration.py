@@ -7,6 +7,7 @@ from odoo.tests import tagged
 
 from .people_case import PeopleCase
 from odoo.addons.sol_laboratory.constants.models import MODEL_PERMISSION, MODEL_ROLE, MODEL_TEST_REPORT
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 POST_MIGRATE = Path(__file__).resolve().parents[1] / "migrations" / "20.0.1.42.0" / "post-migrate.py"
 
@@ -19,13 +20,11 @@ class TestReportPermissionMigration(PeopleCase):
             edit = self.env[MODEL_PERMISSION].create(
                 {"name": "Edit test reports", "document_model": MODEL_TEST_REPORT, "action": "edit"}
             )
-        edit_id = edit.id
-        self.assertIsInstance(edit_id, int)
         role = self.env[MODEL_ROLE].create(
-            {"code": "report_editor", "name": "Report editor", "permission_ids": [Command.link(edit_id)]}
+            {"code": "report_editor", "name": "Report editor", "permission_ids": [Command.link(persisted_id(edit))]}
         )
         person = self.create_person("Ly Thi Mai", self.chemistry)
-        person.permission_ids = [Command.link(edit_id)]
+        person.permission_ids = [Command.link(persisted_id(edit))]
         group = edit.group_id
 
         load_script(str(POST_MIGRATE), "post_migrate").migrate(self.env.cr, "20.0.1.41.0")

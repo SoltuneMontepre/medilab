@@ -18,6 +18,7 @@ from odoo.addons.sol_laboratory.constants.report_templates import CANDIDATE_OBSO
 from odoo.addons.sol_laboratory.services import report_docx
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
 from odoo.addons.sol_laboratory.services.report_conversion import ConversionUnavailable
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
 @tagged("post_install", "-at_install")
@@ -216,8 +217,7 @@ class TestReportPreparation(ReportPreparationCase):
         item = self.env[MODEL_JOB_ITEM].search([("document_model", "=", report._name), ("document_id", "=", report.id)])
         self.assertEqual((item.status, item.attempts), ("pending", 0))
         next_attempt_at = item.next_attempt_at
-        self.assertIsInstance(next_attempt_at, datetime)
-        self.assertGreater(next_attempt_at, fields.Datetime.now())
+        self.assertGreater(assert_instance(next_attempt_at, datetime), assert_instance(fields.Datetime.now(), datetime))
 
         self.health_check.return_value = True
         self.conversion.side_effect = ConversionUnavailable("The editing service did not answer.")
