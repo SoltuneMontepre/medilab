@@ -1,10 +1,6 @@
 import { choose, newRecord, openTab, pick, save, search } from "../../../support/form";
 import { callAs, callRefused, refAs } from "../../../support/odoo";
-import { sentDispatch } from "../wf-05-outsourced-testing/setup";
 import { PARAMETERS, PNG, STAFF, collectionTask, inMinutes, orderCollectionTask, orderRequest, receive, signedRecord, staffRequest, testingTasks } from "./setup";
-
-const HEAD = "demo.head_of_department";
-const SALES = "demo.sales";
 
 // Sample delivery staff record a sample's receipt on its form.
 function receiveOnForm(sample, condition, note) {
@@ -17,42 +13,18 @@ function receiveOnForm(sample, condition, note) {
   cy.get(".o_field_widget[name=storage_location] input").type("Tủ lạnh 2");
 }
 
-// Sample delivery staff fill in a handover record of one sample on the web, adjusting the expected samples to the
-// `actual` ones handed over and noting `excess` material when given.
-function fillHandoverRecord(request, sample, quantity, { actual, excess } = {}) {
+// Sample delivery staff fill in a handover record of one sample on the web.
+function fillHandoverRecord(request, sample, quantity) {
   newRecord("/odoo/handover-records");
   pick("request_id", request.code);
   cy.get(".o_field_widget[name=handed_over_by_name] input").type("Phạm Thị Hoa");
   pick("received_by_id", "Vo Van Tai");
   cy.get(".o_field_widget[name=sample_ids] .o_field_x2many_list_row_add button").click();
   pick("sample_id", sample.code);
-  if (actual) {
-    cy.get(".o_selected_row .o_field_widget[name=actual_count] input").clear().type(String(actual));
-  }
   cy.get(".o_selected_row .o_field_widget[name=quantity] input").type(quantity);
-  if (excess) {
-    cy.get(".o_selected_row .o_field_widget[name=excess_material] input").type(excess);
-  }
   choose("condition", "Good");
   save();
   return cy.location("pathname").then((path) => ({ model: "medilab.handover.record", id: Number(path.split("/").pop()) }));
-}
-
-// Sample delivery staff claim the collection task a request to collect the sample again queued for them, collect it and
-// receive the sample brought back.
-function collectAgain(sample) {
-  const name = `Collect ${sample.code} again`;
-  cy.signInAs("sample_delivery_staff");
-  cy.visit("/odoo/awaiting-tasks");
-  search(name);
-  cy.contains(".o_data_row", name).find("button[name=action_claim]").click();
-  cy.contains(".o_data_row", name).should("not.exist");
-  cy.visit("/odoo/my-tasks");
-  search(name);
-  cy.contains(".o_data_row", name).click();
-  cy.get(".o_field_widget[name=received_quantity] input").clear().type("500 ml");
-  cy.get(".o_statusbar_buttons button[name=action_receive_more_entered]").click();
-  cy.get(".o_statusbar_buttons button[name=action_receive_more_entered]").should("not.exist");
 }
 
 // A person of a department scans the sample's label to record that the department received it.
@@ -185,12 +157,9 @@ describe("WF-02 Sample reception and handover", () => {
   });
 
   it("TC-WF02-A4 puts an insufficient sample on hold until more is collected", () => {
-    staffRequest().then((request) => {
-      const [sample] = request.samples;
+    staffRequest().then(({ samples: [sample] }) => {
       receive(sample, "insufficient", "Chỉ có 50 ml.");
-      // An insufficient sample is held before any receipt.
-      callAs(STAFF, "medilab.sample", "read", [[sample.id], ["status", "received_at"]]).its("0").should("deep.include", { status: "on_hold", received_at: false });
-      callAs(STAFF, "medilab.test.request", "read", [[request.id], ["status"]]).its("0.status").should("eq", "paid");
+      callAs(STAFF, "medilab.sample", "read", [[sample.id], ["status"]]).its("0.status").should("eq", "on_hold");
       callAs("demo.administrator", "mail.message", "search_count", [
         [
           ["model", "=", "medilab.sample"],
@@ -206,9 +175,14 @@ describe("WF-02 Sample reception and handover", () => {
         cy.readRecord(sample, ["recollection_requested_by_id"]).its("recollection_requested_by_id.0").should("eq", head.id),
       );
 
-      collectAgain(sample);
+      cy.signInAs("sample_delivery_staff");
+      cy.visit("/odoo/my-tasks");
+      search(`Collect ${sample.code} again`);
+      cy.contains(".o_data_row", `Collect ${sample.code} again`).click();
+      cy.get(".o_field_widget[name=received_quantity] input").clear().type("500 ml");
+      cy.get(".o_statusbar_buttons button[name=action_receive_more_entered]").click();
+      cy.get(".o_statusbar_buttons button[name=action_receive_more_entered]").should("not.exist");
       cy.readRecord(sample, ["status"]).its("status").should("eq", "received");
-      cy.readRecord(request, ["status"]).its("status").should("eq", "sample_received");
       testingTasks(sample).should("have.length", 1);
     });
   });
@@ -233,13 +207,9 @@ describe("WF-02 Sample reception and handover", () => {
 
   it("TC-WF02-E1 rejects an unusable sample with its condition note and opens no testing task", () => {
     const note = "Chai bị nứt, mẫu bị rò rỉ.";
-    staffRequest().then((request) => {
-      const [sample] = request.samples;
+    staffRequest().then(({ samples: [sample] }) => {
       cy.signInAs("sample_delivery_staff");
-      // The condition is decided first; an unusable one offers rejecting the sample, never receiving it.
-      receiveOnForm(sample, "Unusable");
-      cy.contains(".o_statusbar_buttons button", "Receive").should("not.exist");
-      cy.contains(".o_statusbar_buttons button", "Reject").should("be.visible");
+      receiveOnForm(sample, "Damaged");
       cy.expectRefusal({
         read: () => cy.readRecord(sample, ["status"]),
         action: () => cy.get(".o_statusbar_buttons button[name=action_receive_entered]").click(),
@@ -249,12 +219,10 @@ describe("WF-02 Sample reception and handover", () => {
       cy.get(".o_field_widget[name=condition_note] textarea").type(note);
       cy.get(".o_statusbar_buttons button[name=action_receive_entered]").click();
       cy.get(".o_statusbar_buttons button[name=action_receive_entered]").should("not.exist");
-      cy.readRecord(sample, ["status", "condition_note", "received_at"]).should((read) => {
+      cy.readRecord(sample, ["status", "condition_note"]).should((read) => {
         expect(read.status).to.equal("rejected");
         expect(read.condition_note).to.equal(note);
-        expect(read.received_at, "received").to.equal(false);
       });
-      cy.readRecord(request, ["status"]).its("status").should("eq", "paid");
       testingTasks(sample).should("be.empty");
     });
   });
@@ -304,64 +272,6 @@ describe("WF-02 Sample reception and handover", () => {
           "eq",
           "A signed handover record cannot be changed. Create a new record instead.",
         );
-      });
-    });
-  });
-
-  it("TC-WF02-E5 asks again for a sample whose delivery to the subcontractor failed; it keeps its tests and gets no new testing task", () => {
-    sentDispatch("lead").then(({ test, dispatch }) => {
-      // The carrier could not deliver it.
-      callAs(HEAD, "medilab.subcontract.dispatch", "action_cancel", [[dispatch.id]]);
-      callAs(HEAD, "medilab.sample.test", "read", [[test.id], ["sample_id"]]).then(([read]) => {
-        const sample = { model: "medilab.sample", id: read.sample_id[0], code: test.code };
-        testingTasks(sample).then((before) => {
-          cy.signInAs("head_of_department");
-          cy.openRecord(sample);
-          cy.get(".o_statusbar_buttons button[name=action_request_recollection]").click();
-          cy.get(".o_field_widget[name=status] .o_arrow_button_current").should("contain", "On Hold");
-          cy.readRecord(sample, ["test_ids"]).its("test_ids").should("deep.equal", [test.id]);
-
-          collectAgain(sample);
-          cy.readRecord(sample, ["status", "code"]).should("deep.include", { status: "testing", code: sample.code });
-          testingTasks(sample).should((after) => expect(after.map((task) => task.id)).to.deep.equal(before.map((task) => task.id)));
-        });
-      });
-    });
-  });
-
-  it("TC-WF02-E6 records extra samples and excess material on the handover the customer confirms, adding no test and changing no order", () => {
-    orderRequest().then((request) => {
-      const [sample] = request.samples;
-      callAs(SALES, "sale.order", "search_read", [[["test_request_id", "=", request.id]]], { fields: ["order_line", "amount_total"] }).then(([before]) => {
-        cy.signInAs("sample_delivery_staff");
-        cy.readRecord(sample, ["test_ids"]).then(({ test_ids: tests }) => {
-          fillHandoverRecord(request, sample, "2 chai 500 ml", { actual: 2, excess: "Dư khoảng 300 ml so với lượng cần" }).then((record) => {
-            cy.get(".o_field_widget[name=sample_ids] .o_data_row").should("contain", "Dư khoảng 300 ml so với lượng cần");
-            callAs(STAFF, "medilab.handover.record", "action_sign", [[record.id], PNG]);
-            cy.readRecord(record, ["sample_ids"]).then(({ sample_ids: [line] }) =>
-              cy
-                .readRecord({ model: "medilab.handover.record.sample", id: line }, ["expected_count", "actual_count", "extra_count", "excess_material"])
-                .should("deep.include", { expected_count: 1, actual_count: 2, extra_count: 1, excess_material: "Dư khoảng 300 ml so với lượng cần" }),
-            );
-          });
-          cy.readRecord(sample, ["test_ids"]).its("test_ids").should("deep.equal", tests);
-          callAs(SALES, "sale.order", "read", [[before.id], ["order_line", "amount_total"]]).its("0").should("deep.equal", before);
-        });
-      });
-    });
-  });
-
-  it("TC-WF02-E7 keeps a sample not handed over expected until another collection records it on a record of its own", () => {
-    staffRequest({ samples: [[PARAMETERS.lead], [PARAMETERS.lead]] }).then((request) => {
-      const [first, second] = request.samples;
-      signedRecord(request, first);
-      cy.signInAs("sample_delivery_staff");
-      cy.readRecord(second, ["status", "handover_line_ids"]).should("deep.include", { status: "expected", handover_line_ids: [] });
-
-      fillHandoverRecord(request, second, "500 ml").then((later) => {
-        callAs(STAFF, "medilab.handover.record", "action_sign", [[later.id], PNG]);
-        cy.readRecord(second, ["handover_line_ids"]).its("handover_line_ids").should("have.length", 1);
-        cy.readRecord(first, ["handover_line_ids"]).its("handover_line_ids").should("have.length", 1);
       });
     });
   });

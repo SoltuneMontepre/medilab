@@ -52,10 +52,7 @@
                 <thead>
                     <tr>
                         <th style="text-align: left; border-bottom: 1px solid #000">Sample</th>
-                        <th style="text-align: right; border-bottom: 1px solid #000">Expected Samples</th>
-                        <th style="text-align: right; border-bottom: 1px solid #000">Actual Samples</th>
                         <th style="text-align: left; border-bottom: 1px solid #000">Amount</th>
-                        <th style="text-align: left; border-bottom: 1px solid #000">Excess Material</th>
                         <th style="text-align: left; border-bottom: 1px solid #000">Condition</th>
                         <th style="text-align: left; border-bottom: 1px solid #000">Note</th>
                     </tr>
@@ -63,12 +60,7 @@
                 <tbody>
                     <tr t-foreach="record.sample_ids" t-as="line">
                         <td style="padding-top: 2mm"><span t-field="line.sample_id.code" /></td>
-                        <td style="padding-top: 2mm; text-align: right">
-                            <span t-if="line.expected_count" t-field="line.expected_count" />
-                        </td>
-                        <td style="padding-top: 2mm; text-align: right"><span t-field="line.actual_count" /></td>
                         <td style="padding-top: 2mm"><span t-field="line.quantity" /></td>
-                        <td style="padding-top: 2mm"><span t-field="line.excess_material" /></td>
                         <td style="padding-top: 2mm"><span t-field="line.condition" /></td>
                         <td style="padding-top: 2mm"><span t-field="line.condition_note" /></td>
                     </tr>

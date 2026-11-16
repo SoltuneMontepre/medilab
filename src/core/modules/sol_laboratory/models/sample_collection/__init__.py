@@ -7,8 +7,6 @@ from . import (
     sample_handover,
     sample_laboratory_folders,
     sample_mobile,
-    sample_return,
-    sample_returns,
     sample_scan,
     scheduled_job,
     subcontract_dispatch,

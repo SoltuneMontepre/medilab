@@ -1,7 +1,6 @@
 import { callAs, refAs } from "../../../support/odoo";
-import { PNG } from "../wf-02-sample-reception/setup";
 
-export const STAFF = "demo.sample_delivery_staff";
+const STAFF = "demo.sample_delivery_staff";
 const ADMINISTRATOR = "demo.administrator";
 export const TESTER = "demo.tester";
 
@@ -78,32 +77,6 @@ export function cancelledSample() {
 // A not-kept sample the tester has already disposed of by its sample type's method.
 export function disposedSample() {
   return reportedSample(SAMPLE_TYPES.cabbage).then((sample) => callAs(TESTER, "medilab.sample", "action_dispose", [[sample.id]]).then(() => sample));
-}
-
-// The sample of an issued report's test request, as `{ model, id, code }`.
-export function reportSample(report) {
-  return callAs(STAFF, "medilab.test.report", "read", [[report.id], ["request_id"]])
-    .then(([read]) => callAs(STAFF, "medilab.test.request", "read", [[read.request_id[0]], ["sample_ids"]]))
-    .then(([request]) => callAs(STAFF, "medilab.sample", "read", [request.sample_ids.slice(0, 1), ["code"]]))
-    .then(([sample]) => ({ model: "medilab.sample", id: sample.id, code: sample.code }));
-}
-
-// A handover record the customer signed, listing the sample with excess material that the sample keeps.
-export function excessHandedOver(sample, excess) {
-  return callAs(STAFF, "medilab.sample", "read", [[sample.id], ["request_id"]])
-    .then(([read]) =>
-      refAs(STAFF, "sol_demo.demo_person_sample_delivery_staff").then((staff) =>
-        callAs(STAFF, "medilab.handover.record", "create", [
-          {
-            request_id: read.request_id[0],
-            handed_over_by_name: "Nguyễn Thị Lan",
-            received_by_id: staff.id,
-            sample_ids: [[0, 0, { sample_id: sample.id, quantity: "6 lít", excess_material: excess, condition: "good" }]],
-          },
-        ]),
-      ),
-    )
-    .then((record) => callAs(STAFF, "medilab.handover.record", "action_sign", [[record], PNG]));
 }
 
 // The daily job that puts the samples whose retention ends soon or has ended on their department's to-do.

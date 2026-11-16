@@ -293,16 +293,6 @@
         <field name="document_model">medilab.handover.record.sample</field>
         <field name="action">delete</field>
     </record>
-    <record id="permission_sample_return_read_all" model="medilab.permission">
-        <field name="name">Read sample returns</field>
-        <field name="document_model">medilab.sample.return</field>
-        <field name="action">read</field>
-    </record>
-    <record id="permission_sample_return_create_all" model="medilab.permission">
-        <field name="name">Create sample returns</field>
-        <field name="document_model">medilab.sample.return</field>
-        <field name="action">create</field>
-    </record>
     <record id="permission_sample_test_read_all" model="medilab.permission">
         <field name="name">Read sample tests</field>
         <field name="document_model">medilab.sample.test</field>

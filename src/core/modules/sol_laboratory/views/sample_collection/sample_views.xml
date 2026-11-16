@@ -4,7 +4,7 @@
         <field name="name">medilab.sample.list</field>
         <field name="model">medilab.sample</field>
         <field name="arch" type="xml">
-            <list duplicate="0" decoration-muted="status in ('cancelled', 'disposed', 'returned')">
+            <list duplicate="0" decoration-muted="status in ('cancelled', 'disposed')">
                 <field name="code" />
                 <field name="request_id" />
                 <field name="customer_sample_name" />
@@ -29,29 +29,12 @@
         <field name="arch" type="xml">
             <form duplicate="0">
                 <header>
-                    <!-- Staff decide the condition first; its button receives, rejects or holds the sample. -->
                     <button
                         name="action_receive_entered"
                         type="object"
                         string="Receive"
                         class="btn-primary"
-                        invisible="status != 'expected' or condition not in (False, 'good')"
-                        groups="sol_laboratory.group_permission_sample_edit_all"
-                    />
-                    <button
-                        name="action_receive_entered"
-                        type="object"
-                        string="Reject"
-                        class="btn-danger"
-                        invisible="status != 'expected' or condition != 'unusable'"
-                        groups="sol_laboratory.group_permission_sample_edit_all"
-                    />
-                    <button
-                        name="action_receive_entered"
-                        type="object"
-                        string="Put On Hold"
-                        class="btn-secondary"
-                        invisible="status != 'expected' or condition != 'insufficient'"
+                        invisible="status != 'expected'"
                         groups="sol_laboratory.group_permission_sample_edit_all"
                     />
                     <button
@@ -67,16 +50,8 @@
                         type="object"
                         string="Collect Again"
                         class="btn-primary"
-                        invisible="not can_collect_again"
+                        invisible="status != 'on_hold'"
                         groups="sol_laboratory.group_permission_sample_edit_all"
-                    />
-                    <button
-                        name="action_open_return"
-                        type="object"
-                        string="Return"
-                        class="btn-primary"
-                        invisible="not returnable"
-                        groups="sol_laboratory.group_permission_sample_return_create_all"
                     />
                     <button
                         name="action_dispose"
@@ -145,10 +120,7 @@
                             <field name="recollection_requested_by_id" />
                         </group>
                     </group>
-                    <group
-                        string="Retention"
-                        invisible="status not in ('reported', 'retained', 'cancelled', 'disposed', 'returned')"
-                    >
+                    <group string="Retention" invisible="status not in ('reported', 'retained', 'cancelled', 'disposed')">
                         <group>
                             <field name="retained_until" />
                             <field name="disposal_note" readonly="status == 'disposed'" />
@@ -210,7 +182,7 @@
                                     <field name="recollection_requested_by_id" />
                                     <field
                                         name="retained_until"
-                                        invisible="status in ('reported', 'retained', 'cancelled', 'disposed', 'returned')"
+                                        invisible="status in ('reported', 'retained', 'cancelled', 'disposed')"
                                     />
                                 </group>
                             </group>
@@ -246,41 +218,6 @@
                             </field>
                         </page>
                         <page
-                            string="Handover Records"
-                            name="handover_records"
-                            invisible="not handover_line_ids"
-                            groups="sol_laboratory.group_permission_handover_record_sample_read_all"
-                        >
-                            <field name="handover_line_ids" readonly="1">
-                                <list>
-                                    <field name="record_id" />
-                                    <field name="expected_count" width="[120]" />
-                                    <field name="actual_count" width="[120]" />
-                                    <field name="extra_count" width="[120]" />
-                                    <field name="missing_count" width="[120]" decoration-warning="missing_count" />
-                                    <field name="quantity" />
-                                    <field name="excess_material" />
-                                    <field name="condition" />
-                                </list>
-                            </field>
-                        </page>
-                        <page
-                            string="Returns"
-                            name="returns"
-                            invisible="not return_ids"
-                            groups="sol_laboratory.group_permission_sample_return_read_all"
-                        >
-                            <field name="return_ids" readonly="1">
-                                <list>
-                                    <field name="kind" />
-                                    <field name="description" />
-                                    <field name="returned_at" />
-                                    <field name="returned_by_id" />
-                                    <field name="returned_to_name" />
-                                </list>
-                            </field>
-                        </page>
-                        <page
                             string="Photos"
                             name="photos"
                             groups="sol_laboratory.group_permission_test_request_read_all"
@@ -309,11 +246,10 @@
                 <filter name="on_hold" string="On Hold" domain="[('status', '=', 'on_hold')]" />
                 <filter name="rejected" string="Rejected" domain="[('status', '=', 'rejected')]" />
                 <filter name="retained" string="Retained" domain="[('status', '=', 'retained')]" />
-                <filter name="returned" string="Returned" domain="[('status', '=', 'returned')]" />
                 <filter
                     name="open"
                     string="Open"
-                    domain="[('status', 'not in', ('rejected', 'reported', 'retained', 'disposed', 'returned', 'cancelled'))]"
+                    domain="[('status', 'not in', ('rejected', 'reported', 'retained', 'disposed', 'cancelled'))]"
                 />
                 <group>
                     <filter name="group_by_request" string="Test Request" context="{'group_by': 'request_id'}" />

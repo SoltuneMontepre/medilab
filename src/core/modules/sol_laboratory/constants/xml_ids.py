@@ -14,10 +14,6 @@ TEST_RESULT_READER_GROUP = "sol_laboratory.group_permission_test_result_read_all
 DISPATCH_READER_GROUP = "sol_laboratory.group_permission_subcontract_dispatch_read_all"
 # Only people who can read test reports see the reports of a test request.
 TEST_REPORT_READER_GROUP = "sol_laboratory.group_permission_test_report_read_all"
-# Only people who can read handover records see what a sample's handovers listed.
-HANDOVER_RECORD_SAMPLE_READER_GROUP = "sol_laboratory.group_permission_handover_record_sample_read_all"
-# Only people who can read sample returns see what was returned to the customer, and to whom.
-SAMPLE_RETURN_READER_GROUP = "sol_laboratory.group_permission_sample_return_read_all"
 # The laboratory files permission: its holders sign computers in and work in the folders they are members of.
 LABORATORY_FILES_GROUP = "sol_laboratory.group_permission_laboratory_folder_create_all"
 # Folder administration: every folder, its owner, members and rules, turning it off and archiving it.

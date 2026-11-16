@@ -23,7 +23,6 @@
             <menuitem id="menu_sample_test" action="action_medilab_sample_test" sequence="15" />
             <menuitem id="menu_handover_record" action="action_medilab_handover_record" sequence="20" />
             <menuitem id="menu_sample_handover" action="action_medilab_sample_handover" sequence="30" />
-            <menuitem id="menu_sample_return" action="action_medilab_sample_return" sequence="35" />
             <menuitem id="menu_sample_scan" action="action_medilab_sample_scan" sequence="40" />
         </menuitem>
         <menuitem id="menu_laboratory_customers" name="Customers" sequence="30">

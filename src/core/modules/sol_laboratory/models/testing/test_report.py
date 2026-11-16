@@ -103,10 +103,6 @@ class TestReport(models.Model, TestReportBase):
         delivered_by_id = fields.Many2one(
             MODEL_PERSON, string="Delivered By", readonly=True, copy=False, ondelete="restrict"
         )
-        # Samples of the request, whose untested material the customer may take back when collecting the report.
-        sample_ids = fields.One2many(
-            related="request_id.sample_ids", string="Samples", groups="sol_laboratory.group_permission_sample_read_all"
-        )
         # The reported results the report prints: those of the request's tests that are not cancelled.
         result_ids = fields.Many2many(
             MODEL_TEST_RESULT,
