@@ -6,6 +6,7 @@ from odoo.tests import tagged
 
 from .scheduling_case import SchedulingCase
 from odoo.addons.sol_laboratory.constants.models import MODEL_RESOURCE_CALENDAR_LEAVES
+from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 # Saturday 17 October 2026 in Vietnam.
 HOLIDAY_START = datetime(2026, 10, 16, 17, 0, 0)
@@ -43,8 +44,7 @@ class TestPublicHolidays(SchedulingCase):
             {"name": "Public holiday", "date_from": HOLIDAY_START, "date_to": HOLIDAY_END}
         )
 
-        domain = action.domain
-        self.assertIsInstance(domain, str)
+        domain = assert_instance(action.domain, str)
         listed = self.env[MODEL_RESOURCE_CALENDAR_LEAVES].search(literal_eval(domain))
 
         self.assertEqual(menu.group_ids, self.env.ref("base.group_system"))
