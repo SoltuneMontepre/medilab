@@ -123,28 +123,34 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_commerce.payment_request_summary
 #: model_terms:ir.ui.view,arch_db:sol_commerce.portal_invoice_pay
 msgid ""
-"<i class=\"oi me-1\" data-icon=\"account_balance\" aria-"
-"hidden=\"true\"/>Bank transfer"
+"<i class=\"oi me-1\" data-icon=\"account_balance\" aria-hidden=\"true\"/"
+">Bank transfer"
 msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.support_list
-msgid "<i class=\"oi me-1\" data-icon=\"add\" aria-hidden=\"true\"/>New request"
+msgid ""
+"<i class=\"oi me-1\" data-icon=\"add\" aria-hidden=\"true\"/>New request"
 msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_products
-msgid "<i class=\"oi me-1\" data-icon=\"add_shopping_cart\" aria-hidden=\"true\"/>Add"
+msgid ""
+"<i class=\"oi me-1\" data-icon=\"add_shopping_cart\" aria-hidden=\"true\"/"
+">Add"
 msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
-msgid "<i class=\"oi me-1\" data-icon=\"arrow_back\" aria-hidden=\"true\"/>My orders"
+msgid ""
+"<i class=\"oi me-1\" data-icon=\"arrow_back\" aria-hidden=\"true\"/>My orders"
 msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.portal_payos_pending
-msgid "<i class=\"oi me-1\" data-icon=\"arrow_forward\" aria-hidden=\"true\"/>Continue"
+msgid ""
+"<i class=\"oi me-1\" data-icon=\"arrow_forward\" aria-hidden=\"true\"/"
+">Continue"
 msgstr ""
 
 #. module: sol_commerce
@@ -154,7 +160,9 @@ msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
-msgid "<i class=\"oi me-1\" data-icon=\"cancel\" aria-hidden=\"true\"/>Cancel the order"
+msgid ""
+"<i class=\"oi me-1\" data-icon=\"cancel\" aria-hidden=\"true\"/>Cancel the "
+"order"
 msgstr ""
 
 #. module: sol_commerce
@@ -166,7 +174,9 @@ msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
-msgid "<i class=\"oi me-1\" data-icon=\"check\" aria-hidden=\"true\"/>Accept quotation"
+msgid ""
+"<i class=\"oi me-1\" data-icon=\"check\" aria-hidden=\"true\"/>Accept "
+"quotation"
 msgstr ""
 
 #. module: sol_commerce
@@ -188,7 +198,9 @@ msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
-msgid "<i class=\"oi me-1\" data-icon=\"close\" aria-hidden=\"true\"/>Decline quotation"
+msgid ""
+"<i class=\"oi me-1\" data-icon=\"close\" aria-hidden=\"true\"/>Decline "
+"quotation"
 msgstr ""
 
 #. module: sol_commerce
@@ -199,14 +211,15 @@ msgstr ""
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 msgid ""
-"<i class=\"oi me-1\" data-icon=\"credit_card\" aria-hidden=\"true\"/>Pay the"
-" advance"
+"<i class=\"oi me-1\" data-icon=\"credit_card\" aria-hidden=\"true\"/>Pay the "
+"advance"
 msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.payment_request_summary
 #: model_terms:ir.ui.view,arch_db:sol_commerce.portal_invoice_pay
-msgid "<i class=\"oi me-1\" data-icon=\"credit_card\" aria-hidden=\"true\"/>PayOS"
+msgid ""
+"<i class=\"oi me-1\" data-icon=\"credit_card\" aria-hidden=\"true\"/>PayOS"
 msgstr ""
 
 #. module: sol_commerce
@@ -217,7 +230,9 @@ msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
-msgid "<i class=\"oi me-1\" data-icon=\"delete\" aria-hidden=\"true\"/>Remove the logo"
+msgid ""
+"<i class=\"oi me-1\" data-icon=\"delete\" aria-hidden=\"true\"/>Remove the "
+"logo"
 msgstr ""
 
 #. module: sol_commerce
@@ -228,12 +243,15 @@ msgstr ""
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
-msgid "<i class=\"oi me-1\" data-icon=\"filter_alt\" aria-hidden=\"true\"/>Filter"
+msgid ""
+"<i class=\"oi me-1\" data-icon=\"filter_alt\" aria-hidden=\"true\"/>Filter"
 msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
-msgid "<i class=\"oi me-1\" data-icon=\"person_add\" aria-hidden=\"true\"/>Add a contact"
+msgid ""
+"<i class=\"oi me-1\" data-icon=\"person_add\" aria-hidden=\"true\"/>Add a "
+"contact"
 msgstr ""
 
 #. module: sol_commerce
@@ -251,24 +269,27 @@ msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
-msgid "<i class=\"oi me-1\" data-icon=\"save\" aria-hidden=\"true\"/>Save as draft"
+msgid ""
+"<i class=\"oi me-1\" data-icon=\"save\" aria-hidden=\"true\"/>Save as draft"
 msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_submitted
 msgid ""
-"<i class=\"oi me-1\" data-icon=\"science\" aria-hidden=\"true\"/>Back to the"
-" catalog"
+"<i class=\"oi me-1\" data-icon=\"science\" aria-hidden=\"true\"/>Back to the "
+"catalog"
 msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
-msgid "<i class=\"oi me-1\" data-icon=\"science\" aria-hidden=\"true\"/>Catalog"
+msgid ""
+"<i class=\"oi me-1\" data-icon=\"science\" aria-hidden=\"true\"/>Catalog"
 msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
-msgid "<i class=\"oi me-1\" data-icon=\"science\" aria-hidden=\"true\"/>Continue"
+msgid ""
+"<i class=\"oi me-1\" data-icon=\"science\" aria-hidden=\"true\"/>Continue"
 msgstr ""
 
 #. module: sol_commerce
@@ -278,7 +299,8 @@ msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
-msgid "<i class=\"oi me-1\" data-icon=\"send\" aria-hidden=\"true\"/>Send feedback"
+msgid ""
+"<i class=\"oi me-1\" data-icon=\"send\" aria-hidden=\"true\"/>Send feedback"
 msgstr ""
 
 #. module: sol_commerce
@@ -288,12 +310,14 @@ msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_page
-msgid "<i class=\"oi me-1\" data-icon=\"shopping_cart\" aria-hidden=\"true\"/>Cart ("
+msgid ""
+"<i class=\"oi me-1\" data-icon=\"shopping_cart\" aria-hidden=\"true\"/>Cart ("
 msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
-msgid "<i class=\"oi me-1\" data-icon=\"star\" aria-hidden=\"true\"/>Make default"
+msgid ""
+"<i class=\"oi me-1\" data-icon=\"star\" aria-hidden=\"true\"/>Make default"
 msgstr ""
 
 #. module: sol_commerce
@@ -312,7 +336,9 @@ msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
-msgid "<i class=\"oi me-1\" data-icon=\"undo\" aria-hidden=\"true\"/>Withdraw request"
+msgid ""
+"<i class=\"oi me-1\" data-icon=\"undo\" aria-hidden=\"true\"/>Withdraw "
+"request"
 msgstr ""
 
 #. module: sol_commerce
@@ -323,8 +349,8 @@ msgstr ""
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
 msgid ""
-"<small class=\"form-text text-muted d-block mb-2\">PNG or JPEG, up to 2 "
-"MB.</small>"
+"<small class=\"form-text text-muted d-block mb-2\">PNG or JPEG, up to 2 MB.</"
+"small>"
 msgstr ""
 
 #. module: sol_commerce
@@ -334,7 +360,8 @@ msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.signup_customer_fields
-msgid "<small class=\"form-text text-muted\">Required for an individual.</small>"
+msgid ""
+"<small class=\"form-text text-muted\">Required for an individual.</small>"
 msgstr ""
 
 #. module: sol_commerce
@@ -580,8 +607,7 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/quotation.py:0
 #: code:addons/sol_commerce/models/orders/sale_order.py:0
-msgid ""
-"A replaced quotation cannot be sent. Send the current revision instead."
+msgid "A replaced quotation cannot be sent. Send the current revision instead."
 msgstr ""
 
 #. module: sol_commerce
@@ -608,7 +634,8 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_template.py:0
 msgid ""
-"A template orders whole quantities. Change the quantity of these lines to a whole number:\n"
+"A template orders whole quantities. Change the quantity of these lines to a "
+"whole number:\n"
 "%s"
 msgstr ""
 
@@ -1412,8 +1439,7 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/invoicing/sale_order.py:0
 msgid ""
-"Confirm or reject the pending payment before changing the quotation or "
-"order."
+"Confirm or reject the pending payment before changing the quotation or order."
 msgstr ""
 
 #. module: sol_commerce
@@ -2996,8 +3022,7 @@ msgstr ""
 #. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order.py:0
-msgid ""
-"Only a revision covered by previous payments can use written agreement."
+msgid "Only a revision covered by previous payments can use written agreement."
 msgstr ""
 
 #. module: sol_commerce
@@ -3045,8 +3070,7 @@ msgstr ""
 #. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order.py:0
-msgid ""
-"Only the order workflow can change its payment request or credit state."
+msgid "Only the order workflow can change its payment request or credit state."
 msgstr ""
 
 #. module: sol_commerce
@@ -3746,8 +3770,8 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_advance.py:0
 msgid ""
-"Quotation %(code)s is ready. Pay the advance of %(amount)s before "
-"%(deadline)s."
+"Quotation %(code)s is ready. Pay the advance of %(amount)s before %"
+"(deadline)s."
 msgstr ""
 
 #. module: sol_commerce
@@ -4248,15 +4272,13 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/invoicing/account_payment.py:0
 msgid ""
-"Sales must extend the payment deadline before this collection can be "
-"applied."
+"Sales must extend the payment deadline before this collection can be applied."
 msgstr ""
 
 #. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/invoicing/account_payment.py:0
-msgid ""
-"Sales records cash and bank transfers. Online payments come from PayOS."
+msgid "Sales records cash and bank transfers. Online payments come from PayOS."
 msgstr ""
 
 #. module: sol_commerce
@@ -4709,8 +4731,8 @@ msgstr ""
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.expected_sampling
 msgid ""
-"The expected samples are shown once each item has a sample type and a way of"
-" testing."
+"The expected samples are shown once each item has a sample type and a way of "
+"testing."
 msgstr ""
 
 #. module: sol_commerce
@@ -4806,8 +4828,7 @@ msgstr ""
 #. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_freeze.py:0
-msgid ""
-"The quotation was sent; revise it before changing its lines or samples."
+msgid "The quotation was sent; revise it before changing its lines or samples."
 msgstr ""
 
 #. module: sol_commerce
@@ -4844,8 +4865,7 @@ msgstr ""
 #. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
-msgid ""
-"The sample collection task waits in the queue of sample delivery staff."
+msgid "The sample collection task waits in the queue of sample delivery staff."
 msgstr ""
 
 #. module: sol_commerce
@@ -4890,7 +4910,8 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_line.py:0
 msgid ""
-"These ways of testing can no longer be offered; choose another before sending the quotation:\n"
+"These ways of testing can no longer be offered; choose another before "
+"sending the quotation:\n"
 "%s"
 msgstr ""
 
@@ -5352,4 +5373,86 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_line.py:0
 msgid "no sample type"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+msgid "Advance invoice"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "An accepted quotation cannot be replaced."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "An accepted quotation cannot be revised."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/sale_order.py:0
+msgid "An advance is a fixed amount or a percentage, not both."
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_payos_pending
+msgid "Back to the invoice"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Nothing has been paid on this order. It can still be confirmed."
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+msgid "Pay the advance before"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/quotation.py:0
+msgid "Pay the advance invoice to accept this quotation."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "The customer has paid the advance, so this quotation cannot be revised."
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+msgid "is paid."
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_mail_message__idempotency_key
+msgid "Idempotency Key"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_mail_message__posted_by_device_id
+msgid "Posted By Device"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.constraint,message:sol_commerce.constraint_mail_message_device_idempotency_key_unique
+msgid "This phone already posted a message with this Idempotency-Key."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/support/support_request_mobile.py:0
+msgid "This Idempotency-Key was already sent with another request."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/support/support_request_mobile.py:0
+msgid "You may not answer this support request."
 msgstr ""

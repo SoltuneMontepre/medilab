@@ -1065,6 +1065,36 @@ model SupportRequest {
   @@map("medilab_support_request")
 }
 
+/// Laboratory's device, a computer or a phone signed in, shown with the columns this module uses.
+model LaboratoryDevice {
+  /// Row identifier.
+  id       Int       @id @default(autoincrement())
+  /// Support answers posted from the phone.
+  messages Message[]
+
+  @@map("medilab_laboratory_device")
+}
+
+/// Odoo's message (mail.message), shown with the columns this module uses and the columns it adds: a message on a support request. A support answer a phone posts keeps the phone and its Idempotency-Key, so it is posted once.
+/// Partial unique index on posted_by_device_id and idempotency_key where idempotency_key is set.
+model Message {
+  /// Row identifier.
+  id                  Int               @id @default(autoincrement())
+  /// Technical name of the document the message is about, such as medilab.support.request.
+  model               String?           @db.VarChar
+  /// Id of the document the message is about.
+  res_id              Int?
+  /// The phone the message was posted from with an Idempotency-Key; empty for any other message.
+  posted_by_device_id Int?
+  /// The Idempotency-Key the phone sent with the request that posted the message; empty when it sent none.
+  idempotency_key     String?           @db.VarChar
+  /// The phone the message was posted from.
+  posted_by_device    LaboratoryDevice? @relation(fields: [posted_by_device_id], references: [id], onDelete: SetNull)
+
+  @@index([model, res_id])
+  @@map("mail_message")
+}
+
 /// Odoo's rating (rating.rating), shown with the columns this module uses and the column it adds: a customer's rating and comment on a completed order. Read only by those who read the order, never changed once given.
 /// One feedback per order: unique on res_id for the consumed ratings of sale.order.
 model Rating {

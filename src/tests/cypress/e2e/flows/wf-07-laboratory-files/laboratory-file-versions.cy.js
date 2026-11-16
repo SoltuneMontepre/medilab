@@ -307,7 +307,8 @@ describe("WF-07 laboratory file versions", () => {
                 cy.get("button[name=action_sign]").click();
                 confirmDialog();
                 cy.wait("@signedVersion").its("response.body.error").should("not.exist");
-                cy.get(".o_form_view .o_field_widget[name=approval_state]").should("contain", "Signed");
+                // "Not Signed" also contains the word.
+                cy.get(".o_form_view .o_field_widget[name=approval_state]").invoke("text").should("match", /^\s*Signed\s*$/);
                 callAs(ADMINISTRATOR, "medilab.laboratory.file.version", "read", [
                   [first.version.id, corrected.version.id],
                   ["approval_state", "number"],
