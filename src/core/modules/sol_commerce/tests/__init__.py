@@ -22,6 +22,7 @@ from . import (
     test_order_cancellation,
     test_order_cart,
     test_order_confirmation,
+    test_order_dates,
     test_order_discount,
     test_order_feedback,
     test_order_form,

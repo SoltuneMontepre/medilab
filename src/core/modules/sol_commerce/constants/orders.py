@@ -78,6 +78,9 @@ FROZEN_LINE_FIELDS = frozenset(
     }
 )
 
+# The dates and priority of the order that stop changing once the quotation is sent.
+DATE_FIELDS = frozenset({"requested_date", "committed_date", "priority_request"})
+
 # The sample fields that stop changing with the lines.
 FROZEN_SAMPLE_FIELDS = frozenset(
     {"order_id", "customer_sample_name", "sample_type_id", "physical_state", "regulation_id", "sequence"}
@@ -92,8 +95,11 @@ PORTAL_LOCKED_ORDER_FIELDS = frozenset(
         "claimed_at",
         "confirmed_at",
         "customer_id",
-        "expected_result_date",
+        "committed_date",
         "order_status",
+        "priority_request",
+        "requested_date",
+        "turnaround_days",
         "payment_deadline",
         "reordered_from_id",
         "reorder_note",

@@ -37,7 +37,7 @@ def seed_results(env):
         env,
         env.ref("sol_demo.demo_customer_an_phu"),
         zip(SAMPLE_NAMES, ((lead, ph), (lead, ph), (lead,), (lead,)), strict=True),
-        expected_date=fields.Date.today() + timedelta(days=7),
+        committed_date=fields.Date.today() + timedelta(days=7),
     )
     completed, waiting, retested, by_head = request.sample_ids.sorted("id")
 

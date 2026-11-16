@@ -65,20 +65,20 @@ class TestSampleTestDueDateChange(RequestCase, PeopleCase):
             self.test.with_user(self.tester.user_id).action_clear_due_date()
         self.assertEqual(self.test.due_date_reason, REASON)
 
-    def test_a_changed_due_date_stays_when_the_expected_date_changes_and_automatic_ones_follow_it(self):
+    def test_a_changed_due_date_stays_when_the_committed_date_changes_and_automatic_ones_follow_it(self):
         cadmium = self.create_parameter("Cadmium (Cd)", self.group)
         self.offer(cadmium, self.sample_type)
         automatic = self.env[MODEL_SAMPLE_TEST].create({"sample_id": self.sample.id, "parameter_id": cadmium.id})
         self.change(self.head, FRIDAY)
 
-        self.request.expected_date = "2026-11-10"
+        self.request.committed_date = "2026-11-10"
         self.assertEqual(self.test.due_date, FRIDAY)
         # 2026-11-08 23:59:59 in Vietnam.
         self.assertEqual(automatic.due_date, datetime(2026, 11, 8, 16, 59, 59))
         self.assertFalse(self.test.due_date_conflict)
 
         # The expected date now gives 2026-10-15 23:59:59 in Vietnam, before the changed date.
-        self.request.expected_date = "2026-10-17"
+        self.request.committed_date = "2026-10-17"
         self.assertEqual(self.test.due_date, FRIDAY)
         self.assertTrue(self.test.with_user(self.head.user_id).due_date_conflict)
         self.assertFalse(automatic.due_date_conflict)

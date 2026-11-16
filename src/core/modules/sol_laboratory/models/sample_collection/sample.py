@@ -268,6 +268,7 @@ class Sample(models.Model, SampleBase):
         for request in self.request_id.sudo():
             if "sample_received" in request._next_statuses():
                 request._set_status("sample_received")
+        self.request_id._commit_on_receipt()
         if condition == "good":
             self._open_testing_work()
         elif condition == "insufficient":

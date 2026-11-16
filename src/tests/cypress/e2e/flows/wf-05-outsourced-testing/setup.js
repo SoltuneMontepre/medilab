@@ -87,7 +87,7 @@ export function assignedTest(kind = "lead", { days = 0, sample = {}, accepted } 
     callAs(RECEPTION, "medilab.test.request", "create", [
       {
         customer_id: ids.customer,
-        expected_date: inDays(days),
+        committed_date: inDays(days),
         sample_ids: [
           [
             0,
