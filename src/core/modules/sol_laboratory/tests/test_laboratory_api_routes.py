@@ -6,7 +6,7 @@ from odoo.tests import tagged
 from .laboratory_api_case import LaboratoryApiCase
 from odoo.addons.sol_laboratory.constants.laboratory_api import API_PREFIX, ERROR_STATUSES
 from odoo.addons.sol_laboratory.constants.laboratory_files import DEVICE_KEY_SCOPE
-from odoo.addons.sol_laboratory.constants.models import MODEL_IR_HTTP
+from odoo.addons.sol_laboratory.constants.models import MODEL_IR_HTTP, MODEL_IR_MODULE_MODULE
 from odoo.addons.sol_laboratory.services import openapi_document
 from odoo.addons.sol_laboratory.services.laboratory_api import is_api_path
 from odoo.addons.sol_laboratory.tests.assertions import assert_instance
@@ -46,7 +46,12 @@ class TestLaboratoryApiRoutes(LaboratoryApiCase):
                     self.assertIs(routing["readonly"], False)
 
     def test_the_routes_are_the_operations_of_the_document(self):
-        documented = {(method, path) for method, path, _operation in openapi_document.operations().values()}
+        installed = set(self.env[MODEL_IR_MODULE_MODULE].search([("state", "=", "installed")]).mapped("name"))
+        documented = {
+            (method, path)
+            for method, path, operation in openapi_document.operations().values()
+            if operation.get(openapi_document.MODULE_EXTENSION, "sol_laboratory") in installed
+        }
 
         self.assertEqual(set(self.api_routes()), documented)
 

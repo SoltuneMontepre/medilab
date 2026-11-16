@@ -12,7 +12,7 @@ Stories: SH-10, SH-11, SH-12, US-T30, US-T31, US-HD06, US-HD17, US-S23, US-SD04,
 
 The phone's routes are routes of the [laboratory files API](laboratory-files.md#laboratory-files-api): declared with `laboratory_api_route()`, described in `sol_laboratory/api/openapi.yaml`, answered and refused in its format and tested through `LaboratoryApiCase`. The OpenAPI document gets a tag per feature below.
 
-- **The module that owns a route declares it.** `sol_laboratory` declares the device, push, task, sample, result, handover, notification and conversation routes; `sol_commerce` the support request routes; `sol_inventory` the container routes. A route of a module that is not installed does not exist and answers `not_found`. The app learns what is installed from `GET /modules`.
+- **The module that owns a route declares it.** `sol_laboratory` declares the device, push, task, sample, result, handover, notification and conversation routes; `sol_commerce` the support request routes; `sol_inventory` the container routes. The OpenAPI document names the module of every operation another module declares in `x-medilab-module`. A route of a module that is not installed does not exist and answers `not_found`. The app learns what is installed from `GET /modules`.
 - **No laboratory files permission.** The phone's routes are declared with `permission=False`: the models check what the person may do, as on the web. The laboratory files routes keep their check, so a phone reaches folders only as a computer of a person with that permission would.
 - **The person's rights.** An endpoint reads and acts as the user of the key, never with full rights; only the model method itself elevates where the web's call does too, such as `receive_by_label()` recording a receipt. A record the person may not read answers `not_found`, so the answer does not tell that it exists.
 - **Language.** The app sends its language, `vi` or `en`, in `Accept-Language`. The route serves the request in that language when the language is installed in MediLab, so messages and translated names match the app; otherwise it answers in the person's language.
@@ -199,6 +199,12 @@ With E-commerce installed, `sol_commerce` adds:
 
 The answer is posted as on the web, so `_message_post_after_hook()` sets the request answered, closes its task and Odoo notifies the customer, who reads it on the portal.
 
+- **Who.** The app shows the support requests when `GET /modules` lists `sol_commerce` and `GET /me` says the person may take them: the permission to edit support requests, which sales and the Head of Sales have. A person without it gets `not_found` from every route, as for a request they may not read.
+- **Messages.** A request gives the messages the customer and sales wrote to each other, oldest first, as plain text, each saying whether the customer wrote it; internal notes and logs are left out. The names of the customer, the order, the salesperson and the authors are given as the web's form shows them, whatever the person may read of those records.
+- **Taking** a request the person already took answers it again. A request someone else took is no longer readable to the person, so taking it is the call that says `already_taken`.
+- **Answering** takes the answer as plain text. Only a person who may edit the request answers it; others are refused with `permission_denied`. A closed request is neither taken nor answered: both are refused with `action_refused`, and the request's actions say so.
+- **Once.** The answer's `Idempotency-Key` is kept on its `mail.message` with the phone, so an answer sent again posts nothing more; the same key with another request is refused with `idempotency_conflict`.
+
 ### Containers and labels
 
 With Inventory installed, `sol_inventory` adds routes for scanning a container's QR code and acting on it, each calling the action Inventory gives the web: `GET /containers/lookup?code=` opens the container, `POST /containers/{container_id}/open` opens a sealed bottle, `POST /preparations` prepares a solution from the scanned bottles, and `POST /results/{result_id}/containers` adds a scanned container to the result being entered. A container of another store or not usable is refused as on the web.
@@ -233,7 +239,8 @@ Like the Sync updates route, these two are plain `auth='none'` HTTP routes, outs
 - `ir.attachment` has `created_by_device_id` and `idempotency_key` the same way, for a sample photo sent from a phone.
 - `medilab.handover.record.signed_device_id` names the phone's `medilab.laboratory.device`, which is never deleted, rather than its token, which the cleanup job removes once it is off.
 - `medilab.push.delivery` pushes either a notification or a conversation message: `notification_id` or `message_id`, exactly one, each unique with the token.
-- The diagram is [laboratory.prisma](../infrastructure/database/laboratory/laboratory.prisma).
+- With E-commerce installed, `mail.message` has `posted_by_device_id` and `idempotency_key`, unique together where the key is set: the phone a support answer was posted from and the key of its request.
+- The diagrams are [laboratory.prisma](../infrastructure/database/laboratory/laboratory.prisma) and [ecommerce.prisma](../infrastructure/database/ecommerce/ecommerce.prisma).
 
 ### Verification
 

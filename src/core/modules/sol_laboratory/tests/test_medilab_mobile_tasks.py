@@ -256,7 +256,7 @@ class TestMedilabMobileTasks(LaboratoryApiCase, TaskCase):
         new = {"name": "Call the customer", "assignee_id": self.chemist.id, "deadline": "2026-12-01T09:00:00+07:00"}
 
         me = self.answered(self.on_phone(self.chemist, "GET", "/me"))
-        self.assertEqual(me["can"], {"create_tasks": False, "assign_tasks": False})
+        self.assertLessEqual({"create_tasks": False, "assign_tasks": False}.items(), me["can"].items())
         self.assertApiRefused(
             PERMISSION_DENIED,
             self.on_phone(self.chemist, "POST", f"/tasks/{task.id}/assign", {"assignee_id": self.chemist.id}),
@@ -296,7 +296,7 @@ class TestMedilabMobileTasks(LaboratoryApiCase, TaskCase):
         me = self.answered(self.on_phone(self.head, "GET", "/me"))
         found = self.answered(self.on_phone(self.head, "GET", "/tasks/assignees?q=Pham"))
 
-        self.assertEqual(me["can"], {"create_tasks": True, "assign_tasks": True})
+        self.assertLessEqual({"create_tasks": True, "assign_tasks": True}.items(), me["can"].items())
         self.assertEqual((me["login"], me["department"]), ("giang.do", self.chemistry.name))
         self.assertEqual(
             found["people"],

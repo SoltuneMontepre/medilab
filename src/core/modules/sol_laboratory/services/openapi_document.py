@@ -16,6 +16,8 @@ DOCUMENT_URI = "urn:medilab:laboratory-files-api"
 # The schema every refusal answers with.
 ERROR_SCHEMA = "/components/schemas/Error"
 OPERATION_METHODS = ("get", "put", "post", "delete", "patch", "head", "options", "trace")
+# The module that declares an operation's route, when it is not sol_laboratory; the route exists only with it installed.
+MODULE_EXTENSION = "x-medilab-module"
 
 
 @functools.cache

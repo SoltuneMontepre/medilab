@@ -1,6 +1,6 @@
 from odoo import http
 
-from odoo.addons.sol_laboratory.constants.models import MODEL_PERSON, MODEL_TASK
+from odoo.addons.sol_laboratory.constants.models import MODEL_PERSON
 from odoo.addons.sol_laboratory.services.laboratory_api import laboratory_api_route
 
 
@@ -12,11 +12,10 @@ class LaboratoryApiMe(http.Controller):
         env = device.env
         # The person reads their own department and roles, which only administrators read of other people.
         person = env[MODEL_PERSON]._current()
-        tasks = env[MODEL_TASK]
         return {
             "name": person.name or env.user.name,
             "login": env.user.login,
             "department": person.department_id.name or "",
             "roles": person.role_ids.mapped("name"),
-            "can": {"create_tasks": tasks._may_create(), "assign_tasks": tasks._may_assign()},
+            "can": env[MODEL_PERSON]._mobile_can(),
         }

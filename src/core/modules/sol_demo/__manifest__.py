@@ -77,6 +77,8 @@
         "data/stock/stock_location.xml",
         "data/analytic/account_analytic_account.xml",
         "data/sol_commerce/notification_contact.xml",
+        "data/sol_commerce/support_request.xml",
+        "data/mail/mail_message.xml",
         "data/product/product_product.xml",
         "data/sol_inventory/supplier.xml",
         "data/product/product_supplierinfo.xml",
