@@ -10,17 +10,13 @@ import {
   PARAMETERS,
   PEOPLE,
   TESTER,
-  URGENCY,
   approveThroughScreen,
-  assign,
   assignedChromium,
-  assignedLead,
   awayFromQuarterHour,
   book,
   bookedLead,
   bookedOnOneMachine,
   checkpointSettings,
-  forgetSetting,
   enableReminders,
   notices,
   openBooking,
@@ -28,14 +24,11 @@ import {
   plannedTask,
   receivedSample,
   recommendation,
-  restoreSettings,
   releaseFixtures,
   resetFixtures,
+  restoreSettings,
   runReminders,
   saveSettings,
-  settings,
-  storedSettings,
-  testOf,
   testingTasks,
 } from "./setup";
 
@@ -101,7 +94,7 @@ describe("WF-03 baseline assignment and scheduling", () => {
       search(chromium.task.name);
       cy.contains(".o_data_row", chromium.task.name).click();
       cy.get(".o_form_view").should("be.visible");
-      step("The tester sees the recommended slot, which the head of department approves");
+      step("The tester sees the recommended machine and slot without reserving it");
       cy.get(".o_field_widget[name=recommended_machine_id]").should("be.visible");
       // The tester reads the proposed slot but cannot reserve it, and it reserves nothing.
       cy.get(".o_statusbar_buttons button[name=action_approve_booking]").should("not.exist");
@@ -111,6 +104,7 @@ describe("WF-03 baseline assignment and scheduling", () => {
       });
       recommendation(chromium).then((recommended) => {
         cy.get(".o_field_widget[name=recommended_machine_id]").should("contain", recommended.recommended_machine_id[1]);
+        step("The head of department approves the recommended machine and slot");
         cy.signInAs("head_of_department");
         cy.openRecord(chromium);
         approveThroughScreen();
@@ -189,7 +183,7 @@ describe("WF-03 baseline assignment and scheduling", () => {
       });
       // The booking returns to the plan, which proposes a slot in the new assignee's working time; the head approves
       // it, and the new assignee is told of the task and of the booking.
-      step("The head of department approves the slot the plan proposes for the new assignee");
+      step("The booking goes back to the plan, and the head approves the proposed slot");
       openBooking(test, HEAD).should((moved) => {
         expect(moved.person_id[1]).to.equal("Ly Van Hung");
         expect(moved.status).to.equal("proposed");
