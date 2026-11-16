@@ -1,5 +1,6 @@
 import { callAs, refAs } from "../../../support/odoo";
 import { orderAt } from "../wf-01-order-to-test-request/setup";
+import { helper } from "../../../support/steps";
 
 export const STAFF = "demo.sample_delivery_staff";
 const SALES = "demo.sales";
@@ -42,7 +43,7 @@ export function orderRequest() {
 
 // The sample collection task sales start on a confirmed order, waiting in the queue of sample delivery staff, with the
 // order's confirmed test request, as `{ request, task }`; the task also carries the order's name.
-export function orderCollectionTask() {
+export const orderCollectionTask = helper("orderCollectionTask", function orderCollectionTask() {
   return orderAt("confirmed").then((order) => {
     callAs(SALES, "sale.order", "action_start_sample_collection", [[order.id]]);
     callAs(SALES, "sale.order", "read", [[order.id], ["name"]]).then(([read]) => (order.name = read.name));
@@ -56,11 +57,11 @@ export function orderCollectionTask() {
       }),
     );
   });
-}
+});
 
 // A test request sample delivery staff create for Nước Uống Sạch: one sample of bottled water per entry of
 // `samples`, each with the given parameters. Confirmed unless `confirm` is false.
-export function staffRequest({ samples = [[PARAMETERS.lead]], confirm = true, expectedDate = false } = {}) {
+export const staffRequest = helper("staffRequest", function staffRequest({ samples = [[PARAMETERS.lead]], confirm = true, expectedDate = false } = {}) {
   const refs = {};
   refAs(STAFF, "sol_demo.demo_customer_nuoc_sach").then(({ id }) => (refs.customer = id));
   refAs(STAFF, "sol_demo.demo_sample_type_bottled_water").then(({ id }) => (refs.sampleType = id));
@@ -92,15 +93,15 @@ export function staffRequest({ samples = [[PARAMETERS.lead]], confirm = true, ex
       }
       return readRequest(id);
     });
-}
+});
 
 // Sample delivery staff record a sample's receipt.
-export function receive(sample, condition = "good", note = false) {
+export const receive = helper("receive", function receive(sample, condition = "good", note = false) {
   return callAs(STAFF, "medilab.sample", "action_receive", [[sample.id], "500 ml", condition, note, "Tủ lạnh 2"]);
-}
+});
 
 // A handover record of a sample, signed by the customer on the phone of sample delivery staff.
-export function signedRecord(request, sample, quantity = "500 ml", device = false) {
+export const signedRecord = helper("signedRecord", function signedRecord(request, sample, quantity = "500 ml", device = false) {
   return refAs(STAFF, "sol_demo.demo_person_sample_delivery_staff")
     .then(({ id }) =>
       callAs(STAFF, "medilab.handover.record", "create", [
@@ -113,11 +114,11 @@ export function signedRecord(request, sample, quantity = "500 ml", device = fals
       ]),
     )
     .then((id) => callAs(STAFF, "medilab.handover.record", "action_sign", [[id], PNG, device]).then(() => ({ model: "medilab.handover.record", id })));
-}
+});
 
 // A sample collection task of a test request, assigned to sample delivery staff by an administrator, as `{ model, id, name }`.
 // A task created by hand names what to collect and opens no document.
-export function collectionTask(request, values) {
+export const collectionTask = helper("collectionTask", function collectionTask(request, values) {
   const name = `Collect ${request.code}`;
   return refAs("demo.administrator", "sol_laboratory.task_type_sample_collection")
     .then((type) =>
@@ -126,7 +127,7 @@ export function collectionTask(request, values) {
       ),
     )
     .then((id) => ({ model: "medilab.task", id, name }));
-}
+});
 
 // A time from now as Odoo stores it, in UTC.
 export function inMinutes(minutes) {
@@ -134,7 +135,7 @@ export function inMinutes(minutes) {
 }
 
 // The testing tasks of a sample's tests, whoever may see them.
-export function testingTasks(sample) {
+export const testingTasks = helper("testingTasks", function testingTasks(sample) {
   return callAs(STAFF, "medilab.sample", "read", [[sample.id], ["test_ids"]]).then(([read]) =>
     callAs("demo.administrator", "medilab.task", "search_read", [
       [
@@ -143,4 +144,4 @@ export function testingTasks(sample) {
       ],
     ], { fields: ["department_id", "status", "assignee_id"] }),
   );
-}
+});
