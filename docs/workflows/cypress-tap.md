@@ -57,6 +57,14 @@ task test:e2e:tap TAP_ARGS='pin --clear'
 
 Use command-specific `--help` for the installed beta CLI. Saving a watched file reruns the selected spec, which may differ from the file edited. Do not dispatch overlapping runs. A trailing pending test can leave the live frame blank; inspect a retained snapshot of an executed command before concluding that app content is absent.
 
+## Follow a test step by step
+
+The Command Log lists a test's business steps as bold numbered lines. Pin a step to see the page as the step starts, and its `before` and `after` tabs to see a click's element.
+
+To watch a test as a user works, keep the watch mode on: before each click, check or choice, the page frames the element in orange, labels it with the step and the action, and waits 700 ms. Change the wait with `MEDILAB_E2E_WATCH_DELAY` in milliseconds, or turn the mode off with `MEDILAB_E2E_WATCH=0`, when starting `task test:e2e:open` or `task test:e2e:tap:open`.
+
+To go one command at a time, press the pause button at the top of the Command Log, then **Next** for each command and **Resume** to go on. To stop at a given step, add `cy.pause()` right after its `step()` while debugging, and remove it before committing.
+
 ## Maintain the skills
 
 [`.agents/cypress-skills.json`](../../.agents/cypress-skills.json) pins the official toolkit revision and skill versions. Preserve the upstream skill text, referenced files and each copied MIT license. Update all four skill directories in `.agents/skills/`, their `.claude/skills/` entry points and their manifest together, then run `task test:taskfiles`.

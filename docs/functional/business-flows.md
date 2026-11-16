@@ -1,34 +1,37 @@
 # Business flows
 
-The business flows of MediLab from the start of each one to its business result, with the actors who take part. Each flow lists the user stories it walks through, the states it moves, and an activity diagram with one lane per actor. The diagrams show who does what and leave out how the system works inside.
+The business flows of MediLab from the start of each one to its business result, with the actors who take part. Each flow lists the user stories it walks through, the features of the [feature list](../reports/feature-list/readme.md) it owns, the states it moves, and an activity diagram with one lane per actor. The diagrams show who does what and leave out how the system works inside.
 
 The core flows WF-01 to WF-06 carry a test request from order to report. The supporting flows SF-01 to SF-11 run beside them. An alternative path is another normal route to the flow's result. An exception describes a problem and the steps that recover the work or reach its permitted outcome. Invalid-input, permission and immutability checks belong to the linked feature acceptance criteria. Each path belongs to one flow; other flows name its owner instead of repeating it. Each path starts from the state the flow names.
 
-| Flow  | Name                                    | Actors                                                          |
-| ----- | --------------------------------------- | --------------------------------------------------------------- |
-| WF-01 | Order to confirmed test request         | Customer, Sales, Accountant, Head of Sales                      |
-| WF-02 | Sample reception and handover           | Customer, Sample delivery staff, Head of department             |
-| WF-03 | Testing assignment and scheduling       | Head of department, Tester                                      |
-| WF-04 | Result entry and approval               | Tester, Head of department                                      |
-| WF-05 | Outsourced testing                      | Head of department, Sample delivery staff, Subcontractor        |
-| WF-06 | Report signing, release and delivery    | Lab head, Head of department, Sample delivery staff, Customer   |
-| SF-01 | Invoicing and payment collection        | Accountant, Sales, Customer                                     |
-| SF-02 | Order cancellation                      | Customer, Sales                                                 |
-| SF-03 | Change request on a signed document     | Tester, Head of department, Lab head                            |
-| SF-04 | Sample retention, return and disposal   | Tester, Sample delivery staff                                   |
-| SF-05 | Machine calibration and unavailability  | Administrator, Head of department, Tester                       |
-| SF-06 | Accreditation and registration renewal  | Administrator                                                   |
-| SF-07 | Result dates and priority orders        | Customer, Sales, Head of department                            |
-| SF-08 | Laboratory setup                        | Administrator, Lab head                                         |
-| SF-09 | Customer support and feedback           | Customer, Sales                                                 |
-| SF-10 | Scheduling plan and revisions           | Tester, Head of department, Sales                              |
-| SF-11 | Laboratory file administration          | Head of department, Tester, Administrator                      |
+| Flow  | Name                                   | Actors                                                        | Features                                                   |
+| ----- | -------------------------------------- | ------------------------------------------------------------- | ---------------------------------------------------------- |
+| WF-01 | Order to confirmed test request        | Customer, Sales, Accountant, Head of Sales                    | F-04, F-05, F-06, F-07, F-09, F-10                         |
+| WF-02 | Sample reception and handover          | Customer, Sample delivery staff, Head of department           | F-15, F-16, F-17, F-18                                     |
+| WF-03 | Testing assignment and scheduling      | Head of department, Tester                                    | F-23, F-24, F-25, F-26                                     |
+| WF-04 | Result entry and approval              | Tester, Head of department                                    | F-30, F-32, F-34, F-35, F-36, F-53, F-54, F-55, F-56, F-57 |
+| WF-05 | Outsourced testing                     | Head of department, Sample delivery staff, Subcontractor      | F-38, F-39, F-40                                           |
+| WF-06 | Report signing, release and delivery   | Lab head, Head of department, Sample delivery staff, Customer | F-43, F-45, F-47, F-49                                     |
+| SF-01 | Invoicing and payment collection       | Accountant, Sales, Customer                                   | F-12, F-13, F-14                                           |
+| SF-02 | Order cancellation                     | Customer, Sales                                               | F-11                                                       |
+| SF-03 | Change request on a signed document    | Tester, Head of department, Lab head                          | F-46                                                       |
+| SF-04 | Sample retention, return and disposal  | Tester, Sample delivery staff                                 | F-50                                                       |
+| SF-05 | Machine calibration and unavailability | Administrator, Head of department, Tester                     | F-20                                                       |
+| SF-06 | Accreditation and registration renewal | Administrator                                                 | F-37, F-41, F-42                                           |
+| SF-07 | Result dates and priority orders       | Customer, Sales, Head of department                           | F-08                                                       |
+| SF-08 | Laboratory setup                       | Administrator, Lab head                                       | F-01, F-02, F-19, F-21, F-22, F-29, F-31, F-33             |
+| SF-09 | Customer support and feedback          | Customer, Sales                                               | F-03, F-48                                                 |
+| SF-10 | Scheduling plan and revisions          | Tester, Head of department, Sales                             | F-27, F-28                                                 |
+| SF-11 | Laboratory file administration         | Head of department, Tester, Administrator                     | F-58                                                       |
+
+Every flow uses the features of three shared requirements: [F-44](../reports/feature-list/readme.md#f-44-document-locking) for [SH-06](shared.md#sh-06-locking-of-documents-in-use), [F-51](../reports/feature-list/readme.md#f-51-audit-trail) for [SH-05](shared.md#sh-05-audit-trail) and [F-52](../reports/feature-list/readme.md#f-52-scheduled-jobs-and-cleanup) for [SH-09](shared.md#sh-09-scheduled-tasks).
 
 ## WF-01 Order to confirmed test request
 
 - **Trigger:** a customer submits a cart on the portal, or sales creates an order for a customer.
 - **Result:** the order is confirmed and its test request is paid, at once for a customer allowed to order on credit, with expected samples and their selected ways calculated from the accepted order and sampling requirements, and sample collection can start.
 - **Stories:** US-C08, US-C09, US-C10, US-C13, US-C14, US-C15, US-S01, US-S02, US-S05, US-S06, US-S07, US-S08, US-S09, US-S10, US-S12, US-S15, US-A03, US-A06, US-A08.
+- **Features:** [F-04](../reports/feature-list/readme.md#f-04-portal-cart-drafts-and-reorder), [F-05](../reports/feature-list/readme.md#f-05-order-claiming-and-orders-on-behalf), [F-06](../reports/feature-list/readme.md#f-06-quotation-and-revisions), [F-07](../reports/feature-list/readme.md#f-07-order-templates), [F-09](../reports/feature-list/readme.md#f-09-advance-invoice-and-online-payment), [F-10](../reports/feature-list/readme.md#f-10-quotation-approval-and-order-confirmation).
 - **States:** quotation draft → sent → accepted, approved by the Head of Sales before it is sent when above the thresholds; order submitted → claimed → confirmed; test request draft → confirmed → paid.
 - **Starts from:** a catalog with priced parameters and packages, and demo customers.
 - **Main path:** A customer orders on the portal; sales claims it, confirms the selected ways and expected sampling needs, obtains Head of Sales approval if its discount or total exceeds a configured threshold, and sends it with an advance; the customer pays online; sales confirms the order, which creates its test request; unless the customer may order on credit, the customer pays the balance online, and sample collection can start.
@@ -86,6 +89,7 @@ flowchart TD
 - **Trigger:** samples arrive at the laboratory, sample delivery staff collect them from the customer, or a sample must be collected again after a failed delivery to a subcontractor (WF-05 Outsourced testing).
 - **Result:** every sample is coded, labelled and received, and its testing tasks wait in the queue of each department that tests it.
 - **Stories:** US-SD01, US-SD02, US-SD03, US-SD04, US-SD05, US-SD07, US-SD08, US-SD09, US-SD10, US-SD11, US-SD12, US-HD06, US-HD07.
+- **Features:** [F-15](../reports/feature-list/readme.md#f-15-test-requests-and-lab-codes), [F-16](../reports/feature-list/readme.md#f-16-sample-collection-and-handover-record), [F-17](../reports/feature-list/readme.md#f-17-reception-labels-and-department-handover), [F-18](../reports/feature-list/readme.md#f-18-insufficient-and-rejected-samples).
 - **States:** sample expected → received, or → on hold → received, or → rejected, decided by its condition before receipt; a sample whose delivery to a subcontractor failed → on hold → received; test request paid → sample received.
 - **Starts from:** a confirmed order whose test request is paid and expects its samples.
 - **Main path:** The customer brings the samples; sample delivery staff adjust the calculated expected samples to the actual handover, record conditions and differences, obtain the customer's signature, print labels and hand samples to their departments.
@@ -131,6 +135,7 @@ flowchart TD
 - **Trigger:** a testing task enters the queue of its department.
 - **Result:** the test is assigned to an authorized person and booked in its agreed way once the head approves the booking, reserving required locations and a fit machine only when needed.
 - **Stories:** US-HD01, US-HD02, US-HD03, US-HD05, US-HD19, US-T01, US-T02, US-T04, US-T21.
+- **Features:** [F-23](../reports/feature-list/readme.md#f-23-task-assignment-and-claiming), [F-24](../reports/feature-list/readme.md#f-24-booking-proposal-and-head-approval), [F-25](../reports/feature-list/readme.md#f-25-schedules-and-reminders), [F-26](../reports/feature-list/readme.md#f-26-room-booking-with-the-machine).
 - **States:** sample test waiting → assigned → testing; booking proposed → scheduled → in progress → done, with machine reservations only when needed.
 - **Starts from:** received samples with selected ways and department tasks, authorized people and available required resources.
 - **Main path:** The head assigns an authorized tester, who is notified, or that tester claims the task; the department's plan proposes a booking of the agreed way in priority order; when it is feasible before the due date, the head approves it, the tester is notified, and it receives a reminder. Lab Head's person-to-parameter authorization has no validity dates.
@@ -175,6 +180,7 @@ flowchart TD
 - **Trigger:** a booked test starts.
 - **Result:** The Head of Department approves the measured result, with assessment only for requested regulation comparisons, and the sample completes once every remaining test is approved; cancelled tests do not count. Laboratory files retain their versions and the result-file version relied on is signed.
 - **Stories:** US-T05, US-T06, US-T07, US-T08, US-T17, US-T22, US-T23, US-T24, US-T25, US-T26, US-T27, US-HD08, US-HD09, US-HD16, US-LH05.
+- **Features:** [F-30](../reports/feature-list/readme.md#f-30-testing-method-steps), [F-32](../reports/feature-list/readme.md#f-32-regulations-and-limits), [F-34](../reports/feature-list/readme.md#f-34-result-entry-and-approval), [F-35](../reports/feature-list/readme.md#f-35-unusual-result-warning), [F-36](../reports/feature-list/readme.md#f-36-sample-test-cancellation), [F-53](../reports/feature-list/readme.md#f-53-laboratory-folders-and-sync), [F-54](../reports/feature-list/readme.md#f-54-file-versions-conflicts-and-restore), [F-55](../reports/feature-list/readme.md#f-55-online-editing), [F-56](../reports/feature-list/readme.md#f-56-file-locks), [F-57](../reports/feature-list/readme.md#f-57-sample-folders-and-signing-file-versions).
 - **States:** sample test testing → result entered → approved (→ testing when rejected); sample testing → awaiting approval → completed; result file version current or conflict, then signed; machine available → busy → available.
 - **Starts from:** sample tests in testing with their bookings, on samples with and without a regulation; when files are produced, sample folders have members and are bound in Medilab Sync or opened through the back office.
 - **Main path:** When a booked test starts, the system marks its machine busy. The tester follows the agreed method. When testing produces files, the tester saves them in the sample's folder before recording the result; Medilab Sync uploads new versions and the head signs the result-file version with its hash. The tester records the result of the booking with the snapshotted unit and LOD/LOQ, assesses any requested comparison against the regulation limit the system shows, then sends and signs the result for Head of Department approval, and the head is notified; submitting it completes the testing task and marks the machine available.
@@ -240,6 +246,7 @@ flowchart TD
 - **Trigger:** a subcontracted way with the test's parameter and method is proposed because in-house resources cannot meet the due date, or the head outsources a test urgently with a reason.
 - **Result:** the subcontractor's result is approved like any other result.
 - **Stories:** US-HD05, US-HD10, US-HD11, US-HD13, US-SD13, US-SUB01, US-SUB02, US-T09, US-HD08.
+- **Features:** [F-38](../reports/feature-list/readme.md#f-38-outsourcing-suggestions-urgent-outsourcing-and-dispatches), [F-39](../reports/feature-list/readme.md#f-39-direct-outsourcing), [F-40](../reports/feature-list/readme.md#f-40-subcontractor-results).
 - **States:** sample test waiting or assigned → outsourced → result entered → approved (→ outsourced when rejected); dispatch draft → sent → received, or draft or sent → cancelled before any result.
 - **Starts from:** sample tests in WF-03 Testing assignment and scheduling that no in-house resource can finish before their due date, or that the head outsources urgently, and accredited subcontractors.
 - **Main path:** The system suggests a subcontracted way with the test's parameter and method; the head accepts it and puts the sample tests in a dispatch. When sample delivery staff take the dispatch to carry it, the system marks it sent and records the date sent, who took it and the expected date, which is the date sent plus the way's turnaround. The subcontractor confirms receipt of the samples on the portal, which marks the dispatch received, and enters the results; the head is notified and approves them like any other result. When every remaining test of the sample is approved, the sample completes and goes to WF-06 Report signing, release and delivery. Outsourcing is internal: the subcontractor tests the parameter with the method the customer agreed, so the customer is neither told nor asked.
@@ -290,6 +297,7 @@ flowchart TD
 - **Trigger:** every sample test of a test request is approved or cancelled, and the system creates the draft report and a signing task for the lab head.
 - **Result:** the signed report is issued, delivered to the customer and downloadable on the portal.
 - **Stories:** US-LH01, US-LH02, US-SD14, US-SD15, US-C07, US-C18, US-C19.
+- **Features:** [F-43](../reports/feature-list/readme.md#f-43-report-signing-and-digital-signature), [F-45](../reports/feature-list/readme.md#f-45-report-delivery-and-download), [F-47](../reports/feature-list/readme.md#f-47-notifications-and-preferences), [F-49](../reports/feature-list/readme.md#f-49-languages-and-bilingual-reports).
 - **States:** test report draft → signing → issued (→ replaced), where signing retains final internal approval while required digital signing is pending; test request completed → reported and order completed only on issue.
 - **Starts from:** test requests whose sample tests are all approved or cancelled, with their draft reports.
 - **Main path:** MediLab fills the draft from an available template version and approved business data, validates it and prepares the read-only PDF with its reserved number, and the Lab Head is notified. Nobody edits the draft. The Lab Head reviews that PDF, its approved results and any requested regulation basis, then gives final internal approval. With digital signing enabled, MediLab digitally signs that same PDF and stores it before issuing the report. Issue makes the reserved number official, updates the request and order, and enables delivery and customer notification.
@@ -347,6 +355,7 @@ flowchart TD
 - **Trigger:** an order needs its final invoice, or a payment arrives.
 - **Result:** every invoice is paid, and each day's online payments match the PayOS transactions and are locked.
 - **Stories:** US-A01, US-A02, US-A04, US-A05, US-A07, US-A08, US-A09, US-A10, US-A11, US-A12, US-A13, US-C16, US-C17, US-S11.
+- **Features:** [F-12](../reports/feature-list/readme.md#f-12-invoices-and-adjustment-invoices), [F-13](../reports/feature-list/readme.md#f-13-payment-confirmation-and-reconciliation), [F-14](../reports/feature-list/readme.md#f-14-finance-reports-and-sales-analytics).
 - **States:** invoice posted → partially paid → paid; payment pending → confirmed or rejected; reconciliation day open → locked.
 - **Starts from:** confirmed orders: those of customers who pay before testing, and those of customers on credit whose testing is completed.
 - **Main path:** When sales confirms an order, its final invoice for the balance is posted and e-mailed; the customer pays it online before sample collection; a receipt is issued and the order is paid. For a customer allowed to order on credit, the accountant creates and e-mails the final invoice once testing is completed.
@@ -391,6 +400,7 @@ flowchart TD
 - **Trigger:** a customer wants to cancel an order.
 - **Result:** the accepted cancellation scope is cancelled, or Sales declines with a reply. Cancelling an unfulfillable part preserves other work and completed results.
 - **Stories:** US-C11, US-C12, US-S16, US-S17.
+- **Features:** [F-11](../reports/feature-list/readme.md#f-11-order-cancellation).
 - **States:** cancellation request open → accepted or declined; whole-order cancellation → order cancelled, while partial cancellation leaves the remaining work active.
 - **Starts from:** orders in each status, some with completed tests.
 - **Main path:** A customer requests the cancellation of a confirmed order with a reason; sales accepts; the order and its test request are cancelled.
@@ -436,6 +446,7 @@ flowchart TD
 - **Trigger:** a person who can edit a type of document, or deliver reports, finds a mistake in one whose process is completed, such as a result or a report.
 - **Result:** a new version replaces the signed one, which is kept unchanged, or the request is rejected and the document stays as it is.
 - **Stories:** US-T11, US-LH03, SH-07.
+- **Features:** [F-46](../reports/feature-list/readme.md#f-46-change-requests).
 - **States:** change request requested → approved → applied, or → rejected; document version → replaced.
 - **Starts from:** completed results and issued reports, and signed documents still in process.
 - **Main path:** A tester raises a change request on a completed result; the change-request chain signs it; a new version replaces the old one, which stays readable.
@@ -485,6 +496,7 @@ flowchart TD
 - **Trigger:** the report of a sample's test request is issued.
 - **Result:** every sample that is not kept, or whose retention period is over, is disposed of with a record of when, by whom and how, unless the customer asked for a retained sample back after its retention period.
 - **Stories:** US-T10, US-SD15.
+- **Features:** [F-50](../reports/feature-list/readme.md#f-50-sample-retention-and-disposal).
 - **States:** sample reported → retained → disposed or returned, or reported → disposed.
 - **Starts from:** reported samples, kept and not kept, and samples of cancelled requests.
 - **Main path:** A kept sample's retention period ends; it appears on the tester's daily to-do and the tester records its disposal.
@@ -517,6 +529,7 @@ flowchart TD
 - **Trigger:** calibration is absent or expired, maintenance is planned or overdue, or a machine breaks or enters repair.
 - **Result:** new bookings use fit machines; affected not-started work is replanned on another machine linked to the same method, interrupted measurements are retained for assessment, and unserviceable work remains visible in the queue.
 - **Stories:** US-AD09, US-AD10, US-T21, US-HD03, US-HD05.
+- **Features:** [F-20](../reports/feature-list/readme.md#f-20-machines-calibration-and-maintenance).
 - **States:** machine in use → under repair → in use; booking scheduled → proposed again → scheduled on another machine.
 - **Starts from:** machines with scheduled bookings, calibration dates and service records.
 - **Main path:** The administrator records downtime; not-started bookings return to the plan and move to another machine linked to the same method if available, with notices to the tester and head. Returning to use requires all calibration, maintenance and availability conditions to be satisfied, and after a repair a calibration or maintenance record dated after it.
@@ -560,6 +573,7 @@ flowchart TD
 - **Trigger:** the laboratory receives an accreditation certificate or registers a quality dossier, or one of them, or a subcontractor's accreditation, nears its expiry.
 - **Result:** reports carry the accredited and registered marks only while they are valid, and renewed dates restore them.
 - **Stories:** US-AD08, US-AD12, US-AD28.
+- **Features:** [F-37](../reports/feature-list/readme.md#f-37-subcontractors-and-accreditation-renewal), [F-41](../reports/feature-list/readme.md#f-41-accreditation-certificates), [F-42](../reports/feature-list/readme.md#f-42-quality-registrations-and-expiry-warning).
 - **States:** certificate, dossier or subcontractor accreditation valid → expired → valid again when renewed.
 - **Starts from:** accreditation certificates, quality dossiers and subcontractors near and past their expiry.
 - **Main path:** The administrator imports scope lines identifying methods, parameters and sample types. An in-house sample test is accredited only when a valid line covers all three, allowing an ancestor sample type for accreditation scope.
@@ -598,6 +612,7 @@ flowchart TD
 - **Trigger:** Sales prepares a quotation or changes its scope, a customer asks for earlier results, or a committed or internal result date needs review.
 - **Result:** The customer has a feasible committed return date beside their requested date, internal due dates are derived or explicitly overridden, and accepted priority marks the tests urgent.
 - **Stories:** US-C22, US-S21, US-S22, US-HD04, US-HD13, US-HD14.
+- **Features:** [F-08](../reports/feature-list/readme.md#f-08-estimated-result-date-and-priority-check).
 - **States:** proposed return date → committed return date; automatic internal due dates recalculated, manual overrides retained; accepted priority → urgent tests.
 - **Starts from:** quotations in preparation, authorized people and required resource schedules, and outsourced ways with transport and processing turnaround.
 - **Main path:** Sales checks the estimated return date while quoting. The estimate includes every in-house and outsourced branch plus the safety margin, and reserves nothing. Sales records the customer's requested date and commits a feasible return date with the customer; automatic internal due dates follow the committed date.
@@ -642,6 +657,7 @@ flowchart TD
 - **Trigger:** a laboratory starts using MediLab, or its catalog, people or rules change.
 - **Result:** everything an order and its report need exists: the catalog with its ways of testing, prices and taxes, people and roles, approval chains, available report templates and settings.
 - **Stories:** US-AD01, US-AD02, US-AD03, US-AD04, US-AD05, US-AD06, US-AD07, US-AD09, US-AD10, US-AD11, US-AD13, US-AD14, US-AD15, US-AD16, US-AD17, US-AD18, US-AD19, US-AD20, US-AD26, US-AD27, US-AD36, US-LH04, SH-03.
+- **Features:** [F-01](../reports/feature-list/readme.md#f-01-catalog-structure-codes-and-archiving), [F-02](../reports/feature-list/readme.md#f-02-prices-taxes-and-service-packages), [F-19](../reports/feature-list/readme.md#f-19-people-roles-and-permissions), [F-21](../reports/feature-list/readme.md#f-21-locations-and-rooms), [F-22](../reports/feature-list/readme.md#f-22-settings-and-thresholds), [F-29](../reports/feature-list/readme.md#f-29-test-parameters-and-ways-of-testing), [F-31](../reports/feature-list/readme.md#f-31-chemicals), [F-33](../reports/feature-list/readme.md#f-33-approval-chains-and-signing).
 - **States:** report template version draft → available → archived.
 - **Starts from:** an empty laboratory with the modules installed.
 - **Main path:** The administrator configures parameters, ways, explicit sample-type applicability, sampling requirements and prices. The Lab Head authorizes testers per parameter without validity dates. Regulation comparison limits are optional; the measurement-to-report flow works without them.
@@ -681,6 +697,7 @@ flowchart TD
 - **Trigger:** a customer registers, contacts the laboratory through the portal, or a mandatory e-mail to them bounces.
 - **Result:** the customer's account and contacts are kept, their questions are answered, a completed order can be rated, and a customer whose mandatory e-mail bounced still gets the notice.
 - **Stories:** US-C01, US-C02, US-C03, US-C04, US-C05, US-C06, US-C20, US-C21, US-S03, US-S04, US-S20, US-S24.
+- **Features:** [F-03](../reports/feature-list/readme.md#f-03-customer-accounts-and-profiles), [F-48](../reports/feature-list/readme.md#f-48-order-tracking-support-and-feedback).
 - **States:** support request open → answered → closed; order completed → rated; e-mail address bounced → corrected → confirmed.
 - **Starts from:** registered customers with completed and open orders, one of them with an e-mail address that bounces.
 - **Main path:** A customer opens a support request about an order; the order's salesperson answers; the request is answered and the customer notified.
@@ -721,6 +738,7 @@ flowchart TD
 - **Trigger:** testing work arrives, or urgency, a booking change, a result, a cancellation, resource availability or a customer date changes the plan.
 - **Result:** Bookings of the agreed way reserve available testers and required locations, plus fit machines when needed; work is planned by priority, deadline risks remain visible until resolved, and no committed return date is passed without the customer's agreement.
 - **Stories:** US-T03, US-T19, US-T20, US-HD04, US-HD09, US-HD12, US-HD14, SH-11.
+- **Features:** [F-27](../reports/feature-list/readme.md#f-27-urgent-tests-and-bumping), [F-28](../reports/feature-list/readme.md#f-28-deadline-and-machine-warnings).
 - **States:** booking proposed → scheduled → in progress → done, or cancelled; plan revision proposed → approved by each affected department → applied, with moves that would miss a committed date held back.
 - **Starts from:** proposed and scheduled bookings, including bookings sharing a machine interval and ways without machines, with authorized testers and required resources.
 - **Main path:** The plan places received, not-started work one at a time by priority class, urgent, due soon, then normal, then by committed return date and arrival, each in the earliest interval where its tester, machine when needed and required locations are free. An approved booking keeps those reservations together, then progresses through testing and result entry.
@@ -777,6 +795,7 @@ flowchart TD
 - **Trigger:** a sample needs its folders, or a folder, membership, device or lock needs administration.
 - **Result:** The sample's folders and members support testing, device access is controlled, and abandoned locks or unavailable folders can be addressed while stored versions remain traceable.
 - **Stories:** US-HD15, US-T28, US-T29, US-AD29, US-AD30, US-AD31.
+- **Features:** [F-58](../reports/feature-list/readme.md#f-58-devices-and-folder-administration).
 - **States:** folder in use → turned off → in use, or archived; device signed in → revoked; lock active → released or expired.
 - **Starts from:** samples without folders, folders with members and bound computers, and active or abandoned locks.
 - **Main path:** The head of department creates a sample's raw-data and result folders and, as their owner, adds testers as members. Testers bind their authorized folders in Medilab Sync.

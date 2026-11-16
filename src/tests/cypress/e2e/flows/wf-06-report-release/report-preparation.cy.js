@@ -1,3 +1,4 @@
+import { step } from "../../../support/steps";
 import { callAs, callRefused, refAs } from "../../../support/odoo";
 
 const ADMIN = "demo.administrator";
@@ -67,9 +68,14 @@ describe("WF-06 Report preparation", () => {
     editingAvailable().then((available) => available || this.skip());
     refAs(ADMIN, REPORT).then((report) => {
       waitingCandidate(report).then((candidate) => {
+        step("The lab head prepares the PDF again, which makes the prepared PDF obsolete");
         cy.signInAs("lab_head");
         callAs(LAB_HEAD, "medilab.test.report", "action_prepare_pdf", [[report.id]]);
         callAs(ADMIN, "medilab.test.report.candidate", "read", [[candidate.id], ["status"]]).its("0.status").should("eq", "obsolete");
+        // A new PDF keeps the number reserved for the report.
+        step("A new PDF keeps the number reserved for the report");
+        cy.openRecord(report);
+        cy.get(`${ACTIONS} button[name=action_open_candidate]`).should("be.visible");
         waitingCandidate(report).its("report_number").should("eq", candidate.report_number);
       });
     });
@@ -78,11 +84,16 @@ describe("WF-06 Report preparation", () => {
   it("TC-WF06-E4 refuses a new PDF while ONLYOFFICE is unavailable and still serves issued PDFs", function () {
     editingAvailable().then((available) => available && this.skip());
     refAs(ADMIN, REPORT).then((report) => {
+      step("Preparing a PDF is refused while ONLYOFFICE is unavailable");
       cy.signInAs("lab_head");
-      callRefused("medilab.test.report", "action_prepare_pdf", [[report.id]]).then((message) => {
-        expect(message).to.contain("ONLYOFFICE");
+      cy.readRecord(report, ["code", "candidate_ids", "write_date"]).then((before) => {
+        callRefused("medilab.test.report", "action_prepare_pdf", [[report.id]]).then((message) => {
+          expect(message).to.contain("ONLYOFFICE");
+          cy.readRecord(report, ["code", "candidate_ids", "write_date"]).should("deep.equal", before);
+        });
       });
 
+      step("The customer still downloads an issued report");
       refAs(ADMIN, ISSUED).then((issued) => {
         cy.signInAs("customer");
         cy.request(`/my/test-reports/${issued.id}/download`).its("headers.content-type").should("contain", "application/pdf");
