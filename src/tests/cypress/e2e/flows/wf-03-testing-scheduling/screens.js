@@ -101,7 +101,8 @@ export function dragBookingToSlot(booking, slot, zone) {
       const column = Cypress.$(`.fc-timegrid-col[data-date="${to.date}"]`)[0].getBoundingClientRect();
       const point = (clientX, clientY) => ({ button: 0, clientX, clientY, pageX: clientX + window.scrollX, pageY: clientY + window.scrollY });
       // Stay inside each quarter-hour slot; its midpoint is a snap tie that rounds up to the next slot.
-      const grabbed = point(eventBox.left + eventBox.width / 2, timePosition(lanes, startMinute + SLOT_INTERIOR_MINUTES));
+      const interiorOffset = timePosition(lanes, startMinute + SLOT_INTERIOR_MINUTES) - timePosition(lanes, startMinute);
+      const grabbed = point(eventBox.left + eventBox.width / 2, eventBox.top + interiorOffset);
       const dropped = point(column.left + column.width / 2, timePosition(lanes, targetMinute + SLOT_INTERIOR_MINUTES));
       cy.wrap($event).trigger("mousedown", { ...grabbed, scrollBehavior: false });
       cy.document().trigger("mousemove", { ...point(grabbed.clientX + 1, grabbed.clientY + 1), scrollBehavior: false });

@@ -37,7 +37,7 @@ describe("WF-01 order confirmation and test request (F-10)", () => {
       cy.signInAs("sales");
       cy.readRecord(order, ["test_request_id"]).then(({ test_request_id: [id, code] }) => {
         const request = { model: "medilab.test.request", id };
-        cy.signInAs("head_of_department");
+        cy.signInAs("sample_delivery_staff");
         cy.openRecord(request);
         cy.expectRefusal({
           read: () => cy.readRecord(request, ["status", "write_date"]),

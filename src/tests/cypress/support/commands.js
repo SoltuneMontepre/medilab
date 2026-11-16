@@ -56,7 +56,12 @@ Cypress.Commands.add("expectRefusal", ({
   expect(read, "record snapshot reader").to.be.a("function");
   expect(message, "refusal message").to.be.a("string").and.not.be.empty;
   // Odoo shows a refusal in a dialog and also rejects the page's request; only that rejection is expected.
-  const expectedRejection = (error) => !REFUSALS.includes(error.exceptionName);
+  const expectedRejection = (error) => {
+    const exceptionName = error.exceptionName ?? error.data?.name;
+    // Odoo's web client sometimes raises only the generic RPC_ERROR; the exact refusal text and unchanged record
+    // are checked below before this is treated as an expected business refusal.
+    return !REFUSALS.includes(exceptionName) && error.message !== "RPC_ERROR";
+  };
   cy.on("uncaught:exception", expectedRejection);
   let snapshot;
   cy.then(read).then((before) => {

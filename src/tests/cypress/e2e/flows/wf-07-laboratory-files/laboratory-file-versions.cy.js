@@ -310,8 +310,10 @@ describe("WF-07 laboratory file versions", () => {
                   [first.version.id, corrected.version.id],
                   ["approval_state", "number"],
                 ]).then((read) => {
-                  expect(read.find(({ number }) => number === 1).approval_state, "the rejected version stays rejected").to.eq("rejected");
-                  expect(read.find(({ number }) => number === 2).approval_state).to.eq("approved");
+                  const rejected = read.find(({ id }) => id === first.version.id);
+                  const signed = read.find(({ id }) => id === corrected.version.id);
+                  expect(rejected.approval_state, "the rejected version stays rejected").to.eq("rejected");
+                  expect(signed.approval_state, "the corrected version is approved").to.eq("approved");
                 });
               });
             });

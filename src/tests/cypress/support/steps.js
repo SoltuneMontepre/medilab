@@ -5,22 +5,26 @@ import { beginQuiet, endQuiet, logged, resetQuiet } from "./odoo";
 let number = 0;
 let current = "";
 const open = [];
-let expectedFailure;
+const EXPECTED_FAILURE = "medilabExpectedFailure";
+const EXPECTED_FAILURE_OBSERVED = "medilabExpectedFailureObserved";
 
 beforeEach(() => {
   number = 0;
   current = "";
   resetQuiet();
   open.length = 0;
-  expectedFailure = undefined;
+  Cypress.env(EXPECTED_FAILURE, null);
+  Cypress.env(EXPECTED_FAILURE_OBSERVED, false);
 });
 
 // A failure inside a quiet helper marks the helper's line as failed, as its own commands are not in the log.
 Cypress.on("fail", (error) => {
+  const expectedFailure = Cypress.env(EXPECTED_FAILURE);
   if (expectedFailure) {
-    const handle = expectedFailure;
-    expectedFailure = undefined;
-    return handle(error);
+    Cypress.env(EXPECTED_FAILURE, null);
+    expect(error.message).to.include(expectedFailure);
+    Cypress.env(EXPECTED_FAILURE_OBSERVED, true);
+    return false;
   }
   open.splice(0).forEach((log) => log.error(error));
   throw error;
@@ -28,15 +32,11 @@ Cypress.on("fail", (error) => {
 
 // Lets browser-helper tests assert a command failure without the business-step handler rethrowing it first.
 export function expectTestFailure(text) {
-  let observed = false;
-  expectedFailure = (error) => {
-    expect(error.message).to.include(text);
-    observed = true;
-    return false;
-  };
+  Cypress.env(EXPECTED_FAILURE, text);
+  Cypress.env(EXPECTED_FAILURE_OBSERVED, false);
   return () => {
-    expectedFailure = undefined;
-    expect(observed, "the refusal check must fail").to.be.true;
+    Cypress.env(EXPECTED_FAILURE, null);
+    expect(Cypress.env(EXPECTED_FAILURE_OBSERVED), "the refusal check must fail").to.be.true;
   };
 }
 

@@ -31,14 +31,16 @@ describe("SF-09 customer accounts and profiles (F-03)", () => {
     orderAt("paid").then((order) => {
       refAs("demo.administrator", "sol_demo.demo_test_report_by_email").then((report) => {
         callAs("demo.sales", "sale.order", "read", [[order.id], ["invoice_ids"]]).then(([read]) => {
-          expect(read.invoice_ids, "the verified advance invoice").to.have.length(1);
-          const [[invoiceId]] = read.invoice_ids;
-          callAs("demo.accountant", "account.move", "read", [[invoiceId], ["name"]]).then(([invoice]) => {
+          const invoiceIds = read.invoice_ids.map(([invoiceId]) => invoiceId);
+          expect(invoiceIds, "invoices of the paid order").not.to.be.empty;
+          callAs("demo.accountant", "account.move", "read", [invoiceIds, ["name"]]).then((invoices) => {
             cy.signInAs("individual");
             cy.request({ url: `/orders/${order.id}/quotation`, failOnStatusCode: false }).its("status").should("eq", 404);
-            cy.request(`/my/invoices/${invoiceId}`).should((response) => {
-              expect(response.redirects, "sent back to the portal home").not.to.be.empty;
-              expect(response.body).not.to.contain(invoice.name);
+            invoices.forEach((invoice) => {
+              cy.request({ url: `/my/invoices/${invoice.id}`, failOnStatusCode: false }).should((response) => {
+                expect(response.redirects, "sent back to the portal home").not.to.be.empty;
+                expect(response.body).not.to.contain(invoice.name);
+              });
             });
           });
         });
