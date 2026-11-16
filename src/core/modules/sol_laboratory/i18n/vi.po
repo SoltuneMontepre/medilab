@@ -373,6 +373,15 @@ msgstr ""
 "%s"
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_template_change_form
+msgid ""
+"A new PDF is prepared from the chosen version; a PDF waiting for review "
+"becomes obsolete."
+msgstr ""
+"PDF mới được chuẩn bị từ phiên bản đã chọn; PDF đang chờ xem xét trở nên "
+"lỗi thời."
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/test_report_issue.py:0
 msgid ""
@@ -420,6 +429,16 @@ msgstr "Một điểm trên bản đồ phải nằm trong khoảng từ 0 đế
 #: code:addons/sol_laboratory/models/system/signature.py:0
 msgid "A rejection needs a reason."
 msgstr "Từ chối cần có lý do."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid ""
+"A report's PDF is prepared once every result of its test request is "
+"approved."
+msgstr ""
+"PDF của phiếu được chuẩn bị khi mọi kết quả của yêu cầu thử nghiệm đã được "
+"duyệt."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -2434,6 +2453,16 @@ msgstr "Xóa phương pháp thử"
 #: model:medilab.permission,name:sol_laboratory.permission_unit_category_delete_all
 msgid "Delete unit categories"
 msgstr "Xóa nhóm đơn vị"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__deliver
+msgid "Deliver"
+msgstr "Giao"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_test_report_deliver_all
+msgid "Deliver test reports"
+msgstr "Giao phiếu kết quả"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__delivery_method
@@ -4850,6 +4879,13 @@ msgid "Measurement Units"
 msgstr "Đơn Vị Đo"
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_report.py:0
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid "MediLab generates a report's draft; nobody edits it."
+msgstr "MediLab tạo bản nháp của phiếu; không ai chỉnh sửa bản nháp."
+
+#. module: sol_laboratory
 #: model:ir.module.module,shortdesc:base.module_sol_laboratory
 msgid "Medilab - Laboratory"
 msgstr "Medilab - Phòng thí nghiệm"
@@ -5461,6 +5497,11 @@ msgstr "Chủ sở hữu"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__candidate_id
 msgid "PDF to Sign"
 msgstr "Bản PDF Cần Ký"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__pdf_preparable
+msgid "Pdf Preparable"
+msgstr "PDF Có Thể Chuẩn Bị"
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_report__status__pending_signing
@@ -6521,6 +6562,11 @@ msgid "Permission: tax.read.all"
 msgstr "Quyền: tax.read.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_test_report_deliver_all
+msgid "Permission: test.report.deliver.all"
+msgstr "Quyền: test.report.deliver.all"
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_test_request_create_all
 msgid "Permission: test.request.create.all"
 msgstr "Quyền: test.request.create.all"
@@ -6636,6 +6682,12 @@ msgstr "Yêu cầu sau thử nghiệm"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form
 msgid "Prefix and length of the codes given to parameters, groups, sample types, dossiers, subcontractors and documents."
 msgstr "Tiền tố và độ dài của mã gán cho chỉ tiêu, nhóm, loại mẫu, hồ sơ, thầu phụ và chứng từ."
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_test_report_prepare_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_test_report_prepare
+msgid "Prepare test report PDFs"
+msgstr "Chuẩn bị PDF phiếu kết quả"
 
 #. module: sol_laboratory
 #. odoo-python
@@ -7107,6 +7159,12 @@ msgstr "Ký hiệu trên phiếu kết quả"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__report_recipient_id
 msgid "Report Recipient"
 msgstr "Người nhận phiếu kết quả"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_report.py:0
+msgid "Report templates are only edited online."
+msgstr "Mẫu phiếu kết quả chỉ được chỉnh sửa trực tuyến."
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__status__reported
@@ -8128,6 +8186,12 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid "The PDF was prepared again."
+msgstr "PDF đã được chuẩn bị lại."
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/master_data/parameter_method.py:0
 msgid ""
 "The accreditation of %(subcontractor)s expired on %(date)s. Renew it before "
@@ -8280,6 +8344,22 @@ msgstr "Chứng từ bị từ chối: %s"
 #: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
 msgid "The document was rejected; withdraw the rejection first."
 msgstr "Chứng từ đã bị từ chối; hãy rút lại việc từ chối trước."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid "The draft is not a DOCX document that can be read."
+msgstr "Bản nháp không phải là tài liệu DOCX có thể đọc được."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid ""
+"The draft no longer prints the business records for %s; correct the "
+"records through their workflow and prepare the PDF again."
+msgstr ""
+"Bản nháp không còn in đúng dữ liệu nghiệp vụ của %s; hãy sửa dữ liệu theo "
+"quy trình của chúng rồi chuẩn bị lại PDF."
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
@@ -8450,6 +8530,21 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid "The prepared PDF does not match the business records; prepare it again."
+msgstr "PDF đã chuẩn bị không khớp với dữ liệu nghiệp vụ; hãy chuẩn bị lại."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+msgid ""
+"The prepared PDF no longer matches its template or the business records. A "
+"new PDF is prepared shortly; the lab head reviews it before signing."
+msgstr ""
+"PDF đã chuẩn bị không còn khớp với mẫu hoặc dữ liệu nghiệp vụ. PDF mới sẽ "
+"sớm được chuẩn bị; trưởng phòng thí nghiệm xem xét trước khi ký."
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/testing/test_report_issue.py:0
 msgid ""
 "The prepared PDF no longer matches its template, its draft or the business "
@@ -8480,6 +8575,18 @@ msgid "The reference of a regulation must be unique."
 msgstr "Số hiệu quy chuẩn phải là duy nhất."
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_scheduled_job.py:0
+msgid "The report changed since its PDF was prepared."
+msgstr "Phiếu đã thay đổi kể từ khi chuẩn bị PDF."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid "The report has signatures; its PDF stays as it was signed."
+msgstr "Phiếu đã có chữ ký; PDF được giữ nguyên như khi ký."
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
 msgid ""
 "The report is approved, but Viettel Sign has not signed its PDF yet, so it "
@@ -8491,6 +8598,15 @@ msgstr ""
 "chưa được phát hành: chưa thể giao hoặc tải xuống. Hệ thống tự động thử ký "
 "lại, và khách hàng được thông báo khi bản PDF đã ký được lưu và phiếu được "
 "phát hành."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+msgid ""
+"The report's PDF is being prepared. It appears here shortly, and the lab "
+"head reviews it before signing."
+msgstr ""
+"PDF của phiếu đang được chuẩn bị. PDF sẽ sớm xuất hiện tại đây và trưởng "
+"phòng thí nghiệm xem xét trước khi ký."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -8631,6 +8747,12 @@ msgid ""
 msgstr ""
 "Trường này dùng để tìm theo địa chỉ email, vì trường email chính có "
 "thể chứa nhiều hơn một địa chỉ email."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_report.py:0
+msgid "This file belongs to no template or report."
+msgstr "Tệp này không thuộc mẫu hay phiếu nào."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -12016,11 +12138,6 @@ msgid "Draft, not digitally signed"
 msgstr "Bản nháp, chưa ký số"
 
 #. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_test_report_edit_all
-msgid "Edit test reports"
-msgstr "Sửa phiếu kết quả"
-
-#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_report__status__issued
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_test_reports
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_search
@@ -12066,11 +12183,6 @@ msgstr "Chỉ giao được phiếu kết quả đã phát hành và chưa giao:
 #: code:addons/sol_laboratory/models/testing/test_report.py:0
 msgid "Only results printed on the report can be checked again."
 msgstr "Chỉ kiểm tra lại được các kết quả in trên phiếu."
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_test_report_edit_all
-msgid "Permission: test.report.edit.all"
-msgstr "Quyền: test.report.edit.all"
 
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_test_report_read_all
@@ -15902,16 +16014,6 @@ msgid "DOCX File"
 msgstr "Tệp DOCX"
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__draft_editable
-msgid "Draft Editable"
-msgstr "Bản Nháp Sửa Được"
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
-msgid "Edit Draft"
-msgstr "Sửa Bản Nháp"
-
-#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_report_template_version_form
 msgid "Edit in ONLYOFFICE"
 msgstr "Sửa Trong ONLYOFFICE"
@@ -15937,20 +16039,6 @@ msgstr "Công ty TNHH Khách Hàng Mẫu"
 #: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
 msgid "Example approver, Head of Department"
 msgstr "Người duyệt mẫu, Trưởng bộ phận"
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
-msgid "Generate Draft Again"
-msgstr "Tạo Lại Bản Nháp"
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
-msgid ""
-"Generate the draft again from the template and the business records? The "
-"editors' changes are replaced."
-msgstr ""
-"Tạo lại bản nháp từ mẫu và dữ liệu nghiệp vụ? Các thay đổi của người chỉnh "
-"sửa sẽ bị thay thế."
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_file_version__source__generated
@@ -16173,20 +16261,6 @@ msgid "Read report templates"
 msgstr "Xem mẫu phiếu kết quả"
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
-msgid "Reopen Draft"
-msgstr "Mở Lại Bản Nháp"
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
-msgid ""
-"Reopen the draft? Its prepared PDF becomes obsolete, and a new one must be "
-"prepared and reviewed."
-msgstr ""
-"Mở lại bản nháp? Bản PDF đã chuẩn bị sẽ hết hiệu lực, cần chuẩn bị và xem "
-"xét bản mới."
-
-#. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_report_template
 msgid "Report Template"
 msgstr "Mẫu Phiếu Kết Quả"
@@ -16201,12 +16275,6 @@ msgstr "Phiên Bản Mẫu Phiếu Kết Quả"
 #: model:ir.ui.menu,name:sol_laboratory.menu_report_template
 msgid "Report Templates"
 msgstr "Mẫu Phiếu Kết Quả"
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_report.py:0
-msgid "Report templates and drafts are only edited online."
-msgstr "Mẫu và bản nháp phiếu kết quả chỉ được sửa trực tuyến."
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
@@ -16224,20 +16292,6 @@ msgstr "Mẫu Và Kết Quả"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__snapshot
 msgid "Snapshot"
 msgstr "Dữ Liệu Đã In"
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
-msgid "Someone is editing the draft; wait until the editor has saved it."
-msgstr "Có người đang sửa bản nháp; hãy chờ trình chỉnh sửa lưu xong."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
-msgid ""
-"Someone is still editing the draft; close the editor and wait for its save."
-msgstr ""
-"Vẫn có người đang sửa bản nháp; hãy đóng trình chỉnh sửa và chờ lưu xong."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -16265,48 +16319,10 @@ msgid "Test Report Draft"
 msgstr "Bản Nháp Phiếu Kết Quả"
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_template_change_form
-msgid ""
-"The draft is generated again from the chosen version, which replaces the "
-"editors' changes; a PDF waiting for review becomes obsolete."
-msgstr ""
-"Bản nháp được tạo lại từ phiên bản đã chọn, thay thế các thay đổi của người "
-"chỉnh sửa; bản PDF đang chờ duyệt sẽ hết hiệu lực."
-
-#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
 msgid "The draft misses bindings, generate it again: %s"
 msgstr "Bản nháp thiếu trường liên kết, hãy tạo lại: %s"
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
-msgid ""
-"The draft no longer prints the business records for %s; correct the records "
-"through their workflow and generate the draft again."
-msgstr ""
-"Bản nháp không còn in đúng dữ liệu nghiệp vụ của %s; hãy sửa dữ liệu theo "
-"quy trình của nó rồi tạo lại bản nháp."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
-msgid "The draft was generated again."
-msgstr "Bản nháp đã được tạo lại."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
-msgid ""
-"The draft was not generated from the report's template; generate it again."
-msgstr "Bản nháp không được tạo từ mẫu của phiếu; hãy tạo lại."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
-msgid "The draft was reopened."
-msgstr "Bản nháp đã được mở lại."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -16344,31 +16360,6 @@ msgid "The laboratory files storage is unavailable; try again later."
 msgstr "Kho lưu trữ tệp phòng thí nghiệm không khả dụng; hãy thử lại sau."
 
 #. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
-msgid ""
-"The last save of the draft conflicts with a newer version; open the draft "
-"and save it again."
-msgstr ""
-"Lần lưu cuối của bản nháp xung đột với một phiên bản mới hơn; hãy mở bản "
-"nháp và lưu lại."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
-msgid "The last save of the draft failed; open the draft again and save it."
-msgstr "Lần lưu cuối của bản nháp thất bại; hãy mở lại bản nháp và lưu."
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
-msgid ""
-"The prepared PDF no longer matches its template, its draft or the business "
-"records. Reopen the draft, then prepare and review the PDF again."
-msgstr ""
-"Bản PDF đã chuẩn bị không còn khớp với mẫu, bản nháp hoặc dữ liệu nghiệp vụ."
-" Hãy mở lại bản nháp, rồi chuẩn bị và xem xét lại PDF."
-
-#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_test_report_candidate_one_in_review
 msgid "The report already has a PDF waiting for review."
 msgstr "Phiếu đã có một bản PDF đang chờ duyệt."
@@ -16384,24 +16375,6 @@ msgstr "Phiếu đã dùng phiên bản mẫu này."
 #: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
 msgid "The report has no PDF waiting for review."
 msgstr "Phiếu không có bản PDF nào đang chờ duyệt."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
-msgid "The report has signatures; its draft stays as it was signed."
-msgstr "Phiếu đã có chữ ký; bản nháp được giữ nguyên như khi ký."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
-msgid "The report's PDF waits for review; reopen the draft to change it."
-msgstr "PDF của phiếu đang chờ duyệt; hãy mở lại bản nháp để thay đổi."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
-msgid "The saved draft is not a DOCX document that can be read."
-msgstr "Bản nháp đã lưu không phải tài liệu DOCX đọc được."
 
 #. module: sol_laboratory
 #. odoo-python

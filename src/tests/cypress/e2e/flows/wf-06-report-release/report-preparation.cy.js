@@ -1,21 +1,10 @@
 import { callAs, callRefused, refAs } from "../../../support/odoo";
 
 const ADMIN = "demo.administrator";
-const STAFF = "demo.sample_delivery_staff";
+const LAB_HEAD = "demo.lab_head";
 const REPORT = "sol_demo.demo_test_report_draft";
 const ISSUED = "sol_demo.demo_test_report_by_email";
 const ACTIONS = ".o_form_view .o_statusbar_buttons";
-
-// The demo draft report, with its prepared PDF reopened so its draft can be edited again.
-function reopenedReport() {
-  return refAs(STAFF, REPORT).then((report) =>
-    callAs(STAFF, "medilab.test.report", "read", [[report.id], ["has_candidate", "draft_file_id"]]).then(([read]) =>
-      (read.has_candidate ? callAs(STAFF, "medilab.test.report", "action_reopen_draft", [[report.id]]) : cy.wrap(null)).then(
-        () => ({ ...report, fileId: read.draft_file_id[0] }),
-      ),
-    ),
-  );
-}
 
 // The status the online editor page answers with for a file, 503 while ONLYOFFICE is unavailable. Opening a file
 // opens its editing session, so availability is asked with the tester's demo spreadsheet, whose session is open anyway.
@@ -44,53 +33,43 @@ function openedUrl(button) {
 }
 
 describe("WF-06 Report preparation", () => {
-  it("TC-WF06-M2 lets the report editor edit and prepare the draft, and the lab head review the prepared PDF", function () {
-    // CI without ONLYOFFICE runs TC-WF06-E4 instead.
-    editingAvailable().then((available) => available || this.skip());
-    reopenedReport().then((report) => {
-      cy.signInAs("sample_delivery_staff");
-      cy.openRecord(report);
-      openedUrl("action_edit_draft").should("eq", `/medilab/laboratory-files/${report.fileId}/edit`);
-      cy.get(`${ACTIONS} button[name=action_prepare_pdf]`).click();
-      cy.get(`${ACTIONS} button[name=action_open_candidate]`).should("be.visible");
-      cy.get(`${ACTIONS} button[name=action_edit_draft]`).should("not.exist");
-      cy.get(".o_form_view .alert-info").should("be.visible");
+  it("TC-WF06-M2 shows the lab head the PDF MediLab prepared and lets nobody edit the draft", () => {
+    refAs(ADMIN, REPORT).then((report) => {
       waitingCandidate(report).then((candidate) => {
         expect(candidate.report_number).to.match(/^PKQ\.\d{4}\.\d+$/);
-        cy.readRecord(report, ["code", "status", "template_version_id"]).should((read) => {
-          expect(read.code, "reserved number").to.equal(candidate.report_number);
-          expect(read.status).to.equal("draft");
-          expect(read.template_version_id[0]).to.equal(candidate.template_version_id[0]);
-        });
-        // The editor page refuses a draft whose PDF waits for review.
-        editorStatus(report.fileId).should("eq", 409);
-
         cy.signInAs("lab_head");
         cy.openRecord(report);
+        cy.get(".o_form_view .alert-info").should("be.visible");
+        cy.get(`${ACTIONS} button[name=action_edit_draft]`).should("not.exist");
         cy.get(`${ACTIONS} button[name=action_prepare_pdf]`).should("not.exist");
         openedUrl("action_open_candidate").then((url) => {
           expect(url).to.equal(`/web/content/${candidate.attachment_id[0]}`);
           cy.request(url).its("headers.content-type").should("contain", "application/pdf");
         });
+        cy.readRecord(report, ["code", "status", "template_version_id", "draft_file_id"]).should((read) => {
+          expect(read.code, "reserved number").to.equal(candidate.report_number);
+          expect(read.status).to.equal("draft");
+          expect(read.template_version_id[0]).to.equal(candidate.template_version_id[0]);
+        });
+        // The draft opens in no editor, and nobody holds an edit permission on a report.
+        cy.readRecord(report, ["draft_file_id"]).then((read) => editorStatus(read.draft_file_id[0]).should("eq", 403));
+        callRefused("medilab.test.report", "write", [[report.id], { language: "vi" }]).should("be.a", "string");
+        callRefused("medilab.test.report", "action_edit_draft", [[report.id]]).should("be.a", "string");
+
+        // Sample delivery staff deliver reports, but do not prepare their PDF.
+        cy.signInAs("sample_delivery_staff");
         callRefused("medilab.test.report", "action_prepare_pdf", [[report.id]]).should("be.a", "string");
       });
     });
   });
 
-  it("TC-WF06-A5 makes the prepared PDF obsolete when the editor reopens the draft", function () {
+  it("TC-WF06-A5 lets the lab head prepare the PDF again, which keeps the reserved number", function () {
     editingAvailable().then((available) => available || this.skip());
-    reopenedReport().then((report) => {
-      cy.signInAs("sample_delivery_staff");
-      callAs(STAFF, "medilab.test.report", "action_prepare_pdf", [[report.id]]);
+    refAs(ADMIN, REPORT).then((report) => {
       waitingCandidate(report).then((candidate) => {
-        cy.openRecord(report);
-        cy.get(`${ACTIONS} button[name=action_reopen_draft]`).click();
-        cy.get(".modal-footer .btn-primary").click();
-        cy.get(`${ACTIONS} button[name=action_prepare_pdf]`).should("be.visible");
+        cy.signInAs("lab_head");
+        callAs(LAB_HEAD, "medilab.test.report", "action_prepare_pdf", [[report.id]]);
         callAs(ADMIN, "medilab.test.report.candidate", "read", [[candidate.id], ["status"]]).its("0.status").should("eq", "obsolete");
-        // A new PDF keeps the number reserved for the report.
-        cy.get(`${ACTIONS} button[name=action_prepare_pdf]`).click();
-        cy.get(`${ACTIONS} button[name=action_open_candidate]`).should("be.visible");
         waitingCandidate(report).its("report_number").should("eq", candidate.report_number);
       });
     });
@@ -98,16 +77,10 @@ describe("WF-06 Report preparation", () => {
 
   it("TC-WF06-E4 refuses a new PDF while ONLYOFFICE is unavailable and still serves issued PDFs", function () {
     editingAvailable().then((available) => available && this.skip());
-    reopenedReport().then((report) => {
-      cy.signInAs("sample_delivery_staff");
+    refAs(ADMIN, REPORT).then((report) => {
+      cy.signInAs("lab_head");
       callRefused("medilab.test.report", "action_prepare_pdf", [[report.id]]).then((message) => {
         expect(message).to.contain("ONLYOFFICE");
-        cy.openRecord(report);
-        cy.expectRefusal({
-          read: () => cy.readRecord(report, ["code", "candidate_ids", "write_date"]),
-          action: () => cy.get(`${ACTIONS} button[name=action_prepare_pdf]`).click(),
-          message,
-        });
       });
 
       refAs(ADMIN, ISSUED).then((issued) => {

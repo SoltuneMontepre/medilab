@@ -433,7 +433,7 @@ flowchart TD
 
 ## SF-03 Change request on a signed document
 
-- **Trigger:** a person who can edit a type of document finds a mistake in one whose process is completed, such as a result or a report.
+- **Trigger:** a person who can edit a type of document, or deliver reports, finds a mistake in one whose process is completed, such as a result or a report.
 - **Result:** a new version replaces the signed one, which is kept unchanged, or the request is rejected and the document stays as it is.
 - **Stories:** US-T11, US-LH03, SH-07.
 - **States:** change request requested → approved → applied, or → rejected; document version → replaced.
