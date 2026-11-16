@@ -5,10 +5,7 @@ import { displayZone, dragBookingToSlot } from "./screens";
 import { eventsGone, scheduleState } from "./state";
 import { HEAD, TESTER, awayFromQuarterHour, bookedOnOneMachine, book, assignedChromium, releaseFixtures, resetFixtures } from "./setup";
 
-beforeEach(() => {
-  resetFixtures();
-  cy.viewport(1440, 900);
-});
+beforeEach(resetFixtures);
 afterEach(releaseFixtures);
 
 // Two tests booked one after the other on the machine; the second's booking is cancelled, which leaves its slot free.

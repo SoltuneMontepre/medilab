@@ -10,6 +10,7 @@ Documents, diagrams and supporting material that belong to no other folder.
 - [Activity diagrams](activity-diagram/readme.md): the system activity map and an activity diagram per business flow, with the script that builds their website, PDF and zip
 - [Activity diagram website](https://soltunemontepre.github.io/medilab/): the system activity map with a page per flow, built by `activity-diagram/site/build.py` and published with GitHub Pages
 - [Review 2 commitment (BM04)](BM04_hoang/SWP490_GFA26SE153_R2_Commitment_v1.1.pdf): the features, workflows, demo scenarios and tests the team commits to for Defense 1.1, as version 1.1, version 1.0 and their comparison, with the workflow guideline it follows
+- [Feature list](feature-list/readme.md): the features F-01 to F-58 with the flow that owns each, their acceptance criteria and test case IDs, the 25 mandatory ones as BM04 commits them, and the script that writes the workbook submitted with BM04 and its comparison with version 1.0
 
 - [CloudBeaver initialization evidence](cloudbeaver-initialization.md): upstream lifecycle, comparison with the older implementation, regression coverage and production verification limits
 - [CloudBeaver review](cloudbeaver-review.md): strict findings, real Kubernetes verification, production evidence gaps and rollout decision
@@ -17,6 +18,7 @@ Documents, diagrams and supporting material that belong to no other folder.
 - [Local setup security review](local-setup-security-review.md): Sonar source-to-sink dispositions, private-state integrity fixes and security-owner gates
 - [Cypress Tap and AI Skills](cypress-tap.md): verified capabilities, source pin, installation and validation requirements for local Cypress agent workflows
 - [WF-03 test plan](wf-03-test-plan.md): testing assignment and scheduling: business rules, the scenario matrix and its coverage, concurrency design, confirmed defects and open decisions
+- [Main-flow verification](main-flow-verification/readme.md): WF-01 to WF-06 checked by hand and with the browser tests against the documents and BM04, with the sources, method, pass criteria and the gaps between path IDs and test titles
 
 ## Related documents
 

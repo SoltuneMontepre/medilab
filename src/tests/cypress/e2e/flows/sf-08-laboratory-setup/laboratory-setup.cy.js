@@ -266,7 +266,7 @@ describe("SF-08 Laboratory setup", () => {
     });
   });
 
-  it("TC-SF08-A3 changes a VAT rate from a date, and a quotation dated after it uses the new rate", () => {
+  it("TC-SF08-A3 TC-F02-01 changes a VAT rate from a date, and a quotation dated after it uses the new rate", () => {
     const totals = () => cy.get(".o_field_widget[name=tax_totals]");
     const lineTaxes = () => cy.get(".o_field_widget[name=product_line_ids] .o_data_row td[name=tax_ids]").first();
     taxedPackage().then(({ tax, product }) => {
@@ -365,7 +365,7 @@ describe("SF-08 Laboratory setup", () => {
     });
   });
 
-  it("TC-SF08-E2 refuses archiving a record still in use and lists what uses it", () => {
+  it("TC-SF08-E2 TC-F01-03 refuses archiving a record still in use and lists what uses it", () => {
     cy.signInAs("administrator");
     resolveRecord("sol_demo.demo_measurement_unit_mg_l").then((unit) => {
       cy.visit("/odoo/measurement-units");
