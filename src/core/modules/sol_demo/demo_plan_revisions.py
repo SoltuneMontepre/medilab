@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from odoo import fields
 from odoo.fields import Command
@@ -18,6 +18,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TEST_REQUEST,
     MODEL_TESTING_METHOD,
 )
+from odoo.addons.sol_laboratory.services.type_values import value_as
 
 # A gas chromatograph run takes one 4-hour interval, as in the scheduling spec's GC-01 example.
 RUN = timedelta(hours=4)
@@ -124,7 +125,7 @@ def _seed_scenario(env, number, parameter_name, method_code, method_name, tester
         test.with_user(head).action_approve_booking()
     y = y_test.booking_ids.filtered(lambda booking: booking.status == "scheduled")
     # Every test of the example is due when Y's interval ends; with OverTime, when the OverTime ends.
-    due_date = y.ends_at + (RUN if overtime else timedelta())
+    due_date = value_as(y.ends_at, datetime) + (RUN if overtime else timedelta())
     x_test = _received_test(env, parameter, names_x, tester, today + timedelta(days=10))
     for test in (z_test, y_test, x_test):
         test.write({"due_date": due_date, "due_date_reason": DUE_REASON})

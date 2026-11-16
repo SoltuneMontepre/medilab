@@ -56,7 +56,7 @@ class TestPinnedBookings(PlanRevisionCase):
         revision.with_user(self.head.user_id).action_approve()
 
         self.assertEqual((self.z.starts_at, self.z.is_pinned, self.y.starts_at), (WEDNESDAY, True, EVENING))
-        self.assertEqual((x.starts_at, x.ends_at - x.starts_at), (AFTERNOON, RUN))
+        self.assertEqual((x.starts_at, x.ends_at), (AFTERNOON, AFTERNOON + RUN))
         self.assertFalse(x_test.at_risk)
 
     def test_a_running_booking_is_never_moved(self):

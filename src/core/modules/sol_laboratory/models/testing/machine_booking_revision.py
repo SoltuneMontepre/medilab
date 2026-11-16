@@ -128,13 +128,16 @@ class MachineBookingRevision(models.Model, MachineBookingRevisionBase):
         test = self.sample_test_id
         way = test.parameter_method_id
         rooms = self._room_steps(way)
-        length = self.ends_at - self.starts_at
-        return self.starts_at == self._free_slot(
+        start, end = self.starts_at, self.ends_at
+        if not start or not end:
+            return False
+        length = end - start
+        return start == self._free_slot(
             self.machine_id,
             length,
             self.person_id,
-            self.starts_at + max(length, _rooms_end(rooms)),
-            self.starts_at,
+            start + max(length, _rooms_end(rooms)),
+            start,
             ignore,
             rooms=rooms,
             way=way,

@@ -1,10 +1,11 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from freezegun import freeze_time
 
 from odoo.exceptions import AccessError, UserError
 from odoo.tests import tagged
 
+from .assertions import assert_instance
 from .plan_revision_case import AFTERNOON, THURSDAY, TUESDAY, WEDNESDAY, PlanRevisionCase
 from odoo.addons.sol_laboratory.constants.models import MODEL_PLAN_REVISION
 
@@ -42,7 +43,11 @@ class TestPlanRevisionApproval(PlanRevisionCase):
                             "previous_starts_at": booking.starts_at,
                             "previous_ends_at": booking.ends_at,
                             "starts_at": start,
-                            "ends_at": start + (booking.ends_at - booking.starts_at),
+                            "ends_at": start
+                            + (
+                                assert_instance(booking.ends_at, datetime)
+                                - assert_instance(booking.starts_at, datetime)
+                            ),
                             "status": "proposed",
                         },
                     )

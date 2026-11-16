@@ -113,7 +113,8 @@ class PlanRevisionMove(models.Model, PlanRevisionMoveBase):
             rooms = bookings._room_steps(way)
             length = move.ends_at - move.starts_at
             slot = None
-            if booking.status == "scheduled" and not booking.is_pinned and booking.starts_at > now:
+            start = booking.starts_at
+            if booking.status == "scheduled" and not booking.is_pinned and start and start > now:
                 slot = bookings._free_slot(
                     move.machine_id,
                     length,
@@ -164,7 +165,7 @@ class PlanRevisionMove(models.Model, PlanRevisionMoveBase):
                 self.env._(
                     "%(booking)s moved from %(old)s to %(new)s.",
                     booking=booking.display_name,
-                    old=format_datetime(self.env, move.previous_starts_at, tz=zone),
+                    old=format_datetime(self.env, move.previous_starts_at or move.starts_at, tz=zone),
                     new=format_datetime(self.env, move.starts_at, tz=zone),
                 ),
                 subject=booking.display_name,

@@ -72,7 +72,7 @@ class PlanRevision(models.Model, PlanRevisionBase):
                 move.machine_id.id,
                 move.starts_at,
                 move.ends_at,
-                move.status.replace("approved", "proposed"),
+                "proposed" if move.status == "approved" else move.status,
             )
             for move in moves
         }

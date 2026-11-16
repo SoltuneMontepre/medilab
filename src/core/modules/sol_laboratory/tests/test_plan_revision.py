@@ -1,8 +1,11 @@
+from datetime import datetime
+
 from freezegun import freeze_time
 
 from odoo.exceptions import UserError
 from odoo.tests import tagged
 
+from .assertions import assert_instance
 from .plan_revision_case import (
     AFTERNOON,
     EVENING,
@@ -34,7 +37,7 @@ class TestPlanRevision(PlanRevisionCase):
         self.assertEqual((self.z.starts_at, self.z.ends_at), (WEDNESDAY, WEDNESDAY + RUN))
         self.assertEqual((self.y.starts_at, self.y.ends_at), (AFTERNOON, AFTERNOON + RUN))
         self.assertEqual(self.z_test.due_date, self.y_test.due_date)
-        self.assertEqual(self.z_test.due_date.date(), WEDNESDAY.date())
+        self.assertEqual(assert_instance(self.z_test.due_date, datetime).date(), WEDNESDAY.date())
 
     def test_a_move_that_would_pass_its_due_date_is_held_back_and_the_rest_is_recalculated_without_it(self):
         x_test, x = self.urgent_arrives()
@@ -50,8 +53,8 @@ class TestPlanRevision(PlanRevisionCase):
         # GC-01 has no Wednesday interval left, so X is flagged at risk with only Thursday morning to go to.
         self.assertFalse(x.starts_at)
         self.assertTrue(x_test.at_risk)
-        self.assertIn("after its internal due date", revision.reason)
-        self.assertIn(x.display_name, revision.reason)
+        self.assertIn("after its internal due date", str(revision.reason))
+        self.assertIn(x.display_name, str(revision.reason))
         for move in revision.move_ids:
             self.assertEqual(
                 (move.department_id, move.previous_starts_at), (self.department, move.booking_id.starts_at)
@@ -83,7 +86,7 @@ class TestPlanRevision(PlanRevisionCase):
         self.assertEqual(x.starts_at, EVENING)
         for move in revision.move_ids:
             self.assertLessEqual(move.ends_at, move.sample_test_id.due_date)
-            self.assertEqual(move.committed_date.isoformat(), "2026-10-16")
+            self.assertEqual(str(move.committed_date), "2026-10-16")
 
         revision.with_user(self.head.user_id).action_approve()
 
@@ -93,8 +96,8 @@ class TestPlanRevision(PlanRevisionCase):
         self.assertEqual((self.y.starts_at, self.y.ends_at), (EVENING, EVENING + RUN))
         self.assertEqual((x.status, x.starts_at), ("proposed", WEDNESDAY))
         self.assertFalse(x_test.at_risk)
-        self.assertEqual(self.z_test.sample_id.request_id.expected_date.isoformat(), "2026-10-16")
-        self.assertEqual(self.y_test.sample_id.request_id.expected_date.isoformat(), "2026-10-16")
+        self.assertEqual(str(self.z_test.sample_id.request_id.expected_date), "2026-10-16")
+        self.assertEqual(str(self.y_test.sample_id.request_id.expected_date), "2026-10-16")
         for booking in (self.z, self.y):
             self.assertEqual(booking.calendar_event_id.start, booking.starts_at)
         # The tester is told of each moved booking; X is then approved on the freed morning.
