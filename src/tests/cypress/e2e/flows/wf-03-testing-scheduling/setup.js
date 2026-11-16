@@ -1,4 +1,5 @@
 import { callAs, refAs, task } from "../../../support/odoo";
+import { helper } from "../../../support/steps";
 
 const RECEPTION = "demo.sample_delivery_staff";
 export const HEAD = "demo.head_of_department";
@@ -57,17 +58,17 @@ function inDays(days) {
 
 // The scheduler starts free slots on the quarter hour after now, so a recommendation read in the last seconds before
 // one moves on before it is booked. Waits those seconds out.
-export function awayFromQuarterHour() {
+export const awayFromQuarterHour = helper("awayFromQuarterHour", function awayFromQuarterHour() {
   return cy.then(() => {
     const left = QUARTER_HOUR - (Date.now() % QUARTER_HOUR);
     if (left < 45000) {
       cy.wait(left + 1000);
     }
   });
-}
+});
 
 // The testing tasks of the sample's tests, in whichever department they wait.
-export function testingTasks(sample) {
+export const testingTasks = helper("testingTasks", function testingTasks(sample) {
   return callAs(
     ADMINISTRATOR,
     "medilab.task",
@@ -80,7 +81,7 @@ export function testingTasks(sample) {
     ],
     { fields: ["name", "status", "assignee_id", "department_id", "document_id", "note"] },
   );
-}
+});
 
 // Each department the sample is handed over to scans its label, so its tests can be booked.
 function receiveInDepartments(sample) {
@@ -100,7 +101,7 @@ function receiveInDepartments(sample) {
 // A sample received in good condition, whose tests, in the order of the parameters, wait as testing tasks in the queues
 // of their departments. Its results are promised `days` from today, so its tests are due that many days less the safety
 // margin.
-export function receivedSample(parameters = [PARAMETERS.lead], { days = 30 } = {}) {
+export const receivedSample = helper("receivedSample", function receivedSample(parameters = [PARAMETERS.lead], { days = 30 } = {}) {
   const sample = { model: "medilab.sample" };
   const parameterIds = [];
   refAs(RECEPTION, "sol_demo.demo_customer_green_farm").then(({ id }) => (sample.customerId = id));
@@ -148,31 +149,31 @@ export function receivedSample(parameters = [PARAMETERS.lead], { days = 30 } = {
       }),
     );
   return cy.then(() => sample);
-}
+});
 
 // The test of the sample for a parameter given by its external ID.
-export function testOf(sample, parameter) {
+export const testOf = helper("testOf", function testOf(sample, parameter) {
   return refAs(HEAD, parameter).then(({ id }) => sample.tests.find((test) => test.parameterId === id));
-}
+});
 
 // The head of department assigns the sample's testing tasks to a person through the assign dialog.
-export function assign(sample, person = PEOPLE.tester) {
+export const assign = helper("assign", function assign(sample, person = PEOPLE.tester) {
   const context = { active_ids: sample.tests.map((test) => test.task.id) };
   return refAs(HEAD, person)
     .then(({ id }) => callAs(HEAD, "medilab.task.reassign", "create", [{ assignee_id: id }], { context }))
     .then((wizard) => callAs(HEAD, "medilab.task.reassign", "action_confirm", [[wizard]], { context }));
-}
+});
 
 // The scheduler's recommendation for a test, as its assignee reads it.
-export function recommendation(test, login = TESTER) {
+export const recommendation = helper("recommendation", function recommendation(test, login = TESTER) {
   return callAs(login, "medilab.sample.test", "read", [
     [test.id],
     ["recommended_method_id", "recommended_machine_id", "recommended_start", "recommended_end"],
   ]).then(([read]) => read);
-}
+});
 
 // The open booking of a test, or null.
-export function openBooking(test, login = TESTER) {
+export const openBooking = helper("openBooking", function openBooking(test, login = TESTER) {
   return callAs(
     login,
     "medilab.machine.booking",
@@ -189,13 +190,13 @@ export function openBooking(test, login = TESTER) {
     const [booking] = bookings;
     return booking ? { ...booking, model: "medilab.machine.booking" } : null;
   });
-}
+});
 
 // The tester books the recommended machine and slot, and yields the booking.
-export function book(test) {
+export const book = helper("book", function book(test) {
   callAs(TESTER, "medilab.sample.test", "action_schedule", [[test.id]]);
   return openBooking(test);
-}
+});
 
 export function scheduleThroughScreen() {
   cy.intercept("POST", "**/medilab.sample.test/action_schedule").as("scheduledThroughScreen");
@@ -238,7 +239,7 @@ export function bookedOnOneMachine() {
 }
 
 // A task the head of department gives the tester by hand, planned to start in ten minutes.
-export function plannedTask() {
+export const plannedTask = helper("plannedTask", function plannedTask() {
   const now = Date.now();
   return refAs(HEAD, "sol_laboratory.task_type_general").then((type) =>
     refAs(HEAD, PEOPLE.tester).then((person) =>
@@ -261,29 +262,29 @@ export function plannedTask() {
       }),
     ),
   );
-}
+});
 
 // Runs the job that reminds people of what starts within the reminder lead.
-export function runReminders() {
+export const runReminders = helper("runReminders", function runReminders() {
   return refAs(ADMINISTRATOR, "sol_laboratory.ir_cron_notifications_remind", { context: { active_test: false } }).then(({ id }) =>
     callAs(ADMINISTRATOR, "ir.cron", "method_direct_trigger", [[id]]).should("eq", true),
   );
-}
+});
 
 // The scheduling settings as the administrator reads them.
-export function settings() {
+export const settings = helper("settings", function settings() {
   return callAs(ADMINISTRATOR, "res.config.settings", "default_get", [["urgency_hours", "safety_margin_days"]]);
-}
+});
 
 // The administrator saves these settings, as the settings screen does.
-export function saveSettings(values) {
+export const saveSettings = helper("saveSettings", function saveSettings(values) {
   return callAs(ADMINISTRATOR, "res.config.settings", "create", [values]).then((id) =>
     callAs(ADMINISTRATOR, "res.config.settings", "execute", [[id]]),
   );
-}
+});
 
 // The stored system parameters of the scheduling settings; a setting never saved has none.
-export function storedSettings() {
+export const storedSettings = helper("storedSettings", function storedSettings() {
   let parameters;
   return callAs(ADMINISTRATOR, "ir.config_parameter", "search_read", [[["key", "in", SETTING_KEYS]]], { fields: ["key", "value"] })
     .then((read) => {
@@ -292,23 +293,23 @@ export function storedSettings() {
     })
     .then(({ id }) => callAs(ADMINISTRATOR, "mail.message.subtype", "read", [[id], ["enabled"]]))
     .then(([reminder]) => ({ parameters, reminder }));
-}
+});
 
-export function checkpointSettings() {
+export const checkpointSettings = helper("checkpointSettings", function checkpointSettings() {
   return storedSettings().then((stored) =>
     task("odooCheckpointSettings", { login: ADMINISTRATOR }, { log: false }).then((checkpoint) => ({ ...stored, checkpoint })),
   );
-}
+});
 
 // Removes a setting's stored value, as the administrator does in the system parameters.
-export function forgetSetting(key) {
+export const forgetSetting = helper("forgetSetting", function forgetSetting(key) {
   return callAs(ADMINISTRATOR, "ir.config_parameter", "search", [[["key", "=", key]]]).then(
     (ids) => ids.length && callAs(ADMINISTRATOR, "ir.config_parameter", "unlink", [ids]),
   );
-}
+});
 
 // Keep both absent parameters and a disabled reminder exactly as they were before the test.
-export function restoreSettings(stored) {
+export const restoreSettings = helper("restoreSettings", function restoreSettings(stored) {
   if (!stored) return cy.wrap(null, { log: false });
   task("odooRestoreSettings", { checkpoint: stored.checkpoint }, { log: false });
   callAs(ADMINISTRATOR, "mail.message.subtype", "write", [[stored.reminder.id], { enabled: stored.reminder.enabled }]);
@@ -318,13 +319,13 @@ export function restoreSettings(stored) {
     );
     expect(restored.reminder.enabled).to.equal(stored.reminder.enabled);
   });
-}
+});
 
-export function enableReminders() {
+export const enableReminders = helper("enableReminders", function enableReminders() {
   return refAs(ADMINISTRATOR, "sol_laboratory.event_task_reminder").then(({ id }) =>
     callAs(ADMINISTRATOR, "mail.message.subtype", "write", [[id], { enabled: true }]),
   );
-}
+});
 
 export function resetFixtures() {
   ownedTests = [];
@@ -332,7 +333,7 @@ export function resetFixtures() {
 }
 
 // Only this test's reservations are released. Requests and cancelled history remain available for diagnosis.
-export function releaseFixtures() {
+export const releaseFixtures = helper("releaseFixtures", function releaseFixtures() {
   if (ownedTests.length) {
     callAs(ADMINISTRATOR, "medilab.machine.booking", "search", [
       [
@@ -350,4 +351,4 @@ export function releaseFixtures() {
     ]).then((ids) => ids.length && callAs(HEAD, "medilab.task", "action_cancel", [ids]));
   }
   return cy.then(resetFixtures);
-}
+});
