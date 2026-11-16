@@ -65,7 +65,7 @@ export function orderCollectionTask() {
       }),
     );
   });
-});
+}
 
 // A test request sample delivery staff create for Nước Uống Sạch: one sample of bottled water per entry of
 // `samples`, each with the given parameters. Confirmed unless `confirm` is false.

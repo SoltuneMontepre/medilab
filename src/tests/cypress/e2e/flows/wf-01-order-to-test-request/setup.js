@@ -41,7 +41,7 @@ export function latestQuotation(orderId) {
     order: "revision desc",
     limit: 1,
   }).then(([quotation]) => quotation);
-});
+}
 
 // Cancels drafts the customer left on the portal, which would otherwise become their cart.
 export const clearCarts = helper("clearCarts", function clearCarts(customer) {
