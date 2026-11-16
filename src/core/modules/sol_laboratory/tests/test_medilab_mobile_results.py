@@ -1,6 +1,5 @@
 from odoo.tests import tagged
 
-from .laboratory_api_case import LaboratoryApiCase
 from .laboratory_files_case import PASSWORD
 from .mobile_phones import PhoneCalls
 from .test_result_sanity_check import SanityCheckCase
@@ -18,7 +17,7 @@ CONFIRMED = {"confirmed": True}
 
 
 @tagged("post_install", "-at_install")
-class TestMedilabMobileResults(PhoneCalls, SanityCheckCase, LaboratoryApiCase):
+class TestMedilabMobileResults(SanityCheckCase, PhoneCalls):
     """Testing at the bench on Medilab Mobile: the tester enters the lead result of the received sample and sends it,
     and their head of department approves or rejects it on the phone."""
 

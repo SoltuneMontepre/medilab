@@ -3,7 +3,6 @@ from unittest.mock import patch
 
 from odoo.tests import tagged
 
-from .laboratory_api_case import LaboratoryApiCase
 from .mobile_phones import PhoneCalls, phone_person
 from .request_case import RequestCase
 from odoo.addons.sol_laboratory.constants.laboratory_files import (
@@ -31,7 +30,7 @@ def photo_body(photo=PHOTO, name="collected.png"):
 
 
 @tagged("post_install", "-at_install")
-class TestMedilabMobilePhotos(PhoneCalls, LaboratoryApiCase, RequestCase):
+class TestMedilabMobilePhotos(PhoneCalls, RequestCase):
     """Collecting samples on Medilab Mobile: a member of sample delivery staff sees a collection task with its time and
     place, marks it done and photographs the sample, which a tester never sees."""
 

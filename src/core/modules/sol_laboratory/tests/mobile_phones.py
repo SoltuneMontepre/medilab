@@ -5,6 +5,7 @@ import uuid
 
 from odoo.fields import Command
 
+from .laboratory_api_case import LaboratoryApiCase
 from .laboratory_files_case import PASSWORD
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_LABORATORY_DEVICE,
@@ -54,8 +55,8 @@ def phone_person(env, name, login, department, permissions):
     return person
 
 
-class PhoneCalls:
-    """Calls of Medilab Mobile made by people of a LaboratoryApiCase, each on a phone of their own signed in once."""
+class PhoneCalls(LaboratoryApiCase):
+    """Calls of Medilab Mobile made by people, each on a phone of their own signed in once."""
 
     def setUp(self):
         super().setUp()
