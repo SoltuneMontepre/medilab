@@ -47,15 +47,18 @@ function wallClock(value, zone) {
 
 const SCROLLED_SLOT_OFFSET = 100;
 
-// The vertical position of a clock time inside the rendered lane that contains it. Lanes follow the calendar's slot
-// duration, which is coarser than the quarter hour a booking can start on.
+// The vertical position of a clock time inside the rendered lane that contains it. The machine schedule keeps
+// FullCalendar's slotMinTime of 00:00:00 and slotDuration of 00:30:00, and snaps a drop to 15 minutes, so a booking
+// can start halfway through a lane. The pointer stays inside that lane, at the offset of the requested time.
 function pointInLanes(clock) {
-  const wanted = Number(clock.hour) * 60 + Number(clock.minute);
+  const [hour, minute] = clock.time.split(":").map(Number);
+  const wanted = hour * 60 + minute;
   const lanes = [...Cypress.$(".fc-timegrid-slot-lane")]
     .map((lane) => {
-      const [hour, minute] = lane.getAttribute("data-time").split(":").map(Number);
-      return { lane, minutes: hour * 60 + minute };
+      const [laneHour, laneMinute] = lane.getAttribute("data-time").split(":").map(Number);
+      return { lane, minutes: laneHour * 60 + laneMinute };
     })
+    .filter((lane) => Number.isFinite(lane.minutes))
     .sort((left, right) => left.minutes - right.minutes);
   const chosen = lanes.filter((lane) => lane.minutes <= wanted).at(-1);
   if (!chosen) {
