@@ -45,7 +45,7 @@ function enterResult(test, value) {
 function saveAndWait(model) {
   cy.intercept("POST", `/web/dataset/call_kw/${model}/web_save`).as("saved");
   save();
-  cy.wait("@saved");
+  cy.wait("@saved").its("response.body").should("not.have.property", "error");
 }
 
 // Adds a line to an editable list field of the form and waits until it is edited.
@@ -263,6 +263,9 @@ describe("WF-04 feature acceptance criteria", () => {
     pick("group_ids", "Physicochemical");
     pick("main_group_id", "Heavy metals");
     addWay("TCVN 7602:2007");
+    saveAndWait("medilab.test.parameter");
+    cy.reload();
+    cy.get(".o_field_widget[name=method_ids] .o_data_row").should("contain", "TCVN 7602:2007");
     addWay("ISO 17294-2:2016");
     saveAndWait("medilab.test.parameter");
     cy.reload();

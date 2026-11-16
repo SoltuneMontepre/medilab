@@ -46,12 +46,33 @@ function wallClock(value, zone) {
 }
 
 const SCROLLED_SLOT_OFFSET = 100;
+const SLOT_LANES = ".fc-timegrid-slot-lane[data-time]";
+const HALF_SNAP_MINUTES = 7.5;
+
+function minutesOfDay(time) {
+  const [hours, minutes] = time.split(":").map(Number);
+  return hours * 60 + minutes;
+}
+
+// FullCalendar renders half-hour rows but supports dropping at the quarter hours between them.
+function timePosition(lanes, minute) {
+  const index = lanes.findLastIndex((lane) => minutesOfDay(lane.dataset.time) <= minute);
+  expect(index, `calendar shows minute ${minute}`).to.be.at.least(0);
+  const lane = lanes[index];
+  const start = minutesOfDay(lane.dataset.time);
+  const interval = minutesOfDay(lanes[1].dataset.time) - minutesOfDay(lanes[0].dataset.time);
+  const box = lane.getBoundingClientRect();
+  const bottom = lanes[index + 1]?.getBoundingClientRect().top ?? box.bottom;
+  return box.top + ((minute - start) / interval) * (bottom - box.top);
+}
 
 // Opens the Machine Schedule calendar on the week of a booking and drags the booking from its start to the slot.
 // FullCalendar reads pageX and pageY, and Cypress must not scroll the calendar, which would move the slots under the pointer.
 export function dragBookingToSlot(booking, slot, zone) {
   const from = wallClock(booking.starts_at, zone);
   const to = wallClock(slot, zone);
+  const startMinute = minutesOfDay(from.time);
+  const targetMinute = minutesOfDay(to.time);
   cy.visit("/odoo/machine-schedule?view_type=calendar");
   cy.get(".fc-col-header-cell[data-date]")
     .first()
@@ -62,27 +83,26 @@ export function dragBookingToSlot(booking, slot, zone) {
     });
   // The booking's slot goes to the upper part of the calendar's own scroller, away from the edges where a drag scrolls it,
   // as far as the scroller goes: a slot late in the day stays lower.
-  const fromLane = `.fc-timegrid-slot-lane[data-time="${from.time}"]`;
-  const offsetInScroller = ($lane) => $lane[0].getBoundingClientRect().top - $lane.closest(".fc-scroller")[0].getBoundingClientRect().top;
-  const scrolledTop = ($lane) => {
-    const scroller = $lane.closest(".fc-scroller")[0];
-    const wanted = scroller.scrollTop + offsetInScroller($lane) - SCROLLED_SLOT_OFFSET;
+  const scrolledTop = ($lanes) => {
+    const scroller = $lanes.closest(".fc-scroller")[0];
+    const offset = timePosition($lanes.toArray(), startMinute) - scroller.getBoundingClientRect().top;
+    const wanted = scroller.scrollTop + offset - SCROLLED_SLOT_OFFSET;
     return Math.max(0, Math.min(wanted, scroller.scrollHeight - scroller.clientHeight));
   };
-  cy.get(fromLane).then(($lane) => {
-    $lane.closest(".fc-scroller")[0].scrollTop = scrolledTop($lane);
+  cy.get(SLOT_LANES).then(($lanes) => {
+    $lanes.closest(".fc-scroller")[0].scrollTop = scrolledTop($lanes);
   });
-  cy.get(fromLane).should(($lane) => expect($lane.closest(".fc-scroller")[0].scrollTop).to.be.closeTo(scrolledTop($lane), 1));
+  cy.get(SLOT_LANES).should(($lanes) => expect($lanes.closest(".fc-scroller")[0].scrollTop).to.be.closeTo(scrolledTop($lanes), 1));
   cy.contains(".fc-event", booking.display_name)
     .should("be.visible")
     .then(($event) => {
       const eventBox = $event[0].getBoundingClientRect();
-      const fromLane = Cypress.$(`.fc-timegrid-slot-lane[data-time="${from.time}"]`)[0].getBoundingClientRect();
-      const toLane = Cypress.$(`.fc-timegrid-slot-lane[data-time="${to.time}"]`)[0].getBoundingClientRect();
+      const lanes = Cypress.$(SLOT_LANES).toArray();
       const column = Cypress.$(`.fc-timegrid-col[data-date="${to.date}"]`)[0].getBoundingClientRect();
       const point = (clientX, clientY) => ({ button: 0, clientX, clientY, pageX: clientX + window.scrollX, pageY: clientY + window.scrollY });
-      const grabbed = point(eventBox.left + eventBox.width / 2, eventBox.top + eventBox.height / 2);
-      const dropped = point(column.left + column.width / 2, grabbed.clientY + toLane.top - fromLane.top);
+      // Use the middle of each quarter hour. Pixel rounding at the boundary can select the next slot.
+      const grabbed = point(eventBox.left + eventBox.width / 2, timePosition(lanes, startMinute + HALF_SNAP_MINUTES));
+      const dropped = point(column.left + column.width / 2, timePosition(lanes, targetMinute + HALF_SNAP_MINUTES));
       cy.wrap($event).trigger("mousedown", { ...grabbed, scrollBehavior: false });
       cy.document().trigger("mousemove", { ...point(grabbed.clientX + 1, grabbed.clientY + 1), scrollBehavior: false });
       cy.document().trigger("mousemove", { ...dropped, scrollBehavior: false });
