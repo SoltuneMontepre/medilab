@@ -14,6 +14,18 @@ function directConversation(key) {
   );
 }
 
+// Reads the conversation on the phone until it lists the text from another person; Discuss shows a message it sends
+// before the server has saved it.
+function receivedOnPhone(key, conversationId, text, attempts = 10) {
+  return onPhone(key, "GET", `/conversations/${conversationId}/messages`).then(({ status, body }) => {
+    expect(status, JSON.stringify(body)).to.eq(200);
+    if (body.messages.some((message) => message.text === text && !message.mine)) return;
+    expect(attempts, `${text} on the phone`).to.be.greaterThan(1);
+    cy.wait(500);
+    receivedOnPhone(key, conversationId, text, attempts - 1);
+  });
+}
+
 describe("Medilab Mobile conversations in Discuss", () => {
   it("TC-F521-A1 crosses messages between the phone and Discuss on the web in both directions", () => {
     const fromPhone = `Mẫu bắp cải đã cân xong ${randomId()}`;
@@ -33,10 +45,7 @@ describe("Medilab Mobile conversations in Discuss", () => {
 
         // A phone calls without the browser's session.
         cy.clearCookies();
-        onPhone(key, "GET", `/conversations/${conversation.id}/messages`).then(({ status, body }) => {
-          expect(status, JSON.stringify(body)).to.eq(200);
-          expect(body.messages.some(({ text, mine }) => text === fromWeb && !mine)).to.be.true;
-        });
+        receivedOnPhone(key, conversation.id, fromWeb);
       }),
     );
   });
