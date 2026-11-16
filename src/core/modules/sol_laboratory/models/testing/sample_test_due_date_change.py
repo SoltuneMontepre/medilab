@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
@@ -53,7 +54,8 @@ class SampleTestDueDateChange(models.TransientModel, SampleTestDueDateChangeBase
                 change.feasibility = "moves" if check.moves else "free"
             else:
                 change.feasibility = "infeasible"
-                change.earliest_feasible_date = check.earliest
+                earliest = check.earliest
+                change.earliest_feasible_date = earliest if isinstance(earliest, datetime) else False
             change.check_message = test.sudo()._due_date_check_text(check)
 
     def action_change(self):

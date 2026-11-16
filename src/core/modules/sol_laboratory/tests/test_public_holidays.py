@@ -43,7 +43,9 @@ class TestPublicHolidays(SchedulingCase):
             {"name": "Public holiday", "date_from": HOLIDAY_START, "date_to": HOLIDAY_END}
         )
 
-        listed = self.env[MODEL_RESOURCE_CALENDAR_LEAVES].search(literal_eval(action.domain))
+        domain = action.domain
+        self.assertIsInstance(domain, str)
+        listed = self.env[MODEL_RESOURCE_CALENDAR_LEAVES].search(literal_eval(domain))
 
         self.assertEqual(menu.group_ids, self.env.ref("base.group_system"))
         self.assertIn(holiday, listed)

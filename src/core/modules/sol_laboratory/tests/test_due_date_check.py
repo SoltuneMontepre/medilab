@@ -159,7 +159,7 @@ class TestDueDateCheck(ScheduleInvariantsCase):
         change = self.wizard(self.head, infeasible)
         self.assertEqual(change.feasibility, "infeasible")
         self.assertEqual(change.earliest_feasible_date, datetime(2026, 10, 12, 23, 59, 59))
-        self.assertIn("after the due date", change.check_message)
+        self.assertIn("after the due date", change.check_message or "")
         with self.assertRaisesRegex(UserError, "cannot meet this due date"):
             change.action_change()
         self.assertNotEqual(self.test.due_date, infeasible)
@@ -190,7 +190,7 @@ class TestDueDateCheck(ScheduleInvariantsCase):
 
         change = self.wizard(self.head, due_date)
         self.assertEqual(change.feasibility, "moves")
-        self.assertIn(booking.display_name, change.check_message)
+        self.assertIn(booking.display_name, change.check_message or "")
         change.action_change()
 
         self.assertEqual((self.test.due_date, self.test.due_date_reason), (due_date, REASON))

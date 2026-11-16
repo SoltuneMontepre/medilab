@@ -26,6 +26,16 @@ class Slot(NamedTuple):
         return self.start + self.length
 
 
+def _slot(found) -> Slot | None:
+    """The scheduler's recommendation as a slot, when its start and length are times."""
+    if not isinstance(found, tuple) or len(found) != 4:
+        return None
+    way, machine, start, length = found
+    if isinstance(start, datetime) and isinstance(length, timedelta):
+        return Slot(way, machine, start, length)
+    return None
+
+
 class DueDateCheck(NamedTuple):
     """What the due date check finds for one date."""
 
@@ -69,24 +79,24 @@ class SampleTestDueDateCheck(models.Model, SampleTestDueDateCheckBase):
         scheduled = test.booking_ids.filtered(lambda booking: booking.status in ACTIVE_STATUSES)
         if scheduled:
             booking = scheduled[:1]
-            held = Slot(
-                test.parameter_method_id, booking.machine_id, booking.starts_at, booking.ends_at - booking.starts_at
-            )
-            if held.end <= due_date:
-                return held, [], None
+            start = booking.starts_at
+            end = booking.ends_at
+            if isinstance(start, datetime) and isinstance(end, datetime):
+                held = Slot(test.parameter_method_id, booking.machine_id, start, end - start)
+                if held.end <= due_date:
+                    return held, [], None
             if "in_progress" in scheduled.mapped("status"):
                 # A measurement that started never moves.
                 return None, [], None
         # The test's own scheduled booking that ends too late moves with it.
         found = bookings._recommend(test, person, department, due_date=due_date, ignore=scheduled)
-        if found:
-            slot = Slot(*found)
+        if found and (slot := _slot(found)):
             return slot, [(booking, slot.start, slot.end) for booking in scheduled], None
         movable = test._movable_bookings(department, scheduled)
         found = movable and bookings._recommend(test, person, department, due_date=due_date, ignore=scheduled | movable)
-        if not found:
+        slot = _slot(found) if found else None
+        if not slot:
             return None, [], None
-        slot = Slot(*found)
         in_the_way = test._bookings_in_the_way(slot, person, movable, scheduled)
         if in_the_way is None:
             return None, [], None
@@ -99,9 +109,9 @@ class SampleTestDueDateCheck(models.Model, SampleTestDueDateCheckBase):
             placed = bookings._recommend(
                 moved_test, booking.person_id, department, planned=planned, ignore=scheduled | movable
             )
-            if not placed:
+            new_slot = _slot(placed) if placed else None
+            if not new_slot:
                 return None, [], booking
-            new_slot = Slot(*placed)
             planned |= bookings.new(moved_test._unsaved_booking(new_slot, booking.person_id))
             moves.append((booking, new_slot.start, new_slot.end))
         return slot, moves, None
@@ -206,12 +216,12 @@ class SampleTestDueDateCheck(models.Model, SampleTestDueDateCheckBase):
         horizon = now + timedelta(days=HORIZON_DAYS)
         reasons = []
         found = bookings._recommend(test, person, department, due_date=horizon, ignore=scheduled)
-        if found:
-            slot = Slot(*found)
+        slot = _slot(found) if found else None
+        if slot:
             reasons.append(
                 self.env._(
                     "The earliest free slot, on %(resource)s, ends %(end)s, after the due date.",
-                    resource=slot.machine.name or slot.way.display_name,
+                    resource=getattr(slot.machine, "name", None) or getattr(slot.way, "display_name", ""),
                     end=moment(slot.end),
                 )
             )
@@ -252,7 +262,7 @@ class SampleTestDueDateCheck(models.Model, SampleTestDueDateCheckBase):
             ignore=scheduled | test._movable_bookings(department, scheduled),
         )
         low, high = (
-            self._local_day(Slot(*best).end if best else latest.end).toordinal(),
+            self._local_day((_slot(best) or latest).end if best else latest.end).toordinal(),
             self._local_day(latest.end).toordinal(),
         )
         while low < high:
