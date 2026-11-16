@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: MediLab laboratory files API
-  version: 1.9.0
+  version: 1.10.0
   description: |
     The API Medilab Sync signs computers in with and reaches laboratory files through, and Medilab Mobile signs phones
     in with. Every refusal answers `{"error": {"code", "message"}}` with the HTTP status of its code; a device acts on
@@ -21,6 +21,7 @@ info:
     | `not_found` | 404 |
     | `method_not_allowed` | 405 |
     | `folder_archived`, `folder_disabled`, `folder_exists`, `locked`, `not_locked`, `upload_incomplete`, `upload_closed`, `action_refused`, `already_claimed`, `result_warning` | 409 |
+    | `too_large` | 413 |
     | `not_eligible`, `not_lockable`, `not_editable`, `idempotency_conflict`, `mandatory_event` | 422 |
     | `too_many_attempts` | 429 |
     | `internal_error` | 500 |
@@ -45,7 +46,9 @@ tags:
   - name: Tasks
     description: The person's day, to-do list and queues, and the actions on tasks.
   - name: Samples
-    description: Scanning a sample's label to record its receipt or claim its testing tasks.
+    description: Scanning a sample's label to record its receipt or claim its testing tasks, and its photos.
+  - name: Attachments
+    description: The files the app shows, downloaded with the person's rights.
   - name: Results
     description: Testing at the bench, entering results and signing or rejecting them.
 paths:
@@ -979,6 +982,119 @@ paths:
           $ref: "#/components/responses/MethodNotAllowed"
         "409":
           $ref: "#/components/responses/ClaimRefused"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /samples/{sample_id}/photos:
+    parameters:
+      - name: sample_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: listSamplePhotos
+      tags: [Samples]
+      summary: Lists the sample's photos the person may read, newest first.
+      description: |
+        Only a person who reads every test request reads a sample's photos; for anyone else, such as a tester, the list
+        is empty. A sample the person may not read answers `not_found`.
+      responses:
+        "200":
+          description: The photos.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SamplePhotoList"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+    post:
+      operationId: attachSamplePhoto
+      tags: [Samples]
+      summary: Attaches a photo taken when the sample is collected or received.
+      description: |
+        The photo is attached with the person's rights, as `action_attach_photo()` attaches it on the web. A person who
+        does not read every test request, or may not change the sample, is refused with `permission_denied`. A photo
+        over 10 MiB once decoded is refused with `too_large` before anything is stored. With an `Idempotency-Key`,
+        repeating the request answers with the photo it attached.
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewSamplePhoto"
+      responses:
+        "200":
+          description: The photo attached.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SamplePhoto"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
+        "413":
+          $ref: "#/components/responses/TooLarge"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /attachments/{attachment_id}:
+    parameters:
+      - name: attachment_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: downloadAttachment
+      tags: [Attachments]
+      summary: Downloads the file with the person's rights.
+      description: A file the person may not read, such as a sample's photo for a tester, answers `not_found`.
+      responses:
+        "200":
+          description: The file's content, with its type.
+          content:
+            "*/*":
+              schema:
+                type: string
+                format: binary
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
         "500":
           $ref: "#/components/responses/InternalError"
         "503":
@@ -2578,7 +2694,9 @@ components:
           description: The person who does the task; empty while it waits in a queue.
           type: string
         location:
-          description: Where the sample of a testing task was taken; empty for any other task.
+          description: |
+            Where the sample of a testing task was taken, or where the samples of a collection task are taken from;
+            empty for any other task.
           type: string
         closed_by_system:
           description: Whether the system marks the task done once its work is done, rather than the assignee.
@@ -2606,7 +2724,7 @@ components:
       allOf:
         - $ref: "#/components/schemas/Task"
         - type: object
-          required: [note, reassign_reason, assigned_by, steps, actions]
+          required: [note, reassign_reason, assigned_by, steps, samples, actions]
           properties:
             note:
               type: string
@@ -2620,8 +2738,26 @@ components:
               type: array
               items:
                 $ref: "#/components/schemas/TaskStep"
+            samples:
+              description: The samples a collection task is for, as the person may read them; empty for any other task.
+              type: array
+              items:
+                $ref: "#/components/schemas/CollectionSample"
             actions:
               $ref: "#/components/schemas/TaskActions"
+    CollectionSample:
+      type: object
+      additionalProperties: false
+      required: [id, code, sampling_location]
+      properties:
+        id:
+          type: integer
+        code:
+          description: The sample's lab code.
+          type: string
+        sampling_location:
+          description: Where the sample is taken from; empty when it is not set.
+          type: string
     TaskStep:
       type: object
       additionalProperties: false
@@ -2732,6 +2868,7 @@ components:
         - customer_sample_name
         - handover
         - tasks
+        - can_add_photos
       properties:
         id:
           type: integer
@@ -2772,6 +2909,49 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Task"
+        can_add_photos:
+          description: Whether the person reads the sample's photos and may attach one; never for a tester.
+          type: boolean
+    SamplePhotoList:
+      type: object
+      additionalProperties: false
+      required: [photos]
+      properties:
+        photos:
+          type: array
+          items:
+            $ref: "#/components/schemas/SamplePhoto"
+    SamplePhoto:
+      type: object
+      additionalProperties: false
+      required: [id, name, mimetype, created_at, created_by]
+      properties:
+        id:
+          description: The attachment, downloaded from `/attachments/{attachment_id}`.
+          type: integer
+        name:
+          type: string
+        mimetype:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        created_by:
+          description: The person who took the photo.
+          type: string
+    NewSamplePhoto:
+      type: object
+      additionalProperties: false
+      required: [name, mimetype, data]
+      properties:
+        name:
+          $ref: "#/components/schemas/Name"
+        mimetype:
+          enum: [image/jpeg, image/png]
+        data:
+          description: The photo in base64, at most 10 MiB once decoded.
+          type: string
+          minLength: 1
     SampleHandover:
       description: The sample's handover to the person's department.
       type: object
@@ -3554,6 +3734,7 @@ components:
                 - not_editable
                 - idempotency_conflict
                 - mandatory_event
+                - too_large
                 - action_refused
                 - already_claimed
                 - result_warning
@@ -3682,6 +3863,18 @@ components:
                     properties:
                       code:
                         enum: [result_warning, action_refused]
+    TooLarge:
+      description: A file over its limit.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error"
+              - properties:
+                  error:
+                    properties:
+                      code:
+                        enum: [too_large]
     MandatoryEvent:
       description: The push of a mandatory event cannot be turned off.
       content:

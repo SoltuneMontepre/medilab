@@ -3,6 +3,7 @@ from . import (
     calendar_event_unavailability,
     task,
     task_authorization,
+    task_collection_mobile,
     task_link_review,
     task_mobile,
     task_reassign,

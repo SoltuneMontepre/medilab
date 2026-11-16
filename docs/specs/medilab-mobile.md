@@ -105,7 +105,7 @@ A push is created when a notification is delivered on the push channel ([SH-11](
 
 - The lists search the person's tasks with `is_mine` and `in_my_queue`, as the web's to-do list and queues do, so both show the same tasks in the same order. A page's `next_after` is how many tasks the pages before it gave.
 - The actions of a task are the buttons the web's form shows the person: claim while it waits in their queue, start and mark done while it is theirs, and assign with the permission to edit it. `GET /me` says whether the person may create and assign tasks, from the same permissions, so the app shows the screens only with them.
-- A testing task gives its method's steps from `method_step_ids`: each step's minutes, instruction, note and location. A collection task gives its planned start and end and its sample's sampling location.
+- A testing task gives its method's steps from `method_step_ids`: each step's minutes, instruction, note and location. A collection task gives its planned start and end, the samples it is for, which are its sample or its test request's samples as the person may read them, and their sampling locations as its place.
 - Claiming a task someone else claimed first is refused with `already_claimed`; a task outside the person's queues with `action_refused`.
 - Assigning and reassigning run the `medilab.task.reassign` wizard's `action_confirm()` on the task, so its checks apply. Moving a task away from its person or department without a reason is refused with `action_refused`: the task refuses it, so the web refuses it the same way. A person outside the task's department takes the task to their department unless the request names one; naming a department and no person puts the task in that department's queue. A person without the permission to edit the task is refused with `permission_denied`.
 - Creating a task by hand creates a task of the general type with the person's rights, in the assignee's department; a task created on the phone never names a document ([SH-10](../functional/shared.md#sh-10-tasks-and-to-do-list)). The task keeps the phone it was created on and its `Idempotency-Key`. A person without the permission to create tasks is refused with `permission_denied`.
@@ -144,8 +144,16 @@ A push is created when a notification is delivered on the push channel ([SH-11](
 
 ### Collecting samples and photos
 
-- Collection tasks are tasks of the sample collection type, listed and marked done through the [task routes](#tasks).
-- `POST /samples/{sample_id}/photos` attaches a photo through `action_attach_photo()`, with the person's rights. `GET /samples/{sample_id}/photos` lists the photos the person may read, which a tester never may.
+| Route | Does |
+| ----- | ---- |
+| `GET /samples/{sample_id}/photos` | The sample's photos the person may read, newest first, each with its name, type, time and who took it |
+| `POST /samples/{sample_id}/photos` | Attaches a photo taken when the sample is collected or received, as `action_attach_photo()` does |
+| `GET /attachments/{attachment_id}` | Downloads a file, such as a photo, with the person's rights |
+
+- Collection tasks are tasks of the sample collection type, listed and marked done through the [task routes](#tasks). The app opens each sample a collection task is for, to photograph it.
+- Photos are the sample's `photo_ids`, which only a person who reads every test request reads. The sample's answer says with `can_add_photos` whether the person reads them and may change the sample, which attaching one needs; the app shows photos only then, so a tester never sees them. A tester's list is empty, a tester's download answers `not_found`, and a tester's photo is refused with `permission_denied`.
+- A photo is sent as a JPEG or PNG in base64, at most 10 MiB once decoded. It is attached with the person's rights and keeps the phone it was taken on and its `Idempotency-Key`.
+- **On the phone first.** The app keeps each photo the camera takes in its own folder before sending it, under a key it generates once. A photo MediLab did not get, with no connection or refused, stays on the phone and the sample's screen lists it, to send again with the same key or to discard.
 
 ### Handover records
 
@@ -222,6 +230,7 @@ Like the Sync updates route, these two are plain `auth='none'` HTTP routes, outs
 - `medilab.mobile.device` has `laboratory_device_id`, required and unique: the phone the token belongs to. Its user is the phone's user.
 - `medilab.task` has `created_by_device_id` and `idempotency_key`, unique together where the key is set: the phone a task was created on by hand and the key of its request.
 - `medilab.test.result` has `created_by_device_id` and `idempotency_key` the same way, for a result entered on a phone, and `check_warning`, the warnings of the sanity check it was sent with.
+- `ir.attachment` has `created_by_device_id` and `idempotency_key` the same way, for a sample photo sent from a phone.
 - `medilab.handover.record.signed_device_id` names the phone's `medilab.laboratory.device`, which is never deleted, rather than its token, which the cleanup job removes once it is off.
 - `medilab.push.delivery` pushes either a notification or a conversation message: `notification_id` or `message_id`, exactly one, each unique with the token.
 - The diagram is [laboratory.prisma](../infrastructure/database/laboratory/laboratory.prisma).

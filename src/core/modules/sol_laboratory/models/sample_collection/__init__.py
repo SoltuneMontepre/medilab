@@ -3,6 +3,7 @@ from . import (
     handover_record,
     handover_record_sample,
     ir_attachment,
+    ir_attachment_mobile,
     sample,
     sample_handover,
     sample_laboratory_folders,

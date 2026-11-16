@@ -11,6 +11,7 @@ import { useSession } from "../../session";
 import { styles as shared } from "../../styles";
 import { Unreachable } from "../connection/Unreachable";
 import { samplePath } from "../documents/documentPath";
+import { CameraPermission } from "../shared/CameraPermission";
 
 /** Reads a sample's label with the camera, or takes its lab code typed when the label cannot be read, and opens the
  * sample as the person may see it. */
@@ -80,16 +81,7 @@ export function ScanScreen() {
           </View>
         )}
         {permission?.granted && <Text style={shared.detail}>{t("scan.hint")}</Text>}
-        {permission && !permission.granted && (
-          <>
-            <Text style={shared.detail}>{t("scan.cameraNeeded")}</Text>
-            {permission.canAskAgain && (
-              <Pressable accessibilityRole="button" style={shared.secondaryButton} onPress={requestPermission}>
-                <Text style={shared.secondaryButtonText}>{t("scan.allowCamera")}</Text>
-              </Pressable>
-            )}
-          </>
-        )}
+        <CameraPermission permission={permission} needed={t("scan.cameraNeeded")} onAllow={requestPermission} />
         <TextInput
           accessibilityLabel={t("scan.code")}
           placeholder={t("scan.code")}
