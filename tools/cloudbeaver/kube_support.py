@@ -58,25 +58,25 @@ class Fixture:
         self.secret("cloudbeaver-admin", {"CB_ADMIN_NAME": "operator", "CB_ADMIN_PASSWORD": PASSWORD})
         self.secret("medilab-db-app", {"username": "regression", "password": "LocalDatabase9"})
         kube("apply", "-f", "-", input=json.dumps({"apiVersion": "v1", "kind": "List", "items": self.resources}))
-        route_document = manifest_document_for_kind(
-            (ROOT / "infra/cluster/cloudbeaver/ingress-route.yaml").read_text(),
-            "IngressRoute",
-        )
-        route = json.loads(
-            kube(
-                "create",
-                "--dry-run=client",
-                "--validate=false",
-                "-f",
-                "-",
-                "-o",
-                "json",
-                input=route_document,
-            ).stdout
-        )
-        route["metadata"]["namespace"] = self.namespace
-        route["spec"]["routes"][0]["match"] = f"Host(`{self.namespace}.test`)"
-        kube("apply", "-f", "-", input=json.dumps(route))
+        route_manifest = (ROOT / "infra/cluster/cloudbeaver/ingress-route.yaml").read_text()
+        for kind in ("Middleware", "IngressRoute"):
+            document = manifest_document_for_kind(route_manifest, kind)
+            resource = json.loads(
+                kube(
+                    "create",
+                    "--dry-run=client",
+                    "--validate=false",
+                    "-f",
+                    "-",
+                    "-o",
+                    "json",
+                    input=document,
+                ).stdout
+            )
+            resource["metadata"]["namespace"] = self.namespace
+            if kind == "IngressRoute":
+                resource["spec"]["routes"][0]["match"] = f"Host(`{self.namespace}.test`)"
+            kube("apply", "-f", "-", input=json.dumps(resource))
 
     def secret(self, name, values):
         value = {
