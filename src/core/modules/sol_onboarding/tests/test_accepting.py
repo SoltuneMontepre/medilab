@@ -76,7 +76,7 @@ class TestAccepting(OnboardingCase):
         return pair, parameter, method, field
 
     def wizard(self, action, **values):
-        return self.env[MODEL_ONBOARDING_ACCEPT].with_user(self.admin).with_context(action["context"]).create(values)
+        return self.env[MODEL_ONBOARDING_ACCEPT].with_user(self.admin).with_context(**action["context"]).create(values)
 
     def lab_pairs_for(self, staged):
         return self.env[MODEL_PARAMETER_METHOD].search([("method_id.code", "=", staged.source_values["method_key"])])

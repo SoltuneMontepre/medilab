@@ -10201,8 +10201,8 @@ msgstr "Nhân sự của %s thuộc phòng ban của tổ; hãy đưa họ ra kh
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/sample_handover.py:0
-msgid "%s has no handover to %s."
-msgstr "%s không được bàn giao cho %s."
+msgid "%(sample)s has no handover to %(department)s."
+msgstr "%(sample)s không được bàn giao cho %(department)s."
 
 #. module: sol_laboratory
 #: model:ir.actions.report,print_report_name:sol_laboratory.action_report_handover_record

@@ -266,7 +266,7 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/sample_handover.py:0
-msgid "%s has no handover to %s."
+msgid "%(sample)s has no handover to %(department)s."
 msgstr ""
 
 #. module: sol_laboratory

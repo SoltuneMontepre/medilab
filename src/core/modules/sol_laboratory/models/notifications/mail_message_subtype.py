@@ -43,10 +43,10 @@ class MailMessageSubtype(models.Model, MailMessageSubtypeBase):
             raise UserError(self.env._("A mandatory event cannot be turned off."))
         return super().write(vals)
 
-    def unlink(self):
+    @api.ondelete(at_uninstall=False)
+    def _unlink_except_mandatory_events(self):
         if not self.env.su and any(event.mandatory for event in self):
             raise UserError(self.env._("A mandatory event cannot be turned off."))
-        return super().unlink()
 
     @api.model
     def _event(self, code):

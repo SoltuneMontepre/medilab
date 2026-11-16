@@ -96,7 +96,13 @@ class SampleHandover(models.Model, SampleHandoverBase):
             [("sample_id", "=", sample.id), ("department_id", "=", person.department_id.id)], limit=1
         )
         if not handover:
-            raise UserError(self.env._("%s has no handover to %s.", sample.code, person.department_id.name))
+            raise UserError(
+                self.env._(
+                    "%(sample)s has no handover to %(department)s.",
+                    sample=sample.code,
+                    department=person.department_id.name,
+                )
+            )
         # Scanning a label again keeps the first receipt.
         if not handover.received_at:
             handover.check_access("write")

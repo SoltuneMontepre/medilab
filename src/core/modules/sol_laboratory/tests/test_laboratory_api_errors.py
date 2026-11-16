@@ -73,8 +73,10 @@ class TestLaboratoryApiErrors(LaboratoryApiCase):
         key = self.signed_in_key(self.tester, "installation")
         devices = type(self.env[MODEL_LABORATORY_DEVICE])
 
+        access_error = "You are not allowed to read this computer."
+
         def unreadable(_device, _current):
-            raise AccessError("You are not allowed to read this computer.")
+            raise AccessError(access_error)
 
         self.patch(devices, "_laboratory_api_values", unreadable)
         response = self.api("GET", "/devices", key=key)

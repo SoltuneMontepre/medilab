@@ -95,10 +95,10 @@ class HandoverRecord(models.Model, HandoverRecordBase):
             raise UserError(self.env._("A handover record is signed only by the customer, on the mobile app."))
         return super().write(vals)
 
-    def unlink(self):
+    @api.ondelete(at_uninstall=False)
+    def _unlink_except_signed_records(self):
         if any(record.status == "signed" for record in self):
             raise UserError(self.env._("A signed handover record cannot be deleted."))
-        return super().unlink()
 
     def action_sign(self, signature, device_id=None):
         """The mobile app sends the customer's handwritten signature as PNG bytes and the device it was signed on."""
