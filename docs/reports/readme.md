@@ -18,7 +18,6 @@ Documents, diagrams and supporting material that belong to no other folder.
 - [Local setup security review](local-setup-security-review.md): Sonar source-to-sink dispositions, private-state integrity fixes and security-owner gates
 - [Cypress Tap and AI Skills](cypress-tap.md): verified capabilities, source pin, installation and validation requirements for local Cypress agent workflows
 - [WF-03 test plan](wf-03-test-plan.md): testing assignment and scheduling: business rules, the scenario matrix and its coverage, concurrency design, confirmed defects and open decisions
-- [Main-flow verification](main-flow-verification/readme.md): WF-01 to WF-06 checked by hand and with the browser tests against the documents and BM04, with the sources, method, pass criteria and the gaps between path IDs and test titles
 
 ## Related documents
 
