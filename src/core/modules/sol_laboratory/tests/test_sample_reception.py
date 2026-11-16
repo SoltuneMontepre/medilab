@@ -10,10 +10,12 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PERMISSION,
     MODEL_PERSON,
     MODEL_ROLE,
+    MODEL_SAMPLE,
     MODEL_SAMPLE_HANDOVER,
     MODEL_SAMPLE_TEST,
     MODEL_SUBCONTRACTOR,
     MODEL_TASK,
+    MODEL_TASK_TYPE,
 )
 from odoo.addons.sol_laboratory.constants.tasks import SAMPLE_COLLECTION_CODE, SAMPLE_TEST_CODE
 from odoo.addons.sol_laboratory.services.model_lookup import reference_as
@@ -94,8 +96,8 @@ class TestSampleReception(RequestCase):
         self.assertEqual(tasks.department_id, self.department)
         self.assertEqual(sample.handover_ids.department_id, self.department)
 
-    def test_damaged_receipt_rejects_the_sample_and_creates_no_testing_task(self):
-        sample = self.receive("1 bottle", "damaged", condition_note="The bottle cracked and the sample leaked.")
+    def test_an_unusable_sample_is_rejected_and_gets_no_testing_task(self):
+        sample = self.receive("1 bottle", "unusable", condition_note="The bottle cracked and the sample leaked.")
 
         self.assertEqual(sample.status, "rejected")
         self.assertEqual(sample.condition_note, "The bottle cracked and the sample leaked.")
@@ -117,9 +119,21 @@ class TestSampleReception(RequestCase):
 
         self.assertEqual(self.request.status, "sample_received")
 
+    def test_an_unusable_or_insufficient_sample_is_never_received_first(self):
+        self.request.action_confirm()
+        for condition in ("unusable", "insufficient"):
+            with self.subTest(condition=condition):
+                sample = self.sample.copy({"request_id": self.request.id})
+                sample.with_user(self.staff.user_id).action_receive("50 mL", condition, condition_note="Leaked.")
+
+                self.assertEqual(sample.status, "rejected" if condition == "unusable" else "on_hold")
+                self.assertFalse(sample.received_at)
+                self.assertFalse(sample.received_by_id)
+                self.assertEqual(self.request.status, "paid")
+
     def test_rejecting_a_sample_without_its_reason_is_refused(self):
         with self.assertRaises(UserError):
-            self.receive("1 bottle", "damaged")
+            self.receive("1 bottle", "unusable")
 
     def test_insufficient_receipt_holds_the_sample_and_tells_the_head(self):
         head = self.env[MODEL_PERSON].create(
@@ -142,10 +156,18 @@ class TestSampleReception(RequestCase):
         self.assertEqual(message.subtype_id, self.env.ref("sol_laboratory.event_sample_insufficient"))
         self.assertEqual(message.notification_ids.res_partner_id, head.user_id.partner_id)
 
-    def test_the_head_of_department_asks_to_collect_again_and_one_task_is_created(self):
+    def test_the_head_of_department_asks_to_collect_again_and_one_task_is_queued(self):
         head = self.head_of(self.department)
+        delivery_role = self.env[MODEL_ROLE].create({"code": "collector", "name": "Sample delivery staff"})
+        collector = self.env[MODEL_PERSON].create(
+            {"name": "Pham Van Giao", "login": "giao.collect", "role_ids": [Command.set(persisted_ids(delivery_role))]}
+        )
+        task_type = self.env[MODEL_TASK_TYPE].search([("code", "=", SAMPLE_COLLECTION_CODE)], limit=1)
         sample = self.receive("50 mL", "insufficient")
 
+        with self.assertRaises(UserError):
+            sample.with_user(head.user_id).action_request_recollection()
+        task_type.write({"route": "role", "role_id": delivery_role.id})
         with self.assertRaises(UserError):
             sample.action_request_recollection()
         sample.with_user(head.user_id).action_request_recollection()
@@ -156,21 +178,42 @@ class TestSampleReception(RequestCase):
             [("type_id.code", "=", SAMPLE_COLLECTION_CODE), ("document_id", "=", sample.id)]
         )
         self.assertEqual(len(tasks), 1)
-        self.assertEqual(tasks.assignee_id, sample.received_by_id)
+        self.assertFalse(tasks.assignee_id)
+        self.assertTrue(tasks.with_user(collector.user_id).in_my_queue)
         with self.assertRaises(UserError):
             sample.with_user(head.user_id).action_request_recollection()
 
-    def test_more_sample_puts_it_back_to_received_with_its_testing_tasks(self):
+    def test_more_sample_receives_it_with_its_testing_tasks(self):
+        self.request.action_confirm()
         sample = self.receive("50 mL", "insufficient")
 
         sample.action_receive_more("1 L")
 
         self.assertEqual(sample.status, "received")
+        self.assertEqual(sample.received_by_id, self.staff)
+        self.assertEqual(self.request.status, "sample_received")
         self.assertTrue(
             self.env[MODEL_TASK].search(
                 [("type_id.code", "=", SAMPLE_TEST_CODE), ("document_id", "in", sample.test_ids.ids)]
             )
         )
+
+    def test_a_held_sample_is_cancelled_with_its_request_and_is_not_collected_again(self):
+        sample = self.receive("50 mL", "insufficient")
+        task = self.env[MODEL_TASK].create(
+            {
+                "type_id": self.env[MODEL_TASK_TYPE].search([("code", "=", SAMPLE_COLLECTION_CODE)], limit=1).id,
+                "name": f"Collect {sample.code} again",
+                "assignee_id": self.staff.id,
+                "document_model": MODEL_SAMPLE,
+                "document_id": sample.id,
+            }
+        )
+
+        self.request.action_cancel()
+
+        self.assertEqual(sample.status, "cancelled")
+        self.assertEqual(task.status, "cancelled")
 
     def test_two_handovers_show_which_department_received_the_sample(self):
         microbiology = self.env[MODEL_DEPARTMENT].create({"name": "Microbiology"})

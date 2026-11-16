@@ -1348,6 +1348,7 @@ msgstr "Được Từ Chối"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_report_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_import_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_return_form
 msgid "Cancel"
 msgstr "Hủy"
 
@@ -2019,6 +2020,7 @@ msgstr "Tạo từ máy tính"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_return__create_uid
 msgid "Created by"
 msgstr "Người tạo"
 
@@ -2107,6 +2109,7 @@ msgstr "Người tạo"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_return__create_date
 msgid "Created on"
 msgstr "Ngày tạo"
 
@@ -2676,6 +2679,7 @@ msgstr "Hiển thị báo cáo PDF mẫu hóa đơn"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_return__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -3792,6 +3796,7 @@ msgstr "Hr trạng thái hiện diện"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_return__id
 msgid "ID"
 msgstr "ID"
 
@@ -4508,6 +4513,7 @@ msgstr "Hoạt động gần nhất"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_return__write_uid
 msgid "Last Updated by"
 msgstr "Cập nhật lần cuối bởi"
 
@@ -4596,6 +4602,7 @@ msgstr "Cập nhật lần cuối bởi"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_return__write_date
 msgid "Last Updated on"
 msgstr "Cập nhật lần cuối vào"
 
@@ -7357,6 +7364,7 @@ msgstr "Cùng Phòng Ban"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_search
 #: code:addons/sol_laboratory/models/testing/test_report.py:0
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__sample_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_return__sample_id
 msgid "Sample"
 msgstr "Mẫu"
 
@@ -7420,6 +7428,8 @@ msgstr "Loại Mẫu"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_handover_record_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__sample_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
 msgid "Samples"
 msgstr "Mẫu"
 
@@ -10313,12 +10323,6 @@ msgid "Condition Note"
 msgstr "Ghi chú tình trạng"
 
 #. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
-msgid "Condition must be good, damaged or insufficient."
-msgstr "Tình trạng phải là tốt, hư hỏng hoặc không đủ lượng."
-
-#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_handover_record_sample_create_all
 msgid "Create handover record samples"
 msgstr "Tạo dòng mẫu của biên bản giao nhận mẫu"
@@ -10337,12 +10341,6 @@ msgstr "Tạo bàn giao mẫu"
 #: model:medilab.permission,name:sol_laboratory.permission_sample_handover_create_own_department
 msgid "Create sample handovers of their department"
 msgstr "Tạo bàn giao mẫu của phòng ban mình"
-
-#. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_handover_record_sample__condition__damaged
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__condition__damaged
-msgid "Damaged"
-msgstr "Hư hỏng"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__sample_retention_reminder_days
@@ -10453,6 +10451,8 @@ msgstr "Dòng Mẫu Của Biên Bản Giao Nhận"
 #. module: sol_laboratory
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_handover_record
 #: model:ir.ui.menu,name:sol_laboratory.menu_handover_record
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__handover_line_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
 msgid "Handover Records"
 msgstr "Biên Bản Giao Nhận Mẫu"
 
@@ -10497,12 +10497,6 @@ msgstr "Chỉ nhân sự mới có thể làm việc này."
 msgid ""
 "Only a received sample can be handed over to a department. Not received: %s"
 msgstr "Chỉ mẫu đã tiếp nhận mới có thể bàn giao cho phòng ban. Chưa tiếp nhận: %s"
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
-msgid "Only a sample on hold can be collected again."
-msgstr "Chỉ mẫu đang tạm giữ mới có thể lấy lại."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -10686,12 +10680,6 @@ msgstr "Số ngày nhắc hết hạn lưu mẫu"
 #: code:addons/sol_laboratory/models/sample_collection/sample.py:0
 msgid "Sample %s arrived insufficient and is on hold."
 msgstr "Mẫu %s đến không đủ lượng và đang tạm giữ."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
-msgid "Sample %s has no one to collect it again."
-msgstr "Mẫu %s không có ai để lấy lại."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -11393,6 +11381,7 @@ msgstr "Xem kết quả thử nghiệm"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_reject_form
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__reject
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
 msgid "Reject"
 msgstr "Từ Chối"
 
@@ -15605,6 +15594,8 @@ msgstr "Sửa yêu cầu lấy mẫu"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__expected_sample_count
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__expected_count
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_handover_record_document
 msgid "Expected Samples"
 msgstr "Số Mẫu Dự Kiến"
 
@@ -17819,3 +17810,211 @@ msgstr "Thời Gian Ngưng Sử Dụng"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form_interruption
 msgid "Usable"
 msgstr "Dùng Được"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_return.py:0
+msgid ""
+"A retained sample is returned only once its retention period is over: %s"
+msgstr "Mẫu lưu chỉ được trả khi đã hết thời hạn lưu: %s"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "A returned sample cannot be changed back: %s"
+msgstr "Mẫu đã trả không thể đổi lại trạng thái: %s"
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_handover_record_sample_actual_count_positive
+msgid "Each sample on a handover record needs at least one actual sample."
+msgstr "Mỗi mẫu trên biên bản giao nhận phải có ít nhất một mẫu thực tế."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__actual_count
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_handover_record_document
+msgid "Actual Samples"
+msgstr "Số Mẫu Thực Tế"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__can_collect_again
+msgid "Can Collect Again"
+msgstr "Có Thể Lấy Lại Mẫu"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__returnable
+msgid "Can Return"
+msgstr "Có Thể Trả"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "Condition must be good, unusable or insufficient."
+msgstr "Tình trạng phải là tốt, không dùng được hoặc không đủ lượng."
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sample_return_create_all
+msgid "Create sample returns"
+msgstr "Tạo bản ghi trả mẫu"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__excess_material
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_handover_record_document
+msgid "Excess Material"
+msgstr "Lượng Mẫu Dư"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__extra_count
+msgid "Extra Samples"
+msgstr "Số Mẫu Thừa"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__returnable__extras
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_return__kind__extras
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_return_search
+msgid "Extra Samples and Excess Material"
+msgstr "Mẫu Thừa và Lượng Mẫu Dư"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__missing_count
+msgid "Missing Samples"
+msgstr "Số Mẫu Thiếu"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_return.py:0
+msgid "Only a person can return a sample."
+msgstr "Chỉ nhân sự mới có thể trả mẫu."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid ""
+"Only a sample on hold, or one whose delivery to a subcontractor failed, is "
+"collected again: %s"
+msgstr ""
+"Chỉ mẫu đang tạm giữ, hoặc mẫu giao cho thầu phụ không thành công, mới được "
+"lấy lại: %s"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_sample_return_create_all
+msgid "Permission: sample.return.create.all"
+msgstr "Quyền: sample.return.create.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_sample_return_read_all
+msgid "Permission: sample.return.read.all"
+msgstr "Quyền: sample.return.read.all"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+msgid "Put On Hold"
+msgstr "Tạm Giữ Mẫu"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sample_return_read_all
+msgid "Read sample returns"
+msgstr "Xem bản ghi trả mẫu"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_return_form
+msgid "Record Return"
+msgstr "Ghi Nhận Trả Mẫu"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__returnable__retained
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_return__kind__retained
+msgid "Retained Sample"
+msgstr "Mẫu Lưu"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_return_search
+msgid "Retained Samples"
+msgstr "Mẫu Lưu"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+msgid "Return"
+msgstr "Trả Mẫu"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_returns.py:0
+msgid "Return %s"
+msgstr "Trả mẫu %s"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_return__kind
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__status__returned
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_return_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_search
+msgid "Returned"
+msgstr "Đã trả mẫu"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_return__returned_at
+msgid "Returned At"
+msgstr "Thời Điểm Trả Mẫu"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_return__returned_by_id
+msgid "Returned By"
+msgstr "Người Trả Mẫu"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_return__returned_to_name
+msgid "Returned To"
+msgstr "Người Nhận Lại"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__return_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+msgid "Returns"
+msgstr "Trả Mẫu"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "Route the %s task type to the role of sample delivery staff first."
+msgstr ""
+"Hãy đặt nơi nhận của loại nhiệm vụ %s là vai trò nhân viên giao nhận mẫu "
+"trước."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_return.py:0
+msgid "Sample %s is no longer kept, so nothing of it can be returned."
+msgstr "Mẫu %s không còn được lưu giữ nên không còn gì để trả."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_return.py:0
+msgid "Sample %s keeps no extra samples or excess material."
+msgstr "Mẫu %s không có mẫu thừa hay lượng mẫu dư."
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_sample_return
+msgid "Sample Return"
+msgstr "Trả Mẫu"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_sample_return
+#: model:ir.ui.menu,name:sol_laboratory.menu_sample_return
+msgid "Sample Returns"
+msgstr "Trả Mẫu"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_return_form
+msgid "Such as 1 extra 500 mL bottle and 300 mL of excess material"
+msgstr "Ví dụ: 1 chai 500 mL thừa và 300 mL mẫu dư"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_handover_record_sample__condition__unusable
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__condition__unusable
+msgid "Unusable"
+msgstr "Không Dùng Được"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_return__description
+msgid "What Was Returned"
+msgstr "Nội Dung Trả"

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo noupdate="1">
+    <!-- One bottle more than the two expected is handed over: it adds no test and stays with the sample. -->
     <record id="demo_handover_record_signed" model="medilab.handover.record">
         <field name="request_id" ref="demo_test_request_reception" />
         <field name="handed_over_at" eval="DateTime.now().strftime('%Y-%m-%d %H:%M:%S')" />
@@ -8,8 +9,8 @@
         <field
             name="sample_ids"
             eval="[
-                Command.create({'sample_id': ref('demo_sample_reception_good'), 'quantity': '2 bottles of 2 L', 'condition': 'good'}),
-                Command.create({'sample_id': ref('demo_sample_reception_damaged'), 'quantity': '1 bottle of 500 mL', 'condition': 'damaged', 'condition_note': 'The bottle cracked and the sample leaked.'}),
+                Command.create({'sample_id': ref('demo_sample_reception_good'), 'actual_count': 3, 'quantity': '3 bottles of 2 L', 'condition': 'good'}),
+                Command.create({'sample_id': ref('demo_sample_reception_damaged'), 'quantity': '1 bottle of 500 mL', 'condition': 'unusable', 'condition_note': 'The bottle cracked and the sample leaked.'}),
             ]"
         />
     </record>
@@ -21,6 +22,31 @@
         <field
             name="sample_ids"
             eval="[Command.create({'sample_id': ref('demo_sample_reception_insufficient'), 'quantity': '1 small head', 'condition': 'insufficient', 'condition_note': 'Below the minimum amount for the sample type.'})]"
+        />
+    </record>
+    <!-- One of the two bottles expected arrives; the other bottle and the source water wait for another collection. -->
+    <record id="demo_handover_record_fewer" model="medilab.handover.record">
+        <field name="request_id" ref="demo_test_request_paid" />
+        <field name="handed_over_at" eval="(DateTime.now() - relativedelta(hours=3)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="handed_over_by_name">Lê Minh Tuấn</field>
+        <field name="received_by_id" ref="demo_person_sample_delivery_staff" />
+        <field
+            name="sample_ids"
+            eval="[Command.create({'sample_id': ref('demo_sample_bottled_water_paid'), 'actual_count': 1, 'quantity': '1 bottle of 500 mL', 'condition': 'good'})]"
+        />
+    </record>
+    <!-- More water than the methods need is handed over; the customer takes it back at the counter with the report. -->
+    <record id="demo_handover_record_excess" model="medilab.handover.record">
+        <field name="request_id" ref="demo_test_request_retention" />
+        <field name="handed_over_at" eval="(DateTime.now() - relativedelta(days=40)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="handed_over_by_name">Nguyễn Thị Lan</field>
+        <field name="received_by_id" ref="demo_person_sample_delivery_staff" />
+        <field
+            name="sample_ids"
+            eval="[
+                Command.create({'sample_id': ref('demo_sample_retained_soon'), 'quantity': '2 bottles of 1.5 L', 'excess_material': 'About 1 L more than the methods need', 'condition': 'good'}),
+                Command.create({'sample_id': ref('demo_sample_returned'), 'quantity': '1 bottle of 500 mL', 'condition': 'good'}),
+            ]"
         />
     </record>
 </odoo>
