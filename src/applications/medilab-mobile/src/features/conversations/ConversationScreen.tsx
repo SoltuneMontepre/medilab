@@ -55,8 +55,10 @@ export function ConversationScreen() {
   }, [call, path, newest]);
 
   const findPeople = useCallback(
-    async (query: string) =>
-      (conversation?.members ?? []).filter((member) => member.name.toLowerCase().includes(query.toLowerCase())),
+    (query: string) =>
+      Promise.resolve(
+        (conversation?.members ?? []).filter((member) => member.name.toLowerCase().includes(query.toLowerCase())),
+      ),
     [conversation],
   );
 

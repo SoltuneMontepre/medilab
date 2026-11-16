@@ -2,7 +2,6 @@
 with the person's rights."""
 
 import base64
-import binascii
 
 from odoo.api import Environment
 from odoo.fields import Domain
@@ -115,7 +114,7 @@ def decoded_files(env: Environment, files):
             raise LaboratoryFileError(TOO_LARGE, env._("%s is larger than 10 MiB.", file["name"]))
         try:
             content = base64.b64decode(file["data"], validate=True)
-        except (binascii.Error, ValueError) as error:
+        except ValueError as error:
             raise LaboratoryFileError(INVALID_REQUEST, env._("%s is not sent as base64.", file["name"])) from error
         decoded.append((file["name"], content, {"mimetype": file.get("mimetype") or "application/octet-stream"}))
     return decoded
