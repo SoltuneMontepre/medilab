@@ -106,7 +106,7 @@ export function payAdvance(order, customer = CUSTOMERS.nuocSach) {
       return callAs("demo.accountant", "account.payment", "action_post", [ids]);
     });
   });
-});
+}
 
 // The customer declines the latest quotation on the portal with a reason.
 export const declineQuotation = helper("declineQuotation", function declineQuotation(order, reason, customer = CUSTOMERS.nuocSach) {
