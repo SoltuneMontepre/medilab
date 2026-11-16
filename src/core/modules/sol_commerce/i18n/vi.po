@@ -1641,6 +1641,11 @@ msgstr ""
 " giữ lại số đơn hàng dưới dạng văn bản."
 
 #. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_person
+msgid "Person"
+msgstr "Nhân Sự"
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 msgid "is paid."
 msgstr "đã được thanh toán."

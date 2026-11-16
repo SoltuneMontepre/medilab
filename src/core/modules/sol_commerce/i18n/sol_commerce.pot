@@ -3308,6 +3308,11 @@ msgid "Performance"
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_person
+msgid "Person"
+msgstr ""
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.contact_form
 #: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
