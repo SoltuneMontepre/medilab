@@ -149,6 +149,8 @@ describe("WF-04 Result entry and approval", () => {
         expect(retest.note).to.contain(reason);
       });
 
+      // The new testing task waits in the queue: the tester claims it before entering the retest.
+      callAs(TESTER, "medilab.sample.test", "action_claim_testing_task", [[test.id]]);
       cy.signInAs("tester");
       enterResult(test, "0.009");
       results(test).then((rows) => {
