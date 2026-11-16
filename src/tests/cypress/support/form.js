@@ -58,16 +58,27 @@ export function search(text, { grouped = false, field } = {}) {
 // Opens a back-office menu as a user does: the app from the apps menu, then each section and entry of the menu bar,
 // given by their external IDs, so it works in every language.
 export function openMenu(app, ...entries) {
-  // An entry with a link has opened once the address is its link; a section only opens its list of entries.
+  // An entry with a link has opened once the address is its link, or /odoo/action-<id> for that menu's action.
+  // The navbar renders data-section as the menu id; the action id is the actionID of that menu.
   const click = (selector) =>
     cy
       .get(selector)
       .first()
       .then(($menu) => {
         const href = $menu.attr("href");
+        const menuId = $menu.attr("data-section");
         cy.wrap($menu, { log: false }).click();
         if (href && href !== "#") {
-          cy.location("pathname").should("eq", href.split("?")[0]);
+          const path = href.split("?")[0];
+          cy.window()
+            .then((win) => win.odoo.loadMenusPromise)
+            .then((menus) => {
+              const actionId = menus?.[menuId]?.actionID;
+              const opened = actionId ? [path, `/odoo/action-${actionId}`] : [path];
+              cy.location("pathname").should((pathname) => {
+                expect(pathname).to.be.oneOf(opened);
+              });
+            });
         }
       });
   cy.get(".o_navbar_apps_menu button").click();
