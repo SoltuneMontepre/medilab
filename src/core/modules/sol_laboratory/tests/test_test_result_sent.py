@@ -35,7 +35,7 @@ class TestTestResultSent(ResultCase):
         message = self.messages(result)
         self.assertEqual(len(message), 1)
         self.assertEqual(message.notification_ids.res_partner_id, self.head.user_id.partner_id)
-        self.assertIn(result.display_name, message.body)
+        self.assertIn(result.display_name, message.body or "")
 
     def test_the_head_of_another_department_is_not_told(self):
         result = self.enter()
