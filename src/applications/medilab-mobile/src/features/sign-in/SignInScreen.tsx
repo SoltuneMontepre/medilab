@@ -59,6 +59,7 @@ export function SignInScreen() {
             key={locale}
             accessibilityRole="radio"
             accessibilityState={{ checked: session.language === locale }}
+            testID={`language-${locale}`}
             style={[styles.language, session.language === locale && styles.chosen]}
             onPress={() => session.setLanguage(locale)}
           >
@@ -84,6 +85,7 @@ export function SignInScreen() {
         <Text style={shared.label}>{t("signIn.login")}</Text>
         <TextInput
           accessibilityLabel={t("signIn.login")}
+          testID="sign-in-login"
           style={shared.input}
           value={login}
           onChangeText={setLogin}
@@ -96,6 +98,7 @@ export function SignInScreen() {
         <Text style={shared.label}>{t("signIn.password")}</Text>
         <TextInput
           accessibilityLabel={t("signIn.password")}
+          testID="sign-in-password"
           style={shared.input}
           value={password}
           onChangeText={setPassword}
@@ -111,6 +114,7 @@ export function SignInScreen() {
         accessibilityState={{ disabled: busy }}
         disabled={busy}
         style={[shared.primaryButton, busy && styles.busy]}
+        testID="sign-in-submit"
         onPress={submit}
       >
         <Text style={shared.primaryButtonText}>{t("signIn.submit")}</Text>
