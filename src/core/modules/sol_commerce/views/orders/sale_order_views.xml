@@ -167,10 +167,11 @@
                     <strong>Skipped catalog selections</strong>
                     <field name="template_omission_note" nolabel="1" readonly="1" />
                 </div>
+                <!-- There is something to pay only once a quotation is sent. -->
                 <div
                     class="alert alert-warning"
                     role="alert"
-                    invisible="not show_unpaid_warning or order_status not in ('claimed', 'confirmed')"
+                    invisible="not show_unpaid_warning or order_status not in ('claimed', 'confirmed') or state == 'draft'"
                 >
                     Nothing has been paid on this order.
                 </div>
