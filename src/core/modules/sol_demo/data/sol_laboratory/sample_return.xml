@@ -2,7 +2,7 @@
 <odoo>
     <!-- Returning extras needs a signed handover record. An update skips signing records that the data files
          created, so a function signs them on every update too. -->
-    <function model="medilab.handover.record" name="_seed_signatures_demo" />
+    <function model="medilab.sample.return" name="_seed_signatures_demo" />
     <data noupdate="1">
         <!-- The customer takes the excess water back at the counter with the report; the sample stays retained. -->
         <record id="demo_sample_return_excess" model="medilab.sample.return">
