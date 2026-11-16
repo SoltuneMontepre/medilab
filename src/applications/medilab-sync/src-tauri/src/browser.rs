@@ -21,6 +21,9 @@ pub fn open_editor_with(
     if file_id <= 0 {
         return Err("Thiếu mã tệp trên máy chủ".into());
     }
+    if endpoint(base, "")?.path() != "/" {
+        return Err("Mở chỉnh sửa trực tuyến chỉ hỗ trợ máy chủ ở đường dẫn gốc.".into());
+    }
     let url = endpoint(base, &format!("medilab/laboratory-files/{file_id}/edit"))?;
     open(url.as_str())
 }
@@ -30,15 +33,15 @@ mod tests {
     use super::*;
 
     #[test]
-    fn default_browser_handoff_preserves_base_path_and_has_no_credentials() {
+    fn default_browser_handoff_uses_the_origin_root_and_has_no_credentials() {
         for (base, expected) in [
             (
                 "https://lims.example",
                 "https://lims.example/medilab/laboratory-files/42/edit",
             ),
             (
-                "http://localhost:8069/odoo/",
-                "http://localhost:8069/odoo/medilab/laboratory-files/42/edit",
+                "http://localhost:8069/",
+                "http://localhost:8069/medilab/laboratory-files/42/edit",
             ),
         ] {
             open_editor_with(base, 42, |url| {
@@ -47,6 +50,16 @@ mod tests {
             })
             .unwrap();
         }
+    }
+
+    #[test]
+    fn editor_handoff_refuses_non_root_installation_paths() {
+        assert_eq!(
+            open_editor_with("https://lims.example/odoo/", 42, |_| {
+                panic!("must not launch an unsupported prefixed editor URL")
+            }),
+            Err("Mở chỉnh sửa trực tuyến chỉ hỗ trợ máy chủ ở đường dẫn gốc.".into())
+        );
     }
 
     #[test]
