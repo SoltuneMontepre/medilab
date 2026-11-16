@@ -31,6 +31,7 @@ from odoo.addons.sol_laboratory.constants.laboratory_uploads import (
 from odoo.addons.sol_laboratory.constants.medilab_mobile import (
     ACTION_REFUSED,
     ALREADY_CLAIMED,
+    ALREADY_TAKEN,
     MANDATORY_EVENT,
     RESULT_WARNING,
 )
@@ -56,6 +57,7 @@ ERROR_STATUSES = {
     ACTION_REFUSED: 409,
     ALREADY_CLAIMED: 409,
     RESULT_WARNING: 409,
+    ALREADY_TAKEN: 409,
     NOT_ELIGIBLE: 422,
     NOT_LOCKABLE: 422,
     NOT_EDITABLE: 422,

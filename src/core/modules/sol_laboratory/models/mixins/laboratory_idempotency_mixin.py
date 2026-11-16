@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 from typing import TYPE_CHECKING, Self
 
 from psycopg2 import IntegrityError, errorcodes
@@ -43,9 +44,16 @@ class LaboratoryIdempotencyMixin(models.AbstractModel, LaboratoryIdempotencyMixi
         record, by the key or by another unique key of the model, make one: the second one's creation fails on the
         unique key and Odoo runs its request again, which then finds the record."""
         values = {**values, self._idempotency_device_field: device.id, "idempotency_key": key or False}
+        with self._once_per_key():
+            return self.create(values)
+
+    @contextmanager
+    def _once_per_key(self):
+        """Store a record of a computer's request, or its key, once: a second request at once that stores the same key
+        fails on the unique key and Odoo runs it again, which then finds the record the first one stored."""
         try:
             with self.env.cr.savepoint(), mute_logger("odoo.sql_db"):
-                return self.create(values)
+                yield
         except IntegrityError as error:
             if error.pgcode != errorcodes.UNIQUE_VIOLATION:
                 raise

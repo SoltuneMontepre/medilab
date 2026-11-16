@@ -2,7 +2,7 @@ import { fireEvent, screen } from "@testing-library/react-native";
 import { router } from "expo-router";
 
 import { fakeMediLab, kept, refusal } from "../../testing/fakeMediLab";
-import { GREETING, day, home, me, task } from "../../testing/home";
+import { GREETING, day, home, me, modules, task } from "../../testing/home";
 import { renderApp } from "../../testing/renderApp";
 
 jest.mock("../../config", () => ({ serverUrl: "https://lab.example" }));
@@ -10,6 +10,7 @@ jest.mock("expo-router", () => ({ router: { push: jest.fn() }, useFocusEffect: j
 
 const OVERDUE = task({ id: 9, name: "Update the chemical waste log", status: "in_progress" });
 const PLANNED = task({ id: 10, name: "Internal audit briefing", planned_start: "2026-11-10T03:00:00+00:00" });
+const SALES = { create_tasks: false, assign_tasks: false, take_support_requests: true };
 const QUEUED = task({
   id: 11,
   name: "Lead (Pb)",
@@ -37,6 +38,7 @@ describe("HomeScreen", () => {
         planned_today: [PLANNED],
         claimable: [QUEUED],
       }),
+      modules(),
     );
     await renderApp();
 
@@ -46,7 +48,7 @@ describe("HomeScreen", () => {
     expect(screen.getByRole("header", { name: "Đang chờ trong hàng đợi (4)" })).toBeOnTheScreen();
     expect(screen.getByRole("button", { name: /^Lead \(Pb\), MS-2026-0042, Chờ nhận/ })).toBeOnTheScreen();
     expect(screen.queryByRole("button", { name: "Tạo nhiệm vụ" })).toBeNull();
-    expect(mediLab.sent.map((sent) => sent.headers.Authorization)).toEqual(["Bearer device-key", "Bearer device-key"]);
+    expect(mediLab.sent.map((sent) => sent.headers.Authorization)).toEqual(Array(3).fill("Bearer device-key"));
 
     await fireEvent.press(screen.getByRole("button", { name: /^Update the chemical waste log/ }));
     expect(router.push).toHaveBeenCalledWith({ pathname: "/tasks/[id]", params: { id: "9" } });
@@ -78,9 +80,25 @@ describe("HomeScreen", () => {
     expect(router.push).toHaveBeenCalledWith("/tasks/new");
   });
 
+  it("offers the support requests to those who handle them with E-commerce installed", async () => {
+    fakeMediLab(...home(SALES, modules("sol_commerce")));
+    await renderApp();
+
+    await fireEvent.press(await screen.findByRole("button", { name: "Yêu cầu hỗ trợ" }));
+    expect(router.push).toHaveBeenCalledWith("/support");
+  });
+
+  it("hides the support requests without E-commerce", async () => {
+    fakeMediLab(...home(SALES));
+    await renderApp();
+
+    expect(await screen.findByText(GREETING)).toBeOnTheScreen();
+    expect(screen.queryByRole("button", { name: "Yêu cầu hỗ trợ" })).toBeNull();
+  });
+
   it("returns to sign-in and removes the key MediLab refuses, such as a revoked phone's", async () => {
     const revoked = refusal(401, "invalid_key", "Thiết bị này chưa đăng nhập.");
-    fakeMediLab(revoked, revoked);
+    fakeMediLab(revoked, revoked, revoked);
     await renderApp();
 
     expect(await screen.findByRole("button", { name: "Đăng nhập" })).toBeOnTheScreen();
@@ -94,7 +112,7 @@ describe("HomeScreen", () => {
     await fireEvent.press(await screen.findByRole("button", { name: "Đăng xuất" }));
 
     expect(await screen.findByRole("button", { name: "Đăng nhập" })).toBeOnTheScreen();
-    expect(mediLab.sent[2]).toMatchObject({ method: "POST", url: "https://lab.example/medilab/api/v1/sign-out" });
+    expect(mediLab.sent[3]).toMatchObject({ method: "POST", url: "https://lab.example/medilab/api/v1/sign-out" });
     expect(kept().has("medilab.device_key")).toBe(false);
   });
 
@@ -110,7 +128,7 @@ describe("HomeScreen", () => {
   });
 
   it("offers to retry when MediLab cannot be reached", async () => {
-    const mediLab = fakeMediLab("unreachable", "unreachable");
+    const mediLab = fakeMediLab("unreachable", "unreachable", "unreachable");
     await renderApp();
 
     expect(await screen.findByText(/Không kết nối được MediLab/)).toBeOnTheScreen();
