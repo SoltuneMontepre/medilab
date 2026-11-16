@@ -48,6 +48,7 @@ function wallClock(value, zone) {
 const SCROLLED_SLOT_OFFSET = 100;
 const SLOT_LANES = ".fc-timegrid-slot-lane[data-time]";
 const SLOT_INTERIOR_MINUTES = 1;
+const SNAP_INTERVAL_MINUTES = 15;
 
 function minutesOfDay(time) {
   const [hours, minutes] = time.split(":").map(Number);
@@ -104,7 +105,8 @@ export function dragBookingToSlot(booking, slot, zone) {
       const interiorOffset = timePosition(lanes, startMinute + SLOT_INTERIOR_MINUTES) - timePosition(lanes, startMinute);
       const grabbed = point(eventBox.left + eventBox.width / 2, eventBox.top + interiorOffset);
       const targetOffset = timePosition(lanes, targetMinute + SLOT_INTERIOR_MINUTES) - timePosition(lanes, startMinute + SLOT_INTERIOR_MINUTES);
-      const dropped = point(column.left + column.width / 2, grabbed.clientY + targetOffset);
+      const snapOffset = timePosition(lanes, SNAP_INTERVAL_MINUTES) - timePosition(lanes, 0);
+      const dropped = point(column.left + column.width / 2, grabbed.clientY + targetOffset - snapOffset);
       cy.wrap($event).trigger("mousedown", { ...grabbed, scrollBehavior: false });
       cy.document().trigger("mousemove", { ...point(grabbed.clientX + 1, grabbed.clientY + 1), scrollBehavior: false });
       cy.document().trigger("mousemove", { ...dropped, scrollBehavior: false });

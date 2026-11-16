@@ -36,11 +36,12 @@ describe("WF-01 order confirmation and test request (F-10)", () => {
     orderAt("confirmed", { advance: false }).then((order) => {
       cy.signInAs("sales");
       cy.openRecord(order);
-      cy.expectRefusal({
-        read: () => cy.readRecord(order, ["order_status"]),
-        action: () => cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]:visible").click(),
-        message: "Verify the order balance before collecting its samples.",
-      });
+      cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]").should("not.exist");
+      callRefused("sale.order", "action_start_sample_collection", [[order.id]]).should(
+        "eq",
+        "Verify the order balance before collecting its samples.",
+      );
+      cy.readRecord(order, ["order_status"]).its("order_status").should("eq", "confirmed");
     });
   });
 });
