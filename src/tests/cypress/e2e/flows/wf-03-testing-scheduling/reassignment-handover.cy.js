@@ -18,6 +18,7 @@ describe("WF-03 the receiving side of a reassignment", () => {
       awayFromQuarterHour();
       book(test).then((booking) => {
         reassign(test.task, PEOPLE.chemistryTester, REASON);
+        // The booking returns to the plan for the new assignee, and the head approves its new slot.
         scheduleState([test]).should((state) => {
           expect(state.tasks[0].assignee_id[1]).to.equal("Ly Van Hung");
           expect(state.tasks[0].reassign_reason).to.equal(REASON);
@@ -25,11 +26,9 @@ describe("WF-03 the receiving side of a reassignment", () => {
           expect(state.bookings[0].status).to.equal("proposed");
           expect(state.bookings[0].person_id[1]).to.equal("Ly Van Hung");
         });
-        // The new assignee's booking reserves nothing until the head approves it.
         callAs(HEAD, "medilab.machine.booking", "action_approve", [[booking.id]]);
         scheduleState([test]).should((state) => {
-          expect(state.bookings[0].status).to.equal("scheduled");
-          expect(state.bookings[0].person_id[1]).to.equal("Ly Van Hung");
+          expect(state.bookings.map((row) => [row.status, row.person_id[1]])).to.deep.equal([["scheduled", "Ly Van Hung"]]);
         });
 
         cy.signInAs("chemistry_tester");

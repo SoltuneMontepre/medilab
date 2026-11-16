@@ -18,9 +18,6 @@ if TYPE_CHECKING:
 else:
     MachineBookingPlanBase = object
 
-# A sample test the plan places has not started.
-PLANNED_TEST_STATUSES = ("waiting", "assigned")
-
 
 # Lịch Đặt Máy: a department's plan is its proposed bookings, which the head approves.
 class MachineBookingPlan(models.Model, MachineBookingPlanBase):
@@ -34,8 +31,8 @@ class MachineBookingPlan(models.Model, MachineBookingPlanBase):
     def _plan(self, departments):
         """Recalculate the plans of the departments.
 
-        Every received, not-started sample test of a department's open testing tasks without a scheduled or running
-        booking has one proposed booking, for the task's assignee when there is one. The plan places them one at a time
+        Every received sample test of a department's open testing tasks that awaits the plan and has no scheduled or
+        running booking has one proposed booking, for the task's assignee when there is one. The plan places them one at a time
         in priority order, each in the earliest slot by its due date where its tester, machine and rooms are free around
         the scheduled bookings and the slots placed before it. A test without such a slot keeps a proposed booking
         without a slot and is suggested for outsourcing. Scheduled bookings never move here.
@@ -90,7 +87,7 @@ class MachineBookingPlan(models.Model, MachineBookingPlanBase):
         for task in tasks:
             test = self.env[MODEL_SAMPLE_TEST].sudo().browse(task.document_id)
             if (
-                test.status not in PLANNED_TEST_STATUSES
+                not test._awaits_plan()
                 or test._booking_refusal()
                 or test.booking_ids.filtered(lambda booking: booking.status in ACTIVE_STATUSES)
                 # Nobody is booked for a parameter they are not authorized for.

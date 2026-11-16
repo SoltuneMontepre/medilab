@@ -8,12 +8,14 @@ export function Button({
   onPress,
   primary = false,
   disabled = false,
-}: Readonly<{ label: string; onPress: () => void; primary?: boolean; disabled?: boolean }>) {
+  testID,
+}: Readonly<{ label: string; onPress: () => void; primary?: boolean; disabled?: boolean; testID?: string }>) {
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityState={{ disabled }}
       disabled={disabled}
+      testID={testID}
       style={[primary ? shared.primaryButton : shared.secondaryButton, disabled && shared.disabled]}
       onPress={onPress}
     >

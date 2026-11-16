@@ -19,6 +19,7 @@ export function TaskRow({ task, onPress }: Readonly<{ task: Task; onPress: () =>
       accessibilityRole="button"
       accessibilityLabel={[task.name, task.document?.code, t(statusKey(task.status)), whenText].filter(Boolean).join(", ")}
       style={shared.card}
+      testID="task-row"
       onPress={onPress}
     >
       <Text style={shared.label}>{task.name}</Text>
