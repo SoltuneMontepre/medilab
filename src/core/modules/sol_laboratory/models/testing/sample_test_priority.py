@@ -23,6 +23,8 @@ else:
     SampleTestPriorityBase = object
 
 PRIORITY_RANKS = {"urgent": 0, "due_soon": 1, "normal": 2}
+# A sample test the plan places has not started.
+PLANNED_TEST_STATUSES = ("waiting", "assigned")
 # Fields that change where the plan places a test.
 PLAN_FIELDS = frozenset({"due_date", "due_date_reason", "marked_urgent"})
 
@@ -69,6 +71,16 @@ class SampleTestPriority(models.Model, SampleTestPriorityBase):
                 test.priority = "due_soon"
             else:
                 test.priority = "normal"
+
+    def _awaits_plan(self):
+        """Whether the department's plan places the test: it has not started, or its latest result is an interrupted
+        one the head of department assessed as needing a retest, which takes a new booking."""
+        self.ensure_one()
+        test = self.sudo()
+        if test.status in PLANNED_TEST_STATUSES:
+            return True
+        latest = test.result_ids.sorted("id")[-1:]
+        return test.status in OPEN_STATUSES and latest.is_interrupted and latest.interruption_assessment == "retest"
 
     def _plan_key(self, department):
         """Where the test goes in the department's plan: by priority class, then the earlier committed return date,
