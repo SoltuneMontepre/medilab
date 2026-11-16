@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- The customer takes the excess water back at the counter with the report; the sample stays retained. -->
+    <record id="demo_sample_return_excess" model="medilab.sample.return">
+        <field name="sample_id" ref="demo_sample_retained_soon" />
+        <field name="kind">extras</field>
+        <field name="description">About 1 L of bottled water the tests did not use</field>
+        <field name="returned_at" eval="(DateTime.now() - relativedelta(days=18)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="returned_by_id" ref="demo_person_sample_delivery_staff" />
+        <field name="returned_to_name">Nguyễn Thị Lan</field>
+    </record>
+    <!-- The customer asks for the retained sample once its retention is over; it ends as returned. -->
+    <record id="demo_sample_return_retained" model="medilab.sample.return">
+        <field name="sample_id" ref="demo_sample_returned" />
+        <field name="kind">retained</field>
+        <field name="description">1 sealed bottle of 500 mL kept after testing</field>
+        <field name="returned_at" eval="(DateTime.now() - relativedelta(days=2)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="returned_by_id" ref="demo_person_sample_delivery_staff" />
+        <field name="returned_to_name">Trần Văn Bình</field>
+    </record>
+</odoo>

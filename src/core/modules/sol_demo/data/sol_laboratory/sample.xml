@@ -208,10 +208,8 @@
         <field name="physical_state">liquid</field>
         <field name="container_type">500 mL glass bottle</field>
         <field name="status">rejected</field>
-        <field name="received_at" eval="DateTime.now().strftime('%Y-%m-%d %H:%M:%S')" />
-        <field name="received_by_id" ref="demo_person_sample_delivery_staff" />
         <field name="received_quantity">1 bottle of 500 mL</field>
-        <field name="condition">damaged</field>
+        <field name="condition">unusable</field>
         <field name="condition_note">The bottle cracked and the sample leaked.</field>
         <field name="test_ids" eval="[Command.create({'parameter_id': ref('demo_test_parameter_ph')})]" />
     </record>
@@ -221,8 +219,6 @@
         <field name="sample_type_id" ref="demo_sample_type_cabbage" />
         <field name="physical_state">solid</field>
         <field name="status">on_hold</field>
-        <field name="received_at" eval="DateTime.now().strftime('%Y-%m-%d %H:%M:%S')" />
-        <field name="received_by_id" ref="demo_person_sample_delivery_staff" />
         <field name="received_quantity">1 small head</field>
         <field name="condition">insufficient</field>
         <field name="condition_note">Below the minimum amount for the sample type.</field>
@@ -246,6 +242,18 @@
         <field name="physical_state">liquid</field>
         <field name="status">retained</field>
         <field name="retained_until" eval="(DateTime.today() - relativedelta(days=1)).strftime('%Y-%m-%d')" />
+        <field name="test_ids" eval="[Command.create({'parameter_id': ref('demo_test_parameter_ph'), 'status': 'approved'})]" />
+    </record>
+    <!-- Retained until five days ago; its return to the customer ends it as returned. -->
+    <record id="demo_sample_returned" model="medilab.sample">
+        <field name="request_id" ref="demo_test_request_retention" />
+        <field name="customer_sample_name">Nước uống đóng chai An Phú khách nhận lại</field>
+        <field name="sample_type_id" ref="demo_sample_type_bottled_water" />
+        <field name="physical_state">liquid</field>
+        <field name="sample_form">Sealed bottle</field>
+        <field name="container_type">500 mL PET bottle</field>
+        <field name="status">retained</field>
+        <field name="retained_until" eval="(DateTime.today() - relativedelta(days=5)).strftime('%Y-%m-%d')" />
         <field name="test_ids" eval="[Command.create({'parameter_id': ref('demo_test_parameter_ph'), 'status': 'approved'})]" />
     </record>
     <record id="demo_sample_disposed" model="medilab.sample">
