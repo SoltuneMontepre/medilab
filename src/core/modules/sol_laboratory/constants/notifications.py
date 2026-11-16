@@ -21,6 +21,7 @@ EVENT_SAMPLE_TEST_AT_RISK = "sample_test.at_risk"
 EVENT_MACHINE_BOOKING_OVERRUN = "machine_booking.overrun"
 EVENT_MACHINE_BOOKING_RETURNED = "machine_booking.returned"
 EVENT_MACHINE_BOOKING_APPROVED = "machine_booking.approved"
+EVENT_MACHINE_BOOKING_MOVED = "machine_booking.moved"
 EVENT_TASK_ASSIGNED = "task.assigned"
 EVENT_TEST_RESULT_INTERRUPTED = "test_result.interrupted"
 # Brevo's create-webhook auth.type bearer. The token is compared, never stored.

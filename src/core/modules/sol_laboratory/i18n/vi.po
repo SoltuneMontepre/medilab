@@ -878,6 +878,7 @@ msgstr "Phê duyệt bằng chữ ký"
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_result__status__approved
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_change_request__status__approved
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_search
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_plan_revision_move__status__approved
 msgid "Approved"
 msgstr "Đã duyệt"
 
@@ -1372,6 +1373,7 @@ msgstr "Hủy yêu cầu thử nghiệm này cùng các mẫu và chỉ tiêu c�
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_subcontract_dispatch__status__cancelled
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__release_reason__cancelled
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_search
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_plan_revision__status__cancelled
 msgid "Cancelled"
 msgstr "Đã hủy"
 
@@ -1682,6 +1684,7 @@ msgstr "Đã xác nhận"
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_file_version__source__conflict
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_editing_session__status__conflict
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_plan_revision_move__status__conflict
 msgid "Conflict"
 msgstr "Xung đột"
 
@@ -2019,6 +2022,8 @@ msgstr "Tạo từ máy tính"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__create_uid
 msgid "Created by"
 msgstr "Người tạo"
 
@@ -2107,6 +2112,8 @@ msgstr "Người tạo"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__create_date
 msgid "Created on"
 msgstr "Ngày tạo"
 
@@ -2467,6 +2474,10 @@ msgstr "Ghi chú gửi phiếu"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_handover_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__department_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__department_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__department_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_plan_revision_search
 msgid "Department"
 msgstr "Phòng Ban"
 
@@ -2676,6 +2687,8 @@ msgstr "Hiển thị báo cáo PDF mẫu hóa đơn"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -2813,6 +2826,7 @@ msgstr "Đến hạn %s"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__due_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__due_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__due_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__due_date
 msgid "Due Date"
 msgstr "Hạn hoàn thành"
 
@@ -3270,6 +3284,7 @@ msgstr "Đang chờ mẫu"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__expected_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__expected_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__committed_date
 msgid "Expected Date"
 msgstr "Ngày hẹn trả kết quả"
 
@@ -3792,6 +3807,8 @@ msgstr "Hr trạng thái hiện diện"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__id
 msgid "ID"
 msgstr "ID"
 
@@ -4508,6 +4525,8 @@ msgstr "Hoạt động gần nhất"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__write_uid
 msgid "Last Updated by"
 msgstr "Cập nhật lần cuối bởi"
 
@@ -4596,6 +4615,8 @@ msgstr "Cập nhật lần cuối bởi"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__write_date
 msgid "Last Updated on"
 msgstr "Cập nhật lần cuối vào"
 
@@ -4727,6 +4748,7 @@ msgstr "Kinh độ"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__machine_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__machine_id
 msgid "Machine"
 msgstr "Máy"
 
@@ -6565,6 +6587,7 @@ msgstr "Quyền"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__person_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role_grant__person_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__person_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__person_id
 msgid "Person"
 msgstr "Nhân Sự"
 
@@ -6955,6 +6978,7 @@ msgstr "Xem quy tắc đồng bộ của mọi thư mục phòng thí nghiệm"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__reason
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__reason
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__reason
 msgid "Reason"
 msgstr "Lý do"
 
@@ -7015,6 +7039,7 @@ msgstr "Quy Chuẩn"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_search
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_change_request__status__rejected
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_plan_revision__status__rejected
 msgid "Rejected"
 msgstr "Từ chối"
 
@@ -7384,6 +7409,7 @@ msgstr "Đã nhận mẫu"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__sample_test_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__sample_test_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__sample_test_id
 msgid "Sample Test"
 msgstr "Chỉ Tiêu Của Mẫu"
 
@@ -7807,6 +7833,9 @@ msgstr "Thống kê"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__status
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__state
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__status
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__status
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_plan_revision_search
 msgid "Status"
 msgstr "Trạng thái"
 
@@ -10820,6 +10849,7 @@ msgstr "%(machine)s không trống cho %(booking)s vào lúc đó."
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_booking_slot_period
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_plan_revision_move_slot_period
 msgid "A booking ends after it starts."
 msgstr "Lịch đặt máy phải kết thúc sau khi bắt đầu."
 
@@ -11393,6 +11423,7 @@ msgstr "Xem kết quả thử nghiệm"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_reject_form
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__reject
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_plan_revision_form
 msgid "Reject"
 msgstr "Từ Chối"
 
@@ -11956,6 +11987,7 @@ msgstr "Mỗi phiên bản của yêu cầu thử nghiệm chỉ có một phi�
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/test_report.py:0
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__approved_by_id
 msgid "Approved By"
 msgstr "Người phê duyệt"
 
@@ -12630,6 +12662,8 @@ msgstr "Yêu cầu thay đổi bạn tạo đã bị từ chối"
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_change_request__status__applied
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_plan_revision__status__applied
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_plan_revision_move__status__applied
 msgid "Applied"
 msgstr "Đã áp dụng"
 
@@ -16856,6 +16890,7 @@ msgstr "Số giờ đặt máy"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__booking_id
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_testing_statistic__kind__booking
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__booking_id
 msgid "Booking"
 msgstr "Đặt máy"
 
@@ -17367,6 +17402,11 @@ msgstr "Mức ưu tiên"
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine_booking__status__proposed
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_plan_revision__status__proposed
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_plan_revision_move__status__proposed
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_plan_revision_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_plan_revision_list
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_plan_revision_search
 msgid "Proposed"
 msgstr "Đề xuất"
 
@@ -17819,3 +17859,229 @@ msgstr "Thời Gian Ngưng Sử Dụng"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form_interruption
 msgid "Usable"
 msgstr "Dùng Được"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/plan_revision_move.py:0
+msgid "%(booking)s moved from %(old)s to %(new)s."
+msgstr "%(booking)s được dời từ %(old)s sang %(new)s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_revision.py:0
+msgid "%(test)s from %(start)s"
+msgstr "%(test)s từ %(start)s"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_revision.py:0
+msgid "%(test)s from %(start)s, after its internal due date"
+msgstr "%(test)s từ %(start)s, sau hạn nội bộ"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_revision.py:0
+msgid "%(test)s has no slot within %(days)s days"
+msgstr "%(test)s không có khoảng thời gian trống trong %(days)s ngày tới"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+msgid ""
+"<span class=\"badge text-bg-info ms-2\" invisible=\"not "
+"is_pinned\">Pinned</span>"
+msgstr ""
+"<span class=\"badge text-bg-info ms-2\" invisible=\"not is_pinned\">Đã "
+"Ghim</span>"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_plan_revision_form
+msgid ""
+"A held-back move would finish after its internal due date, so its booking "
+"keeps its slot until Sales records the customer's agreement to a new "
+"committed return date. A move in conflict would move a booking the head "
+"placed by hand, which no revision moves."
+msgstr ""
+"Lịch đặt bị giữ lại sẽ kết thúc sau hạn nội bộ, nên giữ nguyên khung giờ cho"
+" đến khi bộ phận kinh doanh ghi nhận khách hàng đồng ý ngày hẹn trả kết quả "
+"mới. Lịch đặt xung đột là lịch đặt trưởng phòng đã tự đặt, nên không phương "
+"án nào dời nó."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_plan_revision_move_revision_booking_unique
+msgid "A plan revision moves a booking once."
+msgstr "Một phương án xếp lại lịch chỉ dời một lịch đặt một lần."
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_machine_booking_moved
+msgid "An approved plan revision moved a booking of your task"
+msgstr "Một phương án xếp lại lịch đã duyệt dời lịch đặt của nhiệm vụ của bạn"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_plan_revision_form
+msgid "Approve Moves"
+msgstr "Duyệt Các Lịch Được Dời"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__can_approve
+msgid "Can Approve"
+msgstr "Có Thể Duyệt"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__can_decide
+msgid "Can Decide"
+msgstr "Có Thể Quyết Định"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_plan_revision_move__status__held_back
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_plan_revision_search
+msgid "Held Back"
+msgstr "Bị Giữ Lại"
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_machine_booking_moved
+msgid "Machine booking moved"
+msgstr "Lịch đặt máy được dời"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_revision.py:0
+msgid "Makes room for urgent work: %s"
+msgstr "Nhường chỗ cho việc khẩn: %s"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__move_ids
+msgid "Moves"
+msgstr "Các Lịch Đặt Được Dời"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__ends_at
+msgid "New End"
+msgstr "Kết Thúc Mới"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__starts_at
+msgid "New Start"
+msgstr "Bắt Đầu Mới"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/plan_revision.py:0
+msgid "No move waits for your approval."
+msgstr "Không có lịch đặt được dời nào đang chờ bạn duyệt."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/plan_revision.py:0
+msgid "Only a proposed plan revision can be approved."
+msgstr "Chỉ phương án xếp lại lịch đang đề xuất mới được duyệt."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/plan_revision.py:0
+msgid "Only a proposed plan revision can be rejected."
+msgstr "Chỉ phương án xếp lại lịch đang đề xuất mới bị từ chối được."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/plan_revision.py:0
+msgid "Only the head of an affected department approves its moves."
+msgstr ""
+"Chỉ trưởng phòng của bộ phận bị ảnh hưởng mới duyệt các lịch đặt được dời "
+"của bộ phận đó."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/plan_revision.py:0
+msgid "Only the head of an affected department rejects its plan revision."
+msgstr ""
+"Chỉ trưởng phòng của bộ phận bị ảnh hưởng mới từ chối phương án xếp lại "
+"lịch."
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_plan_revision_move_read_all
+msgid "Permission: plan.revision.move.read.all"
+msgstr "Quyền: plan.revision.move.read.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_plan_revision_move_read_own_department
+msgid "Permission: plan.revision.move.read.own_department"
+msgstr "Quyền: plan.revision.move.read.own_department"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_plan_revision_read_all
+msgid "Permission: plan.revision.read.all"
+msgstr "Quyền: plan.revision.read.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_plan_revision_read_own_department
+msgid "Permission: plan.revision.read.own_department"
+msgstr "Quyền: plan.revision.read.own_department"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__is_pinned
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
+msgid "Pinned"
+msgstr "Đã Ghim"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_plan_revision
+msgid "Plan Revision"
+msgstr "Phương Án Xếp Lại Lịch"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_plan_revision_move
+msgid "Plan Revision Move"
+msgstr "Lịch Đặt Được Dời"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_plan_revision
+#: model:ir.ui.menu,name:sol_laboratory.menu_plan_revision
+msgid "Plan Revisions"
+msgstr "Phương Án Xếp Lại Lịch"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__previous_ends_at
+msgid "Previous End"
+msgstr "Kết Thúc Trước Đó"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__previous_starts_at
+msgid "Previous Start"
+msgstr "Bắt Đầu Trước Đó"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_plan_revision_move_read_all
+msgid "Read plan revision moves"
+msgstr "Xem lịch đặt được dời của phương án xếp lại lịch"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_plan_revision_move_read_own_department
+msgid "Read plan revision moves of their department"
+msgstr "Xem lịch đặt được dời của phương án xếp lại lịch của phòng ban mình"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_plan_revision_read_all
+msgid "Read plan revisions"
+msgstr "Xem phương án xếp lại lịch"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_plan_revision_read_own_department
+msgid "Read plan revisions of their department"
+msgstr "Xem phương án xếp lại lịch của phòng ban mình"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__revision_id
+msgid "Revision"
+msgstr "Phương Án"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/plan_revision_move.py:0
+msgid ""
+"The new slot of %s was taken meanwhile; open the plan revisions again for "
+"the recalculation."
+msgstr ""
+"Khung giờ mới của %s đã bị chiếm trong lúc chờ; hãy mở lại các phương án xếp"
+" lại lịch để xem kết quả tính lại."
+
+

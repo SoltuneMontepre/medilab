@@ -38,7 +38,8 @@ class MachineBookingPlan(models.Model, MachineBookingPlanBase):
         booking has one proposed booking, for the task's assignee when there is one. The plan places them one at a time
         in priority order, each in the earliest slot by its due date where its tester, machine and rooms are free around
         the scheduled bookings and the slots placed before it. A test without such a slot keeps a proposed booking
-        without a slot and is suggested for outsourcing. Scheduled bookings never move here.
+        without a slot and is suggested for outsourcing. Scheduled bookings never move here: urgent work that needs
+        their slots gets a plan revision.
         """
         # ponytail: a department's whole plan is recalculated on every change; start from the changed test if plans
         # grow long.
@@ -69,6 +70,7 @@ class MachineBookingPlan(models.Model, MachineBookingPlanBase):
                 .sample_test_id
             )
             tests |= tests.search([("at_risk", "=", True), ("booking_ids.department_id", "=", department.id)])
+            self._revise(department)
         tests._refresh_risk()
 
     @api.model
