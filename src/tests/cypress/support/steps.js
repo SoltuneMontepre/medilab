@@ -5,19 +5,40 @@ import { beginQuiet, endQuiet, logged, resetQuiet } from "./odoo";
 let number = 0;
 let current = "";
 const open = [];
+let expectedFailure;
 
 beforeEach(() => {
   number = 0;
   current = "";
   resetQuiet();
   open.length = 0;
+  expectedFailure = undefined;
 });
 
 // A failure inside a quiet helper marks the helper's line as failed, as its own commands are not in the log.
 Cypress.on("fail", (error) => {
+  if (expectedFailure) {
+    const handle = expectedFailure;
+    expectedFailure = undefined;
+    return handle(error);
+  }
   open.splice(0).forEach((log) => log.error(error));
   throw error;
 });
+
+// Lets browser-helper tests assert a command failure without the business-step handler rethrowing it first.
+export function expectTestFailure(text) {
+  let observed = false;
+  expectedFailure = (error) => {
+    expect(error.message).to.include(text);
+    observed = true;
+    return false;
+  };
+  return () => {
+    expectedFailure = undefined;
+    expect(observed, "the refusal check must fail").to.be.true;
+  };
+}
 
 // The step the test is in, as the Command Log shows it.
 export const currentStep = () => current;

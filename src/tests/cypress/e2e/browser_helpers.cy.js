@@ -1,18 +1,13 @@
+import { expectTestFailure } from "../support/steps";
+
 const MESSAGE = "Signing is not allowed.";
 const read = () => cy.window().then((win) => win.record);
 
 describe("Browser helper commands", () => {
   let failureHandler;
-  let failureObserved;
 
   function expectFailure(text) {
-    failureObserved = false;
-    failureHandler = (error) => {
-      expect(error.message).to.include(text);
-      failureObserved = true;
-      return false;
-    };
-    Cypress.once("fail", failureHandler);
+    failureHandler = expectTestFailure(text);
   }
 
   beforeEach(() => {
@@ -26,8 +21,7 @@ describe("Browser helper commands", () => {
 
   afterEach(() => {
     if (failureHandler) {
-      Cypress.off("fail", failureHandler);
-      expect(failureObserved, "the refusal check must fail").to.be.true;
+      failureHandler();
     }
   });
 

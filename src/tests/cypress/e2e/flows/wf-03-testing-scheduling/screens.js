@@ -47,7 +47,7 @@ function wallClock(value, zone) {
 
 const SCROLLED_SLOT_OFFSET = 100;
 const SLOT_LANES = ".fc-timegrid-slot-lane[data-time]";
-const SLOT_INTERIOR_MINUTES = 5;
+const SLOT_INTERIOR_MINUTES = 1;
 
 function minutesOfDay(time) {
   const [hours, minutes] = time.split(":").map(Number);

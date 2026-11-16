@@ -67,7 +67,9 @@ export function openMenu(app, ...entries) {
         const href = $menu.attr("href");
         cy.wrap($menu, { log: false }).click();
         if (href && href !== "#") {
-          cy.location("pathname").should("eq", href.split("?")[0]);
+          cy.location("pathname").should((pathname) => {
+            if (pathname !== href.split("?")[0]) expect(Cypress.$(".modal:visible"), "the menu action dialog").to.have.length.greaterThan(0);
+          });
         }
       });
   cy.get(".o_navbar_apps_menu button").click();

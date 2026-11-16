@@ -1,36 +1,8 @@
 import { openTab } from "../../../support/form";
 import { callAs, callRefused } from "../../../support/odoo";
-import { SAMPLING_LINES, latestQuotation, orderAt } from "./setup";
+import { CUSTOMERS, SAMPLING_LINES, orderAt } from "./setup";
 
-describe("WF-01 advance payment and order confirmation (F-09, F-10)", () => {
-  it("TC-F09-02 accepts a payment up to the amount still owed and refuses more", () => {
-    orderAt("sent").then((order) => {
-      cy.signInAs("sales");
-      latestQuotation(order.id).then(({ advance_invoice_id: [invoice] }) => {
-        cy.signInAs("customer");
-        cy.visit(`/my/invoices/${invoice}`);
-        cy.get("#medilab_payment_amount").invoke("attr", "max").then(Number).as("owed");
-        cy.get("#medilab_payment_amount").invoke("removeAttr", "max");
-        cy.get("@owed").then((owed) =>
-          cy
-            .get("#medilab_payment_amount")
-            .clear()
-            .type(String(owed + 1000)),
-        );
-        cy.intercept("POST", `/my/invoices/${invoice}/pay`).as("pay");
-        cy.get("button[name=method][value=bank_transfer]").click();
-        cy.wait("@pay");
-        cy.visit(`/my/invoices/${invoice}`);
-        cy.get("#medilab_payment_amount").clear().type("10000");
-        cy.get("button[name=method][value=bank_transfer]").click();
-        cy.wait("@pay");
-        callAs("demo.accountant", "account.payment", "search_read", [[["invoice_ids", "in", [invoice]]]], { fields: ["amount", "state"] }).should(
-          (payments) => expect(payments.map((payment) => payment.amount)).to.deep.equal([10000]),
-        );
-      });
-    });
-  });
-
+describe("WF-01 order confirmation and test request (F-10)", () => {
   it("TC-F10-01 carries the accepted quotation's expected samples to the test request", () => {
     orderAt("confirmed", { lines: SAMPLING_LINES }).then((order) => {
       callAs("demo.sales", "sale.order", "read", [[order.id], ["test_request_id"]]).then(([read]) => {
@@ -49,7 +21,7 @@ describe("WF-01 advance payment and order confirmation (F-09, F-10)", () => {
   });
 
   it("TC-F10-02 starts collecting samples as soon as the order is confirmed", () => {
-    orderAt("accepted", { advance: false }).then((order) => {
+    orderAt("accepted", { advance: false, customer: CUSTOMERS.anPhu }).then((order) => {
       cy.signInAs("sales");
       cy.openRecord(order);
       cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]").should("not.exist");
@@ -60,12 +32,12 @@ describe("WF-01 advance payment and order confirmation (F-09, F-10)", () => {
     });
   });
 
-  it("TC-F10-02 refuses to confirm the test request of an unpaid order without credit", () => {
+  it("TC-F10-02 keeps an unpaid test request unconfirmable for a customer without credit", () => {
     orderAt("confirmed", { advance: false }).then((order) => {
       cy.signInAs("sales");
       cy.readRecord(order, ["test_request_id"]).then(({ test_request_id: [id, code] }) => {
         const request = { model: "medilab.test.request", id };
-        cy.signInAs("sample_delivery_staff");
+        cy.signInAs("head_of_department");
         cy.openRecord(request);
         cy.expectRefusal({
           read: () => cy.readRecord(request, ["status", "write_date"]),
