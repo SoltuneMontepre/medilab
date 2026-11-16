@@ -14,10 +14,11 @@ beforeEach(() => {
 });
 
 // A failure inside a quiet helper marks the helper's line as failed, as its own commands are not in the log. Cypress
-// stops calling fail listeners at the first that throws, so a test's own listener decides whether the failure stands.
+// calls a test's own listeners, added with cy.on, after this one and stops at the first that throws, so with one of
+// them the test's listener decides whether the failure stands.
 Cypress.on("fail", (error) => {
   open.splice(0).forEach((log) => log.error(error));
-  if (Cypress.listeners("fail").length + cy.listeners("fail").length === 1) throw error;
+  if (!cy.listeners("fail").length) throw error;
 });
 
 // The step the test is in, as the Command Log shows it.

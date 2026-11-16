@@ -182,7 +182,7 @@ A visitor's test starts with `becomeVisitor()` from the same file. It leaves the
 | Function | Use |
 | --- | --- |
 | `newRecord(list)` | Open a list given by its path, such as `/odoo/lab-orders`, or by a function that opens it, click **New** and wait until Odoo has filled in the defaults. |
-| `openMenu(app, ...entries)` | Open a back-office menu as a user does: the app from the apps menu, then each section and entry of the menu bar, by their external IDs from `cypress/support/menus.js`. Wait until the address is the entry's link, or until the entry's dialog shows. |
+| `openMenu(app, ...entries)` | Open a back-office menu as a user does: the app from the apps menu, then each section and entry of the menu bar, by their external IDs from `cypress/support/menus.js`. Wait until the address is the entry's link, or until the entry's form shows in a dialog. |
 | `openRow(text, options)` | Search the shown list for `text`, as `search` does, and open the row that contains it. |
 | `pick(field, text)` | Type into a many2one field and click the suggestion that contains `text`. |
 | `choose(field, label)` | Choose a selection field's value by its label. |

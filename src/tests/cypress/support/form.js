@@ -58,8 +58,8 @@ export function search(text, { grouped = false, field } = {}) {
 // Opens a back-office menu as a user does: the app from the apps menu, then each section and entry of the menu bar,
 // given by their external IDs, so it works in every language.
 export function openMenu(app, ...entries) {
-  // An entry with a link has opened once the address is its link, or its dialog shows, as the address stays; a section
-  // only opens its list of entries.
+  // An entry with a link has opened once the address is its link, or once its form shows in a dialog, as the address
+  // stays; a section only opens its list of entries.
   const click = (selector) =>
     cy
       .get(selector)
@@ -69,7 +69,7 @@ export function openMenu(app, ...entries) {
         cy.wrap($menu, { log: false }).click();
         if (href && href !== "#") {
           cy.window({ log: false }).should((win) => {
-            if (!win.document.querySelector(".modal")) expect(win.location.pathname).to.eq(href.split("?")[0]);
+            if (!win.document.querySelector(".modal .o_form_view")) expect(win.location.pathname).to.eq(href.split("?")[0]);
           });
         }
       });

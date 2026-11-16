@@ -12,7 +12,7 @@ describe("Browser helper commands", () => {
       failureObserved = true;
       return false;
     };
-    Cypress.once("fail", failureHandler);
+    cy.on("fail", failureHandler);
   }
 
   beforeEach(() => {
@@ -25,10 +25,7 @@ describe("Browser helper commands", () => {
   });
 
   afterEach(() => {
-    if (failureHandler) {
-      Cypress.off("fail", failureHandler);
-      expect(failureObserved, "the refusal check must fail").to.be.true;
-    }
+    if (failureHandler) expect(failureObserved, "the refusal check must fail").to.be.true;
   });
 
   it("signs using the visible form action", () => {
