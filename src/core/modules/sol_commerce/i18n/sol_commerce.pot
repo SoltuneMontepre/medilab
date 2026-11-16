@@ -2622,7 +2622,7 @@ msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
-msgid "Nothing has been paid on this order. It can still be confirmed."
+msgid "Nothing has been paid on this order."
 msgstr ""
 
 #. module: sol_commerce
