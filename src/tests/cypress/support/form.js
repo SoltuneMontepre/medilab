@@ -58,8 +58,8 @@ export function search(text, { grouped = false, field } = {}) {
 // Opens a back-office menu as a user does: the app from the apps menu, then each section and entry of the menu bar,
 // given by their external IDs, so it works in every language.
 export function openMenu(app, ...entries) {
-  // An entry with a link has opened once the address is its link, or /odoo/action-<id> for that menu's action.
-  // The navbar renders data-section as the menu id; the action id is the actionID of that menu.
+  // An entry with a link has opened once the address is its link, /odoo/action-<id>, or the action path
+  // Odoo rewrites to. The navbar renders data-section as the menu id; actionID and actionPath come from that menu.
   const click = (selector) =>
     cy
       .get(selector)
@@ -73,10 +73,16 @@ export function openMenu(app, ...entries) {
           cy.window()
             .then((win) => win.odoo.loadMenusPromise)
             .then((menus) => {
-              const actionId = menus?.[menuId]?.actionID;
-              const opened = actionId ? [path, `/odoo/action-${actionId}`] : [path];
+              const menu = menus?.[menuId];
+              const opened = [path];
+              if (menu?.actionID) {
+                opened.push(`/odoo/action-${menu.actionID}`);
+              }
+              if (menu?.actionPath) {
+                opened.push(`/odoo/${menu.actionPath}`);
+              }
               cy.location("pathname").should((pathname) => {
-                expect(pathname).to.be.oneOf(opened);
+                expect(pathname).to.be.oneOf([...new Set(opened)]);
               });
             });
         }
