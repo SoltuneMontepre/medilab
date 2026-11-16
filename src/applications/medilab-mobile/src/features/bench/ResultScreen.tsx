@@ -118,12 +118,16 @@ function Actions({ result, onStep }: Readonly<{ result: Result; onStep: (step: S
   const t = useT();
   const { edit, sign, reject } = result.actions;
   if (!edit && !sign && !reject) {
-    return <Text style={shared.detail}>{t("result.readOnly")}</Text>;
+    return (
+      <Text style={shared.detail} testID="result-read-only">
+        {t("result.readOnly")}
+      </Text>
+    );
   }
   return (
     <>
       {sign && (
-        <Button label={t(result.status === "none" ? "result.send" : "result.approve")} onPress={() => onStep("signing")} primary />
+        <Button label={t(result.status === "none" ? "result.send" : "result.approve")} onPress={() => onStep("signing")} primary testID="result-send" />
       )}
       {edit && (
         <Button label={t("result.change")} onPress={() => onStep("changing")} />
@@ -158,12 +162,13 @@ function Signing({
           accessibilityRole="checkbox"
           accessibilityState={{ checked: acknowledged }}
           style={[styles.acknowledgement, acknowledged && styles.acknowledged]}
+          testID="result-acknowledge"
           onPress={() => setAcknowledged(!acknowledged)}
         >
           <Text style={shared.label}>{t("result.acknowledge")}</Text>
         </Pressable>
       )}
-      <Button label={t("result.sign")} onPress={() => onSign(warned)} primary disabled={!ready} />
+      <Button label={t("result.sign")} onPress={() => onSign(warned)} primary disabled={!ready} testID="result-sign" />
       <Button label={t("result.cancel")} onPress={onCancel} />
     </View>
   );

@@ -1,25 +1,8 @@
-import { newRecord, pick, save } from "../../../support/form";
+import { newRecord, openMenu, openRow, pick, save } from "../../../support/form";
+import { MENU } from "../../../support/menus";
+import { step } from "../../../support/steps";
 import { call, callAs, callRefused, refAs } from "../../../support/odoo";
-import {
-  ADMINISTRATOR,
-  EXPIRED_SUBCONTRACTOR,
-  PARAMETERS,
-  TESTER,
-  archivedSubcontractor,
-  assignedTest,
-  clearDrafts,
-  inDays,
-  newParameter,
-  newSubcontractor,
-  outsourceDialog,
-  outsourcedTest,
-  reportedResult,
-  resultAwaitingApproval,
-  sentDispatch,
-  subcontractorResult,
-  suggestedTest,
-  wayParts,
-} from "./setup";
+import { ADMINISTRATOR, PARAMETERS, TESTER, assignedTest, clearDrafts, inDays, outsourceDialog, outsourcedTest, reportedResult, resultAwaitingApproval, sentDispatch, shownDate, subcontractorResult, suggestedTest } from "./setup";
 
 const REASON = "Máy AAS đang sửa, khách hàng cần kết quả chì trước hạn.";
 const TRACKING = "Viettel Post, VTP 8402 1157 2210";
@@ -27,12 +10,6 @@ const REPORT = "PKQ-NTL-2026-0412.pdf";
 
 const DISPATCH_FIELDS = ["status", "sample_test_ids", "write_date"];
 const ACTIONS = ".o_form_view .o_statusbar_buttons";
-
-// A date as the English back office shows it.
-function shownDate(date) {
-  const [year, month, day] = date.split("-");
-  return `${month}/${day}/${year}`;
-}
 
 // A date as an English list shows it, such as "Nov 4"; another year follows it.
 function listedDate(date) {
@@ -50,9 +27,10 @@ describe("WF-05 Outsourced testing", () => {
     const expected = inDays(7);
     clearDrafts();
     suggestedTest().then((test) => {
+      step("The head of department outsources the suggested test");
       cy.signInAs("head_of_department");
       // The list shows the newest samples first, and its search looks up parameters, not sample codes.
-      cy.visit("/odoo/outsourcing-suggestions");
+      openMenu(MENU.laboratory, MENU.schedule, MENU.outsourcingSuggestions);
       cy.contains(".o_data_row", test.code).contains("button", "Outsource").click();
       cy.get(".modal:visible").within(() => {
         cy.get("[name=reason]").should("not.exist");
@@ -60,6 +38,7 @@ describe("WF-05 Outsourced testing", () => {
       });
       cy.location("pathname").should("match", /medilab\.subcontract\.dispatch\/\d+$/);
       cy.contains(".o_field_widget[name=sample_test_ids] .o_data_row", test.code).should("be.visible");
+      step("The head sets the expected date and the courier, and sends the dispatch");
       cy.get(".o_field_widget[name=expected_date] input").clear().type(shownDate(expected));
       // Only people holding the sample delivery staff role named in the settings take a dispatch.
       cy.location("pathname").then((path) =>
@@ -83,15 +62,19 @@ describe("WF-05 Outsourced testing", () => {
           expect(read.expected_date).to.equal(expected);
           expect(read.courier_id[1]).to.equal("Vo Van Tai");
           cy.readRecord(test, ["status"]).its("status").should("eq", "outsourced");
-          cy.visit("/odoo/outsourcing-schedule?view_type=list");
+          step("The dispatch shows in the outsourcing schedule");
+          openMenu(MENU.laboratory, MENU.schedule, MENU.outsourcingSchedule);
+          cy.get(".o_switch_view.o_list").click();
           cy.contains(".o_data_row", read.code).find("td[name=expected_date]").should("contain", listedDate(expected));
 
+          step("Sample delivery staff find the dispatch to carry");
           cy.signInAs("sample_delivery_staff");
-          cy.visit("/odoo/dispatches-to-carry");
+          openMenu(MENU.laboratory, MENU.schedule, MENU.dispatchesToCarry);
           cy.contains(".o_data_row", read.code).should("be.visible");
 
+          step("The subcontractor enters the result on the portal");
           cy.signInAs("subcontractor");
-          cy.visit("/my/dispatches");
+          cy.get("a[href='/my/dispatches']:visible").first().click();
           cy.contains("a", read.code).click();
           // A negative concentration is refused with the system's message, which the address never carries.
           cy.contains("tr", test.code).within(() => {
@@ -110,16 +93,21 @@ describe("WF-05 Outsourced testing", () => {
         });
         reportedResult(test).then((result) => {
           expect(result.entered_by_id[1]).to.equal("Nguyen Thi Lan");
+          step("The tester sends the subcontractor's result for approval");
           cy.signInAs("tester");
           // The subcontractor's result waiting to be sent comes before any other.
-          cy.openRecord(test);
+          openMenu(MENU.laboratory, MENU.samples, MENU.sampleTests);
+          openRow(test.code);
           cy.get(`${ACTIONS} button[name=action_enter_result]`).should("not.exist");
-          cy.openRecord(result);
+          openMenu(MENU.laboratory, MENU.results, MENU.testResults);
+          openRow(test.code);
           cy.signRecord();
           cy.get(`${ACTIONS} button[name=action_withdraw]:visible`).should("exist");
           cy.readRecord(result, ["status"]).its("status").should("eq", "requested");
+          step("The head of department approves the result");
           cy.signInAs("head_of_department");
-          cy.openRecord(result);
+          openMenu(MENU.laboratory, MENU.results, MENU.testResults);
+          openRow(test.code);
           cy.signRecord();
           cy.get(`${ACTIONS} button[name=action_sign]`).should("not.exist");
           cy.readRecord(result, ["status"]).its("status").should("eq", "approved");
@@ -131,12 +119,14 @@ describe("WF-05 Outsourced testing", () => {
 
   it("TC-WF05-A1 sends a dispatch by a delivery service with its tracking number", () => {
     outsourcedTest().then(({ dispatch }) => {
+      step("The head of department sets the expected date and the delivery service's tracking number");
       cy.signInAs("head_of_department");
       cy.openRecord(dispatch);
       cy.get(".o_field_widget[name=expected_date] input")
         .clear()
         .type(shownDate(inDays(10)));
       cy.get(".o_field_widget[name=delivery_service] input").type(TRACKING);
+      step("The head sends the dispatch, which has no courier");
       cy.sendRecord("action_send");
       cy.get(`${ACTIONS} button[name=action_receive]:visible`).should("exist");
       cy.readRecord(dispatch, ["status", "courier_id", "delivery_service"]).should((read) => {
@@ -149,12 +139,14 @@ describe("WF-05 Outsourced testing", () => {
 
   it("TC-WF05-A2 lets a lab QA enter the result the subcontractor sent back", () => {
     sentDispatch().then(({ test, dispatch }) => {
+      step("The head of department records that the subcontractor received the samples");
       cy.signInAs("head_of_department");
       cy.openRecord(dispatch);
       cy.get(`${ACTIONS} button[name=action_receive]:visible`).click();
       cy.get(`${ACTIONS} button[name=action_receive]`).should("not.exist");
       cy.readRecord(dispatch, ["status"]).its("status").should("eq", "received");
 
+      step("A lab QA enters the result the subcontractor sent back and sends it for approval");
       cy.signInAs("tester");
       cy.openRecord(test);
       cy.get(`${ACTIONS} button[name=action_enter_result]:visible`).click();
@@ -173,6 +165,7 @@ describe("WF-05 Outsourced testing", () => {
   it("TC-WF05-A3 lets the head outsource a test straight away in an emergency, with a reason", () => {
     clearDrafts();
     assignedTest("lead", { days: 30 }).then((test) => {
+      step("The head of department outsources a test that has no suggestion, with a reason");
       cy.signInAs("head_of_department");
       cy.readRecord(test, ["outsourcing_suggested"]).its("outsourcing_suggested").should("eq", false);
       cy.openRecord(test);
@@ -180,6 +173,7 @@ describe("WF-05 Outsourced testing", () => {
         cy.get("[name=reason] textarea").type(REASON);
         cy.get("button[name=action_outsource]").click();
       });
+      step("The test is outsourced in a new dispatch");
       cy.location("pathname").should("match", /medilab\.subcontract\.dispatch\/\d+$/);
       cy.contains(".o_field_widget[name=sample_test_ids] .o_data_row", test.code).should("be.visible");
       cy.readRecord(test, ["status", "emergency_outsource_reason", "dispatch_ids"]).should((read) => {
@@ -188,6 +182,7 @@ describe("WF-05 Outsourced testing", () => {
         expect(read.dispatch_ids).to.have.length(1);
       });
       // Results of an outsourced test are entered once its dispatch is sent.
+      step("No result is entered before the dispatch is sent");
       cy.signInAs("tester");
       cy.openRecord(test);
       cy.get(`${ACTIONS} button[name=action_enter_result]`).should("not.exist");
@@ -197,12 +192,14 @@ describe("WF-05 Outsourced testing", () => {
   it("TC-WF05-A4 lets the head reject the subcontractor's result, and the subcontractor enter a new one", () => {
     const reason = "Kết quả vượt ngưỡng phát hiện của phương pháp, đề nghị đo lại.";
     resultAwaitingApproval().then(({ test, dispatch, result }) => {
+      step("The head of department rejects the subcontractor's result with a reason");
       cy.signInAs("head_of_department");
       cy.openRecord(result);
       cy.rejectRecord(reason);
       cy.readRecord(result, ["status"]).its("status").should("eq", "rejected");
       cy.readRecord(test, ["status"]).its("status").should("eq", "outsourced");
 
+      step("The subcontractor sees the rejection and enters a new result");
       cy.signInAs("subcontractor");
       cy.visit(`/my/dispatches/${dispatch.id}`);
       cy.contains("tr", test.code).should("contain", "Rejected: 4.2").and("contain", reason);
@@ -220,6 +217,7 @@ describe("WF-05 Outsourced testing", () => {
 
   it("TC-WF05-A5 cancels a dispatch before any result, and its test goes in another dispatch", () => {
     sentDispatch().then(({ test, dispatch }) => {
+      step("The head of department cancels a dispatch that has no result");
       cy.signInAs("head_of_department");
       cy.openRecord(dispatch);
       cy.get(`${ACTIONS} button[name=action_cancel]:visible`).click();
@@ -228,6 +226,7 @@ describe("WF-05 Outsourced testing", () => {
       cy.readRecord(dispatch, ["status"]).its("status").should("eq", "cancelled");
       cy.readRecord(test, ["status"]).its("status").should("eq", "outsourced");
 
+      step("The head puts the still outsourced test in a new dispatch");
       newRecord("/odoo/subcontract-dispatches");
       pick("subcontractor_id", "Northern");
       cy.get(".o_field_widget[name=sample_test_ids] .o_field_x2many_list_row_add button").click();
@@ -245,6 +244,7 @@ describe("WF-05 Outsourced testing", () => {
   // Generated by Cypress Author on 2026-11-08.
   it("TC-WF05-A6 lets the head attach the subcontractor's report to a received dispatch → staff carrying it and the subcontractor never read it", () => {
     sentDispatch().then(({ dispatch }) => {
+      step("The head of department records the receipt and attaches the subcontractor's report");
       cy.signInAs("head_of_department");
       cy.openRecord(dispatch);
       cy.sendRecord("action_receive");
@@ -261,10 +261,12 @@ describe("WF-05 Outsourced testing", () => {
       });
 
       // The sample delivery staff still read the dispatch they carried, without its report.
+      step("Staff who carried the dispatch still read it, but not its report");
       cy.signInAs("sample_delivery_staff");
       call("medilab.subcontract.dispatch", "read", [[dispatch.id], ["code"]]).its("0.code").should("eq", dispatch.code);
       callRefused("medilab.subcontract.dispatch", "read", [[dispatch.id], ["report_file"]]).should("match", /not allowed|access/i);
 
+      step("The subcontractor does not see the report");
       cy.signInAs("subcontractor");
       cy.visit(`/my/dispatches/${dispatch.id}`);
       cy.get("main").should("contain", dispatch.code).and("not.contain", REPORT);
@@ -273,7 +275,9 @@ describe("WF-05 Outsourced testing", () => {
 
   it("TC-WF05-E1 refuses to cancel a dispatch whose tests have results", () => {
     sentDispatch().then((sent) => {
+      step("The subcontractor enters a result");
       subcontractorResult(sent);
+      step("Cancelling the dispatch is refused");
       cy.signInAs("head_of_department");
       cy.openRecord(sent.dispatch);
       cy.expectRefusal({
@@ -291,6 +295,7 @@ describe("WF-05 Outsourced testing", () => {
     sentDispatch("chlorpyrifos").then((other) =>
       sentDispatch().then(({ test, dispatch }) => {
         outsourcedTest().then((draft) => {
+          step("The subcontractor sees only its own sent dispatches");
           cy.signInAs("subcontractor");
           cy.visit("/my/dispatches");
           cy.contains("a", dispatch.code).should("be.visible");
@@ -301,6 +306,7 @@ describe("WF-05 Outsourced testing", () => {
             expect(response.body).not.to.contain(draft.test.code);
           });
         });
+        step("Its dispatch shows the tests, never the sample's customer");
         cy.contains("a", dispatch.code).click();
         cy.contains("tr", test.code).should("contain", "Lead (Pb)");
         cy.get("main").should("not.contain", test.sampleName).and("not.contain", test.customerName);
@@ -315,6 +321,7 @@ describe("WF-05 Outsourced testing", () => {
 
   it("TC-WF05-E3 refuses outsourcing straight away without a reason, or a test already in testing", () => {
     assignedTest("lead", { days: 30 }).then((test) => {
+      step("Outsourcing straight away without a reason is refused");
       cy.signInAs("head_of_department");
       cy.openRecord(test);
       openOutsource().within(() => {
@@ -331,6 +338,7 @@ describe("WF-05 Outsourced testing", () => {
       cy.readRecord(test, ["status"]).its("status").should("eq", "assigned");
     });
     assignedTest("lead", { days: 30 }).then((test) => {
+      step("Outsourcing a test already in testing is refused");
       callAs(TESTER, "medilab.test.result", "create", [{ sample_test_id: test.id, value: 2.5 }]);
       cy.signInAs("head_of_department");
       cy.readRecord(test, ["status"]).its("status").should("eq", "testing");
@@ -349,11 +357,13 @@ describe("WF-05 Outsourced testing", () => {
   // Generated by Cypress Author on 2026-11-08.
   it("TC-WF05-E4 refuses to outsource a test through another way than the one the customer accepted → it keeps its accepted way", () => {
     assignedTest("lead", { days: 30, accepted: PARAMETERS.lead.inHouse }).then((test) => {
+      step("The head of department opens a test whose customer accepted the in-house way");
       cy.signInAs("head_of_department");
       cy.openRecord(test);
       // The parameter has a subcontracted way, but the customer accepted the in-house one.
       cy.get(".o_form_view").should("contain", "Sales first obtains a revised quotation the customer accepts.");
       cy.contains(`${ACTIONS} button`, "Outsource").should("not.exist");
+      step("Outsourcing it through another way is refused, and it keeps its accepted way");
       outsourceDialog(test, { reason: REASON }).then((wizard) =>
         callRefused("medilab.sample.test.outsource", "action_outsource", [[wizard]]).should(
           "match",
@@ -368,76 +378,5 @@ describe("WF-05 Outsourced testing", () => {
         }),
       );
     });
-  });
-});
-
-describe("WF-05 feature acceptance criteria", () => {
-  it("TC-F37-01 lets the administrator choose a subcontractor with a valid accreditation on a way of testing", () => {
-    newParameter().then((parameter) => {
-      cy.signInAs("administrator");
-      cy.openRecord(parameter);
-      cy.get(".o_field_widget[name=method_ids] .o_field_x2many_list_row_add button").click();
-      pick("method_id", "ISO 17294-2");
-      // With nothing typed, the suggestions start from the first subcontractor codes, the seeded ones.
-      cy.get(".o_selected_row .o_field_widget[name=subcontractor_id] input").click();
-      cy.get(".o-autocomplete--dropdown-menu").should("contain", "Northern").and("not.contain", "Coastal").and("not.contain", "Mekong");
-      cy.contains(".o-autocomplete--dropdown-item a", "Northern").click();
-      save();
-      call("medilab.parameter.method", "search_read", [[["parameter_id", "=", parameter.id]]], { fields: ["subcontractor_id"] }).should(([way]) =>
-        expect(way.subcontractor_id[1]).to.contain("Northern"),
-      );
-    });
-  });
-
-  it("TC-F37-02 keeps a way's subcontractor after its accreditation expires, and renewing it makes it selectable again", () => {
-    wayParts().then(({ methodId }) =>
-      newSubcontractor().then((subcontractor) =>
-        newParameter().then((first) =>
-          newParameter().then((second) => {
-            const way = (parameter) => ({ parameter_id: parameter.id, method_id: methodId, subcontractor_id: subcontractor.id });
-            callAs(ADMINISTRATOR, "medilab.parameter.method", "create", [way(first)]).then((id) => {
-              const kept = { model: "medilab.parameter.method", id };
-              callAs(ADMINISTRATOR, "medilab.subcontractor", "write", [[subcontractor.id], { accreditation_expiry: inDays(-1) }]);
-              cy.signInAs("administrator");
-              call(kept.model, "write", [[id], { allows_negative: true }]);
-              cy.readRecord(kept, ["subcontractor_id", "allows_negative"]).should((read) => {
-                expect(read.subcontractor_id[0]).to.equal(subcontractor.id);
-                expect(read.allows_negative).to.equal(true);
-              });
-              callRefused(kept.model, "create", [way(second)]).should(
-                "match",
-                new RegExp(`^The accreditation of ${subcontractor.name} expired on .+\\. Renew it before choosing this subcontractor\\.$`),
-              );
-              cy.openRecord(subcontractor);
-              cy.get(".o_field_widget[name=accreditation_expiry] button").click();
-              cy.get(".o_field_widget[name=accreditation_expiry] input")
-                .clear()
-                .type(shownDate(inDays(365)));
-              save();
-              call(kept.model, "create", [way(second)]).should("be.a", "number");
-            });
-          }),
-        ),
-      ),
-    );
-  });
-
-  it("TC-F37-03 refuses to choose an archived subcontractor, or one whose accreditation expired", () => {
-    wayParts().then(({ methodId }) =>
-      newParameter().then((parameter) => {
-        const way = (subcontractor) => ({ parameter_id: parameter.id, method_id: methodId, subcontractor_id: subcontractor.id });
-        cy.signInAs("administrator");
-        refAs(ADMINISTRATOR, EXPIRED_SUBCONTRACTOR).then((expired) =>
-          callRefused("medilab.parameter.method", "create", [way(expired)]).should(
-            "match",
-            /^The accreditation of Coastal .+ expired on .+\. Renew it before choosing this subcontractor\.$/,
-          ),
-        );
-        archivedSubcontractor().then((archived) =>
-          callRefused("medilab.parameter.method", "create", [way(archived)]).should("eq", "Mekong Food Testing is archived and cannot be chosen."),
-        );
-        call("medilab.parameter.method", "search_count", [[["parameter_id", "=", parameter.id]]]).should("eq", 0);
-      }),
-    );
   });
 });
