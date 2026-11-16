@@ -23,6 +23,7 @@
                     <div class="ml_apps_grid">
                         <t t-foreach="this.filteredApps" t-as="app" t-key="app.id">
                             <a t-att-href="this.getMenuItemHref(app)"
+                               t-att-data-menu-xmlid="app.xmlid"
                                class="ml_app_tile"
                                t-att-class="{ 'ml_app_tile_current': app.id === this.currentAppId }"
                                t-att-aria-current="app.id === this.currentAppId ? 'page' : false"

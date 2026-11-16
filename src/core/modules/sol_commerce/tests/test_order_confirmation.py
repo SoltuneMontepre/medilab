@@ -190,7 +190,7 @@ class TestOrderConfirmation(OrderCase):
         with self.assertRaisesRegex(UserError, "Verify the order balance"):
             order.with_user(self.sales).action_start_sample_collection()
         with self.assertRaisesRegex(UserError, "Verify the order balance"):
-            request.sample_ids.action_receive(1, "damaged", "The bottle leaked")
+            request.sample_ids.action_receive(1, "unusable", "The bottle leaked")
         self.assertEqual(request.sample_ids.status, "expected")
 
     def test_a_legacy_unpaid_invoice_blocks_receipt_until_settled(self):
@@ -204,11 +204,11 @@ class TestOrderConfirmation(OrderCase):
         sample = order.test_request_id.sample_ids.with_user(self.sales).sudo()
 
         with self.assertRaisesRegex(UserError, "Verify the order balance"), self.env.cr.savepoint():
-            sample.action_receive(1, "damaged", "The bottle leaked")
+            sample.action_receive(1, "unusable", "The bottle leaked")
         self.assertEqual(sample.status, "expected")
 
         self.env["account.payment"].create_pending_payment(invoice, invoice.amount_residual, "cash").action_post()
-        sample.action_receive(1, "damaged", "The bottle leaked")
+        sample.action_receive(1, "unusable", "The bottle leaked")
         self.assertEqual(sample.status, "rejected")
 
     def test_upgrading_backfills_eligible_legacy_credit_orders(self):

@@ -1,14 +1,15 @@
-import { choose, newRecord, openTab, pick, save, search } from "../../../support/form";
+import { choose, newRecord, openMenu, openRow, openTab, pick, save, search } from "../../../support/form";
+import { MENU } from "../../../support/menus";
 import { callAs, callRefused, refAs } from "../../../support/odoo";
+import { step } from "../../../support/steps";
 import { sentDispatch } from "../wf-05-outsourced-testing/setup";
 import { PARAMETERS, PNG, STAFF, collectionTask, inMinutes, orderCollectionTask, orderRequest, receive, signedRecord, staffRequest, testingTasks } from "./setup";
 
 const HEAD = "demo.head_of_department";
 const SALES = "demo.sales";
 
-// Sample delivery staff record a sample's receipt on its form.
-function receiveOnForm(sample, condition, note) {
-  cy.openRecord(sample);
+// Sample delivery staff record a sample's receipt on its open form.
+function fillReceipt(condition, note) {
   cy.get(".o_field_widget[name=received_quantity] input").type("500 ml");
   choose("condition", condition);
   if (note) {
@@ -17,10 +18,16 @@ function receiveOnForm(sample, condition, note) {
   cy.get(".o_field_widget[name=storage_location] input").type("Tủ lạnh 2");
 }
 
+// Sample delivery staff record a sample's receipt on its form.
+function receiveOnForm(sample, condition, note) {
+  cy.openRecord(sample);
+  fillReceipt(condition, note);
+}
+
 // Sample delivery staff fill in a handover record of one sample on the web, adjusting the expected samples to the
-// `actual` ones handed over and noting `excess` material when given.
-function fillHandoverRecord(request, sample, quantity, { actual, excess } = {}) {
-  newRecord("/odoo/handover-records");
+// `actual` ones handed over and noting `excess` material when given. `list` opens the list of handover records.
+function fillHandoverRecord(request, sample, quantity, { actual, excess, list = "/odoo/handover-records" } = {}) {
+  newRecord(list);
   pick("request_id", request.code);
   cy.get(".o_field_widget[name=handed_over_by_name] input").type("Phạm Thị Hoa");
   pick("received_by_id", "Vo Van Tai");
@@ -55,16 +62,16 @@ function collectAgain(sample) {
   cy.get(".o_statusbar_buttons button[name=action_receive_more_entered]").should("not.exist");
 }
 
-// A person of a department scans the sample's label to record that the department received it.
-function scanLabel(code) {
-  cy.visit("/odoo/action-sol_laboratory.action_medilab_sample_scan");
+// A person of a department scans the sample's label to record that the department received it; `open` opens the scan.
+function scanLabel(code, open = () => cy.visit("/odoo/action-sol_laboratory.action_medilab_sample_scan")) {
+  open();
   cy.get(".modal .o_field_widget[name=code] input").type(code);
   cy.get(".modal button[name=action_confirm]").click();
 }
 
 // A department's receipt of a sample, once its label has been scanned.
-function scanned(code) {
-  scanLabel(code);
+function scanned(code, open) {
+  scanLabel(code, open);
   cy.get(".modal").should("not.exist");
 }
 
@@ -72,34 +79,41 @@ describe("WF-02 Sample reception and handover", () => {
   it("TC-WF02-M receives, labels and hands over a sample the customer brings", () => {
     orderRequest().then((request) => {
       const [sample] = request.samples;
+      step("Sample delivery staff open the sample the customer brings");
       cy.signInAs("sample_delivery_staff");
       // Only the request of an order goes through the paid step.
       cy.readRecord(request, ["status"]).its("status").should("eq", "paid");
+      openMenu(MENU.laboratory, MENU.samples, MENU.sampleList);
+      openRow(sample.code);
+      step("Staff check the expected containers and record the sample's receipt");
       // Staff see the containers expected from the accepted quotation before they record the actual handover.
-      cy.openRecord(sample);
       openTab("expected_sampling");
       cy.get(".o_field_widget[name=expected_sample_count]").should("contain", "1");
       cy.get(".o_field_widget[name=expected_sampling_ids] .o_data_row").should("have.length", 1).and("contain", "Polyethylene bottle");
-      receiveOnForm(sample, "Good");
+      fillReceipt("Good");
       cy.get(".o_statusbar_buttons button[name=action_receive_entered]").click();
       cy.get(".o_statusbar_buttons button[name=action_receive_entered]").should("not.exist");
       cy.readRecord(sample, ["status"]).its("status").should("eq", "received");
       cy.readRecord(request, ["status"]).its("status").should("eq", "sample_received");
 
-      cy.openRecord(request);
+      step("Staff print the labels of the test request");
+      openMenu(MENU.laboratory, MENU.requests, MENU.testRequests);
+      openRow(request.code);
       cy.intercept("POST", "/report/download").as("labels");
       cy.get(".o_statusbar_buttons button[name=action_print_labels]").click();
       cy.wait("@labels").its("response.statusCode").should("eq", 200);
 
-      fillHandoverRecord(request, sample, "500 ml").then((record) => {
+      step("Staff fill in the handover record, which the customer signs");
+      fillHandoverRecord(request, sample, "500 ml", { list: () => openMenu(MENU.laboratory, MENU.samples, MENU.handoverRecords) }).then((record) => {
         // The customer signs on the phone of sample delivery staff.
         callAs(STAFF, "medilab.handover.record", "action_sign", [[record.id], PNG]);
         cy.reload();
         cy.get(".o_field_widget[name=status] .o_arrow_button_current").should("contain", "Signed");
       });
 
+      step("The head of department scans the label, which queues the sample's testing task");
       cy.signInAs("head_of_department");
-      scanned(sample.code);
+      scanned(sample.code, () => openMenu(MENU.laboratory, MENU.samples, MENU.scanLabel));
       cy.readRecord(sample, ["handover_ids"]).then(({ handover_ids }) =>
         cy.readRecord({ model: "medilab.sample.handover", id: handover_ids[0] }, ["received_at"]).its("received_at").should("be.a", "string"),
       );
@@ -115,6 +129,7 @@ describe("WF-02 Sample reception and handover", () => {
     // Sales starts the collection on the confirmed order; the task waits in the queue of sample delivery staff.
     orderCollectionTask().then(({ request, task }) => {
       const [sample] = request.samples;
+      step("Sample delivery staff claim the collection task from the queue");
       cy.signInAs("sample_delivery_staff");
       cy.visit("/odoo/awaiting-tasks");
       search(task.order);
@@ -123,12 +138,15 @@ describe("WF-02 Sample reception and handover", () => {
         expect(read.status).to.equal("assigned");
         expect(read.planned_start).to.equal(false);
       });
+      step("Staff start the collection at the customer's site");
       cy.openRecord(task);
       cy.get(".o_statusbar_buttons button[name=action_start]").click();
       cy.get(".o_statusbar_buttons button[name=action_start]").should("not.exist");
       // The photo and the signature come from the phone of sample delivery staff.
+      step("Staff photograph the sample, and the customer signs the handover record");
       callAs(STAFF, "medilab.sample", "action_attach_photo", [[sample.id], PNG, "collection.png"]);
       signedRecord(request, sample);
+      step("Staff finish the collection task");
       cy.get(".o_statusbar_buttons button[name=action_done]").click();
       cy.get(".o_statusbar_buttons button[name=action_done]").should("not.exist");
       cy.readRecord(task, ["status"]).its("status").should("eq", "done");
@@ -164,11 +182,15 @@ describe("WF-02 Sample reception and handover", () => {
 
   it("TC-WF02-A3 hands a sample tested by two departments to both, and each records its own receipt", () => {
     staffRequest({ samples: [[PARAMETERS.lead, PARAMETERS.coliforms]] }).then(({ samples: [sample] }) => {
+      step("Staff receive a sample that two departments test");
       receive(sample);
+      step("Chemistry scans the label");
       cy.signInAs("head_of_department");
       scanned(sample.code);
+      step("Microbiology scans the label");
       cy.signInAs("microbiology_tester");
       scanned(sample.code);
+      step("The sample shows a handover to each department, with who received it");
       cy.signInAs("sample_delivery_staff");
       cy.openRecord(sample);
       openTab("handovers");
@@ -187,10 +209,12 @@ describe("WF-02 Sample reception and handover", () => {
   it("TC-WF02-A4 puts an insufficient sample on hold until more is collected", () => {
     staffRequest().then((request) => {
       const [sample] = request.samples;
+      step("Staff find the sample insufficient, which puts it on hold");
       receive(sample, "insufficient", "Chỉ có 50 ml.");
       // An insufficient sample is held before any receipt.
       callAs(STAFF, "medilab.sample", "read", [[sample.id], ["status", "received_at"]]).its("0").should("deep.include", { status: "on_hold", received_at: false });
       callAs(STAFF, "medilab.test.request", "read", [[request.id], ["status"]]).its("0.status").should("eq", "paid");
+      step("The head of department is told");
       callAs("demo.administrator", "mail.message", "search_count", [
         [
           ["model", "=", "medilab.sample"],
@@ -198,6 +222,7 @@ describe("WF-02 Sample reception and handover", () => {
           ["notification_ids.res_partner_id.user_ids.login", "=", "demo.head_of_department"],
         ],
       ]).should("eq", 1);
+      step("The head asks for the sample to be collected again");
       cy.signInAs("head_of_department");
       cy.openRecord(sample);
       cy.get(".o_statusbar_buttons button[name=action_request_recollection]").click();
@@ -206,6 +231,7 @@ describe("WF-02 Sample reception and handover", () => {
         cy.readRecord(sample, ["recollection_requested_by_id"]).its("recollection_requested_by_id.0").should("eq", head.id),
       );
 
+      step("Staff collect more sample, which is received and gets its testing task");
       collectAgain(sample);
       cy.readRecord(sample, ["status"]).its("status").should("eq", "received");
       cy.readRecord(request, ["status"]).its("status").should("eq", "sample_received");
@@ -217,12 +243,15 @@ describe("WF-02 Sample reception and handover", () => {
     staffRequest().then((request) => {
       const [sample] = request.samples;
       receive(sample);
+      step("A handover record with a wrong quantity is signed");
       signedRecord(request, sample, "50 ml").then((wrong) => {
         cy.signInAs("sample_delivery_staff");
+        step("Staff record the correction on a new handover record, which the customer signs");
         fillHandoverRecord(request, sample, "500 ml").then((correction) => {
           callAs(STAFF, "medilab.handover.record", "action_sign", [[correction.id], PNG]);
           cy.readRecord(correction, ["status"]).its("status").should("eq", "signed");
         });
+        step("The wrong record stays signed and unchanged");
         cy.readRecord(wrong, ["status", "sample_ids"]).then((read) => {
           expect(read.status).to.equal("signed");
           cy.readRecord({ model: "medilab.handover.record.sample", id: read.sample_ids[0] }, ["quantity"]).its("quantity").should("eq", "50 ml");
@@ -235,17 +264,20 @@ describe("WF-02 Sample reception and handover", () => {
     const note = "Chai bị nứt, mẫu bị rò rỉ.";
     staffRequest().then((request) => {
       const [sample] = request.samples;
+      step("Sample delivery staff find the sample unusable");
       cy.signInAs("sample_delivery_staff");
       // The condition is decided first; an unusable one offers rejecting the sample, never receiving it.
       receiveOnForm(sample, "Unusable");
       cy.contains(".o_statusbar_buttons button", "Receive").should("not.exist");
       cy.contains(".o_statusbar_buttons button", "Reject").should("be.visible");
+      step("Rejecting without saying why is refused");
       cy.expectRefusal({
         read: () => cy.readRecord(sample, ["status"]),
         action: () => cy.get(".o_statusbar_buttons button[name=action_receive_entered]").click(),
         message: "Enter why the sample cannot be tested.",
       });
       cy.get(".o_error_dialog .btn-primary, .modal .btn-close").first().click();
+      step("Staff note why and reject the sample, which gets no testing task");
       cy.get(".o_field_widget[name=condition_note] textarea").type(note);
       cy.get(".o_statusbar_buttons button[name=action_receive_entered]").click();
       cy.get(".o_statusbar_buttons button[name=action_receive_entered]").should("not.exist");
@@ -261,7 +293,9 @@ describe("WF-02 Sample reception and handover", () => {
 
   it("TC-WF02-E2 refuses a label scanned by a person outside the department that tests the sample", () => {
     staffRequest().then(({ samples: [sample] }) => {
+      step("Staff receive the sample for Chemistry");
       receive(sample);
+      step("Sample delivery staff, outside Chemistry, scan its label and are refused");
       cy.signInAs("sample_delivery_staff");
       cy.expectRefusal({
         read: () => cy.readRecord(sample, ["handover_ids"]).then(({ handover_ids }) => cy.readRecord({ model: "medilab.sample.handover", id: handover_ids[0] }, ["received_at"])),
@@ -273,6 +307,7 @@ describe("WF-02 Sample reception and handover", () => {
 
   it("TC-WF02-E3 refuses to confirm a test request without a sample, or with a sample without a parameter", () => {
     staffRequest({ samples: [], confirm: false }).then((request) => {
+      step("Confirming a test request without a sample is refused");
       cy.signInAs("sample_delivery_staff");
       cy.openRecord(request);
       cy.expectRefusal({
@@ -281,6 +316,7 @@ describe("WF-02 Sample reception and handover", () => {
         message: `Test request ${request.code} needs at least one sample before it can be confirmed.`,
       });
     });
+    step("Confirming one whose sample has no parameter is refused");
     staffRequest({ samples: [[]], confirm: false }).then((request) => {
       cy.openRecord(request);
       cy.expectRefusal({
@@ -295,8 +331,10 @@ describe("WF-02 Sample reception and handover", () => {
     staffRequest().then((request) => {
       const [sample] = request.samples;
       receive(sample);
+      step("The customer signs the handover record");
       signedRecord(request, sample).then((record) => {
         cy.signInAs("sample_delivery_staff");
+        step("Its fields are read-only, and changing it is refused");
         cy.openRecord(record);
         cy.get(".o_field_widget[name=handed_over_by_name]").should("have.class", "o_readonly_modifier");
         cy.get(".o_field_widget[name=sample_ids]").should("have.class", "o_readonly_modifier");
@@ -311,16 +349,19 @@ describe("WF-02 Sample reception and handover", () => {
   it("TC-WF02-E5 asks again for a sample whose delivery to the subcontractor failed; it keeps its tests and gets no new testing task", () => {
     sentDispatch("lead").then(({ test, dispatch }) => {
       // The carrier could not deliver it.
+      step("The delivery to the subcontractor fails and the dispatch is cancelled");
       callAs(HEAD, "medilab.subcontract.dispatch", "action_cancel", [[dispatch.id]]);
       callAs(HEAD, "medilab.sample.test", "read", [[test.id], ["sample_id"]]).then(([read]) => {
         const sample = { model: "medilab.sample", id: read.sample_id[0], code: test.code };
         testingTasks(sample).then((before) => {
+          step("The head asks for the sample again, which goes on hold with its tests");
           cy.signInAs("head_of_department");
           cy.openRecord(sample);
           cy.get(".o_statusbar_buttons button[name=action_request_recollection]").click();
           cy.get(".o_field_widget[name=status] .o_arrow_button_current").should("contain", "On Hold");
           cy.readRecord(sample, ["test_ids"]).its("test_ids").should("deep.equal", [test.id]);
 
+          step("Staff collect it again; it keeps its code and testing tasks");
           collectAgain(sample);
           cy.readRecord(sample, ["status", "code"]).should("deep.include", { status: "testing", code: sample.code });
           testingTasks(sample).should((after) => expect(after.map((task) => task.id)).to.deep.equal(before.map((task) => task.id)));
@@ -333,10 +374,12 @@ describe("WF-02 Sample reception and handover", () => {
     orderRequest().then((request) => {
       const [sample] = request.samples;
       callAs(SALES, "sale.order", "search_read", [[["test_request_id", "=", request.id]]], { fields: ["order_line", "amount_total"] }).then(([before]) => {
+        step("Staff record two samples and excess material on the handover record");
         cy.signInAs("sample_delivery_staff");
         cy.readRecord(sample, ["test_ids"]).then(({ test_ids: tests }) => {
           fillHandoverRecord(request, sample, "2 chai 500 ml", { actual: 2, excess: "Dư khoảng 300 ml so với lượng cần" }).then((record) => {
             cy.get(".o_field_widget[name=sample_ids] .o_data_row").should("contain", "Dư khoảng 300 ml so với lượng cần");
+            step("The customer signs, confirming the extra sample and the excess");
             callAs(STAFF, "medilab.handover.record", "action_sign", [[record.id], PNG]);
             cy.readRecord(record, ["sample_ids"]).then(({ sample_ids: [line] }) =>
               cy
@@ -344,6 +387,7 @@ describe("WF-02 Sample reception and handover", () => {
                 .should("deep.include", { expected_count: 1, actual_count: 2, extra_count: 1, excess_material: "Dư khoảng 300 ml so với lượng cần" }),
             );
           });
+          step("No test is added, and the order is unchanged");
           cy.readRecord(sample, ["test_ids"]).its("test_ids").should("deep.equal", tests);
           callAs(SALES, "sale.order", "read", [[before.id], ["order_line", "amount_total"]]).its("0").should("deep.equal", before);
         });
@@ -354,10 +398,13 @@ describe("WF-02 Sample reception and handover", () => {
   it("TC-WF02-E7 keeps a sample not handed over expected until another collection records it on a record of its own", () => {
     staffRequest({ samples: [[PARAMETERS.lead], [PARAMETERS.lead]] }).then((request) => {
       const [first, second] = request.samples;
+      step("The first sample is handed over on a signed record");
       signedRecord(request, first);
+      step("The second sample, not handed over, stays expected");
       cy.signInAs("sample_delivery_staff");
       cy.readRecord(second, ["status", "handover_line_ids"]).should("deep.include", { status: "expected", handover_line_ids: [] });
 
+      step("A later collection records it on a handover record of its own");
       fillHandoverRecord(request, second, "500 ml").then((later) => {
         callAs(STAFF, "medilab.handover.record", "action_sign", [[later.id], PNG]);
         cy.readRecord(second, ["handover_line_ids"]).its("handover_line_ids").should("have.length", 1);
@@ -423,56 +470,4 @@ describe("WF-02 feature acceptance criteria", () => {
     });
   });
 
-  describe("with a permission given to a person", () => {
-    const login = "demo.microbiology_tester";
-
-    // Gives the Microbiology tester's person the right to read every test request (4), or takes it back (3).
-    function setOwnPermission(command) {
-      return refAs("demo.administrator", "sol_demo.demo_person_microbiology_tester").then((person) =>
-        refAs("demo.administrator", "sol_laboratory.permission_test_request_read_all").then((permission) =>
-          callAs("demo.administrator", "medilab.person", "write", [[person.id], { permission_ids: [[command, permission.id]] }]),
-        ),
-      );
-    }
-
-    // Taken back even when the test fails, so the person never keeps a wider access in later tests.
-    afterEach(() => setOwnPermission(3));
-
-    it("TC-F19-01 gives a person every permission of their roles plus their own", () => {
-      staffRequest().then((request) => {
-        setOwnPermission(3);
-        cy.signInAs("microbiology_tester");
-        callRefused("medilab.test.request", "search", [[]]).should("contain", "medilab.test.request");
-        setOwnPermission(4);
-        // Testers' own role still applies alongside the permission given to the person.
-        callAs(login, "medilab.test.request", "search_count", [[["id", "=", request.id]]]).should("eq", 1);
-        callAs(login, "medilab.sample", "search_count", [[["id", "=", request.samples[0].id]]]).should("eq", 1);
-      });
-    });
-  });
-
-  it("TC-F19-02 hides another department's records and keeps a person's team in their department", () => {
-    cy.signInAs("head_of_department");
-    cy.visit("/odoo/department-queue");
-    cy.get(".o_list_renderer").should("not.contain", "Microbiology");
-    callAs("demo.administrator", "medilab.task", "search_count", [[["department_id.name", "=", "Microbiology"]]]).should("be.greaterThan", 0);
-    callAs("demo.head_of_department", "medilab.task", "search_count", [[["department_id.name", "=", "Microbiology"]]]).should("eq", 0);
-    refAs("demo.administrator", "sol_demo.demo_person_chemistry_tester").then((person) =>
-      refAs("demo.administrator", "sol_demo.demo_hr_department_pathogens").then((pathogens) => {
-        cy.signInAs("administrator");
-        callRefused("medilab.person", "write", [[person.id], { team_id: pathogens.id }]).should("match", /^Pathogens is not a team of the department of /);
-      }),
-    );
-  });
-
-  it("TC-F19-03 shows a person without a permission no menu or button, and refuses the call", () => {
-    staffRequest({ confirm: false }).then((request) => {
-      // Testers keep the change requests of the Requests menu, but not its test requests.
-      cy.signInAs("tester");
-      cy.visit("/odoo/change-requests");
-      cy.contains(".o_menu_sections .dropdown-toggle", "Requests").click();
-      cy.get(".o-dropdown--menu").should("contain", "Change Requests").and("not.contain", "Test Requests");
-      callRefused("medilab.test.request", "action_confirm", [[request.id]]).should("contain", "medilab.test.request");
-    });
-  });
 });

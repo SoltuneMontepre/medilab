@@ -1,4 +1,5 @@
 import { callAs, portalPostAs, refAs } from "../../../support/odoo";
+import { helper } from "../../../support/steps";
 
 const SALES = "demo.sales";
 const HEAD_OF_SALES = "demo.head_of_sales";
@@ -27,11 +28,11 @@ export const SAMPLING_LINES = [
 ];
 
 // The catalog product of a parameter that sol_demo seeds.
-export function parameterProduct(xmlId) {
+export const parameterProduct = helper("parameterProduct", function parameterProduct(xmlId) {
   return refAs(SALES, xmlId)
     .then(({ id }) => callAs(SALES, "product.product", "search", [[["parameter_id", "=", id]]], { limit: 1 }))
     .then(([id]) => id);
-}
+});
 
 // The latest quotation of an order, as sales reads it.
 export function latestQuotation(orderId) {
@@ -40,10 +41,10 @@ export function latestQuotation(orderId) {
     order: "revision desc",
     limit: 1,
   }).then(([quotation]) => quotation);
-}
+});
 
 // Cancels drafts the customer left on the portal, which would otherwise become their cart.
-export function clearCarts(customer) {
+export const clearCarts = helper("clearCarts", function clearCarts(customer) {
   return refAs(HEAD_OF_SALES, customer.company)
     .then(({ id }) =>
       callAs(HEAD_OF_SALES, "sale.order", "search", [
@@ -55,7 +56,7 @@ export function clearCarts(customer) {
       ]),
     )
     .then((ids) => ids.length && callAs(HEAD_OF_SALES, "sale.order", "action_sales_cancel", [ids]));
-}
+});
 
 function addSample(order) {
   return refAs(SALES, "sol_demo.demo_sample_type_bottled_water")
@@ -105,27 +106,27 @@ export function payAdvance(order, customer = CUSTOMERS.nuocSach) {
       return callAs("demo.accountant", "account.payment", "action_post", [ids]);
     });
   });
-}
+});
 
 // The customer declines the latest quotation on the portal with a reason.
-export function declineQuotation(order, reason, customer = CUSTOMERS.nuocSach) {
+export const declineQuotation = helper("declineQuotation", function declineQuotation(order, reason, customer = CUSTOMERS.nuocSach) {
   return portalPostAs(customer.login, `/orders/${order.id}/quotation`, `/orders/${order.id}/quotation/decline`, { reason });
-}
+});
 
 // Sales revises the declined quotation and sends the next revision; the Head of Sales sends one without an advance.
-export function reviseQuotation(order, { advance = true } = {}) {
+export const reviseQuotation = helper("reviseQuotation", function reviseQuotation(order, { advance = true } = {}) {
   const login = advance ? SALES : HEAD_OF_SALES;
   callAs(login, "sale.order", "action_revise_quotation", [[order.id]]);
   return callAs(login, "sale.order", "action_send_quotation", [[order.id]]);
-}
+});
 
 // An order for Lead (Pb), or the parameters and quantities of `lines`, taken through every step before `stage` by the
 // actor who does it. Without `advance` the Head of Sales sends the quotation and the customer accepts it on the portal.
-export function orderAt(
+export const orderAt = helper("orderAt", function orderAt(
   stage,
   { customer = CUSTOMERS.nuocSach, advance = true, sample = true, lines = [["sol_demo.demo_test_parameter_lead", 1]] } = {},
 ) {
-  expect(STAGES, "order stage").to.include(stage);
+  if (!STAGES.includes(stage)) expect(STAGES, "order stage").to.include(stage);
   const reached = (name) => STAGES.indexOf(stage) >= STAGES.indexOf(name);
   const order = { model: "sale.order" };
   refAs(SALES, customer.company).then(({ id }) => (order.customerId = id));
@@ -171,4 +172,6 @@ export function orderAt(
     cy.then(() => payAdvance(order, customer));
   }
   return cy.then(() => order);
-}
+});
+
+export const REASON = "Giá xét nghiệm chì cao hơn báo giá năm trước.";
