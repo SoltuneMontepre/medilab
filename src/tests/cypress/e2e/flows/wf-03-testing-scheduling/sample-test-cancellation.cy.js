@@ -15,10 +15,7 @@ import {
 
 const REASON = "The sample cannot be tested for this parameter.";
 
-beforeEach(() => {
-  resetFixtures();
-  cy.viewport(1440, 900);
-});
+beforeEach(resetFixtures);
 afterEach(releaseFixtures);
 
 describe("SF-10 cancelling a sample test", () => {

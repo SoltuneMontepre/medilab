@@ -1,6 +1,7 @@
 import { callAs, refAs } from "../../../support/odoo";
 import { PARAMETERS, assign, book, receivedSample, testingTasks as sampleTestingTasks, testOf } from "../wf-03-testing-scheduling/setup";
 import { ADMINISTRATOR, TESTER, assignedTest } from "../wf-05-outsourced-testing/setup";
+import { helper } from "../../../support/steps";
 
 export { TESTER, assignedTest };
 export const HEAD = "demo.head_of_department";
@@ -12,14 +13,14 @@ export function testingTasks(test) {
 }
 
 // The results of a sample test, the latest entered first.
-export function results(test) {
+export const results = helper("results", function results(test) {
   return callAs(TESTER, "medilab.test.result", "search_read", [[["sample_test_id", "=", test.id]]], {
     fields: ["status", "is_reported"],
   }).then((rows) => rows.map((row) => ({ ...row, model: "medilab.test.result" })));
-}
+});
 
 // An in-house sample test assigned to the tester, whose result the tester entered and sent for approval.
-export function sentResult() {
+export const sentResult = helper("sentResult", function sentResult() {
   return assignedTest("lead", { days: 7 }).then((test) =>
     callAs(TESTER, "medilab.test.result", "create", [{ sample_test_id: test.id, value: 0.008 }]).then((id) =>
       callAs(TESTER, "medilab.test.result", "action_sign", [[id]]).then(() => ({
@@ -28,24 +29,24 @@ export function sentResult() {
       })),
     ),
   );
-}
+});
 
 // A result entered for the test as the tester, as the result form saves it.
-export function enteredResult(test, values) {
+export const enteredResult = helper("enteredResult", function enteredResult(test, values) {
   return callAs(TESTER, "medilab.test.result", "create", [{ sample_test_id: test.id, ...values }]).then((id) => ({
     model: "medilab.test.result",
     id,
   }));
-}
+});
 
 // A result the tester entered and sent, and the head of department approved.
-export function approvedResult(test, values) {
+export const approvedResult = helper("approvedResult", function approvedResult(test, values) {
   return enteredResult(test, values).then((result) => {
     callAs(TESTER, "medilab.test.result", "action_sign", [[result.id]]);
     callAs(HEAD, "medilab.test.result", "action_sign", [[result.id]]);
     return cy.wrap(result, { log: false });
   });
-}
+});
 
 // A lead test assigned to the tester and booked on its machine, which chooses its way of testing.
 export function bookedLead() {
@@ -57,7 +58,7 @@ export function bookedLead() {
 
 // A bottled water sample whose lead and pH tests are assigned to the tester. The lead test is booked on its machine
 // and started, so it is in testing with its booking; pH, which no machine runs, waits assigned.
-export function leadInTesting() {
+export const leadInTesting = helper("leadInTesting", function leadInTesting() {
   return receivedSample([PARAMETERS.lead, PARAMETERS.ph]).then((sample) => {
     assign(sample);
     testOf(sample, PARAMETERS.ph).then((ph) => (sample.ph = ph));
@@ -73,10 +74,10 @@ export function leadInTesting() {
       });
     return cy.then(() => sample);
   });
-}
+});
 
 // A parameter of the Heavy metals group the administrator adds, tested in Chemistry by TCVN 7602:2007.
-export function newParameter() {
+export const newParameter = helper("newParameter", function newParameter() {
   const parameter = { model: "medilab.test.parameter", name: `Arsenic (As) ${Date.now()}` };
   const ids = {};
   refAs(ADMINISTRATOR, "sol_demo.demo_parameter_group_heavy_metals").then(({ id }) => (ids.group = id));
@@ -94,10 +95,10 @@ export function newParameter() {
       ]),
     )
     .then((id) => Object.assign(parameter, { id }));
-}
+});
 
 // A regulation for bottled water the administrator adds, limiting lead in it to at most `max` mg/L.
-export function newRegulation(max) {
+export const newRegulation = helper("newRegulation", function newRegulation(max) {
   const ids = {};
   refAs(ADMINISTRATOR, "sol_demo.demo_sample_type_bottled_water").then(({ id }) => (ids.sampleType = id));
   refAs(ADMINISTRATOR, PARAMETERS.lead).then(({ id }) => (ids.lead = id));
@@ -116,4 +117,4 @@ export function newRegulation(max) {
       ]),
     )
     .then((id) => ({ model: "medilab.regulation", id }));
-}
+});

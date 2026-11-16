@@ -1,3 +1,4 @@
+import { step } from "../../../support/steps";
 import { callAs, callRefused, refAs } from "../../../support/odoo";
 import { pick, search } from "../../../support/form";
 import { scheduleState, eventsGone } from "./state";
@@ -16,10 +17,7 @@ import {
   scheduleThroughScreen,
 } from "./setup";
 
-beforeEach(() => {
-  resetFixtures();
-  cy.viewport(1440, 900);
-});
+beforeEach(resetFixtures);
 afterEach(releaseFixtures);
 
 describe("WF-03 current permission and validation boundaries", () => {
@@ -92,11 +90,13 @@ describe("WF-03 current permission and validation boundaries", () => {
 
   it("TC-WF03-E2 partial flags a test no machine can finish before its due date, hides Schedule and refuses RPC", () => {
     assignedChromium({ days: 0 }).then(({ test }) => {
+      step("The tester opens a test no machine can finish before its due date");
       cy.signInAs("tester");
       cy.openRecord(test);
       cy.get(".o_form_view .o_field_widget[name=status]").should("be.visible");
       cy.get(".o_form_view .alert.alert-warning").should("be.visible");
       cy.get(".o_statusbar_buttons button[name=action_schedule]").should("not.exist");
+      step("Scheduling it is refused, and nothing is reserved");
       scheduleState(test).then((before) => {
         callRefused("medilab.sample.test", "action_schedule", [[test.id]]).should("match", /^No machine can finish .+ before its due date\.$/);
         scheduleState(test).should("deep.equal", before);
