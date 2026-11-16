@@ -50,7 +50,8 @@ const SCROLLED_SLOT_OFFSET = 100;
 // The vertical position of a clock time inside the rendered lane that contains it. Lanes follow the calendar's slot
 // duration, which is coarser than the quarter hour a booking can start on.
 function pointInLanes(clock) {
-  const wanted = Number(clock.hour) * 60 + Number(clock.minute);
+  const [clockHour, clockMinute] = clock.time.split(":");
+  const wanted = Number(clockHour) * 60 + Number(clockMinute);
   const lanes = [...Cypress.$(".fc-timegrid-slot-lane")]
     .map((lane) => {
       const [hour, minute] = lane.getAttribute("data-time").split(":").map(Number);
