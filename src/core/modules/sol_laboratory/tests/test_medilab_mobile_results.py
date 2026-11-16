@@ -52,8 +52,8 @@ class TestMedilabMobileResults(SanityCheckCase, LaboratoryApiCase):
             headers=headers,
         )
 
-    def signed_on_phone(self, person, result_id, body=CONFIRMED):
-        return self.on_phone(person, "POST", f"/results/{result_id}/sign", body)
+    def signed_on_phone(self, person, result_id, body=None):
+        return self.on_phone(person, "POST", f"/results/{result_id}/sign", body if body is not None else CONFIRMED)
 
     # The sample test
 

@@ -47,7 +47,7 @@ function wallClock(value, zone) {
 
 const SCROLLED_SLOT_OFFSET = 100;
 const SLOT_LANES = ".fc-timegrid-slot-lane[data-time]";
-const HALF_SNAP_MINUTES = 7.5;
+const SLOT_INTERIOR_MINUTES = 5;
 
 function minutesOfDay(time) {
   const [hours, minutes] = time.split(":").map(Number);
@@ -100,9 +100,9 @@ export function dragBookingToSlot(booking, slot, zone) {
       const lanes = Cypress.$(SLOT_LANES).toArray();
       const column = Cypress.$(`.fc-timegrid-col[data-date="${to.date}"]`)[0].getBoundingClientRect();
       const point = (clientX, clientY) => ({ button: 0, clientX, clientY, pageX: clientX + window.scrollX, pageY: clientY + window.scrollY });
-      // Use the middle of each quarter hour. Pixel rounding at the boundary can select the next slot.
-      const grabbed = point(eventBox.left + eventBox.width / 2, timePosition(lanes, startMinute + HALF_SNAP_MINUTES));
-      const dropped = point(column.left + column.width / 2, timePosition(lanes, targetMinute + HALF_SNAP_MINUTES));
+      // Stay inside each quarter-hour slot; its midpoint is a snap tie that rounds up to the next slot.
+      const grabbed = point(eventBox.left + eventBox.width / 2, timePosition(lanes, startMinute + SLOT_INTERIOR_MINUTES));
+      const dropped = point(column.left + column.width / 2, timePosition(lanes, targetMinute + SLOT_INTERIOR_MINUTES));
       cy.wrap($event).trigger("mousedown", { ...grabbed, scrollBehavior: false });
       cy.document().trigger("mousemove", { ...point(grabbed.clientX + 1, grabbed.clientY + 1), scrollBehavior: false });
       cy.document().trigger("mousemove", { ...dropped, scrollBehavior: false });

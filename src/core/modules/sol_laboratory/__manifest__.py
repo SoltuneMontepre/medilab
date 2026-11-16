@@ -50,6 +50,7 @@
         "views/sample_collection/sample_handover_views.xml",
         "views/sample_collection/sample_scan_views.xml",
         "views/sample_collection/sample_label_report.xml",
+        "views/sample_collection/sample_return_views.xml",
         "views/sample_collection/sample_views.xml",
         "views/sample_collection/sample_laboratory_folders_views.xml",
         "views/sample_collection/subcontract_dispatch_views.xml",
