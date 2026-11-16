@@ -2382,6 +2382,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_return_form
 msgid "Cancel"
 msgstr ""
 
@@ -3472,6 +3473,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_return__create_uid
 msgid "Created by"
 msgstr ""
 
@@ -3568,6 +3570,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_return__create_date
 msgid "Created on"
 msgstr ""
 
@@ -4397,6 +4400,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_return__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -5419,6 +5423,8 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__expected_sample_count
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__expected_count
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_handover_record_document
 msgid "Expected Samples"
 msgstr ""
 
@@ -5939,6 +5945,8 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_handover_record
 #: model:ir.ui.menu,name:sol_laboratory.menu_handover_record
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__handover_line_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
 msgid "Handover Records"
 msgstr ""
 
@@ -6202,6 +6210,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_return__id
 msgid "ID"
 msgstr ""
 
@@ -7016,6 +7025,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_return__write_uid
 msgid "Last Updated by"
 msgstr ""
 
@@ -7112,6 +7122,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_return__write_date
 msgid "Last Updated on"
 msgstr ""
 
@@ -11814,6 +11825,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_reject_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_plan_revision_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
 msgid "Reject"
 msgstr ""
 
@@ -12528,6 +12540,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__sample_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.report_handover_record_document
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_return__sample_id
 msgid "Sample"
 msgstr ""
 
@@ -12681,6 +12694,8 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_handover_record_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__sample_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
 msgid "Samples"
 msgstr ""
 
@@ -12800,6 +12815,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_form_bookings
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 msgid "Schedule"
 msgstr ""
 
@@ -16977,6 +16993,12 @@ msgid "Booking"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__booking_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__booking_id
+msgid "Booking"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_statistic__on_time
 msgid "On Time (%)"
 msgstr ""
@@ -17593,12 +17615,6 @@ msgid "At risk: %s."
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__booking_id
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__booking_id
-msgid "Booking"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__calibration_warning_days
 msgid "Calibration Warning (days)"
 msgstr ""
@@ -18151,4 +18167,230 @@ msgid ""
 "the recalculation."
 msgstr ""
 
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "Assign %s to a person before scheduling it."
+msgstr ""
 
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "Accept"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_plan.py:0
+msgid "Assign %s to a tester before accepting its booking."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_plan.py:0
+msgid "Only a proposed booking can be accepted."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_return.py:0
+msgid ""
+"A retained sample is returned only once its retention period is over: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "A returned sample cannot be changed back: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_handover_record_sample_actual_count_positive
+msgid "Each sample on a handover record needs at least one actual sample."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__actual_count
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_handover_record_document
+msgid "Actual Samples"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__can_collect_again
+msgid "Can Collect Again"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__returnable
+msgid "Can Return"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "Condition must be good, unusable or insufficient."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sample_return_create_all
+msgid "Create sample returns"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__excess_material
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_handover_record_document
+msgid "Excess Material"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__extra_count
+msgid "Extra Samples"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__returnable__extras
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_return__kind__extras
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_return_search
+msgid "Extra Samples and Excess Material"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__missing_count
+msgid "Missing Samples"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_return.py:0
+msgid "Only a person can return a sample."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid ""
+"Only a sample on hold, or one whose delivery to a subcontractor failed, is "
+"collected again: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_sample_return_create_all
+msgid "Permission: sample.return.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_sample_return_read_all
+msgid "Permission: sample.return.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+msgid "Put On Hold"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sample_return_read_all
+msgid "Read sample returns"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_return_form
+msgid "Record Return"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__returnable__retained
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_return__kind__retained
+msgid "Retained Sample"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_return_search
+msgid "Retained Samples"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+msgid "Return"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_returns.py:0
+msgid "Return %s"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_return__kind
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__status__returned
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_return_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_search
+msgid "Returned"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_return__returned_at
+msgid "Returned At"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_return__returned_by_id
+msgid "Returned By"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_return__returned_to_name
+msgid "Returned To"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__return_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+msgid "Returns"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "Route the %s task type to the role of sample delivery staff first."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_return.py:0
+msgid "Sample %s is no longer kept, so nothing of it can be returned."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_return.py:0
+msgid "Sample %s keeps no extra samples or excess material."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_sample_return
+msgid "Sample Return"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_sample_return
+#: model:ir.ui.menu,name:sol_laboratory.menu_sample_return
+msgid "Sample Returns"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_return_form
+msgid "Such as 1 extra 500 mL bottle and 300 mL of excess material"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_handover_record_sample__condition__unusable
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__condition__unusable
+msgid "Unusable"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_return__description
+msgid "What Was Returned"
+msgstr ""

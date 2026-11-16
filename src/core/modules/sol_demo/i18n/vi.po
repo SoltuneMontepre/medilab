@@ -707,6 +707,8 @@ msgid "Sterile glass bottle"
 msgstr "Chai thủy tinh vô trùng"
 
 #. module: sol_demo
+#: model:medilab.expected.sampling,preservation:sol_demo.demo_expected_sampling_bottled_water_paid
+#: model:medilab.expected.sampling,preservation:sol_demo.demo_expected_sampling_reception_good
 #: model:medilab.sampling.requirement,preservation:sol_demo.demo_sampling_requirement_coliforms_mpn_bottled_water
 #: model:medilab.sampling.requirement,preservation:sol_demo.demo_sampling_requirement_e_coli_membrane_bottled_water
 #: model:medilab.sampling.requirement,preservation:sol_demo.demo_sampling_requirement_ph_water_bottled_water
@@ -714,6 +716,8 @@ msgid "Chilled at 2–8 °C"
 msgstr "Bảo quản lạnh 2–8 °C"
 
 #. module: sol_demo
+#: model:medilab.expected.sampling,container_type:sol_demo.demo_expected_sampling_bottled_water_paid
+#: model:medilab.expected.sampling,container_type:sol_demo.demo_expected_sampling_reception_good
 #: model:medilab.sampling.requirement,container_type:sol_demo.demo_sampling_requirement_ph_water_bottled_water
 #: model:medilab.sampling.requirement,container_type:sol_demo.demo_sampling_requirement_lead_aas_bottled_water
 #: model:medilab.sampling.requirement,container_type:sol_demo.demo_sampling_requirement_lead_icpms_bottled_water

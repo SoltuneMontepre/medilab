@@ -1,8 +1,45 @@
-import { save, search } from "../../../support/form";
+import { openTab, save, search } from "../../../support/form";
 import { callRefused, refAs } from "../../../support/odoo";
-import { SAMPLE_TYPES, TESTER, cancelledSample, disposedSample, remindRetention, reportedSample, retentionTasks } from "./setup";
+import {
+  SAMPLE_TYPES,
+  STAFF,
+  TESTER,
+  cancelledSample,
+  disposedSample,
+  excessHandedOver,
+  remindRetention,
+  reportSample,
+  reportedSample,
+  retentionTasks,
+} from "./setup";
 
 const DISPOSE = ".o_statusbar_buttons button[name=action_dispose]";
+const RETURN = ".o_statusbar_buttons button[name=action_open_return]";
+
+// Sample delivery staff record, in the open return dialog, what they hand back and to whom.
+function recordReturn(to, what) {
+  cy.get(".modal .o_field_widget[name=returned_to_name] input").type(to);
+  cy.get(".modal .o_field_widget[name=description] textarea").type(what);
+  cy.contains(".modal button", "Record Return").click();
+  cy.get(".modal").should("not.exist");
+}
+
+// The sample's latest return records what, when, by whom and to whom.
+function expectReturned(sample, kind, to, what) {
+  refAs(STAFF, "sol_demo.demo_person_sample_delivery_staff").then((staff) =>
+    cy.readRecord(sample, ["return_ids"]).then(({ return_ids: returns }) =>
+      cy
+        .readRecord({ model: "medilab.sample.return", id: Math.max(...returns) }, ["kind", "description", "returned_at", "returned_by_id", "returned_to_name"])
+        .should((read) => {
+          expect(read.kind).to.equal(kind);
+          expect(read.description).to.equal(what);
+          expect(read.returned_at, "returned at").to.be.a("string");
+          expect(read.returned_by_id[0], "returned by").to.equal(staff.id);
+          expect(read.returned_to_name).to.equal(to);
+        }),
+    ),
+  );
+}
 
 // The tester disposes of the open sample and confirms that it cannot be undone.
 function dispose() {
@@ -25,7 +62,7 @@ function expectDisposed(sample, method) {
   );
 }
 
-describe("SF-04 Sample retention and disposal", () => {
+describe("SF-04 Sample retention, return and disposal", () => {
   it("TC-SF04-M puts a kept sample whose retention has ended on the tester's to-do, where the tester records its disposal", () => {
     reportedSample(SAMPLE_TYPES.bottledWater, { retainedFor: -1 }).then((sample) => {
       remindRetention();
@@ -106,6 +143,51 @@ describe("SF-04 Sample retention and disposal", () => {
         );
         cy.readRecord(sample, ["status", "disposal_note", "disposed_at", "disposed_by_id", "write_date"]).should("deep.equal", before);
       });
+    });
+  });
+
+  it("TC-SF04-A3 returns a retained sample the customer asks for after its retention period, which ends as returned", () => {
+    reportedSample(SAMPLE_TYPES.bottledWater, { retainedFor: -1 }).then((sample) => {
+      cy.signInAs("sample_delivery_staff");
+      cy.openRecord(sample);
+      cy.get(RETURN).click();
+      recordReturn("Trần Văn Bình", "1 chai 500 ml lưu sau thử nghiệm");
+
+      cy.get(".o_field_widget[name=status] .o_arrow_button_current").should("contain", "Returned");
+      cy.get(RETURN).should("not.exist");
+      expectReturned(sample, "retained", "Trần Văn Bình", "1 chai 500 ml lưu sau thử nghiệm");
+      callRefused("medilab.sample", "write", [[sample.id], { status: "retained" }]).should("eq", `A returned sample cannot be changed back: ${sample.code}`);
+    });
+  });
+
+  it("TC-SF04-A4 returns the excess material at the counter when the customer collects the report, leaving the sample as it is", () => {
+    refAs(STAFF, "sol_demo.demo_test_report_reissued").then((report) =>
+      reportSample(report).then((sample) => {
+        excessHandedOver(sample, "Dư khoảng 1 lít so với lượng cần");
+        cy.signInAs("sample_delivery_staff");
+        cy.readRecord(sample, ["status"]).then(({ status }) => {
+          cy.openRecord(report);
+          openTab("samples");
+          cy.contains(".o_field_widget[name=sample_ids] .o_data_row", sample.code).find("button[name=action_open_return]").click();
+          recordReturn("Nguyễn Thị Lan", "Khoảng 1 lít nước chưa dùng để thử");
+
+          expectReturned(sample, "extras", "Nguyễn Thị Lan", "Khoảng 1 lít nước chưa dùng để thử");
+          cy.readRecord(sample, ["status"]).its("status").should("eq", status);
+        });
+      }),
+    );
+  });
+
+  it("TC-SF04-E3 refuses to return a retained sample before its retention period ends", () => {
+    reportedSample(SAMPLE_TYPES.bottledWater, { retainedFor: 5 }).then((sample) => {
+      cy.signInAs("sample_delivery_staff");
+      cy.openRecord(sample);
+      cy.get(".o_field_widget[name=status] .o_arrow_button_current").should("contain", "Retained");
+      cy.get(RETURN).should("not.exist");
+      callRefused("medilab.sample.return", "create", [
+        { sample_id: sample.id, kind: "retained", description: "1 chai 500 ml", returned_to_name: "Trần Văn Bình" },
+      ]).should("eq", `A retained sample is returned only once its retention period is over: ${sample.code}`);
+      cy.readRecord(sample, ["status", "return_ids"]).should("deep.include", { status: "retained", return_ids: [] });
     });
   });
 });
