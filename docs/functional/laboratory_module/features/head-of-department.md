@@ -91,7 +91,7 @@ Follows [Reception](../overview.md#reception), [Results](../overview.md#results)
 | Rule          | Description                                                                                                  |
 | ------------- | ------------------------------------------------------------------------------------------------------------ |
 | Handover | A person of the department records when and by whom it received a sample by scanning its label through the web interface. |
-| Collect again | Asking for an insufficient sample to be collected again schedules a sample collection task for sample delivery staff. |
+| Collect again | Asking for an insufficient sample, or for a sample whose delivery to a subcontractor failed, to be collected again schedules a sample collection task for sample delivery staff. The sample waits on hold with its lab code, sample tests and testing tasks. |
 | Approval | The head signs or rejects results at the result approval level, recording a rejection reason. They may approve a result they entered, including when they are the department's only result signer. The Lab Head reviews the approved results and signs the report before issue. |
 | Cancelling    | The head cancels a sample test of the department that has no approved result, with a reason. Its testing task and its own booking end, and the report leaves it out. Bookings sharing its machine interval continue unchanged. |
 
