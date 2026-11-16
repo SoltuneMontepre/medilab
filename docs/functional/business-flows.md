@@ -36,7 +36,7 @@ The core flows WF-01 to WF-06 carry a test request from order to report. The sup
   - WF-01-A1: Sales creates the order for a customer who called or who brings samples to the laboratory, instead of the customer ordering on the portal. The samples wait at reception until the test request is paid, or On credit.
   - WF-01-A2: A visitor who is not signed in submits a cart with their details and e-mail address.
   - WF-01-A3: A returning customer reorders a completed order, or sales creates the order from the customer's template.
-  - WF-01-A4: The customer pays the advance by bank transfer or in cash; sales records it as a pending payment and the accountant confirms it, which posts its invoice. While it is pending, the quotation cannot be revised, declined or cancelled.
+  - WF-01-A4: The customer pays the advance by bank transfer or in cash; sales records it as a pending payment and the accountant confirms it, which posts its invoice. While the payment is pending, Sales can draft a revision. Sending the revision, declining the quotation and cancelling the order must wait.
   - WF-01-A5: The Head of Sales sends a quotation without an advance to a customer allowed to order on credit; the customer accepts it on the portal and the order goes ahead without a payment request; its test request is On credit.
 - **Exceptions:**
   - WF-01-E1: The customer declines the quotation with a reason; sales revises it and sends the new version, which the customer accepts.

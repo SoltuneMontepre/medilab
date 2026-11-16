@@ -36,12 +36,12 @@ The accountant is the laboratory's financial user. The accountant issues and tra
 | Invoice                                 | Created by                                                   | Purpose                                                                                  |
 | --------------------------------------- | ------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
 | Advance invoice                         | System, when a payment against the advance payment request is verified | Record the money collected towards the advance; the request itself is not an invoice |
-| Final invoice                           | System, when the payment of the balance request is verified; for a customer on credit, the accountant, or sales with the Create invoices permission, and the accountant posts it | Bill the remaining amount: when it is collected before sample collection, or once the work is done for a customer on credit |
+| Final invoice | System, when a payment against the balance request is verified. For a customer on credit, the accountant or Sales with the Create invoices permission drafts it and the accountant posts it. | Bill each verified balance payment before sample collection, or bill the customer on credit once testing is completed. |
 | Adjustment invoice (hóa đơn điều chỉnh) | Accountant, from a posted invoice                            | Correct a posted invoice with only the difference, raising or lowering the amount        |
 
-- Advance invoices and the final invoice of a balance request are posted automatically when their payment is verified; a payment request is never an invoice ([Payment requests](../../../specs/payment-requests.md)).
+- Advance and balance invoices are posted automatically when each payment is verified; a payment request is never an invoice ([Payment requests](../../../specs/payment-requests.md)).
 - **Posting task.** A draft advance or final invoice drafted by someone who cannot post it, such as a salesperson, puts a posting task in the queue of the Accountant role ([SH-10](../../shared.md#sh-10-tasks-and-to-do-list)); the administrator chooses the role on the task type. The task opens the invoice. It is done when the invoice is posted, and cancelled when the invoice is cancelled or deleted. It is due 24 elapsed hours after the invoice is drafted; the administrator changes this default on the task type.
-- The final invoice deducts the advance already paid, so the customer is never billed twice for the same parameters.
+- The closing invoice deducts all advance invoices and earlier balance installments to avoid billing those amounts twice.
 - Invoices are sent by email with the PDF attached, and can be downloaded at any time. Customers see their posted invoices on the portal.
 - Tax follows the tax of each quotation line: the parameter's or package's tax, or the one sales set on the quotation. Prices in the catalog exclude VAT; the invoice shows net, tax and total separately.
 - A posted invoice cannot be edited. The accountant corrects it with an adjustment invoice that holds only the difference, as positive or negative lines. It is posted, emailed and shown on the portal like any other invoice, and the amount owed on the corrected invoice includes its adjustments.
@@ -50,7 +50,7 @@ Acceptance criteria:
 
 - Sending a quotation with an advance request posts no invoice; verifying each payment against it posts one advance invoice for that amount.
 - A draft invoice a salesperson creates is a task in the accountants' queue; posting the invoice marks the task done.
-- The final invoice total equals the order total minus the advances.
+- The balance invoices together total the order total minus the advance invoices. When the balance is paid in installments, the closing invoice covers only the last installment.
 - An adjustment invoice of −500,000 VND on a 5,000,000 VND invoice leaves 4,500,000 VND owed, and the original invoice is unchanged.
 - A posted invoice cannot be edited; only an adjustment invoice changes what is owed.
 - An invoice shows net, tax and total, and can be downloaded as PDF.

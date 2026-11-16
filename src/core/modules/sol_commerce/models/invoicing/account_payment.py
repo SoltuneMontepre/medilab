@@ -223,16 +223,35 @@ class AccountPayment(models.Model, AccountPaymentBase):
         return True
 
     def write(self, vals):
+        if "received_at" in vals:
+            online = self.filtered(
+                lambda payment: payment.method == "online" or payment.payment_transaction_id.provider_code == "payos"
+            )
+            received_at = fields.Datetime.to_datetime(vals["received_at"]) or False
+            if any(payment.received_at != received_at for payment in online):
+                raise UserError(self.env._("The receipt time of an online payment cannot be changed."))
         frozen = self.filtered(
             lambda payment: payment.method == "online" and payment.state != "draft" and payment._online_day_locked()
         )
         changed = {"amount", "partner_id", "journal_id", "method", "date"} & set(vals)
         if frozen and (changed or vals.get("state") in {"draft", "canceled", "rejected"}):
             raise UserError(self.env._("An online payment of a locked day cannot be changed."))
+        if vals.get("state") in {"draft", "canceled", "rejected"}:
+            self._check_verified_request_reversal()
         orders = self._orders_for_pending()
         result = super().write(vals)
         (orders | self._orders_for_pending()).invalidate_recordset(["pending_amount"])
         return result
+
+    def unlink(self):
+        self._check_verified_request_reversal()
+        return super().unlink()
+
+    def _check_verified_request_reversal(self):
+        linked = self.sudo().filtered("payment_request_id")
+        linked.payment_request_id.order_id._lock_payment_orders()
+        if any(payment._verified_for_request() for payment in linked):
+            raise UserError(self.env._("A verified payment request collection cannot be reversed."))
 
     def _check_collection_amount(self):
         self.ensure_one()
@@ -339,7 +358,9 @@ class AccountPayment(models.Model, AccountPaymentBase):
             [("payment_request_id", "=", request.id), ("method", "=", "bank_transfer"), ("state", "=", "draft")],
             limit=1,
         )
-        return existing or self.sudo()._create_request_payment(request, amount, "bank_transfer", received_at, reference)
+        if existing:
+            raise UserError(self.env._("A bank transfer is already pending for this payment request."))
+        return self.sudo()._create_request_payment(request, amount, "bank_transfer", received_at, reference)
 
     @api.model
     def portal_pay_invoice(self, invoice, amount=None):

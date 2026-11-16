@@ -166,7 +166,7 @@ Acceptance criteria:
 
 ### 3. Payment collection (US-S11, US-S25)
 
-When a customer pays sales directly in cash or by bank transfer, sales records the amount, date and method on the order. The record is **pending**: it does not count as paid until the accountant confirms it (see [accountant](accountant.md)). The order shows the pending amount so the same payment is not recorded twice, and the amount cannot exceed what the payment request still needs. While it is pending, the order's quotation cannot be revised, declined or cancelled.
+When a customer pays sales directly in cash or by bank transfer, sales records the amount, date and method on the order. The record is **pending**: it does not count as paid until the accountant confirms it (see [accountant](accountant.md)). The order shows the pending amount so the same payment is not recorded twice, and the amount cannot exceed what the payment request still needs. While the payment is pending, Sales can draft a revision. Sending the revision, declining the quotation and cancelling the order must wait until the accountant confirms or rejects the payment.
 
 A salesperson who holds the **Create invoices** permission creates the final invoice of a customer on credit from a confirmed order, as the accountant does. The invoice is a draft; the accountant posts it. Advance and balance invoices are posted by the system when their payment is verified.
 

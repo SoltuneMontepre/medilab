@@ -19,8 +19,9 @@ Ask the customer for money without posting a customer invoice before the money i
 ### Payments and their invoices
 
 - PayOS payments are verified by the signed provider notification. A bank transfer or cash that Sales records, or a bank transfer the customer reports on the portal, is a **pending payment** until the accountant confirms or rejects it. A pending payment and a browser return count toward nothing.
+- The portal accepts another bank transfer report for a payment request only after the accountant confirms or rejects the existing report.
 - Each payment keeps its amount, the actual time the money was received, the time it was verified and its original reference. A repeated notification records no second payment.
-- Verifying a payment posts a customer invoice for the amount received, reconciled with that payment: an advance invoice for money paid against the advance request, the final invoice for money paid against the balance request. The invoice is posted at collection, never when the request is sent.
+- Verifying a payment posts a customer invoice for the amount received, reconciled with that payment: an advance invoice for each verified advance payment or a balance invoice for each verified balance payment. The closing balance invoice deducts advances and earlier balance installments. The invoice is posted at collection, never when the request is sent.
 - A payment above what the request still needs is recorded in full and flagged for the accountant; the excess is applied to the order's balance or recorded for manual refund. It is never refunded automatically or moved to another order.
 
 ### Acceptance and the start of work
@@ -73,7 +74,8 @@ The amounts use VAT 8% or 10% only as illustration.
 | Service 10,000,000 VND, VAT 800,000, total 10,800,000; advance 50% | Sending requests 5,400,000 and posts no invoice, receivable or revenue. |
 | The customer transfers 2,000,000 and the accountant confirms it | One payment of 2,000,000 and one advance invoice of 2,000,000 are posted; 3,400,000 of the advance is still needed. The quotation is not accepted. |
 | The rest of the advance, 3,400,000, arrives through PayOS | A second advance invoice of 3,400,000 is posted at verification and the quotation is accepted. |
-| Sales confirms the order of a customer not on credit | A balance request of 5,400,000 is created; collection waits until it is verified, and its verification posts the final invoice deducting the advances. |
+| Sales confirms the order of a customer not on credit | A balance request of 5,400,000 is created. Sample collection waits until the full balance is verified. |
+| The customer pays the balance in installments of 2,000,000 and 3,400,000 | Verification posts an invoice for each installment. The closing invoice deducts the advance invoices and the first balance installment. Sample collection can start after the second verification. |
 | A partly paid quotation expires | No further payment is taken; 2,000,000 stays on the order and nothing is refunded for expiry alone. |
 | Full advance received at 16:55, deadline 17:00, verified at 18:00 | The unchanged quotation is accepted at verification. |
 | Sales revises while a transfer awaits verification | Drafting is allowed; sending, declining and cancelling are refused until the accountant confirms or rejects it. |

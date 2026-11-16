@@ -47,7 +47,7 @@ class TestQuotationPortal(AuditLookup, HttpCase, OrderCase):
         self.assertIn(f"/orders/{self.order.id}/quotation/{self.quotation.id}/pdf", response.text)
         self.assertNotIn("Earlier revisions were replaced", response.text)
 
-    def test_the_quotation_shows_its_payment_request_and_reuses_a_reported_transfer(self):
+    def test_the_quotation_shows_its_payment_request_and_rejects_a_second_pending_transfer(self):
         request = self.order.payment_request_id
         path = f"/orders/{self.order.id}/payment-requests/{request.id}/pay"
         response = self.page()
@@ -55,21 +55,28 @@ class TestQuotationPortal(AuditLookup, HttpCase, OrderCase):
         self.assertIn('id="payment_request_remaining"', response.text)
         self.assertNotIn("/my/invoices/", response.text)
 
-        for amount in (1000, 2000):
-            response = self.url_open(
+        def report_transfer(amount, reference):
+            return self.url_open(
                 path,
                 data={
                     "csrf_token": self.csrf_token(),
                     "amount": amount,
                     "method": "bank_transfer",
-                    "reference": "FT1212",
+                    "reference": reference,
                 },
                 allow_redirects=False,
             )
-            self.assertEqual(response.status_code, 303)
-            self.assertNotIn("error=", response.headers["Location"])
 
+        first = report_transfer(1000, "FT1212")
+        self.assertEqual(first.status_code, 303)
+        self.assertNotIn("error=", first.headers["Location"])
+
+        second = report_transfer(2000, "FT3434")
+        self.assertEqual(second.status_code, 303)
+        page = self.url_open(second.headers["Location"])
+        self.assertIn("A bank transfer is already pending for this payment request.", page.text)
         self.assertEqual(len(request.payment_ids), 1)
+        self.assertEqual(request.payment_ids.memo, "FT1212")
         self.assertEqual(request.pending_amount, 1000)
         self.assertEqual(request.verified_amount, 0)
         self.assertEqual(request.remaining_amount, request.amount)

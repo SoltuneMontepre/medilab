@@ -29,7 +29,7 @@ class SaleOrder(models.Model, SaleOrderBase):
         # Request that currently collects payments for the order.
         payment_request_id = fields.Many2one(MODEL_PAYMENT_REQUEST, ondelete="restrict", copy=False, readonly=True)
         # Requests issued for the order, including earlier quotation revisions.
-        payment_request_ids = fields.One2many(MODEL_PAYMENT_REQUEST, "order_id")
+        payment_request_ids = fields.One2many(MODEL_PAYMENT_REQUEST, "order_id", string="Payment Requests")
         # Whether an unpaid request or posted credit invoice is available for Sales to record funds against.
         can_record_collection = fields.Boolean(compute="_compute_collection_actions", compute_sudo=True)
         # Whether Sales can record written agreement because prior payments cover the revised advance.
@@ -95,10 +95,11 @@ class SaleOrder(models.Model, SaleOrderBase):
     )
     def _compute_pending_amount(self):
         for order in self:
-            order.pending_amount = sum(order._pending_collections().mapped("amount"))
+            order.pending_amount = sum(order._pending_collections(include_online=False).mapped("amount"))
 
-    def _pending_collections(self):
+    def _pending_collections(self, *, include_online=True):
         self.ensure_one()
+        methods = ("cash", "bank_transfer", "online") if include_online else ("cash", "bank_transfer")
         return (
             self.env[MODEL_ACCOUNT_PAYMENT]
             .sudo()
@@ -108,7 +109,7 @@ class SaleOrder(models.Model, SaleOrderBase):
                     ("payment_request_id.order_id", "in", self.ids),
                     ("invoice_ids", "in", self.sudo().invoice_ids.ids),
                     ("state", "=", "draft"),
-                    ("method", "in", ("cash", "bank_transfer")),
+                    ("method", "in", methods),
                 ]
             )
         )
@@ -199,32 +200,6 @@ class SaleOrder(models.Model, SaleOrderBase):
             payment.write({"received_at": payments._receipt_time(received_at), "memo": reference or payment.memo})
         return persisted_id(payment)
 
-    def create_advance_invoice(self, amount=None, percentage=None):
-        """Post one down-payment invoice for this order, due on its payment deadline when it has one."""
-        self.ensure_one()
-        if self._latest_quotation():
-            raise UserError(self.env._("The advance invoice is posted when its payment is verified."))
-        if percentage is not None and amount is not None:
-            raise UserError(self.env._("An advance is a fixed amount or a percentage, not both."))
-        if percentage is not None:
-            method = "percentage"
-            values = {"amount": percentage}
-        else:
-            method = "fixed"
-            values = {"fixed_amount": self.amount_total if amount is None else amount}
-        wizard = self.env[MODEL_SALE_ADVANCE_PAYMENT_INV].create(
-            {
-                "advance_payment_method": method,
-                "sale_order_ids": [Command.set(persisted_ids(self))],
-                **values,
-            }
-        )
-        invoices = wizard._create_invoices(self)
-        invoice_values = {"invoice_kind": "advance", "order_id": self.id}
-        invoices.with_context(**{AUTO_POST_CONTEXT: True}).write(invoice_values)
-        invoices.action_post()
-        return invoices
-
     def create_final_invoice(self):
         """Draft the invoice for what is left after the advance. The accountant posts it."""
         self.ensure_one()
@@ -244,21 +219,22 @@ class SaleOrder(models.Model, SaleOrderBase):
         invoices.write({"invoice_kind": "final", "order_id": self.id})
         return invoices
 
+    def _draft_installment_invoice(self, amount):
+        self.ensure_one()
+        wizard = self.env[MODEL_SALE_ADVANCE_PAYMENT_INV].create(
+            {
+                "advance_payment_method": "fixed",
+                "fixed_amount": amount,
+                "sale_order_ids": [Command.set(persisted_ids(self))],
+            }
+        )
+        return wizard._create_invoices(self)
+
     def _create_collection_invoice(self, request, amount):
         """Invoice a verified payment, deducting all installments when the balance is settled."""
         self.ensure_one()
         closing = request.kind == "balance" and self.currency_id.compare_amounts(amount, request.remaining_amount) >= 0
-        if closing:
-            invoices = self._draft_final_invoice()
-        else:
-            wizard = self.env[MODEL_SALE_ADVANCE_PAYMENT_INV].create(
-                {
-                    "advance_payment_method": "fixed",
-                    "fixed_amount": amount,
-                    "sale_order_ids": [Command.set(persisted_ids(self))],
-                }
-            )
-            invoices = wizard._create_invoices(self)
+        invoices = self._draft_final_invoice() if closing else self._draft_installment_invoice(amount)
         invoices.with_context(**{AUTO_POST_CONTEXT: True}).write(
             {
                 "invoice_kind": "advance" if request.kind == "advance" else "final",

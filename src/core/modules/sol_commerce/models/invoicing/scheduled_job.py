@@ -208,8 +208,10 @@ class ScheduledJob(models.Model, ScheduledJobBase):
         if transaction.payos_link_closed:
             return None
         if data.get("status") in ("CANCELLED", "EXPIRED"):
+            transaction = transaction.with_context(payment_safe_write=True)
+            transaction.payos_link_closed = True
             if transaction.state in ("draft", "pending"):
-                transaction.with_context(payment_safe_write=True)._process({"expired": True})
+                transaction._process({"expired": True})
             return None
         remaining = data.get("amountRemaining")
         if isinstance(remaining, (int, float)) and not isinstance(remaining, bool) and remaining > 0:

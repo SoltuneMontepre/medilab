@@ -413,6 +413,12 @@ msgid "A PayOS bank transfer is recorded once."
 msgstr ""
 
 #. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/account_payment.py:0
+msgid "A bank transfer is already pending for this payment request."
+msgstr ""
+
+#. module: sol_commerce
 #: model:mail.message.subtype,description:sol_commerce.event_balance_requested
 msgid "A balance payment request was sent to the customer"
 msgstr ""
@@ -621,6 +627,12 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.constraint,message:sol_commerce.constraint_product_template_parameter_unique
 msgid "A test parameter has only one product, archived products included."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/account_payment.py:0
+msgid "A verified payment request collection cannot be reversed."
 msgstr ""
 
 #. module: sol_commerce
@@ -900,12 +912,6 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/invoicing/account_move.py:0
 msgid "An adjustment needs a difference."
-msgstr ""
-
-#. module: sol_commerce
-#. odoo-python
-#: code:addons/sol_commerce/models/invoicing/sale_order.py:0
-msgid "An advance is a fixed amount or a percentage, not both."
 msgstr ""
 
 #. module: sol_commerce
@@ -3459,8 +3465,12 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__payment_request_ids
 #: model:ir.model.fields,field_description:sol_commerce.field_payment_transaction__payment_request_id
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__payment_request_id
-#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__payment_request_ids
 msgid "Payment Request"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__payment_request_ids
+msgid "Payment Requests"
 msgstr ""
 
 #. module: sol_commerce
@@ -4810,6 +4820,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/invoicing/account_payment.py:0
 msgid "The receipt time cannot be in the future."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/account_payment.py:0
+msgid "The receipt time of an online payment cannot be changed."
 msgstr ""
 
 #. module: sol_commerce

@@ -170,5 +170,12 @@ class Quotation(models.Model, QuotationBase):
             [("status", "=", QUOTATION_SENT), ("order_id.payment_deadline", "<", fields.Datetime.now())]
         )
         late.order_id._lock_payment_orders()
-        late.filtered(lambda item: item.status == QUOTATION_SENT).write({"status": QUOTATION_EXPIRED})
+        now = fields.Datetime.now()
+        late.filtered(
+            lambda item: (
+                item.status == QUOTATION_SENT
+                and item.order_id.payment_deadline
+                and item.order_id.payment_deadline < now
+            )
+        ).write({"status": QUOTATION_EXPIRED})
         self.env[MODEL_PAYMENT_REQUEST]._expire_requests()

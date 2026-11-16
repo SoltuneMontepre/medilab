@@ -13,6 +13,7 @@ Money received against a [payment request](payment-requests.md), or against a fi
 - While a draft payment of the order exists, sending a revision, declining the quotation and cancelling the order are refused with a message; confirming or rejecting the draft allows them again.
 - Cash and bank transfers cannot be more than what the request still needs, or than the residual of a final invoice of a customer on credit. The request or invoice row is locked before that check. Two payments that would together pass it fail when the second is confirmed.
 - Rejecting a draft cancels it, leaves the request or invoice as it was, creates an activity for the salesperson with the reason, and queues `payment.rejected` for the customer.
+- A verified payment against a payment request stays posted once its funding has been recorded. The accountant records corrections as adjustments.
 - Confirming a payment queues `payment.receipt` for the customer. Neither notice is sent inside the payment transaction: the mail job sends it afterwards, and a failure there does not undo the payment.
 - The receipt is Odoo's payment receipt. Its number is the payment journal sequence, assigned when the payment is posted. A customer opens only a receipt of their own order.
 - The invoice PDF shows VietQR through Odoo's invoice report and the Vietnamese localisation. This module does not draw a QR code. A manual bank transfer stays a draft until the accountant confirms it.

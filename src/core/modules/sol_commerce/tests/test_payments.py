@@ -10,7 +10,7 @@ from odoo.exceptions import AccessError, UserError
 from odoo.fields import Command
 from odoo.tests import HttpCase, tagged
 
-from .invoicing_case import InvoicingCase
+from .invoicing_case import InvoicingCase, post_legacy_advance_invoice
 from odoo.addons.sol_commerce.services.payos_client import PayosClient
 from odoo.addons.sol_laboratory.constants.models import MODEL_SCHEDULED_JOB
 from odoo.addons.sol_laboratory.services.record_id import persisted_ids
@@ -25,7 +25,7 @@ class TestPayments(InvoicingCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.invoice = cls.order.create_advance_invoice()
+        cls.invoice = post_legacy_advance_invoice(cls.order)
 
     def pay(self, amount, method="bank_transfer"):
         return self.env["account.payment"].create_pending_payment(self.invoice, amount, method)
@@ -337,10 +337,10 @@ class TestPaymentPortal(AuditLookup, InvoicingCase, HttpCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.invoice = cls.order.create_advance_invoice()
+        cls.invoice = post_legacy_advance_invoice(cls.order)
         private_order = cls.order.copy()
         cls.confirm_sale(private_order)
-        cls.private_invoice = private_order.create_advance_invoice()
+        cls.private_invoice = post_legacy_advance_invoice(private_order)
         cls.customer = cls.portal_user("payer.customer", cls.partner)
         cls.other = cls.portal_user("payer.other", cls.env["res.partner"].create({"name": "Other customer"}))
 

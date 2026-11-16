@@ -22,9 +22,7 @@ class SaleAdvancePaymentInv(models.TransientModel, SaleAdvancePaymentInvBase):
         which only the accountant posts. Neither may edit the order Odoo writes the invoiced lines on. Odoo opens the
         new invoices on screens only the accountant reads, so sales goes back to the order."""
         self.sale_order_ids._check_manual_invoice_allowed()
-        if self.advance_payment_method != "delivered" and any(
-            order._latest_quotation() for order in self.sale_order_ids
-        ):
+        if self.advance_payment_method != "delivered":
             raise UserError(self.env._("The advance invoice is posted when its payment is verified."))
         if self.env.su:
             return super().create_invoices()

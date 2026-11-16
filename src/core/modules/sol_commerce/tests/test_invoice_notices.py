@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 
 from odoo.tests import tagged
 
-from .invoicing_case import InvoicingCase
+from .invoicing_case import InvoicingCase, post_legacy_advance_invoice
 from odoo.addons.sol_laboratory.constants.notifications import VIETNAM_ZONE
 
 
@@ -12,7 +12,7 @@ from odoo.addons.sol_laboratory.constants.notifications import VIETNAM_ZONE
 class TestInvoiceNotices(InvoicingCase):
     def test_emailing_an_invoice_does_not_change_what_is_owed(self):
         self.partner.email = "an@example.com"
-        invoice = self.order.create_advance_invoice()
+        invoice = post_legacy_advance_invoice(self.order)
         owed = invoice.amount_owed
         state = invoice.payment_state
         with patch(
@@ -42,7 +42,7 @@ class TestInvoiceNotices(InvoicingCase):
 
     def test_confirming_and_rejecting_queue_a_notice_and_keep_the_activity(self):
         self.partner.email = "an@example.com"
-        invoice = self.order.create_advance_invoice()
+        invoice = post_legacy_advance_invoice(self.order)
         confirmed = self.env["account.payment"].create_pending_payment(invoice, 100_000, "cash")
         confirmed.action_post()
         receipt = self.env["mail.message"].search([("notification_key", "=", f"payment:{confirmed.id}:receipt")])

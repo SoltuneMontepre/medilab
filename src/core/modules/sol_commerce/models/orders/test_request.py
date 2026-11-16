@@ -44,7 +44,7 @@ class TestRequest(models.Model, TestRequestBase):
     def _check_sample_intake(self):
         for request in self:
             order = request._sale_order()
-            if order.payment_request_id.kind == "balance" and not order._can_collect_samples():
+            if order and not order._can_collect_samples():
                 raise UserError(self.env._("Verify the order balance before collecting its samples."))
         return super()._check_sample_intake()
 

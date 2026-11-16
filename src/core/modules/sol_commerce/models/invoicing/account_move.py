@@ -164,10 +164,12 @@ class AccountMove(models.Model, AccountMoveBase):
 
     def button_draft(self):
         self._check_posted_laboratory_invoices()
+        self.sudo().origin_payment_id._check_verified_request_reversal()
         return super().button_draft()
 
     def button_cancel(self):
         self._check_posted_laboratory_invoices()
+        self.sudo().origin_payment_id._check_verified_request_reversal()
         return super().button_cancel()
 
     def action_post(self):

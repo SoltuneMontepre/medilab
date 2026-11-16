@@ -116,13 +116,20 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
                 report_recipient=self.partner_id if self.partner_id != self.customer_id else False,
             )
         )
-        terms = self.env[MODEL_CUSTOMER_SALES_TERMS].sudo().search([("customer_id", "=", customer.id)], limit=1)
-        on_credit = bool(self.advance_method == ADVANCE_NONE and terms.allow_credit)
+        on_credit = self._qualifies_for_credit(customer)
         self.sudo().on_credit = on_credit
         self._set_status(STATUS_CONFIRMED, {"test_request_id": request.id, "confirmed_at": fields.Datetime.now()})
         if not on_credit:
             self._request_balance()
         request.action_confirm()
+
+    def _qualifies_for_credit(self, customer):
+        self.ensure_one()
+        return self.advance_method == ADVANCE_NONE and bool(
+            self.env[MODEL_CUSTOMER_SALES_TERMS]
+            .sudo()
+            .search_count([("customer_id", "=", customer.id), ("allow_credit", "=", True)], limit=1)
+        )
 
     def _request_balance(self):
         self.ensure_one()

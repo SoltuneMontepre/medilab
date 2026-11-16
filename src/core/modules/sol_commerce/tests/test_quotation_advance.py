@@ -3,8 +3,10 @@ from zoneinfo import ZoneInfo
 
 from odoo import fields
 from odoo.exceptions import AccessError, UserError, ValidationError
+from odoo.fields import Command
 from odoo.tests import tagged
 
+from .invoicing_case import post_legacy_advance_invoice
 from .order_case import OrderCase
 from odoo.addons.sol_commerce.constants.models import MODEL_QUOTATION
 from odoo.addons.sol_commerce.constants.notifications import EVENT_QUOTATION_SENT
@@ -60,6 +62,27 @@ class TestQuotationAdvance(OrderCase):
         self.assertEqual(request.state, "funded")
         self.assertEqual(order.payment_status, "partial")
 
+    def test_a_verified_collection_cannot_be_cancelled_or_reset(self):
+        order = self.make_quotable_order()
+        order.with_user(self.sales).action_send_quotation()
+        request = order.payment_request_id
+        payment = self.env["account.payment"]._create_request_payment(request, request.amount, "cash")
+        payment.action_post()
+
+        for reverse in (
+            payment.action_cancel,
+            payment.action_draft,
+            payment.unlink,
+            payment.move_id.button_cancel,
+            payment.move_id.button_draft,
+        ):
+            with self.assertRaisesRegex(UserError, "verified payment request collection"), self.env.cr.savepoint():
+                reverse()
+
+        self.assertEqual(request.state, "funded")
+        self.assertEqual(request.remaining_amount, 0)
+        self.assertEqual(order._latest_quotation().status, "accepted")
+
     def test_balance_installments_each_bill_the_amount_received(self):
         order = self.make_quotable_order()
         order.write({"advance_mode": "percentage", "advance_value": 50})
@@ -89,9 +112,31 @@ class TestQuotationAdvance(OrderCase):
         self.assertEqual(order.test_request_id.status, "paid")
         self.assertEqual(order.payment_status, "paid")
 
+    def test_the_closing_balance_invoice_keeps_the_quoted_tax(self):
+        order = self.make_quotable_order()
+        taxes = order._catalog_lines().tax_ids
+        self.assertTrue(taxes)
+        order.write({"advance_mode": "percentage", "advance_value": 50})
+        order.with_user(self.sales).action_send_quotation()
+        self.pay_advance(order)
+        order.with_user(self.sales).action_confirm_order()
+        balance = order.payment_request_id
+        payment = self.env["account.payment"]._create_request_payment(balance, balance.amount, "cash")
+
+        with self.assertRaisesRegex(UserError, "Only a claimed order can be revised"):
+            order.with_user(self.sales).action_revise_quotation()
+        with self.assertRaisesRegex(UserError, "revise it before changing its lines"):
+            order._catalog_lines().write({"tax_ids": [Command.clear()]})
+
+        payment.action_post()
+
+        invoice = order.invoice_ids.filtered(lambda move: move.payment_request_id == balance)
+        self.assertEqual(invoice.invoice_line_ids.tax_ids, taxes)
+        self.assertEqual(invoice.amount_total, balance.amount)
+
     def test_a_preexisting_advance_invoice_still_controls_acceptance(self):
         order = self.make_quotable_order()
-        invoice = order.create_advance_invoice(percentage=50)
+        invoice = post_legacy_advance_invoice(order, percentage=50)
         order.with_user(self.sales).action_send_quotation()
         quotation = order._latest_quotation()
         request = order.payment_request_id

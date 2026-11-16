@@ -4,7 +4,7 @@ from odoo.exceptions import AccessError, UserError
 from odoo.fields import Command
 from odoo.tests import HttpCase, new_test_user, tagged
 
-from .invoicing_case import InvoicingCase
+from .invoicing_case import InvoicingCase, post_legacy_advance_invoice
 from odoo.addons.sol_laboratory.services.record_id import persisted_ids
 from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 from odoo.addons.sol_laboratory.tests.audit_case import AuditLookup
@@ -15,8 +15,22 @@ ACCOUNTANT = "ketoan.audit"
 
 @tagged("post_install", "-at_install")
 class TestInvoices(InvoicingCase):
+    def test_an_unquoted_order_cannot_use_the_manual_down_payment_wizard(self):
+        wizard = self.env["sale.advance.payment.inv"].create(
+            {
+                "advance_payment_method": "fixed",
+                "fixed_amount": 1_000_000,
+                "sale_order_ids": [Command.set(self.order.ids)],
+            }
+        )
+
+        with self.assertRaisesRegex(UserError, "The advance invoice is posted when its payment is verified"):
+            wizard.create_invoices()
+
+        self.assertFalse(self.order.invoice_ids)
+
     def test_an_advance_and_a_final_invoice_bill_the_order_once(self):
-        advance = self.order.create_advance_invoice(amount=1_000_000)
+        advance = post_legacy_advance_invoice(self.order, amount=1_000_000)
         final = self.order.create_final_invoice()
         final.action_post()
 
@@ -29,7 +43,7 @@ class TestInvoices(InvoicingCase):
         self.assertEqual(final.amount_total, self.order.amount_total - advance.amount_total)
 
     def test_a_lowering_adjustment_reduces_what_is_owed_and_leaves_the_invoice(self):
-        invoice = self.order.create_advance_invoice()
+        invoice = post_legacy_advance_invoice(self.order)
         self.assertEqual(invoice.amount_total, 5_000_000)
 
         credit = invoice.action_adjust(-500_000)
@@ -89,7 +103,7 @@ class TestInvoices(InvoicingCase):
         self.assertEqual(invoice.amount_owed, invoice.amount_residual)
 
     def test_a_raising_adjustment_adds_what_is_owed(self):
-        invoice = self.order.create_advance_invoice()
+        invoice = post_legacy_advance_invoice(self.order)
 
         raised = invoice.action_adjust(500_000)
 
@@ -101,7 +115,7 @@ class TestInvoices(InvoicingCase):
         self.assertEqual(raised.amount_residual, 500_000)
 
     def test_repeated_adjustments_change_the_obligation_once_each(self):
-        invoice = self.order.create_advance_invoice()
+        invoice = post_legacy_advance_invoice(self.order)
 
         invoice.action_adjust(-500_000)
         invoice.action_adjust(-500_000)
@@ -117,14 +131,14 @@ class TestInvoices(InvoicingCase):
         self.assertEqual(invoice.amount_owed, 500_000)
 
     def test_a_posted_invoice_cannot_go_back_to_draft(self):
-        invoice = self.order.create_advance_invoice()
+        invoice = post_legacy_advance_invoice(self.order)
 
         with self.assertRaises(UserError):
             invoice.button_draft()
         self.assertEqual(invoice.state, "posted")
 
     def test_posting_and_adjusting_need_the_accountant(self):
-        invoice = self.order.create_advance_invoice()
+        invoice = post_legacy_advance_invoice(self.order)
         clerk = self.env["res.users"].create(
             {
                 "name": "Clerk",
@@ -185,7 +199,7 @@ class TestInvoices(InvoicingCase):
         self.assertIn(b"VAT 10%", html)
 
     def test_the_pdf_names_the_invoice_kind(self):
-        invoice = self.order.create_advance_invoice()
+        invoice = post_legacy_advance_invoice(self.order)
 
         html = self.env["ir.actions.report"]._render_qweb_html("account.account_invoices", invoice.ids)[0]
 
@@ -202,7 +216,7 @@ class TestInvoices(InvoicingCase):
         self.assertIn(b"medilab_payment_details", html)
 
     def test_a_customer_reads_only_their_posted_invoices(self):
-        invoice = self.order.create_advance_invoice()
+        invoice = post_legacy_advance_invoice(self.order)
         draft = self.order.create_final_invoice()
         other_partner = self.env["res.partner"].create({"name": "Other customer"})
         customer = self.portal_user("khach.a", self.partner)
@@ -220,7 +234,7 @@ class TestInvoicePortalUrl(AuditLookup, InvoicingCase, HttpCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.invoice = cls.order.create_advance_invoice()
+        cls.invoice = post_legacy_advance_invoice(cls.order)
         other_partner = cls.env["res.partner"].create({"name": "Other customer"})
         cls.customer = cls.portal_user("khach.owner", cls.partner)
         cls.other = cls.portal_user("khach.url", other_partner)
