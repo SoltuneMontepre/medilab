@@ -150,7 +150,7 @@ flowchart LR
 - `test` runs the Jest tests.
 - Each job sets up Node 24, which Expo needs, and Bun, which installs the dependencies.
 - When any job fails, its last step cancels the whole run, as in `ci-core`.
-- `maestro` runs only every night at 02:00 in Asia/Ho_Chi_Minh and when the workflow is started by hand, never on a pull request, so it is not a required check. It starts Odoo with the demo data as `ci-core`'s `e2e` does, builds the Android development build for `x86_64`, serves its JavaScript with Metro, and runs the Maestro flows of `.maestro` on an Android 14 emulator, which reaches Odoo and Metro through `adb reverse`. A failed run uploads Maestro's screenshots and Metro's log.
+- `maestro` runs only every night at 02:00 in Asia/Ho_Chi_Minh and when the workflow is started by hand, never on a pull request, so it is not a required check. It starts Odoo with the demo data as `ci-core`'s `e2e` does, builds the Android release build for `x86_64` with `MEDILAB_URL=http://localhost:8069`, signed with the debug keystore, and keeps it for seven days as the `medilab-mobile-release-x86_64` artifact, which installs on a local x86_64 emulator; it installs a Maestro release checked against its SHA-256, and runs the Maestro flows of `.maestro` on an Android 14 emulator, which reaches Odoo through `adb reverse`. A failed run uploads Maestro's output, the last screen and the emulator's log.
 
 ## cd-core
 
