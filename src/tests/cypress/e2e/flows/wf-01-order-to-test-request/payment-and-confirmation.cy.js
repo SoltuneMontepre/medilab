@@ -39,7 +39,7 @@ describe("WF-01 order confirmation and test request (F-10)", () => {
       cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]").should("not.exist");
       callRefused("sale.order", "action_start_sample_collection", [[order.id]]).should(
         "eq",
-        "Verify the order balance before collecting its samples.",
+        "Xác nhận đã thanh toán số dư đơn hàng trước khi thu mẫu.",
       );
       cy.readRecord(order, ["order_status"]).its("order_status").should("eq", "confirmed");
     });
