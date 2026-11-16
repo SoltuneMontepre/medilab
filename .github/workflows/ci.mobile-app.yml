@@ -291,17 +291,24 @@ jobs:
         working-directory: ${{ env.MOBILE_APP_DIR }}
         run: bun install --frozen-lockfile --ignore-scripts
 
+      # The release build carries its JavaScript and the address of the CI MediLab; the prebuilt project signs it with
+      # the debug keystore.
       - name: Build the Android app
         working-directory: ${{ env.MOBILE_APP_DIR }}
+        env:
+          MEDILAB_URL: http://localhost:8069
         run: |
           bun run expo prebuild --platform android
-          cd android && ./gradlew assembleDebug -PreactNativeArchitectures=x86_64
+          cd android && ./gradlew assembleRelease -PreactNativeArchitectures=x86_64
 
-      - name: Start Metro
-        working-directory: ${{ env.MOBILE_APP_DIR }}
-        run: |
-          nohup bun run expo start --port 8081 > metro.log 2>&1 &
-          curl -fsS --retry 30 --retry-delay 5 --retry-all-errors http://localhost:8081/status
+      # The same APK installs on an x86_64 emulator, such as a local one, against MediLab at localhost:8069.
+      - name: Upload the Android app
+        uses: actions/upload-artifact@v7
+        with:
+          name: medilab-mobile-release-x86_64
+          path: ${{ env.MOBILE_APP_DIR }}/android/app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: error
+          retention-days: 7
 
       - name: Install Maestro
         env:
@@ -328,8 +335,7 @@ jobs:
           working-directory: ${{ env.MOBILE_APP_DIR }}
           script: |
             adb reverse tcp:8069 tcp:8069
-            adb reverse tcp:8081 tcp:8081
-            adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+            adb install -r android/app/build/outputs/apk/release/app-release.apk
             maestro test --env LAB_CODE="$LAB_CODE" --debug-output maestro-output .maestro || { adb exec-out screencap -p > maestro-output/screen.png; adb logcat -d > maestro-output/logcat.txt; exit 1; }
 
       - name: Upload the Maestro output
@@ -339,7 +345,6 @@ jobs:
           name: maestro-output
           path: |
             ${{ env.MOBILE_APP_DIR }}/maestro-output
-            ${{ env.MOBILE_APP_DIR }}/metro.log
           if-no-files-found: ignore
           include-hidden-files: true
           retention-days: 1

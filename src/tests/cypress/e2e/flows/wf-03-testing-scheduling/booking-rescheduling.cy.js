@@ -1,13 +1,14 @@
 import { callAs } from "../../../support/odoo";
 import { save } from "../../../support/form";
-import { milliseconds, typeStart } from "../../features/laboratory/scheduling/setup";
+import { milliseconds, typeTime } from "../../features/laboratory/scheduling/setup";
 import { displayZone, dragBookingToSlot } from "./screens";
 import { eventsGone, scheduleState } from "./state";
 import { HEAD, TESTER, awayFromQuarterHour, bookedOnOneMachine, book, assignedChromium, releaseFixtures, resetFixtures } from "./setup";
 
 beforeEach(() => {
   resetFixtures();
-  cy.viewport(1440, 900);
+  // Tall enough for the calendar to show the whole day, so a drag never needs it to scroll.
+  cy.viewport(1440, 1800);
 });
 afterEach(releaseFixtures);
 
@@ -55,7 +56,7 @@ describe("SF-10 the head moves and cancels a department booking", () => {
           cy.signInAs("head_of_department");
           cy.visit(`/odoo/machine-schedule/${booking.id}`);
           cy.get('.o_field_widget[name="starts_at"]').should("not.have.class", "o_readonly_modifier");
-          typeStart(slot, zone);
+          typeTime(slot, zone);
           cy.intercept("POST", "/web/dataset/call_kw/medilab.machine.booking/web_save").as("savedBooking");
           save();
           cy.wait("@savedBooking").its("response.body.error").should("not.exist");
@@ -77,10 +78,12 @@ describe("SF-10 the head moves and cancels a department booking", () => {
         cy.wait("@cancelledByHead").its("response.body.error").should("not.exist");
         cy.get(".o_statusbar_buttons button[name=action_cancel]").should("not.exist");
         scheduleState([test]).should((after) => {
-          // The test goes back to the plan, which proposes a new booking that reserves nothing.
-          expect(after.bookings.map(({ status }) => status)).to.deep.equal(["cancelled", "proposed"]);
-          expect(after.bookings[0].calendar_event_id).to.equal(false);
-          expect(after.bookings[0].room_event_ids).to.be.empty;
+          const cancelled = after.bookings.find((row) => row.id === booking.id);
+          expect(cancelled.status).to.equal("cancelled");
+          expect(cancelled.calendar_event_id).to.equal(false);
+          expect(cancelled.room_event_ids).to.be.empty;
+          // The cancelled slot goes back to the department's plan, which proposes another and reserves nothing.
+          expect(after.bookings.filter((row) => row.id !== booking.id).map((row) => row.status)).to.deep.equal(["proposed"]);
           expect(after.tasks[0].planned_start).to.equal(false);
           expect(after.tasks[0].planned_end).to.equal(false);
           expect(after.tasks[0].status).to.equal("assigned");
