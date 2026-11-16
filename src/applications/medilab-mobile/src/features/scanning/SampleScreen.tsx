@@ -80,6 +80,7 @@ export function SampleScreen() {
                 accessibilityState={{ disabled: busy || !picked.length }}
                 disabled={busy || !picked.length}
                 style={[shared.primaryButton, !picked.length && shared.disabled]}
+                testID="sample-claim"
                 onPress={() => act("claim", load.value)}
               >
                 <Text style={shared.primaryButtonText}>{t("sample.claim", { count: picked.length })}</Text>
@@ -168,6 +169,7 @@ function ClaimableTask({ task, chosen, onToggle }: Readonly<{ task: Task; chosen
       accessibilityState={{ checked: chosen }}
       accessibilityLabel={[task.name, due].filter(Boolean).join(", ")}
       style={[styles.task, chosen && styles.chosen]}
+      testID="claimable-task"
       onPress={onToggle}
     >
       <Text style={shared.label}>{task.name}</Text>

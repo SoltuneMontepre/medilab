@@ -23,7 +23,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 from odoo.addons.sol_laboratory.constants.settings import CALIBRATION_WARNING_PARAMETER
 
 SLOT = timedelta(minutes=15)
-PRE_MIGRATE = Path(__file__).resolve().parents[1] / "migrations" / "20.0.1.40.0" / "pre-migrate.py"
+PRE_MIGRATE = Path(__file__).resolve().parents[1] / "migrations" / "20.0.1.41.0" / "pre-migrate.py"
 OVERRUN_EVENT = "sol_laboratory.event_machine_booking_overrun"
 
 
@@ -92,7 +92,8 @@ class TestMachineConditions(ResultCase):
 
         self.service(self.fast, "maintenance", downtime_start=MONDAY, downtime_end=MONDAY + timedelta(hours=1))
 
-        self.assertEqual((booking.status, booking.machine_id), ("scheduled", self.fast))
+        # The booking goes back to the plan, which proposes the slot after the downtime.
+        self.assertEqual((booking.status, booking.machine_id), ("proposed", self.fast))
         self.assertEqual(booking.starts_at, MONDAY + timedelta(hours=1))
         self.assertFalse(self.fast.service_ids.filtered("downtime_start").service_date)
         with self.assertRaisesRegex(ValidationError, "planned service"), self.env.cr.savepoint():

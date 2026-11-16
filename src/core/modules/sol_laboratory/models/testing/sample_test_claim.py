@@ -31,7 +31,7 @@ class SampleTestClaim(models.Model, SampleTestClaimBase):
         tasks = self.env[MODEL_TASK]._system_tasks_of(tests, TESTING_ACTION)
         task_of = {task.document_id: task for task in tasks}
         for test in self:
-            task = task_of.get(test.id)
+            task = task_of.get(test.id) if isinstance(test.id, int) else None
             test.is_mine = bool(task and task.is_mine)
             test.can_claim = bool(task and task.in_my_queue)
 

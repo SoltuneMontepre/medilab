@@ -19,4 +19,23 @@ describe("app config", () => {
     delete process.env.MEDILAB_URL;
     expect(appConfig({ config: {} } as never).extra?.serverUrl).toBe(DEFAULT_SERVER_URL);
   });
+
+  it("lets a build made for an HTTP server reach it", () => {
+    process.env.MEDILAB_URL = "http://localhost:8069";
+    const config = appConfig({ config: {} } as never);
+    expect(config.extra?.allowsHttp).toBe(true);
+    expect(config.ios?.infoPlist).toEqual({ NSAppTransportSecurity: { NSAllowsArbitraryLoads: true } });
+    expect(config.plugins).toContainEqual([
+      "expo-build-properties",
+      { ios: { useFrameworks: "dynamic" }, android: { usesCleartextTraffic: true } },
+    ]);
+  });
+
+  it("keeps a build made for an HTTPS server on HTTPS", () => {
+    process.env.MEDILAB_URL = "https://lab.example";
+    const config = appConfig({ config: {} } as never);
+    expect(config.extra?.allowsHttp).toBe(false);
+    expect(config.ios?.infoPlist).toBeUndefined();
+    expect(config.plugins).toContainEqual(["expo-build-properties", { ios: { useFrameworks: "dynamic" }, android: {} }]);
+  });
 });
