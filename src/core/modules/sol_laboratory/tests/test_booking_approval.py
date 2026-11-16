@@ -72,7 +72,7 @@ class TestBookingApproval(SchedulingCase, LocationCase):
         self.assertEqual(self.machine_slot(), MONDAY + RUN)
         messages, partners = self.notices(APPROVED_EVENT, booking)
         self.assertEqual(partners, self.tester.user_id.partner_id)
-        self.assertIn(booking.display_name, messages.body)
+        self.assertIn(booking.display_name, messages.body or "")
 
     def test_the_tester_does_not_reserve_their_own_booking(self):
         booking = self.propose()

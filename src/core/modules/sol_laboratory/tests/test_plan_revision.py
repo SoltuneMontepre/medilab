@@ -59,7 +59,9 @@ class TestPlanRevision(PlanRevisionCase):
             self.assertEqual(
                 (move.department_id, move.previous_starts_at), (self.department, move.booking_id.starts_at)
             )
-            self.assertGreater(move.ends_at, move.sample_test_id.due_date)
+            self.assertGreater(
+                assert_instance(move.ends_at, datetime), assert_instance(move.sample_test_id.due_date, datetime)
+            )
 
     def test_nothing_that_is_held_back_can_be_approved(self):
         self.urgent_arrives()
@@ -85,7 +87,9 @@ class TestPlanRevision(PlanRevisionCase):
         # The live plan puts X in the evening OverTime, but the revision gives it the earliest slot.
         self.assertEqual(x.starts_at, EVENING)
         for move in revision.move_ids:
-            self.assertLessEqual(move.ends_at, move.sample_test_id.due_date)
+            self.assertLessEqual(
+                assert_instance(move.ends_at, datetime), assert_instance(move.sample_test_id.due_date, datetime)
+            )
             self.assertEqual(str(move.committed_date), "2026-10-16")
 
         revision.with_user(self.head.user_id).action_approve()
@@ -131,11 +135,16 @@ class TestPlanRevision(PlanRevisionCase):
         self.open_revision().with_user(self.head.user_id).action_approve()
 
         for booking in (self.z, self.y):
-            self.assertLessEqual(booking.ends_at, booking.sample_test_id.due_date)
+            self.assertLessEqual(
+                assert_instance(booking.ends_at, datetime),
+                assert_instance(booking.sample_test_id.due_date, datetime),
+            )
         applied = self.env[MODEL_PLAN_REVISION].search([("status", "=", "applied")]).move_ids
         self.assertTrue(applied)
         for move in applied:
-            self.assertLessEqual(move.ends_at, move.sample_test_id.due_date)
+            self.assertLessEqual(
+                assert_instance(move.ends_at, datetime), assert_instance(move.sample_test_id.due_date, datetime)
+            )
 
     def test_a_recalculation_that_proposes_the_same_keeps_the_open_revision(self):
         self.urgent_arrives()

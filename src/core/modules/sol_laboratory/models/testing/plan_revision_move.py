@@ -111,16 +111,25 @@ class PlanRevisionMove(models.Model, PlanRevisionMoveBase):
             booking = move.booking_id
             way = booking.sample_test_id.parameter_method_id
             rooms = bookings._room_steps(way)
-            length = move.ends_at - move.starts_at
+            move_start = move.starts_at
+            move_end = move.ends_at
             slot = None
             start = booking.starts_at
-            if booking.status == "scheduled" and not booking.is_pinned and start and start > now:
+            if (
+                move_start
+                and move_end
+                and booking.status == "scheduled"
+                and not booking.is_pinned
+                and start
+                and start > now
+            ):
+                length = move_end - move_start
                 slot = bookings._free_slot(
                     move.machine_id,
                     length,
                     booking.person_id,
-                    move.starts_at + max(length, _rooms_end(rooms)),
-                    move.starts_at,
+                    move_start + max(length, _rooms_end(rooms)),
+                    move_start,
                     leaving,
                     rooms=rooms,
                     way=way,

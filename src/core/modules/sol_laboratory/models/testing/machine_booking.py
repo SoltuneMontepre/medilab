@@ -593,14 +593,17 @@ class MachineBooking(models.Model, MachineBookingBase):
             (booking, booking.starts_at, booking.ends_at) for booking in busy if booking.starts_at and booking.ends_at
         ]
         # An unsaved planned booking has no id to search by.
-        spans += [
-            (booking, booking.starts_at, booking.ends_at)
-            for booking in planned.filtered(lambda booking: not booking.id)
-            if booking.starts_at
-            and booking.starts_at < limit
-            and booking.ends_at > start_from
-            and ((machine and booking.machine_id == machine) or (person and booking.person_id == person))
-        ]
+        for booking in planned.filtered(lambda booking: not booking.id):
+            start = booking.starts_at
+            end = booking.ends_at
+            if (
+                isinstance(start, datetime)
+                and isinstance(end, datetime)
+                and start < limit
+                and end > start_from
+                and ((machine and booking.machine_id == machine) or (person and booking.person_id == person))
+            ):
+                spans.append((booking, start, end))
         capacity = self._capacity(machine, way) if way else 0
 
         def shares(booking, booking_start, booking_end, start):
