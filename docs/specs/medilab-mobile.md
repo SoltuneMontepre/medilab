@@ -236,7 +236,7 @@ Like the Sync updates route, these two are plain `auth='none'` HTTP routes, outs
 
 - Every route has an `HttpCase` through `LaboratoryApiCase`, which checks its answers against the OpenAPI document, including refusals for a portal user, a revoked phone and a person without the permission the route needs.
 - The app's screens are tested with Jest and React Native Testing Library ([Testing](../conventions/testing.md)).
-- A Maestro flow on an Android emulator signs `demo.tester` in, scans a sample's label, claims its task, enters the result and signs it. The flows are in `src/applications/medilab-mobile/.maestro`; they run locally ([Running Medilab Mobile](../workflows/running-mobile-app.md)) and every night in the `maestro` job of [ci-mobile-app](../infrastructure/pipelines.md#ci-mobile-app), not as a required check of pull requests.
+- A Maestro flow on an Android emulator signs `demo.tester` in, scans a sample's label, claims its task, enters the result and signs it. The flows are in `src/applications/medilab-mobile/.maestro`; they run locally ([Running Medilab Mobile](../workflows/running-mobile-app.md)) and every night in the `maestro` job of [ci-mobile-app](../infrastructure/pipelines.md#ci-mobile-app), not as a required check of pull requests. A flow finds what it taps or waits for by the element's `testID` and scrolls to it first, since a field's label and its input share the same text and a long screen hides its buttons below the fold.
 - A Cypress test of each feature checks on the web what the phone did, such as a result waiting for `demo.head_of_department`.
 
 ## Related documents

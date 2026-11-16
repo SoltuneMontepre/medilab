@@ -56,7 +56,7 @@ export function HomeScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.screen}>
+    <SafeAreaView style={styles.screen} testID="home">
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={shared.title}>MediLab</Text>
         <Text style={shared.detail}>{t("home.server", { url: session.serverUrl })}</Text>
@@ -93,11 +93,12 @@ function Day({ home }: Readonly<{ home: Home }>) {
       <Pressable
         accessibilityRole="button"
         style={shared.primaryButton}
+        testID="home-todo"
         onPress={() => router.push({ pathname: "/tasks", params: { list: "open" } })}
       >
         <Text style={shared.primaryButtonText}>{t("home.todo")}</Text>
       </Pressable>
-      <Pressable accessibilityRole="button" style={shared.secondaryButton} onPress={() => router.push("/scan")}>
+      <Pressable accessibilityRole="button" style={shared.secondaryButton} testID="home-scan" onPress={() => router.push("/scan")}>
         <Text style={shared.secondaryButtonText}>{t("home.scan")}</Text>
       </Pressable>
       <Pressable accessibilityRole="button" style={shared.secondaryButton} onPress={() => router.push("/results")}>

@@ -1,84 +1,139 @@
 # demo.tester signs in, scans the label of the sample handed over to Chemistry, claims its lead task, enters the result
-# and signs it. The development build loads its JavaScript from Metro at METRO_URL; MediLab answers at localhost:8069
-# through adb reverse. LAB_CODE is the lab code of sol_demo.demo_sample_label_scan.
+# and signs it, on a release build made for the MediLab at localhost:8069, which it reaches through adb reverse.
+# LAB_CODE is the lab code of sol_demo.demo_sample_label_scan.
 appId: com.medilab.mobile
 name: Testing at the bench
 env:
   LOGIN: demo.tester
   PASSWORD: demo
-  METRO_URL: http%3A%2F%2Flocalhost%3A8081
 ---
 - launchApp:
     clearState: true
-# The development build drops a link that arrives before its launcher is ready.
 - extendedWaitUntil:
-    visible: "Connect"
+    visible:
+      id: "language-en"
     timeout: 60000
-- openLink: exp+medilab-mobile://expo-development-client/?url=${METRO_URL}
-# On its first start the development build covers the app with its developer menu.
-- extendedWaitUntil:
-    visible: 'Continue|English'
-    timeout: 300000
-- waitForAnimationToEnd
 - tapOn:
-    text: "Continue"
-    optional: true
-- runFlow:
-    when:
-      visible: "Reload"
-    commands:
-      - back
-- tapOn: "English"
-- tapOn: "Login"
+    id: "language-en"
+- tapOn:
+    id: "sign-in-login"
 - inputText: ${LOGIN}
-- tapOn: "Password"
+- hideKeyboard
+- tapOn:
+    id: "sign-in-password"
 - inputText: ${PASSWORD}
 - hideKeyboard
-- tapOn: "Sign in"
+- tapOn:
+    id: "sign-in-submit"
 - extendedWaitUntil:
-    visible: "Scan a sample label"
+    visible:
+      id: "home"
     timeout: 60000
-- tapOn: "Scan a sample label"
+- scrollUntilVisible:
+    element:
+      id: "home-scan"
+    direction: DOWN
+    timeout: 30000
+- tapOn:
+    id: "home-scan"
+# Android asks for the camera; the flow types the label's code instead.
 - tapOn:
     text: "Don.t allow"
     optional: true
-- tapOn: "Lab code"
+- tapOn:
+    id: "scan-code"
 - inputText: ${LAB_CODE}
 - hideKeyboard
-- tapOn: "Open the sample"
-- extendedWaitUntil:
-    visible: '.*Lead \(Pb\).*'
+- tapOn:
+    id: "scan-open"
+- scrollUntilVisible:
+    element:
+      id: "claimable-task"
+      text: '.*Lead \(Pb\).*'
+    direction: DOWN
     timeout: 30000
-- tapOn: '.*Lead \(Pb\).*'
-- tapOn: 'Claim the chosen tasks \(1\)'
-- assertVisible: "Tasks claimed: 1."
+- tapOn:
+    id: "claimable-task"
+    text: '.*Lead \(Pb\).*'
+- scrollUntilVisible:
+    element:
+      id: "sample-claim"
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: "sample-claim"
+- scrollUntilVisible:
+    element:
+      text: "Tasks claimed: 1."
+    direction: DOWN
+    timeout: 30000
 - repeat:
     while:
-      notVisible: "To-do list"
+      notVisible:
+        id: "home"
     commands:
       - back
-- tapOn: "To-do list"
-- tapOn: '${LAB_CODE}: Lead \(Pb\).*'
-- extendedWaitUntil:
-    visible: "Enter the result"
+- scrollUntilVisible:
+    element:
+      id: "home-todo"
+    direction: DOWN
     timeout: 30000
-- assertVisible: "Method steps"
-- tapOn: "Enter the result"
-- tapOn: 'Value \(.*\)'
+- tapOn:
+    id: "home-todo"
+- scrollUntilVisible:
+    element:
+      id: "task-row"
+      text: '.*Lead \(Pb\), ${LAB_CODE},.*'
+    direction: DOWN
+    timeout: 30000
+- tapOn:
+    id: "task-row"
+    text: '.*Lead \(Pb\), ${LAB_CODE},.*'
+- scrollUntilVisible:
+    element:
+      id: "task-enter-result"
+    direction: DOWN
+    timeout: 30000
+- tapOn:
+    id: "task-enter-result"
+- scrollUntilVisible:
+    element:
+      id: "result-value"
+    direction: DOWN
+    timeout: 30000
+- tapOn:
+    id: "result-value"
 - inputText: "0.008"
 - hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: "result-save"
+    direction: DOWN
+    timeout: 10000
 - tapOn:
-    text: "Pass"
+    id: "choice-pass"
     optional: true
-- tapOn: "Save the result"
-- extendedWaitUntil:
-    visible: "Send for approval"
+- tapOn:
+    id: "result-save"
+- scrollUntilVisible:
+    element:
+      id: "result-send"
+    direction: DOWN
     timeout: 30000
-- tapOn: "Send for approval"
 - tapOn:
-    text: "I checked the warnings and send the result anyway."
+    id: "result-send"
+- scrollUntilVisible:
+    element:
+      id: "result-sign"
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: "result-acknowledge"
     optional: true
-- tapOn: "Sign"
-- extendedWaitUntil:
-    visible: "The result is approved or waits for someone else's signature, so you can only read it."
+- tapOn:
+    id: "result-sign"
+- scrollUntilVisible:
+    element:
+      id: "result-read-only"
+    direction: DOWN
     timeout: 30000

@@ -16,6 +16,7 @@ export function Button({
       accessibilityRole="button"
       accessibilityState={{ disabled }}
       disabled={disabled}
+      testID={testID}
       style={[primary ? shared.primaryButton : shared.secondaryButton, disabled && shared.disabled]}
       onPress={onPress}
     >
