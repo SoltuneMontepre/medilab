@@ -15882,6 +15882,7 @@ msgstr "Bản Lưu Nhu Cầu Lấy Mẫu"
 msgid "The amount of a sampling requirement must be above 0."
 msgstr "Lượng mẫu của yêu cầu lấy mẫu phải lớn hơn 0."
 
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/report_template_version.py:0
 msgid "%(template)s, version %(number)s"
@@ -17273,6 +17274,8 @@ msgstr "Độ lệch bất thường (độ lệch chuẩn)"
 msgid "Warning"
 msgstr "Cảnh báo"
 
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/testing/machine_booking_capacity.py:0
 #, python-format
 msgid ""
@@ -17282,6 +17285,8 @@ msgstr ""
 "Không thể giảm sức chứa của %(link)s xuống %(capacity)s: một khung giờ đã "
 "đặt đang có %(samples)s mẫu. Hãy điều chỉnh lịch trước."
 
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/master_data/parameter_authorization.py:0
 msgid "%(person)s is not authorized to test %(parameter)s."
 msgstr "%(person)s không được phép thử %(parameter)s."
@@ -17360,6 +17365,7 @@ msgstr "Quyền: parameter.authorization.edit.all"
 msgid "The person is already authorized to test this parameter."
 msgstr "Nhân sự đã được phép thử chỉ tiêu này."
 
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_overtime_create_all
 msgid "Create OverTime"
 msgstr "Tạo làm thêm giờ"
@@ -17647,6 +17653,8 @@ msgstr "Các chỉ tiêu của mẫu vẫn có nguy cơ trễ hạn nội bộ: 
 msgid "Summary of sample tests at risk"
 msgstr "Tổng hợp chỉ tiêu của mẫu có nguy cơ trễ hạn"
 
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/system/machine_booking_scheduled_job.py:0
 msgid ""
 "%(booking)s on %(machine)s ended at %(end)s without its result or a finished "
