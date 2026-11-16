@@ -25,15 +25,16 @@ describe("Medilab Mobile sample photos on the web", () => {
             // A photo sent again after a lost answer is attached once.
             onPhone(key, "POST", `/samples/${sampleId}/photos`, photo, sent).its("body.id").should("eq", attached.id);
 
-            signIn(STAFF);
-            cy.visit(`/odoo/medilab.sample/${sampleId}`);
-            cy.get(".o_notebook .nav-link[name=photos]").click();
-            cy.get('.o_field_widget[name="photo_ids"]').should("contain", name);
-
+            // The phone calls come before the web's: the API takes no browser session.
             signedInPhone(TESTER).then((testerKey) => {
               onPhone(testerKey, "GET", `/attachments/${attached.id}`).its("status").should("eq", 404);
               onPhone(testerKey, "GET", `/samples/${sampleId}/photos`).its("body.photos").should("deep.eq", []);
             });
+
+            signIn(STAFF);
+            cy.visit(`/odoo/medilab.sample/${sampleId}`);
+            cy.get(".o_notebook .nav-link[name=photos]").click();
+            cy.get('.o_field_widget[name="photo_ids"]').should("contain", name);
             signIn(TESTER);
             cy.visit(`/odoo/medilab.sample/${sampleId}`);
             cy.get(".o_form_view").should("be.visible");
