@@ -15,6 +15,17 @@ from kube_cluster import CONTEXT, NETWORK_NAMESPACE, http_status, inspect, kube,
 from runtime import IMAGE, PASSWORD, ROOT, Runtime
 
 
+def manifest_document_for_kind(manifest, kind):
+    documents = [
+        document
+        for document in re.split(r"^---\s*$", manifest, flags=re.MULTILINE)
+        if re.search(rf"^kind:\s*{re.escape(kind)}\s*$", document, re.MULTILINE)
+    ]
+    if len(documents) != 1:
+        raise ValueError(f"Expected exactly one {kind} document, found {len(documents)}.")
+    return documents[0]
+
+
 def core_resources():
     rendered = subprocess.check_output(["kubectl", "kustomize", str(ROOT / "infra/cluster/cloudbeaver")], text=True)
     documents = []
@@ -47,15 +58,20 @@ class Fixture:
         self.secret("cloudbeaver-admin", {"CB_ADMIN_NAME": "operator", "CB_ADMIN_PASSWORD": PASSWORD})
         self.secret("medilab-db-app", {"username": "regression", "password": "LocalDatabase9"})
         kube("apply", "-f", "-", input=json.dumps({"apiVersion": "v1", "kind": "List", "items": self.resources}))
+        route_document = manifest_document_for_kind(
+            (ROOT / "infra/cluster/cloudbeaver/ingress-route.yaml").read_text(),
+            "IngressRoute",
+        )
         route = json.loads(
             kube(
                 "create",
                 "--dry-run=client",
                 "--validate=false",
                 "-f",
-                str(ROOT / "infra/cluster/cloudbeaver/ingress-route.yaml"),
+                "-",
                 "-o",
                 "json",
+                input=route_document,
             ).stdout
         )
         route["metadata"]["namespace"] = self.namespace
