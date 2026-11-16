@@ -32,18 +32,14 @@ describe("WF-01 order confirmation and test request (F-10)", () => {
     });
   });
 
-  it("TC-F10-02 keeps an unpaid test request unconfirmable for a customer without credit", () => {
+  it("TC-F10-02 blocks sample collection while an order balance is unpaid", () => {
     orderAt("confirmed", { advance: false }).then((order) => {
       cy.signInAs("sales");
-      cy.readRecord(order, ["test_request_id"]).then(({ test_request_id: [id, code] }) => {
-        const request = { model: "medilab.test.request", id };
-        cy.signInAs("sample_delivery_staff");
-        cy.openRecord(request);
-        cy.expectRefusal({
-          read: () => cy.readRecord(request, ["status", "write_date"]),
-          action: () => cy.get(".o_statusbar_buttons button[name=action_confirm]:visible").click(),
-          message: `Test request ${code} cannot be confirmed until its order is paid or the customer is allowed credit.`,
-        });
+      cy.openRecord(order);
+      cy.expectRefusal({
+        read: () => cy.readRecord(order, ["order_status"]),
+        action: () => cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]:visible").click(),
+        message: "Verify the order balance before collecting its samples.",
       });
     });
   });

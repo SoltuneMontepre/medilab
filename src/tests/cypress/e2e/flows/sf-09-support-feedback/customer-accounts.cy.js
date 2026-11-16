@@ -31,7 +31,7 @@ describe("SF-09 customer accounts and profiles (F-03)", () => {
     orderAt("paid").then((order) => {
       refAs("demo.administrator", "sol_demo.demo_test_report_by_email").then((report) => {
         callAs("demo.sales", "sale.order", "read", [[order.id], ["invoice_ids"]]).then(([read]) => {
-          const invoiceIds = read.invoice_ids.map(([invoiceId]) => invoiceId);
+          const invoiceIds = read.invoice_ids;
           expect(invoiceIds, "invoices of the paid order").not.to.be.empty;
           callAs("demo.accountant", "account.move", "read", [invoiceIds, ["name"]]).then((invoices) => {
             cy.signInAs("individual");

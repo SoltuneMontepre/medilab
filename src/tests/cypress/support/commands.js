@@ -1,4 +1,5 @@
 import { readRecord, recordRef, signIn } from "./odoo";
+import { assertNoPriorRefusal, assertRefusalOutcome } from "./refusal";
 import { quietly } from "./steps";
 
 const ACTIONS = ".o_form_view .o_statusbar_buttons";
@@ -68,11 +69,13 @@ Cypress.Commands.add("expectRefusal", ({
     expect(before, "record snapshot").not.to.be.oneOf([null, undefined]);
     snapshot = Cypress._.cloneDeep(before);
   });
-  cy.contains(messageSelector, message).should("not.exist");
+  cy.get("body").then(($body) => assertNoPriorRefusal($body.find(messageSelector).filter(":visible").text(), message));
   cy.then(action);
-  cy.contains(messageSelector, message).should("be.visible");
+  cy.contains(messageSelector, message)
+    .should("be.visible")
+    .then(($message) => {
+      const displayedMessage = $message.text();
+      return cy.then(read).then((after) => assertRefusalOutcome({ displayedMessage, message, before: snapshot, after }));
+    });
   cy.then(() => cy.removeListener("uncaught:exception", expectedRejection));
-  return cy.then(read).then((after) => {
-    expect(after, "record after refusal").to.deep.equal(snapshot);
-  });
 });

@@ -103,7 +103,8 @@ export function dragBookingToSlot(booking, slot, zone) {
       // Stay inside each quarter-hour slot; its midpoint is a snap tie that rounds up to the next slot.
       const interiorOffset = timePosition(lanes, startMinute + SLOT_INTERIOR_MINUTES) - timePosition(lanes, startMinute);
       const grabbed = point(eventBox.left + eventBox.width / 2, eventBox.top + interiorOffset);
-      const dropped = point(column.left + column.width / 2, timePosition(lanes, targetMinute + SLOT_INTERIOR_MINUTES));
+      const targetOffset = timePosition(lanes, targetMinute + SLOT_INTERIOR_MINUTES) - timePosition(lanes, startMinute + SLOT_INTERIOR_MINUTES);
+      const dropped = point(column.left + column.width / 2, grabbed.clientY + targetOffset);
       cy.wrap($event).trigger("mousedown", { ...grabbed, scrollBehavior: false });
       cy.document().trigger("mousemove", { ...point(grabbed.clientX + 1, grabbed.clientY + 1), scrollBehavior: false });
       cy.document().trigger("mousemove", { ...dropped, scrollBehavior: false });
