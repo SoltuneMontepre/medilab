@@ -213,6 +213,8 @@ from . import (
     test_sample_label,
     test_sample_photo,
     test_sample_reception,
+    test_sample_recollection,
+    test_sample_return,
     test_sample_test_cancellation,
     test_sample_test_claiming,
     test_sample_test_due_date,

@@ -1051,15 +1051,15 @@ model Sample {
   regulation_id        Int?
   /// Free notes about the sample.
   note                 String?      @db.Text
-  /// expected, received, on_hold, rejected, testing, awaiting_approval, completed, reported, retained, disposed or cancelled.
+  /// expected, received, on_hold, rejected, testing, awaiting_approval, completed, reported, retained, disposed, returned or cancelled.
   status               String       @db.VarChar
-  /// When the laboratory received the sample.
+  /// When the laboratory received the sample in good condition; empty for an unusable or insufficient arrival.
   received_at          DateTime?
-  /// Person who received the sample.
+  /// Person who received the sample in good condition.
   received_by_id       Int?
-  /// Amount received, such as "2 bottles of 1 L".
+  /// Amount that arrived, such as "2 bottles of 1 L".
   received_quantity    String?      @db.VarChar
-  /// Condition on arrival: good, damaged or insufficient.
+  /// Condition staff decide on arrival, before any receipt: good, unusable or insufficient.
   condition            String?      @db.VarChar
   /// What was wrong with the sample on arrival.
   condition_note       String?      @db.Text
@@ -1069,7 +1069,7 @@ model Sample {
   sampling_location_id Int?
   /// The location the sample was taken from.
   sampling_location    Location? @relation(fields: [sampling_location_id], references: [id], onDelete: Restrict)
-  /// When the head of department asked for the sample to be collected again because it arrived insufficient.
+  /// When the head of department last asked for the sample to be collected again: it arrived insufficient, or its delivery to a subcontractor failed.
   recollection_requested_at DateTime?
   /// Head of department who asked for the sample to be collected again.
   recollection_requested_by_id Int?
@@ -1099,6 +1099,8 @@ model Sample {
   handovers            SampleHandover[]
   /// Handover records that list the sample.
   handover_lines       HandoverRecordSample[]
+  /// What was returned of the sample to the customer.
+  returns              SampleReturn[]
   /// Photos of the sample taken when it was collected or received.
   photos               SamplePhoto[]
   /// Laboratory folders of the sample.
@@ -1378,6 +1380,8 @@ model Person {
   recollection_requests Sample[]  @relation("RecollectionRequester")
   /// Samples the person disposed of.
   disposed_samples Sample[]       @relation("SampleDisposer")
+  /// What the person returned of samples to customers.
+  sample_returns   SampleReturn[] @relation("SampleReturner")
   /// Report deliveries the person recorded.
   delivered_reports TestReport[] @relation("ReportDeliverer")
   /// Subcontract dispatches the person carried.
@@ -2302,7 +2306,7 @@ model HandoverRecord {
   @@map("medilab_handover_record")
 }
 
-/// Links a handover record to the samples it lists, with the amount and condition as they were handed over. Unique on (record_id, sample_id).
+/// Links a handover record to the samples it lists, with what was actually handed over against what was expected. Unique on (record_id, sample_id); at least one actual sample.
 model HandoverRecordSample {
   /// Row identifier.
   id        Int            @id @default(autoincrement())
@@ -2310,9 +2314,19 @@ model HandoverRecordSample {
   record_id Int
   /// The sample handed over.
   sample_id Int
+  /// Physical samples expected for the sample from its sampling requirements; 0 when none were calculated.
+  expected_count Int?
+  /// Physical samples actually handed over, which the customer confirms by signing; the expected ones to start.
+  actual_count   Int
+  /// Physical samples handed over beyond the expected ones; they add no test and stay with the sample.
+  extra_count    Int?
+  /// Expected physical samples not handed over; they wait for another collection or Sales cancels them.
+  missing_count  Int?
   /// Amount handed over, such as "2 bottles of 1 L".
   quantity  String         @db.VarChar
-  /// good, damaged or insufficient, as handed over.
+  /// Material handed over beyond what testing needs, such as "300 mL more than required"; it adds no test and stays with the sample.
+  excess_material String?  @db.VarChar
+  /// good, unusable or insufficient, as handed over.
   condition String         @db.VarChar
   /// What was wrong with the sample when handed over.
   condition_note String?   @db.Text
@@ -2324,6 +2338,31 @@ model HandoverRecordSample {
   @@unique([record_id, sample_id])
   @@index([sample_id])
   @@map("medilab_handover_record_sample")
+}
+
+/// A return of sample material to the customer (trả mẫu): the extra samples and excess material testing never uses, or the retained sample once its retention period is over, which then ends as returned. Never changed or deleted.
+model SampleReturn {
+  /// Row identifier.
+  id               Int      @id @default(autoincrement())
+  /// The sample whose material is returned.
+  sample_id        Int
+  /// extras or retained.
+  kind             String   @db.VarChar
+  /// What was handed back, such as "1 extra 500 mL bottle and 300 mL of excess material".
+  description      String   @db.Text
+  /// When it was handed back.
+  returned_at      DateTime
+  /// Person who handed it back.
+  returned_by_id   Int
+  /// Name of the customer's person who took it, such as at the counter when collecting the report.
+  returned_to_name String   @db.VarChar
+  /// The sample whose material is returned.
+  sample           Sample   @relation(fields: [sample_id], references: [id], onDelete: Restrict)
+  /// Person who handed it back.
+  returned_by      Person   @relation("SampleReturner", fields: [returned_by_id], references: [id], onDelete: Restrict)
+
+  @@index([sample_id])
+  @@map("medilab_sample_return")
 }
 
 /// The test report (phiếu kết quả) of one test request, covering all its samples. A change request creates a new version that replaces it once that version is issued.

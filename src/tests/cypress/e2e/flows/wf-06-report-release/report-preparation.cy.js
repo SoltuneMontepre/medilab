@@ -1,3 +1,4 @@
+import { step } from "../../../support/steps";
 import { callAs, callRefused, refAs } from "../../../support/odoo";
 
 const ADMIN = "demo.administrator";
@@ -80,15 +81,18 @@ describe("WF-06 Report preparation", () => {
   it("TC-WF06-A5 makes the prepared PDF obsolete when the editor reopens the draft", function () {
     editingAvailable().then((available) => available || this.skip());
     reopenedReport().then((report) => {
+      step("Staff prepare the report's PDF");
       cy.signInAs("sample_delivery_staff");
       callAs(STAFF, "medilab.test.report", "action_prepare_pdf", [[report.id]]);
       waitingCandidate(report).then((candidate) => {
+        step("Staff reopen the draft, which makes the prepared PDF obsolete");
         cy.openRecord(report);
         cy.get(`${ACTIONS} button[name=action_reopen_draft]`).click();
         cy.get(".modal-footer .btn-primary").click();
         cy.get(`${ACTIONS} button[name=action_prepare_pdf]`).should("be.visible");
         callAs(ADMIN, "medilab.test.report.candidate", "read", [[candidate.id], ["status"]]).its("0.status").should("eq", "obsolete");
         // A new PDF keeps the number reserved for the report.
+        step("A new PDF keeps the number reserved for the report");
         cy.get(`${ACTIONS} button[name=action_prepare_pdf]`).click();
         cy.get(`${ACTIONS} button[name=action_open_candidate]`).should("be.visible");
         waitingCandidate(report).its("report_number").should("eq", candidate.report_number);
@@ -99,6 +103,7 @@ describe("WF-06 Report preparation", () => {
   it("TC-WF06-E4 refuses a new PDF while ONLYOFFICE is unavailable and still serves issued PDFs", function () {
     editingAvailable().then((available) => available && this.skip());
     reopenedReport().then((report) => {
+      step("Preparing a PDF is refused while ONLYOFFICE is unavailable");
       cy.signInAs("sample_delivery_staff");
       callRefused("medilab.test.report", "action_prepare_pdf", [[report.id]]).then((message) => {
         expect(message).to.contain("ONLYOFFICE");
@@ -110,6 +115,7 @@ describe("WF-06 Report preparation", () => {
         });
       });
 
+      step("The customer still downloads an issued report");
       refAs(ADMIN, ISSUED).then((issued) => {
         cy.signInAs("customer");
         cy.request(`/my/test-reports/${issued.id}/download`).its("headers.content-type").should("contain", "application/pdf");

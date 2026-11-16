@@ -10,10 +10,7 @@ import {
 const REASON = "Khách hàng cần kết quả gấp để thông quan.";
 
 describe("Department plan", () => {
-  beforeEach(() => {
-    resetFixtures();
-    cy.viewport(1440, 900);
-  });
+  beforeEach(resetFixtures);
   afterEach(releaseFixtures);
 
   it("TC-F422-1 lets the tester accept the booking the plan proposes, which then reserves the machine and the calendar", () => {
