@@ -1641,6 +1641,11 @@ msgstr ""
 " giữ lại số đơn hàng dưới dạng văn bản."
 
 #. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_person
+msgid "Person"
+msgstr "Nhân Sự"
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 msgid "is paid."
 msgstr "đã được thanh toán."
@@ -4944,21 +4949,6 @@ msgstr "Thuế bán hàng cùng thuế suất"
 #: code:addons/sol_commerce/models/pricing/tax_rate.py:0
 msgid "The accounting tax of %(rate)s must be a sales tax of %(percent)s%%."
 msgstr "Thuế kế toán của %(rate)s phải là thuế bán hàng %(percent)s%%."
-
-#. module: sol_commerce
-#: model:ir.model.fields,field_description:sol_commerce.field_mail_message__idempotency_key
-msgid "Idempotency Key"
-msgstr "Khóa chống lặp yêu cầu"
-
-#. module: sol_commerce
-#: model:ir.model.fields,field_description:sol_commerce.field_mail_message__posted_by_device_id
-msgid "Posted By Device"
-msgstr "Gửi từ điện thoại"
-
-#. module: sol_commerce
-#: model:ir.model.constraint,message:sol_commerce.constraint_mail_message_device_idempotency_key_unique
-msgid "This phone already posted a message with this Idempotency-Key."
-msgstr "Điện thoại này đã gửi một tin nhắn với Idempotency-Key này."
 
 #. module: sol_commerce
 #. odoo-python

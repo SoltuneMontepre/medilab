@@ -24,6 +24,7 @@ EVENT_MACHINE_BOOKING_APPROVED = "machine_booking.approved"
 EVENT_MACHINE_BOOKING_MOVED = "machine_booking.moved"
 EVENT_TASK_ASSIGNED = "task.assigned"
 EVENT_TEST_RESULT_INTERRUPTED = "test_result.interrupted"
+EVENT_MESSAGE_MENTION = "message.mention"
 # Brevo's create-webhook auth.type bearer. The token is compared, never stored.
 BREVO_WEBHOOK_TOKEN = "BREVO_WEBHOOK_TOKEN"
 BREVO_SMTP_HOST = "BREVO_SMTP_HOST"

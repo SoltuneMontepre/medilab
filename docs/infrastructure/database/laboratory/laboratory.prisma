@@ -2835,8 +2835,8 @@ model NotificationPreference {
   @@map("medilab_notification_preference")
 }
 
-/// Odoo's message (mail.message), shown with the columns this schema uses and the column the laboratory adds: one notification of one event about one document, sent to its recipients, or a message of a conversation.
-/// Partial unique index on notification_key where it is set.
+/// Odoo's message (mail.message), shown with the columns this schema uses and the columns the laboratory adds: one notification of one event about one document, sent to its recipients, a message of a conversation, or a message or note of a document's chatter.
+/// Partial unique index on notification_key where it is set, and on posted_by_device_id and idempotency_key where idempotency_key is set.
 model Message {
   /// Row identifier.
   id               Int               @id @default(autoincrement())
@@ -2852,15 +2852,40 @@ model Message {
   body             String?           @db.Text
   /// Unique key that stops the same notification being created twice, such as booking:42:reminder.
   notification_key String?           @db.VarChar
+  /// The phone the message or the note was posted from; empty for one posted on the web.
+  posted_by_device_id Int?
+  /// The Idempotency-Key the phone sent with the request that posted it; empty when it sent none.
+  idempotency_key  String?           @db.VarChar
   /// The event notified.
   event            NotificationEvent? @relation(fields: [subtype_id], references: [id], onDelete: SetNull)
+  /// The phone the message or the note was posted from.
+  posted_by_device LaboratoryDevice? @relation(fields: [posted_by_device_id], references: [id], onDelete: SetNull)
   /// One notification per recipient.
   notifications    Notification[]
-  /// Pushes of a conversation message to its members' phones.
+  /// Pushes of the message to the phones of the conversation's members and of the people it mentions.
   pushes           PushDelivery[]
 
   @@index([model, res_id])
   @@map("mail_message")
+}
+
+/// Odoo's Discuss channel (discuss.channel), shown with the columns this schema uses and the columns the laboratory adds: a direct (chat) or group (group) conversation of people with an internal user (SH-12).
+/// Partial unique index on created_by_device_id and idempotency_key where idempotency_key is set.
+model Conversation {
+  /// Row identifier.
+  id                   Int               @id @default(autoincrement())
+  /// The group's name; the members' names for a direct conversation.
+  name                 String            @db.VarChar
+  /// chat for a direct conversation, group for a group, channel for Odoo's channels.
+  channel_type         String            @db.VarChar
+  /// The phone the group was created on; empty for a conversation opened on the web.
+  created_by_device_id Int?
+  /// The Idempotency-Key the phone sent with the request that created the group; empty when it sent none.
+  idempotency_key      String?           @db.VarChar
+  /// The phone the group was created on.
+  created_by_device    LaboratoryDevice? @relation(fields: [created_by_device_id], references: [id], onDelete: SetNull)
+
+  @@map("discuss_channel")
 }
 
 /// Odoo's notification (mail.notification), shown with the columns this schema uses and the columns the laboratory adds: one message to one recipient, in their inbox or by e-mail.
@@ -2899,9 +2924,9 @@ model Notification {
 model PushDelivery {
   /// Row identifier.
   id               Int          @id @default(autoincrement())
-  /// The notification pushed; empty for a conversation message.
+  /// The notification pushed; empty for a message.
   notification_id  Int?
-  /// The conversation message pushed; empty for a notification.
+  /// The message pushed, of a conversation or mentioning the person; empty for a notification.
   message_id       Int?
   /// The token pushed to.
   mobile_device_id Int
@@ -2911,9 +2936,9 @@ model PushDelivery {
   sent_at          DateTime?
   /// Error Firebase returned on the last failed attempt.
   error            String?      @db.Text
-  /// The notification pushed; empty for a conversation message.
+  /// The notification pushed; empty for a message.
   notification     Notification? @relation(fields: [notification_id], references: [id], onDelete: Cascade)
-  /// The conversation message pushed; empty for a notification.
+  /// The message pushed; empty for a notification.
   message          Message?      @relation(fields: [message_id], references: [id], onDelete: Cascade)
   /// The token pushed to.
   mobile_device    MobileDevice  @relation(fields: [mobile_device_id], references: [id], onDelete: Cascade)
@@ -3358,6 +3383,10 @@ model LaboratoryDevice {
   created_tasks Task[]
   /// Results entered on the phone.
   entered_results TestResult[]
+  /// Messages and notes posted from the phone.
+  posted_messages Message[]
+  /// Group conversations created on the phone.
+  created_conversations Conversation[]
   /// Sample photos taken on the phone.
   sample_photos Attachment[]
 
