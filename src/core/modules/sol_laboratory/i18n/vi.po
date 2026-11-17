@@ -11259,6 +11259,11 @@ msgid "A test result you entered was rejected"
 msgstr "Một kết quả thử nghiệm bạn nhập đã bị từ chối"
 
 #. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_test_result_sent
+msgid "A test result of your department was sent for approval"
+msgstr "Một kết quả thử nghiệm của phòng ban bạn đã được gửi duyệt"
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_form
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__approve
@@ -11484,6 +11489,12 @@ msgid "Result %(result)s was rejected: %(reason)s"
 msgstr "Kết quả %(result)s bị từ chối: %(reason)s"
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result_notification.py:0
+msgid "Result %s was sent for approval."
+msgstr "Kết quả %s đã được gửi duyệt."
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__result_ids
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__result_ids
@@ -11520,6 +11531,11 @@ msgstr "Kết Quả Thử Nghiệm"
 #: model:mail.message.subtype,name:sol_laboratory.event_test_result_rejected
 msgid "Test result rejected"
 msgstr "Kết quả thử nghiệm bị từ chối"
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_test_result_sent
+msgid "Test result sent"
+msgstr "Kết quả thử nghiệm đã gửi"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__value_text

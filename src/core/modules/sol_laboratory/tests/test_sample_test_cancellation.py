@@ -70,3 +70,15 @@ class TestSampleTestCancellation(ResultCase):
 
         self.assertEqual(self.sample.status, "completed")
         self.assertEqual(self.request.status, "completed")
+
+    def test_a_cancelled_test_does_not_hold_back_the_sample_awaiting_approval(self):
+        arsenic = self.add_test()
+        self.cancel(arsenic)
+        result = self.enter()
+
+        self.send(result)
+
+        self.assertEqual(self.sample.status, "awaiting_approval")
+        self.assertEqual(self.request.status, "awaiting_approval")
+        self.approve(result)
+        self.assertEqual(self.sample.status, "completed")
