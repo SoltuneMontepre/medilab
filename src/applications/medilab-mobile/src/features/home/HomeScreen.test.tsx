@@ -72,6 +72,14 @@ describe("HomeScreen", () => {
     expect(router.push).toHaveBeenCalledWith("/scan");
   });
 
+  it("opens the person's conversations", async () => {
+    fakeMediLab(...home());
+    await renderApp();
+
+    await fireEvent.press(await screen.findByTestId("home-conversations"));
+    expect(router.push).toHaveBeenCalledWith("/conversations");
+  });
+
   it("offers to create a task only with the permission", async () => {
     fakeMediLab(...home({ create_tasks: true, assign_tasks: true }));
     await renderApp();

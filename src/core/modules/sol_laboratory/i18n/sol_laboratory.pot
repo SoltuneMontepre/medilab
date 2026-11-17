@@ -1245,6 +1245,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_needaction
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_needaction
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_needaction
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__message_needaction
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__message_needaction
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__message_needaction
 msgid "Action Needed"
 msgstr ""
 
@@ -1982,6 +1985,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_attachment_count
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_attachment_count
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_attachment_count
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__message_attachment_count
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__message_attachment_count
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__message_attachment_count
 msgid "Attachment Count"
 msgstr ""
 
@@ -2644,6 +2650,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__channel_member_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__channel_member_ids
+#: model:ir.model,name:sol_laboratory.model_discuss_channel_member
 msgid "Channel Member"
 msgstr ""
 
@@ -3374,6 +3381,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__created_by_device_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__created_by_device_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_attachment__created_by_device_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_discuss_channel__created_by_device_id
 msgid "Created By Device"
 msgstr ""
 
@@ -4382,6 +4390,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_return__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_discuss_channel__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_discuss_channel_member__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_thread__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -5724,6 +5735,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_follower_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_follower_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_follower_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__message_follower_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__message_follower_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__message_follower_ids
 msgid "Followers"
 msgstr ""
 
@@ -5732,6 +5746,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_partner_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_partner_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_partner_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__message_partner_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__message_partner_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__message_partner_ids
 msgid "Followers (Partners)"
 msgstr ""
 
@@ -5951,6 +5968,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__has_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__has_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__has_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__has_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__has_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__has_message
 msgid "Has Message"
 msgstr ""
 
@@ -6188,6 +6208,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_return__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_discuss_channel__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_discuss_channel_member__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_thread__id
 msgid "ID"
 msgstr ""
 
@@ -6230,6 +6253,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__idempotency_key
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__idempotency_key
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_attachment__idempotency_key
+#: model:ir.model.fields,field_description:sol_laboratory.field_discuss_channel__idempotency_key
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_mail__idempotency_key
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_message__idempotency_key
 msgid "Idempotency Key"
 msgstr ""
 
@@ -6248,6 +6274,9 @@ msgstr ""
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__message_needaction
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__message_needaction
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__message_needaction
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_sample__message_needaction
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_task__message_needaction
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_test_request__message_needaction
 msgid "If checked, new messages require your attention."
 msgstr ""
 
@@ -6260,6 +6289,12 @@ msgstr ""
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__message_has_sms_error
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__message_has_error
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__message_has_sms_error
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_sample__message_has_error
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_sample__message_has_sms_error
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_task__message_has_error
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_task__message_has_sms_error
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_test_request__message_has_error
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_test_request__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
 msgstr ""
 
@@ -6505,6 +6540,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_is_follower
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_is_follower
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_is_follower
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__message_is_follower
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__message_is_follower
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__message_is_follower
 msgid "Is Follower"
 msgstr ""
 
@@ -7550,6 +7588,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_mail_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__message_id
 msgid "Message"
 msgstr ""
 
@@ -7558,6 +7597,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_has_error
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_has_error
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_has_error
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__message_has_error
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__message_has_error
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__message_has_error
 msgid "Message Delivery error"
 msgstr ""
 
@@ -7588,6 +7630,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__message_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__message_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__message_ids
 msgid "Messages"
 msgstr ""
 
@@ -8149,6 +8194,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_needaction_counter
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_needaction_counter
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_needaction_counter
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__message_needaction_counter
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__message_needaction_counter
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__message_needaction_counter
 msgid "Number of Actions"
 msgstr ""
 
@@ -8163,6 +8211,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_has_error_counter
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_has_error_counter
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_has_error_counter
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__message_has_error_counter
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__message_has_error_counter
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__message_has_error_counter
 msgid "Number of errors"
 msgstr ""
 
@@ -8171,6 +8222,9 @@ msgstr ""
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__message_needaction_counter
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__message_needaction_counter
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__message_needaction_counter
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_sample__message_needaction_counter
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_task__message_needaction_counter
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_test_request__message_needaction_counter
 msgid "Number of messages requiring action"
 msgstr ""
 
@@ -8179,6 +8233,9 @@ msgstr ""
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__message_has_error_counter
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__message_has_error_counter
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__message_has_error_counter
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_sample__message_has_error_counter
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_task__message_has_error_counter
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_test_request__message_has_error_counter
 msgid "Number of messages with delivery error"
 msgstr ""
 
@@ -11329,6 +11386,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__rating_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__rating_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__rating_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__rating_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__rating_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__rating_ids
 msgid "Ratings"
 msgstr ""
 
@@ -12468,6 +12528,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_has_sms_error
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_has_sms_error
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_has_sms_error
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__message_has_sms_error
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__message_has_sms_error
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__message_has_sms_error
 msgid "SMS Delivery error"
 msgstr ""
 
@@ -14558,6 +14621,7 @@ msgstr ""
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload_flow.py:0
 #: code:addons/sol_laboratory/models/testing/sample_test_mobile.py:0
 #: code:addons/sol_laboratory/models/sample_collection/sample_mobile.py:0
+#: code:addons/sol_laboratory/services/mobile_messages.py:0
 msgid "This Idempotency-Key was already sent with another request."
 msgstr ""
 
@@ -18087,4 +18151,97 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/sample_mobile.py:0
 msgid "A photo can be at most 10 MiB."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/services/mobile_messages.py:0
+msgid "%s is larger than 10 MiB."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/services/mobile_messages.py:0
+msgid "%s is not sent as base64."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_push_delivery_notification_or_message
+msgid "A push is of a notification or of a message."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/services/mobile_messages.py:0
+msgid "Choose only people of the laboratory."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/conversations/discuss_channel.py:0
+msgid "Choose the people of the conversation."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_discuss_channel
+msgid "Discussion Channel"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_mail_thread
+msgid "Email Thread"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_message_mention
+msgid "Mention"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/conversations/discuss_channel_member.py:0
+msgid "Only people of the laboratory take part in conversations, so %s cannot be added."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_message_mention
+msgid "Someone mentioned you in a conversation or a document's chatter"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/services/mobile_messages.py:0
+msgid "The files of one message are at most 25 MiB together."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_push_delivery_message_device_unique
+msgid "This message is already pushed to the device."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_discuss_channel_device_idempotency_key_unique
+msgid "This phone already created a conversation with this Idempotency-Key."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_mail_message_device_idempotency_key_unique
+msgid "This phone already posted a message with this Idempotency-Key."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/services/mobile_messages.py:0
+msgid "Write a message or attach a file."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_chatter_mixin
+msgid "Chatter of a Document"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_mail__posted_by_device_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_message__posted_by_device_id
+msgid "Posted By Device"
 msgstr ""

@@ -197,6 +197,17 @@
         <field name="enabled" eval="True" />
     </record>
 
+    <record id="event_message_mention" model="mail.message.subtype">
+        <field name="name">Mention</field>
+        <field name="description">Someone mentioned you in a conversation or a document's chatter</field>
+        <field name="code">message.mention</field>
+        <field name="internal" eval="True" />
+        <field name="hidden" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="False" />
+        <field name="enabled" eval="True" />
+    </record>
+
     <!-- Administrators are alerted out of the box; they choose other recipients afterwards. -->
     <data noupdate="1">
         <record id="event_recipient_signing_certificate_alert" model="medilab.notification.event.recipient">
