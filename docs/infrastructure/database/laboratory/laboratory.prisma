@@ -2241,11 +2241,30 @@ model SamplePhoto {
   /// The photo's attachment.
   attachment_id Int
   /// The sample.
-  sample        Sample @relation(fields: [sample_id], references: [id], onDelete: Cascade)
+  sample        Sample     @relation(fields: [sample_id], references: [id], onDelete: Cascade)
+  /// The photo's attachment.
+  attachment    Attachment @relation(fields: [attachment_id], references: [id], onDelete: Cascade)
 
   @@id([sample_id, attachment_id])
   @@index([attachment_id])
   @@map("medilab_sample_photo_rel")
+}
+
+/// Odoo's attachment table, shown with the columns this module adds: the phone a sample photo was taken on and the Idempotency-Key it was sent with.
+/// Partial unique index on created_by_device_id and idempotency_key where idempotency_key is set.
+model Attachment {
+  /// Row identifier.
+  id                   Int               @id @default(autoincrement())
+  /// The phone the photo was taken on; empty for a file attached on the web.
+  created_by_device_id Int?
+  /// The Idempotency-Key the phone sent the photo with; empty when it sent none.
+  idempotency_key      String?           @db.VarChar
+  /// The phone the photo was taken on.
+  created_by_device    LaboratoryDevice? @relation(fields: [created_by_device_id], references: [id], onDelete: SetNull)
+  /// The samples the attachment is a photo of.
+  sample_photos        SamplePhoto[]
+
+  @@map("ir_attachment")
 }
 
 /// Handover record (biên bản giao nhận mẫu): the samples a customer hands to the laboratory, signed by the customer by hand on the mobile app. A signed record is never edited; a correction is a new record.
@@ -3358,6 +3377,8 @@ model LaboratoryDevice {
   posted_messages Message[]
   /// Group conversations created on the phone.
   created_conversations Conversation[]
+  /// Sample photos taken on the phone.
+  sample_photos Attachment[]
 
   @@unique([user_id, client_uid])
   @@map("medilab_laboratory_device")

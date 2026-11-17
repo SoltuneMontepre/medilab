@@ -1,5 +1,5 @@
 import { randomId, refAs, signIn } from "../../../../support/odoo";
-import { onPhone, signedInPhone } from "../../../../support/phone";
+import { onPhone, signedInPhone } from "../../../../support/mobile";
 
 const TESTER = "demo.tester";
 const HEAD = "demo.head_of_department";

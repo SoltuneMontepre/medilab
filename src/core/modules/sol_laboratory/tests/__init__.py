@@ -159,6 +159,7 @@ from . import (
     test_medilab_mobile_chatter,
     test_medilab_mobile_conversations,
     test_medilab_mobile_notifications,
+    test_medilab_mobile_photos,
     test_medilab_mobile_results,
     test_medilab_mobile_samples,
     test_medilab_mobile_sign_in,
