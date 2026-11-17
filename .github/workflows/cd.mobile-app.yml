@@ -124,7 +124,7 @@ jobs:
       # needed. Without the Expo configuration it would miss native changes, so the step fails.
       - name: Name the native build
         run: |
-          bun x fingerprint fingerprint:generate --platform android > "$RUNNER_TEMP/fingerprint.json"
+          node node_modules/@expo/fingerprint/bin/cli.js fingerprint:generate --platform android > "$RUNNER_TEMP/fingerprint.json"
           jq -e '.sources | any(.id == "expoConfig")' "$RUNNER_TEMP/fingerprint.json" > /dev/null
           echo "MEDILAB_MOBILE_RUNTIME_VERSION=$(jq -r .hash "$RUNNER_TEMP/fingerprint.json")" >> "$GITHUB_ENV"
 
