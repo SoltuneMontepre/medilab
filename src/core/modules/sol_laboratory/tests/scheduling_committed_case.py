@@ -212,7 +212,7 @@ class SchedulingCommittedCase(TransactionCase):
             MODEL_TEST_REQUEST,
             {
                 "customer_id": customer.id,
-                "expected_date": fields.Date.today() + timedelta(days=60),
+                "committed_date": fields.Date.today() + timedelta(days=60),
                 "sample_ids": [
                     Command.create(
                         {

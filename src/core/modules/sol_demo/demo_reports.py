@@ -80,7 +80,7 @@ def _completed_request(env, samples, cancelled=(), by_head=(), **values):
         env,
         env.ref("sol_demo.demo_customer_nuoc_sach"),
         samples,
-        expected_date=fields.Date.today() + timedelta(days=5),
+        committed_date=fields.Date.today() + timedelta(days=5),
         **values,
     )
     _approve_all(env, request, cancelled, by_head)

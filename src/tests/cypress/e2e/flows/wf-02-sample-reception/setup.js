@@ -73,7 +73,7 @@ export const staffRequest = helper("staffRequest", function staffRequest({ sampl
       callAs(STAFF, "medilab.test.request", "create", [
         {
           customer_id: refs.customer,
-          expected_date: expectedDate,
+          committed_date: expectedDate,
           sample_ids: samples.map((parameters, index) => [
             0,
             0,

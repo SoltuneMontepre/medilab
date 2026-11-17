@@ -95,7 +95,10 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
             .create_from_order(
                 customer,
                 [sample._test_request_values() for sample in self.sample_ids],
-                expected_date=self.expected_result_date,
+                committed_date=self.committed_date,
+                requested_date=self.requested_date,
+                priority=self.priority,
+                turnaround_days=self.turnaround_days,
                 report_recipient=self.partner_id if self.partner_id != self.customer_id else False,
             )
         )

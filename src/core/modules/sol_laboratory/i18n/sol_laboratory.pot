@@ -17001,11 +17001,6 @@ msgid "Booked Hours"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_testing_statistic__kind__booking
-msgid "Booking"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_statistic__on_time
 msgid "On Time (%)"
 msgstr ""
@@ -17915,6 +17910,40 @@ msgstr ""
 #: code:addons/sol_laboratory/models/sample_collection/sample_return.py:0
 msgid ""
 "A retained sample is returned only once its retention period is over: %s"
+
+#: code:addons/sol_laboratory/models/sample_collection/test_request_estimate.py:0
+msgid "%s has no turnaround."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/committed_date_change.py:0
+msgid "A recorded change of a committed return date cannot be deleted."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/committed_date_change.py:0
+msgid "A recorded change of a committed return date cannot be edited."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_committed_date_change
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_committed_date_change_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
+msgid "Change Committed Date"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_committed_date_change_create_all
+msgid "Change committed return dates"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_committed_date_change_form
+msgid ""
+"Change the committed return date only after the customer agreed to the new "
+"date."
 msgstr ""
 
 #. module: sol_laboratory
@@ -17942,6 +17971,35 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__returnable
 msgid "Can Return"
+
+#: code:addons/sol_laboratory/models/sample_collection/test_request_plan.py:0
+msgid "Change the committed return date with Change Committed Date."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_committed_date_change
+msgid "Committed Date Change"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__committed_date_change_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
+msgid "Committed Date Changes"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__committed_date
+msgid "Committed Return Date"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__confirmation
+msgid "Customer's Confirmation"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__new_date
+msgid "New Committed Return Date"
 msgstr ""
 
 #. module: sol_laboratory
@@ -18032,6 +18090,36 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
 msgid "Return"
+
+#: code:addons/sol_laboratory/models/sample_collection/test_request_estimate.py:0
+msgid ""
+"No authorized person and machine has a free slot for %(way)s in the next "
+"%(days)s days."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__old_date
+msgid "Old Date"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_committed_date_change_create_all
+msgid "Permission: committed.date.change.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_committed_date_change_read_all
+msgid "Permission: committed.date.change.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__priority
+msgid "Priority Order"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_committed_date_change_read_all
+msgid "Read committed date changes"
 msgstr ""
 
 #. module: sol_laboratory
@@ -18228,4 +18316,38 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_mail_mail__posted_by_device_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_mail_message__posted_by_device_id
 msgid "Posted By Device"
+
+#: code:addons/sol_laboratory/models/sample_collection/committed_date_change.py:0
+msgid "Record how the customer agreed to the new date."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
+msgid "Recorded On"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__request_id
+msgid "Request"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__requested_date
+msgid "Requested Date"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_committed_date_change_form
+msgid "Such as the email or call the customer agreed in"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__turnaround_days
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__turnaround_days
+msgid "Turnaround (working days)"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__current_date
+msgid "Current Committed Return Date"
 msgstr ""

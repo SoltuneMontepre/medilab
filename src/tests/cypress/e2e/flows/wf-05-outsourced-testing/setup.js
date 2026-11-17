@@ -88,7 +88,7 @@ export const assignedTest = helper("assignedTest", function assignedTest(kind = 
     callAs(RECEPTION, "medilab.test.request", "create", [
       {
         customer_id: ids.customer,
-        expected_date: inDays(days),
+        committed_date: inDays(days),
         sample_ids: [
           [
             0,

@@ -87,8 +87,9 @@ class SaleOrder(models.Model, SaleOrderBase):
         submitted_at = fields.Datetime()
         # When a salesperson claimed the order.
         claimed_at = fields.Datetime()
-        # The date the customer expects the results.
-        expected_result_date = fields.Date()
+        # Committed return date Sales promises on the quotation: the requested date when the standard turnaround can meet
+        # it, or the date an accepted priority request asked for; empty when the date is fixed at sample receipt.
+        committed_date = fields.Date(string="Committed Return Date")
         # The order this one was reordered from.
         reordered_from_id = fields.Many2one(MODEL_SALE_ORDER, ondelete="set null", index=True)
         # Orders reordered from this one.

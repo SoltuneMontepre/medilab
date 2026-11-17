@@ -111,7 +111,7 @@ export const receivedSample = helper("receivedSample", function receivedSample(p
     callAs(RECEPTION, "medilab.test.request", "create", [
       {
         customer_id: sample.customerId,
-        expected_date: inDays(days),
+        committed_date: inDays(days),
         sample_ids: [
           [
             0,

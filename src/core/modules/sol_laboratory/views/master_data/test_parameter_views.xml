@@ -44,6 +44,7 @@
                                     <field name="subcontractor_id" invisible="department_id" />
                                     <field name="allows_negative" optional="hide" />
                                     <field name="duration_minutes" optional="show" invisible="subcontractor_id" />
+                                    <field name="turnaround_days" optional="show" />
                                     <field name="capacity" optional="show" invisible="subcontractor_id" />
                                     <field name="active" widget="boolean_toggle" />
                                 </list>

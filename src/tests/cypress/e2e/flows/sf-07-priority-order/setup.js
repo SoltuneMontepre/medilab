@@ -21,7 +21,7 @@ export function leadTest() {
       callAs(RECEPTION, "medilab.test.request", "create", [
         {
           customer_id: ids.customer,
-          expected_date: inTwoWeeks(),
+          committed_date: inTwoWeeks(),
           sample_ids: [
             [
               0,
