@@ -8,6 +8,8 @@ import { useT } from "../../locale";
 import { useSession } from "../../session";
 import { styles } from "../../styles";
 import { Unreachable } from "../connection/Unreachable";
+import { ChatterButton } from "../messages/ChatterButton";
+import { CHATTER_MODELS } from "./documentPath";
 
 type Load =
   | { state: "loading" }
@@ -79,6 +81,7 @@ export function DocumentScreen() {
           >
             <Text style={styles.secondaryButtonText}>{t("document.openOnWeb")}</Text>
           </Pressable>
+          {CHATTER_MODELS.includes(load.document.model) && <ChatterButton document={load.document} />}
         </>
       )}
     </SafeAreaView>
