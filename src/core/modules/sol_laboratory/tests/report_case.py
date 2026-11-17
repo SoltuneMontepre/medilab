@@ -7,9 +7,12 @@ from odoo.tests import new_test_user
 
 from .editing_service import use_editing_service
 from .result_case import ResultCase
+from odoo.addons.sol_laboratory.constants.jobs import TEST_REPORT_PREPARE_JOB
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_IR_ACTIONS_ACT_WINDOW,
     MODEL_REPORT_TEMPLATE,
+    MODEL_SCHEDULED_JOB,
+    MODEL_TASK,
     MODEL_TEST_REPORT,
 )
 from odoo.addons.sol_laboratory.constants.report_templates import AVAILABLE
@@ -57,8 +60,8 @@ class MemoryBucket:
 
 class ReportCase(ResultCase):
     """The lab head signs the report of the lead request once its results are approved and its PDF is prepared, from a
-    template an administrator of templates made available, by a sample delivery staff member who edits reports and
-    delivers them. The bucket is in memory and ONLYOFFICE is up and converting."""
+    template an administrator of templates made available; a sample delivery staff member delivers it. The bucket is in
+    memory and ONLYOFFICE is up and converting."""
 
     @classmethod
     def setUpClass(cls):
@@ -71,6 +74,7 @@ class ReportCase(ResultCase):
                 "test_report.read.all",
                 "test_report.sign.all",
                 "test_report_candidate.read.all",
+                "report_template_version.read.all",
                 "test_request.read.all",
                 "test_result.read.all",
             ),
@@ -81,7 +85,7 @@ class ReportCase(ResultCase):
             login="hai.dang",
             permissions=(
                 "test_report.read.all",
-                "test_report.edit.all",
+                "test_report.deliver.all",
                 "test_request.read.all",
                 "report_template_version.read.all",
                 "test_report_candidate.read.all",
@@ -126,18 +130,24 @@ class ReportCase(ResultCase):
     def report(self):
         return self.env[MODEL_TEST_REPORT].search([("request_id", "=", self.request.id)])
 
-    def editor(self, report=None):
-        return self.as_person(report or self.report(), self.courier)
-
     def prepare(self, report=None):
-        """Prepare the report's PDF for review as its editor, from an available template of its language, and return
+        """Prepare the report's PDF for review, as the job does, from an available template of its language, and return
         it."""
         report = (report or self.report()).sudo()
         if not report.template_version_id:
             template = self.templates.get(report.language or "") or self.available_template(report.language or "")
             report.template_version_id = template.version_ids.filtered(lambda version: version.state == AVAILABLE)
-        self.editor(report).action_prepare_pdf()
+        report._prepare_pdf()
         return report._candidate()
+
+    def signing_tasks(self, report, status="open"):
+        return self.env[MODEL_TASK].search(
+            [("document_model", "=", report._name), ("document_id", "=", report.id), ("status", "=", status)]
+        )
+
+    def run_preparation(self):
+        """Run the job that prepares the PDF of each report waiting for one."""
+        self.env[MODEL_SCHEDULED_JOB]._run_key(TEST_REPORT_PREPARE_JOB)
 
     def sign(self, document=None):
         """Sign the document as the lab head; a report first gets its PDF prepared when none waits for review."""

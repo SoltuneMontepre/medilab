@@ -8,6 +8,7 @@ The head of department runs the testing work of their department: its tasks, mac
 - Still reads a task they moved to another department, but no longer changes it; its form stays open, read-only.
 - Reads, creates, moves and cancels the machine bookings of their department's tasks.
 - Reads, records, changes and deletes the planned OverTime of their department's testers.
+- Reads the plan revisions of their department, and approves or rejects the moves of its bookings. Sales reads the plan revisions of every department to see which moves wait for a customer's agreement.
 
 ## Testing statistics
 

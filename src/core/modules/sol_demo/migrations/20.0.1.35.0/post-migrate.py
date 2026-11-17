@@ -3,11 +3,23 @@ from odoo.api import SUPERUSER_ID
 from odoo.fields import Command
 
 from odoo.addons.sol_demo.demo_payment_requests import seed_payment_requests
+
 from odoo.addons.sol_laboratory.constants.models import MODEL_ROLE
 from odoo.addons.sol_laboratory.services.model_lookup import reference_as
 from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
+# The head of department reads and decides the plan revisions of their department, and Sales reads them to see which
+# moves wait for a customer's agreement.
+# Sample delivery staff record what they return to customers; the lab head reads the returns.
 ROLE_PERMISSIONS = {
+    "sol_demo.demo_role_head_of_department": (
+        "sol_laboratory.permission_plan_revision_read_own_department",
+        "sol_laboratory.permission_plan_revision_move_read_own_department",
+    ),
+    "sol_demo.demo_role_sales": (
+        "sol_laboratory.permission_plan_revision_read_all",
+        "sol_laboratory.permission_plan_revision_move_read_all",
+    ),
     "sol_demo.demo_role_sample_delivery_staff": (
         "sol_laboratory.permission_sample_return_read_all",
         "sol_laboratory.permission_sample_return_create_all",

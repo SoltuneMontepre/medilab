@@ -5048,6 +5048,7 @@ msgstr "Số mẫu dự kiến được hiển thị khi mỗi mục đã có lo
 msgid "Unit"
 msgstr "Đơn vị"
 
+#. module: sol_commerce
 #: model:product.template,name:sol_commerce.product_quotation_discount_product_template
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 msgid "Discount"
