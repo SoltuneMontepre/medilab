@@ -78,10 +78,11 @@ function moveDragTo(point, x, y, date, time, tries = 3) {
   cy.document({ log: false }).trigger("mousemove", { ...point(x, y), scrollBehavior: false });
   cy.document({ log: false }).then((document) => {
     const mirror = document.querySelector(`.fc-timegrid-col[data-date="${date}"] .fc-event-mirror`);
-    const gap = timeTop(minutesOf(time)) - (mirror ? mirror.getBoundingClientRect().top : Number.NaN);
+    expect(mirror, `the preview of the drag on ${date}`).to.exist;
+    const gap = timeTop(minutesOf(time)) - mirror.getBoundingClientRect().top;
     if (Math.abs(gap) < 1) return cy.document({ log: false }).trigger("mouseup", { ...point(x, y), scrollBehavior: false });
     expect(tries, `the preview of the drag at ${time} on ${date}`).to.be.above(1);
-    return moveDragTo(point, x, Number.isNaN(gap) ? y : y + gap, date, time, tries - 1);
+    return moveDragTo(point, x, y + gap, date, time, tries - 1);
   });
 }
 
