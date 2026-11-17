@@ -157,6 +157,8 @@ from . import (
     test_machines_and_chemicals,
     test_mandatory_notification_events,
     test_master_data_access,
+    test_medilab_mobile_chatter,
+    test_medilab_mobile_conversations,
     test_medilab_mobile_notifications,
     test_medilab_mobile_photos,
     test_medilab_mobile_results,
