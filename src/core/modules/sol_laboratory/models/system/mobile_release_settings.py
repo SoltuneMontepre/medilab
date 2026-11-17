@@ -40,9 +40,10 @@ class ResConfigSettings(models.TransientModel, ResConfigSettingsBase):
     @api.constrains("mobile_minimum_version", "mobile_stopped_versions")
     def _check_mobile_versions(self):
         for settings in self:
-            versions = parse_versions(settings.mobile_stopped_versions) + parse_versions(
-                settings.mobile_minimum_version
-            )
+            versions = parse_versions(settings.mobile_stopped_versions)
+            # The oldest version served is one version, read whole.
+            if settings.mobile_minimum_version:
+                versions.append(settings.mobile_minimum_version)
             for version in versions:
                 try:
                     version_key(version)

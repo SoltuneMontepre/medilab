@@ -233,7 +233,11 @@ class TestLaboratoryMobileUpdates(HttpCase):
             {"mobile_minimum_version": "", "mobile_stopped_versions": ""}
         ).execute()
         self.assertEqual(self.release_of(f"android/{RUNTIME}/1.0.0"), {"action": "code", "version": "1.1.0"})
-        for values in ({"mobile_minimum_version": "latest"}, {"mobile_stopped_versions": "1.1.0, 1.2"}):
+        for values in (
+            {"mobile_minimum_version": "latest"},
+            {"mobile_minimum_version": "1.0.0 1.1.0"},
+            {"mobile_stopped_versions": "1.1.0, 1.2"},
+        ):
             with self.assertRaises(ValidationError):
                 self.env[MODEL_RES_CONFIG_SETTINGS].create(values)
 
