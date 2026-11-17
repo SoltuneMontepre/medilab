@@ -77,6 +77,17 @@ For example, GC-01 has two 4-hour intervals on Wednesday. Z holds the morning an
 
 The feasibility check only reads: it simulates in-house resources and outsourced turnaround, including transport and processing, and moves or reserves nothing. The latest branch finish plus the safety margin gives the return estimate. A missing outsourced turnaround marks the estimate incomplete. The check explains infeasibility and gives the earliest feasible date. A date the head keeps despite infeasibility stays flagged at risk and implies no reserved resources. While Sales waits for the customer's agreement to a changed date or method, the sample test is flagged at risk and keeps its accepted way; nothing is booked on an unapproved method.
 
+The due date check of one sample test and one date answers in this order, on its department's bookings as they are, and writes nothing:
+
+| Step | Description |
+| --- | --- |
+| Free slot | The earliest slot of the agreed way, with its tester, machine when needed and every room of its steps, that ends by the date, as the plan would place it. A scheduled booking of the test itself that ends later does not hold its machine. A measurement already running keeps its end: it decides the answer. |
+| Simulated moves | Without a free slot, the check takes the earliest slot there would be if the department's scheduled bookings that have not started moved, and lifts the fewest of them, in start order, that stand on its tester, machine or rooms. It places the test there and each lifted booking again, in priority order, in its earliest free slot. The date is feasible only when every lifted booking still ends by its own internal due date; it lists them with their new slots. Nothing moves until a plan revision is approved. |
+| Reasons | When neither works, the check says what keeps the test from finishing by the date: it has passed, a measurement runs past it, the earliest free slot ends after it, the tester is not free before it, or moving a booking would pass that booking's own due date. |
+| Earliest feasible date | The end of the earliest company-local day, within 30 days, by which one of the steps works. |
+
+The head keeps a date that fails the check only by saying so: the date is refused unless the head keeps it at risk with the reason, and the plan then flags the sample test at risk as it does any test without a free slot before its date. The check does not simulate a sample test that is outsourced.
+
 ### Interruptions
 
 | Rule | Description |

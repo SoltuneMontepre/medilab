@@ -20,6 +20,7 @@ from . import (
     sample_test_claim,
     sample_test_due_date,
     sample_test_due_date_change,
+    sample_test_due_date_check,
     sample_test_eligibility,
     sample_test_mobile,
     sample_test_outsource,
