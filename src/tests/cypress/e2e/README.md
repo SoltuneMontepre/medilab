@@ -108,6 +108,22 @@ WF-03-A3 and SF-10-A1, A4 and E1 through E4 depend on the features listed in the
 
 Issue [#318](https://github.com/SoltuneMontepre/medilab/issues/318) tracks `TC-WF03-A2 partial`, formerly `TC-WF03-A5`. It requires a passing rerun on the same database, unchanged recommendations in the other WF-03 tests and a green `e2e` job.
 
+### SF-05 path coverage
+
+Each test builds its machines, method, way and tests with `flows/sf-05-machine-unavailability/setup.js`, which `sol_demo` supports with the catalog, people and customer; the machines and states `sol_demo` seeds (a never-calibrated and an overdue-maintenance machine, planned downtime, a calibration and a repair inside their warning windows, an interrupted result, and Chlorpyrifos tests no machine can run) are for browsing the demo. A test returns the machines it took out of use and cancels its open tests, so none of its bookings stays in the plan of the specs that follow.
+
+| Title starts with | What the browser proves |
+| --- | --- |
+| `TC-SF05-M` | The administrator sets a machine under repair from its form. Its scheduled and proposed bookings go back to the plan on the other machine linked to the same method, keep their agreed way, and the head sees them as proposed. Putting the machine back in use is refused until a calibration dated after its repair is recorded, and then the plan uses it again. |
+| `TC-SF05-A1` | A never-calibrated machine and one whose calibration has ended take no booking; the test shows no machine can finish it and Schedule is refused. Recording a valid calibration lets the tester schedule it. A calibration recorded to end before a scheduled booking returns that booking to the plan. |
+| `TC-SF05-A2` | The calibration, maintenance and repair warnings appear on the booking one by one as their windows are entered. With maintenance overdue the warnings stay and a new booking is refused. |
+| `TC-SF05-A3` | A planned maintenance's downtime sends the bookings it overlaps back to the plan, after it. Overdue maintenance refuses the booking until a maintenance record dated today is saved, and the booking then keeps clear of the downtime. |
+| `TC-SF05-E1` | Without another machine for the way, the bookings stay in the plan without a slot, the way is not replaced, outsourcing is suggested, the tester and head receive the at-risk notice and the tester cannot schedule. |
+| `TC-SF05-E2` | A machine failure ends every booking of a shared run with an interrupted result that keeps the tester's data and notifies the tester and head. The tester cannot assess; the head assesses the three attempts as usable, needing a retest and needing more sample. |
+| `TC-F20-03` | A machine with a scheduled or a queued booking, and then a running one, is refused archiving with the bookings listed. |
+
+Not covered because the feature is not built: a notice to the tester and head when a machine's unavailability returns bookings to the plan on another machine (only leave and an unavailable room send one), and a new booking for a retest after the head assesses an interrupted result as needing a retest. Calibration ending during a running measurement is undecided and has no test.
+
 ## Feature specs
 
 | Scope | Issue | Directory | Spec basename |
