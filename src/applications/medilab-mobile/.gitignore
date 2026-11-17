@@ -15,3 +15,6 @@ expo-env.d.ts
 *.p12
 *.key
 *.mobileprovision
+
+# Firebase project of a release build, written by cd-mobile-app
+google-services.json
