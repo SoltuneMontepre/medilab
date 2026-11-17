@@ -1,6 +1,6 @@
 {
     "name": "Medilab - Testing Data",
-    "version": "20.0.1.35.0",
+    "version": "20.0.1.36.0",
     "summary": "Seeds and configure data for demo purposes.",
     "category": "Services/Laboratory",
     "author": "Soltune Montepre",
@@ -77,6 +77,8 @@
         "data/stock/stock_location.xml",
         "data/analytic/account_analytic_account.xml",
         "data/sol_commerce/notification_contact.xml",
+        "data/sol_commerce/support_request.xml",
+        "data/mail/mail_message.xml",
         "data/product/product_product.xml",
         "data/sol_inventory/supplier.xml",
         "data/product/product_supplierinfo.xml",
