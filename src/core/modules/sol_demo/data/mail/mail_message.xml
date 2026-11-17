@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_mail_message_results_waiting" model="mail.message">
+        <field name="model">medilab.support.request</field>
+        <field name="res_id" ref="demo_support_request_results_waiting" />
+        <field name="message_type">comment</field>
+        <field name="subtype_id" ref="mail.mt_comment" />
+        <field name="author_id" ref="demo_res_partner_hoa" />
+        <field name="body" type="html">
+            <p>Chúng tôi gửi mẫu nước đóng chai từ thứ Hai. Khi nào chúng tôi nhận được kết quả?</p>
+        </field>
+    </record>
+    <record id="demo_mail_message_invoice_sales" model="mail.message">
+        <field name="model">medilab.support.request</field>
+        <field name="res_id" ref="demo_support_request_invoice_sales" />
+        <field name="message_type">comment</field>
+        <field name="subtype_id" ref="mail.mt_comment" />
+        <field name="author_id" ref="demo_res_partner_hoa" />
+        <field name="body" type="html">
+            <p>Công ty đã chuyển văn phòng sang 25 Nguyễn Huệ, Quận 1. Nhờ anh chị xuất lại hoá đơn tháng này.</p>
+        </field>
+    </record>
+</odoo>
