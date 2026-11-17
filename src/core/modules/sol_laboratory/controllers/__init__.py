@@ -2,6 +2,7 @@ from . import (
     binary,
     brevo,
     dispatch_portal,
+    laboratory_api_attachments,
     laboratory_api_devices,
     laboratory_api_documents,
     laboratory_api_file_locks,
