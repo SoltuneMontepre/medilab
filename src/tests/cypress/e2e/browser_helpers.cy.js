@@ -4,41 +4,19 @@ const read = () => cy.window().then((win) => win.record);
 describe("Browser helper commands", () => {
   let failureHandler;
   let failureObserved;
-  let earlierFailListeners = [];
 
-  function failureText(error) {
-    const parts = [error?.message, error?.stack, String(error)];
-    if (error && typeof error === "object") {
-      for (const value of Object.values(error)) {
-        if (typeof value === "string") {
-          parts.push(value);
-        }
-      }
-    }
-    return parts.filter(Boolean).join("\n");
-  }
-
-  // Cypress logs an open group with a fail listener that rethrows before any listener added later.
-  // Remove it, then listen with cy.on. Returning false keeps the expected timeout from failing the test.
   function expectFailure(text) {
     failureObserved = false;
-    earlierFailListeners = Cypress.listeners("fail").slice();
-    Cypress.removeAllListeners("fail");
     failureHandler = (error) => {
-      if (failureText(error).includes(text)) {
-        failureObserved = true;
-        return false;
-      }
-      for (const listener of earlierFailListeners) {
-        listener.call(Cypress, error);
-      }
+      expect(error.message).to.include(text);
+      failureObserved = true;
+      return false;
     };
     cy.on("fail", failureHandler);
   }
 
   beforeEach(() => {
     failureHandler = undefined;
-    earlierFailListeners = [];
     cy.intercept("GET", "/__browser_helpers__", {
       fixture: "browser_helpers.html",
       headers: { "content-type": "text/html" },
@@ -47,17 +25,7 @@ describe("Browser helper commands", () => {
   });
 
   afterEach(() => {
-    if (!failureHandler) {
-      return;
-    }
-    Cypress.removeAllListeners("fail");
-    for (const listener of earlierFailListeners) {
-      Cypress.on("fail", listener);
-    }
-    const observed = failureObserved;
-    failureHandler = undefined;
-    earlierFailListeners = [];
-    expect(observed, "the refusal check must fail").to.be.true;
+    if (failureHandler) expect(failureObserved, "the refusal check must fail").to.be.true;
   });
 
   it("signs using the visible form action", () => {

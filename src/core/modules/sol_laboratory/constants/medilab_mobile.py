@@ -8,6 +8,8 @@ ACTION_REFUSED = "action_refused"
 ALREADY_CLAIMED = "already_claimed"
 # Signing a result whose warnings the person did not acknowledge.
 RESULT_WARNING = "result_warning"
+# Taking a support request someone else took first.
+ALREADY_TAKEN = "already_taken"
 # The screen of a document the app has no screen of its own for: its code and title, and "Open on the web".
 WEB_SCREEN = "web"
 # The screen of a conversation, an Odoo Discuss channel.

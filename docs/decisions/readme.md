@@ -10,6 +10,7 @@ Architecture decisions the owner approved: what was decided, why, and the requir
 
 ## Decisions
 
+- [Editor deployment base paths](editor-deployment-base-paths.md): online editor deployments use the origin root; Sync refuses editor handoffs to prefixed URLs while keeping API prefix support
 - [Laboratory files architecture](laboratory-files-architecture.md): the laboratory files API as Odoo HTTP controllers under `/medilab/api/v1`, a private content-addressed bucket of their own, and ONLYOFFICE Community Edition for online editing
 
 ## Related documents

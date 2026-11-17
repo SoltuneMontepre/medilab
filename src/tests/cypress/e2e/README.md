@@ -50,6 +50,7 @@ src/tests/
         laboratory/document-locking/
         laboratory/audit-trail/
         laboratory/scheduled-jobs/
+        mobile/support/
       *.cy.js
     support/
     fixtures/
@@ -151,6 +152,7 @@ Not covered because the feature is not built: a notice to the tester and head wh
 | See who holds the lock of a document another user is editing, and keep a signed document read-only for everyone, administrators included. | [#157](https://github.com/SoltuneMontepre/medilab/issues/157) | `features/laboratory/document-locking/` | `document-locking.cy.js` |
 | Record who changed a price, when, and its old and new value; include a request's samples and sample tests in its history; let nobody change or delete an audit entry. | [#157](https://github.com/SoltuneMontepre/medilab/issues/157) | `features/laboratory/audit-trail/` | `audit-trail.cy.js` |
 | List every scheduled job with its runs and run one by hand, and keep old audit entries in a checked archive file once the cleanup removes them. | [#157](https://github.com/SoltuneMontepre/medilab/issues/157) | `features/laboratory/scheduled-jobs/` | `scheduled-jobs.cy.js` |
+| Take a waiting support request and answer it on the phone; the customer reads the answer on the portal and is notified. | [#522](https://github.com/SoltuneMontepre/medilab/issues/522) | `features/mobile/support/` | `support.cy.js` |
 | Record planned OverTime for a tester as their head of department; the tester is booked in it only once it is recorded, and moving the booking leaves it. | [#426](https://github.com/SoltuneMontepre/medilab/issues/426) | `features/laboratory/overtime/` | `overtime.cy.js` |
 
 Solution-preparation scenarios follow their approved feature document and demo starting data. Reserving a directory does not settle the open requirements in that issue.
