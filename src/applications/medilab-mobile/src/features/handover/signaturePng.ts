@@ -7,6 +7,11 @@ export interface Point {
 /** A line drawn without lifting the finger. */
 export type Stroke = Point[];
 
+/** The pieces of the strokes, each from a point to the next; a stroke's first piece is the dot it starts with. */
+export function segments(strokes: Stroke[]): [Point, Point][] {
+  return strokes.flatMap((stroke) => stroke.map((to, at): [Point, Point] => [stroke[Math.max(at - 1, 0)], to]));
+}
+
 // The signature's picture: black ink on white, one bit a pixel, which keeps it far under MediLab's 1 MiB.
 export const PNG_WIDTH = 600;
 export const PNG_HEIGHT = 240;
@@ -18,11 +23,11 @@ const STORED_BLOCK = 65535;
 /** The strokes drawn on a pad of the size, as a PNG in base64. */
 export function signaturePng(strokes: Stroke[], padWidth: number, padHeight: number): string {
   const scale = Math.min(PNG_WIDTH / padWidth, PNG_HEIGHT / padHeight);
-  const rowBytes = Math.ceil(PNG_WIDTH / 8);
   // Each row starts with its filter byte, 0 for none; every other bit is 1, white.
-  const pixels = new Uint8Array((rowBytes + 1) * PNG_HEIGHT);
+  const stride = Math.ceil(PNG_WIDTH / 8) + 1;
+  const pixels = new Uint8Array(stride * PNG_HEIGHT).fill(0xff);
   for (let row = 0; row < PNG_HEIGHT; row += 1) {
-    pixels.fill(0xff, row * (rowBytes + 1) + 1, (row + 1) * (rowBytes + 1));
+    pixels[row * stride] = 0;
   }
   const ink = (x: number, y: number) => {
     for (let dy = -INK_RADIUS; dy <= INK_RADIUS; dy += 1) {
@@ -30,19 +35,16 @@ export function signaturePng(strokes: Stroke[], padWidth: number, padHeight: num
         const px = Math.round(x + dx);
         const py = Math.round(y + dy);
         if (dx * dx + dy * dy <= INK_RADIUS * INK_RADIUS && px >= 0 && py >= 0 && px < PNG_WIDTH && py < PNG_HEIGHT) {
-          pixels[py * (rowBytes + 1) + 1 + (px >> 3)] &= ~(0x80 >> (px & 7));
+          pixels[py * stride + 1 + (px >> 3)] &= ~(0x80 >> (px & 7));
         }
       }
     }
   };
-  for (const stroke of strokes) {
-    stroke.forEach((point, index) => {
-      const from = stroke[Math.max(index - 1, 0)];
-      const steps = Math.max(1, Math.ceil(Math.hypot(point.x - from.x, point.y - from.y) * scale * 2));
-      for (let step = 0; step <= steps; step += 1) {
-        ink((from.x + ((point.x - from.x) * step) / steps) * scale, (from.y + ((point.y - from.y) * step) / steps) * scale);
-      }
-    });
+  for (const [from, to] of segments(strokes)) {
+    const steps = Math.max(1, Math.ceil(Math.hypot(to.x - from.x, to.y - from.y) * scale * 2));
+    for (let step = 0; step <= steps; step += 1) {
+      ink((from.x + ((to.x - from.x) * step) / steps) * scale, (from.y + ((to.y - from.y) * step) / steps) * scale);
+    }
   }
   const header = new Uint8Array(13);
   const view = new DataView(header.buffer);

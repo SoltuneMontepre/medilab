@@ -1,8 +1,8 @@
-import type { Dispatch, SetStateAction } from "react";
+import { memo, type Dispatch, type SetStateAction } from "react";
 import { StyleSheet, View, type GestureResponderEvent } from "react-native";
 
 import { colors } from "../../styles";
-import { PNG_HEIGHT, PNG_WIDTH, type Point, type Stroke } from "./signaturePng";
+import { PNG_HEIGHT, PNG_WIDTH, segments, type Point, type Stroke } from "./signaturePng";
 
 // The ink's width on the screen.
 const INK = 3;
@@ -43,13 +43,16 @@ export function SignaturePad({
         onDraw?.((drawn) => [...drawn.slice(0, -1), [...(drawn.at(-1) ?? []), next]]);
       }}
     >
-      {strokes.flatMap((stroke, index) => stroke.map((to, at) => <Ink key={`${index}-${at}`} from={stroke[Math.max(at - 1, 0)]} to={to} />))}
+      {segments(strokes).map(([from, to], index) => (
+        // A segment keeps its place as the strokes grow, so its key is its place.
+        <Ink key={index} from={from} to={to} />
+      ))}
     </View>
   );
 }
 
 /** A piece of a stroke, from one point to the next, or a dot where a stroke starts. */
-function Ink({ from, to }: Readonly<{ from: Point; to: Point }>) {
+const Ink = memo(function Ink({ from, to }: Readonly<{ from: Point; to: Point }>) {
   const length = Math.hypot(to.x - from.x, to.y - from.y);
   const angle = Math.atan2(to.y - from.y, to.x - from.x);
   return (
@@ -66,7 +69,7 @@ function Ink({ from, to }: Readonly<{ from: Point; to: Point }>) {
       ]}
     />
   );
-}
+});
 
 const styles = StyleSheet.create({
   pad: {

@@ -1,5 +1,5 @@
 import { useLocalSearchParams } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -14,6 +14,7 @@ import { ActionProblem } from "../connection/ActionProblem";
 import { LoadNotice } from "../connection/LoadNotice";
 import { Button } from "../shared/Button";
 import { Facts } from "../shared/Facts";
+import { UnsentCard } from "../shared/UnsentCard";
 import { formatMoment } from "../tasks/taskText";
 import { discardSignature, keepSignature, sendSignature, unsentSignature } from "./signatureQueue";
 import { SignaturePad } from "./SignaturePad";
@@ -30,8 +31,8 @@ export function HandoverRecordScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const recordId = Number(id);
   const { load, setLoad, reload } = useRecord<HandoverRecord>(`/handover-records/${encodeURIComponent(id)}`);
-  const unsent = useLoad(useCallback(() => unsentSignature(recordId), [recordId]));
-  useReloadOnReturn(unsent.reload);
+  const { load: kept, reload: reloadKept } = useLoad(useCallback(() => unsentSignature(recordId), [recordId]));
+  useReloadOnReturn(reloadKept);
   const { problem, busy, run } = useAction();
   const [step, setStep] = useState<Step>("reading");
   const [strokes, setStrokes] = useState<Stroke[]>([]);
@@ -39,7 +40,6 @@ export function HandoverRecordScreen() {
   const signed = load.state === "ready" && load.value.status === "signed";
 
   // A signature kept for a record that is signed now, on this phone or another, has nothing left to do.
-  const { load: kept, reload: reloadKept } = unsent;
   useEffect(() => {
     if (signed && kept.state === "ready" && kept.value) {
       discardSignature(recordId);
@@ -47,28 +47,27 @@ export function HandoverRecordScreen() {
     }
   }, [signed, kept, reloadKept, recordId]);
 
-  function send(kept: Parameters<typeof sendSignature>[0]) {
+  function settle(action: () => Promise<HandoverRecord | null | void>) {
     return run(async () => {
       try {
-        const record = await sendSignature(kept, call);
+        const record = await action();
         if (record) {
           setLoad({ state: "ready", value: record });
-          setStep("reading");
         }
       } finally {
-        await unsent.reload();
+        await reloadKept();
       }
     });
   }
 
   async function confirm() {
-    const kept = await keepSignature(recordId, signaturePng(strokes, pad.width, pad.height));
+    const signature = await keepSignature(recordId, signaturePng(strokes, pad.width, pad.height));
     setStrokes([]);
     setStep("reading");
-    await send(kept);
+    await settle(() => sendSignature(signature, call));
   }
 
-  const waiting = unsent.load.state === "ready" && !signed ? unsent.load.value : null;
+  const waiting = kept.state === "ready" && !signed ? kept.value : null;
   return (
     <SafeAreaView style={shared.page}>
       <LoadNotice load={load} gone={t("handover.gone")} onRetry={reload} />
@@ -81,18 +80,15 @@ export function HandoverRecordScreen() {
             </Text>
           )}
           {waiting && (
-            <View style={shared.card} testID="unsent-signature">
-              <Text style={shared.label}>{t("handover.unsent")}</Text>
-              <Button label={t("handover.send")} onPress={() => send(waiting)} primary disabled={busy} />
-              <Button
-                label={t("handover.discard")}
-                onPress={() => run(async () => {
-                  discardSignature(recordId);
-                  await unsent.reload();
-                })}
-                disabled={busy}
-              />
-            </View>
+            <UnsentCard
+              label={t("handover.unsent")}
+              send={t("handover.send")}
+              discard={t("handover.discard")}
+              busy={busy}
+              onSend={() => settle(() => sendSignature(waiting, call))}
+              onDiscard={() => settle(async () => discardSignature(recordId))}
+              testID="unsent-signature"
+            />
           )}
           {step === "reading" && load.value.can_sign && !waiting && (
             <Button label={t("handover.sign")} onPress={() => setStep("signing")} primary testID="handover-sign" />
@@ -123,7 +119,7 @@ export function HandoverRecordScreen() {
   );
 }
 
-function Details({ record }: Readonly<{ record: HandoverRecord }>) {
+const Details = memo(function Details({ record }: Readonly<{ record: HandoverRecord }>) {
   const t = useT();
   const { language } = useSession();
   return (
@@ -159,4 +155,4 @@ function Details({ record }: Readonly<{ record: HandoverRecord }>) {
       ))}
     </>
   );
-}
+});

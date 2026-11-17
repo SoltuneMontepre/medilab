@@ -15,16 +15,16 @@ export interface UnsentSignature {
 const FOLDER = "unsent-signatures";
 
 function signatureFile(recordId: number): File {
-  const unsent = new Directory(Paths.document, FOLDER);
-  if (!unsent.exists) {
-    unsent.create({ intermediates: true });
-  }
-  return new File(unsent, `${recordId}.json`);
+  return new File(new Directory(Paths.document, FOLDER), `${recordId}.json`);
 }
 
 /** Keeps the customer's signature of the record on the phone, as a PNG in base64, before it is sent. */
 export async function keepSignature(recordId: number, signature: string): Promise<UnsentSignature> {
   const kept: UnsentSignature = { recordId, signature, signedAt: new Date().toISOString() };
+  const folder = new Directory(Paths.document, FOLDER);
+  if (!folder.exists) {
+    folder.create({ intermediates: true });
+  }
   const file = signatureFile(recordId);
   if (!file.exists) {
     file.create();

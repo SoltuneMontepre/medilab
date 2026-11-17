@@ -28,8 +28,6 @@ TOO_LARGE = "too_large"
 PHOTO_MAX_BYTES = 10 * 1024 * 1024
 # The largest signature a phone sends, once decoded.
 SIGNATURE_MAX_BYTES = 1024 * 1024
-# The bytes every PNG image starts with.
-PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
 # How many handover records a page gives when the app names no limit.
 HANDOVER_RECORD_PAGE_SIZE = 50
 # The largest file a phone sends, once decoded.
