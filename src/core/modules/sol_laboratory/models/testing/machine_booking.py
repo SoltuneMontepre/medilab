@@ -127,6 +127,9 @@ class MachineBooking(models.Model, MachineBookingBase):
             readonly=True,
             index=True,
         )
+        # True when the head of department placed or moved the booking by hand: plan revisions never move it and report
+        # a conflict instead. It lasts while the booking is scheduled or running.
+        is_pinned = fields.Boolean(string="Pinned", default=False, readonly=True, copy=False, index=True)
         # The calendar event showing a scheduled booking on the person's schedule; empty while the booking is proposed.
         calendar_event_id = fields.Many2one("calendar.event", ondelete="set null", readonly=True, copy=False)
         # The internal due date of the sample test.
@@ -253,6 +256,8 @@ class MachineBooking(models.Model, MachineBookingBase):
         return self.filtered(lambda booking: booking.status in OPEN_STATUSES)
 
     def _set(self, vals):
+        if vals.get("status") not in (None, "scheduled", "in_progress"):
+            vals = {**vals, "is_pinned": False}
         self.sudo().with_context(**{SCHEDULING_CONTEXT: SCHEDULING_TOKEN}).write(vals)
 
     def _sharing(self):
@@ -318,7 +323,9 @@ class MachineBooking(models.Model, MachineBookingBase):
                     booking=self.display_name,
                 )
             )
-        self._set({"starts_at": start, "ends_at": start + length})
+        # Whoever may edit the department's bookings, the head, pins the booking where they put it.
+        pinned = not self.env.su and self._has_permission("edit")
+        self._set({"starts_at": start, "ends_at": start + length, "is_pinned": pinned})
         self._plan(self.sudo().department_id)
 
     def action_cancel(self):
@@ -476,14 +483,14 @@ class MachineBooking(models.Model, MachineBookingBase):
         self._plan(tasks.sudo().department_id)
 
     @api.model
-    def _recommend(self, test, person, department, planned=None, due_date=None, ignore=None):
+    def _recommend(self, test, person, department, planned=None, due_date=None, ignore=None, method=None):
         """The way of testing, machine, start and slot length that finish the test soonest by its due date, from the
         department's ways of testing that apply to the sample's type, or only the way the customer accepted: on each
         machine linked to the way's method, or without a machine for the way's own duration when the method has none,
         with every bookable room of the way's steps free; None when there is no such slot. planned are the proposed
         bookings the plan being calculated has placed already, which hold their resources as scheduled ones do. The
         due date check asks what-if questions with a due_date other than the test's and with ignore, bookings that
-        count as not there."""
+        count as not there; a plan revision also keeps to the testing method of the booking it moves."""
         now = fields.Datetime.now()
         not_after = due_date or test.due_date or now + timedelta(days=HORIZON_DAYS)
         if not_after <= now:
@@ -495,6 +502,8 @@ class MachineBooking(models.Model, MachineBookingBase):
         domain &= Domain("department_id", "=", department.id) if department else Domain("department_id", "!=", False)
         if test.accepted_method_id:
             domain &= Domain("id", "=", test.accepted_method_id.id)
+        if method:
+            domain &= Domain("method_id", "=", method.id)
         # A retest runs by the testing method of the earlier measurement.
         measured = test.sudo().result_ids.booking_id.method_id
         if measured:

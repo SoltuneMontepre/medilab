@@ -84,7 +84,7 @@ export const testingTasks = helper("testingTasks", function testingTasks(sample)
 });
 
 // Each department the sample is handed over to scans its label, so its tests can be booked.
-function receiveInDepartments(sample) {
+export function receiveInDepartments(sample) {
   return callAs(ADMINISTRATOR, "medilab.sample.handover", "search_read", [[["sample_id", "=", sample.id]]], {
     fields: ["department_id"],
   }).then((handovers) =>
@@ -357,6 +357,11 @@ export const enableReminders = helper("enableReminders", function enableReminder
     callAs(ADMINISTRATOR, "mail.message.subtype", "write", [[id], { enabled: true }]),
   );
 });
+
+// Marks tests a fixture created as the test's own, so releaseFixtures cancels their bookings.
+export function ownTests(ids) {
+  ownedTests.push(...ids);
+}
 
 export function resetFixtures() {
   ownedTests = [];

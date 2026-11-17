@@ -739,3 +739,13 @@ msgstr "Asen (As)"
 #: model:medilab.test.parameter,name:sol_demo.demo_test_parameter_mercury
 msgid "Mercury (Hg)"
 msgstr "Thủy ngân (Hg)"
+
+#. module: sol_demo
+#: model:medilab.test.parameter,name:sol_demo.demo_test_parameter_gc_2
+msgid "Diazinon"
+msgstr "Diazinon"
+
+#. module: sol_demo
+#: model:medilab.test.parameter,name:sol_demo.demo_test_parameter_gc_3
+msgid "Malathion"
+msgstr "Malathion"

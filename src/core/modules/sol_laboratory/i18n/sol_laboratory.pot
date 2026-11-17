@@ -575,6 +575,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_booking_slot_period
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_plan_revision_move_slot_period
 msgid "A booking ends after it starts."
 msgstr ""
 
@@ -1628,6 +1629,8 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_change_request__status__applied
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_plan_revision__status__applied
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_plan_revision_move__status__applied
 msgid "Applied"
 msgstr ""
 
@@ -1710,12 +1713,14 @@ msgstr ""
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_change_request__status__approved
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_test__status__approved
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_result__status__approved
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_plan_revision_move__status__approved
 msgid "Approved"
 msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/test_report.py:0
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__approved_by_id
 msgid "Approved By"
 msgstr ""
 
@@ -2470,6 +2475,7 @@ msgstr ""
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__cancelled
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__status__cancelled
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_search
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_plan_revision__status__cancelled
 msgid "Cancelled"
 msgstr ""
 
@@ -3008,6 +3014,7 @@ msgstr ""
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_editing_session__status__conflict
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_file_version__source__conflict
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_upload__status__conflict
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_plan_revision_move__status__conflict
 msgid "Conflict"
 msgstr ""
 
@@ -3486,6 +3493,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__create_uid
 msgid "Created by"
 msgstr ""
 
@@ -3580,6 +3589,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__create_date
 msgid "Created on"
 msgstr ""
 
@@ -4121,6 +4132,10 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_handover_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__department_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__department_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__department_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_plan_revision_search
 msgid "Department"
 msgstr ""
 
@@ -4417,6 +4432,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_discuss_channel__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_discuss_channel_member__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_mail_thread__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -4648,6 +4665,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__due_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__due_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__due_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__due_date
 msgid "Due Date"
 msgstr ""
 
@@ -5427,6 +5445,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__expected_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__expected_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__committed_date
 msgid "Expected Date"
 msgstr ""
 
@@ -6226,6 +6245,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_discuss_channel__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_discuss_channel_member__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_mail_thread__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__id
 msgid "ID"
 msgstr ""
 
@@ -7054,6 +7075,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__write_uid
 msgid "Last Updated by"
 msgstr ""
 
@@ -7148,6 +7171,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__write_date
 msgid "Last Updated on"
 msgstr ""
 
@@ -7393,6 +7418,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__machine_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__machine_id
 msgid "Machine"
 msgstr ""
 
@@ -11148,6 +11174,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_user_link__person_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__person_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__person_id
 msgid "Person"
 msgstr ""
 
@@ -11777,6 +11804,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__reason
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__reason
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__reason
 msgid "Reason"
 msgstr ""
 
@@ -11949,6 +11977,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_reject_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_reject_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_plan_revision_form
 msgid "Reject"
 msgstr ""
 
@@ -12001,6 +12030,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_search_signing
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_search
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_plan_revision__status__rejected
 msgid "Rejected"
 msgstr ""
 
@@ -12736,6 +12766,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_list
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__sample_test_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__sample_test_id
 msgid "Sample Test"
 msgstr ""
 
@@ -12940,6 +12971,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_form_bookings
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 msgid "Schedule"
 msgstr ""
 
@@ -13453,6 +13485,9 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__status
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template_version__state
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__status
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__status
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_plan_revision_search
 msgid "Status"
 msgstr ""
 
@@ -16992,8 +17027,7 @@ msgid "Booked Hours"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_testing_statistic__kind__booking
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__booking_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__booking_id
 msgid "Booking"
 msgstr ""
 
@@ -17513,6 +17547,11 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine_booking__status__proposed
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_plan_revision__status__proposed
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_plan_revision_move__status__proposed
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_plan_revision_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_plan_revision_list
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_plan_revision_search
 msgid "Proposed"
 msgstr ""
 
@@ -18008,8 +18047,212 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/testing/plan_revision_move.py:0
+msgid "%(booking)s moved from %(old)s to %(new)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_revision.py:0
+msgid "%(test)s from %(start)s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_revision.py:0
+msgid "%(test)s from %(start)s, after its internal due date"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_revision.py:0
+msgid "%(test)s has no slot within %(days)s days"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/testing/sample_test_due_date_check.py:0
 msgid "%s has already passed."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+msgid ""
+"<span class=\"badge text-bg-info ms-2\" invisible=\"not "
+"is_pinned\">Pinned</span>"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_plan_revision_form
+msgid ""
+"A held-back move would finish after its internal due date, so its booking "
+"keeps its slot until Sales records the customer's agreement to a new "
+"committed return date. A move in conflict would move a booking the head "
+"placed by hand, which no revision moves."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_plan_revision_move_revision_booking_unique
+msgid "A plan revision moves a booking once."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_machine_booking_moved
+msgid "An approved plan revision moved a booking of your task"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_plan_revision_form
+msgid "Approve Moves"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__can_approve
+msgid "Can Approve"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__can_decide
+msgid "Can Decide"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_plan_revision_move__status__held_back
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_plan_revision_search
+msgid "Held Back"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_machine_booking_moved
+msgid "Machine booking moved"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_revision.py:0
+msgid "Makes room for urgent work: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__move_ids
+msgid "Moves"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__ends_at
+msgid "New End"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__starts_at
+msgid "New Start"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/plan_revision.py:0
+msgid "No move waits for your approval."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/plan_revision.py:0
+msgid "Only a proposed plan revision can be approved."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/plan_revision.py:0
+msgid "Only a proposed plan revision can be rejected."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/plan_revision.py:0
+msgid "Only the head of an affected department approves its moves."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/plan_revision.py:0
+msgid "Only the head of an affected department rejects its plan revision."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_plan_revision_move_read_all
+msgid "Permission: plan.revision.move.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_plan_revision_move_read_own_department
+msgid "Permission: plan.revision.move.read.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_plan_revision_read_all
+msgid "Permission: plan.revision.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_plan_revision_read_own_department
+msgid "Permission: plan.revision.read.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__is_pinned
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
+msgid "Pinned"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_plan_revision
+msgid "Plan Revision"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_plan_revision_move
+msgid "Plan Revision Move"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_plan_revision
+#: model:ir.ui.menu,name:sol_laboratory.menu_plan_revision
+msgid "Plan Revisions"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__previous_ends_at
+msgid "Previous End"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__previous_starts_at
+msgid "Previous Start"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_plan_revision_move_read_all
+msgid "Read plan revision moves"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_plan_revision_move_read_own_department
+msgid "Read plan revision moves of their department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_plan_revision_read_all
+msgid "Read plan revisions"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_plan_revision_read_own_department
+msgid "Read plan revisions of their department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__revision_id
+msgid "Revision"
 msgstr ""
 
 #. module: sol_laboratory
@@ -18123,6 +18366,38 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_test_due_date_change__feasibility__infeasible
 msgid "Cannot Be Met"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/plan_revision_move.py:0
+msgid ""
+"The new slot of %s was taken meanwhile; open the plan revisions again for "
+"the recalculation."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "Assign %s to a person before scheduling it."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "Accept"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_plan.py:0
+msgid "Assign %s to a tester before accepting its booking."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_plan.py:0
+msgid "Only a proposed booking can be accepted."
 msgstr ""
 
 #. module: sol_laboratory

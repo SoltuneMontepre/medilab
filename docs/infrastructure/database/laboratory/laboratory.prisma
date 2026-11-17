@@ -500,6 +500,8 @@ model Department {
   handovers         SampleHandover[]
   /// Machine bookings of the department's testing tasks: its plan.
   bookings          MachineBooking[]
+  /// Plan revisions of the department's plan.
+  plan_revisions    PlanRevision[]
   /// Plan revision moves the department's head approves.
   revision_moves    PlanRevisionMove[]
   /// Locations the department uses.
@@ -2109,15 +2111,19 @@ model MachineBooking {
 /// A recalculation of the plan that moves scheduled bookings (Phương Án Xếp Lại Lịch), such as to give urgent work a slot others hold. It is applied as soon as the head of each affected department has approved its moves, with no separate approved state; a held-back move is left out.
 model PlanRevision {
   /// Row identifier.
-  id     Int                @id @default(autoincrement())
+  id            Int                @id @default(autoincrement())
+  /// The department whose plan was recalculated.
+  department_id Int
   /// Why the plan was recalculated, such as the urgent sample test it makes room for.
-  reason String             @db.Text
-  /// proposed, applied or cancelled; a newer recalculation cancels a revision not yet applied.
-  status String             @db.VarChar
+  reason        String             @db.Text
+  /// proposed, applied, rejected or cancelled; a department has one proposed revision, and a newer recalculation cancels a revision not yet applied. A head rejects a proposed revision, and the same recalculation is not proposed again.
+  status        String             @db.VarChar
+  /// The department whose plan was recalculated.
+  department    Department         @relation(fields: [department_id], references: [id], onDelete: Restrict)
   /// The bookings the revision moves.
-  moves  PlanRevisionMove[]
+  moves         PlanRevisionMove[]
 
-  @@index([status])
+  @@index([department_id, status])
   @@map("medilab_plan_revision")
 }
 
@@ -2133,11 +2139,15 @@ model PlanRevisionMove {
   department_id  Int
   /// The machine the booking moves to, one linked to the same method; empty when the way needs no machine.
   machine_id     Int?
+  /// Start of the slot the booking leaves.
+  previous_starts_at DateTime?
+  /// End of the slot the booking leaves.
+  previous_ends_at   DateTime?
   /// New start of the booking.
   starts_at      DateTime
   /// New end of the booking.
   ends_at        DateTime
-  /// proposed, approved, held_back, conflict, applied or cancelled. A move whose new end passes the internal due date is held back, keeping the booking's slot, until Sales records the customer's agreement to a new committed return date. A held-back move is then cancelled: when the customer agrees, a new revision proposes the move; when the customer refuses, the booking stays where it is. A pinned booking the plan would move is a conflict and is never applied.
+  /// proposed, approved, held_back, conflict or applied. A move whose new end passes the internal due date is held back, keeping the booking's slot, until Sales records the customer's agreement to a new committed return date: the recalculation then proposes the move in a new revision, and when the customer refuses, the booking stays where it is. A pinned booking the plan would move is a conflict and is never applied. A move keeps its state when its revision is rejected or cancelled.
   status         String         @db.VarChar
   /// The head of department who approved the move.
   approved_by_id Int?
