@@ -92,8 +92,8 @@ class TestOrderWays(OrderCase):
 
         self.assertFalse(line.parameter_method_id)
         self.assertEqual(line.offered_method_ids, self.pair)
-        self.assertIn("cannot be tested now", line.default_way_notice)
-        self.assertNotIn(subcontractor.name, line.default_way_notice)
+        self.assertIn("cannot be tested now", line.default_way_notice or "")
+        self.assertNotIn(subcontractor.name, line.default_way_notice or "")
         with self.assertRaisesRegex(UserError, "Choose a way of testing"):
             order.with_user(self.sales).action_send_quotation()
 
@@ -124,7 +124,7 @@ class TestOrderWays(OrderCase):
             icp_northern.with_context(**{WAY_BY_METHOD: True}).display_name,
             self.icp.with_context(**{WAY_BY_METHOD: True}).display_name,
         )
-        self.assertIn(northern.name, icp_northern.display_name)
+        self.assertIn(northern.name, icp_northern.display_name or "")
 
     def test_a_way_the_customer_tests_as_a_subcontractor_is_never_offered_to_it(self):
         own = self.env[MODEL_SUBCONTRACTOR].create({"partner_id": self.customer.id})

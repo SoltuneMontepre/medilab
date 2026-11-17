@@ -58,7 +58,7 @@ class TestOutsourcingAgreement(DispatchCase):
         self.testing_task(test, self.tester)
         return test
 
-    def wizard(self, test, way, reason=False):
+    def wizard(self, test, way, reason: str | bool = False):
         return self.as_person(self.env[MODEL_SAMPLE_TEST_OUTSOURCE], self.head).create(
             {"sample_test_id": test.id, "parameter_method_id": way.id, "reason": reason}
         )
