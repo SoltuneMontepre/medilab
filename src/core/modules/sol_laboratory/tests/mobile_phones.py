@@ -1,5 +1,5 @@
-"""Phones signed in on Medilab Mobile and their push tokens, for tests that need them without calling the API, and the
-people who sign them in."""
+"""Phones signed in on Medilab Mobile, their push tokens and the people who sign them in, and the calls of Medilab
+Mobile those people make."""
 
 import uuid
 
