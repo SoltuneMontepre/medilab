@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_discuss_channel_member_chemistry_morning_muted" model="discuss.channel.member">
+        <field name="channel_id" ref="demo_discuss_channel_chemistry_morning" />
+        <field name="partner_id" ref="demo_res_partner_chemistry_tester" />
+        <field name="mute_until_dt">9999-12-31 23:59:59</field>
+    </record>
+</odoo>
