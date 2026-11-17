@@ -429,6 +429,14 @@ class TestDeployment(unittest.TestCase):
             )
             self.assertNotIn("automated", application["spec"]["syncPolicy"])
             self.assertTrue((ROOT / application["spec"]["source"]["path"]).is_dir())
+            annotations = application["metadata"]["annotations"]
+            self.assertIn(
+                "SkipHealthCheck=true",
+                annotations["argocd.argoproj.io/sync-options"].split(","),
+            )
+            self.assertEqual(
+                annotations["argocd.argoproj.io/ignore-healthcheck"], "true"
+            )
 
     def test_production_application_uses_manual_production_overlay(self):
         application = yaml.safe_load(
