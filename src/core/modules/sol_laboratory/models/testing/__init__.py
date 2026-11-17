@@ -33,6 +33,7 @@ from . import (
     test_report_issue,
     test_report_preparation,
     test_report_reject,
+    test_report_scheduled_job,
     test_report_template_change,
     test_result,
     test_result_check,

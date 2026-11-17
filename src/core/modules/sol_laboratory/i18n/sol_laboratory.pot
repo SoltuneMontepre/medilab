@@ -814,6 +814,13 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_template_change_form
+msgid ""
+"A new PDF is prepared from the chosen version; a PDF waiting for review "
+"becomes obsolete."
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/test_report_issue.py:0
 msgid ""
@@ -897,6 +904,14 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/test_report.py:0
 msgid "A report is signed once every result of its test request is approved."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid ""
+"A report's PDF is prepared once every result of its test request is "
+"approved."
 msgstr ""
 
 #. module: sol_laboratory
@@ -4042,6 +4057,16 @@ msgid "Delete unit categories"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__deliver
+msgid "Deliver"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_test_report_deliver_all
+msgid "Deliver test reports"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__delivered_at
 msgid "Delivered At"
 msgstr ""
@@ -4940,11 +4965,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_test_parameter_edit_all
 msgid "Edit test parameters"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_test_report_edit_all
-msgid "Edit test reports"
 msgstr ""
 
 #. module: sol_laboratory
@@ -7532,6 +7552,13 @@ msgid "Measurement Units"
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_report.py:0
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid "MediLab generates a report's draft; nobody edits it."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.module.module,shortdesc:base.module_sol_laboratory
 msgid "Medilab - Laboratory"
 msgstr ""
@@ -8628,6 +8655,11 @@ msgid "Lines to Confirm"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__pdf_preparable
+msgid "Pdf Preparable"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_accreditation_scope_line_create_all
 msgid "Permission: accreditation.scope.line.create.all"
 msgstr ""
@@ -8643,6 +8675,11 @@ msgid "Permission: accreditation.scope.line.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_test_report_deliver_all
+msgid "Permission: test.report.deliver.all"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_mail_notification__portal_seen_at
 msgid "Portal Seen At"
 msgstr ""
@@ -8650,6 +8687,18 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_mail_notification__portal_visible
 msgid "Portal Visible"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_test_report_prepare_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_test_report_prepare
+msgid "Prepare test report PDFs"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_report.py:0
+msgid "Report templates are only edited online."
 msgstr ""
 
 #. module: sol_laboratory
@@ -8672,8 +8721,60 @@ msgid "Scope Lines"
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid "The PDF was prepared again."
+msgstr ""
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_import_form
 msgid "The code when left empty"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid "The draft is not a DOCX document that can be read."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid ""
+"The draft no longer prints the business records for %s; correct the "
+"records through their workflow and prepare the PDF again."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid "The prepared PDF does not match the business records; prepare it again."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+msgid ""
+"The prepared PDF no longer matches its template or the business records. A "
+"new PDF is prepared shortly; the lab head reviews it before signing."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_scheduled_job.py:0
+msgid "The report changed since its PDF was prepared."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
+msgid "The report has signatures; its PDF stays as it was signed."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+msgid ""
+"The report's PDF is being prepared. It appears here shortly, and the lab "
+"head reviews it before signing."
 msgstr ""
 
 #. module: sol_laboratory
@@ -8682,6 +8783,12 @@ msgstr ""
 msgid ""
 "The scope line of %(method)s on %(certificate)s needs at least one parameter"
 " and one sample type."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_report.py:0
+msgid "This file belongs to no template or report."
 msgstr ""
 
 #. module: sol_laboratory
@@ -10902,11 +11009,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_test_parameter_edit_all
 msgid "Permission: test.parameter.edit.all"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_test_report_edit_all
-msgid "Permission: test.report.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
@@ -16218,16 +16320,6 @@ msgid "DOCX File"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__draft_editable
-msgid "Draft Editable"
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
-msgid "Edit Draft"
-msgstr ""
-
-#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_report_template_version_form
 msgid "Edit in ONLYOFFICE"
 msgstr ""
@@ -16252,18 +16344,6 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
 msgid "Example approver, Head of Department"
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
-msgid "Generate Draft Again"
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
-msgid ""
-"Generate the draft again from the template and the business records? The "
-"editors' changes are replaced."
 msgstr ""
 
 #. module: sol_laboratory
@@ -16484,18 +16564,6 @@ msgid "Read report templates"
 msgstr ""
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
-msgid "Reopen Draft"
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
-msgid ""
-"Reopen the draft? Its prepared PDF becomes obsolete, and a new one must be "
-"prepared and reviewed."
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_report_template
 msgid "Report Template"
 msgstr ""
@@ -16509,12 +16577,6 @@ msgstr ""
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_report_template
 #: model:ir.ui.menu,name:sol_laboratory.menu_report_template
 msgid "Report Templates"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_report.py:0
-msgid "Report templates and drafts are only edited online."
 msgstr ""
 
 #. module: sol_laboratory
@@ -16532,19 +16594,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_candidate__snapshot
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_draft__snapshot
 msgid "Snapshot"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
-msgid "Someone is editing the draft; wait until the editor has saved it."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
-msgid ""
-"Someone is still editing the draft; close the editor and wait for its save."
 msgstr ""
 
 #. module: sol_laboratory
@@ -16573,43 +16622,9 @@ msgid "Test Report Draft"
 msgstr ""
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_template_change_form
-msgid ""
-"The draft is generated again from the chosen version, which replaces the "
-"editors' changes; a PDF waiting for review becomes obsolete."
-msgstr ""
-
-#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
 msgid "The draft misses bindings, generate it again: %s"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
-msgid ""
-"The draft no longer prints the business records for %s; correct the records "
-"through their workflow and generate the draft again."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
-msgid "The draft was generated again."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
-msgid ""
-"The draft was not generated from the report's template; generate it again."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
-msgid "The draft was reopened."
 msgstr ""
 
 #. module: sol_laboratory
@@ -16644,27 +16659,6 @@ msgid "The laboratory files storage is unavailable; try again later."
 msgstr ""
 
 #. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
-msgid ""
-"The last save of the draft conflicts with a newer version; open the draft "
-"and save it again."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
-msgid "The last save of the draft failed; open the draft again and save it."
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
-msgid ""
-"The prepared PDF no longer matches its template, its draft or the business "
-"records. Reopen the draft, then prepare and review the PDF again."
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_test_report_candidate_one_in_review
 msgid "The report already has a PDF waiting for review."
 msgstr ""
@@ -16679,24 +16673,6 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
 msgid "The report has no PDF waiting for review."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
-msgid "The report has signatures; its draft stays as it was signed."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
-msgid "The report's PDF waits for review; reopen the draft to change it."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
-msgid "The saved draft is not a DOCX document that can be read."
 msgstr ""
 
 #. module: sol_laboratory

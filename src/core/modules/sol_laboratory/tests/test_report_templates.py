@@ -75,7 +75,7 @@ class TestReportTemplates(ReportPreparationCase):
 
     def test_reports_keep_their_version_when_it_is_archived(self):
         report = self.report()
-        self.editor(report).action_edit_draft()
+        report._prepare_pdf()
         version = self.template.version_ids
         self.assertEqual(report.template_version_id, version)
         self.as_person(version, self.template_admin).action_archive()
@@ -83,9 +83,9 @@ class TestReportTemplates(ReportPreparationCase):
         self.assertFalse(version.active)
         self.assertEqual(report.template_version_id, version)
         self.assertEqual(report.draft_ids.template_version_id, version)
-        # It is no longer offered, and the report can still be generated again from it.
+        # It is no longer offered, and the report can still be prepared again from it.
         self.assertFalse(report._template_versions())
-        self.editor(report).action_generate_draft()
+        report._prepare_pdf()
         self.assertEqual(report._latest_draft().template_version_id, version)
         with self.assertRaises(UserError):
             self.as_person(version, self.template_admin).action_unarchive()
@@ -94,7 +94,7 @@ class TestReportTemplates(ReportPreparationCase):
         version = self.template.version_ids
         self.as_person(version, self.template_admin).action_archive()
         with self.assertRaisesRegex(UserError, "No report template"):
-            self.editor().action_edit_draft()
+            self.report()._prepare_pdf()
 
     def test_person_without_template_permission_changes_nothing(self):
         template = self.new_template()

@@ -112,6 +112,8 @@ Acceptance criteria:
 - Issuance makes the stored report PDF available in the list waiting for delivery, until its delivery is recorded. A digital-signing failure leaves the report outside that list.
 - Recording a delivery stores when and by whom.
 - A report not yet issued cannot be delivered.
+- Recording the delivery of a report sent by email e-mails its issued PDF to its recipient; recording one handed over in person or sent by post sends no email.
+- Recording a delivery needs the permission to deliver reports; a person without it cannot.
 
 ### 5. Returning samples (US-SD15)
 

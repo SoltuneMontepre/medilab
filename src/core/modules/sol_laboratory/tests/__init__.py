@@ -204,6 +204,7 @@ from . import (
     test_reminders,
     test_report_candidate_migration,
     test_report_editor_page,
+    test_report_permission_migration,
     test_report_preparation,
     test_report_templates,
     test_result_assessment,

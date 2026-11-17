@@ -41,6 +41,8 @@ Acceptance criteria:
 - A report prints the actual result approvers and report signer, keeps tester signatures internal and leaves out cancelled tests.
 - Each sample's block prints its type, received amount and condition, recorded analysis start and end dates, and report-relevant notes when provided. Two samples with different details keep separate blocks.
 - Nobody can edit a report draft; its explanatory text comes from the template and the remarks of the approved results.
+- MediLab prepares the PDF of a report once its results are approved, and a new one after a rejection once the results it named are approved again; the Lab Head reviews it in the same signing task.
+- Only the Lab Head, who signs the report, can have its PDF prepared again or choose another available template version, and not once any level has signed.
 - A report whose business-data snapshot changed cannot be signed.
 - Changing a draft's template invalidates its prepared PDF; the Lab Head reviews the newly prepared PDF before signing.
 - Digital signing uses the PDF reviewed for that version, and customer downloads return the issued PDF without exposing the internal DOCX draft.

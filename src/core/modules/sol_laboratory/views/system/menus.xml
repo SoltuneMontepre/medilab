@@ -48,7 +48,7 @@
                 id="menu_test_report_to_deliver"
                 action="action_medilab_test_report_to_deliver"
                 sequence="40"
-                groups="group_permission_test_report_edit_all"
+                groups="group_permission_test_report_deliver_all"
             />
         </menuitem>
         <menuitem id="menu_laboratory_schedule" name="Schedule" sequence="50">

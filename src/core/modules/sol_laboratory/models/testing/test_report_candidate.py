@@ -165,6 +165,8 @@ class TestReportCandidate(models.Model, TestReportCandidateBase):
         waiting.write(
             {"status": CANDIDATE_OBSOLETE, "invalidated_reason": reason, "invalidated_at": fields.Datetime.now()}
         )
+        # The report's next candidate is inserted next, and the index allows one waiting for review.
+        waiting.flush_recordset()
 
     def _is_current(self):
         """True while the candidate still waits for review and matches its report: the same template version, its draft's
