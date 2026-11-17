@@ -26,6 +26,11 @@ export interface Call {
   headers?: Record<string, string>;
 }
 
+/** The address of MediLab's API at the path. */
+export function apiUrl(serverUrl: string, path: string): string {
+  return serverUrl + API_PATH + path;
+}
+
 /** Calls MediLab's API at the path and answers its JSON, or null for an answer without content. */
 export async function callApi<T>(serverUrl: string, language: Locale, path: string, call: Call = {}): Promise<T | null> {
   const headers: Record<string, string> = {
@@ -43,7 +48,7 @@ export async function callApi<T>(serverUrl: string, language: Locale, path: stri
   const timeout = setTimeout(() => controller.abort(), TIMEOUT_SECONDS * 1000);
   let response: Response;
   try {
-    response = await fetch(serverUrl + API_PATH + path, {
+    response = await fetch(apiUrl(serverUrl, path), {
       method: call.method ?? "GET",
       headers,
       body: call.body === undefined ? undefined : JSON.stringify(call.body),
@@ -122,7 +127,12 @@ export interface Me {
   login: string;
   department: string;
   roles: string[];
-  can: { create_tasks: boolean; assign_tasks: boolean };
+  can: { create_tasks: boolean; assign_tasks: boolean; take_support_requests?: boolean };
+}
+
+/** The installed MediLab modules, so the app shows only the screens of the modules installed. */
+export interface ModuleList {
+  modules: string[];
 }
 
 export type TaskStatus = "open" | "assigned" | "in_progress" | "done" | "cancelled";
@@ -156,12 +166,21 @@ export interface TaskStep {
   location: string;
 }
 
-/** A task with its note, its method's steps and the actions the person may take on it. */
+/** A sample a collection task is for, and where it is taken from. */
+export interface CollectionSample {
+  id: number;
+  code: string;
+  sampling_location: string;
+}
+
+/** A task with its note, its method's steps, the samples a collection task is for and the actions the person may take
+ * on it. */
 export interface TaskDetail extends Task {
   note: string;
   reassign_reason: string;
   assigned_by: string;
   steps: TaskStep[];
+  samples: CollectionSample[];
   actions: { claim: boolean; start: boolean; done: boolean; assign: boolean };
 }
 
@@ -199,8 +218,9 @@ export interface SampleHandover {
   can_receive: boolean;
 }
 
-/** A sample as the person may see it, with its handover to their department and the unassigned testing tasks of
- * their department on it. The customer is null for a person who may not see it, such as a tester. */
+/** A sample as the person may see it, with its handover to their department, the unassigned testing tasks of their
+ * department on it and whether they may photograph it. The customer is null for a person who may not see it, such as a
+ * tester, who never adds or sees photos either. */
 export interface Sample {
   id: number;
   code: string;
@@ -217,6 +237,16 @@ export interface Sample {
   customer_sample_name: string | null;
   handover: SampleHandover | null;
   tasks: Task[];
+  can_add_photos: boolean;
+}
+
+/** A photo of a sample MediLab has. */
+export interface SamplePhoto {
+  id: number;
+  name: string;
+  mimetype: string;
+  created_at: string;
+  created_by: string;
 }
 
 export type ResultStatus = "none" | "requested" | "approved" | "rejected";
@@ -274,4 +304,79 @@ export interface SampleTest {
   comparison_requested: boolean;
   can_enter_result: boolean;
   result: Result | null;
+}
+
+/** A person of the laboratory, for conversations and mentions. */
+export interface PersonName {
+  id: number;
+  name: string;
+}
+
+export interface MessageAttachment {
+  id: number;
+  name: string;
+  mimetype: string;
+}
+
+/** A message of a conversation or of a document's chatter, as people wrote it. */
+export interface Message {
+  id: number;
+  author: string;
+  mine: boolean;
+  date: string;
+  text: string;
+  note: boolean;
+  attachments: MessageAttachment[];
+}
+
+export interface MessagePage {
+  messages: Message[];
+}
+
+/** A direct or group conversation of the person, as Discuss on the web has it. */
+export interface Conversation {
+  id: number;
+  type: "chat" | "group";
+  name: string;
+  unread: number;
+  muted: boolean;
+  members: PersonName[];
+  last_message: Message | null;
+}
+
+/** A file the app sends with a message, in base64. */
+export interface NewFile {
+  name: string;
+  mimetype: string;
+  data: string;
+}
+
+export type SupportRequestStatus = "open" | "answered" | "closed";
+
+export type SupportRequestList = "mine" | "waiting";
+
+/** A customer's support request, as sales handle it on the web. */
+export interface SupportRequest {
+  id: number;
+  code: string;
+  subject: string;
+  status: SupportRequestStatus;
+  customer: string;
+  order: string;
+  handled_by: string;
+  opened_at: string;
+}
+
+export interface SupportMessage {
+  id: number;
+  author: string;
+  body: string;
+  date: string;
+  from_customer: boolean;
+}
+
+/** A support request with the messages the customer and sales wrote, and what the person may do with it. */
+export interface SupportRequestDetail extends SupportRequest {
+  messages: SupportMessage[];
+  actions: { take: boolean; answer: boolean };
 }

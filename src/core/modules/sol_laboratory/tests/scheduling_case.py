@@ -109,7 +109,10 @@ class SchedulingCase(RequestCase, PeopleCase):
             task.write({"assignee_id": assignee.id, "status": "assigned"})
         return task
 
-    @staticmethod
-    def schedule(test, person):
-        test.with_user(person.user_id).action_schedule()
+    @classmethod
+    def schedule(cls, test, person):
+        """The head of the person's department approves the booking the plan proposes for the test, as superuser for a
+        person of another department; yields the test's bookings."""
+        approver = cls.head.user_id if person.department_id == cls.head.department_id else None
+        (test.with_user(approver) if approver else test).action_approve_booking()
         return test.booking_ids.filtered(lambda booking: booking.status != "cancelled")

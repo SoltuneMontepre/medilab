@@ -1,3 +1,5 @@
+import base64
+import binascii
 from typing import TYPE_CHECKING
 
 from odoo import api, models
@@ -5,8 +7,19 @@ from odoo.exceptions import UserError
 from odoo.fields import Domain
 from odoo.tools import format_list
 
-from odoo.addons.sol_laboratory.constants.medilab_mobile import ALREADY_CLAIMED
-from odoo.addons.sol_laboratory.constants.models import MODEL_PERSON, MODEL_SAMPLE, MODEL_SAMPLE_HANDOVER, MODEL_TASK
+from odoo.addons.sol_laboratory.constants.laboratory_files import (
+    IDEMPOTENCY_CONFLICT,
+    INVALID_REQUEST,
+    PERMISSION_DENIED,
+)
+from odoo.addons.sol_laboratory.constants.medilab_mobile import ALREADY_CLAIMED, PHOTO_MAX_BYTES, TOO_LARGE
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_IR_ATTACHMENT,
+    MODEL_PERSON,
+    MODEL_SAMPLE,
+    MODEL_SAMPLE_HANDOVER,
+    MODEL_TASK,
+)
 from odoo.addons.sol_laboratory.constants.xml_ids import TEST_REQUEST_READER_GROUP
 from odoo.addons.sol_laboratory.services.laboratory_api import api_datetime
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
@@ -18,8 +31,8 @@ else:
     SampleMobileBase = object
 
 
-# Mẫu: what Medilab Mobile reads of a sample whose label it scans, and the testing tasks it claims on it, with the
-# person's rights.
+# Mẫu: what Medilab Mobile reads of a sample whose label it scans, the testing tasks it claims on it and the photos it
+# attaches to it, with the person's rights.
 class SampleMobile(models.Model, SampleMobileBase):
     _name = MODEL_SAMPLE
     _inherit = MODEL_SAMPLE
@@ -38,7 +51,7 @@ class SampleMobile(models.Model, SampleMobileBase):
         for the sample, as on the web."""
         self.ensure_one()
         sample = self
-        customer_visible = self.env.su or self.env.user.has_group(TEST_REQUEST_READER_GROUP)
+        customer_visible = self._customer_visible()
         states = dict(sample._fields["physical_state"]._description_selection(self.env))
         statuses = dict(sample._fields["status"]._description_selection(self.env))
         return {
@@ -57,7 +70,43 @@ class SampleMobile(models.Model, SampleMobileBase):
             "customer_sample_name": (sample.sudo().customer_sample_name or "") if customer_visible else None,
             "handover": sample._mobile_handover(),
             "tasks": sample._claimable_testing_tasks()._mobile_values(),
+            "can_add_photos": sample._may_add_photos(),
         }
+
+    def _customer_visible(self):
+        """Whether the person reads every test request, and so sees a sample's customer and its photos, as on the web."""
+        return self.env.su or self.env.user.has_group(TEST_REQUEST_READER_GROUP)
+
+    def _may_add_photos(self):
+        """Whether the person sees the sample's photos and may change the sample, which attaching a photo needs."""
+        self.ensure_one()
+        return self._customer_visible() and bool(self._filtered_access("write"))
+
+    def _mobile_photos(self):
+        """The sample's photos the person may read; a tester reads none."""
+        self.ensure_one()
+        if not self._customer_visible():
+            return self.env[MODEL_IR_ATTACHMENT]
+        return self.photo_ids.sorted("id", reverse=True)
+
+    def _attach_photo_from_phone(self, device, values, key=None):
+        """Attach the photo the phone took when the sample was collected or received, as action_attach_photo() does. A
+        request repeated with its Idempotency-Key gets the photo it attached."""
+        self.ensure_one()
+        photo = _decoded_photo(self.env, values["data"])
+        attachments = self.env[MODEL_IR_ATTACHMENT]
+        created = attachments._created_with_key(device, key)
+        if created:
+            sent = created.sudo()
+            if (sent.res_model, sent.res_id, sent.checksum) != (self._name, self.id, sent._compute_checksum(photo)):
+                raise LaboratoryFileError(
+                    IDEMPOTENCY_CONFLICT, self.env._("This Idempotency-Key was already sent with another request.")
+                )
+            return created
+        if not self._may_add_photos():
+            raise LaboratoryFileError(PERMISSION_DENIED, self.env._("You may not add photos to %s.", self.code))
+        values = self._photo_values(photo, values["name"], values["mimetype"])
+        return self._link_photo(attachments._create_once(device, key, values))
 
     def _mobile_handover(self):
         """The sample's handover to the person's department, as they may read it; None when there is none."""
@@ -122,3 +171,19 @@ class SampleMobile(models.Model, SampleMobileBase):
                 raise LaboratoryFileError(ALREADY_CLAIMED, error.args[0]) from error
             raise
         return tasks
+
+
+def _decoded_photo(env, data):
+    """The photo the phone sent in base64; one over the limit is refused before it is decoded."""
+    photo = b""
+    # Four base64 characters hold three bytes, padding aside.
+    too_large = len(data) * 3 // 4 > PHOTO_MAX_BYTES + 2
+    if not too_large:
+        try:
+            photo = base64.b64decode(data, validate=True)
+        except binascii.Error as error:
+            raise LaboratoryFileError(INVALID_REQUEST, env._("The photo is not valid base64.")) from error
+        too_large = len(photo) > PHOTO_MAX_BYTES
+    if too_large:
+        raise LaboratoryFileError(TOO_LARGE, env._("A photo can be at most 10 MiB."))
+    return photo

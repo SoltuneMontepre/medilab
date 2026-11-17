@@ -11,13 +11,15 @@ import { useSession } from "../../session";
 import { colors, styles as shared } from "../../styles";
 import { ActionProblem } from "../connection/ActionProblem";
 import { LoadNotice } from "../connection/LoadNotice";
+import { ChatterButton } from "../messages/ChatterButton";
+import { SamplePhotos } from "../photos/SamplePhotos";
 import { Facts, type Fact } from "../shared/Facts";
 import { formatMoment } from "../tasks/taskText";
 
 type Action = "receive" | "claim";
 
 /** A sample as the person may see it: recording its receipt by their department, when it was handed over to them,
- * and claiming the unassigned testing tasks of their department on it. */
+ * its photos, and claiming the unassigned testing tasks of their department on it. */
 export function SampleScreen() {
   const t = useT();
   const { call } = useSession();
@@ -66,6 +68,7 @@ export function SampleScreen() {
         <ScrollView contentContainerStyle={shared.pageContent}>
           <Details sample={load.value} />
           <Handover sample={load.value} busy={busy} onReceive={() => act("receive", load.value)} />
+          {load.value.can_add_photos && <SamplePhotos sample={load.value} />}
           <View style={shared.section}>
             <Text accessibilityRole="header" style={shared.heading}>
               {t("sample.tasks")}
@@ -93,6 +96,7 @@ export function SampleScreen() {
             gone={t("sample.gone")}
             onRetry={() => problem && act(problem.action, load.value)}
           />
+          <ChatterButton document={{ model: "medilab.sample", id: load.value.id, code: load.value.code }} />
         </ScrollView>
       )}
     </SafeAreaView>

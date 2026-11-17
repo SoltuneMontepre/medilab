@@ -3,23 +3,29 @@ import { useCallback, useState } from "react";
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { ApiError, UnreachableError, type Me, type Task, type TaskDay } from "../../api";
+import { ApiError, UnreachableError, type Me, type ModuleList, type Task, type TaskDay } from "../../api";
 import { useReloadOnReturn } from "../../focus";
 import { useLoad } from "../../load";
 import { useT } from "../../locale";
 import { useSession } from "../../session";
 import { styles as shared } from "../../styles";
 import { Unreachable } from "../connection/Unreachable";
+import { Button } from "../shared/Button";
 import { taskPath } from "../documents/documentPath";
 import { TaskRow } from "../tasks/TaskRow";
+
+// The module whose screens are the support requests.
+const COMMERCE_MODULE = "sol_commerce";
 
 interface Home {
   me: Me;
   day: TaskDay;
+  modules: string[];
 }
 
 /** The person's day, as the Tasks app opens on it: today's plan, the next tasks to do and the tasks waiting in their
- * queues, with the way to their to-do list, their notifications and signing out. */
+ * queues, with the way to their to-do list, the screens of the installed modules they may use, their notifications
+ * and signing out. */
 export function HomeScreen() {
   const t = useT();
   const session = useSession();
@@ -29,11 +35,15 @@ export function HomeScreen() {
 
   // Reading the person also checks the phone's key; a refused key returns the person to sign-in.
   const read = useCallback(async (): Promise<Home> => {
-    const [me, day] = await Promise.all([call<Me>("/me"), call<TaskDay>("/tasks/today")]);
-    if (!me || !day) {
+    const [me, day, installed] = await Promise.all([
+      call<Me>("/me"),
+      call<TaskDay>("/tasks/today"),
+      call<ModuleList>("/modules"),
+    ]);
+    if (!me || !day || !installed) {
       throw new UnreachableError();
     }
-    return { me, day };
+    return { me, day, modules: installed.modules };
   }, [call]);
   const { load, reload } = useLoad(read);
   useReloadOnReturn(reload);
@@ -75,7 +85,7 @@ export function HomeScreen() {
 
 function Day({ home }: Readonly<{ home: Home }>) {
   const t = useT();
-  const { me, day } = home;
+  const { me, day, modules } = home;
   return (
     <>
       <Text style={shared.label}>{t("home.signedInAs", { name: day.person })}</Text>
@@ -108,6 +118,12 @@ function Day({ home }: Readonly<{ home: Home }>) {
           <Text style={shared.secondaryButtonText}>{t("home.newTask")}</Text>
         </Pressable>
       )}
+      {modules.includes(COMMERCE_MODULE) && me.can.take_support_requests && (
+        <Pressable accessibilityRole="button" style={shared.secondaryButton} onPress={() => router.push("/support")}>
+          <Text style={shared.secondaryButtonText}>{t("support.title")}</Text>
+        </Pressable>
+      )}
+      <Button testID="home-conversations" label={t("home.conversations")} onPress={() => router.push("/conversations")} />
       <Pressable accessibilityRole="button" style={shared.secondaryButton} onPress={() => router.push("/notifications")}>
         <Text style={shared.secondaryButtonText}>{t("home.notifications")}</Text>
       </Pressable>

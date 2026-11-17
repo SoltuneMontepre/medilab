@@ -16,14 +16,14 @@ class TestSchedulingHttp(SchedulingHttpCase):
         before = self.committed(self.graph)
         browser = self.sign_in()
 
-        answer = self.call(browser, MODEL_SAMPLE_TEST, "action_schedule", [self.test_ids])
+        answer = self.call(browser, MODEL_SAMPLE_TEST, "action_approve_booking", [self.test_ids])
 
         self.assertEqual(answer["error"]["data"]["name"], "odoo.exceptions.UserError", answer)
-        self.assertIn("before scheduling it", answer["error"]["data"]["message"])
+        self.assertIn("before approving its booking", answer["error"]["data"]["message"])
         self.assertEqual(self.committed(self.graph), before)
         self.committed(self.assert_committed_invariants)
         requested_at = fields.Datetime.now()
-        recovered = self.call(browser, MODEL_SAMPLE_TEST, "action_schedule", [[self.test_ids[0]]])
+        recovered = self.call(browser, MODEL_SAMPLE_TEST, "action_approve_booking", [[self.test_ids[0]]])
         self.assertNotIn("error", recovered, recovered)
         after = self.committed(self.graph)
         self.assertEqual(len(after["bookings"]), 1)
@@ -67,7 +67,7 @@ class TestSchedulingHttp(SchedulingHttpCase):
             # Before the head's first request: the server process caches each user's groups.
             self.grant(env, 1, HEAD_PERMISSIONS)
             self.assign(env)
-            env[MODEL_SAMPLE_TEST].browse(self.test_ids[0]).with_user(self.user_ids[0]).action_schedule()
+            env[MODEL_SAMPLE_TEST].browse(self.test_ids[0]).with_user(self.user_ids[0]).action_approve_booking()
             return env[MODEL_MACHINE_BOOKING].search([("sample_test_id", "=", self.test_ids[0])]).id
 
         self.committed(self.keep_foreign_queue)
@@ -110,14 +110,14 @@ class TestSchedulingHttp(SchedulingHttpCase):
         self.committed(self.assign)
         self.committed(self.keep_foreign_queue)
         browser = self.sign_in()
-        first = self.call(browser, MODEL_SAMPLE_TEST, "action_schedule", [[self.test_ids[0]]])
+        first = self.call(browser, MODEL_SAMPLE_TEST, "action_approve_booking", [[self.test_ids[0]]])
         self.assertNotIn("error", first, first)
         scheduled = self.committed(self.graph)
         self.assert_consistent_booking(scheduled, 0)
         counts = self.committed(self.table_counts)
 
         # The client never saw the first answer, so it sends the same request again.
-        again = self.call(browser, MODEL_SAMPLE_TEST, "action_schedule", [[self.test_ids[0]]])
+        again = self.call(browser, MODEL_SAMPLE_TEST, "action_approve_booking", [[self.test_ids[0]]])
 
         self.assertEqual(again["error"]["data"]["name"], "odoo.exceptions.UserError", again)
         self.assertRegex(again["error"]["data"]["message"], r"^.+ is already holding a machine\.$")

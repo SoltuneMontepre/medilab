@@ -376,7 +376,7 @@ class MachineBooking(models.Model, MachineBookingBase):
             else:
                 booking._set({"calendar_event_id": events.create(values).id})
         for task in self.sudo().task_id:
-            # A proposed slot reserves nothing, so only accepted bookings plan the task.
+            # A proposed slot reserves nothing, so only approved bookings plan the task.
             slots = task.booking_ids.filtered(
                 lambda booking: bool(booking.status not in ("proposed", "cancelled") and booking.starts_at)
             )

@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 from collections import Counter
@@ -18,6 +19,8 @@ SEVERITY_COUNTS = {
     "information": "informationCount",
 }
 SUMMARY_COUNTS = ("filesAnalyzed", *SEVERITY_COUNTS.values())
+# Checking every module needs more than the 4 GB heap Node gives pyright by default.
+NODE_HEAP_MB = 8192
 
 
 def fails(diagnostic):
@@ -189,9 +192,15 @@ def main():
         str(CONFIG),
         *files,
     ]
+    node_options = f"{os.environ.get('NODE_OPTIONS', '')} --max-old-space-size={NODE_HEAP_MB}"
     try:
         result = subprocess.run(
-            command, capture_output=True, text=True, cwd=ROOT, check=False
+            command,
+            capture_output=True,
+            text=True,
+            cwd=ROOT,
+            check=False,
+            env={**os.environ, "NODE_OPTIONS": node_options.strip()},
         )
     except (OSError, subprocess.SubprocessError, UnicodeError) as error:
         sys.stderr.write(f"error: could not run pyright: {error}\n")
