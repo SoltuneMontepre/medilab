@@ -113,13 +113,14 @@ class SampleTest(models.Model, SampleTestBase):
         # When the test's result was first approved; empty until then, and kept when the result is sent back or
         # corrected.
         first_approved_at = fields.Datetime(readonly=True, copy=False)
-        # The parameter's subcontracted ways of testing whose subcontractor can be chosen, shown as the alternatives of
-        # an outsourcing suggestion.
+        # The parameter's subcontracted ways of testing on the sample's type whose subcontractor can be chosen and is not
+        # the test's customer.
         subcontracted_method_ids = fields.Many2many(
             MODEL_PARAMETER_METHOD, string="Subcontracted Ways", compute="_compute_subcontracted_method_ids"
         )
-        # The subcontracted ways the test may be outsourced through: only the way the customer accepted, when there is
-        # one, since another needs a revised quotation the customer accepts.
+        # The subcontracted ways the test may be outsourced through, shown as the alternatives of an outsourcing
+        # suggestion: those with the method the customer accepted, when there is one, since another method needs a
+        # revised quotation the customer accepts.
         outsourcing_method_ids = fields.Many2many(
             MODEL_PARAMETER_METHOD, string="Agreed Subcontracted Ways", compute="_compute_subcontracted_method_ids"
         )
@@ -228,14 +229,31 @@ class SampleTest(models.Model, SampleTestBase):
 
     @api.constrains("parameter_method_id", "accepted_method_id")
     def _check_accepted_way(self):
+        # Who tests it, a department or a subcontractor, is internal; the method is what the customer accepted.
         for test in self.filtered("accepted_method_id"):
-            if test.parameter_method_id != test.accepted_method_id:
+            accepted = test.accepted_method_id
+            way = test.parameter_method_id
+            if way.parameter_id != accepted.parameter_id or way.method_id != accepted.method_id:
                 raise ValidationError(
                     self.env._(
-                        "%(parameter)s is tested by %(way)s, the way of testing the customer accepted; another way needs "
-                        "a revised quotation.",
+                        "%(parameter)s is tested with %(method)s, the method the customer accepted; another method "
+                        "needs a revised quotation.",
                         parameter=test.parameter_id.display_name,
-                        way=test.accepted_method_id.display_name,
+                        method=accepted.method_id.display_name,
+                    )
+                )
+
+    @api.constrains("parameter_method_id")
+    def _check_not_outsourced_to_customer(self):
+        for test in self.sudo().filtered("parameter_method_id.subcontractor_id"):
+            customer = test.sample_id.request_id.customer_id
+            if test.parameter_method_id._performed_by(customer.partner_id):
+                raise ValidationError(
+                    self.env._(
+                        "%(test)s is a test of %(customer)s's own request, so it cannot go to %(customer)s as a "
+                        "subcontractor.",
+                        test=test.display_name,
+                        customer=customer.display_name,
                     )
                 )
 
@@ -251,15 +269,21 @@ class SampleTest(models.Model, SampleTestBase):
     def _compute_subcontracted_method_ids(self):
         for test in self:
             # Only ways that explicitly apply to the sample's type are offered.
-            sample_type = test.sudo().sample_id.sample_type_id
+            sample = test.sudo().sample_id
+            customer = sample.request_id.customer_id.partner_id
             test.subcontracted_method_ids = test.parameter_id.method_ids.filtered(
-                lambda way, sample_type=sample_type: (
-                    way.subcontractor_id._can_be_chosen() and bool(way._applicability(sample_type))
+                lambda way, sample=sample, customer=customer: (
+                    way.subcontractor_id._can_be_chosen()
+                    and bool(way._applicability(sample.sample_type_id))
+                    and not way._performed_by(customer)
                 )
             )
+            accepted = test.accepted_method_id
             test.outsourcing_method_ids = (
-                test.subcontracted_method_ids & test.accepted_method_id
-                if test.accepted_method_id
+                test.subcontracted_method_ids.filtered(
+                    lambda way, accepted=accepted: way.method_id == accepted.method_id
+                )
+                if accepted
                 else test.subcontracted_method_ids
             )
 
@@ -439,10 +463,19 @@ class SampleTest(models.Model, SampleTestBase):
         """The test leaves the machine queue and joins the draft dispatch to the subcontractor of the way of testing,
         which is returned. The reason is kept when the test is outsourced straight away."""
         self.ensure_one()
-        if way not in self.subcontracted_method_ids:
+        if way in self.subcontracted_method_ids and way not in self.outsourcing_method_ids:
             raise UserError(
                 self.env._(
-                    "%(way)s is not a subcontracted way of testing %(test)s whose subcontractor can be chosen.",
+                    "%(way)s tests %(test)s with another method than the one the customer accepted; outsourcing "
+                    "through it needs a revised quotation the customer accepts.",
+                    way=way.display_name,
+                    test=self.display_name,
+                )
+            )
+        if way not in self.outsourcing_method_ids:
+            raise UserError(
+                self.env._(
+                    "%(way)s is not a subcontracted way of testing %(test)s whose subcontractor can be chosen for it.",
                     way=way.display_name,
                     test=self.display_name,
                 )

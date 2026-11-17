@@ -5,7 +5,11 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.tools import format_date, format_list
 
 from odoo.addons.base.models.ir_model import MODULE_UNINSTALL_FLAG
-from odoo.addons.sol_laboratory.constants.catalog import DEFAULTS_CHECKED, DEFAULTS_CHECKED_BY_PARAMETER
+from odoo.addons.sol_laboratory.constants.catalog import (
+    DEFAULTS_CHECKED,
+    DEFAULTS_CHECKED_BY_PARAMETER,
+    WAY_BY_METHOD,
+)
 from odoo.addons.sol_laboratory.constants.departments import DEPARTMENT_DOMAIN
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
@@ -78,10 +82,14 @@ class ParameterMethod(models.Model, ParameterMethodBase):
     _capacity_positive = models.Constraint("CHECK(capacity >= 1)", "A way of testing holds at least one sample.")
 
     @api.depends("parameter_id", "method_id", "subcontractor_id")
+    @api.depends_context(WAY_BY_METHOD)
     def _compute_display_name(self):
+        by_method = self.env.context.get(WAY_BY_METHOD)
         for pair in self:
             name = f"{pair.parameter_id.name} – {pair.method_id.code}"
-            pair.display_name = f"{name} ({pair.subcontractor_id.name})" if pair.subcontractor_id else name
+            pair.display_name = (
+                f"{name} ({pair.subcontractor_id.name})" if pair.subcontractor_id and not by_method else name
+            )
 
     @api.constrains("department_id", "subcontractor_id")
     def _check_tester(self):
@@ -172,10 +180,20 @@ class ParameterMethod(models.Model, ParameterMethodBase):
         self.ensure_one()
         return self.applicability_ids.filtered(lambda applicability: applicability.sample_type_id == sample_type)
 
+    def _performed_by(self, partner):
+        """True when the way's subcontractor is the partner's company, such as a customer that also tests for the
+        laboratory."""
+        self.ensure_one()
+        company = self.subcontractor_id.partner_id.commercial_partner_id
+        return bool(company and company == partner.commercial_partner_id)
+
     def _unavailable_reason(self):
-        """Why the way cannot be offered now, or False when it can. Who may test a parameter is not checked yet."""
+        """Why the way cannot be offered now, or False when it can. Who may test a parameter is not checked yet. A
+        customer reading ways by their method is not told which subcontractor cannot test it."""
         self.ensure_one()
         subcontractor = self.subcontractor_id
+        if subcontractor and self.env.context.get(WAY_BY_METHOD) and not subcontractor._can_be_chosen():
+            return self.env._("It cannot be tested now.")
         if subcontractor and not subcontractor.active:
             return self.env._("%s is archived.", subcontractor.display_name)
         if subcontractor and subcontractor.accreditation_expired:
