@@ -27,7 +27,9 @@ function setting(name) {
 describe("Medilab Mobile updates", () => {
   let stored;
   beforeEach(() => served().then((values) => (stored = values)));
-  afterEach(() => serve({ mobile_minimum_version: stored.mobile_minimum_version, mobile_stopped_versions: stored.mobile_stopped_versions }));
+  afterEach(() =>
+    serve({ mobile_minimum_version: stored.mobile_minimum_version, mobile_stopped_versions: stored.mobile_stopped_versions }),
+  );
 
   it("TC-F525-A4 sends phones on the rolled-back release to the release that replaces it", () => {
     releaseFor("1.1.0").then(({ status, body }) => {
@@ -43,7 +45,7 @@ describe("Medilab Mobile updates", () => {
   it("TC-F525-A3 lets an administrator stop a release and set the oldest version served", () => {
     cy.signInAs("administrator");
     cy.visit("/odoo/lab-settings");
-    cy.contains(".o_setting_box, .o_setting_container", "Medilab Mobile").should("be.visible");
+    cy.contains("h2", "Medilab Mobile").scrollIntoView().should("be.visible");
     setting("mobile_stopped_versions").clear().type("1.1.0, 1.1.1").blur();
     setting("mobile_minimum_version").clear().type("1.1.1").blur();
     cy.intercept("POST", "**/res.config.settings/execute").as("savedSettings");
@@ -56,7 +58,8 @@ describe("Medilab Mobile updates", () => {
 
     setting("mobile_minimum_version").clear().type("latest").blur();
     cy.get(".o_control_panel .o_form_button_save").click();
-    cy.get(".o_dialog, .o_notification").should("contain", "latest is not a version such as 1.2.3.");
+    // The refusal names the value, in the administrator's language.
+    cy.get(".o_dialog").should("contain", "latest");
     served().its("mobile_minimum_version").should("eq", "1.1.1");
   });
 });

@@ -37,8 +37,8 @@ def parse_versions(value):
 def served(env):
     """The oldest version MediLab serves, as a version key or None, and the keys of the versions it stops serving."""
     parameters = env[MODEL_IR_CONFIG_PARAMETER].sudo()
-    minimum = parameters.get_param(MOBILE_MINIMUM_VERSION_PARAMETER)
-    stopped = parse_versions(parameters.get_param(MOBILE_STOPPED_VERSIONS_PARAMETER))
+    minimum = parameters.get_str(MOBILE_MINIMUM_VERSION_PARAMETER)
+    stopped = parse_versions(parameters.get_str(MOBILE_STOPPED_VERSIONS_PARAMETER))
     return (version_key(minimum) if minimum else None), {version_key(version) for version in stopped}
 
 

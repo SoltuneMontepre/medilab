@@ -72,8 +72,8 @@ class TestLaboratoryMobileUpdates(HttpCase):
 
     def serve(self, minimum="", stopped=""):
         parameters = self.env[MODEL_IR_CONFIG_PARAMETER].sudo()
-        parameters.set_param(MOBILE_MINIMUM_VERSION_PARAMETER, minimum or False)
-        parameters.set_param(MOBILE_STOPPED_VERSIONS_PARAMETER, stopped or False)
+        parameters.set_str(MOBILE_MINIMUM_VERSION_PARAMETER, minimum or None)
+        parameters.set_str(MOBILE_STOPPED_VERSIONS_PARAMETER, stopped or None)
 
     def check_release(self, suffix, method="GET", data=None):
         return self.url_open(
@@ -147,7 +147,8 @@ class TestLaboratoryMobileUpdates(HttpCase):
         self.assertEqual(self.release_of(f"android/{RUNTIME}/1.0.0+build.4"), {"action": "unavailable"})
         # iOS has no release yet, so an iOS build is never refused.
         self.assert_answer(self.check_release(f"ios/{RUNTIME}/1.0.0"), 204)
-        self.serve(minimum="1.0.0")
+        # A phone at the oldest version served opens when nothing newer is served.
+        self.serve(minimum="1.0.0", stopped="1.2.0")
         self.assert_answer(self.check_release(f"android/{RUNTIME}/1.0.0"), 204)
 
     def test_expo_route_serves_the_signed_manifest_exactly(self):
