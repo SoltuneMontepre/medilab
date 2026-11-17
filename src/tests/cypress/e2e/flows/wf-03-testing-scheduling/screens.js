@@ -47,6 +47,30 @@ function wallClock(value, zone) {
 
 const SCROLLED_SLOT_OFFSET = 100;
 
+const minutesOf = (time) => {
+  const [hour, minute] = time.split(":").map(Number);
+  return hour * 60 + minute;
+};
+
+// The calendar draws a lane every half hour and snaps a drop to the quarter hour, so a time between two lanes is not
+// a lane of its own. Yields the lane a time falls in and how far into it the time lies, from 0 to 1.
+function laneOf(time) {
+  const lanes = Cypress.$(".fc-timegrid-slot-lane[data-time]").toArray();
+  const starts = lanes.map((lane) => minutesOf(lane.dataset.time));
+  const wanted = minutesOf(time);
+  const index = starts.findLastIndex((start) => start <= wanted);
+  expect(index, `the calendar lane of ${time}`).to.be.at.least(0);
+  const length = starts[1] - starts[0];
+  return { lane: lanes[index], fraction: (wanted - starts[index]) / length };
+}
+
+// The height on the screen of a time in the calendar.
+function timeTop(time) {
+  const { lane, fraction } = laneOf(time);
+  const box = lane.getBoundingClientRect();
+  return box.top + fraction * box.height;
+}
+
 // Opens the Machine Schedule calendar on the week of a booking and drags the booking from its start to the slot.
 // FullCalendar reads pageX and pageY, and Cypress must not scroll the calendar, which would move the slots under the pointer.
 export function dragBookingToSlot(booking, slot, zone) {
@@ -62,27 +86,27 @@ export function dragBookingToSlot(booking, slot, zone) {
     });
   // The booking's slot goes to the upper part of the calendar's own scroller, away from the edges where a drag scrolls it,
   // as far as the scroller goes: a slot late in the day stays lower.
-  const fromLane = `.fc-timegrid-slot-lane[data-time="${from.time}"]`;
-  const offsetInScroller = ($lane) => $lane[0].getBoundingClientRect().top - $lane.closest(".fc-scroller")[0].getBoundingClientRect().top;
-  const scrolledTop = ($lane) => {
-    const scroller = $lane.closest(".fc-scroller")[0];
-    const wanted = scroller.scrollTop + offsetInScroller($lane) - SCROLLED_SLOT_OFFSET;
+  const lanes = ".fc-timegrid-slot-lane[data-time]";
+  const offsetInScroller = ($lanes) => timeTop(from.time) - $lanes.closest(".fc-scroller")[0].getBoundingClientRect().top;
+  const scrolledTop = ($lanes) => {
+    const scroller = $lanes.closest(".fc-scroller")[0];
+    const wanted = scroller.scrollTop + offsetInScroller($lanes) - SCROLLED_SLOT_OFFSET;
     return Math.max(0, Math.min(wanted, scroller.scrollHeight - scroller.clientHeight));
   };
-  cy.get(fromLane).then(($lane) => {
-    $lane.closest(".fc-scroller")[0].scrollTop = scrolledTop($lane);
+  cy.get(lanes).then(($lanes) => {
+    $lanes.closest(".fc-scroller")[0].scrollTop = scrolledTop($lanes);
   });
-  cy.get(fromLane).should(($lane) => expect($lane.closest(".fc-scroller")[0].scrollTop).to.be.closeTo(scrolledTop($lane), 1));
+  cy.get(lanes).should(($lanes) => expect($lanes.closest(".fc-scroller")[0].scrollTop).to.be.closeTo(scrolledTop($lanes), 1));
   cy.contains(".fc-event", booking.display_name)
     .should("be.visible")
     .then(($event) => {
       const eventBox = $event[0].getBoundingClientRect();
-      const fromLane = Cypress.$(`.fc-timegrid-slot-lane[data-time="${from.time}"]`)[0].getBoundingClientRect();
-      const toLane = Cypress.$(`.fc-timegrid-slot-lane[data-time="${to.time}"]`)[0].getBoundingClientRect();
-      const column = Cypress.$(`.fc-timegrid-col[data-date="${to.date}"]`)[0].getBoundingClientRect();
+      const $column = Cypress.$(`.fc-timegrid-col[data-date="${to.date}"]`);
+      expect($column, `the day of the slot, ${to.date}, in the booking's week`).to.have.length(1);
+      const column = $column[0].getBoundingClientRect();
       const point = (clientX, clientY) => ({ button: 0, clientX, clientY, pageX: clientX + window.scrollX, pageY: clientY + window.scrollY });
       const grabbed = point(eventBox.left + eventBox.width / 2, eventBox.top + eventBox.height / 2);
-      const dropped = point(column.left + column.width / 2, grabbed.clientY + toLane.top - fromLane.top);
+      const dropped = point(column.left + column.width / 2, grabbed.clientY + timeTop(to.time) - timeTop(from.time));
       cy.wrap($event).trigger("mousedown", { ...grabbed, scrollBehavior: false });
       cy.document().trigger("mousemove", { ...point(grabbed.clientX + 1, grabbed.clientY + 1), scrollBehavior: false });
       cy.document().trigger("mousemove", { ...dropped, scrollBehavior: false });
