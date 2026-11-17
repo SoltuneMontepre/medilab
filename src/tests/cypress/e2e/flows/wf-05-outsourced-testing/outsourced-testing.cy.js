@@ -384,13 +384,14 @@ describe("WF-05 Outsourced testing", () => {
   it("TC-WF05-A7 lets the head outsource a test accepted in-house to a subcontractor with the same method, without the customer", () => {
     clearDrafts();
     assignedTest("lead", { days: 30, accepted: PARAMETERS.lead.sameMethod }).then((test) => {
-      step("The head of department outsources a test the customer accepted in-house by ICP-MS");
+      // No in-house machine runs ICP-MS in time, so the scheduler suggests outsourcing it.
+      step("The head of department accepts the suggestion for a test the customer accepted in-house by ICP-MS");
       cy.signInAs("head_of_department");
+      cy.readRecord(test, ["outsourcing_suggested"]).its("outsourcing_suggested").should("eq", true);
       cy.openRecord(test);
       cy.get(".o_form_view").should("not.contain", "needs a revised quotation");
       openOutsource().within(() => {
         cy.get(".o_field_widget[name=parameter_method_id] input").invoke("val").should("match", /^Lead \(Pb\) – ISO 17294-2:2016 \(.+\)$/);
-        cy.get("[name=reason] textarea").type(REASON);
         cy.get("button[name=action_outsource]").click();
       });
       step("Northern tests it, and the customer's accepted way stays");
