@@ -15,6 +15,7 @@ from odoo.addons.sol_commerce.constants.orders import (
 )
 from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER, MODEL_TASK, MODEL_TASK_TYPE, MODEL_TEST_REQUEST
 from odoo.addons.sol_laboratory.constants.tasks import SAMPLE_COLLECTION_CODE
+from odoo.addons.sol_laboratory.services.staff_language import staff_env
 
 if TYPE_CHECKING:
     from medilab_model_types import Model_sale_order as SaleOrderConfirmationBase
@@ -31,6 +32,8 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
     _inherit = MODEL_SALE_ORDER
 
     if not TYPE_CHECKING:
+        # True while a sample collection task of the order's test request is open.
+        has_open_collection = fields.Boolean(compute="_compute_has_open_collection")
         # The test request the confirmed order produced.
         test_request_id = fields.Many2one(
             MODEL_TEST_REQUEST, string="Test Request", ondelete="restrict", copy=False, index="btree_not_null"
@@ -103,15 +106,34 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
             )
         )
         self._set_status(STATUS_CONFIRMED, {"test_request_id": request.id, "confirmed_at": fields.Datetime.now()})
+        # The laboratory starts from a confirmed request unless the customer still has to pay without credit.
+        if not request._credit_blocks_confirmation():
+            request.action_confirm()
 
     def _keep_order_numbers(self):
         """Write each order's number on its test request, which keeps it once uninstalling E-commerce drops the link."""
         for order in self.sudo().search([("test_request_id", "!=", False)]):
             order.test_request_id.order_number = order.name
 
-    def action_start_sample_collection(self):
+    def _compute_has_open_collection(self):
+        task_type = self.env[MODEL_TASK_TYPE].sudo().search([("code", "=", SAMPLE_COLLECTION_CODE)], limit=1)
+        tasks = self.env[MODEL_TASK].sudo()
+        for order in self:
+            request = order.sudo().test_request_id
+            order.has_open_collection = bool(
+                request
+                and tasks.search_count(
+                    Domain("document_model", "=", request._name)
+                    & Domain("document_id", "=", request.id)
+                    & Domain("type_id", "=", task_type.id)
+                    & tasks._in_use_domain(),
+                    limit=1,
+                )
+            )
+
+    def action_start_sample_collection(self, appointment=False, address=False):
         """Queue one unassigned sample collection task of the confirmed order's test request for sample delivery
-        staff, at the customer's address; they claim it and plan its time."""
+        staff, due at the appointment Sales agreed with the customer, at the address given or else the customer's."""
         self.check_access("write")
         for order in self:
             if order.order_status != STATUS_CONFIRMED:
@@ -130,10 +152,12 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
             tasks.create(
                 {
                     "type_id": task_type.id,
-                    "name": f"{task_type.name}: {order.name}, {order.customer_id.name}",
+                    "name": f"{task_type.with_env(staff_env(self.env)).name}: {order.name}, {order.customer_id.name}",
                     "document_model": request._name,
                     "document_id": request.id,
-                    "note": order.customer_id._display_address(),
+                    "note": address or order.customer_id._display_address(),
+                    "deadline": appointment,
+                    "planned_start": appointment,
                 }
             )
         return {

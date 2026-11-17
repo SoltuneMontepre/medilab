@@ -106,7 +106,7 @@ describe("WF-01 Order to confirmed test request", () => {
       });
       cy.get(".o_statusbar_buttons button[name=action_confirm_order]:visible").click();
       step("Sample collection can start, and the confirmed order no longer changes");
-      cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]:visible").should("exist");
+      cy.get(".o_statusbar_buttons button.o_start_sample_collection:visible").should("exist");
       cy.readRecord(paid, ["order_status", "test_request_id", "sample_ids"]).then((read) => {
         expect(read.order_status).to.equal("confirmed");
         call("medilab.test.request", "read", [[read.test_request_id[0]], ["status", "sample_ids"]]).then(([request]) =>
@@ -274,13 +274,11 @@ describe("WF-01 Order to confirmed test request", () => {
       cy.signInAs("sales");
       cy.openRecord(order);
       cy.get(".o_statusbar_buttons button[name=action_confirm_order]:visible").click();
-      cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]:visible").should("exist");
+      cy.get(".o_statusbar_buttons button.o_start_sample_collection:visible").should("exist");
       cy.readRecord(order, ["payment_status", "test_request_id"]).then(({ payment_status, test_request_id: [id] }) => {
         expect(payment_status).to.equal("not_paid");
-        step("Sample delivery staff confirm its test request without payment");
+        step("The customer may order on credit, so confirming the order confirms its test request too");
         cy.signInAs("sample_delivery_staff");
-        cy.openRecord({ model: "medilab.test.request", id });
-        cy.get(".o_statusbar_buttons button[name=action_confirm]:visible").click();
         cy.readRecord({ model: "medilab.test.request", id }, ["status"]).its("status").should("not.eq", "draft");
       });
     });

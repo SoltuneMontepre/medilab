@@ -127,7 +127,7 @@ class CustomerOrder(http.Controller):
                 "discount_lines": order._discount_lines(),
                 "advance": advance,
                 # The invoice page takes the payment; its token lets Odoo's payment form find the invoice.
-                "advance_url": advance.get_portal_url(query_string="&payment=True") if advance else False,
+                "advance_url": advance.get_portal_url() if advance else False,
             },
         )
 

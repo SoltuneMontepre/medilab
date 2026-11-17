@@ -263,7 +263,8 @@
         <field name="res_model">medilab.task</field>
         <field name="path">department-queue</field>
         <field name="view_mode">list,form</field>
-        <field name="domain">[('status', '=', 'open'), ('department_id', '!=', False)]</field>
+        <!-- A role's queue, such as sample collection for sample delivery staff, shows beside the departments'. -->
+        <field name="domain">[('status', '=', 'open'), '|', ('department_id', '!=', False), ('type_id.route', '=', 'role')]</field>
         <field name="context">{'create': False, 'search_default_group_department': 1}</field>
     </record>
 

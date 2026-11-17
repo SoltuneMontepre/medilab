@@ -125,12 +125,14 @@
                     class="btn-success"
                     invisible="order_status != 'claimed' or quotation_follow_up not in ('paid', 'accepted')"
                 />
+                <field name="has_open_collection" invisible="1" />
                 <button
-                    name="action_start_sample_collection"
-                    type="object"
+                    name="%(action_medilab_sample_collection_start)d"
+                    type="action"
                     string="Start sample collection"
-                    class="btn-primary"
-                    invisible="order_status != 'confirmed'"
+                    class="btn-primary o_start_sample_collection"
+                    context="{'default_order_id': id}"
+                    invisible="order_status != 'confirmed' or has_open_collection"
                 />
                 <button
                     name="action_change_committed_date"
@@ -202,7 +204,7 @@
             <xpath expr="//div[hasclass('oe_title')]" position="inside">
                 <!-- A rule under the statuses sets them apart from the fields. -->
                 <div class="d-flex flex-wrap align-items-center column-gap-4 row-gap-1 pb-3 mb-3 border-bottom">
-                    <div class="d-flex align-items-center gap-2">
+                    <div class="d-flex align-items-center gap-2" invisible="not id">
                         <span class="text-muted">Customer sees</span>
                         <field
                             name="customer_status"
@@ -403,14 +405,14 @@
                 <page string="Payment" name="payment">
                     <group>
                         <group>
-                            <field name="advance_method" />
-                            <field name="advance_mode" invisible="not advance_method or advance_method == 'none'" />
-                            <field name="advance_value" invisible="advance_mode not in ('percentage', 'fixed')" />
+                            <field name="advance_method" readonly="state != 'draft'" />
+                            <field name="advance_mode" invisible="not advance_method or advance_method == 'none'" readonly="state != 'draft'" />
+                            <field name="advance_value" invisible="advance_mode not in ('percentage', 'fixed')" readonly="state != 'draft'" />
                         </group>
                         <group>
-                            <field name="payment_status" />
-                            <field name="pending_amount" />
-                            <field name="catalog_total" />
+                            <field name="payment_status" readonly="1" />
+                            <field name="pending_amount" readonly="1" />
+                            <field name="catalog_total" readonly="1" />
                         </group>
                     </group>
                     <separator string="Advance payments" invisible="not downpayment_line_ids" />

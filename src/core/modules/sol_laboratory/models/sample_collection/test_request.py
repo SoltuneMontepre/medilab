@@ -106,6 +106,8 @@ class TestRequest(models.Model, TestRequestBase):
         )
         # Free notes about the request.
         note = fields.Text()
+        # True for a request created from a confirmed order, whose samples keep what the customer agreed.
+        from_order = fields.Boolean(readonly=True, copy=False)
         # Number of the order the request was created from, kept as text when uninstalling E-commerce drops the link.
         order_number = fields.Char(readonly=True, copy=False, index="trigram")
         # Samples of the request.
@@ -157,6 +159,7 @@ class TestRequest(models.Model, TestRequestBase):
         request = accepted.create(
             {
                 "customer_id": customer.id,
+                "from_order": True,
                 "requested_date": requested_date,
                 "committed_date": committed_date,
                 "priority": priority,
@@ -170,7 +173,7 @@ class TestRequest(models.Model, TestRequestBase):
                         {
                             "customer_sample_name": sample["customer_sample_name"],
                             "sample_type_id": sample["sample_type_id"],
-                            "physical_state": sample["physical_state"],
+                            "physical_state": sample.get("physical_state") or False,
                             "regulation_id": sample.get("regulation_id") or False,
                             "test_ids": [
                                 Command.create(test) for test in self._sample_tests_from_lines(sample.get("lines", ()))

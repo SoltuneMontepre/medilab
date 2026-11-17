@@ -47,6 +47,7 @@
         "views/orders/expected_sampling_templates.xml",
         "views/orders/order_template_views.xml",
         "views/orders/order_template_save_views.xml",
+        "views/orders/sample_collection_start_views.xml",
         "views/orders/sale_order_views.xml",
         "views/orders/sale_order_analysis_views.xml",
         "views/orders/cancellation_request_views.xml",

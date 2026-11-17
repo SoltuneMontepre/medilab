@@ -131,6 +131,13 @@ class TestSampleReception(RequestCase):
                 self.assertFalse(sample.received_by_id)
                 self.assertEqual(self.request.status, "paid")
 
+    def test_a_sample_without_its_physical_state_is_not_received(self):
+        self.request.action_confirm()
+        self.sample.physical_state = False
+
+        with self.assertRaisesRegex(UserError, "solid, liquid, gas or semi-solid"):
+            self.receive("2 bottles of 1 L", "good")
+
     def test_rejecting_a_sample_without_its_reason_is_refused(self):
         with self.assertRaises(UserError):
             self.receive("1 bottle", "unusable")

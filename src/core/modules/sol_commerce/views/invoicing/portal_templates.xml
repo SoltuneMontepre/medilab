@@ -6,13 +6,42 @@
                 <span>Amount owed: </span>
                 <span t-field="invoice.amount_owed" t-options='{"widget": "monetary", "display_currency": invoice.currency_id}' />
             </div>
-            <form t-if="invoice.amount_residual" t-attf-action="/my/invoices/#{invoice.id}/pay" method="post" class="mb-3">
+            <t t-set="pending_transfer" t-value="invoice._portal_pending_transfer()"/>
+            <div t-if="pending_transfer" class="alert alert-success" id="medilab-transfer-details">
+                <p class="mb-2">Transfer <strong t-field="pending_transfer.amount" t-options='{"widget": "monetary", "display_currency": pending_transfer.currency_id}'/> to the account below. The accountant confirms it once the money arrives.</p>
+                <dl class="row mb-0">
+                    <t t-set="bank" t-value="invoice._portal_bank_account()"/>
+                    <t t-if="bank">
+                        <dt class="col-sm-4">Bank</dt>
+                        <dd class="col-sm-8" t-out="bank.bank_id.name or '-'"/>
+                        <dt class="col-sm-4">Account number</dt>
+                        <dd class="col-sm-8" t-out="bank.acc_number"/>
+                        <dt class="col-sm-4">Account holder</dt>
+                        <dd class="col-sm-8" t-out="bank.acc_holder_name or bank.partner_id.name"/>
+                    </t>
+                    <dt class="col-sm-4">Transfer reference</dt>
+                    <dd class="col-sm-8"><strong t-out="pending_transfer.memo"/></dd>
+                </dl>
+                <p t-if="not bank" class="mb-0">Contact us for the bank account details.</p>
+            </div>
+            <form t-if="invoice.amount_residual and not pending_transfer" t-attf-action="/my/invoices/#{invoice.id}/pay" method="post" class="mb-3">
                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                 <label for="medilab_payment_amount">Amount</label>
-                <input id="medilab_payment_amount" type="number" name="amount" min="1" step="1" t-att-max="invoice.amount_residual" t-att-value="invoice.amount_residual" required="required" />
+                <input id="medilab_payment_amount" type="number" name="amount" min="1" t-att-step="invoice.currency_id.rounding" t-att-max="invoice._portal_amount_text(invoice.amount_residual)" t-att-value="invoice._portal_amount_text(invoice.amount_residual)" required="required" />
                 <button t-if="invoice._portal_payos_available()" class="btn btn-primary" name="method" value="payos" type="submit"><i class="oi me-1" data-icon="credit_card" aria-hidden="true" />PayOS</button>
                 <button class="btn btn-light" name="method" value="bank_transfer" type="submit"><i class="oi me-1" data-icon="account_balance" aria-hidden="true" />Bank transfer</button>
             </form>
+        </xpath>
+    </template>
+
+    <!-- The invoice is paid through the form above, by PayOS or bank transfer; Odoo's own payment dialog is not used. -->
+    <template id="portal_invoice_no_odoo_pay" inherit_id="account_payment.portal_invoice_page_inherit_payment">
+        <xpath expr="//a[@data-bs-target='#pay_with']" position="replace"/>
+    </template>
+
+    <template id="portal_invoices_no_odoo_pay" inherit_id="account_payment.portal_my_invoices_payment">
+        <xpath expr="//a[hasclass('btn-sm')][@role='button']" position="attributes">
+            <attribute name="t-att-href">invoice.get_portal_url()</attribute>
         </xpath>
     </template>
 

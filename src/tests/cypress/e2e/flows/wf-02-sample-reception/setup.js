@@ -27,16 +27,16 @@ function readRequest(id) {
   );
 }
 
-// The id of an order's test request, which sample delivery staff confirm.
+// The id of an order's test request, which confirming the paid order confirmed already.
 function confirmOrderRequest(order) {
   return callAs(SALES, "sale.order", "read", [[order.id], ["test_request_id"]]).then(([read]) => {
     const id = read.test_request_id[0];
-    callAs(STAFF, "medilab.test.request", "action_confirm", [[id]]);
+    callAs(STAFF, "medilab.test.request", "read", [[id], ["status"]]).then(([request]) => expect(request.status).not.to.equal("draft"));
     return cy.wrap(id);
   });
 }
 
-// The test request of a confirmed and paid order, confirmed by sample delivery staff, its samples expected.
+// The test request of a confirmed and paid order, its samples expected.
 export function orderRequest() {
   return orderAt("confirmed").then(confirmOrderRequest).then(readRequest);
 }

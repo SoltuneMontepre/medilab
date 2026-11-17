@@ -59,6 +59,10 @@ def _progress(statuses, sent, done):
     return None
 
 
+# The sample fields the customer agreed on the order, which stay as they are once the request comes from it.
+AGREED_SAMPLE_FIELDS = frozenset({"request_id", "customer_sample_name", "sample_type_id", "regulation_id", "test_ids"})
+
+
 # Mẫu
 class Sample(models.Model, SampleBase):
     _name = MODEL_SAMPLE
@@ -85,9 +89,9 @@ class Sample(models.Model, SampleBase):
         )
         # The sample type (nền mẫu), such as bottled drinking water.
         sample_type_id = fields.Many2one(MODEL_SAMPLE_TYPE, required=True, ondelete="restrict", index=True)
-        # Whether the sample is solid, liquid, gas or semi-solid.
+        # Whether the sample is solid, liquid, gas or semi-solid; an expected sample from an order gets it at receipt.
         physical_state = fields.Selection(
-            [("solid", "Solid"), ("liquid", "Liquid"), ("gas", "Gas"), ("semi_solid", "Semi-solid")], required=True
+            [("solid", "Solid"), ("liquid", "Liquid"), ("gas", "Gas"), ("semi_solid", "Semi-solid")]
         )
         # Form the sample comes in, such as "whole bottle".
         sample_form = fields.Char(string="Form")
@@ -95,6 +99,8 @@ class Sample(models.Model, SampleBase):
         container_type = fields.Char(string="Container")
         # The regulation the sample's results are compared with; empty when none.
         regulation_id = fields.Many2one(MODEL_REGULATION, ondelete="restrict", index="btree_not_null")
+        # True when the sample's request comes from an order, so its type, regulation and tests stay as agreed.
+        agreed_on_order = fields.Boolean(related="request_id.from_order")
         # Why the sample keeps a regulation that is no longer in force; empty while it is.
         regulation_notice = fields.Char(compute="_compute_regulation_notice")
         # Free notes about the sample.
@@ -220,6 +226,14 @@ class Sample(models.Model, SampleBase):
                     format_list(self.env, self.filtered(lambda sample: sample.status == "returned").mapped("code")),
                 )
             )
+        agreed = AGREED_SAMPLE_FIELDS & set(vals)
+        if agreed and not self.env.su and any(sample.request_id.from_order for sample in self):
+            raise UserError(
+                self.env._(
+                    "The customer agreed this sample's type, regulation and tests on the order; change them with a "
+                    "revised quotation."
+                )
+            )
         result = super().write(vals)
         if {"regulation_id", "sample_type_id"} & set(vals):
             self.filtered("regulation_id")._check_regulation()
@@ -281,6 +295,14 @@ class Sample(models.Model, SampleBase):
             raise UserError(self.env._("Enter why the sample cannot be tested."))
         if any(sample.status != "expected" for sample in self):
             raise UserError(self.env._("Only an expected sample can be received."))
+        unknown = self.filtered(lambda sample: not sample.physical_state)
+        if unknown:
+            raise UserError(
+                self.env._(
+                    "Enter whether %s is solid, liquid, gas or semi-solid before receiving it.",
+                    ", ".join(code or "" for code in unknown.mapped("code")),
+                )
+            )
         self.write(
             {
                 "received_quantity": quantity,
@@ -290,6 +312,7 @@ class Sample(models.Model, SampleBase):
                 "status": RECEIPT_STATUS[condition],
             }
         )
+        self.request_id._finish_collections()
         if condition == "good":
             self._record_receipt()
         elif condition == "insufficient":

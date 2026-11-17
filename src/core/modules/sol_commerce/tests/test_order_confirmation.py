@@ -1,8 +1,9 @@
+from odoo import fields
 from odoo.exceptions import AccessError, UserError
-from odoo.tests import tagged
+from odoo.tests import Form, tagged
 
 from .order_case import OrderCase
-from odoo.addons.sol_commerce.constants.models import MODEL_CUSTOMER_SALES_TERMS
+from odoo.addons.sol_commerce.constants.models import MODEL_CUSTOMER_SALES_TERMS, MODEL_SAMPLE_COLLECTION_START
 from odoo.addons.sol_laboratory.constants.models import MODEL_TEST_REQUEST
 
 
@@ -128,6 +129,24 @@ class TestOrderConfirmation(OrderCase):
             order.with_user(self.sales).action_start_sample_collection()
         self.assertEqual(len(self.collection_tasks(order)), 1)
 
+    def test_sales_enters_the_appointment_and_place_of_collection(self):
+        self.route_collection_to_delivery_staff()
+        self.customer.write({"street": "12 Nguyen Hue", "city": "Ho Chi Minh"})
+        order = self.make_confirmed_order()
+        form = Form(
+            self.env[MODEL_SAMPLE_COLLECTION_START].with_user(self.sales).with_context(default_order_id=order.id)
+        )
+        self.assertIn("12 Nguyen Hue", form.address)
+        form.appointment = "2099-12-31 02:00:00"
+        form.address = "Gate 3, 45 Le Loi"
+
+        form.save().action_start()
+
+        task = self.collection_tasks(order)
+        self.assertEqual(fields.Datetime.to_string(task.deadline), "2099-12-31 02:00:00")
+        self.assertEqual(task.note, "Gate 3, 45 Le Loi")
+        self.assertTrue(order.has_open_collection)
+
     def test_a_finished_collection_task_lets_sales_start_another(self):
         self.route_collection_to_delivery_staff()
         order = self.make_confirmed_order()
@@ -203,9 +222,8 @@ class TestOrderConfirmation(OrderCase):
         self.assertFalse(alone._credit_blocks_confirmation())
 
     def test_the_request_of_a_paid_order_is_paid_on_confirmation(self):
+        # Confirming the order confirms its request, which is paid already.
         request = self.make_confirmed_order().test_request_id
-
-        request.action_confirm()
 
         self.assertEqual(request.status, "paid")
         request.sample_ids[:1].with_user(self.sales).sudo().action_receive(1, "good")
@@ -232,3 +250,31 @@ class TestOrderConfirmation(OrderCase):
 
         self.assertTrue(created.allow_credit)
         self.assertFalse(created.search([("customer_id", "=", self.customer_record.id), ("allow_credit", "=", False)]))
+
+    def test_the_request_of_a_paid_order_is_confirmed_at_once(self):
+        order = self.make_confirmed_order()
+
+        self.assertTrue(order.test_request_id.from_order)
+        self.assertNotEqual(order.test_request_id.status, "draft")
+
+    def test_the_samples_keep_what_the_customer_agreed_on_the_order(self):
+        order = self.make_confirmed_order()
+        sample = order.test_request_id.sample_ids[:1]
+
+        with self.assertRaisesRegex(UserError, "revised quotation"):
+            sample.with_user(self.sales).customer_sample_name = "Another bottle"
+        sample.storage_location = "Fridge 2"
+
+        self.assertEqual(sample.storage_location, "Fridge 2")
+
+    def test_receiving_the_last_expected_sample_finishes_the_collection(self):
+        self.route_collection_to_delivery_staff()
+        order = self.make_confirmed_order()
+        order.with_user(self.sales).action_start_sample_collection()
+        samples = order.test_request_id.sample_ids
+        samples.physical_state = "liquid"
+
+        samples.with_user(self.sales).sudo().action_receive("1 bottle of 1 L", "good")
+
+        self.assertEqual(self.collection_tasks(order).status, "done")
+        self.assertFalse(order.has_open_collection)

@@ -53,3 +53,21 @@ class TestInvoiceTasks(InvoicingCase):
         draft.button_cancel()
 
         self.assertEqual(task.status, "cancelled")
+
+    def test_a_transfer_sales_records_waits_for_the_accountant(self):
+        invoice = self.order.create_advance_invoice()
+        payment = (
+            self.env["account.payment"]
+            .with_user(self.sales)
+            .sudo()
+            .create_pending_payment(invoice, invoice.amount_residual, "bank_transfer")
+        )
+        task = self.task_of(payment)
+
+        self.assertEqual(task.type_id, self.env.ref("sol_commerce.task_type_payment_review"))
+        self.assertEqual(task.status, "open")
+
+        payment.rejection_reason = "No money arrived."
+        payment.action_reject_payment()
+
+        self.assertEqual(task.status, "cancelled")
