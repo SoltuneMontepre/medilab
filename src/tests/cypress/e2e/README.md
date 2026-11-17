@@ -115,10 +115,10 @@ Each test builds its machines, method, way and tests with `flows/sf-05-machine-u
 | Title starts with | What the browser proves |
 | --- | --- |
 | `TC-SF05-M` | The administrator sets a machine under repair from its form. Its scheduled and proposed bookings go back to the plan on the other machine linked to the same method, keep their agreed way, and the head sees them as proposed. Putting the machine back in use is refused until a calibration dated after its repair is recorded, and then the plan uses it again. |
-| `TC-SF05-A1` | A never-calibrated machine and one whose calibration has ended take no booking; the test shows no machine can finish it and Schedule is refused. Recording a valid calibration lets the tester schedule it. A calibration recorded to end before a scheduled booking returns that booking to the plan. |
+| `TC-SF05-A1` | A never-calibrated machine and one whose calibration has ended take no booking; the test shows no machine can finish it and Approve Booking is refused. Recording a valid calibration lets the head approve it. A calibration recorded to end before a scheduled booking returns that booking to the plan. |
 | `TC-SF05-A2` | The calibration, maintenance and repair warnings appear on the booking one by one as their windows are entered. With maintenance overdue the warnings stay and a new booking is refused. |
 | `TC-SF05-A3` | A planned maintenance's downtime sends the bookings it overlaps back to the plan, after it. Overdue maintenance refuses the booking until a maintenance record dated today is saved, and the booking then keeps clear of the downtime. |
-| `TC-SF05-E1` | Without another machine for the way, the bookings stay in the plan without a slot, the way is not replaced, outsourcing is suggested, the tester and head receive the at-risk notice and the tester cannot schedule. |
+| `TC-SF05-E1` | Without another machine for the way, the bookings stay in the plan without a slot, the way is not replaced, outsourcing is suggested, the tester and head receive the at-risk notice and the head cannot approve a booking. |
 | `TC-SF05-E2` | A machine failure ends every booking of a shared run with an interrupted result that keeps the tester's data and notifies the tester and head. The tester cannot assess; the head assesses the three attempts as usable, needing a retest and needing more sample. |
 | `TC-F20-03` | A machine with a scheduled or a queued booking, and then a running one, is refused archiving with the bookings listed. |
 
