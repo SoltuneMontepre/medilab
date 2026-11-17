@@ -13,6 +13,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_CODE_MIXIN,
     MODEL_DEPARTMENT,
     MODEL_EXPECTED_SAMPLING,
+    MODEL_IR_ATTACHMENT,
     MODEL_LOCATION,
     MODEL_LOCK_MIXIN,
     MODEL_PARAMETER_METHOD_SAMPLE_TYPE,
@@ -450,9 +451,17 @@ class Sample(models.Model, SampleBase):
     def action_attach_photo(self, photo, name="photo.jpg"):
         """The mobile app attaches a photo taken when the sample is collected or received."""
         self.ensure_one()
-        attachment = self.env["ir.attachment"].create(
-            {"name": name, "raw": photo, "res_model": self._name, "res_id": self.id}
-        )
+        return self._link_photo(self.env[MODEL_IR_ATTACHMENT].create(self._photo_values(photo, name)))
+
+    def _photo_values(self, photo, name, mimetype=None):
+        """The attachment of a photo of the sample."""
+        self.ensure_one()
+        values = {"name": name, "raw": photo, "res_model": self._name, "res_id": self.id}
+        if mimetype:
+            values["mimetype"] = mimetype
+        return values
+
+    def _link_photo(self, attachment):
         self.write({"photo_ids": [Command.link(persisted_id(attachment))]})
         return attachment
 

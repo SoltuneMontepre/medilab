@@ -36,11 +36,11 @@ export default function appConfig({ config }: ConfigContext): ExpoConfig {
     plugins: [
       "expo-router",
       "expo-secure-store",
-      // The camera reads sample labels; the app records no sound.
+      // The camera reads sample labels and photographs samples; the app records no sound.
       [
         "expo-camera",
         {
-          cameraPermission: "MediLab reads the QR code on sample labels with the camera.",
+          cameraPermission: "MediLab reads the QR code on sample labels and photographs samples with the camera.",
           microphonePermission: false,
           recordAudioAndroid: false,
         },

@@ -22,3 +22,7 @@ TASK_PAGE_SIZE = 50
 ASSIGNEE_LIMIT = 20
 # How many results waiting for the person's signature a page gives when the app names no limit.
 RESULT_PAGE_SIZE = 50
+# A file over its limit.
+TOO_LARGE = "too_large"
+# The largest photo a phone sends, once decoded.
+PHOTO_MAX_BYTES = 10 * 1024 * 1024
