@@ -5,6 +5,7 @@ const state = {
   token: null as string | null,
   initial: null as Message,
   onOpened: [] as ((message: Message) => void)[],
+  onMessage: [] as ((message: Message) => void)[],
   onToken: [] as ((token: string) => void)[],
 };
 
@@ -29,10 +30,16 @@ export function refreshPushToken(token: string) {
   state.onToken.forEach((listener) => listener(token));
 }
 
+/** A push arrives while the app is open. */
+export function receivePush(message: Message) {
+  state.onMessage.forEach((listener) => listener(message));
+}
+
 export function resetMessaging() {
   state.token = null;
   state.initial = null;
   state.onOpened = [];
+  state.onMessage = [];
   state.onToken = [];
 }
 
@@ -63,5 +70,12 @@ export const onRegistered = jest.fn((_messaging: unknown, listener: (token: stri
   state.onToken.push(listener);
   return () => {
     state.onToken = state.onToken.filter((kept) => kept !== listener);
+  };
+});
+
+export const onMessage = jest.fn((_messaging: unknown, listener: (message: Message) => void) => {
+  state.onMessage.push(listener);
+  return () => {
+    state.onMessage = state.onMessage.filter((kept) => kept !== listener);
   };
 });
