@@ -251,28 +251,9 @@ class MailMessage(models.Model, MailMessageBase):
         user = partner.user_ids[:1]
         if not user:
             return
-        devices = self.env[MODEL_MOBILE_DEVICE]._push_tokens(user)
         deliveries = self.env[MODEL_PUSH_DELIVERY].sudo()
-        for device in devices:
-            existing = deliveries.search(
-                [("notification_id", "=", notification.id), ("mobile_device_id", "=", device.id)],
-                limit=1,
-            )
-            if existing:
-                delivery = existing
-            else:
-                try:
-                    with self.env.cr.savepoint(), mute_logger("odoo.sql_db"):
-                        delivery = deliveries.create(
-                            {"notification_id": notification.id, "mobile_device_id": device.id, "status": "pending"}
-                        )
-                except IntegrityError:
-                    delivery = deliveries.search(
-                        [("notification_id", "=", notification.id), ("mobile_device_id", "=", device.id)],
-                        limit=1,
-                    )
-            if delivery and delivery.status == "pending":
-                self.env[MODEL_SCHEDULED_JOB].queue("notifications.push", f"delivery:{delivery.id}", document=delivery)
+        for device in self.env[MODEL_MOBILE_DEVICE]._push_tokens(user):
+            deliveries._queue({"notification_id": notification.id, "mobile_device_id": device.id})
 
     def _audit_document(self):
         """The document the message is posted on, which the entries of its emails and pushes are written on."""

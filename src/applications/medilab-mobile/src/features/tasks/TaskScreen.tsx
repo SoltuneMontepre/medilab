@@ -15,6 +15,7 @@ import { ActionProblem } from "../connection/ActionProblem";
 import { LoadNotice } from "../connection/LoadNotice";
 import { documentPath, resultPath, SAMPLE_TEST_MODEL, samplePath, sampleTestPath } from "../documents/documentPath";
 import { Button } from "../shared/Button";
+import { ChatterButton } from "../messages/ChatterButton";
 import { Facts, type Fact } from "../shared/Facts";
 import { formatMoment, statusKey } from "./taskText";
 
@@ -97,6 +98,7 @@ export function TaskScreen() {
               </Text>
             </Pressable>
           )}
+          <ChatterButton document={{ model: "medilab.task", id: load.value.id, code: load.value.name }} />
         </ScrollView>
       )}
     </SafeAreaView>

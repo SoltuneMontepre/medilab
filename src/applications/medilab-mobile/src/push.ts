@@ -1,6 +1,7 @@
 import {
   getInitialNotification,
   getMessaging,
+  onMessage,
   onNotificationOpenedApp,
   onRegistered,
   register,
@@ -72,6 +73,24 @@ export function watchOpenedPushes(onOpened: (document: PushedDocument) => void):
       const document = pushedDocument(message);
       if (document) {
         onOpened(document);
+      }
+    });
+  } catch {
+    return () => undefined;
+  }
+}
+
+// The event of a push of a conversation message.
+const MESSAGE_EVENT = "message";
+
+/** Calls back with the conversation of each message push that arrives while the app is open, so the screens showing
+ * it read it again. */
+export function watchMessagePushes(onPushed: (conversation: PushedDocument) => void): () => void {
+  try {
+    return onMessage(getMessaging(), (message) => {
+      const conversation = pushedDocument(message);
+      if (conversation && message.data?.event === MESSAGE_EVENT) {
+        onPushed(conversation);
       }
     });
   } catch {

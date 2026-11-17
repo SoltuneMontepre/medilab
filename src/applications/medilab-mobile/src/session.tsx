@@ -2,7 +2,7 @@ import * as Device from "expo-device";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { Platform } from "react-native";
 
-import { ApiError, callApi, UnreachableError, type Call, type SignedIn } from "./api";
+import { ApiError, apiUrl, callApi, UnreachableError, type Call, type SignedIn } from "./api";
 import { serverUrl as builtInServerUrl } from "./config";
 import { isLocale, type Locale } from "./i18n";
 import { LocaleProvider } from "./locale";
@@ -23,6 +23,8 @@ export interface Session {
   signOut(): Promise<void>;
   /** Calls MediLab with the phone's key. A refused key is removed and the person returns to sign-in. */
   call<T>(path: string, call?: Omit<Call, "key">): Promise<T | null>;
+  /** The address and headers an image of MediLab's API at the path is read with, with the phone's key. */
+  source(path: string): { uri: string; headers: Record<string, string> };
 }
 
 const SessionContext = createContext<Session | null>(null);
@@ -136,9 +138,14 @@ export function SessionProvider({ children }: Readonly<{ children: ReactNode }>)
     await forgetKey();
   }, [call, forgetKey]);
 
+  const source = useCallback(
+    (path: string) => ({ uri: apiUrl(serverUrl, path), headers: { Authorization: `Bearer ${key}` } }),
+    [serverUrl, key],
+  );
+
   const session = useMemo<Session>(
-    () => ({ status, serverUrl, language, setLanguage: keepLanguage, signIn, signOut, call }),
-    [status, serverUrl, language, keepLanguage, signIn, signOut, call],
+    () => ({ status, serverUrl, language, setLanguage: keepLanguage, signIn, signOut, call, source }),
+    [status, serverUrl, language, keepLanguage, signIn, signOut, call, source],
   );
   return (
     <SessionContext.Provider value={session}>
