@@ -159,6 +159,12 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/system/mobile_release_settings.py:0
+msgid "%(version)s is not a version such as 1.2.3."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version_signing.py:0
 msgid "%(version)s was rejected: %(reason)s"
 msgstr ""
@@ -858,6 +864,14 @@ msgstr ""
 #: code:addons/sol_laboratory/models/system/person.py:0
 msgid ""
 "A person who signed cannot be deleted; archive them instead. Signatures: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__mobile_minimum_version
+msgid ""
+"A phone running an older version of Medilab Mobile must update before it is "
+"used, and shows only the updating screen while no release reaches this "
+"version. Empty serves every version."
 msgstr ""
 
 #. module: sol_laboratory
@@ -7498,6 +7512,11 @@ msgid "Medilab - Laboratory"
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form_mobile_releases
+msgid "Medilab Mobile"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_calendar_event__medilab_task_id
 msgid "Medilab Task"
 msgstr ""
@@ -8196,6 +8215,11 @@ msgid "Old Value"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__mobile_minimum_version
+msgid "Oldest Version Served"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__status__on_hold
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_search
 msgid "On Hold"
@@ -8611,6 +8635,11 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import__line_ids
 msgid "Scope Lines"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__mobile_stopped_versions
+msgid "Stopped Releases"
 msgstr ""
 
 #. module: sol_laboratory
@@ -15334,6 +15363,14 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template__version_ids
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_report_template_form
 msgid "Versions"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__mobile_stopped_versions
+msgid ""
+"Versions of Medilab Mobile no phone downloads any more, separated by commas,"
+" such as 1.2.0, 1.2.1. Phones that run a stopped version take the next "
+"release the release pipeline publishes."
 msgstr ""
 
 #. module: sol_laboratory

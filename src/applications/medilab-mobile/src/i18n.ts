@@ -274,6 +274,27 @@ const messages = {
   "support.take": { vi: "Nhận xử lý", en: "Take" },
   "support.answer": { vi: "Câu trả lời", en: "Answer" },
   "support.send": { vi: "Gửi câu trả lời", en: "Send the answer" },
+  "update.checking": { vi: "Đang kiểm tra bản cập nhật...", en: "Checking for updates..." },
+  "update.title": { vi: "Cập nhật MediLab", en: "Updating MediLab" },
+  "update.code": {
+    vi: "Đang tải phiên bản {version}. Ứng dụng tự khởi động lại khi tải xong.",
+    en: "Downloading version {version}. The app restarts once it is ready.",
+  },
+  "update.install": {
+    vi: "Phiên bản {version} cần cài đặt lại ứng dụng. Xác nhận trong trình cài đặt của Android.",
+    en: "Version {version} needs a new install. Confirm it in Android's installer.",
+  },
+  "update.unavailable": {
+    vi: "MediLab không còn hỗ trợ phiên bản này và chưa có bản cập nhật cho nó. Hãy liên hệ quản trị viên.",
+    en: "MediLab no longer serves this version, and no update reaches it yet. Contact your administrator.",
+  },
+  "update.failed": {
+    vi: "Không cài được bản cập nhật nên ứng dụng giữ phiên bản hiện tại. Kiểm tra kết nối rồi thử lại.",
+    en: "The update could not be installed, so the app keeps the version it has. Check the connection and try again.",
+  },
+  "update.downloading": { vi: "Đang tải bản cập nhật", en: "Downloading the update" },
+  "update.openInstaller": { vi: "Mở lại trình cài đặt", en: "Open the installer again" },
+  "update.retry": { vi: "Thử lại", en: "Try again" },
   "back": { vi: "Quay lại", en: "Back" },
   "loading": { vi: "Đang tải...", en: "Loading..." },
 } as const satisfies Record<string, Record<Locale, string>>;

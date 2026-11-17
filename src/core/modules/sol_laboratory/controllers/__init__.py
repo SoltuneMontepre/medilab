@@ -23,6 +23,7 @@ from . import (
     laboratory_api_uploads,
     laboratory_editing_callback,
     laboratory_editor,
+    laboratory_mobile_updates,
     laboratory_sync_compatibility,
     laboratory_sync_updates,
     portal,

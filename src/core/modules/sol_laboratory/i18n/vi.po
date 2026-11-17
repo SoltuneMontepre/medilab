@@ -76,6 +76,12 @@ msgstr "%(user)s đã khóa %(file)s đến %(until)s."
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/system/mobile_release_settings.py:0
+msgid "%(version)s is not a version such as 1.2.3."
+msgstr "%(version)s không phải là phiên bản dạng 1.2.3."
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/tasks/calendar_event.py:0
 msgid "%s cannot be booked."
 msgstr "Không thể đặt %s."
@@ -408,6 +414,17 @@ msgstr "Một nhân sự"
 #: code:addons/sol_laboratory/models/system/person.py:0
 msgid "A person who signed cannot be deleted; archive them instead. Signatures: %s"
 msgstr "Không thể xóa nhân sự đã ký; hãy lưu trữ nhân sự. Chữ ký: %s"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__mobile_minimum_version
+msgid ""
+"A phone running an older version of Medilab Mobile must update before it is "
+"used, and shows only the updating screen while no release reaches this "
+"version. Empty serves every version."
+msgstr ""
+"Điện thoại chạy phiên bản Medilab Mobile cũ hơn phải cập nhật trước khi "
+"dùng, và chỉ hiện màn hình cập nhật khi chưa có bản phát hành nào đạt phiên "
+"bản này. Để trống thì hỗ trợ mọi phiên bản."
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_location_map_point_range
@@ -4863,6 +4880,11 @@ msgid "Medilab - Laboratory"
 msgstr "Medilab - Phòng thí nghiệm"
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form_mobile_releases
+msgid "Medilab Mobile"
+msgstr "Medilab Mobile"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__meeting_display_label
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__meeting_display_label
 msgid "Meeting Display Label"
@@ -5290,6 +5312,11 @@ msgstr "Số tin nhắn cần xử lý"
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__message_has_error_counter
 msgid "Number of messages with delivery error"
 msgstr "Số tin nhắn bị lỗi gửi"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__mobile_minimum_version
+msgid "Oldest Version Served"
+msgstr "Phiên bản cũ nhất được hỗ trợ"
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__status__on_hold
@@ -7848,6 +7875,11 @@ msgid "Steps"
 msgstr "Các Bước"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__mobile_stopped_versions
+msgid "Stopped Releases"
+msgstr "Bản phát hành đã dừng"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__storage_conditions
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__storage_conditions
 msgid "Storage Conditions"
@@ -9008,6 +9040,17 @@ msgstr "Phiên bản hồ sơ"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_report_template_form
 msgid "Versions"
 msgstr "Phiên bản"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__mobile_stopped_versions
+msgid ""
+"Versions of Medilab Mobile no phone downloads any more, separated by commas,"
+" such as 1.2.0, 1.2.1. Phones that run a stopped version take the next "
+"release the release pipeline publishes."
+msgstr ""
+"Các phiên bản Medilab Mobile không còn điện thoại nào được tải, cách nhau "
+"bằng dấu phẩy, ví dụ 1.2.0, 1.2.1. Điện thoại đang chạy phiên bản đã dừng sẽ"
+" nhận bản phát hành kế tiếp mà quy trình phát hành công bố."
 
 #. module: sol_laboratory
 #. odoo-python
