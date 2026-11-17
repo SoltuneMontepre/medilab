@@ -100,20 +100,25 @@ export const receive = helper("receive", function receive(sample, condition = "g
   return callAs(STAFF, "medilab.sample", "action_receive", [[sample.id], "500 ml", condition, note, "Tủ lạnh 2"]);
 });
 
-// A handover record of a sample, signed by the customer on the phone of sample delivery staff.
-export const signedRecord = helper("signedRecord", function signedRecord(request, sample, quantity = "500 ml", device = false) {
-  return refAs(STAFF, "sol_demo.demo_person_sample_delivery_staff")
-    .then(({ id }) =>
-      callAs(STAFF, "medilab.handover.record", "create", [
-        {
-          request_id: request.id,
-          handed_over_by_name: "Phạm Thị Hoa",
-          received_by_id: id,
-          sample_ids: [[0, 0, { sample_id: sample.id, quantity, condition: "good" }]],
-        },
-      ]),
-    )
-    .then((id) => callAs(STAFF, "medilab.handover.record", "action_sign", [[id], PNG, device]).then(() => ({ model: "medilab.handover.record", id })));
+// A draft handover record of a sample, which sample delivery staff have the customer sign. Yields its id.
+export const draftRecord = helper("draftRecord", function draftRecord(request, sample, quantity = "500 ml") {
+  return refAs(STAFF, "sol_demo.demo_person_sample_delivery_staff").then(({ id }) =>
+    callAs(STAFF, "medilab.handover.record", "create", [
+      {
+        request_id: request.id,
+        handed_over_by_name: "Phạm Thị Hoa",
+        received_by_id: id,
+        sample_ids: [[0, 0, { sample_id: sample.id, quantity, condition: "good" }]],
+      },
+    ]),
+  );
+});
+
+// A handover record of a sample, signed by the customer.
+export const signedRecord = helper("signedRecord", function signedRecord(request, sample, quantity = "500 ml") {
+  return draftRecord(request, sample, quantity).then((id) =>
+    callAs(STAFF, "medilab.handover.record", "action_sign", [[id], PNG]).then(() => ({ model: "medilab.handover.record", id })),
+  );
 });
 
 // A sample collection task of a test request, assigned to sample delivery staff by an administrator, as `{ model, id, name }`.

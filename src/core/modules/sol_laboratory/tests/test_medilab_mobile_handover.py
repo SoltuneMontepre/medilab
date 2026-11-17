@@ -11,7 +11,10 @@ from odoo.addons.sol_laboratory.constants.laboratory_files import INVALID_REQUES
 from odoo.addons.sol_laboratory.constants.medilab_mobile import ACTION_REFUSED, SIGNATURE_MAX_BYTES, TOO_LARGE
 from odoo.addons.sol_laboratory.constants.models import MODEL_HANDOVER_RECORD, MODEL_LABORATORY_DEVICE
 
-SIGNATURE = b"\x89PNG\r\n\x1a\nthe customer's handwritten signature"
+# The customer's handwritten signature as the phone draws it: a PNG.
+SIGNATURE = base64.b64decode(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+)
 # What sample delivery staff may do with handover records, as the demo staff may.
 STAFF_PERMISSIONS = (
     "handover_record_read_all",
@@ -100,7 +103,7 @@ class TestMedilabMobileHandover(PhoneCalls, RequestCase):
         self.answered(self.sign(self.staff))
         signature = self.record.signature_attachment_id
 
-        again = self.answered(self.sign(self.staff, signature_body(b"\x89PNG\r\n\x1a\nsigned again")))
+        again = self.answered(self.sign(self.staff, signature_body(SIGNATURE + b"signed again")))
 
         self.assertEqual(again["status"], "signed")
         self.assertEqual(self.record.signature_attachment_id, signature)
