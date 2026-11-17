@@ -10,6 +10,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_REPORT_TEMPLATE,
     MODEL_TEST_REPORT,
 )
+from odoo.addons.sol_laboratory.constants.report_templates import REPORT_GENERATION_CONTEXT
 from odoo.addons.sol_laboratory.constants.xml_ids import REPORT_DRAFTS_FOLDER, REPORT_TEMPLATES_FOLDER
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
 
@@ -20,7 +21,7 @@ else:
 
 
 # Tệp Phòng Thí Nghiệm: the DOCX files of report templates and report drafts, which their template or report gives
-# access to, never folder membership, and which only online editing and MediLab itself write.
+# access to, never folder membership. Templates are edited online; only MediLab writes report drafts.
 class LaboratoryFile(models.Model, LaboratoryFileBase):
     _inherit = MODEL_LABORATORY_FILE
 
@@ -61,11 +62,18 @@ class LaboratoryFile(models.Model, LaboratoryFileBase):
             owner = file._report_owner()
             if owner is None:
                 continue
-            if device or not owner:
-                raise LaboratoryFileError(
-                    PERMISSION_DENIED, self.env._("Report templates and drafts are only edited online.")
-                )
-            owner._check_docx_writable()
+            if not owner:
+                raise LaboratoryFileError(PERMISSION_DENIED, self.env._("This file belongs to no template or report."))
+            if owner._name == MODEL_TEST_REPORT:
+                # MediLab generates a report's draft; nobody edits it, online or from a computer.
+                if device or not self.env.context.get(REPORT_GENERATION_CONTEXT):
+                    raise LaboratoryFileError(
+                        PERMISSION_DENIED, self.env._("MediLab generates a report's draft; nobody edits it.")
+                    )
+            elif device:
+                raise LaboratoryFileError(PERMISSION_DENIED, self.env._("Report templates are only edited online."))
+            else:
+                self.env[MODEL_REPORT_TEMPLATE].browse(owner.ids)._check_docx_writable()
         return result
 
     def _open_editing_sessions(self):

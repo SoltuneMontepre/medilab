@@ -46,13 +46,13 @@ class SampleTestEligibility(models.Model, SampleTestEligibilityBase):
             if refusal:
                 raise UserError(refusal)
 
-    def action_schedule(self):
+    def action_approve_booking(self):
         self._check_bookable()
         for test in self:
             assignee = test._testing_task().assignee_id
             if assignee:
                 self.env[MODEL_PARAMETER_AUTHORIZATION]._check_authorized(assignee, test.parameter_id)
-        return super().action_schedule()
+        return super().action_approve_booking()
 
     def _compute_recommendation(self):
         """Only a bookable test is recommended a slot, and only to an assignee authorized for its parameter."""

@@ -4,9 +4,9 @@ from odoo import api, fields, models
 from odoo.exceptions import UserError
 
 from odoo.addons.sol_laboratory.constants.approvals import (
+    DECISION_REJECTED,
     STATE_APPLIED,
     STATE_APPROVED,
-    STATE_REJECTED,
     STATE_REQUESTED,
 )
 from odoo.addons.sol_laboratory.constants.models import (
@@ -17,7 +17,6 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TEST_REPORT,
 )
 from odoo.addons.sol_laboratory.constants.report_templates import CANDIDATE_ISSUED, REVIEWED_CANDIDATE_CONTEXT
-from odoo.addons.sol_laboratory.constants.tasks import REPORT_DRAFTED_TRIGGER
 from odoo.addons.sol_laboratory.models.testing.test_report import ISSUED_STATUSES, SIGNING_ACTION
 
 if TYPE_CHECKING:
@@ -76,12 +75,13 @@ class TestReport(models.Model, TestReportBase):
     def _approval_set_state(self, state):
         if state == STATE_APPROVED:
             self._release()
+            self.env[MODEL_TASK]._close_for_document(self, SIGNING_ACTION)
         elif state == STATE_REQUESTED:
             self.status = "signing"
         else:
+            # A rejection keeps the signing task: the lab head reviews the new PDF in it once the results are approved
+            # again.
             self.status = "draft"
-        if state in (STATE_APPROVED, STATE_REJECTED):
-            self.env[MODEL_TASK]._close_for_document(self, SIGNING_ACTION)
 
     def _release(self):
         """Store the signed PDF and issue the report: digitally signed first when digital signing is on, otherwise the
@@ -254,15 +254,12 @@ class TestReport(models.Model, TestReportBase):
         )
         for change_request in waiting:
             change_request._apply()
-        tasks = self.env[MODEL_TASK]
         for report in reports.filtered(
             lambda report: bool(report.replaces_id) and report.status in ("draft", "signing")
         ):
-            if tasks._system_tasks_of(report, SIGNING_ACTION) or any(
-                result.status != STATE_APPROVED for result in report.result_ids
-            ):
+            if any(result.status != STATE_APPROVED for result in report.result_ids):
                 continue
             # The lab head's rejection stays on record; the replacement is signed again from the first level.
-            if report._approval_open_rows():
+            if any(row.decision == DECISION_REJECTED for row in report._approval_open_rows()):
                 report._approval_restart()
-            tasks._create_for_event(REPORT_DRAFTED_TRIGGER, document=report)
+            report._open_signing_task()

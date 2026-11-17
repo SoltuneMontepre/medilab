@@ -25,7 +25,7 @@ describe("WF-03 the receiving side of a reassignment", () => {
           expect(state.bookings[0].status).to.equal("proposed");
           expect(state.bookings[0].person_id[1]).to.equal("Ly Van Hung");
         });
-        callAs(HEAD, "medilab.machine.booking", "action_accept", [[booking.id]]);
+        callAs(HEAD, "medilab.machine.booking", "action_approve", [[booking.id]]);
         scheduleState([test]).should((state) => {
           expect(state.bookings.map((row) => [row.status, row.person_id[1]])).to.deep.equal([["scheduled", "Ly Van Hung"]]);
         });

@@ -7,11 +7,12 @@
             <form create="0" delete="0" duplicate="0">
                 <header>
                     <button
-                        name="action_schedule"
+                        name="action_approve_booking"
                         type="object"
-                        string="Schedule"
+                        string="Approve Booking"
                         class="btn-primary"
                         invisible="not recommended_start"
+                        groups="sol_laboratory.group_permission_machine_booking_edit_all,sol_laboratory.group_permission_machine_booking_edit_own_department"
                     />
                     <button
                         name="%(action_medilab_sample_test_outsource)d"
@@ -188,7 +189,13 @@
                                     <field name="starts_at" />
                                     <field name="ends_at" />
                                     <field name="status" widget="badge" />
-                                    <button name="action_accept" type="object" string="Accept" invisible="status != 'proposed'" />
+                                    <button
+                                        name="action_approve"
+                                        type="object"
+                                        string="Approve"
+                                        invisible="status != 'proposed' or not starts_at"
+                                        groups="sol_laboratory.group_permission_machine_booking_edit_all,sol_laboratory.group_permission_machine_booking_edit_own_department"
+                                    />
                                     <button name="action_start" type="object" string="Start" invisible="status != 'scheduled'" />
                                     <button name="action_done" type="object" string="Done" invisible="status != 'in_progress'" />
                                     <button

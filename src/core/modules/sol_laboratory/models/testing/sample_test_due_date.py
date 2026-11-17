@@ -66,16 +66,18 @@ class SampleTestDueDate(models.Model, SampleTestDueDateBase):
         before the request's expected date; False without an expected date."""
         # The margin is read here and is not a dependency: changing it leaves due dates already stored.
         margin = self.env[MODEL_RES_CONFIG_SETTINGS]._get_parameter("safety_margin_days")
-        # The laboratory's time zone, so the due date does not depend on who saved the request.
-        laboratory_tz = ZoneInfo(self.env.company.tz or "UTC")
         due_dates = {}
         for test in self:
             expected = test.sudo().sample_id.request_id.expected_date
-            due_dates[test] = False
-            if expected:
-                local_end = datetime.combine(expected - timedelta(days=margin), END_OF_DAY, tzinfo=laboratory_tz)
-                due_dates[test] = local_end.astimezone(UTC).replace(tzinfo=None)
+            due_dates[test] = expected and self._end_of_day(expected - timedelta(days=margin))
         return due_dates
+
+    @api.model
+    def _end_of_day(self, day):
+        """The end of the date in the laboratory's time zone, so the due date does not depend on who saved the request,
+        as a naive UTC moment."""
+        zone = ZoneInfo(self.env.company.tz or "UTC")
+        return datetime.combine(day, END_OF_DAY, tzinfo=zone).astimezone(UTC).replace(tzinfo=None)
 
     @api.depends("due_date", "due_date_reason", "sample_id.request_id.expected_date")
     def _compute_due_date_conflict(self):
@@ -92,12 +94,17 @@ class SampleTestDueDate(models.Model, SampleTestDueDateBase):
             test.due_on_non_working_day = bool(test.due_date) and not self._is_working_day(test.due_date)
 
     @api.model
+    def _local_day(self, moment):
+        """The date of the naive UTC moment in the laboratory's time zone."""
+        return moment.replace(tzinfo=UTC).astimezone(ZoneInfo(self.env.company.tz or "UTC")).date()
+
+    @api.model
     def _is_working_day(self, moment):
         """True when the company's working calendar has working time on the day of the naive UTC moment, in the
         laboratory's time zone. Company-wide time off counted as working time, such as a public holiday the
         administrator marked as a working day, leaves the day working. The scheduler reads the calendar the same way."""
         zone = ZoneInfo(self.env.company.tz or "UTC")
-        day = moment.replace(tzinfo=UTC).astimezone(zone).date()
+        day = self._local_day(moment)
         start, end = (
             datetime.combine(day + timedelta(days=offset), time.min, tzinfo=zone).astimezone(UTC).replace(tzinfo=None)
             for offset in (0, 1)
@@ -120,13 +127,17 @@ class SampleTestDueDate(models.Model, SampleTestDueDateBase):
         test = self.sudo()
         return test._tested_by() or test.sample_id._department_by_test()[test]
 
-    def _change_due_date(self, due_date, reason):
+    def _change_due_date(self, due_date, reason, keep_at_risk=False):
         """The head of the department testing the test changes its due date by hand, with a reason. It stays when the
-        request's expected date changes, until the head clears it."""
+        request's expected date changes, until the head clears it. A date the laboratory cannot meet is refused unless
+        the head keeps it at risk: the plan then flags the test at risk, and nothing is reserved for it."""
         self.ensure_one()
         self._check_can_change_due_date()
         if not (reason or "").strip():
             raise UserError(self.env._("Give a reason for changing the due date."))
+        check = self._check_due_date(due_date)
+        if not check.feasible and not keep_at_risk:
+            raise UserError(self.sudo()._unmet_message(check))
         self.sudo().write({"due_date": due_date, "due_date_reason": reason})
 
     def action_clear_due_date(self):

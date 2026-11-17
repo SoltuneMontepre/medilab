@@ -40,6 +40,14 @@
         <field name="interval_number">5</field>
         <field name="interval_type">minutes</field>
     </record>
+    <record id="ir_cron_test_report_prepare" model="ir.cron">
+        <field name="name">Prepare test report PDFs</field>
+        <field name="model_id" ref="model_medilab_scheduled_job" />
+        <field name="state">code</field>
+        <field name="code">model._run_key("test_report.prepare")</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">minutes</field>
+    </record>
     <record id="ir_cron_digital_signing_certificates" model="ir.cron">
         <field name="name">Signing certificates</field>
         <field name="model_id" ref="model_medilab_scheduled_job" />
