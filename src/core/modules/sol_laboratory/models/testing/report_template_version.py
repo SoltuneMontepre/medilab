@@ -98,9 +98,12 @@ class ReportTemplateVersion(models.Model, ReportTemplateVersionBase):
 
     @api.depends("template_id.name", "number")
     def _compute_display_name(self):
+        # Whoever reads a version sees its template's name, also without permission to read templates.
         for version in self:
             version.display_name = self.env._(
-                "%(template)s, version %(number)s", template=version.template_id.name or "", number=version.number
+                "%(template)s, version %(number)s",
+                template=version.sudo().template_id.name or "",
+                number=version.number,
             )
 
     def _docx(self):

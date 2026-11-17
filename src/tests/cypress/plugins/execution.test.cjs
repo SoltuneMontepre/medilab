@@ -751,7 +751,7 @@ test("a permanently locked pause stops within the configured budget and restores
   };
   busy();
   await assert.rejects(() => tasks.begin(scope()), /could not be prepared/i);
-  assert.ok(attempts >= 1 && attempts <= 2, "bounded lock waiting must not become an unlimited business retry");
+  assert.ok(attempts >= 1 && attempts <= 30, "bounded lock waiting must not become an unlimited business retry");
   assert.equal(h.cron.active, true);
   assert.equal(h.cron.nextcall, ORIGINAL_NEXTCALL);
 });

@@ -32,12 +32,14 @@
         <field name="status">assigned</field>
         <field name="parameter_method_id" ref="demo_parameter_method_lead_aas" />
     </record>
-    <!-- No machine can finish it by its due date: its proposed booking has no slot and it is at risk. -->
+    <!-- No machine can finish it by its due date, which the head of Chemistry kept with a reason: its proposed booking
+         has no slot and it is at risk. -->
     <record id="demo_sample_test_lead_proposed" model="medilab.sample.test">
         <field name="sample_id" ref="demo_sample_lead_proposed" />
         <field name="parameter_id" ref="demo_test_parameter_lead" />
         <field name="status">assigned</field>
         <field name="due_date" eval="(DateTime.now() + relativedelta(minutes=30)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="due_date_reason">Khách hàng cần kết quả trong buổi sáng để thông quan lô hàng; giữ ngày này dù máy chưa kịp.</field>
         <field name="outsourcing_suggested" eval="True" />
     </record>
     <!-- The tester marked it urgent, so the plan places it first whatever its due date. -->
