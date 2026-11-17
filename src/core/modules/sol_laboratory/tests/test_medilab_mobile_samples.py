@@ -4,7 +4,7 @@ from odoo.fields import Command, Domain
 from odoo.tests import tagged
 
 from .laboratory_api_case import LaboratoryApiCase
-from .laboratory_files_case import PASSWORD
+from .mobile_phones import phone_person
 from .request_case import RequestCase
 from odoo.addons.sol_laboratory.constants.laboratory_files import INVALID_REQUEST, NOT_FOUND
 from odoo.addons.sol_laboratory.constants.medilab_mobile import ACTION_REFUSED, ALREADY_CLAIMED
@@ -13,7 +13,6 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PARAMETER_AUTHORIZATION,
     MODEL_PARAMETER_METHOD,
     MODEL_PERMISSION,
-    MODEL_PERSON,
     MODEL_SAMPLE_TEST,
     MODEL_TASK,
 )
@@ -73,23 +72,7 @@ class TestMedilabMobileSamples(LaboratoryApiCase, RequestCase):
 
     @classmethod
     def department_person(cls, name, login, department, extra=()):
-        person = cls.env[MODEL_PERSON].create(
-            {
-                "name": name,
-                "login": login,
-                "department_id": department.id if department else False,
-                "permission_ids": [
-                    Command.set(
-                        [
-                            persisted_id(reference_as(cls.env[MODEL_PERMISSION], f"sol_laboratory.permission_{code}"))
-                            for code in (*DEPARTMENT_PERMISSIONS, *extra)
-                        ]
-                    )
-                ],
-            }
-        )
-        person.user_id.password = PASSWORD
-        return person
+        return phone_person(cls.env, name, login, department, (*DEPARTMENT_PERMISSIONS, *extra))
 
     def setUp(self):
         super().setUp()

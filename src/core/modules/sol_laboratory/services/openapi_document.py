@@ -98,7 +98,8 @@ def documented_answer(operation_id, status, *, document_path=DOCUMENT_PATH):
 
 
 def answer_pointer(operation_id, status, *, document_path=DOCUMENT_PATH):
-    """The pointer of the JSON body of the operation's documented answer with the status, or None when it has none."""
+    """The pointer of the JSON body of the operation's documented answer with the status, or None when it has none,
+    such as a file's content."""
     method, path, operation = operations(document_path)[operation_id]
     answer = operation["responses"][str(status)]
     if "$ref" in answer:
@@ -106,7 +107,7 @@ def answer_pointer(operation_id, status, *, document_path=DOCUMENT_PATH):
         answer, parts = document(document_path)["components"]["responses"][name], ("components", "responses", name)
     else:
         parts = ("paths", path, method.lower(), "responses", str(status))
-    if "content" not in answer:
+    if "application/json" not in answer.get("content", {}):
         return None
     return _pointer(*parts, "content", "application/json", "schema")
 

@@ -161,12 +161,21 @@ export interface TaskStep {
   location: string;
 }
 
-/** A task with its note, its method's steps and the actions the person may take on it. */
+/** A sample a collection task is for, and where it is taken from. */
+export interface CollectionSample {
+  id: number;
+  code: string;
+  sampling_location: string;
+}
+
+/** A task with its note, its method's steps, the samples a collection task is for and the actions the person may take
+ * on it. */
 export interface TaskDetail extends Task {
   note: string;
   reassign_reason: string;
   assigned_by: string;
   steps: TaskStep[];
+  samples: CollectionSample[];
   actions: { claim: boolean; start: boolean; done: boolean; assign: boolean };
 }
 
@@ -204,8 +213,9 @@ export interface SampleHandover {
   can_receive: boolean;
 }
 
-/** A sample as the person may see it, with its handover to their department and the unassigned testing tasks of
- * their department on it. The customer is null for a person who may not see it, such as a tester. */
+/** A sample as the person may see it, with its handover to their department, the unassigned testing tasks of their
+ * department on it and whether they may photograph it. The customer is null for a person who may not see it, such as a
+ * tester, who never adds or sees photos either. */
 export interface Sample {
   id: number;
   code: string;
@@ -222,6 +232,16 @@ export interface Sample {
   customer_sample_name: string | null;
   handover: SampleHandover | null;
   tasks: Task[];
+  can_add_photos: boolean;
+}
+
+/** A photo of a sample MediLab has. */
+export interface SamplePhoto {
+  id: number;
+  name: string;
+  mimetype: string;
+  created_at: string;
+  created_by: string;
 }
 
 export type ResultStatus = "none" | "requested" | "approved" | "rejected";
