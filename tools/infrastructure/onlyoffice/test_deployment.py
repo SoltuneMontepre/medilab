@@ -438,13 +438,13 @@ class TestDeployment(unittest.TestCase):
                 annotations["argocd.argoproj.io/ignore-healthcheck"], "true"
             )
 
-    def test_production_application_uses_manual_production_overlay(self):
+    def test_demo_application_uses_manual_demo_overlay(self):
         application = yaml.safe_load(
             (ROOT / "infra/cluster/applications/onlyoffice.yaml").read_text()
         )
         self.assertEqual(
             application["spec"]["source"]["path"],
-            "infra/cluster/onlyoffice-production",
+            "infra/cluster/onlyoffice-demo",
         )
         self.assertNotIn("automated", application["spec"]["syncPolicy"])
 
@@ -478,6 +478,7 @@ class TestDeployment(unittest.TestCase):
         container = named(resources, "Deployment", "onlyoffice")["spec"]["template"][
             "spec"
         ]["containers"][0]
+        self.assertEqual(container["resources"]["requests"]["cpu"], "1500m")
         self.assertEqual(container["resources"]["requests"]["memory"], "3Gi")
         self.assertEqual(container["resources"]["limits"]["memory"], "4Gi")
 
