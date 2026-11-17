@@ -6,11 +6,7 @@ from odoo.tools.mimetypes import guess_mimetype
 
 from odoo.addons.sol_laboratory.constants.laboratory_files import INVALID_REQUEST, PERMISSION_DENIED
 from odoo.addons.sol_laboratory.constants.medilab_mobile import SIGNATURE_MAX_BYTES
-from odoo.addons.sol_laboratory.constants.models import (
-    MODEL_HANDOVER_RECORD,
-    MODEL_HANDOVER_RECORD_SAMPLE,
-    MODEL_SAMPLE,
-)
+from odoo.addons.sol_laboratory.constants.models import MODEL_HANDOVER_RECORD, MODEL_SAMPLE
 from odoo.addons.sol_laboratory.services.laboratory_api import api_datetime
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
 from odoo.addons.sol_laboratory.services.mobile_uploads import decoded_base64
@@ -79,27 +75,6 @@ class HandoverRecordMobile(models.Model, HandoverRecordMobileBase):
                 PERMISSION_DENIED, self.env._("You may not have handover record %s signed.", self.code)
             )
         self._sign(_decoded_signature(self.env, values["signature"]), device)
-
-
-# Links a handover record to the samples it lists: what Medilab Mobile reads of each.
-class HandoverRecordSampleMobile(models.Model):
-    _inherit = MODEL_HANDOVER_RECORD_SAMPLE
-
-    def _mobile_values(self, customer_visible, conditions):
-        """The line as the record's screen lists it; the sample is named as the web's form names it."""
-        self.ensure_one()
-        sample = self.sample_id.sudo()
-        return {
-            "code": sample.code or "",
-            "sample_type": sample.sample_type_id.display_name or "",
-            "customer_sample_name": (sample.customer_sample_name or "") if customer_visible else None,
-            "expected_count": self.expected_count,
-            "actual_count": self.actual_count,
-            "quantity": self.quantity,
-            "excess_material": self.excess_material or "",
-            "condition": conditions.get(self.condition, ""),
-            "condition_note": self.condition_note or "",
-        }
 
 
 def _decoded_signature(env, data):

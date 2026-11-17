@@ -3,6 +3,7 @@ from . import (
     handover_record,
     handover_record_mobile,
     handover_record_sample,
+    handover_record_sample_mobile,
     ir_attachment,
     ir_attachment_mobile,
     sample,
