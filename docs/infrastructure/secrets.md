@@ -16,12 +16,13 @@ The only credential a Claude Code cloud environment holds is `DOPPLER_TOKEN`, an
 
 ## Doppler config
 
-| Project   | Config  | Contains                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | Read by                                                                         |
-| --------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| `medilab` | `dev`   | `ARM_CLIENT_ID`, `ARM_CLIENT_SECRET`, `ARM_SUBSCRIPTION_ID`, `ARM_TENANT_ID`, `ARGOCD_AUTH_TOKEN`, `CLOUDFLARE_API_TOKEN`, `CONTEXT7_TOKEN`, `DOPPLER_INFRA_TOKEN`, `DOPPLER_TOKEN`, `GITHUB_TOKEN`, `RELEASE_APP_ID`, `RELEASE_APP_PRIVATE_KEY`, `SONARQUBE_TOKEN`, `TERRAFORM_TOKEN`                                                                                                                                                                                                 | every `task tf:*`, the pipelines and the MCP servers                            |
-| `medilab` | `infra` | `ANSIBLE_SSH_PRIVATE_KEY`, `BUCKET_ADDRESS`, `BUCKET_BACKUP_ACCESS_KEY`, `BUCKET_BACKUP_SECRET_KEY`, `BUCKET_MAIN_ACCESS_KEY`, `BUCKET_MAIN_SECRET_KEY`, `CLOUDBEAVER_ADMIN_NAME`, `CLOUDBEAVER_ADMIN_PASSWORD`, `CLOUDFLARE_TUNNEL_TOKEN`, `CLUSTER_DOPPLER_TOKEN`, `GRAFANA_ADMIN_PASSWORD`, `GRAFANA_ADMIN_USER`, `K3S_TOKEN`, `MAILPIT_UI_AUTH`, `NODE_A_PUBLIC_ADDRESS`, `NODE_B_PUBLIC_ADDRESS`, `ODOO_ADMIN_PASSWORD`, `PAYOS_API_KEY`, `PAYOS_CHECKSUM_KEY`, `PAYOS_CLIENT_ID` | `cd-ansible`, the `task ansible:*` commands and External Secrets in the cluster |
+| Project   | Config    | Contains                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | Read by                                                                         |
+| --------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `medilab` | `dev`     | `ARM_CLIENT_ID`, `ARM_CLIENT_SECRET`, `ARM_SUBSCRIPTION_ID`, `ARM_TENANT_ID`, `ARGOCD_AUTH_TOKEN`, `CLOUDFLARE_API_TOKEN`, `CONTEXT7_TOKEN`, `DOPPLER_INFRA_TOKEN`, `DOPPLER_RELEASE_TOKEN`, `DOPPLER_TOKEN`, `GITHUB_TOKEN`, `RELEASE_APP_ID`, `RELEASE_APP_PRIVATE_KEY`, `SONARQUBE_TOKEN`, `TERRAFORM_TOKEN`                                                                                                                                                                        | every `task tf:*`, the pipelines and the MCP servers                            |
+| `medilab` | `infra`   | `ANSIBLE_SSH_PRIVATE_KEY`, `BUCKET_ADDRESS`, `BUCKET_BACKUP_ACCESS_KEY`, `BUCKET_BACKUP_SECRET_KEY`, `BUCKET_MAIN_ACCESS_KEY`, `BUCKET_MAIN_SECRET_KEY`, `CLOUDBEAVER_ADMIN_NAME`, `CLOUDBEAVER_ADMIN_PASSWORD`, `CLOUDFLARE_TUNNEL_TOKEN`, `CLUSTER_DOPPLER_TOKEN`, `GRAFANA_ADMIN_PASSWORD`, `GRAFANA_ADMIN_USER`, `K3S_TOKEN`, `MAILPIT_UI_AUTH`, `NODE_A_PUBLIC_ADDRESS`, `NODE_B_PUBLIC_ADDRESS`, `ODOO_ADMIN_PASSWORD`, `PAYOS_API_KEY`, `PAYOS_CHECKSUM_KEY`, `PAYOS_CLIENT_ID` | `cd-ansible`, the `task ansible:*` commands and External Secrets in the cluster |
+| `medilab` | `release` | `AWS_ACCESS_KEY_ID`, `AWS_ENDPOINT_URL`, `AWS_SECRET_ACCESS_KEY`, `MOBILE_GOOGLE_SERVICES_JSON`, `MOBILE_UPDATE_PRIVATE_KEY`, `MOBILE_UPLOAD_KEY_ALIAS`, `MOBILE_UPLOAD_KEY_PASSWORD`, `MOBILE_UPLOAD_KEYSTORE`, `MOBILE_UPLOAD_KEYSTORE_PASSWORD`, `RELEASE_BUCKET_PUBLIC_ADDRESS`                                                                                                                                                                                                    | `cd-mobile-app`                                                                 |
 
-- Seed `dev` and `infra` by hand; Terraform cannot create the config it reads.
+- Seed `dev`, `infra` and `release` by hand; Terraform cannot create the config it reads.
 - Set `TF_VAR_doppler_config=<config>` to read another config.
 - `DOPPLER_TOKEN` is read from the environment by Terraform's Doppler provider: injected by `doppler run` on a developer machine, the Actions secret in the pipelines. It needs read access to the config being read.
 - `DOPPLER_INFRA_TOKEN` is a Doppler service token with read access to `infra` only, published to the Ansible environments for `cd-ansible`.
@@ -35,6 +36,12 @@ The only credential a Claude Code cloud environment holds is `DOPPLER_TOKEN`, an
 - `ANSIBLE_SSH_PRIVATE_KEY` is the private key of the `ansible` user on every node; see [Provisioning a node](../workflows/provisioning-node.md).
 - `K3S_TOKEN` is the k3s cluster token. It is set once: joining nodes and etcd snapshot restores need the same value.
 - `BUCKET_ADDRESS` is the endpoint of the object storage. `BUCKET_MAIN_ACCESS_KEY` and `BUCKET_MAIN_SECRET_KEY` reach the `medilab-filestore` bucket; `BUCKET_BACKUP_ACCESS_KEY` and `BUCKET_BACKUP_SECRET_KEY` reach the `medilab-backups` bucket.
+- `DOPPLER_RELEASE_TOKEN` is a Doppler service token with read access to `release` only, published to the `mobile-release` environment for `cd-mobile-app`. Terraform publishes it once it is in `dev`; until then a release fails at its Doppler step.
+- The `release` config holds what only `cd-mobile-app` reads; Hoàng Anh keeps a backup of both keys, since phones accept updates only from the same keys.
+  - `MOBILE_UPLOAD_KEYSTORE` is the Android upload keystore in base64, made once with `keytool -genkeypair -keystore upload.jks -alias upload -keyalg RSA -keysize 4096 -validity 10000`; `MOBILE_UPLOAD_KEY_ALIAS`, `MOBILE_UPLOAD_KEYSTORE_PASSWORD` and `MOBILE_UPLOAD_KEY_PASSWORD` open it. Android installs an APK over the app only when it is signed with the same key.
+  - `MOBILE_UPDATE_PRIVATE_KEY` is the PEM private key that signs code updates, made once with `npx expo-updates codesigning:generate`, whose certificate the app embeds.
+  - `MOBILE_GOOGLE_SERVICES_JSON` is the `google-services.json` of the Firebase project the app receives pushes through.
+  - `AWS_ENDPOINT_URL`, `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` are the S3 endpoint of the `medilab-release` R2 bucket and an R2 API token that reads and writes that bucket only. `RELEASE_BUCKET_PUBLIC_ADDRESS` is the bucket's public HTTPS address, from which phones download; it is not masked, since the log prints the APK's address.
 - `NODE_A_PUBLIC_ADDRESS` and `NODE_B_PUBLIC_ADDRESS` are the public IPs of Server A and Server B, the addresses Ansible connects to.
 - `CLUSTER_DOPPLER_TOKEN` is a Doppler service token with read access to `infra`. Ansible stores it in the cluster as the `doppler-token` Secret, through which External Secrets reads the secrets below; see [Cluster](cluster.md#secrets).
 - `CLOUDFLARE_TUNNEL_TOKEN` is the token of the Cloudflare Tunnel that `cloudflared` connects. Terraform creates the tunnel; after `task tf:apply`, pipe `terraform -chdir=infra output -raw tunnel_token` to the clipboard and enter it in Doppler by hand, since the pipelines' token cannot write to `infra`.
@@ -59,17 +66,19 @@ Before enabling deployed online editing, seed `ONLYOFFICE_JWT_SECRET` in `infra`
 | `RELEASE_APP_ID`          | `RELEASE_APP_ID`          |
 | `RELEASE_APP_PRIVATE_KEY` | `RELEASE_APP_PRIVATE_KEY` |
 
-The `ARGOCD_SERVER` Actions variable holds `argocd.soltunemontepre.tech`.
+The `ARGOCD_SERVER` Actions variable holds `argocd.soltunemontepre.tech`, and `MEDILAB_MOBILE_URL` holds `https://lims.soltunemontepre.tech`, the MediLab address built into the mobile app.
 
-| Environment secret    | Environments                                 | Doppler source        |
-| --------------------- | -------------------------------------------- | --------------------- |
-| `DOPPLER_INFRA_TOKEN` | `ansible`, `ansible-apply`, `database-reset` | `DOPPLER_INFRA_TOKEN` |
+| Environment secret      | Environments                                 | Doppler source          |
+| ----------------------- | -------------------------------------------- | ----------------------- |
+| `DOPPLER_INFRA_TOKEN`   | `ansible`, `ansible-apply`, `database-reset` | `DOPPLER_INFRA_TOKEN`   |
+| `DOPPLER_RELEASE_TOKEN` | `mobile-release`                             | `DOPPLER_RELEASE_TOKEN` |
 
 Terraform owns these secrets: a value edited in GitHub is overwritten on the next `task tf:apply`. To change one, edit it in Doppler and apply. `DOPPLER_INFRA_TOKEN` must exist in `dev` before Terraform reads it, including in the `ci-infra` plan of the pull request that adds it.
 
 ## Pipelines
 
 - `ci-infra` and `cd-infra`, described in [Pipelines](pipelines.md), read the `dev` config through the `DOPPLER_TOKEN` Actions secret, a Doppler service token with read access to `dev`. Terraform publishes it; the first run that creates it needs the value in the Actions secrets already, so set it by hand once to bootstrap the pipelines.
+- `cd-mobile-app` reads the `release` config through the `DOPPLER_RELEASE_TOKEN` secret of the `mobile-release` environment, which only `mobile-v*` tags can use; see [Pipelines](pipelines.md#cd-mobile-app).
 - `cd-ansible` and `cd-reset` read the `infra` config through the `DOPPLER_INFRA_TOKEN` secret of the `ansible`, `ansible-apply` and `database-reset` environments, which only `main` can use; see [Pipelines](pipelines.md#cd-ansible).
 
 ## Commands
