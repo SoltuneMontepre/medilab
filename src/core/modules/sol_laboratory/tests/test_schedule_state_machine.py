@@ -17,10 +17,10 @@ REFUSALS = {
     "done": "Only a booking in progress can be done.",
     "cancel": "Only a scheduled booking can be cancelled.",
     "move": "Only a scheduled booking can be moved.",
-    "accept": "Only a proposed booking can be accepted.",
+    "approve": "Only a proposed booking can be approved.",
 }
 ALLOWED = {
-    ("proposed", "accept"),
+    ("proposed", "approve"),
     ("scheduled", "start"),
     ("scheduled", "cancel"),
     ("scheduled", "move"),
@@ -93,10 +93,11 @@ class TestScheduleStateMachine(ScheduleInvariantsCase):
         self.assertEqual(booking.status, status)
         return booking
 
-    @staticmethod
-    def act(booking, action):
+    def act(self, booking, action):
         if action == "move":
             booking.write({"starts_at": MOVED_TO})
+        elif action == "approve":
+            booking.with_user(self.head.user_id).action_approve()
         else:
             getattr(booking, f"action_{action}")()
 
@@ -126,7 +127,7 @@ class TestScheduleStateMachine(ScheduleInvariantsCase):
             self.assertEqual(test.status, "assigned")
             # The test goes back to the plan.
             self.assertTrue(test.booking_ids.filtered(lambda other: other.status == "proposed"))
-        elif action == "accept":
+        elif action == "approve":
             self.assertEqual(booking.status, "scheduled")
             self.assertTrue(booking.calendar_event_id)
             self.assertEqual((task.planned_start, task.planned_end), (booking.starts_at, booking.ends_at))

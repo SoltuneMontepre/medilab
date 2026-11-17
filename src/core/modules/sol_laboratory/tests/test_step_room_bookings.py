@@ -119,7 +119,7 @@ class TestStepRoomBookings(SchedulingCase, LocationCase):
         self.fast.status = "under_repair"
         self.assertEqual((booking.status, booking.machine_id, booking.starts_at), ("proposed", self.slow, MONDAY))
         self.assertFalse(booking.room_event_ids)
-        booking.with_user(self.tester.user_id).action_accept()
+        booking.with_user(self.head.user_id).action_approve()
         self.assertEqual(len(booking.room_event_ids), 2)
 
     def test_a_room_booking_follows_its_machine_booking_only(self):

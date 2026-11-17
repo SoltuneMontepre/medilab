@@ -138,8 +138,18 @@ class SchedulingCommittedCase(TransactionCase):
                     "department_id": department.id,
                     "user_id": users[number - 1].id,
                     "tz": "UTC",
+                    # Both approve bookings in the races, as the head of their department would.
                     "permission_ids": [
-                        Command.set([persisted_id(env.ref("sol_laboratory.permission_sample_test_read_all"))])
+                        Command.set(
+                            [
+                                persisted_id(env.ref(f"sol_laboratory.permission_{code}"))
+                                for code in (
+                                    "sample_test_read_all",
+                                    "machine_booking_read_own_department",
+                                    "machine_booking_edit_own_department",
+                                )
+                            ]
+                        )
                     ],
                 }
                 for number in (1, 2)

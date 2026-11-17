@@ -67,6 +67,8 @@ Acceptance criteria:
 - A testing task in the department queue disappears from the queue once assigned, and appears in the assignee's to-do list.
 - Assigning a sample assigns all of its testing tasks in the department to the chosen person, who is notified.
 - A proposed booking reserves nothing until the head approves it; approving it notifies its tester.
+- An infeasible proposed booking cannot be approved: it stays proposed for the head's review, with its sample test flagged at risk.
+- A tester cannot approve their own booking, and nobody but the head reserves a proposed booking.
 - Reassigning a task to another person or department without a reason is refused; the reason is kept on the task.
 - A head of department sees the bookings of their department's people and machines, not those of other departments.
 - A test whose required in-house resources cannot meet its due date shows viable outsourcing alternatives; a way that needs no machine is checked against its tester and required locations.

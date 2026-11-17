@@ -3,6 +3,7 @@ from . import (
     change_request_raise,
     change_request_reject,
     machine_booking,
+    machine_booking_approval,
     machine_booking_capacity,
     machine_booking_conditions,
     machine_booking_eligibility,
