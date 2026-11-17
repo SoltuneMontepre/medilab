@@ -1,0 +1,187 @@
+name: cd-mobile-app
+
+permissions:
+  contents: read
+
+concurrency:
+  group: medilab-cd-mobile-app
+  cancel-in-progress: false
+
+on:
+  push:
+    tags:
+      - "mobile-v*"
+  workflow_dispatch:
+
+env:
+  MOBILE_APP_DIR: src/applications/medilab-mobile
+  NODE_VERSION: 24
+  RELEASE_BUCKET: medilab-release
+  # Cloudflare R2 takes the region "auto" and no checksum headers that it does not ask for. Doppler's release config
+  # gives the AWS CLI its endpoint and keys.
+  AWS_DEFAULT_REGION: auto
+  AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+  AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    environment: mobile-release
+    env:
+      DOPPLER_TOKEN: ${{ secrets.DOPPLER_RELEASE_TOKEN }}
+      KEYS_DIR: ${{ github.workspace }}/../release-keys
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ env.MOBILE_APP_DIR }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Read the release version
+        env:
+          REF: ${{ github.ref }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          version="${TAG#mobile-v}"
+          if [[ "$REF" != refs/tags/mobile-v* || ! "$version" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+            echo "::error::Run the release on a tag mobile-v<version>, such as mobile-v1.2.3."
+            exit 1
+          fi
+          echo "MEDILAB_MOBILE_VERSION=$version" >> "$GITHUB_ENV"
+          echo "RELEASE_PREFIX=mobile/android/$version" >> "$GITHUB_ENV"
+
+      - name: Check the MediLab address
+        env:
+          MEDILAB_URL: ${{ vars.MEDILAB_MOBILE_URL }}
+        run: |
+          if [[ ! "$MEDILAB_URL" =~ ^https:// ]]; then
+            echo "::error::Set the MEDILAB_MOBILE_URL Actions variable to the production MediLab address, starting with https://."
+            exit 1
+          fi
+          echo "MEDILAB_URL=$MEDILAB_URL" >> "$GITHUB_ENV"
+
+      - name: Check the Doppler token
+        run: |
+          if [[ -z "$DOPPLER_TOKEN" ]]; then
+            echo "::error::The mobile-release environment has no DOPPLER_RELEASE_TOKEN secret; see docs/infrastructure/secrets.md."
+            exit 1
+          fi
+
+      - name: Install Doppler CLI
+        uses: dopplerhq/cli-action@v4
+
+      # Every value but the bucket's public address, which the log prints as the APK's address.
+      - name: Mask Doppler secrets
+        run: |
+          set -o pipefail
+          doppler secrets download --no-file --format json \
+            | jq -r 'to_entries[] | select((.key | startswith("DOPPLER_")) or .key == "RELEASE_BUCKET_PUBLIC_ADDRESS" | not) | .value' \
+            | while IFS= read -r line; do
+                if [[ -n "$line" ]]; then
+                  echo "::add-mask::$line"
+                fi
+              done
+
+      # The keys are written to files outside the repository that only this user reads, so no command line names them.
+      - name: Write the keys
+        run: |
+          umask 077
+          mkdir -p "$KEYS_DIR"
+          doppler secrets get MOBILE_UPLOAD_KEYSTORE --plain | base64 --decode > "$KEYS_DIR/upload.jks"
+          doppler secrets get MOBILE_UPDATE_PRIVATE_KEY --plain > "$KEYS_DIR/update.pem"
+          doppler secrets get MOBILE_GOOGLE_SERVICES_JSON --plain > google-services.json
+          public_address="$(doppler secrets get RELEASE_BUCKET_PUBLIC_ADDRESS --plain)"
+          if [[ ! "$public_address" =~ ^https:// ]]; then
+            echo "::error::RELEASE_BUCKET_PUBLIC_ADDRESS must start with https://."
+            exit 1
+          fi
+          echo "RELEASE_URL=${public_address%/}/$RELEASE_PREFIX" >> "$GITHUB_ENV"
+          echo "GOOGLE_SERVICES_JSON=./google-services.json" >> "$GITHUB_ENV"
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Set up Java
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile --ignore-scripts
+
+      # The fingerprint of the native project names the build a code update runs on: it changes only when a new APK is
+      # needed. Without the Expo configuration it would miss native changes, so the step fails.
+      - name: Name the native build
+        run: |
+          node node_modules/@expo/fingerprint/bin/cli.js fingerprint:generate --platform android > "$RUNNER_TEMP/fingerprint.json"
+          jq -e '.sources | any(.id == "expoConfig")' "$RUNNER_TEMP/fingerprint.json" > /dev/null
+          echo "MEDILAB_MOBILE_RUNTIME_VERSION=$(jq -r .hash "$RUNNER_TEMP/fingerprint.json")" >> "$GITHUB_ENV"
+
+      - name: Bundle the code update
+        run: |
+          bun x expo export --platform android --output-dir dist
+          bun x expo config --type public --json > "$RUNNER_TEMP/expo-config.json"
+
+      - name: Build the APK
+        run: |
+          bun x expo prebuild --platform android
+          cd android && ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a,armeabi-v7a
+
+      # Gradle signs with the debug key; apksigner replaces that signature with the upload key's.
+      - name: Sign the APK
+        run: |
+          apksigner="$(find "$ANDROID_HOME/build-tools" -name apksigner | sort -V | tail -n 1)"
+          doppler run -- bash -c '"$0" sign --ks "$KEYS_DIR/upload.jks" --ks-key-alias "$MOBILE_UPLOAD_KEY_ALIAS" \
+            --ks-pass env:MOBILE_UPLOAD_KEYSTORE_PASSWORD --key-pass env:MOBILE_UPLOAD_KEY_PASSWORD \
+            --out "$RUNNER_TEMP/medilab.apk" android/app/build/outputs/apk/release/app-release.apk' "$apksigner"
+          "$apksigner" verify "$RUNNER_TEMP/medilab.apk"
+
+      # The catalog is written before anything is uploaded, so a version already released fails without changing the bucket.
+      # Only the first release finds no catalog; any other error stops the run rather than drop the published releases.
+      - name: Write the catalog
+        env:
+          EXPORT_DIR: dist
+          APK_FILE: ${{ runner.temp }}/medilab.apk
+          EXPO_CONFIG_FILE: ${{ runner.temp }}/expo-config.json
+          CATALOG_FILE: ${{ runner.temp }}/catalog.json
+        run: |
+          if ! doppler run -- aws s3api get-object --bucket "$RELEASE_BUCKET" --key mobile/catalog.json "$CATALOG_FILE" \
+            > /dev/null 2> "$RUNNER_TEMP/catalog.err"; then
+            grep -q NoSuchKey "$RUNNER_TEMP/catalog.err" || { cat "$RUNNER_TEMP/catalog.err"; exit 1; }
+            rm -f "$CATALOG_FILE"
+          fi
+          UPDATE_URL="$RELEASE_URL/update" APK_URL="$RELEASE_URL/medilab-$MEDILAB_MOBILE_VERSION.apk" \
+            UPDATE_KEY_FILE="$KEYS_DIR/update.pem" bun scripts/release/main.ts
+
+      - name: Upload the release
+        run: |
+          doppler run -- aws s3 cp --no-progress --recursive dist "s3://$RELEASE_BUCKET/$RELEASE_PREFIX/update"
+          doppler run -- aws s3 cp --no-progress --content-type application/vnd.android.package-archive \
+            "$RUNNER_TEMP/medilab.apk" "s3://$RELEASE_BUCKET/$RELEASE_PREFIX/medilab-$MEDILAB_MOBILE_VERSION.apk"
+
+      - name: Publish the catalog
+        run: |
+          doppler run -- aws s3 cp --no-progress --content-type application/json --cache-control no-store \
+            "$RUNNER_TEMP/catalog.json" "s3://$RELEASE_BUCKET/mobile/catalog.json"
+
+      # An administrator sends this address to staff for their first install.
+      - name: Print the APK address
+        run: |
+          address="$RELEASE_URL/medilab-$MEDILAB_MOBILE_VERSION.apk"
+          echo "$address"
+          echo "MediLab $MEDILAB_MOBILE_VERSION APK: $address" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Delete the keys
+        if: always()
+        run: rm -rf "$KEYS_DIR" google-services.json
