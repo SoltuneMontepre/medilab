@@ -17,16 +17,23 @@ variable "variables" {
 }
 
 variable "environments" {
-  description = "Deployment environments to create, as name => the only branch that may deploy and the GitHub usernames that must approve"
+  description = "Deployment environments to create, as name => the only branch or tag pattern that may deploy, the GitHub usernames that must approve and the names of the environment_secrets it gets"
   type = map(object({
-    branch    = string
+    branch    = optional(string)
+    tag       = optional(string)
     reviewers = optional(list(string), [])
+    secrets   = optional(list(string), [])
   }))
   default = {}
+
+  validation {
+    condition     = alltrue([for environment in values(var.environments) : (environment.branch == null) != (environment.tag == null)])
+    error_message = "Each environment names either a branch or a tag pattern."
+  }
 }
 
 variable "environment_secrets" {
-  description = "Secrets to publish to every environment, as name => value"
+  description = "Secrets the environments get, as name => value; an environment gets those it names that are present"
   type        = map(string)
   default     = {}
   sensitive   = true
