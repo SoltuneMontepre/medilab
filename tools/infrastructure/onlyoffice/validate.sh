@@ -25,7 +25,7 @@ printf '%s  %s\n' \
   d4da9492a6906a3834bb1f5b7367575a29b5c43411017babc7a30728f465d1ba "$validation_dir/external-secrets.yaml" \
   1d5e8558803804562238b0d4a57174aadd6d87c36e3c4c55199ebcc356a9406c "$validation_dir/traefik.yaml" \
   fa8a0c7f8127f85bbbf57467e7c659ec7d47e7d162cc76c1b07482ebf2b98f49 "$validation_dir/argocd.yaml" | sha256sum -c -
-for component in onlyoffice onlyoffice-integration onlyoffice-edge onlyoffice-monitor; do
+for component in onlyoffice onlyoffice-production onlyoffice-integration onlyoffice-edge onlyoffice-monitor; do
   kubectl kustomize "infra/cluster/$component" > "$validation_dir/$component.yaml"
 done
 mkdir "$validation_dir/schema-cache"

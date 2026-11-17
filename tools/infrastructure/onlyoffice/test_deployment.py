@@ -420,7 +420,7 @@ class TestDeployment(unittest.TestCase):
         self.assertIn("--max-time 1860", script)
         self.assertIn("--noproxy '*'", script)
 
-    def test_demo_activation_keeps_document_server_manually_synced(self):
+    def test_onlyoffice_applications_remain_manually_synced(self):
         root = yaml.safe_load((ROOT / "infra/cluster/kustomization.yaml").read_text())
         for name in ["onlyoffice", "onlyoffice-monitor"]:
             self.assertIn(f"applications/{name}.yaml", root["resources"])
@@ -429,6 +429,27 @@ class TestDeployment(unittest.TestCase):
             )
             self.assertNotIn("automated", application["spec"]["syncPolicy"])
             self.assertTrue((ROOT / application["spec"]["source"]["path"]).is_dir())
+
+    def test_production_application_uses_manual_production_overlay(self):
+        application = yaml.safe_load(
+            (ROOT / "infra/cluster/applications/onlyoffice.yaml").read_text()
+        )
+        self.assertEqual(
+            application["spec"]["source"]["path"],
+            "infra/cluster/onlyoffice-production",
+        )
+        self.assertNotIn("automated", application["spec"]["syncPolicy"])
+
+    def test_production_overlay_keeps_bucket_egress_denied(self):
+        resources = render("infra/cluster/onlyoffice-production")
+        policies = [r for r in resources if r["kind"] == "NetworkPolicy"]
+        self.assertEqual(
+            [r["metadata"]["name"] for r in policies], ["onlyoffice-isolation"]
+        )
+        policy = policies[0]["spec"]
+        for rule in policy["egress"]:
+            for peer in rule["to"]:
+                self.assertNotIn("ipBlock", peer)
 
     def test_demo_bucket_egress_is_public_and_limited_to_https(self):
         resources = render("infra/cluster/onlyoffice-demo")
@@ -498,7 +519,9 @@ class TestDeployment(unittest.TestCase):
             ROOT / "infra/ansible/roles/k3s/templates/traefik-config.yaml.j2"
         ).read_text()
         values = yaml.safe_load(text)["spec"]["valuesContent"]
-        managed = yaml.safe_load(values.replace("{{ k3s_pod_network }}", "10.42.0.0/16"))
+        managed = yaml.safe_load(
+            values.replace("{{ k3s_pod_network }}", "10.42.0.0/16")
+        )
         candidate = yaml.safe_load(
             (ROOT / "infra/cluster/onlyoffice-edge/traefik-values.yaml").read_text()
         )
