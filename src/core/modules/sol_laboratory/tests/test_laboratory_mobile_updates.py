@@ -107,7 +107,7 @@ class TestLaboratoryMobileUpdates(HttpCase):
         return body
 
     def release_of(self, suffix):
-        return self.assert_answer(self.check_release(suffix), 200)
+        return assert_instance(self.assert_answer(self.check_release(suffix), 200), dict)
 
     def test_newer_code_update_on_the_same_runtime_and_install_on_another(self):
         self.write_catalog(

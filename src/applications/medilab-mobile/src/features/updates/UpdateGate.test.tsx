@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from "@testing-library/react-native";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react-native";
 import { startActivityAsync } from "expo-intent-launcher";
 import * as Updates from "expo-updates";
 import { AppState, Platform, Text, type AppStateStatus } from "react-native";
@@ -60,7 +60,7 @@ describe("updates", () => {
     await openApp();
 
     expect(await screen.findByText("Đang tải phiên bản 1.1.0. Ứng dụng tự khởi động lại khi tải xong.")).toBeOnTheScreen();
-    expect(Updates.reloadAsync).toHaveBeenCalled();
+    await waitFor(() => expect(Updates.reloadAsync).toHaveBeenCalled());
     expect(screen.queryByText("The app")).not.toBeOnTheScreen();
     expect(screen.queryByTestId("update-retry")).not.toBeOnTheScreen();
   });
@@ -77,7 +77,7 @@ describe("updates", () => {
     mediLab.plan({ status: 200, body: { action: "code", version: "1.1.0" } });
     jest.mocked(Updates.fetchUpdateAsync).mockResolvedValue({ isNew: true, isRollBackToEmbedded: false } as never);
     await fireEvent.press(screen.getByTestId("update-retry"));
-    expect(Updates.reloadAsync).toHaveBeenCalled();
+    await waitFor(() => expect(Updates.reloadAsync).toHaveBeenCalled());
   });
 
   it("downloads a new install, checks it and opens Android's installer", async () => {
@@ -86,11 +86,13 @@ describe("updates", () => {
     await openApp();
 
     expect(await screen.findByTestId("update-retry")).toHaveTextContent("Mở lại trình cài đặt");
-    expect(startActivityAsync).toHaveBeenCalledWith("android.intent.action.VIEW", {
-      data: "content:///cache/medilab-1.1.0.apk",
-      type: "application/vnd.android.package-archive",
-      flags: 1,
-    });
+    await waitFor(() =>
+      expect(startActivityAsync).toHaveBeenCalledWith("android.intent.action.VIEW", {
+        data: "content:///cache/medilab-1.1.0.apk",
+        type: "application/vnd.android.package-archive",
+        flags: 1,
+      }),
+    );
     expect(screen.queryByText("The app")).not.toBeOnTheScreen();
   });
 

@@ -56,10 +56,14 @@ describe("Medilab Mobile updates", () => {
     releaseFor("1.0.0").its("body").should("deep.equal", { action: "unavailable" });
     served().should("include", { mobile_minimum_version: "1.1.1", mobile_stopped_versions: "1.1.0, 1.1.1" });
 
-    setting("mobile_minimum_version").clear().type("latest").blur();
-    cy.get(".o_control_panel .o_form_button_save").click();
     // The refusal names the value, in the administrator's language.
-    cy.get(".o_dialog").should("contain", "latest");
-    served().its("mobile_minimum_version").should("eq", "1.1.1");
+    cy.expectRefusal({
+      read: served,
+      action: () => {
+        setting("mobile_minimum_version").clear().type("latest").blur();
+        cy.get(".o_control_panel .o_form_button_save").click();
+      },
+      message: "latest",
+    });
   });
 });
