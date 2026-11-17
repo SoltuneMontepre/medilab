@@ -1939,6 +1939,7 @@ msgstr "Tạo cách thử của phòng ban mình"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__created_by_device_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__created_by_device_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__created_by_device_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_attachment__created_by_device_id
 msgid "Created By Device"
 msgstr "Tạo từ máy tính"
 
@@ -14395,6 +14396,7 @@ msgstr "Một yêu cầu khác vừa tạo cùng bản ghi này; yêu cầu đư
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_idempotency_mixin__idempotency_key
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__idempotency_key
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__idempotency_key
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_attachment__idempotency_key
 msgid "Idempotency Key"
 msgstr "Khóa chống lặp yêu cầu"
 
@@ -14430,6 +14432,7 @@ msgstr "Tham số %(name)s không khớp với API: %(error)s"
 #. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder_api.py:0
 #: code:addons/sol_laboratory/models/testing/sample_test_mobile.py:0
+#: code:addons/sol_laboratory/models/sample_collection/sample_mobile.py:0
 msgid "This Idempotency-Key was already sent with another request."
 msgstr "Idempotency-Key này đã được gửi kèm một yêu cầu khác."
 
@@ -18401,3 +18404,26 @@ msgstr "Không Dùng Được"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_return__description
 msgid "What Was Returned"
 msgstr "Nội Dung Trả"
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_ir_attachment_device_idempotency_key_unique
+msgid "This phone already sent a photo with this Idempotency-Key."
+msgstr "Điện thoại này đã gửi một ảnh với Idempotency-Key này."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_mobile.py:0
+msgid "You may not add photos to %s."
+msgstr "Bạn không được thêm ảnh vào %s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_mobile.py:0
+msgid "The photo is not valid base64."
+msgstr "Ảnh không phải base64 hợp lệ."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_mobile.py:0
+msgid "A photo can be at most 10 MiB."
+msgstr "Ảnh tối đa 10 MiB."
