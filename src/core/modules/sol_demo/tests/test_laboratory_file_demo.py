@@ -1,5 +1,10 @@
+from io import BytesIO
+from zipfile import ZipFile
+
 from odoo.tests import TransactionCase, tagged
 
+from odoo.addons.sol_demo.demo_laboratory_editing import ONLINE_CONTENT
+from odoo.addons.sol_demo.demo_laboratory_files import SAMPLE_RESULT_SAVES, SAVES
 from odoo.addons.sol_laboratory.constants.laboratory_files import CONFLICT, LOCKED, RESTORED, VERIFIED
 from odoo.addons.sol_laboratory.constants.laboratory_uploads import (
     COMPLETED,
@@ -15,6 +20,18 @@ from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_UPLOAD
 
 @tagged("post_install", "-at_install")
 class TestLaboratoryFileDemo(TransactionCase):
+    def test_seed_spreadsheets_contain_xlsx_workbooks(self):
+        spreadsheets = [content for key, _, _, content, _ in SAVES if key == "hplc_results"]
+        spreadsheets += list(SAMPLE_RESULT_SAVES)
+        spreadsheets.append(ONLINE_CONTENT)
+
+        for index, content in enumerate(spreadsheets):
+            with self.subTest(index=index):
+                self.assertIsInstance(content, bytes)
+                with ZipFile(BytesIO(content)) as workbook:
+                    self.assertIn("xl/workbook.xml", workbook.namelist())
+                    self.assertIn("xl/worksheets/sheet1.xml", workbook.namelist())
+
     def test_the_hplc_results_have_five_versions_from_two_computers_one_of_them_restored(self):
         results = self.env.ref("sol_demo.demo_laboratory_file_hplc_results")
         versions = results.version_ids.sorted("number")
