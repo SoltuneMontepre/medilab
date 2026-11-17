@@ -71,11 +71,12 @@ Cypress.Commands.add("expectRefusal", ({
   });
   cy.get("body").then(($body) => assertNoPriorRefusal($body.find(messageSelector).filter(":visible").text(), message));
   cy.then(action);
+  let displayedMessage;
   cy.contains(messageSelector, message)
     .should("be.visible")
     .then(($message) => {
-      const displayedMessage = $message.text();
-      return cy.then(read).then((after) => assertRefusalOutcome({ displayedMessage, message, before: snapshot, after }));
+      displayedMessage = $message.text();
     });
+  cy.then(read).then((after) => assertRefusalOutcome({ displayedMessage, message, before: snapshot, after }));
   cy.then(() => cy.removeListener("uncaught:exception", expectedRejection));
 });

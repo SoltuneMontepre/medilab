@@ -78,13 +78,14 @@ function addSample(order) {
 }
 
 export function currentRequest(order) {
-  return callAs(SALES, "sale.order", "read", [[order.id], ["payment_request_id"]]).then(([read]) => {
-    expect(read.payment_request_id, "current payment request").to.be.an("array");
-    const [id] = read.payment_request_id;
-    return callAs(SALES, "medilab.payment.request", "read", [[id], ["kind", "amount", "remaining_amount", "deadline", "state"]]).then(
-      ([paymentRequest]) => paymentRequest,
-    );
-  });
+  let id;
+  return callAs(SALES, "sale.order", "read", [[order.id], ["payment_request_id"]])
+    .then(([read]) => {
+      expect(read.payment_request_id, "current payment request").to.be.an("array");
+      [id] = read.payment_request_id;
+    })
+    .then(() => callAs(SALES, "medilab.payment.request", "read", [[id], ["kind", "amount", "remaining_amount", "deadline", "state"]]))
+    .then(([paymentRequest]) => paymentRequest);
 }
 
 export function requestPaymentPath(order, request) {
@@ -120,6 +121,28 @@ export const reviseQuotation = helper("reviseQuotation", function reviseQuotatio
   return callAs(login, "sale.order", "action_send_quotation", [[order.id]]);
 });
 
+function queueOrderProgress(order, stage, { customer, advance, sample }, step) {
+  const reached = (name) => STAGES.indexOf(stage) >= STAGES.indexOf(name);
+  if (reached("claimed")) {
+    step(SALES, "action_claim");
+    if (sample) cy.then(() => addSample(order));
+  }
+  if (reached("sent")) {
+    const login = advance ? SALES : HEAD_OF_SALES;
+    step(login, "write", [advance ? { advance_method: "bank_transfer", advance_mode: "percentage", advance_value: 30 } : { advance_method: "none" }]);
+    step(login, "action_send_quotation");
+  }
+  if (reached("accepted")) {
+    if (advance) {
+      cy.then(() => payAdvance(order, customer));
+    } else {
+      cy.then(() => portalPostAs(customer.login, `/orders/${order.id}/quotation`, `/orders/${order.id}/quotation/accept`));
+    }
+  }
+  if (reached("confirmed")) step(SALES, "action_confirm_order");
+  if (reached("paid")) cy.then(() => payAdvance(order, customer));
+}
+
 // An order for Lead (Pb), or the parameters and quantities of `lines`, taken through every step before `stage` by the
 // actor who does it. Without `advance` the Head of Sales sends the quotation and the customer accepts it on the portal.
 export const orderAt = helper("orderAt", function orderAt(
@@ -127,7 +150,6 @@ export const orderAt = helper("orderAt", function orderAt(
   { customer = CUSTOMERS.nuocSach, advance = true, sample = true, lines = [["sol_demo.demo_test_parameter_lead", 1]] } = {},
 ) {
   if (!STAGES.includes(stage)) expect(STAGES, "order stage").to.include(stage);
-  const reached = (name) => STAGES.indexOf(stage) >= STAGES.indexOf(name);
   const order = { model: "sale.order" };
   refAs(SALES, customer.company).then(({ id }) => (order.customerId = id));
   refAs(SALES, customer.contact).then(({ id }) => (order.contactId = id));
@@ -147,30 +169,7 @@ export const orderAt = helper("orderAt", function orderAt(
     ]),
   ).then((id) => (order.id = id));
   const step = (login, method, args = []) => cy.then(() => callAs(login, "sale.order", method, [[order.id], ...args]));
-  if (reached("claimed")) {
-    step(SALES, "action_claim");
-    if (sample) {
-      cy.then(() => addSample(order));
-    }
-  }
-  if (reached("sent")) {
-    const login = advance ? SALES : HEAD_OF_SALES;
-    step(login, "write", [advance ? { advance_method: "bank_transfer", advance_mode: "percentage", advance_value: 30 } : { advance_method: "none" }]);
-    step(login, "action_send_quotation");
-  }
-  if (reached("accepted")) {
-    if (advance) {
-      cy.then(() => payAdvance(order, customer));
-    } else {
-      cy.then(() => portalPostAs(customer.login, `/orders/${order.id}/quotation`, `/orders/${order.id}/quotation/accept`));
-    }
-  }
-  if (reached("confirmed")) {
-    step(SALES, "action_confirm_order");
-  }
-  if (reached("paid")) {
-    cy.then(() => payAdvance(order, customer));
-  }
+  queueOrderProgress(order, stage, { customer, advance, sample }, step);
   return cy.then(() => order);
 });
 

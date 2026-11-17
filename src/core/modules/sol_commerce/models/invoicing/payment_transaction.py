@@ -29,6 +29,7 @@ else:
 
 # How to reach the payer, which the trail keeps only in part.
 PERSONAL_FIELDS = frozenset({"partner_email", "partner_phone", "partner_address", "partner_zip", "partner_city"})
+PAYOS_DISABLED_MESSAGE = "PayOS is turned off."
 
 
 # Giao dịch thanh toán
@@ -232,7 +233,7 @@ class PaymentTransaction(models.Model, PaymentTransactionBase):
         self.ensure_one()
         provider = self.env.ref("sol_commerce.payment_provider_payos")
         if not provider.is_published:
-            raise UserError(self.env._("PayOS is turned off."))
+            raise UserError(self.env._(PAYOS_DISABLED_MESSAGE))
         self.env[MODEL_SCHEDULED_JOB].queue("payos.calls", self.reference, document=self)
         return self
 
@@ -286,7 +287,7 @@ class PaymentTransaction(models.Model, PaymentTransactionBase):
         payments = self.env[MODEL_ACCOUNT_PAYMENT]
         payments._lock_invoices(invoice)
         if not invoice._portal_payos_available():
-            raise UserError(self.env._("PayOS is turned off."))
+            raise UserError(self.env._(PAYOS_DISABLED_MESSAGE))
         existing = self.sudo().search(
             [
                 ("invoice_ids", "in", invoice.ids),
@@ -312,7 +313,7 @@ class PaymentTransaction(models.Model, PaymentTransactionBase):
         request.order_id._lock_payment_orders()
         request._check_takes_payments()
         if not request.order_id._payment_request_payos_available():
-            raise UserError(self.env._("PayOS is turned off."))
+            raise UserError(self.env._(PAYOS_DISABLED_MESSAGE))
         existing = self.sudo().search(
             [
                 ("payment_request_id", "=", request.id),

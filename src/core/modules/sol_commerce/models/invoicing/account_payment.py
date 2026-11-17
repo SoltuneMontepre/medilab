@@ -24,6 +24,8 @@ METHODS = {method for method, _label in METHOD_SELECTION}
 # States of a payment the accountant or the gateway confirmed; a draft is pending.
 CONFIRMED_STATES = ("paid", "reconciled")
 JOURNAL_TYPE = {"online": "bank", "bank_transfer": "bank", "cash": "cash"}
+RECEIPT_TIME_REQUIRED_MESSAGE = "Enter the date and time the money was received."
+POSITIVE_COLLECTION_AMOUNT_REQUIRED_MESSAGE = "Enter an amount greater than zero."
 
 
 # Phiếu thu
@@ -99,9 +101,9 @@ class AccountPayment(models.Model, AccountPaymentBase):
         try:
             received_at = fields.Datetime.to_datetime(received_at) if received_at else now
         except (TypeError, ValueError) as error:
-            raise UserError(self.env._("Enter the date and time the money was received.")) from error
+            raise UserError(self.env._(RECEIPT_TIME_REQUIRED_MESSAGE)) from error
         if received_at is None:
-            raise UserError(self.env._("Enter the date and time the money was received."))
+            raise UserError(self.env._(RECEIPT_TIME_REQUIRED_MESSAGE))
         if received_at > now:
             raise UserError(self.env._("The receipt time cannot be in the future."))
         return received_at
@@ -122,13 +124,13 @@ class AccountPayment(models.Model, AccountPaymentBase):
             try:
                 amount = float(amount)
             except (TypeError, ValueError) as error:
-                raise UserError(self.env._("Enter an amount greater than zero.")) from error
+                raise UserError(self.env._(POSITIVE_COLLECTION_AMOUNT_REQUIRED_MESSAGE)) from error
         if not isfinite(amount):
-            raise UserError(self.env._("Enter an amount greater than zero."))
+            raise UserError(self.env._(POSITIVE_COLLECTION_AMOUNT_REQUIRED_MESSAGE))
         currency = invoice.currency_id
         amount = currency.round(amount)
         if currency.compare_amounts(amount, 0) <= 0:
-            raise UserError(self.env._("Enter an amount greater than zero."))
+            raise UserError(self.env._(POSITIVE_COLLECTION_AMOUNT_REQUIRED_MESSAGE))
         if currency.compare_amounts(amount, residual) > 0:
             raise UserError(self.env._("A payment cannot be more than the amount still owed."))
         return amount
@@ -181,7 +183,7 @@ class AccountPayment(models.Model, AccountPaymentBase):
         if not request or request.state == "superseded" or order.state == "cancel":
             raise UserError(self.env._("This collection needs a current payment request before it can be applied."))
         if not self.received_at:
-            raise UserError(self.env._("Enter the date and time the money was received."))
+            raise UserError(self.env._(RECEIPT_TIME_REQUIRED_MESSAGE))
         if request.deadline and self.received_at > request.deadline:
             raise UserError(self.env._("Sales must extend the payment deadline before this collection can be applied."))
         if self.method != "online":

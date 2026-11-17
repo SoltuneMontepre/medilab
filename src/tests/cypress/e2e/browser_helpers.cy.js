@@ -39,7 +39,9 @@ describe("Browser helper commands", () => {
 
   it("fails when the action succeeds", () => {
     const record = { status: "requested", reason: "" };
-    expect(() => assertRefusalOutcome({ displayedMessage: "", message: MESSAGE, before: record, after: record })).to.throw();
+    expect(() => assertRefusalOutcome({ displayedMessage: "", message: MESSAGE, before: record, after: record })).to.throw(
+      "displayed refusal",
+    );
   });
 
   it("fails when an error is displayed but the record changes", () => {
