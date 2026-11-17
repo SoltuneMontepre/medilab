@@ -22,10 +22,11 @@ module "github_actions" {
   }
 
   variables = {
-    ARGOCD_SERVER = local.web_hostnames.argocd
-    RELEASE_MODE  = var.release.mode
-    RELEASE_DAYS  = var.release.days
-    RELEASE_HOURS = var.release.hours
+    ARGOCD_SERVER      = local.web_hostnames.argocd
+    MEDILAB_MOBILE_URL = "https://${local.web_hostnames.lims}"
+    RELEASE_MODE       = var.release.mode
+    RELEASE_DAYS       = var.release.days
+    RELEASE_HOURS      = var.release.hours
   }
 
   required_checks = var.required_checks
@@ -33,21 +34,30 @@ module "github_actions" {
 
   environments = {
     ansible = {
-      branch = "main"
+      branch  = "main"
+      secrets = ["DOPPLER_INFRA_TOKEN"]
     }
     ansible-apply = {
       branch    = "main"
       reviewers = var.ansible_apply_reviewers
+      secrets   = ["DOPPLER_INFRA_TOKEN"]
     }
     database-reset = {
       branch    = "main"
       reviewers = var.ansible_apply_reviewers
+      secrets   = ["DOPPLER_INFRA_TOKEN"]
+    }
+    mobile-release = {
+      tag     = "mobile-v*"
+      secrets = ["DOPPLER_RELEASE_TOKEN"]
     }
   }
 
-  environment_secrets = {
-    DOPPLER_INFRA_TOKEN = module.secrets.doppler_infra_token
-  }
+  # DOPPLER_RELEASE_TOKEN is published once it is in Doppler; until then cd-mobile-app fails at its Doppler step.
+  environment_secrets = merge(
+    { DOPPLER_INFRA_TOKEN = module.secrets.doppler_infra_token },
+    module.secrets.doppler_release_token == null ? {} : { DOPPLER_RELEASE_TOKEN = module.secrets.doppler_release_token },
+  )
 }
 
 import {

@@ -40,12 +40,18 @@ class LaboratoryIdempotencyMixin(models.AbstractModel, LaboratoryIdempotencyMixi
 
     @api.model
     def _create_once(self, device, key, values) -> Self:
-        """Create the record of the computer's request with its key. Two requests at once that would make the same
-        record, by the key or by another unique key of the model, make one: the second one's creation fails on the
-        unique key and Odoo runs its request again, which then finds the record."""
+        """Create the record of the computer's request with its key, once even for two requests at once, by the key or
+        by another unique key of the model."""
         values = {**values, self._idempotency_device_field: device.id, "idempotency_key": key or False}
         with self._once_per_key():
             return self.create(values)
+
+    def _keep_key(self, device, key):
+        """Record the computer and the key of the request on the record a model method created for it, such as a
+        message that message_post() posted, so a request it repeats finds it."""
+        self.ensure_one()
+        with self._once_per_key():
+            self.sudo().write({self._idempotency_device_field: device.id, "idempotency_key": key or False})
 
     @contextmanager
     def _once_per_key(self):

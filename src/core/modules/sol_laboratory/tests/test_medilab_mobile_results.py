@@ -1,7 +1,7 @@
 from odoo.tests import tagged
 
-from .laboratory_api_case import LaboratoryApiCase
 from .laboratory_files_case import PASSWORD
+from .mobile_phones import PhoneCalls
 from .test_result_sanity_check import SanityCheckCase
 from odoo.addons.sol_laboratory.constants.laboratory_files import (
     IDEMPOTENCY_CONFLICT,
@@ -17,7 +17,7 @@ CONFIRMED = {"confirmed": True}
 
 
 @tagged("post_install", "-at_install")
-class TestMedilabMobileResults(SanityCheckCase, LaboratoryApiCase):
+class TestMedilabMobileResults(SanityCheckCase, PhoneCalls):
     """Testing at the bench on Medilab Mobile: the tester enters the lead result of the received sample and sends it,
     and their head of department approves or rejects it on the phone."""
 
@@ -26,21 +26,6 @@ class TestMedilabMobileResults(SanityCheckCase, LaboratoryApiCase):
         super().setUpClass()
         for person in (cls.tester, cls.other_tester, cls.head):
             person.user_id.password = PASSWORD
-
-    def setUp(self):
-        super().setUp()
-        self.keys = {}
-
-    def on_phone(self, person, method, path, body=None, headers=None):
-        if person not in self.keys:
-            self.keys[person] = self.signed_in_key(
-                person.user_id, f"phone-{person.id}", name="Pixel 8", platform="android"
-            )
-        return self.api(method, path, body, key=self.keys[person], headers=headers)
-
-    def answered(self, response) -> dict:
-        self.assertEqual(response.status_code, 200, response.text)
-        return response.json()
 
     def enter_on_phone(self, person, body=None, key=None):
         headers = {"Idempotency-Key": key} if key else None

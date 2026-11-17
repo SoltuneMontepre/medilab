@@ -24,6 +24,7 @@ function detail(values: Partial<TaskDetail> = {}): TaskDetail {
     reassign_reason: "",
     assigned_by: "",
     steps: [],
+    samples: [],
     actions: NO_ACTIONS,
     ...values,
   };
@@ -137,5 +138,34 @@ describe("TaskScreen", () => {
     mediLab.plan({ status: 200, body: { ...QUEUED, actions: NO_ACTIONS } });
     await fireEvent.press(screen.getByRole("button", { name: "Thử lại" }));
     expect(mediLab.sent[3].url).toBe("https://lab.example/medilab/api/v1/tasks/11/claim");
+  });
+
+  it("shows a collection task with its time and place, opens its sample and marks it done", async () => {
+    const collection = detail({
+      name: "Lấy mẫu nước ao",
+      status: "in_progress",
+      planned_start: "2026-11-17T02:00:00Z",
+      planned_end: "2026-11-17T03:00:00Z",
+      location: "Ao số 2, trang trại Phạm Văn Long",
+      document: { model: "medilab.sample", id: 42, code: "PTN.2026.0042", screen: "sample" },
+      samples: [{ id: 42, code: "PTN.2026.0042", sampling_location: "Ao số 2, trang trại Phạm Văn Long" }],
+      actions: { ...NO_ACTIONS, done: true },
+    });
+    const mediLab = fakeMediLab(
+      { status: 200, body: collection },
+      { status: 200, body: { ...collection, status: "done", actions: NO_ACTIONS } },
+    );
+    await renderSignedIn(<TaskScreen />);
+
+    expect(await screen.findByText("Ao số 2, trang trại Phạm Văn Long")).toBeOnTheScreen();
+    expect(screen.getByText("Mẫu cần lấy")).toBeOnTheScreen();
+    expect(screen.getAllByRole("button", { name: "Mở PTN.2026.0042" })).toHaveLength(1);
+
+    await fireEvent.press(screen.getByTestId("collection-sample-42"));
+    expect(router.push).toHaveBeenCalledWith({ pathname: "/samples/[id]", params: { id: "42" } });
+
+    await fireEvent.press(screen.getByTestId("task-done"));
+    expect(mediLab.sent[1]).toMatchObject({ method: "POST", url: "https://lab.example/medilab/api/v1/tasks/11/done" });
+    expect(screen.queryByTestId("task-done")).toBeNull();
   });
 });

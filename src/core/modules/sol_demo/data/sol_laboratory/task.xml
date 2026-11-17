@@ -78,6 +78,8 @@
         <field name="type_id" ref="sol_laboratory.task_type_sample_collection" />
         <field name="name">Collect pond water at Pham Van Long's farm</field>
         <field name="assignee_id" ref="demo_person_sample_delivery_staff" />
+        <!-- The place to collect at, the customer's address as Start sample collection notes it. -->
+        <field name="note">48 Lê Văn Sỹ, Phường 13, Quận 3, Hồ Chí Minh</field>
         <field name="deadline" eval="(DateTime.now() + relativedelta(days=1, hour=3, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="planned_start" eval="(DateTime.now() + relativedelta(days=1, hour=2, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="planned_end" eval="(DateTime.now() + relativedelta(days=1, hour=3, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />

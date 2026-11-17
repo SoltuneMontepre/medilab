@@ -71,6 +71,7 @@ A push is created when a notification is delivered on the push channel ([SH-11](
 - **Payload.** A push has a title, a body and data. The data are `event`, the event's code or `message` for a conversation message; `model` and `id`, the document; and `code`, the document's code. The code is the record's own code, such as a sample's lab code; for a sample test or a result, its sample's lab code; for a task, its document's code; empty when the document has none.
 - **Text.** The title is the event's name in the person's language and the body is the document's code. A push never carries the notification's message, the document's name or any other field, so it never names the customer or the customer's name for a sample, to a tester or anyone else. The app reads the rest after the tap, with the person's rights.
 - **Conversation messages.** The title is the conversation's name and the body is the author's name; the message's text is not pushed. The data are `event: message`, `model: discuss.channel`, `id` and no code.
+- **Mentions in a chatter.** A note or message that mentions a person on a document's chatter is pushed as the `message.mention` event: its name as the title, the document's code as the body, and the document in the data.
 - **Tapping a push** opens `GET /documents/{model}/{record_id}`. A document the person can no longer see answers `not_found`, and the app says so instead of showing an empty screen.
 - **On by default.** Once a person has a signed-in phone, every event they are notified of is also pushed unless they turned its push off. A mandatory event's push cannot be turned off, and a push of a mandatory event turned off before is sent all the same.
 - **Firebase in the app.** The app registers its token, the phone's Firebase Installation ID, through `@react-native-firebase/messaging` (`register()` and `onRegistered()`, with Installation ID messaging turned on) at sign-in, at each start and whenever Firebase gives a new one. A build gets Firebase only from its `google-services.json` ([Running Medilab Mobile](../workflows/running-mobile-app.md)); without it the app registers no token.
@@ -105,7 +106,7 @@ A push is created when a notification is delivered on the push channel ([SH-11](
 
 - The lists search the person's tasks with `is_mine` and `in_my_queue`, as the web's to-do list and queues do, so both show the same tasks in the same order. A page's `next_after` is how many tasks the pages before it gave.
 - The actions of a task are the buttons the web's form shows the person: claim while it waits in their queue, start and mark done while it is theirs, and assign with the permission to edit it. `GET /me` says whether the person may create and assign tasks, from the same permissions, so the app shows the screens only with them.
-- A testing task gives its method's steps from `method_step_ids`: each step's minutes, instruction, note and location. A collection task gives its planned start and end and its sample's sampling location.
+- A testing task gives its method's steps from `method_step_ids`: each step's minutes, instruction, note and location. A collection task gives its planned start and end, the samples it is for, which are its sample or its test request's samples as the person may read them, and their sampling locations as its place.
 - Claiming a task someone else claimed first is refused with `already_claimed`; a task outside the person's queues with `action_refused`.
 - Assigning and reassigning run the `medilab.task.reassign` wizard's `action_confirm()` on the task, so its checks apply. Moving a task away from its person or department without a reason is refused with `action_refused`: the task refuses it, so the web refuses it the same way. A person outside the task's department takes the task to their department unless the request names one; naming a department and no person puts the task in that department's queue. A person without the permission to edit the task is refused with `permission_denied`.
 - Creating a task by hand creates a task of the general type with the person's rights, in the assignee's department; a task created on the phone never names a document ([SH-10](../functional/shared.md#sh-10-tasks-and-to-do-list)). The task keeps the phone it was created on and its `Idempotency-Key`. A person without the permission to create tasks is refused with `permission_denied`.
@@ -144,8 +145,16 @@ A push is created when a notification is delivered on the push channel ([SH-11](
 
 ### Collecting samples and photos
 
-- Collection tasks are tasks of the sample collection type, listed and marked done through the [task routes](#tasks).
-- `POST /samples/{sample_id}/photos` attaches a photo through `action_attach_photo()`, with the person's rights. `GET /samples/{sample_id}/photos` lists the photos the person may read, which a tester never may.
+| Route | Does |
+| ----- | ---- |
+| `GET /samples/{sample_id}/photos` | The sample's photos the person may read, newest first, each with its name, type, time and who took it |
+| `POST /samples/{sample_id}/photos` | Attaches a photo taken when the sample is collected or received, as `action_attach_photo()` does |
+| `GET /attachments/{attachment_id}` | Downloads a file, such as a photo, with the person's rights |
+
+- Collection tasks are tasks of the sample collection type, listed and marked done through the [task routes](#tasks). The app opens each sample a collection task is for, to photograph it.
+- Photos are the sample's `photo_ids`, which only a person who reads every test request reads. The sample's answer says with `can_add_photos` whether the person reads them and may change the sample, which attaching one needs; the app shows photos only then, so a tester never sees them. A tester's list is empty, a tester's download answers `not_found`, and a tester's photo is refused with `permission_denied`.
+- A photo is sent as a JPEG or PNG in base64, at most 10 MiB once decoded. It is attached with the person's rights and keeps the phone it was taken on and its `Idempotency-Key`.
+- **On the phone first.** The app keeps each photo the camera takes in its own folder before sending it, under a key it generates once. A photo MediLab did not get, with no connection or refused, stays on the phone and the sample's screen lists it, to send again with the same key or to discard.
 
 ### Handover records
 
@@ -173,9 +182,13 @@ Conversations are Odoo Discuss channels ([SH-12](../functional/shared.md#sh-12-c
 | `GET /people?q=` | Active internal users, for new conversations and mentions |
 | `GET /documents/{model}/{record_id}/messages`, `POST /documents/{model}/{record_id}/notes` | Reads a task's, a sample's or a test request's chatter, and posts a note on it |
 
-- **Internal only.** MediLab's channel member model refuses a member without an internal user in any Discuss channel, on the web and the phone alike, so a customer or a subcontractor never joins a conversation.
-- **Mentions** name internal users only. A message notifies the people it mentions on each channel they keep on ([SH-11](../functional/shared.md#sh-11-schedules-and-reminders)).
-- **Notes.** A note is posted with the note subtype, which is internal: it reaches only the people it mentions and the internal followers, never a customer. The chatter is read with the person's rights, so it shows what the web's chatter shows them.
+- **Internal only.** MediLab's channel member model refuses a member without an internal user in any Discuss channel, on the web and the phone alike, so a customer, a subcontractor or a guest never joins a conversation. `GET /people` and the mentions take active internal users only, and refuse any other with `invalid_request`.
+- **Mentions** name internal users only. A message notifies the people it mentions on each channel they keep on ([SH-11](../functional/shared.md#sh-11-schedules-and-reminders)) for the `message.mention` event: in the application or by email, as Odoo notifies a mention, or both, and pushed to their phones. A mention reaches a member who muted the conversation, as in Discuss.
+- **Pushing at once.** Once Odoo notified a message people wrote, MediLab pushes it to the phones of the conversation's members except its author and those who muted it, and of the people it mentions who keep the push on; each phone gets a message once.
+- **Muting** sets the member's `mute_until_dt` to the end of time, as Discuss's "until I turn it back on", and unmuting clears it.
+- **Files.** A message's photos and files are sent as in [Files in a request](#the-api) and attached through `message_post()`. The app shows a photo, read from `GET /attachments/{attachment_id}` with the phone's key, and names any other file.
+- **Chatter.** Tasks, samples and test requests have Odoo's chatter (`mail.thread`), on the web and the phone. Anyone who may read the document posts on it (`_mail_post_access = read`), so a tester posts a note on a sample they test. Creating a document logs no message and makes nobody a follower, so its chatter holds only what people wrote.
+- **Notes.** A note is posted with the note subtype, which is internal: it reaches only the people it mentions and the internal followers, never a customer. The chatter is read with the person's rights, so it shows what the web's chatter shows them; the app lists the messages and notes people wrote, not the changes Odoo tracks or the notifications of events.
 - **Refreshing without Odoo's bus.** The app does not open Odoo's websocket. A message push with data refreshes the list and the open conversation; while a conversation is open, the app also asks for messages after the last one it has about every 10 seconds, and the list is refreshed when the app comes back to the foreground.
 
 ### Support requests
@@ -218,7 +231,34 @@ Like the Sync updates route, these two are plain `auth='none'` HTTP routes, outs
 - **Checking.** The app asks the release route when it starts and when it comes back to the foreground. On `code` it fetches the update through `expo-updates`; on `install` it downloads the APK, checks its SHA-256 and opens the installer; on `unavailable` it shows only the updating screen. The app cannot be used until the update is installed.
 - **The Expo Updates route** follows the protocol's version 1: it requires `expo-protocol-version: 1`, reads `expo-platform` and `expo-runtime-version`, and answers the newest eligible code update of that runtime as a `multipart/mixed` answer with its manifest and the manifest's `expo-signature` exactly as the catalog holds them, or 204 when there is none.
 - **Signing.** The release pipeline signs every manifest with the update key; the app embeds the matching certificate and `expo-updates` refuses a manifest whose signature does not verify, keeping the version it has. An APK is signed with the laboratory's upload key, and Android installs it over the app only when the key is the same. Odoo stores and serves signatures; it never reads or holds a key.
-- **The catalog** is a read-only JSON file at `MEDILAB_MOBILE_RELEASES_FILE`, published last by the release pipeline after the artifacts, with the size limits and the all-or-nothing validation of the Sync catalog. Each release names its platform, kind (`code` or `install`), runtime version, version and publication date; a code release holds its manifest and signature, an install its HTTPS address and SHA-256.
+- **The catalog** is a read-only JSON file at `MEDILAB_MOBILE_RELEASES_FILE`, a copy of `mobile/catalog.json` in the `medilab-release` bucket, which [cd-mobile-app](../infrastructure/pipelines.md#cd-mobile-app) publishes last, after the artifacts. It has the size limits and the all-or-nothing validation of the Sync catalog. Each tag adds a code release and an install of the same version and runtime version. Odoo stores no address of the bucket: an install names its APK's full HTTPS address, and a code manifest names each of its files'.
+
+```json
+{
+  "releases": [
+    {
+      "platform": "android",
+      "kind": "code",
+      "runtime_version": "7b045729655462c0c9ff57ceb72d3ed02d9ec17c",
+      "version": "1.2.3",
+      "pub_date": "2026-11-17T03:00:00.000Z",
+      "manifest": "<the manifest's JSON text, exactly as signed>",
+      "signature": "<base64 RSA-SHA256 signature of the manifest's text>"
+    },
+    {
+      "platform": "android",
+      "kind": "install",
+      "runtime_version": "7b045729655462c0c9ff57ceb72d3ed02d9ec17c",
+      "version": "1.2.3",
+      "pub_date": "2026-11-17T03:00:00.000Z",
+      "url": "https://release.example/mobile/android/1.2.3/medilab-1.2.3.apk",
+      "sha256": "<hex SHA-256 of the APK>"
+    }
+  ]
+}
+```
+
+- **Versions.** A version is three numbers, such as `1.2.3`; the APK's Android version code is `major × 1,000,000 + minor × 1,000 + patch`. The runtime version is the [fingerprint](https://docs.expo.dev/versions/latest/sdk/fingerprint/) of the Android project, which the pipeline writes into the app's `runtimeVersion`: it changes only when the native project does, so a phone whose APK has the same runtime version takes the code update and any other needs the install. The Expo Updates route sends a code release's signature as `expo-signature: sig="<signature>", keyid="main"`.
 - **Administrators** set, in the settings, the oldest version MediLab still serves and the releases it stops serving. A stopped release is never answered; the newest release not stopped is. A phone that already runs a stopped code update returns to an earlier one only when the release pipeline republishes that one as a new signed update, because `expo-updates` never launches an update older than the one it runs; returning to the code built into the installed APK instead is the protocol's `rollBackToEmbedded` directive, which the pipeline signs the same way.
 - **iOS.** The first release is for Android. The routes take `ios`; the catalog has no iOS release until there is one, and an iOS build answers 204.
 
@@ -228,9 +268,11 @@ Like the Sync updates route, these two are plain `auth='none'` HTTP routes, outs
 - `medilab.mobile.device` has `laboratory_device_id`, required and unique: the phone the token belongs to. Its user is the phone's user.
 - `medilab.task` has `created_by_device_id` and `idempotency_key`, unique together where the key is set: the phone a task was created on by hand and the key of its request.
 - `medilab.test.result` has `created_by_device_id` and `idempotency_key` the same way, for a result entered on a phone, and `check_warning`, the warnings of the sanity check it was sent with.
+- `ir.attachment` has `created_by_device_id` and `idempotency_key` the same way, for a sample photo sent from a phone.
 - `medilab.handover.record.signed_device_id` names the phone's `medilab.laboratory.device`, which is never deleted, rather than its token, which the cleanup job removes once it is off.
-- `medilab.push.delivery` pushes either a notification or a conversation message: `notification_id` or `message_id`, exactly one, each unique with the token.
-- With E-commerce installed, `mail.message` has `posted_by_device_id` and `idempotency_key`, unique together where the key is set: the phone a support answer was posted from and the key of its request.
+- `medilab.push.delivery` pushes either a notification or a message: `notification_id` or `message_id`, exactly one, each unique with the token.
+- `mail.message` has `posted_by_device_id` and `idempotency_key`, unique together where the key is set: the phone a message, a note or a support answer was posted from and the key of its request.
+- `discuss.channel` has `created_by_device_id` and `idempotency_key` the same way: the phone a group was created on and the key of its request.
 - The diagrams are [laboratory.prisma](../infrastructure/database/laboratory/laboratory.prisma) and [ecommerce.prisma](../infrastructure/database/ecommerce/ecommerce.prisma).
 
 ### Verification

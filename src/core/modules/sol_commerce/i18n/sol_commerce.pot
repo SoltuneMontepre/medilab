@@ -3627,6 +3627,11 @@ msgid "Performance"
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_person
+msgid "Person"
+msgstr ""
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.contact_form
 #: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
@@ -5428,21 +5433,6 @@ msgstr ""
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 msgid "is paid."
-msgstr ""
-
-#. module: sol_commerce
-#: model:ir.model.fields,field_description:sol_commerce.field_mail_message__idempotency_key
-msgid "Idempotency Key"
-msgstr ""
-
-#. module: sol_commerce
-#: model:ir.model.fields,field_description:sol_commerce.field_mail_message__posted_by_device_id
-msgid "Posted By Device"
-msgstr ""
-
-#. module: sol_commerce
-#: model:ir.model.constraint,message:sol_commerce.constraint_mail_message_device_idempotency_key_unique
-msgid "This phone already posted a message with this Idempotency-Key."
 msgstr ""
 
 #. module: sol_commerce

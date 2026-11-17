@@ -192,17 +192,48 @@ export const openBooking = helper("openBooking", function openBooking(test, logi
   });
 });
 
-// The tester books the recommended machine and slot, and yields the booking.
+// The head of department approves the recommended machine and slot, and yields the booking.
 export const book = helper("book", function book(test) {
-  callAs(TESTER, "medilab.sample.test", "action_schedule", [[test.id]]);
+  callAs(HEAD, "medilab.sample.test", "action_approve_booking", [[test.id]]);
   return openBooking(test);
 });
 
-export function scheduleThroughScreen() {
-  cy.intercept("POST", "**/medilab.sample.test/action_schedule").as("scheduledThroughScreen");
-  cy.get(".o_statusbar_buttons button[name=action_schedule]").should("be.visible").and("be.enabled").click();
-  cy.wait("@scheduledThroughScreen").its("response.body.error").should("not.exist");
-  return cy.get(".o_statusbar_buttons button[name=action_schedule]").should("not.exist");
+// The head of department clicks Approve Booking on the open sample test.
+export function approveThroughScreen() {
+  cy.intercept("POST", "**/medilab.sample.test/action_approve_booking").as("approvedThroughScreen");
+  cy.get(".o_statusbar_buttons button[name=action_approve_booking]").should("be.visible").and("be.enabled").click();
+  cy.wait("@approvedThroughScreen").its("response.body.error").should("not.exist");
+  return cy.get(".o_statusbar_buttons button[name=action_approve_booking]").should("not.exist");
+}
+
+// The notices of an event about a record, and the partners they went to, as the administrator reads them.
+export function notices(event, record) {
+  return refAs(ADMINISTRATOR, event)
+    .then(({ id }) =>
+      callAs(ADMINISTRATOR, "mail.message", "search_read", [
+        [
+          ["model", "=", record.model],
+          ["res_id", "=", record.id],
+          ["subtype_id", "=", id],
+        ],
+      ], { fields: ["body"] }),
+    )
+    .then((messages) =>
+      callAs(
+        ADMINISTRATOR,
+        "mail.notification",
+        "search_read",
+        [[["mail_message_id", "in", messages.map(({ id }) => id)]]],
+        { fields: ["res_partner_id"] },
+      ).then((notifications) => ({ messages, partners: notifications.map(({ res_partner_id: [id] }) => id) })),
+    );
+}
+
+// The partner of the user who signs in with the login.
+export function partnerOf(login) {
+  return callAs(ADMINISTRATOR, "res.users", "search_read", [[["login", "=", login]]], { fields: ["partner_id"] }).then(
+    ([user]) => user.partner_id[0],
+  );
 }
 
 // A lead test of a received sample, assigned to the tester.

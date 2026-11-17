@@ -1075,7 +1075,7 @@ model LaboratoryDevice {
   @@map("medilab_laboratory_device")
 }
 
-/// Odoo's message (mail.message), shown with the columns this module uses and the columns it adds: a message on a support request. A support answer a phone posts keeps the phone and its Idempotency-Key, so it is posted once.
+/// Odoo's message (mail.message), shown with the columns this module uses: a message on a support request. A support answer a phone posts keeps the phone and its Idempotency-Key, which the laboratory adds, so it is posted once.
 /// Partial unique index on posted_by_device_id and idempotency_key where idempotency_key is set.
 model Message {
   /// Row identifier.

@@ -580,6 +580,9 @@ msgstr "Hành động"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_needaction
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_needaction
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_needaction
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__message_needaction
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__message_needaction
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__message_needaction
 msgid "Action Needed"
 msgstr "Cần xử lý"
 
@@ -1108,6 +1111,9 @@ msgstr "Tệp Đính Kèm"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_attachment_count
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_attachment_count
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_attachment_count
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__message_attachment_count
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__message_attachment_count
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__message_attachment_count
 msgid "Attachment Count"
 msgstr "Số tệp đính kèm"
 
@@ -1432,6 +1438,7 @@ msgstr "Đổi hạn hoàn thành của chỉ tiêu bằng nút Đổi hạn ho�
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__channel_member_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__channel_member_ids
+#: model:ir.model,name:sol_laboratory.model_discuss_channel_member
 msgid "Channel Member"
 msgstr "Thành viên kênh"
 
@@ -1932,6 +1939,8 @@ msgstr "Tạo cách thử của phòng ban mình"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__created_by_device_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__created_by_device_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__created_by_device_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_attachment__created_by_device_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_discuss_channel__created_by_device_id
 msgid "Created By Device"
 msgstr "Tạo từ máy tính"
 
@@ -2680,6 +2689,9 @@ msgstr "Hiển thị báo cáo PDF mẫu hóa đơn"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_return__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_discuss_channel__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_discuss_channel_member__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_thread__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -3467,6 +3479,9 @@ msgstr "Thư mục"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_follower_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_follower_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_follower_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__message_follower_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__message_follower_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__message_follower_ids
 msgid "Followers"
 msgstr "Người theo dõi"
 
@@ -3475,6 +3490,9 @@ msgstr "Người theo dõi"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_partner_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_partner_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_partner_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__message_partner_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__message_partner_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__message_partner_ids
 msgid "Followers (Partners)"
 msgstr "Người theo dõi (liên hệ)"
 
@@ -3601,6 +3619,9 @@ msgstr "Chịu trách nhiệm"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__has_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__has_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__has_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__has_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__has_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__has_message
 msgid "Has Message"
 msgstr "Có tin nhắn"
 
@@ -3797,6 +3818,9 @@ msgstr "Hr trạng thái hiện diện"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_return__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_discuss_channel__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_discuss_channel_member__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_thread__id
 msgid "ID"
 msgstr "ID"
 
@@ -3846,6 +3870,9 @@ msgstr "Phiên chỉnh sửa không hoạt động (giờ)"
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__message_needaction
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__message_needaction
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__message_needaction
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_sample__message_needaction
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_task__message_needaction
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_test_request__message_needaction
 msgid "If checked, new messages require your attention."
 msgstr "Nếu chọn, tin nhắn mới cần bạn chú ý."
 
@@ -3858,6 +3885,12 @@ msgstr "Nếu chọn, tin nhắn mới cần bạn chú ý."
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__message_has_sms_error
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__message_has_error
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__message_has_sms_error
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_sample__message_has_error
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_sample__message_has_sms_error
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_task__message_has_error
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_task__message_has_sms_error
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_test_request__message_has_error
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_test_request__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
 msgstr "Nếu chọn, một số tin nhắn bị lỗi gửi."
 
@@ -4081,6 +4114,9 @@ msgstr "Là chức danh tùy chỉnh"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_is_follower
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_is_follower
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_is_follower
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__message_is_follower
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__message_is_follower
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__message_is_follower
 msgid "Is Follower"
 msgstr "Đang theo dõi"
 
@@ -4902,6 +4938,9 @@ msgstr "Trình đơn"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_has_error
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_has_error
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_has_error
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__message_has_error
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__message_has_error
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__message_has_error
 msgid "Message Delivery error"
 msgstr "Lỗi gửi tin nhắn"
 
@@ -4920,6 +4959,9 @@ msgstr "Thông báo về lấy hàng"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__message_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__message_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__message_ids
 msgid "Messages"
 msgstr "Tin nhắn"
 
@@ -5258,6 +5300,9 @@ msgstr "Thông báo chưa được gửi: %s không có tài khoản cổng thô
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_needaction_counter
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_needaction_counter
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_needaction_counter
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__message_needaction_counter
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__message_needaction_counter
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__message_needaction_counter
 msgid "Number of Actions"
 msgstr "Số việc cần xử lý"
 
@@ -5271,6 +5316,9 @@ msgstr "Số ngày gửi email nhắc nhở trước ngày nhận hàng đã th�
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_has_error_counter
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_has_error_counter
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_has_error_counter
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__message_has_error_counter
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__message_has_error_counter
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__message_has_error_counter
 msgid "Number of errors"
 msgstr "Số lỗi"
 
@@ -5279,6 +5327,9 @@ msgstr "Số lỗi"
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__message_needaction_counter
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__message_needaction_counter
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__message_needaction_counter
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_sample__message_needaction_counter
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_task__message_needaction_counter
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_test_request__message_needaction_counter
 msgid "Number of messages requiring action"
 msgstr "Số tin nhắn cần xử lý"
 
@@ -5287,6 +5338,9 @@ msgstr "Số tin nhắn cần xử lý"
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__message_has_error_counter
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__message_has_error_counter
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__message_has_error_counter
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_sample__message_has_error_counter
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_task__message_has_error_counter
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_test_request__message_has_error_counter
 msgid "Number of messages with delivery error"
 msgstr "Số tin nhắn bị lỗi gửi"
 
@@ -6800,6 +6854,9 @@ msgstr "Hàng Đợi"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__rating_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__rating_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__rating_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__rating_ids
 msgid "Ratings"
 msgstr "Đánh giá"
 
@@ -7324,6 +7381,9 @@ msgstr "Lượt chạy"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_has_sms_error
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_has_sms_error
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_has_sms_error
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__message_has_sms_error
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__message_has_sms_error
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__message_has_sms_error
 msgid "SMS Delivery error"
 msgstr "Lỗi gửi SMS"
 
@@ -7499,7 +7559,6 @@ msgstr "Tỷ lệ"
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_form_bookings
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 #: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_schedule
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_form
@@ -9797,6 +9856,7 @@ msgstr "Nhiệm vụ MediLab"
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_mail_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__message_id
 msgid "Message"
 msgstr "Tin nhắn"
 
@@ -10823,12 +10883,6 @@ msgid "A sample test due within this many hours is urgent: it gets the next free
 msgstr "Chỉ tiêu của mẫu đến hạn trong số giờ này là khẩn: được xếp khung giờ trống tiếp theo của máy trước."
 
 #. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/sample_test.py:0
-msgid "Assign %s to a person before scheduling it."
-msgstr "Hãy giao %s cho một người trước khi xếp lịch."
-
-#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_list
 msgid "Assign Sample"
@@ -11208,6 +11262,8 @@ msgstr "Một kết quả thử nghiệm bạn nhập đã bị từ chối"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_form
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__approve
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 msgid "Approve"
 msgstr "Phê Duyệt"
 
@@ -14266,6 +14322,10 @@ msgstr "Một yêu cầu khác vừa tạo cùng bản ghi này; yêu cầu đư
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_idempotency_mixin__idempotency_key
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__idempotency_key
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__idempotency_key
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_attachment__idempotency_key
+#: model:ir.model.fields,field_description:sol_laboratory.field_discuss_channel__idempotency_key
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_mail__idempotency_key
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_message__idempotency_key
 msgid "Idempotency Key"
 msgstr "Khóa chống lặp yêu cầu"
 
@@ -14297,6 +14357,8 @@ msgstr "Tham số %(name)s không khớp với API: %(error)s"
 #. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder_api.py:0
 #: code:addons/sol_laboratory/models/testing/sample_test_mobile.py:0
+#: code:addons/sol_laboratory/models/sample_collection/sample_mobile.py:0
+#: code:addons/sol_laboratory/services/mobile_messages.py:0
 msgid "This Idempotency-Key was already sent with another request."
 msgstr "Idempotency-Key này đã được gửi kèm một yêu cầu khác."
 
@@ -17283,18 +17345,6 @@ msgid ""
 msgstr "Một chỉ tiêu của mẫu bạn hoặc phòng của bạn thử nghiệm có thể trễ hạn nội bộ"
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
-msgid "Accept"
-msgstr "Chấp nhận"
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/machine_booking_plan.py:0
-msgid "Assign %s to a tester before accepting its booking."
-msgstr "Hãy giao %s cho một thử nghiệm viên trước khi chấp nhận lịch đặt."
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__at_risk
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__at_risk
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
@@ -17347,12 +17397,6 @@ msgstr "Người đánh dấu khẩn"
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_test__priority__normal
 msgid "Normal"
 msgstr "Bình thường"
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/machine_booking_plan.py:0
-msgid "Only a proposed booking can be accepted."
-msgstr "Chỉ lịch đặt đề xuất mới có thể chấp nhận."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -17684,6 +17728,77 @@ msgid "Machine booking returned to the plan"
 msgstr "Lịch đặt máy được trả về kế hoạch"
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_approval.py:0
+msgid "A booking is reserved only when the head of the department approves it."
+msgstr "Lịch đặt chỉ được giữ chỗ khi trưởng phòng phê duyệt."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_approval.py:0
+msgid "Only a proposed booking can be approved."
+msgstr "Chỉ lịch đặt đề xuất mới có thể phê duyệt."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_approval.py:0
+msgid "Assign %s to a tester before approving its booking."
+msgstr "Hãy giao %s cho một thử nghiệm viên trước khi phê duyệt lịch đặt."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_approval.py:0
+msgid "%(booking)s is approved: it starts at %(start)s."
+msgstr "%(booking)s đã được phê duyệt: bắt đầu lúc %(start)s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "Assign %s to a person before approving its booking."
+msgstr "Hãy giao %s cho một người trước khi phê duyệt lịch đặt."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task_assignment_notice.py:0
+msgid "%(person)s assigned you %(task)s."
+msgstr "%(person)s đã giao cho bạn %(task)s."
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_task_assigned
+msgid "A task was assigned to you"
+msgstr "Một nhiệm vụ đã được giao cho bạn"
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_task_assigned
+msgid "Task assigned"
+msgstr "Nhiệm vụ được giao"
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_machine_booking_approved
+msgid "The head of department approved a booking of your task"
+msgstr "Trưởng phòng đã phê duyệt lịch đặt của nhiệm vụ của bạn"
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_machine_booking_approved
+msgid "Machine booking approved"
+msgstr "Lịch đặt máy được phê duyệt"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "Approve Booking"
+msgstr "Phê Duyệt Lịch Đặt"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
+msgid "To Approve"
+msgstr "Chờ Phê Duyệt"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
+msgid "To Review"
+msgstr "Cần Xem Xét"
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_result__interruption_assessment__more_sample
 msgid "More Sample Needed"
 msgstr "Cần Thêm Mẫu"
@@ -17981,3 +18096,119 @@ msgstr "Không Dùng Được"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_return__description
 msgid "What Was Returned"
 msgstr "Nội Dung Trả"
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_ir_attachment_device_idempotency_key_unique
+msgid "This phone already sent a photo with this Idempotency-Key."
+msgstr "Điện thoại này đã gửi một ảnh với Idempotency-Key này."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_mobile.py:0
+msgid "You may not add photos to %s."
+msgstr "Bạn không được thêm ảnh vào %s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_mobile.py:0
+msgid "The photo is not valid base64."
+msgstr "Ảnh không phải base64 hợp lệ."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_mobile.py:0
+msgid "A photo can be at most 10 MiB."
+msgstr "Ảnh tối đa 10 MiB."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/services/mobile_messages.py:0
+msgid "%s is larger than 10 MiB."
+msgstr "%s lớn hơn 10 MiB."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/services/mobile_messages.py:0
+msgid "%s is not sent as base64."
+msgstr "%s không được gửi dưới dạng base64."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_push_delivery_notification_or_message
+msgid "A push is of a notification or of a message."
+msgstr "Một lần đẩy là của một thông báo hoặc của một tin nhắn."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/services/mobile_messages.py:0
+msgid "Choose only people of the laboratory."
+msgstr "Chỉ chọn người của phòng thí nghiệm."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/conversations/discuss_channel.py:0
+msgid "Choose the people of the conversation."
+msgstr "Chọn những người tham gia cuộc trò chuyện."
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_discuss_channel
+msgid "Discussion Channel"
+msgstr "Kênh thảo luận"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_mail_thread
+msgid "Email Thread"
+msgstr "Luồng email"
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_message_mention
+msgid "Mention"
+msgstr "Được nhắc tên"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/conversations/discuss_channel_member.py:0
+msgid "Only people of the laboratory take part in conversations, so %s cannot be added."
+msgstr "Chỉ người của phòng thí nghiệm tham gia cuộc trò chuyện, nên không thể thêm %s."
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_message_mention
+msgid "Someone mentioned you in a conversation or a document's chatter"
+msgstr "Có người nhắc tên bạn trong một cuộc trò chuyện hoặc phần trao đổi của một tài liệu"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/services/mobile_messages.py:0
+msgid "The files of one message are at most 25 MiB together."
+msgstr "Các tệp của một tin nhắn tối đa 25 MiB cộng lại."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_push_delivery_message_device_unique
+msgid "This message is already pushed to the device."
+msgstr "Tin nhắn này đã được đẩy tới thiết bị."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_discuss_channel_device_idempotency_key_unique
+msgid "This phone already created a conversation with this Idempotency-Key."
+msgstr "Điện thoại này đã tạo một cuộc trò chuyện với Idempotency-Key này."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_mail_message_device_idempotency_key_unique
+msgid "This phone already posted a message with this Idempotency-Key."
+msgstr "Điện thoại này đã gửi một tin nhắn với Idempotency-Key này."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/services/mobile_messages.py:0
+msgid "Write a message or attach a file."
+msgstr "Hãy viết tin nhắn hoặc đính kèm tệp."
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_chatter_mixin
+msgid "Chatter of a Document"
+msgstr "Trao đổi của tài liệu"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_mail__posted_by_device_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_message__posted_by_device_id
+msgid "Posted By Device"
+msgstr "Gửi từ điện thoại"

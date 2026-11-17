@@ -22,3 +22,19 @@ TASK_PAGE_SIZE = 50
 ASSIGNEE_LIMIT = 20
 # How many results waiting for the person's signature a page gives when the app names no limit.
 RESULT_PAGE_SIZE = 50
+# A file over its limit.
+TOO_LARGE = "too_large"
+# The largest photo a phone sends, once decoded.
+PHOTO_MAX_BYTES = 10 * 1024 * 1024
+# The largest file a phone sends, once decoded.
+FILE_MAX_BYTES = 10 * 1024 * 1024
+# The largest total of the files of one request, once decoded.
+REQUEST_FILES_MAX_BYTES = 25 * 1024 * 1024
+# How many messages a page gives when the app names no limit.
+MESSAGE_PAGE_SIZE = 30
+# How many people a search for a conversation's member or a mention finds at most.
+PEOPLE_LIMIT = 20
+# The event of a push of a conversation message.
+MESSAGE_EVENT = "message"
+# The conversations of Medilab Mobile: direct conversations between two people and group conversations.
+CONVERSATION_TYPES = ("chat", "group")

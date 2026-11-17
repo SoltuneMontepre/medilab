@@ -15,6 +15,8 @@ DOCUMENT_PATH = "sol_laboratory/api/openapi.yaml"
 DOCUMENT_URI = "urn:medilab:laboratory-files-api"
 # The schema every refusal answers with.
 ERROR_SCHEMA = "/components/schemas/Error"
+# The media type of the bodies the document describes with a schema.
+JSON = "application/json"
 OPERATION_METHODS = ("get", "put", "post", "delete", "patch", "head", "options", "trace")
 # The module that declares an operation's route, when it is not sol_laboratory; the route exists only with it installed.
 MODULE_EXTENSION = "x-medilab-module"
@@ -66,7 +68,7 @@ def request_body_pointer(operation_id, *, document_path=DOCUMENT_PATH):
     method, path, operation = operations(document_path)[operation_id]
     if "requestBody" not in operation:
         return None
-    return _pointer("paths", path, method.lower(), "requestBody", "content", "application/json", "schema")
+    return _pointer("paths", path, method.lower(), "requestBody", "content", JSON, "schema")
 
 
 def parameters(operation_id):
@@ -98,7 +100,8 @@ def documented_answer(operation_id, status, *, document_path=DOCUMENT_PATH):
 
 
 def answer_pointer(operation_id, status, *, document_path=DOCUMENT_PATH):
-    """The pointer of the JSON body of the operation's documented answer with the status, or None when it has none."""
+    """The pointer of the JSON body of the operation's documented answer with the status, or None when it has none,
+    such as a file's content."""
     method, path, operation = operations(document_path)[operation_id]
     answer = operation["responses"][str(status)]
     if "$ref" in answer:
@@ -106,9 +109,9 @@ def answer_pointer(operation_id, status, *, document_path=DOCUMENT_PATH):
         answer, parts = document(document_path)["components"]["responses"][name], ("components", "responses", name)
     else:
         parts = ("paths", path, method.lower(), "responses", str(status))
-    if "content" not in answer:
+    if JSON not in answer.get("content", {}):
         return None
-    return _pointer(*parts, "content", "application/json", "schema")
+    return _pointer(*parts, "content", JSON, "schema")
 
 
 def required_headers(answer, *, document_path=DOCUMENT_PATH):

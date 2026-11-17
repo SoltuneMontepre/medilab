@@ -99,7 +99,9 @@ export function dragBookingToSlot(booking, slot, zone) {
     .then(($event) => {
       const eventBox = $event[0].getBoundingClientRect();
       const lanes = Cypress.$(SLOT_LANES).toArray();
-      const column = Cypress.$(`.fc-timegrid-col[data-date="${to.date}"]`)[0].getBoundingClientRect();
+      const $column = Cypress.$(`.fc-timegrid-col[data-date="${to.date}"]`);
+      expect($column, `the day of the slot, ${to.date}, in the booking's week`).to.have.length(1);
+      const column = $column[0].getBoundingClientRect();
       const point = (clientX, clientY) => ({ button: 0, clientX, clientY, pageX: clientX + window.scrollX, pageY: clientY + window.scrollY });
       // Stay inside each quarter-hour slot; its midpoint is a snap tie that rounds up to the next slot.
       const interiorOffset = timePosition(lanes, startMinute + SLOT_INTERIOR_MINUTES) - timePosition(lanes, startMinute);

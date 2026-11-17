@@ -76,7 +76,7 @@ class TestDepartmentPlan(SchedulingCase):
         after = [(booking.id, booking.machine_id, booking.starts_at, booking.ends_at) for booking in bookings]
         self.assertEqual(after, before)
 
-    def test_a_proposed_slot_reserves_nothing_until_it_is_accepted(self):
+    def test_a_proposed_slot_reserves_nothing_until_the_head_approves_it(self):
         booking = self.propose(self.test)
         task = self.test._testing_task()
 
@@ -86,20 +86,20 @@ class TestDepartmentPlan(SchedulingCase):
         free = self.env[MODEL_MACHINE_BOOKING]._free_slot(self.fast, RUN, self.other_tester, MONDAY + timedelta(days=1))
         self.assertEqual(free, MONDAY)
 
-        booking.with_user(self.tester.user_id).action_accept()
+        booking.with_user(self.head.user_id).action_approve()
 
         self.assertEqual(booking.status, "scheduled")
         self.assertEqual((booking.calendar_event_id.start, booking.calendar_event_id.stop), (MONDAY, MONDAY + RUN))
         self.assertEqual((task.planned_start, task.planned_end), (MONDAY, MONDAY + RUN))
 
-    def test_accepting_a_slot_taken_meanwhile_reserves_nothing(self):
+    def test_approving_a_slot_taken_meanwhile_reserves_nothing(self):
         booking = self.propose(self.test)
         other = self.propose(self.new_test(), self.other_tester)
         # Another acceptance takes the machine at the proposed time first.
         other._set({"starts_at": MONDAY, "ends_at": MONDAY + RUN, "status": "scheduled"})
 
         with self.assertRaisesRegex(UserError, "was taken meanwhile"):
-            booking.with_user(self.tester.user_id).action_accept()
+            booking.with_user(self.head.user_id).action_approve()
 
         self.assertEqual(booking.status, "proposed")
         self.assertFalse(booking.calendar_event_id)

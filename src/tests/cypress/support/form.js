@@ -66,13 +66,23 @@ export function openMenu(app, ...entries) {
       .first()
       .then(($menu) => {
         const href = $menu.attr("href");
+        const menuId = $menu.attr("data-section");
         cy.wrap($menu, { log: false }).click();
         if (href && href !== "#") {
-          cy.window({ log: false }).should((win) => {
-            if (win.location.pathname !== href.split("?")[0]) {
-              expect(Cypress.$(".modal:visible"), "the menu action dialog").to.have.length.greaterThan(0);
-            }
-          });
+          const path = href.split("?")[0];
+          cy.window()
+            .then((win) => win.odoo.loadMenusPromise)
+            .then((menus) => {
+              const menu = menus?.[menuId];
+              const opened = [path];
+              if (menu?.actionID) opened.push(`/odoo/action-${menu.actionID}`);
+              if (menu?.actionPath) opened.push(`/odoo/${menu.actionPath}`);
+              cy.window({ log: false }).should((win) => {
+                if (!opened.includes(win.location.pathname)) {
+                  expect(Cypress.$(".modal:visible"), "the menu action dialog").to.have.length.greaterThan(0);
+                }
+              });
+            });
         }
       });
   cy.get(".o_navbar_apps_menu button").click();

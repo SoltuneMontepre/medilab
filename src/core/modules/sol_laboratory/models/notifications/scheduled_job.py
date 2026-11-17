@@ -122,7 +122,7 @@ class ScheduledJob(models.Model, ScheduledJobBase):
         client = firebase_client_from_env()
         if client is None:
             return fields.Datetime.now() + timedelta(minutes=5)
-        message = delivery.notification_id.mail_message_id
+        message = delivery._message()
         try:
             client.send(device.token, *delivery._push_message())
         except PermanentTokenError as error:

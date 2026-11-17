@@ -218,6 +218,7 @@ Work waiting for someone is a task with a deadline, and every person sees their 
 - **Department queue.** A task routed to a department waits in that department's queue until the head of department assigns it to a person or a person of the department claims it. When two people claim the same task at once, the second is told it is already claimed. A task routed to a role waits the same way until one of the role's holders claims it.
 - **Access.** Every person sees the tasks assigned to them and the queues they can claim from without any permission. Creating tasks by hand, assigning, reassigning and cancelling them, and seeing other tasks need the task permissions, such as those of the person's department for a head of department.
 - **Reassigning.** Moving a task to another department, or an assigned task to another person, needs a reason, which is kept on the task and in the audit trail.
+- **Assignment notice.** Assigning a task to a person, when creating it or when moving it, sends the `task.assigned` notification to them, unless they assigned it to themselves. Claiming a task notifies nobody.
 - **To-do list.** A person's to-do list shows their open tasks, soonest deadline first. Clicking a task opens its document at the action to take, such as entering a result or signing.
 - **Dashboard.** The Tasks app opens on the person's day: today's planned tasks against the hours of the day, the next tasks to do with the action each needs, the tasks waiting in their queues to claim, and what they finished. From it, their tasks, their finished tasks and all the tasks they can see open as a list, a calendar or a timeline.
 - **Lifecycle.** Every task goes through the same statuses: open, assigned, in progress, then done or cancelled. The state of the work itself, such as a sample or a result, belongs to that document.
@@ -226,6 +227,7 @@ Work waiting for someone is a task with a deadline, and every person sees their 
 Acceptance criteria:
 
 - A task assigned to a person appears in their to-do list with its deadline.
+- A task another person assigns to someone notifies the assignee; a task claimed or assigned to oneself notifies nobody.
 - Each step a module document lists as waiting on a person appears as a task in someone's to-do list or queue.
 - A person can claim an unassigned task of their own department, not of another; a task already claimed cannot be claimed again.
 - Reassigning a task without a reason is refused.

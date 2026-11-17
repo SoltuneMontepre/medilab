@@ -5539,3 +5539,8 @@ msgstr "Idempotency-Key này đã được gửi kèm một yêu cầu khác."
 #: code:addons/sol_commerce/models/support/support_request_mobile.py:0
 msgid "You may not answer this support request."
 msgstr "Bạn không được trả lời yêu cầu hỗ trợ này."
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_person
+msgid "Person"
+msgstr "Nhân Sự"

@@ -5,6 +5,7 @@ from . import audit_mixin
 from . import (
     approval_mixin,
     archive_mixin,
+    chatter_mixin,
     code_mixin,
     contact_mixin,
     digital_signing_mixin,
