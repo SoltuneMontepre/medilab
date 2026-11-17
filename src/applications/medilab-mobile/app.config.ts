@@ -7,6 +7,19 @@ export const DEFAULT_SERVER_URL = "http://localhost:8069";
 // pushes.
 const GOOGLE_SERVICES_FILE = "GOOGLE_SERVICES_JSON";
 
+// The version of a build made without MEDILAB_MOBILE_VERSION, which only the release pipeline sets.
+export const DEFAULT_VERSION = "0.1.0";
+
+// Android's version code of a semantic version, so that a later version always installs over an earlier one.
+export function versionCode(version: string): number {
+  const match = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(version);
+  if (!match) {
+    throw new Error(`MEDILAB_MOBILE_VERSION ${version} is not a version such as 1.2.3.`);
+  }
+  const [major, minor, patch] = match.slice(1).map(Number);
+  return major * 1_000_000 + minor * 1_000 + patch;
+}
+
 // The variable naming the path of the PEM certificate of the update key, which expo-updates checks every code update's
 // signature against. Only a release build has it; a build without it takes no updates.
 const UPDATE_CERTIFICATE = "MEDILAB_MOBILE_UPDATE_CERTIFICATE";
@@ -15,6 +28,9 @@ const UPDATE_CERTIFICATE = "MEDILAB_MOBILE_UPDATE_CERTIFICATE";
 const UPDATES_PATH = "/medilab/api/v1/mobile/updates";
 
 export default function appConfig({ config }: ConfigContext): ExpoConfig {
+  const version = process.env.MEDILAB_MOBILE_VERSION || DEFAULT_VERSION;
+  // The release pipeline names the native build a code update runs on; a local build names none.
+  const runtimeVersion = process.env.MEDILAB_MOBILE_RUNTIME_VERSION || undefined;
   const googleServicesFile = process.env[GOOGLE_SERVICES_FILE] || undefined;
   // Firebase's plugins need the project's file; a build without it has no Firebase app and registers no push id. Pushes
   // reach the phone by its Firebase Installation ID, which replaces the deprecated FCM token.
@@ -39,7 +55,8 @@ export default function appConfig({ config }: ConfigContext): ExpoConfig {
     ...config,
     name: "MediLab",
     slug: "medilab-mobile",
-    version: "0.1.0",
+    version,
+    ...(runtimeVersion ? { runtimeVersion } : {}),
     scheme: "medilab",
     platforms: ["android", "ios"],
     ios: {
@@ -49,6 +66,7 @@ export default function appConfig({ config }: ConfigContext): ExpoConfig {
     },
     android: {
       package: "com.medilab.mobile",
+      versionCode: versionCode(version),
       googleServicesFile,
       // A new install opens Android's installer on the APK the app downloaded.
       permissions: ["android.permission.REQUEST_INSTALL_PACKAGES"],

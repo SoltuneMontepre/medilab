@@ -60,6 +60,8 @@ spec:
               value: us-east-1
             - name: BUCKET_FILESTORE
               value: "1"
+            - name: MEDILAB_MOBILE_RELEASES_FILE
+              value: /var/lib/medilab-release/catalog.json
           ports:
             - name: http
               containerPort: 8069
@@ -95,9 +97,49 @@ spec:
               readOnly: true
             - name: data
               mountPath: /var/lib/odoo
+            - name: release-catalog
+              mountPath: /var/lib/medilab-release
+              readOnly: true
+        # Copies the Medilab Mobile release catalog cd-mobile-app publishes to the file Odoo reads, every minute. A
+        # catalog is replaced whole, so Odoo never reads half of one; the last one stays when the bucket cannot answer.
+        - name: release-catalog
+          image: ghcr.io/soltunemontepre/medilab:sha-8e6924723d1121f7e90a11c5074220bac4e23a62
+          command: ["python3", "-c"]
+          args:
+            - |
+              import os, time, urllib.request
+              url = os.environ.get("MOBILE_CATALOG_URL")
+              target = "/var/lib/medilab-release/catalog.json"
+              while True:
+                  try:
+                      if url:
+                          with urllib.request.urlopen(url, timeout=30) as answer:
+                              catalog = answer.read(1024 * 1024 + 1)
+                          if len(catalog) <= 1024 * 1024:
+                              with open(target + ".part", "wb") as part:
+                                  part.write(catalog)
+                              os.replace(target + ".part", target)
+                  except OSError as error:
+                      print(f"The release catalog was not copied: {error}", flush=True)
+                  time.sleep(60)
+          envFrom:
+            - secretRef:
+                name: release-catalog
+                optional: true
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 96Mi
+          volumeMounts:
+            - name: release-catalog
+              mountPath: /var/lib/medilab-release
       volumes:
         - name: config
           secret:
             secretName: odoo-config
         - name: data
+          emptyDir: {}
+        - name: release-catalog
           emptyDir: {}

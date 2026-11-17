@@ -227,8 +227,35 @@ Like the Sync updates route, these two are plain `auth='none'` HTTP routes, outs
 - **The build's MediLab.** The app asks the MediLab address it was built with, the address `expo-updates` fetches code updates from, even after the sign-in screen changed the address. Only a build made with the update certificate takes updates; a development build asks nothing.
 - **The Expo Updates route** follows the protocol's version 1: it requires `expo-protocol-version: 1`, reads `expo-platform` and `expo-runtime-version`, and answers the newest eligible code update of that runtime as a `multipart/mixed` answer with its manifest and the manifest's `expo-signature` exactly as the catalog holds them, or 204 when there is none.
 - **Signing.** The release pipeline signs every manifest with the update key; the app embeds the matching certificate and `expo-updates` refuses a manifest whose signature does not verify, keeping the version it has. An APK is signed with the laboratory's upload key, and Android installs it over the app only when the key is the same. Odoo stores and serves signatures; it never reads or holds a key.
-- **The catalog** is a read-only JSON file at `MEDILAB_MOBILE_RELEASES_FILE`, published last by the release pipeline after the artifacts, with the size limits and the all-or-nothing validation of the Sync catalog. Each release names its platform, kind (`code` or `install`), runtime version, version and publication date; a code release holds its manifest and signature, an install its HTTPS address and SHA-256.
-- **Administrators** set, in the settings, the oldest version MediLab still serves and the releases it stops serving. A stopped release is never answered; the newest release not stopped is. A phone that already runs a stopped code update returns to an earlier one only when the release pipeline republishes that one as a new signed update, because `expo-updates` never launches an update older than the one it runs; returning to the code built into the installed APK instead is the protocol's `rollBackToEmbedded` directive, which the pipeline signs the same way.
+- **The catalog** is a read-only JSON file at `MEDILAB_MOBILE_RELEASES_FILE`, a copy of `mobile/catalog.json` in the `medilab-release` bucket that the Odoo pod's `release-catalog` container refreshes every minute ([Cluster](../infrastructure/cluster.md#odoo)), which [cd-mobile-app](../infrastructure/pipelines.md#cd-mobile-app) publishes last, after the artifacts. It has the size limits and the all-or-nothing validation of the Sync catalog. Each tag adds a code release and an install of the same version and runtime version. Odoo stores no address of the bucket: an install names its APK's full HTTPS address, and a code manifest names each of its files'.
+
+```json
+{
+  "releases": [
+    {
+      "platform": "android",
+      "kind": "code",
+      "runtime_version": "7b045729655462c0c9ff57ceb72d3ed02d9ec17c",
+      "version": "1.2.3",
+      "pub_date": "2026-11-17T03:00:00.000Z",
+      "manifest": "<the manifest's JSON text, exactly as signed>",
+      "signature": "<base64 RSA-SHA256 signature of the manifest's text>"
+    },
+    {
+      "platform": "android",
+      "kind": "install",
+      "runtime_version": "7b045729655462c0c9ff57ceb72d3ed02d9ec17c",
+      "version": "1.2.3",
+      "pub_date": "2026-11-17T03:00:00.000Z",
+      "url": "https://release.example/mobile/android/1.2.3/medilab-1.2.3.apk",
+      "sha256": "<hex SHA-256 of the APK>"
+    }
+  ]
+}
+```
+
+- **Versions.** A version is three numbers, such as `1.2.3`; the APK's Android version code is `major × 1,000,000 + minor × 1,000 + patch`. The runtime version is the [fingerprint](https://docs.expo.dev/versions/latest/sdk/fingerprint/) of the Android project, which the pipeline writes into the app's `runtimeVersion`: it changes only when the native project does, so a phone whose APK has the same runtime version takes the code update and any other needs the install. The Expo Updates route sends a code release's signature as `expo-signature: sig="<signature>", keyid="main"`.
+- **Administrators** set, in the settings, the oldest version MediLab still serves and the releases it stops serving. A stopped release is never answered; the newest release not stopped is. A phone that already runs a stopped code update returns to an earlier one only when the release pipeline publishes that one again as a newer signed release ([rolling back](../infrastructure/pipelines.md#cd-mobile-app)), because `expo-updates` never launches an update older than the one it runs.
 - **iOS.** The first release is for Android. The routes take `ios`; the catalog has no iOS release until there is one, and an iOS build answers 204.
 - **Choosing.** A release is eligible when it is of the phone's platform, its version is not stopped and not older than the oldest version served. The release route answers the newest eligible release newer than the phone's version; a code release counts only for the phone's runtime version, and of a code release and an install of the same version the code release is answered. A phone older than the oldest version served with no such release gets `unavailable`, unless the catalog has no release of its platform. The Expo Updates route answers the newest eligible code release of the runtime.
 - **Settings.** The oldest version served and the stopped versions, separated by commas, are in the Medilab Mobile block of the Laboratory settings. Stopping a version stops its code release and its install on every platform.
