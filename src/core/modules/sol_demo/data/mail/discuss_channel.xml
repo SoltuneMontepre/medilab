@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_discuss_channel_tester_head" model="discuss.channel">
+        <field name="name">Dang Thi Lan, Hoang Van Minh</field>
+        <field name="channel_type">chat</field>
+        <field
+            name="channel_member_ids"
+            eval="[
+                Command.create({'partner_id': ref('demo_res_partner_tester')}),
+                Command.create({'partner_id': ref('demo_res_partner_head_of_department')}),
+            ]"
+        />
+    </record>
+    <record id="demo_discuss_channel_chemistry_morning" model="discuss.channel">
+        <field name="name">Hóa – ca sáng</field>
+        <field name="channel_type">group</field>
+        <field
+            name="channel_member_ids"
+            eval="[
+                Command.create({'partner_id': ref('demo_res_partner_head_of_department'), 'channel_role': 'owner'}),
+                Command.create({'partner_id': ref('demo_res_partner_tester')}),
+            ]"
+        />
+    </record>
+</odoo>

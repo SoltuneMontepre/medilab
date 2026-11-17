@@ -71,6 +71,7 @@ A push is created when a notification is delivered on the push channel ([SH-11](
 - **Payload.** A push has a title, a body and data. The data are `event`, the event's code or `message` for a conversation message; `model` and `id`, the document; and `code`, the document's code. The code is the record's own code, such as a sample's lab code; for a sample test or a result, its sample's lab code; for a task, its document's code; empty when the document has none.
 - **Text.** The title is the event's name in the person's language and the body is the document's code. A push never carries the notification's message, the document's name or any other field, so it never names the customer or the customer's name for a sample, to a tester or anyone else. The app reads the rest after the tap, with the person's rights.
 - **Conversation messages.** The title is the conversation's name and the body is the author's name; the message's text is not pushed. The data are `event: message`, `model: discuss.channel`, `id` and no code.
+- **Mentions in a chatter.** A note or message that mentions a person on a document's chatter is pushed as the `message.mention` event: its name as the title, the document's code as the body, and the document in the data.
 - **Tapping a push** opens `GET /documents/{model}/{record_id}`. A document the person can no longer see answers `not_found`, and the app says so instead of showing an empty screen.
 - **On by default.** Once a person has a signed-in phone, every event they are notified of is also pushed unless they turned its push off. A mandatory event's push cannot be turned off, and a push of a mandatory event turned off before is sent all the same.
 - **Firebase in the app.** The app registers its token, the phone's Firebase Installation ID, through `@react-native-firebase/messaging` (`register()` and `onRegistered()`, with Installation ID messaging turned on) at sign-in, at each start and whenever Firebase gives a new one. A build gets Firebase only from its `google-services.json` ([Running Medilab Mobile](../workflows/running-mobile-app.md)); without it the app registers no token.
@@ -181,9 +182,13 @@ Conversations are Odoo Discuss channels ([SH-12](../functional/shared.md#sh-12-c
 | `GET /people?q=` | Active internal users, for new conversations and mentions |
 | `GET /documents/{model}/{record_id}/messages`, `POST /documents/{model}/{record_id}/notes` | Reads a task's, a sample's or a test request's chatter, and posts a note on it |
 
-- **Internal only.** MediLab's channel member model refuses a member without an internal user in any Discuss channel, on the web and the phone alike, so a customer or a subcontractor never joins a conversation.
-- **Mentions** name internal users only. A message notifies the people it mentions on each channel they keep on ([SH-11](../functional/shared.md#sh-11-schedules-and-reminders)).
-- **Notes.** A note is posted with the note subtype, which is internal: it reaches only the people it mentions and the internal followers, never a customer. The chatter is read with the person's rights, so it shows what the web's chatter shows them.
+- **Internal only.** MediLab's channel member model refuses a member without an internal user in any Discuss channel, on the web and the phone alike, so a customer, a subcontractor or a guest never joins a conversation. `GET /people` and the mentions take active internal users only, and refuse any other with `invalid_request`.
+- **Mentions** name internal users only. A message notifies the people it mentions on each channel they keep on ([SH-11](../functional/shared.md#sh-11-schedules-and-reminders)) for the `message.mention` event: in the application or by email, as Odoo notifies a mention, or both, and pushed to their phones. A mention reaches a member who muted the conversation, as in Discuss.
+- **Pushing at once.** Once Odoo notified a message people wrote, MediLab pushes it to the phones of the conversation's members except its author and those who muted it, and of the people it mentions who keep the push on; each phone gets a message once.
+- **Muting** sets the member's `mute_until_dt` to the end of time, as Discuss's "until I turn it back on", and unmuting clears it.
+- **Files.** A message's photos and files are sent as in [Files in a request](#the-api) and attached through `message_post()`. The app shows a photo, read from `GET /attachments/{attachment_id}` with the phone's key, and names any other file.
+- **Chatter.** Tasks, samples and test requests have Odoo's chatter (`mail.thread`), on the web and the phone. Anyone who may read the document posts on it (`_mail_post_access = read`), so a tester posts a note on a sample they test. Creating a document logs no message and makes nobody a follower, so its chatter holds only what people wrote.
+- **Notes.** A note is posted with the note subtype, which is internal: it reaches only the people it mentions and the internal followers, never a customer. The chatter is read with the person's rights, so it shows what the web's chatter shows them; the app lists the messages and notes people wrote, not the changes Odoo tracks or the notifications of events.
 - **Refreshing without Odoo's bus.** The app does not open Odoo's websocket. A message push with data refreshes the list and the open conversation; while a conversation is open, the app also asks for messages after the last one it has about every 10 seconds, and the list is refreshed when the app comes back to the foreground.
 
 ### Support requests
@@ -265,8 +270,9 @@ Like the Sync updates route, these two are plain `auth='none'` HTTP routes, outs
 - `medilab.test.result` has `created_by_device_id` and `idempotency_key` the same way, for a result entered on a phone, and `check_warning`, the warnings of the sanity check it was sent with.
 - `ir.attachment` has `created_by_device_id` and `idempotency_key` the same way, for a sample photo sent from a phone.
 - `medilab.handover.record.signed_device_id` names the phone's `medilab.laboratory.device`, which is never deleted, rather than its token, which the cleanup job removes once it is off.
-- `medilab.push.delivery` pushes either a notification or a conversation message: `notification_id` or `message_id`, exactly one, each unique with the token.
-- With E-commerce installed, `mail.message` has `posted_by_device_id` and `idempotency_key`, unique together where the key is set: the phone a support answer was posted from and the key of its request.
+- `medilab.push.delivery` pushes either a notification or a message: `notification_id` or `message_id`, exactly one, each unique with the token.
+- `mail.message` has `posted_by_device_id` and `idempotency_key`, unique together where the key is set: the phone a message, a note or a support answer was posted from and the key of its request.
+- `discuss.channel` has `created_by_device_id` and `idempotency_key` the same way: the phone a group was created on and the key of its request.
 - The diagrams are [laboratory.prisma](../infrastructure/database/laboratory/laboratory.prisma) and [ecommerce.prisma](../infrastructure/database/ecommerce/ecommerce.prisma).
 
 ### Verification
