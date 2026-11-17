@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: MediLab laboratory files API
-  version: 1.9.0
+  version: 1.10.0
   description: |
     The API Medilab Sync signs computers in with and reaches laboratory files through, and Medilab Mobile signs phones
     in with. Every refusal answers `{"error": {"code", "message"}}` with the HTTP status of its code; a device acts on
@@ -20,7 +20,7 @@ info:
     | `permission_denied`, `device_revoked` | 403 |
     | `not_found` | 404 |
     | `method_not_allowed` | 405 |
-    | `folder_archived`, `folder_disabled`, `folder_exists`, `locked`, `not_locked`, `upload_incomplete`, `upload_closed`, `action_refused`, `already_claimed`, `result_warning` | 409 |
+    | `folder_archived`, `folder_disabled`, `folder_exists`, `locked`, `not_locked`, `upload_incomplete`, `upload_closed`, `action_refused`, `already_claimed`, `already_taken`, `result_warning` | 409 |
     | `not_eligible`, `not_lockable`, `not_editable`, `idempotency_conflict`, `mandatory_event` | 422 |
     | `too_many_attempts` | 429 |
     | `internal_error` | 500 |
@@ -48,6 +48,9 @@ tags:
     description: Scanning a sample's label to record its receipt or claim its testing tasks.
   - name: Results
     description: Testing at the bench, entering results and signing or rejecting them.
+  - name: Support requests
+    description: The customers' support requests sales handle, taken and answered as on the web. Declared by
+      `sol_commerce`, so they exist only with E-commerce installed.
 paths:
   /health:
     get:
@@ -1274,6 +1277,160 @@ paths:
           $ref: "#/components/responses/InternalError"
         "503":
           $ref: "#/components/responses/Unavailable"
+  /support-requests:
+    get:
+      operationId: listSupportRequests
+      x-medilab-module: sol_commerce
+      tags: [Support requests]
+      summary: Lists the requests the person handles, or the requests waiting for a salesperson to take them.
+      description: |
+        `mine`, the open and answered requests the person handles, open first, then newest first; `waiting`, the open
+        requests nobody has taken yet, newest first.
+      parameters:
+        - name: list
+          in: query
+          required: true
+          schema:
+            enum: [mine, waiting]
+      responses:
+        "200":
+          description: The requests.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SupportRequestList"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /support-requests/{request_id}:
+    parameters:
+      - name: request_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: getSupportRequest
+      x-medilab-module: sol_commerce
+      tags: [Support requests]
+      summary: Gives the request with its messages and what the person may do with it.
+      responses:
+        "200":
+          description: The request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SupportRequestDetail"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /support-requests/{request_id}/take:
+    parameters:
+      - name: request_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      operationId: takeSupportRequest
+      x-medilab-module: sol_commerce
+      tags: [Support requests]
+      summary: Takes a request nobody handles, as the web's Take button does.
+      description: |
+        Taking a request the person already took answers it again. A request someone else took first is refused with
+        `already_taken`; a closed one with `action_refused`.
+      responses:
+        "200":
+          description: The request, now handled by the person.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SupportRequestDetail"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/TakeRefused"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /support-requests/{request_id}/answer:
+    parameters:
+      - name: request_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      operationId: answerSupportRequest
+      x-medilab-module: sol_commerce
+      tags: [Support requests]
+      summary: Answers the customer, as a reply on the web's chatter does.
+      description: |
+        The answer sets an open request answered, closes its task and notifies the customer, who reads it on the
+        portal; a request nobody handled is taken by the person. Only a person who may edit the request answers it,
+        others are refused with `permission_denied`; a closed request is refused with `action_refused`.
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SupportAnswer"
+      responses:
+        "200":
+          description: The request with the answer.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SupportRequestDetail"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
   /folders:
     get:
       operationId: listFolders
@@ -2466,6 +2623,9 @@ components:
             assign_tasks:
               description: Whether the person assigns and reassigns tasks.
               type: boolean
+            take_support_requests:
+              description: Whether the person takes and answers support requests; given only with E-commerce installed.
+              type: boolean
     TaskDay:
       type: object
       additionalProperties: false
@@ -3060,6 +3220,86 @@ components:
           type: boolean
         reject:
           type: boolean
+    SupportRequestList:
+      type: object
+      additionalProperties: false
+      required: [requests]
+      properties:
+        requests:
+          type: array
+          items:
+            $ref: "#/components/schemas/SupportRequest"
+    SupportRequest:
+      type: object
+      required: [id, code, subject, status, customer, order, handled_by, opened_at]
+      properties:
+        id:
+          type: integer
+        code:
+          type: string
+        subject:
+          type: string
+        status:
+          enum: [open, answered, closed]
+        customer:
+          type: string
+        order:
+          description: The code of the order the request is about; empty when it is about none.
+          type: string
+        handled_by:
+          description: The salesperson handling the request; empty while nobody has taken it.
+          type: string
+        opened_at:
+          type: string
+          format: date-time
+    SupportRequestDetail:
+      allOf:
+        - $ref: "#/components/schemas/SupportRequest"
+        - type: object
+          required: [messages, actions]
+          properties:
+            messages:
+              description: The messages of the customer and of sales, oldest first; internal notes are left out.
+              type: array
+              items:
+                $ref: "#/components/schemas/SupportMessage"
+            actions:
+              description: What the person may do with the request, as the web shows it.
+              type: object
+              additionalProperties: false
+              required: [take, answer]
+              properties:
+                take:
+                  type: boolean
+                answer:
+                  type: boolean
+    SupportMessage:
+      type: object
+      additionalProperties: false
+      required: [id, author, body, date, from_customer]
+      properties:
+        id:
+          type: integer
+        author:
+          type: string
+        body:
+          description: The message as plain text.
+          type: string
+        date:
+          type: string
+          format: date-time
+        from_customer:
+          type: boolean
+    SupportAnswer:
+      type: object
+      additionalProperties: false
+      required: [body]
+      properties:
+        body:
+          description: The answer as plain text, with at least one character that is not a space.
+          type: string
+          maxLength: 10000
+          pattern: "\\S"
     Folder:
       type: object
       additionalProperties: false
@@ -3556,6 +3796,7 @@ components:
                 - mandatory_event
                 - action_refused
                 - already_claimed
+                - already_taken
                 - result_warning
                 - too_many_attempts
                 - internal_error
@@ -3682,6 +3923,18 @@ components:
                     properties:
                       code:
                         enum: [result_warning, action_refused]
+    TakeRefused:
+      description: Someone else took the request first, or it is closed.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error"
+              - properties:
+                  error:
+                    properties:
+                      code:
+                        enum: [already_taken, action_refused]
     MandatoryEvent:
       description: The push of a mandatory event cannot be turned off.
       content:

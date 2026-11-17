@@ -6,11 +6,13 @@ from odoo.fields import Domain
 
 from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER, MODEL_SUPPORT_REQUEST
 from odoo.addons.sol_commerce.constants.support import (
+    COMMENT,
     SUPPORT_ACTION,
     SUPPORT_ANSWERED,
     SUPPORT_CLOSED,
     SUPPORT_OPEN,
     SUPPORT_TRIGGER,
+    WRITTEN_TYPES,
 )
 from odoo.addons.sol_commerce.constants.xml_ids import SUPPORT_EDIT_ACCESS, SUPPORT_READ_ACCESS
 from odoo.addons.sol_laboratory.constants.models import (
@@ -29,9 +31,6 @@ if TYPE_CHECKING:
 else:
     SupportRequestBase = object
 
-COMMENT = "comment"
-# Messages people write: on the portal or in the back office, and by e-mail reply.
-WRITTEN_TYPES = (COMMENT, "email")
 # Parameters with which Odoo opens a thread through a shared token or a signed link.
 LINK_ACCESS_PARAMS = frozenset({"hash", "pid", "token"})
 # A salesperson sees the requests they handle and those nobody has taken yet.
@@ -182,17 +181,27 @@ class SupportRequest(models.Model, SupportRequestBase):
 
     def _message_post_after_hook(self, message):
         super()._message_post_after_hook(message)
-        if message.message_type not in WRITTEN_TYPES or message.is_internal or message.subtype_id.internal:
+        if not self._is_discussion(message):
             return
-        author = message.author_id
-        if author and author.commercial_partner_id == self.sudo().customer_id.partner_id.commercial_partner_id:
+        if self._written_by_customer(message):
             self._customer_wrote()
             return
         # Only someone who may edit the request answers it: its handler, any salesperson while nobody has taken it,
         # and those who handle every request. Another employee's message changes nothing.
-        staff = author.user_ids.filtered(lambda user: not user.share and self.with_user(user).has_access("write"))[:1]
+        staff = message.author_id.user_ids.filtered(
+            lambda user: not user.share and self.with_user(user).has_access("write")
+        )[:1]
         if staff:
             self._sales_replied(staff)
+
+    @api.model
+    def _is_discussion(self, message):
+        """Whether the message is one the customer and sales write to each other, rather than a note or a log."""
+        return message.message_type in WRITTEN_TYPES and not message.is_internal and not message.subtype_id.internal
+
+    def _written_by_customer(self, message):
+        author = message.author_id
+        return bool(author) and author.commercial_partner_id == self.sudo().customer_id.partner_id.commercial_partner_id
 
     def _customer_wrote(self):
         """A customer message on an answered request opens it again, back in the handler's to-do list."""
