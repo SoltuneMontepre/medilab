@@ -158,6 +158,7 @@ from . import (
     test_master_data_access,
     test_medilab_mobile_chatter,
     test_medilab_mobile_conversations,
+    test_medilab_mobile_handover,
     test_medilab_mobile_notifications,
     test_medilab_mobile_photos,
     test_medilab_mobile_results,
