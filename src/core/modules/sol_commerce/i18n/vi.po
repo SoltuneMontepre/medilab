@@ -1768,6 +1768,7 @@ msgstr "Phần trăm"
 #: model:ir.ui.menu,name:sol_commerce.menu_sales_performance
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sales_performance_graph
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sales_performance_pivot
+#: model:ir.ui.menu,name:sol_commerce.menu_reports_sales_performance
 msgid "Performance"
 msgstr "Hiệu quả bán hàng"
 
@@ -1789,6 +1790,7 @@ msgstr "Trạng Thái Vật Lý"
 #: model:ir.ui.menu,name:sol_commerce.menu_sales_pipeline
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sales_pipeline_graph
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sales_pipeline_pivot
+#: model:ir.ui.menu,name:sol_commerce.menu_reports_sales_pipeline
 msgid "Pipeline"
 msgstr "Phễu bán hàng"
 
@@ -2082,6 +2084,7 @@ msgstr "Người Yêu Cầu"
 #: model:ir.ui.menu,name:sol_commerce.menu_revenue_report
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_revenue_report_graph
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_revenue_report_pivot
+#: model:ir.ui.menu,name:sol_commerce.menu_reports_revenue
 msgid "Revenue"
 msgstr "Doanh Thu"
 
@@ -4128,6 +4131,7 @@ msgstr "Tuổi nợ"
 #: model:ir.ui.menu,name:sol_commerce.menu_cash_flow_report
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_cash_flow_report_graph
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_cash_flow_report_pivot
+#: model:ir.ui.menu,name:sol_commerce.menu_reports_cash_flow
 msgid "Cash Flow"
 msgstr "Dòng Tiền"
 
@@ -4140,6 +4144,8 @@ msgstr "Đã thu"
 #: model:ir.actions.act_window,name:sol_commerce.action_medilab_collection_report
 #: model:ir.ui.menu,name:sol_commerce.menu_collection_report
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_collection_report_pivot
+#: model:ir.ui.menu,name:sol_commerce.menu_reports_collection
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_collection_report_graph
 msgid "Collection"
 msgstr "Hiệu Quả Thu Tiền"
 
@@ -4206,6 +4212,8 @@ msgstr "Đúng hạn"
 #: model:ir.actions.act_window,name:sol_commerce.action_medilab_outstanding_report
 #: model:ir.ui.menu,name:sol_commerce.menu_outstanding_report
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_outstanding_report_pivot
+#: model:ir.ui.menu,name:sol_commerce.menu_reports_outstanding
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_outstanding_report_graph
 msgid "Outstanding"
 msgstr "Công Nợ"
 
@@ -4262,6 +4270,8 @@ msgstr "Chờ xác nhận"
 #. module: sol_commerce
 #: model:ir.actions.act_window,name:sol_commerce.action_medilab_pending_payment_report
 #: model:ir.ui.menu,name:sol_commerce.menu_pending_payment_report
+#: model:ir.ui.menu,name:sol_commerce.menu_reports_pending_payment
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_pending_payment_report_graph
 msgid "Pending Payments"
 msgstr "Khoản Thu Chờ Xác Nhận"
 
@@ -5545,3 +5555,38 @@ msgstr "Bạn không được trả lời yêu cầu hỗ trợ này."
 #: model:ir.model,name:sol_commerce.model_medilab_person
 msgid "Person"
 msgstr "Nhân Sự"
+
+#. module: sol_commerce
+#: model:ir.ui.menu,name:sol_commerce.menu_reports_sales
+msgid "Sales Reports"
+msgstr "Bán hàng"
+
+#. module: sol_commerce
+#: model:ir.ui.menu,name:sol_commerce.menu_reports_finance
+msgid "Finance"
+msgstr "Tài chính"
+
+#. module: sol_commerce
+#: model:ir.ui.menu,name:sol_commerce.menu_reports_sales_analysis
+msgid "Sales Analysis"
+msgstr "Phân tích bán hàng"
+
+#. module: sol_commerce
+#: model:ir.ui.menu,name:sol_commerce.menu_reports_salespeople
+msgid "Salespersons"
+msgstr "Nhân viên kinh doanh"
+
+#. module: sol_commerce
+#: model:ir.ui.menu,name:sol_commerce.menu_reports_products
+msgid "Products"
+msgstr "Sản phẩm"
+
+#. module: sol_commerce
+#: model:ir.ui.menu,name:sol_commerce.menu_reports_customers
+msgid "Customers"
+msgstr "Khách hàng"
+
+#. module: sol_commerce
+#: model:ir.ui.menu,name:sol_commerce.menu_reports_invoice_analysis
+msgid "Invoice Analysis"
+msgstr "Phân tích hoá đơn"

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_stock_medilab" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.stock.medilab</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="stock.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <!-- Inventory is out of scope for now, so Settings offers no Inventory page. -->
+            <xpath expr="//app[@name='stock']" position="attributes">
+                <attribute name="notApp">1</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>
