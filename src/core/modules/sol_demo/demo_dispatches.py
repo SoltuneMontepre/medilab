@@ -26,6 +26,8 @@ EMERGENCY_REASON = "Máy AAS đang sửa, khách hàng cần kết quả chì tr
 TRACKING = "Viettel Post, VTP 8402 1157 2210"
 AGREED_SAMPLE = ("Nước giếng khoan xã Tân Thạnh Đông",)
 IN_HOUSE_SAMPLE = ("Nước giếng khoan xã Phước Vĩnh An",)
+SAME_METHOD_SAMPLE = ("Nước uống đóng chai Suối Mát lô 2611",)
+SAME_METHOD_REASON = "Máy ICP-MS đang hiệu chuẩn lại; Northern thử chì cùng phương pháp ICP-MS khách hàng đã chấp nhận."
 REPORT_NAME = "PKQ-NTL-2026-0412.pdf"
 SURFACE_WATER = ("surface_water", "liquid")
 
@@ -80,8 +82,8 @@ def seed_dispatches(env):
 
 def seed_agreed_outsourcing(env):
     """A lead test the customer accepted on the subcontracted way, in Northern's draft dispatch through it, and one
-    accepted in-house, which is not outsourced straight away until a revised quotation; the dispatch received with the
-    subcontractor's result keeps its report."""
+    accepted in-house by AAS, a method no subcontractor tests, which is not outsourced until a revised quotation; the
+    dispatch received with the subcontractor's result keeps its report."""
     if env.ref("sol_demo.demo_sample_test_lead_agreed_subcontracted", raise_if_not_found=False):
         return
     head = env.ref("sol_demo.demo_res_users_head_of_department")
@@ -102,6 +104,23 @@ def seed_agreed_outsourcing(env):
 
     _xml_id(env, "demo_sample_test_lead_agreed_subcontracted", agreed)
     _xml_id(env, "demo_sample_test_lead_agreed_in_house", changed)
+
+
+def seed_same_method_outsourcing(env):
+    """A bottled water lead test the customer accepted in-house by ICP-MS, which the head outsources straight away to
+    Northern, a subcontractor with the same method, without asking the customer."""
+    if env.ref("sol_demo.demo_sample_test_lead_same_method_outsourced", raise_if_not_found=False):
+        return
+    head = env.ref("sol_demo.demo_res_users_head_of_department")
+    in_house = env.ref("sol_demo.demo_parameter_method_lead_icpms")
+    northern = env.ref("sol_demo.demo_parameter_method_lead_subcontracted")
+
+    test = _received_tests(
+        env, "nuoc_sach", ("bottled_water", "liquid"), "lead", SAME_METHOD_SAMPLE, "2 bottles", way=in_house
+    )
+    test.outsourcing_suggested = False
+    test.with_user(head)._outsource_now(northern, SAME_METHOD_REASON)
+    _xml_id(env, "demo_sample_test_lead_same_method_outsourced", test)
 
 
 def _received_tests(env, customer, kind, parameter, names, quantity, way=None):

@@ -29,7 +29,7 @@ class SampleReturn(models.Model, SampleReturnBase):
         signed record. An upgrade skips a data file's change to a record it created, so signing runs here. Safe to run
         again."""
         now = fields.Datetime.now()
-        device = self.env.ref("sol_demo.demo_mobile_device_sample_delivery_staff")
+        device = self.env.ref("sol_demo.demo_laboratory_device_sample_delivery_staff_phone")
         for name, ago in SIGNED_AGO.items():
             record = reference_as(self.env[MODEL_HANDOVER_RECORD], f"sol_demo.demo_handover_record_{name}")
             if record.status != "draft":

@@ -32,7 +32,7 @@
     <record id="demo_handover_record_signed" model="medilab.handover.record">
         <field name="status">signed</field>
         <field name="signed_at" eval="DateTime.now().strftime('%Y-%m-%d %H:%M:%S')" />
-        <field name="signed_device_id" ref="demo_mobile_device_sample_delivery_staff" />
+        <field name="signed_device_id" ref="demo_laboratory_device_sample_delivery_staff_phone" />
         <field name="signature_attachment_id" ref="demo_ir_attachment_handover_signature" />
         <field name="attachment_id" ref="demo_ir_attachment_handover_signed" />
         <field name="sent_at" eval="DateTime.now().strftime('%Y-%m-%d %H:%M:%S')" />

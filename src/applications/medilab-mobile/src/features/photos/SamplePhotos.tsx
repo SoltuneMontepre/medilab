@@ -12,13 +12,14 @@ import { styles as shared } from "../../styles";
 import { ActionProblem } from "../connection/ActionProblem";
 import { Button } from "../shared/Button";
 import { formatMoment } from "../tasks/taskText";
-import { discardPhoto, sendPhoto, unsentPhotos, type UnsentPhoto } from "./photoQueue";
+import { UnsentCard } from "../shared/UnsentCard";
+import { discardPhoto, sendPhoto, unsentPhotos } from "./photoQueue";
 
 /** The photos of a sample taken when it was collected or received: those MediLab has, those still on the phone to
  * send again or discard, and the way to take another. Only a person who may add photos sees them; a tester never does. */
 export function SamplePhotos({ sample }: Readonly<{ sample: Sample }>) {
   const t = useT();
-  const { call } = useSession();
+  const { call, language } = useSession();
   const { problem, busy, run } = useAction();
   const sent = useRecord<{ photos: SamplePhoto[] }>(`/samples/${sample.id}/photos`);
   const unsent = useLoad(useCallback(() => unsentPhotos(sample.id), [sample.id]));
@@ -42,12 +43,15 @@ export function SamplePhotos({ sample }: Readonly<{ sample: Sample }>) {
       </Text>
       {unsent.load.state === "ready" &&
         unsent.load.value.map((photo) => (
-          <Unsent
+          <UnsentCard
             key={photo.key}
-            photo={photo}
+            label={t("photo.unsent", { date: formatMoment(photo.takenAt, language) })}
+            send={t("photo.send")}
+            discard={t("photo.discard")}
             busy={busy}
             onSend={() => settle(() => sendPhoto(photo, call))}
             onDiscard={() => settle(async () => discardPhoto(photo))}
+            testID={`unsent-photo-${photo.key}`}
           />
         ))}
       <ActionProblem problem={problem?.load ?? null} gone={t("sample.gone")} onRetry={() => problem?.retry()} />
@@ -59,23 +63,6 @@ export function SamplePhotos({ sample }: Readonly<{ sample: Sample }>) {
         }
         testID="take-photo"
       />
-    </View>
-  );
-}
-
-function Unsent({
-  photo,
-  busy,
-  onSend,
-  onDiscard,
-}: Readonly<{ photo: UnsentPhoto; busy: boolean; onSend: () => void; onDiscard: () => void }>) {
-  const t = useT();
-  const { language } = useSession();
-  return (
-    <View style={shared.card} testID={`unsent-photo-${photo.key}`}>
-      <Text style={shared.label}>{t("photo.unsent", { date: formatMoment(photo.takenAt, language) })}</Text>
-      <Button label={t("photo.send")} onPress={onSend} primary disabled={busy} testID={`send-photo-${photo.key}`} />
-      <Button label={t("photo.discard")} onPress={onDiscard} disabled={busy} testID={`discard-photo-${photo.key}`} />
     </View>
   );
 }
