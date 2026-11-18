@@ -581,10 +581,10 @@ class TestDeployment(unittest.TestCase):
             (self.server, "onlyoffice"),
             (self.odoo, "onlyoffice-callback"),
         ]:
-            route = named(resources, "IngressRoute", name)["spec"]["routes"][0]
-            self.assertEqual(
-                route["observability"], {"accessLogs": False, "tracing": False}
-            )
+            for route in named(resources, "IngressRoute", name)["spec"]["routes"]:
+                self.assertEqual(
+                    route["observability"], {"accessLogs": False, "tracing": False}
+                )
         script = (ROOT / "infra/cluster/onlyoffice/start.sh").read_text()
         for setting in [
             "DS_LOG_LEVEL=OFF",
@@ -594,8 +594,45 @@ class TestDeployment(unittest.TestCase):
         ]:
             self.assertIn(setting, script)
 
+    def test_static_editor_assets_keep_upstream_cache_policy(self):
+        routes = named(self.server, "IngressRoute", "onlyoffice")["spec"]["routes"]
+        static, private = routes
+        self.assertGreater(static["priority"], private["priority"])
+        self.assertEqual(static["middlewares"], [{"name": "onlyoffice-privacy"}])
+        self.assertEqual(
+            private["middlewares"],
+            [{"name": "onlyoffice-privacy"}, {"name": "onlyoffice-no-store"}],
+        )
+        privacy = named(self.server, "Middleware", "onlyoffice-privacy")["spec"][
+            "headers"
+        ]
+        no_store = named(self.server, "Middleware", "onlyoffice-no-store")["spec"][
+            "headers"
+        ]
+        self.assertNotIn("Cache-Control", privacy.get("customResponseHeaders", {}))
+        self.assertEqual(no_store["customResponseHeaders"]["Cache-Control"], "no-store")
+        pattern = static["match"].split("PathRegexp(`", 1)[1].split("`)", 1)[0]
+        excluded = static["match"].split("!PathRegexp(`", 1)[1].split("`)", 1)[0]
+        for path in [
+            "/9.4.0-129/web-apps/apps/spreadsheeteditor/main/index.html",
+            "/9.4.0-129/sdkjs/cell/css/main.css",
+            "/9.4.0-129/web-apps/apps/spreadsheeteditor/main/resources/css/app.css",
+        ]:
+            self.assertIsNotNone(re.search(pattern, path), path)
+            self.assertIsNone(re.search(excluded, path), path)
+        for path in [
+            "/web-apps/apps/api/documents/api.js",
+            "/9.4.0-129/web-apps/apps/api/documents/api.js",
+            "/healthcheck",
+            "/cache/files/session/secret",
+            "/9.4.0-129/doc/session/c",
+        ]:
+            self.assertTrue(
+                not re.search(pattern, path) or re.search(excluded, path), path
+            )
+
     def test_public_route_excludes_command_aliases(self):
-        route = named(self.server, "IngressRoute", "onlyoffice")["spec"]["routes"][0]
+        route = named(self.server, "IngressRoute", "onlyoffice")["spec"]["routes"][-1]
         pattern = route["match"].split("!PathRegexp(`", 1)[1].split("`)", 1)[0]
         for path in [
             "/command",
