@@ -35,7 +35,7 @@ tasks:
           if [[ "$1" == install ]]; then
             printf 'Checked dependencies (no changes).\\n'
           fi
-          if [[ "$1" == run ]]; then
+          if [[ "$2" == test:browser ]]; then
             return "$E2E_TEST_STATUS"
           fi
           return 0
@@ -93,7 +93,8 @@ tasks:
             [
                 f"bun install --frozen-lockfile --ignore-scripts|{TEST_URL}|unset",
                 f"bunx cypress install|{TEST_URL}|unset",
-                f"bun run test|{TEST_URL}|unset",
+                f"bun run test:helpers|{TEST_URL}|unset",
+                f"bun run test:browser|{TEST_URL}|unset",
             ],
         )
         self.assertIn("Browser tests passed.", result.stdout)
@@ -102,8 +103,17 @@ tasks:
         only = {"MEDILAB_E2E_SPEC": "cypress/e2e/login.cy.js", "MEDILAB_E2E_GREP": "TC-WF01-A5"}
         result, calls = self.run_mode("run", only=only)
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(calls[-1], f"bun run test --spec cypress/e2e/login.cy.js --expose grep=TC-WF01-A5|{TEST_URL}|unset")
+        self.assertEqual(calls[-1], f"bun run test:browser --spec cypress/e2e/login.cy.js --expose grep=TC-WF01-A5|{TEST_URL}|unset")
         self.assertIn("Running only the tests whose title contains TC-WF01-A5.", result.stdout)
+
+    def test_timings_include_the_failed_browser_phase(self):
+        with tempfile.TemporaryDirectory() as directory:
+            timings = Path(directory) / "timings.tsv"
+            result, _ = self.run_mode("run", cypress_status=23, only={"MEDILAB_E2E_TIMINGS": timings.as_posix()})
+            self.assertIn("exit status 23", result.stdout + result.stderr)
+            rows = [line.split("\t") for line in timings.read_text().splitlines()]
+        self.assertEqual([name for _, name, _ in rows], ["bun-install", "cypress-install", "node-tests", "cypress-run"])
+        self.assertTrue(all(kind == "phase" and int(duration) >= 0 for kind, _, duration in rows))
 
     def test_open_installs_the_binary_and_launches_the_app_with_the_selected_url(self):
         result, calls = self.run_mode("open")

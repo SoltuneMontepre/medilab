@@ -278,7 +278,19 @@ jobs:
 
       - name: Set up Bun
         if: needs.changes.outputs.e2e == 'true'
+        id: bun
         uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.4
+
+      - name: Cache browser test dependencies
+        if: needs.changes.outputs.e2e == 'true'
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.bun/install/cache
+            ~/.cache/Cypress
+          key: e2e-v1-${{ runner.os }}-${{ runner.arch }}-bun-${{ steps.bun.outputs.bun-version }}-${{ hashFiles('src/tests/bun.lock') }}
 
       - name: Set up Docker Build
         if: needs.changes.outputs.e2e == 'true'
@@ -309,7 +321,18 @@ jobs:
 
       - name: Browser tests
         if: needs.changes.outputs.e2e == 'true'
+        env:
+          MEDILAB_E2E_TIMINGS: ${{ runner.temp }}/e2e-timings.tsv
         run: task test:e2e
+
+      - name: Upload browser test timings
+        if: ${{ !cancelled() && needs.changes.outputs.e2e == 'true' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-timings-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/e2e-timings.tsv
+          if-no-files-found: warn
+          retention-days: 1
 
       - name: Odoo log
         if: failure() && needs.changes.outputs.e2e == 'true'

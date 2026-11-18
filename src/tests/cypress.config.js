@@ -56,6 +56,14 @@ module.exports = defineConfig({
         },
       });
       on("after:run", () => execution.cleanup());
+      const timings = process.env.MEDILAB_E2E_TIMINGS;
+      if (timings && config.isTextTerminal) {
+        on("after:spec", (spec, results) => {
+          const { startedAt, endedAt } = results.stats;
+          const duration = Date.parse(endedAt) - Date.parse(startedAt);
+          appendFileSync(timings, `spec\t${spec.relative}\t${duration}\n`);
+        });
+      }
       return config;
     },
   },

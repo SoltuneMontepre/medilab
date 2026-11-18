@@ -75,9 +75,23 @@ if ! bun --eval 'try { const response = await fetch(process.env.MEDILAB_URL.repl
   exit 1
 fi
 
+run_e2e_phase() {
+  local phase="$1" started finished status=0
+  shift
+  if [[ -z "${MEDILAB_E2E_TIMINGS:-}" ]]; then
+    "$@"
+    return
+  fi
+  started=$(node -p 'Date.now()')
+  "$@" || status=$?
+  finished=$(node -p 'Date.now()')
+  printf 'phase\t%s\t%d\n' "$phase" "$((finished - started))" >> "$MEDILAB_E2E_TIMINGS"
+  return "$status"
+}
+
 log_info "Installing the test dependencies and checking the Cypress binary."
-bun install --frozen-lockfile --ignore-scripts
-bunx cypress install
+run_e2e_phase bun-install bun install --frozen-lockfile --ignore-scripts
+run_e2e_phase cypress-install bunx cypress install
 
 if [[ "$e2e_mode" == tap ]]; then
   log_info "Use task test:e2e:tap TAP_ARGS='sessions --json' from another terminal."
@@ -95,6 +109,7 @@ else
     log_info "Running only the tests whose title contains $MEDILAB_E2E_GREP."
     set -- "$@" --expose "grep=$MEDILAB_E2E_GREP"
   fi
-  bun run test "$@"
+  run_e2e_phase node-tests bun run test:helpers
+  run_e2e_phase cypress-run bun run test:browser "$@"
   log_ok "Browser tests passed."
 fi
