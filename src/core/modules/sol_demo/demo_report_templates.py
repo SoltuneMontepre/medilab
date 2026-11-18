@@ -69,10 +69,8 @@ def report_templates_seeded(env):
 
 
 def prepare_report(env, report):
-    """Prepare the report's PDF for the lab head's review as the sample delivery staff member and return it. ONLYOFFICE
-    does not run while the demo installs, so the report's print, without its draft mark, stands in for the PDF it would
-    convert."""
-    staff = env.ref("sol_demo.demo_res_users_sample_delivery_staff")
+    """Prepare the report's PDF for the lab head's review and return it. ONLYOFFICE does not run while the demo installs,
+    so the report's print, without its draft mark, stands in for the PDF it would convert."""
     report_type = type(report)
     with patch.object(report_type, "_digital_signing_draft", lambda self: False):
         pdf = _report_pdf(env, report)
@@ -81,7 +79,7 @@ def prepare_report(env, report):
         patch.object(sessions, "_check_editing_available", lambda self: None),
         patch.object(type(env[MODEL_TEST_REPORT_CANDIDATE]), "_convert", lambda self, content, title: pdf),
     ):
-        return report.with_user(staff)._prepare_candidate()
+        return report._prepare_pdf()
 
 
 def _report_pdf(env, report):

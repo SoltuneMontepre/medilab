@@ -117,7 +117,7 @@ export function schedulingFixture(count = 2, register = () => {}, capacity = 1) 
       const context = { active_ids: [task.id] };
       return create(HEAD, "medilab.task.reassign", { task_ids: [[6, 0, [task.id]]], assignee_id: fixture.tester, department_id: fixture.department })
         .then((wizard) => callAs(HEAD, "medilab.task.reassign", "action_confirm", [[wizard]], { context }));
-    }).then(() => callAs(TESTER, "medilab.sample.test", "action_schedule", [[fixture.tests[index]]]))
+    }).then(() => callAs(HEAD, "medilab.sample.test", "action_approve_booking", [[fixture.tests[index]]]))
       .then(() => callAs(ADMIN, "medilab.machine.booking", "search_read", [
         [["sample_test_id", "=", fixture.tests[index]], ["status", "in", OPEN]],
       ], { fields: ["calendar_event_id", "room_event_ids"] }))

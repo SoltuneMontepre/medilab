@@ -4,8 +4,7 @@ from odoo import api, fields, models
 from odoo.exceptions import AccessError, UserError
 from odoo.tools import format_date
 
-from odoo.addons.sol_laboratory.constants.laboratory_editing import ERROR, SESSION_CONFLICT
-from odoo.addons.sol_laboratory.constants.laboratory_files import FILE_READ, GENERATED, LOCKED, PERMISSION_DENIED
+from odoo.addons.sol_laboratory.constants.laboratory_files import FILE_READ, GENERATED, PERMISSION_DENIED
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_DOCUMENT_LOCK,
     MODEL_LABORATORY_CONTENT,
@@ -23,6 +22,7 @@ from odoo.addons.sol_laboratory.constants.report_templates import (
     AVAILABLE,
     CANDIDATE_REVIEW,
     ISSUE_BINDINGS,
+    REPORT_GENERATION_CONTEXT,
     REQUIRED_BINDINGS,
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import REPORT_DRAFTS_FOLDER
@@ -42,8 +42,8 @@ SAMPLE_DETAILS = ("sample_type", "amount", "condition", "analysis_started")
 BUSINESS_BINDINGS = tuple(name for name in REQUIRED_BINDINGS if name not in ISSUE_BINDINGS)
 
 
-# Phiếu Kết Quả: its DOCX draft, generated from a template version and edited online, and the PDF prepared from it for
-# the lab head's review.
+# Phiếu Kết Quả: its DOCX draft, generated from a template version, and the PDF prepared from it for the lab head's
+# review. Nobody edits the draft.
 class TestReport(models.Model, TestReportBase):
     _inherit = MODEL_TEST_REPORT
     _audit_children = ("draft_ids", "candidate_ids")
@@ -53,7 +53,7 @@ class TestReport(models.Model, TestReportBase):
         template_version_id = fields.Many2one(
             MODEL_REPORT_TEMPLATE_VERSION, string="Template Version", readonly=True, copy=False, ondelete="restrict"
         )
-        # The working DOCX of the report; each generation and save is one of its versions.
+        # The DOCX of the report; each generation and each filling of the issue details is one of its versions.
         draft_file_id = fields.Many2one(
             MODEL_LABORATORY_FILE, string="DOCX Draft", readonly=True, copy=False, ondelete="restrict"
         )
@@ -66,21 +66,21 @@ class TestReport(models.Model, TestReportBase):
         candidate_id = fields.Many2one(MODEL_TEST_REPORT_CANDIDATE, string="PDF to Sign", compute="_compute_candidate")
         # True while a prepared PDF waits for the lab head's review.
         has_candidate = fields.Boolean(string="PDF Waiting for Review", compute="_compute_candidate")
-        # True while that PDF still matches its template version, its draft's last save and the business records.
+        # True while that PDF still matches its template version, its draft and the business records.
         candidate_current = fields.Boolean(compute="_compute_candidate")
-        # True while the draft can be generated, edited and prepared: the report is unsigned and no PDF waits.
-        draft_editable = fields.Boolean(compute="_compute_candidate")
+        # True while a PDF can be prepared: the report is unsigned and its results are approved.
+        pdf_preparable = fields.Boolean(compute="_compute_candidate")
 
     _draft_file_unique = models.Constraint("UNIQUE(draft_file_id)", "A DOCX draft belongs to one test report.")
 
-    @api.depends("candidate_ids.status", "status", "draft_file_id.current_version_id")
+    @api.depends("candidate_ids.status", "status", "request_id.status", "draft_file_id.current_version_id")
     def _compute_candidate(self):
         for report in self:
             candidate = report.sudo()._candidate()
             report.candidate_id = candidate
             report.has_candidate = bool(candidate)
             report.candidate_current = bool(candidate) and candidate._is_current()
-            report.draft_editable = bool(report.id) and report.sudo()._docx_writable_error() is None
+            report.pdf_preparable = bool(report.id) and report.sudo()._pdf_blocked() is None
 
     def _candidate(self):
         """The prepared PDF waiting for review and signature; none once the report is issued."""
@@ -90,42 +90,37 @@ class TestReport(models.Model, TestReportBase):
             return report.candidate_ids.browse()
         return report.candidate_ids.filtered(lambda candidate: candidate.status == CANDIDATE_REVIEW)[:1]
 
-    def _docx_writable_error(self):
-        """Why the draft cannot change now, or None when it can."""
+    def _pdf_blocked(self):
+        """Why no PDF can be prepared now, or None when one can."""
         report = self.sudo()
         if report.status != "draft" or report._approval_has_standing():
-            return self.env._("The report has signatures; its draft stays as it was signed.")
-        if report._candidate():
-            return self.env._("The report's PDF waits for review; reopen the draft to change it.")
+            return self.env._("The report has signatures; its PDF stays as it was signed.")
+        if not report._results_approved():
+            return self.env._("A report's PDF is prepared once every result of its test request is approved.")
         return None
 
+    def _pdf_needed(self):
+        """True when the report waits for a PDF: it can be prepared and has none that is current."""
+        report = self.sudo()
+        candidate = report._candidate()
+        return report._pdf_blocked() is None and not (candidate and candidate._is_current())
+
     def _check_docx_access(self, access):
-        """Refuse the user reading the report's DOCX without permission to read the report and its request, and writing
-        it without permission to edit the report or while it is signed or its PDF waits for review."""
+        """Refuse the user reading the report's DOCX without permission to read the report and its request, and anyone
+        writing it: MediLab generates the draft and nobody edits it."""
         self.ensure_one()
+        if access != FILE_READ:
+            raise LaboratoryFileError(
+                PERMISSION_DENIED, self.env._("MediLab generates a report's draft; nobody edits it.")
+            )
         try:
-            self._check_permission("read" if access == FILE_READ else "edit")
+            self._check_permission("read")
             self.check_access("read")
             self.request_id.check_access("read")
         except AccessError:
             raise LaboratoryFileError(
                 PERMISSION_DENIED, self.env._("You do not have permission to open this report's draft.")
             ) from None
-        if access != FILE_READ:
-            self._check_docx_writable()
-
-    def _check_docx_writable(self):
-        error = self._docx_writable_error()
-        if error:
-            raise LaboratoryFileError(LOCKED, error)
-
-    def _check_report_editor(self):
-        """Refuse a user who may not edit the report, or whose report's draft cannot change now."""
-        self.ensure_one()
-        try:
-            self._check_docx_access("write")
-        except LaboratoryFileError as error:
-            raise UserError(error.args[0]) from None
 
     def _template_versions(self):
         """The available template versions the report may use: those of its language."""
@@ -146,47 +141,44 @@ class TestReport(models.Model, TestReportBase):
                 return versions.sorted("number")[-1]
         return self.env[MODEL_REPORT_TEMPLATE_VERSION]
 
-    def action_edit_draft(self):
-        """Open the report's DOCX draft in the online editor, generating it first when it has none."""
+    def action_prepare_pdf(self):
+        """The lab head has the PDF prepared again from the report's template version and the current business records;
+        the PDF waiting for review becomes obsolete."""
         self.ensure_one()
-        self._check_report_editor()
-        if not self._latest_draft():
-            self._generate_draft()
-        return {
-            "type": "ir.actions.act_url",
-            "url": f"/medilab/laboratory-files/{self.draft_file_id.id}/edit",
-            "target": "new",
-        }
-
-    def action_generate_draft(self):
-        """Generate the draft again from the template version and the business records, replacing the editors'
-        changes; its waiting PDF, if any, becomes obsolete."""
-        self.ensure_one()
-        self._check_permission("edit")
-        self._candidate()._invalidate(self.env._("The draft was generated again."))
-        self._check_report_editor()
-        self._generate_draft()
-
-    def action_reopen_draft(self):
-        """Make the PDF waiting for review obsolete, so the draft can be edited and prepared again."""
-        self.ensure_one()
-        self._check_permission("edit")
-        candidate = self._candidate()
-        if not candidate:
-            raise UserError(self.env._("The report has no PDF waiting for review."))
-        candidate._invalidate(self.env._("The draft was reopened."))
-        self._check_report_editor()
+        self._check_permission("sign")
+        self._prepare_pdf(reason=self.env._("The PDF was prepared again."))
 
     def _change_template(self, version):
-        """Generate the draft again from another available template version of the report's language; its waiting PDF
-        becomes obsolete."""
+        """Prepare a new PDF from another available template version of the report's language; the PDF waiting for
+        review becomes obsolete."""
         self.ensure_one()
-        self._check_permission("edit")
+        self._check_permission("sign")
         if version == self.sudo().template_version_id:
             raise UserError(self.env._("The report already uses this template version."))
-        self._candidate()._invalidate(self.env._("Another template version was chosen."))
-        self._check_report_editor()
-        self._generate_draft(version)
+        self._prepare_pdf(version, self.env._("Another template version was chosen."))
+
+    def _prepare_pdf(self, version=None, reason=None):
+        """Generate the draft again from the template version (the report's own by default) and the business records,
+        and prepare its PDF for the lab head's review with the reserved report number. A failure changes nothing."""
+        self.ensure_one()
+        report = self.sudo()
+        blocked = report._pdf_blocked()
+        if blocked:
+            raise UserError(blocked)
+        try:
+            self.env[MODEL_LABORATORY_EDITING_SESSION]._check_editing_available()
+        except LaboratoryFileError as error:
+            raise UserError(
+                self.env._("ONLYOFFICE is unavailable, so no new PDF can be prepared: %s", error.args[0])
+            ) from None
+        # A second start is refused while the first one converts the document.
+        with self.env[MODEL_DOCUMENT_LOCK]._operation(report):
+            report._candidate()._invalidate(reason or self.env._("The PDF was prepared again."))
+            report._generate_draft(version)
+            candidate = report._prepare_candidate()
+            if not candidate._is_current():
+                raise UserError(self.env._("The prepared PDF does not match the business records; prepare it again."))
+            return candidate
 
     def _generate_draft(self, version=None):
         """Fill the template version with the report's business data, leaving the issue details empty, and store it as
@@ -202,8 +194,6 @@ class TestReport(models.Model, TestReportBase):
         ):
             raise UserError(self.env._("Choose an available template version in the report's language."))
         file = report._draft_file()
-        if file._open_editing_sessions():
-            raise UserError(self.env._("Someone is editing the draft; wait until the editor has saved it."))
         values = {**report._binding_values(), **dict.fromkeys(ISSUE_BINDINGS, "")}
         docx = version.docx_version_id
         try:
@@ -214,7 +204,9 @@ class TestReport(models.Model, TestReportBase):
                 self.env._("The laboratory files storage is unavailable; generate the draft later.")
             ) from None
         report.template_version_id = version
-        generated = file._add_version(content=content, source=GENERATED, user=self.env.user)
+        generated = file.with_context(**{REPORT_GENERATION_CONTEXT: True})._add_version(
+            content=content, source=GENERATED, user=self.env.user
+        )
         report.env[MODEL_TEST_REPORT_DRAFT].create(
             {
                 "report_id": report.id,
@@ -239,30 +231,12 @@ class TestReport(models.Model, TestReportBase):
             report.draft_file_id = report.env[MODEL_LABORATORY_FILE]._get_or_create(folder, path)
         return report.draft_file_id
 
-    def action_prepare_pdf(self):
-        """Freeze the draft's last save as the PDF the lab head reviews and signs, with the reserved report number."""
-        self.ensure_one()
-        self._check_report_editor()
-        # A second click is refused while the first preparation converts the document.
-        with self.env[MODEL_DOCUMENT_LOCK]._operation(self):
-            self._prepare_candidate()
-
     def _prepare_candidate(self):
+        """Freeze the draft's last generation as the PDF the lab head reviews and signs, with the reserved report
+        number."""
         report = self.sudo()
-        try:
-            self.env[MODEL_LABORATORY_EDITING_SESSION]._check_editing_available()
-        except LaboratoryFileError as error:
-            raise UserError(
-                self.env._("ONLYOFFICE is unavailable, so no new PDF can be prepared: %s", error.args[0])
-            ) from None
-        if not report._latest_draft():
-            report._generate_draft()
         file = report.draft_file_id
-        # Saves of the draft wait for this preparation, then see the PDF waiting for review and are refused.
         file._lock_for_new_version()
-        report._check_saves_finished(file)
-        if report._latest_draft().template_version_id != report.template_version_id:
-            raise UserError(self.env._("The draft was not generated from the report's template; generate it again."))
         current = file.current_version_id
         business = report._binding_values()
         # The module ships the report sequence, so a number always comes back.
@@ -279,33 +253,21 @@ class TestReport(models.Model, TestReportBase):
             raise UserError(self.env._("The laboratory files storage is unavailable; prepare the PDF later.")) from None
         # The number is reserved for this version of the report; issuing it makes it official.
         report.code = number
-        final_version = file._add_version(content=content, source=GENERATED, user=self.env.user, base_version=current)
+        final_version = file.with_context(**{REPORT_GENERATION_CONTEXT: True})._add_version(
+            content=content, source=GENERATED, user=self.env.user, base_version=current
+        )
         candidates = self.env[MODEL_TEST_REPORT_CANDIDATE]
         pdf = candidates._convert(final_version.content_id, f"{number}.docx")
         return candidates._store(report, final_version, pdf, business, number, day)
 
-    def _check_saves_finished(self, file):
-        """Refuse preparing while someone edits the draft, its last save failed or it saved a conflict."""
-        session = self.env[MODEL_LABORATORY_EDITING_SESSION].sudo().search([("file_id", "=", file.id)], limit=1)
-        current = file.current_version_id
-        if file._open_editing_sessions():
-            raise UserError(self.env._("Someone is still editing the draft; close the editor and wait for its save."))
-        if session.status == ERROR and session.base_version_id == current:
-            raise UserError(self.env._("The last save of the draft failed; open the draft again and save it."))
-        if session.status == SESSION_CONFLICT and session.committed_version_id.number > current.number:
-            raise UserError(
-                self.env._(
-                    "The last save of the draft conflicts with a newer version; open the draft and save it again."
-                )
-            )
-
     def _check_draft_matches(self, docx, values):
-        """Refuse a saved draft whose business bindings were removed or no longer print the business records."""
+        """Refuse a draft whose template misses bindings or whose business bindings do not print the business
+        records."""
         try:
             saved = report_docx.bindings(docx)
             expected = report_docx.bindings(report_docx.fill(docx, values))
         except report_docx.ReportDocumentInvalid:
-            raise UserError(self.env._("The saved draft is not a DOCX document that can be read.")) from None
+            raise UserError(self.env._("The draft is not a DOCX document that can be read.")) from None
         missing = [name for name in REQUIRED_BINDINGS if name not in saved]
         changed = [name for name in BUSINESS_BINDINGS if name in saved and saved[name] != expected[name]]
         if missing:
@@ -314,7 +276,7 @@ class TestReport(models.Model, TestReportBase):
             raise UserError(
                 self.env._(
                     "The draft no longer prints the business records for %s; correct the records through their "
-                    "workflow and generate the draft again.",
+                    "workflow and prepare the PDF again.",
                     ", ".join(changed),
                 )
             )

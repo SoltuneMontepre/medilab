@@ -99,7 +99,7 @@ class TestSharedIntervals(ScheduleInvariantsCase, LocationCase):
             ]
         )
         bookings = tests.booking_ids.filtered(lambda booking: booking.status == "proposed")
-        bookings.action_accept()
+        bookings.action_approve()
         return bookings
 
     def interval(self, bookings):

@@ -99,6 +99,7 @@
         "views/testing/change_request_views.xml",
         "views/testing/machine_booking_views.xml",
         "views/testing/overtime_views.xml",
+        "views/testing/plan_revision_views.xml",
         "views/testing/machine_booking_conditions_views.xml",
         "views/testing/res_config_settings_views.xml",
         "views/testing/result_check_settings_views.xml",

@@ -399,23 +399,20 @@ class SampleTest(models.Model, SampleTestBase):
         if task.status == "done":
             task.write({"status": "assigned" if task.assignee_id else "open", "done_at": False})
 
-    def action_schedule(self):
-        """Accept the slot the department's plan proposes for each test, recalculated first.
-
-        The assignee of the testing task accepts it; anyone else needs the permission to edit bookings.
-        """
-        person = self.env[MODEL_PERSON]._current()
+    def action_approve_booking(self):
+        """Approve the slot the department's plan proposes for each test, recalculated first. Approving needs the
+        permission to edit bookings, which the head of the department has."""
         for test in self:
             task = test._testing_task()
             if test.sudo().booking_ids.filtered(lambda booking: booking.status in ("scheduled", "in_progress")):
                 raise UserError(self.env._("%s is already holding a machine.", test.display_name))
             if not task.assignee_id:
-                raise UserError(self.env._("Assign %s to a person before scheduling it.", test.display_name))
+                raise UserError(self.env._("Assign %s to a person before approving its booking.", test.display_name))
             self.env[MODEL_MACHINE_BOOKING]._plan(task.sudo().department_id)
             proposal = test._proposed_booking()
             if not proposal:
                 raise UserError(self.env._("No machine can finish %s before its due date.", test.display_name))
-            (proposal if person and task.assignee_id == person else proposal.with_env(self.env)).action_accept()
+            proposal.with_env(self.env).action_approve()
 
     def action_enter_result(self):
         self.ensure_one()

@@ -1,4 +1,4 @@
-import { randomId, removeServiceWorkers } from "../../../support/odoo";
+import { randomId } from "../../../support/odoo";
 
 export const API = "/medilab/api/v1";
 
@@ -54,10 +54,8 @@ export function api(device, method, path, { body, qs, headers } = {}) {
   });
 }
 
-// Ends the back-office session of the browser, after the service worker of the back office, whose update check would open
-// a new one. The next test signs in again through the cached session of cy.signInAs.
+// Ends the back-office session of the browser. The next test signs in again through the cached session of cy.signInAs.
 export function leaveBackOffice() {
-  removeServiceWorkers();
   return endBackOfficeSession();
 }
 
