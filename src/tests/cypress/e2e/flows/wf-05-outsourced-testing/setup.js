@@ -180,6 +180,15 @@ export const sentDispatch = helper("sentDispatch", function sentDispatch(kind = 
   );
 });
 
+// A sent dispatch whose receipt the subcontractor's person confirmed on the portal.
+export const receivedDispatch = helper("receivedDispatch", function receivedDispatch(kind = "lead") {
+  return sentDispatch(kind).then((sent) => {
+    const page = `/my/dispatches/${sent.dispatch.id}`;
+    portalPostAs(SUBCONTRACTOR, page, `${page}/receive`, {});
+    return cy.then(() => sent);
+  });
+});
+
 // The reported result of a sample test, as the head of department reads it.
 export const reportedResult = helper("reportedResult", function reportedResult(test) {
   return callAs(
@@ -203,9 +212,9 @@ export const subcontractorResult = helper("subcontractorResult", function subcon
   return reportedResult(test);
 });
 
-// A sent dispatch whose test has the subcontractor's result, which the tester sent for approval.
+// A received dispatch whose test has the subcontractor's result, which the tester sent for approval.
 export const resultAwaitingApproval = helper("resultAwaitingApproval", function resultAwaitingApproval(kind = "lead") {
-  return sentDispatch(kind).then((sent) =>
+  return receivedDispatch(kind).then((sent) =>
     subcontractorResult(sent).then((result) =>
       callAs(TESTER, "medilab.test.result", "action_sign", [[result.id]]).then(() => ({ ...sent, result })),
     ),

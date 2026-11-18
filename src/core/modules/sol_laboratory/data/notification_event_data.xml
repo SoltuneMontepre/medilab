@@ -66,6 +66,39 @@
         <field name="enabled" eval="True" />
     </record>
 
+    <record id="event_subcontract_dispatch_received" model="mail.message.subtype">
+        <field name="name">Dispatch received</field>
+        <field name="description">A subcontractor confirmed receipt of a dispatch</field>
+        <field name="code">subcontract_dispatch.received</field>
+        <field name="res_model">medilab.subcontract.dispatch</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="False" />
+        <field name="enabled" eval="True" />
+    </record>
+
+    <record id="event_subcontract_dispatch_delivery_failed" model="mail.message.subtype">
+        <field name="name">Dispatch delivery failed</field>
+        <field name="description">The delivery of a dispatch to its subcontractor failed</field>
+        <field name="code">subcontract_dispatch.delivery_failed</field>
+        <field name="res_model">medilab.subcontract.dispatch</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="False" />
+        <field name="enabled" eval="True" />
+    </record>
+
+    <record id="event_subcontract_dispatch_accreditation_lapsed" model="mail.message.subtype">
+        <field name="name">Dispatch accreditation lapsed</field>
+        <field name="description">The accreditation of a draft dispatch's subcontractor lapsed</field>
+        <field name="code">subcontract_dispatch.accreditation_lapsed</field>
+        <field name="res_model">medilab.subcontract.dispatch</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="False" />
+        <field name="enabled" eval="True" />
+    </record>
+
     <record id="event_handover_record_signed" model="mail.message.subtype">
         <field name="name">Handover record signed</field>
         <field name="description">The customer signed a handover record</field>
