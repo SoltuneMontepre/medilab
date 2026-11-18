@@ -7,6 +7,9 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='partner_id'][1]" position="after">
                 <field name="method" readonly="state != 'draft'" />
+                <field name="payment_request_id" readonly="1" invisible="not payment_request_id" />
+                <field name="collection_review" invisible="not collection_review" />
+                <field name="received_at" readonly="state != 'draft' or method == 'online'" invisible="not method" />
                 <field name="reviewed_by_id" />
                 <field name="reviewed_at" />
                 <field name="rejection_reason" readonly="state != 'draft'" />

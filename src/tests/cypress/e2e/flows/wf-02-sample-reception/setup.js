@@ -27,37 +27,45 @@ function readRequest(id) {
   );
 }
 
-// The id of an order's test request, which sample delivery staff confirm.
-function confirmOrderRequest(order) {
-  return callAs(SALES, "sale.order", "read", [[order.id], ["test_request_id"]]).then(([read]) => {
-    const id = read.test_request_id[0];
-    callAs(STAFF, "medilab.test.request", "action_confirm", [[id]]);
-    return cy.wrap(id);
-  });
+// The id of an order's test request.
+function orderRequestId(order) {
+  return callAs(SALES, "sale.order", "read", [[order.id], ["test_request_id"]]).then(([read]) => read.test_request_id[0]);
 }
 
-// The test request of a confirmed and paid order, confirmed by sample delivery staff, its samples expected.
+// The test request of a confirmed and paid order, with its samples expected.
 export function orderRequest() {
-  return orderAt("confirmed").then(confirmOrderRequest).then(readRequest);
+  return orderAt("paid").then(orderRequestId).then(readRequest);
 }
 
 // The sample collection task sales start on a confirmed order, waiting in the queue of sample delivery staff, with the
 // order's confirmed test request, as `{ request, task }`; the task also carries the order's name.
-export const orderCollectionTask = helper("orderCollectionTask", function orderCollectionTask() {
-  return orderAt("confirmed").then((order) => {
+export function orderCollectionTask() {
+  return orderAt("paid").then((order) => {
     callAs(SALES, "sale.order", "action_start_sample_collection", [[order.id]]);
     callAs(SALES, "sale.order", "read", [[order.id], ["name"]]).then(([read]) => (order.name = read.name));
-    return confirmOrderRequest(order).then((id) =>
-      callAs(STAFF, "medilab.task", "search_read", [[["document_model", "=", "medilab.test.request"], ["document_id", "=", id], ["status", "=", "open"]]], {
-        fields: ["name"],
-      }).then((tasks) => {
+    return orderRequestId(order).then((id) =>
+      callAs(
+        STAFF,
+        "medilab.task",
+        "search_read",
+        [
+          [
+            ["document_model", "=", "medilab.test.request"],
+            ["document_id", "=", id],
+            ["status", "=", "open"],
+          ],
+        ],
+        {
+          fields: ["name"],
+        },
+      ).then((tasks) => {
         expect(tasks, "collection tasks").to.have.length(1);
         const task = { model: "medilab.task", id: tasks[0].id, name: tasks[0].name, order: order.name };
         return readRequest(id).then((request) => ({ request, task }));
       }),
     );
   });
-});
+}
 
 // A test request sample delivery staff create for Nước Uống Sạch: one sample of bottled water per entry of
 // `samples`, each with the given parameters. Confirmed unless `confirm` is false.
@@ -142,11 +150,17 @@ export function inMinutes(minutes) {
 // The testing tasks of a sample's tests, whoever may see them.
 export const testingTasks = helper("testingTasks", function testingTasks(sample) {
   return callAs(STAFF, "medilab.sample", "read", [[sample.id], ["test_ids"]]).then(([read]) =>
-    callAs("demo.administrator", "medilab.task", "search_read", [
+    callAs(
+      "demo.administrator",
+      "medilab.task",
+      "search_read",
       [
-        ["document_model", "=", "medilab.sample.test"],
-        ["document_id", "in", read.test_ids],
+        [
+          ["document_model", "=", "medilab.sample.test"],
+          ["document_id", "in", read.test_ids],
+        ],
       ],
-    ], { fields: ["department_id", "status", "assignee_id"] }),
+      { fields: ["department_id", "status", "assignee_id"] },
+    ),
   );
 });

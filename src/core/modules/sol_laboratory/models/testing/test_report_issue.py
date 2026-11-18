@@ -37,11 +37,12 @@ class TestReport(models.Model, TestReportBase):
 
     @api.depends("document_version", "status")
     def _compute_digital_signature(self):
-        super()._compute_digital_signature()
+        result = super()._compute_digital_signature()
         for report in self:
             # Only an approved report waits for its signed PDF, also once its queued signing gave up; a signing queued
             # before an approval was withdrawn no longer waits.
             report.digital_signing_pending = report.status == PENDING_SIGNING
+        return result
 
     def _approval_check_actor(self, rejecting=False):
         level = super()._approval_check_actor(rejecting)
@@ -105,7 +106,7 @@ class TestReport(models.Model, TestReportBase):
         self.ensure_one()
         report = self.sudo()
         candidate = report._candidate()
-        if report.status != PENDING_SIGNING or not super()._digital_signing_fully_signed():
+        if report.status != PENDING_SIGNING or not report._approval_chain_fully_signed():
             raise UserError(self.env._("%s is not approved, so its PDF cannot be issued.", report.display_name))
         if not candidate or not candidate._is_current():
             raise UserError(

@@ -36,7 +36,7 @@ class TestDemoInvoiceSeed(TransactionCase):
             {"name": "Lead in water", "type": "service", "list_price": 5_000_000, "invoice_policy": "order"}
         )
         order = moves._demo_order(self.env.ref("sol_demo.demo_res_partner_an_phu"), product, self.env["account.tax"])
-        advance = order.create_advance_invoice(amount=2_500_000)
+        advance = moves._post_demo_advance_invoice(order, 2_500_000)
         final = order.create_final_invoice()
         final.action_post()
 

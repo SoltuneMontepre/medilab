@@ -107,14 +107,14 @@ class SchedulingCommittedCase(TransactionCase):
         self.committed(self.prepare)
         self.addCleanup(self.remove_committed)
 
-    def create(self, env, model, values):
+    def create_owned(self, env, model, values):
         records = env[model].create(values)
         self.owned.setdefault(model, []).extend(records.ids)
         return records
 
     def prepare(self, env):
         def create(model, values):
-            return self.create(env, model, values)
+            return self.create_owned(env, model, values)
 
         department = create(MODEL_DEPARTMENT, {"name": f"Scheduling {self.token}"})
         self.department_id = department.id

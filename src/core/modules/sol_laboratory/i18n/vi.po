@@ -10518,8 +10518,8 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/sample_handover.py:0
-msgid "%s has no handover to %s."
-msgstr "%s không được bàn giao cho %s."
+msgid "%(sample)s has no handover to %(department)s."
+msgstr "%(sample)s không được bàn giao cho %(department)s."
 
 #. module: sol_laboratory
 #: model:ir.actions.report,print_report_name:sol_laboratory.action_report_handover_record
@@ -18240,6 +18240,17 @@ msgstr "Thời Gian Ngưng Sử Dụng"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form_interruption
 msgid "Usable"
 msgstr "Dùng Được"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__status__on_credit
+msgid "On credit"
+msgstr "Mua chịu"
+
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_payment_request_read_all
+msgid "Permission: payment.request.read.all"
+msgstr "Quyền: xem mọi yêu cầu thanh toán"
 
 #. module: sol_laboratory
 #. odoo-python

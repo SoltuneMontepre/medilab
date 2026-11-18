@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_quotation_agreement_form" model="ir.ui.view">
+        <field name="name">medilab.quotation.agreement.form</field>
+        <field name="model">medilab.quotation.agreement</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="order_id" options="{'no_open': True}" />
+                    <field name="reference" />
+                </group>
+                <footer>
+                    <button name="action_record" type="object" string="Record agreement" class="btn-success" />
+                    <button special="cancel" string="Cancel" class="btn-secondary" />
+                </footer>
+            </form>
+        </field>
+    </record>
+    <record id="action_quotation_agreement" model="ir.actions.act_window">
+        <field name="name">Record agreement</field>
+        <field name="res_model">medilab.quotation.agreement</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

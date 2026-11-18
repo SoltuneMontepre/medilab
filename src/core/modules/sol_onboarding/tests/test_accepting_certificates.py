@@ -171,7 +171,7 @@ class TestAcceptingCertificates(OnboardingCase):
         wizard = (
             self.env[MODEL_ONBOARDING_ACCEPT]
             .with_user(self.admin)
-            .with_context(action["context"])
+            .with_context(**action["context"])
             .create({"field_id": self.field.id})
         )
         self.assertTrue(wizard.field_needed)

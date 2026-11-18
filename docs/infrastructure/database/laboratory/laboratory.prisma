@@ -988,7 +988,7 @@ model TestRequest {
   delivery_note String? @db.Text
   /// The contact who receives the report; the customer's own contact when empty.
   report_recipient_id Int?
-  /// draft, confirmed, paid, sample_received, testing, awaiting_approval, completed, reported or cancelled.
+  /// draft, confirmed, paid, on_credit, sample_received, testing, awaiting_approval, completed, reported or cancelled.
   status       String   @db.VarChar
   /// Free notes about the request.
   note         String?  @db.Text

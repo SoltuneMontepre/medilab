@@ -110,9 +110,8 @@ class ProductTemplate(models.Model, ProductTemplateBase):
         return domain
 
     @api.model
-    @api.model
     def catalog_filters(self):
         return {
-            "sample_types": self.env[MODEL_SAMPLE_TYPE].sudo().search([]),
-            "groups": self.env[MODEL_PARAMETER_GROUP].sudo().search([]),
+            "sample_types": self.env[MODEL_SAMPLE_TYPE].sudo().search(Domain.TRUE),
+            "groups": self.env[MODEL_PARAMETER_GROUP].sudo().search(Domain.TRUE),
         }

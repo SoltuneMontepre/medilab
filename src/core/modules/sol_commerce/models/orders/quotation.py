@@ -1,17 +1,16 @@
 from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
-from odoo.api import SUPERUSER_ID
 from odoo.exceptions import AccessError, UserError
 
 from odoo.addons.sol_commerce.constants.models import (
     MODEL_ACCOUNT_MOVE,
+    MODEL_PAYMENT_REQUEST,
     MODEL_QUOTATION,
     MODEL_QUOTATION_SAMPLING,
     MODEL_SALE_ORDER,
 )
 from odoo.addons.sol_commerce.constants.orders import (
-    ADVANCE_TOUCHED_STATES,
     QUOTATION_ACCEPTED,
     QUOTATION_DECLINED,
     QUOTATION_EXPIRED,
@@ -70,10 +69,14 @@ class Quotation(models.Model, QuotationBase):
         amount_total = fields.Monetary(required=True)
         # The customer's reason for declining.
         decline_reason = fields.Text()
-        # The advance invoice sent with the quotation; empty when it was sent without an advance.
+        # Payment requests tied to this quotation revision.
+        payment_request_ids = fields.One2many(MODEL_PAYMENT_REQUEST, "quotation_id")
+        # Posted advance invoice of a quotation issued before payment requests.
         advance_invoice_id = fields.Many2one(
-            MODEL_ACCOUNT_MOVE, ondelete="restrict", copy=False, index="btree_not_null"
+            MODEL_ACCOUNT_MOVE, ondelete="restrict", copy=False, index="btree_not_null", readonly=True
         )
+        # Reference of the customer's email or written agreement recorded by Sales.
+        agreement_reference = fields.Char(readonly=True, copy=False)
         # The PDF sent to the customer.
         attachment_id = fields.Many2one("ir.attachment", required=True, ondelete="restrict")
         # The expected samples, containers and amounts sent with the quotation; accepting it makes them the order's.
@@ -98,42 +101,42 @@ class Quotation(models.Model, QuotationBase):
         return self.order_id.action_send_quotation()
 
     def action_accept(self):
-        """The customer accepts a quotation sent without an advance; with an advance, paying it accepts."""
+        """Accept the quotation when it takes no further payment."""
         self.ensure_one()
         user = self.env.user
         order = self.order_id.sudo()
         if not (user.share and order._owned_by(user)):
             raise AccessError(self.env._("Only the customer of the order can accept its quotation."))
-        if self.sudo().advance_invoice_id:
-            raise UserError(self.env._("Pay the advance invoice to accept this quotation."))
-        if self.status != QUOTATION_SENT:
-            raise UserError(self.env._("Only a quotation that was sent can be accepted."))
-        if order.state == "draft":
-            raise UserError(self.env._("This quotation is being revised."))
+        order._lock_payment_orders()
+        self._check_explicit_acceptance()
         self._accept()
         return True
 
-    def _accept(self):
-        """Accept the quotations that are still sent, whether the customer or the payment of the advance did it."""
-        accepted = self.sudo().filtered(
-            lambda quotation: quotation.status == QUOTATION_SENT and quotation.order_id.state != "draft"
-        )
-        accepted.write({"status": QUOTATION_ACCEPTED})
-        accepted.order_id.write({"accepted_at": fields.Datetime.now()})
-
-    def _is_advance_touched(self):
-        """True when the customer has paid, or started paying, the advance invoice."""
+    def _check_explicit_acceptance(self):
         self.ensure_one()
-        return self.sudo().advance_invoice_id.payment_state in ADVANCE_TOUCHED_STATES
+        order = self.order_id.sudo()
+        if self != order._latest_quotation() or self.status != QUOTATION_SENT or order.state == "cancel":
+            raise UserError(self.env._("Only a quotation that was sent can be accepted."))
+        if order.state == "draft":
+            raise UserError(self.env._("This quotation is being revised."))
+        if order.payment_deadline and order.payment_deadline < fields.Datetime.now():
+            raise UserError(self.env._("This quotation has expired."))
+        if order.payment_request_id.amount or self.sudo().advance_invoice_id:
+            raise UserError(self.env._("Pay the requested advance to accept this quotation."))
 
-    def _cancel_advance_invoice(self):
-        """Cancel the advance invoice nobody paid, so a replaced quotation cannot be paid and only the new one can."""
-        for invoice in self.sudo().advance_invoice_id.with_user(SUPERUSER_ID):
-            if invoice.state == "cancel" or invoice.payment_state in ADVANCE_TOUCHED_STATES:
-                continue
-            if invoice.state == "posted":
-                invoice.with_context(medilab_cancel_unpaid_advance=True).button_draft()
-            invoice.button_cancel()
+    def _accept(self):
+        self.sudo().write({"status": QUOTATION_ACCEPTED})
+        self.order_id.sudo().write({"accepted_at": fields.Datetime.now()})
+
+    def _accept_payment(self):
+        self.ensure_one()
+        order = self.order_id.sudo()
+        if (
+            self.status in (QUOTATION_SENT, QUOTATION_EXPIRED)
+            and order.state == "sent"
+            and self == order._latest_quotation()
+        ):
+            self._accept()
 
     def action_decline(self, reason):
         """The customer declines the quotation with a reason; the order stays as it is."""
@@ -141,8 +144,12 @@ class Quotation(models.Model, QuotationBase):
         text = (reason or "").strip()
         if not text:
             raise UserError(self.env._("Give a reason for declining the quotation."))
+        order = self.order_id.sudo()
+        order._lock_payment_orders()
+        order._check_no_pending_collection()
         if self.status != QUOTATION_SENT:
             raise UserError(self.env._("Only a quotation that was sent can be declined."))
+        order.payment_request_id._supersede()
         self.sudo().write({"status": QUOTATION_DECLINED, "decline_reason": text})
         self._notify_declined(text)
         return True
@@ -162,4 +169,13 @@ class Quotation(models.Model, QuotationBase):
         late = self.sudo().search(
             [("status", "=", QUOTATION_SENT), ("order_id.payment_deadline", "<", fields.Datetime.now())]
         )
-        late.write({"status": QUOTATION_EXPIRED})
+        late.order_id._lock_payment_orders()
+        now = fields.Datetime.now()
+        late.filtered(
+            lambda item: (
+                item.status == QUOTATION_SENT
+                and item.order_id.payment_deadline
+                and item.order_id.payment_deadline < now
+            )
+        ).write({"status": QUOTATION_EXPIRED})
+        self.env[MODEL_PAYMENT_REQUEST]._expire_requests()

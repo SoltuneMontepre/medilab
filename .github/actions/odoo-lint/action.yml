@@ -47,6 +47,13 @@ runs:
           "${EXCLUDED_ARGS[@]}" \
           -e ODOO_VERSION \
           -e ODOO_LINT_ADVISORY \
+          -e PYLINT_ODOO_VERSION \
           --entrypoint bash \
           "${IMAGE}" \
-          -c "pip3 install --no-cache-dir --break-system-packages --quiet 'pylint-odoo${PYLINT_ODOO_VERSION}' && bash /tmp/lint.sh"
+          -ec '
+            python3 -m venv --without-pip /tmp/odoo-lint-venv
+            python3 -m pip --python /tmp/odoo-lint-venv/bin/python install --no-cache-dir --quiet "pylint-odoo${PYLINT_ODOO_VERSION}"
+            export PATH="/tmp/odoo-lint-venv/bin:$PATH"
+            export PYTHONPATH="/usr/lib/python3/dist-packages${PYTHONPATH:+:$PYTHONPATH}"
+            bash /tmp/lint.sh
+          '

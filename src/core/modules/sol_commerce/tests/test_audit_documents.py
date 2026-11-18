@@ -42,8 +42,9 @@ class TestAuditDocuments(AuditLookup, OrderCase):
     def test_editing_a_payment_is_recorded_and_the_entry_cannot_be_changed(self):
         order = self.make_quotable_order()
         order.with_user(self.sales).action_send_quotation()
-        invoice = order.sudo().invoice_ids[:1]
-        payment = self.env["account.payment"].create_pending_payment(invoice, 100_000, "bank_transfer")
+        payment = self.env["account.payment"]._create_request_payment(
+            order.payment_request_id, 100_000, "bank_transfer"
+        )
         before = self.entries(payment, "edit")
 
         payment.rejection_reason = "Not received"

@@ -44,10 +44,11 @@ class TestQuotationLanguage(OrderCase):
 
         self.assertIn("Hãy chấp nhận trước", (self.notice(order).body or ""))
 
-    def test_the_internal_down_payment_note_stays_in_the_salesperson_language(self):
+    def test_sending_a_payment_request_does_not_generate_an_invoice_note(self):
         self.sales.lang = "vi_VN"
         order = self.send("en_US", self.sales)
 
         bodies = (order.message_ids - self.notice(order)).mapped("body")
-        self.assertTrue(any("Hoá đơn khoản trả trước" in (body or "") for body in bodies), bodies)
+        self.assertFalse(any("Hoá đơn khoản trả trước" in (body or "") for body in bodies), bodies)
+        self.assertFalse(order.invoice_ids)
         self.assertIn("is ready", (self.notice(order).body or ""))
