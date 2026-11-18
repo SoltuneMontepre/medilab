@@ -48,6 +48,13 @@ class MailMessageSubtype(models.Model, MailMessageSubtypeBase):
             raise UserError(self.env._("A mandatory event cannot be turned off."))
         return super().unlink()
 
+    def _documents_readable(self):
+        """Whether the current user may read the kind of document the event is about, so may open what it notifies them
+        of; an event about no kind of document is."""
+        self.ensure_one()
+        model = self.sudo().res_model
+        return not model or (model in self.env and self.env[model].has_access("read"))
+
     @api.model
     def _event(self, code):
         event = self.sudo().search([("code", "=", code)], limit=1)

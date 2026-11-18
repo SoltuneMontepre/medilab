@@ -12,6 +12,7 @@ from odoo.addons.sol_laboratory.constants.laboratory_files import (
 from odoo.addons.sol_laboratory.constants.medilab_mobile import ALREADY_CLAIMED, PHOTO_MAX_BYTES
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_IR_ATTACHMENT,
+    MODEL_PARAMETER_AUTHORIZATION,
     MODEL_PERSON,
     MODEL_SAMPLE,
     MODEL_SAMPLE_HANDOVER,
@@ -69,7 +70,19 @@ class SampleMobile(models.Model, SampleMobileBase):
             "handover": sample._mobile_handover(),
             "tasks": sample._claimable_testing_tasks()._mobile_values(),
             "can_add_photos": sample._may_add_photos(),
+            "tests_samples": self._person_tests_samples(),
         }
+
+    @api.model
+    def _person_tests_samples(self):
+        """Whether the person tests samples: they are in a department and the Lab Head authorized them to test a
+        parameter, so their department receives samples and its testing tasks reach them."""
+        person = self.env[MODEL_PERSON]._current()
+        if not person.department_id:
+            return False
+        return bool(
+            self.env[MODEL_PARAMETER_AUTHORIZATION].sudo().search_count([("person_id", "=", person.id)], limit=1)
+        )
 
     def _customer_visible(self):
         """Whether the person reads every test request, and so sees a sample's customer and its photos, as on the web."""
