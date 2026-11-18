@@ -5,12 +5,7 @@ from odoo.tests import tagged
 
 from .change_request_case import ChangeRequestCase
 from .report_case import PDF
-from odoo.addons.sol_laboratory.constants.models import (
-    MODEL_SIGNATURE,
-    MODEL_TASK,
-    MODEL_TEST_REPORT,
-    MODEL_TEST_RESULT,
-)
+from odoo.addons.sol_laboratory.constants.models import MODEL_SIGNATURE, MODEL_TEST_REPORT, MODEL_TEST_RESULT
 from odoo.addons.sol_laboratory.constants.report_templates import REVIEWED_CANDIDATE_CONTEXT
 from odoo.addons.sol_laboratory.constants.settings import DIGITAL_SIGNING_PARAMETER
 
@@ -25,11 +20,6 @@ class TestTestReportIssuance(ChangeRequestCase):
     def signature_of(self, report):
         return self.env[MODEL_SIGNATURE].search(
             [("document_model", "=", report._name), ("document_id", "=", report.id), ("withdrawn_at", "=", False)]
-        )
-
-    def signing_tasks(self, report, status="open"):
-        return self.env[MODEL_TASK].search(
-            [("document_model", "=", report._name), ("document_id", "=", report.id), ("status", "=", status)]
         )
 
     def issued_messages(self, report):
@@ -91,7 +81,6 @@ class TestTestReportIssuance(ChangeRequestCase):
         self.complete()
         report = self.report()
         reviewed = self.prepare(report)
-        self.editor(report).action_reopen_draft()
         self.prepare(report)
 
         with self.assertRaises(UserError):
@@ -198,8 +187,8 @@ class TestTestReportIssuance(ChangeRequestCase):
 
         self.assertEqual(len(self.signing_tasks(replacement)), 1)
         self.assertEqual(len(self.signing_tasks(replacement, "cancelled")), 1)
-        # The editor rebuilds the draft from the corrected result before preparing its PDF again.
-        self.editor(replacement).action_generate_draft()
+        # A new PDF is prepared from the corrected result.
+        self.prepare(replacement)
         self.sign(replacement)
         self.assertEqual((replacement.status, replacement.result_ids, report.status), ("issued", version, "replaced"))
 
@@ -224,7 +213,7 @@ class TestTestReportIssuance(ChangeRequestCase):
         self.assertNotIn(replacement, self.waiting_for("to_deliver"))
         self.assertNotIn(replacement, self.waiting_for("to_sign"))
 
-    def test_a_rejected_replacement_gets_a_fresh_signing_task_once_its_results_are_approved_again(self):
+    def test_a_rejected_replacement_keeps_its_signing_task_until_its_results_are_approved_again(self):
         lead = self.complete()
         self.sign()
         report = self.report()
@@ -234,10 +223,11 @@ class TestTestReportIssuance(ChangeRequestCase):
 
         self.as_person(replacement, self.lab_head).action_reject("Check the lead digestion blank.", lead)
 
-        self.assertFalse(self.signing_tasks(replacement))
+        task = self.signing_tasks(replacement)
+        self.assertEqual(len(task), 1)
         self.test._testing_task().write({"assignee_id": self.tester.id, "status": "assigned"})
         self.send(lead)
         self.approve(lead)
-        self.assertEqual(len(self.signing_tasks(replacement)), 1)
+        self.assertEqual(self.signing_tasks(replacement), task)
         self.sign(replacement)
         self.assertEqual((replacement.status, report.status), ("issued", "replaced"))

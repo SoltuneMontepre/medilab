@@ -20,13 +20,13 @@ class TestReportTemplateChange(models.TransientModel, TestReportTemplateChangeBa
     _description = "Change the Template of a Test Report"
 
     if not TYPE_CHECKING:
-        # The report whose draft is generated again.
+        # The report whose PDF is prepared again.
         report_id = fields.Many2one(MODEL_TEST_REPORT, required=True, ondelete="cascade")
-        # The available template versions of the report's language, which the editor chooses from.
+        # The available template versions of the report's language, which the lab head chooses from.
         available_version_ids = fields.Many2many(
             MODEL_REPORT_TEMPLATE_VERSION, compute="_compute_available_version_ids", compute_sudo=True
         )
-        # The template version the draft is generated from.
+        # The template version the new PDF is prepared from.
         template_version_id = fields.Many2one(
             MODEL_REPORT_TEMPLATE_VERSION,
             string="Template Version",

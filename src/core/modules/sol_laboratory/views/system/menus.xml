@@ -48,7 +48,7 @@
                 id="menu_test_report_to_deliver"
                 action="action_medilab_test_report_to_deliver"
                 sequence="40"
-                groups="group_permission_test_report_edit_all"
+                groups="group_permission_test_report_deliver_all"
             />
         </menuitem>
         <menuitem id="menu_laboratory_schedule" name="Schedule" sequence="50">
@@ -64,6 +64,12 @@
                 action="action_medilab_overtime"
                 sequence="25"
                 groups="group_permission_overtime_read_all,group_permission_overtime_read_own_department"
+            />
+            <menuitem
+                id="menu_plan_revision"
+                action="action_medilab_plan_revision"
+                sequence="27"
+                groups="group_permission_plan_revision_read_all,group_permission_plan_revision_read_own_department"
             />
             <menuitem
                 id="menu_subcontract_dispatch"

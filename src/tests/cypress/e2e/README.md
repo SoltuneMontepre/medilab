@@ -72,7 +72,7 @@ Paths below are relative to `cypress/e2e/`. The issue descriptions use flat path
 | --- | --- | --- | --- | --- |
 | WF-01 | Order to confirmed test request | [#152](https://github.com/SoltuneMontepre/medilab/issues/152) | `flows/wf-01-order-to-test-request/` | `order-to-test-request.cy.js`, `cart-and-claiming.cy.js`, `quotation.cy.js`, `payment-and-confirmation.cy.js` |
 | WF-02 | Sample reception and handover | [#153](https://github.com/SoltuneMontepre/medilab/issues/153) | `flows/wf-02-sample-reception/` | `sample-reception.cy.js` |
-| WF-03 | Testing assignment and scheduling | [#154](https://github.com/SoltuneMontepre/medilab/issues/154), [#315](https://github.com/SoltuneMontepre/medilab/issues/315) | `flows/wf-03-testing-scheduling/` | `testing-scheduling.cy.js`, `unhappy-paths.cy.js`, `reassignment-reasons.cy.js`, `reassignment-handover.cy.js`, `sample-test-cancellation.cy.js`, `booking-rescheduling.cy.js`, `notification-integrity.cy.js`, `booking-adjustments.cy.js` |
+| WF-03 | Testing assignment and scheduling | [#154](https://github.com/SoltuneMontepre/medilab/issues/154), [#315](https://github.com/SoltuneMontepre/medilab/issues/315) | `flows/wf-03-testing-scheduling/` | `testing-scheduling.cy.js`, `unhappy-paths.cy.js`, `reassignment-reasons.cy.js`, `reassignment-handover.cy.js`, `sample-test-cancellation.cy.js`, `booking-rescheduling.cy.js`, `plan-revision.cy.js`, `notification-integrity.cy.js`, `booking-adjustments.cy.js` |
 | WF-04 | Result entry and approval | [#155](https://github.com/SoltuneMontepre/medilab/issues/155) | `flows/wf-04-result-approval/` | `result-approval.cy.js` |
 | WF-05 | Outsourced testing | [#156](https://github.com/SoltuneMontepre/medilab/issues/156) | `flows/wf-05-outsourced-testing/` | `outsourced-testing.cy.js` |
 | WF-06 | Report signing, release and delivery | [#157](https://github.com/SoltuneMontepre/medilab/issues/157), [#431](https://github.com/SoltuneMontepre/medilab/issues/431), [#432](https://github.com/SoltuneMontepre/medilab/issues/432) | `flows/wf-06-report-release/` | `report-release.cy.js`, `report-preparation.cy.js` |
@@ -83,7 +83,7 @@ Paths below are relative to `cypress/e2e/`. The issue descriptions use flat path
 | SF-04 | Sample retention, return and disposal | [#161](https://github.com/SoltuneMontepre/medilab/issues/161) | `flows/sf-04-sample-disposal/` | `sample-disposal.cy.js` |
 | SF-05 | Machine calibration and unavailability | [#162](https://github.com/SoltuneMontepre/medilab/issues/162) | `flows/sf-05-machine-unavailability/` | `machine-unavailability.cy.js` |
 | SF-06 | Accreditation and registration renewal | [#163](https://github.com/SoltuneMontepre/medilab/issues/163) | `flows/sf-06-accreditation-renewal/` | `accreditation-renewal.cy.js`, `accreditation-and-registrations.cy.js` |
-| SF-07 | Result dates and priority orders | [#164](https://github.com/SoltuneMontepre/medilab/issues/164) | `flows/sf-07-priority-order/` | `priority-order.cy.js` |
+| SF-07 | Result dates and priority orders | [#164](https://github.com/SoltuneMontepre/medilab/issues/164) | `flows/sf-07-priority-order/` | `priority-order.cy.js`, `due-date-check.cy.js` |
 | SF-08 | Laboratory setup | [#165](https://github.com/SoltuneMontepre/medilab/issues/165) | `flows/sf-08-laboratory-setup/` | `laboratory-setup.cy.js`, `catalog-and-prices.cy.js`, `parameters-and-chemicals.cy.js`, `people-and-approval-chains.cy.js`, `settings.cy.js` |
 | SF-09 | Customer support and feedback | [#166](https://github.com/SoltuneMontepre/medilab/issues/166) | `flows/sf-09-support-feedback/` | `support-feedback.cy.js`, `customer-accounts.cy.js` |
 | SF-10 | Scheduling plan and revisions | [#154](https://github.com/SoltuneMontepre/medilab/issues/154), [#164](https://github.com/SoltuneMontepre/medilab/issues/164) | `flows/wf-03-testing-scheduling/`, `flows/sf-07-priority-order/` | `testing-scheduling.cy.js`, `sample-test-cancellation.cy.js`, `booking-rescheduling.cy.js`, `priority-order.cy.js` |
@@ -96,17 +96,33 @@ A title carries a path ID from [Business flows](../../../../docs/functional/busi
 
 | Title starts with | Spec | What the browser proves |
 | --- | --- | --- |
-| `TC-WF03-M partial` | `testing-scheduling.cy.js` | The head assigns the test. Today's tester-facing Schedule action books the recommended machine and slot, which appear in Machine Schedule, the calendar and the task's planned times. |
-| `TC-WF03-A1 partial` | `testing-scheduling.cy.js` | A tester claims an unassigned task of their department and finds it in My Tasks. |
-| `TC-WF03-A2 partial` | `testing-scheduling.cy.js` | Schedule books the machine and the step room together; the room events show in the Room Bookings tab and the tester's calendar, and cannot be removed apart from the machine booking. |
-| `TC-WF03-E1 partial` | `testing-scheduling.cy.js`, `reassignment-handover.cy.js` | The head moves a task to another person, then another department, with a reason. The receiving person finds the task in My Tasks and its booking in Machine Schedule; the previous person finds neither. |
-| `TC-WF03-E2 partial` | `unhappy-paths.cy.js` | A test no machine can finish before its due date shows the outsourcing warning, has no Schedule button, refuses Schedule over RPC and creates no booking or event. |
+| `TC-WF03-M partial` | `testing-scheduling.cy.js` | The head assigns the test, which notifies the tester. The tester sees the proposed booking but cannot reserve it; the head approves it with Approve Booking, which books the recommended machine and slot, notifies the tester and shows in Machine Schedule, the calendar and the task's planned times. |
+| `TC-WF03-A1 partial` | `testing-scheduling.cy.js` | A tester claims an unassigned task of their department and finds it in My Tasks; claiming notifies nobody. |
+| `TC-WF03-A2 partial` | `testing-scheduling.cy.js` | Approve Booking reserves the machine and the step room together; the room events show in the Room Bookings tab and the tester's calendar, and cannot be removed apart from the machine booking. |
+| `TC-WF03-E1 partial` | `testing-scheduling.cy.js`, `reassignment-handover.cy.js` | The head moves a task to another person, then another department, with a reason. The receiving person is told of the task and of the booking the head approves, finds the task in My Tasks and the booking in Machine Schedule; the previous person finds neither. |
+| `TC-WF03-E2 partial` | `unhappy-paths.cy.js` | A test no machine can finish before its due date shows the outsourcing warning, goes to the head's review, has no Approve Booking button, refuses approval over RPC and creates no booking or event. |
 | `TC-SF10-A2 partial` | `testing-scheduling.cy.js`, `booking-rescheduling.cy.js` | The tester cancels a booking. The head moves a booking to a free slot through the form and by dragging it in the calendar, and every reservation of the booking moves by the same time; a drop onto another booking's slot is refused; the head cancels a booking and the test stays assigned and open to Schedule. |
 | `TC-SF10-A3 partial` | `sample-test-cancellation.cy.js` | The head cancels a booked test with a reason, which cancels its task, booking and events and leaves the sample's other test and another booked test unchanged; a tester has no Cancel Test button and RPC refuses it. |
 
 WF-03-A3 and SF-10-A1, A4 and E1 through E4 depend on the features listed in the test plan. SF-10-A5 covers early machine release and is outside [#154](https://github.com/SoltuneMontepre/medilab/issues/154).
 
 Issue [#318](https://github.com/SoltuneMontepre/medilab/issues/318) tracks `TC-WF03-A2 partial`, formerly `TC-WF03-A5`. It requires a passing rerun on the same database, unchanged recommendations in the other WF-03 tests and a green `e2e` job.
+
+### SF-05 path coverage
+
+Each test builds its machines, method, way and tests with `flows/sf-05-machine-unavailability/setup.js`, which `sol_demo` supports with the catalog, people and customer; the machines and states `sol_demo` seeds (a never-calibrated and an overdue-maintenance machine, planned downtime, a calibration and a repair inside their warning windows, an interrupted result, and Chlorpyrifos tests no machine can run) are for browsing the demo. A test returns the machines it took out of use and cancels its open tests, so none of its bookings stays in the plan of the specs that follow.
+
+| Title starts with | What the browser proves |
+| --- | --- |
+| `TC-SF05-M` | The administrator sets a machine under repair from its form. Its scheduled and proposed bookings go back to the plan on the other machine linked to the same method, keep their agreed way, and the head sees them as proposed. Putting the machine back in use is refused until a calibration dated after its repair is recorded, and then the plan uses it again. |
+| `TC-SF05-A1` | A never-calibrated machine and one whose calibration has ended take no booking; the test shows no machine can finish it and Schedule is refused. Recording a valid calibration lets the tester schedule it. A calibration recorded to end before a scheduled booking returns that booking to the plan. |
+| `TC-SF05-A2` | The calibration, maintenance and repair warnings appear on the booking one by one as their windows are entered. With maintenance overdue the warnings stay and a new booking is refused. |
+| `TC-SF05-A3` | A planned maintenance's downtime sends the bookings it overlaps back to the plan, after it. Overdue maintenance refuses the booking until a maintenance record dated today is saved, and the booking then keeps clear of the downtime. |
+| `TC-SF05-E1` | Without another machine for the way, the bookings stay in the plan without a slot, the way is not replaced, outsourcing is suggested, the tester and head receive the at-risk notice and the tester cannot schedule. |
+| `TC-SF05-E2` | A machine failure ends every booking of a shared run with an interrupted result that keeps the tester's data and notifies the tester and head. The tester cannot assess; the head assesses the three attempts as usable, needing a retest and needing more sample. |
+| `TC-F20-03` | A machine with a scheduled or a queued booking, and then a running one, is refused archiving with the bookings listed. |
+
+Not covered because the feature is not built: a notice to the tester and head when a machine's unavailability returns bookings to the plan on another machine (only leave and an unavailable room send one), and a new booking for a retest after the head assesses an interrupted result as needing a retest. Calibration ending during a running measurement is undecided and has no test.
 
 ## Feature specs
 
@@ -127,7 +143,7 @@ Issue [#318](https://github.com/SoltuneMontepre/medilab/issues/318) tracks `TC-W
 | Keep a mandatory notice in the portal of a customer whose email bounced, mark it seen when opened, and show it to no other customer. | [#436](https://github.com/SoltuneMontepre/medilab/issues/436) | `features/ecommerce/mandatory-notices/` | `mandatory-notices.cy.js` |
 | Open the testing statistics of a period: a head of department sees their department; the Lab Head compares departments and a department filter gives what its head sees. | [#440](https://github.com/SoltuneMontepre/medilab/issues/440) | `features/laboratory/testing-statistics/` | `testing-statistics.cy.js` |
 | Offer the head only people authorized for a testing task's parameter and refuse another, assign an authorized tester, and let only the lab head authorize a person. | [#421](https://github.com/SoltuneMontepre/medilab/issues/421) | `features/laboratory/parameter-authorization/` | `parameter-authorization.cy.js` |
-| Accept the booking the department's plan proposes, which reserves the machine and the calendar, and mark a test urgent with a reason. | [#422](https://github.com/SoltuneMontepre/medilab/issues/422) | `features/laboratory/department-plan/` | `department-plan.cy.js` |
+| Approve the booking the department's plan proposes, which reserves the machine and the calendar and notifies the tester, and mark a test urgent with a reason. | [#422](https://github.com/SoltuneMontepre/medilab/issues/422) | `features/laboratory/department-plan/` | `department-plan.cy.js` |
 | Switch the portal language from the header and the account page, as a customer and as a visitor. | [#451](https://github.com/SoltuneMontepre/medilab/issues/451) | `features/ecommerce/portal-language/` | `portal-language.cy.js` |
 | Reach the catalog, My orders, Support and the account from the portal header, as a customer and as a visitor, and filter My orders. | [#452](https://github.com/SoltuneMontepre/medilab/issues/452), [#499](https://github.com/SoltuneMontepre/medilab/issues/499) | `features/ecommerce/portal-navigation/` | `portal-navigation.cy.js` |
 | Warn before uninstalling E-commerce that test requests keep their order's number, and not when Laboratory leaves with it. | [#439](https://github.com/SoltuneMontepre/medilab/issues/439) | `features/ecommerce/uninstall-warning/` | `uninstall-warning.cy.js` |

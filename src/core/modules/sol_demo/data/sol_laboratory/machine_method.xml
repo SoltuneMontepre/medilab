@@ -47,4 +47,17 @@
         <field name="method_id" ref="demo_testing_method_chromium_vi_colorimetry" />
         <field name="duration_minutes">60</field>
     </record>
+    <!-- Pesticide residues run on the gas or the liquid chromatograph. The gas chromatograph's maintenance is overdue and
+         the liquid chromatograph has no calibration, so neither takes a booking: a Chlorpyrifos test of Chemistry gets no
+         slot once its sample is received, and outsourcing is suggested. -->
+    <record id="demo_machine_method_gc_pesticides" model="medilab.machine.method">
+        <field name="machine_id" ref="demo_machine_gc" />
+        <field name="method_id" ref="demo_testing_method_en_15662" />
+        <field name="duration_minutes">180</field>
+    </record>
+    <record id="demo_machine_method_hplc_pesticides" model="medilab.machine.method">
+        <field name="machine_id" ref="demo_machine_hplc" />
+        <field name="method_id" ref="demo_testing_method_en_15662" />
+        <field name="duration_minutes">120</field>
+    </record>
 </odoo>

@@ -1,10 +1,12 @@
 from typing import TYPE_CHECKING
 
-from odoo import fields, models
+from odoo import api, fields, models
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
+    MODEL_DEPARTMENT,
     MODEL_LOCK_MIXIN,
+    MODEL_MACHINE_BOOKING,
     MODEL_OVERTIME,
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
@@ -48,3 +50,27 @@ class OverTime(models.Model, OverTimeBase):
         # The overlap constraint compares people with a GiST index, which needs btree_gist.
         self.env.cr.execute("CREATE EXTENSION IF NOT EXISTS btree_gist")
         return super()._auto_init()
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        overtimes = super().create(vals_list)
+        overtimes._replan()
+        return overtimes
+
+    def write(self, vals):
+        departments = self.sudo().department_id
+        result = super().write(vals)
+        self._replan(departments)
+        return result
+
+    def unlink(self):
+        departments = self.sudo().department_id
+        result = super().unlink()
+        self._replan(departments)
+        return result
+
+    def _replan(self, departments=None):
+        """OverTime changes the tester's availability, so the plans of the testers' departments are recalculated; the
+        scheduler never changes OverTime itself."""
+        departments = (departments or self.env[MODEL_DEPARTMENT]) | self.sudo().exists().department_id
+        self.env[MODEL_MACHINE_BOOKING]._plan(departments)

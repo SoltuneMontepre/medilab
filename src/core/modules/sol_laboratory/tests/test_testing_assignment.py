@@ -65,7 +65,7 @@ class TestTestingAssignment(SchedulingCase):
         task.write({"assignee_id": self.other_tester.id, "reassign_reason": "On leave"})
         self.assertEqual((booking.status, booking.person_id), ("proposed", self.other_tester))
         self.assertFalse(booking.calendar_event_id)
-        booking.with_user(self.other_tester.user_id).action_accept()
+        booking.with_user(self.head.user_id).action_approve()
         self.assertEqual(booking.calendar_event_id.partner_ids, self.other_tester.user_id.partner_id)
 
     def test_a_head_sees_the_bookings_of_their_department_only(self):

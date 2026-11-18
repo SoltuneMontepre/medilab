@@ -48,7 +48,7 @@ class TestScheduleAssignmentRules(ScheduleInvariantsCase, LocationCase):
         self.assertEqual((booking.starts_at, booking.ends_at), (AFTERNOON, AFTERNOON + 3 * SLOT))
         self.assertFalse(old_event.exists())
         self.assertFalse(old_rooms.exists())
-        booking.with_user(self.other_tester.user_id).action_accept()
+        booking.with_user(self.head.user_id).action_approve()
         event, rooms = booking.calendar_event_id, booking.room_event_ids
         self.assertEqual(event.user_id, self.other_tester.user_id)
         self.assertEqual((event.start, event.stop), (AFTERNOON, AFTERNOON + 3 * SLOT))

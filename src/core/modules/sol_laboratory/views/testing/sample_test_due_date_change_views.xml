@@ -8,14 +8,42 @@
                 <div class="alert alert-warning" role="alert" invisible="not due_on_non_working_day">
                     This day is not a working day of the company calendar.
                 </div>
+                <div class="alert alert-danger" role="alert" invisible="feasibility != 'infeasible'">
+                    <p class="fw-bold mb-1">The laboratory cannot meet this date.</p>
+                    <field name="check_message" nolabel="1" readonly="1" invisible="feasibility != 'infeasible'" />
+                    <p class="mb-0" invisible="not earliest_feasible_date">
+                        <strong>Earliest feasible date:</strong> <field name="earliest_feasible_date" readonly="1" />
+                    </p>
+                    <p class="mb-0" invisible="earliest_feasible_date">
+                        No date within the next 30 days is feasible.
+                    </p>
+                </div>
+                <div class="alert alert-info" role="alert" invisible="feasibility != 'moves'">
+                    <p class="fw-bold mb-1">A free slot needs these bookings to move; each keeps its due date. The check moves nothing.</p>
+                    <field name="check_message" nolabel="1" readonly="1" invisible="feasibility != 'moves'" />
+                </div>
                 <group>
                     <field name="sample_test_id" invisible="1" />
                     <field name="due_on_non_working_day" invisible="1" />
+                    <field name="feasibility" invisible="1" />
                     <field name="due_date" />
                     <field name="reason" />
                 </group>
                 <footer>
-                    <button name="action_change" type="object" string="Change Due Date" class="btn-primary" />
+                    <button
+                        name="action_change"
+                        type="object"
+                        string="Change Due Date"
+                        class="btn-primary"
+                        invisible="feasibility == 'infeasible'"
+                    />
+                    <button
+                        name="action_keep_at_risk"
+                        type="object"
+                        string="Keep at Risk"
+                        class="btn-danger"
+                        invisible="feasibility != 'infeasible'"
+                    />
                     <button special="cancel" string="Discard" />
                 </footer>
             </form>
