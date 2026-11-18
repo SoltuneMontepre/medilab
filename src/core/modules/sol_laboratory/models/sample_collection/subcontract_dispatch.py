@@ -115,6 +115,8 @@ class SubcontractDispatch(models.Model, SubcontractDispatchBase):
         people = self.env[MODEL_ROLE].sudo().browse(role_id).exists().person_ids
         return self.env[MODEL_PERSON].browse(people.ids)
 
+    @api.depends_context("uid")
+    @api.depends("courier_id")
     def _compute_carried_by_me(self):
         person = self.env[MODEL_PERSON]._current()
         for dispatch in self:

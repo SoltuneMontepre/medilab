@@ -87,8 +87,7 @@ class TestDispatchDelivery(DispatchCase):
 
     def test_the_subcontractor_confirms_receipt_on_the_portal_and_the_head_is_told(self):
         dispatch = self.draft()
-        with self.assertRaises(UserError):
-            self.portal(dispatch)._portal_confirm_receipt()
+        self.assertFalse(self.portal(dispatch))
         dispatch.action_send()
 
         with self.assertRaisesRegex(UserError, "Confirm receipt"):
@@ -97,7 +96,7 @@ class TestDispatchDelivery(DispatchCase):
 
         self.assertEqual(dispatch.status, "received")
         self.assertEqual(str(dispatch.received_date), "2026-10-12")
-        self.assertIn(self.head.user_id.partner_id, dispatch._heads())
+        self.assertIn(self.head.user_id.partner_id, self.portal(dispatch)._heads())
         self.assertTrue(self.notifications(dispatch, "received"))
         self.assertTrue(self.portal(dispatch)._portal_enter_result(self.test.id, "0.008", ""))
 
