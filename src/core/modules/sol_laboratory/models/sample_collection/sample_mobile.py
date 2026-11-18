@@ -174,7 +174,6 @@ class SampleMobile(models.Model, SampleMobileBase):
 def _decoded_photo(env, data):
     """The photo the phone sent in base64; one over the limit is refused before it is decoded."""
     return decoded_base64(
-        env,
         data,
         PHOTO_MAX_BYTES,
         env._("A photo can be at most 10 MiB."),
