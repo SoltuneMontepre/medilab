@@ -43,9 +43,8 @@ export function SignaturePad({
         onDraw?.((drawn) => [...drawn.slice(0, -1), [...(drawn.at(-1) ?? []), next]]);
       }}
     >
-      {segments(strokes).map(([from, to], index) => (
-        // A segment keeps its place as the strokes grow, so its key is its place.
-        <Ink key={index} from={from} to={to} />
+      {segments(strokes).map(({ id, from, to }) => (
+        <Ink key={id} from={from} to={to} />
       ))}
     </View>
   );

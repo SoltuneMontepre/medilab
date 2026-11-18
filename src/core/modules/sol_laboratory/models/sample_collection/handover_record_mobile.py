@@ -80,7 +80,6 @@ class HandoverRecordMobile(models.Model, HandoverRecordMobileBase):
 def _decoded_signature(env, data):
     """The PNG of the signature the phone sent in base64; one over the limit is refused before it is decoded."""
     signature = decoded_base64(
-        env,
         data,
         SIGNATURE_MAX_BYTES,
         env._("A signature can be at most 1 MiB."),
