@@ -53,3 +53,5 @@ RESULT_CHECK_DEVIATIONS_PARAMETER = "sol_laboratory.result_check_deviations"
 DEFAULT_RESULT_CHECK_DEVIATIONS = 3.0
 RESULT_CHECK_MARGIN_PARAMETER = "sol_laboratory.result_check_limit_margin_percent"
 DEFAULT_RESULT_CHECK_MARGIN = 10.0
+MOBILE_MINIMUM_VERSION_PARAMETER = "sol_laboratory.mobile_minimum_version"
+MOBILE_STOPPED_VERSIONS_PARAMETER = "sol_laboratory.mobile_stopped_versions"

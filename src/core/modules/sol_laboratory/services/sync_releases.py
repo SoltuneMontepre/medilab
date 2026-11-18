@@ -63,19 +63,28 @@ def _validate_artifact(release):
     if not safe_download_url(release["url"]):
         raise ValueError("Unsafe artifact URL.")
     if "pub_date" in release:
-        date = datetime.fromisoformat(release["pub_date"].replace("Z", "+00:00"))
-        if date.tzinfo is None:
-            raise ValueError("Release date needs a time zone.")
+        check_date(release["pub_date"])
+    check_signature(release["signature"])
+
+
+def check_date(value):
+    if datetime.fromisoformat(value.replace("Z", "+00:00")).tzinfo is None:
+        raise ValueError("Release date needs a time zone.")
+
+
+def check_signature(value):
     try:
-        signature = base64.b64decode(release["signature"], validate=True)
+        signature = base64.b64decode(value, validate=True)
     except ValueError as error:
         raise ValueError("Invalid artifact signature encoding.") from error
     if not signature:
         raise ValueError("Empty artifact signature.")
 
 
-def catalog():
-    path = os.environ.get(CATALOG_VARIABLE)
+def read_catalog(variable, document_path, document_uri):
+    """The releases of the catalog file the environment variable names, refused whole when it breaks the document's
+    Catalog schema or its size limit."""
+    path = os.environ.get(variable)
     if not path:
         raise ValueError("Release catalog is unavailable.")
     with Path(path).open("rb") as stream:
@@ -84,18 +93,23 @@ def catalog():
         raise ValueError("Release catalog is too large.")
     releases = json.loads(raw)
     if openapi_document.schema_error(
-        "/components/schemas/Catalog", releases, document_path=DOCUMENT_PATH, document_uri=DOCUMENT_URI
+        "/components/schemas/Catalog", releases, document_path=document_path, document_uri=document_uri
     ):
         raise ValueError("Invalid release catalog.")
+    return releases["releases"]
+
+
+def catalog():
+    releases = read_catalog(CATALOG_VARIABLE, DOCUMENT_PATH, DOCUMENT_URI)
     seen = set()
-    for release in releases["releases"]:
+    for release in releases:
         key = version_key(release["version"])
         identity = (release["target"], release["arch"], release["channel"], release["trust"], key)
         if identity in seen or (release["channel"] == "stable" and not key[3]):
             raise ValueError("Ambiguous or unstable release catalog.")
         seen.add(identity)
         _validate_artifact(release)
-    return releases["releases"]
+    return releases
 
 
 def request_key(target, arch, current, channel):

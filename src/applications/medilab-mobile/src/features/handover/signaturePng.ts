@@ -7,9 +7,18 @@ export interface Point {
 /** A line drawn without lifting the finger. */
 export type Stroke = Point[];
 
-/** The pieces of the strokes, each from a point to the next; a stroke's first piece is the dot it starts with. */
-export function segments(strokes: Stroke[]): [Point, Point][] {
-  return strokes.flatMap((stroke) => stroke.map((to, at): [Point, Point] => [stroke[Math.max(at - 1, 0)], to]));
+/** A piece of a stroke, from a point to the next, named by its stroke and its point. */
+export interface Segment {
+  id: string;
+  from: Point;
+  to: Point;
+}
+
+/** The pieces of the strokes; a stroke's first piece is the dot it starts with. */
+export function segments(strokes: Stroke[]): Segment[] {
+  return strokes.flatMap((stroke, drawn) =>
+    stroke.map((to, at) => ({ id: `${drawn}.${at}`, from: stroke[Math.max(at - 1, 0)], to })),
+  );
 }
 
 // The signature's picture: black ink on white, one bit a pixel, which keeps it far under MediLab's 1 MiB.
@@ -40,7 +49,7 @@ export function signaturePng(strokes: Stroke[], padWidth: number, padHeight: num
       }
     }
   };
-  for (const [from, to] of segments(strokes)) {
+  for (const { from, to } of segments(strokes)) {
     const steps = Math.max(1, Math.ceil(Math.hypot(to.x - from.x, to.y - from.y) * scale * 2));
     for (let step = 0; step <= steps; step += 1) {
       ink((from.x + ((to.x - from.x) * step) / steps) * scale, (from.y + ((to.y - from.y) * step) / steps) * scale);
@@ -62,7 +71,7 @@ export function signaturePng(strokes: Stroke[], padWidth: number, padHeight: num
 }
 
 function chunk(type: string, data: Uint8Array): Uint8Array {
-  const typed = concat([Uint8Array.from(type, (letter) => letter.charCodeAt(0)), data]);
+  const typed = concat([Uint8Array.from(type, (letter) => letter.codePointAt(0) ?? 0), data]);
   const framed = new Uint8Array(typed.length + 8);
   const view = new DataView(framed.buffer);
   view.setUint32(0, data.length);
@@ -127,7 +136,7 @@ function base64(data: Uint8Array): string {
   let binary = "";
   // Converted in slices, as a call takes a limited number of arguments.
   for (let start = 0; start < data.length; start += 0x8000) {
-    binary += String.fromCharCode(...data.subarray(start, start + 0x8000));
+    binary += String.fromCodePoint(...data.subarray(start, start + 0x8000));
   }
   return btoa(binary);
 }

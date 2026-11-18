@@ -11,6 +11,7 @@
         "data/base/res_company.xml",
         "data/base/res_partner.xml",
         "data/base/res_users.xml",
+        "data/base/ir_config_parameter.xml",
         "data/sol_laboratory/location.xml",
         "data/sol_laboratory/unit_category.xml",
         "data/sol_laboratory/measurement_unit.xml",

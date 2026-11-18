@@ -108,6 +108,7 @@
         "views/testing/result_check_settings_views.xml",
         "views/master_data/res_config_settings_views.xml",
         "views/system/res_config_settings_views.xml",
+        "views/system/mobile_release_settings_views.xml",
         "views/system/resource_calendar_leaves_views.xml",
         "views/signing/res_config_settings_views.xml",
         "views/laboratory_files/res_config_settings_views.xml",
