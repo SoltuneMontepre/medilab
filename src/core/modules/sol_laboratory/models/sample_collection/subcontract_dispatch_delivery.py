@@ -1,10 +1,11 @@
-from datetime import timedelta
+from datetime import date, timedelta
 from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 
 from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_DEPARTMENT,
     MODEL_MAIL_MESSAGE,
     MODEL_SUBCONTRACT_DISPATCH,
 )
@@ -46,11 +47,11 @@ class SubcontractDispatchDelivery(models.Model, SubcontractDispatchBase):
             contact = dispatch.sudo().subcontractor_id.contact_person_id
             dispatch.contact_person_archived = bool(contact) and not contact.active
 
-    def _turnaround_date(self, sent_date):
-        """The sent date plus the longest turnaround of the dispatch's ways of testing; False when none has one."""
+    def _turnaround_date(self, sent_date: date) -> date | None:
+        """The sent date plus the longest turnaround of the dispatch's ways of testing; None when none has one."""
         self.ensure_one()
-        days = self.sudo().sample_test_ids.parameter_method_id.mapped("turnaround_days")
-        return sent_date + timedelta(days=max(days)) if any(days) else False
+        days = [day or 0 for day in self.sudo().sample_test_ids.parameter_method_id.mapped("turnaround_days")]
+        return sent_date + timedelta(days=max(days)) if any(days) else None
 
     def _check_contact_person(self):
         for dispatch in self:
@@ -64,7 +65,7 @@ class SubcontractDispatchDelivery(models.Model, SubcontractDispatchBase):
                     )
                 )
 
-    def _hand_over(self, delivery_service=False, tracking_number=False):
+    def _hand_over(self, delivery_service: str | bool = False, tracking_number: str | bool = False):
         """The dispatch's sample delivery staff take it, or hand it to a delivery service with its tracking number;
         it is sent from then on."""
         self.ensure_one()
@@ -123,7 +124,9 @@ class SubcontractDispatchDelivery(models.Model, SubcontractDispatchBase):
 
     def _heads(self):
         """The users who head the departments that test the dispatch's sample tests."""
-        departments = self.sudo().sample_test_ids.mapped(lambda test: test._testing_task().department_id)
+        departments = self.env[MODEL_DEPARTMENT].union(
+            *(test._testing_task().department_id for test in self.sudo().sample_test_ids)
+        )
         return departments.manager_id.user_id.partner_id - self.env.user.partner_id
 
     def _notify_heads(self, event, kind, body):

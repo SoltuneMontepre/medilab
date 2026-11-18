@@ -1,4 +1,5 @@
 import math
+from datetime import date
 from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
@@ -205,7 +206,7 @@ class SubcontractDispatch(models.Model, SubcontractDispatchBase):
                 )
             if dispatch.delivery_service and not dispatch.tracking_number:
                 raise UserError(self.env._("Enter the tracking number the delivery service gave %s.", dispatch.code))
-            sent_date = dispatch.sent_date or today
+            sent_date: date = dispatch.sent_date or today
             expected_date = dispatch.expected_date or dispatch._turnaround_date(sent_date)
             if not expected_date or expected_date < sent_date:
                 raise UserError(

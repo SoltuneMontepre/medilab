@@ -484,7 +484,7 @@ class SampleTest(models.Model, SampleTestBase):
         department = self._testing_task().department_id
         return bool(person and department and department == person.department_id)
 
-    def _send_to_subcontractor(self, way, emergency_reason=False):
+    def _send_to_subcontractor(self, way, emergency_reason: str | bool = False):
         """The test leaves the machine queue and joins the draft dispatch to the subcontractor of the way of testing,
         which is returned. The reason is kept when the test is outsourced straight away."""
         self.ensure_one()
@@ -550,11 +550,11 @@ class SampleTest(models.Model, SampleTestBase):
             lambda test: (
                 test.status in OPEN_STATUSES
                 or test.status == "outsourced"
-                or (test.status == "result_entered" and test.subcontractor_id)
+                or (test.status == "result_entered" and bool(test.subcontractor_id))
             )
         )
         for dispatch in tests._active_dispatches().filtered(lambda dispatch: dispatch.status == "draft"):
-            dispatch.sample_test_ids = [Command.unlink(test.id) for test in tests & dispatch.sample_test_ids]
+            dispatch.sample_test_ids = [Command.unlink(persisted_id(test)) for test in tests & dispatch.sample_test_ids]
         # A test cancelled with its sample or request has no reason of its own, but still the time it was cancelled.
         tests.filtered(lambda test: not test.cancelled_at).cancelled_at = fields.Datetime.now()
         tests.status = "cancelled"
