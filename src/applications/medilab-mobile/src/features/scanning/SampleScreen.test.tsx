@@ -65,6 +65,18 @@ describe("SampleScreen", () => {
     ).toBeOnTheScreen();
   });
 
+  it("shows a person who does not test samples neither a handover nor testing tasks", async () => {
+    fakeMediLab({
+      status: 200,
+      body: sample({ handover: null, tasks: [], tests_samples: false, customer: "Công ty An Phú" }),
+    });
+    await renderSignedIn(<SampleScreen />);
+
+    expect(await screen.findByText("Công ty An Phú")).toBeOnTheScreen();
+    expect(screen.queryByRole("header", { name: "Bàn giao cho phòng ban" })).toBeNull();
+    expect(screen.queryByRole("header", { name: "Nhiệm vụ kiểm nghiệm chờ nhận" })).toBeNull();
+  });
+
   it("claims the chosen testing tasks of the person's department", async () => {
     const mediLab = fakeMediLab(
       { status: 200, body: sample({ tasks: [LEAD, ZINC] }) },

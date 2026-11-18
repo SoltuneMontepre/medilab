@@ -14,7 +14,14 @@ export function me(can?: Can) {
       login: "demo.tester",
       department: "Hoá",
       roles: ["Tester"],
-      can: { create_tasks: false, assign_tasks: false, read_handover_records: false, ...can },
+      can: {
+        create_tasks: false,
+        assign_tasks: false,
+        read_handover_records: false,
+        scan_samples: false,
+        sign_results: false,
+        ...can,
+      },
     },
   };
 }

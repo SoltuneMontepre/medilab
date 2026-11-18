@@ -3440,7 +3440,7 @@ components:
         can:
           type: object
           additionalProperties: false
-          required: [create_tasks, assign_tasks, read_handover_records]
+          required: [create_tasks, assign_tasks, read_handover_records, scan_samples, sign_results]
           properties:
             create_tasks:
               description: Whether the person creates tasks by hand.
@@ -3450,6 +3450,12 @@ components:
               type: boolean
             read_handover_records:
               description: Whether the person reads handover records.
+              type: boolean
+            scan_samples:
+              description: Whether the person records receipts or hands samples over, which both edit sample handovers.
+              type: boolean
+            sign_results:
+              description: Whether results can wait for the person's signature after the tester sent them.
               type: boolean
             take_support_requests:
               description: Whether the person takes and answers support requests; given only with E-commerce installed.
@@ -3741,6 +3747,7 @@ components:
         - handover
         - tasks
         - can_add_photos
+        - tests_samples
       properties:
         id:
           type: integer
@@ -3783,6 +3790,9 @@ components:
             $ref: "#/components/schemas/Task"
         can_add_photos:
           description: Whether the person reads the sample's photos and may attach one; never for a tester.
+          type: boolean
+        tests_samples:
+          description: Whether the person is in a department and authorized to test a parameter, so receives samples and claims their testing tasks.
           type: boolean
     SamplePhotoList:
       type: object

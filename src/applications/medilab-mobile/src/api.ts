@@ -131,6 +131,8 @@ export interface Me {
     create_tasks: boolean;
     assign_tasks: boolean;
     read_handover_records: boolean;
+    scan_samples: boolean;
+    sign_results: boolean;
     take_support_requests?: boolean;
   };
 }
@@ -243,6 +245,7 @@ export interface Sample {
   handover: SampleHandover | null;
   tasks: Task[];
   can_add_photos: boolean;
+  tests_samples: boolean;
 }
 
 /** A photo of a sample MediLab has. */
