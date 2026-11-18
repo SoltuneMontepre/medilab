@@ -22,6 +22,8 @@ from odoo.addons.sol_laboratory.constants.settings import SAMPLE_DELIVERY_ROLE_P
 from odoo.addons.sol_laboratory.constants.xml_ids import DISPATCH_READER_GROUP
 
 if TYPE_CHECKING:
+    from datetime import date
+
     from medilab_model_types import Model_medilab_subcontract_dispatch as SubcontractDispatchBase
 else:
     SubcontractDispatchBase = object
@@ -51,12 +53,17 @@ class SubcontractDispatch(models.Model, SubcontractDispatchBase):
         subcontractor_id = fields.Many2one(MODEL_SUBCONTRACTOR, required=True, ondelete="restrict", index=True)
         # Date the samples were sent.
         sent_date = fields.Date(copy=False)
-        # Sample delivery staff who take the samples; empty when a delivery service does.
+        # Sample delivery staff who take the samples, also when they hand them to a delivery service.
         courier_id = fields.Many2one(MODEL_PERSON, string="Sample Delivery Staff", ondelete="restrict")
-        # Delivery service and tracking number, when a delivery service takes the samples.
-        delivery_service = fields.Char(string="Delivery Service and Tracking Number")
-        # Date the results are expected back.
+        # Delivery service that carries the samples to the subcontractor; empty when sample delivery staff do.
+        delivery_service = fields.Char()
+        # Tracking number the delivery service gave the samples.
+        tracking_number = fields.Char()
+        # Date the results are expected back: the date sent plus the longest turnaround of its ways of testing, unless
+        # entered.
         expected_date = fields.Date(index=True)
+        # Why the delivery to the subcontractor failed, recorded when it cancelled the sent dispatch.
+        failure_reason = fields.Text(readonly=True, copy=False)
         # Date the results came back.
         received_date = fields.Date(copy=False)
         # Where the dispatch is: draft, sent, received or cancelled.
@@ -108,6 +115,8 @@ class SubcontractDispatch(models.Model, SubcontractDispatchBase):
         people = self.env[MODEL_ROLE].sudo().browse(role_id).exists().person_ids
         return self.env[MODEL_PERSON].browse(people.ids)
 
+    @api.depends_context("uid")
+    @api.depends("courier_id")
     def _compute_carried_by_me(self):
         person = self.env[MODEL_PERSON]._current()
         for dispatch in self:
@@ -140,16 +149,6 @@ class SubcontractDispatch(models.Model, SubcontractDispatchBase):
                     self.env._(
                         "%s does not hold the sample delivery staff role named in the Laboratory settings.",
                         dispatch.courier_id.sudo().name,
-                    )
-                )
-
-    @api.constrains("courier_id", "delivery_service")
-    def _check_carrier(self):
-        for dispatch in self:
-            if dispatch.courier_id and dispatch.delivery_service:
-                raise ValidationError(
-                    self.env._(
-                        "%s is carried by sample delivery staff or by a delivery service, not both.", dispatch.code
                     )
                 )
 
@@ -203,16 +202,23 @@ class SubcontractDispatch(models.Model, SubcontractDispatchBase):
             if not dispatch.sample_test_ids:
                 raise UserError(self.env._("Add the sample tests to %s before sending it.", dispatch.code))
             dispatch._check_subcontractor()
-            if not dispatch.courier_id and not dispatch.delivery_service:
-                raise UserError(
-                    self.env._("Enter the sample delivery staff or the delivery service taking %s.", dispatch.code)
-                )
-            sent_date = dispatch.sent_date or today
-            if not dispatch.expected_date or dispatch.expected_date < sent_date:
+            dispatch._check_contact_person()
+            dispatch._check_carrier()
+            sent_date: date = dispatch.sent_date or today
+            expected_date = dispatch.expected_date or dispatch._turnaround_date(sent_date)
+            if not expected_date or expected_date < sent_date:
                 raise UserError(
                     self.env._("Enter when the results of %s are expected back, not before it is sent.", dispatch.code)
                 )
-            dispatch._set_status("sent", sent_date=sent_date)
+            dispatch._set_status("sent", sent_date=sent_date, expected_date=expected_date)
+
+    def _check_carrier(self):
+        """The dispatch is carried by its sample delivery staff or a delivery service, which gives a tracking number."""
+        self.ensure_one()
+        if not self.courier_id and not self.delivery_service:
+            raise UserError(self.env._("Enter the sample delivery staff or the delivery service taking %s.", self.code))
+        if self.delivery_service and not self.tracking_number:
+            raise UserError(self.env._("Enter the tracking number the delivery service gave %s.", self.code))
 
     def action_receive(self):
         if any(dispatch.status != "sent" for dispatch in self):
@@ -247,6 +253,8 @@ class SubcontractDispatch(models.Model, SubcontractDispatchBase):
         for the laboratory to send it for approval."""
         self.ensure_one()
         test = self.sample_test_ids.filtered(lambda other: other.id == sample_test_id)
+        if self.status != "received":
+            raise UserError(self.env._("Confirm receipt of %s before entering its results.", self.code))
         if test.status != "outsourced":
             raise UserError(self.env._("A result is entered only for an outsourced test of this dispatch."))
         if test.result_ids.filtered(lambda result: result.is_reported and result.status == STATE_NONE):

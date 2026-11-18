@@ -91,12 +91,14 @@ Acceptance criteria:
 
 | Rule     | Description                                                                                                     |
 | -------- | --------------------------------------------------------------------------------------------------------------- |
-| Carrier  | A dispatch is carried by sample delivery staff or by a delivery service, as recorded on it when it is carried. The dispatch is sent once its carrier takes it. A failed delivery is recorded with its reason; the sent dispatch is cancelled, and the same sample is requested again through WF-02 Sample reception and handover. Only people holding the sample delivery staff role, which the administrator names in the Laboratory settings, can be chosen. |
+| Carrier  | A dispatch is carried by sample delivery staff or by a delivery service, as recorded on it when it is carried. The head chooses the sample delivery staff on the draft dispatch, and they hand it over from their list of dispatches to carry: the dispatch is sent once they take it, and when they hand it to a delivery service they record the service and its tracking number. The head can also send it. A failed delivery is recorded by its sample delivery staff or by the head with its reason; the sent dispatch is cancelled, the heads of the departments testing it are notified, and the same sample is requested again through WF-02 Sample reception and handover. Only people holding the sample delivery staff role, which the administrator names in the Laboratory settings, can be chosen. |
 
 Acceptance criteria:
 
 - A dispatch assigned to sample delivery staff appears in their list of dispatches to carry, with the subcontractor and the date sent.
 - Only people holding the role named in the Laboratory settings are offered to take a dispatch, and choosing anyone else is refused; with no role named, nobody is.
+- Only the sample delivery staff of a draft dispatch see the action to hand it over; handing it to a delivery service without a tracking number is refused.
+- Recording a failed delivery without a reason is refused; the dispatch is cancelled and its sample tests stay outsourced.
 
 ### 4. Delivering reports (US-SD14)
 
