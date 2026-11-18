@@ -82,7 +82,7 @@ Run commands from the repository root in PowerShell, Bash or your usual terminal
 | --- | --- | --- |
 | Cypress App | `task test:e2e:open` | Choose **E2E Testing**, a browser, **Start E2E Testing**, then a spec such as `login.cy.js`. Inspect commands in the left panel and the page in the right panel. Saving a spec reruns it. Close the app to finish. |
 | All specs in the terminal | `task test:e2e` | Read the per-spec results and final passed/failed counts. A failing run returns a nonzero exit code. |
-| Some tests in the terminal | `task test:e2e GREP=TC-WF01-A5` or `task test:e2e SPEC=cypress/e2e/login.cy.js` | `GREP` runs the tests whose title contains the text, such as one test case ID or `TC-WF01` for a flow, and loads only the specs that have one. `SPEC` takes Cypress spec paths or globs. Run the tests you change this way and leave the whole suite to the `e2e` job of `ci-core`. |
+| Some tests in the terminal | `task test:e2e GREP=TC-WF01-A5` or `task test:e2e SPEC=cypress/e2e/login.cy.js` | `GREP` runs the tests whose title contains the text, such as one test case ID or `TC-WF01` for a flow, and loads only the specs that have one. `SPEC` takes Cypress spec paths or globs. Run the tests you change this way and leave the whole suite to the two `e2e` runners in `ci-core`. |
 
 Both modes inherit the local environment files loaded by Task. Set `MEDILAB_DEMO_PASSWORD` to the password used when the demo was created if it differs from `demo`.
 
