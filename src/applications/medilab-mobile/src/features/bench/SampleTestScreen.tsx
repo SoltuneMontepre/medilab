@@ -45,7 +45,7 @@ export function SampleTestScreen() {
     <SafeAreaView style={shared.page}>
       <LoadNotice load={load} gone={t("test.gone")} onRetry={reload} />
       {load.state === "ready" && (
-        <ScrollView contentContainerStyle={shared.pageContent}>
+        <ScrollView contentContainerStyle={shared.pageContent} keyboardShouldPersistTaps="handled">
           <Text style={shared.title}>{load.value.parameter}</Text>
           <TestFacts test={load.value} />
           {load.value.result && <ReportedResult result={load.value.result} />}
