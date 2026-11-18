@@ -1,10 +1,10 @@
-import type { Task, TaskDay } from "../api";
+import type { Me, Task, TaskDay } from "../api";
 
 // What the home of demo.tester reads: the person, then their day.
 export const PERSON = "Nguyễn Văn An";
 export const GREETING = `Xin chào, ${PERSON}`;
 
-type Can = { create_tasks: boolean; assign_tasks: boolean; take_support_requests?: boolean };
+type Can = Partial<Me["can"]>;
 
 export function me(can?: Can) {
   return {
@@ -14,7 +14,7 @@ export function me(can?: Can) {
       login: "demo.tester",
       department: "Hoá",
       roles: ["Tester"],
-      can: can ?? { create_tasks: false, assign_tasks: false },
+      can: { create_tasks: false, assign_tasks: false, read_handover_records: false, ...can },
     },
   };
 }

@@ -6,7 +6,6 @@ from odoo.fields import Command
 from odoo.tests import new_test_user, tagged
 from odoo.tools import mute_logger
 
-from .mobile_phones import push_token
 from .request_case import RequestCase
 from odoo.addons.sol_laboratory.constants.models import MODEL_EXPECTED_SAMPLING, MODEL_HANDOVER_RECORD
 
@@ -37,7 +36,6 @@ class TestHandoverRecord(RequestCase):
                 ],
             }
         )
-        cls.device = push_token(cls.env, cls.env.ref("base.user_admin"), "handover-phone")
         cls.editor = new_test_user(
             cls.env,
             login="handover.editor",
@@ -46,13 +44,14 @@ class TestHandoverRecord(RequestCase):
             ),
         )
 
-    def test_signing_stores_the_signature_and_device_and_emails_the_pdf(self):
-        self.record.action_sign(b"signature-bytes", device_id=self.device.id)
+    def test_signing_stores_the_signature_and_emails_the_pdf(self):
+        self.record.action_sign(b"signature-bytes")
 
         self.assertEqual(self.record.status, "signed")
         self.assertEqual(bytes(self.record.signature_attachment_id.raw), b"signature-bytes")
         self.assertTrue(self.record.signed_at)
-        self.assertEqual(self.record.signed_device_id, self.device)
+        # Only Medilab Mobile's route records the phone a record was signed on.
+        self.assertFalse(self.record.signed_device_id)
         self.assertTrue(self.record.attachment_id.raw)
         mail = self.env["mail.mail"].search([("model", "=", MODEL_HANDOVER_RECORD), ("res_id", "=", self.record.id)])
         self.assertEqual(mail.email_to, "reception@anphu.example")

@@ -11,6 +11,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_DEPARTMENT,
     MODEL_EMPLOYEE,
+    MODEL_HANDOVER_RECORD,
     MODEL_LOCK_MIXIN,
     MODEL_PERMISSION,
     MODEL_PERMISSION_MIXIN,
@@ -262,7 +263,11 @@ class Person(models.Model, PersonBase):
         """What the current person may do on Medilab Mobile, from the checks the web's buttons use; a module adds what
         its own screens need."""
         tasks = self.env[MODEL_TASK]
-        return {"create_tasks": tasks._may_create(), "assign_tasks": tasks._may_assign()}
+        return {
+            "create_tasks": tasks._may_create(),
+            "assign_tasks": tasks._may_assign(),
+            "read_handover_records": self.env[MODEL_HANDOVER_RECORD]._has_permission("read"),
+        }
 
     def _administrator(self):
         return self & (self.env.ref(ADMINISTRATOR_PERSON, raise_if_not_found=False) or self.browse())

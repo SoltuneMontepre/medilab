@@ -18764,6 +18764,36 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/handover_record_mobile.py:0
+msgid "A signature can be at most 1 MiB."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/handover_record_mobile.py:0
+msgid "The signature is not valid base64."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/handover_record_mobile.py:0
+msgid "The signature is not a PNG image."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/handover_record_mobile.py:0
+msgid "Handover record %s is already signed."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/handover_record_mobile.py:0
+msgid "You may not have handover record %s signed."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch_delivery.py:0
 msgid ""
 "%(subcontractor)s confirmed receipt of %(dispatch)s; it can enter the "
