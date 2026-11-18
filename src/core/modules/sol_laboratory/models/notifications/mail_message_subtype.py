@@ -8,6 +8,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MAIL_MESSAGE_SUBTYPE,
     MODEL_NOTIFICATION_EVENT_RECIPIENT,
 )
+from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
 
 if TYPE_CHECKING:
     from medilab_model_types import Model_mail_message_subtype as MailMessageSubtypeBase
@@ -53,7 +54,7 @@ class MailMessageSubtype(models.Model, MailMessageSubtypeBase):
         of; an event about no kind of document is."""
         self.ensure_one()
         model = self.sudo().res_model
-        return not model or (model in self.env and self.env[model].has_access("read"))
+        return not model or (model in self.env and dynamic_model(self.env, model).has_access("read"))
 
     @api.model
     def _event(self, code):
