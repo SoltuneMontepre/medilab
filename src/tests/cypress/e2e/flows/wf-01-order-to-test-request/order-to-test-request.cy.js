@@ -1,22 +1,42 @@
 import { choose, newRecord, openMenu, openRow, openTab, pick, save, search } from "../../../support/form";
-import { becomeVisitor, call, callAs, callRefused, refAs, resolveRecord, signIn } from "../../../support/odoo";
 import { MENU, PORTAL_MENU } from "../../../support/menus";
+import { becomeVisitor, call, callAs, callRefused, refAs, resolveRecord, signIn } from "../../../support/odoo";
 import { step } from "../../../support/steps";
-import { CUSTOMERS, REASON, clearCarts, latestQuotation, orderAt, payAdvance } from "./setup";
+import {
+  CUSTOMERS,
+  SAMPLING_LINES,
+  clearCarts,
+  currentRequest,
+  declineQuotation,
+  latestQuotation,
+  orderAt,
+  payAdvance,
+  requestPaymentPath,
+  reviseQuotation,
+} from "./setup";
 
-// The laboratory's calendar day of a UTC datetime read from Odoo; the laboratory is in Vietnam (UTC+7).
-const laboratoryDay = (datetime) =>
-  new Date(Date.parse(`${datetime.replace(" ", "T")}Z`) + 7 * 3600000).toISOString().slice(0, 10);
+const REASON = "Giá xét nghiệm chì cao hơn báo giá năm trước.";
 
-// The advance invoice of the order's latest quotation is due on the order's payment deadline.
+const ORDER_FIELDS = ["order_status", "quotation_follow_up", "write_date"];
+
+const readOrder =
+  (order, fields = ORDER_FIELDS) =>
+  () =>
+    cy.readRecord(order, fields);
+
+// The expected samples a page shows inside `container`: one sample with its objects, expected samples and groups.
+function expectSampling(container, { objects, expected, groups }) {
+  cy.get(container)
+    .find(".o_medilab_expected_sampling")
+    .within(() => {
+      cy.get(".o_medilab_objects").should("have.text", String(objects));
+      cy.get(".o_medilab_expected").should("have.text", String(expected));
+      cy.get("tbody tr").should("have.length", groups);
+    });
+}
+// The advance request keeps the exact quotation deadline.
 function expectAdvanceDueOnDeadline(order) {
-  cy.readRecord(order, ["payment_deadline"]).then(({ payment_deadline }) =>
-    latestQuotation(order.id).then(({ advance_invoice_id: [invoice] }) =>
-      call("account.move", "read", [[invoice], ["invoice_date_due"]]).then(([read]) =>
-        expect(read.invoice_date_due).to.equal(laboratoryDay(payment_deadline)),
-      ),
-    ),
-  );
+  cy.readRecord(order, ["payment_deadline"]).then(({ payment_deadline }) => currentRequest(order).its("deadline").should("eq", payment_deadline));
 }
 
 describe("WF-01 Order to confirmed test request", () => {
@@ -75,22 +95,27 @@ describe("WF-01 Order to confirmed test request", () => {
         cy.get(".o_field_widget[name=advance_value] input").clear().type("30");
         cy.sendRecord("action_send_quotation");
         cy.get(".o_statusbar_buttons button[name=action_revise_quotation]:visible").should("exist");
-        cy.readRecord(order, ["invoice_ids"]).its("invoice_ids").should("have.length", 1);
-        call("sale.order.line", "search_read", [[["order_id", "=", order.id], ["linked_line_id", "=", false]]], {
-          fields: ["parameter_method_id", "is_downpayment"],
-        }).then((lines) =>
-          lines.filter((line) => !line.is_downpayment).forEach((line) => expect(line.parameter_method_id).to.be.ok),
-        );
+        cy.readRecord(order, ["invoice_ids"]).its("invoice_ids").should("be.empty");
+        call(
+          "sale.order.line",
+          "search_read",
+          [
+            [
+              ["order_id", "=", order.id],
+              ["linked_line_id", "=", false],
+            ],
+          ],
+          {
+            fields: ["parameter_method_id", "is_downpayment"],
+          },
+        ).then((lines) => lines.filter((line) => !line.is_downpayment).forEach((line) => expect(line.parameter_method_id).to.be.ok));
         expectAdvanceDueOnDeadline(order);
         latestQuotation(order.id).then((quotation) => {
           expect(quotation.status).to.equal("sent");
-          const invoice = quotation.advance_invoice_id[0];
-          step("Customer opens the quotation from My orders and pays the advance online");
+          expect(quotation.payment_request_ids).to.have.length(1);
           cy.signInAs("customer");
-          cy.get(`${PORTAL_MENU} a[href='/orders']`).click();
-          cy.get(`main a[href='/orders/${order.id}'], main a[href^='/orders/${order.id}?']`).first().click();
-          cy.get(`main a[href='/orders/${order.id}/quotation']`).click();
-          cy.get(`main a[href^='/my/invoices/${invoice}']`).click();
+          cy.visit(`/orders/${order.id}/quotation`);
+          cy.contains("h2", "Advance payment request");
           cy.get("button[name=method][value=payos]").click();
           cy.get("#payos-pending").should("be.visible");
         });
@@ -100,12 +125,14 @@ describe("WF-01 Order to confirmed test request", () => {
     step("Sales confirms a paid order, which creates its test request");
     orderAt("accepted").then((paid) => {
       cy.signInAs("sales");
-      cy.readRecord(paid, ["name"]).then(({ name }) => {
-        openMenu(MENU.sales, MENU.orders);
-        openRow(name);
-      });
+      cy.openRecord(paid);
+      cy.intercept("POST", "**/web/dataset/call_button/sale.order/action_confirm_order*").as("confirmOrder");
       cy.get(".o_statusbar_buttons button[name=action_confirm_order]:visible").click();
-      step("Sample collection can start, and the confirmed order no longer changes");
+      cy.wait("@confirmOrder").its("response.body").should("not.have.property", "error");
+      cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]:visible").should("not.exist");
+      currentRequest(paid).its("kind").should("eq", "balance");
+      payAdvance(paid);
+      cy.openRecord(paid);
       cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]:visible").should("exist");
       cy.readRecord(paid, ["order_status", "test_request_id", "sample_ids"]).then((read) => {
         expect(read.order_status).to.equal("confirmed");
@@ -113,10 +140,7 @@ describe("WF-01 Order to confirmed test request", () => {
           expect(request.sample_ids).to.have.length(read.sample_ids.length),
         );
       });
-      callRefused("sale.order", "write", [[paid.id], { validity_date: "2099-12-31" }]).should(
-        "eq",
-        "Không thể thay đổi đơn hàng đã xác nhận.",
-      );
+      callRefused("sale.order", "write", [[paid.id], { validity_date: "2099-12-31" }]).should("eq", "Không thể thay đổi đơn hàng đã xác nhận.");
     });
   });
 
@@ -199,7 +223,7 @@ describe("WF-01 Order to confirmed test request", () => {
       });
   });
 
-  it("TC-WF01-A5 lets sales revise a declined quotation and send the version the customer accepts", () => {
+  it("TC-WF01-A4 lets sales revise a declined quotation and send the version the customer accepts", () => {
     orderAt("sent").then((order) => {
       step("The customer declines the quotation with a reason");
       cy.signInAs("customer");
@@ -211,8 +235,9 @@ describe("WF-01 Order to confirmed test request", () => {
       step("Sales revises the quotation and sends the new version");
       cy.signInAs("sales");
       cy.openRecord(order);
+      cy.intercept("POST", "**/web/dataset/call_button/sale.order/action_send_quotation*").as("sendRevision");
       cy.sendRecord("action_send_quotation");
-      cy.get(".o_statusbar_buttons button[name=action_revise_quotation]:visible").should("exist");
+      cy.wait("@sendRevision").its("response.body").should("not.have.property", "error");
       latestQuotation(order.id).its("revision").should("eq", 2);
       step("The customer accepts the new version by paying its advance");
       payAdvance(order);
@@ -253,7 +278,7 @@ describe("WF-01 Order to confirmed test request", () => {
     });
   });
 
-  it("TC-WF01-A7 lets the Head of Sales send without an advance to a credit customer, whose order goes ahead unpaid", () => {
+  it("TC-WF01-A5 lets the Head of Sales send without an advance to a credit customer, whose order goes ahead unpaid", () => {
     orderAt("claimed", { customer: CUSTOMERS.anPhu }).then((order) => {
       step("The Head of Sales sends the quotation without an advance");
       cy.signInAs("head_of_sales");
@@ -280,8 +305,7 @@ describe("WF-01 Order to confirmed test request", () => {
         step("Sample delivery staff confirm its test request without payment");
         cy.signInAs("sample_delivery_staff");
         cy.openRecord({ model: "medilab.test.request", id });
-        cy.get(".o_statusbar_buttons button[name=action_confirm]:visible").click();
-        cy.readRecord({ model: "medilab.test.request", id }, ["status"]).its("status").should("not.eq", "draft");
+        cy.readRecord({ model: "medilab.test.request", id }, ["status"]).its("status").should("eq", "on_credit");
       });
     });
   });

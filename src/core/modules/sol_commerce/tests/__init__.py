@@ -44,6 +44,7 @@ from . import (
     test_order_totals,
     test_order_tracking,
     test_order_ways,
+    test_payment_request_reviews,
     test_payments,
     test_payos,
     test_portal_amounts,

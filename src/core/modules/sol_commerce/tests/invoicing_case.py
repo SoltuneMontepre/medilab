@@ -1,8 +1,32 @@
 from odoo.fields import Command
 from odoo.tests import TransactionCase
 
+from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ADVANCE_PAYMENT_INV
+from odoo.addons.sol_commerce.constants.tasks import AUTO_POST_CONTEXT
 from odoo.addons.sol_commerce.models.orders.sale_order_confirmation import SaleOrderConfirmation
 from odoo.addons.sol_laboratory.services.record_id import persisted_ids
+
+
+def post_legacy_advance_invoice(order, amount=None, percentage=None):
+    """Seed a posted advance invoice from the flow that preceded payment requests."""
+    if percentage is not None:
+        method = "percentage"
+        values = {"amount": percentage}
+    else:
+        method = "fixed"
+        values = {"fixed_amount": order.amount_total if amount is None else amount}
+    wizard = order.env[MODEL_SALE_ADVANCE_PAYMENT_INV].create(
+        {
+            "advance_payment_method": method,
+            "sale_order_ids": [Command.set(persisted_ids(order))],
+            **values,
+        }
+    )
+    invoices = wizard._create_invoices(order)
+    invoice_values = {"invoice_kind": "advance", "order_id": order.id}
+    invoices.with_context(**{AUTO_POST_CONTEXT: True}).write(invoice_values)
+    invoices.action_post()
+    return invoices
 
 
 class InvoicingCase(TransactionCase):

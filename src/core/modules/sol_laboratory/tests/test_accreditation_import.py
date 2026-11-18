@@ -215,8 +215,10 @@ class TestAccreditationImport(MasterDataCase):
         before = self.env[MODEL_TESTING_METHOD].with_context(active_test=False).search_count([])
         wizard = self._wizard([("LINK-FAIL-1", "One"), ("LINK-FAIL-2", "Two")])
 
+        link_error = "link refused for test"
+
         def boom(*args, **kwargs):
-            raise UserError("link refused for test")
+            raise UserError(link_error)
 
         with patch.object(type(self.certificate), "write", boom):
             with self.assertRaises(UserError):

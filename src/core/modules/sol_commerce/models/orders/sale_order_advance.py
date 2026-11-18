@@ -1,23 +1,19 @@
 from typing import TYPE_CHECKING
 
-from odoo import fields, models
-from odoo.api import SUPERUSER_ID
+from odoo import models
 from odoo.exceptions import AccessError, UserError
-from odoo.fields import Command
 from odoo.tools import format_datetime
 
-from odoo.addons.sol_commerce.constants.models import MODEL_ACCOUNT_MOVE, MODEL_ADVANCE_PAYMENT_INV, MODEL_SALE_ORDER
+from odoo.addons.sol_commerce.constants.models import MODEL_PAYMENT_REQUEST, MODEL_SALE_ORDER
 from odoo.addons.sol_commerce.constants.notifications import EVENT_QUOTATION_SENT
 from odoo.addons.sol_commerce.constants.orders import (
     ADVANCE_FIXED,
     ADVANCE_FULL,
     ADVANCE_NONE,
-    ADVANCE_PAID_STATES,
     ADVANCE_PERCENTAGE,
 )
 from odoo.addons.sol_commerce.constants.xml_ids import ALL_ORDERS_GROUP
 from odoo.addons.sol_laboratory.constants.models import MODEL_MAIL_MESSAGE
-from odoo.addons.sol_laboratory.services.record_id import persisted_ids
 
 if TYPE_CHECKING:
     from medilab_model_types import Model_sale_order as SaleOrderAdvanceBase
@@ -25,12 +21,14 @@ else:
     SaleOrderAdvanceBase = object
 
 
-# Đơn Hàng: the advance invoice and the notice that go out with a quotation.
+# Đơn Hàng: the advance payment request and notice sent with a quotation.
 class SaleOrderAdvance(models.Model, SaleOrderAdvanceBase):
     _inherit = MODEL_SALE_ORDER
 
     def _check_quotation_can_be_sent(self):
         super()._check_quotation_can_be_sent()
+        if self.sudo()._latest_quotation().advance_invoice_id.amount_residual:
+            raise UserError(self.env._("Settle the existing advance invoice before sending a revision."))
         if not self.advance_method:
             raise UserError(self.env._("Choose how the advance is paid, or no advance, before sending the quotation."))
         if self.advance_method == ADVANCE_NONE:
@@ -46,83 +44,51 @@ class SaleOrderAdvance(models.Model, SaleOrderAdvanceBase):
         if self.advance_mode == ADVANCE_FIXED and self.advance_value <= 0:
             raise UserError(self.env._("The advance amount must be above 0."))
 
-    def write(self, vals):
-        result = super().write(vals)
-        if "payment_deadline" in vals:
-            self._move_advance_due_date()
-        return result
-
     def _send_quotation(self):
-        previous = self._latest_quotation()
+        previous = self.sudo().payment_request_id
         quotation = super()._send_quotation()
-        previous._cancel_advance_invoice()
-        invoice = self._create_advance_invoice()
-        quotation.sudo().advance_invoice_id = invoice
-        self._notify_quotation_sent(quotation, invoice)
+        previous._supersede()
+        request = self._make_advance_request(quotation)
+        self.sudo().payment_request_id = request
+        self._notify_quotation_sent(quotation, request)
         return quotation
 
-    def _create_advance_invoice(self):
-        """Post the down payment invoice for the advance; no invoice when the quotation has no advance."""
+    def _make_advance_request(self, quotation):
         self.ensure_one()
+        requests = self.env[MODEL_PAYMENT_REQUEST].sudo()
         if self.advance_method == ADVANCE_NONE:
-            return self.env[MODEL_ACCOUNT_MOVE]
+            return requests.browse()
         if self.advance_mode == ADVANCE_FIXED:
-            values = {"advance_payment_method": "fixed", "fixed_amount": self.advance_value}
+            advance = self.advance_value
+        elif self.advance_mode == ADVANCE_FULL:
+            advance = quotation.amount_total
         else:
-            percentage = 100 if self.advance_mode == ADVANCE_FULL else self.advance_value
-            values = {"advance_payment_method": "percentage", "amount": percentage}
-        # The wizard posts as the user when it is internal, and a salesperson cannot post on an invoice.
-        order = self.with_user(SUPERUSER_ID)
-        wizard = (
-            self.env[MODEL_ADVANCE_PAYMENT_INV]
-            .with_user(SUPERUSER_ID)
-            .with_context(active_model=MODEL_SALE_ORDER, active_ids=order.ids)
-            .create({**values, "sale_order_ids": [Command.set(persisted_ids(order))]})
-        )
-        wizard._check_amount_is_positive()
-        invoice = wizard._create_invoices(order)
-        invoice.write(
+            advance = quotation.amount_total * self.advance_value / 100
+        carried = self._verified_order_amount()
+        amount = max(self.currency_id.round(advance - carried), 0)
+        return requests.create(
             {
-                "invoice_kind": "advance",
-                "order_id": order.id,
-                "invoice_payment_term_id": False,
-                "invoice_date_due": self._advance_due_date(),
+                "order_id": self.id,
+                "quotation_id": quotation.id,
+                "kind": "advance",
+                "advance_method": self.advance_method,
+                "amount": amount,
+                "carried_amount": carried,
+                "deadline": self.payment_deadline,
+                "state": "open" if amount else "funded",
             }
         )
-        invoice.action_post()
-        return invoice
 
-    def _advance_due_date(self):
-        """The laboratory's calendar day of the payment deadline, by which the advance is paid."""
-        self.ensure_one()
-        deadline = self.payment_deadline
-        if not deadline:
-            return False
-        laboratory = self.with_context(tz=self.env.company.tz or "UTC")
-        return fields.Datetime.context_timestamp(laboratory, deadline).date()
-
-    def _move_advance_due_date(self):
-        """Keep the open advance invoice of the current quotation due on the order's payment deadline."""
-        for order in self.filtered("payment_deadline"):
-            due_date = order._advance_due_date()
-            invoice = order._latest_quotation().sudo().advance_invoice_id
-            if (
-                invoice.state == "posted"
-                and invoice.payment_state not in ADVANCE_PAID_STATES
-                and invoice.invoice_date_due != due_date
-            ):
-                invoice.with_user(SUPERUSER_ID).invoice_date_due = due_date
-
-    def _notify_quotation_sent(self, quotation, invoice):
+    def _notify_quotation_sent(self, quotation, request):
         """Tell the order's contact about the quotation in the contact's language, with its PDF attached."""
         self.ensure_one()
         order = self.with_context(lang=self._get_lang())
         deadline = format_datetime(order.env, order.payment_deadline)
-        if invoice:
+        if request and request.amount:
             body = order.env._(
                 "Quotation %(code)s is ready. Pay the advance of %(amount)s before %(deadline)s.",
                 code=quotation.code,
-                amount=order.currency_id.format(invoice.amount_total),
+                amount=order.currency_id.format(request.amount),
                 deadline=deadline,
             )
         else:

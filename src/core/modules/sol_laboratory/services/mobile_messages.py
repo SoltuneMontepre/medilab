@@ -70,9 +70,9 @@ def internal_users(env: Environment, user_ids):
     return users
 
 
-def post_from_phone(thread, device, body, key, **post_values):
-    """Post the phone's text, mentions and files on the thread, as the web's composer does, once per Idempotency-Key: a
-    request sent again answers the message the first one posted."""
+def post_from_phone(thread, device, body, key, subtype_xmlid):
+    """Post the phone's text, mentions and files on the thread with the subtype, a discussion message or a note, as the
+    web's composer does, once per Idempotency-Key: a request sent again answers the message the first one posted."""
     env = thread.env
     posted = env[MODEL_MAIL_MESSAGE]._created_with_key(device, key)
     if posted:
@@ -95,7 +95,7 @@ def post_from_phone(thread, device, body, key, **post_values):
             message_type="comment",
             partner_ids=partners.ids,
             attachments=files,
-            **post_values,
+            subtype_xmlid=subtype_xmlid,
         )
         .with_env(env)
     )

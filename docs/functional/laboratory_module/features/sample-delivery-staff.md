@@ -68,7 +68,7 @@ Follows the reception rules and the sample lifecycle in the [Laboratory overview
 
 | Rule          | Description                                                                                                                  |
 | ------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| Test request | With E-commerce, every test request comes from an order sales confirmed ([Sales, Confirmation](../../ecommerce_module/features/sales.md#4-confirmation-us-s12-us-s15)). A customer who brings samples to the laboratory goes through sales first. Sample delivery staff confirm the request once the order's advance is paid in full or the customer is allowed credit, and receive its samples once the request is paid, which for a customer allowed credit is at once; until then the samples wait at reception. |
+| Test request | With E-commerce, every test request comes from an order sales confirmed ([Sales, Confirmation](../../ecommerce_module/features/sales.md#4-confirmation-us-s12-us-s15)). A customer who brings samples to the laboratory goes through sales first. Sample delivery staff confirm the request once the order's advance is paid in full or the customer is allowed credit, and receive its samples once the request is paid, or On credit for a customer allowed credit; until then the samples wait at reception. |
 | Identification QR | Use only the sample's QR for identification and handover; test requests and handover documents have no separate identification QR. |
 | Return estimate | The test request shows the estimated return date of its samples and parameters. |
 | Label         | The label shows the lab code, the test request's code, the date results are due and a QR code of the lab code, and nothing about the customer. |
@@ -78,7 +78,7 @@ Follows the reception rules and the sample lifecycle in the [Laboratory overview
 
 Acceptance criteria:
 
-- The samples of a test request are received only once the request is paid, or at once for a customer allowed to order on credit.
+- The samples of a test request are received only once the request is paid or On credit.
 - A sample's label shows its lab code, test request code, results due date and QR code, but not the customer or the customer's name for the sample.
 - Recording the receipt of a sample in good condition sets it to received and creates its testing tasks in each department's queue; an unusable or insufficient sample is never received first.
 - A rejected sample keeps its condition note and gets no testing tasks.
@@ -91,12 +91,14 @@ Acceptance criteria:
 
 | Rule     | Description                                                                                                     |
 | -------- | --------------------------------------------------------------------------------------------------------------- |
-| Carrier  | A dispatch is carried by sample delivery staff or by a delivery service, as recorded on it when it is carried. The dispatch is sent once its carrier takes it. A failed delivery is recorded with its reason; the sent dispatch is cancelled, and the same sample is requested again through WF-02 Sample reception and handover. Only people holding the sample delivery staff role, which the administrator names in the Laboratory settings, can be chosen. |
+| Carrier  | A dispatch is carried by sample delivery staff or by a delivery service, as recorded on it when it is carried. The head chooses the sample delivery staff on the draft dispatch, and they hand it over from their list of dispatches to carry: the dispatch is sent once they take it, and when they hand it to a delivery service they record the service and its tracking number. The head can also send it. A failed delivery is recorded by its sample delivery staff or by the head with its reason; the sent dispatch is cancelled, the heads of the departments testing it are notified, and the same sample is requested again through WF-02 Sample reception and handover. Only people holding the sample delivery staff role, which the administrator names in the Laboratory settings, can be chosen. |
 
 Acceptance criteria:
 
 - A dispatch assigned to sample delivery staff appears in their list of dispatches to carry, with the subcontractor and the date sent.
 - Only people holding the role named in the Laboratory settings are offered to take a dispatch, and choosing anyone else is refused; with no role named, nobody is.
+- Only the sample delivery staff of a draft dispatch see the action to hand it over; handing it to a delivery service without a tracking number is refused.
+- Recording a failed delivery without a reason is refused; the dispatch is cancelled and its sample tests stay outsourced.
 
 ### 4. Delivering reports (US-SD14)
 

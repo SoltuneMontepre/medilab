@@ -271,6 +271,7 @@
                     </div>
                 </dl>
                 <p t-if="quotation"><a t-att-href="'/orders/%s/quotation' % order.id">View quotation</a></p>
+                <t t-if="payment_request.kind == 'balance'" t-call="sol_commerce.payment_request_summary" />
                 <p t-if="order.reorder_note" t-out="order.reorder_note" />
                 <div class="table-responsive">
                     <table class="table">

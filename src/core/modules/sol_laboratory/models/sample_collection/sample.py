@@ -273,6 +273,7 @@ class Sample(models.Model, SampleBase):
     def action_receive(self, quantity, condition, condition_note=None, storage_location=None):
         """Record the condition staff decide on arrival. Only a sample in good condition is received; the system
         rejects an unusable one and puts an insufficient one on hold, neither of them received."""
+        self.request_id.sudo()._check_sample_intake()
         if condition not in RECEIPT_STATUS:
             raise UserError(self.env._("Condition must be good, unusable or insufficient."))
         if not quantity:

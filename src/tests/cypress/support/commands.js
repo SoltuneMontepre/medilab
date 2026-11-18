@@ -1,4 +1,5 @@
 import { readRecord, recordRef, signIn } from "./odoo";
+import { assertNoPriorRefusal, assertRefusalOutcome } from "./refusal";
 import { quietly } from "./steps";
 
 const ACTIONS = ".o_form_view .o_statusbar_buttons";
@@ -56,18 +57,26 @@ Cypress.Commands.add("expectRefusal", ({
   expect(read, "record snapshot reader").to.be.a("function");
   expect(message, "refusal message").to.be.a("string").and.not.be.empty;
   // Odoo shows a refusal in a dialog and also rejects the page's request; only that rejection is expected.
-  const expectedRejection = (error) => !REFUSALS.includes(error.exceptionName);
+  const expectedRejection = (error) => {
+    const exceptionName = error.exceptionName ?? error.data?.name;
+    // Odoo's web client sometimes raises only the generic RPC_ERROR; the exact refusal text and unchanged record
+    // are checked below before this is treated as an expected business refusal.
+    return !REFUSALS.includes(exceptionName) && error.message !== "RPC_ERROR";
+  };
   cy.on("uncaught:exception", expectedRejection);
   let snapshot;
   cy.then(read).then((before) => {
     expect(before, "record snapshot").not.to.be.oneOf([null, undefined]);
     snapshot = Cypress._.cloneDeep(before);
   });
-  cy.contains(messageSelector, message).should("not.exist");
+  cy.get("body").then(($body) => assertNoPriorRefusal($body.find(messageSelector).filter(":visible").text(), message));
   cy.then(action);
-  cy.contains(messageSelector, message).should("be.visible");
+  let displayedMessage;
+  cy.contains(messageSelector, message)
+    .should("be.visible")
+    .then(($message) => {
+      displayedMessage = $message.text();
+    });
+  cy.then(read).then((after) => assertRefusalOutcome({ displayedMessage, message, before: snapshot, after }));
   cy.then(() => cy.removeListener("uncaught:exception", expectedRejection));
-  return cy.then(read).then((after) => {
-    expect(after, "record after refusal").to.deep.equal(snapshot);
-  });
 });

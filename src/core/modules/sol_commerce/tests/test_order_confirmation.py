@@ -1,9 +1,14 @@
+from pathlib import Path
+
 from odoo.exceptions import AccessError, UserError
+from odoo.modules.module import load_script
 from odoo.tests import tagged
 
 from .order_case import OrderCase
 from odoo.addons.sol_commerce.constants.models import MODEL_CUSTOMER_SALES_TERMS
 from odoo.addons.sol_laboratory.constants.models import MODEL_TEST_REQUEST
+
+CREDIT_MIGRATION = Path(__file__).resolve().parents[1] / "migrations" / "20.0.1.16.0" / "post-migrate.py"
 
 
 @tagged("post_install", "-at_install")
@@ -178,22 +183,56 @@ class TestOrderConfirmation(OrderCase):
 
         self.assertEqual(order.order_status, "claimed")
 
-    def test_credit_blocks_the_request_of_an_unpaid_order_unless_the_customer_may_buy_on_credit(self):
+    def test_an_unverified_balance_blocks_collection_and_reception(self):
         order = self.accepted_unpaid_order()
         request = order.test_request_id
-        self.assertTrue(request._credit_blocks_confirmation())
-        with self.assertRaises(UserError):
-            request.action_confirm()
+        self.assertEqual(request.status, "confirmed")
+        with self.assertRaisesRegex(UserError, "Verify the order balance"):
+            order.with_user(self.sales).action_start_sample_collection()
+        with self.assertRaisesRegex(UserError, "Verify the order balance"):
+            request.sample_ids.action_receive(1, "unusable", "The bottle leaked")
+        self.assertEqual(request.sample_ids.status, "expected")
 
-        terms = (
-            self.env[MODEL_CUSTOMER_SALES_TERMS]
-            .with_user(self.head)
-            .create({"customer_id": self.customer_record.id, "allow_credit": True})
-        )
+    def test_a_legacy_unpaid_invoice_blocks_receipt_until_settled(self):
+        order = self.accepted_unpaid_order()
+        payment_request = order.payment_request_id
+        order.payment_request_id = False
+        payment_request.unlink()
+        invoice = order._draft_final_invoice()
+        invoice.action_post()
+        order.test_request_id.status = "paid"
+        sample = order.test_request_id.sample_ids.with_user(self.sales).sudo()
 
-        self.assertFalse(request._credit_blocks_confirmation())
-        terms.with_user(self.head).allow_credit = False
-        self.assertTrue(request._credit_blocks_confirmation())
+        with self.assertRaisesRegex(UserError, "Verify the order balance"), self.env.cr.savepoint():
+            sample.action_receive(1, "unusable", "The bottle leaked")
+        self.assertEqual(sample.status, "expected")
+
+        self.env["account.payment"].create_pending_payment(invoice, invoice.amount_residual, "cash").action_post()
+        sample.action_receive(1, "unusable", "The bottle leaked")
+        self.assertEqual(sample.status, "rejected")
+
+    def test_upgrading_backfills_eligible_legacy_credit_orders(self):
+        self.env[MODEL_CUSTOMER_SALES_TERMS].create({"customer_id": self.customer_record.id, "allow_credit": True})
+        legacy = self.accepted_unpaid_order()
+        legacy.on_credit = False
+        legacy.test_request_id.status = "paid"
+
+        advance = self.make_confirmed_order()
+        draft = self.make_quotable_order()
+        draft.advance_method = "none"
+
+        self.env.flush_all()
+        migrate = load_script(str(CREDIT_MIGRATION), "order_credit_post").migrate
+        migrate(self.env.cr, "20.0.1.15.0")
+        self.env.invalidate_all()
+
+        self.assertTrue(legacy.on_credit)
+        self.assertEqual(legacy.test_request_id.status, "on_credit")
+        self.assertFalse(advance.on_credit)
+        self.assertFalse(draft.on_credit)
+
+        legacy.test_request_id.status = "completed"
+        self.assertTrue(legacy.create_final_invoice())
 
     def test_a_paid_order_and_a_request_without_an_order_are_not_blocked(self):
         paid = self.make_confirmed_order()
@@ -205,19 +244,30 @@ class TestOrderConfirmation(OrderCase):
     def test_the_request_of_a_paid_order_is_paid_on_confirmation(self):
         request = self.make_confirmed_order().test_request_id
 
-        request.action_confirm()
-
         self.assertEqual(request.status, "paid")
         request.sample_ids[:1].with_user(self.sales).sudo().action_receive(1, "good")
         self.assertEqual(request.status, "sample_received")
 
-    def test_the_request_of_a_credit_customer_is_paid_on_confirmation(self):
-        request = self.accepted_unpaid_order().test_request_id
+    def test_credit_order_invoices_after_testing_without_marking_test_request_paid(self):
         self.env[MODEL_CUSTOMER_SALES_TERMS].create({"customer_id": self.customer_record.id, "allow_credit": True})
+        order = self.accepted_unpaid_order()
+        request = order.test_request_id
+        self.assertFalse(order.payment_request_id)
+        self.assertEqual(request.status, "on_credit")
+        self.assertEqual(order.payment_status, "not_paid")
+        self.route_collection_to_delivery_staff()
+        order.with_user(self.sales).action_start_sample_collection()
+        with self.assertRaises(UserError):
+            order.create_final_invoice()
 
-        request.action_confirm()
+        request.status = "completed"
+        invoice = order.create_final_invoice()
+        invoice.action_post()
+        self.env["account.payment"].create_pending_payment(invoice, invoice.amount_residual, "cash").action_post()
 
-        self.assertEqual(request.status, "paid")
+        self.assertEqual(invoice.amount_residual, 0)
+        self.assertEqual(order.payment_status, "paid")
+        self.assertEqual(request.status, "completed")
 
     def test_only_the_head_of_sales_changes_the_sales_terms(self):
         terms = self.env[MODEL_CUSTOMER_SALES_TERMS]

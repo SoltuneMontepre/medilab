@@ -143,6 +143,9 @@ class DigitalSigningMixin(models.AbstractModel, DigitalSigningMixinBase):
     def _digital_signing_fully_signed(self):
         """True when every level of the document's chain stands signed; a host that keeps its own status says it from
         there."""
+        return self._approval_chain_fully_signed()
+
+    def _approval_chain_fully_signed(self):
         self.ensure_one()
         levels = self._approval_levels()
         signed = self._approval_open_rows().filtered(lambda row: row.decision == DECISION_SIGNED)

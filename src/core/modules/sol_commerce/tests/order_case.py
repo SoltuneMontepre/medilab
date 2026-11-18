@@ -131,13 +131,10 @@ class OrderCase(PricingCase):
         return order
 
     def pay_advance(self, order):
-        """Register an ordinary Odoo payment of the order's advance invoice."""
-        invoices = order.sudo().invoice_ids.filtered(
-            lambda invoice: invoice.state == "posted" and invoice.payment_state == "not_paid"
-        )
-        self.env["account.payment.register"].with_context(active_model="account.move", active_ids=invoices.ids).create(
-            {}
-        ).action_create_payments()
+        """Record and verify the rest of the current advance."""
+        request = order.sudo().payment_request_id
+        payments = self.env["account.payment"]
+        payments._create_request_payment(request, request.remaining_amount, "cash").action_post()
 
     def make_confirmed_order(self, lines=None):
         """A quotable order whose advance was paid and that sales confirmed."""

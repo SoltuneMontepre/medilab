@@ -14,7 +14,7 @@ from odoo.fields import Command
 from odoo.modules.registry import Registry
 from odoo.tests import BaseCase, HttpCase, get_db_name, tagged
 
-from .invoicing_case import InvoicingCase
+from .invoicing_case import InvoicingCase, post_legacy_advance_invoice
 from odoo.addons.sol_commerce.models.invoicing.scheduled_job import PAYOS_LINK_EXISTS
 from odoo.addons.sol_commerce.services.payos_client import PayosClient
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_ENTRY, MODEL_SCHEDULED_JOB
@@ -44,7 +44,7 @@ class TestPayos(AuditLookup, InvoicingCase):
         cls.method = cls.env.ref("sol_commerce.payment_method_payos_qr")
         cls.provider.is_published = True
         cls.method.active = True
-        cls.invoice = cls.order.create_advance_invoice()
+        cls.invoice = post_legacy_advance_invoice(cls.order)
 
     def transaction(self):
         return self.env["payment.transaction"]._create_payos_transaction(self.invoice)
@@ -704,7 +704,7 @@ class TestPayosWebhook(AuditLookup, InvoicingCase, HttpCase):
         cls.method = cls.env.ref("sol_commerce.payment_method_payos_qr")
         cls.provider.is_published = True
         cls.method.active = True
-        cls.invoice = cls.order.create_advance_invoice()
+        cls.invoice = post_legacy_advance_invoice(cls.order)
         cls.transaction = cls.env["payment.transaction"]._create_payos_transaction(cls.invoice)
 
     def post_webhook(self, data):
@@ -874,7 +874,7 @@ class TestPayosWebhook(AuditLookup, InvoicingCase, HttpCase):
     def _fresh_invoice(self):
         order = self.order.copy()
         self.confirm_sale(order)
-        return order.create_advance_invoice()
+        return post_legacy_advance_invoice(order)
 
 
 @tagged("post_install", "-at_install")
@@ -984,6 +984,6 @@ class TestPayosConcurrency(BaseCase):
                 }
             )
             InvoicingCase.confirm_sale(order)
-            invoice = order.create_advance_invoice()
+            invoice = post_legacy_advance_invoice(order)
             transaction = env["payment.transaction"]._create_payos_transaction(invoice)
             return transaction.reference

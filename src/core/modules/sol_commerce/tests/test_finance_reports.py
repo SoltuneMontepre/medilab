@@ -9,7 +9,7 @@ from odoo.fields import Command
 from odoo.tests import tagged
 
 from .common import PricingCase
-from .invoicing_case import InvoicingCase
+from .invoicing_case import InvoicingCase, post_legacy_advance_invoice
 from odoo.addons.sol_commerce.constants.models import (
     MODEL_ACCOUNT_MOVE,
     MODEL_ACCOUNT_PAYMENT,
@@ -160,7 +160,7 @@ class TestFinanceReports(InvoicingCase, PricingCase):
         self.assertEqual((days_to_pay, round(paid_on_time, 1)), (12.5, 33.3))
 
     def test_an_advance_invoice_is_sent_with_its_quotation_and_a_final_one_once_emailed(self):
-        advance = self.order.create_advance_invoice()
+        advance = post_legacy_advance_invoice(self.order)
         final = self.invoice([(self.lead_product, 1, 150000)])
         self.partner.email = "an@example.com"
 

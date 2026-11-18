@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from unittest.mock import patch
 
 from odoo import fields
 from odoo.tests import tagged
@@ -38,6 +39,27 @@ class TestQuotationExpiry(OrderCase):
         self.assertEqual(order._latest_quotation().status, "sent")
         self.assertEqual(order.quotation_follow_up, "unpaid")
         self.assertEqual(order.order_status, "claimed")
+
+    def test_a_deadline_extended_before_the_expiry_lock_keeps_the_quotation_sent(self):
+        order = self.sent_order()
+        order.payment_deadline = fields.Datetime.now() - timedelta(days=1)
+        extended_deadline = fields.Datetime.now() + timedelta(days=1)
+        lock_orders = type(order)._lock_payment_orders
+        extended = False
+
+        def extend_before_lock(orders):
+            nonlocal extended
+            if not extended:
+                extended = True
+                order.payment_deadline = extended_deadline
+            return lock_orders(orders)
+
+        with patch.object(type(order), "_lock_payment_orders", extend_before_lock):
+            self.env[MODEL_QUOTATION]._flag_expired()
+
+        self.assertEqual(order.payment_deadline, extended_deadline)
+        self.assertEqual(order._latest_quotation().status, "sent")
+        self.assertEqual(order.payment_request_id.state, "open")
 
     def test_moving_the_deadline_back_does_not_expire_by_itself(self):
         order = self.sent_order()

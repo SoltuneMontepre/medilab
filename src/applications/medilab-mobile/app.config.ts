@@ -20,6 +20,13 @@ export function versionCode(version: string): number {
   return major * 1_000_000 + minor * 1_000 + patch;
 }
 
+// The variable naming the path of the PEM certificate of the update key, which expo-updates checks every code update's
+// signature against. Only a release build has it; a build without it takes no updates.
+const UPDATE_CERTIFICATE = "MEDILAB_MOBILE_UPDATE_CERTIFICATE";
+
+// The path MediLab serves code updates at, in the Expo Updates protocol.
+const UPDATES_PATH = "/medilab/api/v1/mobile/updates";
+
 export default function appConfig({ config }: ConfigContext): ExpoConfig {
   const version = process.env.MEDILAB_MOBILE_VERSION || DEFAULT_VERSION;
   // The release pipeline names the native build a code update runs on; a local build names none.
@@ -33,6 +40,17 @@ export default function appConfig({ config }: ConfigContext): ExpoConfig {
   const serverUrl = process.env.MEDILAB_URL || DEFAULT_SERVER_URL;
   // A build made for a MediLab served over HTTP, such as the local app, may reach one; other builds use HTTPS only.
   const allowsHttp = serverUrl.startsWith("http:");
+  const updateCertificate = process.env[UPDATE_CERTIFICATE] || undefined;
+  // The app checks for updates itself, at start and back in the foreground, so expo-updates never checks on its own.
+  const updates: ExpoConfig["updates"] = updateCertificate
+    ? {
+        enabled: true,
+        url: serverUrl + UPDATES_PATH,
+        checkAutomatically: "NEVER",
+        codeSigningCertificate: updateCertificate,
+        codeSigningMetadata: { keyid: "main", alg: "rsa-v1_5-sha256" },
+      }
+    : { enabled: false };
   return {
     ...config,
     name: "MediLab",
@@ -50,6 +68,8 @@ export default function appConfig({ config }: ConfigContext): ExpoConfig {
       package: "com.medilab.mobile",
       versionCode: versionCode(version),
       googleServicesFile,
+      // A new install opens Android's installer on the APK the app downloaded.
+      permissions: ["android.permission.REQUEST_INSTALL_PACKAGES"],
     },
     plugins: [
       "expo-router",
@@ -80,6 +100,7 @@ export default function appConfig({ config }: ConfigContext): ExpoConfig {
       ],
       ...firebasePlugins,
     ],
+    updates,
     extra: {
       serverUrl,
       allowsHttp,
