@@ -54,6 +54,17 @@
                 <span t-field="dispatch.expected_date" />.
             </p>
             <p t-if="error" class="alert alert-danger" t-out="error" />
+            <form
+                t-if="dispatch.status == 'sent'"
+                t-att-action="'/my/dispatches/%s/receive' % dispatch.id"
+                method="post"
+                class="alert alert-info d-flex flex-wrap align-items-center gap-2"
+            >
+                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                <span class="me-auto">Confirm that the samples of this dispatch arrived before entering their results.</span>
+                <button type="submit" class="btn btn-primary">Confirm Receipt</button>
+            </form>
+            <p t-if="dispatch.status == 'received'">Received on <span t-field="dispatch.received_date" />.</p>
             <t t-call="portal.portal_table">
                 <thead>
                     <tr>
@@ -75,6 +86,7 @@
                         <td t-out="test.parameter_method_id.method_id.code" />
                         <td class="text-end" t-out="test.quantity" />
                         <td>
+                            <span t-if="test.status == 'cancelled'" class="text-muted">Cancelled</span>
                             <t t-if="result and not rejected">
                                 <t t-out="result.value_display" /> <t t-out="result.unit_id.name if not result.value_text else ''" />
                                 <div class="text-muted small">
@@ -87,7 +99,7 @@
                                 <t t-out="rejections[test.id]" />
                             </div>
                             <form
-                                t-if="test.status == 'outsourced' and (not result or rejected)"
+                                t-if="dispatch.status == 'received' and test.status == 'outsourced' and (not result or rejected)"
                                 t-att-action="'/my/dispatches/%s/results' % dispatch.id"
                                 method="post"
                                 class="d-flex flex-wrap gap-2"

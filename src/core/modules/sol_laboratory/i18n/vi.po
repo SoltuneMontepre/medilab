@@ -1424,6 +1424,7 @@ msgstr "Hủy yêu cầu thử nghiệm này cùng các mẫu và chỉ tiêu c�
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__release_reason__cancelled
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_search
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_plan_revision__status__cancelled
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatch
 msgid "Cancelled"
 msgstr "Đã hủy"
 
@@ -2077,6 +2078,9 @@ msgstr "Tạo từ máy tính"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_failure__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__create_uid
 msgid "Created by"
 msgstr "Người tạo"
 
@@ -2167,6 +2171,9 @@ msgstr "Người tạo"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_failure__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__create_date
 msgid "Created on"
 msgstr "Ngày tạo"
 
@@ -2612,6 +2619,9 @@ msgstr "Cấp dưới trực tiếp"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_user_link_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_due_date_change_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_template_change_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_failure_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_handover_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontractor_contact_form
 msgid "Discard"
 msgstr "Hủy"
 
@@ -2755,6 +2765,9 @@ msgstr "Hiển thị báo cáo PDF mẫu hóa đơn"
 #: model:ir.model.fields,field_description:sol_laboratory.field_mail_thread__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_failure__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -2893,6 +2906,7 @@ msgstr "Đến hạn %s"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__due_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__due_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__due_date
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_subcontract_dispatch_document
 msgid "Due Date"
 msgstr "Hạn hoàn thành"
 
@@ -3201,6 +3215,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__email
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__email
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_notification_preference__channel__email
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__email
 msgid "Email"
 msgstr "Email"
 
@@ -3888,6 +3903,9 @@ msgstr "Hr trạng thái hiện diện"
 #: model:ir.model.fields,field_description:sol_laboratory.field_mail_thread__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_failure__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__id
 msgid "ID"
 msgstr "ID"
 
@@ -4285,6 +4303,7 @@ msgstr "Mục Tác Vụ"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__function
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__function
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__function
 msgid "Job Position"
 msgstr "Chức vụ"
 
@@ -4382,6 +4401,7 @@ msgstr "LOQ"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__code
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatch
 #: code:addons/sol_laboratory/models/testing/test_report.py:0
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_subcontract_dispatch_document
 msgid "Lab Code"
 msgstr "Mã PTN"
 
@@ -4618,6 +4638,9 @@ msgstr "Hoạt động gần nhất"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_failure__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__write_uid
 msgid "Last Updated by"
 msgstr "Cập nhật lần cuối bởi"
 
@@ -4708,6 +4731,9 @@ msgstr "Cập nhật lần cuối bởi"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_failure__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__write_date
 msgid "Last Updated on"
 msgstr "Cập nhật lần cuối vào"
 
@@ -5177,6 +5203,7 @@ msgstr "Nhiệm vụ của tôi"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template__name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__name
 msgid "Name"
 msgstr "Tên"
 
@@ -5664,6 +5691,7 @@ msgstr "Đã thanh toán"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__parameter_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_parameter_authorization_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_subcontract_dispatch_document
 msgid "Parameter"
 msgstr "Chỉ Tiêu"
 
@@ -6745,6 +6773,7 @@ msgstr "Người chịu trách nhiệm xác thực hợp đồng của nhân vi�
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__phone
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__phone
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__laboratory_device_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__phone
 msgid "Phone"
 msgstr "Điện thoại"
 
@@ -7138,6 +7167,7 @@ msgstr "Xem quy tắc đồng bộ của mọi thư mục phòng thí nghiệm"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__reason
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__reason
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__reason
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_failure__reason
 msgid "Reason"
 msgstr "Lý do"
 
@@ -7590,6 +7620,7 @@ msgstr "Chỉ Tiêu Của Mẫu"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__sample_type_id
 #: code:addons/sol_laboratory/models/testing/test_report.py:0
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_subcontract_dispatch_document
 msgid "Sample Type"
 msgstr "Loại Mẫu"
 
@@ -8075,6 +8106,7 @@ msgstr "Nhóm con"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__subcontractor_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__subcontractor_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__subcontractor_id
 msgid "Subcontractor"
 msgstr "Thầu Phụ"
 
@@ -11847,15 +11879,6 @@ msgstr "Không thể chọn %s: thầu phụ đã lưu trữ hoặc đã hết h
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch.py:0
-msgid ""
-"%s is carried by sample delivery staff or by a delivery service, not both."
-msgstr ""
-"%s do nhân viên giao nhận mẫu hoặc dịch vụ giao hàng vận chuyển, không thể "
-"cả hai."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch.py:0
 msgid "%s is not a number."
 msgstr "%s không phải là số."
 
@@ -11911,6 +11934,7 @@ msgstr "Chờ nhận việc"
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch.py:0
+#: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch_delivery.py:0
 msgid "A dispatch whose sample tests have results cannot be cancelled."
 msgstr "Không thể hủy phiếu gửi có chỉ tiêu của mẫu đã có kết quả."
 
@@ -11984,12 +12008,9 @@ msgid "Date Sent"
 msgstr "Ngày gửi"
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__delivery_service
-msgid "Delivery Service and Tracking Number"
-msgstr "Dịch vụ giao hàng và mã vận đơn"
-
-#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatches
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_failure__dispatch_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__dispatch_id
 msgid "Dispatch"
 msgstr "Phiếu gửi"
 
@@ -12049,6 +12070,7 @@ msgstr "Đánh dấu đã nhận"
 #. odoo-python
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatch
 #: code:addons/sol_laboratory/models/testing/test_report.py:0
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_subcontract_dispatch_document
 msgid "Method"
 msgstr "Phương pháp"
 
@@ -12082,6 +12104,7 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch.py:0
+#: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch_delivery.py:0
 msgid "Only a sent dispatch can be received."
 msgstr "Chỉ phiếu đã gửi mới được đánh dấu đã nhận."
 
@@ -12164,12 +12187,6 @@ msgid "Send"
 msgstr "Gửi"
 
 #. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/sample_test.py:0
-msgid "Send %s to its subcontractor before entering its result."
-msgstr "Gửi %s cho thầu phụ trước khi nhập kết quả."
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__sent_date
 msgid "Sent Date"
 msgstr "Ngày gửi"
@@ -12181,6 +12198,8 @@ msgstr "Gửi ngày"
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_subcontract_dispatch
+#: model:ir.actions.report,name:sol_laboratory.action_report_subcontract_dispatch
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_subcontract_dispatch_document
 msgid "Subcontract Dispatch"
 msgstr "Phiếu Gửi Thầu Phụ"
 
@@ -12219,11 +12238,6 @@ msgid ""
 msgstr ""
 "Chỉ tiêu rời hàng đợi máy và được đưa vào phiếu gửi nháp cho thầu phụ của "
 "cách thử."
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_form
-msgid "e.g. Viettel Post, VTP 8402 1157 2210"
-msgstr "VD: Viettel Post, VTP 8402 1157 2210"
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatch
@@ -19028,3 +19042,348 @@ msgstr "Biên bản giao nhận mẫu %s đã được ký."
 #: code:addons/sol_laboratory/models/sample_collection/handover_record_mobile.py:0
 msgid "You may not have handover record %s signed."
 msgstr "Bạn không được cho ký biên bản giao nhận mẫu %s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch_delivery.py:0
+msgid ""
+"%(subcontractor)s confirmed receipt of %(dispatch)s; it can enter the "
+"results."
+msgstr ""
+"%(subcontractor)s đã xác nhận nhận %(dispatch)s; thầu phụ có thể nhập kết "
+"quả."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid ""
+"%s is entered once its subcontractor received the dispatch that holds it."
+msgstr ""
+"Kết quả của %s chỉ được nhập sau khi thầu phụ đã nhận phiếu gửi chứa nó."
+
+#. module: sol_laboratory
+#: model:ir.actions.report,print_report_name:sol_laboratory.action_report_subcontract_dispatch
+msgid "'Dispatch %s' % object.code"
+msgstr "'Phiếu gửi %s' % object.code"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatch
+msgid ""
+"<span class=\"me-auto\">Confirm that the samples of this dispatch arrived "
+"before entering their results.</span>"
+msgstr ""
+"<span class=\"me-auto\">Hãy xác nhận đã nhận mẫu của phiếu gửi này trước khi"
+" nhập kết quả.</span>"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_subcontract_dispatch_document
+msgid "<strong>Carrier</strong>"
+msgstr "<strong>Người vận chuyển</strong>"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_subcontract_dispatch_document
+msgid "<strong>Contact Person</strong>"
+msgstr "<strong>Người liên hệ</strong>"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_subcontract_dispatch_document
+msgid "<strong>Date Sent</strong>"
+msgstr "<strong>Ngày gửi</strong>"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_subcontract_dispatch_document
+msgid "<strong>Results Expected</strong>"
+msgstr "<strong>Ngày dự kiến có kết quả</strong>"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_subcontract_dispatch_document
+msgid "<strong>Subcontractor</strong>"
+msgstr "<strong>Thầu phụ</strong>"
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_subcontract_dispatch_received
+msgid "A subcontractor confirmed receipt of a dispatch"
+msgstr "Thầu phụ đã xác nhận nhận phiếu gửi"
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_method_turnaround_not_negative
+msgid "A turnaround cannot be negative."
+msgstr "Thời gian trả kết quả không được âm."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontractor_contact_form
+msgid "Add"
+msgstr "Thêm"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_subcontractor_contact
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontractor_form
+msgid "Add a Contact Person"
+msgstr "Thêm người liên hệ"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_subcontractor_contact
+msgid "Add a Subcontractor's Contact Person"
+msgstr "Thêm người liên hệ của thầu phụ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__can_hand_over
+msgid "Can Hand Over"
+msgstr "Có thể bàn giao"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__can_move_subcontractor
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__moving
+msgid "Can Move Subcontractor"
+msgstr "Có thể chuyển thầu phụ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__can_report_failure
+msgid "Can Report Failure"
+msgstr "Có thể ghi nhận giao thất bại"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatch
+msgid "Confirm Receipt"
+msgstr "Xác nhận đã nhận"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch.py:0
+msgid "Confirm receipt of %s before entering its results."
+msgstr "Hãy xác nhận đã nhận %s trước khi nhập kết quả."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__contact_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontractor_form
+msgid "Contact People"
+msgstr "Người liên hệ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__contact_person_archived
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__contact_person_archived
+msgid "Contact Person Archived"
+msgstr "Người liên hệ đã lưu trữ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__make_default
+msgid "Default Contact Person"
+msgstr "Người liên hệ mặc định"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_subcontract_dispatch_failure
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_form
+msgid "Delivery Failed"
+msgstr "Giao thất bại"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__delivery_service
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__delivery_service
+msgid "Delivery Service"
+msgstr "Dịch vụ chuyển phát"
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_subcontract_dispatch_accreditation_lapsed
+msgid "Dispatch accreditation lapsed"
+msgstr "Thầu phụ của phiếu gửi hết hạn công nhận"
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_subcontract_dispatch_delivery_failed
+msgid "Dispatch delivery failed"
+msgstr "Giao phiếu gửi thất bại"
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_subcontract_dispatch_received
+msgid "Dispatch received"
+msgstr "Phiếu gửi đã được nhận"
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_subcontract_dispatches_accreditation_lapsed_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_subcontract_dispatches_accreditation_lapsed
+msgid "Dispatches whose subcontractor's accreditation lapsed"
+msgstr "Phiếu gửi có thầu phụ hết hạn công nhận"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch.py:0
+msgid "Enter the tracking number the delivery service gave %s."
+msgstr "Hãy nhập mã vận đơn mà dịch vụ chuyển phát cấp cho %s."
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_subcontract_dispatch_failure
+msgid "Failed Delivery of a Subcontract Dispatch"
+msgstr "Giao phiếu gửi thầu phụ thất bại"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__failure_reason
+msgid "Failure Reason"
+msgstr "Lý do giao thất bại"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch_delivery.py:0
+msgid "Give the reason the delivery failed."
+msgstr "Hãy nêu lý do giao thất bại."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_handover_form
+msgid "Hand Over"
+msgstr "Bàn giao"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_subcontract_dispatch_handover
+msgid "Hand Over a Subcontract Dispatch"
+msgstr "Bàn giao phiếu gửi thầu phụ"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_subcontract_dispatch_handover
+msgid "Hand Over the Dispatch"
+msgstr "Bàn giao phiếu gửi"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "Move to Another Subcontractor"
+msgstr "Chuyển sang thầu phụ khác"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_outsource_form
+msgid ""
+"No dispatch holds the outsourced test any more: choose the subcontractor it "
+"moves to."
+msgstr ""
+"Không còn phiếu gửi nào chứa chỉ tiêu đã gửi thầu phụ này: hãy chọn thầu phụ"
+" mới."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid ""
+"Only an outsourced sample test that no dispatch holds can move to another "
+"subcontractor: %s"
+msgstr ""
+"Chỉ chỉ tiêu đã gửi thầu phụ mà không phiếu gửi nào chứa mới được chuyển "
+"sang thầu phụ khác: %s"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch_delivery.py:0
+msgid ""
+"Only the sample delivery staff carrying %s, or a person who edits "
+"dispatches, can record that its delivery failed."
+msgstr ""
+"Chỉ nhân viên giao nhận mẫu đang chuyển %s, hoặc người được sửa phiếu gửi, "
+"mới ghi nhận được việc giao thất bại."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch_delivery.py:0
+msgid "Only the sample delivery staff taking %s can hand it over."
+msgstr "Chỉ nhân viên giao nhận mẫu nhận chuyển %s mới bàn giao được."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatch
+msgid "Received on"
+msgstr "Đã nhận ngày"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_failure_form
+msgid "Record Failed Delivery"
+msgstr "Ghi nhận giao thất bại"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch_scheduled_job.py:0
+msgid ""
+"The accreditation of %(subcontractor)s expired on %(date)s, so %(dispatch)s "
+"cannot be sent. Wait for the renewal, or cancel the dispatch and move its "
+"sample tests to another subcontractor with the same method."
+msgstr ""
+"Chứng nhận công nhận của %(subcontractor)s đã hết hạn ngày %(date)s nên "
+"không thể gửi %(dispatch)s. Hãy chờ gia hạn, hoặc hủy phiếu gửi và chuyển "
+"các chỉ tiêu sang thầu phụ khác có cùng phương pháp."
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_subcontract_dispatch_accreditation_lapsed
+msgid "The accreditation of a draft dispatch's subcontractor lapsed"
+msgstr "Thầu phụ của phiếu gửi nháp đã hết hạn công nhận"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontractor_form
+msgid ""
+"The default contact person is archived: choose another before a dispatch to "
+"this subcontractor is sent."
+msgstr ""
+"Người liên hệ mặc định đã bị lưu trữ: hãy chọn người khác trước khi gửi "
+"phiếu gửi cho thầu phụ này."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch_delivery.py:0
+msgid ""
+"The default contact person of %(subcontractor)s is archived. Choose another "
+"before sending %(dispatch)s."
+msgstr ""
+"Người liên hệ mặc định của %(subcontractor)s đã bị lưu trữ. Hãy chọn người "
+"khác trước khi gửi %(dispatch)s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch_delivery.py:0
+msgid ""
+"The delivery of %(dispatch)s to %(subcontractor)s failed: %(reason)s Its "
+"sample tests stay outsourced; ask for the samples again and put them in a "
+"new dispatch."
+msgstr ""
+"Giao %(dispatch)s đến %(subcontractor)s thất bại: %(reason)s Các chỉ tiêu "
+"vẫn ở trạng thái gửi thầu phụ; hãy yêu cầu lấy lại mẫu và đưa chúng vào "
+"phiếu gửi mới."
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_subcontract_dispatch_delivery_failed
+msgid "The delivery of a dispatch to its subcontractor failed"
+msgstr "Giao phiếu gửi đến thầu phụ thất bại"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_failure_form
+msgid ""
+"The dispatch is cancelled and its sample tests stay outsourced. The heads of"
+" department ask for the samples again and put them in a new dispatch."
+msgstr ""
+"Phiếu gửi bị hủy và các chỉ tiêu vẫn ở trạng thái gửi thầu phụ. Trưởng phòng"
+" yêu cầu lấy lại mẫu và đưa chúng vào phiếu gửi mới."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_handover_form
+msgid ""
+"The dispatch is sent once you take it. When you hand it to a delivery "
+"service, enter the service and its tracking number."
+msgstr ""
+"Phiếu gửi được tính là đã gửi khi bạn nhận chuyển. Khi giao cho dịch vụ "
+"chuyển phát, hãy nhập tên dịch vụ và mã vận đơn."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_form
+msgid ""
+"The subcontractor's default contact person is archived: choose another on "
+"the subcontractor before sending the dispatch."
+msgstr ""
+"Người liên hệ mặc định của thầu phụ đã bị lưu trữ: hãy chọn người khác trên "
+"thầu phụ trước khi gửi phiếu gửi."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__tracking_number
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__tracking_number
+msgid "Tracking Number"
+msgstr "Mã vận đơn"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__turnaround_days
+msgid "Turnaround (days)"
+msgstr "Thời gian trả kết quả (ngày)"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_handover_form
+msgid "e.g. Viettel Post"
+msgstr "vd: Viettel Post"

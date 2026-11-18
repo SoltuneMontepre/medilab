@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_subcontract_dispatch" model="ir.actions.report">
+        <field name="name">Subcontract Dispatch</field>
+        <field name="model">medilab.subcontract.dispatch</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sol_laboratory.report_subcontract_dispatch</field>
+        <field name="print_report_name">'Dispatch %s' % object.code</field>
+        <field name="group_ids" eval="[Command.set([ref('group_permission_subcontract_dispatch_read_all')])]" />
+        <field name="binding_model_id" ref="model_medilab_subcontract_dispatch" />
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- What the subcontractor needs to test the samples: never the customer, the order or prices. -->
+    <template id="report_subcontract_dispatch">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="dispatch">
+                <!-- The PDF engine only declares UTF-8 when it wraps an article. A bare page is read as Latin-1. -->
+                <div class="article" t-att-data-oe-model="dispatch._name" t-att-data-oe-id="dispatch.id">
+                    <t t-call="sol_laboratory.report_subcontract_dispatch_document" />
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_subcontract_dispatch_document">
+        <div class="page" style="font-family: sans-serif; font-size: 11pt">
+            <h2>Subcontract Dispatch <span t-field="dispatch.code" /></h2>
+            <p>
+                <strong>Subcontractor</strong>
+                <span t-field="dispatch.subcontractor_id.name" />
+            </p>
+            <p t-if="dispatch.subcontractor_id.contact_person_id">
+                <strong>Contact Person</strong>
+                <span t-field="dispatch.subcontractor_id.contact_person_id.name" />
+            </p>
+            <p>
+                <strong>Date Sent</strong>
+                <span t-field="dispatch.sent_date" />
+            </p>
+            <p>
+                <strong>Results Expected</strong>
+                <span t-field="dispatch.expected_date" />
+            </p>
+            <p>
+                <strong>Carrier</strong>
+                <span t-if="dispatch.courier_id" t-field="dispatch.courier_id.name" />
+                <t t-if="dispatch.delivery_service">
+                    <span t-field="dispatch.delivery_service" />, <span t-field="dispatch.tracking_number" />
+                </t>
+            </p>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 8mm">
+                <thead>
+                    <tr>
+                        <th style="text-align: left; border-bottom: 1px solid #000">Lab Code</th>
+                        <th style="text-align: left; border-bottom: 1px solid #000">Sample Type</th>
+                        <th style="text-align: left; border-bottom: 1px solid #000">Parameter</th>
+                        <th style="text-align: left; border-bottom: 1px solid #000">Method</th>
+                        <th style="text-align: left; border-bottom: 1px solid #000">Due Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="dispatch.sample_test_ids" t-as="test">
+                        <td style="padding-top: 2mm"><span t-field="test.sample_id.code" /></td>
+                        <td style="padding-top: 2mm"><span t-field="test.sample_id.sample_type_id.name" /></td>
+                        <td style="padding-top: 2mm"><span t-field="test.parameter_id.name" /></td>
+                        <td style="padding-top: 2mm"><span t-field="test.parameter_method_id.method_id.code" /></td>
+                        <td style="padding-top: 2mm"><span t-field="test.due_date" /></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </template>
+</odoo>

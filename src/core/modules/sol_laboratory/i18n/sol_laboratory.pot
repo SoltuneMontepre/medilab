@@ -347,13 +347,6 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch.py:0
-msgid ""
-"%s is carried by sample delivery staff or by a delivery service, not both."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
 #: code:addons/sol_laboratory/models/tasks/task.py:0
 msgid "%s is done by the system once its work is done."
 msgstr ""
@@ -635,6 +628,7 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch.py:0
+#: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch_delivery.py:0
 msgid "A dispatch whose sample tests have results cannot be cancelled."
 msgstr ""
 
@@ -2474,6 +2468,7 @@ msgstr ""
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__status__cancelled
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_search
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_plan_revision__status__cancelled
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatch
 msgid "Cancelled"
 msgstr ""
 
@@ -3493,6 +3488,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_failure__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__create_uid
 msgid "Created by"
 msgstr ""
 
@@ -3589,6 +3587,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_failure__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__create_date
 msgid "Created on"
 msgstr ""
 
@@ -4107,11 +4108,6 @@ msgid "Delivery Note"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__delivery_service
-msgid "Delivery Service and Tracking Number"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_hr_department
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__department_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__department_id
@@ -4256,6 +4252,9 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_user_link_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_due_date_change_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_template_change_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_failure_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_handover_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontractor_contact_form
 msgid "Discard"
 msgstr ""
 
@@ -4266,6 +4265,8 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatches
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_failure__dispatch_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__dispatch_id
 msgid "Dispatch"
 msgstr ""
 
@@ -4432,6 +4433,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_mail_thread__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_failure__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -4664,6 +4668,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__due_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__due_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__due_date
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_subcontract_dispatch_document
 msgid "Due Date"
 msgstr ""
 
@@ -5142,6 +5147,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__email
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__email
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_notification_preference__channel__email
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__email
 msgid "Email"
 msgstr ""
 
@@ -6245,6 +6251,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_mail_thread__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_failure__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__id
 msgid "ID"
 msgstr ""
 
@@ -6709,6 +6718,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__function
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__function
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__function
 msgid "Job Position"
 msgstr ""
 
@@ -6775,6 +6785,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__code
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__code
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatch
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_subcontract_dispatch_document
 msgid "Lab Code"
 msgstr ""
 
@@ -7075,6 +7086,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_failure__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__write_uid
 msgid "Last Updated by"
 msgstr ""
 
@@ -7171,6 +7185,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_failure__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__write_date
 msgid "Last Updated on"
 msgstr ""
 
@@ -7689,6 +7706,7 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/test_report.py:0
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatch
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_subcontract_dispatch_document
 msgid "Method"
 msgstr ""
 
@@ -7885,6 +7903,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_field_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_method_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_report_template__name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__name
 msgid "Name"
 msgstr ""
 
@@ -8453,6 +8472,7 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch.py:0
+#: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch_delivery.py:0
 msgid "Only a sent dispatch can be received."
 msgstr ""
 
@@ -9156,6 +9176,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__parameter_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_parameter_authorization_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_subcontract_dispatch_document
 msgid "Parameter"
 msgstr ""
 
@@ -11209,6 +11230,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__phone
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__phone
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__laboratory_device_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__phone
 msgid "Phone"
 msgstr ""
 
@@ -11818,6 +11840,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__reason
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__reason
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__reason
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_failure__reason
 msgid "Reason"
 msgstr ""
 
@@ -12800,6 +12823,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__sample_type_id
 #: code:addons/sol_laboratory/models/testing/test_report.py:0
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_subcontract_dispatch_document
 msgid "Sample Type"
 msgstr ""
 
@@ -13047,12 +13071,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_form
 msgid "Send"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/sample_test.py:0
-msgid "Send %s to its subcontractor before entering its result."
 msgstr ""
 
 #. module: sol_laboratory
@@ -13577,6 +13595,8 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_subcontract_dispatch
+#: model:ir.actions.report,name:sol_laboratory.action_report_subcontract_dispatch
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_subcontract_dispatch_document
 msgid "Subcontract Dispatch"
 msgstr ""
 
@@ -13600,6 +13620,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__subcontractor_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__subcontractor_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__subcontractor_id
 msgid "Subcontractor"
 msgstr ""
 
@@ -15999,11 +16020,6 @@ msgstr ""
 msgid ""
 "[(Total Receivable/Total Revenue) * number of days since the first invoice] "
 "for this customer"
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_form
-msgid "e.g. Viettel Post, VTP 8402 1157 2210"
 msgstr ""
 
 #. module: sol_laboratory
@@ -18821,4 +18837,322 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/handover_record_mobile.py:0
 msgid "You may not have handover record %s signed."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch_delivery.py:0
+msgid ""
+"%(subcontractor)s confirmed receipt of %(dispatch)s; it can enter the "
+"results."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid ""
+"%s is entered once its subcontractor received the dispatch that holds it."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.report,print_report_name:sol_laboratory.action_report_subcontract_dispatch
+msgid "'Dispatch %s' % object.code"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatch
+msgid ""
+"<span class=\"me-auto\">Confirm that the samples of this dispatch arrived "
+"before entering their results.</span>"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_subcontract_dispatch_document
+msgid "<strong>Carrier</strong>"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_subcontract_dispatch_document
+msgid "<strong>Contact Person</strong>"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_subcontract_dispatch_document
+msgid "<strong>Date Sent</strong>"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_subcontract_dispatch_document
+msgid "<strong>Results Expected</strong>"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_subcontract_dispatch_document
+msgid "<strong>Subcontractor</strong>"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_subcontract_dispatch_received
+msgid "A subcontractor confirmed receipt of a dispatch"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_method_turnaround_not_negative
+msgid "A turnaround cannot be negative."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontractor_contact_form
+msgid "Add"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_subcontractor_contact
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontractor_form
+msgid "Add a Contact Person"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_subcontractor_contact
+msgid "Add a Subcontractor's Contact Person"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__can_hand_over
+msgid "Can Hand Over"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__can_move_subcontractor
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__moving
+msgid "Can Move Subcontractor"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__can_report_failure
+msgid "Can Report Failure"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatch
+msgid "Confirm Receipt"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch.py:0
+msgid "Confirm receipt of %s before entering its results."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__contact_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontractor_form
+msgid "Contact People"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__contact_person_archived
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__contact_person_archived
+msgid "Contact Person Archived"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__make_default
+msgid "Default Contact Person"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_subcontract_dispatch_failure
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_form
+msgid "Delivery Failed"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__delivery_service
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__delivery_service
+msgid "Delivery Service"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_subcontract_dispatch_accreditation_lapsed
+msgid "Dispatch accreditation lapsed"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_subcontract_dispatch_delivery_failed
+msgid "Dispatch delivery failed"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_subcontract_dispatch_received
+msgid "Dispatch received"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_subcontract_dispatches_accreditation_lapsed_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_subcontract_dispatches_accreditation_lapsed
+msgid "Dispatches whose subcontractor's accreditation lapsed"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch.py:0
+msgid "Enter the tracking number the delivery service gave %s."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_subcontract_dispatch_failure
+msgid "Failed Delivery of a Subcontract Dispatch"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__failure_reason
+msgid "Failure Reason"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch_delivery.py:0
+msgid "Give the reason the delivery failed."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_handover_form
+msgid "Hand Over"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_subcontract_dispatch_handover
+msgid "Hand Over a Subcontract Dispatch"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_subcontract_dispatch_handover
+msgid "Hand Over the Dispatch"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "Move to Another Subcontractor"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_outsource_form
+msgid ""
+"No dispatch holds the outsourced test any more: choose the subcontractor it "
+"moves to."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid ""
+"Only an outsourced sample test that no dispatch holds can move to another "
+"subcontractor: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch_delivery.py:0
+msgid ""
+"Only the sample delivery staff carrying %s, or a person who edits "
+"dispatches, can record that its delivery failed."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch_delivery.py:0
+msgid "Only the sample delivery staff taking %s can hand it over."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatch
+msgid "Received on"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_failure_form
+msgid "Record Failed Delivery"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch_scheduled_job.py:0
+msgid ""
+"The accreditation of %(subcontractor)s expired on %(date)s, so %(dispatch)s "
+"cannot be sent. Wait for the renewal, or cancel the dispatch and move its "
+"sample tests to another subcontractor with the same method."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_subcontract_dispatch_accreditation_lapsed
+msgid "The accreditation of a draft dispatch's subcontractor lapsed"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontractor_form
+msgid ""
+"The default contact person is archived: choose another before a dispatch to "
+"this subcontractor is sent."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch_delivery.py:0
+msgid ""
+"The default contact person of %(subcontractor)s is archived. Choose another "
+"before sending %(dispatch)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch_delivery.py:0
+msgid ""
+"The delivery of %(dispatch)s to %(subcontractor)s failed: %(reason)s Its "
+"sample tests stay outsourced; ask for the samples again and put them in a "
+"new dispatch."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_subcontract_dispatch_delivery_failed
+msgid "The delivery of a dispatch to its subcontractor failed"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_failure_form
+msgid ""
+"The dispatch is cancelled and its sample tests stay outsourced. The heads of"
+" department ask for the samples again and put them in a new dispatch."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_handover_form
+msgid ""
+"The dispatch is sent once you take it. When you hand it to a delivery "
+"service, enter the service and its tracking number."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_form
+msgid ""
+"The subcontractor's default contact person is archived: choose another on "
+"the subcontractor before sending the dispatch."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__tracking_number
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__tracking_number
+msgid "Tracking Number"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__turnaround_days
+msgid "Turnaround (days)"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_handover_form
+msgid "e.g. Viettel Post"
 msgstr ""

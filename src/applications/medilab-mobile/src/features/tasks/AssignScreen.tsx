@@ -54,7 +54,7 @@ export function AssignScreen() {
 
   return (
     <SafeAreaView style={styles.screen}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <Text style={shared.title}>{t("assign.title")}</Text>
         {load.state === "loading" && <ActivityIndicator accessibilityLabel={t("loading")} />}
         {load.state === "unreachable" && <Unreachable onRetry={reload} />}

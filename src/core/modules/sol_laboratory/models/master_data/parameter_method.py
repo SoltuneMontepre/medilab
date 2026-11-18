@@ -65,6 +65,9 @@ class ParameterMethod(models.Model, ParameterMethodBase):
         # and time to repeat a failed measurement; empty when a machine link gives it. An in-house way whose method has
         # no machine cannot be booked without it.
         duration_minutes = fields.Integer(string="Duration (minutes)")
+        # Days from sending a dispatch through the subcontracted way until its results are back, transport and
+        # processing included; empty when unknown or for an in-house way.
+        turnaround_days = fields.Integer(string="Turnaround (days)")
         # Samples one interval of a tester holds for bookings of the way when its method is linked to no machine.
         capacity = fields.Integer(required=True, default=1)
         # The sample types the way applies to, with the unit, detection limits and default on each.
@@ -79,6 +82,7 @@ class ParameterMethod(models.Model, ParameterMethodBase):
         "The parameter is already tested with this method by the same laboratory.",
     )
     _duration_not_negative = models.Constraint("CHECK(duration_minutes >= 0)", "A duration cannot be negative.")
+    _turnaround_not_negative = models.Constraint("CHECK(turnaround_days >= 0)", "A turnaround cannot be negative.")
     _capacity_positive = models.Constraint("CHECK(capacity >= 1)", "A way of testing holds at least one sample.")
 
     @api.depends("parameter_id", "method_id", "subcontractor_id")
