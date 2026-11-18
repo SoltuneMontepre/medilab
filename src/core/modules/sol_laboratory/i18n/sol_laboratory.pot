@@ -12292,6 +12292,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_folder__category__report
+#: model:ir.ui.menu,name:sol_laboratory.menu_reports_root
 msgid "Reports"
 msgstr ""
 
@@ -17123,6 +17124,7 @@ msgstr ""
 #: model:ir.ui.menu,name:sol_laboratory.menu_testing_statistic
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_statistic_graph
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_statistic_pivot
+#: model:ir.ui.menu,name:sol_laboratory.menu_reports_testing_statistic
 msgid "Testing Statistics"
 msgstr ""
 
@@ -19155,4 +19157,9 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_handover_form
 msgid "e.g. Viettel Post"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.ui.menu,name:sol_laboratory.menu_reports_testing
+msgid "Testing Reports"
 msgstr ""

@@ -7336,6 +7336,7 @@ msgstr "Đã trả kết quả"
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_folder__category__report
+#: model:ir.ui.menu,name:sol_laboratory.menu_reports_root
 msgid "Reports"
 msgstr "Báo cáo"
 
@@ -17248,6 +17249,7 @@ msgstr "Xem thống kê"
 #: model:ir.ui.menu,name:sol_laboratory.menu_testing_statistic
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_statistic_graph
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_statistic_pivot
+#: model:ir.ui.menu,name:sol_laboratory.menu_reports_testing_statistic
 msgid "Testing Statistics"
 msgstr "Thống Kê Thử Nghiệm"
 
@@ -18245,7 +18247,6 @@ msgstr "Dùng Được"
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__status__on_credit
 msgid "On credit"
 msgstr "Mua chịu"
-
 
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_payment_request_read_all
@@ -19387,3 +19388,8 @@ msgstr "Thời gian trả kết quả (ngày)"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_handover_form
 msgid "e.g. Viettel Post"
 msgstr "vd: Viettel Post"
+
+#. module: sol_laboratory
+#: model:ir.ui.menu,name:sol_laboratory.menu_reports_testing
+msgid "Testing Reports"
+msgstr "Thử nghiệm"
