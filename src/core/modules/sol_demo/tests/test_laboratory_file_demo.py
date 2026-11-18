@@ -27,7 +27,7 @@ class TestLaboratoryFileDemo(TransactionCase):
 
         for index, content in enumerate(spreadsheets):
             with self.subTest(index=index):
-                self.assertIsInstance(content, bytes)
+                assert isinstance(content, bytes), "Seeded spreadsheet is not a byte stream"
                 with ZipFile(BytesIO(content)) as workbook:
                     self.assertIn("xl/workbook.xml", workbook.namelist())
                     self.assertIn("xl/worksheets/sheet1.xml", workbook.namelist())
