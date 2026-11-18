@@ -14,15 +14,15 @@ MediLab is built on Odoo Community and extends its apps where they hold a concep
 - A module depends on as few apps as it needs. An app that only brings features MediLab does not use, or a concept that does not fit, is not added; MediLab keeps its own model instead.
 - When an app has the concept, MediLab extends its model with `_inherit` and its views, instead of adding a model of its own. A MediLab concept with its own lifecycle, permissions or links, which the app holds only part of, is its own model delegating to the app's record with `_inherits`, as [Database conventions](../conventions/database.md#models) states.
 
-| Module     | Odoo apps it depends on                             |
-| ---------- | --------------------------------------------------- |
-| Laboratory | `hr`, `hr_holidays`, `portal`, `calendar` |
-| E-commerce | `sale`, `l10n_vn`, `rating`                         |
-| Inventory  | `stock_account`, `product_expiry`, `purchase_stock` |
-| Theme      | `web`, `mail`                                       |
-| Onboarding | None beyond Laboratory's                            |
+| Module     | Odoo apps it depends on                                                                    |
+| ---------- | ------------------------------------------------------------------------------------------ |
+| Laboratory | `hr`, `hr_holidays`, `portal`, `calendar`                                                  |
+| E-commerce | `sale`, `l10n_vn`, `rating`                                                                |
+| Inventory  | `stock_account`, `product_expiry`, `purchase_stock`, `spreadsheet_dashboard_stock_account` |
+| Theme      | `web`, `mail`                                                                              |
+| Onboarding | None beyond Laboratory's                                                                   |
 
-Each module also has every app its own apps depend on: `mail`, `bus` and `resource` through `hr`; `account`, `account_payment`, `payment` and `product` through `sale`; `account_qr_code_emv` through `l10n_vn`; `stock`, `uom` and `purchase` through Inventory's apps.
+Each module also has every app its own apps depend on: `mail`, `bus` and `resource` through `hr`; `account`, `account_payment`, `payment` and `product` through `sale`; `account_qr_code_emv` through `l10n_vn`; `stock`, `uom` and `purchase` through Inventory's apps. Odoo installs `spreadsheet_dashboard_stock_account` with `stock_account` anyway; Inventory depends on it only to unpublish its stock dashboard while Inventory is hidden, as [Menus](#menus) states.
 
 Laboratory scheduling uses Time Off (`hr_holidays`) for approved employee leave and reacts when leave is approved. The scheduler implementation must declare this dependency in the Laboratory manifest.
 
@@ -71,6 +71,8 @@ Installing E-commerce gives the main company Vietnam, VND, VND price lists and t
 What no app holds the way MediLab needs it stays MediLab's own: scheduled jobs and their queue on Odoo's cron, the audit trail, approval chains and signatures, the test catalog with its units, machines and their service records, test requests, samples, sample tests and results, test reports with their versioned templates and controlled drafts, handover records, change requests, tasks and task types, bookings of sample tests with machines when needed, the scheduling plan and its revisions, planned OverTime, subcontract dispatches, document locks, notification preferences, the public catalog and cart pages, the samples and quotation revisions of an order, order templates, cancellation and support requests, reconciliation days, recipes and preparations, stock takes, how much each method uses, budgets, stock charges and the accounting export, digital signing through Viettel Sign, and laboratory files with their folders, versions, devices, editing sessions and locks.
 
 ### Menus
+
+Inventory is out of scope for now. Its Master Data menu, Odoo's Purchase and Inventory apps, their pages in Settings and Odoo's Warehouse Metrics dashboard are hidden from everyone, and sales orders hide the warehouse and shipping policy Odoo adds once Sales and Inventory are both installed. Records, permissions and demo data stay as they are, and a page opened from its address still shows. The product owner decides when Inventory comes back; the Purchase and Inventory rows below describe its menus once it does.
 
 People see the Odoo apps with their own menus, and MediLab adds its menus to them. Master data has its own Master Data app, where every installed module adds its master data. Analysis goes under the Reporting menu of the app it is about.
 

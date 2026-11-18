@@ -11,7 +11,6 @@ const ROLES = [
   "head_of_department",
   "lab_head",
   "subcontractor",
-  "storekeeper",
   "customer",
   "individual",
   "registered",
