@@ -20,6 +20,8 @@ services:
       USER: ${MEDILAB_DB_USER:-root}
       PASSWORD: ${MEDILAB_DB_PASSWORD:-root}
       MEDILAB_DEMO_PASSWORD: ${MEDILAB_DEMO_PASSWORD:-}
+      # The demo catalog of Medilab Mobile releases, which sol_demo ships.
+      MEDILAB_MOBILE_RELEASES_FILE: ${MEDILAB_MOBILE_RELEASES_FILE:-/mnt/extra-addons/sol_demo/data/sol_laboratory/mobile_releases.json}
       ODOO_DEV:
       PAYOS_CLIENT_ID:
       PAYOS_API_KEY:

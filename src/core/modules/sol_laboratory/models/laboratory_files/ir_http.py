@@ -10,6 +10,7 @@ from odoo.addons.sol_laboratory.services import laboratory_bucket, sync_update_h
 from odoo.addons.sol_laboratory.services import laboratory_editing_callback as editing_callback
 from odoo.addons.sol_laboratory.services.editing_callback_logging import install_filter
 from odoo.addons.sol_laboratory.services.laboratory_api import exception_answer, is_api_path
+from odoo.addons.sol_laboratory.services.mobile_update_http import is_mobile_update_path
 
 if TYPE_CHECKING:
     from medilab_model_types import Model_ir_http as IrHttpBase
@@ -33,7 +34,7 @@ class IrHttp(models.AbstractModel, IrHttpBase):
         except MethodNotAllowed as error:
             if editing_callback.is_callback_path(path_info):
                 setattr(error, "error_response", editing_callback.exception_answer(error))
-            elif sync_update_http.is_public_sync_path(path_info):
+            elif sync_update_http.is_public_sync_path(path_info) or is_mobile_update_path(path_info):
                 setattr(error, "error_response", sync_update_http.exception_answer(error))
             elif is_api_path(path_info):
                 setattr(error, "error_response", exception_answer(error))
@@ -43,7 +44,9 @@ class IrHttp(models.AbstractModel, IrHttpBase):
     def _handle_error(cls, exception):
         if editing_callback.is_callback_path(request.httprequest.path):
             return editing_callback.exception_answer(exception)
-        if sync_update_http.is_public_sync_path(request.httprequest.path):
+        if sync_update_http.is_public_sync_path(request.httprequest.path) or is_mobile_update_path(
+            request.httprequest.path
+        ):
             return sync_update_http.exception_answer(exception)
         if is_api_path(request.httprequest.path):
             return exception_answer(exception)
