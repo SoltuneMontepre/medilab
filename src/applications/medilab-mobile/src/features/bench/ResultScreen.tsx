@@ -43,7 +43,7 @@ export function ResultScreen() {
     <SafeAreaView style={shared.page}>
       <LoadNotice load={load} gone={t("result.gone")} onRetry={reload} />
       {load.state === "ready" && (
-        <ScrollView contentContainerStyle={shared.pageContent}>
+        <ScrollView contentContainerStyle={shared.pageContent} keyboardShouldPersistTaps="handled">
           <Details result={load.value} />
           {step === "changing" && (
             <ResultForm

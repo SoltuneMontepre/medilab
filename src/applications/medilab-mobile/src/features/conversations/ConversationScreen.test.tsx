@@ -4,6 +4,7 @@ import { useLocalSearchParams } from "expo-router";
 import { CHEMIST, conversation, conversations, message, page } from "../../testing/conversations";
 import { fakeMediLab, kept, refusal } from "../../testing/fakeMediLab";
 import { renderSignedIn } from "../../testing/renderSignedIn";
+import { scrollingParent } from "../../testing/scrolling";
 import { ConversationScreen, POLL_MILLISECONDS } from "./ConversationScreen";
 
 // The test-only controls of the mocked Firebase Cloud Messaging, camera and gallery, and phone's files.
@@ -111,6 +112,15 @@ describe("ConversationScreen", () => {
     });
     expect(sent.headers["Idempotency-Key"]).toBe(refused.headers["Idempotency-Key"]);
     expect(screen.getByTestId("message-text").props.value).toBe("");
+  });
+
+  it("chooses a suggested member with the tap that closes the keyboard", async () => {
+    await open();
+
+    await fireEvent.changeText(screen.getByTestId("message-text"), "@Ly");
+    const suggestion = await screen.findByTestId(`mention-${CHEMIST.id}`);
+
+    expect(scrollingParent(suggestion)).toHaveProp("keyboardShouldPersistTaps", "handled");
   });
 
   it("mutes and unmutes the conversation", async () => {
