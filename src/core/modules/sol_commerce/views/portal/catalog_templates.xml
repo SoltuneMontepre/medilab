@@ -140,7 +140,7 @@
                                                 </label>
                                                 <select name="parameter_method_id" t-att-id="'way_%s' % tested.id" class="form-select w-auto" onchange="this.form.submit()">
                                                     <option value="" t-att-selected="not tested.parameter_method_id">Choose a way of testing</option>
-                                                    <t t-foreach="tested.offered_method_ids" t-as="way">
+                                                    <t t-foreach="tested.offered_method_ids.with_context(medilab_way_by_method=True)" t-as="way">
                                                         <option t-att-value="way.id" t-att-selected="way == tested.parameter_method_id" t-out="way.display_name" />
                                                     </t>
                                                 </select>
