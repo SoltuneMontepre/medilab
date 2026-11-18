@@ -22,6 +22,8 @@ class SampleTestOutsource(models.TransientModel, SampleTestOutsourceBase):
     if not TYPE_CHECKING:
         # The sample test sent to a subcontractor.
         sample_test_id = fields.Many2one(MODEL_SAMPLE_TEST, required=True, ondelete="cascade")
+        # True when the outsourced test moves to another subcontractor after no dispatch holds it any more.
+        moving = fields.Boolean(related="sample_test_id.can_move_subcontractor")
         # True when the scheduler suggests outsourcing the test; otherwise it is outsourced straight away.
         outsourcing_suggested = fields.Boolean(related="sample_test_id.outsourcing_suggested")
         # The subcontracted ways of testing it can go through: the accepted way only, when the customer accepted one.
@@ -49,7 +51,9 @@ class SampleTestOutsource(models.TransientModel, SampleTestOutsourceBase):
         self.ensure_one()
         # A test without a suggestion needs the reason; a reason given is never dropped.
         test = self.sample_test_id
-        if self.reason or not test.outsourcing_suggested:
+        if self.moving:
+            dispatch = test._move_to_subcontractor(self.parameter_method_id)
+        elif self.reason or not test.outsourcing_suggested:
             dispatch = test._outsource_now(self.parameter_method_id, self.reason)
         else:
             dispatch = test._accept_outsourcing(self.parameter_method_id)

@@ -24,6 +24,15 @@
                         groups="sol_laboratory.group_permission_subcontract_dispatch_create_all"
                     />
                     <button
+                        name="%(action_medilab_sample_test_outsource)d"
+                        type="action"
+                        string="Move to Another Subcontractor"
+                        context="{'default_sample_test_id': id}"
+                        invisible="not can_move_subcontractor or not outsourcing_method_ids"
+                        groups="sol_laboratory.group_permission_subcontract_dispatch_create_all"
+                    />
+                    <field name="can_move_subcontractor" invisible="1" />
+                    <button
                         name="action_enter_result"
                         type="object"
                         string="Enter Result"

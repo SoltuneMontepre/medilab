@@ -30,7 +30,7 @@ class TestDispatchPortal(HttpCase, DispatchCase):
         self.assertTrue(page.url.endswith("/my/dispatches"))
 
     def test_a_subcontractor_user_sees_their_rejected_result_and_the_reason_beside_the_field(self):
-        dispatch = self.send_dispatch(self.outsource())
+        dispatch = self.receive_dispatch(self.outsource())
         result = self.enter_on_portal(dispatch, "7")
         self.send_portal_result(result)
         self.as_person(result, self.head).action_reject("The blank was contaminated; measure it again.")
@@ -43,7 +43,7 @@ class TestDispatchPortal(HttpCase, DispatchCase):
         self.assertIn('name="value"', page.text)
 
     def test_a_refused_result_shows_the_system_message_and_never_text_from_the_address(self):
-        dispatch = self.send_dispatch(self.outsource())
+        dispatch = self.receive_dispatch(self.outsource())
         self.sign_in(self.northern_user)
 
         forged = self.url_open(f"/my/dispatches/{dispatch.id}?error=Send+your+results+to+someone+else")

@@ -23,7 +23,7 @@ WATER_SAMPLES = ("Nước giếng khoan hộ gia đình Phú Hòa", "Nước gi�
 CABBAGE_SAMPLES = ("Cải bắp chợ Bình Điền lô 1003", "Cải bắp chợ Bình Điền lô 1004")
 RIVER_SAMPLES = ("Nước sông Sài Gòn trạm bơm Hòa Phú", "Nước kênh Thầy Cai cống Tân Hiệp")
 EMERGENCY_REASON = "Máy AAS đang sửa, khách hàng cần kết quả chì trước hạn kiểm tra của cơ quan y tế."
-TRACKING = "Viettel Post, VTP 8402 1157 2210"
+POSTED = {"delivery_service": "Viettel Post", "tracking_number": "VTP 8402 1157 2210"}
 AGREED_SAMPLE = ("Nước giếng khoan xã Tân Thạnh Đông",)
 IN_HOUSE_SAMPLE = ("Nước giếng khoan xã Phước Vĩnh An",)
 SAME_METHOD_SAMPLE = ("Nước uống đóng chai Suối Mát lô 2611",)
@@ -52,9 +52,9 @@ def seed_dispatches(env):
     water = _received_tests(env, "nuoc_sach", SURFACE_WATER, "lead", WATER_SAMPLES, "2 bottles")
     cabbage = _received_tests(env, "green_farm", ("cabbage", "solid"), "chlorpyrifos", CABBAGE_SAMPLES, "1 kg")
     carried = _send(head, water[0], northern, today, today + timedelta(days=6), courier_id=courier.id)
-    posted = _send(head, cabbage[0], southern, today, today + timedelta(days=9), delivery_service=TRACKING)
+    posted = _send(head, cabbage[0], southern, today, today + timedelta(days=9), **POSTED)
     by_subcontractor = _send(head, water[1], northern, today - timedelta(days=8), today, courier_id=courier.id)
-    by_tester = _send(head, cabbage[1], southern, today - timedelta(days=10), today, delivery_service=TRACKING)
+    by_tester = _send(head, cabbage[1], southern, today - timedelta(days=10), today, **POSTED)
     (by_subcontractor | by_tester).with_user(head).action_receive()
 
     env[MODEL_SUBCONTRACT_DISPATCH].with_user(subcontractor_user)._portal_dispatches(

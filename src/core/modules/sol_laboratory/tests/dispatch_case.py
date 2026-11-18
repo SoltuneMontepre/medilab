@@ -73,6 +73,11 @@ class DispatchCase(ResultCase):
         dispatch.action_send()
         return dispatch
 
+    def receive_dispatch(self, dispatch):
+        dispatch = self.send_dispatch(dispatch)
+        dispatch.action_receive()
+        return dispatch
+
     def enter_on_portal(self, dispatch, value="", value_text="", user=None):
         user = user or self.northern_user
         dispatches = self.env[MODEL_SUBCONTRACT_DISPATCH].with_user(user)._portal_dispatches(user, dispatch.id)
