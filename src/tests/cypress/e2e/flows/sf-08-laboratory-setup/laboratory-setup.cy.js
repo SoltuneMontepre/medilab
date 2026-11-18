@@ -98,14 +98,14 @@ function signedLevels(document) {
   return signatures(document).then((rows) => rows.map((row) => row.level_name));
 }
 
-// The names of the apps the signed-in user's home menu offers.
+// The XML IDs of the apps the signed-in user's home menu offers, which do not depend on the user's language.
 function apps() {
   cy.visit("/odoo");
   cy.get(".o_navbar_apps_menu button").click();
   return cy
-    .get(".ml_apps_panel .ml_app_tile_name")
+    .get(".ml_apps_panel .ml_app_tile")
     .should("have.length.greaterThan", 0)
-    .then(($items) => Cypress._.sortBy([...$items].map((item) => item.innerText.trim())));
+    .then(($items) => Cypress._.sortBy([...$items].map((item) => item.dataset.menuXmlid)));
 }
 
 describe("SF-08 Laboratory setup", () => {
@@ -245,7 +245,7 @@ describe("SF-08 Laboratory setup", () => {
     cy.signInAs("sales");
     apps().then((salesApps) => {
       cy.signInAs("backup_signer");
-      apps().should("not.include", "Sales");
+      apps().should("not.include", "sale.sale_menu_root");
 
       cy.signInAs("administrator");
       cy.openRecord(BACKUP_PERSON);
