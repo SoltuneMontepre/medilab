@@ -193,6 +193,8 @@ class Task(models.Model, TaskBase):
         for task in self:
             task.can_edit = not task.id or task in editable
 
+    @api.depends("status", "assignee_id", "document_model", "document_id")
+    @api.depends_context("uid")
     def _compute_can_start(self):
         outsourced = self._outsourced_testing_tasks()
         for task in self:
