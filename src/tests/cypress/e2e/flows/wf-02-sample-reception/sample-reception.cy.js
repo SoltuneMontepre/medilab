@@ -1,9 +1,10 @@
 import { choose, newRecord, openMenu, openRow, openTab, pick, save, search } from "../../../support/form";
 import { MENU } from "../../../support/menus";
+import { onPhone, signedInPhone } from "../../../support/mobile";
 import { callAs, callRefused, refAs } from "../../../support/odoo";
 import { step } from "../../../support/steps";
 import { sentDispatch } from "../wf-05-outsourced-testing/setup";
-import { PARAMETERS, PNG, STAFF, collectionTask, inMinutes, orderCollectionTask, orderRequest, receive, signedRecord, staffRequest, testingTasks } from "./setup";
+import { PARAMETERS, PNG, STAFF, collectionTask, draftRecord, inMinutes, orderCollectionTask, orderRequest, receive, signedRecord, staffRequest, testingTasks } from "./setup";
 
 const HEAD = "demo.head_of_department";
 const SALES = "demo.sales";
@@ -439,17 +440,20 @@ describe("WF-02 feature acceptance criteria", () => {
     staffRequest().then((request) => {
       const [sample] = request.samples;
       receive(sample);
-      refAs(STAFF, "sol_demo.demo_mobile_device_sample_delivery_staff").then((device) =>
-        signedRecord(request, sample, "500 ml", device.id).then((record) => {
-          cy.signInAs("sample_delivery_staff");
-          cy.readRecord(record, ["signature_attachment_id", "signed_at", "signed_device_id", "attachment_id", "sent_at"]).should((read) => {
-            expect(read.signature_attachment_id, "signature").to.be.an("array");
-            expect(read.signed_at, "signed at").to.be.a("string");
-            expect(read.signed_device_id[0], "device").to.equal(device.id);
-            expect(read.attachment_id, "PDF").to.be.an("array");
-            expect(read.sent_at, "e-mailed").to.be.a("string");
-          });
-        }),
+      // The customer signs on the phone of sample delivery staff, which MediLab records itself.
+      draftRecord(request, sample).then((id) =>
+        signedInPhone(STAFF).then((key) =>
+          onPhone(key, "POST", `/handover-records/${id}/sign`, { signature: PNG, confirmed: true }).then(({ body: signed }) => {
+            cy.signInAs("sample_delivery_staff");
+            cy.readRecord({ model: "medilab.handover.record", id }, ["signature_attachment_id", "signed_at", "signed_device_id", "attachment_id", "sent_at"]).should((read) => {
+              expect(read.signature_attachment_id, "signature").to.be.an("array");
+              expect(read.signed_at, "signed at").to.be.a("string");
+              expect(read.signed_device_id[1], "device").to.equal(signed.signed_device);
+              expect(read.attachment_id, "PDF").to.be.an("array");
+              expect(read.sent_at, "e-mailed").to.be.a("string");
+            });
+          }),
+        ),
       );
     });
   });

@@ -12,6 +12,7 @@ from . import (
     laboratory_api_folder_members,
     laboratory_api_folder_rules,
     laboratory_api_folders,
+    laboratory_api_handover_records,
     laboratory_api_me,
     laboratory_api_modules,
     laboratory_api_notification_preferences,

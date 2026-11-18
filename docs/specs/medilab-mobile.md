@@ -59,7 +59,7 @@ The Firebase token is a `medilab.mobile.device` linked to its phone's device: on
 
 | Route | Does |
 | ----- | ---- |
-| `GET /me` | The person's name, login, department and roles, and what they may do: create, assign and reassign tasks, take support requests |
+| `GET /me` | The person's name, login, department and roles, and what they may do: create, assign and reassign tasks, read handover records, take support requests |
 | `GET /modules` | The installed MediLab modules, such as `sol_laboratory`, `sol_commerce` and `sol_inventory` |
 
 What the person may do comes from the same permission checks the web's buttons use, so the app hides what the web hides. `GET /modules` reads the modules' installed state with full rights and answers only their technical names.
@@ -160,12 +160,16 @@ A push is created when a notification is delivered on the push channel ([SH-11](
 
 | Route | Does |
 | ----- | ---- |
-| `GET /handover-records?status=draft\|signed` | The handover records the person may read |
-| `GET /handover-records/{record_id}` | The record's code, test request, who handed the samples over, the samples it lists with their amount and condition, and when and on which phone it was signed |
-| `POST /handover-records/{record_id}/sign` | Records the customer's signature through `action_sign()` |
+| `GET /handover-records?status=draft\|signed&after=&limit=` | The handover records of the status the person may read, latest handover first |
+| `GET /handover-records/{record_id}` | The record's code, test request, who handed the samples over and who took them, the samples it lists with what was handed over against what was expected, their amount, excess material and condition, and when and on which phone it was signed |
+| `POST /handover-records/{record_id}/sign` | Records the customer's signature through `_sign()` |
 
-- Signing takes the signature as a PNG, at most 1 MiB, and `confirmed: true`. The route signs through the record's `_sign()` with the phone of the key, which is recorded as the device the record was signed on; neither the app nor any caller of `action_sign()` names the device.
+- `GET /me` says with `read_handover_records` whether the person reads handover records, so the app shows them only then. A record's answer says with `can_sign` whether it waits for the customer's signature, lists samples and the person may edit it, which signing needs; the app offers signing only then. A person who may not edit it is refused with `permission_denied`.
+- The test request, the people and the samples' codes and types are named as the web's form names them; the customer's name for a sample comes only to a person who reads every test request, as on a [sample](#scanning-sample-labels).
+- Signing takes the signature as a PNG, at most 1 MiB, and `confirmed: true`. The route signs through the record's `_sign()` with the phone of the key, which is recorded as the device the record was signed on; neither the app nor any caller of `action_sign()` names the device, and `action_sign()` records none.
 - A signed record is only shown. Signing it again from the phone that signed it answers the signed record, so a signature sent again after a lost answer is not refused; from any other phone it is refused with `action_refused`.
+- **Signing on the phone.** The customer reads the samples on the record, signs by hand in the app's signature box and confirms on a step that names them and the record. The app draws the signature as a black-and-white PNG itself, so it needs no native drawing library.
+- **On the phone first.** The app keeps the signature in its own folder, one per record, before sending it. A signature MediLab did not get, with no connection or refused, stays on the phone and the record's screen offers to send it again or discard it; the app offers no new signature meanwhile. Once the record is signed, on this phone or another, the kept signature is removed.
 
 ### Conversations and chatter
 

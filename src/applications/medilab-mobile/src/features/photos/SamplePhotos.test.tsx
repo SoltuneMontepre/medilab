@@ -65,7 +65,7 @@ describe("SamplePhotos", () => {
     );
     await renderSignedIn(<SampleScreen />);
 
-    await fireEvent.press(await screen.findByTestId(`send-photo-${photo.key}`));
+    await fireEvent.press(await screen.findByTestId(`unsent-photo-${photo.key}-send`));
 
     expect(mediLab.sent[2]).toMatchObject({
       method: "POST",
@@ -84,13 +84,13 @@ describe("SamplePhotos", () => {
     fakeMediLab(STAFF_SAMPLE, noPhotos, "unreachable", noPhotos, noPhotos);
     await renderSignedIn(<SampleScreen />);
 
-    await fireEvent.press(await screen.findByTestId(`send-photo-${photo.key}`));
+    await fireEvent.press(await screen.findByTestId(`unsent-photo-${photo.key}-send`));
 
     expect(await screen.findByText(/^Không kết nối được MediLab/)).toBeOnTheScreen();
     expect(screen.getByTestId(`unsent-photo-${photo.key}`)).toBeOnTheScreen();
     expect(memoryFiles.size).toBe(2);
 
-    await fireEvent.press(screen.getByTestId(`discard-photo-${photo.key}`));
+    await fireEvent.press(screen.getByTestId(`unsent-photo-${photo.key}-discard`));
 
     expect(screen.queryByTestId(`unsent-photo-${photo.key}`)).toBeNull();
     expect(memoryFiles.size).toBe(0);

@@ -88,6 +88,22 @@ describe("HomeScreen", () => {
     expect(router.push).toHaveBeenCalledWith("/tasks/new");
   });
 
+  it("offers the handover records only to those who read them", async () => {
+    fakeMediLab(...home({ read_handover_records: true }));
+    await renderApp();
+
+    await fireEvent.press(await screen.findByRole("button", { name: "Biên bản giao nhận mẫu" }));
+    expect(router.push).toHaveBeenCalledWith("/handover-records");
+  });
+
+  it("hides the handover records from those who do not read them", async () => {
+    fakeMediLab(...home());
+    await renderApp();
+
+    expect(await screen.findByText(GREETING)).toBeOnTheScreen();
+    expect(screen.queryByRole("button", { name: "Biên bản giao nhận mẫu" })).toBeNull();
+  });
+
   it("offers the support requests to those who handle them with E-commerce installed", async () => {
     fakeMediLab(...home(SALES, modules("sol_commerce")));
     await renderApp();
