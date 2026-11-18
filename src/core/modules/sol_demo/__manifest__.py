@@ -5,7 +5,7 @@
     "category": "Services/Laboratory",
     "author": "Soltune Montepre",
     "license": "LGPL-3",
-    "depends": ["account", "sol_laboratory", "sol_commerce", "sol_inventory", "sol_onboarding"],
+    "depends": ["account", "sale_stock", "sol_laboratory", "sol_commerce", "sol_inventory", "sol_onboarding"],
     "data": [
         "data/hr/hr_department.xml",
         "data/base/res_company.xml",
@@ -92,6 +92,7 @@
         "data/mail/discuss_channel_member.xml",
         "data/mail/mail_message.xml",
         "data/mail/mail_notification.xml",
+        "views/orders/sale_order_views.xml",
     ],
     "post_init_hook": "post_init_hook",
     "application": True,

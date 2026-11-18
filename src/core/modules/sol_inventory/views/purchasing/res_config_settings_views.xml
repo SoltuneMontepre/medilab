@@ -9,6 +9,10 @@
             <xpath expr="//setting[@id='po_order_approval']" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
+            <!-- Inventory is out of scope for now, so Settings offers no Purchase page. -->
+            <xpath expr="//app[@name='purchase']" position="attributes">
+                <attribute name="notApp">1</attribute>
+            </xpath>
         </field>
     </record>
 </odoo>
