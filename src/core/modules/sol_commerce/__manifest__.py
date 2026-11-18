@@ -6,7 +6,16 @@
     "icon": "/sol_commerce/static/description/icon.svg",
     "author": "Soltune Montepre",
     "license": "LGPL-3",
-    "depends": ["sol_laboratory", "account", "account_payment", "payment", "sale", "l10n_vn", "rating"],
+    "depends": [
+        "sol_laboratory",
+        "account",
+        "account_payment",
+        "payment",
+        "sale",
+        "l10n_vn",
+        "rating",
+        "spreadsheet_dashboard",
+    ],
     "data": [
         "security/ir.access.csv",
         "security/order_security.xml",

@@ -13855,6 +13855,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_folder__category__report
+#: model:ir.ui.menu,name:sol_laboratory.menu_reports_root
 msgid "Reports"
 msgstr ""
 
@@ -15722,6 +15723,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_statistic_graph
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_statistic_pivot
 #: code:addons/sol_laboratory/models/testing/sample_test_eligibility.py:0
+#: model:ir.ui.menu,name:sol_laboratory.menu_reports_testing_statistic
 msgid "Testing Statistics"
 msgstr ""
 
@@ -18644,3 +18646,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_mail_mail__posted_by_device_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_mail_message__posted_by_device_id
 msgid "Posted By Device"
+
+#. module: sol_laboratory
+#: model:ir.ui.menu,name:sol_laboratory.menu_reports_testing
+msgid "Testing Reports"
+msgstr ""

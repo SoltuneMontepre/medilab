@@ -5,7 +5,7 @@ from odoo.fields import Command
 
 from .demo_orders import _product, _xml_id
 from odoo.addons.sol_commerce.constants.models import (
-    MODEL_ACCOUNT_MOVE,
+    MODEL_ACCOUNT_PAYMENT,
     MODEL_ORDER_SAMPLE,
     MODEL_QUOTATION,
     MODEL_SALE_ORDER,
@@ -13,7 +13,6 @@ from odoo.addons.sol_commerce.constants.models import (
 from odoo.addons.sol_laboratory.services.record_id import persisted_ids
 
 DISCOUNT_WIZARD = "sale.order.discount"
-PAYMENT_WIZARD = "account.payment.register"
 
 
 def seed_quotations(env):
@@ -246,7 +245,6 @@ def _confirmed_order(env, product, tax, sales, head):
 
 
 def _pay_advance(env, order):
-    invoices = order.sudo().invoice_ids
-    env[PAYMENT_WIZARD].with_context(active_model=MODEL_ACCOUNT_MOVE, active_ids=invoices.ids).create(
-        {}
-    ).action_create_payments()
+    """Sales records a bank transfer for each advance invoice, and the accountant confirms it."""
+    for invoice in order.sudo().invoice_ids:
+        env[MODEL_ACCOUNT_PAYMENT].create_pending_payment(invoice, False, "bank_transfer").action_post()

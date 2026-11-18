@@ -1135,6 +1135,7 @@ msgstr ""
 #: model:ir.ui.menu,name:sol_commerce.menu_cash_flow_report
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_cash_flow_report_graph
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_cash_flow_report_pivot
+#: model:ir.ui.menu,name:sol_commerce.menu_reports_cash_flow
 msgid "Cash Flow"
 msgstr ""
 
@@ -1320,6 +1321,8 @@ msgstr ""
 #: model:ir.actions.act_window,name:sol_commerce.action_medilab_collection_report
 #: model:ir.ui.menu,name:sol_commerce.menu_collection_report
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_collection_report_pivot
+#: model:ir.ui.menu,name:sol_commerce.menu_reports_collection
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_collection_report_graph
 msgid "Collection"
 msgstr ""
 
@@ -3126,6 +3129,8 @@ msgstr ""
 #: model:ir.actions.act_window,name:sol_commerce.action_medilab_outstanding_report
 #: model:ir.ui.menu,name:sol_commerce.menu_outstanding_report
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_outstanding_report_pivot
+#: model:ir.ui.menu,name:sol_commerce.menu_reports_outstanding
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_outstanding_report_graph
 msgid "Outstanding"
 msgstr ""
 
@@ -3463,6 +3468,8 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.actions.act_window,name:sol_commerce.action_medilab_pending_payment_report
 #: model:ir.ui.menu,name:sol_commerce.menu_pending_payment_report
+#: model:ir.ui.menu,name:sol_commerce.menu_reports_pending_payment
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_pending_payment_report_graph
 msgid "Pending Payments"
 msgstr ""
 
@@ -3481,6 +3488,7 @@ msgstr ""
 #: model:ir.ui.menu,name:sol_commerce.menu_sales_performance
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sales_performance_graph
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sales_performance_pivot
+#: model:ir.ui.menu,name:sol_commerce.menu_reports_sales_performance
 msgid "Performance"
 msgstr ""
 
@@ -3507,6 +3515,7 @@ msgstr ""
 #: model:ir.ui.menu,name:sol_commerce.menu_sales_pipeline
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sales_pipeline_graph
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sales_pipeline_pivot
+#: model:ir.ui.menu,name:sol_commerce.menu_reports_sales_pipeline
 msgid "Pipeline"
 msgstr ""
 
@@ -4036,6 +4045,7 @@ msgstr ""
 #: model:ir.ui.menu,name:sol_commerce.menu_revenue_report
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_revenue_report_graph
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_revenue_report_pivot
+#: model:ir.ui.menu,name:sol_commerce.menu_reports_revenue
 msgid "Revenue"
 msgstr ""
 
@@ -5237,4 +5247,39 @@ msgstr ""
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
 msgid "working days of receiving the samples."
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.ui.menu,name:sol_commerce.menu_reports_sales
+msgid "Sales Reports"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.ui.menu,name:sol_commerce.menu_reports_finance
+msgid "Finance"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.ui.menu,name:sol_commerce.menu_reports_sales_analysis
+msgid "Sales Analysis"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.ui.menu,name:sol_commerce.menu_reports_salespeople
+msgid "Salespersons"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.ui.menu,name:sol_commerce.menu_reports_products
+msgid "Products"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.ui.menu,name:sol_commerce.menu_reports_customers
+msgid "Customers"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.ui.menu,name:sol_commerce.menu_reports_invoice_analysis
+msgid "Invoice Analysis"
 msgstr ""

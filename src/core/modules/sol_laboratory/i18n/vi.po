@@ -7193,6 +7193,7 @@ msgstr "Đã trả kết quả"
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_folder__category__report
+#: model:ir.ui.menu,name:sol_laboratory.menu_reports_root
 msgid "Reports"
 msgstr "Báo cáo"
 
@@ -16995,6 +16996,7 @@ msgstr "Xem thống kê"
 #: model:ir.ui.menu,name:sol_laboratory.menu_testing_statistic
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_statistic_graph
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_statistic_pivot
+#: model:ir.ui.menu,name:sol_laboratory.menu_reports_testing_statistic
 msgid "Testing Statistics"
 msgstr "Thống Kê Thử Nghiệm"
 
@@ -18366,3 +18368,8 @@ msgstr "Phương pháp mất"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
 msgid "hours in all; this booking holds the machine only for its measurement."
 msgstr "giờ tổng cộng; lượt đặt này chỉ giữ máy trong thời gian đo."
+
+#. module: sol_laboratory
+#: model:ir.ui.menu,name:sol_laboratory.menu_reports_testing
+msgid "Testing Reports"
+msgstr "Thử nghiệm"

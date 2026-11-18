@@ -122,7 +122,8 @@ Acceptance criteria:
 - A package line is spread by rounding the running total of its parameters' shares, so its parts add up to the line to the dong.
 - The age of a debt counts the days since the due date: not due, 1 to 30, 31 to 60, 61 to 90 or over 90 days.
 - An invoice is sent when it is emailed; an advance invoice goes out with its quotation. It is paid on the date of its last confirmed payment: on time when that date is on or before its due date, late when it is after, or when the invoice is still open after its due date.
-- The reports are under the Reporting menu of the Sales app, for those holding the read permission of the report. Each has a pivot table that downloads as a spreadsheet with the rows and totals it shows.
+- The reports are under the Reporting menu of the Sales app and in the Finance group of the Reports app, for those holding the read permission of the report. Each has a list, a pivot table that downloads as a spreadsheet with the rows and totals it shows, and a graph: outstanding amounts by age of the debt, days to pay by month the invoice was sent, and pending payments by who recorded them and payment method.
+- Odoo's invoice analysis is in the Finance group of the Reports app, for accountants; Odoo's Invoicing app is hidden.
 
 ## IV. Related documents
 

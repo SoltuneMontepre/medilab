@@ -215,7 +215,7 @@ Acceptance criteria:
 - **Performance.** Per salesperson and period: quotations sent, accepted, declined, revenue, and the time between each step (claim, send, payment, confirmation).
 - **Visibility.** A salesperson sees their own statistics; the Head of Sales sees everyone's. Odoo's own sales analyses and sales dashboard follow the same rule.
 
-Both analyses are under the Reporting menu of Sales, as a graph, a pivot table and a list of the orders.
+Both analyses are under the Reporting menu of Sales and in the Sales group of the Reports app, as a graph, a pivot table and a list of the orders.
 
 | Pipeline stage    | Orders                                                                         |
 | ----------------- | ------------------------------------------------------------------------------ |
