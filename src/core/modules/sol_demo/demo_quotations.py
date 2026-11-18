@@ -112,7 +112,7 @@ def seed_sampling(env):
 
 def _other_way(line):
     """A way of testing offered for the line's parameter other than the one it has, or empty."""
-    return (line._own_parameter()._offered_ways(line.sample_type_id) - line.parameter_method_id)[:1]
+    return (line._offered_ways() - line.parameter_method_id)[:1]
 
 
 def _as(order, user):

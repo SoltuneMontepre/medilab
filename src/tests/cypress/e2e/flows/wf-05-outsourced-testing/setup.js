@@ -14,6 +14,8 @@ export const PARAMETERS = {
     parameter: "sol_demo.demo_test_parameter_lead",
     way: "sol_demo.demo_parameter_method_lead_subcontracted",
     inHouse: "sol_demo.demo_parameter_method_lead_aas",
+    // Chemistry's way with the method of Northern's way, ICP-MS.
+    sameMethod: "sol_demo.demo_parameter_method_lead_icpms",
     sampleType: "sol_demo.demo_sample_type_bottled_water",
     state: "liquid",
   },

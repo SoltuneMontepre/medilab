@@ -111,14 +111,15 @@
                             <field name="parameter_method_id" readonly="1" />
                             <field name="is_accredited" />
                             <field name="accepted_method_id" invisible="not accepted_method_id" />
+                            <field name="subcontracted_method_ids" invisible="1" />
                             <field name="outsourcing_method_ids" invisible="1" />
                             <field name="subcontractor_id" invisible="1" />
                             <div
                                 colspan="2"
                                 class="text-muted"
-                                invisible="not accepted_method_id or subcontractor_id or not subcontracted_method_ids or status not in ('waiting', 'assigned')"
+                                invisible="not accepted_method_id or subcontractor_id or not subcontracted_method_ids or outsourcing_method_ids or status not in ('waiting', 'assigned')"
                             >
-                                Outsourcing this test changes the way of testing the customer accepted: Sales first obtains a revised quotation the customer accepts.
+                                No subcontractor tests this parameter with the method the customer accepted: outsourcing it with another method needs a revised quotation the customer accepts.
                             </div>
                         </group>
                         <group string="Recommendation" invisible="not recommended_start">
@@ -130,7 +131,7 @@
                         <group string="Outsourcing" invisible="not outsourcing_suggested">
                             <field name="outsourcing_suggested" invisible="1" />
                             <field name="tested_by_my_department" invisible="1" />
-                            <field name="subcontracted_method_ids" widget="many2many_tags" />
+                            <field name="outsourcing_method_ids" string="Subcontracted Ways" widget="many2many_tags" />
                         </group>
                         <group string="Emergency Outsourcing" invisible="not emergency_outsource_reason">
                             <field name="emergency_outsource_reason" string="Reason" />
@@ -298,8 +299,7 @@
                 <field name="parameter_id" />
                 <field name="due_date" />
                 <field name="priority" widget="badge" decoration-danger="priority == 'urgent'" decoration-warning="priority == 'due_soon'" />
-                <field name="subcontracted_method_ids" widget="many2many_tags" />
-                <field name="outsourcing_method_ids" column_invisible="1" />
+                <field name="outsourcing_method_ids" string="Subcontracted Ways" widget="many2many_tags" />
                 <field name="status" widget="badge" />
                 <button
                     name="%(action_medilab_sample_test_outsource)d"

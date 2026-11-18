@@ -11274,6 +11274,8 @@ msgstr "Đã xếp lịch"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__subcontracted_method_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_outsourcing_list
 msgid "Subcontracted Ways"
 msgstr "Cách thử thuê ngoài"
 
@@ -11792,15 +11794,6 @@ msgstr "Kết quả hiển thị từ 0 đến 15 chữ số thập phân."
 #: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch.py:0
 msgid "%(test)s is not outsourced to %(subcontractor)s."
 msgstr "%(test)s không được gửi cho thầu phụ %(subcontractor)s."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/sample_test.py:0
-msgid ""
-"%(way)s is not a subcontracted way of testing %(test)s whose subcontractor "
-"can be chosen."
-msgstr ""
-"%(way)s không phải là cách thử qua thầu phụ được phép chọn của %(test)s."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -15998,16 +15991,6 @@ msgid "Accreditation Scope Lines"
 msgstr "Dòng phạm vi công nhận"
 
 #. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/sample_test.py:0
-msgid ""
-"%(parameter)s is tested by %(way)s, the way of testing the customer "
-"accepted; another way needs a revised quotation."
-msgstr ""
-"%(parameter)s được thử bằng %(way)s, cách thử khách hàng đã chấp nhận; muốn "
-"đổi cách thử cần một báo giá sửa đổi."
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__accepted_method_id
 msgid "Accepted Way of Testing"
 msgstr "Cách Thử Đã Chấp Nhận"
@@ -16901,15 +16884,6 @@ msgstr "Cách thử thuê ngoài đã thỏa thuận"
 #: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch.py:0
 msgid "Attach the subcontractor's report to a sent or received dispatch."
 msgstr "Chỉ đính kèm báo cáo của thầu phụ vào phiếu gửi đã gửi hoặc đã nhận."
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
-msgid ""
-"Outsourcing this test changes the way of testing the customer accepted: "
-"Sales first obtains a revised quotation the customer accepts."
-msgstr ""
-"Gửi thầu phụ chỉ tiêu này sẽ đổi cách thử khách hàng đã chấp nhận: bộ phận "
-"kinh doanh cần có trước một báo giá sửa đổi được khách hàng chấp nhận."
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__report_filename
@@ -18912,6 +18886,64 @@ msgstr "Trao đổi của tài liệu"
 #: model:ir.model.fields,field_description:sol_laboratory.field_mail_message__posted_by_device_id
 msgid "Posted By Device"
 msgstr "Gửi từ điện thoại"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/parameter_method.py:0
+msgid "It cannot be tested now."
+msgstr "Hiện không thể thử được."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid ""
+"%(parameter)s is tested with %(method)s, the method the customer accepted; "
+"another method needs a revised quotation."
+msgstr ""
+"%(parameter)s được thử bằng phương pháp %(method)s mà khách hàng đã chấp "
+"nhận; muốn đổi phương pháp cần một báo giá sửa đổi."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid ""
+"%(test)s is a test of %(customer)s's own request, so it cannot go to "
+"%(customer)s as a subcontractor."
+msgstr ""
+"%(test)s là chỉ tiêu trong phiếu yêu cầu của chính %(customer)s, nên không "
+"thể gửi cho %(customer)s làm thầu phụ."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid ""
+"%(way)s tests %(test)s with another method than the one the customer "
+"accepted; outsourcing through it needs a revised quotation the customer "
+"accepts."
+msgstr ""
+"%(way)s thử %(test)s bằng phương pháp khác với phương pháp khách hàng đã "
+"chấp nhận; gửi thầu phụ qua cách thử này cần một báo giá sửa đổi được khách "
+"hàng chấp nhận."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid ""
+"%(way)s is not a subcontracted way of testing %(test)s whose subcontractor "
+"can be chosen for it."
+msgstr ""
+"%(way)s không phải là cách thử qua thầu phụ được phép chọn cho %(test)s."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid ""
+"No subcontractor tests this parameter with the method the customer accepted:"
+" outsourcing it with another method needs a revised quotation the customer "
+"accepts."
+msgstr ""
+"Không thầu phụ nào thử chỉ tiêu này bằng phương pháp khách hàng đã chấp "
+"nhận: gửi thầu phụ bằng phương pháp khác cần một báo giá sửa đổi được khách "
+"hàng chấp nhận."
 
 #. module: sol_laboratory
 #. odoo-python

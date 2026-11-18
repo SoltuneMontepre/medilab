@@ -5,6 +5,7 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.tests import tagged
 
 from .order_case import OrderCase
+from odoo.addons.sol_laboratory.constants.catalog import WAY_BY_METHOD
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PARAMETER_METHOD,
     MODEL_SAMPLE_TYPE,
@@ -91,12 +92,56 @@ class TestOrderWays(OrderCase):
 
         self.assertFalse(line.parameter_method_id)
         self.assertEqual(line.offered_method_ids, self.pair)
+        self.assertIn("cannot be tested now", line.default_way_notice or "")
+        self.assertNotIn(subcontractor.name, line.default_way_notice or "")
         with self.assertRaisesRegex(UserError, "Choose a way of testing"):
             order.with_user(self.sales).action_send_quotation()
 
         line.parameter_method_id = self.pair
         order.with_user(self.sales).action_send_quotation()
         self.assertTrue(order.quotation_ids)
+
+    def test_a_method_tested_in_house_and_by_a_subcontractor_is_offered_once(self):
+        northern = self.env[MODEL_SUBCONTRACTOR].create({"name": "Northern Testing Laboratory"})
+        aas_northern, icp_northern = self.env[MODEL_PARAMETER_METHOD].create(
+            [
+                {"parameter_id": self.parameter.id, "method_id": method.id, "subcontractor_id": northern.id}
+                for method in (self.method, self.icp.method_id)
+            ]
+        )
+        for way in (aas_northern, icp_northern):
+            self.offer(self.parameter, self.sample_type, way)
+        cabbage = self.env[MODEL_SAMPLE_TYPE].create({"name": "Cabbage", "code": "LM-SHARED"})
+        self.offer(self.parameter, cabbage, icp_northern)
+        self.offer(self.parameter, cabbage, self.icp)
+        order = self.make_quotable_order([(self.lead_product, 1), (self.package_product, 1)])
+        lead, part = self.lines(order)
+
+        self.assertEqual(lead.offered_method_ids, self.pair | self.icp)
+        self.assertEqual(part.offered_method_ids, self.pair | self.icp)
+        self.assertEqual(self.parameter._offered_ways(cabbage), icp_northern)
+        self.assertEqual(
+            icp_northern.with_context(**{WAY_BY_METHOD: True}).display_name,
+            self.icp.with_context(**{WAY_BY_METHOD: True}).display_name,
+        )
+        self.assertIn(northern.name, icp_northern.display_name or "")
+
+    def test_a_way_the_customer_tests_as_a_subcontractor_is_never_offered_to_it(self):
+        own = self.env[MODEL_SUBCONTRACTOR].create({"partner_id": self.customer.id})
+        method = self.env[MODEL_TESTING_METHOD].create(
+            {"code": "SMEWW 3125B:2017", "name": "Lead by ICP-OES", "field_id": self.testing_field.id}
+        )
+        own_way = self.env[MODEL_PARAMETER_METHOD].create(
+            {"parameter_id": self.parameter.id, "method_id": method.id, "subcontractor_id": own.id}
+        )
+        self.offer(self.parameter, self.sample_type, own_way)
+        order = self.make_quotable_order()
+        line = order._catalog_lines()
+
+        self.assertIn(own_way, self.parameter._offered_ways(self.sample_type))
+        self.assertEqual(line.offered_method_ids, self.pair | self.icp)
+        with self.assertRaisesRegex(UserError, "ways of testing offered"):
+            line._set_cart_selection(parameter_method_id=own_way.id)
 
     def test_an_accepted_way_changes_only_through_a_revision(self):
         order = self.sent_order()
@@ -129,7 +174,7 @@ class TestOrderWays(OrderCase):
         order = self.make_confirmed_order()
         test = order.sudo().test_request_id.sample_ids.test_ids
 
-        with self.assertRaisesRegex(ValidationError, "another way needs a revised quotation"):
+        with self.assertRaisesRegex(ValidationError, "another method needs a revised quotation"):
             test.parameter_method_id = self.icp
         with self.assertRaisesRegex(UserError, "only through a revised quotation"):
             test.accepted_method_id = self.icp
