@@ -26,6 +26,10 @@ RESULT_PAGE_SIZE = 50
 TOO_LARGE = "too_large"
 # The largest photo a phone sends, once decoded.
 PHOTO_MAX_BYTES = 10 * 1024 * 1024
+# The largest signature a phone sends, once decoded.
+SIGNATURE_MAX_BYTES = 1024 * 1024
+# How many handover records a page gives when the app names no limit.
+HANDOVER_RECORD_PAGE_SIZE = 50
 # The largest file a phone sends, once decoded.
 FILE_MAX_BYTES = 10 * 1024 * 1024
 # The largest total of the files of one request, once decoded.

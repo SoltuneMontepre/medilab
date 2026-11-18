@@ -113,6 +113,13 @@ function Day({ home }: Readonly<{ home: Home }>) {
       <Pressable accessibilityRole="button" style={shared.secondaryButton} onPress={() => router.push("/results")}>
         <Text style={shared.secondaryButtonText}>{t("home.results")}</Text>
       </Pressable>
+      {me.can.read_handover_records && (
+        <Button
+          testID="home-handover-records"
+          label={t("home.handoverRecords")}
+          onPress={() => router.push("/handover-records")}
+        />
+      )}
       {me.can.create_tasks && (
         <Pressable accessibilityRole="button" style={shared.secondaryButton} onPress={() => router.push("/tasks/new")}>
           <Text style={shared.secondaryButtonText}>{t("home.newTask")}</Text>

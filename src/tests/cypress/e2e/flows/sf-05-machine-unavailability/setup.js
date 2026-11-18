@@ -24,9 +24,10 @@ function create(login, model, values) {
 export const calibration = (days = 365) => ({ kind: "calibration", service_date: inDays(0), next_due_date: inDays(days) });
 
 // Machines linked to one method of their own, all able to run the same way of testing, and tests of that way waiting
-// at the tester. The first `book` tests are booked as the tester accepts the department's plan; the others wait for
-// the plan. A machine is calibrated unless `calibrated` is false. Machines take the codes <tag>-A, <tag>-B, ..., so
-// the plan prefers the first one. The test registers the fixture first, so a failed setup is still released.
+// at the tester. The first `book` tests are booked as the head of department approves the department's plan; the
+// others wait for the plan. A machine is calibrated unless `calibrated` is false. Machines take the codes <tag>-A,
+// <tag>-B, ..., so the plan prefers the first one. The test registers the fixture first, so a failed setup is still
+// released.
 export function machineFixture({ tests = 1, book = tests, machines = 1, capacity = 1, calibrated = true } = {}, register = () => {}) {
   const fixture = { tag: `Cu-SF05-${Date.now()}`, tests: [], tasks: [], bookings: [], machines: [] };
   register(fixture);
@@ -134,13 +135,13 @@ export function machineFixture({ tests = 1, book = tests, machines = 1, capacity
           department_id: fixture.department,
         }).then((wizard) => callAs(HEAD, "medilab.task.reassign", "action_confirm", [[wizard]], { context }));
       });
-    if (index < book) cy.then(() => accept(fixture, fixture.tests[index]));
+    if (index < book) cy.then(() => approve(fixture, fixture.tests[index]));
   }
   return cy.then(() => fixture);
 }
 
-// The head of department approves the slot the plan proposes for the test, and yields the booking.
-export function accept(fixture, test) {
+// The head of department approves the slot the department's plan proposes for the test, and yields the booking.
+export function approve(fixture, test) {
   callAs(HEAD, "medilab.sample.test", "action_approve_booking", [[test]]);
   return callAs(ADMIN, "medilab.machine.booking", "search", [
     [
@@ -148,7 +149,7 @@ export function accept(fixture, test) {
       ["status", "=", "scheduled"],
     ],
   ]).then(([booking]) => {
-    expect(booking, "the accepted booking").to.be.a("number");
+    expect(booking, "the approved booking").to.be.a("number");
     fixture.bookings.push(booking);
     return booking;
   });

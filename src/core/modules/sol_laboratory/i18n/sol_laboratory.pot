@@ -73,14 +73,6 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/testing/sample_test.py:0
-msgid ""
-"%(parameter)s is tested by %(way)s, the way of testing the customer "
-"accepted; another way needs a revised quotation."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_editing_session.py:0
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload.py:0
 msgid "%(path)s, %(status)s"
@@ -166,14 +158,6 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/sample_test.py:0
 msgid "%(way)s does not apply to %(sample_type)s."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/sample_test.py:0
-msgid ""
-"%(way)s is not a subcontracted way of testing %(test)s whose subcontractor "
-"can be chosen."
 msgstr ""
 
 #. module: sol_laboratory
@@ -13575,6 +13559,8 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__subcontracted_method_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_outsourcing_list
 msgid "Subcontracted Ways"
 msgstr ""
 
@@ -16907,13 +16893,6 @@ msgid "Attach the subcontractor's report to a sent or received dispatch."
 msgstr ""
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
-msgid ""
-"Outsourcing this test changes the way of testing the customer accepted: "
-"Sales first obtains a revised quotation the customer accepts."
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__report_filename
 msgid "Report Filename"
 msgstr ""
@@ -18728,4 +18707,81 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_mail_mail__posted_by_device_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_mail_message__posted_by_device_id
 msgid "Posted By Device"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/parameter_method.py:0
+msgid "It cannot be tested now."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid ""
+"%(parameter)s is tested with %(method)s, the method the customer accepted; "
+"another method needs a revised quotation."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid ""
+"%(test)s is a test of %(customer)s's own request, so it cannot go to "
+"%(customer)s as a subcontractor."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid ""
+"%(way)s tests %(test)s with another method than the one the customer "
+"accepted; outsourcing through it needs a revised quotation the customer "
+"accepts."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid ""
+"%(way)s is not a subcontracted way of testing %(test)s whose subcontractor "
+"can be chosen for it."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid ""
+"No subcontractor tests this parameter with the method the customer accepted:"
+" outsourcing it with another method needs a revised quotation the customer "
+"accepts."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/handover_record_mobile.py:0
+msgid "A signature can be at most 1 MiB."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/handover_record_mobile.py:0
+msgid "The signature is not valid base64."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/handover_record_mobile.py:0
+msgid "The signature is not a PNG image."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/handover_record_mobile.py:0
+msgid "Handover record %s is already signed."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/handover_record_mobile.py:0
+msgid "You may not have handover record %s signed."
 msgstr ""
