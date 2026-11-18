@@ -66,10 +66,10 @@ export function UpdateGate({ children }: Readonly<{ children: ReactNode }>) {
   }, []);
 
   useEffect(() => {
-    check();
+    void check();
     const subscription = AppState.addEventListener("change", (state) => {
       if (state === "active") {
-        check();
+        void check();
       }
     });
     return () => subscription.remove();
