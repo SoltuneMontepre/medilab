@@ -34,6 +34,17 @@ class MedilabDispatchPortal(CustomerPortal):
             return request.redirect("/my/dispatches")
         return self._render_dispatch(dispatch, error=request.session.pop(ERROR_KEY, None))
 
+    @http.route("/my/dispatches/<int:dispatch_id>/receive", type="http", auth="user", methods=["POST"], **FRONTEND_PAGE)
+    def portal_confirm_receipt(self, dispatch_id, **kwargs):
+        dispatch = self._dispatches(dispatch_id)
+        if not dispatch:
+            return request.redirect("/my/dispatches")
+        try:
+            dispatch._portal_confirm_receipt()
+        except UserError as error:
+            request.session[ERROR_KEY] = str(error)
+        return request.redirect(f"/my/dispatches/{dispatch_id}")
+
     @http.route("/my/dispatches/<int:dispatch_id>/results", type="http", auth="user", methods=["POST"], **FRONTEND_PAGE)
     def portal_enter_result(self, dispatch_id, sample_test_id="", value=None, value_text=None, **kwargs):
         dispatch = self._dispatches(dispatch_id)

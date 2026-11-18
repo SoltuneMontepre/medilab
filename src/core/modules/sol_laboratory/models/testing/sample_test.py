@@ -23,7 +23,6 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TEST_RESULT,
 )
 from odoo.addons.sol_laboratory.constants.tasks import SAMPLE_RECEIVED_TRIGGER, TESTING_ACTION
-from odoo.addons.sol_laboratory.models.sample_collection.subcontract_dispatch import SENT_STATUSES
 from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 if TYPE_CHECKING:
@@ -127,6 +126,9 @@ class SampleTest(models.Model, SampleTestBase):
         # True when the current person belongs to the department of the test's testing task, which may outsource it
         # straight away.
         tested_by_my_department = fields.Boolean(compute="_compute_tested_by_my_department")
+        # True when the head may move the outsourced test to another subcontractor: no dispatch holds it, such as after
+        # its dispatch was cancelled.
+        can_move_subcontractor = fields.Boolean(compute="_compute_can_move_subcontractor")
         # True when a result can be entered for the test now.
         can_enter_result = fields.Boolean(compute="_compute_can_enter_result")
         # The subcontractor that tests it; empty when the laboratory tests it in-house.
@@ -304,10 +306,19 @@ class SampleTest(models.Model, SampleTestBase):
         for test in self:
             test.can_enter_result = not test._result_refusal()
 
+    @api.depends("status", "dispatch_ids.status")
+    def _compute_can_move_subcontractor(self):
+        for test in self:
+            test.can_move_subcontractor = test.status == "outsourced" and not test._active_dispatches()
+
+    def _active_dispatches(self):
+        return self.sudo().dispatch_ids.filtered(lambda dispatch: dispatch.status != "cancelled")
+
     def _result_refusal(self):
         """Why no result can be entered for the test now; empty when one can. A test the laboratory measures takes
-        results only from the person who claimed its testing task. An outsourced test takes results once its dispatch
-        is sent, and its subcontractor's result waiting to be sent comes before any other."""
+        results only from the person who claimed its testing task. An outsourced test takes results once its
+        subcontractor received its dispatch, and its subcontractor's result waiting to be sent comes before any
+        other."""
         self.ensure_one()
         test = self.sudo()
         if test.status not in MEASURABLE_STATUSES or test.sample_id.status not in OPEN_SAMPLE_STATUSES:
@@ -321,8 +332,10 @@ class SampleTest(models.Model, SampleTestBase):
             if self.env.su or (assignee and assignee == self.env[MODEL_PERSON]._current()):
                 return ""
             return self.env._("Claim the testing task of %s before entering its result.", test.display_name)
-        if not test.dispatch_ids.filtered(lambda dispatch: dispatch.status in SENT_STATUSES):
-            return self.env._("Send %s to its subcontractor before entering its result.", test.display_name)
+        if not test.dispatch_ids.filtered(lambda dispatch: dispatch.status == "received"):
+            return self.env._(
+                "%s is entered once its subcontractor received the dispatch that holds it.", test.display_name
+            )
         if test.result_ids.filtered(
             lambda result: result.is_reported and result.status == STATE_NONE and result.entered_by_id.share
         ):
@@ -450,6 +463,21 @@ class SampleTest(models.Model, SampleTestBase):
             )
         return self._send_to_subcontractor(way, reason)
 
+    def _move_to_subcontractor(self, way):
+        """The head moves an outsourced test that no dispatch holds, such as after its subcontractor's accreditation
+        lapsed and the dispatch was cancelled, to another subcontracted way with the same method; it joins that
+        subcontractor's draft dispatch."""
+        self.ensure_one()
+        self._check_permission("edit")
+        if not self.can_move_subcontractor:
+            raise UserError(
+                self.env._(
+                    "Only an outsourced sample test that no dispatch holds can move to another subcontractor: %s",
+                    self.display_name,
+                )
+            )
+        return self._send_to_subcontractor(way, self.emergency_outsource_reason)
+
     def _tested_by_department_of(self, person):
         """True when the person belongs to the department of the test's testing task."""
         self.ensure_one()
@@ -485,9 +513,10 @@ class SampleTest(models.Model, SampleTestBase):
                 "emergency_outsource_reason": emergency_reason,
             }
         )
-        test._progress("outsourced")
-        # Once outsourced, the test leaves its department's plan.
-        test._release_bookings()
+        if test.status != "outsourced":
+            test._progress("outsourced")
+            # Once outsourced, the test leaves its department's plan.
+            test._release_bookings()
         dispatches = self.env[MODEL_SUBCONTRACT_DISPATCH]
         dispatch = dispatches.search(
             [("subcontractor_id", "=", way.subcontractor_id.id), ("status", "=", "draft")], order="id", limit=1
@@ -515,7 +544,17 @@ class SampleTest(models.Model, SampleTestBase):
         tests._cancel()
 
     def _cancel(self):
-        tests = self.filtered(lambda test: test.status in OPEN_STATUSES)
+        """Cancel the open tests and the outsourced ones without an approved result. A draft dispatch drops them; a
+        sent or received one keeps them, shown as cancelled, and takes no more results for them."""
+        tests = self.filtered(
+            lambda test: (
+                test.status in OPEN_STATUSES
+                or test.status == "outsourced"
+                or (test.status == "result_entered" and test.subcontractor_id)
+            )
+        )
+        for dispatch in tests._active_dispatches().filtered(lambda dispatch: dispatch.status == "draft"):
+            dispatch.sample_test_ids = [Command.unlink(test.id) for test in tests & dispatch.sample_test_ids]
         # A test cancelled with its sample or request has no reason of its own, but still the time it was cancelled.
         tests.filtered(lambda test: not test.cancelled_at).cancelled_at = fields.Datetime.now()
         tests.status = "cancelled"

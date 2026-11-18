@@ -13,6 +13,10 @@ from . import (
     sample_scan,
     scheduled_job,
     subcontract_dispatch,
+    subcontract_dispatch_delivery,
+    subcontract_dispatch_failure,
+    subcontract_dispatch_handover,
+    subcontract_dispatch_scheduled_job,
     test_request,
     test_request_plan,
 )

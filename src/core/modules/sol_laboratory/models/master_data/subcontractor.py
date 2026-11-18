@@ -50,6 +50,11 @@ class Subcontractor(models.Model, SubcontractorBase):
         contact_person_id = fields.Many2one(
             RES_PARTNER, ondelete="set null", index=True, domain=[("is_company", "=", False)]
         )
+        # True when the default contact person is archived; a dispatch to the subcontractor is not sent until another is
+        # chosen.
+        contact_person_archived = fields.Boolean(compute="_compute_contact_people")
+        # The subcontractor's own contact people, in use.
+        contact_ids = fields.Many2many(RES_PARTNER, string="Contact People", compute="_compute_contact_people")
         # Number of the subcontractor's accreditation certificate, such as VILAS 123.
         accreditation_number = fields.Char()
         # Date the accreditation certificate expires; empty when it does not expire.
@@ -67,6 +72,14 @@ class Subcontractor(models.Model, SubcontractorBase):
 
     _code_unique = models.Constraint("UNIQUE(code)", "The code of a subcontractor must be unique.")
     _partner_unique = models.Constraint("UNIQUE(partner_id)", "This company is already a subcontractor.")
+
+    @api.depends("contact_person_id", "partner_id")
+    def _compute_contact_people(self):
+        for subcontractor in self:
+            company = subcontractor.sudo()
+            contact = company.contact_person_id
+            subcontractor.contact_person_archived = bool(contact) and not contact.active
+            subcontractor.contact_ids = company.partner_id.child_ids.filtered(lambda partner: not partner.is_company)
 
     @api.depends("accreditation_expiry")
     def _compute_accreditation_expired(self):

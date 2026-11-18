@@ -25,6 +25,7 @@ from . import (
     sample_type,
     sampling_requirement,
     subcontractor,
+    subcontractor_contact,
     test_parameter,
     testing_field,
     testing_method,
