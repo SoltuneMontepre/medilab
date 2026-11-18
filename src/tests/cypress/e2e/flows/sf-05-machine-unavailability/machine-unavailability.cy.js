@@ -138,8 +138,13 @@ describe("SF-05 Machine calibration and unavailability", () => {
       cy.signInAs("tester");
       openTest(test);
       cy.get(".o_form_view .alert.alert-warning").should("contain", NO_MACHINE);
-      cy.get(".o_statusbar_buttons button[name=action_schedule]").should("not.exist");
-      callRefused("medilab.sample.test", "action_schedule", [[test]]).should("contain", NO_MACHINE);
+      cy.get(".o_statusbar_buttons button[name=action_approve_booking]").should("not.exist");
+      callRefused("medilab.sample.test", "action_approve_booking", [[test]]).should("match", /not allowed|access/i);
+
+      cy.signInAs("head_of_department");
+      openTest(test);
+      cy.get(".o_statusbar_buttons button[name=action_approve_booking]").should("not.exist");
+      callRefused("medilab.sample.test", "action_approve_booking", [[test]]).should("contain", NO_MACHINE);
       bookingsOf(fixture).then(([booking]) => {
         expect(booking.status, "queued for the plan").to.equal("proposed");
         expect(booking.starts_at, "without a slot").to.equal(false);
@@ -155,12 +160,12 @@ describe("SF-05 Machine calibration and unavailability", () => {
       });
 
       addService("Calibration", { date: inDays(0), due: inDays(365) });
-      cy.signInAs("tester");
+      cy.signInAs("head_of_department");
       openTest(test);
       cy.get(".o_form_view .alert.alert-warning").should("not.exist");
-      cy.intercept("POST", "**/medilab.sample.test/action_schedule").as("scheduled");
-      cy.get(".o_statusbar_buttons button[name=action_schedule]").should("be.visible").and("be.enabled").click();
-      cy.wait("@scheduled").its("response.body.error").should("not.exist");
+      cy.intercept("POST", "**/medilab.sample.test/action_approve_booking").as("approved");
+      cy.get(".o_statusbar_buttons button[name=action_approve_booking]").should("be.visible").and("be.enabled").click();
+      cy.wait("@approved").its("response.body.error").should("not.exist");
       bookingsOf(fixture).then(([booking]) => {
         expect(booking.status).to.equal("scheduled");
         expect(booking.machine_id[0]).to.equal(fixture.machine);
@@ -216,7 +221,7 @@ describe("SF-05 Machine calibration and unavailability", () => {
       cy.signInAs("administrator");
       openMachine(fixture.machine);
       setMaintenanceInterval(5);
-      callRefused("medilab.sample.test", "action_schedule", [[waiting]]).should("contain", NO_MACHINE);
+      callRefused("medilab.sample.test", "action_approve_booking", [[waiting]]).should("contain", NO_MACHINE);
       warningLines(booking).should((lines) => {
         expect(lines.join("\n")).to.contain("calibration").and.contain("maintenance").and.contain("was repaired on");
       });
@@ -258,7 +263,7 @@ describe("SF-05 Machine calibration and unavailability", () => {
         // The maintenance falls overdue: the plan's proposals cannot be accepted.
         setMaintenanceInterval(30);
         addService("Maintenance", { date: inDays(-100) });
-        callRefused("medilab.sample.test", "action_schedule", [[fixture.tests[0]]]).should("contain", NO_MACHINE);
+        callRefused("medilab.sample.test", "action_approve_booking", [[fixture.tests[0]]]).should("contain", NO_MACHINE);
         bookingsOf(fixture).then((after) => {
           expect(after.filter((booking) => booking.status === "scheduled")).to.be.empty;
         });
@@ -301,9 +306,9 @@ describe("SF-05 Machine calibration and unavailability", () => {
         openTest(fixture.tests[0]);
         cy.get(".o_form_view .alert.alert-warning").should("contain", NO_MACHINE);
         cy.get(".o_form_view .alert.alert-danger").should("contain", "at risk");
-        cy.get(".o_statusbar_buttons button[name=action_schedule]").should("not.exist");
+        cy.get(".o_statusbar_buttons button[name=action_approve_booking]").should("not.exist");
       });
-      callRefused("medilab.sample.test", "action_schedule", [[fixture.tests[0]]]).should("contain", NO_MACHINE);
+      callRefused("medilab.sample.test", "action_approve_booking", [[fixture.tests[0]]]).should("contain", NO_MACHINE);
     });
   });
 

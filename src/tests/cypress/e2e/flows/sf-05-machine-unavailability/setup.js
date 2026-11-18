@@ -139,9 +139,9 @@ export function machineFixture({ tests = 1, book = tests, machines = 1, capacity
   return cy.then(() => fixture);
 }
 
-// The tester accepts the slot the department's plan proposes for the test, and yields the booking.
+// The head of department approves the slot the plan proposes for the test, and yields the booking.
 export function accept(fixture, test) {
-  callAs(TESTER, "medilab.sample.test", "action_schedule", [[test]]);
+  callAs(HEAD, "medilab.sample.test", "action_approve_booking", [[test]]);
   return callAs(ADMIN, "medilab.machine.booking", "search", [
     [
       ["sample_test_id", "=", test],
