@@ -116,6 +116,7 @@ def render_page(status, *, message="", retry_path="", config=None, public_origin
             "message": message,
             "retry_path": retry_path,
             "script_url": public_origin + "/web-apps/apps/api/documents/api.js" if config else "",
+            "public_origin": public_origin if config else "",
             "assets": ASSETS,
             "asset_version": asset_version(),
             "language": (env.lang or "en_US").replace("_", "-"),
