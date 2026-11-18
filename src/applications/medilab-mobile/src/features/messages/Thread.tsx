@@ -53,7 +53,7 @@ export function Thread({
 
   return (
     <SafeAreaView style={shared.page}>
-      <ScrollView contentContainerStyle={shared.pageContent}>
+      <ScrollView contentContainerStyle={shared.pageContent} keyboardShouldPersistTaps="handled">
         <Text style={shared.title}>{title}</Text>
         {actions}
         <LoadNotice load={load as Load<unknown>} gone={gone} onRetry={thread.read} />

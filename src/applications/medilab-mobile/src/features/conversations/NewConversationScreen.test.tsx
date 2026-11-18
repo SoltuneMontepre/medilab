@@ -4,6 +4,7 @@ import { router } from "expo-router";
 import { CHEMIST, conversation, HEAD } from "../../testing/conversations";
 import { fakeMediLab, kept } from "../../testing/fakeMediLab";
 import { renderSignedIn } from "../../testing/renderSignedIn";
+import { scrollingParent } from "../../testing/scrolling";
 import { NewConversationScreen } from "./NewConversationScreen";
 
 jest.mock("../../config", () => ({ serverUrl: "https://lab.example" }));
@@ -58,7 +59,10 @@ describe("NewConversationScreen", () => {
 
     await fireEvent.changeText(await screen.findByTestId("people-search"), "Ly");
 
-    expect(await screen.findByTestId(`person-${CHEMIST.id}`)).toBeOnTheScreen();
+    const found = await screen.findByTestId(`person-${CHEMIST.id}`);
+    expect(found).toBeOnTheScreen();
+    // The tap that closes the keyboard also chooses the person.
+    expect(scrollingParent(found)).toHaveProp("keyboardShouldPersistTaps", "handled");
     expect(screen.queryByTestId(`person-${HEAD.id}`)).toBeNull();
     expect(mediLab.sent[1].url).toBe(`${API}/people?q=Ly`);
     expect(screen.getByTestId("conversation-start")).toBeDisabled();

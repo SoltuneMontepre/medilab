@@ -66,7 +66,7 @@ export function NewConversationScreen() {
 
   return (
     <SafeAreaView style={shared.page}>
-      <ScrollView contentContainerStyle={shared.pageContent}>
+      <ScrollView contentContainerStyle={shared.pageContent} keyboardShouldPersistTaps="handled">
         <Text style={shared.title}>{t("conversations.new")}</Text>
         <TextInput
           testID="people-search"
