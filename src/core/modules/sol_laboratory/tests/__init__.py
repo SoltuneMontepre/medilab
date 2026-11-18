@@ -43,6 +43,7 @@ from . import (
     test_digital_signing,
     test_direct_outsourcing,
     test_dispatch_courier,
+    test_dispatch_delivery,
     test_dispatch_portal,
     test_document_locking,
     test_due_date_check,

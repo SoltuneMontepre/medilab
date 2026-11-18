@@ -1,5 +1,4 @@
 import math
-from datetime import date
 from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
@@ -23,6 +22,8 @@ from odoo.addons.sol_laboratory.constants.settings import SAMPLE_DELIVERY_ROLE_P
 from odoo.addons.sol_laboratory.constants.xml_ids import DISPATCH_READER_GROUP
 
 if TYPE_CHECKING:
+    from datetime import date
+
     from medilab_model_types import Model_medilab_subcontract_dispatch as SubcontractDispatchBase
 else:
     SubcontractDispatchBase = object
@@ -200,12 +201,7 @@ class SubcontractDispatch(models.Model, SubcontractDispatchBase):
                 raise UserError(self.env._("Add the sample tests to %s before sending it.", dispatch.code))
             dispatch._check_subcontractor()
             dispatch._check_contact_person()
-            if not dispatch.courier_id and not dispatch.delivery_service:
-                raise UserError(
-                    self.env._("Enter the sample delivery staff or the delivery service taking %s.", dispatch.code)
-                )
-            if dispatch.delivery_service and not dispatch.tracking_number:
-                raise UserError(self.env._("Enter the tracking number the delivery service gave %s.", dispatch.code))
+            dispatch._check_carrier()
             sent_date: date = dispatch.sent_date or today
             expected_date = dispatch.expected_date or dispatch._turnaround_date(sent_date)
             if not expected_date or expected_date < sent_date:
@@ -213,6 +209,14 @@ class SubcontractDispatch(models.Model, SubcontractDispatchBase):
                     self.env._("Enter when the results of %s are expected back, not before it is sent.", dispatch.code)
                 )
             dispatch._set_status("sent", sent_date=sent_date, expected_date=expected_date)
+
+    def _check_carrier(self):
+        """The dispatch is carried by its sample delivery staff or a delivery service, which gives a tracking number."""
+        self.ensure_one()
+        if not self.courier_id and not self.delivery_service:
+            raise UserError(self.env._("Enter the sample delivery staff or the delivery service taking %s.", self.code))
+        if self.delivery_service and not self.tracking_number:
+            raise UserError(self.env._("Enter the tracking number the delivery service gave %s.", self.code))
 
     def action_receive(self):
         if any(dispatch.status != "sent" for dispatch in self):
