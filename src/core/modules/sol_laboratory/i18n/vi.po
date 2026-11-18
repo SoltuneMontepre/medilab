@@ -19393,3 +19393,8 @@ msgstr "vd: Viettel Post"
 #: model:ir.ui.menu,name:sol_laboratory.menu_reports_testing
 msgid "Testing Reports"
 msgstr "Thử nghiệm"
+
+#. module: sol_laboratory
+#: model:ir.ui.menu,name:sol_laboratory.menu_reports_testing_statistic_period
+msgid "Statistics for a Period"
+msgstr "Thống kê theo kỳ"

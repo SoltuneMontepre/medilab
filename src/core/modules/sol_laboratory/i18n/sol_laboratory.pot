@@ -19163,3 +19163,8 @@ msgstr ""
 #: model:ir.ui.menu,name:sol_laboratory.menu_reports_testing
 msgid "Testing Reports"
 msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.ui.menu,name:sol_laboratory.menu_reports_testing_statistic_period
+msgid "Statistics for a Period"
+msgstr ""
