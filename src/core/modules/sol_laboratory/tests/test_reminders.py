@@ -4,6 +4,7 @@ from unittest.mock import patch
 from freezegun import freeze_time
 
 from odoo.tests import tagged
+from odoo.tools import format_datetime
 
 from .mobile_phones import push_token
 from .scheduling_case import MONDAY, SchedulingCase
@@ -105,3 +106,11 @@ class TestReminders(SchedulingCase):
             self.env[MODEL_SCHEDULED_JOB]._run_key(REMIND)
         self.assertEqual(len(self.reminders(second)), 1)
         self.assertFalse(self.reminders(first))
+
+    def test_a_reminder_states_the_start_in_the_time_zone_of_the_person_it_reaches(self):
+        self.tester.user_id.tz = "Asia/Ho_Chi_Minh"
+        booking = self.booked(self.test)
+        self.env[MODEL_SCHEDULED_JOB]._run_key(REMIND)
+        start = format_datetime(self.env, booking.starts_at, tz="Asia/Ho_Chi_Minh")
+        self.assertIn("3:00", start)
+        self.assertEqual(self.reminders(booking).body, f"<p>Starts at {start}.</p>")
