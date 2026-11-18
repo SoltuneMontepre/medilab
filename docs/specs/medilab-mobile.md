@@ -180,7 +180,7 @@ Conversations are Odoo Discuss channels ([SH-12](../functional/shared.md#sh-12-c
 | `GET /conversations` | The person's direct and group conversations, with their unread count, whether they are muted and their last message |
 | `POST /conversations` | Opens the direct conversation with one person through `_get_or_create_chat()`, or creates a group with a name and members through `_create_group()` |
 | `GET /conversations/{channel_id}/messages?before=&after=&limit=` | Messages through `mail.message._message_fetch()` |
-| `POST /conversations/{channel_id}/messages` | Posts a message with its text, mentions and files through `message_post()` |
+| `POST /conversations/{channel_id}/messages` | Posts a message with its text, mentions and files through `message_post()` with the discussion subtype, as Discuss does |
 | `POST /conversations/{channel_id}/seen` | Marks the conversation read up to a message through the member's `_mark_as_read()` |
 | `PUT /conversations/{channel_id}/mute` | Mutes or unmutes it through the member's `mute_until_dt`, as Discuss on the web does |
 | `GET /people?q=` | Active internal users, for new conversations and mentions |

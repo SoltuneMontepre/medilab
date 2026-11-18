@@ -19,5 +19,5 @@ class LaboratoryApiChatter(http.Controller):
     )
     def post_note(self, device, body, model, record_id, idempotency_key=None):
         document = chatter_document(device.env, model, record_id)
-        note = post_from_phone(document, device, body, idempotency_key, subtype_xmlid="mail.mt_note")
+        note = post_from_phone(document, device, body, idempotency_key, "mail.mt_note")
         return note._mobile_values()[0]
