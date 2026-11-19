@@ -22,10 +22,16 @@ async function fetchText(path, options = {}) {
 
 // Node only parses the bundle, without running it.
 function parseError(text) {
-  const file = join(scratch, `${(parsed += 1)}.js`);
+  parsed += 1;
+  const file = join(scratch, `${parsed}.js`);
   writeFileSync(file, text);
   const result = spawnSync(process.execPath, ["--check", file], { encoding: "utf8" });
   return result.status === 0 ? "" : result.stderr.trim();
+}
+
+// Lines quote what the colour answered, so control characters are collapsed before they reach the log.
+function oneLine(text) {
+  return text.replace(/[\u0000-\u001f\u007f]+/g, " ");
 }
 
 async function checkBundle(path) {
@@ -56,11 +62,11 @@ if (![302, 303].includes(odoo.response.status) || !location.includes("/web/login
 }
 const linked = [...login.text.matchAll(/(?:href|src)="(\/web\/assets\/[^"]+)"/g)].map((match) => match[1]);
 const bundles = await Promise.all([...new Set([...linked, ...WEB_CLIENT])].map(checkBundle));
-console.log(bundles.join("\n"));
+console.log(bundles.map(oneLine).join("\n"));
 rmSync(scratch, { recursive: true, force: true });
 
 if (failures.length) {
-  console.error(failures.join("\n"));
+  console.error(failures.map(oneLine).join("\n"));
   process.exit(1);
 }
 console.log("The release serves its login page and builds its assets.");

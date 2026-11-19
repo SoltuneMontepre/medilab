@@ -81,7 +81,9 @@ class TestCompute(unittest.TestCase):
         return self.fingerprint.compute(modules)
 
     def test_same_files_and_modules_give_the_same_fingerprint(self):
-        self.assertEqual(self.compute(), self.compute())
+        first = self.compute()
+
+        self.assertEqual(self.compute(), first)
 
     def test_changed_file_changes_it(self):
         before = self.compute()
