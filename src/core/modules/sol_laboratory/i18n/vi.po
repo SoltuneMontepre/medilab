@@ -19558,6 +19558,36 @@ msgstr "Thử nghiệm"
 #: model:ir.ui.menu,name:sol_laboratory.menu_reports_testing_statistic_period
 msgid "Statistics for a Period"
 msgstr "Thống kê theo kỳ"
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/person.py:0
+msgid "Archiving %(person)s will leave %(roles)s without an active holder for its task types."
+msgstr "Lưu trữ %(person)s sẽ khiến %(roles)s không còn người giữ vai trò đang hoạt động cho các loại nhiệm vụ của họ."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task_assignment_notice.py:0
+msgid "%(role)s has no active holders for %(task)s."
+msgstr "%(role)s hiện không có người giữ vai trò đang hoạt động cho %(task)s."
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_task_role_unstaffed
+msgid "A task is waiting in a role queue with no active holders"
+msgstr "Một nhiệm vụ đang chờ trong hàng đợi vai trò không có người giữ vai trò đang hoạt động"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__role_archive_warning
+msgid "Role Archive Warning"
+msgstr "Cảnh báo lưu trữ vai trò"
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_task_role_unstaffed
+msgid "Task has no role holders"
+msgstr "Nhiệm vụ không có người giữ vai trò"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task_type__route__administrator
+msgid "Administrators"
+msgstr "Quản trị viên"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__can_start

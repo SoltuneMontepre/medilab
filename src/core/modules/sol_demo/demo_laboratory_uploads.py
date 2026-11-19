@@ -4,6 +4,7 @@ from datetime import timedelta
 from odoo import fields
 
 from .demo_laboratory_content import content_writer
+from .demo_laboratory_files import HPLC_RESULT_CONTENTS
 from odoo.addons.sol_laboratory.constants.laboratory_files import LOCKED
 from odoo.addons.sol_laboratory.constants.laboratory_uploads import (
     COMPLETED,
@@ -83,14 +84,14 @@ def seed_laboratory_uploads(env):
         "hplc_results_3": {
             **of_version(third, tester, hplc_pc),
             "base_version_id": third.parent_version_id.id,
-            "content_id": store("Kết quả HPLC, bản 3", own=True).id,
+            "content_id": store(HPLC_RESULT_CONTENTS[3], own=True).id,
             "status": COMPLETED,
             "version_id": third.id,
         },
         "hplc_results_aas": {
             **of_version(conflict, chemistry_tester, aas_pc),
             "base_version_id": conflict.file_id.version_ids.filtered(lambda version: version.number == 2).id,
-            "content_id": store("Kết quả HPLC, bản AAS", own=True).id,
+            "content_id": store(HPLC_RESULT_CONTENTS["aas"], own=True).id,
             "status": UPLOAD_CONFLICT,
             "version_id": conflict.id,
         },
