@@ -47,6 +47,26 @@ class TestOrderSamples(OrderCase):
         self.assertEqual(len(order.order_line), 3)
         self.assertEqual(order.catalog_total, self.package.list_price)
 
+    def test_an_item_added_to_the_cart_starts_on_a_sample_type_and_shows_its_expected_samples(self):
+        order = self.make_order([])
+
+        order.add_catalog_product(self.lead_product, 1)
+        line = order._catalog_lines()
+
+        self.assertTrue(line.sample_type_id)
+        self.assertTrue(line.parameter_method_id)
+        self.assertTrue(order._expected_sampling())
+
+    def test_a_second_item_follows_the_sample_type_the_cart_already_uses(self):
+        order = self.make_order([])
+        order.add_catalog_product(self.lead_product, 1)
+        chosen = order._catalog_lines().sample_type_id
+
+        order.add_catalog_product(self.package_product, 1)
+
+        self.assertEqual(order._catalog_lines().sample_type_id, chosen)
+        self.assertEqual(self.package_line(order).linked_line_ids.sample_type_id, chosen)
+
     def test_copying_a_sample_copies_its_lines_with_their_prices(self):
         order = self.make_order([(self.lead_product, 2), (self.package_product, 1)])
         sample = self.make_sample(order)

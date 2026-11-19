@@ -191,6 +191,17 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
             lambda sample_type: not any(parameter._order_refusal(sample_type) for parameter in parameters)
         ).sorted("name")
 
+    def _preselect_sample_type(self):
+        """Give a line new in the cart a sample type to start from, so the expected samples show at once: the one the
+        cart's other items are already tested on when this item can be too, else the first it can be ordered on. The
+        customer can change it in the cart."""
+        self.ensure_one()
+        choices = self._sample_type_choices()
+        if self.sample_type_id or not choices:
+            return
+        used = self.order_id._catalog_lines().filtered("sample_type_id").sample_type_id
+        self.sudo().sample_type_id = (used & choices)[:1] or choices[:1]
+
     def _set_cart_selection(self, sample_type_id=None, parameter_method_id=None):
         """Set the sample type or the way of testing the customer chose in the cart, refusing one not offered."""
         self.ensure_one()

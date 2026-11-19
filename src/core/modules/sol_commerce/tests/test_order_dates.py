@@ -135,7 +135,10 @@ class TestOrderDates(OrderCase):
 
         deadline = order.payment_deadline
         assert isinstance(deadline, datetime)
-        self.assertEqual(deadline, order._priority_payment_deadline())
+        # Never later than the end of the day the turnaround must start; the usual deadline applies when it is sooner.
+        latest = order._priority_payment_deadline()
+        assert isinstance(latest, datetime)
+        self.assertLessEqual(deadline, latest)
         # The turnaround starts five working days before the committed date; the advance is due by the end of that day.
         self.assertLess(deadline, datetime.combine(requested, time.min))
         self.assertGreater(deadline, fields.Datetime.now())

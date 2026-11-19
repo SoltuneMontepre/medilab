@@ -286,9 +286,12 @@ class SaleOrder(models.Model, SaleOrderBase):
         if line:
             line.product_uom_qty += quantity
         else:
-            self.env["sale.order.line"].sudo().create(
-                {"order_id": self.id, "product_id": variant.id, "product_uom_qty": quantity}
+            line = (
+                self.env["sale.order.line"]
+                .sudo()
+                .create({"order_id": self.id, "product_id": variant.id, "product_uom_qty": quantity})
             )
+            line._preselect_sample_type()
         self._catalog_lines()._lock_catalog_price()
         return self
 
