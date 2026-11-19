@@ -62,7 +62,7 @@ class ApprovalLevel(models.Model, ApprovalLevelBase):
         held = self._held()
         if held:
             held._check_permission("delete")
-            super(ApprovalLevel, held.sudo()).write({"active": False})
+            held.sudo().active = False
         rest = self - held
         return super(ApprovalLevel, rest).unlink() if rest else True
 
@@ -78,7 +78,7 @@ class ApprovalLevel(models.Model, ApprovalLevelBase):
         self._check_permission("edit")
         langs = [code for code, _name in self.env["res.lang"].get_installed()]
         for level in self.sudo():
-            super(ApprovalLevel, level).write({"active": False})
+            level.active = False
             # The copy takes the level's position, which the archived level must have left first.
             level.flush_recordset(["active"])
             replacement = level.copy({"name": level.name, **vals, "active": True})

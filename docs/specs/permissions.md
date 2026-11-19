@@ -35,6 +35,7 @@ A permission is one action on one document type within one scope. Its code is de
 | `delete`  | `d`                                                                     |
 | `sign`    | none: the group alone marks who may sign; the signing feature checks it |
 | `invoice` | none: on orders only, the group marks who may create invoices from an order; the invoicing feature checks it |
+| `deliver` | none: on test reports only, the group marks who records the delivery of an issued report and raises change requests on it; the delivery feature checks it |
 
 | Scope            | Domain of the access                                                                        |
 | ---------------- | ------------------------------------------------------------------------------------------- |
@@ -64,7 +65,7 @@ The permission catalogue belongs to the modules: users read permissions, rename 
 
 Task types come with the modules in the same way: every internal user reads them, and only `edit` is a permission, for their route, role and default deadline. Tasks add two accesses that no permission carries: every internal user reads the tasks assigned to them and the open tasks of the queues they can claim from ([SH-10](../functional/shared.md#sh-10-tasks-and-to-do-list)). Claiming, starting and finishing their own tasks go through the task's buttons, which check the person and write with full rights.
 
-Change requests have only the `read` and `sign` permissions, for the people who approve them. Whoever may edit a document type raises change requests on it: raising checks the `edit` permission on the document and creates the request with full rights. Change requests add one access that no permission carries: every internal user reads the change requests they raised, to follow their status.
+Change requests have only the `read` and `sign` permissions, for the people who approve them. Whoever may edit a document type raises change requests on it: raising checks the `edit` permission on the document and creates the request with full rights. Nobody edits a test report, so whoever may deliver reports raises change requests on an issued one, with its `deliver` permission. Change requests add one access that no permission carries: every internal user reads the change requests they raised, to follow their status.
 
 Subcontract dispatches add one access that no permission carries: every internal user reads the dispatches they carry as sample delivery staff. A subcontractor's people are portal users and hold no permission: the portal pages read the sent and received dispatches of their subcontractor with full rights, show the samples by lab code, sample type and parameter only, and enter the results of their outsourced tests. The report a subcontractor returned is read only with the dispatch `read` permission: neither the sample delivery staff carrying the dispatch nor a subcontractor's people read it.
 

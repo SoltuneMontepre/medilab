@@ -193,6 +193,8 @@ class TestQuotationTaxes(OrderCase):
         quotation = order._latest_quotation()
 
         self.assertEqual(quotation.amount_total, 165000)
+        self.assertEqual(order.payment_request_id.amount, 165000)
+        self.pay_advance(order)
         invoice = order.sudo().invoice_ids
         self.assertEqual(invoice.amount_tax, 15000)
         self.assertEqual(invoice.amount_total, 165000)

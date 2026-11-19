@@ -16,6 +16,7 @@ What each GitHub Actions workflow in `.github/workflows/` does. How workflows ar
 | `cd-ansible`    | a manual run on `main`                                                                  | Runs the Ansible playbooks against the nodes: `ping`, `inspect`, `check` or `apply`.                               |
 | `cd-reset`      | a manual run on `main`                                                                  | Recreates the production database and installs it again with the demo data.                                        |
 | `cd-sync-app`   | a `filesync-v*` tag                                                                     | Builds the sync app's Windows, macOS and Linux packages and publishes them as a GitHub release.                    |
+| `cd-mobile-app` | a `mobile-v*` tag                                                                       | Builds the signed Android APK and code update of the mobile app and publishes them to the release bucket.          |
 | `cd-cleanup`    | a closed pull request, merged or not, or a finished `cd-core`                           | Deletes the branch, artifacts and build caches of closed pull requests, and old images.                            |
 
 Every workflow can also be started by hand.
@@ -32,10 +33,10 @@ flowchart LR
     changes --> onlyoffice --> sonarqube
 ```
 
-- `changes` decides whether the pull request touches the core: `src/core` except Markdown, the Dockerfile, `pyrightconfig.json`, `tools/typecheck`, the dev and test taskfiles, `tools/scripts`, the Docker Compose file and the Garage setup of `tools/infrastructure/garage`, the lint action or the workflow. It also decides whether to scan: on core changes, runtime changes under the ONLYOFFICE deployment/monitor and verification tools, or changes to `tools/odoo-intelligence`, the AI taskfile or `ci-tools`. The browser tests run on core changes and on changes to `src/tests`.
+- `changes` decides whether the pull request touches the core: `src/core` except Markdown, the Dockerfile, `pyrightconfig.json`, `tools/typecheck`, the dev and test taskfiles, `tools/scripts`, the Docker Compose file and the Garage setup of `tools/infrastructure/garage`, the lint action or the workflow. It also decides whether to scan: on core changes, runtime changes under the ONLYOFFICE deployment/monitor and verification tools, or changes to `tools/odoo-intelligence`, the AI taskfile or `ci-tools`. The browser tests run on core changes and on changes to `src/tests`. The `e2e` job has 45 minutes for the build, demo setup and browser suite.
 - A push to `main` skips `lint` and `e2e`, which already passed on the pull request. When the merge changes anything SonarQube scans, it runs `build`, the test runners, `coverage` and `sonarqube`, so SonarQube Cloud analyses all of `main` with full coverage after each merge; otherwise it runs nothing. That analysis is the project's overall view: its issues, coverage and quality gate on `main`, against which pull requests are compared.
 - A manual run ignores what `changes` decides and runs every job.
-- `lint` runs `task typecheck` and `task test:typecheck`, then `task test:openapi`, then pylint-odoo inside the Odoo image. Typing preparation uses the pinned image and an owned temporary PostgreSQL database. Every type error or warning fails it; the original JSON and diagnostic counts are uploaded even after failure. See [Python](../conventions/python.md#type-checking).
+- `lint` runs `task typecheck` and `task test:typecheck`, then `task test:openapi`, then pylint-odoo in a virtual environment inside the Odoo image. CI and local lint both allow the absolute imports required by the Python conventions. Typing preparation uses the pinned image and an owned temporary PostgreSQL database. The Typecheck step allows Pyright a 6 GiB Node heap for the full module analysis. Every type error or warning fails it; the original JSON and diagnostic counts are uploaded even after failure. See [Python](../conventions/python.md#type-checking).
 - `task test:openapi` lints the OpenAPI document of the laboratory files API with `openapi-spec-validator`, then compares it with the document on `main` with oasdiff, in its image pinned by digest. A change that breaks the document, such as removing a field or a route, fails unless it gives the document a new `info.version`. The tests of the routes check their answers against the same document; see [Testing](../conventions/testing.md#odoo-module-tests).
 - The test runners and `e2e` reach the laboratory files bucket of the Garage server that Docker Compose starts; `garage-setup` sets it up once per run, before the modules install. It also adds `laboratory-files-other`, which Odoo's key may not reach, and `laboratory-files-reconcile`, which only the reconciliation tests use and empty, since the shards share one server. Production has neither ([#202](https://github.com/SoltuneMontepre/medilab/issues/202)).
 - `build` builds the production image into the GitHub Actions build cache and does not push it.
@@ -151,6 +152,28 @@ flowchart LR
 - Each job sets up Node 24, which Expo needs, and Bun, which installs the dependencies.
 - When any job fails, its last step cancels the whole run, as in `ci-core`.
 - `maestro` runs only every night at 02:00 in Asia/Ho_Chi_Minh and when the workflow is started by hand, never on a pull request, so it is not a required check. It starts Odoo with the demo data as `ci-core`'s `e2e` does, builds the Android release build for `x86_64` with `MEDILAB_URL=http://localhost:8069`, signed with the debug keystore, and keeps it for seven days as the `medilab-mobile-release-x86_64` artifact, which installs on a local x86_64 emulator; it installs a Maestro release checked against its SHA-256, and runs the Maestro flows of `.maestro` on an Android 14 emulator, which reaches Odoo through `adb reverse`. A failed run uploads Maestro's output, the last screen and the emulator's log.
+
+## cd-mobile-app
+
+A release starts by pushing a tag `mobile-v<version>`, such as `mobile-v1.2.3`. One `release` job in the `mobile-release` environment, which only `mobile-v*` tags may use, builds both artifacts and publishes them to the `medilab-release` bucket:
+
+```mermaid
+flowchart LR
+    keys[Doppler keys] --> fingerprint --> update["code update (expo export)"] --> apk["APK (Gradle, apksigner)"] --> catalog --> upload["upload artifacts"] --> publish["publish catalog"]
+```
+
+- The version is the tag's, three numbers of at most three digits each, so Android's version code, `major × 1,000,000 + minor × 1,000 + patch`, always grows with it. A pre-release suffix is refused. `MEDILAB_MOBILE_VERSION` sets it in `app.config.ts` for the build only; the repository keeps its own version.
+- The production MediLab address is built into the app from the `MEDILAB_MOBILE_URL` Actions variable, which Terraform sets to the `lims` host. The run fails when it is not set or does not start with `https://`.
+- The job reads the `release` Doppler config through the `DOPPLER_RELEASE_TOKEN` secret of its environment and masks every value but the bucket's public address. The upload keystore, the update key and Firebase's `google-services.json` are written to files that only the runner's user reads, outside the repository, and deleted at the end; the passwords reach `apksigner` as environment variables of `doppler run`, never on a command line, so no key appears in the log.
+- The runtime version, which names the native build a code update runs on, is the [fingerprint](https://docs.expo.dev/versions/latest/sdk/fingerprint/) of the Android project: the native dependencies and the Expo configuration, without the version. It changes only when a release needs a new APK. The step fails when the fingerprint did not read the Expo configuration.
+- The app embeds a certificate of the update key, which `expo-updates` checks every code update against. The job makes it from the update key with `openssl`, valid ten years, for code signing, and builds it in with `MEDILAB_MOBILE_UPDATE_CERTIFICATE`; a phone checks only that the key is the same, so each release may carry a new certificate.
+- The code update is the JavaScript and assets of `expo export`. `scripts/release` writes its manifest in version 1 of the Expo Updates protocol, naming each file by its SHA-256 and full HTTPS address, and signs it with RSA-SHA256 and the update key.
+- The APK is built for `arm64-v8a` and `armeabi-v7a` phones, then `apksigner` replaces the debug signature with the upload key's.
+- The catalog is read from the bucket and the new code and install releases are added to it before anything is uploaded, so a version that is already released fails without changing the bucket. Only the first release finds no catalog; any other read error stops the run.
+- The artifacts go to `mobile/android/<version>/` in the bucket: `medilab-<version>.apk` and `update/`. The catalog, `mobile/catalog.json`, is published last, so it never names a file that is not there yet. Its format is in [Medilab Mobile](../specs/medilab-mobile.md#updates).
+- The last step prints the APK's address in the log and the run's summary. An administrator sends it to staff for their first install; MediLab shows no download link.
+- A manual run must be started on a `mobile-v*` tag, such as to retry a failed release; on another reference it fails at its first step.
+- **Rolling back.** An administrator first stops the bad version in MediLab's settings, so no phone downloads it any more. Phones never launch an older code update than the one they run, so the release owner then tags the commit of the last good release with the next version, such as `mobile-v1.2.4` on the commit of `mobile-v1.2.2`, and the job publishes that code again as a newer release, which phones take at their next check.
 
 ## cd-core
 

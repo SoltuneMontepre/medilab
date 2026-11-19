@@ -9,6 +9,7 @@ from odoo.addons.sol_laboratory.constants.medilab_mobile import RESULT_WARNING
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_LABORATORY_DEVICE,
     MODEL_LABORATORY_IDEMPOTENCY_MIXIN,
+    MODEL_PERSON,
     MODEL_TEST_RESULT,
 )
 from odoo.addons.sol_laboratory.services.laboratory_api import api_datetime
@@ -43,6 +44,14 @@ class TestResultMobile(models.Model, TestResultMobileBase):
         Whether they may sign is computed, so the results are filtered before paging."""
         waiting = self.search([("status", "=", STATE_REQUESTED)], order="entered_at, id").filtered("approval_can_sign")
         return waiting[offset : offset + limit], len(waiting) > offset + limit
+
+    @api.model
+    def _may_sign_awaiting(self):
+        """Whether results can wait for the person's signature: they may sign results and hold the role of a level
+        after the first, which signs the results the first level sent."""
+        roles = self.env[MODEL_PERSON]._current().sudo().role_ids
+        later = self._approval_chain().level_ids.sorted("sequence")[1:]
+        return self._has_permission("sign") and any(level.role_id in roles for level in later)
 
     def _mobile_values(self):
         """The results as Medilab Mobile lists them."""

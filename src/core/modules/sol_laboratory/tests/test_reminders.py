@@ -4,6 +4,7 @@ from unittest.mock import patch
 from freezegun import freeze_time
 
 from odoo.tests import tagged
+from odoo.tools import format_datetime
 
 from .mobile_phones import push_token
 from .scheduling_case import MONDAY, SchedulingCase
@@ -21,6 +22,7 @@ from odoo.addons.sol_laboratory.constants.notifications import (
     CHANNEL_POPUP,
     CHANNEL_PUSH,
     EVENT_TASK_REMINDER,
+    VIETNAM_ZONE,
 )
 
 REMIND = "notifications.remind"
@@ -89,7 +91,14 @@ class TestReminders(SchedulingCase):
         self.event.enabled = False
         self.env[MODEL_SCHEDULED_JOB]._run_key(REMIND)
         self.assertFalse(self.reminders(first))
-        self.assertFalse(self.env[MODEL_PUSH_DELIVERY].search([("mobile_device_id", "=", self.device.id)]))
+        self.assertFalse(
+            self.env[MODEL_PUSH_DELIVERY].search(
+                [
+                    ("mobile_device_id", "=", self.device.id),
+                    ("notification_id.mail_message_id.subtype_id", "=", self.event.id),
+                ]
+            )
+        )
 
         self.event.enabled = True
         second = self.booked(self.new_test())
@@ -98,3 +107,11 @@ class TestReminders(SchedulingCase):
             self.env[MODEL_SCHEDULED_JOB]._run_key(REMIND)
         self.assertEqual(len(self.reminders(second)), 1)
         self.assertFalse(self.reminders(first))
+
+    def test_a_reminder_states_the_start_in_the_time_zone_of_the_person_it_reaches(self):
+        self.tester.user_id.tz = VIETNAM_ZONE
+        booking = self.booked(self.test)
+        self.env[MODEL_SCHEDULED_JOB]._run_key(REMIND)
+        start = format_datetime(self.env, booking.starts_at, tz=VIETNAM_ZONE)
+        self.assertIn("3:00", start)
+        self.assertEqual(self.reminders(booking).body, f"<p>Starts at {start}.</p>")

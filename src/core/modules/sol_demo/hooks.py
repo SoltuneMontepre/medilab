@@ -32,7 +32,8 @@ def seed_demo(env):
     from .demo_audit import seed_audit
     from .demo_change_requests import seed_change_requests
     from .demo_cleanup import seed_cleanup
-    from .demo_dispatches import seed_agreed_outsourcing, seed_dispatches
+    from .demo_dispatch_delivery import seed_dispatch_delivery
+    from .demo_dispatches import seed_agreed_outsourcing, seed_dispatches, seed_same_method_outsourcing
     from .demo_finance import seed_finance
     from .demo_laboratory_editing import seed_laboratory_editing
     from .demo_laboratory_file_locks import seed_laboratory_file_locks
@@ -48,7 +49,9 @@ def seed_demo(env):
     from .demo_notifications import seed_notifications
     from .demo_order_templates import seed_order_templates
     from .demo_orders import seed_orders, seed_request_orders
+    from .demo_payment_requests import seed_payment_requests
     from .demo_phones import seed_phones
+    from .demo_plan_revisions import seed_plan_revisions
     from .demo_quotations import seed_dates, seed_quotations, seed_sampling, seed_selected_ways
     from .demo_report_templates import seed_report_templates
     from .demo_reports import seed_reports
@@ -75,11 +78,14 @@ def seed_demo(env):
     seed_statistics(env)
     seed_report_templates(env)
     seed_reports(env)
+    seed_payment_requests(env)
     seed_change_requests(env)
     seed_signing(env)
     seed_tracking(env)
     seed_dispatches(env)
     seed_agreed_outsourcing(env)
+    seed_same_method_outsourcing(env)
+    seed_dispatch_delivery(env)
     seed_finance(env)
     seed_audit(env)
     seed_locks(env)
@@ -96,4 +102,5 @@ def seed_demo(env):
     seed_cleanup(env)
     seed_support(env)
     seed_signing_levels(env)
+    seed_plan_revisions(env)
     seed_request_orders(env)

@@ -190,9 +190,11 @@ class TestOrderForm(OrderCase):
 
     def test_down_payments_move_to_the_payment_tab(self):
         order = self.sent_order()
+        self.assertFalse(order.order_line.filtered("is_downpayment"))
+        self.pay_advance(order)
         advance = order.sudo().invoice_ids.filtered(lambda invoice: invoice.invoice_kind == "advance")
         down_payments = order.order_line.filtered("is_downpayment")
-        self.assertTrue(down_payments, "Sending the quotation adds Odoo's down payment lines.")
+        self.assertTrue(down_payments, "Verifying the payment adds Odoo's down payment lines.")
 
         self.assertEqual(order.product_line_ids, order.order_line - down_payments)
         self.assertEqual(order.downpayment_line_ids, down_payments.filtered(lambda line: not line.display_type))

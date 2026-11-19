@@ -4,7 +4,7 @@ from odoo.fields import Command, Domain
 from odoo.tests import tagged
 
 from .laboratory_api_case import LaboratoryApiCase
-from .laboratory_files_case import PASSWORD
+from .mobile_phones import phone_person
 from .request_case import RequestCase
 from odoo.addons.sol_laboratory.constants.laboratory_files import INVALID_REQUEST, NOT_FOUND
 from odoo.addons.sol_laboratory.constants.medilab_mobile import ACTION_REFUSED, ALREADY_CLAIMED
@@ -13,7 +13,6 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PARAMETER_AUTHORIZATION,
     MODEL_PARAMETER_METHOD,
     MODEL_PERMISSION,
-    MODEL_PERSON,
     MODEL_SAMPLE_TEST,
     MODEL_TASK,
 )
@@ -73,23 +72,7 @@ class TestMedilabMobileSamples(LaboratoryApiCase, RequestCase):
 
     @classmethod
     def department_person(cls, name, login, department, extra=()):
-        person = cls.env[MODEL_PERSON].create(
-            {
-                "name": name,
-                "login": login,
-                "department_id": department.id if department else False,
-                "permission_ids": [
-                    Command.set(
-                        [
-                            persisted_id(reference_as(cls.env[MODEL_PERMISSION], f"sol_laboratory.permission_{code}"))
-                            for code in (*DEPARTMENT_PERMISSIONS, *extra)
-                        ]
-                    )
-                ],
-            }
-        )
-        person.user_id.password = PASSWORD
-        return person
+        return phone_person(cls.env, name, login, department, (*DEPARTMENT_PERMISSIONS, *extra))
 
     def setUp(self):
         super().setUp()
@@ -110,6 +93,19 @@ class TestMedilabMobileSamples(LaboratoryApiCase, RequestCase):
         label = code or self.sample.code or ""
         return self.on_phone(person, "GET", f"/samples/lookup?code={quote(label)}")
 
+    def handover_reader(self):
+        """A person of Analytical chemistry who reads the sample and its handovers but may not edit them."""
+        reader = self.department_person("Dang Van Duc", "duc.scan", self.department)
+        reader.permission_ids = [
+            Command.set(
+                [
+                    persisted_id(reference_as(self.env[MODEL_PERMISSION], f"sol_laboratory.permission_{code}"))
+                    for code in ("sample_read_all", "sample_handover_read_own_department")
+                ]
+            )
+        ]
+        return reader
+
     def handover_of(self, department):
         return self.sample.handover_ids.filtered(lambda handover: handover.department_id == department)
 
@@ -126,6 +122,7 @@ class TestMedilabMobileSamples(LaboratoryApiCase, RequestCase):
             {"department": self.department.name, "received_at": None, "received_by": "", "can_receive": True},
         )
         self.assertEqual([task["id"] for task in sample["tasks"]], self.lead_task.ids)
+        self.assertTrue(sample["tests_samples"])
         microbiology = self.answered(self.look_up(self.microbiologist))
         self.assertEqual([task["id"] for task in microbiology["tasks"]], self.coliforms_task.ids)
 
@@ -136,6 +133,18 @@ class TestMedilabMobileSamples(LaboratoryApiCase, RequestCase):
         self.assertEqual(sample["customer_sample_name"], "Lavie bottled water 1 L")
         self.assertIsNone(sample["handover"])
         self.assertEqual(sample["tasks"], [])
+        self.assertFalse(sample["tests_samples"])
+
+    def test_only_a_person_authorized_to_test_in_a_department_is_told_they_test_samples(self):
+        self.assertFalse(self.answered(self.look_up(self.physicist))["tests_samples"])
+        self.env[MODEL_PARAMETER_AUTHORIZATION].create(
+            {"person_id": self.physicist.id, "parameter_id": self.parameter.id}
+        )
+        self.assertTrue(self.answered(self.look_up(self.physicist))["tests_samples"])
+
+    def test_only_a_person_who_may_record_a_receipt_or_hand_samples_over_may_scan(self):
+        self.assertTrue(self.answered(self.on_phone(self.chemist, "GET", "/me"))["can"]["scan_samples"])
+        self.assertFalse(self.answered(self.on_phone(self.handover_reader(), "GET", "/me"))["can"]["scan_samples"])
 
     def test_a_code_of_no_sample_or_of_one_the_person_may_not_read_is_not_found(self):
         outsider = self.department_person("Dang Van Duc", "duc.scan", self.department)
@@ -151,15 +160,7 @@ class TestMedilabMobileSamples(LaboratoryApiCase, RequestCase):
     # Recording the receipt
 
     def test_only_a_person_who_may_edit_the_handover_is_offered_the_receipt(self):
-        reader = self.department_person("Dang Van Duc", "duc.scan", self.department)
-        reader.permission_ids = [
-            Command.set(
-                [
-                    persisted_id(reference_as(self.env[MODEL_PERMISSION], f"sol_laboratory.permission_{code}"))
-                    for code in ("sample_read_all", "sample_handover_read_own_department")
-                ]
-            )
-        ]
+        reader = self.handover_reader()
 
         handover = self.answered(self.look_up(reader))["handover"]
 

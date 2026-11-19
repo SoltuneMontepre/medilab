@@ -50,10 +50,17 @@
                     </group>
                     <notebook>
                         <page string="Samples" name="samples">
+                            <!-- Staff adjust the expected samples to what is actually handed over; the customer
+                                 confirms it by signing. Extras add no test and stay with the sample. -->
                             <field name="sample_ids" readonly="status == 'signed'">
                                 <list editable="bottom">
                                     <field name="sample_id" domain="[('request_id', '=', parent.request_id)]" />
+                                    <field name="expected_count" width="[120]" />
+                                    <field name="actual_count" width="[120]" />
+                                    <field name="extra_count" width="[120]" />
+                                    <field name="missing_count" width="[120]" decoration-warning="missing_count" />
                                     <field name="quantity" />
+                                    <field name="excess_material" optional="show" />
                                     <field name="condition" />
                                     <field name="condition_note" />
                                 </list>

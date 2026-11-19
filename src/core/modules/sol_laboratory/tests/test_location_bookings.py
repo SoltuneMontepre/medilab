@@ -6,6 +6,7 @@ from odoo import fields
 from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Command
 from odoo.tests import tagged
+from odoo.tools import format_datetime
 
 from .location_case import LocationCase
 from .people_case import PeopleCase
@@ -15,6 +16,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MAIL_MESSAGE,
     MODEL_SCHEDULED_JOB,
 )
+from odoo.addons.sol_laboratory.constants.notifications import VIETNAM_ZONE
 from odoo.addons.sol_laboratory.services.record_id import persisted_ids
 
 REMIND = "notifications.remind"
@@ -156,3 +158,17 @@ class TestLocationBookings(PeopleCase, LocationCase):
         self.assertEqual(
             message.notification_ids.res_partner_id, (self.chemist | self.microbiologist).user_id.partner_id
         )
+
+    def test_a_booking_reminder_states_the_start_in_the_organisers_time_zone(self):
+        self.chemist.user_id.tz = VIETNAM_ZONE
+        booking = self.book(self.room)
+
+        with freeze_time(self.start - timedelta(minutes=10)):
+            self.env[MODEL_SCHEDULED_JOB]._run_key(REMIND)
+
+        message = self.env[MODEL_MAIL_MESSAGE].search(
+            [("notification_key", "=like", f"calendar:{booking.id}:reminder:%")]
+        )
+        start = format_datetime(self.env, booking.start, tz=VIETNAM_ZONE)
+        self.assertNotEqual(start, format_datetime(self.env, booking.start, tz="UTC"))
+        self.assertEqual(message.body, f"<p>Starts at {start} in {booking.location}.</p>")

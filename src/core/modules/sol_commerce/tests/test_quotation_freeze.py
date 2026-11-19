@@ -64,5 +64,6 @@ class TestQuotationFreeze(OrderCase):
 
     def test_the_advance_invoice_lines_are_not_frozen(self):
         order = self.sent_order()
+        self.pay_advance(order)
 
         self.assertTrue(order.sudo().order_line.filtered("is_downpayment"))

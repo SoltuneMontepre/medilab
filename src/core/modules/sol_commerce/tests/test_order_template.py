@@ -119,7 +119,8 @@ class TestOrderTemplate(TemplateCase):
         order.write({"advance_method": "cash", "advance_mode": "full"})
         order.with_user(self.sales).action_send_quotation()
         self.assertEqual(len(order.quotation_ids), 1)
-        self.assertEqual(len(order.invoice_ids), 1)
+        self.assertFalse(order.invoice_ids)
+        self.assertEqual(len(order.payment_request_ids), 1)
         self.assertEqual(order.state, "sent")
 
     def test_confirmed_source_is_only_read_and_does_not_freeze_template_edits(self):

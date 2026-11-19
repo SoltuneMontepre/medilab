@@ -1,7 +1,9 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react-native";
 import { router } from "expo-router";
 
+import { documentPath } from "./features/documents/documentPath";
 import { PushOpener } from "./features/documents/PushOpener";
+import { watchMessagePushes } from "./push";
 import { SessionProvider } from "./session";
 import { fakeMediLab, kept } from "./testing/fakeMediLab";
 import { GREETING, home } from "./testing/home";
@@ -45,8 +47,8 @@ describe("Pushes", () => {
     await fireEvent.changeText(screen.getByLabelText("Mật khẩu"), "typed");
     await fireEvent.press(screen.getByRole("button", { name: "Đăng nhập" }));
 
-    await waitFor(() => expect(mediLab.sent).toHaveLength(4));
-    expect(mediLab.sent[3]).toMatchObject({
+    await waitFor(() => expect(mediLab.sent).toHaveLength(5));
+    expect(mediLab.sent[4]).toMatchObject({
       method: "PUT",
       url: "https://lab.example/medilab/api/v1/push-token",
       headers: { Authorization: "Bearer device-key" },
@@ -55,8 +57,8 @@ describe("Pushes", () => {
 
     mediLab.plan({ status: 204 });
     await act(async () => messaging.refreshPushToken("new-token"));
-    await waitFor(() => expect(mediLab.sent).toHaveLength(5));
-    expect(mediLab.sent[4].body).toEqual({ token: "new-token" });
+    await waitFor(() => expect(mediLab.sent).toHaveLength(6));
+    expect(mediLab.sent[5].body).toEqual({ token: "new-token" });
   });
 
   it("registers nothing on a build without Firebase", async () => {
@@ -68,6 +70,7 @@ describe("Pushes", () => {
     expect(mediLab.sent.map((sent) => sent.url)).toEqual([
       "https://lab.example/medilab/api/v1/me",
       "https://lab.example/medilab/api/v1/tasks/today",
+      "https://lab.example/medilab/api/v1/modules",
     ]);
   });
 
@@ -89,5 +92,22 @@ describe("Pushes", () => {
 
     await act(async () => undefined);
     expect(router.push).not.toHaveBeenCalled();
+  });
+
+  it("tells the screens of each conversation message pushed while the app is open, and opens its conversation", async () => {
+    const pushed = jest.fn();
+    const stop = watchMessagePushes(pushed);
+    const message = { data: { event: "message", model: "discuss.channel", id: "5" } };
+
+    messaging.receivePush(message);
+    messaging.receivePush(SAMPLE_PUSH);
+    stop();
+    messaging.receivePush(message);
+
+    expect(pushed.mock.calls).toEqual([[{ model: "discuss.channel", id: 5 }]]);
+    expect(documentPath({ model: "discuss.channel", id: 5 })).toEqual({
+      pathname: "/conversations/[id]",
+      params: { id: "5" },
+    });
   });
 });

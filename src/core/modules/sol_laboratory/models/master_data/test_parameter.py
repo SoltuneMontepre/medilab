@@ -158,7 +158,7 @@ class TestParameter(models.Model, TestParameterBase):
             parameter=self.display_name,
             sample_type=sample_type.display_name,
             reason=reason,
-            ways=format_list(self.env, self._available_alternatives(sample_type).mapped("display_name")),
+            ways=format_list(self.env, self._offered_ways(sample_type).mapped("display_name")),
         )
 
     def _available_alternatives(self, sample_type):
@@ -168,14 +168,22 @@ class TestParameter(models.Model, TestParameterBase):
         )
         return offered.parameter_method_id.filtered(lambda way: not way._unavailable_reason())
 
-    def _offered_ways(self, sample_type):
-        """The ways of testing that can be chosen for the parameter on the sample type: its default when available and
-        the other available ways."""
+    def _offered_ways(self, sample_type, partner=None):
+        """The ways of testing that can be chosen for the parameter on the sample type, one per method, since who tests
+        it is internal: the default when available and uses that method, otherwise the in-house way. A way the
+        partner's own company tests as a subcontractor is left out."""
         self.ensure_one()
         default = self._default_way(sample_type)
         if default and default._unavailable_reason():
             default = default.browse()
-        return default | self._available_alternatives(sample_type)
+        ways = default | self._available_alternatives(sample_type)
+        if partner:
+            ways = ways.filtered(lambda way: not way._performed_by(partner))
+        offered = ways.browse()
+        for method in ways.method_id:
+            same = ways.filtered(lambda way, method=method: way.method_id == method)
+            offered |= (same & default) or same.filtered(lambda way: not way.subcontractor_id)[:1] or same[:1]
+        return offered
 
     def _default_way(self, sample_type):
         """The way of testing the parameter is normally tested by on the sample type; empty when it has none."""

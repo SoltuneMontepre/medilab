@@ -154,13 +154,14 @@ def _received_request(
 
 def _receive(env, request):
     """Confirm the request, receive its samples in good condition and assign their testing tasks to the demo tester."""
-    request.action_confirm()
+    if request.status == "draft":
+        request.action_confirm()
     request.sample_ids.with_user(env.ref("sol_demo.demo_res_users_sample_delivery_staff")).action_receive(
         "2 bottles", "good"
     )
     env[MODEL_TASK].search(
         [("document_model", "=", MODEL_SAMPLE_TEST), ("document_id", "in", request.sample_ids.test_ids.ids)]
-    ).with_user(env.ref("sol_demo.demo_res_users_head_of_department")).write(
+    ).write(
         {
             "assignee_id": env.ref("sol_demo.demo_person_tester").id,
             "assigned_by_id": env.ref("sol_demo.demo_person_head_of_department").id,

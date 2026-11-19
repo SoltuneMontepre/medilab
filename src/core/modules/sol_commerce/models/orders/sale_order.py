@@ -15,7 +15,6 @@ from odoo.addons.sol_commerce.constants.models import (
 )
 from odoo.addons.sol_commerce.constants.notifications import EVENT_ORDER_UPDATED
 from odoo.addons.sol_commerce.constants.orders import (
-    ADVANCE_PAID_STATES,
     CUSTOMER_CANCELLABLE,
     FINISHED_STATUSES,
     FOLLOW_UP_BY_QUOTATION_STATUS,
@@ -55,7 +54,14 @@ class SaleOrder(models.Model, SaleOrderBase):
     _name = MODEL_SALE_ORDER
     _inherit = [MODEL_SALE_ORDER, MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
     _permission_actions = ("read", "create", "edit", "delete", "invoice")
-    _audit_children = ("order_line", "quotation_ids", "sample_ids", "cancellation_request_ids", "support_request_ids")
+    _audit_children = (
+        "order_line",
+        "quotation_ids",
+        "sample_ids",
+        "cancellation_request_ids",
+        "support_request_ids",
+        "payment_request_ids",
+    )
 
     if not TYPE_CHECKING:
         # The customer who orders: the company, or the individual when they order for themselves.
@@ -202,6 +208,10 @@ class SaleOrder(models.Model, SaleOrderBase):
 
     def write(self, vals):
         self._check_portal_write(vals)
+        if "payment_deadline" in vals:
+            self._lock_payment_orders()
+        if {"payment_request_id", "on_credit"} & vals.keys() and not self.env.su:
+            raise AccessError(self.env._("Only the order workflow can change its payment request or credit state."))
         if "order_status" in vals and not self.env.context.get("medilab_status_change"):
             raise UserError(self.env._("Change the order status with its actions."))
         result = super().write(vals)
@@ -355,9 +365,12 @@ class SaleOrder(models.Model, SaleOrderBase):
 
     def _cancel_order(self):
         # Every cancellation, by sales or by accepting a request, respects Odoo's lock.
+        self._lock_payment_orders()
+        self._check_no_pending_collection()
         if any(order.locked for order in self):
             raise UserError(self.env._("You cannot cancel a locked order. Please unlock it first."))
         self._cancel_laboratory_documents()
+        self.sudo().payment_request_id._supersede()
         self._set_status(STATUS_CANCELLED)
         cancellable = self.filtered(lambda order: order.state != "cancel")
         if cancellable:
@@ -444,11 +457,11 @@ class SaleOrder(models.Model, SaleOrderBase):
             .create({"order_id": self.id, "reason": text, "requested_by_id": self.env.uid})
         )
 
-    @api.depends("quotation_ids.status", "quotation_ids.revision", "quotation_ids.advance_invoice_id")
+    @api.depends("quotation_ids.status", "quotation_ids.revision", "quotation_ids.payment_request_ids")
     def _compute_quotation_follow_up(self):
         for order in self:
             quotation = order._latest_quotation()
-            if quotation.status == QUOTATION_ACCEPTED and not quotation.advance_invoice_id:
+            if quotation.status == QUOTATION_ACCEPTED and not quotation.payment_request_ids:
                 order.quotation_follow_up = QUOTATION_ACCEPTED
             else:
                 order.quotation_follow_up = FOLLOW_UP_BY_QUOTATION_STATUS.get((quotation.status or ""), False)
@@ -460,6 +473,8 @@ class SaleOrder(models.Model, SaleOrderBase):
     def action_send_quotation(self):
         """Store the next revision of the quotation as a PDF and mark the revision before it replaced."""
         self.check_access("write")
+        self._lock_payment_orders()
+        self._check_no_pending_collection()
         for order in self:
             order._check_quotation_can_be_sent()
         for order in self:
@@ -487,9 +502,7 @@ class SaleOrder(models.Model, SaleOrderBase):
         latest = self._latest_quotation()
         if latest.status == QUOTATION_REPLACED:
             raise UserError(self.env._("A replaced quotation cannot be sent. Send the current revision instead."))
-        if latest.status == QUOTATION_ACCEPTED:
-            raise UserError(self.env._("An accepted quotation cannot be replaced."))
-        if latest.status == QUOTATION_SENT and self.state != "draft":
+        if latest.status in (QUOTATION_ACCEPTED, QUOTATION_SENT) and self.state != "draft":
             raise UserError(self.env._("This quotation was already sent. Revise it to send a new revision."))
 
     def _send_quotation(self):
@@ -523,7 +536,7 @@ class SaleOrder(models.Model, SaleOrderBase):
         self._keep_sampling(quotation)
         previous.write({"status": QUOTATION_REPLACED})
         if self.state == "draft":
-            self.state = "sent"
+            self.write({"state": "sent", "accepted_at": False})
         return quotation
 
     def _create_quotation_attachment(self, revision, code):
@@ -547,25 +560,43 @@ class SaleOrder(models.Model, SaleOrderBase):
     def action_revise_quotation(self):
         """Start a new revision; the next send stores it and replaces the current quotation."""
         self.check_access("write")
+        self._lock_payment_orders()
         for order in self:
-            latest = order._latest_quotation()
-            if not latest:
+            if not order._latest_quotation():
                 raise UserError(self.env._("Send a quotation before revising it."))
-            if latest.status == QUOTATION_ACCEPTED:
-                raise UserError(self.env._("An accepted quotation cannot be revised."))
-            if latest._is_advance_touched():
-                raise UserError(self.env._("The customer has paid the advance, so this quotation cannot be revised."))
-        for order in self:
-            order._latest_quotation()._cancel_advance_invoice()
+            if order.order_status != STATUS_CLAIMED:
+                raise UserError(self.env._("Only a claimed order can be revised."))
         self.filtered(lambda order: order.state == "sent").write({"state": "draft"})
         return True
 
     def _reopen_expired_quotations(self):
-        """Moving the payment deadline into the future makes an expired quotation sent again."""
+        """Apply a deadline change to the current advance request and quotation."""
         now = fields.Datetime.now()
-        for order in self.filtered(lambda item: item.payment_deadline and item.payment_deadline > now):
+        for order in self.sudo():
             latest = order._latest_quotation()
-            if latest.status == QUOTATION_EXPIRED:
+            request = order.payment_request_id
+            deadline = order.payment_deadline
+            if request.kind == "advance" and request.state in ("open", "expired"):
+                request.deadline = deadline
+                if request.state == "expired" and deadline and deadline > now:
+                    request.state = "open"
+            if latest.status == QUOTATION_EXPIRED and deadline and deadline > now:
                 latest.write({"status": QUOTATION_SENT})
-                if latest.advance_invoice_id.payment_state in ADVANCE_PAID_STATES:
-                    latest._accept()
+
+    def action_record_quotation_agreement(self, reference):
+        """Keep the reference of the customer's written acceptance of the current revision."""
+        self.ensure_one()
+        if self.env.user.share:
+            raise AccessError(self.env._("Only Sales can record a customer's written agreement."))
+        self.check_access("write")
+        self._lock_payment_orders()
+        quotation = self._latest_quotation()
+        if not quotation.replaces_id or not self.sudo().payment_request_id.carried_amount:
+            raise UserError(self.env._("Only a revision covered by previous payments can use written agreement."))
+        evidence = (reference or "").strip()
+        if not evidence:
+            raise UserError(self.env._("Enter a reference to the customer's written agreement."))
+        quotation._check_explicit_acceptance()
+        quotation.sudo().agreement_reference = evidence
+        quotation._accept()
+        return True

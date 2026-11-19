@@ -3,7 +3,7 @@ from datetime import timedelta
 from odoo import fields
 
 from .demo_orders import _product, _xml_id
-from .demo_quotations import _pay_advance, _quotable_order, _sales_tax
+from .demo_quotations import _pay_current_request, _quotable_order, _sales_tax
 from .demo_report_templates import prepare_report, report_templates_seeded
 from .demo_reports import _approve_all
 from .demo_results import _enter, _receive
@@ -72,9 +72,10 @@ def _history_order(env, salesperson, product, tax, outcome):
     if outcome == "declined":
         order._latest_quotation().action_decline("Another laboratory offered a shorter turnaround.")
     if outcome in ("accepted", "confirmed"):
-        _pay_advance(env, order)
+        _pay_current_request(env, order)
     if outcome == "confirmed":
         order.with_user(salesperson).action_confirm_order()
+        _pay_current_request(env, order)
     return order
 
 

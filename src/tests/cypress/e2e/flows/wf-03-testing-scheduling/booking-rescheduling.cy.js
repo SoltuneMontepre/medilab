@@ -91,9 +91,8 @@ describe("SF-10 the head moves and cancels a department booking", () => {
           expect(after.events).to.be.empty;
         });
         eventsGone(eventIds);
-        cy.signInAs("tester");
         cy.openRecord(test);
-        cy.get(".o_statusbar_buttons button[name=action_schedule]").should("be.visible");
+        cy.get(".o_statusbar_buttons button[name=action_approve_booking]").should("be.visible");
       });
     });
   });

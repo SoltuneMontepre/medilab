@@ -42,7 +42,7 @@ class TestOrderAccess(OrderCase):
         # An invoice keeps the salesperson who sold it, whom the one taking the order over cannot read.
         paid = self.make_confirmed_order()
         unpaid = self.sent_order()
-        self.env["account.payment"].create_pending_payment(unpaid.invoice_ids, 1_000, "cash")
+        self.env["account.payment"]._create_request_payment(unpaid.payment_request_id, 1_000, "cash")
         (paid | unpaid).write({"user_id": self.other_sales.id})
         self.env.invalidate_all()
         orders = self.env[MODEL_SALE_ORDER].with_user(self.other_sales)
@@ -55,7 +55,7 @@ class TestOrderAccess(OrderCase):
         self.assertFalse(paid.invoice_ids.with_user(self.other_sales).has_access("read"))
         figures = ("invoice_count", "payment_status", "pending_amount")
         self.assertEqual([opened(paid)[name] for name in figures], [1, "paid", 0])
-        self.assertEqual([opened(unpaid)[name] for name in figures], [1, "not_paid", 1_000])
+        self.assertEqual([opened(unpaid)[name] for name in figures], [0, "not_paid", 1_000])
 
     def test_only_the_billing_group_opens_the_invoices_from_an_order(self):
         orders = self.env[MODEL_SALE_ORDER]

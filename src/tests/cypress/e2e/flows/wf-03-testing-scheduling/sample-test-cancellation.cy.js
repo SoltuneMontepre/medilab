@@ -15,10 +15,7 @@ import {
 
 const REASON = "The sample cannot be tested for this parameter.";
 
-beforeEach(() => {
-  resetFixtures();
-  cy.viewport(1440, 900);
-});
+beforeEach(resetFixtures);
 afterEach(releaseFixtures);
 
 describe("SF-10 cancelling a sample test", () => {
@@ -86,7 +83,7 @@ describe("SF-10 cancelling a sample test", () => {
     assignedChromium().then(({ test }) => {
       cy.signInAs("tester");
       cy.openRecord(test);
-      cy.get(".o_statusbar_buttons").should("be.visible").and("contain", "Schedule");
+      cy.get(".o_statusbar_buttons").should("be.visible").and("contain", "Mark Urgent");
       cy.contains(".o_statusbar_buttons button", /^Cancel Test$/).should("not.exist");
       scheduleState([test]).then((before) => {
         callRefused("medilab.sample.test", "action_cancel", [[test.id], REASON]).should("match", /not allowed|access/i);
