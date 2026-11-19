@@ -15,3 +15,7 @@ expo-env.d.ts
 *.p12
 *.key
 *.mobileprovision
+
+# Firebase project and update certificate of a release build, written by cd-mobile-app
+google-services.json
+/certs

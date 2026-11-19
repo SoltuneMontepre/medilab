@@ -6,6 +6,7 @@ from odoo.fields import Domain
 from odoo.tools import format_date
 
 from odoo.addons.sol_laboratory.constants.approvals import DECISION_SIGNED, STATE_APPROVED
+from odoo.addons.sol_laboratory.constants.jobs import TEST_REPORT_PREPARE_JOB
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_CUSTOMER,
     MODEL_DIGITAL_SIGNING_MIXIN,
@@ -15,6 +16,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
     MODEL_QUALITY_REGISTRATION,
+    MODEL_SCHEDULED_JOB,
     MODEL_SIGNATURE,
     MODEL_TASK,
     MODEL_TEST_REPORT,
@@ -51,8 +53,8 @@ class TestReport(models.Model, TestReportBase):
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_DIGITAL_SIGNING_MIXIN]
     _description = "Test Report"
     _order = "id desc"
-    # The system drafts and issues a report; people sign it and record its delivery, which edits it.
-    _permission_actions = ("read", "edit", "sign")
+    # The system drafts, prepares and issues a report; nobody edits it. People sign it and record its delivery.
+    _permission_actions = ("read", "sign", "deliver")
     _digital_signing_report = TEST_REPORT_REPORT
 
     if not TYPE_CHECKING:
@@ -102,6 +104,10 @@ class TestReport(models.Model, TestReportBase):
         # Person who recorded the delivery.
         delivered_by_id = fields.Many2one(
             MODEL_PERSON, string="Delivered By", readonly=True, copy=False, ondelete="restrict"
+        )
+        # Samples of the request, whose untested material the customer may take back when collecting the report.
+        sample_ids = fields.One2many(
+            related="request_id.sample_ids", string="Samples", groups="sol_laboratory.group_permission_sample_read_all"
         )
         # The reported results the report prints: those of the request's tests that are not cancelled.
         result_ids = fields.Many2many(
@@ -157,9 +163,8 @@ class TestReport(models.Model, TestReportBase):
         reports |= self.sudo().create(
             [{"request_id": request.id, "language": request.report_language} for request in drafted]
         )
-        tasks = self.env[MODEL_TASK]
         for report in reports:
-            tasks._create_for_event(REPORT_DRAFTED_TRIGGER, document=report)
+            report._open_signing_task()
         return reports
 
     def action_reject(self, reason, results=None):
@@ -178,7 +183,7 @@ class TestReport(models.Model, TestReportBase):
         return result
 
     def action_record_delivery(self):
-        self._check_permission("edit")
+        self._check_permission("deliver")
         # Sending the report by email is a long operation; a second click is refused while it runs.
         with self.env[MODEL_DOCUMENT_LOCK]._operation(self):
             self._record_delivery()
@@ -225,18 +230,34 @@ class TestReport(models.Model, TestReportBase):
         # The report does not use the company's document layout, so printing never asks to configure it.
         return self.env.ref(TEST_REPORT_REPORT).report_action(self, config=False)
 
-    def _approval_check_actor(self, rejecting=False):
+    def _results_approved(self):
+        """True once the results the report prints are approved: its request is completed, or it replaces an issued
+        report and its corrected results are approved again, while its request stays reported."""
         report = self.sudo()
-        # A new version is signed once the results it prints are approved; its request stays reported.
-        ready = report.request_id.status == "completed" or (
+        return report.request_id.status == "completed" or bool(
             report.replaces_id and all(result.status == STATE_APPROVED for result in report.result_ids)
         )
-        if self.status not in OPEN_STATUSES or not ready:
+
+    def _open_signing_task(self, note=None):
+        """Give the lab head a signing task for the report unless it has one: a rejection keeps it until the results
+        are approved again. The job that prepares the report's PDF is woken."""
+        self.ensure_one()
+        tasks = self.env[MODEL_TASK]
+        if not tasks._system_tasks_of(self, SIGNING_ACTION):
+            tasks._create_for_event(REPORT_DRAFTED_TRIGGER, document=self, **({"note": note} if note else {}))
+        self.env[MODEL_SCHEDULED_JOB].sudo()._by_key(TEST_REPORT_PREPARE_JOB).cron_id.sudo()._trigger()
+
+    def _approval_check_actor(self, rejecting=False):
+        if self.status not in OPEN_STATUSES or not self._results_approved():
             raise UserError(self.env._("A report is signed once every result of its test request is approved."))
         return super()._approval_check_actor(rejecting)
 
     def _approval_process_completed(self):
         return self.status in ISSUED_STATUSES
+
+    def _change_request_action(self):
+        # Nobody edits a report, so the people who deliver reports raise change requests on issued ones.
+        return "deliver"
 
     def _change_request_open(self):
         # One replacement at a time: the issued report takes no new change request while its replacement is open.
@@ -255,9 +276,7 @@ class TestReport(models.Model, TestReportBase):
                 "replaces_id": report.id,
             }
         )
-        self.env[MODEL_TASK]._create_for_event(
-            REPORT_DRAFTED_TRIGGER, document=version, note=change_request.requested_change
-        )
+        version._open_signing_task(change_request.requested_change)
         return version
 
     def _notify_issued(self):

@@ -77,6 +77,7 @@ Technical names used in Python live in the `constants/` package at the root of t
 | `constants/statistics.py`  | Context keys of the testing statistics' period, such as `STATISTICS_FROM`                  |
 | `constants/report_templates.py` | States of report template versions, the data bindings of report DOCX files, the statuses of prepared PDFs and the context key naming the one a signer reviewed, such as `REQUIRED_BINDINGS` |
 | `constants/laboratory_api.py` | The path of the laboratory files API, the HTTP status of each refusal code and the limits on signing in, such as `ERROR_STATUSES` |
+| `constants/mobile_updates.py` | The paths, contract and catalog variable of Medilab Mobile's public update routes and the kinds of its releases, such as `KIND_CODE` |
 
 - Names are UPPER*SNAKE_CASE; a model constant is `MODEL*<NAME>`and holds the value of`\_name`.
 - Python code refers to a model by its constant, never by repeating the string: `_name = MODEL_TEST_PARAMETER`, `self.env[MODEL_TEST_PARAMETER]`.

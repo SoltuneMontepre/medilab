@@ -34,7 +34,9 @@ class ScheduleRaceCase(SchedulingConcurrencyCase):
 
     def schedule(self, number):
         def action(env):
-            env[MODEL_SAMPLE_TEST].browse(self.test_ids[number]).with_user(self.user_ids[number]).action_schedule()
+            env[MODEL_SAMPLE_TEST].browse(self.test_ids[number]).with_user(
+                self.user_ids[number]
+            ).action_approve_booking()
 
         return action
 
@@ -93,9 +95,9 @@ class ScheduleRaceCase(SchedulingConcurrencyCase):
     # Boundaries
 
     def queueing(self, number=0):
-        """The proposed booking of the fixture's test of the number is about to be accepted."""
+        """The proposed booking of the fixture's test of the number is about to be approved."""
         test_id = self.test_ids[number]
-        return (MODEL_MACHINE_BOOKING, "action_accept", lambda bookings, _args: test_id in bookings.sample_test_id.ids)
+        return (MODEL_MACHINE_BOOKING, "action_approve", lambda bookings, _args: test_id in bookings.sample_test_id.ids)
 
     def setting(self, status, number=0):
         """The booking of the fixture's test of the number is about to take the status."""

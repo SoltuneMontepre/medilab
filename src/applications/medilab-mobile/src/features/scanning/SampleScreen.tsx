@@ -11,13 +11,16 @@ import { useSession } from "../../session";
 import { colors, styles as shared } from "../../styles";
 import { ActionProblem } from "../connection/ActionProblem";
 import { LoadNotice } from "../connection/LoadNotice";
+import { ChatterButton } from "../messages/ChatterButton";
+import { SamplePhotos } from "../photos/SamplePhotos";
 import { Facts, type Fact } from "../shared/Facts";
 import { formatMoment } from "../tasks/taskText";
 
 type Action = "receive" | "claim";
 
 /** A sample as the person may see it: recording its receipt by their department, when it was handed over to them,
- * and claiming the unassigned testing tasks of their department on it. */
+ * its photos, and claiming the unassigned testing tasks of their department on it. Only a person who tests samples
+ * sees their department's handover and tasks, or the handover when the sample was handed over to them. */
 export function SampleScreen() {
   const t = useT();
   const { call } = useSession();
@@ -65,34 +68,40 @@ export function SampleScreen() {
       {load.state === "ready" && (
         <ScrollView contentContainerStyle={shared.pageContent}>
           <Details sample={load.value} />
-          <Handover sample={load.value} busy={busy} onReceive={() => act("receive", load.value)} />
-          <View style={shared.section}>
-            <Text accessibilityRole="header" style={shared.heading}>
-              {t("sample.tasks")}
-            </Text>
-            {!load.value.tasks.length && <Text style={shared.detail}>{t("sample.noTasks")}</Text>}
-            {load.value.tasks.map((task) => (
-              <ClaimableTask key={task.id} task={task} chosen={chosen.includes(task.id)} onToggle={() => toggle(task)} />
-            ))}
-            {load.value.tasks.length > 0 && (
-              <Pressable
-                accessibilityRole="button"
-                accessibilityState={{ disabled: busy || !picked.length }}
-                disabled={busy || !picked.length}
-                style={[shared.primaryButton, !picked.length && shared.disabled]}
-                testID="sample-claim"
-                onPress={() => act("claim", load.value)}
-              >
-                <Text style={shared.primaryButtonText}>{t("sample.claim", { count: picked.length })}</Text>
-              </Pressable>
-            )}
-            {claimed > 0 && <Text style={shared.label}>{t("sample.claimed", { count: claimed })}</Text>}
-          </View>
+          {(load.value.tests_samples || load.value.handover) && (
+            <Handover sample={load.value} busy={busy} onReceive={() => act("receive", load.value)} />
+          )}
+          {load.value.can_add_photos && <SamplePhotos sample={load.value} />}
+          {load.value.tests_samples && (
+            <View style={shared.section}>
+              <Text accessibilityRole="header" style={shared.heading}>
+                {t("sample.tasks")}
+              </Text>
+              {!load.value.tasks.length && <Text style={shared.detail}>{t("sample.noTasks")}</Text>}
+              {load.value.tasks.map((task) => (
+                <ClaimableTask key={task.id} task={task} chosen={chosen.includes(task.id)} onToggle={() => toggle(task)} />
+              ))}
+              {load.value.tasks.length > 0 && (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityState={{ disabled: busy || !picked.length }}
+                  disabled={busy || !picked.length}
+                  style={[shared.primaryButton, !picked.length && shared.disabled]}
+                  testID="sample-claim"
+                  onPress={() => act("claim", load.value)}
+                >
+                  <Text style={shared.primaryButtonText}>{t("sample.claim", { count: picked.length })}</Text>
+                </Pressable>
+              )}
+              {claimed > 0 && <Text style={shared.label}>{t("sample.claimed", { count: claimed })}</Text>}
+            </View>
+          )}
           <ActionProblem
             problem={problem?.load ?? null}
             gone={t("sample.gone")}
             onRetry={() => problem && act(problem.action, load.value)}
           />
+          <ChatterButton document={{ model: "medilab.sample", id: load.value.id, code: load.value.code }} />
         </ScrollView>
       )}
     </SafeAreaView>

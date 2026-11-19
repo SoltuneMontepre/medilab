@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, time, timedelta
 from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
 
@@ -45,9 +45,9 @@ class TestRequestEstimate(models.Model, TestRequestEstimateBase):
         """The day the company's working calendar reaches the given working days after the day."""
         calendar = self.env.company.resource_calendar_id
         zone = ZoneInfo(self.env.company.tz or "UTC")
-        start = fields.Datetime.to_datetime(day).replace(hour=23, minute=59, tzinfo=zone)
+        start = datetime.combine(day, time(23, 59), tzinfo=zone)
         planned = calendar.plan_days(days, start, compute_leaves=True)
-        return planned.astimezone(zone).date() if planned else day + timedelta(days=days)
+        return planned.astimezone(zone).date() if isinstance(planned, datetime) else day + timedelta(days=days)
 
     @api.model
     def _check_priority(self, ways, requested_date):
@@ -114,7 +114,9 @@ class TestRequestEstimate(models.Model, TestRequestEstimateBase):
         day plus the request's turnaround in working days."""
         zone = ZoneInfo(self.env.company.tz or "UTC")
         today = fields.Datetime.now().replace(tzinfo=UTC).astimezone(zone).date()
-        for request in self.sudo().filtered(lambda request: not request.committed_date and request.turnaround_days):
+        for request in self.sudo().filtered(
+            lambda request: bool(not request.committed_date and request.turnaround_days)
+        ):
             request.with_context(**{CHANGING_COMMITTED_DATE: True}).committed_date = self._date_after_working_days(
                 today, request.turnaround_days
             )

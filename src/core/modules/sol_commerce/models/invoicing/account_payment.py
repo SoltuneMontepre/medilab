@@ -1,4 +1,5 @@
 import logging
+from math import isfinite
 from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
@@ -6,7 +7,7 @@ from odoo.exceptions import AccessError, UserError
 from odoo.fields import Command
 from odoo.tools.misc import formatLang
 
-from odoo.addons.sol_commerce.constants.models import MODEL_ACCOUNT_PAYMENT
+from odoo.addons.sol_commerce.constants.models import MODEL_ACCOUNT_PAYMENT, MODEL_PAYMENT_REQUEST
 from odoo.addons.sol_commerce.constants.notifications import EVENT_PAYMENT_RECEIPT, EVENT_PAYMENT_REJECTED
 from odoo.addons.sol_commerce.models.invoicing.account_move import ADMINISTRATOR_GROUP, BILLING_GROUP
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN
@@ -24,6 +25,8 @@ METHODS = {method for method, _label in METHOD_SELECTION}
 # States of a payment the accountant or the gateway confirmed; a draft is pending.
 CONFIRMED_STATES = ("paid", "reconciled")
 JOURNAL_TYPE = {"online": "bank", "bank_transfer": "bank", "cash": "cash"}
+RECEIPT_TIME_REQUIRED_MESSAGE = "Enter the date and time the money was received."
+POSITIVE_COLLECTION_AMOUNT_REQUIRED_MESSAGE = "Enter an amount greater than zero."
 
 
 # Phiếu thu
@@ -35,6 +38,14 @@ class AccountPayment(models.Model, AccountPaymentBase):
     if not TYPE_CHECKING:
         # online, bank_transfer or cash.
         method = fields.Selection(METHOD_SELECTION, string="Collection Method")
+        # Request the payment was reported against or applied to after review.
+        payment_request_id = fields.Many2one(MODEL_PAYMENT_REQUEST, ondelete="restrict", index=True, copy=False)
+        # When the customer transferred the funds or Sales received cash.
+        received_at = fields.Datetime(copy=False)
+        # Explanation of why an online transfer needs an accountant before it can apply.
+        collection_review = fields.Selection(
+            [("previous_request", "Previous request"), ("late", "After the deadline")], copy=False, readonly=True
+        )
         # The accountant who confirmed or rejected the payment.
         reviewed_by_id = fields.Many2one("res.users", string="Reviewed By", readonly=True, copy=False)
         # When it was confirmed or rejected.
@@ -60,20 +71,68 @@ class AccountPayment(models.Model, AccountPaymentBase):
         return self.create(self._payment_values(invoice, amount, method))
 
     @api.model
+    def _create_request_payment(
+        self, request, amount, method, received_at=None, reference=None, *, record_received=False
+    ):
+        order = request.order_id
+        order._lock_payment_orders()
+        if method not in METHODS - {"online"}:
+            raise UserError(self.env._("Sales records cash and bank transfers. Online payments come from PayOS."))
+        if record_received:
+            if (
+                order.payment_request_id != request
+                or request.state not in ("open", "expired")
+                or order.state == "cancel"
+            ):
+                raise UserError(self.env._("This payment request no longer takes new payments."))
+        else:
+            request._check_takes_payments()
+        amount = self._validated_collection_amount(request, amount)
+        return self.create(
+            {
+                **self._payment_values(request, amount, method),
+                "received_at": self._receipt_time(received_at),
+                "memo": reference or request.quotation_id.code,
+            }
+        )
+
+    @api.model
+    def _receipt_time(self, received_at):
+        now = fields.Datetime.now()
+        try:
+            received_at = fields.Datetime.to_datetime(received_at) if received_at else now
+        except (TypeError, ValueError) as error:
+            raise UserError(self.env._(RECEIPT_TIME_REQUIRED_MESSAGE)) from error
+        if received_at is None:
+            raise UserError(self.env._(RECEIPT_TIME_REQUIRED_MESSAGE))
+        if received_at > now:
+            raise UserError(self.env._("The receipt time cannot be in the future."))
+        return received_at
+
+    def _verified_for_request(self):
+        return bool(self.reviewed_at and self.invoice_ids) and self.state not in ("draft", "canceled", "rejected")
+
+    def _pending_manual_collection(self):
+        return self.state == "draft" and self.method in ("cash", "bank_transfer")
+
+    @api.model
     def _validated_collection_amount(self, invoice, amount):
         """The amount a new payment may collect. An empty amount means the whole residual."""
+        residual = invoice.remaining_amount if invoice._name == MODEL_PAYMENT_REQUEST else invoice.amount_residual
         if self._amount_omitted(amount):
-            amount = invoice.amount_residual
+            amount = residual
         else:
             try:
                 amount = float(amount)
             except (TypeError, ValueError) as error:
-                raise UserError(self.env._("Enter an amount greater than zero.")) from error
+                raise UserError(self.env._(POSITIVE_COLLECTION_AMOUNT_REQUIRED_MESSAGE)) from error
+        if not isfinite(amount):
+            raise UserError(self.env._(POSITIVE_COLLECTION_AMOUNT_REQUIRED_MESSAGE))
         currency = invoice.currency_id
         amount = currency.round(amount)
         if currency.compare_amounts(amount, 0) <= 0:
-            raise UserError(self.env._("Enter an amount greater than zero."))
-        if currency.compare_amounts(amount, invoice.amount_residual) > 0:
+            raise UserError(self.env._(POSITIVE_COLLECTION_AMOUNT_REQUIRED_MESSAGE))
+        if currency.compare_amounts(amount, residual) > 0:
             raise UserError(self.env._("A payment cannot be more than the amount still owed."))
         return amount
 
@@ -82,22 +141,68 @@ class AccountPayment(models.Model, AccountPaymentBase):
         return amount is None or amount is False or (isinstance(amount, str) and not amount)
 
     def action_post(self):
-        if self.filtered("method"):
-            self._check_billing()
-            self._lock_invoices(self.invoice_ids)
-            for payment in self:
-                payment._check_collection_amount()
-            self.write({"reviewed_by_id": self.env.user.id, "reviewed_at": fields.Datetime.now()})
-        posted = super().action_post()
-        for payment in self.filtered("method"):
-            payment._reconcile_with_invoices()
-            payment._queue_customer_notice(EVENT_PAYMENT_RECEIPT, "receipt")
-        return posted
+        collections = self.filtered("method")
+        if not collections:
+            return super().action_post()
+        self._check_billing()
+        self.payment_request_id.order_id._lock_payment_orders()
+        self._lock_invoices(self.invoice_ids)
+        for payment in collections:
+            prepared = payment._prepare_collection()
+            super(AccountPayment, prepared).action_post()
+            prepared._finish_collection()
+        remaining = self - collections
+        if remaining:
+            return super(AccountPayment, remaining).action_post()
+        return None
+
+    def _prepare_collection(self):
+        self.ensure_one()
+        if self.state != "draft":
+            raise UserError(self.env._("Only a draft payment can be confirmed."))
+        payment = self
+        if self.payment_request_id:
+            # Sales can draft the payment, but posting and reconciling touch protected order and invoice lines.
+            payment = self.sudo()
+            payment._prepare_request_collection()
+        else:
+            self._check_collection_amount()
+        payment.write({"reviewed_by_id": self.env.user.id, "reviewed_at": fields.Datetime.now()})
+        return payment
+
+    def _finish_collection(self):
+        self._reconcile_with_invoices()
+        if self.payment_request_id:
+            self.payment_request_id._refresh_funding()
+        self._queue_customer_notice(EVENT_PAYMENT_RECEIPT, "receipt")
+
+    def _prepare_request_collection(self):
+        request = self.payment_request_id
+        order = request.order_id
+        if self.collection_review == "previous_request":
+            request = order.payment_request_id
+        if not request or request.state == "superseded" or order.state == "cancel":
+            raise UserError(self.env._("This collection needs a current payment request before it can be applied."))
+        if not self.received_at:
+            raise UserError(self.env._(RECEIPT_TIME_REQUIRED_MESSAGE))
+        if request.deadline and self.received_at > request.deadline:
+            raise UserError(self.env._("Sales must extend the payment deadline before this collection can be applied."))
+        if self.method != "online":
+            self._validated_collection_amount(request, self.amount)
+        elif request.currency_id.compare_amounts(self.amount, request.remaining_amount) > 0:
+            self.exceeds_residual = True
+        if request.kind == "advance" or request.remaining_amount:
+            invoice = order._create_collection_invoice(request, self.amount)
+            self.invoice_ids = [Command.set(persisted_ids(invoice))]
+            self.payment_transaction_id.with_context(payment_safe_write=True).invoice_ids = self.invoice_ids
+        self.payment_request_id = request
 
     def action_reject_payment(self):
         """Cancel a draft payment and leave the reason as an activity for the salesperson."""
         self.ensure_one()
         self._check_billing()
+        self.payment_request_id.order_id._lock_payment_orders()
+        self._lock_invoices(self.invoice_ids)
         reason = self.rejection_reason
         if not reason:
             raise UserError(self.env._("A rejected payment needs a reason."))
@@ -121,16 +226,35 @@ class AccountPayment(models.Model, AccountPaymentBase):
         return True
 
     def write(self, vals):
+        if "received_at" in vals:
+            online = self.filtered(
+                lambda payment: payment.method == "online" or payment.payment_transaction_id.provider_code == "payos"
+            )
+            received_at = fields.Datetime.to_datetime(vals["received_at"]) or False
+            if any(payment.received_at != received_at for payment in online):
+                raise UserError(self.env._("The receipt time of an online payment cannot be changed."))
         frozen = self.filtered(
             lambda payment: payment.method == "online" and payment.state != "draft" and payment._online_day_locked()
         )
         changed = {"amount", "partner_id", "journal_id", "method", "date"} & set(vals)
         if frozen and (changed or vals.get("state") in {"draft", "canceled", "rejected"}):
             raise UserError(self.env._("An online payment of a locked day cannot be changed."))
+        if vals.get("state") in {"draft", "canceled", "rejected"}:
+            self._check_verified_request_reversal()
         orders = self._orders_for_pending()
         result = super().write(vals)
         (orders | self._orders_for_pending()).invalidate_recordset(["pending_amount"])
         return result
+
+    def unlink(self):
+        self._check_verified_request_reversal()
+        return super().unlink()
+
+    def _check_verified_request_reversal(self):
+        linked = self.sudo().filtered("payment_request_id")
+        linked.payment_request_id.order_id._lock_payment_orders()
+        if any(payment._verified_for_request() for payment in linked):
+            raise UserError(self.env._("A verified payment request collection cannot be reversed."))
 
     def _check_collection_amount(self):
         self.ensure_one()
@@ -155,7 +279,7 @@ class AccountPayment(models.Model, AccountPaymentBase):
             lines.reconcile()
 
     def _notify_salesperson(self, reason):
-        salesperson = self.invoice_ids.invoice_user_id[:1]
+        salesperson = self.payment_request_id.order_id.user_id or self.invoice_ids.invoice_user_id[:1]
         if not salesperson:
             return
         self.env["mail.activity"].sudo().create(
@@ -218,7 +342,7 @@ class AccountPayment(models.Model, AccountPaymentBase):
         )
         if not journal:
             raise UserError(self.env._("The company has no journal for this payment."))
-        return {
+        values = {
             "amount": amount,
             "payment_type": "inbound",
             "partner_type": "customer",
@@ -226,9 +350,23 @@ class AccountPayment(models.Model, AccountPaymentBase):
             "currency_id": invoice.currency_id.id,
             "journal_id": journal.id,
             "method": method,
-            "invoice_ids": [Command.set(persisted_ids(invoice))],
-            "memo": invoice.name,
         }
+        if invoice._name == MODEL_PAYMENT_REQUEST:
+            return {**values, "payment_request_id": invoice.id, "memo": invoice.quotation_id.code}
+        return {**values, "invoice_ids": [Command.set(persisted_ids(invoice))], "memo": invoice.name}
+
+    @api.model
+    def _portal_pay_request(self, request, amount=None, received_at=None, reference=None):
+        order = request.order_id
+        order._lock_payment_orders()
+        request._check_takes_payments()
+        existing = self.sudo().search(
+            [("payment_request_id", "=", request.id), ("method", "=", "bank_transfer"), ("state", "=", "draft")],
+            limit=1,
+        )
+        if existing:
+            raise UserError(self.env._("A bank transfer is already pending for this payment request."))
+        return self.sudo()._create_request_payment(request, amount, "bank_transfer", received_at, reference)
 
     @api.model
     def portal_pay_invoice(self, invoice, amount=None):
@@ -248,7 +386,7 @@ class AccountPayment(models.Model, AccountPaymentBase):
 
     def _orders_for_pending(self):
         invoices = self.invoice_ids
-        return invoices.order_id | invoices.invoice_line_ids.sale_line_ids.order_id
+        return self.payment_request_id.order_id | invoices.order_id | invoices.invoice_line_ids.sale_line_ids.order_id
 
     def _invalidate_order_pending(self):
         self._orders_for_pending().invalidate_recordset(["pending_amount"])

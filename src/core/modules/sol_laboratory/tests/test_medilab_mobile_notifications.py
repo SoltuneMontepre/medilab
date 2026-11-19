@@ -31,6 +31,7 @@ from odoo.addons.sol_laboratory.services.firebase_client import FirebaseClient
 from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 SAMPLE_READER_GROUP = "sol_laboratory.group_permission_sample_read_all"
+RESULT_READER_GROUP = "sol_laboratory.group_permission_test_result_read_all"
 FIREBASE = "odoo.addons.sol_laboratory.models.notifications.scheduled_job.firebase_client_from_env"
 
 
@@ -51,6 +52,12 @@ class TestMedilabMobileNotifications(LaboratoryApiCase, RequestCase):
         return self.env[MODEL_MAIL_MESSAGE].raise_event(
             code, document, key, "Body", partners=self.person.partner_id, **values
         )
+
+    def read_samples_and_results(self):
+        """Let the person read samples and results, whose events they then choose pushes of."""
+        self.person.group_ids = [
+            Command.link(persisted_id(self.env.ref(group))) for group in (SAMPLE_READER_GROUP, RESULT_READER_GROUP)
+        ]
 
     def deliveries(self, message):
         return self.env[MODEL_PUSH_DELIVERY].search([("notification_id.mail_message_id", "=", message.id)])
@@ -131,6 +138,7 @@ class TestMedilabMobileNotifications(LaboratoryApiCase, RequestCase):
         self.assertEqual((preference.event_id.code, preference.enabled), (EVENT_TASK_REMINDER, False))
 
     def test_the_push_of_a_mandatory_event_cannot_be_turned_off(self):
+        self.read_samples_and_results()
         response = self.api(
             "PUT", f"/notification-preferences/{EVENT_TEST_RESULT_REJECTED}", {"push": False}, key=self.key
         )
@@ -165,6 +173,7 @@ class TestMedilabMobileNotifications(LaboratoryApiCase, RequestCase):
     # Push preferences
 
     def test_the_preferences_list_every_event_with_its_push(self):
+        self.read_samples_and_results()
         lock = self.env[MODEL_MAIL_MESSAGE_SUBTYPE]._event(EVENT_DOCUMENT_LOCK_RELEASED)
         lock.enabled = False
         self.api("PUT", f"/notification-preferences/{EVENT_TASK_REMINDER}", {"push": False}, key=self.key)
@@ -190,6 +199,19 @@ class TestMedilabMobileNotifications(LaboratoryApiCase, RequestCase):
         )
         self.assertApiRefused(
             NOT_FOUND, self.api("PUT", "/notification-preferences/no.such.event", {"push": True}, key=self.key)
+        )
+
+    def test_the_preferences_leave_out_the_events_of_documents_the_person_may_not_read(self):
+        listed = [
+            preference["event"]
+            for preference in self.api("GET", "/notification-preferences", key=self.key).json()["preferences"]
+        ]
+
+        self.assertIn(EVENT_TASK_REMINDER, listed)
+        self.assertNotIn(EVENT_SAMPLE_INSUFFICIENT, listed)
+        self.assertApiRefused(
+            NOT_FOUND,
+            self.api("PUT", f"/notification-preferences/{EVENT_SAMPLE_INSUFFICIENT}", {"push": False}, key=self.key),
         )
 
     def test_turning_a_push_on_again_on_the_phone_sends_it_again(self):

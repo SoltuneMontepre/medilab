@@ -11,13 +11,17 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_DEPARTMENT,
     MODEL_EMPLOYEE,
+    MODEL_HANDOVER_RECORD,
     MODEL_LOCK_MIXIN,
     MODEL_PERMISSION,
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
     MODEL_ROLE,
     MODEL_ROLE_GRANT,
+    MODEL_SAMPLE_HANDOVER,
     MODEL_SIGNATURE,
+    MODEL_TASK,
+    MODEL_TEST_RESULT,
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_GROUP, ADMINISTRATOR_PERSON, ADMINISTRATOR_ROLE
 from odoo.addons.sol_laboratory.services.record_id import persisted_ids
@@ -255,6 +259,20 @@ class Person(models.Model, PersonBase):
     @api.model
     def _current(self):
         return self.sudo().search([("user_id", "=", self.env.uid)], limit=1)
+
+    @api.model
+    def _mobile_can(self):
+        """What the current person may do on Medilab Mobile, from the checks the web's buttons use; a module adds what
+        its own screens need."""
+        tasks = self.env[MODEL_TASK]
+        return {
+            "create_tasks": tasks._may_create(),
+            "assign_tasks": tasks._may_assign(),
+            "read_handover_records": self.env[MODEL_HANDOVER_RECORD]._has_permission("read"),
+            # Scanning a label records a receipt or hands a sample over, which both need to edit handovers.
+            "scan_samples": self.env[MODEL_SAMPLE_HANDOVER]._has_permission("edit"),
+            "sign_results": self.env[MODEL_TEST_RESULT]._may_sign_awaiting(),
+        }
 
     def _administrator(self):
         return self & (self.env.ref(ADMINISTRATOR_PERSON, raise_if_not_found=False) or self.browse())

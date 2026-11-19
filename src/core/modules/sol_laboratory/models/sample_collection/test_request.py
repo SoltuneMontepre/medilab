@@ -30,7 +30,8 @@ else:
 # The statuses each status can move to.
 TRANSITIONS = {
     "draft": ("confirmed", "cancelled"),
-    "confirmed": ("paid", "cancelled"),
+    "confirmed": ("paid", "on_credit", "cancelled"),
+    "on_credit": ("sample_received", "cancelled"),
     "paid": ("sample_received", "cancelled"),
     "sample_received": ("testing", "cancelled"),
     "testing": ("awaiting_approval", "completed", "cancelled"),
@@ -91,6 +92,7 @@ class TestRequest(models.Model, TestRequestBase):
                 ("draft", "Draft"),
                 ("confirmed", "Confirmed"),
                 ("paid", "Paid"),
+                ("on_credit", "On credit"),
                 ("sample_received", "Sample Received"),
                 ("testing", "Testing"),
                 ("awaiting_approval", "Awaiting Approval"),
@@ -266,10 +268,18 @@ class TestRequest(models.Model, TestRequestBase):
                 )
         self.status = status
         if status == "confirmed":
-            # Confirmation waits for the payment or the credit of the request's order, so the request is paid at once.
-            self._set_status("paid")
+            for request in self:
+                next_status = request._status_after_confirmation()
+                if next_status:
+                    request._set_status(next_status)
         if status == "completed":
             self.env[MODEL_TEST_REPORT]._draft_for(self)
+
+    def _status_after_confirmation(self):
+        return "paid"
+
+    def _check_sample_intake(self):
+        """Commerce can defer collection until the balance has been verified."""
 
     def _in_use_domain(self):
         return Domain("status", "not in", FINISHED_STATUSES)

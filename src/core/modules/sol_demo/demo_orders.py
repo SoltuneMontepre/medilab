@@ -1,11 +1,10 @@
 from odoo import fields
 from odoo.fields import Command
 
-from odoo.addons.sol_commerce.constants.models import MODEL_ACCOUNT_MOVE, MODEL_PRODUCT_TEMPLATE, MODEL_SALE_ORDER
+from odoo.addons.sol_commerce.constants.models import MODEL_PRODUCT_TEMPLATE, MODEL_SALE_ORDER
 from odoo.addons.sol_commerce.constants.orders import STATUS_CANCELLED, STATUS_COMPLETED, STATUS_CONFIRMED
-from odoo.addons.sol_commerce.constants.tasks import AUTO_POST_CONTEXT
 from odoo.addons.sol_commerce.constants.xml_ids import ALL_ORDERS_GROUP
-from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER, MODEL_TEST_REPORT, MODEL_TEST_REQUEST
+from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER, MODEL_TEST_REQUEST
 from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 # The status of the order a demo test request came from, by the request's status.
@@ -88,8 +87,7 @@ def seed_orders(env):
 
 def seed_request_orders(env):
     """Give every demo test request the order sales confirmed it from, for the tested parameters: completed once its
-    report is issued, cancelled with the request, confirmed otherwise. An order whose request has a report is paid in
-    full, so the report reaches the customer once issued."""
+    report is issued, cancelled with the request, confirmed otherwise."""
     orders = env[MODEL_SALE_ORDER]
     taken = orders.search([("test_request_id", "!=", False)]).test_request_id
     sales = env.ref("sol_demo.demo_res_users_sales")
@@ -99,7 +97,7 @@ def seed_request_orders(env):
             _product(env, "parameter_id", parameter.id) for parameter in request.sample_ids.test_ids.parameter_id
         ]
         customer = request.customer_id.partner_id
-        order = orders.create(
+        orders.create(
             {
                 "partner_id": customer.id,
                 "customer_id": customer.id,
@@ -112,39 +110,6 @@ def seed_request_orders(env):
                 "test_request_id": request.id,
             }
         )
-        if env[MODEL_TEST_REPORT].search_count([("request_id", "=", request.id)], limit=1):
-            _pay_in_full(env, order)
-
-
-def _pay_in_full(env, order):
-    """Invoice the whole order and register its payment, as the accountant did before its report was released."""
-    invoice = (
-        env[MODEL_ACCOUNT_MOVE]
-        .with_context(**{AUTO_POST_CONTEXT: True})
-        .create(
-            {
-                "move_type": "out_invoice",
-                "partner_id": order.customer_id.id,
-                "order_id": order.id,
-                "invoice_line_ids": [
-                    Command.create(
-                        {
-                            "product_id": line.product_id.id,
-                            "quantity": line.product_uom_qty,
-                            "price_unit": line.price_unit,
-                            "tax_ids": [Command.set(line.tax_ids.ids)],
-                            "sale_line_ids": [Command.set(line.ids)],
-                        }
-                    )
-                    for line in order.order_line
-                ],
-            }
-        )
-    )
-    invoice.action_post()
-    env["account.payment.register"].with_context(active_model=invoice._name, active_ids=invoice.ids).create(
-        {}
-    ).action_create_payments()
 
 
 def _product(env, field_name, owner_id):

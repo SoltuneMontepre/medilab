@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 
 from odoo import fields
 from odoo.exceptions import UserError
@@ -24,7 +24,9 @@ class TestCommittedDateChange(RequestCase):
 
         self.assertEqual(change.old_date, date(2026, 10, 20))
         self.assertEqual(self.request.committed_date, date(2026, 10, 27))
-        self.assertGreater(self.sample.test_ids.due_date, due)
+        new_due = self.sample.test_ids.due_date
+        assert isinstance(new_due, datetime)
+        self.assertGreater(new_due, due)
         self.assertEqual(self.request.committed_date_change_ids, change)
 
     def test_a_change_needs_the_customer_s_confirmation(self):
@@ -56,7 +58,9 @@ class TestCommittedDateChange(RequestCase):
 
         request.sample_ids.with_user(head).action_receive("1 bottle of 1 L", "good")
 
-        self.assertGreaterEqual((request.committed_date - fields.Date.today()).days, 5)
+        committed = request.committed_date
+        assert isinstance(committed, date)
+        self.assertGreaterEqual((committed - fields.Date.today()).days, 5)
 
     def test_the_change_form_records_the_change_of_its_request(self):
         form = Form(self.env[MODEL_COMMITTED_DATE_CHANGE].with_context(default_request_id=self.request.id))

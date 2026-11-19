@@ -32,12 +32,17 @@ resource "github_repository_environment_deployment_policy" "this" {
   repository     = var.repository_name
   environment    = github_repository_environment.this[each.key].environment
   branch_pattern = each.value.branch
+  tag_pattern    = each.value.tag
 }
 
 resource "github_actions_environment_secret" "this" {
   for_each = {
-    for pair in setproduct(keys(var.environments), nonsensitive(keys(var.environment_secrets))) :
-    "${pair[0]}/${pair[1]}" => { environment = pair[0], name = pair[1] }
+    for pair in flatten([
+      for environment, settings in var.environments : [
+        for name in settings.secrets : { environment = environment, name = name }
+        if contains(nonsensitive(keys(var.environment_secrets)), name)
+      ]
+    ]) : "${pair.environment}/${pair.name}" => pair
   }
 
   repository  = var.repository_name

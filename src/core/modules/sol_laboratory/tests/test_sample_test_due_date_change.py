@@ -1,10 +1,11 @@
 from datetime import datetime
 
+from freezegun import freeze_time
+
 from odoo.exceptions import UserError
 from odoo.tests import tagged
 
-from .people_case import PeopleCase
-from .request_case import RequestCase
+from .scheduling_case import MONDAY, SchedulingCase
 from odoo.addons.sol_laboratory.constants.models import MODEL_SAMPLE_TEST, MODEL_SAMPLE_TEST_DUE_DATE_CHANGE
 
 # Friday 16 October 2026 at 10:00 in Vietnam, and the Saturday after it.
@@ -13,19 +14,16 @@ SATURDAY = datetime(2026, 10, 17, 3, 0, 0)
 REASON = "The AAS is serviced on the 18th."
 
 
+@freeze_time(MONDAY)
 @tagged("post_install", "-at_install")
-class TestSampleTestDueDateChange(RequestCase, PeopleCase):
-    """The head of Analytical chemistry, which tests the lead sample, changes the due date of its test."""
+class TestSampleTestDueDateChange(SchedulingCase):
+    """The head of Analytical chemistry, which tests the lead sample on its machines, changes the due date of its
+    test."""
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.test = cls.sample.test_ids
-        cls.head = cls.create_person("Le Thi Hoa", cls.department, "hoa.head", permissions=("sample_test_read_all",))
         cls.department.manager_id = cls.head.employee_id
-        cls.tester = cls.create_person(
-            "Pham Van Nam", cls.department, "nam.pham", permissions=("sample_test_read_all", "sample_test_edit_all")
-        )
         cls.other_head = cls.create_person(
             "Do Thi Giang", cls.microbiology, "giang.do", permissions=("sample_test_read_all",)
         )

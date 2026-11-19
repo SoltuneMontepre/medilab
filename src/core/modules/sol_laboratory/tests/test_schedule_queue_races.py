@@ -73,7 +73,7 @@ class TestScheduleQueueRaces(SchedulingConcurrencyCase):
         self.use(self.holder)
         self.assign(env)
         test = env[MODEL_SAMPLE_TEST].browse(self.test_ids[0])
-        test.with_user(self.user_ids[0]).action_schedule()
+        test.with_user(self.user_ids[0]).action_approve_booking()
         booking = test.booking_ids
         # The repair deletes the booking's events; owning them lets the cleanup remove the audit rows of the deletion.
         self.owned.setdefault(MODEL_CALENDAR_EVENT, []).extend((booking.calendar_event_id | booking.room_event_ids).ids)
@@ -90,14 +90,14 @@ class TestScheduleQueueRaces(SchedulingConcurrencyCase):
 
         def action(env):
             test = env[MODEL_SAMPLE_TEST].browse(department["test_ids"][0])
-            test.with_user(department["user_ids"][0]).action_schedule()
+            test.with_user(department["user_ids"][0]).action_approve_booking()
 
         return action
 
     def queueing(self, number):
-        """The department's first test's proposed booking is about to be accepted."""
+        """The department's first test's proposed booking is about to be approved."""
         test_id = self.departments[number]["test_ids"][0]
-        return (MODEL_MACHINE_BOOKING, "action_accept", lambda bookings, _args: test_id in bookings.sample_test_id.ids)
+        return (MODEL_MACHINE_BOOKING, "action_approve", lambda bookings, _args: test_id in bookings.sample_test_id.ids)
 
     def refusing(self, number):
         """The department's booking is about to book its rooms, after the queue was replanned: refuse it with a message

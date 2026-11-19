@@ -1,4 +1,5 @@
 import { callAs, refAs } from "../../../support/odoo";
+import { helper } from "../../../support/steps";
 
 export const STAFF = "demo.sample_delivery_staff";
 export const LAB_HEAD = "demo.lab_head";
@@ -33,17 +34,17 @@ export const testingTasks = (tests) =>
   ]);
 
 // The head of department gives the tasks to the tester through the Reassign dialog.
-export function assignToTester(tasks) {
+export const assignToTester = helper("assignToTester", function assignToTester(tasks) {
   const context = { active_ids: tasks };
   return refAs(HEAD, "sol_demo.demo_person_tester").then((tester) =>
     callAs(HEAD, "medilab.task.reassign", "create", [{ assignee_id: tester.id }], { context }).then((wizard) =>
       callAs(HEAD, "medilab.task.reassign", "action_confirm", [[wizard]], { context }),
     ),
   );
-}
+});
 
 // Confirms a test request, receives its samples and has the head of department give their testing tasks to the tester.
-export function receiveRequest(requestId) {
+export const receiveRequest = helper("receiveRequest", function receiveRequest(requestId) {
   callAs(STAFF, "medilab.test.request", "action_confirm", [[requestId]]);
   return callAs(STAFF, "medilab.test.request", "read", [[requestId], ["sample_ids"]])
     .then(([request]) => {
@@ -54,10 +55,10 @@ export function receiveRequest(requestId) {
       const tests = samples.flatMap((sample) => sample.test_ids);
       return testingTasks(tests).then((tasks) => assignToTester(tasks).then(() => tests));
     });
-}
+});
 
 // The tester enters and signs a passing result of each test; the head of department approves it.
-export function approveTests(testIds, cancelled = []) {
+export const approveTests = helper("approveTests", function approveTests(testIds, cancelled = []) {
   return refs(Object.values(PARAMETERS)).then((ids) =>
     callAs(TESTER, "medilab.sample.test", "read", [testIds, ["parameter_id"]]).then((tests) => {
       for (const test of tests) {
@@ -75,13 +76,13 @@ export function approveTests(testIds, cancelled = []) {
       }
     }),
   );
-}
+});
 
 // A test request of Nước Uống Sạch whose results are all approved, with its draft report, as `{ request, report }`.
 // `samples` lists the parameters of each bottled water sample; `cancel` names parameters whose test the head of
 // department cancels instead; `values` sets fields of the request, such as its report language. The browser tests
 // never sign a new report: signing needs its PDF prepared through ONLYOFFICE.
-export function draftReport({ samples = [[PARAMETERS.lead, PARAMETERS.ph]], cancel = [], ...values } = {}) {
+export const draftReport = helper("draftReport", function draftReport({ samples = [[PARAMETERS.lead, PARAMETERS.ph]], cancel = [], ...values } = {}) {
   return refs([
     "sol_demo.demo_customer_nuoc_sach",
     "sol_demo.demo_sample_type_bottled_water",
@@ -120,4 +121,39 @@ export function draftReport({ samples = [[PARAMETERS.lead, PARAMETERS.ph]], canc
         report: { model: "medilab.test.report", id: reportId },
       })),
     );
-}
+});
+
+export const ADMIN = "demo.administrator";
+
+export const REPORT = "medilab.test.report";
+
+// The demo's issued reports: in English and delivered by e-mail, in Vietnamese and digitally signed for delivery by
+// post, and bilingual as the replacement of a report delivered in person. A new report is never issued in the browser
+// tests, as its PDF is prepared through ONLYOFFICE.
+export const BY_EMAIL = "sol_demo.demo_test_report_by_email";
+export const BY_POST = "sol_demo.demo_test_report_by_post";
+export const REISSUED = "sol_demo.demo_test_report_reissued";
+
+// The body of the rendered report, as the signed-in user prints it.
+export const reportHtml = (report) => cy.request(`/report/html/sol_laboratory.report_test_report/${report.id}`).then(({ body }) => body.split("<main")[1]);
+
+// Demo people's names, in the order of their external IDs.
+export const personNames = (...xmlIds) =>
+  callAs(
+    ADMIN,
+    "ir.model.data",
+    "search_read",
+    [
+      [
+        ["module", "=", "sol_demo"],
+        ["name", "in", xmlIds.map((xmlId) => xmlId.split(".")[1])],
+      ],
+    ],
+    {
+      fields: ["name", "res_id"],
+    },
+  ).then((rows) =>
+    callAs(ADMIN, "medilab.person", "read", [xmlIds.map((xmlId) => rows.find((row) => `sol_demo.${row.name}` === xmlId).res_id), ["name"]]).then(
+      (people) => people.map((person) => person.name),
+    ),
+  );

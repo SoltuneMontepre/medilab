@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError
-from odoo.tools.misc import format_datetime
+from odoo.tools import format_datetime
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_ENTRY,
@@ -136,7 +136,7 @@ class ScheduledJob(models.Model, ScheduledJobBase):
         client = firebase_client_from_env()
         if client is None:
             return fields.Datetime.now() + timedelta(minutes=5)
-        message = delivery.notification_id.mail_message_id
+        message = delivery._message()
         try:
             client.send(device.token, *delivery._push_message())
         except PermanentTokenError as error:

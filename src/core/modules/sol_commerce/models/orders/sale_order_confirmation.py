@@ -6,15 +6,26 @@ from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.fields import Domain
 
-from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
+from odoo.addons.sol_commerce.constants.models import (
+    MODEL_CUSTOMER_SALES_TERMS,
+    MODEL_PAYMENT_REQUEST,
+    MODEL_SALE_ORDER,
+)
+from odoo.addons.sol_commerce.constants.notifications import EVENT_BALANCE_REQUESTED
 from odoo.addons.sol_commerce.constants.orders import (
-    ADVANCE_PAID_STATES,
+    ADVANCE_NONE,
     QUOTATION_ACCEPTED,
     QUOTATION_REPLACED,
     STATUS_CLAIMED,
     STATUS_CONFIRMED,
 )
-from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER, MODEL_TASK, MODEL_TASK_TYPE, MODEL_TEST_REQUEST
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_CUSTOMER,
+    MODEL_MAIL_MESSAGE,
+    MODEL_TASK,
+    MODEL_TASK_TYPE,
+    MODEL_TEST_REQUEST,
+)
 from odoo.addons.sol_laboratory.constants.tasks import SAMPLE_COLLECTION_CODE
 from odoo.addons.sol_laboratory.services.staff_language import staff_env
 
@@ -26,6 +37,8 @@ else:
 # Ids of the orders that passed the checks and whose Odoo confirmation is running now. Only the code below fills it,
 # so a caller cannot ask for the confirmation to skip the checks the way a context key would allow.
 CONFIRMING_ORDER_IDS = ContextVar("medilab_confirming_order_ids", default=frozenset())
+# Set by the Start sample collection button, which opens the dialog for the appointment and the place.
+COLLECTION_DIALOG = "medilab_collection_dialog"
 
 
 # Đơn Hàng: confirming the order creates its test request, whose sample collection sales then start.
@@ -39,20 +52,19 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
         test_request_id = fields.Many2one(
             MODEL_TEST_REQUEST, string="Test Request", ondelete="restrict", copy=False, index="btree_not_null"
         )
-        # True when no invoice of the order is paid; confirming the order is still allowed.
-        show_unpaid_warning = fields.Boolean(compute="_compute_show_unpaid_warning")
+        # True when this order was confirmed on the customer's approved credit terms.
+        on_credit = fields.Boolean(readonly=True, copy=False)
+        # True while the order still needs payment before collecting its samples.
+        show_unpaid_warning = fields.Boolean(compute="_compute_show_unpaid_warning", compute_sudo=True)
 
-    @api.depends("invoice_ids.payment_state")
+    @api.depends("payment_status", "on_credit")
     def _compute_show_unpaid_warning(self):
         for order in self:
-            order.show_unpaid_warning = not order._is_paid()
+            order.show_unpaid_warning = not order._can_collect_samples()
 
-    def _is_paid(self):
+    def _can_collect_samples(self):
         self.ensure_one()
-        return any(
-            invoice.move_type == "out_invoice" and invoice.payment_state in ADVANCE_PAID_STATES
-            for invoice in self.sudo().invoice_ids
-        )
+        return self.on_credit or self.payment_status == "paid" or self.currency_id.is_zero(self.amount_total)
 
     def action_confirm(self):
         # Odoo's own Confirm button and every other caller go through the same checks.
@@ -62,6 +74,8 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
 
     def action_confirm_order(self):
         """Confirm the order the customer accepted and create its test request."""
+        self.check_access("write")
+        self._lock_payment_orders()
         for order in self:
             order._check_can_be_confirmed()
         for order in self:
@@ -87,6 +101,11 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
             raise UserError(self.env._("A replaced quotation cannot be confirmed."))
         if latest.status != QUOTATION_ACCEPTED:
             raise UserError(self.env._("The customer must accept the quotation before the order is confirmed."))
+        payment_request = self.sudo().payment_request_id
+        if (
+            payment_request.kind == "advance" and payment_request.state != "funded"
+        ) or latest.sudo().advance_invoice_id.amount_residual:
+            raise UserError(self.env._("Verify the full requested advance before confirming the order."))
 
     def _confirm_order(self):
         self.ensure_one()
@@ -106,10 +125,56 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
                 report_recipient=self.partner_id if self.partner_id != self.customer_id else False,
             )
         )
+        on_credit = self._qualifies_for_credit(customer)
+        self.sudo().on_credit = on_credit
         self._set_status(STATUS_CONFIRMED, {"test_request_id": request.id, "confirmed_at": fields.Datetime.now()})
-        # The laboratory starts from a confirmed request unless the customer still has to pay without credit.
-        if not request._credit_blocks_confirmation():
-            request.action_confirm()
+        if not on_credit:
+            self._request_balance()
+        request.action_confirm()
+
+    def _qualifies_for_credit(self, customer):
+        self.ensure_one()
+        return self.advance_method == ADVANCE_NONE and bool(
+            self.env[MODEL_CUSTOMER_SALES_TERMS]
+            .sudo()
+            .search_count([("customer_id", "=", customer.id), ("allow_credit", "=", True)], limit=1)
+        )
+
+    def _request_balance(self):
+        self.ensure_one()
+        amount = self.currency_id.round(self.amount_total - self._verified_order_amount())
+        if amount <= 0:
+            return
+        request = (
+            self.env[MODEL_PAYMENT_REQUEST]
+            .sudo()
+            .create(
+                {
+                    "kind": "balance",
+                    "order_id": self.id,
+                    "quotation_id": self._latest_quotation().id,
+                    "amount": amount,
+                    "carried_amount": self._verified_order_amount(),
+                }
+            )
+        )
+        self.sudo().payment_request_id = request
+        order = self.with_context(lang=self._get_lang())
+        order.env[MODEL_MAIL_MESSAGE].sudo().raise_event(
+            EVENT_BALANCE_REQUESTED,
+            order.sudo(),
+            f"payment-request:{request.id}:sent",
+            order.env._(
+                "Pay the remaining %(amount)s for order %(order)s before sample collection.",
+                amount=order.currency_id.format(amount),
+                order=order.name,
+            ),
+            partners=order.partner_id,
+        )
+
+    def _release_test_request(self):
+        for request in self.sudo().test_request_id.filtered(lambda item: item.status == "confirmed"):
+            request._set_status("paid")
 
     def _keep_order_numbers(self):
         """Write each order's number on its test request, which keeps it once uninstalling E-commerce drops the link."""
@@ -139,6 +204,16 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
         for order in self:
             if order.order_status != STATUS_CONFIRMED:
                 raise UserError(self.env._("The order must be confirmed before the samples are collected."))
+            if not order._can_collect_samples():
+                raise UserError(self.env._("Verify the order balance before collecting its samples."))
+        if self.env.context.get(COLLECTION_DIALOG) and not appointment:
+            # The button asks Sales for the appointment and the place first.
+            self.ensure_one()
+            action = self.env["ir.actions.act_window"]._for_xml_id(
+                "sol_commerce.action_medilab_sample_collection_start"
+            )
+            action["context"] = {"default_order_id": self.id}
+            return action
         task_type = self.env[MODEL_TASK_TYPE].sudo().search([("code", "=", SAMPLE_COLLECTION_CODE)], limit=1)
         if task_type.route != "role":
             raise UserError(

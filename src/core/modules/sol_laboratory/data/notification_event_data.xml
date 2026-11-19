@@ -11,6 +11,39 @@
         <field name="enabled" eval="True" />
     </record>
 
+    <record id="event_task_assigned" model="mail.message.subtype">
+        <field name="name">Task assigned</field>
+        <field name="description">A task was assigned to you</field>
+        <field name="code">task.assigned</field>
+        <field name="res_model">medilab.task</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="False" />
+        <field name="enabled" eval="True" />
+    </record>
+
+    <record id="event_machine_booking_approved" model="mail.message.subtype">
+        <field name="name">Machine booking approved</field>
+        <field name="description">The head of department approved a booking of your task</field>
+        <field name="code">machine_booking.approved</field>
+        <field name="res_model">medilab.machine.booking</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="False" />
+        <field name="enabled" eval="True" />
+    </record>
+
+    <record id="event_machine_booking_moved" model="mail.message.subtype">
+        <field name="name">Machine booking moved</field>
+        <field name="description">An approved plan revision moved a booking of your task</field>
+        <field name="code">machine_booking.moved</field>
+        <field name="res_model">medilab.machine.booking</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="False" />
+        <field name="enabled" eval="True" />
+    </record>
+
     <record id="event_location_booking_reminder" model="mail.message.subtype">
         <field name="name">Location booking reminder</field>
         <field name="description">A location you booked or are invited to is about to be used</field>
@@ -27,6 +60,39 @@
         <field name="description">A sample arrived insufficient and is on hold</field>
         <field name="code">sample.insufficient</field>
         <field name="res_model">medilab.sample</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="False" />
+        <field name="enabled" eval="True" />
+    </record>
+
+    <record id="event_subcontract_dispatch_received" model="mail.message.subtype">
+        <field name="name">Dispatch received</field>
+        <field name="description">A subcontractor confirmed receipt of a dispatch</field>
+        <field name="code">subcontract_dispatch.received</field>
+        <field name="res_model">medilab.subcontract.dispatch</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="False" />
+        <field name="enabled" eval="True" />
+    </record>
+
+    <record id="event_subcontract_dispatch_delivery_failed" model="mail.message.subtype">
+        <field name="name">Dispatch delivery failed</field>
+        <field name="description">The delivery of a dispatch to its subcontractor failed</field>
+        <field name="code">subcontract_dispatch.delivery_failed</field>
+        <field name="res_model">medilab.subcontract.dispatch</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="False" />
+        <field name="enabled" eval="True" />
+    </record>
+
+    <record id="event_subcontract_dispatch_accreditation_lapsed" model="mail.message.subtype">
+        <field name="name">Dispatch accreditation lapsed</field>
+        <field name="description">The accreditation of a draft dispatch's subcontractor lapsed</field>
+        <field name="code">subcontract_dispatch.accreditation_lapsed</field>
+        <field name="res_model">medilab.subcontract.dispatch</field>
         <field name="internal" eval="True" />
         <field name="default" eval="False" />
         <field name="mandatory" eval="False" />
@@ -59,6 +125,17 @@
         <field name="name">Test result rejected</field>
         <field name="description">A test result you entered was rejected</field>
         <field name="code">test_result.rejected</field>
+        <field name="res_model">medilab.test.result</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="True" />
+        <field name="enabled" eval="True" />
+    </record>
+
+    <record id="event_test_result_sent" model="mail.message.subtype">
+        <field name="name">Test result sent</field>
+        <field name="description">A test result of your department was sent for approval</field>
+        <field name="code">test_result.sent</field>
         <field name="res_model">medilab.test.result</field>
         <field name="internal" eval="True" />
         <field name="default" eval="False" />
@@ -183,6 +260,17 @@
         <field name="internal" eval="True" />
         <field name="default" eval="False" />
         <field name="mandatory" eval="True" />
+        <field name="enabled" eval="True" />
+    </record>
+
+    <record id="event_message_mention" model="mail.message.subtype">
+        <field name="name">Mention</field>
+        <field name="description">Someone mentioned you in a conversation or a document's chatter</field>
+        <field name="code">message.mention</field>
+        <field name="internal" eval="True" />
+        <field name="hidden" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="False" />
         <field name="enabled" eval="True" />
     </record>
 

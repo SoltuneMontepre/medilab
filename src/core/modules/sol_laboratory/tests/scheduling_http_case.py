@@ -48,10 +48,11 @@ class SchedulingHttpCase(SchedulingCommittedCase):
                 cls.server_log.seek(0)
                 raise AssertionError(cls.server_log.read().decode(errors="replace"))
             try:
-                if requests.get(cls.http_url + "/web/health", timeout=1).status_code == 200:
-                    return
+                response = requests.get(cls.http_url + "/web/health", timeout=1)
             except (requests.ConnectionError, requests.Timeout):
-                pass
+                response = None
+            if response is not None and response.status_code == 200:
+                return
             time.sleep(0.2)
         raise AssertionError("The scheduling HTTP worker did not start")
 

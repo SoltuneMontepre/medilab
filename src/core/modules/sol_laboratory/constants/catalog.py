@@ -8,3 +8,6 @@ DEFAULTS_CHECKED = object()
 REGULATIONS_ACCEPTED = "medilab_regulations_accepted"
 # The value of that key: an object no RPC client can send, so a client cannot skip the check.
 ACCEPTED = object()
+# Context key set where a customer reads ways of testing, such as the cart and the quotation: a way is named by its
+# parameter and method, never by the subcontractor that tests it.
+WAY_BY_METHOD = "medilab_way_by_method"

@@ -107,14 +107,14 @@ class SchedulingCommittedCase(TransactionCase):
         self.committed(self.prepare)
         self.addCleanup(self.remove_committed)
 
-    def create(self, env, model, values):
+    def create_owned(self, env, model, values):
         records = env[model].create(values)
         self.owned.setdefault(model, []).extend(records.ids)
         return records
 
     def prepare(self, env):
         def create(model, values):
-            return self.create(env, model, values)
+            return self.create_owned(env, model, values)
 
         department = create(MODEL_DEPARTMENT, {"name": f"Scheduling {self.token}"})
         self.department_id = department.id
@@ -138,8 +138,18 @@ class SchedulingCommittedCase(TransactionCase):
                     "department_id": department.id,
                     "user_id": users[number - 1].id,
                     "tz": "UTC",
+                    # Both approve bookings in the races, as the head of their department would.
                     "permission_ids": [
-                        Command.set([persisted_id(env.ref("sol_laboratory.permission_sample_test_read_all"))])
+                        Command.set(
+                            [
+                                persisted_id(env.ref(f"sol_laboratory.permission_{code}"))
+                                for code in (
+                                    "sample_test_read_all",
+                                    "machine_booking_read_own_department",
+                                    "machine_booking_edit_own_department",
+                                )
+                            ]
+                        )
                     ],
                 }
                 for number in (1, 2)

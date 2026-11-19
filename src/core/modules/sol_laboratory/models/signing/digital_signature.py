@@ -5,7 +5,6 @@ from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.tools import format_datetime
 
-from odoo.addons.base.models.ir_model import MODULE_UNINSTALL_FLAG
 from odoo.addons.sol_laboratory.constants.approvals import DECISION_SIGNED
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_DIGITAL_SIGNATURE,
@@ -82,11 +81,9 @@ class DigitalSignature(models.Model, DigitalSignatureBase):
             "target": "self",
         }
 
-    def unlink(self):
-        # Only uninstalling the module removes digital signatures.
-        if not self.env.context.get(MODULE_UNINSTALL_FLAG):
-            raise UserError(self.env._("A digital signature cannot be deleted."))
-        return super().unlink()
+    @api.ondelete(at_uninstall=False)
+    def _unlink_except_on_uninstall(self):
+        raise UserError(self.env._("A digital signature cannot be deleted."))
 
     def _document(self):
         self.ensure_one()

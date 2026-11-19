@@ -26,7 +26,9 @@ class TestOrderDates(OrderCase):
         order = self.make_quotable_order([(self.lead_product, 1), (self.package_product, 1)])
 
         self.assertEqual(order.turnaround_days, 7)
-        self.assertGreater(order.estimated_result_date, date.today())
+        estimate = order.estimated_result_date
+        assert isinstance(estimate, date)
+        self.assertGreater(estimate, date.today())
 
     def test_a_way_without_a_turnaround_keeps_the_quotation_from_being_sent(self):
         self.parameter.method_ids.turnaround_days = 0

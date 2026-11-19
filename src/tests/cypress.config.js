@@ -8,6 +8,7 @@ const { appendFileSync } = require("node:fs");
 const demoPassword = process.env.MEDILAB_DEMO_PASSWORD || "demo";
 
 module.exports = defineConfig({
+  projectId: "kry6yc",
   env: {
     demoPassword,
   },
@@ -15,11 +16,18 @@ module.exports = defineConfig({
     // `--expose grep=TC-WF01-A5` loads only the specs with a matching test and runs only those tests.
     grepFilterSpecs: true,
     grepOmitFiltered: true,
+    // The watch mode of support/watch.js and the page's requests in the Command Log of support/e2e.js.
+    watch: process.env.MEDILAB_E2E_WATCH || "",
+    watchDelay: process.env.MEDILAB_E2E_WATCH_DELAY || "",
+    networkLog: process.env.MEDILAB_E2E_NETWORK_LOG === "1",
   },
   e2e: {
     baseUrl: process.env.MEDILAB_URL || "http://localhost:8069",
     // Odoo screens load their data after the page; four seconds is often too short.
     defaultCommandTimeout: 10000,
+    // A laptop screen, so the back office shows its desktop layout.
+    viewportWidth: 1440,
+    viewportHeight: 900,
     experimentalInteractiveRunEvents: true,
     supportFile: "cypress/support/e2e.js",
     setupNodeEvents(on, config) {
@@ -41,6 +49,11 @@ module.exports = defineConfig({
         odooRestoreSettings: execution.restore,
         odooBeginExecution: execution.begin,
         odooEndExecution: execution.finish,
+        // A step of the test in the terminal of a headless run.
+        logStep(label) {
+          console.log(`      ${label}`);
+          return null;
+        },
       });
       on("after:run", () => execution.cleanup());
       return config;

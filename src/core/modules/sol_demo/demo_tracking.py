@@ -3,7 +3,7 @@ from datetime import timedelta
 from odoo import fields
 
 from .demo_orders import _product, _xml_id
-from .demo_quotations import _pay_advance, _quotable_order, _sales_tax
+from .demo_quotations import _pay_current_request, _quotable_order, _sales_tax
 from .demo_report_templates import prepare_report, report_templates_seeded
 from .demo_reports import _approve_all
 from .demo_results import _enter, _receive
@@ -31,19 +31,6 @@ HISTORY = {
 }
 
 
-def _pay_balance(env, order):
-    """Invoice what the advance left of the order and pay it, so its results are released to the customer."""
-    order._invoice_balance()
-    order.invoice_ids.filtered(lambda invoice: invoice.state == "draft").action_post()
-    unpaid = order.invoice_ids.filtered(
-        lambda invoice: invoice.state == "posted" and invoice.move_type == "out_invoice" and invoice.amount_residual
-    )
-    if unpaid:
-        env["account.payment.register"].with_context(active_model=unpaid._name, active_ids=unpaid.ids).create(
-            {}
-        ).action_create_payments()
-
-
 def seed_tracking(env):
     """Confirmed orders of Nước Uống Sạch in testing and with released results, and two months of orders of both
     salespeople across the pipeline."""
@@ -60,7 +47,6 @@ def seed_tracking(env):
     released = _history_order(env, sales, lead_product, tax, "confirmed")
     _receive(env, released.test_request_id)
     _approve_all(env, released.test_request_id)
-    _pay_balance(env, released)
     report = env[MODEL_TEST_REPORT].search([("request_id", "=", released.test_request_id.id)])
     # Its results are released only when the demo templates could be seeded to prepare its PDF.
     if report_templates_seeded(env):
@@ -86,9 +72,10 @@ def _history_order(env, salesperson, product, tax, outcome):
     if outcome == "declined":
         order._latest_quotation().action_decline("Another laboratory offered a shorter turnaround.")
     if outcome in ("accepted", "confirmed"):
-        _pay_advance(env, order)
+        _pay_current_request(env, order)
     if outcome == "confirmed":
         order.with_user(salesperson).action_confirm_order()
+        _pay_current_request(env, order)
     return order
 
 

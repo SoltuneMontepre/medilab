@@ -11,6 +11,7 @@ from odoo.addons.sol_commerce.constants.models import (
     MODEL_SALE_ORDER_LINE,
 )
 from odoo.addons.sol_commerce.constants.orders import FROZEN_LINE_FIELDS, PORTAL_LOCKED_LINE_FIELDS
+from odoo.addons.sol_laboratory.constants.catalog import WAY_BY_METHOD
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_PARAMETER_METHOD, MODEL_SAMPLE_TYPE
 from odoo.addons.sol_laboratory.services.record_id import persisted_ids
 
@@ -50,7 +51,7 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
             ondelete="restrict",
             domain="[('id', 'in', offered_method_ids)]",
         )
-        # The ways of testing that can be chosen for the line's parameter on its sample type.
+        # The ways of testing that can be chosen for the line's parameter on its sample type, one per method.
         offered_method_ids = fields.Many2many(
             MODEL_PARAMETER_METHOD, string="Offered Ways of Testing", compute="_compute_offered_method_ids"
         )
@@ -113,15 +114,21 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
                 line.sample_id.sample_type_id or line.linked_line_id.sample_type_id or line.sample_type_id
             )
 
-    @api.depends("product_id", "sample_type_id")
+    @api.depends("product_id", "sample_type_id", "order_id.partner_id")
     def _compute_offered_method_ids(self):
         for line in self:
-            parameter = line._own_parameter()
-            line.offered_method_ids = (
-                parameter._offered_ways(line.sample_type_id) if parameter and line.sample_type_id else False
-            )
+            line.offered_method_ids = line._offered_ways()
 
-    @api.depends("product_id", "sample_type_id")
+    def _offered_ways(self):
+        """The ways of testing the line's parameter can be chosen from on its sample type; none without both. A way the
+        customer's own company tests as a subcontractor is never offered."""
+        self.ensure_one()
+        parameter = self._own_parameter()
+        if not parameter or not self.sample_type_id:
+            return self.env[MODEL_PARAMETER_METHOD]
+        return parameter._offered_ways(self.sample_type_id, self.order_id.partner_id)
+
+    @api.depends("product_id", "sample_type_id", "order_id.partner_id")
     def _compute_parameter_method_id(self):
         # A chosen way stays while it is still offered; otherwise only an available default is filled in, since
         # another way is never chosen silently.
@@ -130,7 +137,7 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
             if not parameter or not line.sample_type_id:
                 line.parameter_method_id = False
                 continue
-            offered = parameter._offered_ways(line.sample_type_id)
+            offered = line._offered_ways()
             if line.parameter_method_id not in offered:
                 default = parameter._default_way(line.sample_type_id)
                 line.parameter_method_id = default & offered
@@ -140,7 +147,12 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
         for line in self:
             sample_type = line.sample_type_id
             notices = (
-                [parameter._default_way_notice(sample_type) for parameter in line._parameters()] if sample_type else []
+                [
+                    parameter.with_context(**{WAY_BY_METHOD: True})._default_way_notice(sample_type)
+                    for parameter in line._parameters()
+                ]
+                if sample_type
+                else []
             )
             line.default_way_notice = " ".join(notice for notice in notices if isinstance(notice, str)) or False
 
@@ -148,7 +160,10 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
     def _check_offered_on_sample(self):
         for line in self._catalog_lines().filtered("sample_type_id"):
             sample_type = line.sample_type_id
-            refusals = [parameter._order_refusal(sample_type) for parameter in line._parameters()]
+            refusals = [
+                parameter.with_context(**{WAY_BY_METHOD: True})._order_refusal(sample_type)
+                for parameter in line._parameters()
+            ]
             refusals = [refusal for refusal in refusals if refusal]
             if refusals:
                 raise ValidationError(" ".join(refusals))
@@ -232,9 +247,7 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
                     "\n".join(missing._way_label()),
                 )
             )
-        unavailable = self.filtered(
-            lambda line: line.parameter_method_id not in line._own_parameter()._offered_ways(line.sample_type_id)
-        )
+        unavailable = self.filtered(lambda line: line.parameter_method_id not in line._offered_ways())
         if unavailable:
             raise UserError(
                 self.env._(

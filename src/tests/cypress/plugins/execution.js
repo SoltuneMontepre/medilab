@@ -57,8 +57,9 @@ function executionTasks({
       } catch (error) {
         const locked =
           error.name === "odoo.exceptions.UserError" && (error.message === CRON_LOCK_MESSAGE || error.message.endsWith(`: ${CRON_LOCK_MESSAGE}`));
-        if (!locked || Date.now() >= until) throw error;
-        await new Promise((resolve) => setTimeout(resolve, Math.min(100, until - Date.now())));
+        const remaining = until - Date.now();
+        if (!locked || remaining <= 0) throw error;
+        await new Promise((resolve) => setTimeout(resolve, Math.min(100, remaining)));
         return attempt();
       }
     }

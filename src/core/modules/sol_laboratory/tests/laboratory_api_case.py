@@ -72,7 +72,11 @@ class LaboratoryApiCase(HttpCase, LaboratoryFilesCase):
             self.assertIn(header, response.headers, f"{method} {path} answered {status} without {header}")
         pointer = openapi_document.answer_pointer(operation, status)
         if pointer is None:
-            self.assertFalse(response.content, f"{method} {path} answered {status} with a body")
+            # A file's content is answered with its own type; any other answer without a JSON body has no body.
+            if "content" in answer:
+                self.assertTrue(response.content, f"{method} {path} answered {status} without the file")
+            else:
+                self.assertFalse(response.content, f"{method} {path} answered {status} with a body")
             return
         body = response.json()
         error = openapi_document.schema_error(pointer, body)

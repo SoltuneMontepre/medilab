@@ -61,13 +61,14 @@
                     <field name="in_my_queue" invisible="1" />
                     <field name="closed_by_system" invisible="1" />
                     <field name="can_edit" invisible="1" />
+                    <field name="can_start" invisible="1" />
                     <button name="action_claim" type="object" string="Claim" class="btn-primary" invisible="not in_my_queue" />
                     <button
                         name="action_start"
                         type="object"
                         string="Start"
                         class="btn-primary"
-                        invisible="not is_mine or status != 'assigned'"
+                        invisible="not can_start"
                     />
                     <button
                         name="action_done"
@@ -149,6 +150,7 @@
                         </page>
                     </notebook>
                 </sheet>
+                <chatter />
             </form>
         </field>
     </record>

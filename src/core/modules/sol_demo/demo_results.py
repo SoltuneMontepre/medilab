@@ -164,7 +164,7 @@ def _receive(env, request):
     )
     env[MODEL_TASK].search(
         [("document_model", "=", MODEL_SAMPLE_TEST), ("document_id", "in", request.sample_ids.test_ids.ids)]
-    ).with_user(env.ref("sol_demo.demo_res_users_head_of_department")).write(
+    ).write(
         {
             "assignee_id": env.ref("sol_demo.demo_person_tester").id,
             "assigned_by_id": env.ref("sol_demo.demo_person_head_of_department").id,

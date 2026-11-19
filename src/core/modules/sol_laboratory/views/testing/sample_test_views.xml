@@ -7,11 +7,12 @@
             <form create="0" delete="0" duplicate="0">
                 <header>
                     <button
-                        name="action_schedule"
+                        name="action_approve_booking"
                         type="object"
-                        string="Schedule"
+                        string="Approve Booking"
                         class="btn-primary"
                         invisible="not recommended_start"
+                        groups="sol_laboratory.group_permission_machine_booking_edit_all,sol_laboratory.group_permission_machine_booking_edit_own_department"
                     />
                     <button
                         name="%(action_medilab_sample_test_outsource)d"
@@ -22,6 +23,15 @@
                         invisible="status not in ('waiting', 'assigned') or not outsourcing_method_ids or not (outsourcing_suggested or tested_by_my_department)"
                         groups="sol_laboratory.group_permission_subcontract_dispatch_create_all"
                     />
+                    <button
+                        name="%(action_medilab_sample_test_outsource)d"
+                        type="action"
+                        string="Move to Another Subcontractor"
+                        context="{'default_sample_test_id': id}"
+                        invisible="not can_move_subcontractor or not outsourcing_method_ids"
+                        groups="sol_laboratory.group_permission_subcontract_dispatch_create_all"
+                    />
+                    <field name="can_move_subcontractor" invisible="1" />
                     <button
                         name="action_enter_result"
                         type="object"
@@ -110,14 +120,15 @@
                             <field name="parameter_method_id" readonly="1" />
                             <field name="is_accredited" />
                             <field name="accepted_method_id" invisible="not accepted_method_id" />
+                            <field name="subcontracted_method_ids" invisible="1" />
                             <field name="outsourcing_method_ids" invisible="1" />
                             <field name="subcontractor_id" invisible="1" />
                             <div
                                 colspan="2"
                                 class="text-muted"
-                                invisible="not accepted_method_id or subcontractor_id or not subcontracted_method_ids or status not in ('waiting', 'assigned')"
+                                invisible="not accepted_method_id or subcontractor_id or not subcontracted_method_ids or outsourcing_method_ids or status not in ('waiting', 'assigned')"
                             >
-                                Outsourcing this test changes the way of testing the customer accepted: Sales first obtains a revised quotation the customer accepts.
+                                No subcontractor tests this parameter with the method the customer accepted: outsourcing it with another method needs a revised quotation the customer accepts.
                             </div>
                         </group>
                         <group string="Recommendation" invisible="not recommended_start">
@@ -129,7 +140,7 @@
                         <group string="Outsourcing" invisible="not outsourcing_suggested">
                             <field name="outsourcing_suggested" invisible="1" />
                             <field name="tested_by_my_department" invisible="1" />
-                            <field name="subcontracted_method_ids" widget="many2many_tags" />
+                            <field name="outsourcing_method_ids" string="Subcontracted Ways" widget="many2many_tags" />
                         </group>
                         <group string="Emergency Outsourcing" invisible="not emergency_outsource_reason">
                             <field name="emergency_outsource_reason" string="Reason" />
@@ -188,7 +199,13 @@
                                     <field name="starts_at" />
                                     <field name="ends_at" />
                                     <field name="status" widget="badge" />
-                                    <button name="action_accept" type="object" string="Accept" invisible="status != 'proposed'" />
+                                    <button
+                                        name="action_approve"
+                                        type="object"
+                                        string="Approve"
+                                        invisible="status != 'proposed' or not starts_at"
+                                        groups="sol_laboratory.group_permission_machine_booking_edit_all,sol_laboratory.group_permission_machine_booking_edit_own_department"
+                                    />
                                     <button name="action_start" type="object" string="Start" invisible="status != 'scheduled'" />
                                     <button name="action_done" type="object" string="Done" invisible="status != 'in_progress'" />
                                     <button
@@ -291,8 +308,7 @@
                 <field name="parameter_id" />
                 <field name="due_date" />
                 <field name="priority" widget="badge" decoration-danger="priority == 'urgent'" decoration-warning="priority == 'due_soon'" />
-                <field name="subcontracted_method_ids" widget="many2many_tags" />
-                <field name="outsourcing_method_ids" column_invisible="1" />
+                <field name="outsourcing_method_ids" string="Subcontracted Ways" widget="many2many_tags" />
                 <field name="status" widget="badge" />
                 <button
                     name="%(action_medilab_sample_test_outsource)d"

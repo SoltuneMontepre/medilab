@@ -1,10 +1,10 @@
+from contextvars import ContextVar
 from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Domain
 
-from odoo.addons.base.models.ir_model import MODULE_UNINSTALL_FLAG
 from odoo.addons.sol_laboratory.constants.approvals import DECISION_REJECTED, DECISION_SIGNED
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_APPROVAL_LEVEL,
@@ -17,6 +17,9 @@ if TYPE_CHECKING:
     from medilab_model_types import Model_medilab_signature as SignatureBase
 else:
     SignatureBase = object
+
+# Only the private withdrawal action authorizes writing its timestamp, never an RPC context key.
+WITHDRAWING_SIGNATURE_IDS = ContextVar("medilab_withdrawing_signature_ids", default=frozenset())
 
 
 # Chữ Ký
@@ -78,15 +81,13 @@ class Signature(models.Model, SignatureBase):
         return super().create(vals_list)
 
     def write(self, vals):
-        # A signature proves what was signed, so even full rights cannot change it; _record_withdrawal records its
-        # withdrawal.
-        raise UserError(self.env._("A signature cannot be changed once it is given."))
+        if not self.env.su or vals.keys() != {"withdrawn_at"} or not set(self.ids) <= WITHDRAWING_SIGNATURE_IDS.get():
+            raise UserError(self.env._("A signature cannot be changed once it is given."))
+        return super().write(vals)
 
-    def unlink(self):
-        # Only uninstalling the module removes signatures.
-        if not self.env.context.get(MODULE_UNINSTALL_FLAG):
-            raise UserError(self.env._("A signature is withdrawn, not deleted."))
-        return super().unlink()
+    @api.ondelete(at_uninstall=False)
+    def _unlink_except_on_uninstall(self):
+        raise UserError(self.env._("A signature is withdrawn, not deleted."))
 
     @api.model
     def _in_use_domain(self):
@@ -99,11 +100,14 @@ class Signature(models.Model, SignatureBase):
         self._record_withdrawal()
 
     def _record_withdrawal(self):
-        # The only way a signature's withdrawal is recorded: once, at the current time, past the refusal of write.
         signatures = self.sudo()
         if signatures.filtered("withdrawn_at"):
             raise UserError(self.env._("This signature is already withdrawn."))
-        super(Signature, signatures).write({"withdrawn_at": fields.Datetime.now()})
+        token = WITHDRAWING_SIGNATURE_IDS.set(frozenset(signatures.ids))
+        try:
+            signatures.withdrawn_at = fields.Datetime.now()
+        finally:
+            WITHDRAWING_SIGNATURE_IDS.reset(token)
 
     def _check_withdrawable(self, process_completed=False):
         self.ensure_one()

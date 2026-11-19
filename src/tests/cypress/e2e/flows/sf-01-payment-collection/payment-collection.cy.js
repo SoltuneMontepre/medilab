@@ -1,17 +1,18 @@
-import { save } from "../../../support/form";
-import { callAs, portalPostAs, refAs } from "../../../support/odoo";
+import { choose, save } from "../../../support/form";
+import { call, callAs, portalPostAs, refAs } from "../../../support/odoo";
 import {
   ACCOUNTANT,
   ADMINISTRATOR,
   CUSTOMER,
   SALES,
+  balanceOrder,
   finalInvoice,
   notifyPayos,
   onlinePayments,
-  openPayosLink,
-  paidOrder,
+  openRequestPayosLink,
   readInvoice,
-  startPayos,
+  requestInvoices,
+  startRequestPayos,
   transfer,
   unreconciledDay,
   unrecordedTransfer,
@@ -21,9 +22,6 @@ const PAID = ["paid", "in_payment"];
 
 // The order's payment status, as sales reads it.
 const orderPaymentStatus = (orderId) => callAs(SALES, "sale.order", "read", [[orderId], ["payment_status"]]).then(([read]) => read.payment_status);
-
-// The order an invoice bills.
-const invoiceOrder = (invoice) => readInvoice(invoice, ["order_id"]).then((read) => read.order_id[0]);
 
 // Clicks a button of the open form's header and waits for its dialog.
 function openDialog(button) {
@@ -86,91 +84,94 @@ function reminders(invoice) {
 }
 
 describe("SF-01 Invoicing and payment collection", () => {
-  it("TC-SF01-M bills the rest of a paid order, which the customer pays online and receives a receipt for", () => {
-    paidOrder().then((order) => {
-      // The final invoice bills what is left after the 30% advance.
-      const billed = Math.round(order.amount_total * 0.7);
-      cy.signInAs("accountant");
-      cy.openRecord(order);
-      openDialog("button#create_invoice").within(() => {
-        cy.get(".o_field_widget[name=advance_payment_method] input[data-value=delivered]").should("be.checked");
-        cy.get("button[name=create_invoices]").click();
-      });
-      cy.location("pathname").should("match", /\/invoicing\/\d+$/);
-      cy.location("pathname").then((path) => {
-        const invoice = { model: "account.move", id: Number(path.split("/").pop()) };
-        readInvoice(invoice, ["invoice_kind", "state", "amount_total"]).then((read) => {
-          expect(read.invoice_kind).to.equal("final");
-          expect(read.state).to.equal("draft");
-          expect(read.amount_total).to.equal(billed);
-        });
-        cy.get(".o_statusbar_buttons button[name=action_post]:visible").click();
-        cy.intercept("POST", "/web/dataset/call_button/account.move/action_send_invoice").as("email");
-        cy.get(".o_statusbar_buttons button[name=action_send_invoice]:visible").click();
-        cy.wait("@email");
-        // The customer is sent the invoice PDF.
-        callAs(ACCOUNTANT, "mail.message", "search_read", [[["notification_key", "=", `invoice:${invoice.id}:sent`]]], {
-          fields: ["attachment_ids"],
-        })
-          .its("0.attachment_ids")
-          .should("have.length", 1);
-
-        cy.signInAs("customer");
-        cy.visit(`/my/invoices/${invoice.id}`);
-        cy.get("button[name=method][value=payos]").click();
-        cy.get("#payos-pending").should("be.visible");
-        openPayosLink(invoice).then((link) => notifyPayos(transfer(link)));
-
-        readInvoice(invoice, ["amount_residual", "payment_state"]).then((read) => {
-          expect(read.amount_residual).to.equal(0);
-          expect(read.payment_state).to.be.oneOf(PAID);
-        });
+  it("TC-SF01-M posts a final invoice and receipt when PayOS verifies the balance", () => {
+    balanceOrder().then((order) => {
+      requestInvoices(order.request).should("be.empty");
+      cy.signInAs("customer");
+      cy.visit(`/orders/${order.id}`);
+      cy.contains("h2", "Balance payment request");
+      cy.get("button[name=method][value=payos]").click();
+      cy.get("#payos-pending").should("be.visible");
+      openRequestPayosLink(order.request).then((link) => notifyPayos(transfer(link)));
+      requestInvoices(order.request).then(([invoice]) => {
+        expect(invoice.invoice_kind).to.equal("final");
+        expect(invoice.state).to.equal("posted");
+        expect(invoice.amount_total).to.equal(order.request.amount);
+        expect(invoice.amount_residual).to.equal(0);
+        expect(invoice.payment_state).to.be.oneOf(PAID);
         orderPaymentStatus(order.id).should("eq", "paid");
         onlinePayments(invoice).then(([payment]) => {
-          expect(payment.state, "confirmed").to.be.oneOf(["paid", "reconciled"]);
-          cy.visit(`/my/invoices/${invoice.id}`);
-          cy.get("#medilab_payment_amount").should("not.exist");
+          expect(payment.state).to.be.oneOf(["paid", "reconciled"]);
           cy.visit(`/my/invoices/${invoice.id}/receipt/${payment.id}`);
-          cy.contains("body", new RegExp(billed.toLocaleString("en-US").replaceAll(",", "[.,]")));
+          cy.contains("body", new RegExp(order.request.amount.toLocaleString("en-US").replaceAll(",", "[.,]")));
         });
       });
     });
   });
 
-  it("TC-SF01-A1 takes part of the invoice online, then the rest, leaving it partially paid in between", () => {
-    finalInvoice().then((invoice) => {
-      readInvoice(invoice, ["amount_residual"]).then(({ amount_residual: owed }) => {
-        const part = 100000;
-        cy.signInAs("customer");
-        cy.visit(`/my/invoices/${invoice.id}`);
-        cy.get("#medilab_payment_amount").clear().type(String(part));
-        cy.get("button[name=method][value=payos]").click();
-        cy.get("#payos-pending").should("be.visible");
-        openPayosLink(invoice).then((link) => {
-          expect(link.amount).to.equal(part);
-          notifyPayos(transfer(link));
-        });
-        readInvoice(invoice, ["amount_residual", "payment_state"]).should((read) => {
-          expect(read.amount_residual).to.equal(owed - part);
-          expect(read.payment_state).to.equal("partial");
-        });
-        invoiceOrder(invoice).then((orderId) => orderPaymentStatus(orderId).should("eq", "partial"));
-
-        cy.visit(`/my/invoices/${invoice.id}`);
-        cy.get("#medilab_payment_amount")
-          .invoke("val")
-          .then(Number)
-          .should("eq", owed - part);
-        cy.get("button[name=method][value=payos]").click();
-        cy.get("#payos-pending").should("be.visible");
-        openPayosLink(invoice).then((link) => notifyPayos(transfer(link)));
-        readInvoice(invoice, ["amount_residual", "payment_state"]).should((read) => {
-          expect(read.amount_residual).to.equal(0);
-          expect(read.payment_state).to.be.oneOf(PAID);
-        });
-        invoiceOrder(invoice).then((orderId) => orderPaymentStatus(orderId).should("eq", "paid"));
-        onlinePayments(invoice).its("length").should("eq", 2);
+  it("TC-SF01-A1 invoices each verified installment and funds the balance once the rest arrives", () => {
+    balanceOrder().then((order) => {
+      const page = `/orders/${order.id}`;
+      const part = Math.floor(order.request.amount / 2);
+      cy.signInAs("customer");
+      cy.visit(page);
+      cy.get("#medilab_payment_amount").clear().type(String(part));
+      cy.get("button[name=method][value=payos]").click();
+      cy.get("#payos-pending").should("be.visible");
+      openRequestPayosLink(order.request).then((link) => {
+        expect(link.amount).to.equal(part);
+        notifyPayos(transfer(link));
       });
+      requestInvoices(order.request).then((invoices) => {
+        expect(invoices).to.have.length(1);
+        expect(invoices[0].amount_total).to.equal(part);
+      });
+      orderPaymentStatus(order.id).should("eq", "partial");
+      cy.visit(page);
+      cy.get("#medilab_payment_amount")
+        .invoke("val")
+        .then(Number)
+        .should("eq", order.request.amount - part);
+      cy.get("button[name=method][value=payos]").click();
+      cy.get("#payos-pending").should("be.visible");
+      openRequestPayosLink(order.request).then((link) => notifyPayos(transfer(link)));
+      requestInvoices(order.request).should((invoices) => {
+        expect(invoices.map((invoice) => invoice.amount_total)).to.have.members([part, order.request.amount - part]);
+        expect(invoices.every((invoice) => invoice.amount_residual === 0)).to.equal(true);
+      });
+      orderPaymentStatus(order.id).should("eq", "paid");
+    });
+  });
+
+  it("TC-SF01-A2 lets Sales record cash for the accountant to verify", () => {
+    balanceOrder().then((order) => {
+      cy.signInAs("sales");
+      cy.openRecord(order);
+      refAs(ADMINISTRATOR, "sol_commerce.action_payment_collection").then(({ id }) => {
+        openDialog(`button[name="${id}"]`)
+          .find(".o_field_widget[name=amount] input")
+          .type(String(order.request.amount));
+        call("medilab.payment.collection", "fields_get", [["method"]], { attributes: ["selection"] }).then(({ method }) => {
+          const cash = new Map(method.selection).get("cash");
+          expect(cash, "cash payment option").to.be.a("string").and.not.be.empty;
+          choose("method", cash);
+        });
+        cy.get(".modal:visible button[name=action_record]").click();
+      });
+      cy.get(".modal:visible").should("not.exist");
+      callAs(ACCOUNTANT, "account.payment", "search_read", [[["payment_request_id", "=", order.request.id]]], {
+        fields: ["state", "method"],
+      }).then(([payment]) => {
+        expect(payment.state).to.equal("draft");
+        expect(payment.method).to.equal("cash");
+        requestInvoices(order.request).should("be.empty");
+        cy.signInAs("accountant");
+        cy.openRecord({ model: "account.payment", id: payment.id });
+        cy.intercept("POST", "**/web/dataset/call_button/account.payment/action_post*").as("verifyPayment");
+        cy.get(".o_statusbar_buttons button[name=action_post]:visible").click();
+        cy.wait("@verifyPayment").its("response.body").should("not.have.property", "error");
+      });
+      requestInvoices(order.request).its("0.state").should("eq", "posted");
     });
   });
 
@@ -334,14 +335,17 @@ describe("SF-01 Invoicing and payment collection", () => {
   });
 
   it("TC-SF01-E4 records one payment for a repeated PayOS notification", () => {
-    finalInvoice().then((invoice) => {
-      startPayos(invoice).then((link) => {
+    balanceOrder().then((order) => {
+      startRequestPayos(order).then((link) => {
         const data = transfer(link);
         notifyPayos(data);
         notifyPayos(data);
       });
-      onlinePayments(invoice).its("length").should("eq", 1);
-      readInvoice(invoice, ["amount_residual"]).its("amount_residual").should("eq", 0);
+      requestInvoices(order.request).then((invoices) => {
+        expect(invoices).to.have.length(1);
+        expect(invoices[0].amount_residual).to.equal(0);
+        onlinePayments(invoices[0]).its("length").should("eq", 1);
+      });
     });
   });
 });

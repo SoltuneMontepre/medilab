@@ -13,6 +13,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_CODE_MIXIN,
     MODEL_DEPARTMENT,
     MODEL_EXPECTED_SAMPLING,
+    MODEL_IR_ATTACHMENT,
     MODEL_LOCATION,
     MODEL_LOCK_MIXIN,
     MODEL_PARAMETER_METHOD_SAMPLE_TYPE,
@@ -40,12 +41,10 @@ if TYPE_CHECKING:
 else:
     SampleBase = object
 
-CANCELLABLE_STATUSES = ("expected", "received", "testing")
-FINISHED_STATUSES = ("rejected", "reported", "retained", "disposed", "cancelled")
-RECEIPT_STATUS = {"good": "received", "damaged": "rejected", "insufficient": "on_hold"}
-CONDITIONS = [("good", "Good"), ("damaged", "Damaged"), ("insufficient", "Insufficient")]
-COLLECTION_START_HOUR = 9
-COLLECTION_END_HOUR = 10
+CANCELLABLE_STATUSES = ("expected", "received", "on_hold", "testing")
+FINISHED_STATUSES = ("rejected", "reported", "retained", "disposed", "returned", "cancelled")
+RECEIPT_STATUS = {"good": "received", "unusable": "rejected", "insufficient": "on_hold"}
+CONDITIONS = [("good", "Good"), ("unusable", "Unusable"), ("insufficient", "Insufficient")]
 
 
 def _progress(statuses, sent, done):
@@ -75,7 +74,7 @@ class Sample(models.Model, SampleBase):
     _permission_actions = ("read", "create", "edit")
     # The Medilab Mobile screen that opens it.
     _mobile_screen = "sample"
-    _audit_children = ("test_ids", "handover_ids", "expected_sampling_ids")
+    _audit_children = ("test_ids", "handover_ids", "expected_sampling_ids", "return_ids")
 
     if not TYPE_CHECKING:
         # Unique laboratory code (mã PTN) from a sequence, such as PTN.2026.0001; the only name testers see.
@@ -119,6 +118,7 @@ class Sample(models.Model, SampleBase):
                 ("reported", "Reported"),
                 ("retained", "Retained"),
                 ("disposed", "Disposed"),
+                ("returned", "Returned"),
                 ("cancelled", "Cancelled"),
             ],
             required=True,
@@ -127,15 +127,15 @@ class Sample(models.Model, SampleBase):
             copy=False,
             index=True,
         )
-        # When the laboratory received the sample.
+        # When the laboratory received the sample in good condition; empty for an unusable or insufficient arrival.
         received_at = fields.Datetime(readonly=True, copy=False)
-        # Person who received the sample.
+        # Person who received the sample in good condition.
         received_by_id = fields.Many2one(
             MODEL_PERSON, string="Received By", readonly=True, copy=False, ondelete="restrict"
         )
-        # Amount received, such as "2 bottles of 1 L".
+        # Amount that arrived, such as "2 bottles of 1 L".
         received_quantity = fields.Char(string="Amount Received")
-        # Condition on arrival: good, damaged or insufficient.
+        # Condition staff decide on arrival, before any receipt: good, unusable or insufficient.
         condition = fields.Selection(CONDITIONS)
         # What was wrong with the sample on arrival.
         condition_note = fields.Text(string="Condition Note")
@@ -145,7 +145,7 @@ class Sample(models.Model, SampleBase):
         sampling_location_id = fields.Many2one(
             MODEL_LOCATION, string="Sampling Location", ondelete="restrict", index="btree_not_null"
         )
-        # When the head of department asked for the sample to be collected again.
+        # When the head of department last asked for the sample to be collected again.
         recollection_requested_at = fields.Datetime(readonly=True, copy=False)
         # Head of department who asked for the sample to be collected again.
         recollection_requested_by_id = fields.Many2one(
@@ -155,6 +155,8 @@ class Sample(models.Model, SampleBase):
             copy=False,
             ondelete="restrict",
         )
+        # True when the sample can be asked for again: insufficient on arrival, or its subcontract delivery failed.
+        can_collect_again = fields.Boolean(compute="_compute_can_collect_again")
         # Last day the sample is kept: the report date plus the sample type's retention days.
         retained_until = fields.Date(readonly=True, copy=False)
         # When the sample was disposed of.
@@ -195,6 +197,11 @@ class Sample(models.Model, SampleBase):
         for sample in self:
             sample.expected_sample_count = sample.expected_sampling_ids._expected_count()
 
+    @api.depends("status", "recollection_requested_at", "test_ids.status", "test_ids.dispatch_ids.status")
+    def _compute_can_collect_again(self):
+        for sample in self:
+            sample.can_collect_again = sample._collectable_again()
+
     @api.model_create_multi
     def create(self, vals_list):
         samples = super().create(vals_list)
@@ -220,6 +227,13 @@ class Sample(models.Model, SampleBase):
                     "revised quotation."
                 )
             )
+        if vals.get("status") and vals["status"] != "returned" and any(sample.status == "returned" for sample in self):
+            raise UserError(
+                self.env._(
+                    "A returned sample cannot be changed back: %s",
+                    format_list(self.env, self.filtered(lambda sample: sample.status == "returned").mapped("code")),
+                )
+            )
         result = super().write(vals)
         if {"regulation_id", "sample_type_id"} & set(vals):
             self.filtered("regulation_id")._check_regulation()
@@ -235,8 +249,20 @@ class Sample(models.Model, SampleBase):
             sample.regulation_id._check_selectable(sample.sample_type_id)
 
     def _cancel(self):
-        self.filtered(lambda sample: sample.status in CANCELLABLE_STATUSES).status = "cancelled"
+        cancelled = self.filtered(lambda sample: sample.status in CANCELLABLE_STATUSES)
+        cancelled.status = "cancelled"
         self.test_ids._cancel()
+        # A held sample is no longer collected again.
+        cancelled._open_collection_tasks().write({"status": "cancelled"})
+
+    def _open_collection_tasks(self):
+        tasks = self.env[MODEL_TASK].sudo()
+        return tasks.search(
+            Domain("type_id.code", "=", SAMPLE_COLLECTION_CODE)
+            & Domain("document_model", "=", MODEL_SAMPLE)
+            & Domain("document_id", "in", self.ids)
+            & tasks._in_use_domain()
+        )
 
     def _follow_tests(self):
         """Move the samples, then their test requests, along with their tests. Cancelled tests and samples, and
@@ -259,11 +285,14 @@ class Sample(models.Model, SampleBase):
         return Domain("status", "not in", FINISHED_STATUSES)
 
     def action_receive(self, quantity, condition, condition_note=None, storage_location=None):
+        """Record the condition staff decide on arrival. Only a sample in good condition is received; the system
+        rejects an unusable one and puts an insufficient one on hold, neither of them received."""
+        self.request_id.sudo()._check_sample_intake()
         if condition not in RECEIPT_STATUS:
-            raise UserError(self.env._("Condition must be good, damaged or insufficient."))
+            raise UserError(self.env._("Condition must be good, unusable or insufficient."))
         if not quantity:
             raise UserError(self.env._("Enter the amount received."))
-        if condition == "damaged" and not condition_note:
+        if condition == "unusable" and not condition_note:
             raise UserError(self.env._("Enter why the sample cannot be tested."))
         if any(sample.status != "expected" for sample in self):
             raise UserError(self.env._("Only an expected sample can be received."))
@@ -277,8 +306,6 @@ class Sample(models.Model, SampleBase):
             )
         self.write(
             {
-                "received_at": fields.Datetime.now(),
-                "received_by_id": self._current_person().id,
                 "received_quantity": quantity,
                 "condition": condition,
                 "condition_note": condition_note,
@@ -286,16 +313,24 @@ class Sample(models.Model, SampleBase):
                 "status": RECEIPT_STATUS[condition],
             }
         )
+        if condition == "good":
+            self._record_receipt()
+        elif condition == "insufficient":
+            self._tell_department_heads()
+
+    def _record_receipt(self):
+        """Record who received the samples and when, the first time they arrive in good condition; their requests and
+        testing work follow."""
+        unreceived = self.filtered(lambda sample: not sample.received_at)
+        if unreceived:
+            unreceived.write({"received_at": fields.Datetime.now(), "received_by_id": self._current_person().id})
         # Receiving the sample is the permission that matters; its request follows with full rights.
         for request in self.request_id.sudo():
             if "sample_received" in request._next_statuses():
                 request._set_status("sample_received")
         self.request_id._commit_on_receipt()
         self.request_id._finish_collections()
-        if condition == "good":
-            self._open_testing_work()
-        elif condition == "insufficient":
-            self._tell_department_heads()
+        self._open_testing_work()
 
     def action_receive_entered(self):
         for sample in self:
@@ -314,7 +349,11 @@ class Sample(models.Model, SampleBase):
         if storage_location is not None:
             vals["storage_location"] = storage_location
         self.write(vals)
-        self._open_testing_work()
+        self._record_receipt()
+        # The sample is back, so its collection is done.
+        self._open_collection_tasks().write({"status": "done", "done_at": fields.Datetime.now()})
+        # A sample collected again after a failed subcontract delivery goes back to testing when its tests had started.
+        self._follow_tests()
 
     def action_receive_more_entered(self):
         for sample in self:
@@ -323,15 +362,26 @@ class Sample(models.Model, SampleBase):
             sample.action_receive_more(sample.received_quantity, sample.storage_location)
 
     def action_request_recollection(self):
+        """The head of a department testing the samples asks for them to be collected again: an insufficient sample on
+        hold, or a received one whose delivery to a subcontractor failed, which keeps its lab code, sample tests and
+        testing tasks and waits on hold. Each gets a collection task in the queue of sample delivery staff, at the
+        customer's address; they claim it and plan its time."""
         person = self._current_person()
         task_type = self.env[MODEL_TASK_TYPE].sudo().search([("code", "=", SAMPLE_COLLECTION_CODE)], limit=1)
-        now = fields.Datetime.now()
-        tomorrow = self._company_today() + timedelta(days=1)
-        start = self._company_datetime(tomorrow, COLLECTION_START_HOUR)
-        end = self._company_datetime(tomorrow, COLLECTION_END_HOUR)
+        if task_type.route != "role":
+            raise UserError(
+                self.env._("Route the %s task type to the role of sample delivery staff first.", task_type.name)
+            )
         for sample in self:
-            if sample.status != "on_hold":
-                raise UserError(self.env._("Only a sample on hold can be collected again."))
+            if sample.status == "on_hold" and sample.recollection_requested_at:
+                raise UserError(self.env._("Collecting %s again is already asked for.", sample.code))
+            if not sample._collectable_again():
+                raise UserError(
+                    self.env._(
+                        "Only a sample on hold, or one whose delivery to a subcontractor failed, is collected again: %s",
+                        sample.code,
+                    )
+                )
             # The head of a department is its manager.
             if not self.env.su and self.env.user not in sample.sudo()._test_departments().manager_id.user_id:
                 raise UserError(
@@ -339,24 +389,50 @@ class Sample(models.Model, SampleBase):
                         "Only the head of a department that tests %s asks for it to be collected again.", sample.code
                     )
                 )
-            if sample.recollection_requested_at:
-                raise UserError(self.env._("Collecting %s again is already asked for.", sample.code))
-            if not sample.received_by_id:
-                raise UserError(self.env._("Sample %s has no one to collect it again.", sample.code))
-            sample.write({"recollection_requested_at": now, "recollection_requested_by_id": person.id})
-            # The staff who received the sample collect it again, planned for tomorrow morning; they can move it.
+        self.write(
+            {
+                "status": "on_hold",
+                "recollection_requested_at": fields.Datetime.now(),
+                "recollection_requested_by_id": person.id,
+            }
+        )
+        for sample in self.sudo():
             self.env[MODEL_TASK].sudo().create(
                 {
                     "type_id": task_type.id,
                     "name": self.env._("Collect %s again", sample.code),
-                    "assignee_id": sample.received_by_id.id,
-                    "deadline": end,
-                    "planned_start": start,
-                    "planned_end": end,
                     "document_model": MODEL_SAMPLE,
                     "document_id": sample.id,
+                    "note": sample.request_id.customer_id.partner_id._display_address(),
                 }
             )
+
+    def _collectable_again(self):
+        """True when the sample is on hold after arriving insufficient, or received with a failed subcontract delivery
+        that nobody has asked to collect it again after."""
+        self.ensure_one()
+        if self.status == "on_hold":
+            return not self.recollection_requested_at
+        return self.status in ("received", "testing") and bool(self._failed_deliveries())
+
+    def _failed_deliveries(self):
+        """The dispatches of the sample's outsourced tests that were sent and then cancelled, as a failed delivery is,
+        after the sample was last asked for again, while no other dispatch takes those tests."""
+        self.ensure_one()
+        tests = self.sudo().test_ids.filtered(
+            lambda test: (
+                test.status == "outsourced"
+                and not test.dispatch_ids.filtered(lambda dispatch: dispatch.status != "cancelled")
+            )
+        )
+        requested = self.recollection_requested_at
+        # A cancelled dispatch no longer changes, so its last change is its cancellation.
+        return tests.dispatch_ids.filtered(
+            lambda dispatch: (
+                bool(dispatch.sent_date)
+                and (not requested or bool(dispatch.write_date and dispatch.write_date > requested))
+            )
+        )
 
     def _retain(self, report_day):
         """Keep the reported samples whose sample type is kept until the report day plus its retention days."""
@@ -400,9 +476,17 @@ class Sample(models.Model, SampleBase):
     def action_attach_photo(self, photo, name="photo.jpg"):
         """The mobile app attaches a photo taken when the sample is collected or received."""
         self.ensure_one()
-        attachment = self.env["ir.attachment"].create(
-            {"name": name, "raw": photo, "res_model": self._name, "res_id": self.id}
-        )
+        return self._link_photo(self.env[MODEL_IR_ATTACHMENT].create(self._photo_values(photo, name)))
+
+    def _photo_values(self, photo, name, mimetype=None):
+        """The attachment of a photo of the sample."""
+        self.ensure_one()
+        values = {"name": name, "raw": photo, "res_model": self._name, "res_id": self.id}
+        if mimetype:
+            values["mimetype"] = mimetype
+        return values
+
+    def _link_photo(self, attachment):
         self.write({"photo_ids": [Command.link(persisted_id(attachment))]})
         return attachment
 
@@ -412,6 +496,11 @@ class Sample(models.Model, SampleBase):
             return True
         if self.status == "reported":
             return not self.sample_type_id.is_retained
+        return self._retention_over()
+
+    def _retention_over(self):
+        """True when the sample is retained and its last day of retention has come."""
+        self.ensure_one()
         return self.status == "retained" and bool(self.retained_until) and self.retained_until <= self._company_today()
 
     def _open_testing_work(self):
