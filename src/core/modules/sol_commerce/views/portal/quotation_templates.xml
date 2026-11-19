@@ -39,7 +39,7 @@
                     <!-- When the rest is paid; the report is released once the order is paid in full. -->
                     <div t-if="order.advance_mode != 'full'" class="d-flex gap-2">
                         <dt class="fw-normal text-muted">Balance due</dt>
-                        <dd class="mb-0" t-field="order.balance_due" />
+                        <dd class="mb-0"><span t-field="order.balance_due" /></dd>
                     </div>
                 </dl>
                 <t t-set="show_discount" t-value="any(lines.mapped('discount'))" />
