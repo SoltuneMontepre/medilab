@@ -228,6 +228,7 @@ from . import (
     test_sample_test_claiming,
     test_sample_test_due_date,
     test_sample_test_due_date_change,
+    test_sample_test_log,
     test_sample_type_applicability,
     test_sample_type_applicability_migration,
     test_sampling_requirements,

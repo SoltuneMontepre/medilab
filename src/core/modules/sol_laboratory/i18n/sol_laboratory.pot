@@ -7394,7 +7394,9 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__log
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__log_ids
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_run_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 msgid "Log"
 msgstr ""
 
@@ -9123,7 +9125,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_scan_form
-msgid "PTN.2026.0001"
+msgid "PTN.26.01.0001"
 msgstr ""
 
 #. module: sol_laboratory
@@ -11954,6 +11956,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__regulation_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
 msgid "Regulation"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+msgid "Measurement"
 msgstr ""
 
 #. module: sol_laboratory
@@ -16787,11 +16794,6 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
-msgid "<span>The value is below the LOD or LOQ. Suggested text:</span>"
-msgstr ""
-
-#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/test_result.py:0
 msgid ""
@@ -16835,12 +16837,6 @@ msgid "No limit for this sample type"
 msgstr ""
 
 #. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_result.py:0
-msgid "Only a value below its LOD or LOQ has a suggested text."
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__value_suggestion
 msgid "Suggested Text"
 msgstr ""
@@ -16875,11 +16871,6 @@ msgstr ""
 msgid ""
 "The system sets the sample test, entry, status and copied catalog values of "
 "a result."
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
-msgid "Use This Text"
 msgstr ""
 
 #. module: sol_laboratory

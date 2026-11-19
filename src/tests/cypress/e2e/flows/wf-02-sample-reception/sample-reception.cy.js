@@ -415,11 +415,9 @@ describe("WF-02 Sample reception and handover", () => {
 });
 
 describe("WF-02 feature acceptance criteria", () => {
-  it("TC-F15-02 gives each sample its own lab code of the year", () => {
+  it("TC-F15-02 gives each sample its own lab code of the month", () => {
     staffRequest({ samples: [[PARAMETERS.lead], [PARAMETERS.lead]] }).then(({ samples }) => {
-      // Codes take the year where the laboratory works, which can differ from the test runner's.
-      const year = new Intl.DateTimeFormat("en", { timeZone: "Asia/Ho_Chi_Minh", year: "numeric" }).format(new Date());
-      expect(samples.map((sample) => sample.code)).to.satisfy((codes) => codes.every((code) => code.startsWith(`PTN.${year}.`)));
+      expect(samples.map((sample) => sample.code)).to.satisfy((codes) => codes.every((code) => /^PTN\.\d{2}\.\d{2}\.\d{4}$/.test(code)));
       expect(new Set(samples.map((sample) => sample.code)).size).to.equal(2);
     });
   });

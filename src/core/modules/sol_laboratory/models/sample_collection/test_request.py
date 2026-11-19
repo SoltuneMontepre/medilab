@@ -53,7 +53,7 @@ class TestRequest(models.Model, TestRequestBase):
     _audit_children = ("sample_ids",)
 
     if not TYPE_CHECKING:
-        # Unique code of the request, such as YC.2026.0001; filled from a sequence when left empty.
+        # Unique code of the request, such as YC.26.11.0001; filled from a sequence when left empty.
         code = fields.Char(required=True, copy=False)
         # The customer who asks for the tests.
         customer_id = fields.Many2one(MODEL_CUSTOMER, required=True, ondelete="restrict", index=True)

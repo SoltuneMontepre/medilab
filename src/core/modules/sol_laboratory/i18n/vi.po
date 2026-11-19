@@ -4799,7 +4799,9 @@ msgstr "Các vị trí bên trong"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__log
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__log_ids
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_run_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 msgid "Log"
 msgstr "Nhật Ký"
 
@@ -7152,6 +7154,11 @@ msgstr "Số chứng nhận"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
 msgid "Regulation"
 msgstr "Quy Chuẩn"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+msgid "Measurement"
+msgstr "Phép Đo"
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_regulation_limit
@@ -10779,8 +10786,8 @@ msgstr "PDF"
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_scan_form
-msgid "PTN.2026.0001"
-msgstr "PTN.2026.0001"
+msgid "PTN.26.01.0001"
+msgstr "PTN.26.01.0001"
 
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_handover_record_create_all
@@ -16773,11 +16780,6 @@ msgstr ""
 "%s nằm ngoài phạm vi so sánh quy chuẩn được yêu cầu nên không cần kết luận."
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
-msgid "<span>The value is below the LOD or LOQ. Suggested text:</span>"
-msgstr "<span>Giá trị thấp hơn LOD hoặc LOQ. Văn bản đề xuất:</span>"
-
-#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/test_result.py:0
 msgid ""
@@ -16823,12 +16825,6 @@ msgid "No limit for this sample type"
 msgstr "Không có giới hạn cho loại mẫu này"
 
 #. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_result.py:0
-msgid "Only a value below its LOD or LOQ has a suggested text."
-msgstr "Chỉ giá trị thấp hơn LOD hoặc LOQ mới có văn bản đề xuất."
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__value_suggestion
 msgid "Suggested Text"
 msgstr "Văn Bản Đề Xuất"
@@ -16872,11 +16868,6 @@ msgid ""
 msgstr ""
 "Hệ thống tự đặt chỉ tiêu của mẫu, thông tin nhập, trạng thái và các giá trị "
 "sao chép từ danh mục của kết quả."
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
-msgid "Use This Text"
-msgstr "Dùng Văn Bản Này"
 
 #. module: sol_laboratory
 #. odoo-python

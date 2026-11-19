@@ -68,7 +68,7 @@ The harness requires context `kind-medilab-286-review`, a loopback API server an
 - Tests run in a 1440 × 900 laptop viewport, set in `cypress.config.js`. A spec sets another viewport only to check a layout that depends on the window, such as a narrow menu bar.
 - Tests do not depend on data a previous test created.
 - The task unsets `ELECTRON_RUN_AS_NODE`, which editors such as VS Code set and which stops Cypress from starting.
-- `task test:e2e:app` installs every module with the demo data into the app's database and starts Odoo, then waits until it answers. `ci-core` runs it before `task test:e2e`, so tests can sign in as the demo users. Locally it changes the database of `task up`; it refuses a selected fresh demo to avoid reinstalling into its completed application database.
+- `task test:e2e:app` installs every module with the demo data into the app's database and starts Odoo, then waits until it answers. The tests sign in as the demo users. Locally it changes the database of `task up`; it refuses a selected fresh demo to avoid reinstalling into its completed application database.
 
 ### Running browser tests
 
@@ -86,11 +86,11 @@ Run commands from the repository root in PowerShell, Bash or your usual terminal
 
 Both modes inherit the local environment files loaded by Task. Set `MEDILAB_DEMO_PASSWORD` to the password used when the demo was created if it differs from `demo`.
 
-The SF-01 tests pay online by sending PayOS notifications from the test runner, signed with `PAYOS_CHECKSUM_KEY`. Odoo checks them with the same key, so set it, to any random value, in `tools/infrastructure/.env` before starting Odoo, and leave `PAYOS_CLIENT_ID` and `PAYOS_API_KEY` unset so that nothing calls PayOS. The `e2e` job of `ci-core` makes a new key for each run. The fresh local demo does not forward the key, so those tests fail there.
+The SF-01 tests pay online by sending PayOS notifications from the test runner, signed with `PAYOS_CHECKSUM_KEY`. Odoo checks them with the same key, so set it, to any random value, in `tools/infrastructure/.env` before starting Odoo, and leave `PAYOS_CLIENT_ID` and `PAYOS_API_KEY` unset so that nothing calls PayOS. The fresh local demo does not forward the key, so those tests fail there.
 
 #### Preparing the application
 
-`task test:e2e:app` prepares the selected local application for browser tests, as CI does:
+`task test:e2e:app` prepares the selected local application for browser tests:
 
 1. Verify the selected Compose project. Module installation is refused on a selected fresh demo; start that completed demo with `task up` instead.
 2. Start Postgres and Garage and configure the laboratory files bucket and the additional buckets used by access and reconciliation tests.

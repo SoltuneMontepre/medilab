@@ -1,6 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Whoever reads the audit trail also reads the changes of its entries and prints its report. -->
+<!-- Whoever reads the audit trail also reads the changes of its entries and prints its report. Whoever reads sample tests
+     also reads the entries and changes about them for the log of a sample test. -->
 <odoo>
+    <record id="access_audit_entry_sample_test" model="ir.access">
+        <field name="name">Audit entry: read of sample tests</field>
+        <field name="model_id" ref="model_medilab_audit_entry" />
+        <field name="group_id" ref="group_permission_sample_test_read_all" />
+        <field name="operation">r</field>
+        <field name="domain">['|', ('document_model', '=', 'medilab.sample.test'), ('parent_model', '=', 'medilab.sample.test')]</field>
+    </record>
+    <record id="access_audit_change_sample_test" model="ir.access">
+        <field name="name">Audit change: read of sample tests</field>
+        <field name="model_id" ref="model_medilab_audit_change" />
+        <field name="group_id" ref="group_permission_sample_test_read_all" />
+        <field name="operation">r</field>
+        <field name="domain">['|', ('entry_id.document_model', '=', 'medilab.sample.test'), ('entry_id.parent_model', '=', 'medilab.sample.test')]</field>
+    </record>
     <record id="access_audit_change_read" model="ir.access">
         <field name="name">Audit change: read</field>
         <field name="model_id" ref="model_medilab_audit_change" />

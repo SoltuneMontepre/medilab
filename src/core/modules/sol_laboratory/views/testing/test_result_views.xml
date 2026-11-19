@@ -72,86 +72,114 @@
                     <field name="status" widget="statusbar" statusbar_visible="none,requested,approved" />
                 </header>
                 <sheet>
-                    <div class="oe_title" invisible="not id">
+                    <div class="oe_title o_test_result_head" invisible="not id">
                         <h1><field name="display_name" /></h1>
+                        <div class="o_test_result_meta">
+                            <span class="o_test_result_chips">
+                                <span class="o_test_result_chip">
+                                    <span>Version</span>
+                                    <field name="version" />
+                                </span>
+                                <field name="is_reported" invisible="1" />
+                                <span class="o_test_result_chip o_chip_success" invisible="not is_reported">
+                                    Reported Result
+                                </span>
+                                <field name="is_replaced" invisible="1" />
+                                <span class="o_test_result_chip" invisible="not is_replaced">Replaced</span>
+                            </span>
+                            <span class="o_test_result_entered">
+                                <field name="entered_by_id" class="o_field_inline" />
+                                <field name="entered_at" class="o_field_inline" />
+                            </span>
+                            <span class="o_test_result_related">
+                                <field name="sample_test_id" class="o_field_inline" readonly="1" force_save="1" />
+                                <field name="replaces_id" class="o_field_inline" invisible="not replaces_id" />
+                            </span>
+                        </div>
                     </div>
-                    <group>
-                        <group>
-                            <field name="sample_test_id" readonly="1" force_save="1" />
-                            <field name="version" invisible="not id" />
-                            <field name="replaces_id" invisible="not replaces_id" />
-                            <field name="is_replaced" invisible="not is_replaced" />
-                            <field name="is_reported" invisible="not id" />
-                            <field name="entered_by_id" invisible="not id" />
-                            <field name="entered_at" invisible="not id" />
-                        </group>
-                        <group>
-                            <field name="subcontractor_id" invisible="not subcontractor_id" />
-                            <field name="machine_id" invisible="subcontractor_id" readonly="status != 'none'" />
-                            <field name="started_at" readonly="status != 'none'" />
-                        </group>
-                    </group>
-                    <group>
-                        <group string="Result">
-                            <field name="parameter_method_id" />
-                            <field name="sample_type_id" />
-                            <field name="value" invisible="value_text" readonly="status != 'none'" />
-                            <field name="value_decimals" invisible="value_text" readonly="status != 'none'" />
+                    <div class="o_test_result_card o_test_result_entry">
+                        <h2 class="o_test_result_card_title">Result</h2>
+                        <div class="o_test_result_inputs">
+                            <div class="o_test_result_value" invisible="value_text">
+                                <label for="value" />
+                                <field name="value" readonly="status != 'none'" />
+                            </div>
+                            <div class="o_test_result_unit">
+                                <label for="unit_id" />
+                                <field name="unit_id" />
+                            </div>
+                            <div class="o_test_result_decimals" invisible="value_text">
+                                <label for="value_decimals" />
+                                <field name="value_decimals" readonly="status != 'none'" />
+                            </div>
+                        </div>
+                        <div class="o_test_result_text">
+                            <label for="value_text" />
                             <field name="value_text" readonly="status != 'none'" />
-                            <field name="unit_id" />
-                            <field name="lod" widget="nullable_float" />
-                            <field name="loq" widget="nullable_float" />
-                            <field name="value_display" invisible="not id" />
-                            <div
-                                class="alert alert-info mb-0"
-                                role="status"
-                                colspan="2"
-                                invisible="not value_suggestion or status != 'none'"
-                            >
-                                <span>The value is below the LOD or LOQ. Suggested text:</span>
-                                <field name="value_suggestion" class="fw-bold" />
-                                <button
-                                    name="action_use_value_suggestion"
-                                    type="object"
-                                    string="Use This Text"
-                                    class="btn btn-link p-0"
-                                />
-                            </div>
-                            <div class="alert alert-warning mb-0" role="alert" colspan="2" invisible="not check_preview">
-                                <span>Check this value before sending it; you may still send it.</span>
-                                <field name="check_preview" class="d-block" />
-                            </div>
-                            <div class="alert alert-warning mb-0" role="alert" colspan="2" invisible="not check_warning">
-                                <span>Sent with a warning:</span>
-                                <field name="check_warning" class="d-block" />
-                            </div>
-                        </group>
-                        <group string="Regulation" invisible="not regulation_id">
-                            <field name="regulation_id" />
-                            <field name="comparison_requested" invisible="1" />
-                            <div class="text-muted" colspan="2" invisible="comparison_requested">
-                                The regulation sets no limit for this parameter, so it is outside the requested
-                                comparison and takes no conclusion.
-                            </div>
-                            <field name="limit_min_set" invisible="1" />
-                            <field name="limit_max_set" invisible="1" />
-                            <field name="limit_min" invisible="not limit_min_set" />
-                            <field name="limit_max" invisible="not limit_max_set" />
-                            <field name="limit_text" invisible="not limit_text" />
-                            <field name="limit_unit_id" invisible="not limit_unit_id" />
-                            <field name="limit_missing" invisible="1" />
-                            <div class="alert alert-warning mb-0" role="alert" colspan="2" invisible="not limit_missing">
-                                The regulation sets no limit for this parameter on the sample's type, so the result
-                                can only be assessed as insufficient basis.
-                            </div>
+                        </div>
+                        <div class="o_test_result_display" invisible="not id">
+                            <label for="value_display" />
+                            <field name="value_display" />
+                        </div>
+                        <div class="alert alert-warning mb-0" role="alert" invisible="not check_preview">
+                            <span>Check this value before sending it; you may still send it.</span>
+                            <field name="check_preview" class="d-block" />
+                        </div>
+                        <div class="alert alert-warning mb-0" role="alert" invisible="not check_warning">
+                            <span>Sent with a warning:</span>
+                            <field name="check_warning" class="d-block" />
+                        </div>
+                        <div class="o_test_result_conclusion" invisible="not regulation_id or not comparison_requested">
+                            <label for="conclusion" />
                             <field
                                 name="conclusion"
                                 widget="radio"
-                                invisible="not comparison_requested"
+                                options="{'horizontal': true}"
                                 readonly="status != 'none'"
                             />
-                        </group>
-                    </group>
+                        </div>
+                    </div>
+                    <div class="o_test_result_cards">
+                        <div class="o_test_result_card">
+                            <h2 class="o_test_result_card_title">Measurement</h2>
+                            <group>
+                                <field name="parameter_method_id" />
+                                <field name="sample_type_id" />
+                                <field name="subcontractor_id" invisible="not subcontractor_id" />
+                                <field name="machine_id" invisible="subcontractor_id" readonly="status != 'none'" />
+                                <field name="started_at" readonly="status != 'none'" />
+                                <field name="lod" widget="nullable_float" />
+                                <field name="loq" widget="nullable_float" />
+                            </group>
+                        </div>
+                        <div class="o_test_result_card" invisible="not regulation_id">
+                            <h2 class="o_test_result_card_title">Regulation</h2>
+                            <group>
+                                <field name="regulation_id" />
+                                <div class="text-muted" colspan="2" invisible="comparison_requested">
+                                    The regulation sets no limit for this parameter, so it is outside the requested
+                                    comparison and takes no conclusion.
+                                </div>
+                                <field name="limit_min" invisible="not limit_min_set" />
+                                <field name="limit_max" invisible="not limit_max_set" />
+                                <field name="limit_text" invisible="not limit_text" />
+                                <field name="limit_unit_id" invisible="not limit_unit_id" />
+                                <div
+                                    class="alert alert-warning mb-0"
+                                    role="alert"
+                                    colspan="2"
+                                    invisible="not limit_missing"
+                                >
+                                    The regulation sets no limit for this parameter on the sample's type, so the result
+                                    can only be assessed as insufficient basis.
+                                </div>
+                            </group>
+                        </div>
+                    </div>
+                    <field name="comparison_requested" invisible="1" />
+                    <field name="limit_min_set" invisible="1" />
+                    <field name="limit_max_set" invisible="1" />
+                    <field name="limit_missing" invisible="1" />
                     <field name="approval_can_sign" invisible="1" />
                     <field name="approval_can_reject" invisible="1" />
                     <field name="approval_can_withdraw" invisible="1" />

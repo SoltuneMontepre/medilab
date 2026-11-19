@@ -348,6 +348,11 @@
     }
   }
 
+  .o_field_widget.o_field_inline {
+    width: auto !important;
+    flex: none;
+  }
+
   .oe_title .o_required_modifier:not(.o_readonly_modifier) {
     input::placeholder,
     .o_input::placeholder {

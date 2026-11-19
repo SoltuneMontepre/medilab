@@ -176,7 +176,7 @@ The script stops without writing when the tables are inconsistent or Business fl
 ### F-15 Test requests and lab codes
 
 - TC-F15-01 Main: Staff create a test request with its samples, parameters, expected date and report delivery.
-- TC-F15-02 Rule: Each sample gets a unique lab code, numbered again each year; a request staff create skips the paid step.
+- TC-F15-02 Rule: Each sample gets a unique lab code, numbered again each month; a request staff create skips the paid step.
 - TC-F15-03 Exception: Confirming without a sample, or a sample without a parameter, is refused; testers see only the lab code.
 
 ### F-16 Sample collection and handover record
