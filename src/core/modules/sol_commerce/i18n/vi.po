@@ -5885,3 +5885,143 @@ msgstr "ngày làm việc kể từ khi nhận mẫu"
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 msgid "working days of receiving the samples."
 msgstr "ngày làm việc kể từ khi nhận mẫu."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid "%(appointment)s, %(who)s"
+msgstr "%(appointment)s, %(who)s"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/account_payment_task.py:0
+msgid ""
+"%(customer)s paid %(amount)s online for order %(order)s; PayOS verified it."
+msgstr ""
+"%(customer)s đã thanh toán trực tuyến %(amount)s cho đơn %(order)s; PayOS đã"
+" xác nhận."
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__quotation_follow_up__paid
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_search
+msgid "Advance paid"
+msgstr "Đã tạm ứng"
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__balance_due__at_collection
+msgid "At sample collection"
+msgstr "Khi thu mẫu"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__balance_due
+msgid "Balance Due"
+msgstr "Hạn Thanh Toán Phần Còn Lại"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+msgid "Balance due"
+msgstr "Hạn thanh toán phần còn lại"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid ""
+"Balance due at collection: %(amount)s. The customer pays it online from the "
+"link we sent them, or Sales records a cash payment."
+msgstr ""
+"Phần còn lại cần thu khi lấy mẫu: %(amount)s. Khách hàng thanh toán trực "
+"tuyến qua đường dẫn đã gửi, hoặc bộ phận kinh doanh ghi nhận tiền mặt."
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__balance_due__before_collection
+msgid "Before sample collection"
+msgstr "Trước khi thu mẫu"
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__balance_due__before_report
+msgid "Before the report"
+msgstr "Trước khi trả kết quả"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid "Contact: %(name)s, %(phone)s"
+msgstr "Liên hệ: %(name)s, %(phone)s"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/scheduled_job_collection.py:0
+msgid ""
+"Nobody has claimed the sample collection of order %(order)s, due at "
+"%(appointment)s."
+msgstr "Chưa ai nhận việc thu mẫu của đơn %(order)s, hẹn lúc %(appointment)s."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid ""
+"Pay the remaining %(amount)s for order %(order)s before its samples are "
+"collected."
+msgstr ""
+"Thanh toán số tiền còn lại %(amount)s cho đơn %(order)s trước khi thu mẫu."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid ""
+"Pay the remaining %(amount)s for order %(order)s when its samples are "
+"collected, online or to our staff. Its report is released once the order is "
+"paid in full."
+msgstr ""
+"Thanh toán số tiền còn lại %(amount)s cho đơn %(order)s khi thu mẫu, trực "
+"tuyến hoặc cho nhân viên của chúng tôi. Phiếu kết quả được gửi khi đơn hàng "
+"đã được thanh toán đủ."
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__payment_notice
+msgid "Payment Notice"
+msgstr "Thông Báo Thanh Toán"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__collection_summary
+msgid "Sample Collection"
+msgstr "Thu Mẫu"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid ""
+"The report reaches the customer once the order is paid in full; %s is still "
+"due."
+msgstr ""
+"Phiếu kết quả được gửi cho khách hàng khi đơn hàng đã được thanh toán đủ; "
+"còn phải thu %s."
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Timeline"
+msgstr "Mốc Thời Gian"
+
+#. module: sol_commerce
+#: model:ir.actions.server,name:sol_commerce.ir_cron_unclaimed_collections_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_commerce.scheduled_job_unclaimed_collections
+msgid "Unclaimed sample collections"
+msgstr "Việc thu mẫu chưa có người nhận"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid "Verify the order balance before collecting its samples."
+msgstr "Xác nhận đã thanh toán số dư đơn hàng trước khi thu mẫu."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid "no appointment"
+msgstr "chưa có lịch hẹn"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid "not claimed yet"
+msgstr "chưa có người nhận"
