@@ -14,9 +14,12 @@ from odoo.addons.sol_commerce.constants.models import (
 from odoo.addons.sol_commerce.constants.notifications import EVENT_BALANCE_REQUESTED
 from odoo.addons.sol_commerce.constants.orders import (
     ADVANCE_NONE,
+    BALANCE_AT_COLLECTION,
+    BALANCE_BEFORE_COLLECTION,
     QUOTATION_ACCEPTED,
     QUOTATION_REPLACED,
     STATUS_CLAIMED,
+    STATUS_COMPLETED,
     STATUS_CONFIRMED,
 )
 from odoo.addons.sol_laboratory.constants.models import (
@@ -54,25 +57,46 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
         )
         # True when this order was confirmed on the customer's approved credit terms.
         on_credit = fields.Boolean(readonly=True, copy=False)
-        # True while the order's advance is not verified, so its samples cannot be collected yet.
+        # True while the order's samples cannot be collected yet for want of payment.
         show_unpaid_warning = fields.Boolean(compute="_compute_show_unpaid_warning", compute_sudo=True)
+        # What payment holds up on the confirmed order: its sample collection, or its report.
+        payment_notice = fields.Char(compute="_compute_show_unpaid_warning", compute_sudo=True)
 
-    @api.depends("payment_status", "on_credit", "payment_request_ids.state")
+    @api.depends("payment_status", "on_credit", "payment_request_ids.state", "balance_due")
     def _compute_show_unpaid_warning(self):
         for order in self:
-            order.show_unpaid_warning = not order._can_collect_samples()
+            hold = order._collection_hold()
+            order.show_unpaid_warning = bool(hold)
+            notice = False
+            if order.order_status in (STATUS_CONFIRMED, STATUS_COMPLETED):
+                notice = hold
+                if not hold and order._withholds_report():
+                    notice = self.env._(
+                        "The report reaches the customer once the order is paid in full; %s is still due.",
+                        order.currency_id.format(order.amount_total - order._verified_order_amount()),
+                    )
+            order.payment_notice = notice
 
     def _can_collect_samples(self):
-        """Samples are collected once the advance of the accepted quotation is verified; the balance is due before
-        the report is released."""
+        self.ensure_one()
+        return not self._collection_hold()
+
+    def _collection_hold(self):
+        """Why the order's samples cannot be collected yet, or False: its advance is not verified, or Sales asked for
+        the balance before collection and it is not paid. Otherwise the balance is due at collection or before the
+        report, which waits until the order is paid."""
         self.ensure_one()
         if self.on_credit or self.payment_status == "paid" or self.currency_id.is_zero(self.amount_total):
-            return True
+            return False
         quotation = self._latest_quotation()
         advance = self.sudo().payment_request_ids.filtered(
             lambda ask: ask.kind == "advance" and ask.quotation_id == quotation
         )
-        return bool(quotation) and (not advance or all(ask.state == "funded" for ask in advance))
+        if not quotation or any(ask.state != "funded" for ask in advance):
+            return self.env._("Verify the order's advance before collecting its samples.")
+        if self.balance_due == BALANCE_BEFORE_COLLECTION:
+            return self.env._("Verify the order balance before collecting its samples.")
+        return False
 
     def _withholds_report(self):
         """Whether the order's report waits for payment: until the order is paid in full, unless the customer is on
@@ -174,17 +198,25 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
         )
         self.sudo().payment_request_id = request
         order = self.with_context(lang=self._get_lang())
-        order.env[MODEL_MAIL_MESSAGE].sudo().raise_event(
-            EVENT_BALANCE_REQUESTED,
-            order.sudo(),
-            f"payment-request:{request.id}:sent",
-            order.env._(
+        values = {"amount": order.currency_id.format(amount), "order": order.name}
+        if self.balance_due == BALANCE_BEFORE_COLLECTION:
+            body = order.env._(
+                "Pay the remaining %(amount)s for order %(order)s before its samples are collected.", **values
+            )
+        elif self.balance_due == BALANCE_AT_COLLECTION:
+            body = order.env._(
+                "Pay the remaining %(amount)s for order %(order)s when its samples are collected, online or to our "
+                "staff. Its report is released once the order is paid in full.",
+                **values,
+            )
+        else:
+            body = order.env._(
                 "Pay the remaining %(amount)s for order %(order)s. Its report is released once the order is paid in "
                 "full.",
-                amount=order.currency_id.format(amount),
-                order=order.name,
-            ),
-            partners=order.partner_id,
+                **values,
+            )
+        order.env[MODEL_MAIL_MESSAGE].sudo().raise_event(
+            EVENT_BALANCE_REQUESTED, order.sudo(), f"payment-request:{request.id}:sent", body, partners=order.partner_id
         )
 
     def _release_test_request(self):
@@ -212,6 +244,26 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
                 )
             )
 
+    def _collection_payment_note(self):
+        """What collection staff tell the customer about payment, in the staff language: the balance still due when
+        Sales asked for it at collection; nothing otherwise."""
+        self.ensure_one()
+        order = self.sudo()
+        due = order.payment_request_id
+        if (
+            order.on_credit
+            or order.balance_due != BALANCE_AT_COLLECTION
+            or due.kind != "balance"
+            or not due.remaining_amount
+        ):
+            return False
+        env = staff_env(self.env)
+        return env._(
+            "Balance due at collection: %(amount)s. The customer pays it online from the link we sent them, or Sales "
+            "records a cash payment.",
+            amount=order.currency_id.format(due.remaining_amount),
+        )
+
     def action_start_sample_collection(self, appointment: datetime | bool = False, address: str | bool = False):
         """Queue one unassigned sample collection task of the confirmed order's test request for sample delivery
         staff, due at the appointment Sales agreed with the customer, at the address given or else the customer's."""
@@ -219,8 +271,9 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
         for order in self:
             if order.order_status != STATUS_CONFIRMED:
                 raise UserError(self.env._("The order must be confirmed before the samples are collected."))
-            if not order._can_collect_samples():
-                raise UserError(self.env._("Verify the order's advance before collecting its samples."))
+            hold = order._collection_hold()
+            if hold:
+                raise UserError(hold)
         if self.env.context.get(COLLECTION_DIALOG) and not appointment:
             # The button asks Sales for the appointment and the place first.
             self.ensure_one()
@@ -246,7 +299,8 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
                     "name": f"{task_type.with_env(staff_env(self.env)).name}: {order.name}, {order.customer_id.name}",
                     "document_model": request._name,
                     "document_id": request.id,
-                    "note": address or order.customer_id._display_address(),
+                    "place": address or order.customer_id._display_address(),
+                    "note": order._collection_payment_note(),
                     "deadline": appointment,
                     "planned_start": appointment,
                 }

@@ -127,7 +127,7 @@ class TestOrderConfirmation(OrderCase):
         self.assertFalse(task.department_id)
         self.assertFalse(task.planned_start)
         self.assertIn(order.name, task.name or "")
-        self.assertIn("12 Nguyen Hue", task.note or "")
+        self.assertIn("12 Nguyen Hue", task.place or "")
         self.assertTrue(task._claimable_by(staff))
         self.assertFalse(task._claimable_by(self.sales_person))
         with self.assertRaises(UserError):
@@ -149,7 +149,7 @@ class TestOrderConfirmation(OrderCase):
 
         task = self.collection_tasks(order)
         self.assertEqual(fields.Datetime.to_string(task.deadline), "2099-12-31 02:00:00")
-        self.assertEqual(task.note, "Gate 3, 45 Le Loi")
+        self.assertEqual(task.place, "Gate 3, 45 Le Loi")
         self.assertTrue(order.has_open_collection)
 
     def test_a_finished_collection_task_lets_sales_start_another(self):
