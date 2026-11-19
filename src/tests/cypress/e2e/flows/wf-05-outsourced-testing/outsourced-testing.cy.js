@@ -109,9 +109,11 @@ describe("WF-05 Outsourced testing", () => {
           expect(result.entered_by_id[1]).to.equal("Nguyen Thi Lan");
           step("The tester sends the subcontractor's result for approval");
           cy.signInAs("tester");
-          // The subcontractor's result waiting to be sent comes before any other.
+          // Outsourcing ended the tester's testing task, so the test is no longer theirs to work on.
           openMenu(MENU.laboratory, MENU.samples, MENU.sampleTests);
-          openRow(test.code);
+          cy.contains(".o_data_row", test.code).should("not.exist");
+          // The subcontractor's result waiting to be sent comes before any other.
+          cy.openRecord(test);
           cy.get(`${ACTIONS} button[name=action_enter_result]`).should("not.exist");
           openMenu(MENU.laboratory, MENU.results, MENU.testResults);
           openRow(test.code);
