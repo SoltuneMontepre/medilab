@@ -59,7 +59,10 @@ jobs:
             runtime:
               - "infra/cluster/onlyoffice/**"
               - "infra/cluster/onlyoffice-monitor/probe.py"
+              - "infra/cluster/odoo/checks/**"
+              - "infra/cluster/odoo/upgrade/**"
               - "tools/infrastructure/onlyoffice/**"
+              - "tools/infrastructure/odoo/**"
               - "tools/onlyoffice_integration/**"
             ai:
               - "tools/odoo-intelligence/**"

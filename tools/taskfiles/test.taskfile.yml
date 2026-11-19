@@ -178,10 +178,11 @@ tasks:
       - python -B -m unittest discover -s tools/scripts -p 'test_*acceptance*.py'
 
   test:onlyoffice:coverage:
-    desc: "Test the deployed ONLYOFFICE runtime helpers and report Python and signing-hook coverage"
+    desc: "Test the deployed ONLYOFFICE runtime helpers and Odoo release scripts and report their Python and JavaScript coverage"
     cmds:
       - python tools/scripts/local_private_paths.py .local/onlyoffice-coverage
       - "{{.UV}} run --with coverage==7.10.7 python -m coverage run --branch --source=infra/cluster/onlyoffice,infra/cluster/onlyoffice-monitor --data-file=.local/onlyoffice-coverage/.coverage -m unittest discover -s tools/infrastructure/onlyoffice -p 'test_*.py'"
+      - "{{.UV}} run --with coverage==7.10.7 python -m coverage run --append --branch --source=infra/cluster/odoo --data-file=.local/onlyoffice-coverage/.coverage -m unittest discover -s tools/infrastructure/odoo -p 'test_*.py'"
       - "{{.UV}} run --with coverage==7.10.7 python -m coverage xml --data-file=.local/onlyoffice-coverage/.coverage -o .local/onlyoffice-coverage/coverage.xml"
       - "{{.UV}} run python -m unittest discover -s tools/onlyoffice_integration -t . -p 'test_*.py'"
       - node tools/onlyoffice_integration/test_loopback_proxy.cjs
@@ -190,7 +191,7 @@ tasks:
       - node tools/onlyoffice_integration/test_editor_lifecycle.cjs
       - node tools/onlyoffice_integration/test_garage_tls.cjs
       - node tools/infrastructure/onlyoffice/test_retention_fixture.cjs
-      - npm exec --yes --ignore-scripts --package=c8@10.1.3 -- c8 --include=infra/cluster/onlyoffice/callback-signing.cjs --reporter=lcov --reports-dir=.local/onlyoffice-coverage/js node tools/infrastructure/onlyoffice/test_callback_signing.cjs
+      - npm exec --yes --ignore-scripts --package=c8@10.1.3 -- c8 --include=infra/cluster/onlyoffice/callback-signing.cjs --include=infra/cluster/odoo/checks/smoke.mjs --reporter=lcov --reports-dir=.local/onlyoffice-coverage/js sh -c 'node tools/infrastructure/onlyoffice/test_callback_signing.cjs && node --test tools/infrastructure/odoo/test_smoke.mjs'
 
   test:uninstall:
     desc: "Install the modules in a throwaway database, uninstall commerce, inventory and onboarding and check that the Laboratory data is intact"

@@ -26,10 +26,18 @@ def check_sessions(cr, sessions):
             resolved[session.sid] = session
         else:
             signed_in.append(session.sid)
-    stored = store.get_many(signed_in)
+    to_check = _current_sessions(store, signed_in, now)
+    if to_check:
+        resolved.update(_with_valid_tokens(cr, to_check))
+    return resolved
+
+
+def _current_sessions(store, sids, now):
+    """The stored session of each sid, or its successor once rotated, unless it is gone or past its deletion time."""
+    stored = store.get_many(sids)
     successors = store.get_many([session["next_sid"] for session in stored.values() if "next_sid" in session])
-    to_check = {}
-    for sid in signed_in:
+    current = {}
+    for sid in sids:
         session = stored.get(sid)
         if session is not None and "next_sid" in session:
             session = successors.get(session["next_sid"])
@@ -38,10 +46,8 @@ def check_sessions(cr, sessions):
         store.delete_old_sessions(session)
         if "deletion_time" in session and session["deletion_time"] <= now:
             continue
-        to_check[sid] = session
-    if to_check:
-        resolved.update(_with_valid_tokens(cr, to_check))
-    return resolved
+        current[sid] = session
+    return current
 
 
 def _with_valid_tokens(cr, sessions_by_sid):
