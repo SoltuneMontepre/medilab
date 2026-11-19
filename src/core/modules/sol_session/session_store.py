@@ -8,6 +8,8 @@ import logging
 from odoo import sql_db
 from odoo.tools import config
 
+from . import bus_sessions
+
 http_session = importlib.import_module("odoo.http.session")
 
 _logger = logging.getLogger(__name__)
@@ -88,6 +90,16 @@ class DatabaseSessionStore(http_session.SessionStore):
             return self.session_cls({}, sid, new=False)
         return self.new()
 
+    def get_many(self, sids):
+        """The stored sessions among `sids`, by sid."""
+        valid = [sid for sid in sids if self.is_valid_session_id(sid)]
+        if not valid:
+            return {}
+        with self._cursor() as cursor:
+            cursor.execute(f"SELECT sid, data FROM {TABLE} WHERE sid = ANY(%s)", [valid])
+            rows = cursor.fetchall()
+        return {sid: self.session_cls(data, sid, new=False) for sid, data in rows}
+
     def vacuum(self, max_lifetime=http_session.SESSION_LIFETIME):
         with self._cursor() as cursor:
             cursor.execute(
@@ -125,4 +137,5 @@ def use_database_sessions():
         return
     setattr(http_session, "SessionStore", DatabaseSessionStore)
     http_session.session_store.cache_clear()
+    bus_sessions.use_database_session_checks()
     _logger.info("Sessions are kept in the %s table of %s.", TABLE, database_name())
