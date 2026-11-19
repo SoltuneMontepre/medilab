@@ -15,6 +15,7 @@ export const MENU = {
   testResults: "sol_laboratory.menu_test_result",
   schedule: "sol_laboratory.menu_laboratory_schedule",
   machineSchedule: "sol_laboratory.menu_machine_booking",
+  overtime: "sol_laboratory.menu_overtime",
   outsourcingSuggestions: "sol_laboratory.menu_outsourcing_suggestion",
   outsourcingSchedule: "sol_laboratory.menu_outsourcing_schedule",
   dispatchesToCarry: "sol_laboratory.menu_dispatch_to_carry",

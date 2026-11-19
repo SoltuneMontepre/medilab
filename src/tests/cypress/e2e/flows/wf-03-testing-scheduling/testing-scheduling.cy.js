@@ -1,7 +1,9 @@
 import { call, callAs, callRefused, refAs } from "../../../support/odoo";
-import { openMenu, pick, search } from "../../../support/form";
+import { newRecord, openMenu, pick, search, save } from "../../../support/form";
 import { MENU } from "../../../support/menus";
 import { step } from "../../../support/steps";
+import { utcTime } from "../../features/laboratory/scheduling/calendar";
+import { ADMIN, odooTime, release, schedulingFixture, typeTime } from "../../features/laboratory/scheduling/setup";
 import { eventsGone, scheduleState } from "./state";
 import {
   ADMINISTRATOR,
@@ -411,6 +413,61 @@ describe("WF-03 baseline assignment and scheduling", () => {
         callAs(HEAD, "medilab.machine.booking", "action_approve", [[proposed.bookings[0].id]]),
       );
       scheduleState(lead).should((accepted) => expect(accepted.events).to.have.length(2));
+    });
+  });
+});
+
+describe("WF-03 planned OverTime", () => {
+  let fixture;
+  let overtime;
+
+  beforeEach(() => {
+    fixture = undefined;
+    overtime = undefined;
+    return schedulingFixture(1, (created) => (fixture = created));
+  });
+
+  afterEach(() => {
+    const removeOvertime = overtime ? callAs(ADMIN, "medilab.overtime", "unlink", [[overtime]]) : null;
+    return cy.then(() => removeOvertime).then(() => release(fixture));
+  });
+
+  // Added by Cypress Author on 2026-11-18.
+  it("TC-WF03-A3 lets the head record OverTime and the tester move a booking into it", () => {
+    const [booking] = fixture.bookings;
+    const working = fixture.slots[0];
+    const day = new Intl.DateTimeFormat("en-CA", { timeZone: fixture.resourceZone }).format(new Date(`${working}Z`));
+    const evening = odooTime(utcTime(day, 20, fixture.resourceZone));
+    const night = odooTime(utcTime(day, 24, fixture.resourceZone));
+    const reason = "Urgent lead results are due before the internal due date.";
+    const fields = ["person_id", "starts_at", "ends_at", "reason", "create_uid", "write_date"];
+
+    step("The head records planned OverTime for the tester without an HR overtime shift");
+    cy.signInAs("head_of_department");
+    newRecord(() => openMenu(MENU.laboratory, MENU.schedule, MENU.overtime));
+    pick("person_id", "Dang Thi Lan");
+    typeTime(evening, fixture.displayZone);
+    typeTime(night, fixture.displayZone, "ends_at");
+    cy.get('.o_field_widget[name="reason"] textarea').type(reason);
+    save();
+    return cy.location("pathname").should("match", /\/odoo\/overtimes\/\d+$/).then((path) => {
+      overtime = Number(path.split("/").pop());
+      return callAs(ADMIN, "medilab.overtime", "read", [[overtime], fields]).then(([recorded]) => {
+        expect(recorded.person_id[0]).to.equal(fixture.tester);
+        expect([recorded.starts_at, recorded.ends_at, recorded.reason]).to.deep.equal([evening, night, reason]);
+        step("The tester moves the scheduled booking into the recorded OverTime");
+        cy.signInAs("tester");
+        cy.openRecord({ model: "medilab.machine.booking", id: booking });
+        typeTime(evening, fixture.displayZone);
+        cy.intercept("POST", "/web/dataset/call_kw/medilab.machine.booking/web_save").as("savedBooking");
+        save();
+        cy.wait("@savedBooking");
+        cy.readRecord({ model: "medilab.machine.booking", id: booking }, ["starts_at", "status"]).should((moved) => {
+          expect(moved.starts_at).to.equal(evening);
+          expect(moved.status).to.equal("scheduled");
+        });
+        callAs(ADMIN, "medilab.overtime", "read", [[overtime], fields]).should("deep.equal", [recorded]);
+      });
     });
   });
 });
