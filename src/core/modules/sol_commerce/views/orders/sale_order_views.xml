@@ -149,6 +149,14 @@
                     invisible="order_status != 'confirmed' or not test_request_id"
                     groups="sol_laboratory.group_permission_committed_date_change_create_all"
                 />
+                <button
+                    name="action_change_committed_date"
+                    type="object"
+                    string="Change committed date"
+                    class="btn-secondary"
+                    invisible="order_status != 'confirmed' or not test_request_id"
+                    groups="sol_laboratory.group_permission_committed_date_change_create_all"
+                />
                 <button name="%(action_payment_collection)d" type="action" string="Record payment" class="btn-primary"
                     context="{'default_order_id': id}" invisible="not can_record_collection" groups="base.group_user" />
                 <button name="%(action_quotation_agreement)d" type="action" string="Record agreement" class="btn-secondary"
