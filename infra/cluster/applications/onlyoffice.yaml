@@ -4,12 +4,15 @@ kind: Application
 metadata:
   name: onlyoffice
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-options: SkipHealthCheck=true
+    argocd.argoproj.io/ignore-healthcheck: "true"
 spec:
   project: default
   source:
     repoURL: https://github.com/SoltuneMontepre/medilab.git
     targetRevision: main
-    path: infra/cluster/onlyoffice-production
+    path: infra/cluster/onlyoffice-demo
   destination:
     server: https://kubernetes.default.svc
     namespace: medilab

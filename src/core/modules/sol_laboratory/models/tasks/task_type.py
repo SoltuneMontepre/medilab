@@ -41,9 +41,14 @@ class TaskType(models.Model, TaskTypeBase):
         document_model = fields.Char(string="Document Type", readonly=True)
         # Action its tasks open on the document, such as enter_result or sign.
         action = fields.Char(readonly=True)
-        # Where a new task goes: the department that does the work, the holders of a role, or a person.
+        # Where a new task goes: a department, a role's holders, the administrators, or the person it names.
         route = fields.Selection(
-            [("department", "Department queue"), ("role", "Holders of a role"), ("person", "A person")],
+            [
+                ("department", "Department queue"),
+                ("role", "Holders of a role"),
+                ("administrator", "Administrators"),
+                ("person", "A person"),
+            ],
             required=True,
             default="department",
         )
