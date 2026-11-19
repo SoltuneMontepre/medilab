@@ -29,14 +29,14 @@
                 <dd class="col-5 text-end" id="payment_request_amount"><span t-field="payment_request.amount" /></dd>
                 <dt t-if="payment_request.carried_amount" class="col-7">Already applied to the order</dt>
                 <dd t-if="payment_request.carried_amount" class="col-5 text-end"><span t-field="payment_request.carried_amount" /></dd>
-                <dt class="col-7">Verified payments</dt>
-                <dd class="col-5 text-end" id="payment_request_verified"><span t-field="payment_request.verified_amount" /></dd>
-                <dt class="col-7">Pending verification</dt>
-                <dd class="col-5 text-end" id="payment_request_pending"><span t-field="payment_request.pending_amount" /></dd>
+                <dt t-if="payment_request.verified_amount" class="col-7">Verified payments</dt>
+                <dd t-if="payment_request.verified_amount" class="col-5 text-end" id="payment_request_verified"><span t-field="payment_request.verified_amount" /></dd>
+                <dt t-if="payment_request.pending_amount" class="col-7">Pending verification</dt>
+                <dd t-if="payment_request.pending_amount" class="col-5 text-end" id="payment_request_pending"><span t-field="payment_request.pending_amount" /></dd>
                 <dt class="col-7">Still needed</dt>
                 <dd class="col-5 text-end" id="payment_request_remaining"><span t-field="payment_request.remaining_amount" /></dd>
                 <dt t-if="payment_request.deadline" class="col-7">Payment deadline</dt>
-                <dd t-if="payment_request.deadline" class="col-5 text-end"><span t-field="payment_request.deadline" /></dd>
+                <dd t-if="payment_request.deadline" class="col-5 text-end"><span t-field="payment_request.deadline" t-options="{'hide_seconds': True}" /></dd>
             </dl>
             <form t-if="payment_request._takes_payments()" t-attf-action="/orders/#{order.id}/payment-requests/#{payment_request.id}/pay" method="post">
                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
