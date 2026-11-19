@@ -19167,6 +19167,9 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.ui.menu,name:sol_laboratory.menu_reports_testing_statistic_period
 msgid "Statistics for a Period"
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/person.py:0
 msgid "Archiving %(person)s will leave %(roles)s without an active holder for its task types."
