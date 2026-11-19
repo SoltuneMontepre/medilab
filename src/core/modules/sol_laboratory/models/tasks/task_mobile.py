@@ -155,7 +155,7 @@ class TaskMobile(models.Model, TaskMobileBase):
         open_and_mine = self.is_mine and self.status in OPEN_STATUSES
         return {
             "claim": self.in_my_queue,
-            "start": self.is_mine and self.status == "assigned",
+            "start": self.can_start,
             "done": open_and_mine and not self.closed_by_system,
             "assign": self._may_assign() and self.can_edit and self.status not in FINAL_STATUSES,
         }

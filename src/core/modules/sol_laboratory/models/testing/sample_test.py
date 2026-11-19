@@ -517,6 +517,9 @@ class SampleTest(models.Model, SampleTestBase):
             test._progress("outsourced")
             # Once outsourced, the test leaves its department's plan.
             test._release_bookings()
+        # The subcontractor or a lab QA enters its result, so no in-house testing task stays open; the test still
+        # belongs to the department of its latest testing task.
+        self.env[MODEL_TASK]._cancel_for_document(test, TESTING_ACTION)
         dispatches = self.env[MODEL_SUBCONTRACT_DISPATCH]
         dispatch = dispatches.search(
             [("subcontractor_id", "=", way.subcontractor_id.id), ("status", "=", "draft")], order="id", limit=1
