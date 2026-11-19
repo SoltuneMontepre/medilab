@@ -250,7 +250,7 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
             order.has_open_collection = bool(task)
             order.collection_summary = task and self.env._(
                 "%(appointment)s, %(who)s",
-                appointment=format_datetime(self.env, task.deadline) if task.deadline else self.env._("no appointment"),
+                appointment=format_datetime(self.env, task.deadline, dt_format="short") if task.deadline else self.env._("no appointment"),
                 who=task.assignee_id.name or self.env._("not claimed yet"),
             )
 
