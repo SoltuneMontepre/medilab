@@ -1627,12 +1627,6 @@ msgid "Nothing has been paid on this order."
 msgstr "Đơn hàng này chưa được thanh toán khoản nào."
 
 #. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
-msgid "Nothing has been paid on this order. It can still be confirmed."
-msgstr ""
-"Đơn hàng này chưa được thanh toán khoản nào. Vẫn có thể xác nhận đơn hàng."
-
-#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification
 msgid "Notification"
 msgstr "Thông báo"
