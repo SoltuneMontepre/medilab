@@ -260,6 +260,10 @@
             <xpath expr="//group[@name='order_details']/field[@name='validity_date']" position="before">
                 <field name="user_id" widget="many2one_avatar_user" />
             </xpath>
+            <!-- The quotation's validity no longer matters once the order is confirmed. -->
+            <xpath expr="//group[@name='order_details']/field[@name='validity_date']" position="attributes">
+                <attribute name="invisible">state == 'sale' or order_status in ('confirmed', 'completed', 'cancelled')</attribute>
+            </xpath>
             <xpath expr="//group[@name='order_details']/field[@name='validity_date']" position="after">
                 <field name="payment_deadline" invisible="order_status in ('confirmed', 'completed', 'cancelled')" />
                 <field name="requested_date" invisible="not requested_date and order_status in ('confirmed', 'completed', 'cancelled')" />
