@@ -450,25 +450,24 @@ describe("WF-03 planned OverTime", () => {
     typeTime(night, fixture.displayZone, "ends_at");
     cy.get('.o_field_widget[name="reason"] textarea').type(reason);
     save();
-    cy.location("pathname").should("match", /\/odoo\/overtimes\/\d+$/).then((path) => {
+    return cy.location("pathname").should("match", /\/odoo\/overtimes\/\d+$/).then((path) => {
       overtime = Number(path.split("/").pop());
-    });
-
-    callAs(ADMIN, "medilab.overtime", "read", [[overtime], fields]).then(([recorded]) => {
-      expect(recorded.person_id[0]).to.equal(fixture.tester);
-      expect([recorded.starts_at, recorded.ends_at, recorded.reason]).to.deep.equal([evening, night, reason]);
-      step("The tester moves the scheduled booking into the recorded OverTime");
-      cy.signInAs("tester");
-      cy.openRecord({ model: "medilab.machine.booking", id: booking });
-      typeTime(evening, fixture.displayZone);
-      cy.intercept("POST", "/web/dataset/call_kw/medilab.machine.booking/web_save").as("savedBooking");
-      save();
-      cy.wait("@savedBooking");
-      cy.readRecord({ model: "medilab.machine.booking", id: booking }, ["starts_at", "status"]).should((moved) => {
-        expect(moved.starts_at).to.equal(evening);
-        expect(moved.status).to.equal("scheduled");
+      return callAs(ADMIN, "medilab.overtime", "read", [[overtime], fields]).then(([recorded]) => {
+        expect(recorded.person_id[0]).to.equal(fixture.tester);
+        expect([recorded.starts_at, recorded.ends_at, recorded.reason]).to.deep.equal([evening, night, reason]);
+        step("The tester moves the scheduled booking into the recorded OverTime");
+        cy.signInAs("tester");
+        cy.openRecord({ model: "medilab.machine.booking", id: booking });
+        typeTime(evening, fixture.displayZone);
+        cy.intercept("POST", "/web/dataset/call_kw/medilab.machine.booking/web_save").as("savedBooking");
+        save();
+        cy.wait("@savedBooking");
+        cy.readRecord({ model: "medilab.machine.booking", id: booking }, ["starts_at", "status"]).should((moved) => {
+          expect(moved.starts_at).to.equal(evening);
+          expect(moved.status).to.equal("scheduled");
+        });
+        callAs(ADMIN, "medilab.overtime", "read", [[overtime], fields]).should("deep.equal", [recorded]);
       });
-      callAs(ADMIN, "medilab.overtime", "read", [[overtime], fields]).should("deep.equal", [recorded]);
     });
   });
 });
