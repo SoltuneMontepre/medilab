@@ -56,7 +56,7 @@ function inWeekOf(booking, other, zone) {
     return cy.wrap(booking);
   }
   callAs(HEAD, "medilab.machine.booking", "write", [[booking.id], { starts_at: other.ends_at }]);
-  return callAs(HEAD, "medilab.machine.booking", "read", [[booking.id], Object.keys(booking)]).then(([moved]) => moved);
+  return callAs(HEAD, "medilab.machine.booking", "read", [[booking.id], Object.keys(booking).filter((key) => key !== "model")]).then(([moved]) => moved);
 }
 
 describe("SF-10 the head moves and cancels a department booking", () => {
