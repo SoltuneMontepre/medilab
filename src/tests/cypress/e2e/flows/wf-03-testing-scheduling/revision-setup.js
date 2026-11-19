@@ -90,7 +90,7 @@ function receivedTest(made, name) {
   return callAs(RECEPTION, "medilab.test.request", "create", [
     {
       customer_id: made.customerId,
-      expected_date: inDays(10),
+      committed_date: inDays(10),
       sample_ids: [
         [0, 0, { customer_sample_name: name, sample_type_id: made.typeId, physical_state: "solid", test_ids: [[0, 0, { parameter_id: made.parameterId }]] }],
       ],

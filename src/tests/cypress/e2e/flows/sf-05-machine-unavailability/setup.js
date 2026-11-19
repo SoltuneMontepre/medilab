@@ -90,7 +90,7 @@ export function machineFixture({ tests = 1, book = tests, machines = 1, capacity
     cy.then(() =>
       create(RECEPTION, "medilab.test.request", {
         customer_id: fixture.customer,
-        expected_date: inDays(30),
+        committed_date: inDays(30),
         sample_ids: [
           [
             0,
