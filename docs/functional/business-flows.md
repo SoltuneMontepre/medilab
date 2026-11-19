@@ -29,11 +29,12 @@ Every flow uses the features of three shared requirements: [F-44](../reports/fea
 ## WF-01 Order to confirmed test request
 
 - **Trigger:** a customer submits a cart on the portal, or sales creates an order for a customer.
-- **Result:** the order is confirmed and its test request is paid, or On credit for a customer allowed to order on credit, with expected samples and their selected ways calculated from the accepted order and sampling requirements, and sample collection can start.
+- **Result:** the order is confirmed and the system has confirmed its test request, as paid once the advance is verified or On credit at once for a customer allowed to order on credit, with expected samples and their selected ways calculated from the accepted order and sampling requirements; the customer may now hand over the samples, and sample collection can start.
 - **Stories:** US-C08, US-C09, US-C10, US-C13, US-C14, US-C15, US-S01, US-S02, US-S05, US-S06, US-S07, US-S08, US-S09, US-S10, US-S12, US-S15, US-A03, US-A06, US-A08.
 - **Features:** [F-04](../reports/feature-list/readme.md#f-04-portal-cart-drafts-and-reorder), [F-05](../reports/feature-list/readme.md#f-05-order-claiming-and-orders-on-behalf), [F-06](../reports/feature-list/readme.md#f-06-quotation-and-revisions), [F-07](../reports/feature-list/readme.md#f-07-order-templates), [F-09](../reports/feature-list/readme.md#f-09-advance-invoice-and-online-payment), [F-10](../reports/feature-list/readme.md#f-10-quotation-approval-and-order-confirmation).
-- **States:** quotation draft → sent → accepted, approved by the Head of Sales before it is sent when above the thresholds; order submitted → claimed → confirmed; payment request open → funded; test request draft → confirmed → paid, or → On credit.- **Starts from:** a catalog with priced parameters and packages, and demo customers.
-- **Main path:** A customer orders on the portal; sales claims it, confirms the selected ways and expected sampling needs, obtains Head of Sales approval if its discount or total exceeds a configured threshold, and sends it with an advance payment request, which is not an invoice; the customer pays online and each verified payment posts its invoice; sales confirms the order, which creates its test request; unless the customer may order on credit, the customer pays the balance request online, and sample collection can start.
+- **States:** quotation draft → sent → accepted, approved by the Head of Sales before it is sent when above the thresholds and a salesperson prepared it; order submitted → claimed → confirmed; payment request open → funded; test request draft → confirmed → paid, or → On credit, set by the system.
+- **Starts from:** a catalog with priced parameters and packages, and demo customers.
+- **Main path:** A customer orders on the portal; sales claims it, confirms the selected ways and expected sampling needs, obtains Head of Sales approval if its discount or total exceeds a configured threshold, and sends it with an advance payment request, which is not an invoice; the customer pays the advance online and each verified payment posts its invoice; sales confirms the order, which creates its test request, and the system confirms the request as paid because the advance is verified; the customer may hand over the samples, and sample collection can start. The balance payment request is collected in SF-01 Invoicing and payment collection and holds back no step of the test request.
 - **Alternative paths:**
   - WF-01-A1: Sales creates the order for a customer who called or who brings samples to the laboratory, instead of the customer ordering on the portal. The samples wait at reception until the test request is paid, or On credit.
   - WF-01-A2: A visitor who is not signed in submits a cart with their details and e-mail address.
@@ -44,7 +45,7 @@ Every flow uses the features of three shared requirements: [F-44](../reports/fea
   - WF-01-E1: The customer declines the quotation with a reason; sales revises it and sends the new version, which the customer accepts.
   - WF-01-E2: The quotation passes its payment deadline and is flagged expired; sales extends it. The customer pays within the extended deadline.
   - WF-01-E3: The Head of Sales declines a quotation above the approval thresholds with a reason; sales adjusts it and requests approval again, and the Head of Sales approves it.
-- **Acceptance criteria:** See [Sales](ecommerce_module/features/sales.md) and [Customer](ecommerce_module/features/customer.md). An unavailable default is never silently replaced; choose a viable alternative explicitly or do not order that parameter and sample type. A quotation above the approval thresholds cannot be sent before Head of Sales approval. Submitting a cart without an e-mail address is refused. A confirmed order's content changes only through a revised quotation the customer accepts. The old version of a revised quotation cannot be sent or confirmed. The test request of an unpaid order whose customer may not order on credit cannot be confirmed. Another customer opening the quotation, invoice or result is denied.
+- **Acceptance criteria:** See [Sales](ecommerce_module/features/sales.md) and [Customer](ecommerce_module/features/customer.md). An unavailable default is never silently replaced; choose a viable alternative explicitly or do not order that parameter and sample type. A quotation above the approval thresholds cannot be sent before Head of Sales approval, unless the Head of Sales prepared it. Submitting a cart without an e-mail address is refused. A confirmed order's content changes only through a revised quotation the customer accepts. The old version of a revised quotation cannot be sent or confirmed. An order whose advance is not verified in full cannot be confirmed; confirming it confirms its test request, as paid or On credit, and nobody confirms a test request by hand. A quotation without an advance is sent only to a customer allowed to order on credit. Another customer opening the quotation, invoice or result is denied.
 - **Paths in other flows:** SF-02 for cancelling an order; SF-07 for the estimated date and priority orders.
 
 ```mermaid
@@ -54,7 +55,6 @@ flowchart TD
         c3[Read the quotation] --> c4{Accept?}
         c4 -->|pay the advance| c5[Pay online, by transfer or in cash]
         c4 -->|decline with a reason| c6[Quotation declined]
-        c7[Pay the balance request online]
     end
     subgraph lane2 ["Sales"]
         s1[Claim the order] --> s2[Confirm ways, expected samples, price and percentage discount]
@@ -78,9 +78,7 @@ flowchart TD
     c5 -->|online payment is verified automatically| posted[Post the invoice of the verified payment] --> s4
     c5 -->|transfer or cash| a1 --> posted
     c6 --> s6 --> gate
-    s4 --> paid{Paid in full or on credit?}
-    paid -->|yes| done(["Test request paid or On credit; sample collection can start"])
-    paid -->|no| c7 --> done
+    s4 --> done(["Test request paid or On credit; the customer may hand over the samples"])
 ```
 
 ## WF-02 Sample reception and handover
@@ -101,7 +99,7 @@ flowchart TD
   - WF-02-E3: Fewer samples wait for another collection or Sales cancels the missing part.
   - WF-02-E4: Extra samples and excess material are recorded with the actual handover the customer confirms. Testing stays within the agreed scope: they add no test, change no order and stay with the sample until the customer asks for them back; SF-04 Sample retention, return and disposal owns the return.
   - WF-02-E5: A sample whose delivery to a subcontractor failed is requested again: the head of department asks for the same sample, which keeps its lab code and sample tests and waits on hold; its collection task brings it back to received.
-- **Acceptance criteria:** See [Sample delivery staff](laboratory_module/features/sample-delivery-staff.md) and [Head of department](laboratory_module/features/head-of-department.md). An unusable sample is rejected with its condition note and gets no testing task. A person outside the department scanning the label is refused. Confirming a test request without a sample, or a sample without a parameter, is refused. A signed handover record cannot be edited.
+- **Acceptance criteria:** See [Sample delivery staff](laboratory_module/features/sample-delivery-staff.md) and [Head of department](laboratory_module/features/head-of-department.md). An unusable sample is rejected with its condition note and gets no testing task. A person outside the department scanning the label is refused. Confirming a test request without a sample, or a sample without a parameter, is refused. Receiving a sample of a test request that is not paid is refused. With E-commerce, creating a test request without an order is refused. A signed handover record cannot be edited.
 
 ```mermaid
 flowchart TD
@@ -355,8 +353,9 @@ flowchart TD
 - **Result:** every payment request is funded and every invoice is paid, and each day's online payments match the PayOS transactions and are locked.
 - **Stories:** US-A01, US-A02, US-A04, US-A05, US-A07, US-A08, US-A09, US-A10, US-A11, US-A12, US-A13, US-C16, US-C17, US-S11.
 - **Features:** [F-12](../reports/feature-list/readme.md#f-12-invoices-and-adjustment-invoices), [F-13](../reports/feature-list/readme.md#f-13-payment-confirmation-and-reconciliation), [F-14](../reports/feature-list/readme.md#f-14-finance-reports-and-sales-analytics).
-- **States:** payment request open → funded, or → expired or superseded; invoice posted → partially paid → paid; payment pending → confirmed or rejected; reconciliation day open → locked.- **Starts from:** confirmed orders: those of customers who pay before testing, and those of customers on credit whose testing is completed.
-- **Main path:** When sales confirms an order, MediLab sends the balance payment request; the customer pays it online before sample collection, and the verified payment posts the final invoice, issues a receipt and pays the order. For a customer allowed to order on credit, the accountant creates and e-mails the final invoice once testing is completed.
+- **States:** payment request open → funded, or → expired or superseded; invoice posted → partially paid → paid; payment pending → confirmed or rejected; reconciliation day open → locked.
+- **Starts from:** confirmed orders: those of customers who may not order on credit, once confirmed, and those of customers on credit whose testing is completed.
+- **Main path:** When sales confirms an order, MediLab sends the balance payment request; the customer pays it online while sample collection and testing go ahead without waiting for it, and the verified payment posts the final invoice, issues a receipt and pays the order. For a customer allowed to order on credit, the accountant creates and e-mails the final invoice once testing is completed.
 - **Alternative paths:**
   - SF-01-A1: The customer pays part online, then the rest; each verified part posts its invoice, and the request is funded when the parts reach its amount.
   - SF-01-A2: Sales records a cash payment; the accountant confirms it.
