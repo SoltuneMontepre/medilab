@@ -373,6 +373,10 @@
             <xpath expr="//list[@name='sol_list']/column[field[@name='qty_delivered']]" position="attributes">
                 <attribute name="column_invisible">1</attribute>
             </xpath>
+            <!-- Invoices follow verified payments, not quantities, so the invoiced quantity says nothing here. -->
+            <xpath expr="//list[@name='sol_list']/field[@name='qty_invoiced']" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+            </xpath>
             <xpath expr="//list[@name='sol_list']/column[@name='product_and_description']" position="after">
                 <field name="sample_id" domain="[('order_id', '=', parent.id)]" options="{'no_create': True}" />
                 <field name="sample_type_id" readonly="sample_id or linked_line_id" options="{'no_create': True}" optional="show" />
