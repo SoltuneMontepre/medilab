@@ -1,17 +1,25 @@
+import logging
 from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.fields import Command
 
-from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ADVANCE_PAYMENT_INV, MODEL_SALE_ORDER
+from odoo.addons.sol_commerce.constants.models import (
+    MODEL_CUSTOMER_SALES_TERMS,
+    MODEL_SALE_ADVANCE_PAYMENT_INV,
+    MODEL_SALE_ORDER,
+)
 from odoo.addons.sol_commerce.constants.tasks import AUTO_POST_CONTEXT
+from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER
 from odoo.addons.sol_laboratory.services.record_id import persisted_ids
 
 if TYPE_CHECKING:
     from medilab_model_types import Model_sale_order as SaleOrderBase
 else:
     SaleOrderBase = object
+
+_logger = logging.getLogger(__name__)
 
 PAID_STATES = ("paid", "in_payment", "reversed")
 
@@ -92,6 +100,44 @@ class SaleOrder(models.Model, SaleOrderBase):
         invoices.with_context(**{AUTO_POST_CONTEXT: True}).write(invoice_values)
         invoices.action_post()
         return invoices
+
+    def _paid_in_full(self):
+        """Whether the customer has paid the whole order: the money received on its posted invoices, less what credit
+        notes gave back, reaches its total. The advance, the final invoice and any instalment all count."""
+        self.ensure_one()
+        moves = self.sudo().invoice_ids.filtered(lambda move: move.state == "posted")
+        received = sum(
+            (move.amount_total - move.amount_residual) * (1 if move.move_type == "out_invoice" else -1)
+            for move in moves
+            if move.move_type in ("out_invoice", "out_refund")
+        )
+        return self.currency_id.compare_amounts(received, self.amount_total) >= 0
+
+    def _invoice_balance(self):
+        """Draft the final invoice of what the order's invoices do not cover yet, for the accountant to post; nothing
+        when they cover the whole order."""
+        self.ensure_one()
+        order = self.sudo()
+        invoiced = sum(
+            move.amount_total * (1 if move.move_type == "out_invoice" else -1)
+            for move in order.invoice_ids
+            if move.state != "cancel" and move.move_type in ("out_invoice", "out_refund")
+        )
+        if order.state != "sale" or order.currency_id.compare_amounts(invoiced, order.amount_total) >= 0:
+            return
+        # Issuing the report must not fail over its invoice; the accountant can still invoice the balance by hand.
+        try:
+            with self.env.cr.savepoint():
+                order.create_final_invoice()
+        except UserError:
+            _logger.warning("The balance of order %s could not be invoiced", order.name, exc_info=True)
+
+    def _allows_credit(self):
+        """Whether the order's customer may order on credit, which the Head of Sales sets on their sales terms."""
+        self.ensure_one()
+        customer = self.env[MODEL_CUSTOMER].sudo().search([("partner_id", "=", self.customer_id.id)], limit=1)
+        terms = self.env[MODEL_CUSTOMER_SALES_TERMS].sudo().search([("customer_id", "=", customer.id)], limit=1)
+        return bool(customer and terms.allow_credit)
 
     def create_final_invoice(self):
         """Draft the invoice for what is left after the advance. The accountant posts it."""

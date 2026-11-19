@@ -5243,3 +5243,39 @@ msgstr "Nội dung chuyển khoản"
 msgid ""
 "to the account below. The accountant confirms it once the money arrives."
 msgstr "vào tài khoản dưới đây. Kế toán sẽ xác nhận khi nhận được tiền."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/test_report.py:0
+msgid "%(report)s is sent once order %(order)s is paid in full."
+msgstr "%(report)s chỉ được gửi khi đơn hàng %(order)s đã được thanh toán đủ."
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_test_report_form_payment_hold
+msgid "The customer receives this report once order"
+msgstr "Khách hàng nhận phiếu kết quả này khi đơn hàng"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/test_report.py:0
+msgid ""
+"The results of order %(order)s are ready. Report %(report)s is released in "
+"your portal once the order is paid in full."
+msgstr ""
+"Kết quả của đơn hàng %(order)s đã có. Phiếu kết quả %(report)s sẽ có trên "
+"cổng thông tin khi đơn hàng được thanh toán đủ."
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_test_report__withheld_for_payment
+msgid "Withheld For Payment"
+msgstr "Chờ Thanh Toán Đủ"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_test_report__withheld_order_name
+msgid "Withheld Order Name"
+msgstr "Đơn Hàng Chờ Thanh Toán"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_test_report_form_payment_hold
+msgid "is paid in full."
+msgstr "được thanh toán đủ."

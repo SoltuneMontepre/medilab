@@ -31,6 +31,19 @@ HISTORY = {
 }
 
 
+def _pay_balance(env, order):
+    """Invoice what the advance left of the order and pay it, so its results are released to the customer."""
+    order._invoice_balance()
+    order.invoice_ids.filtered(lambda invoice: invoice.state == "draft").action_post()
+    unpaid = order.invoice_ids.filtered(
+        lambda invoice: invoice.state == "posted" and invoice.move_type == "out_invoice" and invoice.amount_residual
+    )
+    if unpaid:
+        env["account.payment.register"].with_context(active_model=unpaid._name, active_ids=unpaid.ids).create(
+            {}
+        ).action_create_payments()
+
+
 def seed_tracking(env):
     """Confirmed orders of Nước Uống Sạch in testing and with released results, and two months of orders of both
     salespeople across the pipeline."""
@@ -47,6 +60,7 @@ def seed_tracking(env):
     released = _history_order(env, sales, lead_product, tax, "confirmed")
     _receive(env, released.test_request_id)
     _approve_all(env, released.test_request_id)
+    _pay_balance(env, released)
     report = env[MODEL_TEST_REPORT].search([("request_id", "=", released.test_request_id.id)])
     # Its results are released only when the demo templates could be seeded to prepare its PDF.
     if report_templates_seeded(env):

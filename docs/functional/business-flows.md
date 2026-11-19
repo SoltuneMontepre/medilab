@@ -349,7 +349,7 @@ flowchart TD
 - **Stories:** US-A01, US-A02, US-A04, US-A05, US-A07, US-A08, US-A09, US-A10, US-A11, US-A12, US-A13, US-C16, US-C17, US-S11.
 - **States:** invoice posted → partially paid → paid; payment pending → confirmed or rejected; reconciliation day open → locked.
 - **Starts from:** confirmed orders: those of customers who pay before testing, and those of customers on credit whose testing is completed.
-- **Main path:** When sales confirms an order, its final invoice for the balance is posted and e-mailed; the customer pays it online before sample collection; a receipt is issued and the order is paid. For a customer allowed to order on credit, the accountant creates and e-mails the final invoice once testing is completed.
+- **Main path:** When the report of an order not yet invoiced in full is issued, its final invoice for the balance is drafted and the accountant posts and e-mails it; the customer pays it, in one or several payments; a receipt is issued, the order is paid and its report is released. For a customer allowed to order on credit, the report is released at once and the accountant creates and e-mails the final invoice once testing is completed.
 - **Alternative paths:**
   - SF-01-A1: The customer pays part online, then the rest; the invoice is partially paid, then paid.
   - SF-01-A2: Sales records a cash payment; the accountant confirms it.

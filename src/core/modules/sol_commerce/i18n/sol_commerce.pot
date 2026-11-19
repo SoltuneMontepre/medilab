@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-16 21:07+0000\n"
-"PO-Revision-Date: 2026-11-16 21:07+0000\n"
+"POT-Creation-Date: 2026-11-17 05:27+0000\n"
+"PO-Revision-Date: 2026-11-17 05:27+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -32,6 +32,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_customer.py:0
 msgid "%(items)s and %(count)s more"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/test_report.py:0
+msgid "%(report)s is sent once order %(order)s is paid in full."
 msgstr ""
 
 #. module: sol_commerce
@@ -4574,6 +4580,11 @@ msgid "The customer must accept the quotation before the order is confirmed."
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_test_report_form_payment_hold
+msgid "The customer receives this report once order"
+msgstr ""
+
+#. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_dates.py:0
 msgid ""
@@ -4709,6 +4720,14 @@ msgstr ""
 msgid ""
 "The results of order %(order)s are ready. Download report %(report)s from "
 "your portal."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/test_report.py:0
+msgid ""
+"The results of order %(order)s are ready. Report %(report)s is released in "
+"your portal once the order is paid in full."
 msgstr ""
 
 #. module: sol_commerce
@@ -5041,6 +5060,16 @@ msgid "Withdrawn"
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_test_report__withheld_for_payment
+msgid "Withheld For Payment"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_test_report__withheld_order_name
+msgid "Withheld Order Name"
+msgstr ""
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 msgid "Within"
@@ -5182,6 +5211,11 @@ msgstr ""
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_submitted
 msgid "is in the sales queue."
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_test_report_form_payment_hold
+msgid "is paid in full."
 msgstr ""
 
 #. module: sol_commerce
