@@ -19,6 +19,7 @@ class TestCommittedDateChange(RequestCase):
 
     def test_a_change_records_the_old_and_new_date_and_moves_the_due_date(self):
         due = self.sample.test_ids.due_date
+        assert isinstance(due, datetime)
 
         change = self.change("2026-10-27")
 
