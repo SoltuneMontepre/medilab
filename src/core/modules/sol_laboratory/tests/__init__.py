@@ -185,6 +185,8 @@ from . import (
     test_onlyoffice_page_real,
     test_onlyoffice_real,
     test_outsourced_result_entry,
+    test_outsourced_task_migration,
+    test_outsourced_testing_task,
     test_outsourcing_agreement,
     test_overtime,
     test_own_department_scope,
