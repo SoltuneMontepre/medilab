@@ -125,14 +125,15 @@ describe("WF-01 quotation, revisions and templates (F-06, F-07)", () => {
       });
   });
 
-  it("TC-F06-03 gives a line not on a sample the order's sample of its type when the quotation is sent", () => {
+  it("TC-F06-03 refuses to send a quotation with a line of no sample type", () => {
     orderAt("claimed", { sample: false }).then((order) => {
       cy.signInAs("sales");
-      call("sale.order", "write", [[order.id], { advance_method: "bank_transfer", advance_mode: "percentage", advance_value: 30 }]);
       cy.openRecord(order);
-      cy.sendRecord("action_send_quotation");
-      cy.get(".o_statusbar_buttons button[name=action_revise_quotation]:visible").should("exist");
-      cy.readRecord(order, ["sample_ids"]).its("sample_ids").should("have.length", 1);
+      cy.expectRefusal({
+        read: readOrder(order),
+        action: () => cy.sendRecord("action_send_quotation"),
+        message: "Chọn loại mẫu cho các mục sau trước khi gửi báo giá:",
+      });
     });
   });
 
