@@ -152,8 +152,6 @@ class Quotation(models.Model, QuotationBase):
             raise UserError(self.env._("Only a quotation that was sent can be declined."))
         order.payment_request_id._supersede()
         self.sudo().write({"status": QUOTATION_DECLINED, "decline_reason": text})
-        # The advance of a declined quotation is no longer due; a revision sends its own.
-        self._cancel_advance_invoice()
         self._notify_declined(text)
         return True
 

@@ -55,7 +55,8 @@ class TestInvoiceTasks(InvoicingCase):
         self.assertEqual(task.status, "cancelled")
 
     def test_a_transfer_sales_records_waits_for_the_accountant(self):
-        invoice = self.order.create_advance_invoice()
+        invoice = self.sales_draft()
+        invoice.action_post()
         payment = (
             self.env["account.payment"]
             .with_user(self.sales)

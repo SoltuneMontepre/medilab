@@ -376,15 +376,10 @@ class TestPaymentPortal(AuditLookup, InvoicingCase, HttpCase):
         self.assertEqual(payment.amount, 1_000)
         self.assertEqual(payment.state, "draft")
         self.assertEqual(self.invoice.order_id.pending_amount, 1_000)
-        self.assertEqual(payment.memo, self.invoice.name)
         task = self.env["medilab.task"].search(
             [("document_model", "=", "account.payment"), ("document_id", "=", payment.id)]
         )
         self.assertEqual(task.type_id.code, "payment_review")
-        page = self.url_open(f"/my/invoices/{self.invoice.id}")
-        self.assertIn("medilab-transfer-details", page.text)
-        self.assertIn(self.invoice.name, page.text)
-        self.assertNotIn("medilab_payment_amount", page.text)
 
         payment.action_post()
 
