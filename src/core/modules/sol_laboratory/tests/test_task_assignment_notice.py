@@ -78,6 +78,17 @@ class TestTaskAssignmentNotice(TaskCase):
         self.assertEqual(self.told(task), self.chemist.user_id.partner_id | self.colleague.user_id.partner_id)
         self.assertEqual(task.assignee_id, self.colleague)
 
+    def test_reassigning_a_task_to_the_same_person_does_not_create_another_open_notice(self):
+        task = self.receive_sample(self.chemistry)
+        self.assign(task, self.chemist)
+        self.assign(task, self.colleague, reason="The chemist is on leave")
+        self.assign(task, self.chemist, reason="The chemist is back")
+
+        open_notices = self.notices(task).notification_ids.filtered(
+            lambda notice: notice.res_partner_id == self.chemist.user_id.partner_id and not notice.is_read
+        )
+        self.assertEqual(len(open_notices), 1)
+
     def test_a_task_a_person_creates_for_someone_else_tells_the_assignee(self):
         task = self.as_person(self.env[MODEL_TASK], self.head).create(
             {
