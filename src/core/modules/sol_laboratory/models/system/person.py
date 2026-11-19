@@ -109,7 +109,9 @@ class Person(models.Model, PersonBase):
                 domain.append(("active", "=", True))
             used_roles = task_types.search(domain).role_id
             unstaffed = used_roles.filtered(
-                lambda role: not role.person_ids.filtered(lambda holder: holder.active and holder.id != person.id)
+                lambda role, person=person: not role.person_ids.filtered(
+                    lambda holder: holder.active and holder.id != person.id
+                )
             )
             if person.active and unstaffed:
                 person.role_archive_warning = self.env._(

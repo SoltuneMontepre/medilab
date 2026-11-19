@@ -127,6 +127,7 @@ Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling
 Acceptance criteria:
 
 - Accepting an outsourcing suggestion sets its sample tests to outsourced.
+- Outsourcing a test, from a suggestion, straight away or by moving it to another subcontractor, cancels its open testing task, which leaves the tester's to-do list; the test stays in the department.
 - A sent dispatch appears on the outsourcing schedule with its expected date.
 - A dispatch records either the sample delivery staff who took it or the delivery service and tracking number.
 - Outsourcing a test straight away without a reason is refused; a test already in testing cannot be outsourced straight away.

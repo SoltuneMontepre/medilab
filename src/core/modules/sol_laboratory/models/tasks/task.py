@@ -122,6 +122,9 @@ class Task(models.Model, TaskBase):
         in_my_queue = fields.Boolean(compute="_compute_in_my_queue", search="_search_in_my_queue")
         # True when the current user may change the task; one who moved it to another department only reads it.
         can_edit = fields.Boolean(compute="_compute_can_edit")
+        # True when the current user may start the task: it is assigned to them and is not the testing task of an
+        # outsourced sample test, whose result the subcontractor or a lab QA enters.
+        can_start = fields.Boolean(compute="_compute_can_start")
 
     _assignee_status_idx = models.Index("(assignee_id, status)")
     _department_status_idx = models.Index("(department_id, status)")
@@ -190,6 +193,20 @@ class Task(models.Model, TaskBase):
         editable = self.filtered("id")._filtered_access("write")
         for task in self:
             task.can_edit = not task.id or task in editable
+
+    @api.depends("status", "assignee_id", "document_model", "document_id")
+    @api.depends_context("uid")
+    def _compute_can_start(self):
+        outsourced = self._outsourced_testing_tasks()
+        for task in self:
+            task.can_start = task.is_mine and task.status == "assigned" and task not in outsourced
+
+    def _outsourced_testing_tasks(self):
+        """The testing tasks among these whose sample test is outsourced."""
+        testing = self.filtered_domain(self._testing_domain())
+        tests = self.env[MODEL_SAMPLE_TEST].sudo().browse(testing.mapped("document_id")).exists()
+        outsourced = set(tests.filtered(lambda test: test.status == "outsourced").ids)
+        return testing.filtered(lambda task: task.document_id in outsourced)
 
     def _compute_in_my_queue(self):
         person = self.env[MODEL_PERSON]._current()
@@ -346,6 +363,14 @@ class Task(models.Model, TaskBase):
         tasks = self._own_tasks()
         if any(task.status != "assigned" for task in tasks):
             raise UserError(self.env._("Only an assigned task can be started."))
+        if outsourced := tasks._outsourced_testing_tasks():
+            raise UserError(
+                self.env._(
+                    "%s is the testing task of an outsourced sample test: its subcontractor or a lab QA enters "
+                    "the result.",
+                    outsourced[0].name,
+                )
+            )
         tasks.write({"status": "in_progress"})
 
     def action_done(self):
