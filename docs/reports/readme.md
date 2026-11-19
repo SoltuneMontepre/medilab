@@ -18,6 +18,8 @@ Documents, diagrams and supporting material that belong to no other folder.
 - [CloudBeaver security and peer review](cloudbeaver-security-review.md): manual review findings, MD5 protocol/storage assessment and recovery safety boundaries
 - [Local setup security review](local-setup-security-review.md): Sonar source-to-sink dispositions, private-state integrity fixes and security-owner gates
 - [Cypress Tap and AI Skills](cypress-tap.md): verified capabilities, source pin, installation and validation requirements for local Cypress agent workflows
+- [Reducing CI time and reusing test results](ci-caching.md) compares hosted CI and deployment timings, GitHub retries, local `act` caches and options for accelerating browser tests.
+- [Reusing Cypress test results with S3](ci-s3-cache.md) compares Turborepo, Task and Nx for sharing successful checks across CI runs and records a MediLab test-cache trial.
 - [WF-03 test plan](wf-03-test-plan.md): testing assignment and scheduling: business rules, the scenario matrix and its coverage, concurrency design, confirmed defects and open decisions
 
 ## Related documents
