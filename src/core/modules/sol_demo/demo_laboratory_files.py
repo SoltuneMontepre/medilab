@@ -1,6 +1,6 @@
 from odoo.fields import Command
 
-from .demo_laboratory_content import content_writer
+from .demo_laboratory_content import content_writer, xlsx_content
 from odoo.addons.sol_laboratory.constants.laboratory_files import MEMBER_ROLE, RESTORED, RESULT, SYNCED
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_IR_MODEL_DATA,
@@ -64,14 +64,20 @@ FILES = {
     "hplc_results": ("demo_laboratory_folder_hplc_results", "2026/HPLC-ket-qua-thang-10.xlsx"),
     "aas_run": ("demo_laboratory_folder_aas_raw_data", "run-0412.csv"),
 }
+HPLC_RESULT_CONTENTS = {
+    1: xlsx_content("Kết quả HPLC, bản 1"),
+    2: xlsx_content("Kết quả HPLC, bản 2"),
+    3: xlsx_content("Kết quả HPLC, bản 3"),
+    "aas": xlsx_content("Kết quả HPLC, bản AAS"),
+}
 # The saves of the demo files, in order: the file, who saved it from which computer, its content and the number of the
 # version it was made from.
 SAVES = (
-    ("hplc_results", "tester", "hplc_pc", "Kết quả HPLC, bản 1", None),
-    ("hplc_results", "chemistry_tester", "aas_pc", "Kết quả HPLC, bản 2", None),
-    ("hplc_results", "tester", "hplc_pc", "Kết quả HPLC, bản 3", None),
+    ("hplc_results", "tester", "hplc_pc", HPLC_RESULT_CONTENTS[1], None),
+    ("hplc_results", "chemistry_tester", "aas_pc", HPLC_RESULT_CONTENTS[2], None),
+    ("hplc_results", "tester", "hplc_pc", HPLC_RESULT_CONTENTS[3], None),
     # Saved on the AAS computer from version 2, after the tester had saved version 3: kept as a conflict.
-    ("hplc_results", "chemistry_tester", "aas_pc", "Kết quả HPLC, bản AAS", 2),
+    ("hplc_results", "chemistry_tester", "aas_pc", HPLC_RESULT_CONTENTS["aas"], 2),
     ("aas_run", "chemistry_tester", "aas_pc", "mau,Pb\nLAB-26-0412,0.012", None),
 )
 
@@ -147,7 +153,7 @@ def seed_laboratory_file_restores(env):
 
 # The saves of the lead results of the bottled water in testing, by the chemistry tester: the head of the department
 # signs the first, and the second is newer and not signed.
-SAMPLE_RESULT_SAVES = ("Pb: 0,004 mg/L", "Pb: 0,004 mg/L, lặp lại 0,005 mg/L")
+SAMPLE_RESULT_SAVES = (xlsx_content("Pb: 0,004 mg/L"), xlsx_content("Pb: 0,004 mg/L, lặp lại 0,005 mg/L"))
 
 
 def seed_sample_folders(env):
