@@ -1,10 +1,16 @@
 from odoo import fields
 from odoo.fields import Command
 
-from odoo.addons.sol_commerce.constants.models import MODEL_PRODUCT_TEMPLATE, MODEL_SALE_ORDER
+from odoo.addons.sol_commerce.constants.models import (
+    MODEL_ACCOUNT_MOVE,
+    MODEL_ACCOUNT_PAYMENT,
+    MODEL_PRODUCT_TEMPLATE,
+    MODEL_SALE_ORDER,
+)
 from odoo.addons.sol_commerce.constants.orders import STATUS_CANCELLED, STATUS_COMPLETED, STATUS_CONFIRMED
+from odoo.addons.sol_commerce.constants.tasks import AUTO_POST_CONTEXT
 from odoo.addons.sol_commerce.constants.xml_ids import ALL_ORDERS_GROUP
-from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER, MODEL_TEST_REQUEST
+from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER, MODEL_TEST_REPORT, MODEL_TEST_REQUEST
 from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 # The status of the order a demo test request came from, by the request's status.
@@ -110,6 +116,52 @@ def seed_request_orders(env):
                 "test_request_id": request.id,
             }
         )
+
+
+def seed_report_payments(env):
+    """Pay in full the orders whose requests have a report, so each demo report reaches its customer once issued."""
+    requests = env[MODEL_TEST_REPORT].search([]).request_id
+    for order in env[MODEL_SALE_ORDER].search([("test_request_id", "in", requests.ids)]):
+        if order._withholds_report():
+            _pay_in_full(env, order)
+
+
+def _pay_in_full(env, order):
+    """Pay what the order still owes, as the customer did before its report was released: the open balance request,
+    or for an order without one, an invoice of the whole order."""
+    request = order.payment_request_id
+    if request.kind == "balance" and request.state == "open" and request.remaining_amount:
+        env[MODEL_ACCOUNT_PAYMENT]._create_request_payment(request, request.remaining_amount, "cash").action_post()
+        return
+    if order.payment_status != "not_paid":
+        return
+    invoice = (
+        env[MODEL_ACCOUNT_MOVE]
+        .with_context(**{AUTO_POST_CONTEXT: True})
+        .create(
+            {
+                "move_type": "out_invoice",
+                "partner_id": order.customer_id.id,
+                "order_id": order.id,
+                "invoice_line_ids": [
+                    Command.create(
+                        {
+                            "product_id": line.product_id.id,
+                            "quantity": line.product_uom_qty,
+                            "price_unit": line.price_unit,
+                            "tax_ids": [Command.set(line.tax_ids.ids)],
+                            "sale_line_ids": [Command.set(line.ids)],
+                        }
+                    )
+                    for line in order.order_line
+                ],
+            }
+        )
+    )
+    invoice.action_post()
+    env["account.payment.register"].with_context(active_model=invoice._name, active_ids=invoice.ids).create(
+        {}
+    ).action_create_payments()
 
 
 def _product(env, field_name, owner_id):
