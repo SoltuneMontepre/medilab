@@ -117,6 +117,12 @@ msgstr "%s chưa có bản đồ. Thêm hình ảnh để đặt các vị trí 
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/test_request_estimate.py:0
+msgid "%s has no turnaround."
+msgstr "%s chưa có thời gian trả kết quả."
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/system/permission.py:0
 msgid ""
 "%s has no user, so a permission on it cannot be limited to the person's own "
@@ -447,6 +453,18 @@ msgid "A point on a map lies between 0 and 1 of the image's width and height."
 msgstr ""
 "Một điểm trên bản đồ phải nằm trong khoảng từ 0 đến 1 theo chiều rộng và "
 "chiều cao của hình ảnh."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/committed_date_change.py:0
+msgid "A recorded change of a committed return date cannot be deleted."
+msgstr "Không thể xóa một lần thay đổi ngày hẹn trả kết quả đã ghi nhận."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/committed_date_change.py:0
+msgid "A recorded change of a committed return date cannot be edited."
+msgstr "Không thể sửa một lần thay đổi ngày hẹn trả kết quả đã ghi nhận."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -1455,6 +1473,13 @@ msgid "Chain"
 msgstr "Chuỗi"
 
 #. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_committed_date_change
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_committed_date_change_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
+msgid "Change Committed Date"
+msgstr "Đổi Ngày Hẹn Trả Kết Quả"
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_due_date_change_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 msgid "Change Due Date"
@@ -1466,6 +1491,11 @@ msgid "Change a Sample Test's Due Date"
 msgstr "Đổi Hạn Hoàn Thành Của Chỉ Tiêu Của Mẫu"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_committed_date_change_create_all
+msgid "Change committed return dates"
+msgstr "Đổi ngày hẹn trả kết quả"
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_approval_chain__purpose__change_request
 msgid "Change request"
 msgstr "Yêu cầu thay đổi"
@@ -1474,6 +1504,20 @@ msgstr "Yêu cầu thay đổi"
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_sample_test_due_date_change
 msgid "Change the Due Date"
 msgstr "Đổi hạn hoàn thành"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_committed_date_change_form
+msgid ""
+"Change the committed return date only after the customer agreed to the new "
+"date."
+msgstr ""
+"Chỉ đổi ngày hẹn trả kết quả sau khi khách hàng đã đồng ý với ngày mới."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/test_request_plan.py:0
+msgid "Change the committed return date with Change Committed Date."
+msgstr "Hãy đổi ngày hẹn trả kết quả bằng Đổi Ngày Hẹn Trả Kết Quả."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -1648,6 +1692,22 @@ msgstr "Pháp nhân thương mại"
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_editing_session__status__committed
 msgid "Committed"
 msgstr "Đã lưu phiên bản"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_committed_date_change
+msgid "Committed Date Change"
+msgstr "Thay Đổi Ngày Hẹn Trả Kết Quả"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__committed_date_change_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
+msgid "Committed Date Changes"
+msgstr "Các Lần Thay Đổi Ngày Hẹn Trả Kết Quả"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__committed_date
+msgid "Committed Return Date"
+msgstr "Ngày Hẹn Trả Kết Quả"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__ref_company_ids
@@ -2076,13 +2136,12 @@ msgstr "Tạo từ máy tính"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__create_uid
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__create_uid
-
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_failure__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__create_uid
 msgid "Created by"
 msgstr "Người tạo"
 
@@ -2171,13 +2230,12 @@ msgstr "Người tạo"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__create_date
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__create_date
-
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_failure__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__create_date
 msgid "Created on"
 msgstr "Ngày tạo"
 
@@ -2215,6 +2273,11 @@ msgstr "Tiền tệ"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__exceptional_location_id
 msgid "Current"
 msgstr "Hiện tại"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__current_date
+msgid "Current Committed Return Date"
+msgstr "Ngày Hẹn Trả Kết Quả Hiện Tại"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__current_date_version
@@ -2265,6 +2328,11 @@ msgstr "Điều khoản thanh toán bán hàng"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__customer_rank
 msgid "Customer Rank"
 msgstr "Xếp hạng khách hàng"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__confirmation
+msgid "Customer's Confirmation"
+msgstr "Xác Nhận Của Khách Hàng"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__customer_sample_name
@@ -2623,11 +2691,10 @@ msgstr "Cấp dưới trực tiếp"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_user_link_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_due_date_change_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_template_change_form
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_committed_date_change_form
-
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_failure_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_handover_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontractor_contact_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_committed_date_change_form
 msgid "Discard"
 msgstr "Hủy"
 
@@ -2765,8 +2832,6 @@ msgstr "Hiển thị báo cáo PDF mẫu hóa đơn"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__display_name
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__display_name
-
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_return__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_discuss_channel__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_discuss_channel_member__display_name
@@ -2776,6 +2841,7 @@ msgstr "Hiển thị báo cáo PDF mẫu hóa đơn"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_failure__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -3905,8 +3971,6 @@ msgstr "Hr trạng thái hiện diện"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__id
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__id
-
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_return__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_discuss_channel__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_discuss_channel_member__id
@@ -3916,6 +3980,7 @@ msgstr "Hr trạng thái hiện diện"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_failure__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__id
 msgid "ID"
 msgstr "ID"
 
@@ -4646,13 +4711,12 @@ msgstr "Hoạt động gần nhất"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__write_uid
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__write_uid
-
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_failure__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__write_uid
 msgid "Last Updated by"
 msgstr "Cập nhật lần cuối bởi"
 
@@ -4741,13 +4805,12 @@ msgstr "Cập nhật lần cuối bởi"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__write_date
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__write_date
-
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_failure__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__write_date
 msgid "Last Updated on"
 msgstr "Cập nhật lần cuối vào"
 
@@ -5242,6 +5305,11 @@ msgid "Nationality (Country)"
 msgstr "Quốc tịch"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__new_date
+msgid "New Committed Return Date"
+msgstr "Ngày Hẹn Trả Kết Quả Mới"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__newly_hired
 msgid "Newly Hired"
 msgstr "Mới được tuyển dụng"
@@ -5325,6 +5393,16 @@ msgstr "Ngày thực hiện dự kiến tiếp theo của tác vụ này."
 #: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
 msgid "Next up"
 msgstr "Việc tiếp theo"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/test_request_estimate.py:0
+msgid ""
+"No authorized person and machine has a free slot for %(way)s in the next "
+"%(days)s days."
+msgstr ""
+"Không có người được phân quyền và máy nào còn trống cho %(way)s trong "
+"%(days)s ngày tới."
 
 #. module: sol_laboratory
 #. odoo-javascript
@@ -5468,6 +5546,11 @@ msgstr "Số tin nhắn cần xử lý"
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_test_request__message_has_error_counter
 msgid "Number of messages with delivery error"
 msgstr "Số tin nhắn bị lỗi gửi"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__old_date
+msgid "Old Date"
+msgstr "Ngày Cũ"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__mobile_minimum_version
@@ -5666,6 +5749,16 @@ msgstr "PDF Có Thể Chuẩn Bị"
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_report__status__pending_signing
 msgid "Pending Digital Signing"
 msgstr "Chờ ký số"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_committed_date_change_create_all
+msgid "Permission: committed.date.change.create.all"
+msgstr "Quyền: committed.date.change.create.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_committed_date_change_read_all
+msgid "Permission: committed.date.change.read.all"
+msgstr "Quyền: committed.date.change.read.all"
 
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_laboratory_file_lock_read_all
@@ -6892,6 +6985,11 @@ msgid "Print Labels"
 msgstr "In tem"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__priority
+msgid "Priority Order"
+msgstr "Đơn Ưu Tiên"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__private_city
 msgid "Private City"
 msgstr "Thành phố cá nhân"
@@ -7046,6 +7144,11 @@ msgstr "Xem chuỗi phê duyệt"
 #: model:medilab.permission,name:sol_laboratory.permission_approval_level_read_all
 msgid "Read approval levels"
 msgstr "Xem cấp phê duyệt"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_committed_date_change_read_all
+msgid "Read committed date changes"
+msgstr "Xem thay đổi ngày hẹn trả kết quả"
 
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_customer_read_all
@@ -7209,6 +7312,17 @@ msgid "Received"
 msgstr "Đã nhận"
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/committed_date_change.py:0
+msgid "Record how the customer agreed to the new date."
+msgstr "Hãy ghi lại cách khách hàng đã đồng ý với ngày mới."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
+msgid "Recorded On"
+msgstr "Ghi Nhận Lúc"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__ref
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__reference
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__ref
@@ -7355,9 +7469,19 @@ msgid "Reports"
 msgstr "Báo cáo"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__request_id
+msgid "Request"
+msgstr "Yêu Cầu"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__request_date
 msgid "Request Date"
 msgstr "Ngày yêu cầu"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__requested_date
+msgid "Requested Date"
+msgstr "Ngày Khách Yêu Cầu"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__resource_id
@@ -8144,6 +8268,11 @@ msgstr "Nhân viên cấp dưới"
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_job_run__status__succeeded
 msgid "Succeeded"
 msgstr "Thành công"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_committed_date_change_form
+msgid "Such as the email or call the customer agreed in"
+msgstr "Ví dụ email hoặc cuộc gọi khách hàng đã đồng ý"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__sunday_location_id
@@ -9118,6 +9247,12 @@ msgstr "Bật"
 #: code:addons/sol_laboratory/models/system/scheduled_job.py:0
 msgid "Turn the schedule of %s on before running it."
 msgstr "Bật lịch của %s trước khi chạy."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__turnaround_days
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__turnaround_days
+msgid "Turnaround (working days)"
+msgstr "Thời Gian Trả Kết Quả (ngày làm việc)"
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_folder__status__turned_off
@@ -12658,6 +12793,7 @@ msgstr "Mục Nhật Ký Hoạt Động"
 #: model:ir.actions.report,name:sol_laboratory.action_report_audit
 #: model:ir.model,name:sol_laboratory.model_medilab_audit_report
 #: model:ir.ui.menu,name:sol_laboratory.menu_audit_report
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_audit_report model:ir.actions.report,name:sol_laboratory.action_report_audit model:ir.model,name:sol_laboratory.model_medilab_audit_report model:ir.ui.menu,name:sol_laboratory.menu_audit_report
 msgid "Audit Report"
 msgstr "Báo Cáo Nhật Ký Hoạt Động"
 
@@ -12672,6 +12808,7 @@ msgstr "Số ngày lưu nhật ký hoạt động"
 #: model:ir.ui.menu,name:sol_laboratory.menu_audit_entry
 #: model:ir.ui.menu,name:sol_laboratory.menu_audit_root
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form_audit
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_audit_entry model:ir.model,name:sol_laboratory.model_medilab_audit_mixin model:ir.ui.menu,name:sol_laboratory.menu_audit_entry model:ir.ui.menu,name:sol_laboratory.menu_audit_root model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form_audit
 msgid "Audit Trail"
 msgstr "Nhật Ký Hoạt Động"
 
@@ -12726,6 +12863,7 @@ msgstr "Thay đổi dữ liệu"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_list
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
+#: code:addons/sol_laboratory/models/system/audit_report.py:0 model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_form model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_list model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
 msgid "Date"
 msgstr "Ngày"
 
@@ -12759,6 +12897,7 @@ msgstr "Xuất Bảng Tính"
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/audit_report.py:0
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__field_label
+#: code:addons/sol_laboratory/models/system/audit_report.py:0 model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__field_label
 msgid "Field"
 msgstr "Trường"
 
@@ -12820,6 +12959,7 @@ msgstr "Tích Hợp"
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/audit_report.py:0
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__new_value
+#: code:addons/sol_laboratory/models/system/audit_report.py:0 model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__new_value
 msgid "New Value"
 msgstr "Giá Trị Mới"
 
@@ -12827,6 +12967,7 @@ msgstr "Giá Trị Mới"
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/audit_report.py:0
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__old_value
+#: code:addons/sol_laboratory/models/system/audit_report.py:0 model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__old_value
 msgid "Old Value"
 msgstr "Giá Trị Cũ"
 
@@ -12867,6 +13008,7 @@ msgstr "Chữ ký và phê duyệt"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__source
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__source
+#: code:addons/sol_laboratory/models/system/audit_report.py:0 model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__source model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__source model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
 msgid "Source"
 msgstr "Nguồn"
 
@@ -17407,6 +17549,8 @@ msgstr "Độ lệch bất thường (độ lệch chuẩn)"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__check_preview
+#: code:addons/sol_laboratory/models/testing/machine_booking_capacity.py:0
+#: code:addons/sol_laboratory/models/master_data/parameter_authorization.py:0
 msgid "Warning"
 msgstr "Cảnh báo"
 
@@ -17498,6 +17642,7 @@ msgstr "Quyền: parameter.authorization.edit.all"
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_authorization_person_parameter_unique
+#: model:medilab.permission,name:sol_laboratory.permission_overtime_create_all
 msgid "The person is already authorized to test this parameter."
 msgstr "Nhân sự đã được phép thử chỉ tiêu này."
 
@@ -17773,6 +17918,7 @@ msgstr "Các chỉ tiêu của mẫu vẫn có nguy cơ trễ hạn nội bộ: 
 #. module: sol_laboratory
 #: model:ir.actions.server,name:sol_laboratory.ir_cron_sample_tests_at_risk_summary_ir_actions_server
 #: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_sample_tests_at_risk_summary
+#: code:addons/sol_laboratory/models/system/machine_booking_scheduled_job.py:0
 msgid "Summary of sample tests at risk"
 msgstr "Tổng hợp chỉ tiêu của mẫu có nguy cơ trễ hạn"
 
@@ -18258,147 +18404,6 @@ msgid "Usable"
 msgstr "Dùng Được"
 
 #. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/sample_collection/test_request_estimate.py:0
-msgid "%s has no turnaround."
-msgstr "%s chưa có thời gian trả kết quả."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/sample_collection/committed_date_change.py:0
-msgid "A recorded change of a committed return date cannot be deleted."
-msgstr "Không thể xóa một lần thay đổi ngày hẹn trả kết quả đã ghi nhận."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/sample_collection/committed_date_change.py:0
-msgid "A recorded change of a committed return date cannot be edited."
-msgstr "Không thể sửa một lần thay đổi ngày hẹn trả kết quả đã ghi nhận."
-
-#. module: sol_laboratory
-#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_committed_date_change
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_committed_date_change_form
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
-msgid "Change Committed Date"
-msgstr "Đổi Ngày Hẹn Trả Kết Quả"
-
-#. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_committed_date_change_create_all
-msgid "Change committed return dates"
-msgstr "Đổi ngày hẹn trả kết quả"
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_committed_date_change_form
-msgid ""
-"Change the committed return date only after the customer agreed to the new "
-"date."
-msgstr ""
-"Chỉ đổi ngày hẹn trả kết quả sau khi khách hàng đã đồng ý với ngày mới."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/sample_collection/test_request_plan.py:0
-msgid "Change the committed return date with Change Committed Date."
-msgstr "Hãy đổi ngày hẹn trả kết quả bằng Đổi Ngày Hẹn Trả Kết Quả."
-
-#. module: sol_laboratory
-#: model:ir.model,name:sol_laboratory.model_medilab_committed_date_change
-msgid "Committed Date Change"
-msgstr "Thay Đổi Ngày Hẹn Trả Kết Quả"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__committed_date_change_ids
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
-msgid "Committed Date Changes"
-msgstr "Các Lần Thay Đổi Ngày Hẹn Trả Kết Quả"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__committed_date
-msgid "Committed Return Date"
-msgstr "Ngày Hẹn Trả Kết Quả"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__confirmation
-msgid "Customer's Confirmation"
-msgstr "Xác Nhận Của Khách Hàng"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__new_date
-msgid "New Committed Return Date"
-msgstr "Ngày Hẹn Trả Kết Quả Mới"
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/sample_collection/test_request_estimate.py:0
-msgid ""
-"No authorized person and machine has a free slot for %(way)s in the next "
-"%(days)s days."
-msgstr ""
-"Không có người được phân quyền và máy nào còn trống cho %(way)s trong "
-"%(days)s ngày tới."
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__old_date
-msgid "Old Date"
-msgstr "Ngày Cũ"
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_committed_date_change_create_all
-msgid "Permission: committed.date.change.create.all"
-msgstr "Quyền: committed.date.change.create.all"
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_committed_date_change_read_all
-msgid "Permission: committed.date.change.read.all"
-msgstr "Quyền: committed.date.change.read.all"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__priority
-msgid "Priority Order"
-msgstr "Đơn Ưu Tiên"
-
-#. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_committed_date_change_read_all
-msgid "Read committed date changes"
-msgstr "Xem thay đổi ngày hẹn trả kết quả"
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/sample_collection/committed_date_change.py:0
-msgid "Record how the customer agreed to the new date."
-msgstr "Hãy ghi lại cách khách hàng đã đồng ý với ngày mới."
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
-msgid "Recorded On"
-msgstr "Ghi Nhận Lúc"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__request_id
-msgid "Request"
-msgstr "Yêu Cầu"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__requested_date
-msgid "Requested Date"
-msgstr "Ngày Khách Yêu Cầu"
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_committed_date_change_form
-msgid "Such as the email or call the customer agreed in"
-msgstr "Ví dụ email hoặc cuộc gọi khách hàng đã đồng ý"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__turnaround_days
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__turnaround_days
-msgid "Turnaround (working days)"
-msgstr "Thời Gian Trả Kết Quả (ngày làm việc)"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__current_date
-msgid "Current Committed Return Date"
-msgstr "Ngày Hẹn Trả Kết Quả Hiện Tại"
-
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__status__on_credit
 msgid "On credit"
 msgstr "Mua chịu"
@@ -19532,6 +19537,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__tracking_number
 msgid "Tracking Number"
 msgstr "Mã vận đơn"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__turnaround_days
+msgid "Turnaround (days)"
+msgstr "Thời gian trả kết quả (ngày)"
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_form
