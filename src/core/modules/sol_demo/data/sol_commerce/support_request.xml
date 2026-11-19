@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_support_request_results_waiting" model="medilab.support.request">
+        <field name="customer_id" ref="demo_customer_nuoc_sach" />
+        <field name="opened_by_id" ref="demo_res_users_customer" />
+        <field name="subject">Khi nào có kết quả mẫu nước đóng chai?</field>
+    </record>
+    <record id="demo_support_request_invoice_sales" model="medilab.support.request">
+        <field name="customer_id" ref="demo_customer_nuoc_sach" />
+        <field name="opened_by_id" ref="demo_res_users_customer" />
+        <field name="handled_by_id" ref="demo_res_users_sales" />
+        <field name="subject">Xuất lại hoá đơn với địa chỉ mới</field>
+    </record>
+</odoo>

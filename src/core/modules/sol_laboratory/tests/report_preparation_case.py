@@ -5,8 +5,8 @@ from .report_case import ReportCase
 
 
 class ReportPreparationCase(ReportCase):
-    """The completed lead request, whose draft report the courier edits and prepares from the available bilingual
-    template an administrator of templates made."""
+    """The completed lead request, whose report the preparation job prepares from the available bilingual template an
+    administrator of templates made."""
 
     def setUp(self):
         super().setUp()

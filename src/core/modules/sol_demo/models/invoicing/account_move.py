@@ -76,7 +76,7 @@ class AccountMove(models.Model, AccountMoveBase):
             }
         )
         order = self._demo_order(an_phu, product, vat8)
-        advance = order.create_advance_invoice(amount=2_500_000)
+        advance = self._post_demo_advance_invoice(order, 2_500_000)
         final = order.create_final_invoice()
         final.action_post()
         raising = advance.action_adjust(200_000)
@@ -134,6 +134,12 @@ class AccountMove(models.Model, AccountMoveBase):
         finally:
             CONFIRMING_ORDER_IDS.reset(token)
         return order
+
+    def _post_demo_advance_invoice(self, order, amount):
+        """Seed a legacy advance invoice for the payment and notification walkthrough."""
+        invoice = order._draft_installment_invoice(amount)
+        invoice.action_post()
+        return invoice
 
     def _demo_invoice(self, partner, product, tax, state):
         invoice = self.create(
@@ -311,7 +317,7 @@ class AccountMove(models.Model, AccountMoveBase):
                 {"name": LEAD_IN_WATER, "type": "service", "list_price": 5_000_000, "invoice_policy": "order"}
             )
         order = self._demo_order(partner, product, tax)
-        invoice = order.create_advance_invoice(amount=1_000_000)
+        invoice = self._post_demo_advance_invoice(order, 1_000_000)
         transaction = self.env[MODEL_TRANSACTION]._create_payos_transaction(invoice)
         moment = fields.Datetime.to_datetime("2020-01-04 03:00:00")
         transaction.with_context(payment_safe_write=True).write(

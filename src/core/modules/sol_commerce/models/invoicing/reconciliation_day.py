@@ -6,6 +6,7 @@ from odoo import api, fields, models
 from odoo.exceptions import UserError
 
 from odoo.addons.sol_commerce.constants.models import MODEL_PAYMENT_TRANSACTION, MODEL_RECONCILIATION_DAY
+from odoo.addons.sol_commerce.models.invoicing.account_payment import CONFIRMED_STATES
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_PERMISSION_MIXIN
 from odoo.addons.sol_laboratory.services.type_values import value_as
 
@@ -41,7 +42,7 @@ class ReconciliationDay(models.Model, ReconciliationDayBase):
         transaction_ids = fields.Many2many(MODEL_PAYMENT_TRANSACTION, compute="_compute_transaction_ids")
         # Confirmed PayOS transactions of the day that have no payment yet.
         missing_payment_count = fields.Integer(compute="_compute_transaction_ids")
-        # Payments whose amount is not the transfer, or that are more than the invoice.
+        # Rejected payments, overpayments and posted payments whose amount differs from the transfer.
         mismatch_count = fields.Integer(compute="_compute_transaction_ids")
         # Company currency of the printed totals.
         currency_id = fields.Many2one("res.currency", default=lambda self: self.env.company.currency_id)
@@ -49,11 +50,11 @@ class ReconciliationDay(models.Model, ReconciliationDayBase):
         transfer_total = fields.Monetary(
             string="Transfer total", compute="_compute_transaction_ids", currency_field="currency_id"
         )
-        # Sum of the payments recorded for those transfers.
+        # Sum of the posted payments for those transfers.
         payment_total = fields.Monetary(
             string="Payment total", compute="_compute_transaction_ids", currency_field="currency_id"
         )
-        # Confirmed transfers minus the payments recorded for them.
+        # Confirmed transfers minus the posted payments for them.
         difference_total = fields.Monetary(
             string="Difference", compute="_compute_transaction_ids", currency_field="currency_id"
         )
@@ -84,7 +85,9 @@ class ReconciliationDay(models.Model, ReconciliationDayBase):
             record.missing_payment_count = len(confirmed.filtered(lambda tx: not tx.payment_id))
             record.mismatch_count = len(found.filtered(record._amount_mismatch))
             record.transfer_total = sum(transaction.amount for transaction in confirmed)
-            record.payment_total = sum(payment.amount for payment in confirmed.payment_id)
+            record.payment_total = sum(
+                payment.amount for payment in confirmed.payment_id if payment.state in CONFIRMED_STATES
+            )
             record.difference_total = record.transfer_total - record.payment_total
 
     def action_post_missing_payments(self):
@@ -93,16 +96,18 @@ class ReconciliationDay(models.Model, ReconciliationDayBase):
         missing = self.transaction_ids.filtered(lambda tx: tx.state == "done" and not tx.payment_id)
         for transaction in missing:
             transaction._create_online_payment()
-        self.invalidate_recordset(["transaction_ids", "missing_payment_count", "mismatch_count"])
+        self.invalidate_recordset()
         return True
 
     def action_lock(self):
         self.ensure_one()
         if self.status == "locked":
             raise UserError(self.env._("This day is already locked."))
-        self.invalidate_recordset(["transaction_ids", "missing_payment_count", "mismatch_count"])
+        self.invalidate_recordset()
         if self.missing_payment_count:
             raise UserError(self.env._("Post the missing payments before locking this day."))
+        if any(payment.state == "draft" for payment in self.transaction_ids.payment_id):
+            raise UserError(self.env._("Confirm or reject the draft PayOS payments before locking this day."))
         if self.mismatch_count and not self.discrepancies_acknowledged:
             raise UserError(self.env._("Acknowledge the amount differences before locking this day."))
         self.write({"status": "locked", "locked_by_id": self.env.user.id, "locked_at": fields.Datetime.now()})
@@ -116,9 +121,9 @@ class ReconciliationDay(models.Model, ReconciliationDayBase):
 
     def _amount_mismatch(self, transaction):
         payment = transaction.payment_id
-        if transaction.state != "done" or not payment:
+        if transaction.state != "done" or not payment or payment.state == "draft":
             return False
-        return payment.exceeds_residual or payment.amount != transaction.amount
+        return payment.state not in CONFIRMED_STATES or payment.exceeds_residual or payment.amount != transaction.amount
 
     def write(self, vals):
         if vals.get("status") == "open" and any(day.status == "locked" for day in self):

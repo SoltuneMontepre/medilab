@@ -16,15 +16,58 @@
         </xpath>
     </template>
 
+    <template id="payment_request_summary" name="Payment request">
+        <section class="border rounded p-3 mb-4" id="medilab_payment_request">
+            <h2 t-if="payment_request.kind == 'advance'" class="h4">Advance payment request</h2>
+            <h2 t-else="" class="h4">Balance payment request</h2>
+            <t t-set="statuses" t-value="dict(payment_request._fields['state']._description_selection(payment_request.env))" />
+            <p><t t-out="statuses[payment_request.state]" /></p>
+            <dl class="row">
+                <dt t-if="payment_request.advance_method" class="col-7">Collection Method</dt>
+                <dd t-if="payment_request.advance_method" class="col-5 text-end"><span t-field="payment_request.advance_method" /></dd>
+                <dt class="col-7">Requested amount</dt>
+                <dd class="col-5 text-end" id="payment_request_amount"><span t-field="payment_request.amount" /></dd>
+                <dt t-if="payment_request.carried_amount" class="col-7">Already applied to the order</dt>
+                <dd t-if="payment_request.carried_amount" class="col-5 text-end"><span t-field="payment_request.carried_amount" /></dd>
+                <dt class="col-7">Verified payments</dt>
+                <dd class="col-5 text-end" id="payment_request_verified"><span t-field="payment_request.verified_amount" /></dd>
+                <dt class="col-7">Pending verification</dt>
+                <dd class="col-5 text-end" id="payment_request_pending"><span t-field="payment_request.pending_amount" /></dd>
+                <dt class="col-7">Still needed</dt>
+                <dd class="col-5 text-end" id="payment_request_remaining"><span t-field="payment_request.remaining_amount" /></dd>
+                <dt t-if="payment_request.deadline" class="col-7">Payment deadline</dt>
+                <dd t-if="payment_request.deadline" class="col-5 text-end"><span t-field="payment_request.deadline" /></dd>
+            </dl>
+            <form t-if="payment_request._takes_payments()" t-attf-action="/orders/#{order.id}/payment-requests/#{payment_request.id}/pay" method="post">
+                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                <label for="medilab_payment_amount" class="form-label">Amount</label>
+                <t t-set="remaining" t-value="'%.*f' % (payment_request.currency_id.decimal_places, payment_request.remaining_amount)" />
+                <input id="medilab_payment_amount" class="form-control mb-2" type="number" name="amount" t-att-min="payment_request.currency_id.rounding" t-att-step="payment_request.currency_id.rounding" t-att-max="remaining" t-att-value="remaining" required="required" />
+                <div class="d-flex flex-wrap gap-2">
+                    <button t-if="order._payment_request_payos_available()" class="btn btn-primary" name="method" value="payos" type="submit"><i class="oi me-1" data-icon="credit_card" aria-hidden="true" />PayOS</button>
+                    <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#medilab_bank_transfer" aria-expanded="false" aria-controls="medilab_bank_transfer"><i class="oi me-1" data-icon="account_balance" aria-hidden="true" />Bank transfer</button>
+                </div>
+                <div class="collapse mt-3" id="medilab_bank_transfer">
+                    <p t-foreach="payment_request.company_id.partner_id.bank_ids" t-as="bank" t-out="bank.display_name" />
+                    <label for="medilab_received_at" class="form-label">Receipt time (Vietnam)</label>
+                    <input id="medilab_received_at" class="form-control mb-2" type="datetime-local" name="received_at" />
+                    <label for="medilab_transfer_reference" class="form-label">Bank reference</label>
+                    <input id="medilab_transfer_reference" class="form-control mb-2" type="text" name="reference" />
+                    <button class="btn btn-primary" name="method" value="bank_transfer" type="submit"><i class="oi me-1" data-icon="check" aria-hidden="true" />Report bank transfer</button>
+                </div>
+            </form>
+        </section>
+    </template>
+
     <template id="portal_payos_pending" name="PayOS checkout">
         <t t-call="portal.portal_layout">
             <div class="alert alert-warning" id="payos-unavailable" t-if="failed">
                 <p t-out="message"/>
-                <a t-attf-href="/my/invoices/#{invoice.id}">Back to the invoice</a>
+                <a t-att-href="back">Back to payment</a>
             </div>
             <div class="alert alert-info" id="payos-pending" t-else="">
                 <p id="payos-preparing">PayOS is preparing the payment link. Opening this page does not confirm the payment.</p>
-                <form t-attf-action="/my/invoices/#{invoice.id}/pay" method="post">
+                <form t-att-action="payment_path" method="post">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                     <input type="hidden" name="method" value="payos"/>
                     <button type="submit" class="btn btn-primary" id="payos-continue"><i class="oi me-1" data-icon="arrow_forward" aria-hidden="true" />Continue</button>

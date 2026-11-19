@@ -114,7 +114,7 @@ class ChangeRequest(models.Model, ChangeRequestBase):
     @api.model
     def _raise(self, document_model, document_id, requested_change, reason):
         """Raise a change request as the current person on a document whose process is completed; only people who can
-        edit that type of document can."""
+        edit that type of document can, or deliver reports for a report."""
         person = self.env[MODEL_PERSON]._current()
         if not person:
             raise UserError(self.env._("Only a person can raise a change request."))
@@ -125,7 +125,7 @@ class ChangeRequest(models.Model, ChangeRequestBase):
         ):
             raise UserError(self.env._("Change requests are raised on signed documents only."))
         document = self.env[document_model].browse(document_id).exists()
-        document._check_permission("edit")
+        document._check_permission(document._change_request_action())
         if not document.sudo()._change_request_open():
             raise UserError(self.env._("A change request is raised only on a document whose process is completed."))
         if not document._approval_chain(PURPOSE_CHANGE_REQUEST):

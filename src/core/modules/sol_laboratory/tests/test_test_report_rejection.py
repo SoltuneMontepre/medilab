@@ -2,7 +2,7 @@ from odoo.exceptions import UserError
 from odoo.tests import tagged
 
 from .report_case import ReportCase
-from odoo.addons.sol_laboratory.constants.models import MODEL_SIGNATURE, MODEL_TASK
+from odoo.addons.sol_laboratory.constants.models import MODEL_SIGNATURE
 
 REASON = "Lead reads 0.008 mg/L against 0.002 last month; check the digestion blank."
 
@@ -25,10 +25,13 @@ class TestTestReportRejection(ReportCase):
         arsenic = self.add_test()
         lead = self.complete()
         kept = self.complete(test=arsenic)
+        report = self.report()
+        signing = self.signing_tasks(report)
+        candidate = self.prepare(report)
 
         self.reject(lead)
 
-        report = self.report()
+        self.assertEqual(candidate.status, "obsolete")
         self.assertEqual((lead.status, self.test.status), ("none", "testing"))
         self.assertEqual((self.sample.status, self.request.status), ("testing", "testing"))
         self.assertEqual(kept.status, "approved")
@@ -36,23 +39,30 @@ class TestTestReportRejection(ReportCase):
             [("document_model", "=", lead._name), ("document_id", "=", lead.id), ("withdrawn_at", "=", False)]
         )
         self.assertFalse(signatures)
-        task = self.test._testing_task()
-        self.assertEqual((task.status, task.department_id), ("open", self.department))
-        self.assertFalse(task.assignee_id)
-        self.assertIn(REASON, (task.note or ""))
+        testing = self.test._testing_task()
+        self.assertEqual((testing.status, testing.department_id), ("open", self.department))
+        self.assertFalse(testing.assignee_id)
+        self.assertIn(REASON, (testing.note or ""))
         self.assertEqual(report.status, "draft")
+        self.assertEqual(self.signing_tasks(report), signing)
         self.assertNotIn(report, self.waiting_for("to_sign"))
         self.assertFalse(self.as_person(report, self.lab_head).approval_can_sign)
+        # No PDF is prepared while the results wait for approval.
+        self.run_preparation()
+        self.assertFalse(report._candidate())
 
-        task.write({"assignee_id": self.tester.id, "status": "assigned"})
+        testing.write({"assignee_id": self.tester.id, "status": "assigned"})
         self.send(lead)
         self.approve(lead)
 
         self.assertEqual(self.request.status, "completed")
         self.assertIn(report, self.waiting_for("to_sign"))
-        signing = self.env[MODEL_TASK].search(
-            [("document_model", "=", report._name), ("document_id", "=", report.id), ("status", "=", "open")]
-        )
+        # The lab head reviews the new PDF in the same signing task.
+        self.assertEqual(self.signing_tasks(report), signing)
         self.assertEqual(signing.action, "sign")
+        self.run_preparation()
+        replacement = report._candidate()
+        self.assertNotEqual(replacement, candidate)
+        self.assertEqual(replacement.report_number, candidate.report_number)
         self.sign(report)
-        self.assertEqual(report.status, "issued")
+        self.assertEqual((report.status, replacement.status), ("issued", "issued"))

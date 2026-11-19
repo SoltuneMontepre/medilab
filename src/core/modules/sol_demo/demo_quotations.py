@@ -5,7 +5,7 @@ from odoo.fields import Command
 
 from .demo_orders import _product, _xml_id
 from odoo.addons.sol_commerce.constants.models import (
-    MODEL_ACCOUNT_MOVE,
+    MODEL_ACCOUNT_PAYMENT,
     MODEL_ORDER_SAMPLE,
     MODEL_QUOTATION,
     MODEL_SALE_ORDER,
@@ -13,7 +13,6 @@ from odoo.addons.sol_commerce.constants.models import (
 from odoo.addons.sol_laboratory.services.record_id import persisted_ids
 
 DISCOUNT_WIZARD = "sale.order.discount"
-PAYMENT_WIZARD = "account.payment.register"
 
 
 def seed_quotations(env):
@@ -34,7 +33,7 @@ def seed_quotations(env):
     revised = _quotable_order(env, lead, vat10, quantity=3, advance_method="none")
     for order in (sent, accepted, declined, expired):
         _as(order, sales).action_send_quotation()
-    _pay_advance(env, accepted)
+    _pay_current_request(env, accepted)
     declined._latest_quotation().action_decline("The price is above our budget this quarter.")
     expired.payment_deadline = fields.Datetime.now() - timedelta(days=1)
     env[MODEL_QUOTATION]._flag_expired()
@@ -112,7 +111,7 @@ def seed_sampling(env):
 
 def _other_way(line):
     """A way of testing offered for the line's parameter other than the one it has, or empty."""
-    return (line._own_parameter()._offered_ways(line.sample_type_id) - line.parameter_method_id)[:1]
+    return (line._offered_ways() - line.parameter_method_id)[:1]
 
 
 def _as(order, user):
@@ -174,13 +173,15 @@ def _quotable_order(
     advance_mode="percentage",
     advance_value=30,
     salesperson=None,
+    partner=None,
+    company=None,
 ):
     """A claimed order of the salesperson, the first demo one by default, whose items are all tested on one bottled
     water sample."""
     order = env[MODEL_SALE_ORDER].create(
         {
-            "partner_id": env.ref("sol_demo.demo_res_partner_hoa").id,
-            "customer_id": env.ref("sol_demo.demo_res_partner_nuoc_sach").id,
+            "partner_id": (partner or env.ref("sol_demo.demo_res_partner_hoa")).id,
+            "customer_id": (company or env.ref("sol_demo.demo_res_partner_nuoc_sach")).id,
             "source": "portal",
             "order_status": "claimed",
             "user_id": (salesperson or env.ref("sol_demo.demo_res_users_sales")).id,
@@ -212,8 +213,6 @@ def _confirmed_order(env, product, tax, sales, head):
     return order
 
 
-def _pay_advance(env, order):
-    invoices = order.sudo().invoice_ids
-    env[PAYMENT_WIZARD].with_context(active_model=MODEL_ACCOUNT_MOVE, active_ids=invoices.ids).create(
-        {}
-    ).action_create_payments()
+def _pay_current_request(env, order):
+    request = order.payment_request_id
+    env[MODEL_ACCOUNT_PAYMENT]._create_request_payment(request, request.remaining_amount, "bank_transfer").action_post()

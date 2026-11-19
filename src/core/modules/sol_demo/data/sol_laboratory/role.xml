@@ -19,6 +19,8 @@
                 ref('sol_laboratory.permission_sample_test_read_all'),
                 ref('sol_laboratory.permission_sample_test_create_all'),
                 ref('sol_laboratory.permission_sample_test_edit_all'),
+                ref('sol_laboratory.permission_plan_revision_read_all'),
+                ref('sol_laboratory.permission_plan_revision_move_read_all'),
                 ref('sol_commerce.permission_order_read_all'),
                 ref('sol_commerce.permission_order_create_all'),
                 ref('sol_commerce.permission_order_edit_own'),
@@ -127,8 +129,10 @@
                 ref('sol_laboratory.permission_handover_record_sample_create_all'),
                 ref('sol_laboratory.permission_handover_record_sample_edit_all'),
                 ref('sol_laboratory.permission_handover_record_sample_delete_all'),
+                ref('sol_laboratory.permission_sample_return_read_all'),
+                ref('sol_laboratory.permission_sample_return_create_all'),
                 ref('sol_laboratory.permission_test_report_read_all'),
-                ref('sol_laboratory.permission_test_report_edit_all'),
+                ref('sol_laboratory.permission_test_report_deliver_all'),
                 ref('sol_laboratory.permission_test_report_draft_read_all'),
                 ref('sol_laboratory.permission_test_report_candidate_read_all'),
                 ref('sol_laboratory.permission_report_template_version_read_all'),
@@ -184,6 +188,8 @@
                 ref('sol_laboratory.permission_overtime_create_own_department'),
                 ref('sol_laboratory.permission_overtime_edit_own_department'),
                 ref('sol_laboratory.permission_overtime_delete_own_department'),
+                ref('sol_laboratory.permission_plan_revision_read_own_department'),
+                ref('sol_laboratory.permission_plan_revision_move_read_own_department'),
                 ref('sol_laboratory.permission_subcontract_dispatch_read_all'),
                 ref('sol_laboratory.permission_subcontract_dispatch_create_all'),
                 ref('sol_laboratory.permission_subcontract_dispatch_edit_all'),
@@ -205,6 +211,7 @@
                 ref('sol_laboratory.permission_test_request_read_all'),
                 ref('sol_laboratory.permission_sample_read_all'),
                 ref('sol_laboratory.permission_expected_sampling_read_all'),
+                ref('sol_laboratory.permission_sample_return_read_all'),
                 ref('sol_laboratory.permission_sample_test_read_all'),
                 ref('sol_laboratory.permission_test_result_read_all'),
                 ref('sol_laboratory.permission_test_report_read_all'),
@@ -215,50 +222,9 @@
                 ref('sol_laboratory.permission_change_request_read_all'),
                 ref('sol_laboratory.permission_change_request_sign_all'),
                 ref('sol_laboratory.permission_testing_statistic_read_all'),
-                ref('sol_inventory.permission_purchase_order_read_all'),
-                ref('sol_inventory.permission_purchase_order_sign_all'),
                 ref('sol_laboratory.permission_parameter_authorization_create_all'),
                 ref('sol_laboratory.permission_parameter_authorization_edit_all'),
                 ref('sol_laboratory.permission_parameter_authorization_delete_all'),
-            ])]"
-        />
-    </record>
-    <record id="demo_role_storekeeper" model="medilab.role">
-        <field name="code">storekeeper</field>
-        <field name="name">Storekeeper</field>
-        <field
-            name="permission_ids"
-            eval="[Command.set([
-                ref('sol_inventory.permission_location_read_all'),
-                ref('sol_inventory.permission_location_create_all'),
-                ref('sol_inventory.permission_location_edit_all'),
-                ref('sol_inventory.permission_location_archive_all'),
-                ref('sol_inventory.permission_cost_centre_read_all'),
-                ref('sol_inventory.permission_stock_item_create_all'),
-                ref('sol_inventory.permission_stock_item_edit_all'),
-                ref('sol_inventory.permission_stock_item_archive_all'),
-                ref('sol_inventory.permission_supplier_create_all'),
-                ref('sol_inventory.permission_supplier_edit_all'),
-                ref('sol_inventory.permission_supplier_archive_all'),
-                ref('sol_inventory.permission_supplier_item_create_all'),
-                ref('sol_inventory.permission_supplier_item_edit_all'),
-                ref('sol_inventory.permission_supplier_item_delete_all'),
-                ref('sol_inventory.permission_minimum_quantity_create_all'),
-                ref('sol_inventory.permission_minimum_quantity_edit_all'),
-                ref('sol_inventory.permission_minimum_quantity_delete_all'),
-                ref('sol_inventory.permission_method_consumption_create_all'),
-                ref('sol_inventory.permission_method_consumption_edit_all'),
-                ref('sol_inventory.permission_method_consumption_delete_all'),
-                ref('sol_inventory.permission_purchase_order_read_all'),
-                ref('sol_inventory.permission_purchase_order_create_all'),
-                ref('sol_inventory.permission_purchase_order_edit_all'),
-                ref('sol_inventory.permission_purchase_order_delete_all'),
-                ref('sol_inventory.permission_purchase_order_sign_all'),
-                ref('sol_inventory.permission_receipt_read_all'),
-                ref('sol_inventory.permission_receipt_create_all'),
-                ref('sol_inventory.permission_receipt_edit_all'),
-                ref('sol_inventory.permission_receipt_delete_all'),
-                ref('sol_inventory.permission_lot_edit_all'),
             ])]"
         />
     </record>

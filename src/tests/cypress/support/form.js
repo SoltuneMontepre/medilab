@@ -1,9 +1,14 @@
 // Field input on Odoo 20 forms and editable list rows, and list search.
 
-// Opens a new record from a list, once Odoo has filled in its defaults; text typed before that is lost.
-export function newRecord(path) {
+// Opens a new record from a list, once Odoo has filled in its defaults; text typed before that is lost. The list is
+// given by its path, or by a function that opens it, such as through its menu.
+export function newRecord(list) {
   cy.intercept("POST", "/web/dataset/call_kw/*/onchange").as("defaults");
-  cy.visit(path);
+  if (typeof list === "function") {
+    list();
+  } else {
+    cy.visit(list);
+  }
   cy.get(".o_list_button_add").click();
   cy.wait("@defaults");
 }
@@ -50,6 +55,55 @@ export function search(text, { grouped = false, field } = {}) {
   cy.wait("@filtered");
 }
 
+// Opens a back-office menu as a user does: the app from the apps menu, then each section and entry of the menu bar,
+// given by their external IDs, so it works in every language.
+export function openMenu(app, ...entries) {
+  // An entry with a link has opened once the address is its link, or once its form shows in a dialog, as the address
+  // stays; a section only opens its list of entries.
+  const click = (selector) =>
+    cy
+      .get(selector)
+      .first()
+      .then(($menu) => {
+        const href = $menu.attr("href");
+        const menuId = $menu.attr("data-section");
+        cy.wrap($menu, { log: false }).click();
+        if (href && href !== "#") {
+          const path = href.split("?")[0];
+          cy.window()
+            .then((win) => win.odoo.loadMenusPromise)
+            .then((menus) => {
+              const menu = menus?.[menuId];
+              const opened = [path];
+              if (menu?.actionID) opened.push(`/odoo/action-${menu.actionID}`);
+              if (menu?.actionPath) opened.push(`/odoo/${menu.actionPath}`);
+              cy.window({ log: false }).should((win) => {
+                if (!opened.includes(win.location.pathname)) {
+                  expect(Cypress.$(".modal:visible"), "the menu action dialog").to.have.length.greaterThan(0);
+                }
+              });
+            });
+        }
+      });
+  cy.get(".o_navbar_apps_menu button").click();
+  // The MediLab theme shows the apps as tiles of a panel; Odoo's own menu is a dropdown. An app opens its first
+  // menu, whose address is not the app's link.
+  cy.get(`.ml_apps_panel [data-menu-xmlid="${app}"], .o-dropdown--menu [data-menu-xmlid="${app}"]`).first().click();
+  cy.get(`.o_main_navbar [data-menu-xmlid="${app}"]`).should("exist");
+  for (const entry of entries) {
+    click(`.o_main_navbar [data-menu-xmlid="${entry}"]:visible, .o-dropdown--menu [data-menu-xmlid="${entry}"]:visible`);
+  }
+  // A menu opens a view, or a dialog such as the label scan.
+  return cy.get(".o_action_manager .o_view_controller:visible, .modal:visible").should("exist");
+}
+
+// Opens the record of the shown list whose row contains `text`, finding it with the search first.
+export function openRow(text, options) {
+  search(text, options);
+  cy.contains(".o_data_row", text).find(".o_data_cell").first().click();
+  return cy.get(".o_form_view").should("be.visible");
+}
+
 export function save() {
   cy.get(".o_form_button_save").click();
   cy.get(".o_form_button_save").should("not.be.visible");
@@ -57,4 +111,33 @@ export function save() {
 
 export function openTab(name) {
   cy.get(`.o_notebook .nav-link[name=${name}]`).click();
+}
+
+// Saves the form and waits for the server's answer, so what follows reads or changes the saved record.
+export function saveAndWait(model) {
+  cy.intercept("POST", `/web/dataset/call_kw/${model}/web_save`).as("saved");
+  save();
+  cy.wait("@saved");
+}
+
+// Adds a line to an editable list field of the form and waits until it is edited.
+export function addLine(field) {
+  cy.get(`.o_field_widget[name=${field}] .o_field_x2many_list_row_add button`).click();
+  cy.get(`.o_field_widget[name=${field}] .o_selected_row`).should("exist");
+}
+
+// Discards the form's unsaved changes, so leaving the page does not save them, and waits until the form has read the
+// record again, which would otherwise drop a line added meanwhile.
+export function discard() {
+  cy.intercept("POST", "/web/dataset/call_kw/*/web_read").as("reread");
+  cy.get(".o_form_button_cancel").click();
+  cy.wait("@reread");
+  cy.get(".o_form_button_save").should("not.be.visible");
+}
+
+// Closes the dialog that shows a refusal, then discards the changes it refused.
+export function discardRefused() {
+  cy.get(".o_error_dialog .btn-close").click();
+  cy.get(".o_error_dialog").should("not.exist");
+  discard();
 }

@@ -54,24 +54,25 @@ class InvoicePortal(PortalAccount):
         try:
             transaction = request_env()[MODEL_PAYMENT_TRANSACTION].portal_start_payos(invoice, amount)
         except (AccessError, UserError) as error:
-            return self._payos_page(invoice, failed=True, message=str(error))
+            return self._payos_page(f"/my/invoices/{invoice.id}", failed=True, message=str(error))
+        return self._payos_checkout_page(transaction, f"/my/invoices/{invoice.id}")
+
+    def _payos_checkout_page(self, transaction, back, payment_path=None):
         if self._payos_url_is_safe(transaction.payos_checkout_url):
             return request.redirect(transaction.payos_checkout_url, local=False)
         if transaction.payos_checkout_url:
-            return self._payos_page(invoice, failed=True, message=self._invalid_link_message())
+            return self._payos_page(back, failed=True, message=self._invalid_link_message())
         transaction_id = persisted_id(transaction)
-        invoice_id = persisted_id(invoice)
-        # The invoice row lock ends with this commit. PayOS is called only after that, on the claimed job item.
-        request_env().cr.commit()
+        # PayOS is called on the claimed job item after the checkout transaction is committed.
+        request_env().cr.commit()  # pylint: disable=invalid-commit
         transaction = request_env()[MODEL_PAYMENT_TRANSACTION].sudo().browse(transaction_id)
-        invoice = request_env()[MODEL_ACCOUNT_MOVE].browse(invoice_id)
         outcome, message = self._prepare_payos_link(transaction)
         transaction.invalidate_recordset(["payos_checkout_url"])
         if outcome != "failed" and self._payos_url_is_safe(transaction.payos_checkout_url):
             return request.redirect(transaction.payos_checkout_url, local=False)
         if outcome == "failed" or transaction.payos_checkout_url:
-            return self._payos_page(invoice, failed=True, message=message)
-        return self._payos_page(invoice, failed=False, message="")
+            return self._payos_page(back, failed=True, message=message)
+        return self._payos_page(back, failed=False, message="", payment_path=payment_path)
 
     def _prepare_payos_link(self, transaction):
         """Claim the queued PayOS item and run it once. A worker that already claimed it is not run again."""
@@ -109,10 +110,10 @@ class InvoicePortal(PortalAccount):
         parts = urlsplit(url)
         return parts.scheme == "https" and bool(parts.hostname)
 
-    def _payos_page(self, invoice, failed, message):
+    def _payos_page(self, back, failed, message, payment_path=None):
         return request.render(
             "sol_commerce.portal_payos_pending",
-            {"invoice": invoice, "failed": failed, "message": message},
+            {"back": back, "payment_path": payment_path or f"{back}/pay", "failed": failed, "message": message},
         )
 
     @http.route("/my/invoices/<int:invoice_id>/receipt/<int:payment_id>", type="http", auth="user", **FRONTEND_PAGE)

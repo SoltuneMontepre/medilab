@@ -63,8 +63,9 @@ The harness requires context `kind-medilab-286-review`, a loopback API server an
 
 - A test file is named `<feature>.cy.js` under `src/tests/cypress/e2e/`. Business-flow specs belong to `flows/<flow>/`; feature specs without an owning flow belong to `features/<module>/<feature>/`. The [browser test layout](../../src/tests/cypress/e2e/README.md) maps issue scopes to directories and spec basenames.
 - Every feature has a browser test of its main path, written with the feature: it signs in as the demo user of the role that does the work, such as `demo.tester`, and walks the main path on the demo data.
-- The support entry point `cypress/support/e2e.js` registers the shared commands below, keeps Odoo from subscribing to web push, which the test browser cannot do, and ignores the browser's ResizeObserver loop notice, which a list that resizes while it redraws raises. Tests use them instead of copying sign-in, navigation or action steps. `call(<model>, <method>, <args>, <kwargs>)` from `cypress/support/odoo.js` calls a model method in the signed-in session and fails on an RPC error. Existing tests may still import `signIn(<login>)` from that file; it uses the same session handling as `cy.signInAs()`.
+- The support entry point `cypress/support/e2e.js` registers the shared commands below, keeps Odoo from subscribing to web push, which the test browser cannot do, hides the browser's service workers from Odoo, whose cached page and background fetches would load a user's first page twice at once, and ignores the browser's ResizeObserver loop notice, which a list that resizes while it redraws raises. Tests use them instead of copying sign-in, navigation or action steps. `call(<model>, <method>, <args>, <kwargs>)` from `cypress/support/odoo.js` calls a model method in the signed-in session and fails on an RPC error. Existing tests may still import `signIn(<login>)` from that file; it uses the same session handling as `cy.signInAs()`.
 - Tests use the app address `MEDILAB_URL`, default `http://localhost:8069`.
+- Tests run in a 1440 × 900 laptop viewport, set in `cypress.config.js`. A spec sets another viewport only to check a layout that depends on the window, such as a narrow menu bar.
 - Tests do not depend on data a previous test created.
 - The task unsets `ELECTRON_RUN_AS_NODE`, which editors such as VS Code set and which stops Cypress from starting.
 - `task test:e2e:app` installs every module with the demo data into the app's database and starts Odoo, then waits until it answers. `ci-core` runs it before `task test:e2e`, so tests can sign in as the demo users. Locally it changes the database of `task up`; it refuses a selected fresh demo to avoid reinstalling into its completed application database.
@@ -145,7 +146,7 @@ Use [Cypress Tap and AI Skills](../workflows/cypress-tap.md) when an agent write
 
 | Command | Use |
 | --- | --- |
-| `cy.signInAs(role)` | Sign in as `demo.<role>`, for example `tester`, `head_of_department` or `customer`. Read the password from `MEDILAB_DEMO_PASSWORD`, default `demo`. First unregister Odoo's service worker, as before every test: its update check after the previous backend page would get a new session cookie, which the login form's CSRF token does not match. Cache and validate the session within this spec file, then open the backend or portal as appropriate. |
+| `cy.signInAs(role)` | Sign in as `demo.<role>`, for example `tester`, `head_of_department` or `customer`. Read the password from `MEDILAB_DEMO_PASSWORD`, default `demo`. Cache and validate the session within this spec file, then open the backend or portal as appropriate. |
 | `cy.openRecord(record)` | Open the backend form of a record given by a full demo external ID such as `sol_demo.demo_test_result_retest`, or as `{ model, id }`, and yield `{ model, id }`. The current user's permissions apply. |
 | `cy.readRecord(record, fields)` | Read the named fields of that record in the current session and yield its values. `fields` must be a nonempty array. |
 | `cy.signRecord(action)` | Click the visible form button named `action`, default `action_sign`. |
@@ -180,20 +181,33 @@ A visitor's test starts with `becomeVisitor()` from the same file. It leaves the
 
 | Function | Use |
 | --- | --- |
-| `newRecord(path)` | Open a list such as `/odoo/lab-orders`, click **New** and wait until Odoo has filled in the defaults. |
+| `newRecord(list)` | Open a list given by its path, such as `/odoo/lab-orders`, or by a function that opens it, click **New** and wait until Odoo has filled in the defaults. |
+| `openMenu(app, ...entries)` | Open a back-office menu as a user does: the app from the apps menu, then each section and entry of the menu bar, by their external IDs from `cypress/support/menus.js`. Wait until the address is the entry's link, or until the entry's form shows in a dialog. |
+| `openRow(text, options)` | Search the shown list for `text`, as `search` does, and open the row that contains it. |
 | `pick(field, text)` | Type into a many2one field and click the suggestion that contains `text`. |
 | `choose(field, label)` | Choose a selection field's value by its label. |
 | `search(text, { grouped: false, field })` | Filter the list and wait for its response. The first search field is the default; `field` selects a label. Set `grouped: true` for a grouped list. |
 | `save()` | Save the form and wait until it has no unsaved changes. |
 | `openTab(name)` | Open the notebook page with that `name`. |
+| `saveAndWait(model)` | Save the form and wait for the server's answer. |
+| `addLine(field)` | Add a line to an editable list field of the form and wait until it is edited. |
+| `discard()`, `discardRefused()` | Discard the form's unsaved changes, after closing the dialog of a refusal for `discardRefused`. |
 
 Messages on screen follow the user's language: `demo.sales` reads Vietnamese, most other demo users English. Odoo screens load their data after the page, so commands wait up to ten seconds.
 
 `demo_roles.cy.js` checks every seeded demo account and opening a demo record. `browser_helpers.cy.js` checks the shared action and refusal commands on a controlled browser fixture, including that a successful action fails the refusal check. Business-flow tests create their starting records with their flow's `setup.js`, so a spec runs again on the same database, and cover only their flow's paths from [Business flows](../functional/business-flows.md).
 
+### Steps, quiet helpers and the watch mode
+
+- A path test (`TC-WF…`, `TC-SF…`) marks each business step with `step(name)` from `cypress/support/steps.js`, named in English with the words of the path in [Business flows](../functional/business-flows.md), such as `step("Sales claims the order from the unclaimed queue")`. A feature test of more than about 15 commands does too. The Command Log shows each step as a bold numbered line, whose snapshot is the page as the step starts, and a headless run prints the steps in the terminal.
+- A data helper of a flow's `setup.js` is wrapped with `helper(name, fn)` from the same file, so each call shows as one line with the page before and after it, and its requests and checks stay out of the Command Log. A helper that drives the page is not wrapped. `call` and `callAs` show as one `rpc` line each.
+- The page's own requests stay out of the Command Log; routes a test intercepts still show. `MEDILAB_E2E_NETWORK_LOG=1` shows every request.
+- A main path (`TC-WF…-M`) opens every screen as a user does: menus with `openMenu`, rows with `openRow`, and the portal through its links. Only the records the path starts from are built with helpers. Other tests may open a record or a list by its address.
+- In the Cypress App, the watch mode of `cypress/support/watch.js` frames the element of each click, check and choice with the current step and the action, and waits 700 ms before acting; an entry is framed for that time once typed. A headless run acts at once. `MEDILAB_E2E_WATCH=0` turns it off, `MEDILAB_E2E_WATCH=1` turns it on in a headless run, and `MEDILAB_E2E_WATCH_DELAY` sets the wait in milliseconds.
+
 ### WF-03 execution ownership
 
-WF-03 changes shared scheduling settings and explicitly runs the real notification-reminder job. Its support hooks acquire one host-local lease per database UUID before preparing fixtures. Another cooperating Cypress process using that database is refused before mutation; separate hosts must use separate test databases. The lease is stored under the OS temporary directory in `medilab-cypress/<database-UUID-hash>/owner.json`, with only the process and execution IDs.
+WF-03 and the SF-08 settings spec change shared scheduling settings and explicitly runs the real notification-reminder job. Its support hooks acquire one host-local lease per database UUID before preparing fixtures. Another cooperating Cypress process using that database is refused before mutation; separate hosts must use separate test databases. The lease is stored under the OS temporary directory in `medilab-cypress/<database-UUID-hash>/owner.json`, with only the process and execution IDs.
 
 Within the owned execution, the automatic **Notification reminders** schedule is paused while genuine `method_direct_trigger` calls run sequentially. Those calls must return `true`; an Odoo error action is a failure. The XML-ID lookup includes inactive records. Cleanup cancels only owned reservations and manual tasks, verifies none remain active, then restores the complete private settings checkpoint, optional reminder state, and the cron's original `active` and `nextcall` values. Other scheduled jobs and application notification rules remain enabled.
 

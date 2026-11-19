@@ -146,7 +146,7 @@ Once a document is signed it cannot be modified. Because approving is signing (S
 
 - From the first signature the document is read-only for everyone, including administrators.
 - **Until the document's process is completed**, a signer at any level, the final level included, may withdraw their own signature, even after losing the permission or the role of their level, once every signature given after theirs is withdrawn. This reopens the document for editing; every withdrawal is audited and the document must be signed again from that level.
-- **After the document's process is completed**, such as a completed result or order or an issued report, it cannot be reopened. The one exception is the Lab Head's rejection of an unissued report, which withdraws the approvals of the results it names. A person allowed to edit that document type raises a **change request** with the proposed changes and reason. This applies to results, reports, quotations and orders.
+- **After the document's process is completed**, such as a completed result or order or an issued report, it cannot be reopened. The one exception is the Lab Head's rejection of an unissued report, which withdraws the approvals of the results it names. A person allowed to edit that document type, or to deliver reports for a report, raises a **change request** with the proposed changes and reason. This applies to results, reports, quotations and orders.
 - The change request follows an approval chain defined per document type, for example the Head of Sales for a quotation or the Head of Department for a test result and the Lab Head for a test report.
 - When the chain approves, create an unsigned **new version** linked to the unchanged signed one, and sign the new version again. Results mark the previous version replaced at correction. An issued report remains the issued version until its signed replacement is issued; [linked result and report corrections](laboratory_module/overview.md#reports-and-change-requests) wait for all required result approvals and use a fresh report signing task.
 - Anyone concerned can follow the status of the change request: requested, approved, rejected, applied.
@@ -218,6 +218,7 @@ Work waiting for someone is a task with a deadline, and every person sees their 
 - **Department queue.** A task routed to a department waits in that department's queue until the head of department assigns it to a person or a person of the department claims it. When two people claim the same task at once, the second is told it is already claimed. A task routed to a role waits the same way until one of the role's holders claims it.
 - **Access.** Every person sees the tasks assigned to them and the queues they can claim from without any permission. Creating tasks by hand, assigning, reassigning and cancelling them, and seeing other tasks need the task permissions, such as those of the person's department for a head of department.
 - **Reassigning.** Moving a task to another department, or an assigned task to another person, needs a reason, which is kept on the task and in the audit trail.
+- **Assignment notice.** Assigning a task to a person, when creating it or when moving it, sends the `task.assigned` notification to them, unless they assigned it to themselves. Claiming a task notifies nobody.
 - **To-do list.** A person's to-do list shows their open tasks, soonest deadline first. Clicking a task opens its document at the action to take, such as entering a result or signing.
 - **Dashboard.** The Tasks app opens on the person's day: today's planned tasks against the hours of the day, the next tasks to do with the action each needs, the tasks waiting in their queues to claim, and what they finished. From it, their tasks, their finished tasks and all the tasks they can see open as a list, a calendar or a timeline.
 - **Lifecycle.** Every task goes through the same statuses: open, assigned, in progress, then done or cancelled. The state of the work itself, such as a sample or a result, belongs to that document.
@@ -226,6 +227,7 @@ Work waiting for someone is a task with a deadline, and every person sees their 
 Acceptance criteria:
 
 - A task assigned to a person appears in their to-do list with its deadline.
+- A task another person assigns to someone notifies the assignee; a task claimed or assigned to oneself notifies nobody.
 - Each step a module document lists as waiting on a person appears as a task in someone's to-do list or queue.
 - A person can claim an unassigned task of their own department, not of another; a task already claimed cannot be claimed again.
 - Reassigning a task without a reason is refused.
@@ -320,9 +322,9 @@ The system sends all e-mail through Brevo's SMTP relay, set as Odoo's outgoing m
 
 ### 2. PayOS (payments)
 
-The system takes online payments through PayOS, added as a payment provider of Odoo's payment framework (`payment.provider`). Each payment is an Odoo payment transaction, and a confirmed one posts an Odoo payment on the invoice. The PayOS keys come from the configuration file, not from the provider record.
+The system takes online payments through PayOS, added as a payment provider of Odoo's payment framework (`payment.provider`). Each payment is an Odoo payment transaction, and a confirmed one posts an Odoo payment and the invoice for its amount. The PayOS keys come from the configuration file, not from the provider record.
 
-- Used for the advance and final invoices. The customer pays from the portal or from a payment link in an e-mail.
+- Used for advance and balance payment requests and for the final invoices of customers on credit. The customer pays from the portal or from a payment link in an e-mail.
 - Payment methods are whatever PayOS offers (for example bank transfer by QR code); administrators enable or disable them in the settings, and the portal shows only those enabled.
 - A payment is confirmed only by the provider's signed notification, never by the customer's browser returning to the website. The signature is verified, and a repeated notification creates no second payment.
 - A confirmed payment is recorded against the invoice and updates its payment status automatically; partial payments are supported.

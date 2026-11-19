@@ -4,6 +4,7 @@ from zoneinfo import ZoneInfo
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError
+from odoo.tools import format_datetime
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_ENTRY,
@@ -74,13 +75,16 @@ class ScheduledJob(models.Model, ScheduledJobBase):
         if item.item_key != f"{event.id}:{stamp}":
             return
         task = event.medilab_task_id or event.medilab_booking_ids.task_id[:1]
+        # The organiser's or the assignee's time zone, as their calendar shows the event.
+        zone = event.user_id.tz or self.env.company.tz or "UTC"
+        start = format_datetime(self.env, event.start, tz=zone)
         if not task:
             if event.location_id and event.active:
                 self.env["mail.message"].raise_event(
                     EVENT_LOCATION_BOOKING_REMINDER,
                     event,
                     f"calendar:{event.id}:reminder:{stamp}",
-                    self.env._("Starts at %(start)s in %(location)s.", start=stamp, location=event.location),
+                    self.env._("Starts at %(start)s in %(location)s.", start=start, location=event.location),
                     subject=event.name,
                     partners=event.partner_ids,
                 )
@@ -92,7 +96,7 @@ class ScheduledJob(models.Model, ScheduledJobBase):
             EVENT_TASK_REMINDER,
             task,
             f"calendar:{event.id}:reminder:{stamp}",
-            self.env._("Starts at %(start)s.", start=stamp),
+            self.env._("Starts at %(start)s.", start=start),
             subject=task.name,
             partners=partner,
         )
@@ -122,7 +126,7 @@ class ScheduledJob(models.Model, ScheduledJobBase):
         client = firebase_client_from_env()
         if client is None:
             return fields.Datetime.now() + timedelta(minutes=5)
-        message = delivery.notification_id.mail_message_id
+        message = delivery._message()
         try:
             client.send(device.token, *delivery._push_message())
         except PermanentTokenError as error:

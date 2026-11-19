@@ -10,6 +10,8 @@ from odoo.addons.sol_laboratory.services.request_env import request_env
 DISPATCH_COUNTER = "dispatch_count"
 # The session key holding why the last result entered on a dispatch page was refused.
 ERROR_KEY = "sol_laboratory_dispatch_error"
+# Address of the subcontractor's list of dispatches.
+DISPATCHES_PAGE = "/my/dispatches"
 
 
 class MedilabDispatchPortal(CustomerPortal):
@@ -21,24 +23,39 @@ class MedilabDispatchPortal(CustomerPortal):
             return MODEL_SUBCONTRACT_DISPATCH, domain, "sudo"
         return super()._prepare_portal_counter_values(counter)
 
-    @http.route("/my/dispatches", type="http", auth="user", **FRONTEND_PAGE)
+    @http.route(DISPATCHES_PAGE, type="http", auth="user", **FRONTEND_PAGE)
     def portal_my_dispatches(self, **kwargs):
         values = self._prepare_portal_layout_values()
         values.update(page_name="dispatches", dispatches=self._dispatches())
         return request.render("sol_laboratory.portal_my_dispatches", values)
 
-    @http.route("/my/dispatches/<int:dispatch_id>", type="http", auth="user", **FRONTEND_PAGE)
+    @http.route(f"{DISPATCHES_PAGE}/<int:dispatch_id>", type="http", auth="user", **FRONTEND_PAGE)
     def portal_my_dispatch(self, dispatch_id, **kwargs):
         dispatch = self._dispatches(dispatch_id)
         if not dispatch:
-            return request.redirect("/my/dispatches")
+            return request.redirect(DISPATCHES_PAGE)
         return self._render_dispatch(dispatch, error=request.session.pop(ERROR_KEY, None))
 
-    @http.route("/my/dispatches/<int:dispatch_id>/results", type="http", auth="user", methods=["POST"], **FRONTEND_PAGE)
+    @http.route(
+        f"{DISPATCHES_PAGE}/<int:dispatch_id>/receive", type="http", auth="user", methods=["POST"], **FRONTEND_PAGE
+    )
+    def portal_confirm_receipt(self, dispatch_id, **kwargs):
+        dispatch = self._dispatches(dispatch_id)
+        if not dispatch:
+            return request.redirect(DISPATCHES_PAGE)
+        try:
+            dispatch._portal_confirm_receipt()
+        except UserError as error:
+            request.session[ERROR_KEY] = str(error)
+        return request.redirect(f"{DISPATCHES_PAGE}/{dispatch_id}")
+
+    @http.route(
+        f"{DISPATCHES_PAGE}/<int:dispatch_id>/results", type="http", auth="user", methods=["POST"], **FRONTEND_PAGE
+    )
     def portal_enter_result(self, dispatch_id, sample_test_id="", value=None, value_text=None, **kwargs):
         dispatch = self._dispatches(dispatch_id)
         if not dispatch:
-            return request.redirect("/my/dispatches")
+            return request.redirect(DISPATCHES_PAGE)
         try:
             # A check after the result is written refuses it too, so the savepoint takes the result back.
             with request_env().cr.savepoint():
@@ -46,7 +63,7 @@ class MedilabDispatchPortal(CustomerPortal):
         except UserError as error:
             # Kept in the session, not the address: the page shows only the system's own message.
             request.session[ERROR_KEY] = str(error)
-        return request.redirect(f"/my/dispatches/{dispatch_id}")
+        return request.redirect(f"{DISPATCHES_PAGE}/{dispatch_id}")
 
     def _render_dispatch(self, dispatch, error=None):
         results = dispatch.sample_test_ids.result_ids.filtered(

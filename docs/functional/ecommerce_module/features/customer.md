@@ -27,10 +27,10 @@ The customer is an external user of the laboratory. A customer has an account li
 ### Quotation and payment
 
 - **US-C13** As a customer, I want to view the quotation the laboratory sends me, including parameters and prices, so that I know exactly what I will pay for.
-- **US-C14** As a customer, I want to accept a quotation by paying the advance invoice online or by bank transfer or cash, so that the order moves forward without a separate signing step.
+- **US-C14** As a customer, I want to accept a quotation by paying its advance payment request online or by bank transfer or cash, so that the order moves forward without a separate signing step.
 - **US-C15** As a customer, I want to decline a quotation and give a reason, so that the laboratory knows why I did not proceed.
 - **US-C16** As a customer, I want to view and download invoices for my orders, so that I can keep track of my payments and expenses.
-- **US-C17** As a customer, I want to pay an invoice online, in full or in part, so that I can settle my account conveniently.
+- **US-C17** As a customer, I want to pay a payment request or an invoice online, in full or in part, so that I can settle my account conveniently.
 
 ### Tracking and results
 
@@ -215,7 +215,7 @@ stateDiagram-v2
 | Sales decides | Sales accepts or declines with a reply. A whole-order cancellation cancels the order and its laboratory work. When a new committed return date is refused, Sales handles a request for the unfulfillable part and retains the rest, including completed results. |
 | Blocked cases | Whole-order cancellation is blocked if any testing is completed or results released. Cancelling an unfulfillable part preserves completed work and follows the affected sample-test cancellation rules. Once the order's samples are collected, accepting goes through a change request the Head of Sales approves. Sales tells the customer the decision. |
 | Order keeps running meanwhile | A pending request does not pause the laboratory; testing continues until sales accepts.                                                                                                                                                  |
-| Money                         | There is no refund flow. If an advance was paid, the money stays on the invoice and sales settles it with the customer outside the system. The customer is told this when sending the request.                                           |
+| Money                         | There is no refund flow. If an advance was paid, the money stays on the order and sales settles it with the customer outside the system. A cancellation is refused while a payment awaits the accountant. The customer is told this when sending the request.                                           |
 | Notification                  | The customer gets an email when the request is accepted or declined.                                                                                                                                                                     |
 
 Acceptance criteria:
@@ -227,12 +227,12 @@ Acceptance criteria:
 
 ### 3. Quotation, acceptance and payment (US-C13 to US-C17)
 
-- The quotation page shows the parameters, prices, the payment deadline, the advance invoice, the customer's requested date and the committed return date. Internal due dates are never shown to the customer.
-- **Acceptance is payment.** Paying the advance invoice means the customer accepted. A quotation sent without an advance is accepted on the portal with **Accept quotation**.
+- The quotation page shows the parameters, prices, the payment deadline, the advance payment request with the money verified and still needed, the customer's requested date and the committed return date. Internal due dates are never shown to the customer.
+- **Acceptance is payment.** Verified payments reaching the advance mean the customer accepted; a partial advance does not, and declining is refused while a payment awaits the accountant. A quotation sent without an advance is accepted on the portal with **Accept quotation**.
 - The customer can decline a sent quotation with a reason; the salesperson is notified and the order is not cancelled.
 - When sales creates a new revision of a quotation, the customer sees a banner and the list of revisions.
 - The invoice list shows posted invoices only, with payment status and the amount still owed. The customer can print or download the invoice and, after payment, the payment receipt.
-- Online payment accepts any amount up to the remaining balance, so partial payments are possible.
+- Online payment accepts any amount up to what the payment request or invoice still needs, so partial payments are possible.
 
 ### 4. Tracking and results (US-C18, US-C19)
 

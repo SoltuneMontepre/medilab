@@ -70,11 +70,15 @@ test("WF-03 loads, owns its hooks and scopes distinct calls when only getRandomV
       if (arguments.length > 1) exposed.set(name, value);
       return exposed.get(name);
     },
+    log() {},
   };
   globalThis.cy = {
     task(name, payload, options) {
       calls.push({ name, payload: structuredClone(payload), options });
       return Promise.resolve(null);
+    },
+    then(callback) {
+      return callback();
     },
   };
   globalThis.before = (hook) => (hooks.before = hook);

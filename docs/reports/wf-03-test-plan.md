@@ -1066,16 +1066,16 @@ TXN-003 raises its exception once per run at each injection point, after the tra
 
 ### 12.5 Browser test traceability
 
-The browser tests live in `src/tests/cypress/e2e/flows/wf-03-testing-scheduling/`. A title starts with the approved path ID of [Business flows](../functional/business-flows.md). The `partial` label marks coverage of part of the path. All covered paths are partial. The current WF-03 baseline requires head approval for every feasible proposed booking, a notice to the tester when it is approved and a reminder before it starts. Those steps remain uncovered by the WF-03 path tests.
+The browser tests live in `src/tests/cypress/e2e/flows/wf-03-testing-scheduling/`. A title starts with the approved path ID of [Business flows](../functional/business-flows.md). The `partial` label marks coverage of part of the path. All covered paths are partial. The WF-03 path tests cover head approval of a feasible proposed booking and the notices to the tester when a task is assigned and a booking is approved; the reminder before a booking starts stays covered by the model tests.
 
 | Path | Browser test | Proved | Still blocked by |
 |---|---|---|---|
-| WF-03-M | `TC-WF03-M partial` | The head assigns the test. Today's tester-facing Schedule action books the recommended machine and slot and updates Machine Schedule, the calendar event and task times | #420 shared runs and capacity, #421 authorization, #422 proposed plan and head approval under the current baseline, #427 booking reminder |
+| WF-03-M | `TC-WF03-M partial` | The head assigns the test, which notifies the tester. The tester sees the proposed booking but cannot reserve it; the head's Approve Booking books the recommended machine and slot, notifies the tester and updates Machine Schedule, the calendar event and task times | #420 shared runs and capacity, #421 authorization, #427 booking reminder |
 | WF-03-A1 | `TC-WF03-A1 partial` | Tester claims an unassigned task of their department | #421 parameter authorization |
 | WF-03-A2 | `TC-WF03-A2 partial` | Machine and step-room bookings are made together. Room events cannot be removed separately | #420 shared intervals, capacity and booking without a machine |
-| WF-03-A3 | none | – | #426 OverTime |
-| WF-03-E1 | `TC-WF03-E1 partial` (2 tests) | The head moves a task to another person and department with a reason. Only the new assignee sees the moved task and its booking | #421 authorization, plus head approval of the new proposal and the new assignee's notification |
-| WF-03-E2 | `TC-WF03-E2 partial` | The outsourcing warning shows, Schedule is hidden and refused, and no booking or event is created | #179 viable options and earliest date. SF-07 owns changes to the committed return date. WF-05 owns outsourcing to a subcontractor with the same method |
+| WF-03-A3 | `TC-WF03-A3` | The head records planned OverTime through Schedule with a reason and no HR overtime shift; the tester moves a scheduled booking into that interval, which remains unchanged | – |
+| WF-03-E1 | `TC-WF03-E1 partial` (2 tests) | The head moves a task to another person and department with a reason, approves the new proposal, and the new assignee is told of the task and the booking. Only the new assignee sees the moved task and its booking | #421 authorization |
+| WF-03-E2 | `TC-WF03-E2 partial` | The outsourcing warning shows, the booking goes to the head's review, Approve Booking is hidden and refused, and no booking or event is created | #179 viable options and earliest date. SF-07 owns changes to the committed return date. WF-05 owns outsourcing to a subcontractor with the same method |
 | SF-10-M | `TC-F24-02` (RPC order only) | Queue order by urgency then queue time | #422 priority classes, tie-breaks, proposed plan and head approval under the current baseline, plus #179 risk |
 | SF-10-A1 | none | – | #422, #164 |
 | SF-10-A2 | `TC-SF10-A2 partial` (5 tests) | Tester cancels a booking; head moves a booking through its form and by calendar drag with every reservation moving together; a drop onto a busy slot is refused; head cancels a booking and the test stays assigned | #423 pinning, #420 shared runs |

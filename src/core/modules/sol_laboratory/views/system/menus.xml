@@ -23,6 +23,7 @@
             <menuitem id="menu_sample_test" action="action_medilab_sample_test" sequence="15" />
             <menuitem id="menu_handover_record" action="action_medilab_handover_record" sequence="20" />
             <menuitem id="menu_sample_handover" action="action_medilab_sample_handover" sequence="30" />
+            <menuitem id="menu_sample_return" action="action_medilab_sample_return" sequence="35" />
             <menuitem id="menu_sample_scan" action="action_medilab_sample_scan" sequence="40" />
         </menuitem>
         <menuitem id="menu_laboratory_customers" name="Customers" sequence="30">
@@ -47,7 +48,7 @@
                 id="menu_test_report_to_deliver"
                 action="action_medilab_test_report_to_deliver"
                 sequence="40"
-                groups="group_permission_test_report_edit_all"
+                groups="group_permission_test_report_deliver_all"
             />
         </menuitem>
         <menuitem id="menu_laboratory_schedule" name="Schedule" sequence="50">
@@ -63,6 +64,12 @@
                 action="action_medilab_overtime"
                 sequence="25"
                 groups="group_permission_overtime_read_all,group_permission_overtime_read_own_department"
+            />
+            <menuitem
+                id="menu_plan_revision"
+                action="action_medilab_plan_revision"
+                sequence="27"
+                groups="group_permission_plan_revision_read_all,group_permission_plan_revision_read_own_department"
             />
             <menuitem
                 id="menu_subcontract_dispatch"
@@ -127,6 +134,28 @@
                 action="action_medilab_report_template"
                 sequence="30"
                 groups="group_permission_report_template_read_all"
+            />
+        </menuitem>
+    </menuitem>
+
+    <!-- Every installed module lists its reports here too, grouped by area, so one app gives the overview; each report
+         stays under the Reporting menu of the app it is about and shows to the same people. -->
+    <menuitem id="menu_reports_root" name="Reports" sequence="25">
+        <menuitem id="menu_reports_testing" name="Testing Reports" sequence="10">
+            <!-- The current month's statistics open as a page, so opening the app shows its menus rather than the
+                 period dialog over the previous app. -->
+            <menuitem
+                id="menu_reports_testing_statistic"
+                action="action_medilab_testing_statistic"
+                sequence="10"
+                groups="group_permission_testing_statistic_read_all,group_permission_testing_statistic_read_own_department"
+            />
+            <menuitem
+                id="menu_reports_testing_statistic_period"
+                name="Statistics for a Period"
+                action="action_medilab_testing_statistic_period"
+                sequence="20"
+                groups="group_permission_testing_statistic_read_all,group_permission_testing_statistic_read_own_department"
             />
         </menuitem>
     </menuitem>

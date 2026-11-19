@@ -33,6 +33,35 @@
         <field name="domain">[(1, "=", 1)]</field>
     </record>
 
+    <record id="access_payment_request_own" model="ir.access">
+        <field name="name">Read payment requests of own orders</field>
+        <field name="model_id" ref="model_medilab_payment_request" />
+        <field name="group_id" ref="sol_laboratory.group_permission_order_read_own" />
+        <field name="operation">r</field>
+        <field name="domain">[("order_id", "access", "read")]</field>
+    </record>
+    <record id="access_payment_request_read_all" model="ir.access">
+        <field name="name">Read payment requests of accessible orders</field>
+        <field name="model_id" ref="model_medilab_payment_request" />
+        <field name="group_id" ref="sol_laboratory.group_permission_order_read_all" />
+        <field name="operation">r</field>
+        <field name="domain">[("order_id", "access", "read")]</field>
+    </record>
+    <record id="access_payment_request_head" model="ir.access">
+        <field name="name">Head of Sales reads payment requests</field>
+        <field name="model_id" ref="model_medilab_payment_request" />
+        <field name="group_id" ref="group_all_orders" />
+        <field name="operation">r</field>
+        <field name="domain">[(1, "=", 1)]</field>
+    </record>
+    <record id="access_payment_request_billing" model="ir.access">
+        <field name="name">Accountants read payment requests</field>
+        <field name="model_id" ref="model_medilab_payment_request" />
+        <field name="group_id" ref="account.group_account_invoice" />
+        <field name="operation">r</field>
+        <field name="domain">[(1, "=", 1)]</field>
+    </record>
+
     <!-- The sales dashboard and Odoo's sales analyses read sale.report, which has no order access of its own. -->
     <record id="access_sale_report_read" model="ir.access">
         <field name="name">sale.report follows the order owner</field>

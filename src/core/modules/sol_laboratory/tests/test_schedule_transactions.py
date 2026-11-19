@@ -22,7 +22,7 @@ class TestScheduleTransactions(SchedulingConcurrencyCase):
         self.counts = self.committed(self.table_counts)
 
     def schedule(self, env):
-        env[MODEL_SAMPLE_TEST].browse(self.test_ids[0]).with_user(self.user_ids[0]).action_schedule()
+        env[MODEL_SAMPLE_TEST].browse(self.test_ids[0]).with_user(self.user_ids[0]).action_approve_booking()
 
     def failing(self, model, method, condition):
         """Patch the method of the model to raise a RuntimeError with a message no other code raises, once, when the

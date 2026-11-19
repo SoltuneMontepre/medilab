@@ -22,6 +22,8 @@ export function sample(values: Partial<Sample> = {}): Sample {
     customer_sample_name: null,
     handover: { department: "Hoá", received_at: null, received_by: "", can_receive: true },
     tasks: [LEAD],
+    can_add_photos: false,
+    tests_samples: true,
     ...values,
   };
 }

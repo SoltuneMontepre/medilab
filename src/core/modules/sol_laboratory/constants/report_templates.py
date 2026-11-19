@@ -33,3 +33,6 @@ CANDIDATE_PREPARED = "prepared"
 CANDIDATE_MIGRATED = "migrated"
 # Context key of the sign button of a report: the id of the prepared PDF its signer reviewed, which the signature signs.
 REVIEWED_CANDIDATE_CONTEXT = "medilab_reviewed_candidate_id"
+# Context key of the code that generates a report's DOCX draft or fills its issue details, the only code that adds
+# versions to the draft file.
+REPORT_GENERATION_CONTEXT = "medilab_report_generation"

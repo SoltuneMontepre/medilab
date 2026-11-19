@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_plan_revision_list" model="ir.ui.view">
+        <field name="name">medilab.plan.revision.list</field>
+        <field name="model">medilab.plan.revision</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" delete="0" decoration-muted="status in ('rejected', 'cancelled')">
+                <field name="create_date" string="Proposed" />
+                <field name="department_id" />
+                <field name="reason" />
+                <field
+                    name="status"
+                    widget="badge"
+                    decoration-warning="status == 'proposed'"
+                    decoration-success="status == 'applied'"
+                    decoration-danger="status == 'rejected'"
+                    decoration-muted="status == 'cancelled'"
+                />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_plan_revision_form" model="ir.ui.view">
+        <field name="name">medilab.plan.revision.form</field>
+        <field name="model">medilab.plan.revision</field>
+        <field name="arch" type="xml">
+            <form create="0" edit="0" delete="0" duplicate="0">
+                <header>
+                    <field name="can_decide" invisible="1" />
+                    <field name="can_approve" invisible="1" />
+                    <button name="action_approve" type="object" string="Approve Moves" class="btn-primary" invisible="not can_approve" />
+                    <button name="action_reject" type="object" string="Reject" invisible="not can_decide" />
+                    <field name="status" widget="statusbar" statusbar_visible="proposed,applied" />
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="department_id" /></h1>
+                    </div>
+                    <group>
+                        <field name="reason" />
+                        <field name="create_date" string="Proposed" />
+                    </group>
+                    <field name="move_ids" readonly="1">
+                        <list
+                            create="0"
+                            delete="0"
+                            edit="0"
+                            decoration-warning="status == 'held_back'"
+                            decoration-danger="status == 'conflict'"
+                            decoration-success="status == 'applied'"
+                        >
+                            <field name="booking_id" />
+                            <field name="person_id" />
+                            <field name="department_id" />
+                            <field name="previous_starts_at" />
+                            <field name="starts_at" />
+                            <field name="ends_at" />
+                            <field name="machine_id" />
+                            <field name="due_date" />
+                            <field name="committed_date" />
+                            <field name="approved_by_id" optional="hide" />
+                            <field
+                                name="status"
+                                widget="badge"
+                                decoration-info="status in ('proposed', 'approved')"
+                                decoration-warning="status == 'held_back'"
+                                decoration-danger="status == 'conflict'"
+                                decoration-success="status == 'applied'"
+                            />
+                        </list>
+                    </field>
+                    <p class="text-muted mt-3">A held-back move would finish after its internal due date, so its booking keeps its slot until Sales records the customer's agreement to a new committed return date. A move in conflict would move a booking the head placed by hand, which no revision moves.</p>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_medilab_plan_revision_search" model="ir.ui.view">
+        <field name="name">medilab.plan.revision.search</field>
+        <field name="model">medilab.plan.revision</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="department_id" />
+                <field name="reason" />
+                <filter name="proposed" string="Proposed" domain="[('status', '=', 'proposed')]" />
+                <filter name="held_back" string="Held Back" domain="[('move_ids.status', '=', 'held_back'), ('status', '=', 'proposed')]" />
+                <group>
+                    <filter name="group_department" string="Department" context="{'group_by': 'department_id'}" />
+                    <filter name="group_status" string="Status" context="{'group_by': 'status'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medilab_plan_revision" model="ir.actions.act_window">
+        <field name="name">Plan Revisions</field>
+        <field name="res_model">medilab.plan.revision</field>
+        <field name="path">plan-revisions</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_proposed': 1}</field>
+    </record>
+</odoo>

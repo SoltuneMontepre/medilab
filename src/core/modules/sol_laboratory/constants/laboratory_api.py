@@ -31,8 +31,10 @@ from odoo.addons.sol_laboratory.constants.laboratory_uploads import (
 from odoo.addons.sol_laboratory.constants.medilab_mobile import (
     ACTION_REFUSED,
     ALREADY_CLAIMED,
+    ALREADY_TAKEN,
     MANDATORY_EVENT,
     RESULT_WARNING,
+    TOO_LARGE,
 )
 
 # Every route of the API is under this path.
@@ -56,11 +58,13 @@ ERROR_STATUSES = {
     ACTION_REFUSED: 409,
     ALREADY_CLAIMED: 409,
     RESULT_WARNING: 409,
+    ALREADY_TAKEN: 409,
     NOT_ELIGIBLE: 422,
     NOT_LOCKABLE: 422,
     NOT_EDITABLE: 422,
     IDEMPOTENCY_CONFLICT: 422,
     MANDATORY_EVENT: 422,
+    TOO_LARGE: 413,
     TOO_MANY_ATTEMPTS: 429,
     INTERNAL_ERROR: 500,
     TRY_AGAIN: 503,
