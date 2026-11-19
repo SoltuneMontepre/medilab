@@ -8,7 +8,7 @@ fn default_browser_plugin_worker() {
         .plugin(tauri_plugin_opener::init())
         .build(tauri::test::mock_context(tauri::test::noop_assets()))
         .unwrap();
-    let result = crate::browser::open_editor(app.handle(), "https://lims.example/odoo", 42);
+    let result = crate::browser::open_editor(app.handle(), "https://lims.example", 42);
     assert_eq!(
         result.is_err(),
         std::env::var_os("MEDILAB_OPENER_EXPECT_FAILURE").is_some()
@@ -66,7 +66,7 @@ fn linux_default_launcher_receives_only_the_editor_url_and_missing_launcher_is_r
             }
             assert_eq!(
                 std::fs::read_to_string(&captured).unwrap(),
-                "https://lims.example/odoo/medilab/laboratory-files/42/edit\n"
+                "https://lims.example/medilab/laboratory-files/42/edit\n"
             );
             std::fs::remove_file(&captured).unwrap();
         }

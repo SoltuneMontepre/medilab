@@ -1,8 +1,9 @@
 from typing import TYPE_CHECKING
 
 from odoo import models
+from odoo.exceptions import UserError
 
-from odoo.addons.sol_commerce.constants.models import MODEL_CUSTOMER_SALES_TERMS, MODEL_SALE_ORDER
+from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
 from odoo.addons.sol_commerce.constants.orders import STATUS_COMPLETED, STATUS_CONFIRMED
 from odoo.addons.sol_laboratory.constants.models import MODEL_TEST_REQUEST
 
@@ -25,10 +26,27 @@ class TestRequest(models.Model, TestRequestBase):
     def _credit_blocks_confirmation(self):
         self.ensure_one()
         order = self._sale_order()
-        if not order or order._is_paid():
+        if not order:
             return False
-        terms = self.env[MODEL_CUSTOMER_SALES_TERMS].sudo().search([("customer_id", "=", self.customer_id.id)], limit=1)
-        return not terms.allow_credit
+        advance = order.payment_request_ids.filtered(
+            lambda ask: ask.quotation_id == order._latest_quotation() and ask.kind == "advance"
+        )
+        return bool(advance and advance.state != "funded")
+
+    def _status_after_confirmation(self):
+        order = self._sale_order()
+        if not order:
+            return super()._status_after_confirmation()
+        if order.on_credit:
+            return "on_credit"
+        return "paid" if order._can_collect_samples() else False
+
+    def _check_sample_intake(self):
+        for request in self:
+            order = request._sale_order()
+            if order and not order._can_collect_samples():
+                raise UserError(self.env._("Verify the order balance before collecting its samples."))
+        return super()._check_sample_intake()
 
     def _set_status(self, status):
         result = super()._set_status(status)

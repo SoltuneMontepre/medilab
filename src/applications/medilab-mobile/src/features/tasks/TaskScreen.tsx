@@ -13,8 +13,9 @@ import { colors, styles as shared } from "../../styles";
 import { TestFacts } from "../bench/TestFacts";
 import { ActionProblem } from "../connection/ActionProblem";
 import { LoadNotice } from "../connection/LoadNotice";
-import { documentPath, resultPath, SAMPLE_TEST_MODEL, sampleTestPath } from "../documents/documentPath";
+import { documentPath, resultPath, SAMPLE_TEST_MODEL, samplePath, sampleTestPath } from "../documents/documentPath";
 import { Button } from "../shared/Button";
+import { ChatterButton } from "../messages/ChatterButton";
 import { Facts, type Fact } from "../shared/Facts";
 import { formatMoment, statusKey } from "./taskText";
 
@@ -27,7 +28,8 @@ const ACTIONS: { action: Action; label: MessageKey }[] = [
 ];
 
 /** A task as the person may read it, with the actions the web's form shows them: claiming it from their queue,
- * starting it, marking a task created by hand done, assigning it, and opening its document at the action to take. */
+ * starting it, marking a task created by hand done, assigning it, and opening its document at the action to take or
+ * the samples a collection task is for. */
 export function TaskScreen() {
   const t = useT();
   const { call } = useSession();
@@ -66,6 +68,7 @@ export function TaskScreen() {
           {ACTIONS.filter(({ action }) => load.value.actions[action]).map(({ action, label }) => (
             <Pressable
               key={action}
+              testID={`task-${action}`}
               accessibilityRole="button"
               accessibilityState={{ disabled: busy }}
               disabled={busy}
@@ -84,7 +87,7 @@ export function TaskScreen() {
               <Text style={shared.secondaryButtonText}>{t("task.assign")}</Text>
             </Pressable>
           )}
-          {load.value.document && (
+          {load.value.document && !(load.value.samples.length && load.value.document.screen === "sample") && (
             <Pressable
               accessibilityRole="button"
               style={shared.secondaryButton}
@@ -95,6 +98,7 @@ export function TaskScreen() {
               </Text>
             </Pressable>
           )}
+          <ChatterButton document={{ model: "medilab.task", id: load.value.id, code: load.value.name }} />
         </ScrollView>
       )}
     </SafeAreaView>
@@ -124,6 +128,21 @@ function Details({ task }: Readonly<{ task: TaskDetail }>) {
       <Facts facts={facts} />
       {task.document?.model === SAMPLE_TEST_MODEL && <BenchTest id={task.document.id} />}
       {!!task.note && <Text style={shared.text}>{task.note}</Text>}
+      {task.samples.length > 0 && (
+        <View style={shared.section}>
+          <Text accessibilityRole="header" style={shared.heading}>
+            {t("task.samples")}
+          </Text>
+          {task.samples.map((sample) => (
+            <Button
+              key={sample.id}
+              label={t("task.openDocument", { code: sample.code })}
+              onPress={() => router.push(samplePath(sample.id))}
+              testID={`collection-sample-${sample.id}`}
+            />
+          ))}
+        </View>
+      )}
       {task.steps.length > 0 && (
         <View style={shared.section}>
           <Text accessibilityRole="header" style={shared.heading}>
@@ -158,7 +177,7 @@ function BenchTest({ id }: Readonly<{ id: number }>) {
     <View style={shared.section}>
       <TestFacts test={test} />
       {test.can_enter_result && (
-        <Button label={t("test.enterResult")} onPress={() => router.push(sampleTestPath(id))} primary />
+        <Button label={t("test.enterResult")} onPress={() => router.push(sampleTestPath(id))} primary testID="task-enter-result" />
       )}
       {!test.can_enter_result && test.result && (
         <Button label={t("test.openResult")} onPress={() => test.result && router.push(resultPath(test.result.id))} />

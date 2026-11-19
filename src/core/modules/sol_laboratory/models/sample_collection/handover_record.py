@@ -9,8 +9,8 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_HANDOVER_RECORD,
     MODEL_HANDOVER_RECORD_SAMPLE,
     MODEL_IR_ATTACHMENT,
+    MODEL_LABORATORY_DEVICE,
     MODEL_LOCK_MIXIN,
-    MODEL_MOBILE_DEVICE,
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
     MODEL_TEST_REQUEST,
@@ -65,9 +65,9 @@ class HandoverRecord(models.Model, HandoverRecordBase):
         signature_attachment_id = fields.Many2one(
             MODEL_IR_ATTACHMENT, string="Signature", readonly=True, copy=False, ondelete="restrict"
         )
-        # The mobile device the customer signed on.
+        # The signed-in phone the customer signed on; a phone is never deleted.
         signed_device_id = fields.Many2one(
-            MODEL_MOBILE_DEVICE, string="Signed on Device", readonly=True, copy=False, ondelete="set null"
+            MODEL_LABORATORY_DEVICE, string="Signed on Device", readonly=True, copy=False, ondelete="restrict"
         )
         # The record's PDF.
         attachment_id = fields.Many2one(
@@ -95,17 +95,18 @@ class HandoverRecord(models.Model, HandoverRecordBase):
             raise UserError(self.env._("A handover record is signed only by the customer, on the mobile app."))
         return super().write(vals)
 
-    def unlink(self):
+    @api.ondelete(at_uninstall=False)
+    def _unlink_except_signed_records(self):
         if any(record.status == "signed" for record in self):
             raise UserError(self.env._("A signed handover record cannot be deleted."))
-        return super().unlink()
 
-    def action_sign(self, signature, device_id=None):
-        """The mobile app sends the customer's handwritten signature as PNG bytes and the device it was signed on."""
+    def action_sign(self, signature):
+        """Record the customer's handwritten signature, as PNG bytes. Only Medilab Mobile's route records the phone it
+        was signed on, from the key that signed the phone in."""
         for record in self:
-            record._sign(signature, device_id)
+            record._sign(signature)
 
-    def _sign(self, signature, device_id):
+    def _sign(self, signature, device=None):
         self.ensure_one()
         if self.status != "draft":
             raise UserError(self.env._("A signed handover record cannot be changed. Create a new record instead."))
@@ -116,7 +117,9 @@ class HandoverRecord(models.Model, HandoverRecordBase):
         signature_attachment = attachments.create(
             {"name": f"{self.code}-signature.png", "raw": signature, "res_model": self._name, "res_id": self.id}
         )
-        self.sudo().write({"signature_attachment_id": signature_attachment.id, "signed_device_id": device_id or False})
+        self.sudo().write(
+            {"signature_attachment_id": signature_attachment.id, "signed_device_id": device.id if device else False}
+        )
         pdf, _report_type = self.env["ir.actions.report"]._render_qweb_pdf(HANDOVER_RECORD_REPORT, self.ids)
         pdf_attachment = attachments.create(
             {

@@ -11,6 +11,7 @@ import { useSession } from "../../session";
 import { styles as shared } from "../../styles";
 import { Unreachable } from "../connection/Unreachable";
 import { samplePath } from "../documents/documentPath";
+import { CameraPermission } from "../shared/CameraPermission";
 
 /** Reads a sample's label with the camera, or takes its lab code typed when the label cannot be read, and opens the
  * sample as the person may see it. */
@@ -80,18 +81,10 @@ export function ScanScreen() {
           </View>
         )}
         {permission?.granted && <Text style={shared.detail}>{t("scan.hint")}</Text>}
-        {permission && !permission.granted && (
-          <>
-            <Text style={shared.detail}>{t("scan.cameraNeeded")}</Text>
-            {permission.canAskAgain && (
-              <Pressable accessibilityRole="button" style={shared.secondaryButton} onPress={requestPermission}>
-                <Text style={shared.secondaryButtonText}>{t("scan.allowCamera")}</Text>
-              </Pressable>
-            )}
-          </>
-        )}
+        <CameraPermission permission={permission} needed={t("scan.cameraNeeded")} onAllow={requestPermission} />
         <TextInput
           accessibilityLabel={t("scan.code")}
+          testID="scan-code"
           placeholder={t("scan.code")}
           autoCapitalize="characters"
           autoCorrect={false}
@@ -102,7 +95,7 @@ export function ScanScreen() {
           onSubmitEditing={() => open(typed)}
         />
         {missing && <Text style={shared.error}>{t("scan.missing")}</Text>}
-        <Pressable accessibilityRole="button" style={shared.primaryButton} onPress={() => open(typed)}>
+        <Pressable accessibilityRole="button" style={shared.primaryButton} testID="scan-open" onPress={() => open(typed)}>
           <Text style={shared.primaryButtonText}>{t("scan.open")}</Text>
         </Pressable>
         {problem?.load.state === "unreachable" && <Unreachable onRetry={() => open(problem.code)} />}

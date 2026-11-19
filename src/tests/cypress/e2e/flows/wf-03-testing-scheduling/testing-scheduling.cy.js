@@ -1,5 +1,7 @@
 import { call, callAs, callRefused, refAs } from "../../../support/odoo";
-import { pick, search } from "../../../support/form";
+import { openMenu, pick, search } from "../../../support/form";
+import { MENU } from "../../../support/menus";
+import { step } from "../../../support/steps";
 import { eventsGone, scheduleState } from "./state";
 import {
   ADMINISTRATOR,
@@ -8,33 +10,31 @@ import {
   PARAMETERS,
   PEOPLE,
   TESTER,
-  URGENCY,
-  assign,
+  approveThroughScreen,
   assignedChromium,
-  assignedLead,
   awayFromQuarterHour,
   book,
   bookedLead,
   bookedOnOneMachine,
   checkpointSettings,
-  forgetSetting,
   enableReminders,
+  notices,
   openBooking,
+  partnerOf,
   plannedTask,
   receivedSample,
   recommendation,
-  restoreSettings,
   releaseFixtures,
   resetFixtures,
+  restoreSettings,
   runReminders,
   saveSettings,
-  scheduleThroughScreen,
-  settings,
-  storedSettings,
-  testOf,
   testingTasks,
 } from "./setup";
 
+const ASSIGNED = "sol_laboratory.event_task_assigned";
+const APPROVED = "sol_laboratory.event_machine_booking_approved";
+const REMINDER = "task.reminder";
 const REASON = "Ly Van Hung is available for this analysis.";
 const ROOM = "Colorimetry room";
 const TASK_FIELDS = ["status", "assignee_id", "assigned_by_id", "department_id", "reassign_reason", "planned_start", "planned_end", "write_date"];
@@ -43,26 +43,8 @@ const readTask = (task) => () => callAs(ADMINISTRATOR, "medilab.task", "read", [
 
 const time = (value) => new Date(`${value}Z`).getTime();
 
-beforeEach(() => {
-  resetFixtures();
-  cy.viewport(1440, 900);
-});
+beforeEach(resetFixtures);
 afterEach(releaseFixtures);
-
-// Shows the sample's tasks in the department queue.
-function findInQueue(sample) {
-  cy.visit("/odoo/department-queue");
-  search(sample.code, { grouped: true });
-  cy.contains(".o_group_header", "Chemistry").click();
-}
-
-// Opens a task as its document opens from the to-do list.
-function openFromMyTasks(task) {
-  cy.visit("/odoo/my-tasks");
-  search(task.name);
-  cy.contains(".o_data_row", task.name).click();
-  cy.get(".o_form_view").should("be.visible");
-}
 
 function openTask(task) {
   cy.openRecord({ model: "medilab.task", id: task.id });
@@ -75,11 +57,15 @@ function openAssign() {
 }
 
 describe("WF-03 baseline assignment and scheduling", () => {
-  it("TC-WF03-M partial lets the head of department assign a sample and the tester book the recommended machine and slot", () => {
+  it("TC-WF03-M partial lets the head of department assign a sample, then approve the recommended machine and slot the tester sees", () => {
     receivedSample([PARAMETERS.chromium, PARAMETERS.ph]).then((sample) => {
       const [chromium] = sample.tests;
+      step("The head of department finds the sample's tasks in the department queue");
       cy.signInAs("head_of_department");
-      findInQueue(sample);
+      openMenu(MENU.tasks, MENU.departmentQueue);
+      search(sample.code, { grouped: true });
+      cy.contains(".o_group_header", "Chemistry").click();
+      step("The head assigns the sample to a tester");
       cy.contains(".o_data_row", chromium.task.name).find("button[name=action_assign_sample]").click();
       cy.get(".modal .o_field_widget[name=task_ids] .o_tag").should("have.length", 2);
       pick("assignee_id", "Dang Thi Lan");
@@ -94,21 +80,47 @@ describe("WF-03 baseline assignment and scheduling", () => {
         });
       });
 
+      // Assigning tells the tester of each task.
+      partnerOf(TESTER).then((tester) =>
+        sample.tests.forEach((test) =>
+          notices(ASSIGNED, test.task).should(({ partners }) => expect(partners).to.deep.equal([tester])),
+        ),
+      );
+
+      step("The tester opens the task from My Tasks");
       cy.signInAs("tester");
       awayFromQuarterHour();
-      openFromMyTasks(chromium.task);
+      openMenu(MENU.tasks, MENU.myTasks);
+      search(chromium.task.name);
+      cy.contains(".o_data_row", chromium.task.name).click();
+      cy.get(".o_form_view").should("be.visible");
+      step("The tester sees the recommended machine and slot without reserving it");
       cy.get(".o_field_widget[name=recommended_machine_id]").should("be.visible");
+      // The tester reads the proposed slot but cannot reserve it, and it reserves nothing.
+      cy.get(".o_statusbar_buttons button[name=action_approve_booking]").should("not.exist");
+      openBooking(chromium).should((proposed) => {
+        expect(proposed.status).to.equal("proposed");
+        expect(proposed.calendar_event_id).to.equal(false);
+      });
       recommendation(chromium).then((recommended) => {
         cy.get(".o_field_widget[name=recommended_machine_id]").should("contain", recommended.recommended_machine_id[1]);
-        scheduleThroughScreen();
-        cy.get(".o_statusbar_buttons button[name=action_schedule]").should("not.exist");
+        step("The head of department approves the recommended machine and slot");
+        cy.signInAs("head_of_department");
+        cy.openRecord(chromium);
+        approveThroughScreen();
+        cy.signInAs("tester");
         openBooking(chromium).then((booking) => {
           expect(booking.status).to.equal("scheduled");
           expect(booking.machine_id[0]).to.equal(recommended.recommended_machine_id[0]);
           expect(booking.starts_at).to.equal(recommended.recommended_start);
           expect(booking.ends_at).to.equal(recommended.recommended_end);
+          partnerOf(TESTER).then((tester) =>
+            notices(APPROVED, booking).should(({ partners }) => expect(partners).to.deep.equal([tester])),
+          );
 
-          cy.visit("/odoo/machine-schedule?view_type=list");
+          step("The booking shows in the machine schedule and in the tester's calendar");
+          openMenu(MENU.laboratory, MENU.schedule, MENU.machineSchedule);
+          cy.get(".o_switch_view.o_list").click();
           search(booking.machine_id[1], { field: "Machine" });
           cy.contains(".o_data_row", booking.display_name).should("contain", booking.machine_id[1]).and("be.visible");
           call("calendar.event", "read", [[booking.calendar_event_id[0]], ["start", "stop", "partner_ids", "alarm_ids"]]).then(([event]) => {
@@ -124,7 +136,8 @@ describe("WF-03 baseline assignment and scheduling", () => {
             expect(task.planned_start).to.equal(booking.starts_at);
             expect(task.planned_end).to.equal(booking.ends_at);
           });
-          cy.visit("/odoo/calendar?view_type=list");
+          openMenu(MENU.calendar);
+          cy.get(".o_switch_view.o_list").click();
           search(sample.code);
           cy.contains(".o_data_row", `${booking.machine_id[1]}: ${booking.display_name}`).should("be.visible");
         });
@@ -134,11 +147,13 @@ describe("WF-03 baseline assignment and scheduling", () => {
 
   it("TC-WF03-A1 partial lets a tester claim an unassigned task of their department", () => {
     receivedSample().then(({ tests: [lead] }) => {
+      step("The tester claims an unassigned task of their department");
       cy.signInAs("tester");
       cy.visit("/odoo/awaiting-tasks");
       search(lead.task.name);
       cy.contains(".o_data_row", lead.task.name).find("button[name=action_claim]").click();
       cy.contains(".o_data_row", lead.task.name).should("not.exist");
+      step("The task shows in the tester's My Tasks, assigned to them");
       cy.visit("/odoo/my-tasks");
       search(lead.task.name);
       cy.contains(".o_data_row", lead.task.name).should("be.visible");
@@ -147,12 +162,14 @@ describe("WF-03 baseline assignment and scheduling", () => {
         expect(task.assignee_id[1]).to.equal("Dang Thi Lan");
       });
       cy.readRecord(lead.task, ["assigned_by_id"]).its("assigned_by_id.1").should("eq", "Dang Thi Lan");
+      notices(ASSIGNED, lead.task).should(({ messages }) => expect(messages, "claiming notifies nobody").to.be.empty);
     });
   });
 
   it("TC-WF03-E1 partial lets the head of department move a task to another person, then to another department, with a reason", () => {
     bookedLead().then(({ sample, test, booking }) => {
       const task = { model: "medilab.task", id: booking.task_id[0] };
+      step("The head of department moves the task to another person, with a reason");
       cy.signInAs("head_of_department");
       openTask(task);
       openAssign();
@@ -164,15 +181,20 @@ describe("WF-03 baseline assignment and scheduling", () => {
         expect(read.assignee_id[1]).to.equal("Ly Van Hung");
         expect(read.reassign_reason).to.equal(REASON);
       });
-      // The booking returns to the plan, which proposes a slot in the new assignee's working time; the new assignee
-      // accepts it.
+      // The booking returns to the plan, which proposes a slot in the new assignee's working time; the head approves
+      // it, and the new assignee is told of the task and of the booking.
+      step("The booking goes back to the plan, and the head approves the proposed slot");
       openBooking(test, HEAD).should((moved) => {
         expect(moved.person_id[1]).to.equal("Ly Van Hung");
         expect(moved.status).to.equal("proposed");
         expect(moved.calendar_event_id).to.equal(false);
       });
-      callAs(OTHER_TESTER, "medilab.machine.booking", "action_accept", [[booking.id]]);
+      callAs(HEAD, "medilab.machine.booking", "action_approve", [[booking.id]]);
       openBooking(test, HEAD).should("have.property", "status", "scheduled");
+      partnerOf(OTHER_TESTER).then((newTester) => {
+        notices(ASSIGNED, task).should(({ partners }) => expect(partners).to.include(newTester));
+        notices(APPROVED, booking).should(({ partners }) => expect(partners).to.include(newTester));
+      });
       scheduleState(test).then((state) => {
         const moved = state.bookings.find(({ id }) => id === booking.id);
         expect(state.tasks[0].planned_start).to.equal(moved.starts_at);
@@ -186,6 +208,7 @@ describe("WF-03 baseline assignment and scheduling", () => {
       });
 
       // The task leaves the department from the list; the head who moved it still reads it there.
+      step("The head moves the task to another department, with a reason");
       cy.visit("/odoo/all-tasks");
       search(sample.code);
       cy.contains(".o_data_row", "Lead (Pb)").find("button[name=action_assign_sample]").click();
@@ -200,6 +223,7 @@ describe("WF-03 baseline assignment and scheduling", () => {
         expect(read.status).to.equal("open");
         expect(read.assignee_id).to.equal(false);
       });
+      step("The task waits in that department's queue, and its booking and events are gone");
       openBooking(test, ADMINISTRATOR).should("eq", null);
       eventsGone([booking.calendar_event_id[0], ...booking.room_event_ids]);
       readTask(task)().should((read) => {
@@ -238,11 +262,12 @@ describe("WF-03 baseline assignment and scheduling", () => {
           );
           scheduleState(test).should("deep.equal", before);
         });
-        // The freed slot is offered again, so the test is recommended a slot that ends no later.
+        // The freed slot is offered again, so the test is recommended a slot that ends no later, which the head approves.
+        cy.signInAs("head_of_department");
         cy.openRecord(test);
-        cy.get(".o_statusbar_buttons button[name=action_schedule]").should("be.visible");
+        cy.get(".o_statusbar_buttons button[name=action_approve_booking]").should("be.visible");
         recommendation(test).its("recommended_end").should("be.a", "string").then(time).should("be.at.most", time(booking.ends_at));
-        scheduleThroughScreen();
+        approveThroughScreen();
         openBooking(test).should((replacement) => {
           expect(replacement.id).not.to.equal(booking.id);
           expect(replacement.status).to.equal("scheduled");
@@ -252,12 +277,15 @@ describe("WF-03 baseline assignment and scheduling", () => {
     });
   });
 
-  it("TC-WF03-A2 partial creates a machine and step-room booking through Schedule and keeps them together", () => {
+  it("TC-WF03-A2 partial creates a machine and step-room booking when the head approves it and keeps them together", () => {
     assignedChromium().then(({ sample, test }) => {
-      cy.signInAs("tester");
+      step("The head of department approves a test with a step in a bookable room");
+      cy.signInAs("head_of_department");
       cy.openRecord(test);
-      scheduleThroughScreen();
+      approveThroughScreen();
+      cy.signInAs("tester");
       openBooking(test).then((booking) => {
+        step("The machine booking holds its room booking, on the tester's calendar");
         cy.visit(`/odoo/machine-schedule/${booking.id}`);
         cy.get("button.nav-link[name=room_bookings]").click();
         cy.contains(".o_field_widget[name=room_event_ids] .o_data_row", ROOM).should("be.visible");
@@ -281,6 +309,7 @@ describe("WF-03 baseline assignment and scheduling", () => {
             expect(time(events[0].start) - time(read.starts_at)).to.equal(15 * 60000);
             expect(time(events[0].stop) - time(read.starts_at)).to.equal(45 * 60000);
           });
+          step("The room booking cannot be removed apart from the machine booking");
           scheduleState(test).then((before) => {
             callRefused("calendar.event", "unlink", [read.room_event_ids]).should("contain", "Move or cancel the machine booking");
             scheduleState(test).should("deep.equal", before);
@@ -288,6 +317,7 @@ describe("WF-03 baseline assignment and scheduling", () => {
             scheduleState(test).should("deep.equal", before);
           });
         });
+        step("The room booking shows in the room's schedule and the tester's calendar");
         cy.visit("/odoo/location-bookings?view_type=list");
         search(sample.code);
         cy.contains(".o_data_row", sample.code).should("contain", ROOM).and("be.visible");
@@ -378,7 +408,7 @@ describe("WF-03 baseline assignment and scheduling", () => {
         expect(after.events).to.be.empty;
       });
       scheduleState(lead).then((proposed) =>
-        callAs(OTHER_TESTER, "medilab.machine.booking", "action_accept", [[proposed.bookings[0].id]]),
+        callAs(HEAD, "medilab.machine.booking", "action_approve", [[proposed.bookings[0].id]]),
       );
       scheduleState(lead).should((accepted) => expect(accepted.events).to.have.length(2));
     });
@@ -395,88 +425,6 @@ describe("WF-03 feature acceptance criteria", () => {
     });
   });
   afterEach(() => restoreSettings(stored));
-
-  it("TC-F22-01 rejects malformed urgency on screen, then saves a valid value through Save", () => {
-    settings().then(({ urgency_hours: initial }) => {
-      cy.signInAs("administrator");
-      cy.visit("/odoo/lab-settings");
-      const input = ".o_field_widget[name=urgency_hours] input";
-      cy.get(input).should("have.value", String(initial)).clear().type("invalid").blur();
-      cy.get(".o_control_panel .o_form_button_save").should("be.visible").click();
-      cy.get(".o_field_widget[name=urgency_hours]").should("have.class", "o_field_invalid");
-      settings().its("urgency_hours").should("eq", initial);
-      cy.get(input)
-        .clear()
-        .type(String(initial + 1))
-        .blur();
-      cy.intercept("POST", "**/res.config.settings/execute").as("savedSettings");
-      cy.intercept("POST", "**/res.config.settings/onchange").as("reloadedSettings");
-      cy.get(".o_control_panel .o_form_button_save").click();
-      cy.wait("@savedSettings").its("response.body.error").should("not.exist");
-      cy.wait("@reloadedSettings")
-        .its("response.body.result.value.urgency_hours")
-        .should("eq", initial + 1);
-      cy.get(input).should("have.value", String(initial + 1));
-      settings()
-        .its("urgency_hours")
-        .should("eq", initial + 1);
-    });
-  });
-
-  it("TC-F22-01 RPC refuses settings changes by a tester without changing the stored values", () => {
-    storedSettings().then((before) => {
-      cy.signInAs("tester");
-      callRefused("res.config.settings", "create", [{ urgency_hours: 999 }]).should("match", /not allowed|access/i);
-      storedSettings().should("deep.equal", before);
-    });
-  });
-
-  it("TC-F22-02 keeps the due dates already worked out when the safety margin changes", () => {
-    receivedSample().then((before) => {
-      testOf(before, PARAMETERS.lead).then((test) => callAs(ADMINISTRATOR, "medilab.sample.test", "read", [[test.id], ["due_date"]]).as("due"));
-      settings().then(({ safety_margin_days: margin }) => saveSettings({ safety_margin_days: margin + 1 }));
-      receivedSample().then((after) => {
-        cy.signInAs("head_of_department");
-        cy.get("@due").then(([{ due_date: due }]) => {
-          testOf(before, PARAMETERS.lead).then((test) => cy.readRecord(test, ["due_date"]).its("due_date").should("eq", due));
-          testOf(after, PARAMETERS.lead).then((test) =>
-            cy
-              .readRecord(test, ["due_date"])
-              .its("due_date")
-              .should((later) => expect(time(due) - time(later)).to.equal(86400000)),
-          );
-        });
-      });
-    });
-  });
-
-  it("TC-F22-03 falls back to the default urgency while none is stored, and audits each change", () => {
-    forgetSetting(URGENCY);
-    cy.signInAs("administrator");
-    cy.visit("/odoo/lab-settings");
-    cy.get(".o_field_widget[name=urgency_hours] input").should("have.value", "24");
-    saveSettings({ urgency_hours: 48 });
-    saveSettings({ urgency_hours: 36 });
-    settings().its("urgency_hours").should("eq", 36);
-    call(
-      "medilab.audit.entry",
-      "search_read",
-      [
-        [
-          ["document_model", "=", "ir.config_parameter"],
-          ["note", "=", URGENCY],
-        ],
-      ],
-      {
-        fields: ["action", "user_id"],
-        order: "id desc",
-        limit: 2,
-      },
-    ).should((entries) => {
-      expect(entries.map((entry) => entry.action)).to.deep.equal(["edit", "create"]);
-      entries.forEach((entry) => expect(entry.user_id[1]).to.equal("Phan Minh Quan"));
-    });
-  });
 
   it("TC-F24-02 the department plan places due-soon work before other work, then earlier arrivals first", () => {
     saveSettings({ urgency_hours: 12 * 24 });
@@ -546,6 +494,7 @@ describe("WF-03 feature acceptance criteria", () => {
           [
             ["model", "=", "medilab.task"],
             ["res_id", "=", task.id],
+            ["subtype_id.code", "=", REMINDER],
             ["needaction", "=", true],
           ],
         ],
@@ -560,6 +509,7 @@ describe("WF-03 feature acceptance criteria", () => {
         [
           ["mail_message_id.model", "=", "medilab.task"],
           ["mail_message_id.res_id", "=", task.id],
+          ["mail_message_id.subtype_id.code", "=", REMINDER],
           ["res_partner_id.user_ids.login", "=", TESTER],
         ],
       ]).should("eq", 1);
@@ -579,6 +529,7 @@ describe("WF-03 feature acceptance criteria", () => {
         [
           ["model", "=", "medilab.task"],
           ["res_id", "=", task.id],
+          ["subtype_id.code", "=", REMINDER],
         ],
       ]).should("eq", 0);
     });

@@ -83,16 +83,15 @@ class OnboardingStagedRecordReview(models.Model, OnboardingStagedRecordReviewBas
         return [(model, self.env["ir.model"]._get(model).display_name) for model in KIND_MODELS.values()]
 
     def _value_labels(self) -> dict:
-        _ = self.env._
         return {
-            "code": _("Code"),
-            "name": _("Name"),
-            "issuing_body": _("Issuing Body"),
-            "valid_from": _("Valid From"),
-            "valid_until": _("Valid Until"),
-            "field_key": _("Testing Field Key"),
-            "parameter_key": _("Parameter Key"),
-            "method_key": _("Method Key"),
+            "code": self.env._("Code"),
+            "name": self.env._("Name"),
+            "issuing_body": self.env._("Issuing Body"),
+            "valid_from": self.env._("Valid From"),
+            "valid_until": self.env._("Valid Until"),
+            "field_key": self.env._("Testing Field Key"),
+            "parameter_key": self.env._("Parameter Key"),
+            "method_key": self.env._("Method Key"),
         }
 
     def _derive(self, key, values):

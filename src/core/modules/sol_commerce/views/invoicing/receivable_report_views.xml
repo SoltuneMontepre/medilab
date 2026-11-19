@@ -30,6 +30,17 @@
         </field>
     </record>
 
+    <record id="view_medilab_outstanding_report_graph" model="ir.ui.view">
+        <field name="name">medilab.receivable.report.graph.outstanding</field>
+        <field name="model">medilab.receivable.report</field>
+        <field name="arch" type="xml">
+            <graph string="Outstanding" type="bar">
+                <field name="age" />
+                <field name="amount_owed" type="measure" />
+            </graph>
+        </field>
+    </record>
+
     <record id="view_medilab_collection_report_list" model="ir.ui.view">
         <field name="name">medilab.receivable.report.list.collection</field>
         <field name="model">medilab.receivable.report</field>
@@ -60,6 +71,17 @@
         </field>
     </record>
 
+    <record id="view_medilab_collection_report_graph" model="ir.ui.view">
+        <field name="name">medilab.receivable.report.graph.collection</field>
+        <field name="model">medilab.receivable.report</field>
+        <field name="arch" type="xml">
+            <graph string="Collection" type="line">
+                <field name="sent_date" interval="month" />
+                <field name="days_to_pay" type="measure" />
+            </graph>
+        </field>
+    </record>
+
     <record id="view_medilab_receivable_report_search" model="ir.ui.view">
         <field name="name">medilab.receivable.report.search</field>
         <field name="model">medilab.receivable.report</field>
@@ -85,21 +107,23 @@
         <field name="name">Outstanding</field>
         <field name="res_model">medilab.receivable.report</field>
         <field name="path">receivable-reports</field>
-        <field name="view_mode">list,pivot</field>
+        <field name="view_mode">list,pivot,graph</field>
         <field name="domain">[('amount_owed', '>', 0)]</field>
         <field name="view_ids" eval="[(5, 0, 0),
             (0, 0, {'view_mode': 'list', 'view_id': ref('view_medilab_outstanding_report_list')}),
-            (0, 0, {'view_mode': 'pivot', 'view_id': ref('view_medilab_outstanding_report_pivot')})]" />
+            (0, 0, {'view_mode': 'pivot', 'view_id': ref('view_medilab_outstanding_report_pivot')}),
+            (0, 0, {'view_mode': 'graph', 'view_id': ref('view_medilab_outstanding_report_graph')})]" />
     </record>
 
     <record id="action_medilab_collection_report" model="ir.actions.act_window">
         <field name="name">Collection</field>
         <field name="res_model">medilab.receivable.report</field>
         <field name="path">collection-reports</field>
-        <field name="view_mode">pivot,list</field>
+        <field name="view_mode">pivot,list,graph</field>
         <field name="domain">[('timing', '!=', False)]</field>
         <field name="view_ids" eval="[(5, 0, 0),
             (0, 0, {'view_mode': 'pivot', 'view_id': ref('view_medilab_collection_report_pivot')}),
-            (0, 0, {'view_mode': 'list', 'view_id': ref('view_medilab_collection_report_list')})]" />
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_medilab_collection_report_list')}),
+            (0, 0, {'view_mode': 'graph', 'view_id': ref('view_medilab_collection_report_graph')})]" />
     </record>
 </odoo>

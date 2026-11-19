@@ -51,13 +51,13 @@ class TestSchedulingConcurrency(SchedulingConcurrencyCase):
         test_id = self.test_ids[0]
 
         def schedule(env):
-            env[MODEL_SAMPLE_TEST].browse(test_id).with_user(self.user_ids[0]).action_schedule()
+            env[MODEL_SAMPLE_TEST].browse(test_id).with_user(self.user_ids[0]).action_approve_booking()
 
         outcomes = self.race(
             schedule,
             schedule,
             MODEL_MACHINE_BOOKING,
-            "action_accept",
+            "action_approve",
             lambda bookings, _args: test_id in bookings.mapped("sample_test_id.id"),
         )
         self.assertEqual(sorted(status for status, _result in outcomes.values()), ["committed", "refused"], outcomes)
@@ -77,7 +77,9 @@ class TestSchedulingConcurrency(SchedulingConcurrencyCase):
 
         def schedule(number):
             def action(env):
-                env[MODEL_SAMPLE_TEST].browse(self.test_ids[number]).with_user(self.user_ids[number]).action_schedule()
+                env[MODEL_SAMPLE_TEST].browse(self.test_ids[number]).with_user(
+                    self.user_ids[number]
+                ).action_approve_booking()
 
             return action
 
@@ -85,7 +87,7 @@ class TestSchedulingConcurrency(SchedulingConcurrencyCase):
             schedule(0),
             schedule(1),
             MODEL_MACHINE_BOOKING,
-            "action_accept",
+            "action_approve",
             lambda bookings, _args: bool(set(bookings.mapped("sample_test_id.id")) & set(self.test_ids)),
         )
         graph = self.committed(self.graph)
@@ -115,7 +117,9 @@ class TestSchedulingConcurrency(SchedulingConcurrencyCase):
         def prepare(env):
             for number in (0, 1):
                 self.assign(env, number)
-                env[MODEL_SAMPLE_TEST].browse(self.test_ids[number]).with_user(self.user_ids[number]).action_schedule()
+                env[MODEL_SAMPLE_TEST].browse(self.test_ids[number]).with_user(
+                    self.user_ids[number]
+                ).action_approve_booking()
             bookings = env[MODEL_MACHINE_BOOKING].search([("sample_test_id", "in", self.test_ids)], order="id")
             first = bookings[0]
             earliest = fields.Datetime.now() + timedelta(days=7)

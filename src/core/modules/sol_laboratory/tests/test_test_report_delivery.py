@@ -1,7 +1,7 @@
 from odoo.exceptions import AccessError, UserError
 from odoo.tests import tagged
 
-from .report_case import ReportCase
+from .report_case import PDF, ReportCase
 
 
 @tagged("post_install", "-at_install")
@@ -28,7 +28,7 @@ class TestTestReportDelivery(ReportCase):
             self.deliver(self.report())
         self.assertFalse(self.report().delivered_at)
 
-    def test_recording_a_delivery_needs_the_edit_permission(self):
+    def test_recording_a_delivery_needs_the_deliver_permission(self):
         self.complete()
         self.sign()
 
@@ -44,13 +44,49 @@ class TestTestReportDelivery(ReportCase):
 
         self.deliver(report)
 
-        message = self.env["mail.message"].search(
+        message = self.delivery_messages(report)
+        self.assertEqual(message.attachment_ids, report.attachment_id)
+        self.assertEqual(bytes(message.attachment_ids.raw), PDF)
+        self.assertEqual(message.notification_ids.res_partner_id, recipient)
+        self.assertEqual(message.notification_ids.mail_mail_id.email_to, recipient.email)
+
+    def test_a_report_handed_over_in_person_or_sent_by_post_is_recorded_without_an_email(self):
+        self.request.write({"delivery_method": "in_person"})
+        self.complete()
+        self.sign()
+        report = self.report()
+        self.deliver(report)
+        self.assertEqual((report.delivered_by_id, bool(report.delivered_at)), (self.courier, True))
+        self.assertFalse(self.delivery_messages(report))
+
+    def test_a_report_sent_by_post_is_recorded_without_an_email(self):
+        recipient = self.env["res.partner"].create({"name": "Mai Thi Lan", "email": "lan.mai@anphu.example"})
+        self.request.write(
+            {"delivery_method": "post", "delivery_note": "12 Nguyen Hue", "report_recipient_id": recipient.id}
+        )
+        self.complete()
+        self.sign()
+        report = self.report()
+        self.assertEqual(report.delivery_note, "12 Nguyen Hue")
+        self.deliver(report)
+        self.assertEqual((report.delivered_by_id, bool(report.delivered_at)), (self.courier, True))
+        self.assertFalse(self.delivery_messages(report))
+
+    def test_a_report_delivered_by_email_without_an_address_is_not_recorded(self):
+        recipient = self.env["res.partner"].create({"name": "Mai Thi Lan"})
+        self.request.write({"delivery_method": "email", "report_recipient_id": recipient.id})
+        self.complete()
+        self.sign()
+        report = self.report()
+        with self.assertRaises(UserError):
+            self.deliver(report)
+        self.assertFalse(report.delivered_at)
+
+    def delivery_messages(self, report):
+        return self.env["mail.message"].search(
             [
                 ("model", "=", report._name),
                 ("res_id", "=", report.id),
                 ("subtype_id", "=", self.env.ref("sol_laboratory.event_test_report_delivered").id),
             ]
         )
-        self.assertEqual(message.attachment_ids, report.attachment_id)
-        self.assertEqual(message.notification_ids.res_partner_id, recipient)
-        self.assertEqual(message.notification_ids.mail_mail_id.email_to, recipient.email)

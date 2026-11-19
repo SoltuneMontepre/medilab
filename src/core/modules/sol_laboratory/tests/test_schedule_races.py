@@ -60,7 +60,7 @@ class TestScheduleRaces(ScheduleRaceCase):
         self.assertEqual(self.proposed(), [self.person_ids[1]])
         self.committed(self.assert_committed_invariants)
 
-    def test_a_schedule_racing_a_committed_reassignment_is_refused_and_books_nothing(self):
+    def test_an_approval_racing_a_committed_reassignment_approves_the_booking_of_the_new_assignee(self):
         self.committed(lambda env: (self.grant(env, 1, HEAD_PERMISSIONS), self.assign(env, 0)))
 
         outcomes = self.race(
@@ -71,14 +71,15 @@ class TestScheduleRaces(ScheduleRaceCase):
         )
 
         self.assert_won_first_time("second")
-        self.assertEqual(outcomes["first"][0], "refused", outcomes)
+        self.assertEqual(outcomes["first"][0], "committed", outcomes)
         self.assert_retried_on_conflict("first")
         graph = self.committed(self.graph)
         task, test = graph["tasks"][0], graph["tests"][0]
+        [booking] = graph["bookings"]
+        self.assertEqual((booking["status"], booking["person_id"][0]), ("scheduled", self.person_ids[1]))
         self.assertEqual((task["status"], task["assignee_id"][0]), ("assigned", self.person_ids[1]))
+        self.assertEqual((task["planned_start"], task["planned_end"]), (booking["starts_at"], booking["ends_at"]))
         self.assertEqual(test["status"], "assigned")
-        self.assertFalse(graph["bookings"])
-        self.assertFalse(graph["events"])
         self.committed(self.assert_committed_invariants)
 
     def test_a_cancellation_after_a_committed_schedule_cancels_the_new_booking(self):
@@ -156,7 +157,7 @@ class TestScheduleRaces(ScheduleRaceCase):
 
         self.assert_won_first_time("second")
         self.assertEqual(outcomes["first"][0], "refused", outcomes)
-        self.assertIn("before scheduling it", outcomes["first"][1])
+        self.assertIn("before approving its booking", outcomes["first"][1])
         self.assert_retried_on_conflict("first")
         graph = self.committed(self.graph)
         task, test = graph["tasks"][0], graph["tests"][0]

@@ -1,5 +1,5 @@
 import { fireEvent, screen } from "@testing-library/react-native";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { Linking } from "react-native";
 
 import { fakeMediLab, kept, refusal } from "../../testing/fakeMediLab";
@@ -7,7 +7,7 @@ import { renderSignedIn } from "../../testing/renderSignedIn";
 import { DocumentScreen } from "./DocumentScreen";
 
 jest.mock("../../config", () => ({ serverUrl: "https://lab.example" }));
-jest.mock("expo-router", () => ({ useLocalSearchParams: jest.fn() }));
+jest.mock("expo-router", () => ({ router: { push: jest.fn() }, useLocalSearchParams: jest.fn() }));
 
 const SAMPLE = {
   model: "medilab.sample",
@@ -46,5 +46,19 @@ describe("DocumentScreen", () => {
       await screen.findByText("Bạn không còn xem được tài liệu này, hoặc tài liệu đã bị xoá."),
     ).toBeOnTheScreen();
     expect(screen.queryByRole("button", { name: "Mở trên web" })).toBeNull();
+  });
+
+  it("opens the chatter of a test request", async () => {
+    const request = { ...SAMPLE, model: "medilab.test.request", id: 3, code: "TR-2026-0007", screen: "web" };
+    fakeMediLab({ status: 200, body: request });
+    jest.mocked(useLocalSearchParams).mockReturnValue({ model: "medilab.test.request", id: "3" });
+    await renderSignedIn(<DocumentScreen />);
+
+    await fireEvent.press(await screen.findByTestId("open-chatter"));
+
+    expect(router.push).toHaveBeenCalledWith({
+      pathname: "/chatter/[model]/[id]",
+      params: { model: "medilab.test.request", id: "3", code: "TR-2026-0007" },
+    });
   });
 });

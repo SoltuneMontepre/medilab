@@ -65,7 +65,7 @@ export function NewTaskScreen() {
 
   return (
     <SafeAreaView style={styles.screen}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <Text style={shared.title}>{t("newTask.title")}</Text>
         <Text style={shared.label}>{t("newTask.name")}</Text>
         <TextInput accessibilityLabel={t("newTask.name")} style={shared.input} value={name} onChangeText={setName} />

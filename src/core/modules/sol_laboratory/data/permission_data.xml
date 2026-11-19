@@ -293,6 +293,16 @@
         <field name="document_model">medilab.handover.record.sample</field>
         <field name="action">delete</field>
     </record>
+    <record id="permission_sample_return_read_all" model="medilab.permission">
+        <field name="name">Read sample returns</field>
+        <field name="document_model">medilab.sample.return</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_sample_return_create_all" model="medilab.permission">
+        <field name="name">Create sample returns</field>
+        <field name="document_model">medilab.sample.return</field>
+        <field name="action">create</field>
+    </record>
     <record id="permission_sample_test_read_all" model="medilab.permission">
         <field name="name">Read sample tests</field>
         <field name="document_model">medilab.sample.test</field>
@@ -359,15 +369,15 @@
         <field name="document_model">medilab.test.report</field>
         <field name="action">read</field>
     </record>
-    <record id="permission_test_report_edit_all" model="medilab.permission">
-        <field name="name">Edit test reports</field>
-        <field name="document_model">medilab.test.report</field>
-        <field name="action">edit</field>
-    </record>
     <record id="permission_test_report_sign_all" model="medilab.permission">
         <field name="name">Sign test reports</field>
         <field name="document_model">medilab.test.report</field>
         <field name="action">sign</field>
+    </record>
+    <record id="permission_test_report_deliver_all" model="medilab.permission">
+        <field name="name">Deliver test reports</field>
+        <field name="document_model">medilab.test.report</field>
+        <field name="action">deliver</field>
     </record>
     <record id="permission_test_report_draft_read_all" model="medilab.permission">
         <field name="name">Read generated report drafts</field>
@@ -548,6 +558,28 @@
         <field name="name">Delete OverTime of their department</field>
         <field name="document_model">medilab.overtime</field>
         <field name="action">delete</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_plan_revision_read_all" model="medilab.permission">
+        <field name="name">Read plan revisions</field>
+        <field name="document_model">medilab.plan.revision</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_plan_revision_read_own_department" model="medilab.permission">
+        <field name="name">Read plan revisions of their department</field>
+        <field name="document_model">medilab.plan.revision</field>
+        <field name="action">read</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_plan_revision_move_read_all" model="medilab.permission">
+        <field name="name">Read plan revision moves</field>
+        <field name="document_model">medilab.plan.revision.move</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_plan_revision_move_read_own_department" model="medilab.permission">
+        <field name="name">Read plan revision moves of their department</field>
+        <field name="document_model">medilab.plan.revision.move</field>
+        <field name="action">read</field>
         <field name="scope">own_department</field>
     </record>
     <record id="permission_chemical_create_all" model="medilab.permission">

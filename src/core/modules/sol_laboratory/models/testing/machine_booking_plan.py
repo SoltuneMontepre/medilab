@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING
 
 from odoo import api, models
-from odoo.exceptions import UserError
 from odoo.fields import Domain
 
 from odoo.addons.sol_laboratory.constants.models import (
@@ -12,34 +11,32 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TASK,
 )
 from odoo.addons.sol_laboratory.constants.tasks import FINAL_STATUSES
-from odoo.addons.sol_laboratory.models.testing.machine_booking import ACTIVE_STATUSES, _rooms_end
+from odoo.addons.sol_laboratory.models.testing.machine_booking import ACTIVE_STATUSES
 
 if TYPE_CHECKING:
     from medilab_model_types import Model_medilab_machine_booking as MachineBookingPlanBase
 else:
     MachineBookingPlanBase = object
 
-# A sample test the plan places has not started.
-PLANNED_TEST_STATUSES = ("waiting", "assigned")
 
-
-# Lịch Đặt Máy: a department's plan is its proposed bookings, which testers and heads accept.
+# Lịch Đặt Máy: a department's plan is its proposed bookings, which the head approves.
 class MachineBookingPlan(models.Model, MachineBookingPlanBase):
     _inherit = MODEL_MACHINE_BOOKING
 
     def _audit_scope(self):
-        # A proposed slot reserves nothing and changes with every recalculation; accepting it starts its trail.
+        # A proposed slot reserves nothing and changes with every recalculation; approving it starts its trail.
         return super()._audit_scope().filtered(lambda booking: booking.status != "proposed")
 
     @api.model
     def _plan(self, departments):
         """Recalculate the plans of the departments.
 
-        Every received, not-started sample test of a department's open testing tasks without a scheduled or running
-        booking has one proposed booking, for the task's assignee when there is one. The plan places them one at a time
+        Every received sample test of a department's open testing tasks that awaits the plan and has no scheduled or
+        running booking has one proposed booking, for the task's assignee when there is one. The plan places them one at a time
         in priority order, each in the earliest slot by its due date where its tester, machine and rooms are free around
         the scheduled bookings and the slots placed before it. A test without such a slot keeps a proposed booking
-        without a slot and is suggested for outsourcing. Scheduled bookings never move here.
+        without a slot and is suggested for outsourcing. Scheduled bookings never move here: urgent work that needs
+        their slots gets a plan revision.
         """
         # ponytail: a department's whole plan is recalculated on every change; start from the changed test if plans
         # grow long.
@@ -70,6 +67,7 @@ class MachineBookingPlan(models.Model, MachineBookingPlanBase):
                 .sample_test_id
             )
             tests |= tests.search([("at_risk", "=", True), ("booking_ids.department_id", "=", department.id)])
+            self._revise(department)
         tests._refresh_risk()
 
     @api.model
@@ -91,7 +89,7 @@ class MachineBookingPlan(models.Model, MachineBookingPlanBase):
         for task in tasks:
             test = self.env[MODEL_SAMPLE_TEST].sudo().browse(task.document_id)
             if (
-                test.status not in PLANNED_TEST_STATUSES
+                not test._awaits_plan()
                 or test._booking_refusal()
                 or test.booking_ids.filtered(lambda booking: booking.status in ACTIVE_STATUSES)
                 # Nobody is booked for a parameter they are not authorized for.
@@ -148,45 +146,3 @@ class MachineBookingPlan(models.Model, MachineBookingPlanBase):
         }
         if changed:
             self._set(changed)
-
-    def action_accept(self):
-        """Accept proposed bookings: each reserves its tester, its machine when it needs one and its rooms together,
-        or the acceptance is refused when any of them was taken meanwhile."""
-        self._check_adjustable()
-        for booking in self:
-            if booking.status != "proposed":
-                raise UserError(self.env._("Only a proposed booking can be accepted."))
-            if not booking.person_id:
-                raise UserError(self.env._("Assign %s to a tester before accepting its booking.", booking.display_name))
-            start, end = booking.starts_at, booking.ends_at
-            if not start or not end:
-                raise UserError(self.env._("No machine can finish %s before its due date.", booking.display_name))
-            test = booking.sudo().sample_test_id
-            test._check_bookable()
-            self.env[MODEL_PARAMETER_AUTHORIZATION]._check_authorized(booking.person_id, test.parameter_id)
-            way = booking._proposed_way()
-            if test.parameter_method_id != way:
-                # The way's steps give the rooms the booking books.
-                test.parameter_method_id = way
-            rooms = self._room_steps(way)
-            length = end - start
-            slot = self._free_slot(
-                booking.machine_id,
-                length,
-                booking.person_id,
-                start + max(length, _rooms_end(rooms)),
-                start,
-                booking,
-                rooms=rooms,
-                way=way,
-                sample=test.sample_id,
-            )
-            if slot != start:
-                raise UserError(
-                    self.env._(
-                        "The slot of %s was taken meanwhile; open the plan again for its new slot.",
-                        booking.display_name,
-                    )
-                )
-            booking._set({"status": "scheduled"})
-        self._plan(self.sudo().department_id)

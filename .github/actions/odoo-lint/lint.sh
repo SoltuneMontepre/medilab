@@ -61,8 +61,10 @@ print_colored() {
 echo "==> pylint-odoo${ODOO_LINT_ADVISORY:+ (advisory)}"
 echo
 ODOO_LOG=$(mktemp)
+# The repository requires absolute imports from an addon's own constants, as does the local pylintrc.
 pylint \
   --load-plugins=pylint_odoo -d all -e odoolint \
+  -d odoo-addons-relative-import \
   -d missing-readme \
   -d manifest-required-author \
   -d manifest-deprecated-key \

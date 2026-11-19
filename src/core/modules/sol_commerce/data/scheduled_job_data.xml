@@ -7,6 +7,13 @@
         <field name="batch_size">20</field>
         <field name="max_attempts">5</field>
     </record>
+    <record id="scheduled_job_payos_cancel" model="medilab.scheduled.job">
+        <field name="key">payos.cancel</field>
+        <field name="name">Cancel PayOS links</field>
+        <field name="cron_id" ref="ir_cron_payos_cancel" />
+        <field name="batch_size">20</field>
+        <field name="max_attempts">5</field>
+    </record>
     <record id="scheduled_job_payos_poll" model="medilab.scheduled.job">
         <field name="key">payos.poll</field>
         <field name="name">PayOS poll</field>

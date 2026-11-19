@@ -38,6 +38,9 @@ access_medilab_sample_test_due_date_change_user,medilab.sample.test.due.date.cha
 access_medilab_testing_statistic_period_user,medilab.testing.statistic.period user,medilab.testing.statistic.period,base.group_user,crud,
 access_medilab_sample_test_urgent_mark_user,medilab.sample.test.urgent.mark user,medilab.sample.test.urgent.mark,base.group_user,crud,
 access_medilab_sample_test_outsource_user,medilab.sample.test.outsource user,medilab.sample.test.outsource,base.group_user,crud,
+access_medilab_subcontract_dispatch_handover_user,medilab.subcontract.dispatch.handover user,medilab.subcontract.dispatch.handover,base.group_user,crud,
+access_medilab_subcontract_dispatch_failure_user,medilab.subcontract.dispatch.failure user,medilab.subcontract.dispatch.failure,base.group_user,crud,
+access_medilab_subcontractor_contact_user,medilab.subcontractor.contact user,medilab.subcontractor.contact,base.group_user,crud,
 access_medilab_subcontract_dispatch_courier,medilab.subcontract.dispatch courier,medilab.subcontract.dispatch,base.group_user,r,"[('courier_id.user_id', '=', user.id)]"
 access_medilab_notification_event_recipient_user,medilab.notification.event.recipient user,medilab.notification.event.recipient,base.group_user,r,
 access_medilab_notification_event_recipient_system,medilab.notification.event.recipient system,medilab.notification.event.recipient,base.group_system,crud,

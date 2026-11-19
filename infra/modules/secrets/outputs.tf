@@ -28,6 +28,12 @@ output "doppler_infra_token" {
   sensitive   = true
 }
 
+output "doppler_release_token" {
+  description = "Doppler token that reads the release config, published as the DOPPLER_RELEASE_TOKEN secret of the mobile-release environment; null until it is in the config"
+  value       = lookup(data.doppler_secrets.this.map, "DOPPLER_RELEASE_TOKEN", null)
+  sensitive   = true
+}
+
 output "cloudflare_api_token" {
   description = "Cloudflare token that edits DNS and the tunnel of the zone"
   value       = data.doppler_secrets.this.map["CLOUDFLARE_API_TOKEN"]

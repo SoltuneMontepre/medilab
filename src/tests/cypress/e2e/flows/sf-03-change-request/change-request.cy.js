@@ -1,6 +1,17 @@
-import { pick, save } from "../../../support/form";
+import { save } from "../../../support/form";
 import { callAs, callRefused } from "../../../support/odoo";
-import { ADMINISTRATOR, LEAD_VALUE, TESTER, approvedResult, issuedReport, requestedChange, signatures, signedOrder } from "./setup";
+import {
+  ADMINISTRATOR,
+  LEAD_VALUE,
+  TESTER,
+  addFinalLevel,
+  approvedResult,
+  issuedReport,
+  removeFinalLevel,
+  requestedChange,
+  signatures,
+  signedResult,
+} from "./setup";
 
 const BUTTONS = ".o_form_view .o_statusbar_buttons";
 const WITHDRAW = `${BUTTONS} button[name=action_withdraw]`;
@@ -57,6 +68,11 @@ function withSignatures(document, fields) {
 }
 
 describe("SF-03 Change request on a signed document", () => {
+  // A3 and E2 add a level to the chain of results, which every other result is signed without; it is removed even
+  // when a test fails.
+  beforeEach(() => removeFinalLevel());
+  afterEach(() => removeFinalLevel());
+
   it("TC-SF03-M replaces a completed result by a new version once the chain signs the tester's change request", () => {
     approvedResult().then((result) => {
       cy.signInAs("tester");
@@ -152,31 +168,32 @@ describe("SF-03 Change request on a signed document", () => {
   });
 
   it("TC-SF03-A3 lets signers withdraw from the top level down before the process is completed, which reopens the document", () => {
-    signedOrder().then((order) => {
-      cy.signInAs("lab_head");
-      cy.openRecord(order);
+    addFinalLevel();
+    signedResult().then((result) => {
+      cy.signInAs("head_of_department");
+      cy.openRecord(result);
       cy.get(WITHDRAW).click();
       cy.get(WITHDRAW).should("not.exist");
-      cy.readRecord(order, ["approval_status"]).its("approval_status").should("eq", "requested");
+      cy.readRecord(result, ["status"]).its("status").should("eq", "requested");
 
-      cy.signInAs("storekeeper");
-      cy.openRecord(order);
+      cy.signInAs("tester");
+      cy.openRecord(result);
       cy.get(WITHDRAW).click();
       cy.get(WITHDRAW).should("not.exist");
-      cy.readRecord(order, ["approval_status", "document_version"]).should("deep.equal", {
-        id: order.id,
-        approval_status: "none",
+      cy.readRecord(result, ["status", "document_version"]).should("deep.equal", {
+        id: result.id,
+        status: "none",
         document_version: 2,
       });
-      signatures(order).should((rows) => {
-        expect(rows.map((row) => row.level_name)).to.deep.equal(["Storekeeper", "Lab head"]);
+      signatures(result).should((rows) => {
+        expect(rows.map((row) => row.level_name)).to.deep.equal(["Tester", "Head of department"]);
         rows.forEach((row) => expect(row.withdrawn_at, `${row.level_name} withdrawn`).to.be.a("string"));
       });
 
       // What the signers approved can be edited again.
-      pick("department_id", "Microbiology");
+      cy.get(".o_field_widget[name=value] input").clear().type("0.006");
       save();
-      cy.readRecord(order, ["department_id"]).its("department_id.1").should("eq", "Microbiology");
+      cy.readRecord(result, ["value"]).its("value").should("eq", 0.006);
     });
   });
 
@@ -206,17 +223,19 @@ describe("SF-03 Change request on a signed document", () => {
   });
 
   it("TC-SF03-E2 refuses withdrawing a signature while a later one stands, or once the process is completed", () => {
-    signedOrder().then((order) => {
-      cy.signInAs("storekeeper");
-      cy.openRecord(order);
+    addFinalLevel();
+    signedResult().then((result) => {
+      cy.signInAs("tester");
+      cy.openRecord(result);
       cy.get(WITHDRAW).should("not.exist");
-      const read = () => withSignatures(order, ["approval_status", "document_version", "write_date"]);
+      const read = () => withSignatures(result, ["status", "document_version", "write_date"]);
       read().then((before) => {
-        callRefused("purchase.order", "action_withdraw", [[order.id]]).should("eq", "Withdraw the signatures given after yours first.");
+        callRefused("medilab.test.result", "action_withdraw", [[result.id]]).should("eq", "Withdraw the signatures given after yours first.");
         read().should("deep.equal", before);
       });
     });
 
+    removeFinalLevel();
     approvedResult().then((result) => {
       cy.signInAs("head_of_department");
       cy.openRecord(result);

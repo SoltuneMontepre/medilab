@@ -35,6 +35,14 @@
         <field name="batch_size">20</field>
         <field name="max_attempts">8</field>
     </record>
+    <record id="scheduled_job_test_report_prepare" model="medilab.scheduled.job">
+        <field name="key">test_report.prepare</field>
+        <field name="name">Prepare test report PDFs</field>
+        <field name="cron_id" ref="ir_cron_test_report_prepare" />
+        <field name="batch_size">10</field>
+        <field name="max_attempts">8</field>
+        <field name="retry_delay_minutes">1</field>
+    </record>
     <record id="scheduled_job_digital_signing_certificates" model="medilab.scheduled.job">
         <field name="key">digital_signing.certificates</field>
         <field name="name">Signing certificates</field>
@@ -60,6 +68,13 @@
         <field name="key">accreditation.refresh</field>
         <field name="name">Accreditation refresh</field>
         <field name="cron_id" ref="ir_cron_accreditation_refresh" />
+        <field name="batch_size">100</field>
+        <field name="max_attempts">3</field>
+    </record>
+    <record id="scheduled_job_subcontract_dispatches_accreditation_lapsed" model="medilab.scheduled.job">
+        <field name="key">subcontract_dispatches.accreditation_lapsed</field>
+        <field name="name">Dispatches whose subcontractor's accreditation lapsed</field>
+        <field name="cron_id" ref="ir_cron_subcontract_dispatches_accreditation_lapsed" />
         <field name="batch_size">100</field>
         <field name="max_attempts">3</field>
     </record>

@@ -10,8 +10,8 @@ from odoo.addons.sol_laboratory.services.laboratory_editor_page import CALLBACK_
 
 @tagged("post_install", "-at_install")
 class TestReportEditorPage(HttpCase, ReportPreparationCase):
-    """Report templates and drafts open in the online editor page with their own permissions, never with a folder
-    membership, and only while they can change."""
+    """Report templates open in the online editor page with their own permissions, never with a folder membership. A
+    report's draft never opens in it: MediLab generates the draft and nobody edits it."""
 
     def setUp(self):
         super().setUp()
@@ -24,8 +24,8 @@ class TestReportEditorPage(HttpCase, ReportPreparationCase):
                 },
             )
         )
+        self.run_preparation()
         self.draft = self.report()
-        self.editor(self.draft).action_edit_draft()
 
     def page(self, person, file):
         # The password of each person is their login.
@@ -33,24 +33,11 @@ class TestReportEditorPage(HttpCase, ReportPreparationCase):
         self.authenticate(person.user_id.login, person.user_id.login)
         return self.url_open(f"/medilab/laboratory-files/{file.id}/edit", allow_redirects=False)
 
-    def test_report_editor_opens_the_draft_without_folder_membership(self):
-        response = self.page(self.courier, self.draft.draft_file_id)
-        self.assertEqual(response.status_code, 200, response.text[:300])
-        self.assertNotIn(self.courier.user_id, self.draft.draft_file_id.folder_id.member_ids.user_id)
-
-    def test_person_without_report_edit_permission_is_refused(self):
-        response = self.page(self.lab_head, self.draft.draft_file_id)
-        self.assertEqual(response.status_code, 403)
-
-    def test_draft_waiting_for_review_is_refused(self):
-        self.editor(self.draft).action_prepare_pdf()
-        response = self.page(self.courier, self.draft.draft_file_id)
-        self.assertEqual(response.status_code, 409)
-
-    def test_onlyoffice_outage_refuses_the_editor_only(self):
-        self.health_check.return_value = False
-        response = self.page(self.courier, self.draft.draft_file_id)
-        self.assertEqual(response.status_code, 503)
+    def test_nobody_opens_a_report_draft_in_the_editor(self):
+        for person in (self.courier, self.lab_head, self.template_admin):
+            with self.subTest(person=person.name):
+                response = self.page(person, self.draft.draft_file_id)
+                self.assertEqual(response.status_code, 403)
 
     def test_template_draft_opens_for_its_administrator_only(self):
         template = self.new_template("vi", "Phiếu kết quả")

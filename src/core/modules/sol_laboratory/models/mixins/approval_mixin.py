@@ -177,6 +177,11 @@ class ApprovalMixin(models.AbstractModel, ApprovalMixinBase):
         and _new_version(change_request), which creates the version an approved request asks for."""
         return False
 
+    def _change_request_action(self):
+        """The permission action that lets a person raise a change request on the document: editing it, unless the type
+        has no edit permission."""
+        return "edit"
+
     def _change_request_ready(self, change_request):
         """True when the approved change request can create its new version now; a type whose new version waits for
         other documents, such as corrected results, says so here and applies the request once they are ready."""

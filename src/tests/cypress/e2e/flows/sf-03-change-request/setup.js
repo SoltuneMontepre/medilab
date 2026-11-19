@@ -3,12 +3,16 @@ import { callAs, refAs } from "../../../support/odoo";
 const RECEPTION = "demo.sample_delivery_staff";
 const HEAD = "demo.head_of_department";
 const LAB_HEAD = "demo.lab_head";
-const STOREKEEPER = "demo.storekeeper";
 export const ADMINISTRATOR = "demo.administrator";
 export const TESTER = "demo.tester";
 
 // What the tester measured for lead, in mg/L.
 export const LEAD_VALUE = 0.008;
+
+// The chain that signs results: the tester, then the head of department.
+export const RESULT_CHAIN = "sol_demo.demo_approval_chain_test_result_signing";
+// The level a test adds after the head of department's, so a result both signed is still in its process.
+export const FINAL_LEVEL = "Final approval";
 
 // A confirmed request of Nước Uống Sạch with one bottled water sample tested for the parameter, received in good
 // condition and whose testing task the head of department assigned to the tester. The sample is named `name` and, when
@@ -77,9 +81,9 @@ export function assignedTest(parameterId, { name, regulation } = {}) {
     .then(() => ({ test: ids.test, request: ids.request }));
 }
 
-// A completed result: the tester entered lead and sent it, and the head of department approved it. Testing and
-// approving belong to WF-03 and WF-04. Yields `{ model, id, request }`.
-export function approvedResult() {
+// A result the tester entered for lead and sent, which signs the chain's first level. Testing belongs to WF-03.
+// Yields `{ model, id, request }`.
+export function sentResult() {
   let request;
   return refAs(RECEPTION, "sol_demo.demo_test_parameter_lead")
     .then(({ id }) => assignedTest(id, { name: "Nước uống đóng chai lô 1109" }))
@@ -89,12 +93,58 @@ export function approvedResult() {
     })
     .then((id) => {
       callAs(TESTER, "medilab.test.result", "action_sign", [[id]]);
-      callAs(HEAD, "medilab.test.result", "action_sign", [[id]]);
-      callAs(HEAD, "medilab.test.result", "read", [[id], ["status"]])
-        .its("0.status")
-        .should("eq", "approved");
       return cy.wrap({ model: "medilab.test.result", id, request });
     });
+}
+
+// The sent result once the head of department signed it, in the status `status`. Yields `{ model, id, request }`.
+function headSigned(status) {
+  return sentResult().then((result) => {
+    callAs(HEAD, "medilab.test.result", "action_sign", [[result.id]]);
+    callAs(HEAD, "medilab.test.result", "read", [[result.id], ["status"]])
+      .its("0.status")
+      .should("eq", status);
+    return cy.wrap(result);
+  });
+}
+
+// A completed result: the tester sent it and the head of department approved it. Approving belongs to WF-04.
+// Yields `{ model, id, request }`.
+export function approvedResult() {
+  return headSigned("approved");
+}
+
+// A result still in its process: the tester sent it and the head of department signed it, and it waits for the level
+// `addFinalLevel` added. Yields `{ model, id, request }`.
+export function signedResult() {
+  return headSigned("requested");
+}
+
+// Adds a last level, held by the role with the XML ID `role`, to the chain of results.
+export function addFinalLevel(role = "sol_demo.demo_role_lab_head") {
+  const ids = {};
+  refAs(ADMINISTRATOR, RESULT_CHAIN).then(({ id }) => (ids.chain = id));
+  refAs(ADMINISTRATOR, role).then(({ id }) => (ids.role = id));
+  return cy.then(() =>
+    callAs(ADMINISTRATOR, "medilab.approval.level", "create", [
+      { chain_id: ids.chain, sequence: 30, name: FINAL_LEVEL, role_id: ids.role, can_reject: false },
+    ]),
+  );
+}
+
+// Removes the level a test added to the chain of results, which every other result is signed without; a level that
+// results signed at is archived.
+export function removeFinalLevel() {
+  return refAs(ADMINISTRATOR, RESULT_CHAIN)
+    .then(({ id }) =>
+      callAs(ADMINISTRATOR, "medilab.approval.level", "search", [
+        [
+          ["chain_id", "=", id],
+          ["name", "=", FINAL_LEVEL],
+        ],
+      ]),
+    )
+    .then((levels) => levels.length && callAs(ADMINISTRATOR, "medilab.approval.level", "unlink", [levels]));
 }
 
 // The demo report issued by email. A new report is signed only after its PDF is prepared through ONLYOFFICE, which the
@@ -115,45 +165,6 @@ export function requestedChange(result, requestedChange, reason) {
   ])
     .then((wizard) => callAs(TESTER, "medilab.change.request.raise", "action_raise", [[wizard]]))
     .then((action) => ({ model: "medilab.change.request", id: action.res_id }));
-}
-
-// A purchase order of sodium chloride the storekeeper sent for approval, signing the first level. Yields its id.
-export function requestedOrder(quantity) {
-  const ids = {};
-  refAs(STOREKEEPER, "sol_demo.demo_res_partner_vietnam_chemicals").then(({ id }) => (ids.supplier = id));
-  refAs(STOREKEEPER, "sol_demo.demo_hr_department_chemistry").then(({ id }) => (ids.department = id));
-  refAs(STOREKEEPER, "sol_demo.demo_product_product_sodium_chloride").then(({ id }) => (ids.item = id));
-  return cy
-    .then(() =>
-      callAs(STOREKEEPER, "purchase.order", "create", [
-        {
-          partner_id: ids.supplier,
-          department_id: ids.department,
-          order_line: [[0, 0, { product_id: ids.item, product_qty: quantity, price_unit: 380 }]],
-        },
-      ]),
-    )
-    .then((id) => {
-      callAs(STOREKEEPER, "purchase.order", "action_request_approval", [[id]]);
-      return cy.wrap(id);
-    });
-}
-
-// A purchase order still in its process: the storekeeper requested approval and the lab head signed it, and it is
-// not sent to the supplier yet. Yields `{ model, id }`.
-export function signedOrder() {
-  let orderId;
-  return requestedOrder(2000)
-    .then((id) => {
-      orderId = id;
-      callAs(LAB_HEAD, "purchase.order", "action_sign", [[id]]);
-      return callAs(LAB_HEAD, "purchase.order", "read", [[id], ["approval_status", "state"]]);
-    })
-    .then(([order]) => {
-      expect(order.approval_status, "order approved").to.equal("approved");
-      expect(order.state, "order not sent").to.equal("draft");
-      return { model: "purchase.order", id: orderId };
-    });
 }
 
 // The signatures of a document, oldest first, as the administrator reads them.
