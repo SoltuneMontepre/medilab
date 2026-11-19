@@ -631,6 +631,42 @@ class TestDeployment(unittest.TestCase):
                 not re.search(pattern, path) or re.search(excluded, path), path
             )
 
+    def test_browser_service_worker_does_not_intercept_assets(self):
+        config_map = next(
+            resource for resource in self.server if resource["kind"] == "ConfigMap"
+        )
+        script = config_map["data"]["document_editor_service_worker.js"]
+        self.assertIn('addEventListener("install"', script)
+        self.assertIn('addEventListener("activate"', script)
+        self.assertNotIn('addEventListener("fetch"', script)
+        self.assertNotIn("respondWith", script)
+
+        path = "/var/www/onlyoffice/documentserver/sdkjs/common/serviceworker/document_editor_service_worker.js"
+        deployment = named(self.server, "Deployment", "onlyoffice")
+        mounts = deployment["spec"]["template"]["spec"]["containers"][0][
+            "volumeMounts"
+        ]
+        self.assertIn(
+            {
+                "name": "runtime",
+                "mountPath": path,
+                "subPath": "document_editor_service_worker.js",
+                "readOnly": True,
+            },
+            mounts,
+        )
+        self.assertIn(
+            f"rm -f {path}.gz",
+            (ROOT / "infra/cluster/onlyoffice/start.sh").read_text(),
+        )
+        compose = yaml.safe_load(
+            (ROOT / "src/applications/medilab-sync/docker-compose.yml").read_text()
+        )
+        self.assertIn(
+            f"../../infra/cluster/onlyoffice/document_editor_service_worker.js:{path}:ro",
+            compose["services"]["onlyoffice"]["volumes"],
+        )
+
     def test_public_route_excludes_command_aliases(self):
         route = named(self.server, "IngressRoute", "onlyoffice")["spec"]["routes"][-1]
         pattern = route["match"].split("!PathRegexp(`", 1)[1].split("`)", 1)[0]
