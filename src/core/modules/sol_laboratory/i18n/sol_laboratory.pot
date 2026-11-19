@@ -19168,3 +19168,16 @@ msgstr ""
 #: model:ir.ui.menu,name:sol_laboratory.menu_reports_testing_statistic_period
 msgid "Statistics for a Period"
 msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__can_start
+msgid "Can Start"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid ""
+"%s is the testing task of an outsourced sample test: its subcontractor or a "
+"lab QA enters the result."
+msgstr ""
