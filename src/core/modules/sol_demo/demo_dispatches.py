@@ -130,7 +130,7 @@ def _received_tests(env, customer, kind, parameter, names, quantity, way=None):
     request = env[MODEL_TEST_REQUEST].create(
         {
             "customer_id": env.ref(f"sol_demo.demo_customer_{customer}").id,
-            "expected_date": fields.Date.today() + timedelta(days=5),
+            "committed_date": fields.Date.today() + timedelta(days=5),
             "sample_ids": [
                 Command.create(
                     {

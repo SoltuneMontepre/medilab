@@ -70,7 +70,7 @@ class TestOrderTemplate(TemplateCase):
                 "advance_method": "cash",
                 "advance_mode": "fixed",
                 "advance_value": 10000,
-                "expected_result_date": "2026-12-31",
+                "committed_date": "2026-12-31",
                 "payment_deadline": "2026-12-20 00:00:00",
             }
         )
@@ -99,7 +99,7 @@ class TestOrderTemplate(TemplateCase):
             "accepted_at",
             "confirmed_at",
             "payment_deadline",
-            "expected_result_date",
+            "committed_date",
             "quotation_ids",
             "sample_ids",
             "invoice_ids",
@@ -164,7 +164,7 @@ class TestOrderTemplate(TemplateCase):
             .with_context(
                 default_state="sale",
                 default_date_order="2020-01-01 00:00:00",
-                default_expected_result_date="2020-01-01",
+                default_committed_date="2020-01-01",
                 default_advance_method="cash",
                 default_payment_deadline="2020-01-02 00:00:00",
             )
@@ -173,4 +173,4 @@ class TestOrderTemplate(TemplateCase):
         order = self.env["sale.order"].browse(result["res_id"])
         self.assertEqual(order.state, "draft")
         self.assertGreater(assert_instance(order.date_order, _datetime_types.date).year, 2020)
-        self.assertFalse(order.advance_method or order.expected_result_date or order.payment_deadline)
+        self.assertFalse(order.advance_method or order.committed_date or order.payment_deadline)

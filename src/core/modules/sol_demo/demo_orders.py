@@ -39,7 +39,7 @@ def seed_orders(env):
         "confirmed",
         lead,
         user_id=sales.id,
-        expected_result_date="2026-04-15",
+        committed_date="2026-04-15",
     )
     declined_order = _order(orders, hoa, company, "confirmed", package, user_id=sales.id)
     accepted_order = _order(orders, hoa, company, "confirmed", lead, user_id=sales.id)
@@ -105,7 +105,7 @@ def seed_request_orders(env):
                 "order_status": REQUEST_ORDER_STATUS.get(request.status, STATUS_CONFIRMED),
                 "user_id": sales.id,
                 "order_line": [_line(product, 1) for product in products if product] or [_line(lead, 1)],
-                "expected_result_date": request.expected_date,
+                "committed_date": request.committed_date,
                 "confirmed_at": request.create_date,
                 "test_request_id": request.id,
             }

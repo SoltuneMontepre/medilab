@@ -668,6 +668,17 @@ msgid "Accept"
 msgstr ""
 
 #. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_dates.py:0
+msgid "Accept or decline the customer's priority request before sending."
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Accept priority"
+msgstr ""
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 msgid "Accept the quotation before"
 msgstr ""
@@ -1030,6 +1041,12 @@ msgid "Archived"
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
+msgid ""
+"Ask for priority: Sales confirms whether the laboratory can meet this date"
+msgstr ""
+
+#. module: sol_commerce
 #: model:portal.entry,description:sol_commerce.portal_entry_support
 msgid "Ask the laboratory for help and follow the conversation"
 msgstr ""
@@ -1227,6 +1244,11 @@ msgid "Catalog Total"
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Change committed date"
+msgstr ""
+
+#. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order.py:0
 msgid "Change the order status with its actions."
@@ -1408,6 +1430,26 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_base_module_uninstall__commerce_warning
 msgid "Commerce Warning"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_committed_date_change
+msgid "Committed Date Change"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__committed_date
+msgid "Committed Return Date"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid "Committed return date"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+msgid "Committed return date:"
 msgstr ""
 
 #. module: sol_commerce
@@ -1756,6 +1798,11 @@ msgid "Date"
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
+msgid "Date you want the results"
+msgstr ""
+
+#. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_reconciliation_day__day
 msgid "Day"
 msgstr ""
@@ -1815,6 +1862,11 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__decline_reason
 msgid "Decline Reason"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Decline priority"
 msgstr ""
 
 #. module: sol_commerce
@@ -2156,8 +2208,19 @@ msgstr ""
 
 #. module: sol_commerce
 #. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_dates.py:0
+msgid "Enter the date you want the results as a date."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order.py:0
 msgid "Enter your name."
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__estimated_result_date
+msgid "Estimated Return Date"
 msgstr ""
 
 #. module: sol_commerce
@@ -2272,6 +2335,11 @@ msgid "Fixed amount"
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Fixed at sample receipt"
+msgstr ""
+
+#. module: sol_commerce
 #: model:ir.actions.server,name:sol_commerce.cron_flag_expired_quotations_ir_actions_server
 msgid "Flag expired quotations"
 msgstr ""
@@ -2322,6 +2390,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order.py:0
 msgid "Give a reason for the cancellation."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_dates.py:0
+msgid "Give the date you want the results to ask for priority."
 msgstr ""
 
 #. module: sol_commerce
@@ -2740,6 +2814,11 @@ msgid "Missing Payment Count"
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__turnaround_missing
+msgid "Missing Turnaround"
+msgstr ""
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.report_reconciliation_day
 msgid "Missing payment"
 msgstr ""
@@ -2823,6 +2902,11 @@ msgstr ""
 msgid ""
 "No selections are available in the catalog.\n"
 "%s"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "No standard turnaround yet:"
 msgstr ""
 
 #. module: sol_commerce
@@ -3013,6 +3097,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/invoicing/account_payment.py:0
 msgid "Only a posted invoice can be paid."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_dates.py:0
+msgid "Only a priority request with a requested date can be accepted."
 msgstr ""
 
 #. module: sol_commerce
@@ -3752,6 +3842,21 @@ msgid "Print"
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid "Priority"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__priority
+msgid "Priority Order"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__priority_request
+msgid "Priority Request"
+msgstr ""
+
+#. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_product_template
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_template_line__product_id
 msgid "Product"
@@ -4198,13 +4303,39 @@ msgid "Requested By"
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__requested_date
+msgid "Requested Date"
+msgstr ""
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.payment_request_summary
 msgid "Requested amount"
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid "Requested date"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+msgid "Requested date:"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid "Results"
+msgstr ""
+
+#. module: sol_commerce
 #: model:mail.message.subtype,name:sol_commerce.event_result_released
 msgid "Results released"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+msgid "Results within"
 msgstr ""
 
 #. module: sol_commerce
@@ -4447,6 +4578,14 @@ msgstr ""
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_page
 msgid "Service packages"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_dates.py:0
+msgid ""
+"Set the standard turnaround of these ways of testing before sending the "
+"quotation: %s"
 msgstr ""
 
 #. module: sol_commerce
@@ -4721,6 +4860,14 @@ msgstr ""
 
 #. module: sol_commerce
 #. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_dates.py:0
+msgid ""
+"The committed return date is earlier than the standard turnaround allows, "
+"%s. Choose a later date or accept a priority request."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
 #: code:addons/sol_commerce/models/invoicing/account_payment.py:0
 msgid "The company has no journal for this payment."
 msgstr ""
@@ -4749,6 +4896,13 @@ msgid "The customer must accept the quotation before the order is confirmed."
 msgstr ""
 
 #. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_dates.py:0
+msgid ""
+"The dates cannot change after the quotation is sent. Revise the quotation."
+msgstr ""
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.expected_sampling
 msgid ""
 "The expected samples are shown once each item has a sample type and a way of "
@@ -4759,6 +4913,14 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/invoicing/sale_order.py:0
 msgid "The final invoice is created after testing for orders on credit."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_dates.py:0
+msgid ""
+"The laboratory cannot return results by %(requested)s. The earliest feasible"
+" date is %(earliest)s; offer it to the customer."
 msgstr ""
 
 #. module: sol_commerce
@@ -4819,6 +4981,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/controllers/portal.py:0
 msgid "The payment link is not valid."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_dates.py:0
+msgid "The priority request cannot be checked: %s"
 msgstr ""
 
 #. module: sol_commerce
@@ -5139,6 +5307,11 @@ msgid "Transfer total"
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__turnaround_days
+msgid "Turnaround (working days)"
+msgstr ""
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 msgid "Type to find a parameter or package..."
 msgstr ""
@@ -5249,6 +5422,11 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_cancellation_request__status__withdrawn
 msgid "Withdrawn"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid "Within"
 msgstr ""
 
 #. module: sol_commerce
@@ -5495,4 +5673,15 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.ui.menu,name:sol_commerce.menu_reports_invoice_analysis
 msgid "Invoice Analysis"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid "working days of receiving the samples"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+msgid "working days of receiving the samples."
 msgstr ""

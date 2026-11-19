@@ -278,6 +278,18 @@ msgid "<span class=\"text-muted\">Quotation</span>"
 msgstr "<span class=\"text-muted\">Báo Giá</span>"
 
 #. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_dates.py:0
+msgid "Accept or decline the customer's priority request before sending."
+msgstr ""
+"Hãy chấp nhận hoặc từ chối yêu cầu ưu tiên của khách hàng trước khi gửi."
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Accept priority"
+msgstr "Chấp nhận ưu tiên"
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.portal_navigation
 msgid "Account"
 msgstr "Tài khoản"
@@ -317,6 +329,14 @@ msgid "All sample types"
 msgstr "Tất cả loại mẫu"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
+msgid ""
+"Ask for priority: Sales confirms whether the laboratory can meet this date"
+msgstr ""
+"Yêu cầu ưu tiên: bộ phận kinh doanh xác nhận phòng thử nghiệm có kịp ngày "
+"này không"
+
+#. module: sol_commerce
 #: model:portal.entry,description:sol_commerce.portal_entry_support
 msgid "Ask the laboratory for help and follow the conversation"
 msgstr "Nhờ phòng thí nghiệm hỗ trợ và theo dõi trao đổi"
@@ -327,14 +347,71 @@ msgid "Back to notifications"
 msgstr "Quay lại thông báo"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Change committed date"
+msgstr "Đổi ngày hẹn trả kết quả"
+
+#. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_base_module_uninstall__commerce_warning
 msgid "Commerce Warning"
 msgstr "Cảnh Báo Gỡ Thương Mại Điện Tử"
 
 #. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_committed_date_change
+msgid "Committed Date Change"
+msgstr "Thay Đổi Ngày Hẹn Trả Kết Quả"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__committed_date
+msgid "Committed Return Date"
+msgstr "Ngày Hẹn Trả Kết Quả"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid "Committed return date"
+msgstr "Ngày hẹn trả kết quả"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+msgid "Committed return date:"
+msgstr "Ngày hẹn trả kết quả:"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
+msgid "Date you want the results"
+msgstr "Ngày bạn muốn nhận kết quả"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Decline priority"
+msgstr "Từ chối ưu tiên"
+
+#. module: sol_commerce
 #: model:medilab.permission,name:sol_commerce.permission_order_edit_own
 msgid "Edit own orders"
 msgstr "Sửa đơn hàng của mình"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_dates.py:0
+msgid "Enter the date you want the results as a date."
+msgstr "Hãy nhập ngày bạn muốn nhận kết quả theo định dạng ngày."
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__estimated_result_date
+msgid "Estimated Return Date"
+msgstr "Ngày Trả Kết Quả Dự Kiến"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Fixed at sample receipt"
+msgstr "Được ấn định khi nhận mẫu"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_dates.py:0
+msgid "Give the date you want the results to ask for priority."
+msgstr "Hãy cho biết ngày bạn muốn nhận kết quả để yêu cầu ưu tiên."
 
 #. module: sol_commerce
 #: model:medilab.task.type,name:sol_commerce.task_type_invoice_posting
@@ -514,6 +591,7 @@ msgstr "Hãy chấp nhận báo giá trước"
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__pipeline_stage__accepted
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__quotation_follow_up__accepted
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_cancellation_request_search
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__priority_request__accepted
 msgid "Accepted"
 msgstr "Đã chấp nhận"
 
@@ -1034,6 +1112,7 @@ msgstr "Lý Do Từ Chối"
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_quotation__status__declined
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__quotation_follow_up__declined
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_cancellation_request_search
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__priority_request__declined
 msgid "Declined"
 msgstr "Đã từ chối"
 
@@ -1138,6 +1217,7 @@ msgstr "Bỏ qua"
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order_discount__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_committed_date_change__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -1321,6 +1401,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__id
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__id
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order_discount__id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_committed_date_change__id
 msgid "ID"
 msgstr "ID"
 
@@ -1428,6 +1509,11 @@ msgid "Min"
 msgstr "Tối thiểu"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__turnaround_missing
+msgid "Missing Turnaround"
+msgstr "Thiếu Thời Gian Trả Kết Quả"
+
+#. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_base_module_uninstall
 msgid "Module Uninstall"
 msgstr "Gỡ Cài Đặt Phân Hệ"
@@ -1463,6 +1549,11 @@ msgstr "Mới"
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__advance_method__none
 msgid "No advance"
 msgstr "Không tạm ứng"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "No standard turnaround yet:"
+msgstr "Chưa có thời gian trả kết quả chuẩn:"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
@@ -1521,6 +1612,12 @@ msgstr "Chỉ đơn hàng nháp mới có thể thay đổi."
 #: code:addons/sol_commerce/models/orders/sale_order.py:0
 msgid "Only a draft order can be submitted."
 msgstr "Chỉ đơn hàng nháp mới có thể gửi."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_dates.py:0
+msgid "Only a priority request with a requested date can be accepted."
+msgstr "Chỉ chấp nhận được yêu cầu ưu tiên có ngày khách yêu cầu."
 
 #. module: sol_commerce
 #. odoo-python
@@ -1726,6 +1823,95 @@ msgid "Advance invoice"
 msgstr "Hóa đơn tạm ứng"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid "Priority"
+msgstr "Ưu tiên"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__priority
+msgid "Priority Order"
+msgstr "Đơn Ưu Tiên"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__priority_request
+msgid "Priority Request"
+msgstr "Yêu Cầu Ưu Tiên"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__requested_date
+msgid "Requested Date"
+msgstr "Ngày Khách Yêu Cầu"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid "Requested date"
+msgstr "Ngày khách yêu cầu"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+msgid "Requested date:"
+msgstr "Ngày khách yêu cầu:"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid "Results"
+msgstr "Kết quả"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+msgid "Results within"
+msgstr "Trả kết quả trong"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_dates.py:0
+msgid ""
+"Set the standard turnaround of these ways of testing before sending the "
+"quotation: %s"
+msgstr ""
+"Hãy đặt thời gian trả kết quả chuẩn cho các cách thử sau trước khi gửi báo "
+"giá: %s"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_dates.py:0
+msgid ""
+"The committed return date is earlier than the standard turnaround allows, "
+"%s. Choose a later date or accept a priority request."
+msgstr ""
+"Ngày hẹn trả kết quả sớm hơn thời gian trả kết quả chuẩn cho phép, %s. Hãy "
+"chọn ngày muộn hơn hoặc chấp nhận yêu cầu ưu tiên."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_dates.py:0
+msgid ""
+"The dates cannot change after the quotation is sent. Revise the quotation."
+msgstr "Không thể đổi các ngày sau khi đã gửi báo giá. Hãy sửa đổi báo giá."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_dates.py:0
+msgid ""
+"The laboratory cannot return results by %(requested)s. The earliest feasible"
+" date is %(earliest)s; offer it to the customer."
+msgstr ""
+"Phòng thử nghiệm không thể trả kết quả trước %(requested)s. Ngày sớm nhất có"
+" thể là %(earliest)s; hãy đề xuất ngày này cho khách hàng."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_dates.py:0
+msgid "The priority request cannot be checked: %s"
+msgstr "Không thể kiểm tra yêu cầu ưu tiên: %s"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__turnaround_days
+msgid "Turnaround (working days)"
+msgstr "Thời Gian Trả Kết Quả (ngày làm việc)"
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_base_module_uninstall
 msgid ""
 "Uninstalling E-commerce deletes its data and the link between orders and "
@@ -1735,6 +1921,11 @@ msgstr ""
 "Gỡ cài đặt Thương Mại Điện Tử sẽ xoá dữ liệu của phân hệ này và liên kết "
 "giữa đơn hàng với yêu cầu thử nghiệm. Mỗi yêu cầu thử nghiệm tạo từ đơn hàng "
 "giữ lại số đơn hàng dưới dạng văn bản."
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid "Within"
+msgstr "Trong vòng"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
@@ -2068,6 +2259,7 @@ msgstr "Phản hồi:"
 
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_cancellation_request__status__requested
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__priority_request__requested
 msgid "Requested"
 msgstr "Đã yêu cầu"
 
@@ -5589,3 +5781,14 @@ msgstr "Khách hàng"
 #: model:ir.ui.menu,name:sol_commerce.menu_reports_invoice_analysis
 msgid "Invoice Analysis"
 msgstr "Phân tích hoá đơn"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid "working days of receiving the samples"
+msgstr "ngày làm việc kể từ khi nhận mẫu"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+msgid "working days of receiving the samples."
+msgstr "ngày làm việc kể từ khi nhận mẫu."

@@ -57,7 +57,10 @@ class TestOrderDiscount(OrderCase):
 
     def test_a_salesperson_gives_a_line_a_discount(self):
         order = self.make_quotable_order()
-        with Form(order.with_user(self.sales)) as form, assert_instance(form.product_line_ids, O2MProxy).edit(0) as line:
+        with (
+            Form(order.with_user(self.sales)) as form,
+            assert_instance(form.product_line_ids, O2MProxy).edit(0) as line,
+        ):
             line.discount = 10
 
         self.assertEqual(order.order_line.discount, 10)

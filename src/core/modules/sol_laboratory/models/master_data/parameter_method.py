@@ -65,9 +65,10 @@ class ParameterMethod(models.Model, ParameterMethodBase):
         # and time to repeat a failed measurement; empty when a machine link gives it. An in-house way whose method has
         # no machine cannot be booked without it.
         duration_minutes = fields.Integer(string="Duration (minutes)")
-        # Days from sending a dispatch through the subcontracted way until its results are back, transport and
-        # processing included; empty when unknown or for an in-house way.
-        turnaround_days = fields.Integer(string="Turnaround (days)")
+        # Standard turnaround: the working days results take from sample receipt; for a subcontracted way it covers
+        # transport and the subcontractor's processing, and a dispatch's expected return is counted from it. A
+        # quotation with a way without it cannot be sent.
+        turnaround_days = fields.Integer(string="Turnaround (working days)")
         # Samples one interval of a tester holds for bookings of the way when its method is linked to no machine.
         capacity = fields.Integer(required=True, default=1)
         # The sample types the way applies to, with the unit, detection limits and default on each.

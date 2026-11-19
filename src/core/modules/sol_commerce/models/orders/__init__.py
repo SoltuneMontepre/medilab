@@ -1,5 +1,6 @@
 from . import (
     cancellation_request,
+    committed_date_change,
     customer_sales_terms,
     order_sample,
     order_template,
@@ -17,6 +18,7 @@ from . import (
     sale_order_analysis,
     sale_order_confirmation,
     sale_order_customer,
+    sale_order_dates,
     sale_order_discount,
     sale_order_freeze,
     sale_order_line,

@@ -98,6 +98,20 @@
                     invisible="order_status != 'submitted' or user_id"
                 />
                 <button
+                    name="action_accept_priority"
+                    type="object"
+                    string="Accept priority"
+                    class="btn-success"
+                    invisible="priority_request != 'requested' or state != 'draft'"
+                />
+                <button
+                    name="action_decline_priority"
+                    type="object"
+                    string="Decline priority"
+                    class="btn-secondary"
+                    invisible="priority_request != 'requested' or state != 'draft'"
+                />
+                <button
                     name="action_send_quotation"
                     type="object"
                     string="Send quotation"
@@ -124,6 +138,14 @@
                     string="Start sample collection"
                     class="btn-primary"
                     invisible="order_status != 'confirmed' or show_unpaid_warning"
+                />
+                <button
+                    name="action_change_committed_date"
+                    type="object"
+                    string="Change committed date"
+                    class="btn-secondary"
+                    invisible="order_status != 'confirmed' or not test_request_id"
+                    groups="sol_laboratory.group_permission_committed_date_change_create_all"
                 />
                 <button name="%(action_payment_collection)d" type="action" string="Record payment" class="btn-primary"
                     context="{'default_order_id': id}" invisible="not can_record_collection" groups="base.group_user" />
@@ -240,7 +262,14 @@
             </xpath>
             <xpath expr="//group[@name='order_details']/field[@name='validity_date']" position="after">
                 <field name="payment_deadline" />
-                <field name="expected_result_date" />
+                <field name="requested_date" />
+                <field name="priority_request" invisible="not priority_request" decoration-warning="priority_request == 'requested'" widget="badge" />
+                <field name="turnaround_days" readonly="1" />
+                <div class="text-warning" colspan="2" invisible="not turnaround_missing">
+                    No standard turnaround yet: <field name="turnaround_missing" class="d-inline" />
+                </div>
+                <field name="estimated_result_date" invisible="not turnaround_days or committed_date" />
+                <field name="committed_date" placeholder="Fixed at sample receipt" />
             </xpath>
             <xpath expr="//group[@name='sales_person']/field[@name='user_id']" position="replace" />
             <!-- There are no customer price lists: special prices are discounts on the quotation. -->

@@ -109,7 +109,7 @@ class LaboratoryFilesConcurrencyCase(TransactionCase):
         request = env[MODEL_TEST_REQUEST].create(
             {
                 "customer_id": customer.id,
-                "expected_date": "2026-10-20",
+                "committed_date": "2026-10-20",
                 "sample_ids": [
                     Command.create(
                         {

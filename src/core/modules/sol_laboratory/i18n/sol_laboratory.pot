@@ -273,6 +273,12 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/test_request_estimate.py:0
+msgid "%s has no turnaround."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/system/permission.py:0
 msgid ""
 "%s has no user, so a permission on it cannot be limited to the person's own "
@@ -876,6 +882,18 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/sample_handover.py:0
 msgid "A received handover cannot move to another sample or department."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/committed_date_change.py:0
+msgid "A recorded change of a committed return date cannot be deleted."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/committed_date_change.py:0
+msgid "A recorded change of a committed return date cannot be edited."
 msgstr ""
 
 #. module: sol_laboratory
@@ -2563,6 +2581,13 @@ msgid "Change"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_committed_date_change
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_committed_date_change_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
+msgid "Change Committed Date"
+msgstr ""
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_due_date_change_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 msgid "Change Due Date"
@@ -2583,6 +2608,11 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_sample_test_due_date_change
 msgid "Change a Sample Test's Due Date"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_committed_date_change_create_all
+msgid "Change committed return dates"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2622,6 +2652,19 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_sample_test_due_date_change
 msgid "Change the Due Date"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_committed_date_change_form
+msgid ""
+"Change the committed return date only after the customer agreed to the new "
+"date."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/test_request_plan.py:0
+msgid "Change the committed return date with Change Committed Date."
 msgstr ""
 
 #. module: sol_laboratory
@@ -2881,6 +2924,22 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_editing_session__status__committed
 msgid "Committed"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_committed_date_change
+msgid "Committed Date Change"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__committed_date_change_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
+msgid "Committed Date Changes"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__committed_date
+msgid "Committed Return Date"
 msgstr ""
 
 #. module: sol_laboratory
@@ -3639,6 +3698,11 @@ msgid "Current"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__current_date
+msgid "Current Committed Return Date"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__current_date_version
 msgid "Current Date Employee Record"
 msgstr ""
@@ -3689,6 +3753,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__customer_rank
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__customer_rank
 msgid "Customer Rank"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__confirmation
+msgid "Customer's Confirmation"
 msgstr ""
 
 #. module: sol_laboratory
@@ -7939,6 +8008,11 @@ msgid "Negative Results"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__new_date
+msgid "New Committed Return Date"
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/audit_report.py:0
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__new_value
@@ -8040,6 +8114,14 @@ msgstr ""
 #. odoo-javascript
 #: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
 msgid "Next up"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/test_request_estimate.py:0
+msgid ""
+"No authorized person and machine has a free slot for %(way)s in the next "
+"%(days)s days."
 msgstr ""
 
 #. module: sol_laboratory
@@ -8316,6 +8398,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_expected_sampling__objects
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sampling_snapshot_mixin__objects
 msgid "Objects"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__old_date
+msgid "Old Date"
 msgstr ""
 
 #. module: sol_laboratory
@@ -8731,6 +8818,16 @@ msgid "Permission: accreditation.scope.line.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_committed_date_change_create_all
+msgid "Permission: committed.date.change.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_committed_date_change_read_all
+msgid "Permission: committed.date.change.read.all"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_test_report_deliver_all
 msgid "Permission: test.report.deliver.all"
 msgstr ""
@@ -8752,9 +8849,40 @@ msgid "Prepare test report PDFs"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__priority
+msgid "Priority Order"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_committed_date_change_read_all
+msgid "Read committed date changes"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/committed_date_change.py:0
+msgid "Record how the customer agreed to the new date."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
+msgid "Recorded On"
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_report.py:0
 msgid "Report templates are only edited online."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__request_id
+msgid "Request"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__requested_date
+msgid "Requested Date"
 msgstr ""
 
 #. module: sol_laboratory
@@ -8779,6 +8907,11 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__mobile_stopped_versions
 msgid "Stopped Releases"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_committed_date_change_form
+msgid "Such as the email or call the customer agreed in"
 msgstr ""
 
 #. module: sol_laboratory
@@ -15234,6 +15367,12 @@ msgid "Turn the schedule of %s on before running it."
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__turnaround_days
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__turnaround_days
+msgid "Turnaround (working days)"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_folder__status__turned_off
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_sync_rule_search
@@ -17032,6 +17171,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_machine_method_edit_all
+#: code:addons/sol_laboratory/models/master_data/parameter_authorization.py:0
 msgid "Permission: machine.method.edit.all"
 msgstr ""
 
@@ -17061,6 +17201,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__booking_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__booking_id
 msgid "Booking"
 msgstr ""
 
@@ -17125,6 +17266,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_statistic_graph
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_statistic_pivot
 #: model:ir.ui.menu,name:sol_laboratory.menu_reports_testing_statistic
+#: code:addons/sol_laboratory/models/testing/sample_test_eligibility.py:0
 msgid "Testing Statistics"
 msgstr ""
 
@@ -17147,6 +17289,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_method_machine_method_unique
+#: code:addons/sol_laboratory/models/testing/sample_test_eligibility.py:0
 msgid "The machine is already linked to this testing method."
 msgstr ""
 
@@ -17285,6 +17428,8 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__check_preview
+#: code:addons/sol_laboratory/models/testing/machine_booking_capacity.py:0
+#: code:addons/sol_laboratory/models/testing/sample_test_eligibility.py:0
 msgid "Warning"
 msgstr ""
 
@@ -17356,6 +17501,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_authorization_person_parameter_unique
+#: model:medilab.permission,name:sol_laboratory.permission_overtime_create_all
 msgid "The person is already authorized to test this parameter."
 msgstr ""
 
