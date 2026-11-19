@@ -77,6 +77,8 @@ class TestTaskClaiming(TaskCase):
         self.assertEqual(task.assignee_id, administrator)
 
     def test_role_task_without_holders_stays_in_queue_and_notifies_administrators(self):
+        administrator = self.env.ref("sol_laboratory.person_administrator")
+        administrator.user_id.partner_id.email = "administrator@anphu.example"
         task = self.tasks._create_for_event(SIGNATURE_REQUESTED, self.chemistry)
 
         self.assertFalse(task.assignee_id)
@@ -84,7 +86,6 @@ class TestTaskClaiming(TaskCase):
         message = self.env["mail.message"].search(
             [("model", "=", task._name), ("res_id", "=", task.id), ("subtype_id.code", "=", "task.role_unstaffed")]
         )
-        administrator = self.env.ref("sol_laboratory.person_administrator")
         self.assertTrue(
             message.notification_ids.filtered(lambda notice: notice.res_partner_id == administrator.user_id.partner_id)
         )

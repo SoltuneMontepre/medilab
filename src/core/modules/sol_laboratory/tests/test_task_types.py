@@ -66,6 +66,7 @@ class TestTaskTypes(TaskCase):
 
         warning = self.chemist.with_user(self.administrator).role_archive_warning
 
+        self.assertTrue(warning)
         self.assertIn(self.signer_role.name, warning)
         self.microbiologist.role_ids = [Command.link(persisted_id(self.signer_role))]
         self.assertFalse(self.chemist.with_user(self.administrator).role_archive_warning)
