@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date, datetime, time, timedelta
 from unittest.mock import patch
 
 from odoo import fields
@@ -133,8 +133,12 @@ class TestOrderDates(OrderCase):
 
         order.with_user(self.sales).action_send_quotation()
 
-        self.assertEqual(order.payment_deadline, order._priority_payment_deadline())
-        self.assertLess(order.payment_deadline, fields.Datetime.now() + timedelta(days=3))
+        deadline = order.payment_deadline
+        assert isinstance(deadline, datetime)
+        self.assertEqual(deadline, order._priority_payment_deadline())
+        # The turnaround starts five working days before the committed date; the advance is due by the end of that day.
+        self.assertLess(deadline, datetime.combine(requested, time.min))
+        self.assertGreater(deadline, fields.Datetime.now())
 
     def test_a_priority_order_whose_turnaround_should_have_started_is_not_sent(self):
         order = self.make_quotable_order()

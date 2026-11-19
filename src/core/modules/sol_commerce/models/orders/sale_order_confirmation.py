@@ -1,4 +1,5 @@
 from contextvars import ContextVar
+from datetime import datetime
 from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
@@ -131,7 +132,7 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
                 )
             )
 
-    def action_start_sample_collection(self, appointment=False, address=False):
+    def action_start_sample_collection(self, appointment: datetime | bool = False, address: str | bool = False):
         """Queue one unassigned sample collection task of the confirmed order's test request for sample delivery
         staff, due at the appointment Sales agreed with the customer, at the address given or else the customer's."""
         self.check_access("write")

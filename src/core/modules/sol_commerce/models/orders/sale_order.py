@@ -512,7 +512,7 @@ class SaleOrder(models.Model, SaleOrderBase):
         """Give each line without a sample the order's sample of its sample type, creating one named after the type
         when there is none; its physical state is recorded at handover."""
         self.ensure_one()
-        lines = self._catalog_lines().filtered(lambda line: not line.sample_id and line.sample_type_id)
+        lines = self._catalog_lines().filtered(lambda line: bool(not line.sample_id and line.sample_type_id))
         samples = self.env[MODEL_ORDER_SAMPLE].sudo()
         for sample_type in lines.sample_type_id:
             sample = self.sample_ids.filtered(lambda item, sample_type=sample_type: item.sample_type_id == sample_type)[

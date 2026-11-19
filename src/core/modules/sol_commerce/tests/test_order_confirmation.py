@@ -136,7 +136,7 @@ class TestOrderConfirmation(OrderCase):
         form = Form(
             self.env[MODEL_SAMPLE_COLLECTION_START].with_user(self.sales).with_context(default_order_id=order.id)
         )
-        self.assertIn("12 Nguyen Hue", form.address)
+        self.assertIn("12 Nguyen Hue", str(form.address))
         form.appointment = "2099-12-31 02:00:00"
         form.address = "Gate 3, 45 Le Loi"
 
