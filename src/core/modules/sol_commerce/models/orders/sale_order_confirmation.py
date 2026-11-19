@@ -54,17 +54,31 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
         )
         # True when this order was confirmed on the customer's approved credit terms.
         on_credit = fields.Boolean(readonly=True, copy=False)
-        # True while the order still needs payment before collecting its samples.
+        # True while the order's advance is not verified, so its samples cannot be collected yet.
         show_unpaid_warning = fields.Boolean(compute="_compute_show_unpaid_warning", compute_sudo=True)
 
-    @api.depends("payment_status", "on_credit")
+    @api.depends("payment_status", "on_credit", "payment_request_ids.state")
     def _compute_show_unpaid_warning(self):
         for order in self:
             order.show_unpaid_warning = not order._can_collect_samples()
 
     def _can_collect_samples(self):
+        """Samples are collected once the advance of the accepted quotation is verified; the balance is due before
+        the report is released."""
         self.ensure_one()
-        return self.on_credit or self.payment_status == "paid" or self.currency_id.is_zero(self.amount_total)
+        if self.on_credit or self.payment_status == "paid" or self.currency_id.is_zero(self.amount_total):
+            return True
+        quotation = self._latest_quotation()
+        advance = self.sudo().payment_request_ids.filtered(
+            lambda ask: ask.kind == "advance" and ask.quotation_id == quotation
+        )
+        return bool(quotation) and (not advance or all(ask.state == "funded" for ask in advance))
+
+    def _withholds_report(self):
+        """Whether the order's report waits for payment: until the order is paid in full, unless the customer is on
+        credit."""
+        self.ensure_one()
+        return not (self.on_credit or self.payment_status == "paid" or self.currency_id.is_zero(self.amount_total))
 
     def action_confirm(self):
         # Odoo's own Confirm button and every other caller go through the same checks.
@@ -165,7 +179,8 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
             order.sudo(),
             f"payment-request:{request.id}:sent",
             order.env._(
-                "Pay the remaining %(amount)s for order %(order)s before sample collection.",
+                "Pay the remaining %(amount)s for order %(order)s. Its report is released once the order is paid in "
+                "full.",
                 amount=order.currency_id.format(amount),
                 order=order.name,
             ),
@@ -205,7 +220,7 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
             if order.order_status != STATUS_CONFIRMED:
                 raise UserError(self.env._("The order must be confirmed before the samples are collected."))
             if not order._can_collect_samples():
-                raise UserError(self.env._("Verify the order balance before collecting its samples."))
+                raise UserError(self.env._("Verify the order's advance before collecting its samples."))
         if self.env.context.get(COLLECTION_DIALOG) and not appointment:
             # The button asks Sales for the appointment and the place first.
             self.ensure_one()

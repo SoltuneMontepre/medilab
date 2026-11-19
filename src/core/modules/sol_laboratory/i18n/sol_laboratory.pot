@@ -17975,14 +17975,6 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/system/machine_booking_scheduled_job.py:0
-msgid ""
-"%(booking)s on %(machine)s ended at %(end)s without its result or a finished "
-"measurement, so it still holds the machine."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
 #: code:addons/sol_laboratory/models/testing/machine_booking_conditions.py:0
 msgid "%(machine)s was repaired on %(date)s."
 msgstr ""
@@ -18019,13 +18011,6 @@ msgstr ""
 msgid ""
 "A booking that ends within this many days before its machine's maintenance "
 "is due warns its tester."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__repair_warning_days
-msgid ""
-"A booking that starts within this many days after its machine's repair warns "
-"its tester."
 msgstr ""
 
 #. module: sol_laboratory
@@ -18140,14 +18125,6 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/testing/machine_booking_conditions.py:0
-msgid ""
-"The maintenance of %(machine)s was due on %(date)s; record it before booking "
-"the machine."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
 #: code:addons/sol_laboratory/models/testing/machine_booking_interruptions.py:0
 msgid "%(booking)s, planned from %(start)s, went back to the plan. %(reason)s"
 msgstr ""
@@ -18161,27 +18138,8 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/testing/machine_booking_interruptions.py:0
-msgid ""
-"%(machine)s stopped during %(booking)s, so its measurement ended. Record the "
-"data measured so far on the interrupted result, which the head of department "
-"assesses as usable, needing a retest or needing more sample."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
 #: code:addons/sol_laboratory/models/system/resource_calendar_leaves.py:0
 msgid "%(person)s is on leave from %(start)s to %(end)s."
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form_interruption
-msgid ""
-"<span invisible=\"interruption_assessment\">\n"
-"                        The machine stopped during this measurement. Record "
-"the data measured so far; the head of\n"
-"                        department assesses it before it is sent.\n"
-"                    </span>"
 msgstr ""
 
 #. module: sol_laboratory
@@ -18397,19 +18355,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_result__interruption_assessment__retest
 msgid "Retest Needed"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_result_interruption.py:0
-msgid "The head of department assesses an interrupted result with its buttons."
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form_interruption
-msgid ""
-"The machine stopped during this measurement. The head of department assessed "
-"it:"
 msgstr ""
 
 #. module: sol_laboratory

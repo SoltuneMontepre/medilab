@@ -11,7 +11,7 @@ Ask the customer for money without posting a customer invoice before the money i
 ### Requests
 
 - Sending a quotation with an advance creates its **advance payment request**: the order, the quotation version, the requested amount (full, a percentage or a fixed amount), the payment deadline and the payment means (PayOS online, bank transfer, cash). The request and its notice are written in the customer's language. Only the current request takes new payments.
-- Confirming the order of a customer who is not allowed to order on credit creates its **balance payment request**: the order total less the verified money already applied to the order. The request has no deadline. Verified installments stay applied to the order and the request remains open until the full balance is verified. Sample collection starts once the balance is verified.
+- Confirming the order of a customer who is not allowed to order on credit creates its **balance payment request**: the order total less the verified money already applied to the order. The request has no deadline. Verified installments stay applied to the order and the request remains open until the full balance is verified. Sample collection does not wait for it; the issued report is released to the customer once the order is paid in full.
 - A customer allowed to order on credit gets no payment request. Their quotation is sent without an advance and accepted on the portal, and the accountant posts the final invoice once testing is completed ([Invoices](invoices.md)).
 - The portal shows each request's amount, the verified money applied to it, the payments awaiting verification and the amount still needed. An unpaid advance request past its deadline is expired, not an overdue invoice.
 - A quotation that already has a posted advance invoice keeps that invoice. Its existing payment still accepts the quotation. Sales settles the posted advance before sending a revision.
@@ -74,7 +74,7 @@ The amounts use VAT 8% or 10% only as illustration.
 | Service 10,000,000 VND, VAT 800,000, total 10,800,000; advance 50% | Sending requests 5,400,000 and posts no invoice, receivable or revenue. |
 | The customer transfers 2,000,000 and the accountant confirms it | One payment of 2,000,000 and one advance invoice of 2,000,000 are posted; 3,400,000 of the advance is still needed. The quotation is not accepted. |
 | The rest of the advance, 3,400,000, arrives through PayOS | A second advance invoice of 3,400,000 is posted at verification and the quotation is accepted. |
-| Sales confirms the order of a customer not on credit | A balance request of 5,400,000 is created. Sample collection waits until the full balance is verified. |
+| Sales confirms the order of a customer not on credit | A balance request of 5,400,000 is created. Samples can be collected; the issued report waits until the full balance is verified. |
 | The customer pays the balance in installments of 2,000,000 and 3,400,000 | Verification posts an invoice for each installment. The closing invoice deducts the advance invoices and the first balance installment. Sample collection can start after the second verification. |
 | A partly paid quotation expires | No further payment is taken; 2,000,000 stays on the order and nothing is refunded for expiry alone. |
 | Full advance received at 16:55, deadline 17:00, verified at 18:00 | The unchanged quotation is accepted at verification. |

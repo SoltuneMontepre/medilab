@@ -36,6 +36,12 @@ msgstr ""
 
 #. module: sol_commerce
 #. odoo-python
+#: code:addons/sol_commerce/models/orders/test_report.py:0
+msgid "%(report)s is sent once order %(order)s is paid in full."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
 #: code:addons/sol_commerce/models/pricing/tax.py:0
 msgid "%(tax)s has no rate on %(date)s."
 msgstr ""
@@ -3519,7 +3525,8 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
 msgid ""
-"Pay the remaining %(amount)s for order %(order)s before sample collection."
+"Pay the remaining %(amount)s for order %(order)s. Its report is released "
+"once the order is paid in full."
 msgstr ""
 
 #. module: sol_commerce
@@ -4977,6 +4984,11 @@ msgid "The customer must accept the quotation before the order is confirmed."
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_test_report_form_payment_hold
+msgid "The customer receives this report once order"
+msgstr ""
+
+#. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_dates.py:0
 msgid ""
@@ -5129,6 +5141,14 @@ msgstr ""
 msgid ""
 "The results of order %(order)s are ready. Download report %(report)s from "
 "your portal."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/test_report.py:0
+msgid ""
+"The results of order %(order)s are ready. Report %(report)s is released in "
+"your portal once the order is paid in full."
 msgstr ""
 
 #. module: sol_commerce
@@ -5463,8 +5483,7 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
 #: code:addons/sol_commerce/models/orders/test_request.py:0
-#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
-msgid "Verify the order balance before collecting its samples."
+msgid "Verify the order's advance before collecting its samples."
 msgstr ""
 
 #. module: sol_commerce
@@ -5504,6 +5523,16 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_cancellation_request__status__withdrawn
 msgid "Withdrawn"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_test_report__withheld_for_payment
+msgid "Withheld For Payment"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_test_report__withheld_order_name
+msgid "Withheld Order Name"
 msgstr ""
 
 #. module: sol_commerce
@@ -5648,6 +5677,11 @@ msgstr ""
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_submitted
 msgid "is in the sales queue."
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_test_report_form_payment_hold
+msgid "is paid in full."
 msgstr ""
 
 #. module: sol_commerce

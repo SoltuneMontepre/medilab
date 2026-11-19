@@ -184,12 +184,12 @@ class TestOrderConfirmation(OrderCase):
         with self.assertRaises(UserError):
             order.with_user(self.sales).action_confirm_order()
 
-    def test_confirming_without_payment_goes_on_and_warns(self):
+    def test_confirming_an_order_sent_without_an_advance_lets_its_samples_be_collected(self):
         order = self.accepted_unpaid_order()
 
         self.assertEqual(order.order_status, "confirmed")
         self.assertTrue(order.test_request_id)
-        self.assertTrue(order.show_unpaid_warning)
+        self.assertFalse(order.show_unpaid_warning)
 
     def test_confirming_needs_the_customer_record(self):
         order = self.make_quotable_order()
@@ -202,33 +202,30 @@ class TestOrderConfirmation(OrderCase):
 
         self.assertEqual(order.order_status, "claimed")
 
-    def test_an_unverified_balance_blocks_collection_and_reception(self):
+    def test_an_unpaid_balance_does_not_hold_collection_or_reception(self):
         order = self.accepted_unpaid_order()
         request = order.test_request_id
-        self.assertEqual(request.status, "confirmed")
-        with self.assertRaisesRegex(UserError, "Verify the order balance"):
-            order.with_user(self.sales).action_start_sample_collection()
-        with self.assertRaisesRegex(UserError, "Verify the order balance"):
-            request.sample_ids.action_receive(1, "unusable", "The bottle leaked")
-        self.assertEqual(request.sample_ids.status, "expected")
+        self.assertEqual(order.payment_request_id.kind, "balance")
+        self.assertEqual(request.status, "paid")
+        self.assertFalse(order.show_unpaid_warning)
 
-    def test_a_legacy_unpaid_invoice_blocks_receipt_until_settled(self):
+        request.sample_ids.action_receive(1, "unusable", "The bottle leaked")
+
+        self.assertEqual(request.sample_ids.status, "rejected")
+
+    def test_an_unverified_advance_holds_collection_and_reception(self):
         order = self.accepted_unpaid_order()
-        payment_request = order.payment_request_id
-        order.payment_request_id = False
-        payment_request.unlink()
-        invoice = order._draft_final_invoice()
-        invoice.action_post()
-        order.test_request_id.status = "paid"
-        sample = order.test_request_id.sample_ids.with_user(self.sales).sudo()
+        quotation = order._latest_quotation()
+        self.env["medilab.payment.request"].create(
+            {"kind": "advance", "order_id": order.id, "quotation_id": quotation.id, "amount": 100_000}
+        )
+        order.invalidate_recordset(["show_unpaid_warning"])
 
-        with self.assertRaisesRegex(UserError, "Verify the order balance"), self.env.cr.savepoint():
-            sample.action_receive(1, "unusable", "The bottle leaked")
-        self.assertEqual(sample.status, "expected")
-
-        self.env["account.payment"].create_pending_payment(invoice, invoice.amount_residual, "cash").action_post()
-        sample.action_receive(1, "unusable", "The bottle leaked")
-        self.assertEqual(sample.status, "rejected")
+        self.assertTrue(order.show_unpaid_warning)
+        with self.assertRaisesRegex(UserError, "Verify the order's advance"):
+            order.with_user(self.sales).action_start_sample_collection()
+        with self.assertRaisesRegex(UserError, "Verify the order's advance"):
+            order.test_request_id.sample_ids.action_receive(1, "unusable", "The bottle leaked")
 
     def test_upgrading_backfills_eligible_legacy_credit_orders(self):
         self.env[MODEL_CUSTOMER_SALES_TERMS].create({"customer_id": self.customer_record.id, "allow_credit": True})

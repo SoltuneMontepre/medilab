@@ -58,6 +58,7 @@
         "views/orders/order_template_views.xml",
         "views/orders/order_template_save_views.xml",
         "views/orders/sample_collection_start_views.xml",
+        "views/orders/test_report_views.xml",
         "views/orders/quotation_agreement_views.xml",
         "views/orders/sale_order_views.xml",
         "views/orders/sale_order_analysis_views.xml",

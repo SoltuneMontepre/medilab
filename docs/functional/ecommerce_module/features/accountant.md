@@ -36,7 +36,7 @@ The accountant is the laboratory's financial user. The accountant issues and tra
 | Invoice                                 | Created by                                                   | Purpose                                                                                  |
 | --------------------------------------- | ------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
 | Advance invoice                         | System, when a payment against the advance payment request is verified | Record the money collected towards the advance; the request itself is not an invoice |
-| Final invoice | System, when a payment against the balance request is verified. For a customer on credit, the accountant or Sales with the Create invoices permission drafts it and the accountant posts it. | Bill each verified balance payment before sample collection, or bill the customer on credit once testing is completed. |
+| Final invoice | System, when a payment against the balance request is verified. For a customer on credit, the accountant or Sales with the Create invoices permission drafts it and the accountant posts it. | Bill each verified balance payment, which the issued report waits for, or bill the customer on credit once testing is completed. |
 | Adjustment invoice (hóa đơn điều chỉnh) | Accountant, from a posted invoice                            | Correct a posted invoice with only the difference, raising or lowering the amount        |
 
 - Advance and balance invoices are posted automatically when each payment is verified; a payment request is never an invoice ([Payment requests](../../../specs/payment-requests.md)).

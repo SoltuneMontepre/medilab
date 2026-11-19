@@ -241,7 +241,7 @@ class TestQuotationAdvance(OrderCase):
 
         self.assertEqual(order._latest_quotation().status, "accepted")
         self.assertEqual(order.quotation_follow_up, "accepted")
-        self.assertTrue(order.show_unpaid_warning)
+        self.assertFalse(order.show_unpaid_warning)
 
     def test_only_a_quotation_without_an_advance_is_accepted_by_the_customer(self):
         order = self.make_quotable_order()
