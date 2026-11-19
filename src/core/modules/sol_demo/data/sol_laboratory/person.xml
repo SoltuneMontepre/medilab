@@ -35,8 +35,6 @@
             eval="[Command.set([
                 ref('sol_laboratory.permission_department_read_all'),
                 ref('sol_laboratory.permission_person_read_own_team'),
-                ref('sol_inventory.permission_location_read_all'),
-                ref('sol_inventory.permission_cost_centre_read_all'),
             ])]"
         />
     </record>
@@ -48,10 +46,6 @@
     <record id="demo_person_lab_head" model="medilab.person">
         <field name="user_id" ref="demo_res_users_lab_head" />
         <field name="role_ids" eval="[Command.set([ref('demo_role_lab_head')])]" />
-    </record>
-    <record id="demo_person_storekeeper" model="medilab.person">
-        <field name="user_id" ref="demo_res_users_storekeeper" />
-        <field name="role_ids" eval="[Command.set([ref('demo_role_storekeeper')])]" />
     </record>
     <record id="demo_person_auditor" model="medilab.person">
         <field name="user_id" ref="demo_res_users_auditor" />

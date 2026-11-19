@@ -59,7 +59,7 @@ The Firebase token is a `medilab.mobile.device` linked to its phone's device: on
 
 | Route | Does |
 | ----- | ---- |
-| `GET /me` | The person's name, login, department and roles, and what they may do: create, assign and reassign tasks, read handover records, take support requests |
+| `GET /me` | The person's name, login, department and roles, and what they may do: create, assign and reassign tasks, read handover records, scan sample labels, sign results, take support requests |
 | `GET /modules` | The installed MediLab modules, such as `sol_laboratory`, `sol_commerce` and `sol_inventory` |
 
 What the person may do comes from the same permission checks the web's buttons use, so the app hides what the web hides. `GET /modules` reads the modules' installed state with full rights and answers only their technical names.
@@ -88,7 +88,7 @@ A push is created when a notification is delivered on the push channel ([SH-11](
 | `GET /documents/{model}/{record_id}` | The document's code, title and phone screen, and its address on the web |
 
 - Notifications are the person's inbox notifications ([SH-11](../functional/shared.md#sh-11-schedules-and-reminders)): Odoo messages with an inbox notification for the person's contact. Reading one marks that notification read for the web as well. The title of a notification is its event's name, and the list never carries its text, as a push does not.
-- The preferences list the events that notify people: an event the administrator turned off is left out, and its push cannot be set.
+- The preferences list the events that notify people about documents the person may read: an event the administrator turned off, or one about a kind of document the person may not read, such as an invoice for a tester, is left out, and its push cannot be set.
 - A push preference is a `medilab.notification.preference` of channel `push`, set with `set_own()`, so the web shows the same choice. Turning off a mandatory event's push is refused with `mandatory_event`.
 - A document's screen is `task`, `sample`, `sample_test`, `test_result`, `handover_record`, `support_request`, `container` or `conversation`. Any other readable document answers the screen `web` with its code, its title and its address on the web, which the app shows with "Open on the web". The title is the document's code when it has one, otherwise its display name.
 
@@ -124,6 +124,7 @@ A push is created when a notification is delivered on the push channel ([SH-11](
 - The sample is read with the person's rights and answers only the fields they may read: a tester never gets the customer, the customer's name for the sample or its photos. The customer and the customer's name come only to a person who reads every test request, and are null for anyone else.
 - A sample not handed over to the person's department, or a person in no department, is refused by `receive_by_label()` with `action_refused` and records nothing. Scanning a received sample again keeps the first receipt. The app offers to record the receipt only while the sample's handover to the person's department is not received and they may edit it (`can_receive`), and says that a sample without one was not handed over to their department.
 - The tasks offered and claimed are the sample's open testing tasks in the person's own department's queue; any other task is refused with `action_refused`, and one someone else claimed first with `already_claimed`. A claim takes every listed task or none.
+- `GET /me` says with `scan_samples` whether the person may edit sample handovers, which recording a receipt and handing samples over need, so the app offers scanning only then. A sample's answer says with `tests_samples` whether the person is in a department and authorized to test a parameter; the app shows their department's handover and testing tasks only to them, and the handover to anyone the sample was handed over to.
 
 ### Testing at the bench
 
@@ -142,6 +143,7 @@ A push is created when a notification is delivered on the push channel ([SH-11](
 - Signing takes `confirmed: true`, which the app sends only from its confirmation step, so signing is a deliberate action ([SH-04](../functional/shared.md#sh-04-signatures-and-digital-signing)). The approval mixin decides the level: a tester's signature sends the result, a head of department's approves it, and a head may approve a result they entered.
 - Rejecting needs a reason; an empty or blank one is refused by `action_reject()` with `action_refused`.
 - The results waiting for the person are the results awaiting approval that they may read, kept when `approval_can_sign` is true for them; it is computed, not stored, so the route filters them before paging. A result that is approved or waits for someone else's signature answers that nothing can be done with it.
+- `GET /me` says with `sign_results` whether results can wait for the person's signature: they may sign results and hold the role of a level of the results' signing chain after the first. The app offers the results to sign only then.
 
 ### Collecting samples and photos
 

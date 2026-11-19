@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <menuitem id="menu_master_data_inventory" name="Inventory" parent="sol_laboratory.menu_master_data_root" sequence="25">
+    <!-- Inventory is out of scope for now: its master data and Odoo's Purchase and Inventory apps are hidden from
+         everyone, and the records stay as they are. -->
+    <menuitem
+        id="menu_master_data_inventory"
+        name="Inventory"
+        parent="sol_laboratory.menu_master_data_root"
+        sequence="25"
+        active="False"
+    >
         <menuitem id="menu_stock_item" action="action_medilab_stock_item" sequence="10" />
         <menuitem
             id="menu_store"
@@ -33,9 +41,11 @@
                 Command.link(ref('sol_laboratory.group_permission_purchase_order_read_own_department')),
             ]"
         />
+        <field name="active" eval="False" />
     </record>
     <record id="stock.menu_stock_root" model="ir.ui.menu">
         <field name="group_ids" eval="[Command.link(ref('sol_laboratory.group_permission_receipt_read_all'))]" />
+        <field name="active" eval="False" />
     </record>
     <!-- MediLab signs every order before it is sent, so Odoo's lists of quotation requests and of confirmed orders are
          left to Odoo's purchase users. -->

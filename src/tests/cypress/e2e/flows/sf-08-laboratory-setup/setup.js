@@ -1,5 +1,5 @@
 import { callAs, randomId, refAs } from "../../../support/odoo";
-import { assignedTest as assignedSampleTest, requestedOrder as requestedPurchase } from "../sf-03-change-request/setup";
+import { assignedTest as assignedSampleTest } from "../sf-03-change-request/setup";
 
 export const ADMINISTRATOR = "demo.administrator";
 const SALES = "demo.sales";
@@ -9,13 +9,10 @@ export const HEAD_OF_SALES = "demo.head_of_sales";
 const COMPANY = "sol_demo.demo_res_partner_nuoc_sach";
 const CONTACT = "sol_demo.demo_res_partner_hoa";
 
-export const PURCHASE_CHAIN = "sol_demo.demo_approval_chain_purchase_order_signing";
 export const BACKUP_PERSON = "sol_demo.demo_person_backup_signer";
 export const REGULATION = "sol_demo.demo_regulation_qcvn_6_1";
 // The name of the parameter the main path creates, before its unique suffix.
 export const NEW_PARAMETER = "Arsenic (As)";
-// The level the administrator adds to the purchase order chain.
-export const FINAL_LEVEL = "Final approval";
 
 // A text no earlier run used, so a test finds its own records.
 export function unique(text) {
@@ -142,25 +139,6 @@ export function claimedOrder(product) {
         id,
       }));
     });
-}
-
-// Removes the level an earlier run added to the purchase order chain; a level that orders signed at is archived.
-export function resetPurchaseChain() {
-  return ref(PURCHASE_CHAIN)
-    .then((chain) =>
-      callAs(ADMINISTRATOR, "medilab.approval.level", "search", [
-        [
-          ["chain_id", "=", chain],
-          ["name", "=", FINAL_LEVEL],
-        ],
-      ]),
-    )
-    .then((levels) => levels.length && callAs(ADMINISTRATOR, "medilab.approval.level", "unlink", [levels]));
-}
-
-// A purchase order the storekeeper sent for approval, signing the first level. Yields `{ model, id }`.
-export function requestedOrder() {
-  return requestedPurchase(500).then((id) => ({ model: "purchase.order", id }));
 }
 
 // Takes from the backup signer every role an earlier run or another spec gave, permanent or until a date.

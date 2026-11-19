@@ -25,9 +25,10 @@ class LaboratoryApiNotificationPreferences(http.Controller):
     )
     def set_preference(self, device, body, event_code):
         env = device.env
-        # Only an event that notifies people: an event the administrator turned off has no push to choose.
+        # Only an event that notifies people about documents they read: an event the administrator turned off has no
+        # push to choose.
         event = env[MODEL_MAIL_MESSAGE_SUBTYPE]._event(event_code).with_env(env)
-        if not event:
+        if not event or not event._documents_readable():
             raise MissingError(env._("Nothing is found at this address."))
         if event.mandatory and not body["push"]:
             raise LaboratoryFileError(MANDATORY_EVENT, env._("A mandatory event cannot be turned off."))

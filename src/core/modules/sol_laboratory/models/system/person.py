@@ -18,8 +18,10 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PERSON,
     MODEL_ROLE,
     MODEL_ROLE_GRANT,
+    MODEL_SAMPLE_HANDOVER,
     MODEL_SIGNATURE,
     MODEL_TASK,
+    MODEL_TEST_RESULT,
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_GROUP, ADMINISTRATOR_PERSON, ADMINISTRATOR_ROLE
 from odoo.addons.sol_laboratory.services.record_id import persisted_ids
@@ -267,6 +269,9 @@ class Person(models.Model, PersonBase):
             "create_tasks": tasks._may_create(),
             "assign_tasks": tasks._may_assign(),
             "read_handover_records": self.env[MODEL_HANDOVER_RECORD]._has_permission("read"),
+            # Scanning a label records a receipt or hands a sample over, which both need to edit handovers.
+            "scan_samples": self.env[MODEL_SAMPLE_HANDOVER]._has_permission("edit"),
+            "sign_results": self.env[MODEL_TEST_RESULT]._may_sign_awaiting(),
         }
 
     def _administrator(self):

@@ -71,6 +71,11 @@
             <xpath expr="//button[@name='action_view_invoice']" position="attributes">
                 <attribute name="groups">account.group_account_invoice</attribute>
             </xpath>
+            <!-- Orders sell testing services and ship nothing, so neither the incoterm nor the warehouse and shipping
+                 policy Odoo's Inventory adds to this group apply. -->
+            <xpath expr="//group[@name='sale_shipping']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
             <!-- The accountant, and whoever holds the order's invoice permission, create invoices from the order. -->
             <xpath expr="//header/button[@id='create_invoice']" position="attributes">
                 <attribute name="name">%(action_create_invoice)d</attribute>
