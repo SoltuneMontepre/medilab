@@ -20,6 +20,7 @@ patches:
               - name: documentserver
                 resources:
                   requests:
+                    cpu: 1500m
                     memory: 3Gi
                   limits:
                     memory: 4Gi
