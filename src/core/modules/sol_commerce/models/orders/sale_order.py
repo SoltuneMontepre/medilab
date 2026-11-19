@@ -142,7 +142,7 @@ class SaleOrder(models.Model, SaleOrderBase):
         quotation_follow_up = fields.Selection(
             [
                 (FOLLOW_UP_UNPAID, "Unpaid"),
-                (FOLLOW_UP_PAID, "Paid"),
+                (FOLLOW_UP_PAID, "Advance paid"),
                 (QUOTATION_ACCEPTED, "Accepted"),
                 (QUOTATION_DECLINED, "Declined"),
                 (QUOTATION_EXPIRED, "Expired"),

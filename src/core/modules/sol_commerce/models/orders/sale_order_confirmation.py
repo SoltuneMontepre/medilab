@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.fields import Domain
+from odoo.tools.misc import format_datetime
 
 from odoo.addons.sol_commerce.constants.models import (
     MODEL_CUSTOMER_SALES_TERMS,
@@ -51,6 +52,8 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
     if not TYPE_CHECKING:
         # True while a sample collection task of the order's test request is open.
         has_open_collection = fields.Boolean(compute="_compute_has_open_collection")
+        # The open collection's appointment and who claimed it, for Sales, who cannot open the task.
+        collection_summary = fields.Char(string="Sample Collection", compute="_compute_has_open_collection")
         # The test request the confirmed order produced.
         test_request_id = fields.Many2one(
             MODEL_TEST_REQUEST, string="Test Request", ondelete="restrict", copy=False, index="btree_not_null"
@@ -233,20 +236,44 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
         tasks = self.env[MODEL_TASK].sudo()
         for order in self:
             request = order.sudo().test_request_id
-            order.has_open_collection = bool(
-                request
-                and tasks.search_count(
+            task = (
+                tasks.search(
                     Domain("document_model", "=", request._name)
                     & Domain("document_id", "=", request.id)
                     & Domain("type_id", "=", task_type.id)
                     & tasks._in_use_domain(),
                     limit=1,
                 )
+                if request
+                else tasks
+            )
+            order.has_open_collection = bool(task)
+            order.collection_summary = task and self.env._(
+                "%(appointment)s, %(who)s",
+                appointment=format_datetime(self.env, task.deadline) if task.deadline else self.env._("no appointment"),
+                who=task.assignee_id.name or self.env._("not claimed yet"),
             )
 
-    def _collection_payment_note(self):
-        """What collection staff tell the customer about payment, in the staff language: the balance still due when
-        Sales asked for it at collection; nothing otherwise."""
+    def _collection_note(self):
+        """What collection staff need beyond the time and the place, in the staff language: whom to contact and, when
+        Sales asked for the balance at collection, the amount still due."""
+        self.ensure_one()
+        order = self.sudo()
+        env = staff_env(self.env)
+        contact = order.partner_id
+        lines = [
+            env._(
+                "Contact: %(name)s, %(phone)s",
+                name=contact.name,
+                phone=contact.phone or contact.parent_id.phone or "-",
+            )
+        ]
+        balance = order._collection_balance_line(env)
+        if balance:
+            lines.append(balance)
+        return "\n".join(lines)
+
+    def _collection_balance_line(self, env):
         self.ensure_one()
         order = self.sudo()
         due = order.payment_request_id
@@ -257,7 +284,6 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
             or not due.remaining_amount
         ):
             return False
-        env = staff_env(self.env)
         return env._(
             "Balance due at collection: %(amount)s. The customer pays it online from the link we sent them, or Sales "
             "records a cash payment.",
@@ -299,8 +325,12 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
                     "name": f"{task_type.with_env(staff_env(self.env)).name}: {order.name}, {order.customer_id.name}",
                     "document_model": request._name,
                     "document_id": request.id,
-                    "place": address or order.customer_id._display_address(),
-                    "note": order._collection_payment_note(),
+                    "place": ", ".join(
+                        line.strip()
+                        for line in (address or order.customer_id._display_address()).splitlines()
+                        if line.strip()
+                    ),
+                    "note": order._collection_note(),
                     "deadline": appointment,
                     "planned_start": appointment,
                 }

@@ -252,6 +252,7 @@
                 <field name="reordered_from_id" readonly="1" invisible="not reordered_from_id" />
                 <field name="test_request_id" readonly="1" invisible="not test_request_id" />
                 <field name="test_request_status" readonly="1" invisible="not test_request_id" />
+                <field name="collection_summary" invisible="not collection_summary" />
                 <field name="show_unpaid_warning" invisible="1" />
                 <field name="can_invoice_credit_order" invisible="1" />
                 <field name="can_record_collection" invisible="1" />
@@ -447,7 +448,7 @@
                             <field name="advance_method" readonly="state != 'draft'" />
                             <field name="advance_mode" invisible="not advance_method or advance_method == 'none'" readonly="state != 'draft'" />
                             <field name="advance_value" invisible="advance_mode not in ('percentage', 'fixed')" readonly="state != 'draft'" />
-                            <field name="balance_due" invisible="advance_mode == 'full' or on_credit" readonly="state != 'draft'" />
+                            <field name="balance_due" invisible="not advance_method or advance_mode == 'full' or on_credit" readonly="state != 'draft'" />
                             <field name="on_credit" invisible="not on_credit" readonly="1" />
                         </group>
                         <group>
@@ -521,6 +522,8 @@
             <!-- The Order Lines tab edits the ordered parameters and packages; the Payment tab lists the down payments. -->
             <xpath expr="//page[@name='order_lines']/field[@name='order_line']" position="attributes">
                 <attribute name="name">product_line_ids</attribute>
+                <!-- A confirmed order's lines change only through a revised quotation. -->
+                <attribute name="readonly">state == 'cancel' or locked or order_status in ('confirmed', 'completed', 'cancelled')</attribute>
             </xpath>
         </field>
     </record>
@@ -540,7 +543,7 @@
                 <filter name="cancelled" string="Cancelled" domain="[('order_status', '=', 'cancelled')]" />
                 <separator />
                 <filter name="unpaid" string="Quotation unpaid" domain="[('quotation_follow_up', '=', 'unpaid')]" />
-                <filter name="paid" string="Quotation paid" domain="[('quotation_follow_up', '=', 'paid')]" />
+                <filter name="paid" string="Advance paid" domain="[('quotation_follow_up', '=', 'paid')]" />
                 <filter name="quotation_accepted" string="Quotation accepted" domain="[('quotation_follow_up', '=', 'accepted')]" />
                 <filter name="quotation_declined" string="Quotation declined" domain="[('quotation_follow_up', '=', 'declined')]" />
                 <filter name="quotation_expired" string="Quotation expired" domain="[('quotation_follow_up', '=', 'expired')]" />

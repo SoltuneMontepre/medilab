@@ -120,16 +120,16 @@
                     <group>
                         <group>
                             <field name="type_id" readonly="id" domain="[('trigger', '=', 'manual')]" options="{'no_create': True}" />
-                            <field name="department_id" readonly="id" />
-                            <field name="assignee_id" readonly="id" required="not id" />
+                            <field name="department_id" readonly="id" invisible="id and not department_id" />
+                            <field name="assignee_id" readonly="id" required="not id" invisible="id and not assignee_id" />
                             <field name="assigned_by_id" invisible="not assigned_by_id" />
                             <field name="sampling_location_id" invisible="not sampling_location_id" />
                             <field name="place" invisible="not place" readonly="not can_edit" />
                         </group>
                         <group>
                             <field name="deadline" required="not id" readonly="not can_edit" />
-                            <field name="planned_start" readonly="not can_edit" />
-                            <field name="planned_end" readonly="not can_edit" />
+                            <field name="planned_start" readonly="not can_edit" invisible="id and planned_start == deadline and not can_edit" />
+                            <field name="planned_end" readonly="not can_edit" invisible="id and not planned_end and not can_edit" />
                             <field name="done_at" invisible="not done_at" />
                         </group>
                         <field name="reassign_reason" colspan="2" invisible="not reassign_reason" />

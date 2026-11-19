@@ -55,7 +55,7 @@ class TestBalanceDue(OrderCase):
         self.assertFalse(order.show_unpaid_warning)
         order.with_user(self.sales).action_start_sample_collection()
 
-        self.assertFalse(self.collection_tasks(order).note)
+        self.assertNotIn("Balance due", self.collection_tasks(order).note)
 
     def test_the_balance_timing_stays_as_quoted(self):
         order = self.sent_order()
