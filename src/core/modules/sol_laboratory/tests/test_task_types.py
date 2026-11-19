@@ -1,7 +1,9 @@
 from odoo.exceptions import AccessError, UserError
 from odoo.tests import tagged
+from odoo.fields import Command
 
 from .task_case import TaskCase
+from odoo.addons.sol_laboratory.services.record_id import persisted_id
 
 
 @tagged("post_install", "-at_install")
@@ -57,3 +59,13 @@ class TestTaskTypes(TaskCase):
 
         self.testing.with_user(self.administrator).write({"route": "department"})
         self.assertFalse(self.testing.role_id)
+
+    def test_archiving_last_holder_of_a_role_used_by_active_task_type_warns(self):
+        self.route_to_signers()
+        self.chemist.role_ids = [Command.link(persisted_id(self.signer_role))]
+
+        warning = self.chemist.with_user(self.administrator).role_archive_warning
+
+        self.assertIn(self.signer_role.name, warning)
+        self.microbiologist.role_ids = [Command.link(persisted_id(self.signer_role))]
+        self.assertFalse(self.chemist.with_user(self.administrator).role_archive_warning)

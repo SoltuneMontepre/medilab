@@ -21,6 +21,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_SAMPLE_HANDOVER,
     MODEL_SIGNATURE,
     MODEL_TASK,
+    MODEL_TASK_TYPE,
     MODEL_TEST_RESULT,
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_GROUP, ADMINISTRATOR_PERSON, ADMINISTRATOR_ROLE
@@ -68,6 +69,8 @@ class Person(models.Model, PersonBase):
         )
         # False when the person is archived.
         active = fields.Boolean(default=True)
+        # Warning shown before archiving the last holder of a role used by active task types.
+        role_archive_warning = fields.Text(string="Role Archive Warning", compute="_compute_role_archive_warning")
         # Roles the person holds.
         role_ids = fields.Many2many(
             MODEL_ROLE,
@@ -95,6 +98,27 @@ class Person(models.Model, PersonBase):
         login = fields.Char(related="user_id.login", readonly=False, groups=ADMINISTRATOR_GROUP)
 
     _employee_unique = models.Constraint("UNIQUE(employee_id)", "This employee is already a person.")
+
+    @api.depends("active", "role_ids")
+    def _compute_role_archive_warning(self):
+        task_types = self.env[MODEL_TASK_TYPE].sudo()
+        for person in self:
+            roles = person.sudo().role_ids
+            domain = [("route", "=", "role"), ("role_id", "in", roles.ids)]
+            if "active" in task_types._fields:
+                domain.append(("active", "=", True))
+            used_roles = task_types.search(domain).role_id
+            unstaffed = used_roles.filtered(
+                lambda role: not role.person_ids.filtered(lambda holder: holder.active and holder.id != person.id)
+            )
+            if person.active and unstaffed:
+                person.role_archive_warning = self.env._(
+                    "Archiving %(person)s will leave %(roles)s without an active holder for its task types.",
+                    person=person.name,
+                    roles=format_list(self.env, unstaffed.mapped("name")),
+                )
+            else:
+                person.role_archive_warning = False
 
     @api.model_create_multi
     def create(self, vals_list):

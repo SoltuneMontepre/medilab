@@ -62,3 +62,29 @@ class TestTaskClaiming(TaskCase):
 
         self.assertIn(task, self.as_person(self.tasks, self.chemist).search([]))
         self.assertNotIn(task, self.as_person(self.tasks, self.microbiologist).search([]))
+
+    def test_administrators_see_and_claim_their_task_type_queue(self):
+        task_type = self.env.ref("sol_laboratory.task_type_report_signing").with_user(self.env.ref("base.user_admin"))
+        task_type.write({"route": "administrator"})
+        task = self.tasks._create_for_event("report_drafted")
+        administrator = self.env.ref("sol_laboratory.person_administrator")
+
+        self.assertEqual(task.type_id.route, "administrator")
+        self.assertFalse(task.department_id)
+        self.assertFalse(task.assignee_id)
+        self.assertIn(task, self.as_person(self.tasks, administrator).search([]))
+        self.as_person(task, administrator).action_claim()
+        self.assertEqual(task.assignee_id, administrator)
+
+    def test_role_task_without_holders_stays_in_queue_and_notifies_administrators(self):
+        task = self.tasks._create_for_event(SIGNATURE_REQUESTED, self.chemistry)
+
+        self.assertFalse(task.assignee_id)
+        self.assertFalse(task.department_id)
+        message = self.env["mail.message"].search(
+            [("model", "=", task._name), ("res_id", "=", task.id), ("subtype_id.code", "=", "task.role_unstaffed")]
+        )
+        administrator = self.env.ref("sol_laboratory.person_administrator")
+        self.assertTrue(
+            message.notification_ids.filtered(lambda notice: notice.res_partner_id == administrator.user_id.partner_id)
+        )
