@@ -34,7 +34,8 @@
                     <group string="Payment">
                         <field name="payment_method" required="1" />
                         <field name="advance_mode" required="1" />
-                        <field name="advance_value" invisible="advance_mode not in ('percentage', 'fixed')" />
+                        <field name="advance_value" string="Advance (%)" digits="[16, 0]" invisible="advance_mode != 'percentage'" />
+                        <field name="advance_value" string="Advance Amount" widget="monetary" options="{'currency_field': 'currency_id'}" invisible="advance_mode != 'fixed'" />
                         <field name="balance_due" invisible="advance_mode == 'full' or on_credit" />
                     </group>
                     <group string="Total">
