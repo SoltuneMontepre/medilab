@@ -61,8 +61,9 @@ class TestOrderFreeze(OrderCase):
             sample.unlink()
         with self.assertRaises(UserError):
             self.make_sample(order, "Second sample")
-
-        order.write({"expected_result_date": fields.Date.today()})
+        # The committed return date changes only through a change recorded with the customer's agreement.
+        with self.assertRaises(UserError):
+            order.write({"committed_date": fields.Date.today()})
 
     def test_a_confirmed_order_cannot_go_back_to_a_quotation_or_drop_a_line_as_a_down_payment(self):
         order = self.make_confirmed_order()

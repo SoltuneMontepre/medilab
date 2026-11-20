@@ -93,8 +93,9 @@ class SaleOrder(models.Model, SaleOrderBase):
         submitted_at = fields.Datetime()
         # When a salesperson claimed the order.
         claimed_at = fields.Datetime()
-        # The date the customer expects the results.
-        expected_result_date = fields.Date()
+        # Committed return date Sales promises on the quotation: the requested date when the standard turnaround can meet
+        # it, or the date an accepted priority request asked for; empty when the date is fixed at sample receipt.
+        committed_date = fields.Date(string="Committed Return Date")
         # The order this one was reordered from.
         reordered_from_id = fields.Many2one(MODEL_SALE_ORDER, ondelete="set null", index=True)
         # Orders reordered from this one.
@@ -237,10 +238,12 @@ class SaleOrder(models.Model, SaleOrderBase):
         self.ensure_one()
         if not self.partner_id:
             return
+        # The notice goes to the contact, in their language, whoever changed the status.
+        env = self.with_context(lang=self.partner_id.lang or self.env.lang).env
         body = {
-            STATUS_SUBMITTED: self.env._("Order %s was submitted.", self.name),
-            STATUS_CLAIMED: self.env._("Order %s was claimed by the laboratory.", self.name),
-            STATUS_CANCELLED: self.env._("Order %s was cancelled.", self.name),
+            STATUS_SUBMITTED: env._("Order %s was submitted.", self.name),
+            STATUS_CLAIMED: env._("Order %s was claimed by the laboratory.", self.name),
+            STATUS_CANCELLED: env._("Order %s was cancelled.", self.name),
         }[status]
         try:
             with self.env.cr.savepoint():
@@ -293,9 +296,12 @@ class SaleOrder(models.Model, SaleOrderBase):
         if line:
             line.product_uom_qty += quantity
         else:
-            self.env["sale.order.line"].sudo().create(
-                {"order_id": self.id, "product_id": variant.id, "product_uom_qty": quantity}
+            line = (
+                self.env["sale.order.line"]
+                .sudo()
+                .create({"order_id": self.id, "product_id": variant.id, "product_uom_qty": quantity})
             )
+            line._preselect_sample_type()
         self._catalog_lines()._lock_catalog_price()
         return self
 
@@ -336,7 +342,16 @@ class SaleOrder(models.Model, SaleOrderBase):
             if order.order_status != STATUS_SUBMITTED or order.user_id:
                 raise UserError(self.env._("This order is already claimed."))
         self.sudo()._set_status(STATUS_CLAIMED, {"user_id": self.env.uid, "claimed_at": fields.Datetime.now()})
-        return True
+        if len(self) != 1:
+            return True
+        # The salesperson goes on to prepare the quotation of the order they claimed.
+        return {
+            "type": "ir.actions.act_window",
+            "res_model": MODEL_SALE_ORDER,
+            "res_id": self.id,
+            "views": [[False, "form"]],
+            "target": "current",
+        }
 
     def action_customer_cancel(self):
         """Cancel until the order is confirmed."""
@@ -475,6 +490,7 @@ class SaleOrder(models.Model, SaleOrderBase):
         self._lock_payment_orders()
         self._check_no_pending_collection()
         for order in self:
+            order._assign_samples()
             order._check_quotation_can_be_sent()
         for order in self:
             order._send_quotation()
@@ -487,15 +503,15 @@ class SaleOrder(models.Model, SaleOrderBase):
         lines = self._catalog_lines()
         if not lines:
             raise UserError(self.env._("Add at least one parameter or service package before sending the quotation."))
-        unassigned = lines.filtered(lambda line: not line.sample_id)
-        if unassigned:
+        untyped = lines.filtered(lambda line: not line.sample_type_id)
+        if untyped:
             raise UserError(
                 self.env._(
-                    "Give these items a sample before sending the quotation:\n%s",
-                    "\n".join(name or "" for name in unassigned.mapped("product_id.display_name")),
+                    "Choose a sample type for these items before sending the quotation:\n%s",
+                    "\n".join(name or "" for name in untyped.mapped("product_id.display_name")),
                 )
             )
-        # The catalog may have stopped offering a parameter on a sample type since the line got its sample.
+        # The catalog may have stopped offering a parameter on a sample type since the line got its sample type.
         lines._check_offered_on_sample()
         self.order_line._way_lines()._check_ways_can_be_sent()
         latest = self._latest_quotation()
@@ -503,6 +519,26 @@ class SaleOrder(models.Model, SaleOrderBase):
             raise UserError(self.env._("A replaced quotation cannot be sent. Send the current revision instead."))
         if latest.status in (QUOTATION_ACCEPTED, QUOTATION_SENT) and self.state != "draft":
             raise UserError(self.env._("This quotation was already sent. Revise it to send a new revision."))
+
+    def _latest_payment_deadline(self):
+        # The latest payment deadline the order allows; False when only the configured days limit it.
+        return False
+
+    def _assign_samples(self):
+        """Give each line without a sample the order's sample of its sample type, creating one named after the type
+        when there is none; its physical state is recorded at handover."""
+        self.ensure_one()
+        lines = self._catalog_lines().filtered(lambda line: bool(not line.sample_id and line.sample_type_id))
+        samples = self.env[MODEL_ORDER_SAMPLE].sudo()
+        for sample_type in lines.sample_type_id:
+            sample = self.sample_ids.filtered(lambda item, sample_type=sample_type: item.sample_type_id == sample_type)[
+                :1
+            ] or samples.create(
+                {"order_id": self.id, "customer_sample_name": sample_type.name, "sample_type_id": sample_type.id}
+            )
+            lines.filtered(lambda line, sample_type=sample_type: line.sample_type_id == sample_type).sudo().write(
+                {"sample_id": sample.id}
+            )
 
     def _send_quotation(self):
         self.ensure_one()
@@ -514,6 +550,9 @@ class SaleOrder(models.Model, SaleOrderBase):
                 .get_int(PAYMENT_DEADLINE_PARAMETER, DEFAULT_PAYMENT_DEADLINE_DAYS)
             )
             self.payment_deadline = now + timedelta(days=days)
+        latest = self._latest_payment_deadline()
+        if latest and self.payment_deadline > latest:
+            self.payment_deadline = latest
         previous = self._latest_quotation()
         revision = previous.revision + 1
         code = self.env["ir.sequence"].sudo().next_by_code(MODEL_QUOTATION)

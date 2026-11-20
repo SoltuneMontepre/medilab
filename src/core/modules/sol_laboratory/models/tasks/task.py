@@ -26,6 +26,7 @@ from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_ROLE
 from odoo.addons.sol_laboratory.services.document_code import document_code
 from odoo.addons.sol_laboratory.services.model_lookup import dynamic_model
 from odoo.addons.sol_laboratory.services.record_id import persisted_id
+from odoo.addons.sol_laboratory.services.staff_language import staff_env
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -465,7 +466,8 @@ class Task(models.Model, TaskBase):
         """
         department = values.pop("department", None)
         assignee = values.pop("assignee", None)
-        task_types = self.env[MODEL_TASK_TYPE].sudo().search([("trigger", "=", trigger)])
+        # Task names are read by staff; a customer acting on the portal does not set their language.
+        task_types = staff_env(self.env)[MODEL_TASK_TYPE].sudo().search([("trigger", "=", trigger)])
         vals_list = [
             {
                 "type_id": task_type.id,

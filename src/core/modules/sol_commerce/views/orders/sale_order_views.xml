@@ -98,6 +98,20 @@
                     invisible="order_status != 'submitted' or user_id"
                 />
                 <button
+                    name="action_accept_priority"
+                    type="object"
+                    string="Accept priority"
+                    class="btn-success"
+                    invisible="priority_request != 'requested' or state != 'draft'"
+                />
+                <button
+                    name="action_decline_priority"
+                    type="object"
+                    string="Decline priority"
+                    class="btn-secondary"
+                    invisible="priority_request != 'requested' or state != 'draft'"
+                />
+                <button
                     name="action_send_quotation"
                     type="object"
                     string="Send quotation"
@@ -118,12 +132,30 @@
                     class="btn-success"
                     invisible="order_status != 'claimed' or state == 'draft' or quotation_follow_up not in ('paid', 'accepted')"
                 />
+                <field name="has_open_collection" invisible="1" />
                 <button
                     name="action_start_sample_collection"
                     type="object"
                     string="Start sample collection"
-                    class="btn-primary"
-                    invisible="order_status != 'confirmed' or show_unpaid_warning"
+                    class="btn-primary o_start_sample_collection"
+                    context="{'medilab_collection_dialog': True}"
+                    invisible="order_status != 'confirmed' or show_unpaid_warning or has_open_collection"
+                />
+                <button
+                    name="action_change_committed_date"
+                    type="object"
+                    string="Change committed date"
+                    class="btn-secondary"
+                    invisible="order_status != 'confirmed' or not test_request_id"
+                    groups="sol_laboratory.group_permission_committed_date_change_create_all"
+                />
+                <button
+                    name="action_change_committed_date"
+                    type="object"
+                    string="Change committed date"
+                    class="btn-secondary"
+                    invisible="order_status != 'confirmed' or not test_request_id"
+                    groups="sol_laboratory.group_permission_committed_date_change_create_all"
                 />
                 <button name="%(action_payment_collection)d" type="action" string="Record payment" class="btn-primary"
                     context="{'default_order_id': id}" invisible="not can_record_collection" groups="base.group_user" />
@@ -178,18 +210,20 @@
                     <strong>Skipped catalog selections</strong>
                     <field name="template_omission_note" nolabel="1" readonly="1" />
                 </div>
+                <!-- There is something to pay only once a quotation is sent. -->
                 <div
                     class="alert alert-warning"
                     role="alert"
-                    invisible="not show_unpaid_warning or order_status != 'confirmed'"
+                    invisible="not show_unpaid_warning or order_status not in ('claimed', 'confirmed') or state == 'draft'"
                 >
-                    Verify the order balance before collecting its samples.
+                    Nothing has been paid on this order.
                 </div>
             </xpath>
             <!-- Each status says what it is about. -->
             <xpath expr="//div[hasclass('oe_title')]" position="inside">
-                <div class="d-flex flex-wrap align-items-center column-gap-4 row-gap-1">
-                    <div class="d-flex align-items-center gap-2">
+                <!-- A rule under the statuses sets them apart from the fields. -->
+                <div class="d-flex flex-wrap align-items-center column-gap-4 row-gap-1 pb-3 mb-3 border-bottom">
+                    <div class="d-flex align-items-center gap-2" invisible="not id">
                         <span class="text-muted">Customer sees</span>
                         <field
                             name="customer_status"
@@ -238,7 +272,14 @@
             </xpath>
             <xpath expr="//group[@name='order_details']/field[@name='validity_date']" position="after">
                 <field name="payment_deadline" />
-                <field name="expected_result_date" />
+                <field name="requested_date" />
+                <field name="priority_request" invisible="not priority_request" decoration-warning="priority_request == 'requested'" widget="badge" />
+                <field name="turnaround_days" readonly="1" />
+                <div class="text-warning" colspan="2" invisible="not turnaround_missing">
+                    No standard turnaround yet: <field name="turnaround_missing" class="d-inline" />
+                </div>
+                <field name="estimated_result_date" invisible="not turnaround_days or committed_date" />
+                <field name="committed_date" placeholder="Fixed at sample receipt" />
             </xpath>
             <xpath expr="//group[@name='sales_person']/field[@name='user_id']" position="replace" />
             <!-- There are no customer price lists: special prices are discounts on the quotation. -->
@@ -387,14 +428,14 @@
                 <page string="Payment" name="payment">
                     <group>
                         <group>
-                            <field name="advance_method" />
-                            <field name="advance_mode" invisible="not advance_method or advance_method == 'none'" />
-                            <field name="advance_value" invisible="advance_mode not in ('percentage', 'fixed')" />
+                            <field name="advance_method" readonly="state != 'draft'" />
+                            <field name="advance_mode" invisible="not advance_method or advance_method == 'none'" readonly="state != 'draft'" />
+                            <field name="advance_value" invisible="advance_mode not in ('percentage', 'fixed')" readonly="state != 'draft'" />
                         </group>
                         <group>
-                            <field name="payment_status" />
-                            <field name="pending_amount" />
-                            <field name="catalog_total" />
+                            <field name="payment_status" readonly="1" />
+                            <field name="pending_amount" readonly="1" />
+                            <field name="catalog_total" readonly="1" />
                         </group>
                     </group>
                     <field name="payment_request_ids" readonly="1" invisible="not payment_request_ids">

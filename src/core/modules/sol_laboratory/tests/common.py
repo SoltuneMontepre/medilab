@@ -14,6 +14,9 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 from odoo.addons.sol_laboratory.services.record_id import persisted_id, persisted_ids
 
+# Working days results of the case's ways of testing take from sample receipt.
+STANDARD_TURNAROUND = 5
+
 
 class MasterDataCase(TransactionCase):
     """A unit, a method, a group and a parameter tested by one way of testing, offered on no sample type yet."""
@@ -35,6 +38,7 @@ class MasterDataCase(TransactionCase):
                 "parameter_id": cls.parameter.id,
                 "method_id": cls.method.id,
                 "department_id": cls.department.id,
+                "turnaround_days": STANDARD_TURNAROUND,
             }
         )
 
@@ -42,11 +46,13 @@ class MasterDataCase(TransactionCase):
     def offer(cls, parameter, sample_type, way=None, **vals):
         """Make a way of testing of the parameter apply to the sample type in the case's unit: the given way, or else the
         parameter's first, created in the case's department when it has none. The first way offered on a sample type
-        becomes its default."""
+        becomes its default. A way without a standard turnaround gets the case's."""
         if not way:
             way = parameter.method_ids[:1] or cls.env[MODEL_PARAMETER_METHOD].create(
                 {"parameter_id": parameter.id, "method_id": cls.method.id, "department_id": cls.department.id}
             )
+        if not way.turnaround_days:
+            way.turnaround_days = STANDARD_TURNAROUND
         return cls.env[MODEL_PARAMETER_METHOD_SAMPLE_TYPE].create(
             {
                 "parameter_method_id": way.id,

@@ -150,7 +150,7 @@ def _received_test(env, parameter, sample_name, tester, expected_date):
     request = env[MODEL_TEST_REQUEST].create(
         {
             "customer_id": env.ref("sol_demo.demo_customer_green_farm").id,
-            "expected_date": expected_date,
+            "committed_date": expected_date,
             "sample_ids": [
                 Command.create(
                     {

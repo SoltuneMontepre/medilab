@@ -355,8 +355,9 @@ flowchart TD
 - **Result:** every payment request is funded and every invoice is paid, and each day's online payments match the PayOS transactions and are locked.
 - **Stories:** US-A01, US-A02, US-A04, US-A05, US-A07, US-A08, US-A09, US-A10, US-A11, US-A12, US-A13, US-C16, US-C17, US-S11.
 - **Features:** [F-12](../reports/feature-list/readme.md#f-12-invoices-and-adjustment-invoices), [F-13](../reports/feature-list/readme.md#f-13-payment-confirmation-and-reconciliation), [F-14](../reports/feature-list/readme.md#f-14-finance-reports-and-sales-analytics).
-- **States:** payment request open → funded, or → expired or superseded; invoice posted → partially paid → paid; payment pending → confirmed or rejected; reconciliation day open → locked.- **Starts from:** confirmed orders: those of customers who pay before testing, and those of customers on credit whose testing is completed.
-- **Main path:** When sales confirms an order, MediLab sends the balance payment request; the customer pays it online before sample collection, and the verified payment posts the final invoice, issues a receipt and pays the order. For a customer allowed to order on credit, the accountant creates and e-mails the final invoice once testing is completed.
+- **States:** payment request open → funded, or → expired or superseded; invoice posted → partially paid → paid; payment pending → confirmed or rejected; reconciliation day open → locked.
+- **Starts from:** confirmed orders: those of customers who pay before testing, and those of customers on credit whose testing is completed.
+- **Main path:** When sales confirms an order, MediLab sends the balance payment request; the customer pays it, at once or in instalments, while the samples are collected and tested, and each verified payment posts its invoice and issues a receipt. The issued report reaches the customer only once the order is paid in full. For a customer allowed to order on credit, the accountant creates and e-mails the final invoice once testing is completed.
 - **Alternative paths:**
   - SF-01-A1: The customer pays part online, then the rest; each verified part posts its invoice, and the request is funded when the parts reach its amount.
   - SF-01-A2: Sales records a cash payment; the accountant confirms it.
@@ -613,14 +614,14 @@ flowchart TD
 - **Features:** [F-08](../reports/feature-list/readme.md#f-08-estimated-result-date-and-priority-check).
 - **States:** proposed return date → committed return date; automatic internal due dates recalculated, manual overrides retained; accepted priority → urgent tests.
 - **Starts from:** quotations in preparation, authorized people and required resource schedules, and outsourced ways with transport and processing turnaround.
-- **Main path:** Sales checks the estimated return date while quoting. The estimate includes every in-house and outsourced branch plus the safety margin, and reserves nothing. Sales records the customer's requested date and commits a feasible return date with the customer; automatic internal due dates follow the committed date.
+- **Main path:** The quotation shows the standard turnaround of its ways of testing, in working days from sample receipt, and the date it gives if the samples were received today. Sales records the customer's requested date; when the turnaround meets it, it becomes the committed return date, otherwise receiving the first sample fixes the committed date at the receipt day plus the turnaround. Automatic internal due dates follow the committed date.
 - **Alternative paths:**
   - SF-07-A1: The customer requests priority on the portal; Sales accepts or declines it on the quotation after checking feasibility. Accepted priority makes its tests urgent.
   - SF-07-A2: Adding a parameter updates the estimated return date.
   - SF-07-A3: The head changes an internal due date with a reason. Preserve it when the committed return date changes; recalculate only automatic dates. The feasibility check only reads: it uses company working days, holidays and leave, proposes the earliest feasible date and reserves or moves no bookings. An infeasible date may be kept with a reason and risk flag.
 - **Exceptions:**
   - SF-07-E1: A committed return date becomes infeasible: Sales offers the earliest feasible replacement and records old date, new date and customer confirmation before changing it. If refused, Sales handles a cancellation request for the unfulfillable part; no automatic cancellation or way change.
-  - SF-07-E2: The requested date is infeasible; Sales offers the earliest feasible date instead. Missing outsourced transport or processing turnaround prevents a complete estimate until those values are supplied; no incomplete estimate becomes a committed return date.
+  - SF-07-E2: The requested priority date is infeasible; Sales offers the earliest feasible date the check gives instead. A way of testing without a standard turnaround keeps the quotation from being sent until the administrator sets it.
 - **Acceptance criteria:** See [Sales](ecommerce_module/features/sales.md), [Head of department](laboratory_module/features/head-of-department.md) and [SH-11](shared.md#sh-11-schedules-and-reminders). A date the laboratory cannot meet is not accepted as a committed return date; show the earliest feasible date. Missing outsourced turnaround means no complete estimate is available. An internal due-date override does not change the committed return date. A feasibility check reserves and moves no bookings. The customer sees the requested and committed dates, never an internal due date.
 - **Paths in other flows:** SF-10 owns priority order and plan revisions; WF-05 owns outsourcing; SF-02 owns cancellation of an unfulfillable part.
 
@@ -631,7 +632,7 @@ flowchart TD
         c2{Accept the proposed feasible date?}
     end
     subgraph lane32 ["Sales"]
-        s1[Estimate every branch plus safety margin without reserving]
+        s1[Show the standard turnaround; check a priority date without reserving]
         s2{Requested date feasible?}
         s3[Offer earliest feasible date]
         s4[Record the requested date, the committed date and any accepted priority]

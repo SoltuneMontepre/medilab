@@ -1,4 +1,5 @@
 from contextvars import ContextVar
+from datetime import datetime
 from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
@@ -26,6 +27,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TEST_REQUEST,
 )
 from odoo.addons.sol_laboratory.constants.tasks import SAMPLE_COLLECTION_CODE
+from odoo.addons.sol_laboratory.services.staff_language import staff_env
 
 if TYPE_CHECKING:
     from medilab_model_types import Model_sale_order as SaleOrderConfirmationBase
@@ -35,6 +37,8 @@ else:
 # Ids of the orders that passed the checks and whose Odoo confirmation is running now. Only the code below fills it,
 # so a caller cannot ask for the confirmation to skip the checks the way a context key would allow.
 CONFIRMING_ORDER_IDS = ContextVar("medilab_confirming_order_ids", default=frozenset())
+# Set by the Start sample collection button, which opens the dialog for the appointment and the place.
+COLLECTION_DIALOG = "medilab_collection_dialog"
 
 
 # Đơn Hàng: confirming the order creates its test request, whose sample collection sales then start.
@@ -42,23 +46,39 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
     _inherit = MODEL_SALE_ORDER
 
     if not TYPE_CHECKING:
+        # True while a sample collection task of the order's test request is open.
+        has_open_collection = fields.Boolean(compute="_compute_has_open_collection")
         # The test request the confirmed order produced.
         test_request_id = fields.Many2one(
             MODEL_TEST_REQUEST, string="Test Request", ondelete="restrict", copy=False, index="btree_not_null"
         )
         # True when this order was confirmed on the customer's approved credit terms.
         on_credit = fields.Boolean(readonly=True, copy=False)
-        # True while the order still needs payment before collecting its samples.
+        # True while the order's advance is not verified, so its samples cannot be collected yet.
         show_unpaid_warning = fields.Boolean(compute="_compute_show_unpaid_warning", compute_sudo=True)
 
-    @api.depends("payment_status", "on_credit")
+    @api.depends("payment_status", "on_credit", "payment_request_ids.state")
     def _compute_show_unpaid_warning(self):
         for order in self:
             order.show_unpaid_warning = not order._can_collect_samples()
 
     def _can_collect_samples(self):
+        """Samples are collected once the advance of the accepted quotation is verified; the balance is due before
+        the report is released."""
         self.ensure_one()
-        return self.on_credit or self.payment_status == "paid" or self.currency_id.is_zero(self.amount_total)
+        if self.on_credit or self.payment_status == "paid" or self.currency_id.is_zero(self.amount_total):
+            return True
+        quotation = self._latest_quotation()
+        advance = self.sudo().payment_request_ids.filtered(
+            lambda ask: ask.kind == "advance" and ask.quotation_id == quotation
+        )
+        return bool(quotation) and (not advance or all(ask.state == "funded" for ask in advance))
+
+    def _withholds_report(self):
+        """Whether the order's report waits for payment: until the order is paid in full, unless the customer is on
+        credit."""
+        self.ensure_one()
+        return not (self.on_credit or self.payment_status == "paid" or self.currency_id.is_zero(self.amount_total))
 
     def action_confirm(self):
         # Odoo's own Confirm button and every other caller go through the same checks.
@@ -112,7 +132,10 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
             .create_from_order(
                 customer,
                 [sample._test_request_values() for sample in self.sample_ids],
-                expected_date=self.expected_result_date,
+                committed_date=self.committed_date,
+                requested_date=self.requested_date,
+                priority=self.priority,
+                turnaround_days=self.turnaround_days,
                 report_recipient=self.partner_id if self.partner_id != self.customer_id else False,
             )
         )
@@ -156,7 +179,8 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
             order.sudo(),
             f"payment-request:{request.id}:sent",
             order.env._(
-                "Pay the remaining %(amount)s for order %(order)s before sample collection.",
+                "Pay the remaining %(amount)s for order %(order)s. Its report is released once the order is paid in "
+                "full.",
                 amount=order.currency_id.format(amount),
                 order=order.name,
             ),
@@ -172,15 +196,39 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
         for order in self.sudo().search([("test_request_id", "!=", False)]):
             order.test_request_id.order_number = order.name
 
-    def action_start_sample_collection(self):
+    def _compute_has_open_collection(self):
+        task_type = self.env[MODEL_TASK_TYPE].sudo().search([("code", "=", SAMPLE_COLLECTION_CODE)], limit=1)
+        tasks = self.env[MODEL_TASK].sudo()
+        for order in self:
+            request = order.sudo().test_request_id
+            order.has_open_collection = bool(
+                request
+                and tasks.search_count(
+                    Domain("document_model", "=", request._name)
+                    & Domain("document_id", "=", request.id)
+                    & Domain("type_id", "=", task_type.id)
+                    & tasks._in_use_domain(),
+                    limit=1,
+                )
+            )
+
+    def action_start_sample_collection(self, appointment: datetime | bool = False, address: str | bool = False):
         """Queue one unassigned sample collection task of the confirmed order's test request for sample delivery
-        staff, at the customer's address; they claim it and plan its time."""
+        staff, due at the appointment Sales agreed with the customer, at the address given or else the customer's."""
         self.check_access("write")
         for order in self:
             if order.order_status != STATUS_CONFIRMED:
                 raise UserError(self.env._("The order must be confirmed before the samples are collected."))
             if not order._can_collect_samples():
-                raise UserError(self.env._("Verify the order balance before collecting its samples."))
+                raise UserError(self.env._("Verify the order's advance before collecting its samples."))
+        if self.env.context.get(COLLECTION_DIALOG) and not appointment:
+            # The button asks Sales for the appointment and the place first.
+            self.ensure_one()
+            action = self.env["ir.actions.act_window"]._for_xml_id(
+                "sol_commerce.action_medilab_sample_collection_start"
+            )
+            action["context"] = {"default_order_id": self.id}
+            return action
         task_type = self.env[MODEL_TASK_TYPE].sudo().search([("code", "=", SAMPLE_COLLECTION_CODE)], limit=1)
         if task_type.route != "role":
             raise UserError(
@@ -195,10 +243,12 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
             tasks.create(
                 {
                     "type_id": task_type.id,
-                    "name": f"{task_type.name}: {order.name}, {order.customer_id.name}",
+                    "name": f"{task_type.with_env(staff_env(self.env)).name}: {order.name}, {order.customer_id.name}",
                     "document_model": request._name,
                     "document_id": request.id,
-                    "note": order.customer_id._display_address(),
+                    "note": address or order.customer_id._display_address(),
+                    "deadline": appointment,
+                    "planned_start": appointment,
                 }
             )
         return {

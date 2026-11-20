@@ -23,6 +23,7 @@ from odoo.addons.sol_laboratory.services.firebase_client import (
     TemporaryFirebaseError,
     firebase_client_from_env,
 )
+from odoo.addons.sol_laboratory.services.staff_language import staff_env
 
 if TYPE_CHECKING:
     from medilab_model_types import Model_medilab_scheduled_job as ScheduledJobBase
@@ -75,16 +76,18 @@ class ScheduledJob(models.Model, ScheduledJobBase):
         if item.item_key != f"{event.id}:{stamp}":
             return
         task = event.medilab_task_id or event.medilab_booking_ids.task_id[:1]
-        # The organiser's or the assignee's time zone, as their calendar shows the event.
-        zone = event.user_id.tz or self.env.company.tz or "UTC"
-        start = format_datetime(self.env, event.start, tz=zone)
         if not task:
             if event.location_id and event.active:
+                env = self._reminder_env(event.user_id)
                 self.env["mail.message"].raise_event(
                     EVENT_LOCATION_BOOKING_REMINDER,
                     event,
                     f"calendar:{event.id}:reminder:{stamp}",
-                    self.env._("Starts at %(start)s in %(location)s.", start=start, location=event.location),
+                    env._(
+                        "Starts at %(start)s in %(location)s.",
+                        start=format_datetime(env, event.start, tz=env.context["tz"]),
+                        location=event.location,
+                    ),
                     subject=event.name,
                     partners=event.partner_ids,
                 )
@@ -92,14 +95,21 @@ class ScheduledJob(models.Model, ScheduledJobBase):
         partner = event.user_id.partner_id
         if not partner:
             return
+        env = self._reminder_env(event.user_id)
         self.env["mail.message"].raise_event(
             EVENT_TASK_REMINDER,
             task,
             f"calendar:{event.id}:reminder:{stamp}",
-            self.env._("Starts at %(start)s.", start=start),
+            env._("Starts at %(start)s.", start=format_datetime(env, event.start, tz=env.context["tz"])),
             subject=task.name,
             partners=partner,
         )
+
+    def _reminder_env(self, user):
+        """The environment that writes a reminder in the language and time zone of the person it reminds."""
+        tz = (user and user.tz) or self.env.company.partner_id.tz or VIETNAM_ZONE
+        env = staff_env(self.env, user)
+        return env(context=dict(env.context, tz=tz))
 
     def _handle_notifications_email(self, item):
         mail = item._document()

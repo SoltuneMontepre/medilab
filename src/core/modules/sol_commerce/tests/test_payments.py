@@ -376,6 +376,14 @@ class TestPaymentPortal(AuditLookup, InvoicingCase, HttpCase):
         self.assertEqual(payment.amount, 1_000)
         self.assertEqual(payment.state, "draft")
         self.assertEqual(self.invoice.order_id.pending_amount, 1_000)
+        task = self.env["medilab.task"].search(
+            [("document_model", "=", "account.payment"), ("document_id", "=", payment.id)]
+        )
+        self.assertEqual(task.type_id.code, "payment_review")
+
+        payment.action_post()
+
+        self.assertEqual(task.status, "done")
 
     def test_a_portal_amount_above_the_residual_is_refused(self):
         self.authenticate(self.customer.login, self.customer.login)

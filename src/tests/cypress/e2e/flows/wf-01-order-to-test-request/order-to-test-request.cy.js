@@ -129,7 +129,8 @@ describe("WF-01 Order to confirmed test request", () => {
       cy.intercept("POST", "**/web/dataset/call_button/sale.order/action_confirm_order*").as("confirmOrder");
       cy.get(".o_statusbar_buttons button[name=action_confirm_order]:visible").click();
       cy.wait("@confirmOrder").its("response.body").should("not.have.property", "error");
-      cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]:visible").should("not.exist");
+      // Its advance is verified, so its samples can be collected; the balance request waits for the report.
+      cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]:visible").should("exist");
       currentRequest(paid).its("kind").should("eq", "balance");
       payAdvance(paid);
       cy.openRecord(paid);

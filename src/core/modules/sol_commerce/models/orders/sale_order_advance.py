@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from odoo import models
-from odoo.exceptions import AccessError, UserError
+from odoo.exceptions import UserError
 from odoo.tools import format_datetime
 
 from odoo.addons.sol_commerce.constants.models import MODEL_PAYMENT_REQUEST, MODEL_SALE_ORDER
@@ -33,7 +33,9 @@ class SaleOrderAdvance(models.Model, SaleOrderAdvanceBase):
             raise UserError(self.env._("Choose how the advance is paid, or no advance, before sending the quotation."))
         if self.advance_method == ADVANCE_NONE:
             if not (self.env.su or self.env.user.has_group(ALL_ORDERS_GROUP)):
-                raise AccessError(self.env._("Only the Head of Sales can send a quotation without an advance."))
+                raise UserError(
+                    self.env._("Only the Head of Sales can send a quotation without an advance. Choose how it is paid.")
+                )
             return
         if not self.advance_mode:
             raise UserError(

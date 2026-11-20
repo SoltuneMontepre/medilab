@@ -29,6 +29,26 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/system/machine_booking_scheduled_job.py:0
+msgid ""
+"%(booking)s on %(machine)s ended at %(end)s without its result or a finished"
+" measurement, so it still holds the machine."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task_reassign.py:0
+msgid "%(count)s tasks go to %(holder)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_scan.py:0
+msgid "%(department)s received %(sample)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/system/document_lock.py:0
 msgid "%(document)s is being processed by %(user)s since %(since)s."
 msgstr ""
@@ -49,6 +69,15 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/machine_booking.py:0
 msgid "%(machine)s is not free for %(booking)s at that time."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_interruptions.py:0
+msgid ""
+"%(machine)s stopped during %(booking)s, so its measurement ended. Record the"
+" data measured so far on the interrupted result, which the head of "
+"department assesses as usable, needing a retest or needing more sample."
 msgstr ""
 
 #. module: sol_laboratory
@@ -269,6 +298,12 @@ msgstr ""
 #: code:addons/sol_laboratory/models/system/permission.py:0
 msgid ""
 "%s has no team, so a permission on it cannot be limited to the person's team."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/test_request_estimate.py:0
+msgid "%s has no turnaround."
 msgstr ""
 
 #. module: sol_laboratory
@@ -521,6 +556,15 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form_interruption
+msgid ""
+"<span invisible=\"interruption_assessment\">\n"
+"                        The machine stopped during this measurement. Record the data measured so far; the head of\n"
+"                        department assesses it before it is sent.\n"
+"                    </span>"
+msgstr ""
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.report_sample_label
 msgid "<span>Due</span>"
 msgstr ""
@@ -560,6 +604,13 @@ msgstr ""
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_booking_slot_period
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_plan_revision_move_slot_period
 msgid "A booking ends after it starts."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__repair_warning_days
+msgid ""
+"A booking that starts within this many days after its machine's repair warns"
+" its tester."
 msgstr ""
 
 #. module: sol_laboratory
@@ -772,6 +823,7 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/notifications/mail_message_subtype.py:0
 #: code:addons/sol_laboratory/models/notifications/notification_preference.py:0
+#: code:addons/sol_laboratory/controllers/laboratory_api_notification_preferences.py:0
 msgid "A mandatory event cannot be turned off."
 msgstr ""
 
@@ -876,6 +928,18 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/sample_handover.py:0
 msgid "A received handover cannot move to another sample or department."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/committed_date_change.py:0
+msgid "A recorded change of a committed return date cannot be deleted."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/committed_date_change.py:0
+msgid "A recorded change of a committed return date cannot be edited."
 msgstr ""
 
 #. module: sol_laboratory
@@ -1217,6 +1281,8 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/master_data/parameter_method.py:0
+#: code:addons/sol_laboratory/models/master_data/parameter_method_sample_type.py:0
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
 msgid "Accreditation is computed from certificates; it cannot be set by hand."
 msgstr ""
 
@@ -1706,6 +1772,7 @@ msgstr ""
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_test__status__approved
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_result__status__approved
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_plan_revision_move__status__approved
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_search
 msgid "Approved"
 msgstr ""
 
@@ -2275,6 +2342,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__booking_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__booking_ids
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_statistic__bookings
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_statistic_search
 msgid "Bookings"
 msgstr ""
 
@@ -2469,6 +2538,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_search
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_plan_revision__status__cancelled
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatch
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_search
 msgid "Cancelled"
 msgstr ""
 
@@ -2563,6 +2633,13 @@ msgid "Change"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_committed_date_change
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_committed_date_change_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
+msgid "Change Committed Date"
+msgstr ""
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_due_date_change_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 msgid "Change Due Date"
@@ -2583,6 +2660,11 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_sample_test_due_date_change
 msgid "Change a Sample Test's Due Date"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_committed_date_change_create_all
+msgid "Change committed return dates"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2622,6 +2704,19 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_sample_test_due_date_change
 msgid "Change the Due Date"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_committed_date_change_form
+msgid ""
+"Change the committed return date only after the customer agreed to the new "
+"date."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/test_request_plan.py:0
+msgid "Change the committed return date with Change Committed Date."
 msgstr ""
 
 #. module: sol_laboratory
@@ -2760,6 +2855,12 @@ msgid "Claim Timeout Minutes"
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "Claim the testing task of %s before entering its result."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__claimed_at
 msgid "Claimed At"
 msgstr ""
@@ -2884,6 +2985,22 @@ msgid "Committed"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_committed_date_change
+msgid "Committed Date Change"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__committed_date_change_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
+msgid "Committed Date Changes"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__committed_date
+msgid "Committed Return Date"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__ref_company_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__ref_company_ids
 msgid "Companies that refers to partner"
@@ -2941,6 +3058,9 @@ msgstr ""
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_upload__status__completed
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__status__completed
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__status__completed
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_statistic__completed
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_testing_statistic__kind__completed
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_statistic_search
 msgid "Completed"
 msgstr ""
 
@@ -3491,6 +3611,10 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_failure__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location_unavailability__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_urgent_mark__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_statistic_period__create_uid
 msgid "Created by"
 msgstr ""
 
@@ -3590,6 +3714,10 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_failure__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location_unavailability__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_urgent_mark__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_statistic_period__create_date
 msgid "Created on"
 msgstr ""
 
@@ -3636,6 +3764,11 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__exceptional_location_id
 msgid "Current"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__current_date
+msgid "Current Committed Return Date"
 msgstr ""
 
 #. module: sol_laboratory
@@ -3692,6 +3825,11 @@ msgid "Customer Rank"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__confirmation
+msgid "Customer's Confirmation"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__customer_sample_name
 msgid "Customer's Sample Name"
 msgstr ""
@@ -3724,6 +3862,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_list
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_statistic__date
 msgid "Date"
 msgstr ""
 
@@ -4130,6 +4269,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__department_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_plan_revision_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_statistic__department_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_statistic_search
 msgid "Department"
 msgstr ""
 
@@ -4255,6 +4396,9 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_failure_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_handover_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontractor_contact_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_committed_date_change_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_urgent_mark_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_statistic_period_form
 msgid "Discard"
 msgstr ""
 
@@ -4436,6 +4580,14 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_failure__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_asset__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location_unavailability__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_urgent_mark__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_statistic__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_statistic_period__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_portal_wizard_user__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_resource_calendar_leaves__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -5106,6 +5258,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location_unavailability__lock_message
 msgid "Editing Lock"
 msgstr ""
 
@@ -5265,6 +5418,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__ends_at
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__ends_at
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location_unavailability__ends_at
 msgid "End"
 msgstr ""
 
@@ -5356,6 +5510,13 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+msgid ""
+"Enter the physical state, the amount received and the condition under "
+"Receipt, then press Receive."
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch.py:0
 msgid "Enter the result as a number or as a text."
@@ -5371,6 +5532,13 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch.py:0
 msgid "Enter when the results of %s are expected back, not before it is sent."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid ""
+"Enter whether %s is solid, liquid, gas or semi-solid before receiving it."
 msgstr ""
 
 #. module: sol_laboratory
@@ -5821,6 +5989,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__date_from
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_statistic_period__date_from
 msgid "From"
 msgstr ""
 
@@ -5828,6 +5997,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/audit_report.py:0
 msgid "From %(start)s to %(end)s"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__agreed_on_order
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__from_order
+msgid "From Order"
 msgstr ""
 
 #. module: sol_laboratory
@@ -6254,6 +6429,14 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_failure__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_asset__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location_unavailability__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_urgent_mark__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_statistic__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_statistic_period__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_portal_wizard_user__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_resource_calendar_leaves__id
 msgid "ID"
 msgstr ""
 
@@ -6764,6 +6947,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__kind
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_archive_file_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_sync_rule_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_statistic__kind
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_statistic_search
 msgid "Kind"
 msgstr ""
 
@@ -7089,6 +7274,10 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_failure__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location_unavailability__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_urgent_mark__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_statistic_period__write_uid
 msgid "Last Updated by"
 msgstr ""
 
@@ -7188,6 +7377,10 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_failure__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_handover__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor_contact__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location_unavailability__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_urgent_mark__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_statistic_period__write_date
 msgid "Last Updated on"
 msgstr ""
 
@@ -7330,6 +7523,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__location_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__location_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location_unavailability__location_id
 msgid "Location"
 msgstr ""
 
@@ -7463,6 +7657,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_machine
 #: model:ir.ui.menu,name:sol_laboratory.menu_machine
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form_master_data
 msgid "Machines"
 msgstr ""
 
@@ -7724,6 +7919,11 @@ msgid "Method Steps"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__method_hours
+msgid "Method Takes (hours)"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__is_mine
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_search
 msgid "Mine"
@@ -7939,6 +8139,11 @@ msgid "Negative Results"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__new_date
+msgid "New Committed Return Date"
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/audit_report.py:0
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__new_value
@@ -8043,6 +8248,14 @@ msgid "Next up"
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/test_request_estimate.py:0
+msgid ""
+"No authorized person and machine has a free slot for %(way)s in the next "
+"%(days)s days."
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-javascript
 #: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
 msgid "No deadline"
@@ -8051,6 +8264,7 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/sample_test.py:0
+#: code:addons/sol_laboratory/models/testing/machine_booking_plan.py:0
 msgid "No machine can finish %s before its due date."
 msgstr ""
 
@@ -8165,6 +8379,7 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/services/laboratory_api.py:0
 #: code:addons/sol_laboratory/services/mobile_documents.py:0
+#: code:addons/sol_laboratory/controllers/laboratory_api_notification_preferences.py:0
 msgid "Nothing is found at this address."
 msgstr ""
 
@@ -8316,6 +8531,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_expected_sampling__objects
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sampling_snapshot_mixin__objects
 msgid "Objects"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__old_date
+msgid "Old Date"
 msgstr ""
 
 #. module: sol_laboratory
@@ -8731,6 +8951,16 @@ msgid "Permission: accreditation.scope.line.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_committed_date_change_create_all
+msgid "Permission: committed.date.change.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_committed_date_change_read_all
+msgid "Permission: committed.date.change.read.all"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_test_report_deliver_all
 msgid "Permission: test.report.deliver.all"
 msgstr ""
@@ -8752,9 +8982,40 @@ msgid "Prepare test report PDFs"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__priority
+msgid "Priority Order"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_committed_date_change_read_all
+msgid "Read committed date changes"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/committed_date_change.py:0
+msgid "Record how the customer agreed to the new date."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
+msgid "Recorded On"
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_report.py:0
 msgid "Report templates are only edited online."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__request_id
+msgid "Request"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__requested_date
+msgid "Requested Date"
 msgstr ""
 
 #. module: sol_laboratory
@@ -8782,6 +9043,11 @@ msgid "Stopped Releases"
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_committed_date_change_form
+msgid "Such as the email or call the customer agreed in"
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/testing/test_report_preparation.py:0
 msgid "The PDF was prepared again."
@@ -8790,6 +9056,14 @@ msgstr ""
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_import_form
 msgid "The code when left empty"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid ""
+"The customer agreed this sample's type, regulation and tests on the order; "
+"change them with a revised quotation."
 msgstr ""
 
 #. module: sol_laboratory
@@ -8804,6 +9078,33 @@ msgstr ""
 msgid ""
 "The draft no longer prints the business records for %s; correct the "
 "records through their workflow and prepare the PDF again."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result_interruption.py:0
+msgid ""
+"The head of department assesses an interrupted result with its buttons."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form_interruption
+msgid ""
+"The machine stopped during this measurement. The head of department assessed"
+" it:"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_conditions.py:0
+msgid ""
+"The maintenance of %(machine)s was due on %(date)s; record it before booking"
+" the machine."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+msgid "The method takes"
 msgstr ""
 
 #. module: sol_laboratory
@@ -8997,6 +9298,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_editing_session_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_search
 msgid "Open"
 msgstr ""
 
@@ -9177,6 +9479,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__parameter_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_parameter_authorization_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.report_subcontract_dispatch_document
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_search
 msgid "Parameter"
 msgstr ""
 
@@ -10109,22 +10412,27 @@ msgid "Permission: notification.preference.read.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_onboarding_run_create_all
 msgid "Permission: onboarding.run.create.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_onboarding_run_edit_all
 msgid "Permission: onboarding.run.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_onboarding_run_read_all
 msgid "Permission: onboarding.run.read.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_onboarding_staged_record_edit_all
 msgid "Permission: onboarding.staged.record.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_onboarding_staged_record_read_all
 msgid "Permission: onboarding.staged.record.read.all"
 msgstr ""
 
@@ -11209,6 +11517,9 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__person_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__person_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_statistic__person_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_parameter_authorization_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_statistic_search
 msgid "Person"
 msgstr ""
 
@@ -11841,6 +12152,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__reason
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__reason
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch_failure__reason
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location_unavailability__reason
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_urgent_mark__reason
 msgid "Reason"
 msgstr ""
 
@@ -12395,6 +12708,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_test__status__result_entered
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_search
 msgid "Result Entered"
 msgstr ""
 
@@ -12804,6 +13118,8 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_due_date_change__sample_test_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__sample_test_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_urgent_mark__sample_test_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_statistic__sample_test_id
 msgid "Sample Test"
 msgstr ""
 
@@ -12811,6 +13127,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__sample_test_ids
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatches
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_form
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_sample_test
+#: model:ir.ui.menu,name:sol_laboratory.menu_sample_test
 msgid "Sample Tests"
 msgstr ""
 
@@ -13446,6 +13764,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__starts_at
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location_unavailability__starts_at
 msgid "Start"
 msgstr ""
 
@@ -13520,6 +13839,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision__status
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__status
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_plan_revision_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_search
 msgid "Status"
 msgstr ""
 
@@ -14568,6 +14888,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_audit_report_period_check
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_testing_statistic_period_period_check
 msgid "The period must end on or after its first day."
 msgstr ""
 
@@ -14789,6 +15110,7 @@ msgstr ""
 #: code:addons/sol_laboratory/models/testing/sample_test_mobile.py:0
 #: code:addons/sol_laboratory/models/sample_collection/sample_mobile.py:0
 #: code:addons/sol_laboratory/services/mobile_messages.py:0
+#: code:addons/sol_laboratory/models/tasks/task_mobile.py:0
 msgid "This Idempotency-Key was already sent with another request."
 msgstr ""
 
@@ -15136,6 +15458,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__date_to
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_statistic_period__date_to
 msgid "To"
 msgstr ""
 
@@ -15231,6 +15554,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/scheduled_job.py:0
 msgid "Turn the schedule of %s on before running it."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__turnaround_days
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__turnaround_days
+msgid "Turnaround (working days)"
 msgstr ""
 
 #. module: sol_laboratory
@@ -15387,6 +15716,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__is_urgent
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__is_urgent
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_test__priority__urgent
 msgid "Urgent"
 msgstr ""
 
@@ -15747,6 +16077,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_method__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_authorization__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_overtime__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location_unavailability__lock_watched
 msgid "Watching Lock"
 msgstr ""
 
@@ -16039,6 +16370,11 @@ msgstr ""
 #. odoo-javascript
 #: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
 msgid "finished in the last 7 days"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+msgid "hours in all; this booking holds the machine only for its measurement."
 msgstr ""
 
 #. module: sol_laboratory
@@ -17032,6 +17368,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_machine_method_edit_all
+#: code:addons/sol_laboratory/models/master_data/parameter_authorization.py:0
 msgid "Permission: machine.method.edit.all"
 msgstr ""
 
@@ -17061,6 +17398,8 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__booking_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__booking_id
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_testing_statistic__kind__booking
 msgid "Booking"
 msgstr ""
 
@@ -17125,6 +17464,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_statistic_graph
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_statistic_pivot
 #: model:ir.ui.menu,name:sol_laboratory.menu_reports_testing_statistic
+#: code:addons/sol_laboratory/models/testing/sample_test_eligibility.py:0
 msgid "Testing Statistics"
 msgstr ""
 
@@ -17147,6 +17487,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_method_machine_method_unique
+#: code:addons/sol_laboratory/models/testing/sample_test_eligibility.py:0
 msgid "The machine is already linked to this testing method."
 msgstr ""
 
@@ -17285,6 +17626,8 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__check_preview
+#: code:addons/sol_laboratory/models/testing/machine_booking_capacity.py:0
+#: code:addons/sol_laboratory/models/testing/sample_test_eligibility.py:0
 msgid "Warning"
 msgstr ""
 
@@ -17356,6 +17699,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_authorization_person_parameter_unique
+#: model:medilab.permission,name:sol_laboratory.permission_overtime_create_all
 msgid "The person is already authorized to test this parameter."
 msgstr ""
 
@@ -17455,6 +17799,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_overtime_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_overtime_list
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
 msgid "Recorded By"
 msgstr ""
 
@@ -17630,14 +17975,6 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/system/machine_booking_scheduled_job.py:0
-msgid ""
-"%(booking)s on %(machine)s ended at %(end)s without its result or a finished "
-"measurement, so it still holds the machine."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
 #: code:addons/sol_laboratory/models/testing/machine_booking_conditions.py:0
 msgid "%(machine)s was repaired on %(date)s."
 msgstr ""
@@ -17674,13 +18011,6 @@ msgstr ""
 msgid ""
 "A booking that ends within this many days before its machine's maintenance "
 "is due warns its tester."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__repair_warning_days
-msgid ""
-"A booking that starts within this many days after its machine's repair warns "
-"its tester."
 msgstr ""
 
 #. module: sol_laboratory
@@ -17795,14 +18125,6 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/testing/machine_booking_conditions.py:0
-msgid ""
-"The maintenance of %(machine)s was due on %(date)s; record it before booking "
-"the machine."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
 #: code:addons/sol_laboratory/models/testing/machine_booking_interruptions.py:0
 msgid "%(booking)s, planned from %(start)s, went back to the plan. %(reason)s"
 msgstr ""
@@ -17816,27 +18138,8 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/testing/machine_booking_interruptions.py:0
-msgid ""
-"%(machine)s stopped during %(booking)s, so its measurement ended. Record the "
-"data measured so far on the interrupted result, which the head of department "
-"assesses as usable, needing a retest or needing more sample."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
 #: code:addons/sol_laboratory/models/system/resource_calendar_leaves.py:0
 msgid "%(person)s is on leave from %(start)s to %(end)s."
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form_interruption
-msgid ""
-"<span invisible=\"interruption_assessment\">\n"
-"                        The machine stopped during this measurement. Record "
-"the data measured so far; the head of\n"
-"                        department assesses it before it is sent.\n"
-"                    </span>"
 msgstr ""
 
 #. module: sol_laboratory
@@ -18052,19 +18355,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_result__interruption_assessment__retest
 msgid "Retest Needed"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_result_interruption.py:0
-msgid "The head of department assesses an interrupted result with its buttons."
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form_interruption
-msgid ""
-"The machine stopped during this measurement. The head of department assessed "
-"it:"
 msgstr ""
 
 #. module: sol_laboratory

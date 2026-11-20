@@ -1,6 +1,6 @@
 {
     "name": "Medilab - E-commerce",
-    "version": "20.0.1.18.0",
+    "version": "20.0.1.20.0",
     "summary": "Adds e-commerce features into the exising core laboratory module.",
     "category": "Services/Laboratory",
     "icon": "/sol_commerce/static/description/icon.svg",
@@ -57,6 +57,8 @@
         "views/orders/expected_sampling_templates.xml",
         "views/orders/order_template_views.xml",
         "views/orders/order_template_save_views.xml",
+        "views/orders/sample_collection_start_views.xml",
+        "views/orders/test_report_views.xml",
         "views/orders/quotation_agreement_views.xml",
         "views/orders/sale_order_views.xml",
         "views/orders/sale_order_analysis_views.xml",
