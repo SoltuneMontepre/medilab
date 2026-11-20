@@ -95,6 +95,10 @@ spec:
             - name: runtime
               mountPath: /opt/medilab/onlyoffice
               readOnly: true
+            - name: runtime
+              mountPath: /var/www/onlyoffice/documentserver/sdkjs/common/serviceworker/document_editor_service_worker.js
+              subPath: document_editor_service_worker.js
+              readOnly: true
             - name: tls
               mountPath: /run/onlyoffice-tls
               readOnly: true
