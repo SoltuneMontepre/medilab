@@ -29,6 +29,18 @@ msgstr "# Hóa đơn mua hàng"
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task_reassign.py:0
+msgid "%(count)s tasks go to %(holder)s."
+msgstr "%(count)s công việc được chuyển cho %(holder)s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_scan.py:0
+msgid "%(department)s received %(sample)s."
+msgstr "%(department)s đã nhận %(sample)s."
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/system/permission.py:0
 msgid "%(document_type)s has no %(action)s permission."
 msgstr "%(document_type)s không có quyền %(action)s."
@@ -3414,6 +3426,23 @@ msgstr ""
 "lý."
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+msgid ""
+"Enter the physical state, the amount received and the condition under "
+"Receipt, then press Receive."
+msgstr ""
+"Nhập trạng thái vật lý, lượng mẫu nhận và tình trạng mẫu ở mục Tiếp nhận, "
+"rồi bấm Tiếp nhận."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid ""
+"Enter whether %s is solid, liquid, gas or semi-solid before receiving it."
+msgstr ""
+"Hãy nhập %s ở trạng thái rắn, lỏng, khí hay bán rắn trước khi tiếp nhận."
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_editing_session_search
 msgid "Errors"
 msgstr "Lỗi"
@@ -3676,6 +3705,12 @@ msgstr "Công thức"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__friday_location_id
 msgid "Friday"
 msgstr "Thứ Sáu"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__agreed_on_order
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__from_order
+msgid "From Order"
+msgstr "Theo Đơn Hàng"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__global_location_number
@@ -5157,6 +5192,11 @@ msgstr "Tin nhắn"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
 msgid "Method Steps"
 msgstr "Các Bước Của Phương Pháp"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__method_hours
+msgid "Method Takes (hours)"
+msgstr "Thời Gian Phương Pháp (giờ)"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__min_value
@@ -8622,6 +8662,16 @@ msgid "The code of a testing method must be unique."
 msgstr "Mã phương pháp thử phải là duy nhất."
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid ""
+"The customer agreed this sample's type, regulation and tests on the order; "
+"change them with a revised quotation."
+msgstr ""
+"Loại mẫu, quy chuẩn và phép thử của mẫu này đã được khách hàng thống nhất "
+"trên đơn hàng; hãy thay đổi bằng báo giá điều chỉnh."
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
 msgid "The customer's contact"
 msgstr "Liên hệ của khách hàng"
@@ -8787,6 +8837,11 @@ msgstr "Tên đăng nhập hoặc mật khẩu không đúng."
 #: code:addons/sol_laboratory/models/master_data/test_parameter.py:0
 msgid "The main group of %s must be one of its groups."
 msgstr "Nhóm chính của %s phải là một trong các nhóm của chỉ tiêu."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+msgid "The method takes"
+msgstr "Phương pháp mất"
 
 #. module: sol_laboratory
 #. odoo-python
@@ -9728,6 +9783,11 @@ msgstr "nhiệm vụ đã hoàn thành từ trước đến nay."
 #: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
 msgid "finished in the last 7 days"
 msgstr "hoàn thành trong 7 ngày qua"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+msgid "hours in all; this booking holds the machine only for its measurement."
+msgstr "giờ tổng cộng; lượt đặt này chỉ giữ máy trong thời gian đo."
 
 #. module: sol_laboratory
 #. odoo-javascript

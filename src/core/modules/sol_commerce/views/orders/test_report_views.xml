@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- The report of an order not paid in full is issued but neither sent nor offered in the portal. -->
+    <record id="view_medilab_test_report_form_payment_hold" model="ir.ui.view">
+        <field name="name">medilab.test.report.form.payment.hold</field>
+        <field name="model">medilab.test.report</field>
+        <field name="inherit_id" ref="sol_laboratory.view_medilab_test_report_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//header/button[@name='action_record_delivery']" position="attributes">
+                <attribute name="invisible">status != 'issued' or delivered_at or withheld_for_payment</attribute>
+            </xpath>
+            <xpath expr="//sheet" position="before">
+                <field name="withheld_for_payment" invisible="1" />
+                <div class="alert alert-warning mb-0" role="alert" invisible="status != 'issued' or not withheld_for_payment">
+                    The customer receives this report once order <field name="withheld_order_name" class="fw-bold" /> is paid in full.
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

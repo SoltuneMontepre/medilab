@@ -125,14 +125,14 @@ describe("WF-01 quotation, revisions and templates (F-06, F-07)", () => {
       });
   });
 
-  it("TC-F06-03 refuses to send a quotation with a line not on a sample", () => {
+  it("TC-F06-03 refuses to send a quotation with a line of no sample type", () => {
     orderAt("claimed", { sample: false }).then((order) => {
       cy.signInAs("sales");
       cy.openRecord(order);
       cy.expectRefusal({
         read: readOrder(order),
         action: () => cy.sendRecord("action_send_quotation"),
-        message: "Gán mẫu cho các mục sau trước khi gửi báo giá:",
+        message: "Chọn loại mẫu cho các mục sau trước khi gửi báo giá:",
       });
     });
   });

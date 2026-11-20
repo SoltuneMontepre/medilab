@@ -313,7 +313,16 @@
                         <tbody>
                             <t t-foreach="lines" t-as="line">
                                 <tr>
-                                    <td t-out="line.product_id.display_name" />
+                                    <td>
+                                        <span t-out="line.product_id.display_name" />
+                                        <t t-set="tested" t-value="(line.linked_line_ids or line).sudo()" />
+                                        <div t-if="line.sample_type_id" class="small text-muted">
+                                            <t t-out="line.sample_type_id.name" />
+                                            <t t-foreach="tested.filtered('parameter_method_id')" t-as="part">
+                                                · <t t-out="part.parameter_method_id.display_name" />
+                                            </t>
+                                        </div>
+                                    </td>
                                     <td class="text-end" t-out="line.price_unit" t-options="{'widget': 'monetary', 'display_currency': order.currency_id}" />
                                     <td class="text-end" t-out="int(line.product_uom_qty)" />
                                     <td class="text-end" t-out="line.price_unit * line.product_uom_qty" t-options="{'widget': 'monetary', 'display_currency': order.currency_id}" />
@@ -328,6 +337,11 @@
                         </tfoot>
                     </table>
                 </div>
+                <section t-if="lines.filtered('sample_type_id')" class="mb-4">
+                    <h2 class="h4">Expected samples</h2>
+                    <t t-set="entries" t-value="order.sudo()._expected_sampling()" />
+                    <t t-call="sol_commerce.expected_sampling" />
+                </section>
                 <t t-foreach="requests" t-as="cancellation">
                     <div class="border rounded p-3 mb-3">
                         <p>Cancellation: <t t-out="cancellation.status" /></p>

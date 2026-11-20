@@ -1,4 +1,4 @@
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
 from odoo.tests import tagged
 
 from .order_case import OrderCase
@@ -47,6 +47,26 @@ class TestOrderSamples(OrderCase):
         self.assertEqual(len(order.order_line), 3)
         self.assertEqual(order.catalog_total, self.package.list_price)
 
+    def test_an_item_added_to_the_cart_starts_on_a_sample_type_and_shows_its_expected_samples(self):
+        order = self.make_order([])
+
+        order.add_catalog_product(self.lead_product, 1)
+        line = order._catalog_lines()
+
+        self.assertTrue(line.sample_type_id)
+        self.assertTrue(line.parameter_method_id)
+        self.assertTrue(order._expected_sampling())
+
+    def test_a_second_item_follows_the_sample_type_the_cart_already_uses(self):
+        order = self.make_order([])
+        order.add_catalog_product(self.lead_product, 1)
+        chosen = order._catalog_lines().sample_type_id
+
+        order.add_catalog_product(self.package_product, 1)
+
+        self.assertEqual(order._catalog_lines().sample_type_id, chosen)
+        self.assertEqual(self.package_line(order).linked_line_ids.sample_type_id, chosen)
+
     def test_copying_a_sample_copies_its_lines_with_their_prices(self):
         order = self.make_order([(self.lead_product, 2), (self.package_product, 1)])
         sample = self.make_sample(order)
@@ -84,3 +104,34 @@ class TestOrderSamples(OrderCase):
 
         with self.assertRaises(ValidationError):
             order._catalog_lines().sample_id = self.make_sample(other)
+
+    def test_sending_gives_each_line_a_sample_of_its_sample_type(self):
+        order = self.make_order(
+            [(self.lead_product, 1)],
+            status="claimed",
+            user_id=self.sales.id,
+            advance_method="cash",
+            advance_mode="full",
+        )
+        line = order._catalog_lines()
+        line.sample_type_id = self.sample_type
+        self.assertFalse(line.sample_id)
+
+        order.with_user(self.sales).action_send_quotation()
+
+        self.assertEqual(line.sample_id.sample_type_id, line.sample_type_id)
+        self.assertEqual(line.sample_id.customer_sample_name, line.sample_type_id.name)
+        self.assertFalse(line.sample_id.physical_state)
+
+    def test_a_line_without_a_sample_type_keeps_the_quotation_from_being_sent(self):
+        order = self.make_order(
+            [(self.lead_product, 1)],
+            status="claimed",
+            user_id=self.sales.id,
+            advance_method="cash",
+            advance_mode="full",
+        )
+        order._catalog_lines().sample_type_id = False
+
+        with self.assertRaisesRegex(UserError, "Choose a sample type"):
+            order.with_user(self.sales).action_send_quotation()

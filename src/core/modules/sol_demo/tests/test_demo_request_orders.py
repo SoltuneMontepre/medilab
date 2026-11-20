@@ -2,7 +2,7 @@ from odoo.tests import TransactionCase, tagged
 
 from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
 from odoo.addons.sol_demo.demo_orders import seed_request_orders
-from odoo.addons.sol_laboratory.constants.models import MODEL_TEST_REQUEST
+from odoo.addons.sol_laboratory.constants.models import MODEL_TEST_REPORT, MODEL_TEST_REQUEST
 
 
 @tagged("post_install", "-at_install")
@@ -30,3 +30,17 @@ class TestDemoRequestOrders(TransactionCase):
         self.assertEqual(orders.filtered(lambda order: order.test_request_id == open_request).order_status, "confirmed")
         self.assertEqual(orders.filtered(lambda order: order.test_request_id == cancelled).order_status, "cancelled")
         self.assertEqual(orders.customer_id, customer.partner_id)
+
+    def test_the_issued_demo_reports_reach_their_customers(self):
+        reports = self.env[MODEL_TEST_REPORT].search([("status", "=", "issued")])
+
+        self.assertTrue(reports)
+        self.assertFalse(reports.filtered("withheld_for_payment"))
+
+    def test_the_pending_demo_report_can_still_be_issued(self):
+        report = self.env.ref("sol_demo.demo_test_report_pending", raise_if_not_found=False)
+        if not report:
+            self.skipTest("The demo report templates are not seeded.")
+
+        self.assertEqual(report.status, "pending_signing")
+        self.assertTrue(report._candidate()._is_current())

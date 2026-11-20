@@ -1,7 +1,7 @@
 import { callAs } from "../../../support/odoo";
 import { save } from "../../../support/form";
 import { milliseconds, typeTime } from "../../features/laboratory/scheduling/setup";
-import { displayZone, dragBookingToSlot } from "./screens";
+import { displayZone, dragBookingToSlot, wallClock } from "./screens";
 import { eventsGone, scheduleState } from "./state";
 import { HEAD, TESTER, awayFromQuarterHour, bookedOnOneMachine, book, assignedChromium, releaseFixtures, resetFixtures } from "./setup";
 
@@ -44,6 +44,19 @@ function expectMovedTogether(before, after, slot) {
     expect(changed.partner_ids).to.deep.equal(event.partner_ids);
     expect(changed.location_id).to.deep.equal(event.location_id);
   });
+}
+
+// The Monday-based week of a moment on the calendar of the zone.
+const weekOf = (value, zone) => Math.floor((Date.parse(`${wallClock(value, zone).date}T00:00:00Z`) / 86400000 + 3) / 7);
+
+// The booking in the calendar week of the other booking: when the other fell into a later week, the booking moves to
+// right after it, so a drag between them stays in one week of the calendar.
+function inWeekOf(booking, other, zone) {
+  if (weekOf(booking.starts_at, zone) === weekOf(other.starts_at, zone)) {
+    return cy.wrap(booking);
+  }
+  callAs(HEAD, "medilab.machine.booking", "write", [[booking.id], { starts_at: other.ends_at }]);
+  return callAs(HEAD, "medilab.machine.booking", "read", [[booking.id], Object.keys(booking).filter((key) => key !== "model")]).then(([moved]) => moved);
 }
 
 describe("SF-10 the head moves and cancels a department booking", () => {
@@ -113,8 +126,8 @@ describe("SF-10 the head moves and cancels a department booking", () => {
 
   it("TC-SF10-A2 partial refuses a calendar drop onto the slot of another booking of the machine and keeps both bookings", () => {
     awayFromQuarterHour();
-    bookedOnOneMachine().then(([booking, taken]) =>
-      displayZone(HEAD).then((zone) => {
+    bookedOnOneMachine().then(([first, taken]) =>
+      displayZone(HEAD).then((zone) => inWeekOf(first, taken, zone).then((booking) => {
         const test = { model: "medilab.sample.test", id: booking.sample_test_id[0] };
         const takenTest = { model: "medilab.sample.test", id: taken.sample_test_id[0] };
         cy.signInAs("head_of_department");
@@ -123,7 +136,7 @@ describe("SF-10 the head moves and cancels a department booking", () => {
           action: () => dragBookingToSlot(booking, taken.starts_at, zone),
           message: `${booking.machine_id[1]} is not free for ${booking.display_name} at that time.`,
         });
-      }),
+      })),
     );
   });
 });

@@ -355,8 +355,9 @@ flowchart TD
 - **Result:** every payment request is funded and every invoice is paid, and each day's online payments match the PayOS transactions and are locked.
 - **Stories:** US-A01, US-A02, US-A04, US-A05, US-A07, US-A08, US-A09, US-A10, US-A11, US-A12, US-A13, US-C16, US-C17, US-S11.
 - **Features:** [F-12](../reports/feature-list/readme.md#f-12-invoices-and-adjustment-invoices), [F-13](../reports/feature-list/readme.md#f-13-payment-confirmation-and-reconciliation), [F-14](../reports/feature-list/readme.md#f-14-finance-reports-and-sales-analytics).
-- **States:** payment request open → funded, or → expired or superseded; invoice posted → partially paid → paid; payment pending → confirmed or rejected; reconciliation day open → locked.- **Starts from:** confirmed orders: those of customers who pay before testing, and those of customers on credit whose testing is completed.
-- **Main path:** When sales confirms an order, MediLab sends the balance payment request; the customer pays it online before sample collection, and the verified payment posts the final invoice, issues a receipt and pays the order. For a customer allowed to order on credit, the accountant creates and e-mails the final invoice once testing is completed.
+- **States:** payment request open → funded, or → expired or superseded; invoice posted → partially paid → paid; payment pending → confirmed or rejected; reconciliation day open → locked.
+- **Starts from:** confirmed orders: those of customers who pay before testing, and those of customers on credit whose testing is completed.
+- **Main path:** When sales confirms an order, MediLab sends the balance payment request; the customer pays it, at once or in instalments, while the samples are collected and tested, and each verified payment posts its invoice and issues a receipt. The issued report reaches the customer only once the order is paid in full. For a customer allowed to order on credit, the accountant creates and e-mails the final invoice once testing is completed.
 - **Alternative paths:**
   - SF-01-A1: The customer pays part online, then the rest; each verified part posts its invoice, and the request is funded when the parts reach its amount.
   - SF-01-A2: Sales records a cash payment; the accountant confirms it.

@@ -1,6 +1,7 @@
-from datetime import date, timedelta
+from datetime import date, datetime, time, timedelta
 from unittest.mock import patch
 
+from odoo import fields
 from odoo.exceptions import UserError
 from odoo.tests import tagged
 
@@ -95,9 +96,19 @@ class TestOrderDates(OrderCase):
             order.with_user(self.sales).action_accept_priority()
         self.assertEqual(order.priority_request, "requested")
 
+    def accept_priority(self, order, requested):
+        order.write({"requested_date": requested, "priority_request": "requested"})
+        with patch.object(
+            TestRequestEstimate,
+            "_check_priority",
+            return_value={"date": requested, "feasible": True, "reasons": []},
+        ):
+            order.with_user(self.sales).action_accept_priority()
+
     def test_an_accepted_priority_commits_the_requested_date_and_makes_the_tests_urgent(self):
         order = self.make_quotable_order()
-        requested = date.today() + timedelta(days=3)
+        # The turnaround starts tomorrow at the latest, so the advance can still be paid in time.
+        requested = self.env[MODEL_TEST_REQUEST]._date_after_working_days(date.today(), 6)
         order.write({"requested_date": requested, "priority_request": "requested"})
 
         with patch.object(
@@ -116,6 +127,30 @@ class TestOrderDates(OrderCase):
         self.assertTrue(request.priority)
         self.assertEqual(request.committed_date, requested)
         self.assertEqual(set(request.sample_ids.test_ids.mapped("priority")), {"urgent"})
+
+    def test_the_advance_of_a_priority_order_is_due_before_its_turnaround_starts(self):
+        order = self.make_quotable_order()
+        requested = self.env[MODEL_TEST_REQUEST]._date_after_working_days(date.today(), 6)
+        self.accept_priority(order, requested)
+
+        order.with_user(self.sales).action_send_quotation()
+
+        deadline = order.payment_deadline
+        assert isinstance(deadline, datetime)
+        # Never later than the end of the day the turnaround must start; the usual deadline applies when it is sooner.
+        latest = order._priority_payment_deadline()
+        assert isinstance(latest, datetime)
+        self.assertLessEqual(deadline, latest)
+        # The turnaround starts five working days before the committed date; the advance is due by the end of that day.
+        self.assertLess(deadline, datetime.combine(requested, time.min))
+        self.assertGreater(deadline, fields.Datetime.now())
+
+    def test_a_priority_order_whose_turnaround_should_have_started_is_not_sent(self):
+        order = self.make_quotable_order()
+        self.accept_priority(order, date.today() + timedelta(days=3))
+
+        with self.assertRaisesRegex(UserError, "Agree a later date"):
+            order.with_user(self.sales).action_send_quotation()
 
     def test_the_dates_stop_changing_once_the_quotation_is_sent(self):
         order = self.sent_order()
