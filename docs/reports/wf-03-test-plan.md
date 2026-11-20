@@ -211,7 +211,7 @@ sequenceDiagram
 | T01 | A feasible proposed booking reserves all required resources when the head approves it, or none if a resource is taken meanwhile. The tester receives an approval notice and a reminder before the booking starts | [Scheduling plan](../specs/scheduling.md#plan), [WF-03](../functional/business-flows.md#wf-03-testing-assignment-and-scheduling) | #419, #422, #427 |
 | T02 | Capacity sharing | `scheduling.md:26-28` | #420 |
 | T03 | Person-to-parameter authorization | `scheduling.md:21` | #421 |
-| T04 | Priority classes, then committed date, then arrival | `scheduling.md:42-48` | #422 |
+| T04 | Priority classes, then expected return date, then arrival | `scheduling.md:42-48` | #422 |
 | T05 | Pinning, revisions, held-back moves | `scheduling.md:62-66` | #423 |
 | T06 | Calibration including never-calibrated machines; maintenance; warning windows | `scheduling.md:22,88`, `business-flows.md:488-490` | #424 |
 | T07 | Leave or room unavailability returns bookings; interrupted results | `scheduling.md:78-80` | #425 |
@@ -1075,7 +1075,7 @@ The browser tests live in `src/tests/cypress/e2e/flows/wf-03-testing-scheduling/
 | WF-03-A2 | `TC-WF03-A2 partial` | Machine and step-room bookings are made together. Room events cannot be removed separately | #420 shared intervals, capacity and booking without a machine |
 | WF-03-A3 | `TC-WF03-A3` | The head records planned OverTime through Schedule with a reason and no HR overtime shift; the tester moves a scheduled booking into that interval, which remains unchanged | – |
 | WF-03-E1 | `TC-WF03-E1 partial` (2 tests) | The head moves a task to another person and department with a reason, approves the new proposal, and the new assignee is told of the task and the booking. Only the new assignee sees the moved task and its booking | #421 authorization |
-| WF-03-E2 | `TC-WF03-E2 partial` | The outsourcing warning shows, the booking goes to the head's review, Approve Booking is hidden and refused, and no booking or event is created | #179 viable options and earliest date. SF-07 owns changes to the committed return date. WF-05 owns outsourcing to a subcontractor with the same method |
+| WF-03-E2 | `TC-WF03-E2 partial` | The outsourcing warning shows, the booking goes to the head's review, Approve Booking is hidden and refused, and no booking or event is created | #179 viable options and earliest date. SF-07 owns changes to the expected return date. WF-05 owns outsourcing to a subcontractor with the same method |
 | SF-10-M | `TC-F24-02` (RPC order only) | Queue order by urgency then queue time | #422 priority classes, tie-breaks, proposed plan and head approval under the current baseline, plus #179 risk |
 | SF-10-A1 | none | – | #422, #164 |
 | SF-10-A2 | `TC-SF10-A2 partial` (5 tests) | Tester cancels a booking; head moves a booking through its form and by calendar drag with every reservation moving together; a drop onto a busy slot is refused; head cancels a booking and the test stays assigned | #423 pinning, #420 shared runs |

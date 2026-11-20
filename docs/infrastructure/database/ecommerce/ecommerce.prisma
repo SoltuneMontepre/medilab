@@ -440,7 +440,7 @@ model SaleOrder {
   requested_date    DateTime?             @db.Date
   /// The day Sales agreed with the customer for the samples to be picked up, which return dates count from.
   expected_collection_date DateTime?      @db.Date
-  /// Committed return date Sales promises on the quotation: the requested date when the standard turnaround meets it, or the date of an accepted priority request; empty when it is fixed at sample receipt. The confirmed order gives it to its test request.
+  /// Expected return date Sales promises on the quotation: the requested date when the standard turnaround meets it, or the date of an accepted priority request; empty when it is fixed at sample receipt. The confirmed order gives it to its test request.
   committed_date    DateTime?             @db.Date
   /// Working days results take from sample receipt: the longest standard turnaround of the order's ways of testing, kept as it was when the quotation was sent.
   turnaround_days   Int?

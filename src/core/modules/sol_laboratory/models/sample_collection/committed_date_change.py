@@ -19,7 +19,7 @@ else:
 CHANGING_COMMITTED_DATE = "medilab_changing_committed_date"
 
 
-# Thay Đổi Ngày Hẹn Trả Kết Quả
+# Thay Đổi Ngày Trả Kết Quả Dự Kiến
 class CommittedDateChange(models.Model, CommittedDateChangeBase):
     _name = MODEL_COMMITTED_DATE_CHANGE
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
