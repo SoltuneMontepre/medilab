@@ -3901,7 +3901,7 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__customer_status__waiting
 msgid "Waiting"
-msgstr "Đang chờ"
+msgstr "Chờ giao mẫu"
 
 #. module: sol_commerce
 #. odoo-python
