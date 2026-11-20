@@ -1,3 +1,5 @@
+from typing import cast
+
 from lxml import html
 
 from odoo.tests import HttpCase, new_test_user, tagged
@@ -39,10 +41,10 @@ class TestTestReportPortal(HttpCase, ReportCase):
         self.authenticate("hoa.portal", "hoa.portal")
 
         page = html.fromstring(self.url_open("/my").text)
-        cards = page.xpath("//a[@href='/my/test-reports']")
+        cards = cast("list[html.HtmlElement]", page.xpath("//a[@href='/my/test-reports']"))
 
         self.assertEqual(len(cards), 1)
-        self.assertTrue(cards[0].xpath(".//text()[contains(., 'Test Reports')]"))
+        self.assertIn("Test Reports", cards[0].text_content())
         self.assertFalse(any("d-none" in ancestor.get("class", "").split() for ancestor in cards[0].iterancestors()))
 
     def test_a_report_not_issued_cannot_be_downloaded(self):
