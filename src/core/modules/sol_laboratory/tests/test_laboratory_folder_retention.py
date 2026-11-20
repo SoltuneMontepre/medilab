@@ -27,11 +27,11 @@ class TestLaboratoryFolderRetention(AuditLookup, LaboratoryFilesCase):
             "UPDATE medilab_laboratory_folder SET retention_until = %s WHERE id = %s",
             [fields.Date.context_today(folder) - timedelta(days=1), folder.id],
         )
-        folder.invalidate_recordset(["retention_until"])
+        self.env.invalidate_all()
 
     def flag_due_folders(self):
         self.env[MODEL_SCHEDULED_JOB]._run_key("laboratory_folder.retention_review")
-        self.folder.invalidate_recordset(["retention_review_required"])
+        self.env.invalidate_all()
 
     def test_the_daily_job_flags_expired_folders_without_removing_any_content(self):
         version = self.save(self.file, "retained bytes")
