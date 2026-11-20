@@ -30,27 +30,20 @@
                         <field name="price_subtotal" />
                     </list>
                 </field>
-                <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
-                    <div class="d-flex align-items-center gap-2">
-                        <label for="discount_percentage" />
-                        <field name="discount_percentage" class="o_input_6ch" />
-                        <button name="action_apply_discount" type="object" string="Apply" class="btn-secondary" invisible="not discount_percentage" />
-                    </div>
-                    <group class="w-auto">
-                        <field name="amount_untaxed" />
-                        <field name="amount_tax" />
-                        <field name="amount_total" class="fw-bold" />
-                    </group>
-                </div>
-                <separator string="Payment" />
                 <group>
-                    <group>
+                    <group string="Payment">
                         <field name="advance_method" required="1" />
                         <field name="advance_mode" invisible="not advance_method or advance_method == 'none'" />
                         <field name="advance_value" invisible="advance_mode not in ('percentage', 'fixed')" />
-                    </group>
-                    <group>
                         <field name="balance_due" invisible="not advance_method or advance_mode == 'full' or on_credit" />
+                    </group>
+                    <group string="Total">
+                        <label for="discount_percentage" />
+                        <div class="d-flex align-items-center gap-2">
+                            <field name="discount_percentage" class="w-25" />
+                            <button name="action_apply_discount" type="object" string="Apply" class="btn-secondary" invisible="not discount_percentage" />
+                        </div>
+                        <field name="tax_totals" widget="account-tax-totals-field" nolabel="1" colspan="2" readonly="1" />
                     </group>
                 </group>
                 <footer>

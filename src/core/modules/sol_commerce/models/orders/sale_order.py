@@ -512,7 +512,7 @@ class SaleOrder(models.Model, SaleOrderBase):
             # The button asks Sales for the payment deadline and the expected sample pickup first.
             self.ensure_one()
             action = self.env["ir.actions.act_window"]._for_xml_id("sol_commerce.action_medilab_quotation_send")
-            action["context"] = {"default_order_id": self.id}
+            action["context"] = {"default_order_id": self.id, "dialog_size": "extra-large"}
             return action
         self._lock_payment_orders()
         self._check_no_pending_collection()

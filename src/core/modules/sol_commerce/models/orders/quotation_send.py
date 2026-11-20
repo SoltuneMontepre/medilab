@@ -37,9 +37,7 @@ class QuotationSend(models.TransientModel, QuotationSendBase):
         # The order's currency, for the totals.
         currency_id = fields.Many2one(related="order_id.currency_id")
         # The quotation's totals before tax, of tax and with tax.
-        amount_untaxed = fields.Monetary(related="order_id.amount_untaxed")
-        amount_tax = fields.Monetary(related="order_id.amount_tax")
-        amount_total = fields.Monetary(related="order_id.amount_total")
+        tax_totals = fields.Binary(related="order_id.tax_totals")
         # Percentage taken off the whole quotation as one discount line when Sales applies it.
         discount_percentage = fields.Float(string="Quotation Discount (%)")
         # How and how much of the advance the customer pays, and when the rest is due.
@@ -78,6 +76,7 @@ class QuotationSend(models.TransientModel, QuotationSendBase):
             "view_mode": "form",
             "target": "new",
             "name": self.env._("Send Quotation"),
+            "context": {"dialog_size": "extra-large"},
         }
 
     def action_apply_discount(self):
