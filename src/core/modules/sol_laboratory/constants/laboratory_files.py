@@ -19,6 +19,9 @@ GENERATED = "generated"
 # stored, or not the content claimed.
 PENDING = "pending"
 VERIFIED = "verified"
+RETENTION_REMOVED = "retention_removed"
+LABORATORY_FOLDER_RETENTION_JOB = "laboratory_folder.retention_review"
+RETENTION_REMOVAL_CONTEXT = "laboratory_retention_removal"
 DUPLICATE = "duplicate"
 FAILED = "failed"
 # The first key of the advisory locks that order the changes of each folder, used by no other lock.

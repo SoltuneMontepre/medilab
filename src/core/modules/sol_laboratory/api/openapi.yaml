@@ -4590,7 +4590,7 @@ components:
     Version:
       type: object
       additionalProperties: false
-      required: [id, number, source, size, sha256, parent_version_id, restored_from_id, saved_by, device, created_at]
+      required: [id, number, source, size, sha256, content_available, parent_version_id, restored_from_id, saved_by, device, created_at]
       properties:
         id:
           type: integer
@@ -4603,6 +4603,9 @@ components:
           minimum: 0
         sha256:
           $ref: "#/components/schemas/Sha256"
+        content_available:
+          description: False when approved retention removal preserved this version's history but removed its bytes.
+          type: boolean
         parent_version_id:
           description: The version that was current when this one was made.
           type: [integer, "null"]
