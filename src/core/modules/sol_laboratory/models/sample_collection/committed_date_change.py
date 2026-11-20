@@ -52,10 +52,10 @@ class CommittedDateChange(models.Model, CommittedDateChangeBase):
         return changes
 
     def write(self, vals):
-        raise UserError(self.env._("A recorded change of a expected return date cannot be edited."))
+        raise UserError(self.env._("A recorded change of an expected return date cannot be edited."))
 
     def unlink(self):
-        raise UserError(self.env._("A recorded change of a expected return date cannot be deleted."))
+        raise UserError(self.env._("A recorded change of an expected return date cannot be deleted."))
 
     def action_record(self):
         # The form's button: saving the form records the change.
