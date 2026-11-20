@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-19 23:26+0000\n"
-"PO-Revision-Date: 2026-11-19 23:26+0000\n"
+"POT-Creation-Date: 2026-11-20 07:28+0000\n"
+"PO-Revision-Date: 2026-11-20 07:28+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -875,6 +875,12 @@ msgstr ""
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_receivable_report_search
 msgid "Age of the debt"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid "Agree a sample collection appointment that is still to come."
 msgstr ""
 
 #. module: sol_commerce
@@ -2095,6 +2101,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_reconciliation_day__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_revenue_report__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_sample_collection_start__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_sample_test__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_scheduled_job__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package_line__display_name
@@ -2528,6 +2535,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_reconciliation_day__id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_revenue_report__id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_sample_collection_start__id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_sample_test__id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_scheduled_job__id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package__id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package_line__id
@@ -3933,6 +3941,11 @@ msgid "Print"
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Print quotation"
+msgstr ""
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 msgid "Priority"
@@ -4560,6 +4573,11 @@ msgid "Sample Collection"
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_sample_test
+msgid "Sample Test"
+msgstr ""
+
+#. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_sample__sample_type_id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_sampling__sample_type_id
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__sample_type_id
@@ -4588,6 +4606,15 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__sample_ids
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 msgid "Samples"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid ""
+"Samples collected on %(day)s return results on %(ready)s, after the "
+"committed return date %(committed)s. Agree an earlier appointment, or change"
+" the committed date with the customer first."
 msgstr ""
 
 #. module: sol_commerce
@@ -4640,6 +4667,12 @@ msgstr ""
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 msgid "Send quotation"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "Send the quotation before printing it."
 msgstr ""
 
 #. module: sol_commerce
@@ -4720,6 +4753,15 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_order_sample__physical_state__solid
 msgid "Solid"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sample_test_risk.py:0
+msgid ""
+"Some tests of order %(order)s are at risk of missing the committed return "
+"date %(date)s. Agree a feasible date with the customer if the laboratory "
+"cannot catch up."
 msgstr ""
 
 #. module: sol_commerce

@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-19 23:26+0000\n"
-"PO-Revision-Date: 2026-11-19 23:26+0000\n"
+"POT-Creation-Date: 2026-11-20 07:28+0000\n"
+"PO-Revision-Date: 2026-11-20 07:28+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -157,6 +157,14 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version.py:0
 msgid "%(path)s, version %(number)s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task_collection_travel.py:0
+msgid ""
+"%(person)s already collects %(other)s at %(time)s, too close to %(task)s to "
+"travel between them."
 msgstr ""
 
 #. module: sol_laboratory
@@ -3984,6 +3992,11 @@ msgid "Collecting %s again is already asked for."
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__collection_travel_minutes
+msgid "Collection Travel Buffer (minutes)"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__color
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__color
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__color
@@ -5016,14 +5029,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__days_sales_outstanding
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__days_sales_outstanding
 msgid "Days Sales Outstanding (DSO)"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__safety_margin_days
-msgid ""
-"Days a sample test is due before the date promised to the customer, kept for"
-" handling incidents. Applies to sample tests whose due date is worked out "
-"from now on."
 msgstr ""
 
 #. module: sol_laboratory
@@ -15380,6 +15385,13 @@ msgid "Sample collection"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__collection_travel_minutes
+msgid ""
+"Sample delivery staff cannot take two collections whose appointments are "
+"closer than this."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:mail.message.subtype,name:sol_laboratory.event_sample_insufficient
 msgid "Sample insufficient"
 msgstr ""
@@ -19222,6 +19234,14 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__resource_calendar_id
 msgid "Working Hours"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__safety_margin_days
+msgid ""
+"Working days a sample test is due before the date promised to the customer, "
+"kept for handling incidents. Applies to sample tests whose due date is "
+"worked out from now on."
 msgstr ""
 
 #. module: sol_laboratory

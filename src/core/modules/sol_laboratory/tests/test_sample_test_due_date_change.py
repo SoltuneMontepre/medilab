@@ -71,8 +71,8 @@ class TestSampleTestDueDateChange(SchedulingCase):
 
         self.request.committed_date = "2026-11-10"
         self.assertEqual(self.test.due_date, FRIDAY)
-        # 2026-11-08 23:59:59 in Vietnam.
-        self.assertEqual(automatic.due_date, datetime(2026, 11, 8, 16, 59, 59))
+        # Two working days before Tuesday 2026-11-10: 2026-11-06 23:59:59 in Vietnam.
+        self.assertEqual(automatic.due_date, datetime(2026, 11, 6, 16, 59, 59))
         self.assertFalse(self.test.due_date_conflict)
 
         # The expected date now gives 2026-10-15 23:59:59 in Vietnam, before the changed date.
@@ -86,8 +86,8 @@ class TestSampleTestDueDateChange(SchedulingCase):
 
         self.test.with_user(self.head.user_id).action_clear_due_date()
 
-        # 2026-10-18 23:59:59 in Vietnam.
-        self.assertEqual((self.test.due_date, self.test.due_date_reason), (datetime(2026, 10, 18, 16, 59, 59), False))
+        # Two working days before Tuesday 2026-10-20: 2026-10-16 23:59:59 in Vietnam.
+        self.assertEqual((self.test.due_date, self.test.due_date_reason), (datetime(2026, 10, 16, 16, 59, 59), False))
 
     def test_a_non_working_day_is_reported_and_a_holiday_counted_as_working_time_is_accepted(self):
         self.assertFalse(self.wizard(self.head, FRIDAY).due_on_non_working_day)

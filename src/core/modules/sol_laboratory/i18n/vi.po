@@ -2404,16 +2404,6 @@ msgid "Days Sales Outstanding (DSO)"
 msgstr "Thời gian thu hồi tiền hàng tồn đọng (DSO)"
 
 #. module: sol_laboratory
-#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__safety_margin_days
-msgid ""
-"Days a sample test is due before the date promised to the customer, kept for "
-"handling incidents. Applies to sample tests whose due date is worked out "
-"from now on."
-msgstr ""
-"Số ngày chỉ tiêu của mẫu đến hạn trước ngày đã hẹn trả khách hàng, dành để "
-"xử lý sự cố. Áp dụng cho các chỉ tiêu của mẫu được tính hạn từ bây giờ."
-
-#. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__laboratory_folder_retention_days
 msgid ""
 "Days an archived laboratory folder keeps its files and versions; archiving a "
@@ -19670,3 +19660,31 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__place
 msgid "Place"
 msgstr "Địa Điểm"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task_collection_travel.py:0
+msgid ""
+"%(person)s already collects %(other)s at %(time)s, too close to %(task)s to "
+"travel between them."
+msgstr "%(person)s đã có lịch thu %(other)s lúc %(time)s, quá gần %(task)s để kịp di chuyển giữa hai nơi."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__collection_travel_minutes
+msgid "Collection Travel Buffer (minutes)"
+msgstr "Thời gian di chuyển giữa các lần thu mẫu (phút)"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__collection_travel_minutes
+msgid ""
+"Sample delivery staff cannot take two collections whose appointments are "
+"closer than this."
+msgstr "Nhân viên giao nhận mẫu không thể nhận hai lần thu mẫu có lịch hẹn gần nhau hơn khoảng này."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__safety_margin_days
+msgid ""
+"Working days a sample test is due before the date promised to the customer, "
+"kept for handling incidents. Applies to sample tests whose due date is "
+"worked out from now on."
+msgstr "Số ngày làm việc chỉ tiêu của mẫu đến hạn trước ngày đã hẹn trả khách hàng, dành để xử lý sự cố. Áp dụng cho các chỉ tiêu của mẫu được tính hạn từ bây giờ."

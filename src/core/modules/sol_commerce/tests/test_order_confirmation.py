@@ -16,7 +16,8 @@ CREDIT_MIGRATION = Path(__file__).resolve().parents[1] / "migrations" / "20.0.1.
 class TestOrderConfirmation(OrderCase):
     def accepted_unpaid_order(self, lines=None):
         order = self.make_quotable_order(lines)
-        order.advance_method = "none"
+        # The balance waits for the report, so it holds neither the collection nor the reception.
+        order.write({"advance_method": "none", "balance_due": "before_report"})
         order.with_user(self.head).action_send_quotation()
         order._latest_quotation()._accept()
         order.with_user(self.sales).action_confirm_order()

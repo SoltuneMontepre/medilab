@@ -1,6 +1,6 @@
 import { openTab } from "../../../support/form";
 import { callAs, callRefused } from "../../../support/odoo";
-import { CUSTOMERS, SAMPLING_LINES, orderAt } from "./setup";
+import { CUSTOMERS, SAMPLING_LINES, orderAt, payAdvance } from "./setup";
 
 describe("WF-01 order confirmation and test request (F-10)", () => {
   it("TC-F10-01 carries the accepted quotation's expected samples to the test request", () => {
@@ -38,14 +38,18 @@ describe("WF-01 order confirmation and test request (F-10)", () => {
     });
   });
 
-  it("TC-F10-02 lets sample collection start while the order balance is unpaid", () => {
+  it("TC-F10-02 holds the sample collection of a portal order until its balance is paid", () => {
     orderAt("confirmed", { advance: false }).then((order) => {
       cy.signInAs("sales");
       cy.openRecord(order);
-      // The balance is due before the report is released, not before the samples are collected.
-      cy.readRecord(order, ["payment_status"]).its("payment_status").should("not.eq", "paid");
+      cy.readRecord(order, ["payment_status", "balance_due"]).should((read) => {
+        expect(read.payment_status).not.to.equal("paid");
+        expect(read.balance_due).to.equal("before_collection");
+      });
+      cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]").should("not.exist");
+      payAdvance(order);
+      cy.openRecord(order);
       cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]:visible").should("exist");
-      cy.readRecord(order, ["order_status"]).its("order_status").should("eq", "confirmed");
     });
   });
 });

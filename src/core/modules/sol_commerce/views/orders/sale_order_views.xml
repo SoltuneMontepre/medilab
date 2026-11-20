@@ -130,7 +130,14 @@
                     type="object"
                     string="Confirm order"
                     class="btn-success"
-                    invisible="order_status != 'claimed' or state == 'draft' or quotation_follow_up not in ('paid', 'accepted')"
+                    invisible="order_status != 'claimed' or state == 'draft' or quotation_follow_up not in ('paid', 'accepted') and not (source == 'sales' and advance_method == 'none' and quotation_follow_up == 'unpaid')"
+                />
+                <button
+                    name="action_print_quotation"
+                    type="object"
+                    string="Print quotation"
+                    class="btn-secondary"
+                    invisible="not quotation_follow_up or state == 'draft'"
                 />
                 <field name="has_open_collection" invisible="1" />
                 <button

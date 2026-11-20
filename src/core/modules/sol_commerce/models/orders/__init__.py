@@ -31,6 +31,7 @@ from . import (
     sale_order_template,
     sale_order_totals,
     sample_collection_start,
+    sample_test_risk,
     scheduled_job_collection,
     task,
     test_report,
