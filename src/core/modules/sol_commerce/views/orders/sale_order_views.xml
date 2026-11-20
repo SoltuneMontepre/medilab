@@ -305,7 +305,6 @@
                 <field name="requested_date" invisible="not requested_date and state != 'draft'" />
                 <field name="priority_request" invisible="not priority_request" decoration-warning="priority_request == 'requested'" widget="badge" />
                 <field name="test_request_id" readonly="1" invisible="not test_request_id" />
-                <field name="test_request_status" readonly="1" invisible="not test_request_id" />
                 <field name="collection_summary" invisible="not collection_summary" />
                 <field name="show_unpaid_warning" invisible="1" />
                 <field name="can_invoice_credit_order" invisible="1" />
@@ -352,6 +351,7 @@
                 <group name="medilab_timeline" string="Timeline">
                     <field name="source" readonly="1" />
                     <field name="turnaround_days" readonly="1" invisible="not turnaround_days" />
+                    <field name="test_request_status" readonly="1" invisible="not test_request_id" />
                     <field name="submitted_at" readonly="1" invisible="not submitted_at" />
                     <field name="claimed_at" readonly="1" invisible="not claimed_at" />
                     <field name="quoted_at" invisible="not quoted_at" />
