@@ -51,6 +51,7 @@
             "sol_theme/static/src/js/boolean_button_group_field.js",
             "sol_theme/static/src/js/chatter_resize.js",
             "sol_theme/static/src/js/list_column_widths.js",
+            "sol_theme/static/src/js/list_group_text.js",
             "sol_theme/static/src/js/user_menu.js",
             "sol_theme/static/src/xml/app_drawer.xml",
             "sol_theme/static/src/xml/boolean_button_group_field.xml",

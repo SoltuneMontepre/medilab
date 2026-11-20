@@ -133,3 +133,15 @@ msgstr ""
 #: code:addons/sol_theme/static/src/js/boolean_button_group_field.js:0
 msgid "Yes"
 msgstr "Có"
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/js/list_group_text.js:0
+msgid "%s record"
+msgstr "%s bản ghi"
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/js/list_group_text.js:0
+msgid "%s records"
+msgstr "%s bản ghi"
