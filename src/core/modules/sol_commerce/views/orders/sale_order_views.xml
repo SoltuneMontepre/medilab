@@ -290,9 +290,8 @@
                 <attribute name="readonly">not customer_id or state in ['cancel', 'sale']</attribute>
             </xpath>
             <xpath expr="//group[@name='partner_details']" position="inside">
-                <field name="source" readonly="1" />
                 <field name="reordered_from_id" readonly="1" invisible="not reordered_from_id" />
-                <field name="requested_date" invisible="not requested_date and order_status in ('confirmed', 'completed', 'cancelled')" />
+                <field name="requested_date" invisible="not requested_date and state != 'draft'" />
                 <field name="priority_request" invisible="not priority_request" decoration-warning="priority_request == 'requested'" widget="badge" />
                 <field name="test_request_id" readonly="1" invisible="not test_request_id" />
                 <field name="test_request_status" readonly="1" invisible="not test_request_id" />
@@ -314,7 +313,6 @@
                      confirmed. -->
                 <field name="payment_deadline" invisible="state == 'draft' or order_status in ('confirmed', 'completed', 'cancelled')" />
                 <field name="expected_collection_date" readonly="state != 'draft'" />
-                <field name="turnaround_days" readonly="1" invisible="not turnaround_days" />
                 <div class="text-warning" colspan="2" invisible="not turnaround_missing">
                     No standard turnaround yet: <field name="turnaround_missing" class="d-inline" />
                 </div>
@@ -341,6 +339,8 @@
             </xpath>
             <xpath expr="//group[@name='sale_reporting']" position="after">
                 <group name="medilab_timeline" string="Timeline">
+                    <field name="source" readonly="1" />
+                    <field name="turnaround_days" readonly="1" invisible="not turnaround_days" />
                     <field name="submitted_at" readonly="1" invisible="not submitted_at" />
                     <field name="claimed_at" readonly="1" invisible="not claimed_at" />
                     <field name="quoted_at" invisible="not quoted_at" />
