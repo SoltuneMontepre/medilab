@@ -1,7 +1,7 @@
 import hashlib
 import json
 import secrets
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 from urllib.parse import urljoin
 
 from odoo import fields, models
@@ -32,9 +32,11 @@ class ResPartner(models.Model, ResPartnerBase):
 
     def write(self, vals):
         corrected = self.filtered(
-            lambda partner: partner.email_bounced
-            and vals.get("email")
-            and (partner.email or "").strip().lower() != vals["email"].strip().lower()
+            lambda partner: bool(
+                partner.email_bounced
+                and vals.get("email")
+                and (partner.email or "").strip().lower() != vals["email"].strip().lower()
+            )
         )
         result = super().write(vals)
         for partner in corrected:
@@ -66,7 +68,7 @@ class ResPartner(models.Model, ResPartnerBase):
                 "body_html": message.body,
                 "email_from": self.env.company.email or self.env.user.email or "notifications@localhost",
                 "email_to": self.email,
-                "recipient_ids": [Command.link(self.id)],
+                "recipient_ids": [Command.link(cast("int", self.id))],
                 "email_confirmation": True,
                 "mail_message_id": message.id,
                 "auto_delete": False,

@@ -1,5 +1,5 @@
 import os
-from datetime import timedelta
+from datetime import datetime, timedelta
 from unittest.mock import patch
 
 import requests
@@ -171,6 +171,7 @@ class TestNotifications(TransactionCase):
                 next_attempt = item.job_id._handle_notifications_email(item)
                 self.assertEqual(notification.email_retry_attempts, attempt)
                 if attempt <= retry_count:
+                    next_attempt = assert_instance(next_attempt, datetime)
                     expected = attempted_at + timedelta(hours=retry_hours)
                     self.assertLessEqual(expected, next_attempt)
                     self.assertLessEqual(next_attempt, expected + timedelta(seconds=1))
