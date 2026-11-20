@@ -207,7 +207,7 @@ class LaboratoryFolder(models.Model, LaboratoryFolderBase):
         files = self.file_ids.sudo()
         files._lock_for_signing()
         versions = files.version_ids.sudo()
-        signed = versions.filtered(lambda version: version.approval_state == "approved" or version.signature_ids)
+        signed = versions.filtered(lambda version: version.approval_state == "approved" or bool(version.signature_ids))
         removable = versions - signed
         contents = removable.content_id
         if removable:

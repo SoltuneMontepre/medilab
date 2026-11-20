@@ -19853,3 +19853,9 @@ msgstr "Liên kết xác nhận email này không hợp lệ hoặc đã đượ
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__place
 msgid "Place"
 msgstr "Địa Điểm"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version.py:0
+msgid "A version without stored content must record its retention removal."
+msgstr "Phiên bản không có nội dung lưu trữ phải ghi nhận việc xóa theo thời hạn lưu trữ."

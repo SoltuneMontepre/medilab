@@ -3,7 +3,6 @@ from datetime import timedelta
 from odoo import fields
 from odoo.exceptions import UserError
 from odoo.tests import tagged
-from odoo.tools import SQL
 
 from .audit_case import AuditLookup
 from .laboratory_files_case import LaboratoryFilesCase
@@ -25,8 +24,8 @@ class TestLaboratoryFolderRetention(AuditLookup, LaboratoryFilesCase):
     def expire(self, folder):
         folder.with_user(self.administrator).action_archive_folder()
         self.env.cr.execute(
-            SQL("UPDATE medilab_laboratory_folder SET retention_until = %s WHERE id = %s"),
-            (fields.Date.context_today(folder) - timedelta(days=1), folder.id),
+            "UPDATE medilab_laboratory_folder SET retention_until = %s WHERE id = %s",
+            [fields.Date.context_today(folder) - timedelta(days=1), folder.id],
         )
         folder.invalidate_recordset(["retention_until"])
 
