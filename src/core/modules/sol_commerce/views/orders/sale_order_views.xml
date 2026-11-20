@@ -157,11 +157,26 @@
                     invisible="order_status != 'confirmed' or not test_request_id"
                     groups="sol_laboratory.group_permission_committed_date_change_create_all"
                 />
+                <span
+                    class="vr mx-2 align-self-center"
+                    style="height: 1.5rem;"
+                    invisible="not can_record_collection and not can_record_agreement"
+                />
                 <button name="%(action_payment_collection)d" type="action" string="Record payment" class="btn-primary"
                     context="{'default_order_id': id}" invisible="not can_record_collection" groups="base.group_user" />
                 <button name="%(action_quotation_agreement)d" type="action" string="Record agreement" class="btn-secondary"
                     context="{'default_order_id': id}" invisible="not can_record_agreement" groups="base.group_user" />
+                <span
+                    class="vr mx-2 align-self-center"
+                    style="height: 1.5rem;"
+                    invisible="not can_save_order_template"
+                />
                 <button name="action_save_as_template" type="object" string="Save as template" class="btn-secondary" invisible="not can_save_order_template" groups="sol_laboratory.group_permission_order_template_create_all" />
+                <span
+                    class="vr mx-2 align-self-center"
+                    style="height: 1.5rem;"
+                    invisible="order_status in ('completed', 'cancelled')"
+                />
                 <button
                     name="action_sales_cancel"
                     type="object"

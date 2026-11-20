@@ -5,13 +5,25 @@
         <field name="model">medilab.payment.collection</field>
         <field name="arch" type="xml">
             <form>
+                <field name="currency_id" invisible="1" />
+                <field name="payment_request_id" invisible="1" />
                 <group>
-                    <field name="order_id" options="{'no_open': True}" />
-                    <field name="currency_id" invisible="1" />
-                    <field name="amount" />
-                    <field name="method" />
-                    <field name="received_at" />
-                    <field name="reference" />
+                    <group string="Quotation">
+                        <field name="order_id" options="{'no_open': True}" />
+                        <field name="customer_id" options="{'no_open': True}" />
+                        <field name="order_total" />
+                        <field name="request_kind" invisible="not payment_request_id" />
+                        <field name="request_amount" invisible="not payment_request_id or not verified_amount" />
+                        <field name="verified_amount" invisible="not verified_amount" />
+                        <field name="remaining_amount" invisible="not payment_request_id" />
+                        <field name="deadline" invisible="not deadline" />
+                    </group>
+                    <group string="Payment">
+                        <field name="amount" />
+                        <field name="method" />
+                        <field name="received_at" />
+                        <field name="reference" />
+                    </group>
                 </group>
                 <footer>
                     <button name="action_record" type="object" string="Record payment" class="btn-success" />
