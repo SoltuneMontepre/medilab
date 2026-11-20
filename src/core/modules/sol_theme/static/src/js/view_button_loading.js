@@ -1,4 +1,4 @@
-import { useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { patch } from "@web/core/utils/patch";
 import { ViewButton } from "@web/views/view_button/view_button";
 
@@ -6,7 +6,7 @@ import { ViewButton } from "@web/views/view_button/view_button";
 patch(ViewButton.prototype, {
   setup() {
     super.setup();
-    this.medilabLoading = useState({ active: false });
+    this.medilabLoading = proxy({ active: false });
     const baseHandler = this.handleViewButton;
     this.handleViewButton = (params) => {
       this.medilabLoading.active = true;
