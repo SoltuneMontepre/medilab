@@ -10,9 +10,11 @@
                 <field name="payment_request_id" readonly="1" invisible="not payment_request_id" />
                 <field name="collection_review" invisible="not collection_review" />
                 <field name="received_at" readonly="state != 'draft' or method == 'online'" invisible="not method" />
-                <field name="reviewed_by_id" />
-                <field name="reviewed_at" />
-                <field name="rejection_reason" readonly="state != 'draft'" />
+            </xpath>
+            <xpath expr="//field[@name='payment_method_line_id']" position="after">
+                <field name="reviewed_by_id" invisible="not reviewed_by_id" />
+                <field name="reviewed_at" invisible="not reviewed_at" />
+                <field name="rejection_reason" readonly="state != 'draft'" invisible="state != 'draft' and not rejection_reason" />
                 <field name="exceeds_residual" invisible="not exceeds_residual" />
             </xpath>
             <button name="action_post" position="after">

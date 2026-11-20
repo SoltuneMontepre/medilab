@@ -486,9 +486,16 @@
     }
 }
 
-.oe_stat_button {
+.oe_stat_button,
+.o_embedded_actions .btn.oe_stat_button {
     border-radius: $ml-radius !important;
     border-color: $ml-border !important;
+    height: auto !important;
+    min-height: 2.35rem;
+    padding: 0.35rem 0.75rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.5rem;
 
     &:hover {
         background: $ml-bg !important;
@@ -496,10 +503,16 @@
 
     .o_button_icon {
         color: $ml-accent;
+        margin: 0 !important;
     }
 
-    .o_field_statinfo {
+    .o_field_statinfo,
+    .o_stat_info {
+        display: inline-flex !important;
+        flex-direction: row !important;
+        align-items: baseline !important;
         column-gap: 0.35rem;
+        line-height: 1.25;
 
         .o_stat_value {
             font-weight: 700;
