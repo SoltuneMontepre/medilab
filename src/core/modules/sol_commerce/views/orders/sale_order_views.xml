@@ -168,7 +168,7 @@
                     name="action_awaiting_payment_confirmation"
                     type="object"
                     string="Awaiting confirmation"
-                    class="btn-secondary"
+                    class="btn-warning"
                     disabled="1"
                     invisible="can_record_collection or not pending_amount or payment_status == 'paid' or state == 'cancel'"
                     groups="base.group_user"
