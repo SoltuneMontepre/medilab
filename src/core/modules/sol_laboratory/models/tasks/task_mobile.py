@@ -98,7 +98,7 @@ class TaskMobile(models.Model, TaskMobileBase):
                 "done_at": api_datetime(task.done_at),
                 "department": task.sudo().department_id.display_name or "",
                 "assignee": task.sudo().assignee_id.name or "",
-                "location": task.sampling_location_id.display_name or "",
+                "location": task.place or task.sampling_location_id.display_name or "",
                 "closed_by_system": task.closed_by_system,
                 "document": documents.get(task.id),
             }

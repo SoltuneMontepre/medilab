@@ -3,6 +3,7 @@ from . import (
     account_move_task,
     account_payment,
     account_payment_register,
+    account_payment_task,
     audit_entry,
     cash_flow_report,
     invoice_adjustment,

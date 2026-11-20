@@ -22,4 +22,17 @@ class SampleScan(models.TransientModel, SampleScanBase):
     def action_confirm(self):
         self.ensure_one()
         handover = self.env[MODEL_SAMPLE_HANDOVER].receive_by_label(self.code)
-        return handover._get_records_action()
+        # Confirm the receipt and open the scan again for the next label.
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "type": "success",
+                "message": self.env._(
+                    "%(department)s received %(sample)s.",
+                    department=handover.department_id.display_name,
+                    sample=handover.sample_id.code,
+                ),
+                "next": self.env["ir.actions.act_window"]._for_xml_id("sol_laboratory.action_medilab_sample_scan"),
+            },
+        }

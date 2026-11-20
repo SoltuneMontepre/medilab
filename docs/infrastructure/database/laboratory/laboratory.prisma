@@ -579,6 +579,8 @@ model ParameterMethod {
   allows_negative  Boolean         @default(false)
   /// Minutes a booking of the way takes when its method is linked to no machine, covering preparation, measurement and time to repeat a failed measurement; rounded up to 15-minute slots. Empty when the method has a machine, whose link gives the duration; an in-house way without either cannot be booked.
   duration_minutes Int?
+  /// Standard turnaround: the working days its results take from sample receipt; for a subcontracted way it covers transport and the subcontractor's processing. A quotation with a way without it cannot be sent.
+  turnaround_days  Int?
   /// Samples one interval of a tester holds for bookings of the way when its method is linked to no machine; at least 1.
   capacity         Int             @default(1)
   /// Days from sending a dispatch through the subcontracted way until its results are back, transport and processing included; empty when unknown or for an in-house way.
@@ -978,8 +980,10 @@ model TestRequest {
   requested_date DateTime? @db.Date
   /// Committed return date: the date Sales promised the customer the results. Only Sales changes it, with the customer's agreement; each change is a CommittedDateChange.
   committed_date DateTime? @db.Date
-  /// True for an accepted priority request: the requested date is earlier than the estimate and the check said it can be met, so its tests are urgent.
+  /// True for an accepted priority request: the feasibility check said the requested date can be met, so its tests are urgent.
   priority      Boolean  @default(false)
+  /// Working days results take from sample receipt, the longest standard turnaround of the accepted ways; receiving the first sample fixes the committed date with it when none was agreed.
+  turnaround_days Int?
   /// Language the customer wants the report in: vi, en or bilingual.
   report_language String @default("bilingual") @db.VarChar
   /// How the report reaches the customer: in_person, post, email or other.

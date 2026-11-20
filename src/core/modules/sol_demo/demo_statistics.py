@@ -22,7 +22,7 @@ def seed_statistics(env):
         env,
         env.ref("sol_demo.demo_customer_green_farm"),
         [(name, (lead,)) for name in SAMPLE_NAMES],
-        expected_date=fields.Date.today() + timedelta(days=7),
+        committed_date=fields.Date.today() + timedelta(days=7),
     )
     on_time, late, cancelled, overdue, retested = (_test(sample, lead) for sample in request.sample_ids.sorted("id"))
 
