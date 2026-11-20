@@ -1,8 +1,14 @@
-import { defaultDeadline, parseDeadline } from "./deadline";
+import { deadlineIn, defaultDeadline, parseDeadline, quickDays } from "./deadline";
 
 describe("deadline", () => {
   it("starts a new task due tomorrow at 17:00", () => {
     expect(defaultDeadline(new Date(2026, 11, 31, 10, 30))).toBe("2027-01-01 17:00");
+  });
+
+  it("offers today only while 17:00 is still to come, then tomorrow and in three days", () => {
+    expect(quickDays(new Date(2026, 10, 20, 9, 0))).toEqual([0, 1, 3]);
+    expect(quickDays(new Date(2026, 10, 20, 17, 30))).toEqual([1, 3]);
+    expect(deadlineIn(3, new Date(2026, 10, 30, 9, 0))).toBe("2026-12-03 17:00");
   });
 
   it("reads a date and time typed on the phone in its time zone", () => {

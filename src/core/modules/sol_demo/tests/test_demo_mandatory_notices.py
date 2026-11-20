@@ -27,3 +27,22 @@ class TestDemoMandatoryNotices(TransactionCase):
         _user, after = self.portal_of_registered()
         self.assertEqual(after, before)
         self.assertEqual(after.filtered("portal_seen_at").portal_seen_at, seen)
+
+    def test_the_customer_waiting_for_an_email_retry_has_a_future_attempt(self):
+        hoa = self.env.ref("sol_demo.demo_res_partner_hoa")
+        message = self.env.ref("sol_demo.demo_mail_message_temporary_email_retry")
+        notification = message.notification_ids.filtered(lambda item: item.res_partner_id == hoa)
+
+        self.assertEqual(notification.email_retry_attempts, 1)
+        self.assertTrue(notification.next_email_retry_at)
+        self.assertEqual(notification.mail_mail_id.state, "exception")
+
+    def test_the_corrected_address_waits_for_confirmation(self):
+        tai = self.env.ref("sol_demo.demo_res_partner_tai")
+        confirmation = self.env["mail.mail"].search(
+            [("email_to", "=", tai.email), ("email_confirmation", "=", True)], limit=1
+        )
+
+        self.assertTrue(tai.email_bounced)
+        self.assertTrue(tai.email_confirmation_token)
+        self.assertTrue(confirmation)

@@ -2744,3 +2744,8 @@ msgstr "%s là dung dịch pha chế nên được pha tại phòng thí nghiệ
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_quant_search
 msgid "Premises Location"
 msgstr "Vị trí trong cơ sở"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_res_partner__email_confirmation_token
+msgid "Email Confirmation Token"
+msgstr "Mã xác nhận email"

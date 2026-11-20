@@ -1,75 +1,134 @@
 import { router } from "expo-router";
 import { useCallback, useEffect } from "react";
-import { AppState, Pressable, ScrollView, Text } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { AppState, Pressable, StyleSheet, Text, View } from "react-native";
 
 import type { Conversation } from "../../api";
+import { useBadges } from "../../badges";
 import { useT } from "../../locale";
-import { useRecord } from "../../record";
 import { watchMessagePushes } from "../../push";
+import { useRecord } from "../../record";
+import { useSession } from "../../session";
 import { styles as shared } from "../../styles";
-import { LoadNotice } from "../connection/LoadNotice";
+import { colors, fontSize, radius, space } from "../../theme";
 import { conversationPath } from "../documents/documentPath";
-import { Button } from "../shared/Button";
+import { Avatar } from "../shared/Avatar";
+import { Icon } from "../shared/Icon";
+import { NavButton } from "../shared/Navbar";
+import { RecordList } from "../shared/RecordList";
+import { Screen } from "../shared/Screen";
 
 /** The person's direct and group conversations, as Discuss on the web has them, with their unread messages: read
  * again on a message push, when the app comes back to the foreground and when the person returns to the list. */
 export function ConversationsScreen() {
   const t = useT();
-  const { load, reload } = useRecord<{ conversations: Conversation[] }>("/conversations");
-  const refresh = useCallback(() => void reload(), [reload]);
+  const { showConversations } = useBadges();
+  const { load, reload, refresh } = useRecord<{ conversations: Conversation[] }>("/conversations");
+  const again = useCallback(() => void refresh(), [refresh]);
 
-  useEffect(() => watchMessagePushes(refresh), [refresh]);
+  useEffect(() => watchMessagePushes(again), [again]);
   useEffect(() => {
-    const listening = AppState.addEventListener("change", (state) => state === "active" && refresh());
+    const listening = AppState.addEventListener("change", (state) => state === "active" && again());
     return () => listening.remove();
-  }, [refresh]);
+  }, [again]);
+  useEffect(() => {
+    if (load.state === "ready") {
+      showConversations(load.value.conversations);
+    }
+  }, [load, showConversations]);
 
   return (
-    <SafeAreaView style={shared.page}>
-      <ScrollView contentContainerStyle={shared.pageContent}>
-        <Text style={shared.title}>{t("conversations.title")}</Text>
-        <Button
-          testID="conversations-new"
-          primary
+    <Screen
+      title={t("conversations.title")}
+      tab
+      scroll={false}
+      actions={
+        <NavButton
+          icon="message-plus-outline"
           label={t("conversations.new")}
+          testID="conversations-new"
           onPress={() => router.push("/conversations/new")}
         />
-        <LoadNotice load={load} gone={t("conversations.empty")} onRetry={reload} />
-        {load.state === "ready" && !load.value.conversations.length && (
-          <Text style={shared.detail}>{t("conversations.empty")}</Text>
-        )}
-        {load.state === "ready" &&
-          load.value.conversations.map((conversation) => <Row key={conversation.id} conversation={conversation} />)}
-      </ScrollView>
-    </SafeAreaView>
+      }
+    >
+      <RecordList
+        load={load}
+        items={load.state === "ready" ? load.value.conversations : []}
+        keyOf={(conversation) => conversation.id}
+        renderItem={(conversation) => <Row conversation={conversation} />}
+        icon="message-text-outline"
+        empty={t("conversations.empty")}
+        onRetry={reload}
+        onRefresh={refresh}
+      />
+    </Screen>
   );
 }
 
 function Row({ conversation }: Readonly<{ conversation: Conversation }>) {
   const t = useT();
+  const { language } = useSession();
   const unread = conversation.unread ? t("conversations.unread", { count: conversation.unread }) : null;
   const muted = conversation.muted ? t("conversations.muted") : null;
+  const last = conversation.last_message;
   return (
     <Pressable
       testID={`conversation-${conversation.id}`}
       accessibilityRole="button"
       accessibilityLabel={[conversation.name, unread, muted].filter(Boolean).join(", ")}
-      style={shared.card}
+      style={({ pressed }) => [shared.card, styles.row, pressed && styles.pressed]}
       onPress={() => router.push(conversationPath(conversation.id))}
     >
-      <Text style={[shared.label, !!unread && { fontWeight: "700" }]}>{conversation.name}</Text>
-      {!!conversation.last_message && (
-        <Text style={shared.detail} numberOfLines={1}>
-          {conversation.last_message.mine ? t("messages.you") : conversation.last_message.author}:{" "}
-          {conversation.last_message.text || conversation.last_message.attachments.map((file) => file.name).join(", ")}
-        </Text>
-      )}
-      {[unread, muted].filter(Boolean).map((tag) => (
-        <Text key={tag} style={shared.detail}>
-          {tag}
-        </Text>
-      ))}
+      <Avatar name={conversation.name} size={44} />
+      <View style={styles.text}>
+        <View style={styles.head}>
+          <Text style={[shared.label, styles.name, !!unread && styles.unread]} numberOfLines={1}>
+            {conversation.name}
+          </Text>
+          {muted && <Icon name="bell-off-outline" size={16} />}
+          {!!last && <Text style={shared.detail}>{shortTime(last.date, language)}</Text>}
+        </View>
+        <View style={styles.head}>
+          <Text style={[shared.detail, styles.preview]} numberOfLines={1}>
+            {last
+              ? `${last.mine ? t("messages.you") : last.author}: ${last.text || last.attachments.map((file) => file.name).join(", ")}`
+              : ""}
+          </Text>
+          {!!conversation.unread && (
+            <View style={styles.count}>
+              <Text style={styles.countText}>{conversation.unread}</Text>
+            </View>
+          )}
+        </View>
+      </View>
     </Pressable>
   );
 }
+
+// The time of a message of today, or its day otherwise.
+function shortTime(value: string, language: string): string {
+  const date = new Date(value);
+  const today = new Date().toDateString() === date.toDateString();
+  return today
+    ? date.toLocaleTimeString(language, { hour: "2-digit", minute: "2-digit" })
+    : date.toLocaleDateString(language, { day: "2-digit", month: "2-digit" });
+}
+
+const styles = StyleSheet.create({
+  row: { flexDirection: "row", alignItems: "center", gap: space.md },
+  pressed: { backgroundColor: colors.primaryLight },
+  text: { flex: 1, gap: 2 },
+  head: { flexDirection: "row", alignItems: "center", gap: space.sm },
+  name: { flex: 1 },
+  unread: { fontWeight: "700" },
+  preview: { flex: 1 },
+  count: {
+    minWidth: 22,
+    height: 22,
+    borderRadius: radius.pill,
+    paddingHorizontal: 6,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.accent,
+  },
+  countText: { fontSize: fontSize.xs, fontWeight: "700", color: colors.textOnPrimary },
+});

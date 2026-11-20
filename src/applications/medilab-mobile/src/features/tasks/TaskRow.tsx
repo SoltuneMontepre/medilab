@@ -1,35 +1,62 @@
-import { Pressable, StyleSheet, Text } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import type { Task } from "../../api";
 import { useT } from "../../locale";
 import { useSession } from "../../session";
-import { colors, styles as shared } from "../../styles";
-import { formatMoment, statusKey } from "./taskText";
+import { styles as shared } from "../../styles";
+import { colors, space } from "../../theme";
+import { Badge } from "../shared/Badge";
+import { Icon, type IconName } from "../shared/Icon";
+import { isOverdue, statusKey, statusTone, taskLabel, whenText } from "./taskText";
 
-/** A task in a list: its name, its document's code, its status and its deadline, or when it was done. */
+/** A task in a list, as a card of the web's kanban: its name and status, then its document's code, its deadline, or
+ * when it was done, and its place. */
 export function TaskRow({ task, onPress }: Readonly<{ task: Task; onPress: () => void }>) {
   const t = useT();
   const { language } = useSession();
-  const when = task.status === "done" ? task.done_at : task.deadline;
-  const whenKey = task.status === "done" ? "task.doneAt" : "task.deadline";
-  const whenText = when ? t(whenKey, { date: formatMoment(when, language) }) : "";
-  const overdue = task.status !== "done" && !!task.deadline && new Date(task.deadline) < new Date();
+  const when = whenText(task, t, language);
+  const overdue = isOverdue(task);
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={[task.name, task.document?.code, t(statusKey(task.status)), whenText].filter(Boolean).join(", ")}
-      style={shared.card}
+      accessibilityLabel={taskLabel(task, t, language)}
+      style={({ pressed }) => [shared.card, styles.card, pressed && styles.pressed]}
       testID="task-row"
       onPress={onPress}
     >
-      <Text style={shared.label}>{task.name}</Text>
-      {!!task.document?.code && <Text style={shared.detail}>{task.document.code}</Text>}
-      <Text style={shared.detail}>{t(statusKey(task.status))}</Text>
-      {!!whenText && <Text style={[shared.detail, overdue && styles.overdue]}>{whenText}</Text>}
+      <View style={styles.head}>
+        <Text style={[shared.label, styles.name]} numberOfLines={2}>
+          {task.name}
+        </Text>
+        <Badge label={t(statusKey(task.status))} tone={statusTone(task.status)} />
+      </View>
+      <View style={styles.facts}>
+        {!!task.document?.code && <Fact icon="pound" text={task.document.code} />}
+        {!!when && <Fact icon={overdue ? "clock-alert-outline" : "clock-outline"} text={when} alert={overdue} />}
+        {!!task.location && <Fact icon="map-marker-outline" text={task.location} />}
+      </View>
     </Pressable>
   );
 }
 
+/** A fact of a task beside its icon; an overdue deadline is red and bold. */
+export function Fact({ icon, text, alert = false }: Readonly<{ icon: IconName; text: string; alert?: boolean }>) {
+  return (
+    <View style={styles.fact}>
+      <Icon name={icon} size={15} color={alert ? colors.danger : colors.textMuted} />
+      <Text style={[shared.detail, alert && styles.overdue]} numberOfLines={1}>
+        {text}
+      </Text>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
-  overdue: { color: colors.error },
+  card: { gap: space.sm },
+  pressed: { backgroundColor: colors.primaryLight },
+  head: { flexDirection: "row", alignItems: "flex-start", gap: space.sm },
+  name: { flex: 1 },
+  facts: { flexDirection: "row", flexWrap: "wrap", columnGap: space.md, rowGap: space.xs },
+  fact: { flexDirection: "row", alignItems: "center", gap: space.xs, maxWidth: "100%" },
+  overdue: { color: colors.danger, fontWeight: "600" },
 });

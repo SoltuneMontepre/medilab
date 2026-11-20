@@ -100,7 +100,7 @@ describe("SamplePhotos", () => {
     const mediLab = fakeMediLab({ status: 200, body: sample() });
     await renderSignedIn(<SampleScreen />);
 
-    expect(await screen.findByText("PTN.2026.0042")).toBeOnTheScreen();
+    expect(await screen.findByRole("header", { name: "PTN.2026.0042" })).toBeOnTheScreen();
     expect(screen.queryByText("Ảnh mẫu")).toBeNull();
     expect(screen.queryByTestId("take-photo")).toBeNull();
     expect(mediLab.sent).toHaveLength(1);
