@@ -6448,3 +6448,8 @@ msgstr "Đơn hàng đã được tiếp nhận"
 #: code:addons/sol_commerce/models/orders/sale_order.py:0
 msgid "Order was cancelled"
 msgstr "Đơn hàng đã bị huỷ"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Remaining"
+msgstr "Còn lại"

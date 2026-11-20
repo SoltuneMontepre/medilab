@@ -172,7 +172,9 @@ class SaleOrder(models.Model, SaleOrderBase):
                 method = method_labels.get(payment.method, payment.method or "")
                 rows.append(
                     Markup(
-                        "<tr><td>%s</td><td>%s</td><td>%s</td><td class=\"text-end\">%s</td><td>%s%s</td></tr>"
+                        '<tr><td class="px-3 py-2">%s</td><td class="px-3 py-2">%s</td>'
+                        '<td class="px-3 py-2">%s</td><td class="px-3 py-2 text-end">%s</td>'
+                        '<td class="px-3 py-2">%s%s</td></tr>'
                     )
                     % (
                         escape(received),
@@ -184,10 +186,12 @@ class SaleOrder(models.Model, SaleOrderBase):
                     )
                 )
             order.recorded_payments_html = Markup(
-                '<div class="table-responsive"><table class="table table-sm align-middle mb-0">'
-                '<thead><tr class="text-muted">'
-                '<th>%s</th><th>%s</th><th>%s</th><th class="text-end">%s</th><th>%s</th>'
-                '</tr></thead><tbody>%s</tbody></table></div>'
+                '<div class="border rounded-3 bg-white overflow-hidden">'
+                '<div class="table-responsive"><table class="table table-sm table-hover align-middle mb-0">'
+                '<thead class="table-light"><tr class="text-muted">'
+                '<th class="px-3 py-2">%s</th><th class="px-3 py-2">%s</th><th class="px-3 py-2">%s</th>'
+                '<th class="px-3 py-2 text-end">%s</th><th class="px-3 py-2">%s</th>'
+                '</tr></thead><tbody>%s</tbody></table></div></div>'
             ) % (
                 escape(field_labels["received_at"]["string"]),
                 escape(field_labels["method"]["string"]),
