@@ -46,7 +46,7 @@ class ResPartner(models.Model, ResPartnerBase):
         token = secrets.token_urlsafe(32)
         digest = hashlib.sha256(token.encode()).hexdigest()
         self.sudo().write({"email_confirmation_token": digest})
-        base_url = self.env[MODEL_IR_CONFIG_PARAMETER].sudo().get_param("web.base.url")
+        base_url = self.env[MODEL_IR_CONFIG_PARAMETER].sudo().get_str("web.base.url")
         confirmation_url = urljoin(f"{base_url.rstrip('/')}/", f"medilab/email/confirm/{token}")
         body = self.env._(
             'Confirm your corrected email address by opening <a href="%s">this link</a>.', confirmation_url
