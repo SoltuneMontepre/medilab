@@ -879,24 +879,6 @@ msgid "Check if the contact is a company, otherwise it is a person"
 msgstr "Đánh dấu nếu liên hệ này là một công ty, không đánh dấu nếu là cá nhân"
 
 #. module: sol_commerce
-#. odoo-python
-#: code:addons/sol_commerce/models/orders/sale_order_advance.py:0
-msgid ""
-"Choose how the advance is paid, or no advance, before sending the quotation."
-msgstr ""
-"Hãy chọn cách thanh toán tạm ứng, hoặc không tạm ứng, trước khi gửi báo giá."
-
-#. module: sol_commerce
-#. odoo-python
-#: code:addons/sol_commerce/models/orders/sale_order_advance.py:0
-msgid ""
-"Choose whether the advance is the full amount, a percentage or a fixed "
-"amount."
-msgstr ""
-"Hãy chọn tạm ứng là toàn bộ số tiền, một tỷ lệ phần trăm hay một số tiền cố "
-"định."
-
-#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_queue
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 msgid "Claim"
@@ -1685,16 +1667,6 @@ msgstr ""
 #: code:addons/sol_commerce/models/orders/sale_order_advance.py:0
 msgid "Only the Head of Sales can send a quotation without an advance."
 msgstr "Chỉ Trưởng phòng kinh doanh mới được gửi báo giá không tạm ứng."
-
-#. module: sol_commerce
-#. odoo-python
-#: code:addons/sol_commerce/models/orders/sale_order_advance.py:0
-msgid ""
-"Only the Head of Sales can send a quotation without an advance. Choose how "
-"it is paid."
-msgstr ""
-"Chỉ Trưởng phòng kinh doanh mới được gửi báo giá không có tạm ứng. Hãy chọn "
-"cách thanh toán."
 
 #. module: sol_commerce
 #. odoo-python
@@ -6148,3 +6120,17 @@ msgid ""
 "Working days from sample receipt to results: the longest standard turnaround"
 " of the order's ways of testing, set on each way in the catalog."
 msgstr "Số ngày làm việc từ khi nhận mẫu đến khi có kết quả: thời gian trả kết quả chuẩn dài nhất trong các cách thử của đơn hàng, được đặt cho từng cách thử trong danh mục."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_advance.py:0
+msgid "Choose how the customer pays before sending the quotation."
+msgstr "Chọn phương thức thanh toán của khách hàng trước khi gửi báo giá."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_advance.py:0
+msgid ""
+"Choose whether the advance is the full amount, a percentage, a fixed amount "
+"or none."
+msgstr "Chọn tạm ứng toàn bộ, theo phần trăm, số tiền cố định hoặc không tạm ứng."

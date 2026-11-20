@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-20 09:55+0000\n"
-"PO-Revision-Date: 2026-11-20 09:55+0000\n"
+"POT-Creation-Date: 2026-11-20 10:06+0000\n"
+"PO-Revision-Date: 2026-11-20 10:06+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -812,6 +812,8 @@ msgid "Adjustment of %s"
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_send__advance_mode
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__advance_mode
 #: model:ir.model.fields.selection,name:sol_commerce.selection__account_move__invoice_kind__advance
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_payment_request__kind__advance
 msgid "Advance"
@@ -824,15 +826,8 @@ msgstr ""
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_payment_request__advance_method
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_send__advance_method
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__advance_method
 msgid "Advance Method"
-msgstr ""
-
-#. module: sol_commerce
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_send__advance_mode
-#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__advance_mode
-msgid "Advance Mode"
 msgstr ""
 
 #. module: sol_commerce
@@ -1168,6 +1163,7 @@ msgstr ""
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_payment_collection__method__bank_transfer
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_payment_request__advance_method__bank_transfer
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__advance_method__bank_transfer
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__payment_method__bank_transfer
 msgid "Bank transfer"
 msgstr ""
 
@@ -1272,6 +1268,7 @@ msgstr ""
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_payment_collection__method__cash
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_payment_request__advance_method__cash
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__advance_method__cash
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__payment_method__cash
 msgid "Cash"
 msgstr ""
 
@@ -1365,8 +1362,7 @@ msgstr ""
 #. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_advance.py:0
-msgid ""
-"Choose how the advance is paid, or no advance, before sending the quotation."
+msgid "Choose how the customer pays before sending the quotation."
 msgstr ""
 
 #. module: sol_commerce
@@ -1391,8 +1387,8 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_advance.py:0
 msgid ""
-"Choose whether the advance is the full amount, a percentage or a fixed "
-"amount."
+"Choose whether the advance is the full amount, a percentage, a fixed amount "
+"or none."
 msgstr ""
 
 #. module: sol_commerce
@@ -2993,6 +2989,7 @@ msgstr ""
 
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__advance_method__none
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__advance_mode__none
 msgid "No advance"
 msgstr ""
 
@@ -3142,6 +3139,7 @@ msgstr ""
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_cash_flow_report__method__online
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_payment_request__advance_method__online
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__advance_method__online
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__payment_method__online
 msgid "Online"
 msgstr ""
 
@@ -3257,9 +3255,7 @@ msgstr ""
 #. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_advance.py:0
-msgid ""
-"Only the Head of Sales can send a quotation without an advance. Choose how "
-"it is paid."
+msgid "Only the Head of Sales can send a quotation without an advance."
 msgstr ""
 
 #. module: sol_commerce
@@ -3718,6 +3714,8 @@ msgstr ""
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_cash_flow_report__method
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_send__payment_method
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__payment_method
 msgid "Payment Method"
 msgstr ""
 

@@ -30,7 +30,7 @@
                         <field name="price_subtotal" />
                     </list>
                 </field>
-                <group>
+                <group class="mt-4">
                     <group string="Payment">
                         <field name="payment_method" required="1" />
                         <field name="advance_mode" required="1" />
@@ -39,13 +39,13 @@
                     </group>
                     <group string="Total">
                         <label for="discount_type" />
-                        <div class="d-flex align-items-center gap-2">
-                            <field name="discount_type" class="w-auto" />
-                            <field name="discount_percentage" class="w-25" digits="[16, 0]" invisible="discount_type != 'percentage'" />
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <field name="discount_type" class="w-50" />
+                            <field name="discount_percentage" class="w-50" digits="[16, 0]" invisible="discount_type != 'percentage'" />
                             <field name="discount_amount" class="w-50" invisible="discount_type != 'amount'" />
                             <button name="action_apply_discount" type="object" string="Apply" class="btn-secondary" invisible="not discount_percentage and not discount_amount" />
                         </div>
-                        <field name="tax_totals" widget="account-tax-totals-field" nolabel="1" colspan="2" readonly="1" />
+                        <field name="tax_totals" widget="account-tax-totals-field" nolabel="1" colspan="2" readonly="1" class="mt-2" />
                     </group>
                 </group>
                 <footer>
