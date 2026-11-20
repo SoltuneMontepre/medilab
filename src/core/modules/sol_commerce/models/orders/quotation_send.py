@@ -57,6 +57,11 @@ class QuotationSend(models.TransientModel, QuotationSendBase):
         # The moment the customer has to pay the advance, or accept the quotation without one, by.
         payment_deadline = fields.Datetime(required=True)
 
+    @api.onchange("advance_mode")
+    def _onchange_advance_mode(self):
+        # A percentage is never kept as an amount, nor an amount as a percentage.
+        self.advance_value = 0
+
     @api.model
     def default_get(self, fields_list):
         values = super().default_get(fields_list)
