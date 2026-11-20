@@ -38,8 +38,16 @@ class QuotationSend(models.TransientModel, QuotationSendBase):
         currency_id = fields.Many2one(related="order_id.currency_id")
         # The quotation's totals before tax, of tax and with tax.
         tax_totals = fields.Json(related="order_id.tax_totals")
+        # Whether the quotation discount is a percentage or a fixed amount.
+        discount_type = fields.Selection(
+            [("percentage", "Percentage"), ("amount", "Fixed amount")],
+            string="Quotation Discount",
+            default="percentage",
+        )
         # Percentage taken off the whole quotation as one discount line when Sales applies it.
-        discount_percentage = fields.Float(string="Quotation Discount (%)")
+        discount_percentage = fields.Float(string="Discount (%)")
+        # Amount taken off the whole quotation as one discount line when Sales applies it.
+        discount_amount = fields.Monetary(string="Discount Amount")
         # How and how much of the advance the customer pays, and when the rest is due.
         advance_method = fields.Selection(related="order_id.advance_method", readonly=False)
         advance_mode = fields.Selection(related="order_id.advance_mode", readonly=False)
@@ -80,18 +88,20 @@ class QuotationSend(models.TransientModel, QuotationSendBase):
         }
 
     def action_apply_discount(self):
-        """Take the percentage off the whole quotation as one discount line, then show the new totals."""
+        """Take the percentage or the amount off the whole quotation as one discount line, then show the new totals."""
         self.ensure_one()
-        if self.discount_percentage <= 0 or self.discount_percentage > 100:
-            raise UserError(self.env._("Give a quotation discount between 0 and 100%."))
+        if self.discount_type == "amount":
+            if self.discount_amount <= 0 or self.discount_amount > self.order_id.amount_untaxed:
+                raise UserError(self.env._("Give a discount amount above zero and at most the untaxed total."))
+            values = {"discount_type": "amount", "discount_amount": self.discount_amount}
+        else:
+            if self.discount_percentage <= 0 or self.discount_percentage > 100:
+                raise UserError(self.env._("Give a quotation discount between 0 and 100%."))
+            values = {"discount_type": "so_discount", "discount_percentage": self.discount_percentage / 100}
         self.env[MODEL_SALE_ORDER_DISCOUNT].create(
-            {
-                "sale_order_id": self.order_id.id,
-                "discount_type": "so_discount",
-                "discount_percentage": self.discount_percentage / 100,
-            }
+            {"sale_order_id": self.order_id.id, **values}
         ).action_apply_discount()
-        self.discount_percentage = 0
+        self.write({"discount_percentage": 0, "discount_amount": 0})
         return self._reopen()
 
     def action_preview(self):

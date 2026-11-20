@@ -23,7 +23,7 @@
                         <field name="product_template_id" string="Parameter or package" readonly="1" />
                         <field name="sample_id" readonly="1" />
                         <field name="product_uom_qty" string="Quantity" readonly="1" digits="[16, 0]" />
-                        <field name="price_unit" readonly="1" widget="monetary" options="{'currency_field': 'currency_id'}" />
+                        <field name="price_unit" widget="monetary" options="{'currency_field': 'currency_id'}" />
                         <field name="discount" string="Discount (%)" digits="[16, 0]" />
                         <field name="tax_ids" widget="many2many_tags" readonly="1" />
                         <field name="currency_id" column_invisible="1" />
@@ -38,10 +38,12 @@
                         <field name="balance_due" invisible="not advance_method or advance_mode == 'full' or on_credit" />
                     </group>
                     <group string="Total">
-                        <label for="discount_percentage" />
+                        <label for="discount_type" />
                         <div class="d-flex align-items-center gap-2">
-                            <field name="discount_percentage" class="w-25" digits="[16, 0]" />
-                            <button name="action_apply_discount" type="object" string="Apply" class="btn-secondary" invisible="not discount_percentage" />
+                            <field name="discount_type" class="w-auto" />
+                            <field name="discount_percentage" class="w-25" digits="[16, 0]" invisible="discount_type != 'percentage'" />
+                            <field name="discount_amount" class="w-50" invisible="discount_type != 'amount'" />
+                            <button name="action_apply_discount" type="object" string="Apply" class="btn-secondary" invisible="not discount_percentage and not discount_amount" />
                         </div>
                         <field name="tax_totals" widget="account-tax-totals-field" nolabel="1" colspan="2" readonly="1" />
                     </group>
