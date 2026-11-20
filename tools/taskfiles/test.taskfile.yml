@@ -277,6 +277,7 @@ tasks:
     silent: true
     dir: "{{.E2E_DIR}}"
     env:
+      TZ: Asia/Ho_Chi_Minh
       MEDILAB_E2E_URL: "{{.E2E_URL}}"
       MEDILAB_E2E_SPEC: "{{.SPEC}}"
       MEDILAB_E2E_GREP: "{{.GREP}}"
