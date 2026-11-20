@@ -475,10 +475,10 @@
                     <!-- Sales sets the advance in the Send quotation dialog; the tab shows it once sent. -->
                     <group>
                         <group invisible="state == 'draft'">
-                            <field name="advance_method" readonly="state != 'draft'" />
-                            <field name="advance_mode" invisible="not advance_method or advance_method == 'none'" readonly="state != 'draft'" />
-                            <field name="advance_value" invisible="advance_mode not in ('percentage', 'fixed')" readonly="state != 'draft'" />
-                            <field name="balance_due" invisible="not advance_method or advance_mode == 'full' or on_credit" readonly="state != 'draft'" />
+                            <field name="payment_method" readonly="1" />
+                            <field name="advance_mode" readonly="1" />
+                            <field name="advance_value" invisible="advance_mode not in ('percentage', 'fixed')" readonly="1" />
+                            <field name="balance_due" invisible="advance_mode == 'full' or on_credit" readonly="1" />
                             <field name="on_credit" invisible="not on_credit" readonly="1" />
                         </group>
                         <group>

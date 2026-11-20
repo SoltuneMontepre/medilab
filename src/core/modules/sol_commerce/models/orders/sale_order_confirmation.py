@@ -221,6 +221,7 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
             .create(
                 {
                     "kind": "balance",
+                    "advance_method": self.payment_method,
                     "order_id": self.id,
                     "quotation_id": self._latest_quotation().id,
                     "amount": amount,

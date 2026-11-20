@@ -48,8 +48,8 @@ class QuotationSend(models.TransientModel, QuotationSendBase):
         discount_percentage = fields.Float(string="Discount (%)")
         # Amount taken off the whole quotation as one discount line when Sales applies it.
         discount_amount = fields.Monetary(string="Discount Amount")
-        # How and how much of the advance the customer pays, and when the rest is due.
-        advance_method = fields.Selection(related="order_id.advance_method", readonly=False)
+        # How the customer pays, how much of it in advance, and when the rest is due.
+        payment_method = fields.Selection(related="order_id.payment_method", readonly=False)
         advance_mode = fields.Selection(related="order_id.advance_mode", readonly=False)
         advance_value = fields.Float(related="order_id.advance_value", readonly=False)
         balance_due = fields.Selection(related="order_id.balance_due", readonly=False)

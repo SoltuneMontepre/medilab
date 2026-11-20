@@ -46,7 +46,7 @@ BALANCE_BEFORE_COLLECTION = "before_collection"
 BALANCE_AT_COLLECTION = "at_collection"
 BALANCE_BEFORE_REPORT = "before_report"
 # The advance fields stop changing once the current revision is sent.
-ADVANCE_FIELDS = frozenset({"advance_method", "advance_mode", "advance_value", "balance_due"})
+ADVANCE_FIELDS = frozenset({"advance_method", "payment_method", "advance_mode", "advance_value", "balance_due"})
 # The quotation statuses under which the order's advance, lines and samples stay as quoted.
 QUOTATION_FROZEN_STATUSES = (QUOTATION_SENT, QUOTATION_ACCEPTED)
 

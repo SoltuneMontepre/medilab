@@ -15,6 +15,7 @@ from odoo.addons.sol_commerce.constants.models import (
 )
 from odoo.addons.sol_commerce.constants.notifications import EVENT_ORDER_UPDATED
 from odoo.addons.sol_commerce.constants.orders import (
+    ADVANCE_NONE,
     BALANCE_AT_COLLECTION,
     BALANCE_BEFORE_COLLECTION,
     BALANCE_BEFORE_REPORT,
@@ -111,13 +112,23 @@ class SaleOrder(models.Model, SaleOrderBase):
         cancellation_request_ids = fields.One2many(MODEL_CANCELLATION_REQUEST, "order_id")
         # When the advance must be paid; 3 days after sending by default, set by sales.
         payment_deadline = fields.Datetime(copy=False)
-        # online, bank_transfer, cash, or none when the Head of Sales sends without an advance.
-        advance_method = fields.Selection(
-            [("online", "Online"), ("bank_transfer", "Bank transfer"), ("cash", "Cash"), ("none", "No advance")]
+        # How the customer pays the advance and the balance: online, by bank transfer or in cash.
+        payment_method = fields.Selection(
+            [("online", "Online"), ("bank_transfer", "Bank transfer"), ("cash", "Cash")], string="Payment Method"
         )
-        # full, percentage or fixed.
+        # The advance asked with the quotation: none, when the Head of Sales sends without one, the full amount, a
+        # percentage or a fixed amount.
         advance_mode = fields.Selection(
-            [("full", "Full amount"), ("percentage", "Percentage"), ("fixed", "Fixed amount")]
+            [("none", "No advance"), ("full", "Full amount"), ("percentage", "Percentage"), ("fixed", "Fixed amount")],
+            string="Advance",
+        )
+        # The payment method of the advance, or none without an advance, which the payment requests keep.
+        advance_method = fields.Selection(
+            [("online", "Online"), ("bank_transfer", "Bank transfer"), ("cash", "Cash"), ("none", "No advance")],
+            compute="_compute_advance_method",
+            inverse="_inverse_advance_method",
+            store=True,
+            readonly=False,
         )
         # The percentage or fixed amount of the advance, depending on the advance mode.
         advance_value = fields.Float()
@@ -500,6 +511,20 @@ class SaleOrder(models.Model, SaleOrderBase):
                 order.quotation_follow_up = QUOTATION_ACCEPTED
             else:
                 order.quotation_follow_up = FOLLOW_UP_BY_QUOTATION_STATUS.get((quotation.status or ""), False)
+
+    @api.depends("advance_mode", "payment_method")
+    def _compute_advance_method(self):
+        for order in self:
+            order.advance_method = ADVANCE_NONE if order.advance_mode == ADVANCE_NONE else order.payment_method
+
+    def _inverse_advance_method(self):
+        for order in self:
+            if order.advance_method == ADVANCE_NONE:
+                order.advance_mode = ADVANCE_NONE
+            elif order.advance_method:
+                order.payment_method = order.advance_method
+                if order.advance_mode == ADVANCE_NONE:
+                    order.advance_mode = False
 
     def _latest_quotation(self):
         self.ensure_one()

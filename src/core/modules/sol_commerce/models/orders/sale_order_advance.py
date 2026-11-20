@@ -29,18 +29,16 @@ class SaleOrderAdvance(models.Model, SaleOrderAdvanceBase):
         super()._check_quotation_can_be_sent()
         if self.sudo()._latest_quotation().advance_invoice_id.amount_residual:
             raise UserError(self.env._("Settle the existing advance invoice before sending a revision."))
-        if not self.advance_method:
-            raise UserError(self.env._("Choose how the advance is paid, or no advance, before sending the quotation."))
-        if self.advance_method == ADVANCE_NONE:
-            if not (self.env.su or self.env.user.has_group(ALL_ORDERS_GROUP)):
-                raise UserError(
-                    self.env._("Only the Head of Sales can send a quotation without an advance. Choose how it is paid.")
-                )
-            return
         if not self.advance_mode:
             raise UserError(
-                self.env._("Choose whether the advance is the full amount, a percentage or a fixed amount.")
+                self.env._("Choose whether the advance is the full amount, a percentage, a fixed amount or none.")
             )
+        if not self.payment_method:
+            raise UserError(self.env._("Choose how the customer pays before sending the quotation."))
+        if self.advance_mode == ADVANCE_NONE:
+            if not (self.env.su or self.env.user.has_group(ALL_ORDERS_GROUP)):
+                raise UserError(self.env._("Only the Head of Sales can send a quotation without an advance."))
+            return
         if self.advance_mode == ADVANCE_PERCENTAGE and not 0 < self.advance_value <= 100:
             raise UserError(self.env._("The advance percentage must be above 0 and at most 100."))
         if self.advance_mode == ADVANCE_FIXED and self.advance_value <= 0:
