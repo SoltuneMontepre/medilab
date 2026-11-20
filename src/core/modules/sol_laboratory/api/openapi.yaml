@@ -5053,7 +5053,7 @@ components:
                   error:
                     properties:
                       code:
-                      enum: [folder_archived, folder_disabled, folder_sample_closed, locked, upload_incomplete, upload_closed]
+                        enum: [folder_archived, folder_disabled, folder_sample_closed, locked, upload_incomplete, upload_closed]
     StorageUnavailable:
       description: The request still failed on concurrency after the server's last try, or the bucket cannot be reached.
       headers:
