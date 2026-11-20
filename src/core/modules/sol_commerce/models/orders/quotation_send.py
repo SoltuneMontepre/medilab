@@ -34,8 +34,12 @@ class QuotationSend(models.TransientModel, QuotationSendBase):
         # The contact the quotation is sent to.
         partner_id = fields.Many2one(related="order_id.partner_id", readonly=False, string="To")
         # The contact's e-mail address and phone, which the quotation notice uses; changing them changes the contact.
-        partner_email = fields.Char(related="order_id.partner_id.email", readonly=False, string="E-mail")
-        partner_phone = fields.Char(related="order_id.partner_id.phone", readonly=False, string="Phone")
+        partner_email = fields.Char(
+            string="E-mail", compute="_compute_partner_contact", inverse="_inverse_partner_email"
+        )
+        partner_phone = fields.Char(
+            string="Phone", compute="_compute_partner_contact", inverse="_inverse_partner_phone"
+        )
         # The parameters and packages quoted, with their prices and discounts.
         line_ids = fields.One2many(related="order_id.product_line_ids", readonly=False)
         # The order's currency, for the totals.
@@ -65,6 +69,24 @@ class QuotationSend(models.TransientModel, QuotationSendBase):
     def _compute_customer_address(self):
         for wizard in self:
             wizard.customer_address = wizard.customer_id._display_address() if wizard.customer_id else False
+
+    @api.depends("partner_id", "partner_id.email", "partner_id.phone")
+    def _compute_partner_contact(self):
+        for wizard in self:
+            wizard.partner_email = wizard.partner_id.email
+            wizard.partner_phone = wizard.partner_id.phone
+
+    def _inverse_partner_email(self):
+        for wizard in self:
+            if wizard.partner_id and (wizard.partner_email or False) != (wizard.partner_id.email or False):
+                wizard.order_id.check_access("write")
+                wizard.partner_id.sudo().email = wizard.partner_email
+
+    def _inverse_partner_phone(self):
+        for wizard in self:
+            if wizard.partner_id and (wizard.partner_phone or False) != (wizard.partner_id.phone or False):
+                wizard.order_id.check_access("write")
+                wizard.partner_id.sudo().phone = wizard.partner_phone
 
     @api.onchange("advance_mode")
     def _onchange_advance_mode(self):

@@ -80,6 +80,12 @@
         "views/notifications/portal_templates.xml",
         "views/system/menus.xml",
     ],
+    "assets": {
+        "web.assets_backend": [
+            "sol_commerce/static/src/views/open_tab_widget.js",
+            "sol_commerce/static/src/views/open_tab_widget.xml",
+        ],
+    },
     "post_init_hook": "use_vietnamese_accounting",
     "uninstall_hook": "keep_order_numbers",
     "application": True,

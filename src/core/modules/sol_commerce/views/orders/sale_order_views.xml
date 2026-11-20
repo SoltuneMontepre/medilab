@@ -285,8 +285,11 @@
                 <div class="text-warning" colspan="2" invisible="not turnaround_missing">
                     No standard turnaround yet: <field name="turnaround_missing" class="d-inline" />
                 </div>
-                <field name="committed_date" readonly="state != 'draft'" />
-                <field name="return_timeline" nolabel="1" colspan="2" readonly="1" invisible="not return_timeline" />
+                <label for="committed_date" />
+                <div class="d-flex align-items-baseline gap-2">
+                    <field name="committed_date" readonly="state != 'draft'" class="oe_inline" />
+                    <widget name="medilab_open_tab" tab="timeline" string="Timeline" invisible="not return_timeline" />
+                </div>
             </xpath>
             <xpath expr="//group[@name='sales_person']/field[@name='user_id']" position="replace" />
             <!-- The advance and the balance are set on the Payment tab; Odoo's payment terms, online signature,
@@ -302,15 +305,6 @@
             </xpath>
             <xpath expr="//group[@name='sale_reporting']" position="attributes">
                 <attribute name="invisible">1</attribute>
-            </xpath>
-            <xpath expr="//group[@name='sale_reporting']" position="after">
-                <group name="medilab_timeline" string="Timeline">
-                    <field name="submitted_at" readonly="1" invisible="not submitted_at" />
-                    <field name="claimed_at" readonly="1" invisible="not claimed_at" />
-                    <field name="quoted_at" invisible="not quoted_at" />
-                    <field name="accepted_at" invisible="not accepted_at" />
-                    <field name="confirmed_at" invisible="not confirmed_at" />
-                </group>
             </xpath>
             <!-- There are no customer price lists: special prices are discounts on the quotation. -->
             <xpath expr="//group[@name='order_details']/label[@for='pricelist_id']" position="attributes">
@@ -526,6 +520,23 @@
                             </group>
                         </form>
                     </field>
+                </page>
+                <page
+                    string="Timeline"
+                    name="timeline"
+                    invisible="not return_timeline and not submitted_at and not claimed_at and not quoted_at and not accepted_at and not confirmed_at"
+                >
+                    <field name="return_timeline" nolabel="1" readonly="1" invisible="not return_timeline" />
+                    <group
+                        name="medilab_timeline"
+                        invisible="not submitted_at and not claimed_at and not quoted_at and not accepted_at and not confirmed_at"
+                    >
+                        <field name="submitted_at" readonly="1" invisible="not submitted_at" />
+                        <field name="claimed_at" readonly="1" invisible="not claimed_at" />
+                        <field name="quoted_at" invisible="not quoted_at" />
+                        <field name="accepted_at" invisible="not accepted_at" />
+                        <field name="confirmed_at" invisible="not confirmed_at" />
+                    </group>
                 </page>
                 <page string="Cancellation" name="cancellation" invisible="not cancellation_request_ids">
                     <field name="cancellation_request_ids">
