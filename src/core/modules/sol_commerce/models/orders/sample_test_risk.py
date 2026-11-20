@@ -27,7 +27,7 @@ class SampleTestRisk(models.Model, SampleTestRiskBase):
             salesperson = order.user_id
             env = staff_env(self.env, salesperson)
             body = env._(
-                "Some tests of order %(order)s are at risk of missing the committed return date %(date)s. Agree a "
+                "Some tests of order %(order)s are at risk of missing the expected return date %(date)s. Agree a "
                 "feasible date with the customer if the laboratory cannot catch up.",
                 order=order.name,
                 date=format_date(env, request.committed_date),

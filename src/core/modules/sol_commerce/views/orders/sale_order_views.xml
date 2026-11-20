@@ -152,7 +152,7 @@
                 <button
                     name="action_change_committed_date"
                     type="object"
-                    string="Change committed date"
+                    string="Change return date"
                     class="btn-secondary"
                     invisible="order_status != 'confirmed' or not test_request_id"
                     groups="sol_laboratory.group_permission_committed_date_change_create_all"
@@ -275,18 +275,20 @@
                 <attribute name="invisible">state == 'sale' or order_status in ('confirmed', 'completed', 'cancelled')</attribute>
             </xpath>
             <xpath expr="//group[@name='order_details']/field[@name='validity_date']" position="after">
-                <!-- Sales sets the payment deadline and the expected pickup when sending; the deadline can then be
-                     extended until the order is confirmed. -->
+                <!-- Sales sets the payment deadline when sending the quotation, and can extend it until the order is
+                     confirmed. -->
                 <field name="payment_deadline" invisible="state == 'draft' or order_status in ('confirmed', 'completed', 'cancelled')" />
-                <field name="expected_collection_date" readonly="1" invisible="not expected_collection_date" />
                 <field name="requested_date" invisible="not requested_date and order_status in ('confirmed', 'completed', 'cancelled')" />
                 <field name="priority_request" invisible="not priority_request" decoration-warning="priority_request == 'requested'" widget="badge" />
+                <field name="expected_collection_date" readonly="state != 'draft'" />
                 <field name="turnaround_days" readonly="1" invisible="not turnaround_days" />
                 <div class="text-warning" colspan="2" invisible="not turnaround_missing">
                     No standard turnaround yet: <field name="turnaround_missing" class="d-inline" />
                 </div>
-                <field name="estimated_result_date" invisible="not turnaround_days or committed_date" />
-                <field name="committed_date" placeholder="Fixed at sample receipt" />
+                <field name="committed_date" readonly="state != 'draft'" />
+                <div class="text-warning" colspan="2" invisible="not returns_after_request">
+                    The results are expected after the date the customer asked for.
+                </div>
             </xpath>
             <xpath expr="//group[@name='sales_person']/field[@name='user_id']" position="replace" />
             <!-- The advance and the balance are set on the Payment tab; Odoo's payment terms, online signature,
@@ -344,12 +346,15 @@
             <xpath expr="//field[@name='order_line']/kanban/control/create[@name='add_note_control']" position="replace" />
             <xpath expr="//field[@name='order_line']/kanban/control/button[@name='action_add_from_catalog']" position="replace" />
             <xpath expr="//div[@name='so_button_below_order_lines']/widget[@name='combo_menu']" position="replace" />
-            <!-- Discounts are given before the quotation is sent, by whoever may change the order. -->
+            <!-- Discounts are given in the Send quotation dialog, with the prices the customer receives. -->
             <xpath expr="//div[@name='so_button_below_order_lines']/button[@name='action_open_discount_wizard'][not(@disabled)]" position="attributes">
-                <attribute name="invisible">locked or state != 'draft' or not order_can_edit</attribute>
+                <attribute name="invisible">1</attribute>
             </xpath>
             <xpath expr="//div[@name='so_button_below_order_lines']/widget[@name='discount_menu']" position="attributes">
-                <attribute name="invisible">locked or state != 'draft' or not order_can_edit</attribute>
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//list[@name='sol_list']/field[@name='discount']" position="attributes">
+                <attribute name="column_invisible">1</attribute>
             </xpath>
             <xpath expr="//list[@name='sol_list']/control/create[@name='add_product_control']" position="attributes">
                 <attribute name="string">Add a parameter or package</attribute>
@@ -459,8 +464,9 @@
                     </field>
                 </page>
                 <page string="Payment" name="payment">
+                    <!-- Sales sets the advance in the Send quotation dialog; the tab shows it once sent. -->
                     <group>
-                        <group>
+                        <group invisible="state == 'draft'">
                             <field name="advance_method" readonly="state != 'draft'" />
                             <field name="advance_mode" invisible="not advance_method or advance_method == 'none'" readonly="state != 'draft'" />
                             <field name="advance_value" invisible="advance_mode not in ('percentage', 'fixed')" readonly="state != 'draft'" />

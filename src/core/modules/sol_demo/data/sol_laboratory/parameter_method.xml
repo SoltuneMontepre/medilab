@@ -1,87 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo noupdate="1">
     <record id="demo_parameter_method_lead_aas" model="medilab.parameter.method">
-        <field name="turnaround_days">5</field>
+        <field name="turnaround_days">2</field>
         <field name="parameter_id" ref="demo_test_parameter_lead" />
         <field name="method_id" ref="demo_testing_method_tcvn_7602" />
         <field name="department_id" ref="demo_hr_department_chemistry" />
     </record>
     <record id="demo_parameter_method_lead_icpms" model="medilab.parameter.method">
-        <field name="turnaround_days">5</field>
+        <field name="turnaround_days">2</field>
         <field name="parameter_id" ref="demo_test_parameter_lead" />
         <field name="method_id" ref="demo_testing_method_iso_17294_2" />
         <field name="department_id" ref="demo_hr_department_chemistry" />
     </record>
     <record id="demo_parameter_method_lead_subcontracted" model="medilab.parameter.method">
-        <field name="turnaround_days">6</field>
+        <field name="turnaround_days">3</field>
         <field name="parameter_id" ref="demo_test_parameter_lead" />
         <field name="method_id" ref="demo_testing_method_iso_17294_2" />
         <field name="subcontractor_id" ref="demo_subcontractor_northern_testing" />
     </record>
     <record id="demo_parameter_method_coliforms_mpn" model="medilab.parameter.method">
-        <field name="turnaround_days">5</field>
+        <field name="turnaround_days">2</field>
         <field name="parameter_id" ref="demo_test_parameter_coliforms" />
         <field name="method_id" ref="demo_testing_method_tcvn_6187_2" />
         <field name="department_id" ref="demo_hr_department_microbiology" />
     </record>
     <!-- The default before the most probable number method replaced it; archived since. -->
     <record id="demo_parameter_method_coliforms_colony" model="medilab.parameter.method">
-        <field name="turnaround_days">4</field>
+        <field name="turnaround_days">2</field>
         <field name="parameter_id" ref="demo_test_parameter_coliforms" />
         <field name="method_id" ref="demo_testing_method_iso_4832" />
         <field name="department_id" ref="demo_hr_department_microbiology" />
         <field name="active" eval="False" />
     </record>
     <record id="demo_parameter_method_e_coli_membrane" model="medilab.parameter.method">
-        <field name="turnaround_days">4</field>
+        <field name="turnaround_days">2</field>
         <field name="parameter_id" ref="demo_test_parameter_e_coli" />
         <field name="method_id" ref="demo_testing_method_tcvn_6187_1" />
         <field name="department_id" ref="demo_hr_department_microbiology" />
     </record>
     <record id="demo_parameter_method_e_coli_colony" model="medilab.parameter.method">
-        <field name="turnaround_days">4</field>
+        <field name="turnaround_days">2</field>
         <field name="parameter_id" ref="demo_test_parameter_e_coli" />
         <field name="method_id" ref="demo_testing_method_iso_16649_2" />
         <field name="department_id" ref="demo_hr_department_microbiology" />
     </record>
     <record id="demo_parameter_method_ph_water" model="medilab.parameter.method">
-        <field name="turnaround_days">2</field>
+        <field name="turnaround_days">1</field>
         <field name="parameter_id" ref="demo_test_parameter_ph" />
         <field name="method_id" ref="demo_testing_method_tcvn_6492" />
         <field name="department_id" ref="demo_hr_department_chemistry" />
     </record>
     <record id="demo_parameter_method_ph_soil" model="medilab.parameter.method">
-        <field name="turnaround_days">3</field>
+        <field name="turnaround_days">1</field>
         <field name="parameter_id" ref="demo_test_parameter_ph" />
         <field name="method_id" ref="demo_testing_method_tcvn_5979" />
         <field name="department_id" ref="demo_hr_department_chemistry" />
     </record>
     <record id="demo_parameter_method_chlorpyrifos_quechers" model="medilab.parameter.method">
-        <field name="turnaround_days">7</field>
+        <field name="turnaround_days">3</field>
         <field name="parameter_id" ref="demo_test_parameter_chlorpyrifos" />
         <field name="method_id" ref="demo_testing_method_en_15662" />
         <field name="department_id" ref="demo_hr_department_chemistry" />
     </record>
     <record id="demo_parameter_method_chlorpyrifos_ug" model="medilab.parameter.method">
-        <field name="turnaround_days">9</field>
+        <field name="turnaround_days">3</field>
         <field name="parameter_id" ref="demo_test_parameter_chlorpyrifos" />
         <field name="method_id" ref="demo_testing_method_en_15662" />
         <field name="subcontractor_id" ref="demo_subcontractor_southern_micro" />
     </record>
     <record id="demo_parameter_method_chromium_vi_colorimetry" model="medilab.parameter.method">
-        <field name="turnaround_days">3</field>
+        <field name="turnaround_days">1</field>
         <field name="parameter_id" ref="demo_test_parameter_chromium_vi" />
         <field name="method_id" ref="demo_testing_method_chromium_vi_colorimetry" />
         <field name="department_id" ref="demo_hr_department_chemistry" />
     </record>
     <record id="demo_parameter_method_cadmium_icpms" model="medilab.parameter.method">
-        <field name="turnaround_days">5</field>
+        <field name="turnaround_days">2</field>
         <field name="parameter_id" ref="demo_test_parameter_cadmium" />
         <field name="method_id" ref="demo_testing_method_iso_17294_2" />
         <field name="department_id" ref="demo_hr_department_chemistry" />
     </record>
     <record id="demo_parameter_method_arsenic_icpms" model="medilab.parameter.method">
-        <field name="turnaround_days">5</field>
+        <field name="turnaround_days">2</field>
         <field name="parameter_id" ref="demo_test_parameter_arsenic" />
         <field name="method_id" ref="demo_testing_method_iso_17294_2" />
         <field name="department_id" ref="demo_hr_department_chemistry" />

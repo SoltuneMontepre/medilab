@@ -289,7 +289,7 @@
                     </div>
                     <t t-set="committed" t-value="order.test_request_id.sudo().committed_date or order.committed_date" />
                     <div t-if="committed" class="d-flex gap-2">
-                        <dt class="fw-normal text-muted">Committed return date</dt>
+                        <dt class="fw-normal text-muted">Expected return date</dt>
                         <dd class="mb-0" t-out="committed" t-options="{'widget': 'date'}" />
                     </div>
                     <div t-elif="order.turnaround_days" class="d-flex gap-2">

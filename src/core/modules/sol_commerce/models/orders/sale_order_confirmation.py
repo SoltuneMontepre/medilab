@@ -332,7 +332,7 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
         )
 
     def _check_collection_appointment(self, appointment):
-        """Refuse an appointment in the past, or one too late for the turnaround to meet the committed return date."""
+        """Refuse an appointment in the past, or one too late for the turnaround to meet the expected return date."""
         self.ensure_one()
         if not appointment:
             return
@@ -347,8 +347,8 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
         if ready > committed:
             raise UserError(
                 self.env._(
-                    "Samples collected on %(day)s return results on %(ready)s, after the committed return date "
-                    "%(committed)s. Agree an earlier appointment, or change the committed date with the customer first.",
+                    "Samples collected on %(day)s return results on %(ready)s, after the expected return date "
+                    "%(committed)s. Agree an earlier appointment, or change the return date with the customer first.",
                     day=format_date(self.env, day),
                     ready=format_date(self.env, ready),
                     committed=format_date(self.env, committed),

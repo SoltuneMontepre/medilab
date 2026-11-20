@@ -56,7 +56,7 @@ class PlanRevisionMove(models.Model, PlanRevisionMoveBase):
         ends_at = fields.Datetime(string="New End", required=True, readonly=True)
         # Proposed until the head of its department approves it, then approved and applied with its revision. Held back
         # when it would finish after the sample test's internal due date: the booking keeps its slot until Sales records
-        # the customer's agreement to a new committed return date. In conflict when it would move a pinned booking,
+        # the customer's agreement to a new expected return date. In conflict when it would move a pinned booking,
         # which no revision moves.
         status = fields.Selection(
             [
@@ -79,7 +79,7 @@ class PlanRevisionMove(models.Model, PlanRevisionMoveBase):
         person_id = fields.Many2one(related="booking_id.person_id")
         # The internal due date of the sample test.
         due_date = fields.Datetime(related="booking_id.sample_test_id.due_date")
-        # The committed return date Sales promised the customer.
+        # The expected return date Sales promised the customer.
         committed_date = fields.Date(related="booking_id.sample_test_id.sample_id.request_id.committed_date")
 
     _revision_booking_unique = models.Constraint(

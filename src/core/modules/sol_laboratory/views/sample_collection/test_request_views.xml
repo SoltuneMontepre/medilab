@@ -42,7 +42,7 @@
                     <button
                         name="%(action_medilab_committed_date_change)d"
                         type="action"
-                        string="Change Committed Date"
+                        string="Change Return Date"
                         class="btn-secondary"
                         context="{'default_request_id': id}"
                         invisible="status in ('completed', 'reported', 'cancelled')"

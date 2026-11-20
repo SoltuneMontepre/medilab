@@ -33,7 +33,7 @@
                         <dd class="mb-0" t-out="dict(order._fields['priority_request']._description_selection(order.env))[order.priority_request]" />
                     </div>
                     <div t-if="order.committed_date" class="d-flex gap-2">
-                        <dt class="fw-normal text-muted">Committed return date</dt>
+                        <dt class="fw-normal text-muted">Expected return date</dt>
                         <dd class="mb-0" t-out="order.committed_date" t-options="{'widget': 'date'}" />
                     </div>
                     <div t-elif="order.turnaround_days" class="d-flex gap-2">

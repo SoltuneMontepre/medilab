@@ -18,7 +18,7 @@ else:
     SaleOrderDatesBase = object
 
 
-# Đơn Hàng: the customer's requested date, the standard turnaround, the committed return date and priority requests.
+# Đơn Hàng: the customer's requested date, the standard turnaround, the expected return date and priority requests.
 class SaleOrderDates(models.Model, SaleOrderDatesBase):
     _inherit = MODEL_SALE_ORDER
 
@@ -27,6 +27,17 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
         requested_date = fields.Date()
         # The day Sales agreed with the customer for the samples to be picked up, which return dates count from.
         expected_collection_date = fields.Date(string="Expected Sample Pickup", copy=False)
+        # The date the results are expected back: the earliest the laboratory can return them from the expected pickup,
+        # until Sales sets a later date or an accepted priority request sets it.
+        committed_date = fields.Date(
+            string="Expected Return Date",
+            compute="_compute_committed_date",
+            store=True,
+            readonly=False,
+            copy=False,
+        )
+        # True when the expected return date falls after the date the customer asked for.
+        returns_after_request = fields.Boolean(compute="_compute_returns_after_request")
         # The customer's request for priority, and Sales's decision on it after the feasibility check.
         priority_request = fields.Selection(
             [("requested", "Requested"), ("accepted", "Accepted"), ("declined", "Declined")], copy=False
@@ -36,16 +47,18 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
         # Working days results take from sample receipt: the longest standard turnaround of the order's ways of
         # testing, kept as it was when the quotation was sent.
         turnaround_days = fields.Integer(
-            string="Turnaround (working days)", compute="_compute_turnaround_days", store=True, readonly=False
+            string="Turnaround (working days)",
+            compute="_compute_turnaround_days",
+            store=True,
+            readonly=False,
+            help="Working days from sample receipt to results: the longest standard turnaround of the order's ways of "
+            "testing, set on each way in the catalog.",
         )
         # The ways of testing of the order that have no standard turnaround yet, which keep the quotation from being sent.
         turnaround_missing = fields.Char(string="Missing Turnaround", compute="_compute_turnaround_missing")
-        # The date results would be returned for samples picked up on the expected day, or today without one, after the
-        # work the laboratory holds.
-        estimated_result_date = fields.Date(string="Estimated Return Date", compute="_compute_estimated_result_date")
 
     def write(self, vals):
-        # A change recorded with the customer's agreement moves the committed return date of a confirmed order.
+        # A change recorded with the customer's agreement moves the expected return date of a confirmed order.
         changing = self.env.context.get(CHANGING_COMMITTED_DATE) and set(vals) == {"committed_date"}
         if DATE_FIELDS & set(vals) and not changing and self._frozen_by_quotation():
             raise UserError(self.env._("The dates cannot change after the quotation is sent. Revise the quotation."))
@@ -72,14 +85,21 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
             missing = requests._turnaround(order._ways())["missing"]
             order.turnaround_missing = ", ".join(missing.mapped("display_name")) or False
 
-    @api.depends("turnaround_days", "order_line.parameter_method_id", "expected_collection_date")
-    def _compute_estimated_result_date(self):
-        requests = self.env[MODEL_TEST_REQUEST]
+    @api.depends("turnaround_days", "order_line.parameter_method_id", "expected_collection_date", "requested_date")
+    def _compute_committed_date(self):
         for order in self:
-            estimate = order.turnaround_days and requests._earliest_return(
-                order._test_ways(), order._collection_start(order.expected_collection_date), order.turnaround_days
+            # A sent quotation, a confirmed order and an accepted priority request keep the date they have.
+            if order.priority_request == "accepted" or order.state != "draft" or order in order._frozen_by_quotation():
+                order.committed_date = order.committed_date
+                continue
+            order.committed_date = order._earliest_return_date()
+
+    @api.depends("committed_date", "requested_date")
+    def _compute_returns_after_request(self):
+        for order in self:
+            order.returns_after_request = bool(
+                order.committed_date and order.requested_date and order.committed_date > order.requested_date
             )
-            order.estimated_result_date = estimate["date"] if estimate else False
 
     def _collection_start(self, day):
         """The moment samples picked up on the day reach the laboratory at the earliest: the start of that day in the
@@ -114,7 +134,7 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
 
     def action_accept_priority(self):
         """Accept the customer's priority request when the feasibility check says the requested date can be met; the
-        requested date becomes the committed return date."""
+        requested date becomes the expected return date."""
         self.check_access("write")
         for order in self:
             if order.priority_request != "requested" or not order.requested_date:
@@ -160,14 +180,11 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
                 )
             )
         estimate = self._earliest_return_date()
-        if not self.committed_date and self.requested_date and estimate and self.requested_date >= estimate:
-            # A requested date the standard turnaround meets is the date Sales promises.
-            self.committed_date = self.requested_date
         if self.committed_date and estimate and self.committed_date < estimate and not self.priority:
             raise UserError(
                 self.env._(
-                    "The committed return date is earlier than the standard turnaround allows, %s. Choose a later date "
-                    "or accept a priority request.",
+                    "The expected return date is earlier than the laboratory can return results, %s. Choose a later "
+                    "date or accept a priority request.",
                     format_date(self.env, estimate),
                 )
             )
@@ -213,7 +230,7 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
         return self._priority_payment_deadline() or super()._latest_payment_deadline()
 
     def action_change_committed_date(self):
-        """Open the change of the confirmed order's committed return date, recorded with the customer's agreement."""
+        """Open the change of the confirmed order's expected return date, recorded with the customer's agreement."""
         self.ensure_one()
         action = self.env["ir.actions.act_window"]._for_xml_id("sol_laboratory.action_medilab_committed_date_change")
         action["context"] = {"default_request_id": self.test_request_id.id}

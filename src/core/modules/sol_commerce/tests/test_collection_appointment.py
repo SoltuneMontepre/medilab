@@ -31,7 +31,7 @@ class TestCollectionAppointment(OrderCase):
             days=1
         )
 
-        with self.assertRaisesRegex(UserError, "after the committed return date"):
+        with self.assertRaisesRegex(UserError, "after the expected return date"):
             order.with_user(self.sales).action_start_sample_collection(appointment=appointment)
 
     def test_staff_cannot_take_two_collections_closer_than_the_travel_buffer(self):

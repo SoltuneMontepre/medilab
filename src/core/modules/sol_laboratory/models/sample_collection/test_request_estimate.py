@@ -112,7 +112,7 @@ class TestRequestEstimate(models.Model, TestRequestEstimateBase):
         }
 
     def _commit_on_receipt(self):
-        """Fix the committed return date of requests that have none when their first sample is received: the receipt
+        """Fix the expected return date of requests that have none when their first sample is received: the receipt
         day plus the request's turnaround in working days, or later when the laboratory's held work leaves its tests to
         finish later."""
         now = fields.Datetime.now()

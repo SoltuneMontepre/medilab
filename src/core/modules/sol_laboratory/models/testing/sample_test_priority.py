@@ -83,7 +83,7 @@ class SampleTestPriority(models.Model, SampleTestPriorityBase):
         return test.status in OPEN_STATUSES and latest.is_interrupted and latest.interruption_assessment == "retest"
 
     def _plan_key(self, department):
-        """Where the test goes in the department's plan: by priority class, then the earlier committed return date,
+        """Where the test goes in the department's plan: by priority class, then the earlier expected return date,
         then the earlier arrival in the department."""
         self.ensure_one()
         test = self.sudo()

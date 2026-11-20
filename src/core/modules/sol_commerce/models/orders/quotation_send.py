@@ -4,8 +4,13 @@ from typing import TYPE_CHECKING
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 
-from odoo.addons.sol_commerce.constants.models import MODEL_QUOTATION_SEND, MODEL_SALE_ORDER
+from odoo.addons.sol_commerce.constants.models import (
+    MODEL_QUOTATION_SEND,
+    MODEL_SALE_ORDER,
+    MODEL_SALE_ORDER_DISCOUNT,
+)
 from odoo.addons.sol_commerce.constants.settings import DEFAULT_PAYMENT_DEADLINE_DAYS, PAYMENT_DEADLINE_PARAMETER
+from odoo.addons.sol_commerce.constants.xml_ids import QUOTATION_REPORT
 
 if TYPE_CHECKING:
     from medilab_model_types import Model_medilab_quotation_send as QuotationSendBase
@@ -13,7 +18,7 @@ else:
     QuotationSendBase = object
 
 
-# Gửi Báo Giá: what Sales agrees with the customer when sending the quotation.
+# Gửi Báo Giá: the prices, discounts and payment Sales sends the customer, and to whom.
 class QuotationSend(models.TransientModel, QuotationSendBase):
     _name = MODEL_QUOTATION_SEND
     _description = "Send Quotation"
@@ -21,18 +26,36 @@ class QuotationSend(models.TransientModel, QuotationSendBase):
     if not TYPE_CHECKING:
         # The order whose quotation is sent.
         order_id = fields.Many2one(MODEL_SALE_ORDER, required=True, ondelete="cascade")
+        # The customer the quotation is for, whose contacts may receive it.
+        customer_id = fields.Many2one(related="order_id.customer_id")
+        # The contact the quotation is sent to.
+        partner_id = fields.Many2one(related="order_id.partner_id", readonly=False, string="To")
+        # The e-mail address the quotation notice goes to.
+        partner_email = fields.Char(related="order_id.partner_id.email", string="E-mail")
+        # The parameters and packages quoted, with their prices and discounts.
+        line_ids = fields.One2many(related="order_id.product_line_ids", readonly=False)
+        # The order's currency, for the totals.
+        currency_id = fields.Many2one(related="order_id.currency_id")
+        # The quotation's totals before tax, of tax and with tax.
+        amount_untaxed = fields.Monetary(related="order_id.amount_untaxed")
+        amount_tax = fields.Monetary(related="order_id.amount_tax")
+        amount_total = fields.Monetary(related="order_id.amount_total")
+        # Percentage taken off the whole quotation as one discount line when Sales applies it.
+        discount_percentage = fields.Float(string="Quotation Discount (%)")
+        # How and how much of the advance the customer pays, and when the rest is due.
+        advance_method = fields.Selection(related="order_id.advance_method", readonly=False)
+        advance_mode = fields.Selection(related="order_id.advance_mode", readonly=False)
+        advance_value = fields.Float(related="order_id.advance_value", readonly=False)
+        balance_due = fields.Selection(related="order_id.balance_due", readonly=False)
+        on_credit = fields.Boolean(related="order_id.on_credit")
         # The moment the customer has to pay the advance, or accept the quotation without one, by.
         payment_deadline = fields.Datetime(required=True)
-        # The day agreed with the customer for the samples to be picked up.
-        expected_collection_date = fields.Date(string="Expected Sample Pickup", required=True)
-        # The return date samples picked up on that day give, after the work the laboratory holds.
-        estimated_result_date = fields.Date(string="Estimated Return Date", compute="_compute_estimated_result_date")
 
     @api.model
     def default_get(self, fields_list):
         values = super().default_get(fields_list)
         order = self.env[MODEL_SALE_ORDER].browse(values.get("order_id"))
-        if not order:
+        if not order or "payment_deadline" not in fields_list:
             return values
         now = fields.Datetime.now()
         deadline = order.payment_deadline
@@ -45,23 +68,41 @@ class QuotationSend(models.TransientModel, QuotationSendBase):
             deadline = now + timedelta(days=days)
         latest = order._latest_payment_deadline()
         values.setdefault("payment_deadline", min(deadline, latest) if latest else deadline)
-        if order.expected_collection_date and order.expected_collection_date >= fields.Date.context_today(self):
-            values.setdefault("expected_collection_date", order.expected_collection_date)
         return values
 
-    @api.depends("order_id", "expected_collection_date")
-    def _compute_estimated_result_date(self):
-        for wizard in self:
-            order = wizard.order_id
-            wizard.estimated_result_date = bool(order) and order._earliest_return_date(wizard.expected_collection_date)
+    def _reopen(self):
+        return {
+            "type": "ir.actions.act_window",
+            "res_model": self._name,
+            "res_id": self.id,
+            "view_mode": "form",
+            "target": "new",
+            "name": self.env._("Send Quotation"),
+        }
+
+    def action_apply_discount(self):
+        """Take the percentage off the whole quotation as one discount line, then show the new totals."""
+        self.ensure_one()
+        if self.discount_percentage <= 0 or self.discount_percentage > 100:
+            raise UserError(self.env._("Give a quotation discount between 0 and 100%."))
+        self.env[MODEL_SALE_ORDER_DISCOUNT].create(
+            {
+                "sale_order_id": self.order_id.id,
+                "discount_type": "so_discount",
+                "discount_percentage": self.discount_percentage / 100,
+            }
+        ).action_apply_discount()
+        self.discount_percentage = 0
+        return self._reopen()
+
+    def action_preview(self):
+        """The quotation PDF as the customer would receive it now."""
+        self.ensure_one()
+        return self.env.ref(QUOTATION_REPORT).report_action(self.order_id)
 
     def action_send(self):
         self.ensure_one()
-        if self.expected_collection_date < fields.Date.context_today(self):
-            raise UserError(self.env._("Agree a sample pickup day that is still to come."))
         if self.payment_deadline <= fields.Datetime.now():
             raise UserError(self.env._("Give a payment deadline that is still to come."))
-        self.order_id.write(
-            {"payment_deadline": self.payment_deadline, "expected_collection_date": self.expected_collection_date}
-        )
+        self.order_id.payment_deadline = self.payment_deadline
         return self.order_id.action_send_quotation()

@@ -16,14 +16,14 @@ AFTERNOON = datetime(2026, 10, 14, 12, 0)
 EVENING = datetime(2026, 10, 14, 17, 0)
 THURSDAY = datetime(2026, 10, 15, 8, 0)
 RUN = timedelta(hours=4)
-# The committed return date is Friday, so the internal due date, two days before it, is the end of Wednesday.
+# The expected return date is Friday, so the internal due date, two days before it, is the end of Wednesday.
 FRIDAY = "2026-10-16"
 MOVED_EVENT = "sol_laboratory.event_machine_booking_moved"
 
 
 class PlanRevisionCase(CrossDepartmentCase):
     """GC-01 runs lead in 4 hours for the one tester of the chemistry department. Z holds Wednesday morning and Y
-    Wednesday afternoon, both normal tests with the committed return date Friday; urgent sample X arrives on Tuesday
+    Wednesday afternoon, both normal tests with the expected return date Friday; urgent sample X arrives on Tuesday
     at 16:00 with the same dates. Run the tests at TUESDAY."""
 
     @classmethod

@@ -61,7 +61,7 @@ class TestOrderFreeze(OrderCase):
             sample.unlink()
         with self.assertRaises(UserError):
             self.make_sample(order, "Second sample")
-        # The committed return date changes only through a change recorded with the customer's agreement.
+        # The expected return date changes only through a change recorded with the customer's agreement.
         with self.assertRaises(UserError):
             order.write({"committed_date": fields.Date.today()})
 
