@@ -71,6 +71,13 @@
         <field name="batch_size">100</field>
         <field name="max_attempts">3</field>
     </record>
+    <record id="scheduled_job_subcontract_dispatches_accreditation_lapsed" model="medilab.scheduled.job">
+        <field name="key">subcontract_dispatches.accreditation_lapsed</field>
+        <field name="name">Dispatches whose subcontractor's accreditation lapsed</field>
+        <field name="cron_id" ref="ir_cron_subcontract_dispatches_accreditation_lapsed" />
+        <field name="batch_size">100</field>
+        <field name="max_attempts">3</field>
+    </record>
     <record id="scheduled_job_quality_registration_expiry" model="medilab.scheduled.job">
         <field name="key">quality_registration.expiry</field>
         <field name="name">Quality registration expiry</field>

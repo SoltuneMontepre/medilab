@@ -22,6 +22,17 @@
         <field name="enabled" eval="True" />
     </record>
 
+    <record id="event_task_role_unstaffed" model="mail.message.subtype">
+        <field name="name">Task has no role holders</field>
+        <field name="description">A task is waiting in a role queue with no active holders</field>
+        <field name="code">task.role_unstaffed</field>
+        <field name="res_model">medilab.task</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="False" />
+        <field name="enabled" eval="True" />
+    </record>
+
     <record id="event_machine_booking_approved" model="mail.message.subtype">
         <field name="name">Machine booking approved</field>
         <field name="description">The head of department approved a booking of your task</field>
@@ -60,6 +71,39 @@
         <field name="description">A sample arrived insufficient and is on hold</field>
         <field name="code">sample.insufficient</field>
         <field name="res_model">medilab.sample</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="False" />
+        <field name="enabled" eval="True" />
+    </record>
+
+    <record id="event_subcontract_dispatch_received" model="mail.message.subtype">
+        <field name="name">Dispatch received</field>
+        <field name="description">A subcontractor confirmed receipt of a dispatch</field>
+        <field name="code">subcontract_dispatch.received</field>
+        <field name="res_model">medilab.subcontract.dispatch</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="False" />
+        <field name="enabled" eval="True" />
+    </record>
+
+    <record id="event_subcontract_dispatch_delivery_failed" model="mail.message.subtype">
+        <field name="name">Dispatch delivery failed</field>
+        <field name="description">The delivery of a dispatch to its subcontractor failed</field>
+        <field name="code">subcontract_dispatch.delivery_failed</field>
+        <field name="res_model">medilab.subcontract.dispatch</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="False" />
+        <field name="enabled" eval="True" />
+    </record>
+
+    <record id="event_subcontract_dispatch_accreditation_lapsed" model="mail.message.subtype">
+        <field name="name">Dispatch accreditation lapsed</field>
+        <field name="description">The accreditation of a draft dispatch's subcontractor lapsed</field>
+        <field name="code">subcontract_dispatch.accreditation_lapsed</field>
+        <field name="res_model">medilab.subcontract.dispatch</field>
         <field name="internal" eval="True" />
         <field name="default" eval="False" />
         <field name="mandatory" eval="False" />
@@ -260,6 +304,10 @@
         </record>
         <record id="event_recipient_quality_registration_expiry" model="medilab.notification.event.recipient">
             <field name="event_id" ref="event_quality_registration_expiry" />
+            <field name="role_id" ref="role_administrator" />
+        </record>
+        <record id="event_recipient_task_role_unstaffed" model="medilab.notification.event.recipient">
+            <field name="event_id" ref="event_task_role_unstaffed" />
             <field name="role_id" ref="role_administrator" />
         </record>
     </data>

@@ -100,8 +100,8 @@ class TestPlanRevision(PlanRevisionCase):
         self.assertEqual((self.y.starts_at, self.y.ends_at), (EVENING, EVENING + RUN))
         self.assertEqual((x.status, x.starts_at), ("proposed", WEDNESDAY))
         self.assertFalse(x_test.at_risk)
-        self.assertEqual(str(self.z_test.sample_id.request_id.expected_date), "2026-10-16")
-        self.assertEqual(str(self.y_test.sample_id.request_id.expected_date), "2026-10-16")
+        self.assertEqual(str(self.z_test.sample_id.request_id.committed_date), "2026-10-16")
+        self.assertEqual(str(self.y_test.sample_id.request_id.committed_date), "2026-10-16")
         for booking in (self.z, self.y):
             self.assertEqual(booking.calendar_event_id.start, booking.starts_at)
         # The tester is told of each moved booking; X is then approved on the freed morning.
@@ -117,7 +117,7 @@ class TestPlanRevision(PlanRevisionCase):
         self.assertEqual(self.moves(held)[self.y][0], "held_back")
 
         # Sales records the customer's agreement by changing the committed return date of Y's test request.
-        self.y_test.sample_id.request_id.expected_date = "2026-10-20"
+        self.y_test.sample_id.request_id.committed_date = "2026-10-20"
 
         revision = self.open_revision()
         self.assertEqual(held.status, "cancelled")

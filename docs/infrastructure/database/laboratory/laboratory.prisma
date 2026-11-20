@@ -579,8 +579,12 @@ model ParameterMethod {
   allows_negative  Boolean         @default(false)
   /// Minutes a booking of the way takes when its method is linked to no machine, covering preparation, measurement and time to repeat a failed measurement; rounded up to 15-minute slots. Empty when the method has a machine, whose link gives the duration; an in-house way without either cannot be booked.
   duration_minutes Int?
+  /// Standard turnaround: the working days its results take from sample receipt; for a subcontracted way it covers transport and the subcontractor's processing. A quotation with a way without it cannot be sent.
+  turnaround_days  Int?
   /// Samples one interval of a tester holds for bookings of the way when its method is linked to no machine; at least 1.
   capacity         Int             @default(1)
+  /// Days from sending a dispatch through the subcontracted way until its results are back, transport and processing included; empty when unknown or for an in-house way.
+  turnaround_days  Int?
   /// False when this way of testing is archived.
   active           Boolean         @default(true)
   /// The parameter being tested.
@@ -976,8 +980,10 @@ model TestRequest {
   requested_date DateTime? @db.Date
   /// Committed return date: the date Sales promised the customer the results. Only Sales changes it, with the customer's agreement; each change is a CommittedDateChange.
   committed_date DateTime? @db.Date
-  /// True for an accepted priority request: the requested date is earlier than the estimate and the check said it can be met, so its tests are urgent.
+  /// True for an accepted priority request: the feasibility check said the requested date can be met, so its tests are urgent.
   priority      Boolean  @default(false)
+  /// Working days results take from sample receipt, the longest standard turnaround of the accepted ways; receiving the first sample fixes the committed date with it when none was agreed.
+  turnaround_days Int?
   /// Language the customer wants the report in: vi, en or bilingual.
   report_language String @default("bilingual") @db.VarChar
   /// How the report reaches the customer: in_person, post, email or other.
@@ -986,7 +992,7 @@ model TestRequest {
   delivery_note String? @db.Text
   /// The contact who receives the report; the customer's own contact when empty.
   report_recipient_id Int?
-  /// draft, confirmed, paid, sample_received, testing, awaiting_approval, completed, reported or cancelled.
+  /// draft, confirmed, paid, on_credit, sample_received, testing, awaiting_approval, completed, reported or cancelled.
   status       String   @db.VarChar
   /// Free notes about the request.
   note         String?  @db.Text
@@ -2178,12 +2184,16 @@ model SubcontractDispatch {
   subcontractor_id Int
   /// Date the samples were sent.
   sent_date        DateTime?                 @db.Date
-  /// Sample delivery staff (nhân viên giao nhận mẫu) who takes the samples; empty when a delivery service does.
+  /// Sample delivery staff (nhân viên giao nhận mẫu) who take the samples, also when they hand them to a delivery service.
   courier_id       Int?
-  /// Delivery service and tracking number, when a delivery service takes the samples.
+  /// Delivery service that carries the samples to the subcontractor; empty when sample delivery staff do.
   delivery_service String?                   @db.VarChar
-  /// Date the results are expected back.
+  /// Tracking number the delivery service gave the samples.
+  tracking_number  String?                   @db.VarChar
+  /// Date the results are expected back: the date sent plus the longest turnaround of its ways of testing, unless entered.
   expected_date    DateTime?                 @db.Date
+  /// Why the delivery to the subcontractor failed, recorded when it cancelled the sent dispatch.
+  failure_reason   String?                   @db.Text
   /// Date the results came back.
   received_date    DateTime?                 @db.Date
   /// draft, sent, received or cancelled.

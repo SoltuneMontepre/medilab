@@ -1,6 +1,6 @@
 import { choose, save, search } from "../../../support/form";
 import { callAs, callRefused } from "../../../support/odoo";
-import { ADMIN, TESTER, accept, bookingsOf, inDays, machineFixture, notified, odooTime, release, testsOf, typed } from "./setup";
+import { ADMIN, TESTER, approve, bookingsOf, inDays, machineFixture, notified, odooTime, release, testsOf, typed } from "./setup";
 
 const NO_MACHINE = "No machine can finish";
 
@@ -102,7 +102,7 @@ describe("SF-05 Machine calibration and unavailability", () => {
         openBooking(replanned.id);
         cy.get(".o_statusbar_status .o_arrow_button_current").should("contain", "Proposed");
         cy.get(".o_field_widget[name=machine_id]").should("contain", "-B");
-        cy.get('.o_statusbar_buttons button[name="action_accept"]').should("be.visible");
+        cy.get('.o_statusbar_buttons button[name="action_approve"]').should("be.visible");
       });
 
       // The repair is recorded, and putting the machine back in use is refused until a calibration or maintenance
@@ -135,11 +135,11 @@ describe("SF-05 Machine calibration and unavailability", () => {
   it("TC-SF05-A1 gives a machine without valid calibration no booking until valid calibration is recorded, and returns a booking that would end after the calibration to the plan", () => {
     machineFixture({ tests: 1, book: 0, calibrated: false }, (created) => (fixture = created)).then(() => {
       const [test] = fixture.tests;
-      cy.signInAs("tester");
+      cy.signInAs("head_of_department");
       openTest(test);
       cy.get(".o_form_view .alert.alert-warning").should("contain", NO_MACHINE);
-      cy.get(".o_statusbar_buttons button[name=action_schedule]").should("not.exist");
-      callRefused("medilab.sample.test", "action_schedule", [[test]]).should("contain", NO_MACHINE);
+      cy.get(".o_statusbar_buttons button[name=action_approve_booking]").should("not.exist");
+      callRefused("medilab.sample.test", "action_approve_booking", [[test]]).should("contain", NO_MACHINE);
       bookingsOf(fixture).then(([booking]) => {
         expect(booking.status, "queued for the plan").to.equal("proposed");
         expect(booking.starts_at, "without a slot").to.equal(false);
@@ -155,12 +155,12 @@ describe("SF-05 Machine calibration and unavailability", () => {
       });
 
       addService("Calibration", { date: inDays(0), due: inDays(365) });
-      cy.signInAs("tester");
+      cy.signInAs("head_of_department");
       openTest(test);
       cy.get(".o_form_view .alert.alert-warning").should("not.exist");
-      cy.intercept("POST", "**/medilab.sample.test/action_schedule").as("scheduled");
-      cy.get(".o_statusbar_buttons button[name=action_schedule]").should("be.visible").and("be.enabled").click();
-      cy.wait("@scheduled").its("response.body.error").should("not.exist");
+      cy.intercept("POST", "**/medilab.sample.test/action_approve_booking").as("approved");
+      cy.get(".o_statusbar_buttons button[name=action_approve_booking]").should("be.visible").and("be.enabled").click();
+      cy.wait("@approved").its("response.body.error").should("not.exist");
       bookingsOf(fixture).then(([booking]) => {
         expect(booking.status).to.equal("scheduled");
         expect(booking.machine_id[0]).to.equal(fixture.machine);
@@ -216,7 +216,7 @@ describe("SF-05 Machine calibration and unavailability", () => {
       cy.signInAs("administrator");
       openMachine(fixture.machine);
       setMaintenanceInterval(5);
-      callRefused("medilab.sample.test", "action_schedule", [[waiting]]).should("contain", NO_MACHINE);
+      callRefused("medilab.sample.test", "action_approve_booking", [[waiting]]).should("contain", NO_MACHINE);
       warningLines(booking).should((lines) => {
         expect(lines.join("\n")).to.contain("calibration").and.contain("maintenance").and.contain("was repaired on");
       });
@@ -255,17 +255,17 @@ describe("SF-05 Machine calibration and unavailability", () => {
           });
         });
 
-        // The maintenance falls overdue: the plan's proposals cannot be accepted.
+        // The maintenance falls overdue: the plan's proposals cannot be approved.
         setMaintenanceInterval(30);
         addService("Maintenance", { date: inDays(-100) });
-        callRefused("medilab.sample.test", "action_schedule", [[fixture.tests[0]]]).should("contain", NO_MACHINE);
+        callRefused("medilab.sample.test", "action_approve_booking", [[fixture.tests[0]]]).should("contain", NO_MACHINE);
         bookingsOf(fixture).then((after) => {
           expect(after.filter((booking) => booking.status === "scheduled")).to.be.empty;
         });
 
         // Recording its completion lifts the block, and the booking keeps clear of the downtime.
         addService("Maintenance", { date: inDays(0) });
-        accept(fixture, fixture.tests[0]).then((booking) =>
+        approve(fixture, fixture.tests[0]).then((booking) =>
           callAs(ADMIN, "medilab.machine.booking", "read", [[booking], ["starts_at"]]).then(([read]) => {
             expect(read.starts_at >= downtimeEnd, `${read.starts_at} is after the downtime`).to.equal(true);
           }),
@@ -301,9 +301,9 @@ describe("SF-05 Machine calibration and unavailability", () => {
         openTest(fixture.tests[0]);
         cy.get(".o_form_view .alert.alert-warning").should("contain", NO_MACHINE);
         cy.get(".o_form_view .alert.alert-danger").should("contain", "at risk");
-        cy.get(".o_statusbar_buttons button[name=action_schedule]").should("not.exist");
+        cy.get(".o_statusbar_buttons button[name=action_approve_booking]").should("not.exist");
       });
-      callRefused("medilab.sample.test", "action_schedule", [[fixture.tests[0]]]).should("contain", NO_MACHINE);
+      callRefused("medilab.sample.test", "action_approve_booking", [[fixture.tests[0]]]).should("contain", NO_MACHINE);
     });
   });
 

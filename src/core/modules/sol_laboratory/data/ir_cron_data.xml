@@ -80,6 +80,14 @@
         <field name="interval_number">1</field>
         <field name="interval_type">days</field>
     </record>
+    <record id="ir_cron_subcontract_dispatches_accreditation_lapsed" model="ir.cron">
+        <field name="name">Dispatches whose subcontractor's accreditation lapsed</field>
+        <field name="model_id" ref="model_medilab_scheduled_job" />
+        <field name="state">code</field>
+        <field name="code">model._run_key("subcontract_dispatches.accreditation_lapsed")</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+    </record>
     <record id="ir_cron_quality_registration_expiry" model="ir.cron">
         <field name="name">Quality registration expiry</field>
         <field name="model_id" ref="model_medilab_scheduled_job" />

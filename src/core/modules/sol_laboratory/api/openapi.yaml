@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: MediLab laboratory files API
-  version: 1.12.0
+  version: 1.15.0
   description: |
     The API Medilab Sync signs computers in with and reaches laboratory files through, and Medilab Mobile signs phones
     in with. Every refusal answers `{"error": {"code", "message"}}` with the HTTP status of its code; a device acts on
@@ -51,6 +51,8 @@ tags:
     description: The files the app shows, downloaded with the person's rights.
   - name: Results
     description: Testing at the bench, entering results and signing or rejecting them.
+  - name: Handover records
+    description: The handover records of samples collected from customers, and the customer's signature on them.
   - name: Conversations
     description: The person's direct and group conversations, the same as Discuss on the web.
   - name: Chatter
@@ -1784,6 +1786,137 @@ paths:
           $ref: "#/components/responses/InternalError"
         "503":
           $ref: "#/components/responses/Unavailable"
+  /handover-records:
+    get:
+      operationId: listHandoverRecords
+      tags: [Handover records]
+      summary: Lists the handover records of the status the person may read, latest handover first.
+      description: |
+        `draft`, the records waiting for the customer's signature; `signed`, the records the customer signed.
+        `next_after` is the `after` of the next page, or empty after the last one.
+      parameters:
+        - name: status
+          in: query
+          required: true
+          schema:
+            enum: [draft, signed]
+        - name: after
+          in: query
+          required: false
+          description: The `next_after` of the page before, how many records the pages before gave; 0 or none from the start.
+          schema:
+            type: string
+            pattern: "^[0-9]{1,9}$"
+        - name: limit
+          in: query
+          required: false
+          description: How many to give, from 1 to 100; 50 by default.
+          schema:
+            type: string
+            pattern: "^(100|[1-9][0-9]?)$"
+      responses:
+        "200":
+          description: The records.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HandoverRecordList"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /handover-records/{record_id}:
+    parameters:
+      - name: record_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: getHandoverRecord
+      tags: [Handover records]
+      summary: Gives the record with the samples it lists, and when and on which phone it was signed.
+      description: A record the person may not read answers `not_found`.
+      responses:
+        "200":
+          description: The record.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HandoverRecord"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /handover-records/{record_id}/sign:
+    parameters:
+      - name: record_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      operationId: signHandoverRecord
+      tags: [Handover records]
+      summary: Records the customer's handwritten signature on the draft record.
+      description: |
+        `confirmed` is sent only from the app's confirmation step, so signing is a deliberate action. The phone of the
+        key is recorded as the device the record was signed on, the signed PDF is attached and emailed to the customer,
+        and the record can no longer change. A signature over 1 MiB once decoded is refused with `too_large` before
+        anything is stored, and one that is not a PNG with `invalid_request`. Signing again from the phone that signed
+        the record answers the signed record. Signing from any other phone, or a record without samples, is refused
+        with `action_refused`, and a person who may not edit the record with `permission_denied`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HandoverSignature"
+      responses:
+        "200":
+          description: The record signed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HandoverRecord"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/ActionRefused"
+        "413":
+          $ref: "#/components/responses/TooLarge"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
   /support-requests:
     get:
       operationId: listSupportRequests
@@ -3307,13 +3440,22 @@ components:
         can:
           type: object
           additionalProperties: false
-          required: [create_tasks, assign_tasks]
+          required: [create_tasks, assign_tasks, read_handover_records, scan_samples, sign_results]
           properties:
             create_tasks:
               description: Whether the person creates tasks by hand.
               type: boolean
             assign_tasks:
               description: Whether the person assigns and reassigns tasks.
+              type: boolean
+            read_handover_records:
+              description: Whether the person reads handover records.
+              type: boolean
+            scan_samples:
+              description: Whether the person records receipts or hands samples over, which both edit sample handovers.
+              type: boolean
+            sign_results:
+              description: Whether results can wait for the person's signature after the tester sent them.
               type: boolean
             take_support_requests:
               description: Whether the person takes and answers support requests; given only with E-commerce installed.
@@ -3605,6 +3747,7 @@ components:
         - handover
         - tasks
         - can_add_photos
+        - tests_samples
       properties:
         id:
           type: integer
@@ -3647,6 +3790,9 @@ components:
             $ref: "#/components/schemas/Task"
         can_add_photos:
           description: Whether the person reads the sample's photos and may attach one; never for a tester.
+          type: boolean
+        tests_samples:
+          description: Whether the person is in a department and authorized to test a parameter, so receives samples and claims their testing tasks.
           type: boolean
     SamplePhotoList:
       type: object
@@ -3976,6 +4122,141 @@ components:
           type: boolean
         reject:
           type: boolean
+    HandoverRecordList:
+      type: object
+      additionalProperties: false
+      required: [records, next_after]
+      properties:
+        records:
+          type: array
+          items:
+            $ref: "#/components/schemas/HandoverRecordSummary"
+        next_after:
+          type: [integer, "null"]
+    HandoverRecordStatus:
+      description: Waiting for the customer's signature (`draft`) or signed.
+      enum: [draft, signed]
+    HandoverRecordSummary:
+      type: object
+      additionalProperties: false
+      required: [id, code, request, handed_over_at, handed_over_by, status, signed_at]
+      properties:
+        id:
+          type: integer
+        code:
+          type: string
+        request:
+          description: The test request whose samples are handed over.
+          type: string
+        handed_over_at:
+          type: string
+          format: date-time
+        handed_over_by:
+          description: The customer's person who hands the samples over and signs.
+          type: string
+        status:
+          $ref: "#/components/schemas/HandoverRecordStatus"
+        signed_at:
+          type: [string, "null"]
+          format: date-time
+    HandoverRecord:
+      description: A record with the samples it lists, the phone it was signed on and whether the customer may sign it now.
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - code
+        - request
+        - handed_over_at
+        - handed_over_by
+        - status
+        - signed_at
+        - received_by
+        - signed_device
+        - samples
+        - can_sign
+      properties:
+        id:
+          type: integer
+        code:
+          type: string
+        request:
+          description: The test request whose samples are handed over.
+          type: string
+        handed_over_at:
+          type: string
+          format: date-time
+        handed_over_by:
+          description: The customer's person who hands the samples over and signs.
+          type: string
+        status:
+          $ref: "#/components/schemas/HandoverRecordStatus"
+        signed_at:
+          type: [string, "null"]
+          format: date-time
+        received_by:
+          description: The sample delivery staff who take the samples.
+          type: string
+        signed_device:
+          description: The name of the phone the customer signed on; empty while the record is a draft.
+          type: string
+        samples:
+          type: array
+          items:
+            $ref: "#/components/schemas/HandoverRecordSample"
+        can_sign:
+          description: Whether the record waits for the customer's signature and the person may have them sign it.
+          type: boolean
+    HandoverRecordSample:
+      description: A sample on the record, with what was handed over against what was expected.
+      type: object
+      additionalProperties: false
+      required:
+        - code
+        - sample_type
+        - customer_sample_name
+        - expected_count
+        - actual_count
+        - quantity
+        - excess_material
+        - condition
+        - condition_note
+      properties:
+        code:
+          type: string
+        sample_type:
+          type: string
+        customer_sample_name:
+          description: The customer's name for the sample; null for a person who may not read every test request.
+          type: [string, "null"]
+        expected_count:
+          description: Physical samples expected; 0 when none were calculated.
+          type: integer
+        actual_count:
+          description: Physical samples actually handed over.
+          type: integer
+        quantity:
+          description: The amount handed over, such as "2 bottles of 1 L".
+          type: string
+        excess_material:
+          type: string
+        condition:
+          description: The condition as handed over, in the person's language.
+          type: string
+        condition_note:
+          type: string
+    HandoverSignature:
+      type: object
+      additionalProperties: false
+      required: [signature, confirmed]
+      properties:
+        signature:
+          description: The customer's handwritten signature as a PNG in base64, at most 1 MiB once decoded.
+          type: string
+          minLength: 1
+        confirmed:
+          description: Sent only from the app's confirmation step.
+          const: true
     SupportRequestList:
       type: object
       additionalProperties: false

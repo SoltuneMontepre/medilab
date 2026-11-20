@@ -92,6 +92,14 @@ jobs:
           doppler secrets get MOBILE_UPLOAD_KEYSTORE --plain | base64 --decode > "$KEYS_DIR/upload.jks"
           doppler secrets get MOBILE_UPDATE_PRIVATE_KEY --plain > "$KEYS_DIR/update.pem"
           doppler secrets get MOBILE_GOOGLE_SERVICES_JSON --plain > google-services.json
+
+      # The app embeds a certificate of the update key and expo-updates refuses a code update it does not verify. It is
+      # made again from the key at each build: a phone checks only that the key is the same.
+      - name: Write the update certificate
+        run: |
+          mkdir -p certs
+          openssl req -new -x509 -key "$KEYS_DIR/update.pem" -out certs/update-certificate.pem -days 3650             -subj "/CN=MediLab updates" -addext "keyUsage=critical,digitalSignature"             -addext "extendedKeyUsage=critical,codeSigning"
+          echo "MEDILAB_MOBILE_UPDATE_CERTIFICATE=./certs/update-certificate.pem" >> "$GITHUB_ENV"
           public_address="$(doppler secrets get RELEASE_BUCKET_PUBLIC_ADDRESS --plain)"
           if [[ ! "$public_address" =~ ^https:// ]]; then
             echo "::error::RELEASE_BUCKET_PUBLIC_ADDRESS must start with https://."

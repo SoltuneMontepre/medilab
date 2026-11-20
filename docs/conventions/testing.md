@@ -63,12 +63,12 @@ The harness requires context `kind-medilab-286-review`, a loopback API server an
 
 - A test file is named `<feature>.cy.js` under `src/tests/cypress/e2e/`. Business-flow specs belong to `flows/<flow>/`; feature specs without an owning flow belong to `features/<module>/<feature>/`. The [browser test layout](../../src/tests/cypress/e2e/README.md) maps issue scopes to directories and spec basenames.
 - Every feature has a browser test of its main path, written with the feature: it signs in as the demo user of the role that does the work, such as `demo.tester`, and walks the main path on the demo data.
-- The support entry point `cypress/support/e2e.js` registers the shared commands below, keeps Odoo from subscribing to web push, which the test browser cannot do, and ignores the browser's ResizeObserver loop notice, which a list that resizes while it redraws raises. Tests use them instead of copying sign-in, navigation or action steps. `call(<model>, <method>, <args>, <kwargs>)` from `cypress/support/odoo.js` calls a model method in the signed-in session and fails on an RPC error. Existing tests may still import `signIn(<login>)` from that file; it uses the same session handling as `cy.signInAs()`.
+- The support entry point `cypress/support/e2e.js` registers the shared commands below, keeps Odoo from subscribing to web push, which the test browser cannot do, hides the browser's service workers from Odoo, whose cached page and background fetches would load a user's first page twice at once, and ignores the browser's ResizeObserver loop notice, which a list that resizes while it redraws raises. Tests use them instead of copying sign-in, navigation or action steps. `call(<model>, <method>, <args>, <kwargs>)` from `cypress/support/odoo.js` calls a model method in the signed-in session and fails on an RPC error. Existing tests may still import `signIn(<login>)` from that file; it uses the same session handling as `cy.signInAs()`.
 - Tests use the app address `MEDILAB_URL`, default `http://localhost:8069`.
 - Tests run in a 1440 × 900 laptop viewport, set in `cypress.config.js`. A spec sets another viewport only to check a layout that depends on the window, such as a narrow menu bar.
 - Tests do not depend on data a previous test created.
 - The task unsets `ELECTRON_RUN_AS_NODE`, which editors such as VS Code set and which stops Cypress from starting.
-- `task test:e2e:app` installs every module with the demo data into the app's database and starts Odoo, then waits until it answers. The tests sign in as the demo users. Locally it changes the database of `task up`; it refuses a selected fresh demo to avoid reinstalling into its completed application database.
+- `task test:e2e:app` installs every module with the demo data into the app's database and starts Odoo, then waits until it answers. `ci-core` runs it before `task test:e2e`, so tests can sign in as the demo users. Locally it changes the database of `task up`; it refuses a selected fresh demo to avoid reinstalling into its completed application database.
 
 ### Running browser tests
 
@@ -86,11 +86,11 @@ Run commands from the repository root in PowerShell, Bash or your usual terminal
 
 Both modes inherit the local environment files loaded by Task. Set `MEDILAB_DEMO_PASSWORD` to the password used when the demo was created if it differs from `demo`.
 
-The SF-01 tests pay online by sending PayOS notifications from the test runner, signed with `PAYOS_CHECKSUM_KEY`. Odoo checks them with the same key, so set it, to any random value, in `tools/infrastructure/.env` before starting Odoo, and leave `PAYOS_CLIENT_ID` and `PAYOS_API_KEY` unset so that nothing calls PayOS. The fresh local demo does not forward the key, so those tests fail there.
+The SF-01 tests pay online by sending PayOS notifications from the test runner, signed with `PAYOS_CHECKSUM_KEY`. Odoo checks them with the same key, so set it, to any random value, in `tools/infrastructure/.env` before starting Odoo, and leave `PAYOS_CLIENT_ID` and `PAYOS_API_KEY` unset so that nothing calls PayOS. The `e2e` job of `ci-core` makes a new key for each run. The fresh local demo does not forward the key, so those tests fail there.
 
 #### Preparing the application
 
-`task test:e2e:app` prepares the selected local application for browser tests:
+`task test:e2e:app` prepares the selected local application for browser tests, as CI does:
 
 1. Verify the selected Compose project. Module installation is refused on a selected fresh demo; start that completed demo with `task up` instead.
 2. Start Postgres and Garage and configure the laboratory files bucket and the additional buckets used by access and reconciliation tests.
@@ -146,7 +146,7 @@ Use [Cypress Tap and AI Skills](../workflows/cypress-tap.md) when an agent write
 
 | Command | Use |
 | --- | --- |
-| `cy.signInAs(role)` | Sign in as `demo.<role>`, for example `tester`, `head_of_department` or `customer`. Read the password from `MEDILAB_DEMO_PASSWORD`, default `demo`. First unregister Odoo's service worker, as before every test: its update check after the previous backend page would get a new session cookie, which the login form's CSRF token does not match. Cache and validate the session within this spec file, then open the backend or portal as appropriate. |
+| `cy.signInAs(role)` | Sign in as `demo.<role>`, for example `tester`, `head_of_department` or `customer`. Read the password from `MEDILAB_DEMO_PASSWORD`, default `demo`. Cache and validate the session within this spec file, then open the backend or portal as appropriate. |
 | `cy.openRecord(record)` | Open the backend form of a record given by a full demo external ID such as `sol_demo.demo_test_result_retest`, or as `{ model, id }`, and yield `{ model, id }`. The current user's permissions apply. |
 | `cy.readRecord(record, fields)` | Read the named fields of that record in the current session and yield its values. `fields` must be a nonempty array. |
 | `cy.signRecord(action)` | Click the visible form button named `action`, default `action_sign`. |

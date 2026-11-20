@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_subcontractor_contact_form" model="ir.ui.view">
+        <field name="name">medilab.subcontractor.contact.form</field>
+        <field name="model">medilab.subcontractor.contact</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="subcontractor_id" invisible="1" />
+                    <field name="name" />
+                    <field name="function" />
+                    <field name="phone" />
+                    <field name="email" />
+                    <field name="make_default" />
+                </group>
+                <footer>
+                    <button name="action_add" type="object" string="Add" class="btn-primary" />
+                    <button special="cancel" string="Discard" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_medilab_subcontractor_contact" model="ir.actions.act_window">
+        <field name="name">Add a Contact Person</field>
+        <field name="res_model">medilab.subcontractor.contact</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

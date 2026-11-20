@@ -4,6 +4,7 @@ import { useLocalSearchParams } from "expo-router";
 import { HEAD, message, page } from "../../testing/conversations";
 import { fakeMediLab, kept, refusal } from "../../testing/fakeMediLab";
 import { renderSignedIn } from "../../testing/renderSignedIn";
+import { scrollingParent } from "../../testing/scrolling";
 import { ChatterScreen } from "./ChatterScreen";
 
 jest.mock("../../config", () => ({ serverUrl: "https://lab.example" }));
@@ -45,6 +46,16 @@ describe("ChatterScreen", () => {
       url: `${URL}/notes`,
       body: { text: "@Hoang Van Minh đã đồng nhất", mentions: [HEAD.id] },
     });
+  });
+
+  it("chooses a suggested person with the tap that closes the keyboard", async () => {
+    fakeMediLab(page(), { status: 200, body: { people: [HEAD] } });
+    await renderSignedIn(<ChatterScreen />);
+
+    await fireEvent.changeText(await screen.findByTestId("message-text"), "@Hoa");
+    const suggestion = await screen.findByTestId(`mention-${HEAD.id}`);
+
+    expect(scrollingParent(suggestion)).toHaveProp("keyboardShouldPersistTaps", "handled");
   });
 
   it("says when the person can no longer see the document", async () => {

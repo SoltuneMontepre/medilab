@@ -1,13 +1,11 @@
 import { newRecord, openTab, pick, save } from "../../../support/form";
 import { call, callAs, resolveRecord } from "../../../support/odoo";
-import { signatures } from "../sf-03-change-request/setup";
+import { FINAL_LEVEL, RESULT_CHAIN, removeFinalLevel, sentResult, signatures } from "../sf-03-change-request/setup";
 import {
   ADMINISTRATOR,
   BACKUP_PERSON,
-  FINAL_LEVEL,
   HEAD_OF_SALES,
   NEW_PARAMETER,
-  PURCHASE_CHAIN,
   REGULATION,
   assignedTest,
   catalogProduct,
@@ -16,8 +14,6 @@ import {
   clearCarts,
   clearNewLimits,
   pricedParameter,
-  requestedOrder,
-  resetPurchaseChain,
   taxedPackage,
   unique,
 } from "./setup";
@@ -90,9 +86,9 @@ function orderLines(name) {
   });
 }
 
-// Signs the open purchase order and waits for the signature to be saved.
-function signOrder() {
-  cy.intercept("POST", "/web/dataset/call_button/purchase.order/action_sign").as("sign");
+// Signs the open result and waits for the signature to be saved.
+function signResult() {
+  cy.intercept("POST", "/web/dataset/call_button/medilab.test.result/action_sign").as("sign");
   cy.signRecord();
   cy.wait("@sign");
 }
@@ -102,22 +98,24 @@ function signedLevels(document) {
   return signatures(document).then((rows) => rows.map((row) => row.level_name));
 }
 
-// The names of the apps the signed-in user's home menu offers.
+// The XML IDs of the apps the signed-in user's home menu offers, which do not depend on the user's language.
 function apps() {
   cy.visit("/odoo");
   cy.get(".o_navbar_apps_menu button").click();
   return cy
-    .get(".ml_apps_panel .ml_app_tile_name")
+    .get(".ml_apps_panel .ml_app_tile")
     .should("have.length.greaterThan", 0)
-    .then(($items) => Cypress._.sortBy([...$items].map((item) => item.innerText.trim())));
+    .then(($items) => Cypress._.sortBy([...$items].map((item) => item.dataset.menuXmlid)));
 }
 
 describe("SF-08 Laboratory setup", () => {
-  // M, A2 and A4 change shared demo records; they are put back even when a test fails.
+  // M, A2 and A4 change shared demo records; they are put back even when a test fails. The level A4 adds to the chain
+  // of results is also removed first, since the results of the other tests are signed without it.
+  beforeEach(() => removeFinalLevel());
   afterEach(() => {
     clearNewLimits();
     clearBackupRoles();
-    resetPurchaseChain();
+    removeFinalLevel();
   });
 
   it("TC-SF08-M creates a parameter with its way of testing, regulation limit and price, which a customer orders and a tester runs", () => {
@@ -244,25 +242,25 @@ describe("SF-08 Laboratory setup", () => {
 
   it("TC-SF08-A2 gives a person a role, whose menus they then see and no others", () => {
     clearBackupRoles();
-    cy.signInAs("storekeeper");
-    apps().then((storekeeperApps) => {
+    cy.signInAs("sales");
+    apps().then((salesApps) => {
       cy.signInAs("backup_signer");
-      apps().should("not.include", "Inventory");
+      apps().should("not.include", "sale.sale_menu_root");
 
       cy.signInAs("administrator");
       cy.openRecord(BACKUP_PERSON);
       openTab("roles");
       cy.get(".o_field_widget[name=role_ids] .o_field_x2many_list_row_add button").click();
       cy.get(".modal:visible").within(() => {
-        cy.get(".o_searchview_input").type("Storekeeper{enter}");
-        cy.contains(".o_data_row", "Storekeeper").find("td.o_data_cell").first().click();
+        cy.get(".o_searchview_input").type("Sales{enter}");
+        cy.contains(".o_data_row td.o_data_cell", /^Sales$/).click();
       });
       cy.get(".modal").should("not.exist");
       save();
-      cy.contains(".o_field_widget[name=role_ids] .o_data_row", "Storekeeper");
+      cy.contains(".o_field_widget[name=role_ids] .o_data_row td", /^Sales$/);
 
       cy.signInAs("backup_signer");
-      apps().should("deep.equal", storekeeperApps);
+      apps().should("deep.equal", salesApps);
     });
   });
 
@@ -308,9 +306,8 @@ describe("SF-08 Laboratory setup", () => {
   });
 
   it("TC-SF08-A4 sets the approval chain of a document type, whose documents are then signed level by level", () => {
-    resetPurchaseChain();
     cy.signInAs("administrator");
-    cy.openRecord(PURCHASE_CHAIN);
+    cy.openRecord(RESULT_CHAIN);
     openTab("levels");
     addRow("level_ids");
     typeInRow("sequence", "30");
@@ -319,19 +316,19 @@ describe("SF-08 Laboratory setup", () => {
     save();
     cy.contains(".o_field_widget[name=level_ids] .o_data_row", FINAL_LEVEL);
 
-    requestedOrder().then((order) => {
-      cy.signInAs("lab_head");
-      cy.openRecord(order);
-      signOrder();
-      // The lab head's level is signed, and the order still waits for the new level.
-      signedLevels(order).should("deep.equal", ["Storekeeper", "Lab head"]);
-      cy.readRecord(order, ["approval_status"]).its("approval_status").should("eq", "requested");
+    sentResult().then((result) => {
+      cy.signInAs("head_of_department");
+      cy.openRecord(result);
+      signResult();
+      // The head of department's level is signed, and the result still waits for the new level.
+      signedLevels(result).should("deep.equal", ["Tester", "Head of department"]);
+      cy.readRecord(result, ["status"]).its("status").should("eq", "requested");
 
       cy.signInAs("administrator");
-      cy.openRecord(order);
-      signOrder();
-      cy.readRecord(order, ["approval_status"]).its("approval_status").should("eq", "approved");
-      signedLevels(order).should("deep.equal", ["Storekeeper", "Lab head", FINAL_LEVEL]);
+      cy.openRecord(result);
+      signResult();
+      cy.readRecord(result, ["status"]).its("status").should("eq", "approved");
+      signedLevels(result).should("deep.equal", ["Tester", "Head of department", FINAL_LEVEL]);
     });
   });
 

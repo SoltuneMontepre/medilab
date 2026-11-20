@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Inventory is out of scope for now, so Odoo's stock dashboard is not published. -->
+    <record id="spreadsheet_dashboard_stock_account.spreadsheet_dashboard_warehouse_metrics" model="spreadsheet.dashboard">
+        <field name="is_published" eval="False" />
+    </record>
+</odoo>

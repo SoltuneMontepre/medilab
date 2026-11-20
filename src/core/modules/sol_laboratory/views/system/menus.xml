@@ -138,6 +138,28 @@
         </menuitem>
     </menuitem>
 
+    <!-- Every installed module lists its reports here too, grouped by area, so one app gives the overview; each report
+         stays under the Reporting menu of the app it is about and shows to the same people. -->
+    <menuitem id="menu_reports_root" name="Reports" sequence="25">
+        <menuitem id="menu_reports_testing" name="Testing Reports" sequence="10">
+            <!-- The current month's statistics open as a page, so opening the app shows its menus rather than the
+                 period dialog over the previous app. -->
+            <menuitem
+                id="menu_reports_testing_statistic"
+                action="action_medilab_testing_statistic"
+                sequence="10"
+                groups="group_permission_testing_statistic_read_all,group_permission_testing_statistic_read_own_department"
+            />
+            <menuitem
+                id="menu_reports_testing_statistic_period"
+                name="Statistics for a Period"
+                action="action_medilab_testing_statistic_period"
+                sequence="20"
+                groups="group_permission_testing_statistic_read_all,group_permission_testing_statistic_read_own_department"
+            />
+        </menuitem>
+    </menuitem>
+
     <menuitem id="menu_master_data_root" name="Master Data" sequence="20">
         <menuitem id="menu_master_data_catalog" name="Catalog" sequence="10">
             <menuitem id="menu_test_parameter" action="action_medilab_test_parameter" sequence="10" />

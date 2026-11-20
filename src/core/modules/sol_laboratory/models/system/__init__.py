@@ -23,6 +23,7 @@ from . import (
     job_item,
     job_run,
     mobile_device,
+    mobile_release_settings,
     permission,
     person,
     res_config_settings,

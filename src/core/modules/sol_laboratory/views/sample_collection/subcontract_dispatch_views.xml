@@ -11,6 +11,7 @@
                 <field name="expected_date" />
                 <field name="courier_id" />
                 <field name="delivery_service" />
+                <field name="tracking_number" optional="hide" />
                 <field
                     name="status"
                     widget="badge"
@@ -38,6 +39,24 @@
                         groups="sol_laboratory.group_permission_subcontract_dispatch_edit_all"
                     />
                     <button
+                        name="%(action_medilab_subcontract_dispatch_handover)d"
+                        type="action"
+                        string="Hand Over"
+                        class="btn-primary"
+                        context="{'default_dispatch_id': id}"
+                        invisible="not can_hand_over"
+                    />
+                    <button
+                        name="%(action_medilab_subcontract_dispatch_failure)d"
+                        type="action"
+                        string="Delivery Failed"
+                        class="btn-danger"
+                        context="{'default_dispatch_id': id}"
+                        invisible="not can_report_failure"
+                    />
+                    <field name="can_hand_over" invisible="1" />
+                    <field name="can_report_failure" invisible="1" />
+                    <button
                         name="action_receive"
                         type="object"
                         string="Mark Received"
@@ -56,6 +75,10 @@
                     />
                     <field name="status" widget="statusbar" statusbar_visible="draft,sent,received" />
                 </header>
+                <div class="alert alert-warning mb-0" role="alert" invisible="not contact_person_archived or status != 'draft'">
+                    The subcontractor's default contact person is archived: choose another on the subcontractor before sending the dispatch.
+                </div>
+                <field name="contact_person_archived" invisible="1" />
                 <sheet>
                     <div class="oe_title">
                         <label for="code" />
@@ -71,6 +94,7 @@
                             <field name="sent_date" readonly="status not in ('draft', 'sent')" />
                             <field name="expected_date" readonly="status not in ('draft', 'sent')" />
                             <field name="received_date" invisible="status != 'received'" />
+                            <field name="failure_reason" invisible="not failure_reason" />
                             <field name="report_filename" invisible="1" />
                             <field
                                 name="report_file"
@@ -82,14 +106,19 @@
                             <field name="courier_choice_ids" invisible="1" />
                             <field
                                 name="courier_id"
-                                readonly="status not in ('draft', 'sent') or delivery_service"
+                                readonly="status not in ('draft', 'sent')"
                                 domain="[('id', 'in', courier_choice_ids)]"
                                 options="{'no_create': True}"
                             />
                             <field
                                 name="delivery_service"
-                                readonly="status not in ('draft', 'sent') or courier_id"
-                                placeholder="e.g. Viettel Post, VTP 8402 1157 2210"
+                                readonly="status not in ('draft', 'sent')"
+                                placeholder="e.g. Viettel Post"
+                            />
+                            <field
+                                name="tracking_number"
+                                readonly="status not in ('draft', 'sent')"
+                                invisible="not delivery_service"
                             />
                         </group>
                     </group>
@@ -136,6 +165,7 @@
                 <field name="subcontractor_id" filters="1" />
                 <field name="courier_id" />
                 <field name="delivery_service" />
+                <field name="tracking_number" />
                 <field name="status" />
             </calendar>
         </field>
@@ -180,7 +210,7 @@
         <field name="res_model">medilab.subcontract.dispatch</field>
         <field name="path">dispatches-to-carry</field>
         <field name="view_mode">list,form</field>
-        <field name="domain">[('carried_by_me', '=', True), ('status', '=', 'sent')]</field>
+        <field name="domain">[('carried_by_me', '=', True), ('status', 'in', ('draft', 'sent'))]</field>
         <field name="context">{'create': False}</field>
     </record>
 </odoo>

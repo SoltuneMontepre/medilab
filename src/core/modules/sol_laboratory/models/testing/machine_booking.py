@@ -142,6 +142,8 @@ class MachineBooking(models.Model, MachineBookingBase):
         method_step_ids = fields.One2many(
             related="sample_test_id.parameter_method_id.method_id.step_ids", string="Method Steps"
         )
+        # Hours all the method's steps take, such as ashing before the measurement; the booking holds only the machine.
+        method_hours = fields.Float(string="Method Takes (hours)", compute="_compute_method_hours", digits=(16, 1))
         # Calendar events booking the locations of the method's steps for this booking.
         room_event_ids = fields.One2many(MODEL_CALENDAR_EVENT, "machine_booking_id", string="Room Bookings")
 
@@ -177,6 +179,11 @@ class MachineBooking(models.Model, MachineBookingBase):
         for booking in self:
             test = booking.sudo().sample_test_id
             booking.display_name = f"{test.sample_id.code}: {test.parameter_id.name}"
+
+    @api.depends("method_step_ids.duration_minutes")
+    def _compute_method_hours(self):
+        for booking in self:
+            booking.method_hours = sum(booking.sudo().method_step_ids.mapped("duration_minutes")) / 60
 
     @api.constrains("starts_at", "machine_id", "status")
     def _check_shared_interval(self):

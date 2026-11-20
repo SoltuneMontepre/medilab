@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_subcontract_dispatch_handover_form" model="ir.ui.view">
+        <field name="name">medilab.subcontract.dispatch.handover.form</field>
+        <field name="model">medilab.subcontract.dispatch.handover</field>
+        <field name="arch" type="xml">
+            <form>
+                <p>The dispatch is sent once you take it. When you hand it to a delivery service, enter the service and its tracking number.</p>
+                <group>
+                    <field name="dispatch_id" invisible="1" />
+                    <field name="delivery_service" placeholder="e.g. Viettel Post" />
+                    <field name="tracking_number" required="delivery_service" invisible="not delivery_service" />
+                </group>
+                <footer>
+                    <button name="action_hand_over" type="object" string="Hand Over" class="btn-primary" />
+                    <button special="cancel" string="Discard" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_medilab_subcontract_dispatch_handover" model="ir.actions.act_window">
+        <field name="name">Hand Over the Dispatch</field>
+        <field name="res_model">medilab.subcontract.dispatch.handover</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <record id="view_medilab_subcontract_dispatch_failure_form" model="ir.ui.view">
+        <field name="name">medilab.subcontract.dispatch.failure.form</field>
+        <field name="model">medilab.subcontract.dispatch.failure</field>
+        <field name="arch" type="xml">
+            <form>
+                <p>The dispatch is cancelled and its sample tests stay outsourced. The heads of department ask for the samples again and put them in a new dispatch.</p>
+                <group>
+                    <field name="dispatch_id" invisible="1" />
+                    <field name="reason" />
+                </group>
+                <footer>
+                    <button name="action_confirm" type="object" string="Record Failed Delivery" class="btn-danger" />
+                    <button special="cancel" string="Discard" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_medilab_subcontract_dispatch_failure" model="ir.actions.act_window">
+        <field name="name">Delivery Failed</field>
+        <field name="res_model">medilab.subcontract.dispatch.failure</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

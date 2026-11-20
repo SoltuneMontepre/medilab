@@ -10,7 +10,7 @@ from odoo.exceptions import AccessError, UserError
 from odoo.fields import Command
 from odoo.tests import HttpCase, tagged
 
-from .invoicing_case import InvoicingCase
+from .invoicing_case import InvoicingCase, post_legacy_advance_invoice
 from odoo.addons.sol_commerce.services.payos_client import PayosClient
 from odoo.addons.sol_laboratory.constants.models import MODEL_SCHEDULED_JOB
 from odoo.addons.sol_laboratory.services.record_id import persisted_ids
@@ -25,7 +25,7 @@ class TestPayments(InvoicingCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.invoice = cls.order.create_advance_invoice()
+        cls.invoice = post_legacy_advance_invoice(cls.order)
 
     def pay(self, amount, method="bank_transfer"):
         return self.env["account.payment"].create_pending_payment(self.invoice, amount, method)
@@ -142,6 +142,17 @@ class TestPayments(InvoicingCase):
         self.assertEqual(payment.amount, self.invoice.amount_total + 1_000)
         self.assertIn(self.invoice.payment_state, PAID_STATES)
 
+    def test_a_payos_payment_tells_the_salesperson_it_needs_no_review(self):
+        self.env.ref("sol_commerce.payment_provider_payos").is_published = True
+        self.env.ref("sol_commerce.payment_method_payos_qr").active = True
+        transaction = self.env["payment.transaction"]._create_payos_transaction(self.invoice)
+        transaction.with_context(payment_safe_write=True)._set_done()
+
+        transaction._create_online_payment()
+
+        order = self.invoice.order_id
+        self.assertTrue(order.message_ids.filtered(lambda message: "PayOS" in (message.body or "")))
+
     def test_the_receipt_names_the_collection_method(self):
         payment = self.pay(1_000_000, "cash")
         payment.action_post()
@@ -215,6 +226,76 @@ class TestPayments(InvoicingCase):
         self.assertEqual(day.status, "locked")
         self.assertEqual(transaction.payment_id.amount, paid)
 
+    def _payos_receipt_after_the_deadline(self):
+        attachment = self.env["ir.attachment"].create({"name": "Quotation", "type": "binary"})
+        quotation = self.env["medilab.quotation"].create(
+            {"order_id": self.order.id, "amount_total": 5_000_000, "attachment_id": attachment.id}
+        )
+        request = self.env["medilab.payment.request"].create(
+            {
+                "order_id": self.order.id,
+                "quotation_id": quotation.id,
+                "kind": "advance",
+                "amount": 2_000_000,
+                "deadline": "2020-06-03 04:00:00",
+            }
+        )
+        self.order.payment_request_id = request
+        self.env.ref("sol_commerce.payment_provider_payos").is_published = True
+        self.env.ref("sol_commerce.payment_method_payos_qr").active = True
+        transactions = self.env["payment.transaction"]
+        link = transactions._create_payos_transaction(request, 1_000_000)
+        receipt = transactions._payos_apply_webhook(
+            {
+                "orderCode": int(link.reference),
+                "amount": 1_000_000,
+                "code": "00",
+                "reference": "FT-AFTER-DEADLINE",
+                "transactionDateTime": "2020-06-03 12:00:00",
+            }
+        )
+        day = self.env["medilab.reconciliation.day"].create({"day": "2020-06-03"})
+        self.assertEqual(receipt.payment_id.collection_review, "late")
+        self.assertEqual(receipt.payment_id.state, "draft")
+        return day, receipt
+
+    def test_a_draft_payos_receipt_blocks_the_day_lock_until_confirmed(self):
+        day, receipt = self._payos_receipt_after_the_deadline()
+        draft = receipt.payment_id
+
+        self.assertEqual(day.missing_payment_count, 0)
+        day.action_post_missing_payments()
+        self.assertEqual(receipt.payment_id, draft)
+        self.assertEqual(draft.state, "draft")
+        day.discrepancies_acknowledged = True
+        with self.assertRaises(UserError):
+            day.action_lock()
+        self.assertEqual(day.status, "open")
+
+        receipt.payment_request_id.deadline = datetime(2020, 6, 3, 6)
+        draft.action_post()
+        day.discrepancies_acknowledged = False
+        day.action_lock()
+
+        self.assertEqual(day.status, "locked")
+        self.assertEqual((day.transfer_total, day.payment_total, day.difference_total), (1_000_000, 1_000_000, 0))
+
+    def test_a_rejected_payos_receipt_leaves_an_acknowledgeable_difference(self):
+        day, receipt = self._payos_receipt_after_the_deadline()
+
+        self.assertEqual((day.transfer_total, day.payment_total, day.difference_total), (1_000_000, 0, 1_000_000))
+        receipt.payment_id.rejection_reason = "Requires separate settlement"
+        receipt.payment_id.action_reject_payment()
+        with self.assertRaises(UserError):
+            day.action_lock()
+        self.assertEqual(day.missing_payment_count, 0)
+        self.assertEqual(day.mismatch_count, 1)
+        self.assertEqual((day.transfer_total, day.payment_total, day.difference_total), (1_000_000, 0, 1_000_000))
+
+        day.discrepancies_acknowledged = True
+        day.action_lock()
+        self.assertEqual(day.status, "locked")
+
     def test_payos_after_the_lock_is_stored_as_recorded_after_the_lock(self):
         self.env.ref("sol_commerce.payment_provider_payos").is_published = True
         self.env.ref("sol_commerce.payment_method_payos_qr").active = True
@@ -241,18 +322,22 @@ class TestPayments(InvoicingCase):
         self.assertTrue(transaction.payment_id)
 
     def test_an_overdue_reminder_is_queued_once(self):
-        state = self.invoice.payment_state
+        invoice = self.order.copy()
+        self.confirm_sale(invoice)
+        invoice = invoice.create_final_invoice()
+        invoice.action_post()
+        state = invoice.payment_state
         today = datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).date()
-        self.invoice.invoice_date_due = today - timedelta(days=1)
-        item = self.env[MODEL_SCHEDULED_JOB].queue("overdue.reminders", self.invoice.name, document=self.invoice)
+        invoice.invoice_date_due = today - timedelta(days=1)
+        item = self.env[MODEL_SCHEDULED_JOB].queue("overdue.reminders", invoice.name, document=invoice)
 
         item.job_id._handle_overdue_reminders(item)
         item.job_id._handle_overdue_reminders(item)
 
-        self.assertEqual(self.invoice.payment_state, state)
+        self.assertEqual(invoice.payment_state, state)
         self.assertEqual(
             self.env["mail.message"].search_count(
-                [("notification_key", "=", f"invoice:{self.invoice.id}:overdue:{today.isoformat()}")]
+                [("notification_key", "=", f"invoice:{invoice.id}:overdue:{today.isoformat()}")]
             ),
             1,
         )
@@ -263,10 +348,10 @@ class TestPaymentPortal(AuditLookup, InvoicingCase, HttpCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.invoice = cls.order.create_advance_invoice()
+        cls.invoice = post_legacy_advance_invoice(cls.order)
         private_order = cls.order.copy()
         cls.confirm_sale(private_order)
-        cls.private_invoice = private_order.create_advance_invoice()
+        cls.private_invoice = post_legacy_advance_invoice(private_order)
         cls.customer = cls.portal_user("payer.customer", cls.partner)
         cls.other = cls.portal_user("payer.other", cls.env["res.partner"].create({"name": "Other customer"}))
 
@@ -302,6 +387,14 @@ class TestPaymentPortal(AuditLookup, InvoicingCase, HttpCase):
         self.assertEqual(payment.amount, 1_000)
         self.assertEqual(payment.state, "draft")
         self.assertEqual(self.invoice.order_id.pending_amount, 1_000)
+        task = self.env["medilab.task"].search(
+            [("document_model", "=", "account.payment"), ("document_id", "=", payment.id)]
+        )
+        self.assertEqual(task.type_id.code, "payment_review")
+
+        payment.action_post()
+
+        self.assertEqual(task.status, "done")
 
     def test_a_portal_amount_above_the_residual_is_refused(self):
         self.authenticate(self.customer.login, self.customer.login)

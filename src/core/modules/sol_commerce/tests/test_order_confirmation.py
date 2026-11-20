@@ -1,9 +1,15 @@
+from pathlib import Path
+
+from odoo import fields
 from odoo.exceptions import AccessError, UserError
-from odoo.tests import tagged
+from odoo.modules.module import load_script
+from odoo.tests import Form, tagged
 
 from .order_case import OrderCase
-from odoo.addons.sol_commerce.constants.models import MODEL_CUSTOMER_SALES_TERMS
+from odoo.addons.sol_commerce.constants.models import MODEL_CUSTOMER_SALES_TERMS, MODEL_SAMPLE_COLLECTION_START
 from odoo.addons.sol_laboratory.constants.models import MODEL_TEST_REQUEST
+
+CREDIT_MIGRATION = Path(__file__).resolve().parents[1] / "migrations" / "20.0.1.16.0" / "post-migrate.py"
 
 
 @tagged("post_install", "-at_install")
@@ -121,12 +127,30 @@ class TestOrderConfirmation(OrderCase):
         self.assertFalse(task.department_id)
         self.assertFalse(task.planned_start)
         self.assertIn(order.name, task.name or "")
-        self.assertIn("12 Nguyen Hue", task.note or "")
+        self.assertIn("12 Nguyen Hue", task.place or "")
         self.assertTrue(task._claimable_by(staff))
         self.assertFalse(task._claimable_by(self.sales_person))
         with self.assertRaises(UserError):
             order.with_user(self.sales).action_start_sample_collection()
         self.assertEqual(len(self.collection_tasks(order)), 1)
+
+    def test_sales_enters_the_appointment_and_place_of_collection(self):
+        self.route_collection_to_delivery_staff()
+        self.customer.write({"street": "12 Nguyen Hue", "city": "Ho Chi Minh"})
+        order = self.make_confirmed_order()
+        form = Form(
+            self.env[MODEL_SAMPLE_COLLECTION_START].with_user(self.sales).with_context(default_order_id=order.id)
+        )
+        self.assertIn("12 Nguyen Hue", str(form.address))
+        form.appointment = "2099-12-31 02:00:00"
+        form.address = "Gate 3, 45 Le Loi"
+
+        form.save().action_start()
+
+        task = self.collection_tasks(order)
+        self.assertEqual(fields.Datetime.to_string(task.deadline), "2099-12-31 02:00:00")
+        self.assertEqual(task.place, "Gate 3, 45 Le Loi")
+        self.assertTrue(order.has_open_collection)
 
     def test_a_finished_collection_task_lets_sales_start_another(self):
         self.route_collection_to_delivery_staff()
@@ -160,12 +184,12 @@ class TestOrderConfirmation(OrderCase):
         with self.assertRaises(UserError):
             order.with_user(self.sales).action_confirm_order()
 
-    def test_confirming_without_payment_goes_on_and_warns(self):
+    def test_confirming_an_order_sent_without_an_advance_lets_its_samples_be_collected(self):
         order = self.accepted_unpaid_order()
 
         self.assertEqual(order.order_status, "confirmed")
         self.assertTrue(order.test_request_id)
-        self.assertTrue(order.show_unpaid_warning)
+        self.assertFalse(order.show_unpaid_warning)
 
     def test_confirming_needs_the_customer_record(self):
         order = self.make_quotable_order()
@@ -178,22 +202,53 @@ class TestOrderConfirmation(OrderCase):
 
         self.assertEqual(order.order_status, "claimed")
 
-    def test_credit_blocks_the_request_of_an_unpaid_order_unless_the_customer_may_buy_on_credit(self):
+    def test_an_unpaid_balance_does_not_hold_collection_or_reception(self):
         order = self.accepted_unpaid_order()
         request = order.test_request_id
-        self.assertTrue(request._credit_blocks_confirmation())
-        with self.assertRaises(UserError):
-            request.action_confirm()
+        self.assertEqual(order.payment_request_id.kind, "balance")
+        self.assertEqual(request.status, "paid")
+        self.assertFalse(order.show_unpaid_warning)
 
-        terms = (
-            self.env[MODEL_CUSTOMER_SALES_TERMS]
-            .with_user(self.head)
-            .create({"customer_id": self.customer_record.id, "allow_credit": True})
+        request.sample_ids.action_receive(1, "unusable", "The bottle leaked")
+
+        self.assertEqual(request.sample_ids.status, "rejected")
+
+    def test_an_unverified_advance_holds_collection_and_reception(self):
+        order = self.accepted_unpaid_order()
+        quotation = order._latest_quotation()
+        self.env["medilab.payment.request"].create(
+            {"kind": "advance", "order_id": order.id, "quotation_id": quotation.id, "amount": 100_000}
         )
+        order.invalidate_recordset(["show_unpaid_warning"])
 
-        self.assertFalse(request._credit_blocks_confirmation())
-        terms.with_user(self.head).allow_credit = False
-        self.assertTrue(request._credit_blocks_confirmation())
+        self.assertTrue(order.show_unpaid_warning)
+        with self.assertRaisesRegex(UserError, "Verify the order's advance"):
+            order.with_user(self.sales).action_start_sample_collection()
+        with self.assertRaisesRegex(UserError, "Verify the order's advance"):
+            order.test_request_id.sample_ids.action_receive(1, "unusable", "The bottle leaked")
+
+    def test_upgrading_backfills_eligible_legacy_credit_orders(self):
+        self.env[MODEL_CUSTOMER_SALES_TERMS].create({"customer_id": self.customer_record.id, "allow_credit": True})
+        legacy = self.accepted_unpaid_order()
+        legacy.on_credit = False
+        legacy.test_request_id.status = "paid"
+
+        advance = self.make_confirmed_order()
+        draft = self.make_quotable_order()
+        draft.advance_method = "none"
+
+        self.env.flush_all()
+        migrate = load_script(str(CREDIT_MIGRATION), "order_credit_post").migrate
+        migrate(self.env.cr, "20.0.1.15.0")
+        self.env.invalidate_all()
+
+        self.assertTrue(legacy.on_credit)
+        self.assertEqual(legacy.test_request_id.status, "on_credit")
+        self.assertFalse(advance.on_credit)
+        self.assertFalse(draft.on_credit)
+
+        legacy.test_request_id.status = "completed"
+        self.assertTrue(legacy.create_final_invoice())
 
     def test_a_paid_order_and_a_request_without_an_order_are_not_blocked(self):
         paid = self.make_confirmed_order()
@@ -203,21 +258,33 @@ class TestOrderConfirmation(OrderCase):
         self.assertFalse(alone._credit_blocks_confirmation())
 
     def test_the_request_of_a_paid_order_is_paid_on_confirmation(self):
+        # Confirming the order confirms its request, which is paid already.
         request = self.make_confirmed_order().test_request_id
-
-        request.action_confirm()
 
         self.assertEqual(request.status, "paid")
         request.sample_ids[:1].with_user(self.sales).sudo().action_receive(1, "good")
         self.assertEqual(request.status, "sample_received")
 
-    def test_the_request_of_a_credit_customer_is_paid_on_confirmation(self):
-        request = self.accepted_unpaid_order().test_request_id
+    def test_credit_order_invoices_after_testing_without_marking_test_request_paid(self):
         self.env[MODEL_CUSTOMER_SALES_TERMS].create({"customer_id": self.customer_record.id, "allow_credit": True})
+        order = self.accepted_unpaid_order()
+        request = order.test_request_id
+        self.assertFalse(order.payment_request_id)
+        self.assertEqual(request.status, "on_credit")
+        self.assertEqual(order.payment_status, "not_paid")
+        self.route_collection_to_delivery_staff()
+        order.with_user(self.sales).action_start_sample_collection()
+        with self.assertRaises(UserError):
+            order.create_final_invoice()
 
-        request.action_confirm()
+        request.status = "completed"
+        invoice = order.create_final_invoice()
+        invoice.action_post()
+        self.env["account.payment"].create_pending_payment(invoice, invoice.amount_residual, "cash").action_post()
 
-        self.assertEqual(request.status, "paid")
+        self.assertEqual(invoice.amount_residual, 0)
+        self.assertEqual(order.payment_status, "paid")
+        self.assertEqual(request.status, "completed")
 
     def test_only_the_head_of_sales_changes_the_sales_terms(self):
         terms = self.env[MODEL_CUSTOMER_SALES_TERMS]
@@ -232,3 +299,31 @@ class TestOrderConfirmation(OrderCase):
 
         self.assertTrue(created.allow_credit)
         self.assertFalse(created.search([("customer_id", "=", self.customer_record.id), ("allow_credit", "=", False)]))
+
+    def test_the_request_of_a_paid_order_is_confirmed_at_once(self):
+        order = self.make_confirmed_order()
+
+        self.assertTrue(order.test_request_id.from_order)
+        self.assertNotEqual(order.test_request_id.status, "draft")
+
+    def test_the_samples_keep_what_the_customer_agreed_on_the_order(self):
+        order = self.make_confirmed_order()
+        sample = order.test_request_id.sample_ids[:1]
+
+        with self.assertRaisesRegex(UserError, "revised quotation"):
+            sample.with_user(self.sales).customer_sample_name = "Another bottle"
+        sample.storage_location = "Fridge 2"
+
+        self.assertEqual(sample.storage_location, "Fridge 2")
+
+    def test_receiving_the_last_expected_sample_finishes_the_collection(self):
+        self.route_collection_to_delivery_staff()
+        order = self.make_confirmed_order()
+        order.with_user(self.sales).action_start_sample_collection()
+        samples = order.test_request_id.sample_ids
+        samples.physical_state = "liquid"
+
+        samples.with_user(self.sales).sudo().action_receive("1 bottle of 1 L", "good")
+
+        self.assertEqual(self.collection_tasks(order).status, "done")
+        self.assertFalse(order.has_open_collection)

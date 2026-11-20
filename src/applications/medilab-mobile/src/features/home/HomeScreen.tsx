@@ -107,12 +107,23 @@ function Day({ home }: Readonly<{ home: Home }>) {
       >
         <Text style={shared.primaryButtonText}>{t("home.todo")}</Text>
       </Pressable>
-      <Pressable accessibilityRole="button" style={shared.secondaryButton} testID="home-scan" onPress={() => router.push("/scan")}>
-        <Text style={shared.secondaryButtonText}>{t("home.scan")}</Text>
-      </Pressable>
-      <Pressable accessibilityRole="button" style={shared.secondaryButton} onPress={() => router.push("/results")}>
-        <Text style={shared.secondaryButtonText}>{t("home.results")}</Text>
-      </Pressable>
+      {me.can.scan_samples && (
+        <Pressable accessibilityRole="button" style={shared.secondaryButton} testID="home-scan" onPress={() => router.push("/scan")}>
+          <Text style={shared.secondaryButtonText}>{t("home.scan")}</Text>
+        </Pressable>
+      )}
+      {me.can.sign_results && (
+        <Pressable accessibilityRole="button" style={shared.secondaryButton} onPress={() => router.push("/results")}>
+          <Text style={shared.secondaryButtonText}>{t("home.results")}</Text>
+        </Pressable>
+      )}
+      {me.can.read_handover_records && (
+        <Button
+          testID="home-handover-records"
+          label={t("home.handoverRecords")}
+          onPress={() => router.push("/handover-records")}
+        />
+      )}
       {me.can.create_tasks && (
         <Pressable accessibilityRole="button" style={shared.secondaryButton} onPress={() => router.push("/tasks/new")}>
           <Text style={shared.secondaryButtonText}>{t("home.newTask")}</Text>

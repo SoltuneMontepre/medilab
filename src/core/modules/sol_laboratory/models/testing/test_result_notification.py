@@ -18,9 +18,10 @@ class TestResultNotification(models.Model, TestResultNotificationBase):
 
     def _approval_set_state(self, state):
         sent = self.status == STATE_NONE and state == STATE_REQUESTED
-        super()._approval_set_state(state)
+        return_value = super()._approval_set_state(state)
         if sent:
             self._notify_sent()
+        return return_value
 
     def _notify_sent(self):
         """Tell the head of the department that tested the result, unless the head sent it. A result sent again after

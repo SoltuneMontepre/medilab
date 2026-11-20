@@ -87,6 +87,9 @@
                     </group>
                     <notebook>
                         <page string="Method Steps" name="method_steps">
+                            <p class="text-muted" invisible="not method_hours">
+                                The method takes <field name="method_hours" class="d-inline" /> hours in all; this booking holds the machine only for its measurement.
+                            </p>
                             <field name="method_step_ids" readonly="1">
                                 <list create="0" delete="0" edit="0">
                                     <field name="sequence" />

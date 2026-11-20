@@ -112,11 +112,10 @@ class OnboardingStagedRecordAcceptance(models.Model, OnboardingStagedRecordAccep
         """Accept the to-review records it needs, then create, link or update its Laboratory record as the current
         user, in the user's language."""
         self.ensure_one()
-        _ = self.env._
         if self.state != STAGED_TO_REVIEW:
-            raise UserError(_("Only staged records to review can be accepted."))
+            raise UserError(self.env._("Only staged records to review can be accepted."))
         if self.match_suggested:
-            raise UserError(_("Confirm or clear the suggested match of %s first.", self._describe()))
+            raise UserError(self.env._("Confirm or clear the suggested match of %s first.", self._describe()))
         model = dynamic_model(self.env, KIND_MODELS[self._kind()])
         for field, need in self._needs().items():
             if need.state == STAGED_TO_REVIEW:
@@ -126,7 +125,7 @@ class OnboardingStagedRecordAcceptance(models.Model, OnboardingStagedRecordAccep
         if missing := self._own_missing_values():
             labels = [self._fields[key]._description_string(self.env) for key in missing]
             raise UserError(
-                _(
+                self.env._(
                     "%(record)s needs these values first: %(values)s.",
                     record=self._describe(),
                     values=format_list(self.env, labels),

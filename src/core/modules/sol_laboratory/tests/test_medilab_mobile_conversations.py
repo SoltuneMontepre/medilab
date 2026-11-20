@@ -152,6 +152,8 @@ class TestMedilabMobileConversations(LaboratoryApiCase):
         on_web = self.env[MODEL_MAIL_MESSAGE].with_user(self.member)._message_fetch([], thread=channel)["messages"]
         self.assertEqual(on_web.ids, [sent["id"]])
         self.assertEqual((on_web.author_id, on_web.attachment_ids.name), (self.tester.partner_id, "worksheet.pdf"))
+        self.assertEqual(on_web.subtype_id, self.env.ref("mail.mt_comment"))
+        self.assertFalse(sent["note"])
         attachment = sent["attachments"][0]["id"]
         self.assertEqual(self.on_phone("GET", f"/attachments/{attachment}").content, b"%PDF-1.7 worksheet")
 

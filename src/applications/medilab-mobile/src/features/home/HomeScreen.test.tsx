@@ -64,12 +64,29 @@ describe("HomeScreen", () => {
     expect(screen.queryByRole("header", { name: "Kế hoạch hôm nay" })).toBeNull();
   });
 
-  it("opens the scanner of sample labels", async () => {
-    fakeMediLab(...home());
+  it("opens the scanner of sample labels to those who receive or hand samples over", async () => {
+    fakeMediLab(...home({ scan_samples: true }));
     await renderApp();
 
     await fireEvent.press(await screen.findByRole("button", { name: "Quét tem mẫu" }));
     expect(router.push).toHaveBeenCalledWith("/scan");
+  });
+
+  it("opens the results to sign to those whose signature results wait for", async () => {
+    fakeMediLab(...home({ sign_results: true }));
+    await renderApp();
+
+    await fireEvent.press(await screen.findByRole("button", { name: "Kết quả chờ ký" }));
+    expect(router.push).toHaveBeenCalledWith("/results");
+  });
+
+  it("hides the scanner and the results to sign from those who may not use them, such as sales", async () => {
+    fakeMediLab(...home(SALES));
+    await renderApp();
+
+    expect(await screen.findByText(GREETING)).toBeOnTheScreen();
+    expect(screen.queryByRole("button", { name: "Quét tem mẫu" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Kết quả chờ ký" })).toBeNull();
   });
 
   it("opens the person's conversations", async () => {
@@ -86,6 +103,22 @@ describe("HomeScreen", () => {
 
     await fireEvent.press(await screen.findByRole("button", { name: "Tạo nhiệm vụ" }));
     expect(router.push).toHaveBeenCalledWith("/tasks/new");
+  });
+
+  it("offers the handover records only to those who read them", async () => {
+    fakeMediLab(...home({ read_handover_records: true }));
+    await renderApp();
+
+    await fireEvent.press(await screen.findByRole("button", { name: "Biên bản giao nhận mẫu" }));
+    expect(router.push).toHaveBeenCalledWith("/handover-records");
+  });
+
+  it("hides the handover records from those who do not read them", async () => {
+    fakeMediLab(...home());
+    await renderApp();
+
+    expect(await screen.findByText(GREETING)).toBeOnTheScreen();
+    expect(screen.queryByRole("button", { name: "Biên bản giao nhận mẫu" })).toBeNull();
   });
 
   it("offers the support requests to those who handle them with E-commerce installed", async () => {

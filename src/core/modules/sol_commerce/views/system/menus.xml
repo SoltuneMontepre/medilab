@@ -34,8 +34,41 @@
     <menuitem id="menu_collection_report" parent="sale.menu_sale_report" action="action_medilab_collection_report" sequence="6" />
     <menuitem id="menu_pending_payment_report" parent="sale.menu_sale_report" action="action_medilab_pending_payment_report" sequence="7" />
 
+    <!-- The same reports in the Reports app, which shows them to the same people. -->
+    <menuitem id="menu_reports_sales" name="Sales Reports" parent="sol_laboratory.menu_reports_root" sequence="20">
+        <menuitem id="menu_reports_sales_pipeline" name="Pipeline" action="action_medilab_sales_pipeline" sequence="1" />
+        <menuitem id="menu_reports_sales_performance" name="Performance" action="action_medilab_sales_performance" sequence="2" />
+        <menuitem id="menu_reports_sales_analysis" name="Sales Analysis" action="sale.action_order_report_all" sequence="10" />
+        <menuitem id="menu_reports_salespeople" name="Salespersons" action="sale.action_order_report_salesperson" sequence="20" />
+        <menuitem id="menu_reports_products" name="Products" action="sale.action_order_report_products" sequence="30" />
+        <menuitem id="menu_reports_customers" name="Customers" action="sale.action_order_report_customers" sequence="40" />
+    </menuitem>
+    <menuitem id="menu_reports_finance" name="Finance" parent="sol_laboratory.menu_reports_root" sequence="30">
+        <menuitem id="menu_reports_revenue" action="action_medilab_revenue_report" sequence="1" />
+        <menuitem id="menu_reports_outstanding" action="action_medilab_outstanding_report" sequence="2" />
+        <menuitem id="menu_reports_cash_flow" action="action_medilab_cash_flow_report" sequence="3" />
+        <menuitem id="menu_reports_collection" action="action_medilab_collection_report" sequence="4" />
+        <menuitem id="menu_reports_pending_payment" action="action_medilab_pending_payment_report" sequence="5" />
+        <menuitem
+            id="menu_reports_invoice_analysis"
+            name="Invoice Analysis"
+            action="account.action_account_invoice_report_all"
+            sequence="10"
+            groups="account.group_account_readonly,account.group_account_invoice"
+        />
+    </menuitem>
+
+    <!-- Accountants work in the E-commerce app and analyse in the Reports app, so Odoo's Invoicing app and its
+         spreadsheet Dashboards app are hidden from everyone. Their records and access stay. -->
+    <record id="account.menu_finance" model="ir.ui.menu">
+        <field name="active" eval="False" />
+    </record>
+    <record id="spreadsheet_dashboard.spreadsheet_dashboard_menu_root" model="ir.ui.menu">
+        <field name="active" eval="False" />
+    </record>
+
     <menuitem id="menu_commerce_root" name="E-commerce" sequence="40">
-        <menuitem id="menu_invoice" action="action_medilab_invoice" sequence="5" />
+        <menuitem id="menu_invoice" action="action_medilab_invoice" sequence="5" groups="account.group_account_invoice" />
         <menuitem id="menu_payment" action="action_medilab_payment" sequence="6" />
         <menuitem id="menu_reconciliation" action="action_medilab_reconciliation_day" sequence="7" />
         <menuitem id="menu_prices" name="Prices" sequence="10">

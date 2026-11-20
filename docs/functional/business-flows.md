@@ -29,23 +29,23 @@ Every flow uses the features of three shared requirements: [F-44](../reports/fea
 ## WF-01 Order to confirmed test request
 
 - **Trigger:** a customer submits a cart on the portal, or sales creates an order for a customer.
-- **Result:** the order is confirmed and its test request is paid, at once for a customer allowed to order on credit, with expected samples and their selected ways calculated from the accepted order and sampling requirements, and sample collection can start.
+- **Result:** the order is confirmed and the system has confirmed its test request, as paid once the advance is verified or On credit at once for a customer allowed to order on credit, with expected samples and their selected ways calculated from the accepted order and sampling requirements; the customer may now hand over the samples, and sample collection can start.
 - **Stories:** US-C08, US-C09, US-C10, US-C13, US-C14, US-C15, US-S01, US-S02, US-S05, US-S06, US-S07, US-S08, US-S09, US-S10, US-S12, US-S15, US-A03, US-A06, US-A08.
 - **Features:** [F-04](../reports/feature-list/readme.md#f-04-portal-cart-drafts-and-reorder), [F-05](../reports/feature-list/readme.md#f-05-order-claiming-and-orders-on-behalf), [F-06](../reports/feature-list/readme.md#f-06-quotation-and-revisions), [F-07](../reports/feature-list/readme.md#f-07-order-templates), [F-09](../reports/feature-list/readme.md#f-09-advance-invoice-and-online-payment), [F-10](../reports/feature-list/readme.md#f-10-quotation-approval-and-order-confirmation).
-- **States:** quotation draft → sent → accepted, approved by the Head of Sales before it is sent when above the thresholds; order submitted → claimed → confirmed; test request draft → confirmed → paid.
+- **States:** quotation draft → sent → accepted, approved by the Head of Sales before it is sent when above the thresholds and a salesperson prepared it; order submitted → claimed → confirmed; payment request open → funded; test request draft → confirmed → paid, or → On credit, set by the system.
 - **Starts from:** a catalog with priced parameters and packages, and demo customers.
-- **Main path:** A customer orders on the portal; sales claims it, confirms the selected ways and expected sampling needs, obtains Head of Sales approval if its discount or total exceeds a configured threshold, and sends it with an advance; the customer pays online; sales confirms the order, which creates its test request; unless the customer may order on credit, the customer pays the balance online, and sample collection can start.
+- **Main path:** A customer orders on the portal; sales claims it, confirms the selected ways and expected sampling needs, obtains Head of Sales approval if its discount or total exceeds a configured threshold, and sends it with an advance payment request, which is not an invoice; the customer pays the advance online and each verified payment posts its invoice; sales confirms the order, which creates its test request, and the system confirms the request as paid because the advance is verified; the customer may hand over the samples, and sample collection can start. The balance payment request is collected in SF-01 Invoicing and payment collection and holds back no step of the test request.
 - **Alternative paths:**
-  - WF-01-A1: Sales creates the order for a customer who called or who brings samples to the laboratory, instead of the customer ordering on the portal. The samples wait at reception until the test request is paid.
+  - WF-01-A1: Sales creates the order for a customer who called or who brings samples to the laboratory, instead of the customer ordering on the portal. The samples wait at reception until the test request is paid, or On credit.
   - WF-01-A2: A visitor who is not signed in submits a cart with their details and e-mail address.
   - WF-01-A3: A returning customer reorders a completed order, or sales creates the order from the customer's template.
-  - WF-01-A4: The customer pays the advance by bank transfer or in cash; sales records it and the accountant confirms it.
-  - WF-01-A5: The Head of Sales sends a quotation without an advance to a customer allowed to order on credit; the customer accepts it on the portal and the order goes ahead unpaid.
+  - WF-01-A4: The customer pays the advance by bank transfer or in cash; sales records it as a pending payment and the accountant confirms it, which posts its invoice. While the payment is pending, Sales can draft a revision. Sending the revision, declining the quotation and cancelling the order must wait.
+  - WF-01-A5: The Head of Sales sends a quotation without an advance to a customer allowed to order on credit; the customer accepts it on the portal and the order goes ahead without a payment request; its test request is On credit.
 - **Exceptions:**
   - WF-01-E1: The customer declines the quotation with a reason; sales revises it and sends the new version, which the customer accepts.
   - WF-01-E2: The quotation passes its payment deadline and is flagged expired; sales extends it. The customer pays within the extended deadline.
   - WF-01-E3: The Head of Sales declines a quotation above the approval thresholds with a reason; sales adjusts it and requests approval again, and the Head of Sales approves it.
-- **Acceptance criteria:** See [Sales](ecommerce_module/features/sales.md) and [Customer](ecommerce_module/features/customer.md). An unavailable default is never silently replaced; choose a viable alternative explicitly or do not order that parameter and sample type. A quotation above the approval thresholds cannot be sent before Head of Sales approval. Submitting a cart without an e-mail address is refused. A confirmed order's content changes only through a revised quotation the customer accepts. The old version of a revised quotation cannot be sent or confirmed. The test request of an unpaid order whose customer may not order on credit cannot be confirmed. Another customer opening the quotation, invoice or result is denied.
+- **Acceptance criteria:** See [Sales](ecommerce_module/features/sales.md) and [Customer](ecommerce_module/features/customer.md). An unavailable default is never silently replaced; choose a viable alternative explicitly or do not order that parameter and sample type. A quotation above the approval thresholds cannot be sent before Head of Sales approval, unless the Head of Sales prepared it. Submitting a cart without an e-mail address is refused. A confirmed order's content changes only through a revised quotation the customer accepts. The old version of a revised quotation cannot be sent or confirmed. An order whose advance is not verified in full cannot be confirmed; confirming it confirms its test request, as paid or On credit, and nobody confirms a test request by hand. A quotation without an advance is sent only to a customer allowed to order on credit. Another customer opening the quotation, invoice or result is denied.
 - **Paths in other flows:** SF-02 for cancelling an order; SF-07 for the estimated date and priority orders.
 
 ```mermaid
@@ -55,12 +55,11 @@ flowchart TD
         c3[Read the quotation] --> c4{Accept?}
         c4 -->|pay the advance| c5[Pay online, by transfer or in cash]
         c4 -->|decline with a reason| c6[Quotation declined]
-        c7[Pay the balance online]
     end
     subgraph lane2 ["Sales"]
         s1[Claim the order] --> s2[Confirm ways, expected samples, price and percentage discount]
         s2 --> gate{Above quotation approval thresholds?}
-        gate -->|no| s3[Send the quotation with the advance request]
+        gate -->|no| s3[Send the quotation with the advance payment request]
         s4[Confirm the order]
         s6[Revise the quotation]
         s7[Adjust the quotation]
@@ -76,12 +75,10 @@ flowchart TD
     h0 -->|yes| s3
     h0 -->|decline with a reason| s7 --> h0
     s3 --> c3
-    c5 -->|online payment is matched automatically| s4
-    c5 -->|transfer or cash| a1 --> s4
+    c5 -->|online payment is verified automatically| posted[Post the invoice of the verified payment] --> s4
+    c5 -->|transfer or cash| a1 --> posted
     c6 --> s6 --> gate
-    s4 --> paid{Paid in full or on credit?}
-    paid -->|yes| done(["Test request paid; sample collection can start"])
-    paid -->|no| c7 --> done
+    s4 --> done(["Test request paid or On credit; the customer may hand over the samples"])
 ```
 
 ## WF-02 Sample reception and handover
@@ -102,7 +99,7 @@ flowchart TD
   - WF-02-E3: Fewer samples wait for another collection or Sales cancels the missing part.
   - WF-02-E4: Extra samples and excess material are recorded with the actual handover the customer confirms. Testing stays within the agreed scope: they add no test, change no order and stay with the sample until the customer asks for them back; SF-04 Sample retention, return and disposal owns the return.
   - WF-02-E5: A sample whose delivery to a subcontractor failed is requested again: the head of department asks for the same sample, which keeps its lab code and sample tests and waits on hold; its collection task brings it back to received.
-- **Acceptance criteria:** See [Sample delivery staff](laboratory_module/features/sample-delivery-staff.md) and [Head of department](laboratory_module/features/head-of-department.md). An unusable sample is rejected with its condition note and gets no testing task. A person outside the department scanning the label is refused. Confirming a test request without a sample, or a sample without a parameter, is refused. A signed handover record cannot be edited.
+- **Acceptance criteria:** See [Sample delivery staff](laboratory_module/features/sample-delivery-staff.md) and [Head of department](laboratory_module/features/head-of-department.md). An unusable sample is rejected with its condition note and gets no testing task. A person outside the department scanning the label is refused. Confirming a test request without a sample, or a sample without a parameter, is refused. Receiving a sample of a test request that is not paid is refused. With E-commerce, creating a test request without an order is refused. A signed handover record cannot be edited.
 
 ```mermaid
 flowchart TD
@@ -353,26 +350,26 @@ flowchart TD
 ## SF-01 Invoicing and payment collection
 
 - **Trigger:** an order needs its final invoice, or a payment arrives.
-- **Result:** every invoice is paid, and each day's online payments match the PayOS transactions and are locked.
+- **Result:** every payment request is funded and every invoice is paid, and each day's online payments match the PayOS transactions and are locked.
 - **Stories:** US-A01, US-A02, US-A04, US-A05, US-A07, US-A08, US-A09, US-A10, US-A11, US-A12, US-A13, US-C16, US-C17, US-S11.
 - **Features:** [F-12](../reports/feature-list/readme.md#f-12-invoices-and-adjustment-invoices), [F-13](../reports/feature-list/readme.md#f-13-payment-confirmation-and-reconciliation), [F-14](../reports/feature-list/readme.md#f-14-finance-reports-and-sales-analytics).
-- **States:** invoice posted → partially paid → paid; payment pending → confirmed or rejected; reconciliation day open → locked.
-- **Starts from:** confirmed orders: those of customers who pay before testing, and those of customers on credit whose testing is completed.
-- **Main path:** When sales confirms an order, its final invoice for the balance is posted and e-mailed; the customer pays it online before sample collection; a receipt is issued and the order is paid. For a customer allowed to order on credit, the accountant creates and e-mails the final invoice once testing is completed.
+- **States:** payment request open → funded, or → expired or superseded; invoice posted → partially paid → paid; payment pending → confirmed or rejected; reconciliation day open → locked.
+- **Starts from:** confirmed orders: those of customers who may not order on credit, once confirmed, and those of customers on credit whose testing is completed.
+- **Main path:** When sales confirms an order, MediLab sends the balance payment request; the customer pays it, at once or in installments, while sample collection and testing go ahead without waiting for it, and each verified payment posts its invoice and issues a receipt. The issued report reaches the customer only once the order is paid in full. For a customer allowed to order on credit, the accountant creates and e-mails the final invoice once testing is completed.
 - **Alternative paths:**
-  - SF-01-A1: The customer pays part online, then the rest; the invoice is partially paid, then paid.
+  - SF-01-A1: The customer pays part online, then the rest; each verified part posts its invoice, and the request is funded when the parts reach its amount.
   - SF-01-A2: Sales records a cash payment; the accountant confirms it.
   - SF-01-A3: An adjustment invoice lowers or raises what is owed; the original invoice is unchanged.
 - **Exceptions:**
   - SF-01-E1: The accountant rejects a payment sales recorded; the salesperson is told the reason and the invoice returns to its previous status.
-  - SF-01-E2: An invoice unpaid after its due date reminds the customer at each interval.
+  - SF-01-E2: A posted invoice unpaid after its due date, such as the final invoice of a customer on credit, reminds the customer at each interval. An expired payment request sends no reminder.
   - SF-01-E3: A PayOS transaction with no payment is flagged; the accountant creates its payment, the flag clears and the day is locked.
 - **Acceptance criteria:** See [Accountant](ecommerce_module/features/accountant.md) and [Customer](ecommerce_module/features/customer.md). A payment above the amount still owed is refused. A posted invoice cannot be edited. An online payment of a locked day cannot be changed. A repeated PayOS notification records no second payment.
 
 ```mermaid
 flowchart TD
     subgraph lane19 ["Accountant"]
-        a1["Create the final invoice: total minus the advance"] --> a2[E-mail the invoice]
+        a1["Create the final invoice of a customer on credit: total minus the advances"] --> a2[E-mail the invoice]
         a3{Confirm the payment?}
         a4[Reconcile the day's PayOS transactions] --> a5{All matched?}
         a5 -->|yes| a6[Lock the day]
@@ -615,14 +612,14 @@ flowchart TD
 - **Features:** [F-08](../reports/feature-list/readme.md#f-08-estimated-result-date-and-priority-check).
 - **States:** proposed return date → committed return date; automatic internal due dates recalculated, manual overrides retained; accepted priority → urgent tests.
 - **Starts from:** quotations in preparation, authorized people and required resource schedules, and outsourced ways with transport and processing turnaround.
-- **Main path:** Sales checks the estimated return date while quoting. The estimate includes every in-house and outsourced branch plus the safety margin, and reserves nothing. Sales records the customer's requested date and commits a feasible return date with the customer; automatic internal due dates follow the committed date.
+- **Main path:** The quotation shows the standard turnaround of its ways of testing, in working days from sample receipt, and the date it gives if the samples were received today. Sales records the customer's requested date; when the turnaround meets it, it becomes the committed return date, otherwise receiving the first sample fixes the committed date at the receipt day plus the turnaround. Automatic internal due dates follow the committed date.
 - **Alternative paths:**
   - SF-07-A1: The customer requests priority on the portal; Sales accepts or declines it on the quotation after checking feasibility. Accepted priority makes its tests urgent.
   - SF-07-A2: Adding a parameter updates the estimated return date.
   - SF-07-A3: The head changes an internal due date with a reason. Preserve it when the committed return date changes; recalculate only automatic dates. The feasibility check only reads: it uses company working days, holidays and leave, proposes the earliest feasible date and reserves or moves no bookings. An infeasible date may be kept with a reason and risk flag.
 - **Exceptions:**
   - SF-07-E1: A committed return date becomes infeasible: Sales offers the earliest feasible replacement and records old date, new date and customer confirmation before changing it. If refused, Sales handles a cancellation request for the unfulfillable part; no automatic cancellation or way change.
-  - SF-07-E2: The requested date is infeasible; Sales offers the earliest feasible date instead. Missing outsourced transport or processing turnaround prevents a complete estimate until those values are supplied; no incomplete estimate becomes a committed return date.
+  - SF-07-E2: The requested priority date is infeasible; Sales offers the earliest feasible date the check gives instead. A way of testing without a standard turnaround keeps the quotation from being sent until the administrator sets it.
 - **Acceptance criteria:** See [Sales](ecommerce_module/features/sales.md), [Head of department](laboratory_module/features/head-of-department.md) and [SH-11](shared.md#sh-11-schedules-and-reminders). A date the laboratory cannot meet is not accepted as a committed return date; show the earliest feasible date. Missing outsourced turnaround means no complete estimate is available. An internal due-date override does not change the committed return date. A feasibility check reserves and moves no bookings. The customer sees the requested and committed dates, never an internal due date.
 - **Paths in other flows:** SF-10 owns priority order and plan revisions; WF-05 owns outsourcing; SF-02 owns cancellation of an unfulfillable part.
 
@@ -633,7 +630,7 @@ flowchart TD
         c2{Accept the proposed feasible date?}
     end
     subgraph lane32 ["Sales"]
-        s1[Estimate every branch plus safety margin without reserving]
+        s1[Show the standard turnaround; check a priority date without reserving]
         s2{Requested date feasible?}
         s3[Offer earliest feasible date]
         s4[Record the requested date, the committed date and any accepted priority]

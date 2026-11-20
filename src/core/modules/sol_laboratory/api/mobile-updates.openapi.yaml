@@ -1,0 +1,302 @@
+openapi: 3.1.0
+info:
+  title: Medilab Mobile updates
+  version: 1.0.0
+  description: Public native HTTP, separate from device keys and browser sessions, so a signed-out phone also
+    updates. Odoo answers from the release catalog the release pipeline publishes and never holds a signing key;
+    the app verifies every code update against the certificate it embeds and every APK against its SHA-256.
+    Only the selected installation database serves these routes. HEAD suppresses all bodies.
+servers:
+- url: /
+security: []
+paths:
+  /medilab/api/v1/mobile/release/{platform}/{runtime_version}/{version}:
+    get:
+      operationId: mobileReleaseGet
+      parameters: &release_parameters
+      - name: platform
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+      - name: runtime_version
+        in: path
+        required: true
+        description: The runtime version of the native build the phone runs.
+        schema:
+          type: string
+          minLength: 1
+      - name: version
+        in: path
+        required: true
+        description: The semantic version of the code the phone runs.
+        schema:
+          type: string
+          minLength: 1
+      responses: &release_responses
+        '200':
+          description: The phone must update before it is used, or cannot be served at all.
+          headers: &headers
+            Cache-Control: &cache_control
+              required: true
+              schema:
+                type: string
+                const: no-store
+            X-Content-Type-Options: &nosniff
+              required: true
+              schema:
+                type: string
+                const: nosniff
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReleaseAnswer'
+        '204':
+          description: The phone runs a version MediLab serves and has no newer eligible release.
+          headers: *headers
+        '400': &invalid
+          description: Invalid platform, runtime version, semantic version, query or body.
+          headers: *headers
+          content: &error
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '405': &method_not_allowed
+          description: Wrong method.
+          headers:
+            Cache-Control: *cache_control
+            X-Content-Type-Options: *nosniff
+            Allow:
+              required: true
+              schema:
+                type: string
+                const: GET, HEAD
+          content: *error
+        '503': &unavailable
+          description: Catalog absent, unreadable or invalid; no release is answered.
+          headers: *headers
+          content: *error
+        '404': &not_found
+          description: No update route at this address.
+          headers: *headers
+          content: *error
+        '500': &internal_error
+          description: Unexpected update service failure.
+          headers: *headers
+          content: *error
+      security: []
+    head:
+      operationId: mobileReleaseHead
+      parameters: *release_parameters
+      responses: *release_responses
+      security: []
+  /medilab/api/v1/mobile/updates:
+    get:
+      operationId: mobileUpdatesGet
+      description: Version 1 of the Expo Updates protocol. The manifest and its signature are answered exactly as the
+        catalog holds them, so expo-updates verifies the bytes the release pipeline signed.
+      parameters: &updates_parameters
+      - name: expo-protocol-version
+        in: header
+        required: true
+        schema:
+          type: string
+          const: '1'
+      - name: expo-platform
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+      - name: expo-runtime-version
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+      responses: &updates_responses
+        '200':
+          description: The newest eligible code update of the runtime, as a multipart answer whose part named
+            manifest carries the manifest and its expo-signature header.
+          headers:
+            Cache-Control: *cache_control
+            X-Content-Type-Options: *nosniff
+            expo-protocol-version:
+              required: true
+              schema:
+                type: string
+                const: '1'
+            expo-sfv-version:
+              required: true
+              schema:
+                type: string
+                const: '0'
+          content:
+            multipart/mixed:
+              schema:
+                type: object
+                required:
+                - manifest
+                properties:
+                  manifest:
+                    type: string
+              encoding:
+                manifest:
+                  contentType: application/json
+                  headers:
+                    expo-signature:
+                      required: true
+                      schema:
+                        type: string
+        '204':
+          description: No eligible code update for the platform and runtime.
+          headers:
+            Cache-Control: *cache_control
+            X-Content-Type-Options: *nosniff
+            expo-protocol-version:
+              required: true
+              schema:
+                type: string
+                const: '1'
+        '400': *invalid
+        '405': *method_not_allowed
+        '503': *unavailable
+        '404': *not_found
+        '500': *internal_error
+      security: []
+    head:
+      operationId: mobileUpdatesHead
+      parameters: *updates_parameters
+      responses: *updates_responses
+      security: []
+components:
+  schemas:
+    ReleaseAnswer:
+      description: What the phone does before it is used. code fetches the code update through expo-updates; install
+        downloads the APK, checks its SHA-256 and opens the installer; unavailable shows only the updating screen,
+        as the phone runs a version older than the oldest MediLab serves and no release reaches it.
+      oneOf:
+      - type: object
+        required:
+        - action
+        - version
+        additionalProperties: false
+        properties:
+          action:
+            const: code
+          version: &version
+            type: string
+            minLength: 5
+            maxLength: 128
+      - type: object
+        required:
+        - action
+        - version
+        - url
+        - sha256
+        additionalProperties: false
+        properties:
+          action:
+            const: install
+          version: *version
+          url: &url
+            type: string
+            format: uri
+            maxLength: 2048
+          sha256: &sha256
+            type: string
+            pattern: ^[0-9a-f]{64}$
+      - type: object
+        required:
+        - action
+        additionalProperties: false
+        properties:
+          action:
+            const: unavailable
+    Error:
+      type: object
+      required:
+      - error
+      additionalProperties: false
+      properties:
+        error:
+          type: object
+          required:
+          - code
+          - message
+          additionalProperties: false
+          properties:
+            code:
+              enum:
+              - invalid_request
+              - method_not_allowed
+              - update_unavailable
+              - not_found
+              - internal_error
+            message:
+              type: string
+    Catalog:
+      type: object
+      required:
+      - releases
+      additionalProperties: false
+      properties:
+        releases:
+          type: array
+          maxItems: 1000
+          items:
+            oneOf:
+            - type: object
+              additionalProperties: false
+              required:
+              - platform
+              - kind
+              - runtime_version
+              - version
+              - pub_date
+              - manifest
+              - signature
+              properties:
+                platform: &platform
+                  enum:
+                  - android
+                  - ios
+                kind:
+                  const: code
+                runtime_version: &runtime_version
+                  type: string
+                  pattern: ^[A-Za-z0-9][A-Za-z0-9._+-]{0,127}$
+                version: *version
+                pub_date: &pub_date
+                  type: string
+                  format: date-time
+                manifest:
+                  description: The manifest's JSON text, exactly as signed.
+                  type: string
+                  minLength: 2
+                  maxLength: 262144
+                signature:
+                  description: The base64 RSA-SHA256 signature of the manifest's text.
+                  type: string
+                  minLength: 1
+                  maxLength: 16384
+            - type: object
+              additionalProperties: false
+              required:
+              - platform
+              - kind
+              - runtime_version
+              - version
+              - pub_date
+              - url
+              - sha256
+              properties:
+                platform: *platform
+                kind:
+                  const: install
+                runtime_version: *runtime_version
+                version: *version
+                pub_date: *pub_date
+                url: *url
+                sha256: *sha256

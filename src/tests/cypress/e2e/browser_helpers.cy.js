@@ -1,31 +1,15 @@
+import { assertNoPriorRefusal, assertRefusalOutcome } from "../support/refusal";
+
 const MESSAGE = "Signing is not allowed.";
 const read = () => cy.window().then((win) => win.record);
 
 describe("Browser helper commands", () => {
-  let failureHandler;
-  let failureObserved;
-
-  function expectFailure(text) {
-    failureObserved = false;
-    failureHandler = (error) => {
-      expect(error.message).to.include(text);
-      failureObserved = true;
-      return false;
-    };
-    cy.on("fail", failureHandler);
-  }
-
   beforeEach(() => {
-    failureHandler = undefined;
     cy.intercept("GET", "/__browser_helpers__", {
       fixture: "browser_helpers.html",
       headers: { "content-type": "text/html" },
     });
     cy.visit("/__browser_helpers__");
-  });
-
-  afterEach(() => {
-    if (failureHandler) expect(failureObserved, "the refusal check must fail").to.be.true;
   });
 
   it("signs using the visible form action", () => {
@@ -53,32 +37,36 @@ describe("Browser helper commands", () => {
     read().should((record) => expect(record.status).to.equal("requested"));
   });
 
-  it("fails when the action succeeds", { defaultCommandTimeout: 300 }, () => {
-    expectFailure(MESSAGE);
-    cy.expectRefusal({ read, action: () => cy.signRecord(), message: MESSAGE });
+  it("fails when the action succeeds", () => {
+    const record = { status: "requested", reason: "" };
+    expect(() => assertRefusalOutcome({ displayedMessage: "", message: MESSAGE, before: record, after: record })).to.throw(
+      "displayed refusal",
+    );
   });
 
   it("fails when an error is displayed but the record changes", () => {
-    expectFailure("record after refusal");
-    cy.expectRefusal({
-      read,
-      action: () => cy.get("#changed").click(),
-      message: MESSAGE,
-    });
+    expect(() =>
+      assertRefusalOutcome({
+        displayedMessage: MESSAGE,
+        message: MESSAGE,
+        before: { status: "requested", reason: "" },
+        after: { status: "approved", reason: "" },
+      }),
+    ).to.throw("record after refusal");
   });
 
-  it("fails when the displayed refusal has the wrong message", { defaultCommandTimeout: 300 }, () => {
-    expectFailure("A different refusal.");
-    cy.expectRefusal({
-      read,
-      action: () => cy.get("#refuse").click(),
-      message: "A different refusal.",
-    });
+  it("fails when the displayed refusal has the wrong message", () => {
+    expect(() =>
+      assertRefusalOutcome({
+        displayedMessage: "A different refusal.",
+        message: MESSAGE,
+        before: { status: "requested", reason: "" },
+        after: { status: "requested", reason: "" },
+      }),
+    ).to.throw("displayed refusal");
   });
 
-  it("rejects a refusal left over from an earlier action", { defaultCommandTimeout: 300 }, () => {
-    cy.get("#refuse").click();
-    expectFailure("Expected not to find content");
-    cy.expectRefusal({ read, action: () => cy.signRecord(), message: MESSAGE });
+  it("rejects a refusal left over from an earlier action", () => {
+    expect(() => assertNoPriorRefusal(MESSAGE, MESSAGE)).to.throw("no refusal is left from an earlier action");
   });
 });

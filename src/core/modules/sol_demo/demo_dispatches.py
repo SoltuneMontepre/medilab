@@ -23,9 +23,11 @@ WATER_SAMPLES = ("Nước giếng khoan hộ gia đình Phú Hòa", "Nước gi�
 CABBAGE_SAMPLES = ("Cải bắp chợ Bình Điền lô 1003", "Cải bắp chợ Bình Điền lô 1004")
 RIVER_SAMPLES = ("Nước sông Sài Gòn trạm bơm Hòa Phú", "Nước kênh Thầy Cai cống Tân Hiệp")
 EMERGENCY_REASON = "Máy AAS đang sửa, khách hàng cần kết quả chì trước hạn kiểm tra của cơ quan y tế."
-TRACKING = "Viettel Post, VTP 8402 1157 2210"
+POSTED = {"delivery_service": "Viettel Post", "tracking_number": "VTP 8402 1157 2210"}
 AGREED_SAMPLE = ("Nước giếng khoan xã Tân Thạnh Đông",)
 IN_HOUSE_SAMPLE = ("Nước giếng khoan xã Phước Vĩnh An",)
+SAME_METHOD_SAMPLE = ("Nước uống đóng chai Suối Mát lô 2611",)
+SAME_METHOD_REASON = "Máy ICP-MS đang hiệu chuẩn lại; Northern thử chì cùng phương pháp ICP-MS khách hàng đã chấp nhận."
 REPORT_NAME = "PKQ-NTL-2026-0412.pdf"
 SURFACE_WATER = ("surface_water", "liquid")
 
@@ -50,9 +52,9 @@ def seed_dispatches(env):
     water = _received_tests(env, "nuoc_sach", SURFACE_WATER, "lead", WATER_SAMPLES, "2 bottles")
     cabbage = _received_tests(env, "green_farm", ("cabbage", "solid"), "chlorpyrifos", CABBAGE_SAMPLES, "1 kg")
     carried = _send(head, water[0], northern, today, today + timedelta(days=6), courier_id=courier.id)
-    posted = _send(head, cabbage[0], southern, today, today + timedelta(days=9), delivery_service=TRACKING)
+    posted = _send(head, cabbage[0], southern, today, today + timedelta(days=9), **POSTED)
     by_subcontractor = _send(head, water[1], northern, today - timedelta(days=8), today, courier_id=courier.id)
-    by_tester = _send(head, cabbage[1], southern, today - timedelta(days=10), today, delivery_service=TRACKING)
+    by_tester = _send(head, cabbage[1], southern, today - timedelta(days=10), today, **POSTED)
     (by_subcontractor | by_tester).with_user(head).action_receive()
 
     env[MODEL_SUBCONTRACT_DISPATCH].with_user(subcontractor_user)._portal_dispatches(
@@ -80,8 +82,8 @@ def seed_dispatches(env):
 
 def seed_agreed_outsourcing(env):
     """A lead test the customer accepted on the subcontracted way, in Northern's draft dispatch through it, and one
-    accepted in-house, which is not outsourced straight away until a revised quotation; the dispatch received with the
-    subcontractor's result keeps its report."""
+    accepted in-house by AAS, a method no subcontractor tests, which is not outsourced until a revised quotation; the
+    dispatch received with the subcontractor's result keeps its report."""
     if env.ref("sol_demo.demo_sample_test_lead_agreed_subcontracted", raise_if_not_found=False):
         return
     head = env.ref("sol_demo.demo_res_users_head_of_department")
@@ -104,6 +106,23 @@ def seed_agreed_outsourcing(env):
     _xml_id(env, "demo_sample_test_lead_agreed_in_house", changed)
 
 
+def seed_same_method_outsourcing(env):
+    """A bottled water lead test the customer accepted in-house by ICP-MS, which the head outsources straight away to
+    Northern, a subcontractor with the same method, without asking the customer."""
+    if env.ref("sol_demo.demo_sample_test_lead_same_method_outsourced", raise_if_not_found=False):
+        return
+    head = env.ref("sol_demo.demo_res_users_head_of_department")
+    in_house = env.ref("sol_demo.demo_parameter_method_lead_icpms")
+    northern = env.ref("sol_demo.demo_parameter_method_lead_subcontracted")
+
+    test = _received_tests(
+        env, "nuoc_sach", ("bottled_water", "liquid"), "lead", SAME_METHOD_SAMPLE, "2 bottles", way=in_house
+    )
+    test.outsourcing_suggested = False
+    test.with_user(head)._outsource_now(northern, SAME_METHOD_REASON)
+    _xml_id(env, "demo_sample_test_lead_same_method_outsourced", test)
+
+
 def _received_tests(env, customer, kind, parameter, names, quantity, way=None):
     """Received samples whose tests are assigned to the tester and that no machine can finish in time, on the way of
     testing the customer accepted when one is given."""
@@ -111,7 +130,7 @@ def _received_tests(env, customer, kind, parameter, names, quantity, way=None):
     request = env[MODEL_TEST_REQUEST].create(
         {
             "customer_id": env.ref(f"sol_demo.demo_customer_{customer}").id,
-            "expected_date": fields.Date.today() + timedelta(days=5),
+            "committed_date": fields.Date.today() + timedelta(days=5),
             "sample_ids": [
                 Command.create(
                     {
@@ -136,7 +155,11 @@ def _received_tests(env, customer, kind, parameter, names, quantity, way=None):
             ],
         }
     )
-    request.action_confirm()
+    # A request from a paid order is confirmed with the order already.
+    if request.status == "draft":
+        request.action_confirm()
+    # Staff record the physical state at handover.
+    request.sample_ids.filtered(lambda sample: not sample.physical_state).physical_state = "liquid"
     request.sample_ids.with_user(env.ref("sol_demo.demo_res_users_sample_delivery_staff")).action_receive(
         quantity, "good"
     )

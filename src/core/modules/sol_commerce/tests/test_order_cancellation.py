@@ -97,7 +97,10 @@ class TestOrderCancellation(OrderCase):
         request = order.with_user(self.portal).action_request_cancellation("Please cancel")
 
         for action in (order.with_user(self.sales).action_sales_cancel, request.with_user(self.sales).action_accept):
-            with self.subTest(action=action.__name__), self.assertRaisesRegex(UserError, "results are released") as refusal:
+            with (
+                self.subTest(action=action.__name__),
+                self.assertRaisesRegex(UserError, "results are released") as refusal,
+            ):
                 action()
             self.assertNotIn("contact you", str(refusal.exception))
 

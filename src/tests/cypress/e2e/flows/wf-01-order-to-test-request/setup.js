@@ -18,7 +18,7 @@ export const CUSTOMERS = {
   },
 };
 
-const STAGES = ["submitted", "claimed", "sent", "accepted", "confirmed"];
+const STAGES = ["submitted", "claimed", "sent", "accepted", "confirmed", "paid"];
 
 // Lead twice and E. coli three times on bottled water: Lead needs an acidified polyethylene bottle and E. coli a chilled
 // sterile glass bottle, so 3 objects in two sampling groups make 6 expected samples.
@@ -34,14 +34,14 @@ export const parameterProduct = helper("parameterProduct", function parameterPro
     .then(([id]) => id);
 });
 
-// The latest quotation of an order and its advance invoice, as sales reads them.
-export const latestQuotation = helper("latestQuotation", function latestQuotation(orderId) {
+// The latest quotation of an order, as sales reads it.
+export function latestQuotation(orderId) {
   return callAs(SALES, "medilab.quotation", "search_read", [[["order_id", "=", orderId]]], {
-    fields: ["code", "revision", "status", "advance_invoice_id"],
+    fields: ["code", "revision", "status", "payment_request_ids"],
     order: "revision desc",
     limit: 1,
   }).then(([quotation]) => quotation);
-});
+}
 
 // Cancels drafts the customer left on the portal, which would otherwise become their cart.
 export const clearCarts = helper("clearCarts", function clearCarts(customer) {
@@ -77,21 +77,37 @@ function addSample(order) {
     );
 }
 
-// Pays the advance the way a customer who transfers it does: declared on the portal, confirmed by the accountant.
-export const payAdvance = helper("payAdvance", function payAdvance(order, customer = CUSTOMERS.nuocSach) {
-  return latestQuotation(order.id).then(({ advance_invoice_id: [invoice] }) => {
-    portalPostAs(customer.login, `/my/invoices/${invoice}`, `/my/invoices/${invoice}/pay`, { method: "bank_transfer" });
+export function currentRequest(order) {
+  let id;
+  return callAs(SALES, "sale.order", "read", [[order.id], ["payment_request_id"]])
+    .then(([read]) => {
+      expect(read.payment_request_id, "current payment request").to.be.an("array");
+      [id] = read.payment_request_id;
+    })
+    .then(() => callAs(SALES, "medilab.payment.request", "read", [[id], ["kind", "amount", "remaining_amount", "deadline", "state"]]))
+    .then(([paymentRequest]) => paymentRequest);
+}
+
+export function requestPaymentPath(order, request) {
+  return `/orders/${order.id}/payment-requests/${request.id}/pay`;
+}
+
+// The customer reports the bank transfer and the accountant verifies the receipt.
+export function payAdvance(order, customer = CUSTOMERS.nuocSach) {
+  return currentRequest(order).then((request) => {
+    const page = `/orders/${order.id}${request.kind === "advance" ? "/quotation" : ""}`;
+    portalPostAs(customer.login, page, requestPaymentPath(order, request), { method: "bank_transfer" });
     return callAs("demo.accountant", "account.payment", "search", [
       [
-        ["invoice_ids", "in", [invoice]],
+        ["payment_request_id", "=", request.id],
         ["state", "=", "draft"],
       ],
     ]).then((ids) => {
-      expect(ids, "declared transfer").to.have.length(1);
+      expect(ids, "reported transfer").to.have.length(1);
       return callAs("demo.accountant", "account.payment", "action_post", [ids]);
     });
   });
-});
+}
 
 // The customer declines the latest quotation on the portal with a reason.
 export const declineQuotation = helper("declineQuotation", function declineQuotation(order, reason, customer = CUSTOMERS.nuocSach) {
@@ -105,6 +121,28 @@ export const reviseQuotation = helper("reviseQuotation", function reviseQuotatio
   return callAs(login, "sale.order", "action_send_quotation", [[order.id]]);
 });
 
+function queueOrderProgress(order, stage, { customer, advance, sample }, step) {
+  const reached = (name) => STAGES.indexOf(stage) >= STAGES.indexOf(name);
+  if (reached("claimed")) {
+    step(SALES, "action_claim");
+    if (sample) cy.then(() => addSample(order));
+  }
+  if (reached("sent")) {
+    const login = advance ? SALES : HEAD_OF_SALES;
+    step(login, "write", [advance ? { advance_method: "bank_transfer", advance_mode: "percentage", advance_value: 30 } : { advance_method: "none" }]);
+    step(login, "action_send_quotation");
+  }
+  if (reached("accepted")) {
+    if (advance) {
+      cy.then(() => payAdvance(order, customer));
+    } else {
+      cy.then(() => portalPostAs(customer.login, `/orders/${order.id}/quotation`, `/orders/${order.id}/quotation/accept`));
+    }
+  }
+  if (reached("confirmed")) step(SALES, "action_confirm_order");
+  if (reached("paid")) cy.then(() => payAdvance(order, customer));
+}
+
 // An order for Lead (Pb), or the parameters and quantities of `lines`, taken through every step before `stage` by the
 // actor who does it. Without `advance` the Head of Sales sends the quotation and the customer accepts it on the portal.
 export const orderAt = helper("orderAt", function orderAt(
@@ -112,7 +150,6 @@ export const orderAt = helper("orderAt", function orderAt(
   { customer = CUSTOMERS.nuocSach, advance = true, sample = true, lines = [["sol_demo.demo_test_parameter_lead", 1]] } = {},
 ) {
   if (!STAGES.includes(stage)) expect(STAGES, "order stage").to.include(stage);
-  const reached = (name) => STAGES.indexOf(stage) >= STAGES.indexOf(name);
   const order = { model: "sale.order" };
   refAs(SALES, customer.company).then(({ id }) => (order.customerId = id));
   refAs(SALES, customer.contact).then(({ id }) => (order.contactId = id));
@@ -132,27 +169,7 @@ export const orderAt = helper("orderAt", function orderAt(
     ]),
   ).then((id) => (order.id = id));
   const step = (login, method, args = []) => cy.then(() => callAs(login, "sale.order", method, [[order.id], ...args]));
-  if (reached("claimed")) {
-    step(SALES, "action_claim");
-    if (sample) {
-      cy.then(() => addSample(order));
-    }
-  }
-  if (reached("sent")) {
-    const login = advance ? SALES : HEAD_OF_SALES;
-    step(login, "write", [advance ? { advance_method: "bank_transfer", advance_mode: "percentage", advance_value: 30 } : { advance_method: "none" }]);
-    step(login, "action_send_quotation");
-  }
-  if (reached("accepted")) {
-    if (advance) {
-      cy.then(() => payAdvance(order, customer));
-    } else {
-      cy.then(() => portalPostAs(customer.login, `/orders/${order.id}/quotation`, `/orders/${order.id}/quotation/accept`));
-    }
-  }
-  if (reached("confirmed")) {
-    step(SALES, "action_confirm_order");
-  }
+  queueOrderProgress(order, stage, { customer, advance, sample }, step);
   return cy.then(() => order);
 });
 

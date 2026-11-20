@@ -24,6 +24,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
 from odoo.addons.sol_laboratory.services.mobile_documents import not_found, readable
+from odoo.addons.sol_laboratory.services.mobile_uploads import decoded_size
 
 # The documents whose chatter the app shows.
 CHATTER_MODELS = (MODEL_TASK, MODEL_SAMPLE, MODEL_TEST_REQUEST)
@@ -69,9 +70,9 @@ def internal_users(env: Environment, user_ids):
     return users
 
 
-def post_from_phone(thread, device, body, key, **post_values):
-    """Post the phone's text, mentions and files on the thread, as the web's composer does, once per Idempotency-Key: a
-    request sent again answers the message the first one posted."""
+def post_from_phone(thread, device, body, key, subtype_xmlid):
+    """Post the phone's text, mentions and files on the thread with the subtype, a discussion message or a note, as the
+    web's composer does, once per Idempotency-Key: a request sent again answers the message the first one posted."""
     env = thread.env
     posted = env[MODEL_MAIL_MESSAGE]._created_with_key(device, key)
     if posted:
@@ -94,7 +95,7 @@ def post_from_phone(thread, device, body, key, **post_values):
             message_type="comment",
             partner_ids=partners.ids,
             attachments=files,
-            **post_values,
+            subtype_xmlid=subtype_xmlid,
         )
         .with_env(env)
     )
@@ -105,12 +106,12 @@ def post_from_phone(thread, device, body, key, **post_values):
 def decoded_files(env: Environment, files):
     """The files of the request as message_post() takes them, once each is at most 10 MiB and all at most 25 MiB, which
     is checked on their encoded size before any is decoded."""
-    total = sum(_decoded_size(file["data"]) for file in files or [])
+    total = sum(decoded_size(file["data"]) for file in files or [])
     if total > REQUEST_FILES_MAX_BYTES:
         raise LaboratoryFileError(TOO_LARGE, env._("The files of one message are at most 25 MiB together."))
     decoded = []
     for file in files or []:
-        if _decoded_size(file["data"]) > FILE_MAX_BYTES:
+        if decoded_size(file["data"]) > FILE_MAX_BYTES:
             raise LaboratoryFileError(TOO_LARGE, env._("%s is larger than 10 MiB.", file["name"]))
         try:
             content = base64.b64decode(file["data"], validate=True)
@@ -118,7 +119,3 @@ def decoded_files(env: Environment, files):
             raise LaboratoryFileError(INVALID_REQUEST, env._("%s is not sent as base64.", file["name"])) from error
         decoded.append((file["name"], content, {"mimetype": file.get("mimetype") or "application/octet-stream"}))
     return decoded
-
-
-def _decoded_size(data: str) -> int:
-    return len(data) * 3 // 4 - data[-2:].count("=")

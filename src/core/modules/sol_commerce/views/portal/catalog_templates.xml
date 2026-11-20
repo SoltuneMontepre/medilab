@@ -140,7 +140,7 @@
                                                 </label>
                                                 <select name="parameter_method_id" t-att-id="'way_%s' % tested.id" class="form-select w-auto" onchange="this.form.submit()">
                                                     <option value="" t-att-selected="not tested.parameter_method_id">Choose a way of testing</option>
-                                                    <t t-foreach="tested.offered_method_ids" t-as="way">
+                                                    <t t-foreach="tested.offered_method_ids.with_context(medilab_way_by_method=True)" t-as="way">
                                                         <option t-att-value="way.id" t-att-selected="way == tested.parameter_method_id" t-out="way.display_name" />
                                                     </t>
                                                 </select>
@@ -185,6 +185,20 @@
                                 <option t-att-value="contact.id" t-att-selected="contact == chosen_contact" t-out="contact.name" />
                             </t>
                         </select>
+                    </div>
+                    <t t-set="dated" t-value="order.sudo()" />
+                    <div class="row g-2 mb-3 align-items-end">
+                        <div class="col-md-4">
+                            <label for="requested_date" class="form-label">Date you want the results</label>
+                            <input type="date" name="requested_date" id="requested_date" class="form-control" t-att-value="request.params.get('requested_date') or (dated.requested_date and dated.requested_date.isoformat())" />
+                        </div>
+                        <div class="col-md-8">
+                            <div class="form-check">
+                                <input type="checkbox" name="priority" id="priority" value="1" class="form-check-input" t-att-checked="request.params.get('priority') or dated.priority_request == 'requested'" />
+                                <label for="priority" class="form-check-label">Ask for priority: Sales confirms whether the laboratory can meet this date</label>
+                            </div>
+                        </div>
+                        <p t-if="dated.turnaround_days" class="text-muted mb-0">Results within <t t-out="dated.turnaround_days" /> working days of receiving the samples.</p>
                     </div>
                     <div class="d-flex flex-wrap gap-2">
                         <button type="submit" class="btn btn-primary"><i class="oi me-1" data-icon="send" aria-hidden="true" />Submit</button>
@@ -265,12 +279,26 @@
                         <dt class="fw-normal text-muted">Quotation deadline</dt>
                         <dd class="mb-0" t-out="order.payment_deadline" t-options="{'widget': 'datetime'}" />
                     </div>
-                    <div t-if="order.expected_result_date" class="d-flex gap-2">
-                        <dt class="fw-normal text-muted">Expected results</dt>
-                        <dd class="mb-0" t-out="order.expected_result_date" t-options="{'widget': 'date'}" />
+                    <div t-if="order.requested_date" class="d-flex gap-2">
+                        <dt class="fw-normal text-muted">Requested date</dt>
+                        <dd class="mb-0" t-out="order.requested_date" t-options="{'widget': 'date'}" />
+                    </div>
+                    <div t-if="order.priority_request" class="d-flex gap-2">
+                        <dt class="fw-normal text-muted">Priority</dt>
+                        <dd class="mb-0" t-out="dict(order._fields['priority_request']._description_selection(order.env))[order.priority_request]" />
+                    </div>
+                    <t t-set="committed" t-value="order.test_request_id.sudo().committed_date or order.committed_date" />
+                    <div t-if="committed" class="d-flex gap-2">
+                        <dt class="fw-normal text-muted">Committed return date</dt>
+                        <dd class="mb-0" t-out="committed" t-options="{'widget': 'date'}" />
+                    </div>
+                    <div t-elif="order.turnaround_days" class="d-flex gap-2">
+                        <dt class="fw-normal text-muted">Results</dt>
+                        <dd class="mb-0">Within <t t-out="order.turnaround_days" /> working days of receiving the samples</dd>
                     </div>
                 </dl>
                 <p t-if="quotation"><a t-att-href="'/orders/%s/quotation' % order.id">View quotation</a></p>
+                <t t-if="payment_request.kind == 'balance'" t-call="sol_commerce.payment_request_summary" />
                 <p t-if="order.reorder_note" t-out="order.reorder_note" />
                 <div class="table-responsive">
                     <table class="table">
@@ -285,7 +313,16 @@
                         <tbody>
                             <t t-foreach="lines" t-as="line">
                                 <tr>
-                                    <td t-out="line.product_id.display_name" />
+                                    <td>
+                                        <span t-out="line.product_id.display_name" />
+                                        <t t-set="tested" t-value="(line.linked_line_ids or line).sudo()" />
+                                        <div t-if="line.sample_type_id" class="small text-muted">
+                                            <t t-out="line.sample_type_id.name" />
+                                            <t t-foreach="tested.filtered('parameter_method_id')" t-as="part">
+                                                · <t t-out="part.parameter_method_id.display_name" />
+                                            </t>
+                                        </div>
+                                    </td>
                                     <td class="text-end" t-out="line.price_unit" t-options="{'widget': 'monetary', 'display_currency': order.currency_id}" />
                                     <td class="text-end" t-out="int(line.product_uom_qty)" />
                                     <td class="text-end" t-out="line.price_unit * line.product_uom_qty" t-options="{'widget': 'monetary', 'display_currency': order.currency_id}" />
@@ -300,6 +337,11 @@
                         </tfoot>
                     </table>
                 </div>
+                <section t-if="lines.filtered('sample_type_id')" class="mb-4">
+                    <h2 class="h4">Expected samples</h2>
+                    <t t-set="entries" t-value="order.sudo()._expected_sampling()" />
+                    <t t-call="sol_commerce.expected_sampling" />
+                </section>
                 <t t-foreach="requests" t-as="cancellation">
                     <div class="border rounded p-3 mb-3">
                         <p>Cancellation: <t t-out="cancellation.status" /></p>

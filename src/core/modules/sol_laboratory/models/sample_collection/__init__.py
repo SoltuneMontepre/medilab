@@ -1,7 +1,10 @@
 from . import (
+    committed_date_change,
     expected_sampling,
     handover_record,
+    handover_record_mobile,
     handover_record_sample,
+    handover_record_sample_mobile,
     ir_attachment,
     ir_attachment_mobile,
     sample,
@@ -13,6 +16,11 @@ from . import (
     sample_scan,
     scheduled_job,
     subcontract_dispatch,
+    subcontract_dispatch_delivery,
+    subcontract_dispatch_failure,
+    subcontract_dispatch_handover,
+    subcontract_dispatch_scheduled_job,
     test_request,
+    test_request_estimate,
     test_request_plan,
 )

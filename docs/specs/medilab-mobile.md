@@ -59,7 +59,7 @@ The Firebase token is a `medilab.mobile.device` linked to its phone's device: on
 
 | Route | Does |
 | ----- | ---- |
-| `GET /me` | The person's name, login, department and roles, and what they may do: create, assign and reassign tasks, take support requests |
+| `GET /me` | The person's name, login, department and roles, and what they may do: create, assign and reassign tasks, read handover records, scan sample labels, sign results, take support requests |
 | `GET /modules` | The installed MediLab modules, such as `sol_laboratory`, `sol_commerce` and `sol_inventory` |
 
 What the person may do comes from the same permission checks the web's buttons use, so the app hides what the web hides. `GET /modules` reads the modules' installed state with full rights and answers only their technical names.
@@ -88,7 +88,7 @@ A push is created when a notification is delivered on the push channel ([SH-11](
 | `GET /documents/{model}/{record_id}` | The document's code, title and phone screen, and its address on the web |
 
 - Notifications are the person's inbox notifications ([SH-11](../functional/shared.md#sh-11-schedules-and-reminders)): Odoo messages with an inbox notification for the person's contact. Reading one marks that notification read for the web as well. The title of a notification is its event's name, and the list never carries its text, as a push does not.
-- The preferences list the events that notify people: an event the administrator turned off is left out, and its push cannot be set.
+- The preferences list the events that notify people about documents the person may read: an event the administrator turned off, or one about a kind of document the person may not read, such as an invoice for a tester, is left out, and its push cannot be set.
 - A push preference is a `medilab.notification.preference` of channel `push`, set with `set_own()`, so the web shows the same choice. Turning off a mandatory event's push is refused with `mandatory_event`.
 - A document's screen is `task`, `sample`, `sample_test`, `test_result`, `handover_record`, `support_request`, `container` or `conversation`. Any other readable document answers the screen `web` with its code, its title and its address on the web, which the app shows with "Open on the web". The title is the document's code when it has one, otherwise its display name.
 
@@ -105,7 +105,7 @@ A push is created when a notification is delivered on the push channel ([SH-11](
 | `GET /tasks/assignees?q=` | The people and departments the person may give a task to |
 
 - The lists search the person's tasks with `is_mine` and `in_my_queue`, as the web's to-do list and queues do, so both show the same tasks in the same order. A page's `next_after` is how many tasks the pages before it gave.
-- The actions of a task are the buttons the web's form shows the person: claim while it waits in their queue, start and mark done while it is theirs, and assign with the permission to edit it. `GET /me` says whether the person may create and assign tasks, from the same permissions, so the app shows the screens only with them.
+- The actions of a task are the buttons the web's form shows the person: claim while it waits in their queue, start while it is theirs and assigned, unless it is the testing task of an outsourced test, mark done while it is theirs, and assign with the permission to edit it. `GET /me` says whether the person may create and assign tasks, from the same permissions, so the app shows the screens only with them.
 - A testing task gives its method's steps from `method_step_ids`: each step's minutes, instruction, note and location. A collection task gives its planned start and end, the samples it is for, which are its sample or its test request's samples as the person may read them, and their sampling locations as its place.
 - Claiming a task someone else claimed first is refused with `already_claimed`; a task outside the person's queues with `action_refused`.
 - Assigning and reassigning run the `medilab.task.reassign` wizard's `action_confirm()` on the task, so its checks apply. Moving a task away from its person or department without a reason is refused with `action_refused`: the task refuses it, so the web refuses it the same way. A person outside the task's department takes the task to their department unless the request names one; naming a department and no person puts the task in that department's queue. A person without the permission to edit the task is refused with `permission_denied`.
@@ -124,6 +124,7 @@ A push is created when a notification is delivered on the push channel ([SH-11](
 - The sample is read with the person's rights and answers only the fields they may read: a tester never gets the customer, the customer's name for the sample or its photos. The customer and the customer's name come only to a person who reads every test request, and are null for anyone else.
 - A sample not handed over to the person's department, or a person in no department, is refused by `receive_by_label()` with `action_refused` and records nothing. Scanning a received sample again keeps the first receipt. The app offers to record the receipt only while the sample's handover to the person's department is not received and they may edit it (`can_receive`), and says that a sample without one was not handed over to their department.
 - The tasks offered and claimed are the sample's open testing tasks in the person's own department's queue; any other task is refused with `action_refused`, and one someone else claimed first with `already_claimed`. A claim takes every listed task or none.
+- `GET /me` says with `scan_samples` whether the person may edit sample handovers, which recording a receipt and handing samples over need, so the app offers scanning only then. A sample's answer says with `tests_samples` whether the person is in a department and authorized to test a parameter; the app shows their department's handover and testing tasks only to them, and the handover to anyone the sample was handed over to.
 
 ### Testing at the bench
 
@@ -142,6 +143,7 @@ A push is created when a notification is delivered on the push channel ([SH-11](
 - Signing takes `confirmed: true`, which the app sends only from its confirmation step, so signing is a deliberate action ([SH-04](../functional/shared.md#sh-04-signatures-and-digital-signing)). The approval mixin decides the level: a tester's signature sends the result, a head of department's approves it, and a head may approve a result they entered.
 - Rejecting needs a reason; an empty or blank one is refused by `action_reject()` with `action_refused`.
 - The results waiting for the person are the results awaiting approval that they may read, kept when `approval_can_sign` is true for them; it is computed, not stored, so the route filters them before paging. A result that is approved or waits for someone else's signature answers that nothing can be done with it.
+- `GET /me` says with `sign_results` whether results can wait for the person's signature: they may sign results and hold the role of a level of the results' signing chain after the first. The app offers the results to sign only then.
 
 ### Collecting samples and photos
 
@@ -160,12 +162,16 @@ A push is created when a notification is delivered on the push channel ([SH-11](
 
 | Route | Does |
 | ----- | ---- |
-| `GET /handover-records?status=draft\|signed` | The handover records the person may read |
-| `GET /handover-records/{record_id}` | The record's code, test request, who handed the samples over, the samples it lists with their amount and condition, and when and on which phone it was signed |
-| `POST /handover-records/{record_id}/sign` | Records the customer's signature through `action_sign()` |
+| `GET /handover-records?status=draft\|signed&after=&limit=` | The handover records of the status the person may read, latest handover first |
+| `GET /handover-records/{record_id}` | The record's code, test request, who handed the samples over and who took them, the samples it lists with what was handed over against what was expected, their amount, excess material and condition, and when and on which phone it was signed |
+| `POST /handover-records/{record_id}/sign` | Records the customer's signature through `_sign()` |
 
-- Signing takes the signature as a PNG, at most 1 MiB, and `confirmed: true`. The route signs through the record's `_sign()` with the phone of the key, which is recorded as the device the record was signed on; neither the app nor any caller of `action_sign()` names the device.
+- `GET /me` says with `read_handover_records` whether the person reads handover records, so the app shows them only then. A record's answer says with `can_sign` whether it waits for the customer's signature, lists samples and the person may edit it, which signing needs; the app offers signing only then. A person who may not edit it is refused with `permission_denied`.
+- The test request, the people and the samples' codes and types are named as the web's form names them; the customer's name for a sample comes only to a person who reads every test request, as on a [sample](#scanning-sample-labels).
+- Signing takes the signature as a PNG, at most 1 MiB, and `confirmed: true`. The route signs through the record's `_sign()` with the phone of the key, which is recorded as the device the record was signed on; neither the app nor any caller of `action_sign()` names the device, and `action_sign()` records none.
 - A signed record is only shown. Signing it again from the phone that signed it answers the signed record, so a signature sent again after a lost answer is not refused; from any other phone it is refused with `action_refused`.
+- **Signing on the phone.** The customer reads the samples on the record, signs by hand in the app's signature box and confirms on a step that names them and the record. The app draws the signature as a black-and-white PNG itself, so it needs no native drawing library.
+- **On the phone first.** The app keeps the signature in its own folder, one per record, before sending it. A signature MediLab did not get, with no connection or refused, stays on the phone and the record's screen offers to send it again or discard it; the app offers no new signature meanwhile. Once the record is signed, on this phone or another, the kept signature is removed.
 
 ### Conversations and chatter
 
@@ -176,7 +182,7 @@ Conversations are Odoo Discuss channels ([SH-12](../functional/shared.md#sh-12-c
 | `GET /conversations` | The person's direct and group conversations, with their unread count, whether they are muted and their last message |
 | `POST /conversations` | Opens the direct conversation with one person through `_get_or_create_chat()`, or creates a group with a name and members through `_create_group()` |
 | `GET /conversations/{channel_id}/messages?before=&after=&limit=` | Messages through `mail.message._message_fetch()` |
-| `POST /conversations/{channel_id}/messages` | Posts a message with its text, mentions and files through `message_post()` |
+| `POST /conversations/{channel_id}/messages` | Posts a message with its text, mentions and files through `message_post()` with the discussion subtype, as Discuss does |
 | `POST /conversations/{channel_id}/seen` | Marks the conversation read up to a message through the member's `_mark_as_read()` |
 | `PUT /conversations/{channel_id}/mute` | Mutes or unmutes it through the member's `mute_until_dt`, as Discuss on the web does |
 | `GET /people?q=` | Active internal users, for new conversations and mentions |
@@ -224,11 +230,12 @@ Like the Sync updates route, these two are plain `auth='none'` HTTP routes, outs
 
 | Route | Does |
 | ----- | ---- |
-| `GET /mobile/release/{platform}/{runtime_version}/{version}` | Whether the phone must update: 204 when it is current; 200 with `code`, or `install` with the APK's version, address and SHA-256; or `unavailable` when it is older than the oldest version served and no release reaches it |
+| `GET /mobile/release/{platform}/{runtime_version}/{version}` | Whether the phone must update: 204 when it is current; 200 with the `action` `code` and its version, `install` with the APK's version, address and SHA-256, or `unavailable` when it is older than the oldest version served and no release reaches it |
 | `GET /mobile/updates` | The code update for the phone, in the Expo Updates protocol |
 
 - **Public.** Both routes are `auth='none'`, so a phone that is signed out also updates. Like the [Sync updates route](sync-updates.md#routes), they never use cookies, keys or addresses from the request as authority, answer `Cache-Control: no-store`, refuse invalid platforms and versions with `invalid_request`, and answer `update_unavailable` while the catalog is missing or invalid.
-- **Checking.** The app asks the release route when it starts and when it comes back to the foreground. On `code` it fetches the update through `expo-updates`; on `install` it downloads the APK, checks its SHA-256 and opens the installer; on `unavailable` it shows only the updating screen. The app cannot be used until the update is installed.
+- **Checking.** The app asks the release route when it starts and when it comes back to the foreground. On `code` it fetches the update through `expo-updates`; on `install` it downloads the APK, checks its SHA-256 and opens the installer; on `unavailable` it shows only the updating screen. The app cannot be used until the update is installed. A refused or failed update leaves the version the phone has and the updating screen, which tries again; a release route that does not answer, such as without a connection or with `update_unavailable`, opens the app, whose other calls are refused then too.
+- **The build's MediLab.** The app asks the MediLab address it was built with, the address `expo-updates` fetches code updates from, even after the sign-in screen changed the address. Only a build made with the update certificate takes updates; a development build asks nothing.
 - **The Expo Updates route** follows the protocol's version 1: it requires `expo-protocol-version: 1`, reads `expo-platform` and `expo-runtime-version`, and answers the newest eligible code update of that runtime as a `multipart/mixed` answer with its manifest and the manifest's `expo-signature` exactly as the catalog holds them, or 204 when there is none.
 - **Signing.** The release pipeline signs every manifest with the update key; the app embeds the matching certificate and `expo-updates` refuses a manifest whose signature does not verify, keeping the version it has. An APK is signed with the laboratory's upload key, and Android installs it over the app only when the key is the same. Odoo stores and serves signatures; it never reads or holds a key.
 - **The catalog** is a read-only JSON file at `MEDILAB_MOBILE_RELEASES_FILE`, a copy of `mobile/catalog.json` in the `medilab-release` bucket, which [cd-mobile-app](../infrastructure/pipelines.md#cd-mobile-app) publishes last, after the artifacts. It has the size limits and the all-or-nothing validation of the Sync catalog. Each tag adds a code release and an install of the same version and runtime version. Odoo stores no address of the bucket: an install names its APK's full HTTPS address, and a code manifest names each of its files'.
@@ -259,8 +266,10 @@ Like the Sync updates route, these two are plain `auth='none'` HTTP routes, outs
 ```
 
 - **Versions.** A version is three numbers, such as `1.2.3`; the APK's Android version code is `major × 1,000,000 + minor × 1,000 + patch`. The runtime version is the [fingerprint](https://docs.expo.dev/versions/latest/sdk/fingerprint/) of the Android project, which the pipeline writes into the app's `runtimeVersion`: it changes only when the native project does, so a phone whose APK has the same runtime version takes the code update and any other needs the install. The Expo Updates route sends a code release's signature as `expo-signature: sig="<signature>", keyid="main"`.
-- **Administrators** set, in the settings, the oldest version MediLab still serves and the releases it stops serving. A stopped release is never answered; the newest release not stopped is. A phone that already runs a stopped code update returns to an earlier one only when the release pipeline republishes that one as a new signed update, because `expo-updates` never launches an update older than the one it runs; returning to the code built into the installed APK instead is the protocol's `rollBackToEmbedded` directive, which the pipeline signs the same way.
+- **Administrators** set, in the settings, the oldest version MediLab still serves and the releases it stops serving. A stopped release is never answered; the newest release not stopped is. A phone that already runs a stopped code update returns to an earlier one only when the release pipeline publishes that one again as a newer signed release ([rolling back](../infrastructure/pipelines.md#cd-mobile-app)), because `expo-updates` never launches an update older than the one it runs.
 - **iOS.** The first release is for Android. The routes take `ios`; the catalog has no iOS release until there is one, and an iOS build answers 204.
+- **Choosing.** A release is eligible when it is of the phone's platform, its version is not stopped and not older than the oldest version served. The release route answers the newest eligible release newer than the phone's version; a code release counts only for the phone's runtime version, and of a code release and an install of the same version the code release is answered. A phone older than the oldest version served with no such release gets `unavailable`, unless the catalog has no release of its platform. The Expo Updates route answers the newest eligible code release of the runtime.
+- **Settings.** The oldest version served and the stopped versions, separated by commas, are in the Medilab Mobile block of the Laboratory settings. Stopping a version stops its code release and its install on every platform.
 
 ### Data
 
