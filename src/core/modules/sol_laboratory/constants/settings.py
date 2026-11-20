@@ -4,6 +4,10 @@ SAFETY_MARGIN_PARAMETER = "sol_laboratory.safety_margin_days"
 DEFAULT_SAFETY_MARGIN_DAYS = 2
 REMINDER_LEAD_PARAMETER = "sol_laboratory.reminder_lead_minutes"
 DEFAULT_REMINDER_LEAD_MINUTES = 15
+MANDATORY_EMAIL_RETRY_COUNT_PARAMETER = "sol_laboratory.mandatory_email_retry_count"
+DEFAULT_MANDATORY_EMAIL_RETRY_COUNT = 3
+MANDATORY_EMAIL_RETRY_INTERVAL_HOURS_PARAMETER = "sol_laboratory.mandatory_email_retry_interval_hours"
+DEFAULT_MANDATORY_EMAIL_RETRY_INTERVAL_HOURS = 1
 # No default: entries are kept for ever until a retention period is set.
 AUDIT_RETENTION_PARAMETER = "sol_laboratory.audit_retention_days"
 SAMPLE_RETENTION_REMINDER_PARAMETER = "sol_laboratory.sample_retention_reminder_days"

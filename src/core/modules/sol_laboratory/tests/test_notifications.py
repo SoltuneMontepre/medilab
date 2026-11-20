@@ -1,5 +1,5 @@
 import os
-from datetime import timedelta
+from datetime import datetime, timedelta
 from unittest.mock import patch
 
 import requests
@@ -9,6 +9,7 @@ from odoo.exceptions import AccessError, UserError
 from odoo.tests import HttpCase, TransactionCase, tagged
 
 from .mobile_phones import push_token
+from odoo.addons.sol_laboratory.constants.models import MODEL_RES_CONFIG_SETTINGS
 from odoo.addons.sol_laboratory.constants.notifications import (
     BREVO_SMTP_HOST,
     BREVO_SMTP_PASSWORD,
@@ -148,6 +149,67 @@ class TestNotifications(TransactionCase):
         job._handle_notifications_email(item)
         self.assertNotEqual(mail.state, "exception")
         self.assertEqual(self.env["medilab.job.item"].search_count([("item_key", "=", f"mail:{mail.id}")]), 1)
+
+    def test_a_mandatory_email_retries_temporary_failures_then_marks_a_bounce(self):
+        task = self._task()
+        message = self.env["mail.message"].raise_event(
+            EVENT_TEST_REPORT_ISSUED, task, "mandatory-email-retries", "Body", partners=self.user.partner_id
+        )
+        notification = message.notification_ids.filtered(lambda item: item.res_partner_id == self.user.partner_id)
+        mail = notification.mail_mail_id
+        item = self.env["medilab.job.item"].search([("item_key", "=", f"mail:{mail.id}")], limit=1)
+        settings = self.env[MODEL_RES_CONFIG_SETTINGS]
+        retry_count = settings._get_parameter("mandatory_email_retry_count")
+        retry_hours = settings._get_parameter("mandatory_email_retry_interval_hours")
+
+        def temporary_failure(mail, **kwargs):
+            mail.write({"state": "exception", "failure_type": "mail_smtp", "failure_reason": "SMTP unavailable"})
+
+        with patch("odoo.addons.mail.models.mail_mail.MailMail.send", temporary_failure):
+            for attempt in range(1, retry_count + 2):
+                attempted_at = fields.Datetime.now()
+                next_attempt = item.job_id._handle_notifications_email(item)
+                self.assertEqual(notification.email_retry_attempts, attempt)
+                if attempt <= retry_count:
+                    next_attempt = assert_instance(next_attempt, datetime)
+                    expected = attempted_at + timedelta(hours=retry_hours)
+                    self.assertLessEqual(expected, next_attempt)
+                    self.assertLessEqual(next_attempt, expected + timedelta(seconds=1))
+                else:
+                    self.assertIsNone(next_attempt)
+
+        self.assertTrue(self.user.partner_id.email_bounced)
+        self.assertEqual(notification.notification_status, "bounce")
+
+    def test_correcting_a_bounced_address_requires_confirmation(self):
+        partner = self.env["res.partner"].create({"name": "Bounced customer", "email": "old@example.com"})
+        partner.email_bounced = True
+
+        with patch("secrets.token_urlsafe", return_value="confirmation-token"):
+            partner.write({"email": "new@example.com"})
+
+        self.assertEqual(partner.email, "new@example.com")
+        self.assertTrue(partner.email_bounced)
+        self.assertTrue(partner.email_confirmation_token)
+        blocked_mail = self.env["mail.mail"].create(
+            {
+                "subject": "Automatic notice",
+                "email_to": partner.email,
+                "recipient_ids": [(4, partner.id)],
+                "state": "outgoing",
+            }
+        )
+        blocked_mail.send()
+        self.assertEqual(blocked_mail.state, "cancel")
+        raw_address_mail = self.env["mail.mail"].create(
+            {"subject": "Raw automatic notice", "email_to": partner.email, "state": "outgoing"}
+        )
+        raw_address_mail.send()
+        self.assertEqual(raw_address_mail.state, "cancel")
+        self.assertTrue(partner._confirm_email_address("confirmation-token"))
+        self.assertFalse(partner.email_bounced)
+        self.assertFalse(partner.email_confirmation_token)
+        self.assertFalse(partner._confirm_email_address("confirmation-token"))
 
     def test_a_rejected_token_turns_the_device_off_and_a_temporary_error_does_not(self):
         device = push_token(self.env, self.user, "token-1")
@@ -493,6 +555,18 @@ class TestNotifications(TransactionCase):
 
 @tagged("post_install", "-at_install")
 class TestBrevoWebhook(HttpCase):
+    def test_opening_the_corrected_address_confirmation_link_resumes_email(self):
+        partner = self.env["res.partner"].create({"name": "Confirmed customer", "email": "old@example.com"})
+        partner.email_bounced = True
+        with patch("odoo.addons.sol_laboratory.models.notifications.res_partner.secrets.token_urlsafe", return_value="token"):
+            partner.write({"email": "new@example.com"})
+
+        response = self.url_open("/medilab/email/confirm/token")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Email address confirmed", response.text)
+        self.assertFalse(partner.email_bounced)
+
     def test_a_missing_token_rejects_the_webhook(self):
         with patch.dict(os.environ, {BREVO_WEBHOOK_TOKEN: ""}):
             response = self.url_open(
