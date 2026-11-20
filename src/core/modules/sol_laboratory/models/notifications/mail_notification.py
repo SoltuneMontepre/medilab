@@ -254,7 +254,12 @@ class MailNotification(models.Model, MailNotificationBase):
         partner = self.res_partner_id.sudo()
         partner.write({"email_bounced": True})
         self.sudo().write(
-            {"notification_status": "bounce", "failure_type": "mail_bounce", "next_email_retry_at": False}
+            {
+                "notification_status": "bounce",
+                "failure_type": "mail_bounce",
+                "email_retry_attempts": attempts or self.email_retry_attempts,
+                "next_email_retry_at": False,
+            }
         )
         if attempts is not None:
             self.env[MODEL_AUDIT_ENTRY]._log_event(

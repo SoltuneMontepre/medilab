@@ -127,9 +127,6 @@ class ScheduledJob(models.Model, ScheduledJobBase):
         mail.sudo().write({"state": "outgoing", "failure_reason": False, "failure_type": False})
         mail.sudo().send(raise_exception=False)
         mail.invalidate_recordset()
-        if notification and mail.state == "cancel" and mail.failure_type == "mail_bounce":
-            notification.sudo().write({"notification_status": "bounce", "failure_type": "mail_bounce"})
-            return None
         if mail.state == "exception":
             if notification:
                 return notification._schedule_email_retry()

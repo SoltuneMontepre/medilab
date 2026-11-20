@@ -32,7 +32,6 @@ class MailMail(models.Model, MailMailBase):
             blocked.sudo().write(
                 {
                     "state": "cancel",
-                    "failure_type": "mail_bounce",
                     "failure_reason": self.env._("The recipient's email address must be confirmed before sending."),
                 }
             )
