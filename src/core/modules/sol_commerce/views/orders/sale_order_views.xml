@@ -659,7 +659,15 @@
                         <field name="code" readonly="1" />
                         <field name="order_id" readonly="1" options="{'no_open': True}" />
                         <field name="revision" readonly="1" />
-                        <field name="status" widget="badge" readonly="1" />
+                        <field
+                            name="status"
+                            widget="badge"
+                            readonly="1"
+                            decoration-success="status == 'accepted'"
+                            decoration-info="status == 'sent'"
+                            decoration-danger="status in ('declined', 'expired')"
+                            decoration-muted="status == 'superseded'"
+                        />
                     </group>
                     <group>
                         <field name="sent_at" readonly="1" />
@@ -672,7 +680,14 @@
                 <field name="payment_request_ids" readonly="1" invisible="not payment_request_ids">
                     <list>
                         <field name="kind" />
-                        <field name="state" widget="badge" />
+                        <field
+                            name="state"
+                            widget="badge"
+                            decoration-success="state == 'funded'"
+                            decoration-warning="state == 'open'"
+                            decoration-danger="state == 'expired'"
+                            decoration-muted="state == 'superseded'"
+                        />
                         <field name="deadline" />
                         <field name="currency_id" column_invisible="1" />
                         <field name="amount" />
