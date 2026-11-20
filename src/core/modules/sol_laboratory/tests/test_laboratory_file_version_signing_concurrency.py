@@ -22,9 +22,9 @@ from odoo.addons.sol_laboratory.services.laboratory_file_error import Laboratory
 from odoo.addons.sol_laboratory.tests.assertions import assert_instance
 
 
-def save(file, content):
+def save(file, content, user=None):
     return file._add_version(
-        content=stored_content(file.env, content), source=SYNCED, user=file.env.ref("base.user_admin")
+        content=stored_content(file.env, content), source=SYNCED, user=user or file.env.ref("base.user_admin")
     )
 
 
@@ -83,14 +83,16 @@ class TestLaboratoryFileVersionSigningConcurrency(LaboratoryFilesConcurrencyCase
         outsider = new_test_user(
             env, login=f"sign.outsider.{uuid.uuid4().hex[:8]}", groups=f"base.group_user,{LABORATORY_FILES_GROUP}"
         )
+        author = new_test_user(env, login=f"sign.author.{uuid.uuid4().hex[:8]}", groups="base.group_user")
         return {
             "outsider": outsider.id,
+            "author": author.id,
             "chain": chain.id if created_chain else False,
             "roles": added_roles.ids,
             "sample": sample,
             "folder": folder.id,
             "file": file.id,
-            "first": save(file, "lead 0.004 mg/L").id,
+            "first": save(file, "lead 0.004 mg/L", author).id,
         }
 
     def remove(self, env):
@@ -121,10 +123,10 @@ class TestLaboratoryFileVersionSigningConcurrency(LaboratoryFilesConcurrencyCase
             roles.unlink()
 
     def remove_outsider(self, env):
-        outsider = env[MODEL_RES_USERS].browse(self.ids["outsider"])
-        partner = outsider.partner_id
-        outsider.unlink()
-        partner.unlink()
+        users = env[MODEL_RES_USERS].browse([self.ids["outsider"], self.ids["author"]])
+        partners = users.partner_id
+        users.unlink()
+        partners.unlink()
 
     def first_version(self, env):
         return env[MODEL_LABORATORY_FILE_VERSION].browse(self.ids["first"]).with_user(env.ref("base.user_admin"))
