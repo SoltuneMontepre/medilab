@@ -22,10 +22,11 @@ class TestLaboratoryFolderRetention(AuditLookup, LaboratoryFilesCase):
         self.file = self.file_of("HPLC/run-01.csv")
 
     def expire(self, folder):
-        folder.with_user(self.administrator).action_archive_folder()
-        self.env.cr.execute(
-            "UPDATE medilab_laboratory_folder SET retention_until = %s WHERE id = %s",
-            [fields.Date.context_today(folder) - timedelta(days=1), folder.id],
+        folder.with_user(self.administrator).write(
+            {
+                "archived_at": fields.Datetime.now(),
+                "retention_until": fields.Date.context_today(folder) - timedelta(days=1),
+            }
         )
         self.env.invalidate_all()
 
