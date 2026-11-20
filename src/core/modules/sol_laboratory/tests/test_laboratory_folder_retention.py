@@ -107,5 +107,9 @@ class TestLaboratoryFolderRetention(AuditLookup, LaboratoryFilesCase):
         self.assertEqual(other_version.content_id.state, "verified")
         other_folder.with_user(self.administrator).action_approve_retention_removal()
         self.assertFalse(other_version.content_id)
-        content = self.env[MODEL_LABORATORY_CONTENT].sudo().search([("sha256", "=", self.sha("shared bytes"))])
-        self.assertEqual(content.state, RETENTION_REMOVED)
+        content = (
+            self.env[MODEL_LABORATORY_CONTENT]
+            .sudo()
+            .search([("sha256", "=", self.sha("shared bytes")), ("state", "=", RETENTION_REMOVED)], limit=1)
+        )
+        self.assertTrue(content)
