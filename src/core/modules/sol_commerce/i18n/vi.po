@@ -6291,3 +6291,44 @@ msgstr "Đang chờ kế toán xác nhận:"
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 msgid "Recorded payments"
 msgstr "Các khoản thanh toán đã ghi nhận"
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__payment_badge_status__partial_pending
+msgid "Partial (pending confirmation)"
+msgstr "Thanh toán một phần (chờ xác nhận)"
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__payment_badge_status__pending
+msgid "Pending confirmation"
+msgstr "Chờ kế toán xác nhận"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__result_status
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Result"
+msgstr "Kết quả"
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__result_status__collection_hold
+msgid "Awaiting sample payment"
+msgstr "Chờ thanh toán trước lấy mẫu"
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__result_status__awaiting_samples
+msgid "Awaiting samples"
+msgstr "Chờ lấy mẫu"
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__result_status__in_progress
+msgid "Processing"
+msgstr "Đang xử lý"
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__result_status__payment_hold
+msgid "Waiting for full payment"
+msgstr "Chờ thanh toán đủ"
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__result_status__ready
+msgid "Ready"
+msgstr "Sẵn sàng"

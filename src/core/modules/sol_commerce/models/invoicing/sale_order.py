@@ -50,6 +50,20 @@ class SaleOrder(models.Model, SaleOrderBase):
             compute="_compute_payment_status",
             compute_sudo=True,
         )
+        # Detailed payment badge for the order header distinguishing credit, pending, partial, and unpaid states.
+        payment_badge_status = fields.Selection(
+            [
+                ("on_credit", "On Credit"),
+                ("paid", "Paid"),
+                ("partial_pending", "Partial (pending confirmation)"),
+                ("pending", "Pending confirmation"),
+                ("partial", "Partially paid"),
+                ("not_paid", "Not paid"),
+            ],
+            string="Payment",
+            compute="_compute_payment_badge_status",
+            compute_sudo=True,
+        )
         # Draft cash and bank transfers on this order's invoices. A confirmed or rejected payment is not included.
         pending_amount = fields.Monetary(
             string="Pending amount", compute="_compute_pending_amount", currency_field="currency_id", compute_sudo=True
@@ -78,6 +92,20 @@ class SaleOrder(models.Model, SaleOrderBase):
                 order.payment_status = "paid"
             else:
                 order.payment_status = "partial"
+
+    @api.depends("on_credit", "payment_status", "pending_amount")
+    def _compute_payment_badge_status(self):
+        for order in self:
+            if order.on_credit:
+                order.payment_badge_status = "on_credit"
+            elif order.payment_status == "paid":
+                order.payment_badge_status = "paid"
+            elif order.pending_amount > 0:
+                order.payment_badge_status = "partial_pending" if order.payment_status == "partial" else "pending"
+            elif order.payment_status == "partial":
+                order.payment_badge_status = "partial"
+            else:
+                order.payment_badge_status = "not_paid"
 
     def _verified_order_amount(self):
         self.ensure_one()

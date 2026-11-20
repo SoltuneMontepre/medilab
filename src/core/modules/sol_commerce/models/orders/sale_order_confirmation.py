@@ -69,6 +69,20 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
         show_unpaid_warning = fields.Boolean(compute="_compute_show_unpaid_warning", compute_sudo=True)
         # What payment holds up on the confirmed order: its sample collection, or its report.
         payment_notice = fields.Char(compute="_compute_show_unpaid_warning", compute_sudo=True)
+        # Processing and delivery state of the order's test result shown in the order header.
+        result_status = fields.Selection(
+            [
+                ("collection_hold", "Awaiting sample payment"),
+                ("awaiting_samples", "Awaiting samples"),
+                ("in_progress", "Processing"),
+                ("payment_hold", "Waiting for full payment"),
+                ("ready", "Ready"),
+                ("reported", "Sent"),
+            ],
+            string="Result",
+            compute="_compute_show_unpaid_warning",
+            compute_sudo=True,
+        )
 
     @api.depends(
         "payment_status",
@@ -91,6 +105,20 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
                         order.currency_id.format(order.amount_total - order._verified_order_amount()),
                     )
             order.payment_notice = notice
+            if order.order_status not in (STATUS_CONFIRMED, STATUS_COMPLETED):
+                order.result_status = False
+                continue
+            test_status = order.sudo().test_request_id.status
+            if test_status == "reported":
+                order.result_status = "reported"
+            elif test_status == "completed":
+                order.result_status = "payment_hold" if order._withholds_report() else "ready"
+            elif test_status in ("testing", "awaiting_approval"):
+                order.result_status = "in_progress"
+            elif hold:
+                order.result_status = "collection_hold"
+            else:
+                order.result_status = "awaiting_samples"
 
     def _can_collect_samples(self):
         self.ensure_one()

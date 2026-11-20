@@ -6084,3 +6084,44 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 msgid "Recorded payments"
 msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__payment_badge_status__partial_pending
+msgid "Partial (pending confirmation)"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__payment_badge_status__pending
+msgid "Pending confirmation"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__result_status
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Result"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__result_status__collection_hold
+msgid "Awaiting sample payment"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__result_status__awaiting_samples
+msgid "Awaiting samples"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__result_status__in_progress
+msgid "Processing"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__result_status__payment_hold
+msgid "Waiting for full payment"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__result_status__ready
+msgid "Ready"
+msgstr ""

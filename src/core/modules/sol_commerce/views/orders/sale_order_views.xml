@@ -228,9 +228,6 @@
                 <div class="alert alert-warning" role="alert" invisible="not reorder_note" groups="base.group_user">
                     <field name="reorder_note" nolabel="1" readonly="1" />
                 </div>
-                <div class="alert alert-warning" role="alert" invisible="not payment_notice">
-                    <field name="payment_notice" nolabel="1" readonly="1" />
-                </div>
             </xpath>
             <!-- Each status says what it is about. -->
             <xpath expr="//div[hasclass('oe_title')]" position="inside">
@@ -254,6 +251,27 @@
                             decoration-warning="quotation_follow_up == 'unpaid'"
                             decoration-success="quotation_follow_up in ('paid', 'accepted')"
                             decoration-danger="quotation_follow_up in ('declined', 'expired')"
+                        />
+                    </div>
+                    <div class="d-flex align-items-center gap-2" invisible="state == 'draft'">
+                        <span class="text-muted">Payment</span>
+                        <field
+                            name="payment_badge_status"
+                            widget="badge"
+                            decoration-success="payment_badge_status == 'paid'"
+                            decoration-info="payment_badge_status in ('on_credit', 'pending', 'partial_pending')"
+                            decoration-warning="payment_badge_status == 'partial'"
+                            decoration-danger="payment_badge_status == 'not_paid'"
+                        />
+                    </div>
+                    <div class="d-flex align-items-center gap-2" invisible="not result_status">
+                        <span class="text-muted">Result</span>
+                        <field
+                            name="result_status"
+                            widget="badge"
+                            decoration-success="result_status in ('ready', 'reported')"
+                            decoration-info="result_status in ('awaiting_samples', 'in_progress')"
+                            decoration-warning="result_status in ('collection_hold', 'payment_hold')"
                         />
                     </div>
                 </div>
