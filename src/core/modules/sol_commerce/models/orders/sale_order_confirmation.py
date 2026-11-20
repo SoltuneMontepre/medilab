@@ -359,6 +359,7 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
         """Queue one unassigned sample collection task of the confirmed order's test request for sample delivery
         staff, due at the appointment Sales agreed with the customer, at the address given or else the customer's."""
         self.check_access("write")
+        appointment = fields.Datetime.to_datetime(appointment) or False
         for order in self:
             if order.order_status != STATUS_CONFIRMED:
                 raise UserError(self.env._("The order must be confirmed before the samples are collected."))

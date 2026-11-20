@@ -37,6 +37,8 @@ class TestInPersonOrder(OrderCase):
 
         self.assertEqual(order.order_status, "confirmed")
         self.assertEqual(order._latest_quotation().status, "accepted")
+        # The balance requested on confirmation is no advance.
+        self.assertEqual(order.quotation_follow_up, "accepted")
 
     def test_paying_the_advance_at_the_counter_lets_sales_confirm(self):
         order = self.sales_order()

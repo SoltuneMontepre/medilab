@@ -490,11 +490,13 @@ class SaleOrder(models.Model, SaleOrderBase):
             .create({"order_id": self.id, "reason": text, "requested_by_id": self.env.uid})
         )
 
-    @api.depends("quotation_ids.status", "quotation_ids.revision", "quotation_ids.payment_request_ids")
+    @api.depends("quotation_ids.status", "quotation_ids.revision", "quotation_ids.payment_request_ids.kind")
     def _compute_quotation_follow_up(self):
         for order in self:
             quotation = order._latest_quotation()
-            if quotation.status == QUOTATION_ACCEPTED and not quotation.payment_request_ids:
+            # The balance requested after confirmation is no advance: the quotation was accepted without one.
+            advance = quotation.payment_request_ids.filtered(lambda ask: ask.kind == "advance")
+            if quotation.status == QUOTATION_ACCEPTED and not advance:
                 order.quotation_follow_up = QUOTATION_ACCEPTED
             else:
                 order.quotation_follow_up = FOLLOW_UP_BY_QUOTATION_STATUS.get((quotation.status or ""), False)
