@@ -1,0 +1,45 @@
+.o_medilab_return_timeline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    list-style: none;
+    padding: 0.5rem 0 0;
+    margin: 0;
+    row-gap: 1rem;
+}
+
+.o_medilab_timeline_step {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 10rem;
+    padding-top: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+.o_medilab_timeline_step::before {
+    content: "";
+    position: absolute;
+    top: 0.2rem;
+    left: 0;
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid var(--o-brand-primary, #017e84);
+    z-index: 1;
+}
+
+.o_medilab_timeline_step_final::before {
+    background: var(--o-brand-primary, #017e84);
+}
+
+.o_medilab_timeline_step:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 0.52rem;
+    left: 0.75rem;
+    right: 0;
+    height: 2px;
+    background: #cbd5e1;
+}

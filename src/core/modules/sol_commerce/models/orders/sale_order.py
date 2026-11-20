@@ -525,6 +525,8 @@ class SaleOrder(models.Model, SaleOrderBase):
                 order.payment_method = order.advance_method
                 if order.advance_mode == ADVANCE_NONE:
                     order.advance_mode = False
+            else:
+                order.payment_method = False
 
     def _latest_quotation(self):
         self.ensure_one()

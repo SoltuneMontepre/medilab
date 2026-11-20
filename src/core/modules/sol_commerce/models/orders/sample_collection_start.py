@@ -28,7 +28,7 @@ class SampleCollectionStart(models.TransientModel, SampleCollectionStartBase):
     @api.model
     def default_get(self, fields_list):
         values = super().default_get(fields_list)
-        order = self.env[MODEL_SALE_ORDER].browse(values.get("order_id"))
+        order = self.env[MODEL_SALE_ORDER].browse(values.get("order_id") or self.env.context.get("default_order_id"))
         if order and "address" in fields_list and not values.get("address"):
             values["address"] = order.customer_id._display_address()
         if order.expected_collection_date and "appointment" in fields_list and not values.get("appointment"):

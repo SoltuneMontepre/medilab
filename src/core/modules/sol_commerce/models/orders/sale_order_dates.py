@@ -83,7 +83,15 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
             missing = requests._turnaround(order._ways())["missing"]
             order.turnaround_missing = ", ".join(missing.mapped("display_name")) or False
 
-    @api.depends("turnaround_days", "order_line.parameter_method_id", "expected_collection_date", "requested_date")
+    @api.depends(
+        "turnaround_days",
+        "order_line.parameter_method_id",
+        "expected_collection_date",
+        "requested_date",
+        "payment_deadline",
+        "advance_method",
+        "advance_mode",
+    )
     def _compute_committed_date(self):
         for order in self:
             # A sent quotation, a confirmed order and an accepted priority request keep the date they have.
@@ -159,6 +167,8 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
                     self.turnaround_missing,
                 )
             )
+        if self.expected_collection_date and self.expected_collection_date < fields.Date.context_today(self):
+            raise UserError(self.env._("Give an expected pickup day that has not passed."))
         if self.priority_request == "requested":
             raise UserError(self.env._("Accept or decline the customer's priority request before sending."))
         deadline = self._priority_payment_deadline()

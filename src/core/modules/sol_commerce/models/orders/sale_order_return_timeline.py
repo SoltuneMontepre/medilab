@@ -65,15 +65,15 @@ class SaleOrderReturnTimeline(models.Model, SaleOrderReturnTimelineBase):
         note = _("set by Sales") if self.committed_date and self.committed_date != estimate["date"] else ""
         cells = Markup("").join(
             Markup(
-                '<li class="d-flex flex-column"><span class="text-muted small">%s</span><span>%s</span>'
+                '<li class="o_medilab_timeline_step"><span class="text-muted small">%s</span><span>%s</span>'
                 '<span class="text-muted small">%s</span></li>'
             )
             % (label, value, hint)
             for label, value, hint in steps
         )
         result = Markup(
-            '<li class="d-flex flex-column"><span class="text-muted small">%s</span><strong>%s</strong>'
-            '<span class="text-muted small">%s</span></li>'
+            '<li class="o_medilab_timeline_step o_medilab_timeline_step_final"><span class="text-muted small">%s</span>'
+            '<strong>%s</strong><span class="text-muted small">%s</span></li>'
         ) % (_("Expected return"), day(expected), note)
         requested = Markup("")
         if self.requested_date:
@@ -82,6 +82,4 @@ class SaleOrderReturnTimeline(models.Model, SaleOrderReturnTimelineBase):
                 "text-success" if met else "text-warning",
                 _("Customer asked for %s.", escape(day(self.requested_date))),
             )
-        return Markup(
-            '<ol class="list-unstyled d-flex flex-wrap align-items-start column-gap-4 row-gap-2 mb-0">%s%s</ol>%s'
-        ) % (cells, result, requested)
+        return Markup('<ol class="o_medilab_return_timeline">%s%s</ol>%s') % (cells, result, requested)

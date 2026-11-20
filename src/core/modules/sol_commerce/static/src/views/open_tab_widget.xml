@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
     <t t-name="sol_commerce.OpenTabWidget">
-        <a href="#" class="btn btn-link p-0 flex-shrink-0" t-on-click="this.onClick">
-            <t t-esc="this.props.label" />
+        <a
+            href="#"
+            class="btn btn-link p-1 flex-shrink-0 text-decoration-none d-inline-flex align-items-center"
+            t-att-title="this.props.label"
+            t-att-aria-label="this.props.label"
+            t-on-click="this.onClick"
+        >
+            <iconify-icon t-if="this.props.icon" t-att-icon="this.props.icon" width="18" height="18" />
+            <t t-else="" t-esc="this.props.label" />
         </a>
     </t>
 </templates>

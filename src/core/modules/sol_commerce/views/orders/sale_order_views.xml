@@ -286,9 +286,9 @@
                     No standard turnaround yet: <field name="turnaround_missing" class="d-inline" />
                 </div>
                 <label for="committed_date" />
-                <div class="d-flex align-items-baseline gap-2">
+                <div class="d-flex align-items-center gap-2">
                     <field name="committed_date" readonly="state != 'draft'" class="oe_inline" />
-                    <widget name="medilab_open_tab" tab="timeline" string="Timeline" invisible="not return_timeline" />
+                    <widget name="medilab_open_tab" tab="timeline" icon="mdi:clock-outline" string="Timeline" invisible="not return_timeline" />
                 </div>
             </xpath>
             <xpath expr="//group[@name='sales_person']/field[@name='user_id']" position="replace" />

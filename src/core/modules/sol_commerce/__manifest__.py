@@ -84,6 +84,7 @@
         "web.assets_backend": [
             "sol_commerce/static/src/views/open_tab_widget.js",
             "sol_commerce/static/src/views/open_tab_widget.xml",
+            "sol_commerce/static/src/views/return_timeline.css",
         ],
     },
     "post_init_hook": "use_vietnamese_accounting",

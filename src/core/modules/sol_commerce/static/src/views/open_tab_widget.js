@@ -5,7 +5,12 @@ import { standardWidgetProps } from "@web/views/widgets/standard_widget_props";
 // A link that switches the form's notebook to a named tab and scrolls it into view.
 export class OpenTabWidget extends Component {
   static template = "sol_commerce.OpenTabWidget";
-  props = useProps({ ...standardWidgetProps, tab: t.string(), label: t.string() });
+  props = useProps({
+    ...standardWidgetProps,
+    tab: t.string(),
+    label: t.string(),
+    icon: t.string().optional(),
+  });
 
   onClick(ev) {
     ev.preventDefault();
@@ -24,5 +29,6 @@ registry.category("view_widgets").add("medilab_open_tab", {
   extractProps: ({ attrs }) => ({
     tab: attrs.tab || "",
     label: attrs.string || "",
+    icon: attrs.icon || "",
   }),
 });

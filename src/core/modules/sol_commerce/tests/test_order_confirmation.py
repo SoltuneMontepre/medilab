@@ -1,3 +1,4 @@
+from datetime import timedelta
 from pathlib import Path
 
 from odoo import fields
@@ -143,13 +144,14 @@ class TestOrderConfirmation(OrderCase):
             self.env[MODEL_SAMPLE_COLLECTION_START].with_user(self.sales).with_context(default_order_id=order.id)
         )
         self.assertIn("12 Nguyen Hue", str(form.address))
-        form.appointment = "2099-12-31 02:00:00"
+        appointment = fields.Datetime.to_string(fields.Datetime.now() + timedelta(hours=1))
+        form.appointment = appointment
         form.address = "Gate 3, 45 Le Loi"
 
         form.save().action_start()
 
         task = self.collection_tasks(order)
-        self.assertEqual(fields.Datetime.to_string(task.deadline), "2099-12-31 02:00:00")
+        self.assertEqual(fields.Datetime.to_string(task.deadline), appointment)
         self.assertEqual(task.place, "Gate 3, 45 Le Loi")
         self.assertTrue(order.has_open_collection)
 
