@@ -44,14 +44,14 @@ class PaymentCollection(models.TransientModel, PaymentCollectionBase):
                 continue
             currency = order.currency_id
             request = order.payment_request_id
-            rows = [(_("Quotation Total"), currency.format(order.amount_total))]
+            rows = [(_("Quotation total"), currency.format(order.amount_total))]
             if request:
                 kinds = dict(request._fields["kind"]._description_selection(self.env))
-                rows.append((_("Request"), kinds.get(request.kind, request.kind)))
+                rows.append((_("Payment request"), kinds.get(request.kind, request.kind)))
                 if request.verified_amount:
-                    rows.append((_("Paid"), currency.format(request.verified_amount)))
+                    rows.append((_("Paid amount"), currency.format(request.verified_amount)))
                 if request.deadline:
-                    rows.append((_("Payment Deadline"), format_datetime(self.env, request.deadline)))
+                    rows.append((_("Due by"), format_datetime(self.env, request.deadline)))
             body = Markup("").join(
                 Markup(
                     '<div class="d-flex justify-content-between align-items-baseline py-1 gap-3">'
@@ -64,7 +64,7 @@ class PaymentCollection(models.TransientModel, PaymentCollectionBase):
             footer = Markup(
                 '<div class="d-flex justify-content-between align-items-baseline border-top pt-2 mt-2 fw-bold">'
                 '<span>%s</span><span class="text-primary fs-5">%s</span></div>'
-            ) % (_("Remaining Due"), escape(currency.format(due)))
+            ) % (_("Remaining due"), escape(currency.format(due)))
             wizard.summary_html = Markup(
                 '<div class="bg-light border rounded p-3">'
                 '<div class="fw-semibold fs-5 mb-1">%s</div>'

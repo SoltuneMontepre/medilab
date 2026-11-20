@@ -2056,6 +2056,8 @@ msgid "Pay the advance invoice to accept this quotation."
 msgstr "Hãy thanh toán hóa đơn tạm ứng để chấp nhận báo giá này."
 
 #. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__payment_deadline
 msgid "Payment Deadline"
 msgstr "Hạn Thanh Toán"
@@ -4232,6 +4234,8 @@ msgid "Read support requests"
 msgstr "Xem yêu cầu hỗ trợ"
 
 #. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
 #: model_terms:ir.ui.view,arch_db:sol_commerce.support_list
 msgid "Request"
 msgstr "Yêu cầu"
@@ -6222,3 +6226,34 @@ msgstr "theo lịch phòng thí nghiệm"
 #: code:addons/sol_commerce/models/orders/sale_order_return_timeline.py:0
 msgid "set by Sales"
 msgstr "do Sales đặt"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
+msgid "Quotation total"
+msgstr "Tổng báo giá"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
+msgid "Payment request"
+msgstr "Yêu cầu thanh toán"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
+msgid "Paid amount"
+msgstr "Đã thanh toán"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
+msgid "Due by"
+msgstr "Hạn thanh toán"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
+msgid "Remaining due"
+msgstr "Cần thanh toán"
+
