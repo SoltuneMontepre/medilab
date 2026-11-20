@@ -26,9 +26,10 @@ class TestOrderDates(OrderCase):
         order = self.make_quotable_order([(self.lead_product, 1), (self.package_product, 1)])
 
         self.assertEqual(order.turnaround_days, 7)
-        estimate = order.estimated_result_date
+        estimate = order._earliest_return_date()
         assert isinstance(estimate, date)
         self.assertGreater(estimate, date.today())
+        self.assertEqual(order.committed_date, estimate)
 
     def test_a_way_without_a_turnaround_keeps_the_quotation_from_being_sent(self):
         self.parameter.method_ids.turnaround_days = 0
@@ -38,22 +39,16 @@ class TestOrderDates(OrderCase):
         with self.assertRaisesRegex(UserError, "Set the standard turnaround"):
             order.with_user(self.sales).action_send_quotation()
 
-    def test_a_requested_date_the_turnaround_meets_becomes_the_committed_date(self):
+    def test_the_expected_return_date_starts_at_the_earliest_date_and_ignores_requested_date(self):
         order = self.make_quotable_order()
+        earliest = order._earliest_return_date()
         requested = date.today() + timedelta(days=60)
         order.requested_date = requested
 
         order.with_user(self.sales).action_send_quotation()
 
-        self.assertEqual(order.committed_date, requested)
-
-    def test_an_earlier_requested_date_leaves_the_date_to_sample_receipt(self):
-        order = self.make_quotable_order()
-        order.requested_date = date.today()
-
-        order.with_user(self.sales).action_send_quotation()
-
-        self.assertFalse(order.committed_date)
+        self.assertEqual(order.committed_date, earliest)
+        self.assertNotEqual(order.committed_date, requested)
 
     def test_the_turnaround_counts_from_the_advance_deadline(self):
         # Received today the samples would meet the requested date; paid on the deadline they would not.
@@ -64,7 +59,7 @@ class TestOrderDates(OrderCase):
 
         order.with_user(self.sales).action_send_quotation()
 
-        self.assertFalse(order.committed_date)
+        self.assertGreater(order.committed_date, order.requested_date)
 
     def test_without_an_advance_the_turnaround_counts_from_today(self):
         order = self.make_quotable_order()
@@ -74,13 +69,13 @@ class TestOrderDates(OrderCase):
 
         order.with_user(self.head).action_send_quotation()
 
-        self.assertEqual(order.committed_date, requested)
+        self.assertLessEqual(order.committed_date, requested)
 
     def test_a_committed_date_earlier_than_the_turnaround_allows_is_refused(self):
         order = self.make_quotable_order()
         order.committed_date = date.today()
 
-        with self.assertRaisesRegex(UserError, "earlier than the standard turnaround"):
+        with self.assertRaisesRegex(UserError, "earlier than the laboratory can return results"):
             order.with_user(self.sales).action_send_quotation()
 
     def test_a_priority_request_must_be_decided_before_sending(self):
@@ -189,7 +184,7 @@ class TestOrderDates(OrderCase):
 
         request = order.sudo().test_request_id
         self.assertEqual(request.requested_date, order.requested_date)
-        self.assertEqual(request.committed_date, order.requested_date)
+        self.assertEqual(request.committed_date, order.committed_date)
         self.assertEqual(request.turnaround_days, 5)
 
     def test_the_priority_check_reserves_nothing_and_needs_a_subcontract_turnaround(self):

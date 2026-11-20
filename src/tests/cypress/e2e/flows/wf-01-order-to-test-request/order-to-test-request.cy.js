@@ -89,11 +89,11 @@ describe("WF-01 Order to confirmed test request", () => {
         cy.get(".o_field_widget[name=product_line_ids] .o_data_row td[name=sample_id]").first().click();
         pick("sample_id", sampleName);
         step("Sales asks for an online advance and sends the quotation");
-        openTab("payment");
-        choose("advance_method", "Trực tuyến");
-        choose("advance_mode", "Phần trăm");
-        cy.get(".o_field_widget[name=advance_value] input").clear().type("30");
-        cy.sendQuotation();
+        cy.sendQuotation(() => {
+          choose("payment_method", "Trực tuyến");
+          choose("advance_mode", "Phần trăm");
+          cy.get(".modal:visible .o_field_widget[name=advance_value] input").clear().type("30");
+        });
         cy.get(".o_statusbar_buttons button[name=action_revise_quotation]:visible").should("exist");
         cy.readRecord(order, ["invoice_ids"]).its("invoice_ids").should("be.empty");
         call(
@@ -284,9 +284,10 @@ describe("WF-01 Order to confirmed test request", () => {
       step("The Head of Sales sends the quotation without an advance");
       cy.signInAs("head_of_sales");
       cy.openRecord(order);
-      openTab("payment");
-      choose("advance_method", "No advance");
-      cy.sendQuotation();
+      cy.sendQuotation(() => {
+        choose("payment_method", "Cash");
+        choose("advance_mode", "No advance");
+      });
       cy.get(".o_statusbar_buttons button[name=action_revise_quotation]:visible").should("exist");
 
       step("The customer allowed to order on credit accepts the quotation on the portal");

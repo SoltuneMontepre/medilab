@@ -53,12 +53,13 @@ describe("Result dates and priority orders", () => {
       callAs("demo.sales", "sale.order", "write", [[order.id], { requested_date: inDays(60) }]);
       cy.openRecord(order);
       cy.get(".o_field_widget[name=turnaround_days]").invoke("text").should("match", /[1-9]/);
-      cy.get(".o_field_widget[name=estimated_result_date]").should("not.be.empty");
+      cy.get(".o_field_widget[name=committed_date] input").should("not.have.value", "");
       callAs("demo.sales", "sale.order", "write", [[order.id], { advance_method: "cash", advance_mode: "full" }]);
       callAs("demo.sales", "sale.order", "action_send_quotation", [[order.id]]);
-      cy.readRecord(order, ["requested_date", "committed_date"]).then((read) =>
-        expect(read.committed_date).to.equal(read.requested_date),
-      );
+      cy.readRecord(order, ["requested_date", "committed_date"]).then((read) => {
+        expect(read.committed_date).to.be.a("string").and.not.be.empty;
+        expect(read.committed_date).to.not.equal(read.requested_date);
+      });
     });
   });
 
