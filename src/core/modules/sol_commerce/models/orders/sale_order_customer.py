@@ -58,6 +58,8 @@ class SaleOrderCustomer(models.Model, SaleOrderBase):
         test_request_status = fields.Selection(related="test_request_id.status", string="Laboratory Status")
         # Whether the customer is a business with contacts to choose from; an individual is their own contact.
         customer_is_company = fields.Boolean(related="customer_id.is_company")
+        # True when partner_id still points to a company rather than an individual contact.
+        partner_is_company = fields.Boolean(related="partner_id.is_company")
         # The number of the order's latest quotation, which its printed quotation carries; empty before one is sent.
         quotation_code = fields.Char(compute="_compute_quotation_code")
 

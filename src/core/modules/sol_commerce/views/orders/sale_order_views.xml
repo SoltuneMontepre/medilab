@@ -289,14 +289,15 @@
             <xpath expr="//group[@name='partner_details']/field[@name='partner_id']" position="before">
                 <field name="customer_id" domain="[('customer_ids', '!=', False)]" options="{'no_create': True}" />
                 <field name="customer_is_company" invisible="1" />
+                <field name="partner_is_company" invisible="1" />
             </xpath>
             <xpath expr="//group[@name='partner_details']/field[@name='partner_id']" position="attributes">
                 <attribute name="widget">many2one</attribute>
                 <!-- The customer is shown above, so the contact shows only their own name. -->
                 <attribute name="context">{'partner_display_name_hide_company': True}</attribute>
-                <attribute name="options">{'no_create': True}</attribute>
+                <attribute name="options">{'no_create': True, 'no_open': True}</attribute>
                 <attribute name="domain">[('id', 'child_of', customer_id)]</attribute>
-                <attribute name="invisible">customer_id and not customer_is_company</attribute>
+                <attribute name="invisible">(customer_id and not customer_is_company) or (state != 'draft' and partner_is_company)</attribute>
                 <attribute name="readonly">not customer_id or state in ['cancel', 'sale']</attribute>
             </xpath>
             <xpath expr="//group[@name='partner_details']" position="inside">
@@ -322,7 +323,7 @@
                 <!-- Sales sets the payment deadline when sending the quotation, and can extend it until the order is
                      confirmed. -->
                 <field name="payment_deadline" invisible="state == 'draft' or order_status in ('confirmed', 'completed', 'cancelled')" />
-                <field name="expected_collection_date" readonly="state != 'draft'" />
+                <field name="expected_collection_date" required="1" readonly="state != 'draft'" />
                 <div class="text-warning" colspan="2" invisible="not turnaround_missing">
                     No standard turnaround yet: <field name="turnaround_missing" class="d-inline" />
                 </div>
