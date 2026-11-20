@@ -105,7 +105,7 @@ describe("HandoverRecordScreen", () => {
     fakeMediLab({ status: 200, body: draftRecord({ can_sign: false }) });
     await renderSignedIn(<HandoverRecordScreen />);
 
-    expect(await screen.findByText("BBGN.2026.0004")).toBeOnTheScreen();
+    expect(await screen.findByRole("header", { name: "BBGN.2026.0004" })).toBeOnTheScreen();
     expect(screen.queryByRole("button", { name: "Cho khách hàng ký" })).toBeNull();
   });
 

@@ -1,19 +1,24 @@
 import { useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import type { Sample, Task } from "../../api";
 import { failed, type Load } from "../../load";
 import { useT } from "../../locale";
 import { useRecord } from "../../record";
 import { useSession } from "../../session";
-import { colors, styles as shared } from "../../styles";
+import { styles as shared } from "../../styles";
+import { colors, layout, radius, space } from "../../theme";
 import { ActionProblem } from "../connection/ActionProblem";
 import { LoadNotice } from "../connection/LoadNotice";
-import { ChatterButton } from "../messages/ChatterButton";
+import { ChatterLink } from "../messages/ChatterLink";
 import { SamplePhotos } from "../photos/SamplePhotos";
+import { Button } from "../shared/Button";
 import { Facts, type Fact } from "../shared/Facts";
+import { Icon } from "../shared/Icon";
+import { RecordHead } from "../shared/RecordHead";
+import { Screen } from "../shared/Screen";
+import { Sheet } from "../shared/Sheet";
 import { formatMoment } from "../tasks/taskText";
 
 type Action = "receive" | "claim";
@@ -62,56 +67,58 @@ export function SampleScreen() {
     setChosen((now) => (now.includes(task.id) ? now.filter((taskId) => taskId !== task.id) : [...now, task.id]));
   }
 
+  const sample = load.state === "ready" ? load.value : null;
   return (
-    <SafeAreaView style={shared.page}>
+    <Screen title={sample?.code ?? t("scan.title")}>
       <LoadNotice load={load} gone={t("sample.gone")} onRetry={reload} />
-      {load.state === "ready" && (
-        <ScrollView contentContainerStyle={shared.pageContent}>
-          <Details sample={load.value} />
-          {(load.value.tests_samples || load.value.handover) && (
-            <Handover sample={load.value} busy={busy} onReceive={() => act("receive", load.value)} />
-          )}
-          {load.value.can_add_photos && <SamplePhotos sample={load.value} />}
-          {load.value.tests_samples && (
-            <View style={shared.section}>
-              <Text accessibilityRole="header" style={shared.heading}>
-                {t("sample.tasks")}
-              </Text>
-              {!load.value.tasks.length && <Text style={shared.detail}>{t("sample.noTasks")}</Text>}
-              {load.value.tasks.map((task) => (
-                <ClaimableTask key={task.id} task={task} chosen={chosen.includes(task.id)} onToggle={() => toggle(task)} />
-              ))}
-              {load.value.tasks.length > 0 && (
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityState={{ disabled: busy || !picked.length }}
-                  disabled={busy || !picked.length}
-                  style={[shared.primaryButton, !picked.length && shared.disabled]}
-                  testID="sample-claim"
-                  onPress={() => act("claim", load.value)}
-                >
-                  <Text style={shared.primaryButtonText}>{t("sample.claim", { count: picked.length })}</Text>
-                </Pressable>
-              )}
-              {claimed > 0 && <Text style={shared.label}>{t("sample.claimed", { count: claimed })}</Text>}
-            </View>
-          )}
+      {sample && (
+        <>
+          <Details sample={sample} />
           <ActionProblem
             problem={problem?.load ?? null}
             gone={t("sample.gone")}
-            onRetry={() => problem && act(problem.action, load.value)}
+            onRetry={() => problem && act(problem.action, sample)}
           />
-          <ChatterButton document={{ model: "medilab.sample", id: load.value.id, code: load.value.code }} />
-        </ScrollView>
+          {(sample.tests_samples || sample.handover) && (
+            <Handover sample={sample} busy={busy} onReceive={() => act("receive", sample)} />
+          )}
+          {sample.tests_samples && (
+            <Sheet title={t("sample.tasks")}>
+              {!sample.tasks.length && <Text style={shared.detail}>{t("sample.noTasks")}</Text>}
+              {sample.tasks.map((task) => (
+                <ClaimableTask key={task.id} task={task} chosen={chosen.includes(task.id)} onToggle={() => toggle(task)} />
+              ))}
+              {sample.tasks.length > 0 && (
+                <Button
+                  label={t("sample.claim", { count: picked.length })}
+                  icon="hand-back-right-outline"
+                  tone="primary"
+                  disabled={busy || !picked.length}
+                  testID="sample-claim"
+                  onPress={() => act("claim", sample)}
+                />
+              )}
+              {claimed > 0 && (
+                <Text accessibilityRole="alert" style={[shared.label, styles.done]}>
+                  {t("sample.claimed", { count: claimed })}
+                </Text>
+              )}
+            </Sheet>
+          )}
+          {sample.can_add_photos && <SamplePhotos sample={sample} />}
+          <Sheet>
+            <ChatterLink document={{ model: "medilab.sample", id: sample.id, code: sample.code }} />
+          </Sheet>
+        </>
       )}
-    </SafeAreaView>
+    </Screen>
   );
 }
 
 function Details({ sample }: Readonly<{ sample: Sample }>) {
+  const t = useT();
   const { language } = useSession();
   const facts: Fact[] = [
-    ["sample.status", sample.status],
     ["sample.customer", sample.customer],
     ["sample.customerName", sample.customer_sample_name],
     ["sample.type", sample.sample_type],
@@ -124,9 +131,11 @@ function Details({ sample }: Readonly<{ sample: Sample }>) {
   ];
   return (
     <>
-      <Text style={shared.title}>{sample.code}</Text>
-      <Facts facts={facts} />
-      {!!sample.note && <Text style={shared.text}>{sample.note}</Text>}
+      <RecordHead title={sample.code} status={sample.status ? { label: sample.status, tone: "info" } : undefined} />
+      <Sheet title={t("task.info")}>
+        <Facts facts={facts} />
+        {!!sample.note && <Text style={shared.text}>{sample.note}</Text>}
+      </Sheet>
     </>
   );
 }
@@ -136,35 +145,27 @@ function Handover({ sample, busy, onReceive }: Readonly<{ sample: Sample; busy: 
   const { language } = useSession();
   const { handover } = sample;
   return (
-    <View style={shared.section}>
-      <Text accessibilityRole="header" style={shared.heading}>
-        {t("sample.handover")}
-      </Text>
+    <Sheet title={t("sample.handover")}>
       {!handover && <Text style={shared.detail}>{t("sample.notHandedOver")}</Text>}
       {handover?.received_at && (
-        <Text style={shared.label}>
-          {t("sample.received", {
-            department: handover.department,
-            date: formatMoment(handover.received_at, language),
-            name: handover.received_by,
-          })}
-        </Text>
+        <View style={styles.received}>
+          <Icon name="check-circle" color={colors.success} />
+          <Text style={[shared.label, styles.receivedText]}>
+            {t("sample.received", {
+              department: handover.department,
+              date: formatMoment(handover.received_at, language),
+              name: handover.received_by,
+            })}
+          </Text>
+        </View>
       )}
       {handover && !handover.received_at && (
         <Text style={shared.detail}>{t("sample.notReceived", { department: handover.department })}</Text>
       )}
       {handover?.can_receive && (
-        <Pressable
-            accessibilityRole="button"
-            accessibilityState={{ disabled: busy }}
-            disabled={busy}
-            style={shared.primaryButton}
-            onPress={onReceive}
-          >
-          <Text style={shared.primaryButtonText}>{t("sample.receive")}</Text>
-        </Pressable>
+        <Button label={t("sample.receive")} icon="inbox-arrow-down" tone="success" disabled={busy} onPress={onReceive} />
       )}
-    </View>
+    </Sheet>
   );
 }
 
@@ -181,13 +182,33 @@ function ClaimableTask({ task, chosen, onToggle }: Readonly<{ task: Task; chosen
       testID="claimable-task"
       onPress={onToggle}
     >
-      <Text style={shared.label}>{task.name}</Text>
-      {!!due && <Text style={shared.detail}>{due}</Text>}
+      <Icon
+        name={chosen ? "checkbox-marked" : "checkbox-blank-outline"}
+        size={24}
+        color={chosen ? colors.primary : colors.borderControl}
+      />
+      <View style={styles.taskText}>
+        <Text style={shared.label}>{task.name}</Text>
+        {!!due && <Text style={shared.detail}>{due}</Text>}
+      </View>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  task: { borderWidth: 1, borderColor: colors.border, borderRadius: 8, padding: 12, gap: 4 },
-  chosen: { borderColor: colors.primary, borderWidth: 2 },
+  received: { flexDirection: "row", gap: space.sm, alignItems: "flex-start" },
+  receivedText: { flex: 1 },
+  done: { color: colors.success },
+  task: {
+    minHeight: layout.touch,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: space.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    padding: space.md,
+  },
+  chosen: { borderColor: colors.primary, backgroundColor: colors.primaryLight },
+  taskText: { flex: 1, gap: 2 },
 });
