@@ -4913,7 +4913,7 @@ components:
                   error:
                     properties:
                       code:
-                      enum: [folder_archived, folder_disabled, folder_sample_closed, folder_exists, locked, not_locked]
+                        enum: [folder_archived, folder_disabled, folder_sample_closed, folder_exists, locked, not_locked]
     Unprocessable:
       description: The request names something that cannot be done.
       content:

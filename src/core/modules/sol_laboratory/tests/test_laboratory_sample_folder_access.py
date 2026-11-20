@@ -1,8 +1,7 @@
 from odoo.fields import Command
 from odoo.tests import tagged
 
-from .laboratory_files_case import LaboratoryFilesCase
-from .request_case import RequestCase
+from .laboratory_sample_folder_case import LaboratorySampleFolderCase
 from odoo.addons.sol_laboratory.constants.laboratory_files import (
     FILE_READ,
     FILE_WRITE,
@@ -22,7 +21,7 @@ SAMPLE_READER_GROUP = "sol_laboratory.group_permission_sample_read_all"
 
 
 @tagged("post_install", "-at_install")
-class TestLaboratorySampleFolderAccess(LaboratoryFilesCase, RequestCase):
+class TestLaboratorySampleFolderAccess(LaboratorySampleFolderCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
