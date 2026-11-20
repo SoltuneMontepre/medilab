@@ -53,7 +53,7 @@ describe("WF-01 quotation, revisions and templates (F-06, F-07)", () => {
     orderAt("claimed", { lines: SAMPLING_LINES }).then((order) => {
       cy.signInAs("sales");
       cy.openRecord(order);
-      openTab("expected_samples");
+      openTab("samples");
       expectSampling(".o_field_widget[name=expected_sampling_html]", { objects: 3, expected: 6, groups: 2 });
       callAs("demo.sales", "sale.order", "write", [[order.id], { advance_method: "bank_transfer", advance_mode: "percentage", advance_value: 30 }]);
       cy.reload();
