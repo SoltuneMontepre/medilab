@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-20 07:28+0000\n"
-"PO-Revision-Date: 2026-11-20 07:28+0000\n"
+"POT-Creation-Date: 2026-11-20 09:56+0000\n"
+"PO-Revision-Date: 2026-11-20 09:56+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -1250,7 +1250,7 @@ msgstr ""
 msgid ""
 "A held-back move would finish after its internal due date, so its booking "
 "keeps its slot until Sales records the customer's agreement to a new "
-"committed return date. A move in conflict would move a booking the head "
+"expected return date. A move in conflict would move a booking the head "
 "placed by hand, which no revision moves."
 msgstr ""
 
@@ -1461,13 +1461,13 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/committed_date_change.py:0
-msgid "A recorded change of a committed return date cannot be deleted."
+msgid "A recorded change of an expected return date cannot be deleted."
 msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/committed_date_change.py:0
-msgid "A recorded change of a committed return date cannot be edited."
+msgid "A recorded change of an expected return date cannot be edited."
 msgstr ""
 
 #. module: sol_laboratory
@@ -3607,13 +3607,6 @@ msgid "Change"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_committed_date_change
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_committed_date_change_form
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
-msgid "Change Committed Date"
-msgstr ""
-
-#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_due_date_change_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 msgid "Change Due Date"
@@ -3632,6 +3625,13 @@ msgid "Change Requests"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_committed_date_change
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_committed_date_change_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
+msgid "Change Return Date"
+msgstr ""
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_template_change_form
 msgid "Change Template"
@@ -3644,7 +3644,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_committed_date_change_create_all
-msgid "Change committed return dates"
+msgid "Change expected return dates"
 msgstr ""
 
 #. module: sol_laboratory
@@ -3698,22 +3698,22 @@ msgid "Change the Template of a Test Report"
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test_due_date.py:0
+msgid "Change the due date of a sample test with Change Due Date."
+msgstr ""
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_committed_date_change_form
 msgid ""
-"Change the committed return date only after the customer agreed to the new "
+"Change the expected return date only after the customer agreed to the new "
 "date."
 msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/test_request_plan.py:0
-msgid "Change the committed return date with Change Committed Date."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/testing/sample_test_due_date.py:0
-msgid "Change the due date of a sample test with Change Due Date."
+msgid "Change the expected return date with Change Return Date."
 msgstr ""
 
 #. module: sol_laboratory
@@ -4023,12 +4023,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__committed_date_change_ids
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
 msgid "Committed Date Changes"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__committed_date
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__committed_date
-msgid "Committed Return Date"
 msgstr ""
 
 #. module: sol_laboratory
@@ -4875,11 +4869,6 @@ msgid "Current"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__current_date
-msgid "Current Committed Return Date"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__current_date_version
 msgid "Current Date Employee Record"
 msgstr ""
@@ -4892,6 +4881,11 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__current_employee_skill_ids
 msgid "Current Employee Skill"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__current_date
+msgid "Current Expected Return Date"
 msgstr ""
 
 #. module: sol_laboratory
@@ -6925,6 +6919,12 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__expected_date
 msgid "Expected Date"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__committed_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__committed_date
+msgid "Expected Return Date"
 msgstr ""
 
 #. module: sol_laboratory
@@ -9798,13 +9798,13 @@ msgid "Negative Results"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__new_date
-msgid "New Committed Return Date"
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__ends_at
+msgid "New End"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__ends_at
-msgid "New End"
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__new_date
+msgid "New Expected Return Date"
 msgstr ""
 
 #. module: sol_laboratory

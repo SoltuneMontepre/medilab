@@ -468,18 +468,6 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/sample_collection/committed_date_change.py:0
-msgid "A recorded change of a committed return date cannot be deleted."
-msgstr "Không thể xóa một lần thay đổi ngày hẹn trả kết quả đã ghi nhận."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/sample_collection/committed_date_change.py:0
-msgid "A recorded change of a committed return date cannot be edited."
-msgstr "Không thể sửa một lần thay đổi ngày hẹn trả kết quả đã ghi nhận."
-
-#. module: sol_laboratory
-#. odoo-python
 #: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
 #: code:addons/sol_laboratory/models/system/signature.py:0
 msgid "A rejection needs a reason."
@@ -1485,13 +1473,6 @@ msgid "Chain"
 msgstr "Chuỗi"
 
 #. module: sol_laboratory
-#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_committed_date_change
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_committed_date_change_form
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
-msgid "Change Committed Date"
-msgstr "Đổi Ngày Hẹn Trả Kết Quả"
-
-#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_due_date_change_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 msgid "Change Due Date"
@@ -1503,11 +1484,6 @@ msgid "Change a Sample Test's Due Date"
 msgstr "Đổi Hạn Hoàn Thành Của Chỉ Tiêu Của Mẫu"
 
 #. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_committed_date_change_create_all
-msgid "Change committed return dates"
-msgstr "Đổi ngày hẹn trả kết quả"
-
-#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_approval_chain__purpose__change_request
 msgid "Change request"
 msgstr "Yêu cầu thay đổi"
@@ -1516,20 +1492,6 @@ msgstr "Yêu cầu thay đổi"
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_sample_test_due_date_change
 msgid "Change the Due Date"
 msgstr "Đổi hạn hoàn thành"
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_committed_date_change_form
-msgid ""
-"Change the committed return date only after the customer agreed to the new "
-"date."
-msgstr ""
-"Chỉ đổi ngày hẹn trả kết quả sau khi khách hàng đã đồng ý với ngày mới."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/sample_collection/test_request_plan.py:0
-msgid "Change the committed return date with Change Committed Date."
-msgstr "Hãy đổi ngày hẹn trả kết quả bằng Đổi Ngày Hẹn Trả Kết Quả."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -1715,11 +1677,6 @@ msgstr "Thay Đổi Ngày Hẹn Trả Kết Quả"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
 msgid "Committed Date Changes"
 msgstr "Các Lần Thay Đổi Ngày Hẹn Trả Kết Quả"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__committed_date
-msgid "Committed Return Date"
-msgstr "Ngày Hẹn Trả Kết Quả"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__ref_company_ids
@@ -2285,11 +2242,6 @@ msgstr "Tiền tệ"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__exceptional_location_id
 msgid "Current"
 msgstr "Hiện tại"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__current_date
-msgid "Current Committed Return Date"
-msgstr "Ngày Hẹn Trả Kết Quả Hiện Tại"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__current_date_version
@@ -5333,11 +5285,6 @@ msgstr "Quốc tịch"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__country_id
 msgid "Nationality (Country)"
 msgstr "Quốc tịch"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__new_date
-msgid "New Committed Return Date"
-msgstr "Ngày Hẹn Trả Kết Quả Mới"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__newly_hired
@@ -18503,19 +18450,6 @@ msgstr ""
 "Ghim</span>"
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_plan_revision_form
-msgid ""
-"A held-back move would finish after its internal due date, so its booking "
-"keeps its slot until Sales records the customer's agreement to a new "
-"committed return date. A move in conflict would move a booking the head "
-"placed by hand, which no revision moves."
-msgstr ""
-"Lịch đặt bị giữ lại sẽ kết thúc sau hạn nội bộ, nên giữ nguyên khung giờ cho"
-" đến khi bộ phận kinh doanh ghi nhận khách hàng đồng ý ngày hẹn trả kết quả "
-"mới. Lịch đặt xung đột là lịch đặt trưởng phòng đã tự đặt, nên không phương "
-"án nào dời nó."
-
-#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_plan_revision_move_revision_booking_unique
 msgid "A plan revision moves a booking once."
 msgstr "Một phương án xếp lại lịch chỉ dời một lịch đặt một lần."
@@ -19688,3 +19622,65 @@ msgid ""
 "kept for handling incidents. Applies to sample tests whose due date is "
 "worked out from now on."
 msgstr "Số ngày làm việc chỉ tiêu của mẫu đến hạn trước ngày đã hẹn trả khách hàng, dành để xử lý sự cố. Áp dụng cho các chỉ tiêu của mẫu được tính hạn từ bây giờ."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_plan_revision_form
+msgid ""
+"A held-back move would finish after its internal due date, so its booking "
+"keeps its slot until Sales records the customer's agreement to a new "
+"expected return date. A move in conflict would move a booking the head "
+"placed by hand, which no revision moves."
+msgstr "Một lần dời bị giữ lại sẽ xong sau hạn nội bộ, nên lịch đặt giữ nguyên chỗ cho đến khi Sales ghi nhận khách hàng đồng ý ngày trả kết quả dự kiến mới. Một lần dời bị xung đột sẽ dời lịch đặt do trưởng bộ phận xếp tay, mà không lần điều chỉnh nào được dời."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/committed_date_change.py:0
+msgid "A recorded change of an expected return date cannot be deleted."
+msgstr "Không thể xóa thay đổi ngày trả kết quả dự kiến đã ghi nhận."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/committed_date_change.py:0
+msgid "A recorded change of an expected return date cannot be edited."
+msgstr "Không thể sửa thay đổi ngày trả kết quả dự kiến đã ghi nhận."
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_committed_date_change
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_committed_date_change_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
+msgid "Change Return Date"
+msgstr "Đổi Ngày Trả Kết Quả"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_committed_date_change_form
+msgid ""
+"Change the expected return date only after the customer agreed to the new "
+"date."
+msgstr "Chỉ đổi ngày trả kết quả dự kiến sau khi khách hàng đồng ý ngày mới."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/test_request_plan.py:0
+msgid "Change the expected return date with Change Return Date."
+msgstr "Đổi ngày trả kết quả dự kiến bằng Đổi Ngày Trả Kết Quả."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__current_date
+msgid "Current Expected Return Date"
+msgstr "Ngày Trả Kết Quả Dự Kiến Hiện Tại"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_plan_revision_move__committed_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__committed_date
+msgid "Expected Return Date"
+msgstr "Ngày Trả Kết Quả Dự Kiến"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_committed_date_change__new_date
+msgid "New Expected Return Date"
+msgstr "Ngày Trả Kết Quả Dự Kiến Mới"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_committed_date_change_create_all
+msgid "Change expected return dates"
+msgstr "Đổi ngày trả kết quả dự kiến"
