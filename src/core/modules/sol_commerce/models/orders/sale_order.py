@@ -270,15 +270,20 @@ class SaleOrder(models.Model, SaleOrderBase):
             return
         # The notice goes to the contact, in their language, whoever changed the status.
         env = self.with_context(lang=self.partner_id.lang or self.env.lang).env
-        body = {
-            STATUS_SUBMITTED: env._("Order %s was submitted.", self.name),
-            STATUS_CLAIMED: env._("Order %s was claimed by the laboratory.", self.name),
-            STATUS_CANCELLED: env._("Order %s was cancelled.", self.name),
+        subject, body = {
+            STATUS_SUBMITTED: (env._("Order was submitted"), env._("Order %s was submitted.", self.name)),
+            STATUS_CLAIMED: (env._("Order was claimed"), env._("Order %s was claimed by the laboratory.", self.name)),
+            STATUS_CANCELLED: (env._("Order was cancelled"), env._("Order %s was cancelled.", self.name)),
         }[status]
         try:
             with self.env.cr.savepoint():
                 self.env[MODEL_MAIL_MESSAGE].raise_event(
-                    EVENT_ORDER_UPDATED, self.sudo(), f"order:{self.id}:{status}", body, partners=self.partner_id
+                    EVENT_ORDER_UPDATED,
+                    self.sudo(),
+                    f"order:{self.id}:{status}",
+                    body,
+                    subject=subject,
+                    partners=self.partner_id,
                 )
         except Exception:
             _logger.exception("Order notice was not queued")
