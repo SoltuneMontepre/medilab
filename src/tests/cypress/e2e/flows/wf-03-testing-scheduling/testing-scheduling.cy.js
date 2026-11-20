@@ -12,6 +12,7 @@ import {
   PARAMETERS,
   PEOPLE,
   TESTER,
+  assign,
   approveThroughScreen,
   assignedChromium,
   awayFromQuarterHour,
