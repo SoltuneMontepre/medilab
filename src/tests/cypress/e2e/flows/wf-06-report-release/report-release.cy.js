@@ -24,6 +24,15 @@ const signedCandidate = (report) =>
 // The record's fields as the administrator reads them.
 const readAs = (record, fields) => callAs(ADMIN, record.model, "read", [[record.id], fields]).its(0);
 
+// Change a printed business value after preparing the PDF so the stale-candidate case is deterministic.
+const makeCandidateStale = (report) =>
+  readAs(report, ["request_id"])
+    .then(({ request_id }) => callAs(ADMIN, "medilab.test.request", "read", [[request_id[0]], ["customer_id"]]))
+    .then(([request]) => callAs(ADMIN, "medilab.customer", "read", [[request.customer_id[0]], ["partner_id"]]))
+    .then(([customer]) =>
+      callAs(ADMIN, "res.partner", "write", [[customer.partner_id[0]], { name: "Changed after PDF preparation" }]),
+    );
+
 // The base64 content of a file the browser's session downloads.
 const downloaded = (url) => cy.request({ url, encoding: "base64" }).its("body");
 
@@ -184,8 +193,15 @@ describe("WF-06 Report release", () => {
 
   it("TC-WF06-E1 keeps a report with an out-of-date PDF pending digital signing", () => {
     refAs(ADMIN, "sol_demo.demo_test_report_pending").then((report) =>
-      signedCandidate(report).then((candidate) => {
-        readAs(report, ["status", "code", "attachment_id", "request_id", "candidate_current"]).then((read) => {
+      signedCandidate(report)
+        .then((candidate) => makeCandidateStale(report).then(() => candidate))
+        .then((candidate) =>
+          readAs(report, ["status", "code", "attachment_id", "request_id", "candidate_current"]).then((read) => ({
+            candidate,
+            read,
+          })),
+        )
+        .then(({ candidate, read }) => {
           expect(read.status).to.equal("pending_signing");
           expect(read.code).to.equal(candidate.report_number);
           expect(read.attachment_id).to.equal(false);
@@ -209,14 +225,13 @@ describe("WF-06 Report release", () => {
           cy.get(`${ACTIONS} button[name=action_sign]`).should("not.exist");
           cy.get(`${ACTIONS} button[name=action_retry_digital_signing]`).should("not.exist");
           callRefused(REPORT, "action_retry_digital_signing", [[report.id]]).should("contain", "no longer matches its sources");
-        });
-        step("A stale candidate cannot issue the report");
-        readAs(report, ["status", "code", "attachment_id"]).should((read) => {
-          expect(read.status).to.equal("pending_signing");
-          expect(read.code).to.equal(candidate.report_number);
-          expect(read.attachment_id).to.equal(false);
-        });
-      }),
+          step("A stale candidate cannot issue the report");
+          return readAs(report, ["status", "code", "attachment_id"]).should((final) => {
+            expect(final.status).to.equal("pending_signing");
+            expect(final.code).to.equal(candidate.report_number);
+            expect(final.attachment_id).to.equal(false);
+          });
+        }),
     );
   });
 

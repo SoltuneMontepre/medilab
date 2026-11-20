@@ -40,6 +40,8 @@ class TestTestReportPortal(HttpCase, ReportCase):
         self.sign()
         self.authenticate("hoa.portal", "hoa.portal")
 
+        counters = self.make_jsonrpc_request("/my/counters", {"counters": {"test_report_count": "client_category"}})
+        self.assertEqual(counters["test_report_count"], 1)
         page = html.fromstring(self.url_open("/my").text)
         cards = cast("list[html.HtmlElement]", page.xpath("//a[@href='/my/test-reports']"))
 
