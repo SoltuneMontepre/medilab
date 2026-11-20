@@ -26,7 +26,7 @@ class SaleOrderReturnTimeline(models.Model, SaleOrderReturnTimelineBase):
     )
     def _compute_return_timeline(self):
         for order in self:
-            estimate = order.state == "draft" and order._return_estimate()
+            estimate = order.state != "cancel" and order._return_estimate()
             order.return_timeline = order._render_return_timeline(estimate) if estimate and estimate["date"] else False
 
     def _render_return_timeline(self, estimate):
