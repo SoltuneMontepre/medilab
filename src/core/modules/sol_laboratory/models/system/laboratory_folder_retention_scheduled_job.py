@@ -2,7 +2,10 @@ from typing import TYPE_CHECKING
 
 from odoo import fields, models
 
-from odoo.addons.sol_laboratory.constants.laboratory_files import LABORATORY_FOLDER_RETENTION_JOB
+from odoo.addons.sol_laboratory.constants.laboratory_files import (
+    LABORATORY_FOLDER_RETENTION_JOB,
+    RETENTION_METADATA_CONTEXT,
+)
 from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_FOLDER, MODEL_SCHEDULED_JOB
 
 if TYPE_CHECKING:
@@ -38,4 +41,4 @@ class ScheduledJob(models.Model, ScheduledJobBase):
             return
         today = fields.Date.context_today(self)
         if folder.archived_at and folder.retention_until and folder.retention_until <= today:
-            folder.sudo().write({"retention_review_required": True})
+            folder.sudo().with_context(**{RETENTION_METADATA_CONTEXT: True}).write({"retention_review_required": True})

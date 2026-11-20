@@ -17,6 +17,7 @@ from odoo.addons.sol_laboratory.constants.laboratory_files import (
     OWNER_ROLE,
     PERMISSION_DENIED,
     RAW_DATA,
+    RETENTION_METADATA_CONTEXT,
     RETENTION_REMOVAL_CONTEXT,
     TWO_WAY,
     UPLOAD_ONLY,
@@ -149,7 +150,8 @@ class LaboratoryFolder(models.Model, LaboratoryFolderBase):
                 folder.status = "turned_off"
 
     def write(self, vals):
-        self._check_not_archived()
+        if not (self.env.su and self.env.context.get(RETENTION_METADATA_CONTEXT)):
+            self._check_not_archived()
         vals = {**vals, **self._normal_names(vals)}
         if "root" in vals and any(folder.root != vals["root"] for folder in self):
             raise UserError(self.env._("The name a folder was created with never changes; rename the folder instead."))
@@ -193,7 +195,7 @@ class LaboratoryFolder(models.Model, LaboratoryFolderBase):
             if folder.retention_approved_at:
                 raise UserError(self.env._("This folder's retention removal was already approved."))
             folder._remove_expired_version_content()
-            folder.write(
+            folder.with_context(**{RETENTION_METADATA_CONTEXT: True}).write(
                 {
                     "retention_review_required": False,
                     "retention_approved_at": fields.Datetime.now(),

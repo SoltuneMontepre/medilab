@@ -6,7 +6,10 @@ from odoo.tests import tagged
 
 from .audit_case import AuditLookup
 from .laboratory_files_case import LaboratoryFilesCase
-from odoo.addons.sol_laboratory.constants.laboratory_files import RETENTION_REMOVED
+from odoo.addons.sol_laboratory.constants.laboratory_files import (
+    RETENTION_METADATA_CONTEXT,
+    RETENTION_REMOVED,
+)
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_LABORATORY_CONTENT,
     MODEL_LABORATORY_FILE,
@@ -33,6 +36,14 @@ class TestLaboratoryFolderRetention(AuditLookup, LaboratoryFilesCase):
     def flag_due_folders(self):
         self.env[MODEL_SCHEDULED_JOB]._run_key("laboratory_folder.retention_review")
         self.env.invalidate_all()
+
+    def test_a_context_flag_cannot_change_an_archived_folder_without_superuser_rights(self):
+        self.expire(self.folder)
+
+        with self.assertRaises(UserError):
+            self.folder.with_user(self.administrator).with_context(**{RETENTION_METADATA_CONTEXT: True}).write(
+                {"retention_review_required": True}
+            )
 
     def test_the_daily_job_flags_expired_folders_without_removing_any_content(self):
         version = self.save(self.file, "retained bytes")
