@@ -6025,3 +6025,43 @@ msgstr "chưa có lịch hẹn"
 #: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
 msgid "not claimed yet"
 msgstr "chưa có người nhận"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid "Agree a sample collection appointment that is still to come."
+msgstr "Hãy hẹn lịch thu mẫu vào một thời điểm chưa qua."
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Print quotation"
+msgstr "In báo giá"
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_sample_test
+msgid "Sample Test"
+msgstr "Chỉ Tiêu Của Mẫu"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid ""
+"Samples collected on %(day)s return results on %(ready)s, after the "
+"committed return date %(committed)s. Agree an earlier appointment, or change"
+" the committed date with the customer first."
+msgstr "Mẫu thu ngày %(day)s sẽ có kết quả ngày %(ready)s, sau ngày hẹn trả kết quả %(committed)s. Hãy hẹn thu mẫu sớm hơn, hoặc thống nhất với khách hàng để đổi ngày hẹn trả trước."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "Send the quotation before printing it."
+msgstr "Gửi báo giá trước khi in."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sample_test_risk.py:0
+msgid ""
+"Some tests of order %(order)s are at risk of missing the committed return "
+"date %(date)s. Agree a feasible date with the customer if the laboratory "
+"cannot catch up."
+msgstr "Một số chỉ tiêu của đơn hàng %(order)s có nguy cơ trễ ngày hẹn trả kết quả %(date)s. Nếu phòng thí nghiệm không kịp, hãy thống nhất với khách hàng một ngày khả thi."
