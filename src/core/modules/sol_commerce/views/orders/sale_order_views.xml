@@ -286,9 +286,7 @@
                     No standard turnaround yet: <field name="turnaround_missing" class="d-inline" />
                 </div>
                 <field name="committed_date" readonly="state != 'draft'" />
-                <div class="text-warning" colspan="2" invisible="not returns_after_request">
-                    The results are expected after the date the customer asked for.
-                </div>
+                <field name="return_timeline" nolabel="1" colspan="2" readonly="1" invisible="not return_timeline" />
             </xpath>
             <xpath expr="//group[@name='sales_person']/field[@name='user_id']" position="replace" />
             <!-- The advance and the balance are set on the Payment tab; Odoo's payment terms, online signature,

@@ -26,6 +26,7 @@ from . import (
     sale_order_line_downpayment,
     sale_order_line_lists,
     sale_order_line_tax,
+    sale_order_return_timeline,
     sale_order_sampling,
     sale_order_task,
     sale_order_tax,

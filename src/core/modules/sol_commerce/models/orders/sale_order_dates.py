@@ -9,7 +9,7 @@ from odoo.tools.misc import format_date
 from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
 from odoo.addons.sol_commerce.constants.orders import ADVANCE_NONE, DATE_FIELDS
 from odoo.addons.sol_commerce.constants.settings import DEFAULT_PAYMENT_DEADLINE_DAYS, PAYMENT_DEADLINE_PARAMETER
-from odoo.addons.sol_laboratory.constants.models import MODEL_TEST_REQUEST
+from odoo.addons.sol_laboratory.constants.models import MODEL_SAMPLE_TEST, MODEL_TEST_REQUEST
 from odoo.addons.sol_laboratory.models.sample_collection.committed_date_change import CHANGING_COMMITTED_DATE
 
 if TYPE_CHECKING:
@@ -36,8 +36,6 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
             readonly=False,
             copy=False,
         )
-        # True when the expected return date falls after the date the customer asked for.
-        returns_after_request = fields.Boolean(compute="_compute_returns_after_request")
         # The customer's request for priority, and Sales's decision on it after the feasibility check.
         priority_request = fields.Selection(
             [("requested", "Requested"), ("accepted", "Accepted"), ("declined", "Declined")], copy=False
@@ -93,13 +91,6 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
                 order.committed_date = order.committed_date
                 continue
             order.committed_date = order._earliest_return_date()
-
-    @api.depends("committed_date", "requested_date")
-    def _compute_returns_after_request(self):
-        for order in self:
-            order.returns_after_request = bool(
-                order.committed_date and order.requested_date and order.committed_date > order.requested_date
-            )
 
     def _collection_start(self, day):
         """The moment samples picked up on the day reach the laboratory at the earliest: the start of that day in the
@@ -189,20 +180,22 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
                 )
             )
 
-    def _earliest_return_date(self, collection_date=None):
-        """The earliest date Sales can promise when sending the quotation: the turnaround, or the laboratory's held work
-        when it leaves the order's tests to finish later, counted from the expected sample pickup, collection_date when
-        given, else the order's. Without one it counts
-        from the day the samples can be received at the latest without delaying the order, the advance's payment deadline
-        when one is requested, otherwise today. False without a turnaround or when no free slot is found for a test."""
+    def _earliest_return_date(self):
+        """The earliest date the laboratory can return the results; False without a turnaround."""
+        return self._return_estimate()["date"]
+
+    def _return_estimate(self):
+        """How the earliest return date is reached: the turnaround, or the laboratory's held work when it leaves the
+        order's tests to finish later, plus the safety margin, counted from the expected sample pickup. Without one it
+        counts from the day the samples can be received at the latest without delaying the order, the advance's payment
+        deadline when one is requested, otherwise today. The date is False without a turnaround."""
         self.ensure_one()
         if not self.turnaround_days:
-            return False
+            return {"date": False}
         now = fields.Datetime.now()
         start = now
-        collection_date = collection_date or self.expected_collection_date
-        if collection_date:
-            start = self._collection_start(collection_date)
+        if self.expected_collection_date:
+            start = self._collection_start(self.expected_collection_date)
         elif self.advance_method and self.advance_method != ADVANCE_NONE:
             deadline = self.payment_deadline
             if not deadline or deadline <= now:
@@ -213,7 +206,9 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
                 )
                 deadline = now + timedelta(days=days)
             start = deadline
-        return self.env[MODEL_TEST_REQUEST]._earliest_return(self._test_ways(), start, self.turnaround_days)["date"]
+        requests = self.env[MODEL_TEST_REQUEST]
+        estimate = requests._earliest_return(self._test_ways(), start, self.turnaround_days)
+        return {**estimate, "start": self.env[MODEL_SAMPLE_TEST]._local_day(start)}
 
     def _priority_payment_deadline(self):
         """The latest moment the advance of a priority order can be paid for the turnaround to meet its committed date:

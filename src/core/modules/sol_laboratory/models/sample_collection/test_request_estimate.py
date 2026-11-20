@@ -65,7 +65,8 @@ class TestRequestEstimate(models.Model, TestRequestEstimateBase):
         """The earliest return date of a test for each way in the list when the samples arrive at start: the standard
         turnaround from that day, or later when the laboratory's held work leaves the last test to finish later, plus
         the safety margin in working days. A way no free slot is found for counts by the turnaround alone, unless
-        strict, when the date cannot be given. Returns the date, or False with the reasons it cannot be given."""
+        strict, when the date cannot be given. Returns the date, or False with the reasons it cannot be given, and its
+        parts: the day the last test finishes, the safety margin in working days and the turnaround's date."""
         simulated = self._simulate_ways(ways, start, urgent=urgent, exclude=exclude)
         if strict and simulated["missing"]:
             return {
@@ -85,9 +86,16 @@ class TestRequestEstimate(models.Model, TestRequestEstimateBase):
             days.append(tests._local_day(simulated["finish"]))
         margin = self.env[MODEL_RES_CONFIG_SETTINGS]._get_parameter("safety_margin_days")
         candidates = [self._date_after_working_days(max(days), margin) if margin else max(days)] if days else []
-        if turnaround_days:
-            candidates.append(self._date_after_working_days(tests._local_day(start), turnaround_days))
-        return {"date": max(candidates) if candidates else False, "reasons": []}
+        turnaround = turnaround_days and self._date_after_working_days(tests._local_day(start), turnaround_days)
+        if turnaround:
+            candidates.append(turnaround)
+        return {
+            "date": max(candidates) if candidates else False,
+            "reasons": [],
+            "testing": max(days) if days else False,
+            "margin": margin,
+            "turnaround": turnaround or False,
+        }
 
     @api.model
     def _check_priority(self, ways, requested_date):
