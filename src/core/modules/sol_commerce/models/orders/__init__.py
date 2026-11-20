@@ -10,6 +10,7 @@ from . import (
     quotation,
     quotation_agreement,
     quotation_sampling,
+    quotation_send,
     res_company,
     res_config_settings,
     sale_order,

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_quotation_send_form" model="ir.ui.view">
+        <field name="name">medilab.quotation.send.form</field>
+        <field name="model">medilab.quotation.send</field>
+        <field name="arch" type="xml">
+            <form>
+                <field name="order_id" invisible="1" force_save="1" />
+                <group>
+                    <field name="expected_collection_date" />
+                    <field name="estimated_result_date" invisible="not estimated_result_date" />
+                    <field name="payment_deadline" />
+                </group>
+                <footer>
+                    <button name="action_send" type="object" string="Send quotation" class="btn-primary" />
+                    <button special="cancel" string="Discard" class="btn-secondary" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_medilab_quotation_send" model="ir.actions.act_window">
+        <field name="name">Send Quotation</field>
+        <field name="res_model">medilab.quotation.send</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

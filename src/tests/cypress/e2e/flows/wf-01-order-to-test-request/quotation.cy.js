@@ -39,7 +39,7 @@ describe("WF-01 quotation, revisions and templates (F-06, F-07)", () => {
       cy.get(".o_field_widget[name=product_line_ids] .o_data_row").should("have.length", 2);
       call("sale.order", "write", [[order.id], { advance_method: "bank_transfer", advance_mode: "percentage", advance_value: 30 }]);
       cy.reload();
-      cy.sendRecord("action_send_quotation");
+      cy.sendQuotation();
       cy.get(".o_statusbar_buttons button[name=action_revise_quotation]:visible").should("exist");
       cy.get("button[name=action_open_discount_wizard]:visible").should("not.exist");
       cy.signInAs("customer");
@@ -57,7 +57,7 @@ describe("WF-01 quotation, revisions and templates (F-06, F-07)", () => {
       expectSampling(".o_field_widget[name=expected_sampling_html]", { objects: 3, expected: 6, groups: 2 });
       callAs("demo.sales", "sale.order", "write", [[order.id], { advance_method: "bank_transfer", advance_mode: "percentage", advance_value: 30 }]);
       cy.reload();
-      cy.sendRecord("action_send_quotation");
+      cy.sendQuotation();
       cy.get(".o_statusbar_buttons button[name=action_revise_quotation]:visible").should("exist");
 
       cy.signInAs("customer");
@@ -119,7 +119,7 @@ describe("WF-01 quotation, revisions and templates (F-06, F-07)", () => {
         cy.openRecord(order);
         cy.expectRefusal({
           read: readOrder(order),
-          action: () => cy.sendRecord("action_send_quotation"),
+          action: () => cy.sendQuotation(),
           message: "Thêm ít nhất một chỉ tiêu hoặc nhóm dịch vụ trước khi gửi báo giá.",
         });
       });
@@ -131,7 +131,7 @@ describe("WF-01 quotation, revisions and templates (F-06, F-07)", () => {
       cy.openRecord(order);
       cy.expectRefusal({
         read: readOrder(order),
-        action: () => cy.sendRecord("action_send_quotation"),
+        action: () => cy.sendQuotation(),
         message: "Chọn loại mẫu cho các mục sau trước khi gửi báo giá:",
       });
     });

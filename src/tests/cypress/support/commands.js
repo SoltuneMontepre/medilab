@@ -32,6 +32,17 @@ Cypress.Commands.add("readRecord", readRecord);
 Cypress.Commands.add("signRecord", (action = "action_sign") => clickAction(action));
 Cypress.Commands.add("sendRecord", (action = "action_send") => clickAction(action));
 
+// Sends the open order's quotation through its dialog, agreeing the sample pickup a week from today.
+Cypress.Commands.add("sendQuotation", () => {
+  const pickup = new Date(Date.now() + 7 * 86400000);
+  const day = [pickup.getDate(), pickup.getMonth() + 1].map((part) => String(part).padStart(2, "0"));
+  clickAction("action_send_quotation");
+  cy.get(".modal:visible").within(() => {
+    cy.get(".o_field_widget[name=expected_collection_date] input").type(`${day.join("/")}/${pickup.getFullYear()}{enter}`);
+    cy.get("button[name=action_send]").click();
+  });
+});
+
 Cypress.Commands.add("rejectRecord", (reason, {
   button = `${ACTIONS} button.btn-danger:visible`,
   reasonField = '[name="reason"] textarea',

@@ -12,7 +12,7 @@
             >
                 <field name="name" />
                 <field name="customer_id" />
-                <field name="partner_id" string="Contact" />
+                <field name="partner_id" string="Contact" context="{'partner_display_name_hide_company': True}" />
                 <field name="user_id" />
                 <field name="source" />
                 <field name="order_status" />
@@ -47,7 +47,7 @@
             <list create="false" default_order="submitted_at asc, id" decoration-warning="order_status == 'submitted'">
                 <field name="name" />
                 <field name="customer_id" />
-                <field name="partner_id" string="Contact" />
+                <field name="partner_id" string="Contact" context="{'partner_display_name_hide_company': True}" />
                 <field name="submitted_at" />
                 <field name="currency_id" column_invisible="1" />
                 <field name="catalog_total" />
@@ -116,6 +116,7 @@
                     type="object"
                     string="Send quotation"
                     class="btn-primary"
+                    context="{'medilab_quotation_dialog': True}"
                     invisible="order_status in ('draft', 'submitted', 'confirmed', 'completed', 'cancelled') or quotation_follow_up in ('unpaid', 'paid', 'accepted') and state != 'draft'"
                 />
                 <button
@@ -248,7 +249,8 @@
             </xpath>
             <xpath expr="//group[@name='partner_details']/field[@name='partner_id']" position="attributes">
                 <attribute name="widget">many2one</attribute>
-                <attribute name="context">{}</attribute>
+                <!-- The customer is shown above, so the contact shows only their own name. -->
+                <attribute name="context">{'partner_display_name_hide_company': True}</attribute>
                 <attribute name="options">{'no_create': True}</attribute>
                 <attribute name="domain">[('id', 'child_of', customer_id)]</attribute>
                 <attribute name="invisible">customer_id and not customer_is_company</attribute>
@@ -273,7 +275,10 @@
                 <attribute name="invisible">state == 'sale' or order_status in ('confirmed', 'completed', 'cancelled')</attribute>
             </xpath>
             <xpath expr="//group[@name='order_details']/field[@name='validity_date']" position="after">
-                <field name="payment_deadline" invisible="order_status in ('confirmed', 'completed', 'cancelled')" />
+                <!-- Sales sets the payment deadline and the expected pickup when sending; the deadline can then be
+                     extended until the order is confirmed. -->
+                <field name="payment_deadline" invisible="state == 'draft' or order_status in ('confirmed', 'completed', 'cancelled')" />
+                <field name="expected_collection_date" readonly="1" invisible="not expected_collection_date" />
                 <field name="requested_date" invisible="not requested_date and order_status in ('confirmed', 'completed', 'cancelled')" />
                 <field name="priority_request" invisible="not priority_request" decoration-warning="priority_request == 'requested'" widget="badge" />
                 <field name="turnaround_days" readonly="1" invisible="not turnaround_days" />

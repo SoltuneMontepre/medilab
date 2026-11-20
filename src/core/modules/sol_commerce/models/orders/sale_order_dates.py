@@ -25,6 +25,8 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
     if not TYPE_CHECKING:
         # Requested date: the date the customer wants the results.
         requested_date = fields.Date()
+        # The day Sales agreed with the customer for the samples to be picked up, which return dates count from.
+        expected_collection_date = fields.Date(string="Expected Sample Pickup", copy=False)
         # The customer's request for priority, and Sales's decision on it after the feasibility check.
         priority_request = fields.Selection(
             [("requested", "Requested"), ("accepted", "Accepted"), ("declined", "Declined")], copy=False
@@ -38,7 +40,8 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
         )
         # The ways of testing of the order that have no standard turnaround yet, which keep the quotation from being sent.
         turnaround_missing = fields.Char(string="Missing Turnaround", compute="_compute_turnaround_missing")
-        # The date results would be returned if the samples were received today, after the work the laboratory holds.
+        # The date results would be returned for samples picked up on the expected day, or today without one, after the
+        # work the laboratory holds.
         estimated_result_date = fields.Date(string="Estimated Return Date", compute="_compute_estimated_result_date")
 
     def write(self, vals):
@@ -69,15 +72,24 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
             missing = requests._turnaround(order._ways())["missing"]
             order.turnaround_missing = ", ".join(missing.mapped("display_name")) or False
 
-    @api.depends("turnaround_days", "order_line.parameter_method_id")
+    @api.depends("turnaround_days", "order_line.parameter_method_id", "expected_collection_date")
     def _compute_estimated_result_date(self):
         requests = self.env[MODEL_TEST_REQUEST]
-        now = fields.Datetime.now()
         for order in self:
             estimate = order.turnaround_days and requests._earliest_return(
-                order._test_ways(), now, order.turnaround_days
+                order._test_ways(), order._collection_start(order.expected_collection_date), order.turnaround_days
             )
             order.estimated_result_date = estimate["date"] if estimate else False
+
+    def _collection_start(self, day):
+        """The moment samples picked up on the day reach the laboratory at the earliest: the start of that day in the
+        company's time zone, or now when the day is today or has passed or none is given."""
+        now = fields.Datetime.now()
+        if not day:
+            return now
+        zone = ZoneInfo(self.env.company.tz or "UTC")
+        start = datetime.combine(day, time.min, tzinfo=zone).astimezone(ZoneInfo("UTC")).replace(tzinfo=None)
+        return max(start, now)
 
     def _set_portal_dates(self, requested_date, priority):
         """Keep the date the customer wants the results and whether they ask for priority, from the cart."""
@@ -160,17 +172,21 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
                 )
             )
 
-    def _earliest_return_date(self):
+    def _earliest_return_date(self, collection_date=None):
         """The earliest date Sales can promise when sending the quotation: the turnaround, or the laboratory's held work
-        when it leaves the order's tests to finish later, counted from the day the samples can be received at the latest
-        without delaying the order, the advance's payment deadline when one is requested, otherwise today. False without
-        a turnaround or when no free slot is found for a test."""
+        when it leaves the order's tests to finish later, counted from the expected sample pickup, collection_date when
+        given, else the order's. Without one it counts
+        from the day the samples can be received at the latest without delaying the order, the advance's payment deadline
+        when one is requested, otherwise today. False without a turnaround or when no free slot is found for a test."""
         self.ensure_one()
         if not self.turnaround_days:
             return False
         now = fields.Datetime.now()
         start = now
-        if self.advance_method and self.advance_method != ADVANCE_NONE:
+        collection_date = collection_date or self.expected_collection_date
+        if collection_date:
+            start = self._collection_start(collection_date)
+        elif self.advance_method and self.advance_method != ADVANCE_NONE:
             deadline = self.payment_deadline
             if not deadline or deadline <= now:
                 days = (

@@ -24,6 +24,10 @@
                         <dt class="fw-normal text-muted">Requested date</dt>
                         <dd class="mb-0" t-out="order.requested_date" t-options="{'widget': 'date'}" />
                     </div>
+                    <div t-if="order.expected_collection_date" class="d-flex gap-2">
+                        <dt class="fw-normal text-muted">Sample pickup</dt>
+                        <dd class="mb-0" t-out="order.expected_collection_date" t-options="{'widget': 'date'}" />
+                    </div>
                     <div t-if="order.priority_request" class="d-flex gap-2">
                         <dt class="fw-normal text-muted">Priority</dt>
                         <dd class="mb-0" t-out="dict(order._fields['priority_request']._description_selection(order.env))[order.priority_request]" />

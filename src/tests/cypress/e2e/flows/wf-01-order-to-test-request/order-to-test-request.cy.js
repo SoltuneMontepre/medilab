@@ -93,7 +93,7 @@ describe("WF-01 Order to confirmed test request", () => {
         choose("advance_method", "Trực tuyến");
         choose("advance_mode", "Phần trăm");
         cy.get(".o_field_widget[name=advance_value] input").clear().type("30");
-        cy.sendRecord("action_send_quotation");
+        cy.sendQuotation();
         cy.get(".o_statusbar_buttons button[name=action_revise_quotation]:visible").should("exist");
         cy.readRecord(order, ["invoice_ids"]).its("invoice_ids").should("be.empty");
         call(
@@ -236,8 +236,8 @@ describe("WF-01 Order to confirmed test request", () => {
       step("Sales revises the quotation and sends the new version");
       cy.signInAs("sales");
       cy.openRecord(order);
-      cy.intercept("POST", "**/web/dataset/call_button/sale.order/action_send_quotation*").as("sendRevision");
-      cy.sendRecord("action_send_quotation");
+      cy.intercept("POST", "**/web/dataset/call_button/medilab.quotation.send/action_send*").as("sendRevision");
+      cy.sendQuotation();
       cy.wait("@sendRevision").its("response.body").should("not.have.property", "error");
       latestQuotation(order.id).its("revision").should("eq", 2);
       step("The customer accepts the new version by paying its advance");
@@ -286,7 +286,7 @@ describe("WF-01 Order to confirmed test request", () => {
       cy.openRecord(order);
       openTab("payment");
       choose("advance_method", "No advance");
-      cy.sendRecord("action_send_quotation");
+      cy.sendQuotation();
       cy.get(".o_statusbar_buttons button[name=action_revise_quotation]:visible").should("exist");
 
       step("The customer allowed to order on credit accepts the quotation on the portal");

@@ -82,7 +82,7 @@ FROZEN_LINE_FIELDS = frozenset(
 )
 
 # The dates and priority of the order that stop changing once the quotation is sent.
-DATE_FIELDS = frozenset({"requested_date", "committed_date", "priority_request"})
+DATE_FIELDS = frozenset({"requested_date", "committed_date", "priority_request", "expected_collection_date"})
 
 # The sample fields that stop changing with the lines.
 FROZEN_SAMPLE_FIELDS = frozenset(

@@ -51,6 +51,9 @@ else:
 
 _logger = logging.getLogger(__name__)
 
+# Context key the Send quotation button sets to open its dialog.
+QUOTATION_DIALOG = "medilab_quotation_dialog"
+
 
 # Đơn Hàng
 class SaleOrder(models.Model, SaleOrderBase):
@@ -508,6 +511,12 @@ class SaleOrder(models.Model, SaleOrderBase):
     def action_send_quotation(self):
         """Store the next revision of the quotation as a PDF and mark the revision before it replaced."""
         self.check_access("write")
+        if self.env.context.get(QUOTATION_DIALOG):
+            # The button asks Sales for the payment deadline and the expected sample pickup first.
+            self.ensure_one()
+            action = self.env["ir.actions.act_window"]._for_xml_id("sol_commerce.action_medilab_quotation_send")
+            action["context"] = {"default_order_id": self.id}
+            return action
         self._lock_payment_orders()
         self._check_no_pending_collection()
         for order in self:
