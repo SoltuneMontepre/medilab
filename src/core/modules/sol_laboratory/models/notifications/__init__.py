@@ -6,5 +6,6 @@ from . import (
     notification_event_recipient,
     notification_preference,
     push_delivery,
+    res_partner,
     scheduled_job,
 )

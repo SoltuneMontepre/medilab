@@ -10,6 +10,7 @@ from odoo.addons.sol_laboratory.constants.catalog import ACCEPTED, REGULATIONS_A
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_CODE_MIXIN,
+    MODEL_COMMITTED_DATE_CHANGE,
     MODEL_CUSTOMER,
     MODEL_EXPECTED_SAMPLING,
     MODEL_LOCK_MIXIN,
@@ -51,7 +52,7 @@ class TestRequest(models.Model, TestRequestBase):
     _rec_name = "code"
     # A test request is cancelled, never archived or deleted.
     _permission_actions = ("read", "create", "edit")
-    _audit_children = ("sample_ids",)
+    _audit_children = ("sample_ids", "committed_date_change_ids")
 
     if not TYPE_CHECKING:
         # Unique code of the request, such as YC.2026.0001; filled from a sequence when left empty.
@@ -60,8 +61,17 @@ class TestRequest(models.Model, TestRequestBase):
         customer_id = fields.Many2one(MODEL_CUSTOMER, required=True, ondelete="restrict", index=True)
         # Date the request was made.
         request_date = fields.Date(required=True, default=fields.Date.context_today, index=True)
-        # Date sales promised the customer the results.
-        expected_date = fields.Date()
+        # Date the customer wants the results.
+        requested_date = fields.Date()
+        # Committed return date: the date Sales promised the customer the results. Only Sales changes it, with the
+        # customer's agreement, through Change Committed Date.
+        committed_date = fields.Date(string="Committed Return Date")
+        # True for an accepted priority request: the laboratory's check said it can meet the requested date, so the
+        # request's tests are urgent.
+        priority = fields.Boolean(string="Priority Order")
+        # Working days results take from sample receipt, the longest standard turnaround of the accepted ways; it fixes
+        # the committed return date at receipt when none was agreed before.
+        turnaround_days = fields.Integer(string="Turnaround (working days)")
         # Language the customer wants the report in.
         report_language = fields.Selection(
             [("vi", "Vietnamese"), ("en", "English"), ("bilingual", "Bilingual")], required=True, default="bilingual"
@@ -98,6 +108,8 @@ class TestRequest(models.Model, TestRequestBase):
         )
         # Free notes about the request.
         note = fields.Text()
+        # True for a request created from a confirmed order, whose samples keep what the customer agreed.
+        from_order = fields.Boolean(readonly=True, copy=False)
         # Number of the order the request was created from, kept as text when uninstalling E-commerce drops the link.
         order_number = fields.Char(readonly=True, copy=False, index="trigram")
         # Samples of the request.
@@ -105,6 +117,10 @@ class TestRequest(models.Model, TestRequestBase):
         # Sample tests the laboratory cancelled with a reason; the report leaves them out.
         cancelled_test_ids = fields.Many2many(
             MODEL_SAMPLE_TEST, string="Cancelled Tests", compute="_compute_cancelled_test_ids"
+        )
+        # Changes of the committed return date, the latest first, each with the customer's confirmation.
+        committed_date_change_ids = fields.One2many(
+            MODEL_COMMITTED_DATE_CHANGE, "request_id", string="Committed Date Changes", readonly=True
         )
         # Reports of the request, one per version.
         report_ids = fields.One2many(
@@ -129,11 +145,14 @@ class TestRequest(models.Model, TestRequestBase):
         self,
         customer,
         samples,
-        expected_date: date | str | Literal[False] = False,
+        committed_date: date | str | Literal[False] = False,
         report_language="bilingual",
         delivery_method="in_person",
         delivery_note=False,
         report_recipient: models.BaseModel | Literal[False] = False,
+        requested_date: date | str | Literal[False] = False,
+        priority=False,
+        turnaround_days=0,
     ):
         # E-commerce calls this when an order is confirmed, with one entry per sample on the quotation. The samples keep
         # the regulations the customer accepted; an entry's sampling is the sampling snapshot it keeps, copied onto the
@@ -142,7 +161,11 @@ class TestRequest(models.Model, TestRequestBase):
         request = accepted.create(
             {
                 "customer_id": customer.id,
-                "expected_date": expected_date,
+                "from_order": True,
+                "requested_date": requested_date,
+                "committed_date": committed_date,
+                "priority": priority,
+                "turnaround_days": turnaround_days,
                 "report_language": report_language,
                 "delivery_method": delivery_method,
                 "delivery_note": delivery_note,
@@ -152,7 +175,7 @@ class TestRequest(models.Model, TestRequestBase):
                         {
                             "customer_sample_name": sample["customer_sample_name"],
                             "sample_type_id": sample["sample_type_id"],
-                            "physical_state": sample["physical_state"],
+                            "physical_state": sample.get("physical_state") or False,
                             "regulation_id": sample.get("regulation_id") or False,
                             "test_ids": [
                                 Command.create(test) for test in self._sample_tests_from_lines(sample.get("lines", ()))

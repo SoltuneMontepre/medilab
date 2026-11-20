@@ -48,6 +48,8 @@ export SECURE_LINK_SECRET="$(cat "$secure_link_file")"
 chmod 0600 /etc/onlyoffice/documentserver/local.json
 # Upstream ignores a false drain body and leaves curl unbounded.
 install -m 0755 /opt/medilab/onlyoffice/shutdown.sh /usr/bin/documentserver-prepare4shutdown.sh
+# Nginx otherwise serves the image's old compressed worker in place of the mounted one.
+rm -f /var/www/onlyoffice/documentserver/sdkjs/common/serviceworker/document_editor_service_worker.js.gz
 # Nginx errors can include the complete signed request URL. Patch templates as well as live includes.
 find /etc/nginx /etc/onlyoffice/documentserver/nginx -type f \
   \( -name '*.conf' -o -name '*.tmpl' \) -exec sed -i -E \

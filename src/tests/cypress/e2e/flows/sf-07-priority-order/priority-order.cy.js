@@ -1,4 +1,5 @@
-import { call, callRefused } from "../../../support/odoo";
+import { call, callAs, callRefused } from "../../../support/odoo";
+import { orderAt } from "../wf-01-order-to-test-request/setup";
 import { HEAD, TESTER, inEnglish, leadTest } from "./setup";
 
 const REASON = "Máy AAS-01 bảo trì định kỳ; cần đo xong trước Tết Dương lịch.";
@@ -45,4 +46,41 @@ describe("Result dates and priority orders", () => {
       cy.readRecord(test, ["due_date_reason"]).its("due_date_reason").should("eq", false);
     });
   });
+
+  it("TC-SF07-M shows the standard turnaround and commits a requested date it meets", () => {
+    orderAt("claimed").then((order) => {
+      cy.signInAs("sales");
+      callAs("demo.sales", "sale.order", "write", [[order.id], { requested_date: inDays(60) }]);
+      cy.openRecord(order);
+      cy.get(".o_field_widget[name=turnaround_days]").invoke("text").should("match", /[1-9]/);
+      cy.get(".o_field_widget[name=estimated_result_date]").should("not.be.empty");
+      callAs("demo.sales", "sale.order", "write", [[order.id], { advance_method: "cash", advance_mode: "full" }]);
+      callAs("demo.sales", "sale.order", "action_send_quotation", [[order.id]]);
+      cy.readRecord(order, ["requested_date", "committed_date"]).then((read) =>
+        expect(read.committed_date).to.equal(read.requested_date),
+      );
+    });
+  });
+
+  it("TC-SF07-A1 keeps a portal priority request a request until Sales decides it", () => {
+    orderAt("claimed").then((order) => {
+      callAs("demo.sales", "sale.order", "write", [
+        [order.id],
+        { requested_date: inDays(1), priority_request: "requested", advance_method: "cash", advance_mode: "full" },
+      ]);
+      cy.signInAs("sales");
+      callRefused("sale.order", "action_send_quotation", [[order.id]]).should("match", /priority|ưu tiên/i);
+      cy.openRecord(order);
+      cy.get(".o_statusbar_buttons button[name=action_decline_priority]:visible").click();
+      cy.readRecord(order, ["priority_request", "priority"]).should("deep.include", {
+        priority_request: "declined",
+        priority: false,
+      });
+    });
+  });
 });
+
+// The day the given number of days from now in the laboratory, as Odoo stores a date.
+function inDays(days) {
+  return new Date(Date.now() + days * 86400000).toLocaleDateString("en-CA", { timeZone: "Asia/Ho_Chi_Minh" });
+}

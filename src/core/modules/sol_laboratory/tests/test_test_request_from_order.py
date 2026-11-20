@@ -44,7 +44,7 @@ class TestTestRequestFromOrder(RequestCase):
                     "lines": [{"parameter_id": self.parameter.id}],
                 },
             ],
-            expected_date="2026-10-20",
+            committed_date="2026-10-20",
             report_language="vi",
             delivery_method="email",
         )

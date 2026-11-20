@@ -142,6 +142,17 @@ class TestPayments(InvoicingCase):
         self.assertEqual(payment.amount, self.invoice.amount_total + 1_000)
         self.assertIn(self.invoice.payment_state, PAID_STATES)
 
+    def test_a_payos_payment_tells_the_salesperson_it_needs_no_review(self):
+        self.env.ref("sol_commerce.payment_provider_payos").is_published = True
+        self.env.ref("sol_commerce.payment_method_payos_qr").active = True
+        transaction = self.env["payment.transaction"]._create_payos_transaction(self.invoice)
+        transaction.with_context(payment_safe_write=True)._set_done()
+
+        transaction._create_online_payment()
+
+        order = self.invoice.order_id
+        self.assertTrue(order.message_ids.filtered(lambda message: "PayOS" in (message.body or "")))
+
     def test_the_receipt_names_the_collection_method(self):
         payment = self.pay(1_000_000, "cash")
         payment.action_post()
@@ -376,6 +387,14 @@ class TestPaymentPortal(AuditLookup, InvoicingCase, HttpCase):
         self.assertEqual(payment.amount, 1_000)
         self.assertEqual(payment.state, "draft")
         self.assertEqual(self.invoice.order_id.pending_amount, 1_000)
+        task = self.env["medilab.task"].search(
+            [("document_model", "=", "account.payment"), ("document_id", "=", payment.id)]
+        )
+        self.assertEqual(task.type_id.code, "payment_review")
+
+        payment.action_post()
+
+        self.assertEqual(task.status, "done")
 
     def test_a_portal_amount_above_the_residual_is_refused(self):
         self.authenticate(self.customer.login, self.customer.login)

@@ -95,7 +95,7 @@ export function schedulingFixture(count = 2, register = () => {}, capacity = 1) 
   for (let index = 0; index < count; index += 1) {
     cy.then(() => create(RECEPTION, "medilab.test.request", {
       customer_id: fixture.customer,
-      expected_date: odooTime(Date.now() + 30 * 86400000).slice(0, 10),
+      committed_date: odooTime(Date.now() + 30 * 86400000).slice(0, 10),
       sample_ids: [[0, 0, {
         customer_sample_name: `Nước uống ${fixture.tag}-${index}`,
         sample_type_id: fixture.sampleType,

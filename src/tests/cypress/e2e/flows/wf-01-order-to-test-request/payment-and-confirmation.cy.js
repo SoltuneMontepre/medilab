@@ -28,19 +28,23 @@ describe("WF-01 order confirmation and test request (F-10)", () => {
       callRefused("sale.order", "action_start_sample_collection", [[order.id]]).should("eq", "Đơn hàng phải được xác nhận trước khi thu mẫu.");
       cy.get(".o_statusbar_buttons button[name=action_confirm_order]:visible").click();
       cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]:visible").click();
+      // Sales enters when and where the samples are collected; the address starts as the customer's.
+      cy.get(".modal .o_field_widget[name=address] textarea").invoke("val").should("not.be.empty");
+      cy.get(".modal .o_field_widget[name=appointment] input").type("31/12/2099 09:00").type("{enter}");
+      cy.get(".modal button[name=action_start]").click();
+      cy.get(".modal").should("not.exist");
+      cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]").should("not.exist");
       cy.readRecord(order, ["order_status"]).its("order_status").should("eq", "confirmed");
     });
   });
 
-  it("TC-F10-02 blocks sample collection while an order balance is unpaid", () => {
+  it("TC-F10-02 lets sample collection start while the order balance is unpaid", () => {
     orderAt("confirmed", { advance: false }).then((order) => {
       cy.signInAs("sales");
       cy.openRecord(order);
-      cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]").should("not.exist");
-      callRefused("sale.order", "action_start_sample_collection", [[order.id]]).should(
-        "eq",
-        "Xác nhận đã thanh toán số dư đơn hàng trước khi thu mẫu.",
-      );
+      // The balance is due before the report is released, not before the samples are collected.
+      cy.readRecord(order, ["payment_status"]).its("payment_status").should("not.eq", "paid");
+      cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]:visible").should("exist");
       cy.readRecord(order, ["order_status"]).its("order_status").should("eq", "confirmed");
     });
   });

@@ -53,7 +53,7 @@ describe("WF-01 quotation, revisions and templates (F-06, F-07)", () => {
     orderAt("claimed", { lines: SAMPLING_LINES }).then((order) => {
       cy.signInAs("sales");
       cy.openRecord(order);
-      openTab("expected_samples");
+      openTab("samples");
       expectSampling(".o_field_widget[name=expected_sampling_html]", { objects: 3, expected: 6, groups: 2 });
       callAs("demo.sales", "sale.order", "write", [[order.id], { advance_method: "bank_transfer", advance_mode: "percentage", advance_value: 30 }]);
       cy.reload();
@@ -125,14 +125,14 @@ describe("WF-01 quotation, revisions and templates (F-06, F-07)", () => {
       });
   });
 
-  it("TC-F06-03 refuses to send a quotation with a line not on a sample", () => {
+  it("TC-F06-03 refuses to send a quotation with a line of no sample type", () => {
     orderAt("claimed", { sample: false }).then((order) => {
       cy.signInAs("sales");
       cy.openRecord(order);
       cy.expectRefusal({
         read: readOrder(order),
         action: () => cy.sendRecord("action_send_quotation"),
-        message: "Gán mẫu cho các mục sau trước khi gửi báo giá:",
+        message: "Chọn loại mẫu cho các mục sau trước khi gửi báo giá:",
       });
     });
   });
