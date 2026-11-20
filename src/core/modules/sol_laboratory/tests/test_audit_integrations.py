@@ -88,6 +88,19 @@ class TestAuditIntegrations(AuditLookup, HttpCase):
             mail.send(raise_exception=False)
 
         self.assertIn("Mailbox unavailable", assert_instance(self.entries(self.task, "error").note, str))
+
+    def test_each_email_delivery_attempt_is_recorded(self):
+        mail = self.email("attempts")
+
+        with mail_server(side_effect=[ValueError("Temporary SMTP failure"), "<sent@example.com>"]):
+            mail.send(raise_exception=False)
+            mail.invalidate_recordset()
+            mail.write({"state": "outgoing", "failure_reason": False, "failure_type": False})
+            mail.send(raise_exception=False)
+
+        entries = self.entries(self.task)
+        self.assertEqual(len(entries), 2)
+        self.assertEqual(set(entries.mapped("action")), {"error", "integration"})
         self.assertFalse(self.entries(self.task, "integration"))
 
     def test_a_brevo_event_is_recorded_on_the_document_of_its_email(self):

@@ -13,6 +13,8 @@ from odoo.addons.sol_laboratory.constants.settings import (
     JOB_RETENTION_PARAMETER,
     LOCK_RETENTION_PARAMETER,
     LOCK_TIMEOUT_PARAMETER,
+    MANDATORY_EMAIL_RETRY_COUNT_PARAMETER,
+    MANDATORY_EMAIL_RETRY_INTERVAL_PARAMETER,
     NOTIFICATION_RETENTION_PARAMETER,
 )
 
@@ -40,6 +42,16 @@ class ResConfigSettings(models.TransientModel, ResConfigSettingsBase):
             default=DEFAULT_LOCK_TIMEOUT_MINUTES,
             help="Minutes without activity after which a document locked for editing is free again, so a closed browser "
             "does not block it.",
+        )
+        # Number of temporary failures a mandatory customer email can retry before its address is bounced.
+        mandatory_email_retry_count = fields.Integer(
+            config_parameter=MANDATORY_EMAIL_RETRY_COUNT_PARAMETER,
+            default=3,
+        )
+        # Minutes between retries of a mandatory customer email after a temporary failure.
+        mandatory_email_retry_interval_minutes = fields.Integer(
+            config_parameter=MANDATORY_EMAIL_RETRY_INTERVAL_PARAMETER,
+            default=60,
         )
 
         # Days finished job items and job runs are kept before the cleanup job removes them.
@@ -78,6 +90,14 @@ class ResConfigSettings(models.TransientModel, ResConfigSettingsBase):
         # A period of 0 would expire every lock at once, so nobody could keep a document while editing it.
         if any(settings.lock_timeout_minutes < 1 for settings in self):
             raise ValidationError(self.env._("The lock timeout must be at least 1 minute."))
+
+    @api.constrains("mandatory_email_retry_count", "mandatory_email_retry_interval_minutes")
+    def _check_mandatory_email_retries(self):
+        if any(
+            settings.mandatory_email_retry_count < 0 or settings.mandatory_email_retry_interval_minutes < 1
+            for settings in self
+        ):
+            raise ValidationError(self.env._("Email retries cannot be negative and their interval must be positive."))
 
     @api.constrains(*CLEANUP_RETENTION_FIELDS)
     def _check_retention(self):

@@ -4,6 +4,8 @@ from typing import TypedDict
 
 from odoo.addons.sol_laboratory.constants.laboratory_files import DEVICE_KEY_SCOPE
 
+CUSTOMER_EMAIL_CONFIRMATION_PATH = "/medilab/customer/email/confirm"
+
 
 class FrontendPageOptions(TypedDict):
     website: bool

@@ -1,6 +1,7 @@
 from . import (
     binary,
     brevo,
+    customer_email_confirmation,
     dispatch_portal,
     laboratory_api_attachments,
     laboratory_api_chatter,

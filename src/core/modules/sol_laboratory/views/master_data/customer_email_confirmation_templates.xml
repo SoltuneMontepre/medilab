@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="customer_email_confirmation" name="Confirm a Customer Email Address">
+        <t t-call="portal.frontend_layout">
+            <div class="container py-4" style="max-width: 48rem">
+                <h1>Confirm email address</h1>
+                <div t-if="confirmed" class="alert alert-success" role="status">
+                    Your email address is confirmed. Email notices will resume.
+                </div>
+                <div t-else="" class="alert alert-warning" role="status">
+                    This confirmation link has expired or already been used. Ask Sales to send a new one.
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

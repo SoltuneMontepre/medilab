@@ -32,6 +32,7 @@
         "views/master_data/accreditation_certificate_import_views.xml",
         "views/master_data/chemical_views.xml",
         "views/master_data/customer_views.xml",
+        "views/master_data/customer_email_confirmation_templates.xml",
         "views/master_data/location_views.xml",
         "views/master_data/machine_views.xml",
         "views/master_data/measurement_unit_views.xml",

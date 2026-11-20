@@ -13354,6 +13354,71 @@ msgid "Place"
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/res_partner.py:0
+msgid "A bounced email address can only be cleared by its confirmation link."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.customer_email_confirmation
+msgid "Confirm email address"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.customer_email_confirmation
+msgid "Confirm a Customer Email Address"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/res_partner.py:0
+msgid "Confirm that this is your email address."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/res_partner.py:0
+msgid "Confirm your email address"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form_audit
+msgid "Customer Email"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/mail_notification.py:0
+msgid "Mandatory email permanently bounced after temporary delivery failures"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__mandatory_email_retry_count
+msgid "Mandatory Email Retry Count"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__mandatory_email_retry_interval_minutes
+msgid "Mandatory Email Retry Interval Minutes"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/res_config_settings.py:0
+msgid "Email retries cannot be negative and their interval must be positive."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.customer_email_confirmation
+msgid "This confirmation link has expired or already been used. Ask Sales to send a new one."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.customer_email_confirmation
+msgid "Your email address is confirmed. Email notices will resume."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__place_of_birth
 msgid "Place of Birth"
 msgstr ""

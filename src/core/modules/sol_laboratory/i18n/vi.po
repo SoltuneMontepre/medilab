@@ -19670,3 +19670,68 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__place
 msgid "Place"
 msgstr "Địa Điểm"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/res_partner.py:0
+msgid "A bounced email address can only be cleared by its confirmation link."
+msgstr "Chỉ có thể bỏ trạng thái email bị trả lại thông qua liên kết xác nhận."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.customer_email_confirmation
+msgid "Confirm email address"
+msgstr "Xác nhận địa chỉ email"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.customer_email_confirmation
+msgid "Confirm a Customer Email Address"
+msgstr "Xác nhận địa chỉ email của khách hàng"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/res_partner.py:0
+msgid "Confirm that this is your email address."
+msgstr "Xác nhận đây là địa chỉ email của bạn."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/res_partner.py:0
+msgid "Confirm your email address"
+msgstr "Xác nhận địa chỉ email của bạn"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.customer_email_confirmation
+msgid "Customer Email"
+msgstr "Email khách hàng"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/mail_notification.py:0
+msgid "Mandatory email permanently bounced after temporary delivery failures"
+msgstr "Email bắt buộc bị trả lại vĩnh viễn sau các lần gửi tạm thời thất bại"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__mandatory_email_retry_count
+msgid "Mandatory Email Retry Count"
+msgstr "Số lần thử lại email bắt buộc"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__mandatory_email_retry_interval_minutes
+msgid "Mandatory Email Retry Interval Minutes"
+msgstr "Số phút giữa các lần thử lại email bắt buộc"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/res_config_settings.py:0
+msgid "Email retries cannot be negative and their interval must be positive."
+msgstr "Số lần thử lại email không được âm và khoảng thời gian phải lớn hơn 0."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.customer_email_confirmation
+msgid "This confirmation link has expired or already been used. Ask Sales to send a new one."
+msgstr "Liên kết xác nhận này đã hết hạn hoặc đã được sử dụng. Hãy yêu cầu bộ phận Kinh doanh gửi liên kết mới."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.customer_email_confirmation
+msgid "Your email address is confirmed. Email notices will resume."
+msgstr "Địa chỉ email đã được xác nhận. Thông báo qua email sẽ được gửi lại."

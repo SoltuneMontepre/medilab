@@ -2911,8 +2911,10 @@ model Notification {
   notification_type   String         @db.VarChar
   /// Odoo's sending status: ready, sent, bounce, exception or canceled.
   notification_status String         @db.VarChar
-  /// Delivery status Brevo reported for an e-mail: delivered, opened, bounced or failed.
+  /// Delivery status Brevo reported for an e-mail: delivered, opened, bounced, failed or deferred.
   brevo_status        String?        @db.VarChar
+  /// Temporary delivery failures retried for this mandatory customer email.
+  email_retry_count   Int            @default(0)
   /// True once the user read it in the application.
   is_read             Boolean        @default(false)
   /// When the user read it.

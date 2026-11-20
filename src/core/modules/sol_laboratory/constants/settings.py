@@ -24,6 +24,10 @@ DEFAULT_QUALITY_REGISTRATION_WARNING_DAYS = 30
 # Set once by the migration that adds the portal columns: the portal shows the mandatory notices written after it by code
 # that does not know the columns. Nothing is shown from this rule when it is missing.
 NOTICE_PORTAL_SINCE_PARAMETER = "sol_laboratory.notice_portal_since"
+MANDATORY_EMAIL_RETRY_COUNT_PARAMETER = "sol_laboratory.mandatory_email_retry_count"
+MANDATORY_EMAIL_RETRY_INTERVAL_PARAMETER = "sol_laboratory.mandatory_email_retry_interval_minutes"
+DEFAULT_MANDATORY_EMAIL_RETRY_COUNT = 3
+DEFAULT_MANDATORY_EMAIL_RETRY_INTERVAL_MINUTES = 60
 LOCK_TIMEOUT_PARAMETER = "sol_laboratory.lock_timeout_minutes"
 DEFAULT_LOCK_TIMEOUT_MINUTES = 15
 JOB_RETENTION_PARAMETER = "sol_laboratory.job_retention_days"

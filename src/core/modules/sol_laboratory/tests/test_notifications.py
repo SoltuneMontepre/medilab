@@ -1,5 +1,6 @@
 import os
-from datetime import timedelta
+from datetime import datetime, timedelta
+from typing import Any, cast
 from unittest.mock import patch
 
 import requests
@@ -9,6 +10,7 @@ from odoo.exceptions import AccessError, UserError
 from odoo.tests import HttpCase, TransactionCase, tagged
 
 from .mobile_phones import push_token
+from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_ENTRY
 from odoo.addons.sol_laboratory.constants.notifications import (
     BREVO_SMTP_HOST,
     BREVO_SMTP_PASSWORD,
@@ -148,6 +150,59 @@ class TestNotifications(TransactionCase):
         job._handle_notifications_email(item)
         self.assertNotEqual(mail.state, "exception")
         self.assertEqual(self.env["medilab.job.item"].search_count([("item_key", "=", f"mail:{mail.id}")]), 1)
+
+    def test_a_mandatory_email_retries_temporary_failures_then_bounces(self):
+        partner = self.env["res.partner"].create({"name": "Mandatory recipient", "email": "mandatory@example.com"})
+        task = self._task()
+        message = self.env["mail.message"].raise_event(
+            EVENT_TEST_REPORT_ISSUED, task, "mandatory-email-retries", "Body", partners=partner
+        )
+        notification = message.notification_ids.filtered(lambda item: item.res_partner_id == partner)
+        mail = notification.mail_mail_id
+        item = self.env["medilab.job.item"].search([("item_key", "=", f"mail:{mail.id}")], limit=1)
+        config_parameters = cast("Any", self.env["ir.config_parameter"].sudo())
+        config_parameters.set_param("sol_laboratory.mandatory_email_retry_count", "3")
+        config_parameters.set_param("sol_laboratory.mandatory_email_retry_interval_minutes", "60")
+
+        def temporary_failure(mails, *args, **kwargs):
+            mails.write({"state": "exception", "failure_type": "mail_smtp", "failure_reason": "temporary"})
+
+        before_retry = fields.Datetime.now()
+        with patch("odoo.addons.mail.models.mail_mail.MailMail.send", temporary_failure):
+            item.job_id._handle_notifications_email(item)
+            self.assertEqual(notification.email_retry_count, 1)
+            for _attempt in range(3):
+                mail = notification.mail_mail_id
+                item = self.env["medilab.job.item"].search(
+                    [("document_model", "=", mail._name), ("document_id", "=", mail.id)], limit=1
+                )
+                item.job_id._handle_notifications_email(item)
+                if notification.brevo_status == "bounced":
+                    break
+
+        retry_mail = notification.mail_mail_id
+        retry_item = self.env["medilab.job.item"].search(
+            [("document_model", "=", retry_mail._name), ("document_id", "=", retry_mail.id)], limit=1
+        )
+        retry_at = retry_item.next_attempt_at
+        if not isinstance(retry_at, datetime):
+            self.fail("The retry was not scheduled.")
+        self.assertEqual((retry_at - before_retry).total_seconds(), 3600)
+        self.assertTrue(partner.email_bounced)
+        self.assertEqual(notification.notification_status, "bounce")
+        self.assertEqual(notification.email_retry_count, 3)
+        self.assertEqual(
+            self.env[MODEL_AUDIT_ENTRY]
+            .sudo()
+            .search_count(
+                [
+                    ("document_model", "=", task._name),
+                    ("document_id", "=", task.id),
+                    ("note", "ilike", "bounced after temporary delivery failures"),
+                ]
+            ),
+            1,
+        )
 
     def test_a_rejected_token_turns_the_device_off_and_a_temporary_error_does_not(self):
         device = push_token(self.env, self.user, "token-1")
@@ -493,6 +548,13 @@ class TestNotifications(TransactionCase):
 
 @tagged("post_install", "-at_install")
 class TestBrevoWebhook(HttpCase):
+    def _task(self):
+        task_type = self.env["medilab.task.type"].search([], limit=1)
+        department = self.env["hr.department"].create({"name": "Deferred"})
+        return self.env["medilab.task"].create(
+            {"type_id": task_type.id, "name": "Deferred notice", "department_id": department.id}
+        )
+
     def test_a_missing_token_rejects_the_webhook(self):
         with patch.dict(os.environ, {BREVO_WEBHOOK_TOKEN: ""}):
             response = self.url_open(
@@ -537,7 +599,17 @@ class TestBrevoWebhook(HttpCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(partner.email_bounced)
         self.assertFalse(other.email_bounced)
-        self.assertEqual(notification.brevo_status, "bounced")
+        self.assertTrue(
+            self.env[MODEL_AUDIT_ENTRY]
+            .sudo()
+            .search_count(
+                [
+                    ("document_model", "=", task._name),
+                    ("document_id", "=", task.id),
+                    ("note", "ilike", "Brevo reported hardBounce"),
+                ]
+            )
+        )
         again = self.url_open(
             "/medilab/brevo/webhook",
             data=(
@@ -558,3 +630,34 @@ class TestBrevoWebhook(HttpCase):
         )
         self.assertEqual(wrong.status_code, 200)
         self.assertFalse(other.email_bounced)
+
+    def test_a_temporary_brevo_failure_queues_a_delayed_mandatory_email_retry(self):
+        partner = self.env["res.partner"].create({"name": "Deferred", "email": "deferred@example.com"})
+        message = self.env["mail.message"].raise_event(
+            EVENT_TEST_REPORT_ISSUED, self._task(), "deferred-mandatory", "Body", partners=partner
+        )
+        notification = message.notification_ids.filtered(lambda item: item.res_partner_id == partner)
+        original_mail = notification.mail_mail_id
+        config_parameters = cast("Any", self.env["ir.config_parameter"].sudo())
+        config_parameters.set_param("sol_laboratory.mandatory_email_retry_count", "3")
+        config_parameters.set_param("sol_laboratory.mandatory_email_retry_interval_minutes", "60")
+        before_retry = fields.Datetime.now()
+
+        notification._apply_brevo_event(
+            {
+                "event": "deferred",
+                "email": partner.email,
+                "X-Mailin-custom": f"notification:{notification.id}",
+            }
+        )
+
+        self.assertEqual(notification.notification_status, "exception")
+        self.assertEqual(notification.email_retry_count, 1)
+        self.assertNotEqual(notification.mail_mail_id, original_mail)
+        item = self.env["medilab.job.item"].search(
+            [("document_model", "=", "mail.mail"), ("document_id", "=", notification.mail_mail_id.id)], limit=1
+        )
+        retry_at = item.next_attempt_at
+        if not isinstance(retry_at, datetime):
+            self.fail("The retry was not scheduled.")
+        self.assertGreaterEqual((retry_at - before_retry).total_seconds(), 3600)

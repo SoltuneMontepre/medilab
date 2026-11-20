@@ -16,7 +16,9 @@ from odoo.addons.sol_laboratory.constants.notifications import (
     EVENT_TASK_REMINDER,
     VIETNAM_ZONE,
 )
-from odoo.addons.sol_laboratory.constants.settings import DEFAULT_REMINDER_LEAD_MINUTES
+from odoo.addons.sol_laboratory.constants.settings import (
+    DEFAULT_REMINDER_LEAD_MINUTES,
+)
 from odoo.addons.sol_laboratory.models.system.scheduled_job import PermanentJobError
 from odoo.addons.sol_laboratory.services.firebase_client import (
     PermanentTokenError,
@@ -115,14 +117,31 @@ class ScheduledJob(models.Model, ScheduledJobBase):
         mail = item._document()
         if not mail or not mail.exists() or mail.state == "sent":
             return
+        notification = self.env["mail.notification"].sudo().search([("mail_mail_id", "=", mail.id)], limit=1)
+        mandatory = bool(notification and notification.mail_message_id.subtype_id.mandatory)
+        if mandatory and notification.res_partner_id.email_bounced:
+            notification._mark_bounced()
+            return
         if mail.state == "cancel":
             raise PermanentJobError(self.env._("The email was cancelled."))
         if mail.state == "exception" and mail.failure_type not in (False, "mail_smtp", "unknown"):
+            if mandatory:
+                notification._mark_bounced()
+                return
             raise PermanentJobError(mail.failure_reason or self.env._("The email cannot be sent."))
         mail.sudo().write({"state": "outgoing", "failure_reason": False, "failure_type": False})
+        if mandatory and notification.email_retry_count:
+            notification.write({"brevo_status": False})
         mail.sudo().send(raise_exception=False)
         mail.invalidate_recordset()
         if mail.state == "exception":
+            if mandatory:
+                if mail.failure_type in (False, "mail_smtp", "unknown"):
+                    notification.write({"brevo_status": "deferred", "notification_status": "exception"})
+                    notification._retry_mandatory_email()
+                else:
+                    notification._mark_bounced()
+                return
             raise UserError(mail.failure_reason or self.env._("The mail server did not accept the message."))
 
     def _handle_notifications_push(self, item):

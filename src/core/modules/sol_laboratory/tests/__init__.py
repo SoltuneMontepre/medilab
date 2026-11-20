@@ -38,6 +38,7 @@ from . import (
     test_code_sequences,
     test_committed_date_change,
     test_customer,
+    test_customer_email_confirmation,
     test_customer_profile,
     test_customer_signup,
     test_department_plan,

@@ -30,7 +30,7 @@ MASK = "***"
 VISIBLE_CHARACTERS = 3
 TEXT_TYPES = frozenset({"char", "text"})
 # Tokens that open a document without signing in, such as the link a portal customer gets.
-SECRET_FIELDS = frozenset({"access_token"})
+SECRET_FIELDS = frozenset({"access_token", "email_confirmation_token_hash"})
 
 
 def _record_text(record):
