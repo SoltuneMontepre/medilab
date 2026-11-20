@@ -42,7 +42,7 @@ erDiagram
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | Customer          | A customer is a company or an individual. Their details are their contact; a company's people are the contact's people. A customer has a code from a sequence, the tax ID on its contact, and a citizen ID for an individual, which is masked in the audit trail. People who use the customer portal sign in with Odoo users linked to those contacts. Sales maintains customers. |
 | Customer bank accounts | A customer's Odoo contact can have several bank accounts. They are optional and maintained with the contact, not copied into each request or sample. For a document that prints customer bank details, omit them when the customer has no account, preselect the account when there is exactly one, and require the document preparer to select one when there are several before issuing it. The document keeps the details printed at issue; later contact changes never rewrite it. Documents that do not print those details need neither an account selection nor a snapshot. Fax is outside the scope. |
-| Test request | A test request groups at least one sample of one customer, each with at least one sample test. Confirming an order creates the request and its expected samples and sample tests from the accepted selections and sampling requirements. Sample delivery staff adjust them to the actual collection. Without E-commerce they create the request, samples and selected ways directly. |
+| Test request | A test request groups at least one sample of one customer, each with at least one sample test. Confirming an order creates the request and its expected samples and sample tests from the accepted selections and sampling requirements. Sample delivery staff adjust them to the actual collection. With E-commerce, a test request cannot be created without an order. Without E-commerce they create the request, samples and selected ways directly. |
 | Lab code          | Each sample gets a unique lab code (mã PTN) from a sequence, such as PTN.2026.0001, numbered again each year. Testers see only the lab code, never the customer or the customer's name for the sample: only people who can read test requests see those. |
 | Sample details    | A sample has the customer's name for it, its sample type, its physical state (solid, liquid, gas or semi-solid), and its form and container as text. It can name the [location](features/admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28) it was taken from, such as a sampling point. |
 | Regulation | Comparison with a regulation such as QCVN is optional. The main flow tests by the selected method, such as a TCVN, and returns measured results. A regulation defines comparison requirements and may refer to several testing standards; it is not a testing method. Only the parameters for which comparison is requested are assessed. |
@@ -57,8 +57,8 @@ Each document keeps its own status. Tasks keep their own generic lifecycle ([SH-
 ```mermaid
 stateDiagram-v2
     [*] --> draft
-    draft --> confirmed: request confirmed
-    confirmed --> paid: the advance is verified
+    draft --> confirmed: its order is confirmed; without E-commerce, staff confirm it
+    confirmed --> paid: at once, unless the customer is allowed credit
     confirmed --> on_credit: at once for a customer allowed credit
     paid --> sample_received: first sample received
     on_credit --> sample_received: first sample received
@@ -77,8 +77,9 @@ stateDiagram-v2
     testing --> cancelled
 ```
 
-- With E-commerce, every test request comes from an order Sales confirmed. Confirmation requires full verification of any requested advance. E-commerce marks the test request Paid once the order's advance is verified, or at once when the quotation asked for none; the balance is due before the report is released. For a customer allowed to order on credit who was sent a quotation without an advance, the request goes straight to On credit and the customer pays the final invoice after testing.
-- Creating a test request directly, with the permission `test_request.create.all`, is a temporary shortcut for developers to set up flows. It is removed once every browser test and demo record creates its test requests from orders ([#485](https://github.com/SoltuneMontepre/medilab/issues/485)).
+- With E-commerce, every test request comes from an order Sales confirmed; creating one without an order is refused for every role, and the list of test requests offers no way to create one. An order is confirmed only once any requested advance is verified in full, and confirming it has the system confirm the request and mark it Paid; nobody confirms it by hand. The order's balance payment request holds back neither its sample collection nor its testing; its issued report reaches the customer only once the order is paid in full. For a customer allowed to order on credit who was sent a quotation without an advance, the request goes straight to On credit and the customer pays the final invoice after testing.
+- Without E-commerce, staff holding the permission `test_request.create.all` create a test request directly with its samples and selected ways, and confirm it, which makes it paid at once.
+- The samples of a test request are received only once it is paid or On credit.
 
 ### Sample
 

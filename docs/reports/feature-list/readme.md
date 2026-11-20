@@ -441,5 +441,4 @@ The script stops without writing when the tables are inconsistent or Business fl
 
 - [Review 2 commitment (BM04) v1.1](../BM04_hoang/SWP490_GFA26SE153_R2_Commitment_v1.1.pdf)
 - [Business flows](../../functional/business-flows.md)
-- [Main-flow verification](../main-flow-verification/readme.md)
 - [Reports](../readme.md)
