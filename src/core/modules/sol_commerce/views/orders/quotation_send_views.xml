@@ -6,16 +6,17 @@
         <field name="arch" type="xml">
             <form>
                 <field name="order_id" invisible="1" force_save="1" />
-                <field name="customer_id" invisible="1" />
                 <field name="currency_id" invisible="1" />
                 <field name="on_credit" invisible="1" />
                 <group>
-                    <group>
-                        <field name="partner_id" domain="[('id', 'child_of', customer_id)]" options="{'no_create': True}" context="{'partner_display_name_hide_company': True}" required="1" />
-                        <field name="partner_email" />
+                    <group string="Customer">
+                        <field name="customer_id" string="Customer" readonly="1" options="{'no_open': True}" />
+                        <field name="customer_address" readonly="1" />
                     </group>
-                    <group>
-                        <field name="payment_deadline" />
+                    <group string="Recipient">
+                        <field name="partner_id" domain="[('id', 'child_of', customer_id)]" options="{'no_create': True}" context="{'partner_display_name_hide_company': True}" required="1" />
+                        <field name="partner_email" required="1" widget="email" />
+                        <field name="partner_phone" widget="phone" />
                     </group>
                 </group>
                 <field name="line_ids">
@@ -32,6 +33,7 @@
                 </field>
                 <group class="mt-4">
                     <group string="Payment">
+                        <field name="payment_deadline" />
                         <field name="payment_method" required="1" />
                         <field name="advance_mode" required="1" />
                         <field name="advance_value" string="Advance (%)" digits="[16, 0]" invisible="advance_mode != 'percentage'" />

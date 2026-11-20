@@ -11,6 +11,7 @@ from odoo.addons.sol_commerce.constants.models import (
 )
 from odoo.addons.sol_commerce.constants.settings import DEFAULT_PAYMENT_DEADLINE_DAYS, PAYMENT_DEADLINE_PARAMETER
 from odoo.addons.sol_commerce.constants.xml_ids import QUOTATION_REPORT
+from odoo.addons.sol_commerce.models.orders.sale_order import QUOTATION_DIALOG
 
 if TYPE_CHECKING:
     from medilab_model_types import Model_medilab_quotation_send as QuotationSendBase
@@ -28,10 +29,13 @@ class QuotationSend(models.TransientModel, QuotationSendBase):
         order_id = fields.Many2one(MODEL_SALE_ORDER, required=True, ondelete="cascade")
         # The customer the quotation is for, whose contacts may receive it.
         customer_id = fields.Many2one(related="order_id.customer_id")
+        # The customer's address printed on the quotation.
+        customer_address = fields.Text(string="Address", compute="_compute_customer_address")
         # The contact the quotation is sent to.
         partner_id = fields.Many2one(related="order_id.partner_id", readonly=False, string="To")
-        # The e-mail address the quotation notice goes to.
-        partner_email = fields.Char(related="order_id.partner_id.email", string="E-mail")
+        # The contact's e-mail address and phone, which the quotation notice uses; changing them changes the contact.
+        partner_email = fields.Char(related="order_id.partner_id.email", readonly=False, string="E-mail")
+        partner_phone = fields.Char(related="order_id.partner_id.phone", readonly=False, string="Phone")
         # The parameters and packages quoted, with their prices and discounts.
         line_ids = fields.One2many(related="order_id.product_line_ids", readonly=False)
         # The order's currency, for the totals.
@@ -56,6 +60,11 @@ class QuotationSend(models.TransientModel, QuotationSendBase):
         on_credit = fields.Boolean(related="order_id.on_credit")
         # The moment the customer has to pay the advance, or accept the quotation without one, by.
         payment_deadline = fields.Datetime(required=True)
+
+    @api.depends("customer_id")
+    def _compute_customer_address(self):
+        for wizard in self:
+            wizard.customer_address = wizard.customer_id._display_address() if wizard.customer_id else False
 
     @api.onchange("advance_mode")
     def _onchange_advance_mode(self):
@@ -119,4 +128,5 @@ class QuotationSend(models.TransientModel, QuotationSendBase):
         if self.payment_deadline <= fields.Datetime.now():
             raise UserError(self.env._("Give a payment deadline that is still to come."))
         self.order_id.payment_deadline = self.payment_deadline
-        return self.order_id.action_send_quotation()
+        # The order sends the quotation now instead of opening this dialog again.
+        return self.order_id.with_context(**{QUOTATION_DIALOG: False}).action_send_quotation()
