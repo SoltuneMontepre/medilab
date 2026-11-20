@@ -433,6 +433,10 @@
             <xpath expr="//field[@name='order_line']/form//div[@name='delivered_qty']" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
+            <xpath expr="//page[@name='order_lines']/field[@name='order_line']" position="after">
+                <separator string="Expected samples" invisible="not expected_sampling_html" />
+                <field name="expected_sampling_html" readonly="1" invisible="not expected_sampling_html" />
+            </xpath>
             <xpath expr="//page[@name='order_lines']" position="after">
                 <page string="Samples" name="samples">
                     <field name="sample_ids">
@@ -454,8 +458,6 @@
                             <button name="action_copy_sample" type="object" string="Copy" class="btn-secondary" />
                         </list>
                     </field>
-                    <separator string="Expected samples" />
-                    <field name="expected_sampling_html" readonly="1" />
                 </page>
                 <page string="Revisions" name="revisions" invisible="not quotation_ids">
                     <field name="quotation_ids" readonly="1">
