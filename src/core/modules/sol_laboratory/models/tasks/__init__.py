@@ -4,6 +4,7 @@ from . import (
     task,
     task_assignment_notice,
     task_authorization,
+    task_collection_travel,
     task_link_review,
     task_mobile,
     task_mobile_collection,

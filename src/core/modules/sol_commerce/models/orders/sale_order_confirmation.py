@@ -1,11 +1,12 @@
 from contextvars import ContextVar
 from datetime import datetime
 from typing import TYPE_CHECKING
+from zoneinfo import ZoneInfo
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.fields import Domain
-from odoo.tools.misc import format_datetime
+from odoo.tools.misc import format_date, format_datetime
 
 from odoo.addons.sol_commerce.constants.models import (
     MODEL_CUSTOMER_SALES_TERMS,
@@ -19,6 +20,8 @@ from odoo.addons.sol_commerce.constants.orders import (
     BALANCE_BEFORE_COLLECTION,
     QUOTATION_ACCEPTED,
     QUOTATION_REPLACED,
+    QUOTATION_SENT,
+    SOURCE_SALES,
     STATUS_CLAIMED,
     STATUS_COMPLETED,
     STATUS_CONFIRMED,
@@ -43,6 +46,8 @@ else:
 CONFIRMING_ORDER_IDS = ContextVar("medilab_confirming_order_ids", default=frozenset())
 # Set by the Start sample collection button, which opens the dialog for the appointment and the place.
 COLLECTION_DIALOG = "medilab_collection_dialog"
+# Statuses of a test request whose samples have not arrived yet, while payment can still hold their collection.
+AWAITING_SAMPLE_STATUSES = ("draft", "confirmed", "paid", "on_credit")
 
 
 # Đơn Hàng: confirming the order creates its test request, whose sample collection sales then start.
@@ -65,7 +70,14 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
         # What payment holds up on the confirmed order: its sample collection, or its report.
         payment_notice = fields.Char(compute="_compute_show_unpaid_warning", compute_sudo=True)
 
-    @api.depends("payment_status", "on_credit", "payment_request_ids.state", "balance_due")
+    @api.depends(
+        "payment_status",
+        "on_credit",
+        "payment_request_ids.state",
+        "balance_due",
+        "order_status",
+        "test_request_id.status",
+    )
     def _compute_show_unpaid_warning(self):
         for order in self:
             hold = order._collection_hold()
@@ -87,9 +99,11 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
     def _collection_hold(self):
         """Why the order's samples cannot be collected yet, or False: its advance is not verified, or Sales asked for
         the balance before collection and it is not paid. Otherwise the balance is due at collection or before the
-        report, which waits until the order is paid."""
+        report, which waits until the order is paid. Nothing holds an order whose samples are in already."""
         self.ensure_one()
         if self.on_credit or self.payment_status == "paid" or self.currency_id.is_zero(self.amount_total):
+            return False
+        if self.order_status != STATUS_CONFIRMED or self.test_request_id.status not in AWAITING_SAMPLE_STATUSES:
             return False
         quotation = self._latest_quotation()
         advance = self.sudo().payment_request_ids.filtered(
@@ -140,7 +154,7 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
             raise UserError(self.env._("Only a claimed order can be confirmed."))
         if latest.status == QUOTATION_REPLACED:
             raise UserError(self.env._("A replaced quotation cannot be confirmed."))
-        if latest.status != QUOTATION_ACCEPTED:
+        if latest.status != QUOTATION_ACCEPTED and not self._confirms_without_acceptance():
             raise UserError(self.env._("The customer must accept the quotation before the order is confirmed."))
         payment_request = self.sudo().payment_request_id
         if (
@@ -148,8 +162,23 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
         ) or latest.sudo().advance_invoice_id.amount_residual:
             raise UserError(self.env._("Verify the full requested advance before confirming the order."))
 
+    def _confirms_without_acceptance(self):
+        """Whether Sales may confirm the sent quotation of an order Sales created and sent without an advance: the
+        customer agreed it with Sales, at the counter or on the phone, and confirming accepts it."""
+        self.ensure_one()
+        latest = self._latest_quotation()
+        return (
+            self.source == SOURCE_SALES
+            and self.advance_method == ADVANCE_NONE
+            and latest.status == QUOTATION_SENT
+            and not (self.payment_deadline and self.payment_deadline < fields.Datetime.now())
+        )
+
     def _confirm_order(self):
         self.ensure_one()
+        latest = self._latest_quotation()
+        if latest.status == QUOTATION_SENT:
+            latest._accept()
         customer = self.env[MODEL_CUSTOMER].sudo().search([("partner_id", "=", self.customer_id.id)], limit=1)
         if not customer:
             raise UserError(self.env._("%s is not a customer yet. Create the customer first.", self.customer_id.name))
@@ -302,6 +331,30 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
             amount=order.currency_id.format(due.remaining_amount),
         )
 
+    def _check_collection_appointment(self, appointment):
+        """Refuse an appointment in the past, or one too late for the turnaround to meet the committed return date."""
+        self.ensure_one()
+        if not appointment:
+            return
+        if appointment < fields.Datetime.now():
+            raise UserError(self.env._("Agree a sample collection appointment that is still to come."))
+        committed = self.committed_date
+        if not (committed and self.turnaround_days):
+            return
+        zone = ZoneInfo(self.env.company.tz or "UTC")
+        day = appointment.replace(tzinfo=ZoneInfo("UTC")).astimezone(zone).date()
+        ready = self.env[MODEL_TEST_REQUEST]._date_after_working_days(day, self.turnaround_days)
+        if ready > committed:
+            raise UserError(
+                self.env._(
+                    "Samples collected on %(day)s return results on %(ready)s, after the committed return date "
+                    "%(committed)s. Agree an earlier appointment, or change the committed date with the customer first.",
+                    day=format_date(self.env, day),
+                    ready=format_date(self.env, ready),
+                    committed=format_date(self.env, committed),
+                )
+            )
+
     def action_start_sample_collection(self, appointment: datetime | bool = False, address: str | bool = False):
         """Queue one unassigned sample collection task of the confirmed order's test request for sample delivery
         staff, due at the appointment Sales agreed with the customer, at the address given or else the customer's."""
@@ -320,6 +373,8 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
             )
             action["context"] = {"default_order_id": self.id}
             return action
+        for order in self:
+            order._check_collection_appointment(appointment)
         task_type = self.env[MODEL_TASK_TYPE].sudo().search([("code", "=", SAMPLE_COLLECTION_CODE)], limit=1)
         if task_type.route != "role":
             raise UserError(

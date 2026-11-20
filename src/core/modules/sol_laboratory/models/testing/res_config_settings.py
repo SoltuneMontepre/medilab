@@ -5,6 +5,8 @@ from odoo.tools import clean_context
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_RES_CONFIG_SETTINGS, MODEL_ROLE
 from odoo.addons.sol_laboratory.constants.settings import (
+    COLLECTION_TRAVEL_PARAMETER,
+    DEFAULT_COLLECTION_TRAVEL_MINUTES,
     DEFAULT_REMINDER_LEAD_MINUTES,
     DEFAULT_SAFETY_MARGIN_DAYS,
     DEFAULT_SAMPLE_RETENTION_REMINDER_DAYS,
@@ -39,11 +41,12 @@ class ResConfigSettings(models.TransientModel, ResConfigSettingsBase):
         return settings.default_get([field_name])[field_name]
 
     if not TYPE_CHECKING:
-        # Days a sample test is due before the date promised to the customer, kept for handling incidents.
+        # Working days a sample test is due before the date promised to the customer, kept for handling incidents.
         safety_margin_days = fields.Integer(
             config_parameter=SAFETY_MARGIN_PARAMETER,
             default=DEFAULT_SAFETY_MARGIN_DAYS,
-            help="Days a sample test is due before the date promised to the customer, kept for handling incidents. "
+            help="Working days a sample test is due before the date promised to the customer, kept for handling "
+            "incidents. "
             "Applies to sample tests whose due date is worked out from now on.",
         )
         # Minutes before a planned task starts that its reminder is sent.
@@ -72,4 +75,11 @@ class ResConfigSettings(models.TransientModel, ResConfigSettingsBase):
             config_parameter=URGENCY_HOURS_PARAMETER,
             default=DEFAULT_URGENCY_HOURS,
             help="A sample test due within this many hours is urgent: it gets the next free slot on a machine first.",
+        )
+        # Minutes kept free between two sample collections of one staff member for the travel between them.
+        collection_travel_minutes = fields.Integer(
+            string="Collection Travel Buffer (minutes)",
+            config_parameter=COLLECTION_TRAVEL_PARAMETER,
+            default=DEFAULT_COLLECTION_TRAVEL_MINUTES,
+            help="Sample delivery staff cannot take two collections whose appointments are closer than this.",
         )

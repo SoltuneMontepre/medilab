@@ -55,6 +55,27 @@ class TestOrderDates(OrderCase):
 
         self.assertFalse(order.committed_date)
 
+    def test_the_turnaround_counts_from_the_advance_deadline(self):
+        # Received today the samples would meet the requested date; paid on the deadline they would not.
+        order = self.make_quotable_order()
+        requests = self.env[MODEL_TEST_REQUEST]
+        order.requested_date = requests._date_after_working_days(date.today(), order.turnaround_days)
+        order.payment_deadline = fields.Datetime.now() + timedelta(days=10)
+
+        order.with_user(self.sales).action_send_quotation()
+
+        self.assertFalse(order.committed_date)
+
+    def test_without_an_advance_the_turnaround_counts_from_today(self):
+        order = self.make_quotable_order()
+        requests = self.env[MODEL_TEST_REQUEST]
+        requested = requests._date_after_working_days(date.today(), order.turnaround_days)
+        order.write({"advance_method": "none", "user_id": self.head.id, "requested_date": requested})
+
+        order.with_user(self.head).action_send_quotation()
+
+        self.assertEqual(order.committed_date, requested)
+
     def test_a_committed_date_earlier_than_the_turnaround_allows_is_refused(self):
         order = self.make_quotable_order()
         order.committed_date = date.today()

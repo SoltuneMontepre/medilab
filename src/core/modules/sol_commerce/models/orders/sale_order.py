@@ -122,7 +122,8 @@ class SaleOrder(models.Model, SaleOrderBase):
         # The percentage or fixed amount of the advance, depending on the advance mode.
         advance_value = fields.Float()
         # When the balance after the advance is due: before the samples are collected, when they are collected, or
-        # before the report is released. Sales sets it on the quotation; the customer may pay it in several payments.
+        # before the report is released: before collection for a portal order, before the report for one Sales creates.
+        # Sales sets it on the quotation; the customer may pay it in several payments.
         balance_due = fields.Selection(
             [
                 (BALANCE_BEFORE_COLLECTION, "Before sample collection"),
@@ -200,7 +201,8 @@ class SaleOrder(models.Model, SaleOrderBase):
         return orders
 
     def _fill_create_values(self, vals_list):
-        """Default the source, salesperson and status of a sales order, and stamp the submission and claim times."""
+        """Default the source, salesperson and status of a sales order and the balance timing of its source, and stamp
+        the submission and claim times."""
         now = fields.Datetime.now()
         sales = self.env.context.get("medilab_sales_order")
         for vals in vals_list:
@@ -208,6 +210,8 @@ class SaleOrder(models.Model, SaleOrderBase):
                 vals.setdefault("source", SOURCE_SALES)
                 vals.setdefault("user_id", self.env.uid)
                 vals.setdefault("order_status", STATUS_CLAIMED)
+            portal = vals.get("source", SOURCE_PORTAL) == SOURCE_PORTAL
+            vals.setdefault("balance_due", BALANCE_BEFORE_COLLECTION if portal else BALANCE_BEFORE_REPORT)
             if vals.get("order_status") == STATUS_SUBMITTED and not vals.get("submitted_at"):
                 vals["submitted_at"] = now
             if vals.get("order_status") == STATUS_CLAIMED and not vals.get("claimed_at"):
@@ -609,6 +613,15 @@ class SaleOrder(models.Model, SaleOrderBase):
                 }
             )
         )
+
+    def action_print_quotation(self):
+        """Open the PDF of the current revision as it was sent, for the customer at the counter."""
+        self.ensure_one()
+        self.check_access("read")
+        attachment = self._latest_quotation().attachment_id
+        if not attachment:
+            raise UserError(self.env._("Send the quotation before printing it."))
+        return {"type": "ir.actions.act_url", "url": f"/web/content/{attachment.id}", "target": "new"}
 
     def action_revise_quotation(self):
         """Start a new revision; the next send stores it and replaces the current quotation."""

@@ -23,4 +23,5 @@ from . import (
     test_request,
     test_request_estimate,
     test_request_plan,
+    test_request_simulation,
 )

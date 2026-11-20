@@ -118,10 +118,19 @@ def seed_request_orders(env):
         )
 
 
-def seed_report_payments(env):
-    """Pay in full the orders whose requests have a report, so each demo report reaches its customer once issued."""
+def seed_order_payments(env):
+    """Pay in full the orders seeded straight into confirmed or completed, which skipped the quotation and its
+    payments, and the orders whose requests have a report, so each demo report reaches its customer once issued."""
     requests = env[MODEL_TEST_REPORT].search([]).request_id
-    for order in env[MODEL_SALE_ORDER].search([("test_request_id", "in", requests.ids)]):
+    orders = env[MODEL_SALE_ORDER].search(
+        [
+            ("order_status", "in", (STATUS_CONFIRMED, STATUS_COMPLETED)),
+            "|",
+            ("quotation_ids", "=", False),
+            ("test_request_id", "in", requests.ids),
+        ]
+    )
+    for order in orders:
         if order._withholds_report():
             _pay_in_full(env, order)
 
