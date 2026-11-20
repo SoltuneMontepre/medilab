@@ -283,6 +283,9 @@ class SaleOrder(models.Model, SaleOrderBase):
             )[:1]
         return self.env[MODEL_PAYMENT_REQUEST]
 
+    def action_awaiting_payment_confirmation(self):
+        return False
+
     def action_record_collection(self, amount, method, received_at=None, reference=None):
         """Record Sales' receipt of cash or a bank transfer for this order."""
         self.ensure_one()
