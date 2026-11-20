@@ -6214,3 +6214,8 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_quotation_send_form
 msgid "Email & Attachment"
 msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Order Details"
+msgstr ""

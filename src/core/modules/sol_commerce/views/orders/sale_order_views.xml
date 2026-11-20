@@ -339,14 +339,22 @@
             <xpath expr="//group[@name='sale_info']/field[@name='preferred_payment_method_line_id']" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
+            <xpath expr="//group[@name='sales_person']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//group[@name='sale_info']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
             <xpath expr="//group[@name='sale_reporting']" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
             <xpath expr="//group[@name='sale_reporting']" position="after">
-                <group name="medilab_timeline" string="Timeline">
+                <group name="medilab_order_details" string="Order Details">
                     <field name="source" readonly="1" />
                     <field name="turnaround_days" readonly="1" invisible="not turnaround_days" />
                     <field name="test_request_status" readonly="1" invisible="not test_request_id" />
+                </group>
+                <group name="medilab_timeline" string="Timeline">
                     <field name="submitted_at" readonly="1" invisible="not submitted_at" />
                     <field name="claimed_at" readonly="1" invisible="not claimed_at" />
                     <field name="quoted_at" invisible="not quoted_at" />
