@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
@@ -91,7 +91,7 @@ class TestRequestSimulation(models.Model, TestRequestSimulationBase):
             if way.subcontractor_id:
                 continue
             appointment = appointments.get(test.sample_id.request_id)
-            arrival = appointment if appointment and appointment > now else now
+            arrival = appointment if isinstance(appointment, datetime) and appointment > now else now
             slot = self._place_way(way, arrival, arrival + timedelta(days=HORIZON_DAYS), planned, test=test)
             if slot:
                 planned |= slot
