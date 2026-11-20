@@ -15,6 +15,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_LABORATORY_FILE_VERSION,
     MODEL_MAIL_MESSAGE,
     MODEL_SIGNATURE,
+    MODEL_TEST_REPORT,
 )
 from odoo.addons.sol_laboratory.constants.notifications import EVENT_LABORATORY_FILE_VERSION_REJECTED
 
@@ -96,7 +97,22 @@ class LaboratoryFileVersionSigning(models.Model, LaboratoryFileVersionSigningBas
             raise UserError(self.env._("Only versions of the files of a result folder are signed."))
         if version.file_id.current_version_id != version:
             raise UserError(self.env._("Only the current version of a file is signed; this one has a newer version."))
+        if not rejecting and version.user_id == self.env.user:
+            raise UserError(self.env._("You saved this version, so another person must sign it."))
         return super()._approval_check_actor(rejecting)
+
+    def _approval_department_matches(self, department, person):
+        sample = self.sudo().file_id.folder_id.sample_id
+        departments = sample.test_ids.mapped(lambda test: test._tested_by())
+        return person.department_id in departments
+
+    def _approval_process_completed(self):
+        request = self.sudo().file_id.folder_id.sample_id.request_id
+        return bool(
+            self.env[MODEL_TEST_REPORT]
+            .sudo()
+            .search_count([("request_id", "=", request.id), ("issued_at", "!=", False)])
+        )
 
     def _approval_document_hash(self):
         return self.sha256
