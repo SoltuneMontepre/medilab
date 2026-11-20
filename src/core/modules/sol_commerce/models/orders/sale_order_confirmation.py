@@ -248,11 +248,23 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
                 else tasks
             )
             order.has_open_collection = bool(task)
-            order.collection_summary = task and self.env._(
-                "%(appointment)s, %(who)s",
-                appointment=format_datetime(self.env, task.deadline, dt_format="short") if task.deadline else self.env._("no appointment"),
-                who=task.assignee_id.name or self.env._("not claimed yet"),
-            )
+            summary = False
+            if task:
+                appointment = task.deadline
+                summary = self.env._(
+                    "%(appointment)s, %(who)s",
+                    appointment=format_datetime(self.env, appointment, dt_format="short")
+                    if appointment
+                    else self.env._("no appointment"),
+                    who=task.assignee_id.name or self.env._("not claimed yet"),
+                )
+            order.collection_summary = summary
+
+    def _collection_place(self, address):
+        """The address Sales entered, or else the customer's, on one line."""
+        self.ensure_one()
+        text = address if isinstance(address, str) and address else self.customer_id._display_address()
+        return ", ".join(line.strip() for line in text.splitlines() if line.strip())
 
     def _collection_note(self):
         """What collection staff need beyond the time and the place, in the staff language: whom to contact and, when
@@ -325,11 +337,7 @@ class SaleOrderConfirmation(models.Model, SaleOrderConfirmationBase):
                     "name": f"{task_type.with_env(staff_env(self.env)).name}: {order.name}, {order.customer_id.name}",
                     "document_model": request._name,
                     "document_id": request.id,
-                    "place": ", ".join(
-                        line.strip()
-                        for line in (address or order.customer_id._display_address()).splitlines()
-                        if line.strip()
-                    ),
+                    "place": order._collection_place(address),
                     "note": order._collection_note(),
                     "deadline": appointment,
                     "planned_start": appointment,

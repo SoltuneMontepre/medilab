@@ -45,8 +45,8 @@ class TestBalanceDue(OrderCase):
 
         task = self.collection_tasks(order)
         self.assertEqual(task.place, "Gate 3, 45 Le Loi")
-        self.assertIn(due, task.note)
-        self.assertIn("paid in full", order.payment_notice)
+        self.assertIn(due, task.note or "")
+        self.assertIn("paid in full", order.payment_notice or "")
 
     def test_a_balance_due_before_the_report_leaves_collection_free_of_payment(self):
         self.route_collection_to_delivery_staff()
@@ -55,7 +55,7 @@ class TestBalanceDue(OrderCase):
         self.assertFalse(order.show_unpaid_warning)
         order.with_user(self.sales).action_start_sample_collection()
 
-        self.assertNotIn("Balance due", self.collection_tasks(order).note)
+        self.assertNotIn("Balance due", self.collection_tasks(order).note or "")
 
     def test_the_balance_timing_stays_as_quoted(self):
         order = self.sent_order()
