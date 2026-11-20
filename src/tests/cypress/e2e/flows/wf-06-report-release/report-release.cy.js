@@ -4,6 +4,7 @@ import { search } from "../../../support/form";
 import { ADMIN, BY_EMAIL, BY_POST, HEAD, LAB_HEAD, PARAMETERS, REISSUED, REPORT, STAFF, assignToTester, draftReport, personNames, reportHtml, testingTasks } from "./setup";
 
 const ACTIONS = ".o_form_view .o_statusbar_buttons";
+let stalePartnerForCleanup;
 // The report's prepared PDF that waits for signature or was issued.
 const signedCandidate = (report) =>
   callAs(
@@ -29,9 +30,13 @@ const makeCandidateStale = (report) =>
   readAs(report, ["request_id"])
     .then(({ request_id }) => callAs(ADMIN, "medilab.test.request", "read", [[request_id[0]], ["customer_id"]]))
     .then(([request]) => callAs(ADMIN, "medilab.customer", "read", [[request.customer_id[0]], ["partner_id"]]))
-    .then(([customer]) =>
-      callAs(ADMIN, "res.partner", "write", [[customer.partner_id[0]], { name: "Changed after PDF preparation" }]),
-    );
+    .then(([customer]) => {
+      const partnerId = customer.partner_id[0];
+      return callAs(ADMIN, "res.partner", "read", [[partnerId], ["name"]]).then(([partner]) => {
+        stalePartnerForCleanup = { id: partnerId, name: partner.name };
+        return callAs(ADMIN, "res.partner", "write", [[partnerId], { name: "Changed after PDF preparation" }]);
+      });
+    });
 
 // The base64 content of a file the browser's session downloads.
 const downloaded = (url) => cy.request({ url, encoding: "base64" }).its("body");
@@ -95,6 +100,12 @@ function approveAgain(result) {
 }
 
 describe("WF-06 Report release", () => {
+  afterEach(() => {
+    if (!stalePartnerForCleanup) return;
+    const { id, name } = stalePartnerForCleanup;
+    stalePartnerForCleanup = undefined;
+    return callAs(ADMIN, "res.partner", "write", [[id], { name }]);
+  });
   it("TC-WF06-M issues the report with its number, delivers it by e-mail and lets the customer download it", () => {
     refAs(ADMIN, "sol_demo.demo_res_partner_nuoc_sach").then((customer) =>
       refAs(ADMIN, "sol_demo.demo_res_partner_hoa").then((hoa) =>
