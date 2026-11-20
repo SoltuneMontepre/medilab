@@ -302,7 +302,7 @@
             </xpath>
             <xpath expr="//group[@name='partner_details']" position="inside">
                 <field name="reordered_from_id" readonly="1" invisible="not reordered_from_id" />
-                <field name="requested_date" invisible="not requested_date and state != 'draft'" />
+                <field name="requested_date" invisible="not requested_date" />
                 <field name="priority_request" invisible="not priority_request" decoration-warning="priority_request == 'requested'" widget="badge" />
                 <field name="test_request_id" readonly="1" invisible="not test_request_id" />
                 <field name="collection_summary" invisible="not collection_summary" />
@@ -716,7 +716,7 @@
         <field name="res_model">sale.order</field>
         <field name="path">lab-orders</field>
         <field name="view_mode">list,form</field>
-        <field name="context">{'medilab_sales_order': True}</field>
+        <field name="context">{'medilab_sales_order': True, 'partner_display_name_hide_company': True}</field>
         <field name="search_view_id" ref="view_medilab_sale_order_search" />
     </record>
     <record id="action_medilab_sale_order_view_list" model="ir.actions.act_window.view">

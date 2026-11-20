@@ -68,6 +68,11 @@ class SaleOrderCustomer(models.Model, SaleOrderBase):
         for order in self:
             order.quotation_code = order.sudo().quotation_ids.sorted("revision")[-1:].code
 
+    def web_read(self, specification):
+        if "partner_id" in specification:
+            return super(SaleOrder, self.with_context(partner_display_name_hide_company=True)).web_read(specification)
+        return super().web_read(specification)
+
     @api.depends("order_status", "quotation_ids", "test_request_id.status")
     def _compute_customer_status(self):
         for order in self:
