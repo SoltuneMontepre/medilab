@@ -101,13 +101,13 @@ class SaleOrderDates(models.Model, SaleOrderDatesBase):
             order.committed_date = order._earliest_return_date()
 
     def _collection_start(self, day):
-        """The moment samples picked up on the day reach the laboratory at the earliest: the start of that day in the
-        company's time zone, or now when the day is today or has passed or none is given."""
+        """The moment samples picked up on the day can be scheduled at the earliest: the end of that day in the
+        company's time zone since no collection time is set yet, or now when none is given."""
         now = fields.Datetime.now()
         if not day:
             return now
         zone = ZoneInfo(self.env.company.tz or "UTC")
-        start = datetime.combine(day, time.min, tzinfo=zone).astimezone(ZoneInfo("UTC")).replace(tzinfo=None)
+        start = datetime.combine(day, time(23, 59, 59), tzinfo=zone).astimezone(ZoneInfo("UTC")).replace(tzinfo=None)
         return max(start, now)
 
     def _set_portal_dates(self, requested_date, priority):
