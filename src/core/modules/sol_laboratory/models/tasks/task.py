@@ -115,6 +115,8 @@ class Task(models.Model, TaskBase):
         sampling_location_id = fields.Many2one(
             MODEL_LOCATION, compute="_compute_sample_test_details", string="Sampling Location"
         )
+        # Where the work is done outside the laboratory, such as the address samples are collected at.
+        place = fields.Char()
         # True when the system closes the task once its work is done, rather than the assignee.
         closed_by_system = fields.Boolean(compute="_compute_closed_by_system")
         # True when the current user is the assignee.
@@ -303,6 +305,7 @@ class Task(models.Model, TaskBase):
             "planned_end",
             "assignee_id",
             "name",
+            "place",
             "status",
         } & set(vals):
             self._sync_calendar_event()
@@ -413,7 +416,7 @@ class Task(models.Model, TaskBase):
                 "user_id": user.id,
                 "partner_ids": [Command.set([persisted_id(user.partner_id)])],
                 "alarm_ids": [Command.clear()],
-                "location": task.sampling_location_id.display_name or False,
+                "location": task.place or task.sampling_location_id.display_name or False,
             }
             if event:
                 event.with_context(**{CALENDAR_SYNC_CONTEXT: CALENDAR_SYNC_TOKEN}).write(values)
@@ -566,7 +569,7 @@ class Task(models.Model, TaskBase):
                 "closed_by_system": task.closed_by_system,
                 "has_document": bool(task.document_id),
                 "department": task.sudo().department_id.display_name or "",
-                "location": task.sampling_location_id.display_name or "",
+                "location": task.place or task.sampling_location_id.display_name or "",
             }
             for task in self
         ]

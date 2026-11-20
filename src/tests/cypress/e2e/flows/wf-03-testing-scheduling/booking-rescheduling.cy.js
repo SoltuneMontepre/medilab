@@ -47,12 +47,15 @@ function expectMovedTogether(before, after, slot) {
 }
 
 // The Monday-based week of a moment on the calendar of the zone.
-const weekOf = (value, zone) => Math.floor((Date.parse(`${wallClock(value, zone).date}T00:00:00Z`) / 86400000 + 3) / 7);
+// The week of a moment on the calendar of the zone, for a week that starts on Monday (offset 3) or Sunday (offset 4).
+const weekOf = (value, zone, offset) =>
+  Math.floor((Date.parse(`${wallClock(value, zone).date}T00:00:00Z`) / 86400000 + offset) / 7);
+const sameWeek = (first, second, zone) => [3, 4].every((offset) => weekOf(first, zone, offset) === weekOf(second, zone, offset));
 
 // The booking in the calendar week of the other booking: when the other fell into a later week, the booking moves to
 // right after it, so a drag between them stays in one week of the calendar.
 function inWeekOf(booking, other, zone) {
-  if (weekOf(booking.starts_at, zone) === weekOf(other.starts_at, zone)) {
+  if (sameWeek(booking.starts_at, other.starts_at, zone)) {
     return cy.wrap(booking);
   }
   callAs(HEAD, "medilab.machine.booking", "write", [[booking.id], { starts_at: other.ends_at }]);

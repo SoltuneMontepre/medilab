@@ -36,6 +36,11 @@
                         <dt class="fw-normal text-muted">Results</dt>
                         <dd class="mb-0">Within <t t-out="order.turnaround_days" /> working days of receiving the samples</dd>
                     </div>
+                    <!-- When the rest is paid; the report is released once the order is paid in full. -->
+                    <div t-if="order.advance_mode != 'full'" class="d-flex gap-2">
+                        <dt class="fw-normal text-muted">Balance due</dt>
+                        <dd class="mb-0"><span t-field="order.balance_due" /></dd>
+                    </div>
                 </dl>
                 <t t-set="show_discount" t-value="any(lines.mapped('discount'))" />
                 <div class="table-responsive">

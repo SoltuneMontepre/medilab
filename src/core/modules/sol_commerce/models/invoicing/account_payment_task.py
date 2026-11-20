@@ -18,7 +18,8 @@ else:
 REVIEWED_METHODS = ("bank_transfer", "cash")
 
 
-# Phiếu thu: the task that asks the accountant to confirm a cash or transfer payment someone else recorded.
+# Phiếu thu: the task that asks the accountant to confirm a cash or transfer payment someone else recorded, and the
+# note that tells the salesperson a customer paid online, which needs no confirmation.
 class AccountPaymentTask(models.Model, AccountPaymentBase):
     _inherit = MODEL_ACCOUNT_PAYMENT
 
@@ -32,6 +33,29 @@ class AccountPaymentTask(models.Model, AccountPaymentBase):
         result = super().action_post()
         self.env[MODEL_TASK]._close_for_document(self, PAYMENT_REVIEW_ACTION)
         return result
+
+    def _finish_collection(self):
+        super()._finish_collection()
+        self._tell_sales_paid_online()
+
+    def _tell_sales_paid_online(self):
+        """Post on the order, to its salesperson, that the customer paid online: PayOS already verified it."""
+        for payment in self.sudo().filtered(lambda item: item.method == "online"):
+            order = payment.payment_request_id.order_id or payment.invoice_ids.order_id[:1]
+            if not order:
+                continue
+            salesperson = order.user_id
+            env = staff_env(self.env, salesperson)
+            order.message_post(
+                body=env._(
+                    "%(customer)s paid %(amount)s online for order %(order)s; PayOS verified it.",
+                    customer=order.customer_id.name,
+                    amount=formatLang(env, payment.amount, currency_obj=payment.currency_id),
+                    order=order.name,
+                ),
+                partner_ids=salesperson.partner_id.ids,
+                subtype_xmlid="mail.mt_comment",
+            )
 
     def action_cancel(self):
         result = super().action_cancel()

@@ -142,6 +142,17 @@ class TestPayments(InvoicingCase):
         self.assertEqual(payment.amount, self.invoice.amount_total + 1_000)
         self.assertIn(self.invoice.payment_state, PAID_STATES)
 
+    def test_a_payos_payment_tells_the_salesperson_it_needs_no_review(self):
+        self.env.ref("sol_commerce.payment_provider_payos").is_published = True
+        self.env.ref("sol_commerce.payment_method_payos_qr").active = True
+        transaction = self.env["payment.transaction"]._create_payos_transaction(self.invoice)
+        transaction.with_context(payment_safe_write=True)._set_done()
+
+        transaction._create_online_payment()
+
+        order = self.invoice.order_id
+        self.assertTrue(order.message_ids.filtered(lambda message: "PayOS" in (message.body or "")))
+
     def test_the_receipt_names_the_collection_method(self):
         payment = self.pay(1_000_000, "cash")
         payment.action_post()

@@ -3,6 +3,7 @@ from . import (
     test_advance_due_date,
     test_audit_documents,
     test_audit_pricing,
+    test_balance_due,
     test_cart_page,
     test_catalog_page,
     test_customer_orders,

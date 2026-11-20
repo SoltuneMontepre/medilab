@@ -15,6 +15,9 @@ from odoo.addons.sol_commerce.constants.models import (
 )
 from odoo.addons.sol_commerce.constants.notifications import EVENT_ORDER_UPDATED
 from odoo.addons.sol_commerce.constants.orders import (
+    BALANCE_AT_COLLECTION,
+    BALANCE_BEFORE_COLLECTION,
+    BALANCE_BEFORE_REPORT,
     CUSTOMER_CANCELLABLE,
     FINISHED_STATUSES,
     FOLLOW_UP_BY_QUOTATION_STATUS,
@@ -118,6 +121,18 @@ class SaleOrder(models.Model, SaleOrderBase):
         )
         # The percentage or fixed amount of the advance, depending on the advance mode.
         advance_value = fields.Float()
+        # When the balance after the advance is due: before the samples are collected, when they are collected, or
+        # before the report is released. Sales sets it on the quotation; the customer may pay it in several payments.
+        balance_due = fields.Selection(
+            [
+                (BALANCE_BEFORE_COLLECTION, "Before sample collection"),
+                (BALANCE_AT_COLLECTION, "At sample collection"),
+                (BALANCE_BEFORE_REPORT, "Before the report"),
+            ],
+            string="Balance Due",
+            default=BALANCE_BEFORE_REPORT,
+            required=True,
+        )
         # Samples the customer will send.
         sample_ids = fields.One2many(MODEL_ORDER_SAMPLE, "order_id", string="Samples")
         # Quotations sent for the order, one per revision.
@@ -127,7 +142,7 @@ class SaleOrder(models.Model, SaleOrderBase):
         quotation_follow_up = fields.Selection(
             [
                 (FOLLOW_UP_UNPAID, "Unpaid"),
-                (FOLLOW_UP_PAID, "Paid"),
+                (FOLLOW_UP_PAID, "Advance paid"),
                 (QUOTATION_ACCEPTED, "Accepted"),
                 (QUOTATION_DECLINED, "Declined"),
                 (QUOTATION_EXPIRED, "Expired"),
