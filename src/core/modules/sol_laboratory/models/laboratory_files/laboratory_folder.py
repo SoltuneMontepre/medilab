@@ -9,6 +9,7 @@ from odoo.addons.sol_laboratory.constants.laboratory_files import (
     FOLDER_ADMINISTER,
     FOLDER_ARCHIVED,
     FOLDER_DISABLED,
+    FOLDER_SAMPLE_CLOSED,
     FOLDER_SHARE,
     FOLDER_WRITE,
     LOCKED,
@@ -242,6 +243,7 @@ class LaboratoryFolder(models.Model, LaboratoryFolderBase):
             self._check_not_archived()
         if access == FOLDER_WRITE:
             self._check_enabled()
+            self._check_sample_open()
         if access == FOLDER_SHARE and folders.owner_id != self.env.user:
             raise LaboratoryFileError(
                 PERMISSION_DENIED, self.env._("Only the owner of a laboratory folder and administrators can do this.")
@@ -259,6 +261,12 @@ class LaboratoryFolder(models.Model, LaboratoryFolderBase):
         if not all(self.sudo().mapped("enabled")):
             raise LaboratoryFileError(
                 FOLDER_DISABLED, self.env._("This laboratory folder is turned off: its files are read, not changed.")
+            )
+
+    def _check_sample_open(self):
+        if self.sudo().filtered(lambda folder: folder.sample_id.status in ("completed", "cancelled")):
+            raise LaboratoryFileError(
+                FOLDER_SAMPLE_CLOSED, self.env._("A completed or cancelled sample's folders are read-only.")
             )
 
     def _add_owner_rows(self):

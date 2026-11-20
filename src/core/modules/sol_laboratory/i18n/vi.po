@@ -480,6 +480,12 @@ msgstr "Không thể sửa một lần thay đổi ngày hẹn trả kết quả
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "A completed or cancelled sample's folders are read-only."
+msgstr "Thư mục của mẫu đã hoàn thành hoặc đã hủy chỉ được đọc, không thay đổi."
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
 #: code:addons/sol_laboratory/models/system/signature.py:0
 msgid "A rejection needs a reason."

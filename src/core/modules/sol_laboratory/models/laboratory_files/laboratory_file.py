@@ -126,7 +126,8 @@ class LaboratoryFile(models.Model, LaboratoryFileBase):
     def _check_file_access(self, access):
         """Refuse the user what they may not do with these files: read their versions, or write a new one. Their
         folders decide, with _check_folder_access(): membership, the sample of a sample folder, and whether the folder
-        is archived or turned off. Callers check it before they act with full rights; versions check their file."""
+        is archived, turned off or belongs to a completed or cancelled sample. Callers check it before they act with
+        full rights; versions check their file."""
         self.sudo().folder_id.with_env(self.env)._check_folder_access(FOLDER_ACCESS[access])
 
     def _is_raw_data(self):
@@ -163,11 +164,13 @@ class LaboratoryFile(models.Model, LaboratoryFileBase):
 
     def _check_can_add_version(self, user, device):
         """Refuse a new version of the files that breaks a rule every save obeys, whoever stores it and with whatever
-        rights: their folder is archived or turned off. Features built on files add their rules here, such as a lock
-        someone else holds. Access to the folder is the caller's to check, with _check_file_access()."""
+        rights: their folder is archived, turned off or belongs to a completed or cancelled sample. Features built on
+        files add their rules here, such as a lock someone else holds. Access to the folder is the caller's to check,
+        with _check_file_access()."""
         folders = self.sudo().folder_id
         folders._check_not_archived()
         folders._check_enabled()
+        folders._check_sample_open()
 
     def _add_version(
         self, *, source, user, content=None, device=None, base_version=None, restored_from=None, idempotency_key=None

@@ -20,7 +20,7 @@ info:
     | `permission_denied`, `device_revoked` | 403 |
     | `not_found` | 404 |
     | `method_not_allowed` | 405 |
-    | `folder_archived`, `folder_disabled`, `folder_exists`, `locked`, `not_locked`, `upload_incomplete`, `upload_closed`, `action_refused`, `already_claimed`, `already_taken`, `result_warning` | 409 |
+    | `folder_archived`, `folder_disabled`, `folder_sample_closed`, `folder_exists`, `locked`, `not_locked`, `upload_incomplete`, `upload_closed`, `action_refused`, `already_claimed`, `already_taken`, `result_warning` | 409 |
     | `too_large` | 413 |
     | `not_eligible`, `not_lockable`, `not_editable`, `idempotency_conflict`, `mandatory_event` | 422 |
     | `too_many_attempts` | 429 |
@@ -4823,6 +4823,7 @@ components:
                 - method_not_allowed
                 - folder_archived
                 - folder_disabled
+                - folder_sample_closed
                 - folder_exists
                 - locked
                 - not_locked
@@ -4912,7 +4913,7 @@ components:
                   error:
                     properties:
                       code:
-                        enum: [folder_archived, folder_disabled, folder_exists, locked, not_locked]
+                      enum: [folder_archived, folder_disabled, folder_sample_closed, folder_exists, locked, not_locked]
     Unprocessable:
       description: The request names something that cannot be done.
       content:
@@ -5052,7 +5053,7 @@ components:
                   error:
                     properties:
                       code:
-                        enum: [folder_archived, folder_disabled, locked, upload_incomplete, upload_closed]
+                      enum: [folder_archived, folder_disabled, folder_sample_closed, locked, upload_incomplete, upload_closed]
     StorageUnavailable:
       description: The request still failed on concurrency after the server's last try, or the bucket cannot be reached.
       headers:

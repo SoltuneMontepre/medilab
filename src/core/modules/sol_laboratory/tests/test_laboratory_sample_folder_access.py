@@ -5,9 +5,11 @@ from .laboratory_files_case import LaboratoryFilesCase
 from .request_case import RequestCase
 from odoo.addons.sol_laboratory.constants.laboratory_files import (
     FILE_READ,
+    FILE_WRITE,
     FOLDER_ADMINISTER,
     FOLDER_ARCHIVED,
     FOLDER_READ,
+    FOLDER_SAMPLE_CLOSED,
     FOLDER_SHARE,
     NOT_FOUND,
     RESULT,
@@ -44,6 +46,25 @@ class TestLaboratorySampleFolderAccess(LaboratoryFilesCase, RequestCase):
         self.tester.group_ids = [Command.link(persisted_id(self.env.ref(SAMPLE_READER_GROUP)))]
         file.with_user(self.tester)._check_file_access(FILE_READ)
         self.assertTrue(file._is_raw_data())
+
+    def test_the_files_of_a_completed_or_cancelled_sample_folder_are_read_only(self):
+        for status in ("completed", "cancelled"):
+            with self.subTest(status=status):
+                folder = self.folder_of_category(RESULT, name=f"{status.title()} results")
+                file = self.file_of("HPLC/run-01.xlsx", folder)
+                lockable = self.file_of("HPLC/notes.csv", folder)
+                self.save(file, "results")
+                self.save(lockable, "notes")
+                lockable.with_user(self.tester)._lock()
+                folder.sample_id.status = status
+
+                file.with_user(self.tester)._check_file_access(FILE_READ)
+                self.assertRefused(FOLDER_SAMPLE_CLOSED, file.with_user(self.tester)._check_file_access, FILE_WRITE)
+                self.assertRefused(FOLDER_SAMPLE_CLOSED, self.save, file, "new results")
+                self.assertEqual(len(file.version_ids), 1)
+                self.assertEqual(file.with_user(self.tester).action_open()["view_mode"], "form")
+                self.assertRefused(FOLDER_SAMPLE_CLOSED, lockable.with_user(self.tester)._lock)
+                lockable.with_user(self.tester)._unlock()
 
     def test_a_folder_administrator_who_cannot_see_the_sample_neither_shares_nor_administers_its_folder(self):
         archived = self.env[MODEL_LABORATORY_FOLDER].create(
