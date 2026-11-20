@@ -37,7 +37,7 @@ class QuotationSend(models.TransientModel, QuotationSendBase):
         # The order's currency, for the totals.
         currency_id = fields.Many2one(related="order_id.currency_id")
         # The quotation's totals before tax, of tax and with tax.
-        tax_totals = fields.Binary(related="order_id.tax_totals")
+        tax_totals = fields.Json(related="order_id.tax_totals")
         # Percentage taken off the whole quotation as one discount line when Sales applies it.
         discount_percentage = fields.Float(string="Quotation Discount (%)")
         # How and how much of the advance the customer pays, and when the rest is due.
