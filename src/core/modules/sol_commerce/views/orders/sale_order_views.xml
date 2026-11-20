@@ -449,7 +449,7 @@
                 <attribute name="column_invisible">1</attribute>
             </xpath>
             <xpath expr="//list[@name='sol_list']/column[@name='product_and_description']" position="after">
-                <field name="sample_id" domain="[('order_id', '=', parent.id)]" options="{'no_create': True, 'no_open': True}" />
+                <field name="sample_id" readonly="1" optional="hide" options="{'no_open': True}" />
                 <field name="sample_type_id" readonly="sample_id or linked_line_id" options="{'no_create': True}" optional="show" />
                 <field name="offered_method_ids" column_invisible="1" />
                 <field name="parameter_method_id" readonly="not offered_method_ids" options="{'no_create': True}" context="{'medilab_way_by_method': True}" />
@@ -466,11 +466,14 @@
                 <attribute name="invisible">1</attribute>
             </xpath>
             <xpath expr="//field[@name='order_line']/form/group/group/field[@name='name']" position="after">
-                <field name="sample_id" domain="[('order_id', '=', parent.id)]" options="{'no_create': True, 'no_open': True}" />
+                <field name="sample_id" readonly="1" invisible="not sample_id" options="{'no_open': True}" />
                 <field name="sample_type_id" readonly="sample_id or linked_line_id" options="{'no_create': True}" />
                 <field name="offered_method_ids" invisible="1" />
                 <field name="parameter_method_id" readonly="not offered_method_ids" options="{'no_create': True}" context="{'medilab_way_by_method': True}" />
                 <field name="default_way_notice" class="text-warning" invisible="not default_way_notice" />
+            </xpath>
+            <xpath expr="//page[@name='order_lines']/field[@name='order_line']" position="after">
+                <field name="expected_sampling_html" nolabel="1" readonly="1" invisible="not expected_sampling_html" />
             </xpath>
             <xpath expr="//field[@name='order_line']/form//label[@for='qty_delivered']" position="attributes">
                 <attribute name="invisible">1</attribute>

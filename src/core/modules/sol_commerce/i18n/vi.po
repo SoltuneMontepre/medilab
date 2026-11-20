@@ -1787,6 +1787,7 @@ msgstr "Giá nhóm dịch vụ"
 
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__payment_status__paid
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__payment_badge_status__paid
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__quotation_follow_up__paid
 msgid "Paid"
 msgstr "Đã thanh toán"
@@ -3557,6 +3558,7 @@ msgstr "Quá hạn"
 
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__payment_status__not_paid
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__payment_badge_status__not_paid
 msgid "Not paid"
 msgstr "Chưa thanh toán"
 
@@ -3568,6 +3570,7 @@ msgstr "Chỉ hóa đơn đã phát hành mới được gửi email."
 
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__payment_status__partial
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__payment_badge_status__partial
 msgid "Partially paid"
 msgstr "Thanh toán một phần"
 
@@ -5468,6 +5471,7 @@ msgstr "Phương thức"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__on_credit
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__payment_badge_status__on_credit
 msgid "On Credit"
 msgstr "Mua chịu"
 
