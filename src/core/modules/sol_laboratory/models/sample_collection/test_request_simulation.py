@@ -87,10 +87,11 @@ class TestRequestSimulation(models.Model, TestRequestSimulationBase):
         appointments = self._collection_appointments(tests.sample_id.request_id)
         now = fields.Datetime.now()
         for test in tests.sorted(lambda test: (test.sample_id.request_id.committed_date or date.max, test.id)):
-            way = test.accepted_method_id or test.parameter_method_id
+            way = self._held_way(test)
             if way.subcontractor_id:
                 continue
-            arrival = max(appointments.get(test.sample_id.request_id.id) or now, now)
+            appointment = appointments.get(test.sample_id.request_id)
+            arrival = appointment if appointment and appointment > now else now
             slot = self._place_way(way, arrival, arrival + timedelta(days=HORIZON_DAYS), planned, test=test)
             if slot:
                 planned |= slot
@@ -108,7 +109,7 @@ class TestRequestSimulation(models.Model, TestRequestSimulationBase):
 
     @api.model
     def _collection_appointments(self, requests):
-        """The appointment of each request's open sample collection, by request id."""
+        """The appointment of each request's open sample collection, by request."""
         task_type = self.env[MODEL_TASK_TYPE].sudo().search([("code", "=", SAMPLE_COLLECTION_CODE)], limit=1)
         tasks = (
             self.env[MODEL_TASK]
@@ -121,7 +122,7 @@ class TestRequestSimulation(models.Model, TestRequestSimulationBase):
                 & Domain("planned_start", "!=", False)
             )
         )
-        return {task.document_id: task.planned_start for task in tasks}
+        return {requests.browse(task.document_id): task.planned_start for task in tasks}
 
     @api.model
     def _place_way(self, way, not_before, not_after, planned, test=None):

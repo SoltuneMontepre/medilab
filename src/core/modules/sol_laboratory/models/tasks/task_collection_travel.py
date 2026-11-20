@@ -36,20 +36,25 @@ class TaskCollectionTravel(models.Model, TaskCollectionTravelBase):
             return
         buffer = timedelta(minutes=self.env[MODEL_RES_CONFIG_SETTINGS]._get_parameter("collection_travel_minutes"))
         for task in collections:
-            start, end = task.planned_start, task.planned_end or task.planned_start
-            # A collection takes less than a day, so only those starting from a day before can reach this one.
-            nearby = self.sudo().search(
+            start = task.planned_start
+            if not start:
+                continue
+            end = task.planned_end or start
+            # Another collection clashes when it starts before this one ends and ends after it starts, both widened by
+            # the buffer; one without an end ends when it starts.
+            ends_after = Domain("planned_end", ">", start - buffer) | (
+                Domain("planned_end", "=", False) & Domain("planned_start", ">", start - buffer)
+            )
+            clash = self.sudo().search(
                 Domain("id", "!=", task.id)
                 & Domain("type_id", "=", task.type_id.id)
                 & Domain("assignee_id", "=", task.assignee_id.id)
                 & Domain("status", "in", UPCOMING_STATUSES)
                 & Domain("planned_start", "<", end + buffer)
-                & Domain("planned_start", ">", start - buffer - timedelta(days=1)),
+                & ends_after,
                 order="planned_start",
+                limit=1,
             )
-            clash = nearby.filtered(
-                lambda other, start=start: (other.planned_end or other.planned_start) > start - buffer
-            )[:1]
             if clash:
                 raise ValidationError(
                     self.env._(
