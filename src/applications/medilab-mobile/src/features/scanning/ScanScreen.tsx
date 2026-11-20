@@ -1,17 +1,20 @@
 import { CameraView, useCameraPermissions, type BarcodeScanningResult } from "expo-camera";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useRef, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { StyleSheet, Text, TextInput, View } from "react-native";
 
 import type { Sample } from "../../api";
 import { failed, type Load } from "../../load";
 import { useT } from "../../locale";
 import { useSession } from "../../session";
 import { styles as shared } from "../../styles";
+import { colors, radius, space } from "../../theme";
 import { Unreachable } from "../connection/Unreachable";
 import { samplePath } from "../documents/documentPath";
+import { Button } from "../shared/Button";
 import { CameraPermission } from "../shared/CameraPermission";
+import { Screen } from "../shared/Screen";
+import { Sheet } from "../shared/Sheet";
 
 /** Reads a sample's label with the camera, or takes its lab code typed when the label cannot be read, and opens the
  * sample as the person may see it. */
@@ -27,7 +30,7 @@ export function ScanScreen() {
   // A label stays in front of the camera after it is read: the camera opens it once, until the screen shows again.
   const scanned = useRef<string | null>(null);
 
-  // The camera runs only while the screen is shown, so it neither scans nor holds the camera behind the sample.
+  // The camera runs only while the tab is shown, so it neither scans nor holds the camera behind the sample.
   useFocusEffect(
     useCallback(() => {
       scanned.current = null;
@@ -67,25 +70,28 @@ export function ScanScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.screen}>
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <Text style={shared.title}>{t("scan.title")}</Text>
-        {permission?.granted && focused && (
-          <View style={styles.camera}>
+    <Screen title={t("scan.title")} tab>
+      {permission?.granted && (
+        <View style={styles.camera}>
+          {focused && (
             <CameraView
               style={StyleSheet.absoluteFill}
               facing="back"
               barcodeScannerSettings={{ barcodeTypes: ["qr"] }}
               onBarcodeScanned={scan}
             />
-          </View>
-        )}
-        {permission?.granted && <Text style={shared.detail}>{t("scan.hint")}</Text>}
-        <CameraPermission permission={permission} needed={t("scan.cameraNeeded")} onAllow={requestPermission} />
+          )}
+          <View pointerEvents="none" style={styles.frame} />
+        </View>
+      )}
+      {permission?.granted && <Text style={[shared.detail, styles.hint]}>{t("scan.hint")}</Text>}
+      <CameraPermission permission={permission} needed={t("scan.cameraNeeded")} onAllow={requestPermission} />
+      <Sheet title={t("scan.code")}>
         <TextInput
           accessibilityLabel={t("scan.code")}
           testID="scan-code"
           placeholder={t("scan.code")}
+          placeholderTextColor={colors.textMuted}
           autoCapitalize="characters"
           autoCorrect={false}
           returnKeyType="go"
@@ -95,27 +101,39 @@ export function ScanScreen() {
           onSubmitEditing={() => open(typed)}
         />
         {missing && <Text style={shared.error}>{t("scan.missing")}</Text>}
-        <Pressable accessibilityRole="button" style={shared.primaryButton} testID="scan-open" onPress={() => open(typed)}>
-          <Text style={shared.primaryButtonText}>{t("scan.open")}</Text>
-        </Pressable>
-        {problem?.load.state === "unreachable" && <Unreachable onRetry={() => open(problem.code)} />}
-        {problem?.load.state === "gone" && (
-          <Text accessibilityRole="alert" style={shared.error}>
-            {t("scan.notFound", { code: problem.code })}
-          </Text>
-        )}
-        {problem?.load.state === "refused" && (
-          <Text accessibilityRole="alert" style={shared.error}>
-            {problem.load.message}
-          </Text>
-        )}
-      </ScrollView>
-    </SafeAreaView>
+        <Button label={t("scan.open")} icon="magnify" tone="primary" testID="scan-open" onPress={() => open(typed)} />
+      </Sheet>
+      {problem?.load.state === "unreachable" && <Unreachable onRetry={() => open(problem.code)} />}
+      {problem?.load.state === "gone" && (
+        <Text accessibilityRole="alert" style={shared.error}>
+          {t("scan.notFound", { code: problem.code })}
+        </Text>
+      )}
+      {problem?.load.state === "refused" && (
+        <Text accessibilityRole="alert" style={shared.error}>
+          {problem.load.message}
+        </Text>
+      )}
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1 },
-  content: { padding: 24, gap: 16 },
-  camera: { aspectRatio: 1, borderRadius: 8, overflow: "hidden" },
+  camera: {
+    aspectRatio: 1,
+    borderRadius: radius.lg,
+    overflow: "hidden",
+    backgroundColor: colors.secondary,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  frame: {
+    width: "62%",
+    aspectRatio: 1,
+    borderRadius: radius.lg,
+    borderWidth: 3,
+    borderColor: colors.textOnPrimary,
+    opacity: 0.85,
+  },
+  hint: { textAlign: "center", marginTop: -space.xs },
 });

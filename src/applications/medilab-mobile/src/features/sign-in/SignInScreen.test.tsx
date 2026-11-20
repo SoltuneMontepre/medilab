@@ -87,11 +87,20 @@ describe("SignInScreen", () => {
     expect(await screen.findByLabelText("Password")).toBeOnTheScreen();
   });
 
+  it("signs in on the build's server until the person changes it", async () => {
+    fakeMediLab();
+    await renderApp();
+
+    expect(await screen.findByText("Máy chủ: https://lab.example")).toBeOnTheScreen();
+    expect(screen.queryByLabelText("Địa chỉ MediLab")).toBeNull();
+  });
+
   it("asks for an address MediLab can be reached at", async () => {
     const mediLab = fakeMediLab();
     await renderApp();
 
-    await fireEvent.changeText(await screen.findByLabelText("Địa chỉ MediLab"), "lab.example");
+    await fireEvent.press(await screen.findByRole("button", { name: "Đổi máy chủ" }));
+    await fireEvent.changeText(screen.getByLabelText("Địa chỉ MediLab"), "lab.example");
     await signIn();
 
     expect(screen.getByText(/Địa chỉ MediLab phải bắt đầu bằng/)).toBeOnTheScreen();
@@ -102,7 +111,8 @@ describe("SignInScreen", () => {
     const mediLab = fakeMediLab(SIGNED_IN, ...home());
     await renderApp();
 
-    await fireEvent.changeText(await screen.findByLabelText("Địa chỉ MediLab"), "https://other.example/");
+    await fireEvent.press(await screen.findByRole("button", { name: "Đổi máy chủ" }));
+    await fireEvent.changeText(screen.getByLabelText("Địa chỉ MediLab"), "https://other.example/");
     await signIn();
 
     expect(mediLab.sent[0].url).toBe("https://other.example/medilab/api/v1/sign-in");

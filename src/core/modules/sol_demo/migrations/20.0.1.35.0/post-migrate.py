@@ -3,7 +3,6 @@ from odoo.api import SUPERUSER_ID
 from odoo.fields import Command
 
 from odoo.addons.sol_demo.demo_payment_requests import seed_payment_requests
-
 from odoo.addons.sol_laboratory.constants.models import MODEL_ROLE
 from odoo.addons.sol_laboratory.services.model_lookup import reference_as
 from odoo.addons.sol_laboratory.services.record_id import persisted_id

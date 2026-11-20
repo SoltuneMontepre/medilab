@@ -28,14 +28,16 @@ describe("ResultsScreen", () => {
     await renderSignedIn(<ResultsScreen />);
 
     expect(await screen.findByText("PTN.2026.0042 – Chì (Pb)")).toBeOnTheScreen();
-    await fireEvent.press(screen.getByRole("button", { name: "Xem thêm" }));
+    await fireEvent(screen.getByTestId("record-list"), "endReached");
     const warned = await screen.findByRole("button", { name: /PTN.2026.0043, Chì \(Pb\), 0,0095 mg\/L, Có cảnh báo/ });
 
     expect(mediLab.sent.map(({ url }) => url)).toEqual([
       `${API}/results?awaiting=me`,
       `${API}/results?awaiting=me&after=1`,
     ]);
-    expect(screen.queryByRole("button", { name: "Xem thêm" })).toBeNull();
+    const asked = mediLab.sent.length;
+    await fireEvent(screen.getByTestId("record-list"), "endReached");
+    expect(mediLab.sent).toHaveLength(asked);
     await fireEvent.press(warned);
     expect(router.push).toHaveBeenCalledWith({ pathname: "/results/[id]", params: { id: "32" } });
   });
