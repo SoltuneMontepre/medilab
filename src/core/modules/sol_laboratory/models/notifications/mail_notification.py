@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
@@ -8,9 +8,13 @@ from odoo.fields import Domain
 from odoo.tools import SQL
 
 from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_ENTRY,
     MODEL_IR_CONFIG_PARAMETER,
+    MODEL_JOB_ITEM,
+    MODEL_MAIL_MAIL,
     MODEL_MAIL_MESSAGE,
     MODEL_MAIL_NOTIFICATION,
+    MODEL_RES_CONFIG_SETTINGS,
 )
 from odoo.addons.sol_laboratory.constants.settings import NOTICE_PORTAL_SINCE_PARAMETER
 from odoo.addons.sol_laboratory.services.document_code import document_code
@@ -62,6 +66,10 @@ class MailNotification(models.Model, MailNotificationBase):
         # When the recipient first opened the notice in the portal; empty until then. It is kept apart from is_read,
         # which belongs to Odoo's inbox.
         portal_seen_at = fields.Datetime(readonly=True, copy=False)
+        # Number of failed SMTP attempts for this mandatory email.
+        email_retry_attempts = fields.Integer(default=0, readonly=True, copy=False)
+        # When the next retry of a temporarily failed mandatory email is due.
+        next_email_retry_at = fields.Datetime(readonly=True, copy=False)
 
     @api.model
     def _cleanup_domain(self, cutoff):
@@ -219,12 +227,57 @@ class MailNotification(models.Model, MailNotificationBase):
             values["notification_status"] = "bounce"
             values["failure_type"] = "mail_bounce"
             partner.sudo().write({"email_bounced": True})
+            notification._cancel_queued_partner_emails(partner)
         elif status == "failed":
             values["notification_status"] = "exception"
         elif status == "delivered":
             values["notification_status"] = "sent"
         notification.sudo().write(values)
         return notification
+
+    def _schedule_email_retry(self):
+        """Retry a mandatory email after a temporary SMTP failure, then flag it as a bounce."""
+        self.ensure_one()
+        settings = self.env[MODEL_RES_CONFIG_SETTINGS]
+        attempts = self.email_retry_attempts + 1
+        retry_count = settings._get_parameter("mandatory_email_retry_count")
+        interval = settings._get_parameter("mandatory_email_retry_interval_hours")
+        if attempts <= retry_count:
+            next_attempt = fields.Datetime.now() + timedelta(hours=interval)
+            self.sudo().write({"email_retry_attempts": attempts, "next_email_retry_at": next_attempt})
+            return next_attempt
+        self._mark_email_bounced(attempts)
+        return None
+
+    def _mark_email_bounced(self, attempts=None):
+        self.ensure_one()
+        partner = self.res_partner_id.sudo()
+        partner.write({"email_bounced": True})
+        self.sudo().write(
+            {"notification_status": "bounce", "failure_type": "mail_bounce", "next_email_retry_at": False}
+        )
+        if attempts is not None:
+            self.env[MODEL_AUDIT_ENTRY]._log_event(
+                "error",
+                self.env._("Mandatory email permanently bounced after %(attempts)s attempts", attempts=attempts),
+                self.mail_message_id._audit_document(),
+            )
+        self._cancel_queued_partner_emails(partner)
+
+    def _cancel_queued_partner_emails(self, partner):
+        mails = self.env[MODEL_MAIL_MAIL].sudo().search(
+            [("recipient_ids", "in", partner.id), ("state", "=", "outgoing")]
+        )
+        if not mails:
+            return
+        mails.write({"state": "cancel"})
+        self.env[MODEL_JOB_ITEM].sudo().search(
+            [
+                ("document_model", "=", MODEL_MAIL_MAIL),
+                ("document_id", "in", mails.ids),
+                ("status", "=", "pending"),
+            ]
+        ).write({"status": "cancelled", "claimed_at": False})
 
     def _notification_for_brevo(self, event, email):
         custom = event.get("X-Mailin-custom") or ""

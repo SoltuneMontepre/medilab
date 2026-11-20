@@ -8,6 +8,7 @@ from odoo.tools import format_datetime
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_ENTRY,
+    MODEL_MAIL_NOTIFICATION,
     MODEL_RES_CONFIG_SETTINGS,
     MODEL_SCHEDULED_JOB,
 )
@@ -104,16 +105,36 @@ class ScheduledJob(models.Model, ScheduledJobBase):
     def _handle_notifications_email(self, item):
         mail = item._document()
         if not mail or not mail.exists() or mail.state == "sent":
-            return
+            return None
+        notification = self.env[MODEL_MAIL_NOTIFICATION].sudo().search(
+            [
+                ("mail_mail_id", "=", mail.id),
+                ("mail_message_id.subtype_id.mandatory", "=", True),
+            ],
+            limit=1,
+        )
+        if notification and notification.res_partner_id.email_bounced:
+            mail.sudo().write({"state": "cancel"})
+            notification.sudo().write({"notification_status": "bounce", "failure_type": "mail_bounce"})
+            return None
         if mail.state == "cancel":
             raise PermanentJobError(self.env._("The email was cancelled."))
         if mail.state == "exception" and mail.failure_type not in (False, "mail_smtp", "unknown"):
+            if notification:
+                notification._mark_email_bounced(notification.email_retry_attempts + 1)
+                return None
             raise PermanentJobError(mail.failure_reason or self.env._("The email cannot be sent."))
         mail.sudo().write({"state": "outgoing", "failure_reason": False, "failure_type": False})
         mail.sudo().send(raise_exception=False)
         mail.invalidate_recordset()
+        if notification and mail.state == "cancel" and mail.failure_type == "mail_bounce":
+            notification.sudo().write({"notification_status": "bounce", "failure_type": "mail_bounce"})
+            return None
         if mail.state == "exception":
+            if notification:
+                return notification._schedule_email_retry()
             raise UserError(mail.failure_reason or self.env._("The mail server did not accept the message."))
+        return None
 
     def _handle_notifications_push(self, item):
         delivery = item._document()
