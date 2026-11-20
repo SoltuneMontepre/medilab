@@ -423,14 +423,27 @@
       width: 100%;
     }
 
+    > div,
+    > div > div,
+    span.o_input,
     .o_input,
     input {
       background-color: transparent !important;
       border: none !important;
+      border-radius: 0 !important;
       box-shadow: none !important;
+      outline: none !important;
       min-height: 0 !important;
       padding: 0 !important;
       color: $ml-text !important;
+
+      &:hover,
+      &:focus,
+      &:focus-visible {
+        border: none !important;
+        box-shadow: none !important;
+        outline: none !important;
+      }
     }
 
     input.o_input {
