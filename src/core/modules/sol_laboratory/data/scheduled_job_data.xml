@@ -106,4 +106,11 @@
         <field name="batch_size">100</field>
         <field name="max_attempts">3</field>
     </record>
+    <record id="scheduled_job_machine_bookings_missed" model="medilab.scheduled.job">
+        <field name="key">machine_bookings.missed</field>
+        <field name="name">Notify missed machine bookings</field>
+        <field name="cron_id" ref="ir_cron_machine_bookings_missed" />
+        <field name="batch_size">100</field>
+        <field name="max_attempts">3</field>
+    </record>
 </odoo>

@@ -12596,6 +12596,13 @@ msgid "Audit Entry"
 msgstr "Mục Nhật Ký Hoạt Động"
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
+msgid "Audit Log"
+msgstr "Nhật Ký Hoạt Động"
+
+#. module: sol_laboratory
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_audit_report
 #: model:ir.actions.report,name:sol_laboratory.action_report_audit
 #: model:ir.model,name:sol_laboratory.model_medilab_audit_report
@@ -17793,6 +17800,11 @@ msgid ""
 msgstr "Lịch đặt đã hết giờ trước khi nhập kết quả hoặc đo xong"
 
 #. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_machine_booking_missed
+msgid "A booking's start passed before the tester started it"
+msgstr "Lịch đặt đã quá giờ bắt đầu mà thử nghiệm viên chưa bắt đầu"
+
+#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_service_downtime_period
 msgid "A downtime has a start and an end after it."
 msgstr ""
@@ -17842,6 +17854,11 @@ msgid "Machine Warning"
 msgstr "Cảnh Báo Máy"
 
 #. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_machine_booking_missed
+msgid "Machine booking missed"
+msgstr "Lịch đặt máy bị lỡ"
+
+#. module: sol_laboratory
 #: model:mail.message.subtype,name:sol_laboratory.event_machine_booking_overrun
 msgid "Machine booking overran"
 msgstr "Lịch đặt máy quá giờ"
@@ -17852,10 +17869,53 @@ msgid "Maintenance Warning (days)"
 msgstr "Cảnh Báo Bảo Trì (ngày)"
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
+msgid "Missed"
+msgstr "Bị lỡ"
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_machine_bookings_missed_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_machine_bookings_missed
+msgid "Notify missed machine bookings"
+msgstr "Thông báo lịch đặt máy bị lỡ"
+
+#. module: sol_laboratory
 #: model:ir.actions.server,name:sol_laboratory.ir_cron_machine_bookings_overrun_ir_actions_server
 #: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_machine_bookings_overrun
 msgid "Notify overrunning machine bookings"
 msgstr "Thông báo lịch đặt máy quá giờ"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/machine_booking_scheduled_job.py:0
+msgid ""
+"%(booking)s was due to start at %(start)s and has not started: start it or "
+"reschedule it."
+msgstr ""
+"%(booking)s đáng lẽ bắt đầu lúc %(start)s nhưng chưa bắt đầu: hãy bắt đầu "
+"hoặc đặt lại lịch."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_missed.py:0
+msgid ""
+"No slot is free for %(booking)s in the next %(days)s days; ask the head of "
+"the department."
+msgstr ""
+"Không có khung giờ trống cho %(booking)s trong %(days)s ngày tới; hãy nhờ "
+"trưởng bộ phận."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_missed.py:0
+msgid "Only a scheduled booking whose start has passed can be rescheduled."
+msgstr "Chỉ lịch đặt đã lên lịch và đã quá giờ bắt đầu mới được đặt lại."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+msgid "Reschedule"
+msgstr "Đặt lại lịch"
 
 #. module: sol_laboratory
 #. odoo-python
@@ -18897,6 +18957,36 @@ msgstr "Hãy viết tin nhắn hoặc đính kèm tệp."
 #: model:ir.model,name:sol_laboratory.model_medilab_chatter_mixin
 msgid "Chatter of a Document"
 msgstr "Trao đổi của tài liệu"
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "%s to approve"
+msgstr "%s cần duyệt"
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "Results to approve"
+msgstr "Kết quả cần duyệt"
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "File versions to sign"
+msgstr "Phiên bản tệp cần ký"
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "Bookings to approve"
+msgstr "Lịch đặt máy cần duyệt"
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+msgid "To approve"
+msgstr "Cần duyệt"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_mail_mail__posted_by_device_id

@@ -169,6 +169,7 @@ from . import (
     test_method_step_access,
     test_method_steps,
     test_method_steps_in_testing,
+    test_missed_bookings,
     test_model_lookup,
     test_module_boundaries,
     test_module_files,

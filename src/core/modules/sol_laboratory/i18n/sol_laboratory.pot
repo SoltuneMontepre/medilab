@@ -2024,6 +2024,13 @@ msgid "Audit Entry"
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
+msgid "Audit Log"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_audit_report
 #: model:ir.actions.report,name:sol_laboratory.action_report_audit
 #: model:ir.model,name:sol_laboratory.model_medilab_audit_report
@@ -17696,6 +17703,16 @@ msgid "Machine Warning"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_machine_booking_missed
+msgid "Machine booking missed"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_machine_booking_missed
+msgid "A booking's start passed before the tester started it"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:mail.message.subtype,name:sol_laboratory.event_machine_booking_overrun
 msgid "Machine booking overran"
 msgstr ""
@@ -17706,9 +17723,48 @@ msgid "Maintenance Warning (days)"
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
+msgid "Missed"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_machine_bookings_missed_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_machine_bookings_missed
+msgid "Notify missed machine bookings"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.actions.server,name:sol_laboratory.ir_cron_machine_bookings_overrun_ir_actions_server
 #: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_machine_bookings_overrun
 msgid "Notify overrunning machine bookings"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/machine_booking_scheduled_job.py:0
+msgid ""
+"%(booking)s was due to start at %(start)s and has not started: start it or "
+"reschedule it."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_missed.py:0
+msgid ""
+"No slot is free for %(booking)s in the next %(days)s days; ask the head of "
+"the department."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking_missed.py:0
+msgid "Only a scheduled booking whose start has passed can be rescheduled."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+msgid "Reschedule"
 msgstr ""
 
 #. module: sol_laboratory
@@ -18703,6 +18759,36 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_chatter_mixin
 msgid "Chatter of a Document"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "%s to approve"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "Results to approve"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "File versions to sign"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "Bookings to approve"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+msgid "To approve"
 msgstr ""
 
 #. module: sol_laboratory

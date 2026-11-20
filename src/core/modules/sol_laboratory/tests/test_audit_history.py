@@ -20,6 +20,12 @@ class TestAuditHistory(AuditCase):
         self.assertIn(self.entries(self.limit, "edit"), history)
         self.assertFalse(history & self.entries(other))
 
+    def test_the_log_of_a_document_lists_the_entries_of_its_history(self):
+        self.regulation.name = "Limits of heavy metals contamination in food"
+        self.limit.max_value = 0.02
+
+        self.assertEqual(self.regulation.log_ids, self.history(self.regulation, self.auditor))
+
     def test_a_deleted_part_stays_in_the_history_of_its_document(self):
         self.limit.max_value = 0.02
         limit_entries = self.entries(self.limit)

@@ -3538,6 +3538,11 @@ msgid "Audit Entry"
 msgstr "Mục Nhật Ký Hoạt Động"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_support_request_form
+msgid "Audit Log"
+msgstr "Nhật Ký Hoạt Động"
+
+#. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/support/support_request.py:0
 msgid "%s is already closed."

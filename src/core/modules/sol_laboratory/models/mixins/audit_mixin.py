@@ -92,6 +92,14 @@ class AuditMixin(models.AbstractModel, AuditMixinBase):
     # Relations to the documents under this one, which its history includes, such as sample_ids.
     _audit_children = ()
 
+    # The audit entries of the document and of the records under it, newest first, for the Log tab of its form.
+    log_ids = fields.Many2many(MODEL_AUDIT_ENTRY, string="Log", compute="_compute_log_ids")
+
+    def _compute_log_ids(self):
+        entries = self.env[MODEL_AUDIT_ENTRY].sudo()
+        for record in self:
+            record.log_ids = entries.search(record._audit_history_domain())
+
     def _valid_field_parameter(self, field, name):
         # audit_mask=MASK_SECRET or MASK_PERSONAL masks the values the trail keeps of the field.
         return name == "audit_mask" or super()._valid_field_parameter(field, name)

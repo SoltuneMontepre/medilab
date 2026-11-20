@@ -5,7 +5,7 @@
         <field name="model">medilab.test.result</field>
         <field name="arch" type="xml">
             <list create="0" delete="0" decoration-muted="not is_reported or is_replaced">
-                <field name="sample_id" />
+                <field name="sample_id" width="200px" />
                 <field name="parameter_id" />
                 <field name="version" optional="show" />
                 <field name="is_replaced" column_invisible="1" />

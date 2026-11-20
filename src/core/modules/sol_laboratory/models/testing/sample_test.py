@@ -7,7 +7,6 @@ from odoo.fields import Command, Domain
 from odoo.addons.sol_laboratory.constants.approvals import STATE_NONE
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ACCREDITATION_SCOPE_LINE,
-    MODEL_AUDIT_ENTRY,
     MODEL_AUDIT_MIXIN,
     MODEL_LOCK_MIXIN,
     MODEL_MACHINE,
@@ -103,8 +102,6 @@ class SampleTest(models.Model, SampleTestBase):
         booking_ids = fields.One2many(MODEL_MACHINE_BOOKING, "sample_test_id", string="Bookings")
         # Results of the test, the latest entered first.
         result_ids = fields.One2many(MODEL_TEST_RESULT, "sample_test_id", string="Results")
-        # The audit entries of the test, its bookings and its results, newest first.
-        log_ids = fields.Many2many(MODEL_AUDIT_ENTRY, string="Log", compute="_compute_log_ids")
         # Why the test was cancelled, such as the parameter cannot be tested on this sample.
         cancel_reason = fields.Text(readonly=True, copy=False)
         # Head of department who cancelled the test.
@@ -265,11 +262,6 @@ class SampleTest(models.Model, SampleTestBase):
                 if test.accepted_method_id
                 else test.subcontracted_method_ids
             )
-
-    def _compute_log_ids(self):
-        entries = self.env[MODEL_AUDIT_ENTRY].sudo()
-        for test in self:
-            test.log_ids = entries.search(test._audit_history_domain())
 
     @api.depends_context("uid")
     def _compute_tested_by_my_department(self):

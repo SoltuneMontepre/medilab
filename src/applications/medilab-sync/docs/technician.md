@@ -28,7 +28,7 @@ Sign in again. If a folder is shown as **Not bound**, its local files and queued
 2. Trong app, chọn một **thư mục local** trên PC này (bộ chọn, dán đường dẫn, hoặc kéo thư mục từ trình quản lý file vào tab thư mục) và gắn nó với thư mục remote đó.
 3. Để RAW và RESULT ở các thư mục local **riêng**. Không trộn lẫn.
 
-Tên thư mục trên máy chủ tự điền theo tên thư mục bạn chọn; đổi được nếu cần. Mặc định app đồng bộ **mọi tệp** trong thư mục, kể cả thư mục con (công tắc **Gồm cả các thư mục con**, đang Bật). Chỉ bật **Chỉ đồng bộ một số tệp (tuỳ chọn)** khi bạn thật sự muốn giới hạn theo tên bắt đầu bằng, mẫu tên (dấu `*`), hoặc đuôi tệp; để trống điều kiện thì vẫn đồng bộ mọi tệp.
+Tên thư mục trên máy chủ tự điền theo tên thư mục bạn chọn; đổi được nếu cần. Sau khi đăng nhập lần đầu, app mở thẳng tab **Thư mục**. Mặc định app đồng bộ **mọi tệp** trong thư mục, kể cả thư mục con; các lựa chọn này nằm trong mục **Tuỳ chọn nâng cao** (đang gập, công tắc **Gồm cả các thư mục con** đang Bật). Chỉ bật **Chỉ đồng bộ một số tệp (tuỳ chọn)** khi bạn thật sự muốn giới hạn theo tên bắt đầu bằng, mẫu tên (dấu `*`), hoặc đuôi tệp; để trống điều kiện thì vẫn đồng bộ mọi tệp.
 
 App theo dõi thư mục local. Lưu một file (khớp điều kiện lọc, nếu có) sẽ xếp hàng một upload.
 

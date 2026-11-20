@@ -8,7 +8,7 @@ The tester, also called lab QA, runs assigned tests with a machine when the way 
 
 - **US-T01** As a tester, I want to see my testing tasks in my to-do list, soonest deadline first, and claim unassigned testing tasks of my department, so that I work on what is due first.
 - **US-T02** As a tester, I want to be notified when the head approves a booking of my task, so that I know when to test.
-- **US-T03** As a tester, I want to move or cancel my booking, so that my schedule matches what I can do.
+- **US-T03** As a tester, I want to move or cancel my booking, and to book the next free slot when I miss its start, so that my schedule matches what I can do.
 - **US-T04** As a tester, I want to be reminded before a booking starts, so that I am ready to start on time.
 - **US-T19** As a tester, I want to mark one of my tests urgent with a reason, so that a sample I know must come first is scheduled first even when its due date is not close.
 - **US-T20** As a tester, I want to be warned when one of my tests is at risk of missing its due date, so that I can ask for help in time.
@@ -64,6 +64,7 @@ Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling
 | Machine heads-up | Warn within the separate calibration, maintenance or recent-repair windows, each defaulting to 7 days. Valid warnings allow booking only while calibration, maintenance and availability requirements are satisfied. |
 | Releasing the machine | Submitting the result or marking the measurement finished frees the machine before the booking's end. A booking whose end passes without either keeps the machine, flags the next bookings on it at risk and notifies the tester and head. |
 | Adjusting | Move or cancel their own not-started booking, keeping all required reservations synchronized under SH-11. Cancelling the booking returns its sample test to the plan without cancelling it. A move is made from the booking's form or by dragging it on the machine schedule, only to a free slot. |
+| Missed start | A scheduled booking whose start passed without being started is missed: the tester and the head are notified once, and the tester reschedules it to the earliest free slot of the tester, machine and locations, or starts it late or cancels it. Nothing frees the booking's reservations until then. |
 | Log | The form of a sample test has a Log tab for whoever reads sample tests, such as the tester and the head of department. It lists, newest first, when and by whom the test, its bookings and its results were created or changed, with the fields changed and their old and new values, from the [audit trail](../../../specs/audit-trail.md#log-of-a-sample-test). It does not give access to the Audit Trail app. |
 
 Acceptance criteria:
@@ -82,6 +83,7 @@ Acceptance criteria:
 - A test whose booking ends after its internal due date is flagged, sends an initial notice and remains in daily risk summaries until resolved.
 - A tester not authorized for its parameter cannot claim or be scheduled for the test.
 - A booking cannot join a machine interval that has started, that is full, or that holds a booking of another method.
+- A scheduled booking whose start passed notifies its tester and head once; its tester can reschedule it to the earliest free slot, and a booking that is not missed cannot be rescheduled.
 - Measuring three parameters of one sample with the same method on a shared machine takes one place of its capacity.
 - A booking whose end passed without a result or a finished measurement keeps its machine, and the next bookings on the machine are flagged at risk; submitting the result frees the machine.
 - A machine booking cannot end after the machine's calibration validity.

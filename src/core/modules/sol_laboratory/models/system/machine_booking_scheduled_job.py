@@ -4,9 +4,12 @@ from odoo import fields, models
 from odoo.fields import Domain
 from odoo.tools import format_datetime
 
-from odoo.addons.sol_laboratory.constants.jobs import MACHINE_BOOKINGS_OVERRUN_JOB
+from odoo.addons.sol_laboratory.constants.jobs import MACHINE_BOOKINGS_MISSED_JOB, MACHINE_BOOKINGS_OVERRUN_JOB
 from odoo.addons.sol_laboratory.constants.models import MODEL_MACHINE_BOOKING, MODEL_MAIL_MESSAGE, MODEL_SCHEDULED_JOB
-from odoo.addons.sol_laboratory.constants.notifications import EVENT_MACHINE_BOOKING_OVERRUN
+from odoo.addons.sol_laboratory.constants.notifications import (
+    EVENT_MACHINE_BOOKING_MISSED,
+    EVENT_MACHINE_BOOKING_OVERRUN,
+)
 
 if TYPE_CHECKING:
     from medilab_model_types import Model_medilab_scheduled_job as ScheduledJobBase
@@ -17,6 +20,29 @@ else:
 # Tác Vụ Định Kỳ
 class ScheduledJob(models.Model, ScheduledJobBase):
     _inherit = MODEL_SCHEDULED_JOB
+
+    def _queue_machine_bookings_missed(self):
+        # The item key holds the start, so a booking rescheduled and missed again is notified again.
+        for booking in self.env[MODEL_MACHINE_BOOKING].sudo().search([("is_missed", "=", True)]):
+            self.queue(MACHINE_BOOKINGS_MISSED_JOB, f"machine_booking:{booking.id}:{booking.starts_at}", booking)
+
+    def _handle_machine_bookings_missed(self, item):
+        booking = item._document()
+        if not booking or not booking.exists() or not booking._missed():
+            return
+        zone = self.env.company.tz or "UTC"
+        self.env[MODEL_MAIL_MESSAGE].raise_event(
+            EVENT_MACHINE_BOOKING_MISSED,
+            booking,
+            f"machine_booking:{booking.id}:{booking.starts_at}:missed",
+            self.env._(
+                "%(booking)s was due to start at %(start)s and has not started: start it or reschedule it.",
+                booking=booking.display_name,
+                start=format_datetime(self.env, booking.starts_at, tz=zone),
+            ),
+            subject=booking.display_name,
+            partners=booking.person_id.user_id.partner_id | booking.department_id.manager_id.user_id.partner_id,
+        )
 
     def _overrun_bookings(self):
         """The machine bookings whose end passed while they still hold their machine: their result is not entered and

@@ -13,6 +13,7 @@ import {
   RemoteFileRowView,
   RemoteFilesTable,
   StatusCards,
+  StatusSummary,
   StatusTab,
   StatusTable,
 } from "./StatusTab";
@@ -126,4 +127,15 @@ test("listed Office files offer editing by folder policy", () => {
       expect(html.includes("Chỉnh sửa trực tuyến")).toBe(category !== "raw");
     }
   }
+});
+
+describe("StatusSummary", () => {
+  test("nói rõ việc cần làm theo tình hình đồng bộ", () => {
+    const base = createStatusFixture({ pending: 0, uploading: 0, downloading: 0, failed: 0, conflict: 0, paused: false });
+    expect(renderWithLocale(<StatusSummary status={base} />)).toContain("Tất cả tệp đã được đồng bộ");
+    expect(renderWithLocale(<StatusSummary status={{ ...base, conflict: 2 }} />)).toContain("2 tệp cần bạn xem");
+    expect(renderWithLocale(<StatusSummary status={{ ...base, uploading: 3 }} />)).toContain("còn 3 tệp");
+    expect(renderWithLocale(<StatusSummary status={{ ...base, paused: true }} />)).toContain("tạm dừng");
+    expect(renderWithLocale(<StatusSummary status={{ ...base, folders: [] }} onOpenFolders={() => {}} />)).toContain("Thêm thư mục");
+  });
 });

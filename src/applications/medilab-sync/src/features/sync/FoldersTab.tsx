@@ -185,6 +185,8 @@ export function FoldersTab({
 }: Readonly<FoldersTabProps>) {
   const t = useT();
   const windowsHost = isWindowsHost();
+  // Chỉ đọc lúc mount: đổi `open` khi người dùng đang tắt công tắc sẽ làm khung gập lại giữa chừng.
+  const startAdvancedOpen = useRef(filterEnabled || !recursive).current;
   return (
     <div
       className={`grid gap-6 lg:grid-cols-2 ${dropActive ? "rounded-lg ring-2 ring-slate-700 ring-offset-2" : ""}`}
@@ -219,40 +221,44 @@ export function FoldersTab({
           />
           <p className="mt-1 text-xs text-slate-500">{t("folders.logicalNameHint")}</p>
         </label>
-        <ToggleSwitch
-          checked={recursive}
-          label={t("folders.recursive")}
-          hint={t(recursive ? "folders.recursiveOnHint" : "folders.recursiveOffHint")}
-          onChange={onRecursiveChange}
-        />
-        <div className="rounded border border-slate-200 bg-slate-50 p-3">
+        {/* Mặc định đồng bộ mọi tệp nên các tuỳ chọn gập lại; mở sẵn khi đang khác mặc định để không ẩn bộ lọc đang áp dụng. */}
+        <details className="space-y-4" open={startAdvancedOpen}>
+          <summary className="cursor-pointer text-sm font-medium">{t("folders.advanced")}</summary>
           <ToggleSwitch
-            checked={filterEnabled}
-            label={t("folders.filter")}
-            hint={t(filterEnabled ? "folders.filterOnHint" : "folders.filterOffHint")}
-            onChange={onFilterEnabledChange}
+            checked={recursive}
+            label={t("folders.recursive")}
+            hint={t(recursive ? "folders.recursiveOnHint" : "folders.recursiveOffHint")}
+            onChange={onRecursiveChange}
           />
-          {filterEnabled ? (
-            <div className="mt-3 space-y-3">
-              <div className="text-sm">
-                <span id="rule-kind-label" className="font-medium">
-                  {t("folders.ruleKind")}
-                </span>
-                <RuleKindSelect value={ruleKind} labelId="rule-kind-label" onChange={onRuleKindChange} />
+          <div className="rounded border border-slate-200 bg-slate-50 p-3">
+            <ToggleSwitch
+              checked={filterEnabled}
+              label={t("folders.filter")}
+              hint={t(filterEnabled ? "folders.filterOnHint" : "folders.filterOffHint")}
+              onChange={onFilterEnabledChange}
+            />
+            {filterEnabled ? (
+              <div className="mt-3 space-y-3">
+                <div className="text-sm">
+                  <span id="rule-kind-label" className="font-medium">
+                    {t("folders.ruleKind")}
+                  </span>
+                  <RuleKindSelect value={ruleKind} labelId="rule-kind-label" onChange={onRuleKindChange} />
+                </div>
+                <label className="block text-sm">
+                  <span className="font-medium">{t(rulePatternLabelKey(ruleKind))}</span>
+                  <input
+                    className="mt-1 w-full rounded border bg-white px-3 py-2"
+                    value={rulePattern}
+                    placeholder={rulePatternPlaceholder(ruleKind)}
+                    onChange={(event) => onRulePatternChange(event.target.value)}
+                  />
+                  <p className="mt-1 text-xs text-slate-500">{t(rulePatternHintKey(ruleKind))}</p>
+                </label>
               </div>
-              <label className="block text-sm">
-                <span className="font-medium">{t(rulePatternLabelKey(ruleKind))}</span>
-                <input
-                  className="mt-1 w-full rounded border bg-white px-3 py-2"
-                  value={rulePattern}
-                  placeholder={rulePatternPlaceholder(ruleKind)}
-                  onChange={(event) => onRulePatternChange(event.target.value)}
-                />
-                <p className="mt-1 text-xs text-slate-500">{t(rulePatternHintKey(ruleKind))}</p>
-              </label>
-            </div>
-          ) : null}
-        </div>
+            ) : null}
+          </div>
+        </details>
         <div className="flex justify-end border-t border-slate-200 pt-3">
           <button
             className="btn btn-primary"
