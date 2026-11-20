@@ -48,6 +48,7 @@ class TestLaboratorySampleFolderAccess(LaboratoryFilesCase, RequestCase):
         self.assertTrue(file._is_raw_data())
 
     def test_the_files_of_a_completed_or_cancelled_sample_folder_are_read_only(self):
+        self.tester.group_ids = [Command.link(persisted_id(self.env.ref(SAMPLE_READER_GROUP)))]
         for status in ("completed", "cancelled"):
             with self.subTest(status=status):
                 folder = self.env[MODEL_LABORATORY_FOLDER].create(
