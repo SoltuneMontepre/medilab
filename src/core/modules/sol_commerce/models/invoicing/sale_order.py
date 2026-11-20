@@ -1,9 +1,11 @@
 from typing import TYPE_CHECKING
 
+from markupsafe import Markup, escape
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.fields import Command
-from odoo.tools import SQL
+from odoo.tools import SQL, format_datetime
 
 from odoo.addons.sol_commerce.constants.models import (
     MODEL_ACCOUNT_MOVE,
@@ -52,6 +54,10 @@ class SaleOrder(models.Model, SaleOrderBase):
         pending_amount = fields.Monetary(
             string="Pending amount", compute="_compute_pending_amount", currency_field="currency_id", compute_sudo=True
         )
+        # Read-only table of recorded payments so Sales can see what was submitted and its status.
+        recorded_payments_html = fields.Html(
+            compute="_compute_recorded_payments_html", compute_sudo=True, sanitize=False
+        )
 
     @api.depends(
         "invoice_ids.payment_state",
@@ -97,6 +103,72 @@ class SaleOrder(models.Model, SaleOrderBase):
         for order in self:
             order.pending_amount = sum(order._pending_collections(include_online=False).mapped("amount"))
 
+    @api.depends(
+        "payment_request_ids.payment_ids.state",
+        "payment_request_ids.payment_ids.amount",
+        "payment_request_ids.payment_ids.method",
+        "payment_request_ids.payment_ids.received_at",
+        "payment_request_ids.payment_ids.memo",
+        "payment_request_ids.payment_ids.rejection_reason",
+        "payment_request_ids.payment_ids.reviewed_at",
+    )
+    def _compute_recorded_payments_html(self):
+        _ = self.env._
+        payment_model = self.env[MODEL_ACCOUNT_PAYMENT].sudo()
+        field_labels = payment_model.fields_get(["received_at", "method", "memo", "amount"])
+        state_label = self.env[MODEL_PAYMENT_REQUEST].sudo().fields_get(["state"])["state"]["string"]
+        method_labels = dict(payment_model._fields["method"]._description_selection(self.env))
+        for order in self:
+            payments = order.sudo().payment_request_ids.payment_ids.sorted("id", reverse=True)
+            if not payments:
+                order.recorded_payments_html = False
+                continue
+            rows = []
+            for payment in payments:
+                if payment._verified_for_request():
+                    badge = Markup('<span class="badge rounded-pill text-bg-success">%s</span>') % _(
+                        "Confirmed by accounting"
+                    )
+                elif payment.state in ("canceled", "rejected"):
+                    badge = Markup('<span class="badge rounded-pill text-bg-danger">%s</span>') % _("Rejected")
+                else:
+                    badge = Markup('<span class="badge rounded-pill text-bg-warning">%s</span>') % _(
+                        "Pending accounting confirmation"
+                    )
+                note = (
+                    Markup('<div class="small text-danger mt-1">%s</div>') % escape(payment.rejection_reason)
+                    if payment.state in ("canceled", "rejected") and payment.rejection_reason
+                    else Markup("")
+                )
+                received = format_datetime(self.env, payment.received_at) if payment.received_at else ""
+                method = method_labels.get(payment.method, payment.method or "")
+                rows.append(
+                    Markup(
+                        "<tr><td>%s</td><td>%s</td><td>%s</td><td class=\"text-end\">%s</td><td>%s%s</td></tr>"
+                    )
+                    % (
+                        escape(received),
+                        escape(method),
+                        escape(payment.memo or ""),
+                        escape(order.currency_id.format(payment.amount)),
+                        badge,
+                        note,
+                    )
+                )
+            order.recorded_payments_html = Markup(
+                '<div class="table-responsive"><table class="table table-sm align-middle mb-0">'
+                '<thead><tr class="text-muted">'
+                '<th>%s</th><th>%s</th><th>%s</th><th class="text-end">%s</th><th>%s</th>'
+                '</tr></thead><tbody>%s</tbody></table></div>'
+            ) % (
+                escape(field_labels["received_at"]["string"]),
+                escape(field_labels["method"]["string"]),
+                escape(field_labels["memo"]["string"]),
+                escape(field_labels["amount"]["string"]),
+                escape(state_label),
+                Markup("").join(rows),
+            )
+
     def _pending_collections(self, *, include_online=True):
         self.ensure_one()
         methods = ("cash", "bank_transfer", "online") if include_online else ("cash", "bank_transfer")
@@ -138,6 +210,8 @@ class SaleOrder(models.Model, SaleOrderBase):
         "payment_request_id.state",
         "payment_request_id.amount",
         "payment_request_id.carried_amount",
+        "payment_request_id.pending_amount",
+        "payment_request_id.remaining_amount",
         "quotation_ids.status",
         "state",
         "on_credit",
@@ -148,7 +222,13 @@ class SaleOrder(models.Model, SaleOrderBase):
         for order in self:
             request = order.payment_request_id
             quotation = order._latest_quotation()
-            order.can_record_collection = bool(order._collection_target() and order.state != "cancel")
+            target = order._collection_target()
+            has_uncollected = bool(target)
+            if target and target._name == MODEL_PAYMENT_REQUEST:
+                has_uncollected = (
+                    target.currency_id.compare_amounts(target.remaining_amount - target.pending_amount, 0) > 0
+                )
+            order.can_record_collection = bool(has_uncollected and order.state != "cancel")
             order.can_record_agreement = bool(
                 quotation.status == "sent"
                 and quotation.replaces_id

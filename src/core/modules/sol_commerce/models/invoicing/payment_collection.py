@@ -85,7 +85,12 @@ class PaymentCollection(models.TransientModel, PaymentCollectionBase):
         if not order:
             return values
         if "amount" in fields_list and not values.get("amount"):
-            values["amount"] = order.payment_request_id.remaining_amount or order.amount_total
+            request = order.payment_request_id
+            values["amount"] = (
+                max(order.currency_id.round(request.remaining_amount - request.pending_amount), 0)
+                if request
+                else order.amount_total
+            )
         if "method" in fields_list and not values.get("method") and order.payment_method in ("cash", "bank_transfer"):
             values["method"] = order.payment_method
         return values
@@ -98,7 +103,7 @@ class PaymentCollection(models.TransientModel, PaymentCollectionBase):
             "tag": "display_notification",
             "params": {
                 "type": "success",
-                "message": self.env._("Payment recorded; waiting for verification."),
+                "message": self.env._("Payment recorded; pending accounting confirmation."),
                 "next": {"type": "ir.actions.act_window_close"},
             },
         }

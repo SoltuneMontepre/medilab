@@ -527,7 +527,7 @@
                                 string="Record payment"
                                 class="btn-link"
                                 context="{'default_order_id': order_id}"
-                                invisible="state not in ('open', 'expired') or remaining_amount &lt;= 0"
+                                invisible="state not in ('open', 'expired') or remaining_amount &lt;= pending_amount"
                             />
                         </list>
                         <form>
@@ -540,12 +540,12 @@
                                     string="Record payment"
                                     class="btn-primary"
                                     context="{'default_order_id': order_id}"
-                                    invisible="state not in ('open', 'expired') or remaining_amount &lt;= 0"
+                                    invisible="state not in ('open', 'expired') or remaining_amount &lt;= pending_amount"
                                 />
                                 <field name="state" widget="statusbar" statusbar_visible="open,funded" />
                             </div>
                             <div class="alert alert-info mb-3" role="status" invisible="not pending_amount">
-                                Waiting for verification: <field name="pending_amount" class="fw-bold d-inline" />
+                                Pending accounting confirmation: <field name="pending_amount" class="fw-bold d-inline" />
                             </div>
                             <group>
                                 <group>
@@ -562,6 +562,8 @@
                             </group>
                         </form>
                     </field>
+                    <separator string="Recorded payments" invisible="not recorded_payments_html" />
+                    <field name="recorded_payments_html" nolabel="1" invisible="not recorded_payments_html" />
                     <separator string="Advance payments" invisible="not downpayment_line_ids" />
                     <field name="downpayment_line_ids" invisible="not downpayment_line_ids">
                         <list>

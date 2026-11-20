@@ -6261,5 +6261,33 @@ msgstr "Cần thanh toán"
 #. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
-msgid "Payment recorded; waiting for verification."
-msgstr "Đã ghi nhận thanh toán; đang chờ xác minh."
+msgid "Payment recorded; pending accounting confirmation."
+msgstr "Đã ghi nhận thanh toán; đang chờ kế toán xác nhận."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/sale_order.py:0
+msgid "Confirmed by accounting"
+msgstr "Đã xác nhận"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/sale_order.py:0
+msgid "Pending accounting confirmation"
+msgstr "Chờ kế toán xác nhận"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/sale_order.py:0
+msgid "Rejected"
+msgstr "Đã từ chối"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Pending accounting confirmation:"
+msgstr "Đang chờ kế toán xác nhận:"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Recorded payments"
+msgstr "Các khoản thanh toán đã ghi nhận"
