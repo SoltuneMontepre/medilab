@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo noupdate="1">
     <record id="demo_parameter_method_lead_aas" model="medilab.parameter.method">
-        <field name="turnaround_days">2</field>
+        <field name="turnaround_days">1</field>
         <field name="parameter_id" ref="demo_test_parameter_lead" />
         <field name="method_id" ref="demo_testing_method_tcvn_7602" />
         <field name="department_id" ref="demo_hr_department_chemistry" />
     </record>
     <record id="demo_parameter_method_lead_icpms" model="medilab.parameter.method">
-        <field name="turnaround_days">2</field>
+        <field name="turnaround_days">1</field>
         <field name="parameter_id" ref="demo_test_parameter_lead" />
         <field name="method_id" ref="demo_testing_method_iso_17294_2" />
         <field name="department_id" ref="demo_hr_department_chemistry" />
