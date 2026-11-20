@@ -82,6 +82,9 @@ Sẽ review cùng product owner sau lượt chạy tay; khi đó mỗi phát hi�
 8. Trưởng phòng kinh doanh gửi được báo giá không kèm tạm ứng cho bất kỳ khách nào; code chỉ kiểm người gửi, không kiểm khách có được mua nợ không. Với khách không được mua nợ, đơn như vậy không có tạm ứng nào để chờ, nên theo quyết định ở phát hiện 3, yêu cầu thử nghiệm sẽ sang Paid và mẫu được thử khi khách chưa trả đồng nào.
 
    Quyết định của product owner ngày 19-11-2026: báo giá không kèm tạm ứng chỉ gửi được cho khách được mua nợ, kể cả khi Trưởng phòng kinh doanh gửi; muốn cho khách trả sau thì bật cờ mua nợ cho khách. Đã sửa rule Manager shortcut và Confirm trong [Sales](../../functional/ecommerce_module/features/sales.md), acceptance criteria của WF-01 trong Business flows, và các spec Payments, Payment requests. Việc code nằm trong [WF-01 Việc code theo quyết định](wf-01-code-changes.md).
+9. Nhân viên kinh doanh và Trưởng phòng kinh doanh mở app E-commerce thì gặp lỗi truy cập Sổ nhật ký (`account.journal`). App mở menu đầu tiên là Invoices, mà danh sách hóa đơn cần đọc sổ nhật ký, quyền chỉ nhóm kế toán có. Nhân viên kinh doanh không có tính năng nào cần app này; Trưởng phòng kinh doanh cần menu Customer sales terms trong đó để bật cờ mua nợ, cách duy nhất để khách trả sau theo phát hiện 8.
+
+   Quyết định của product owner ngày 19-11-2026: chỉ nhóm kế toán thấy menu Invoices của app E-commerce, nên nhân viên kinh doanh và Trưởng phòng kinh doanh mở app thì vào Prices hoặc Customer sales terms. Đã sửa bảng menu trong [Module boundaries](../../business/module-boundaries.md#menus). Việc code nằm trong [WF-01 Việc code theo quyết định](wf-01-code-changes.md).
 
 ## Chạy tay
 

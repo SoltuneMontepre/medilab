@@ -781,12 +781,12 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_queue
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 msgid "Claim"
-msgstr "Nhận"
+msgstr "Nhận phụ trách"
 
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__order_status__claimed
 msgid "Claimed"
-msgstr "Đã nhận"
+msgstr "Đã có người phụ trách"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__claimed_at
@@ -2556,7 +2556,7 @@ msgstr "Chưa nhận"
 #: model:ir.actions.act_window,name:sol_commerce.action_medilab_sale_order_queue
 #: model:ir.ui.menu,name:sol_commerce.menu_sale_order_queue
 msgid "Unclaimed queue"
-msgstr "Hàng đợi chưa nhận"
+msgstr "Đơn chưa có người phụ trách"
 
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__quotation_follow_up__unpaid

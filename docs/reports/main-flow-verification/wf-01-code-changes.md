@@ -13,6 +13,7 @@ Các quyết định của product owner về WF-01 mà code chưa làm, và tà
 | Q3 | 18-11-2026. Phần còn lại sau tạm ứng được thu ở SF-01 Invoicing and payment collection và không chặn bước nào: mẫu được giao nhận và thử nghiệm khi mới trả tạm ứng. | 3 |
 | Q4 | 18-11-2026. Khi đã cài E-commerce, không ai tạo được yêu cầu thử nghiệm không gắn với đơn: danh sách không có nút New, và việc tạo bị từ chối với mọi vai trò. Khách mang mẫu tới thì đi qua sales trước (WF-01-A1). Khi không cài E-commerce, nhân viên giao nhận mẫu vẫn tạo và xác nhận yêu cầu trực tiếp như F-15. | 7 |
 | Q5 | 19-11-2026. Báo giá không kèm tạm ứng chỉ gửi được cho khách được mua nợ, kể cả khi Trưởng phòng kinh doanh gửi. Muốn cho khách trả sau thì Trưởng phòng kinh doanh bật cờ mua nợ cho khách. | 8 |
+| Q6 | 19-11-2026. Chỉ nhóm kế toán thấy menu Invoices của app E-commerce; nhân viên kinh doanh và Trưởng phòng kinh doanh mở app thì vào Prices hoặc Customer sales terms, không gặp lỗi truy cập. | 9 |
 
 ## Việc code
 
@@ -62,6 +63,12 @@ Làm cùng [#414](https://github.com/SoltuneMontepre/medilab/issues/414), vì ng
 - **Cần làm:** gửi báo giá không tạm ứng bị từ chối khi khách không có `allow_credit` trong điều khoản bán hàng, kể cả với Trưởng phòng kinh doanh; thông báo nói phải bật cờ mua nợ cho khách trước. Từ đó đơn đã xác nhận mà không có tạm ứng luôn là đơn On credit.
 - **Kiểm lại demo và test gửi không tạm ứng:** ba chỗ `advance_method="none"` trong `demo_quotations.py`, và setup Cypress của WF-01 (`setup.js`), phải dùng khách được mua nợ hoặc chuyển sang có tạm ứng.
 
+### 8. Menu Invoices của app E-commerce chỉ cho nhóm kế toán (Q6)
+
+- **Hiện tại:** `menu_invoice` trong [menus.xml](../../../src/core/modules/sol_commerce/views/system/menus.xml) không giới hạn nhóm, nên hiện với ai đọc được hóa đơn, kể cả Sales qua hóa đơn của đơn mình phụ trách. Đó là menu đầu tiên của app, nên Sales và Head of Sales mở app là gặp lỗi đọc `account.journal`.
+- **Cần làm:** giới hạn `menu_invoice` cho nhóm kế toán, cùng nhóm được mở form hóa đơn. App khi đó mở Prices cho Sales, và Prices hoặc Customer sales terms cho Head of Sales.
+- **Kiểm thử:** đăng nhập `demo.sales` và `demo.head_of_sales`, mở app E-commerce: không có lỗi, không thấy Invoices; `demo.accountant` vẫn thấy Invoices, Payments và Reconciliation.
+
 ## Tài liệu đã sửa
 
 | Tài liệu | Nội dung |
@@ -74,6 +81,7 @@ Làm cùng [#414](https://github.com/SoltuneMontepre/medilab/issues/414), vì ng
 | [Laboratory overview](../../functional/laboratory_module/overview.md#test-request) | Rule Test request; vòng đời Test request (xác nhận đơn thì yêu cầu sang paid hoặc On credit ngay); ghi chú E-commerce và không có E-commerce thay cho ghi chú "temporary shortcut" của #485. |
 | [Invoices](../../specs/invoices.md), [Payments](../../specs/payments.md), [Payment requests](../../specs/payment-requests.md) | Phần còn lại không chặn giao nhận mẫu hay thử nghiệm; xác nhận đơn thì yêu cầu sang Paid ngay; báo giá không tạm ứng chỉ cho khách được mua nợ. |
 | [Payment and quotation](../../business/payment-and-quotation.md), [Glossaries](../../glossaries.md) | Báo giá không tạm ứng chỉ cho khách được mua nợ (Q5); thêm thuật ngữ Advance (Tạm Ứng) và Balance (Số Dư). |
+| [Module boundaries](../../business/module-boundaries.md#menus) | Hóa đơn, khoản thanh toán và đối soát PayOS trong app E-commerce chỉ dành cho kế toán (Q6). |
 | `questions/ecommerce.md` | Gỡ câu "Head of Sales approving their own quotation". |
 | `questions/laboratory.md` | Câu "Test requests without E-commerce" chỉ còn hỏi user story và cách đặt ngày trả kết quả cam kết. |
 | [Kiểm chứng luồng chính](readme.md#thay-đổi-cho-bm04) | Thay đổi cho BM04: TC-F10-01, TC-F10-02, TC-F15-01. |
