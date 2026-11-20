@@ -121,7 +121,7 @@ class QuotationSend(models.TransientModel, QuotationSendBase):
             "view_mode": "form",
             "target": "new",
             "name": self.env._("Send Quotation"),
-            "context": {"dialog_size": "extra-large"},
+            "context": {"dialog_size": "extra-large", "partner_display_name_hide_company": True},
         }
 
     def action_apply_discount(self):
