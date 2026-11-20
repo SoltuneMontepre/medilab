@@ -69,10 +69,10 @@ describe("WF-01 quotation, revisions and templates (F-06, F-07)", () => {
       cy.signInAs("sales");
       cy.openRecord(order);
       cy.expectRefusal({
-        read: () => call("sale.order.line", "search_read", [[["order_id", "=", order.id]]], { fields: ["price_unit", "discount", "tax_ids"] }),
+        read: () => call("sale.order.line", "search_read", [[["order_id", "=", order.id]]], { fields: ["product_uom_qty", "discount", "tax_ids"] }),
         action: () => {
-          cy.get(".o_field_widget[name=product_line_ids] .o_data_row td[name=price_unit]").first().click();
-          cy.get(".o_selected_row .o_field_widget[name=price_unit] input").clear().type("100000");
+          cy.get(".o_field_widget[name=product_line_ids] .o_data_row td[name=product_uom_qty]").first().click();
+          cy.get(".o_selected_row .o_field_widget[name=product_uom_qty] input").clear().type("2");
           cy.get(".o_form_button_save").click();
         },
         message: "Báo giá đã được gửi; hãy sửa đổi báo giá trước khi sửa các dòng hoặc mẫu của đơn hàng.",

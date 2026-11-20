@@ -216,8 +216,7 @@ class TestOrderForm(OrderCase):
             before = self._total(form)
             with assert_instance(form.product_line_ids, O2MProxy).new() as line:
                 line.product_template_id = self.package_product
-                # The browser's product widget picks the variant and its price; the server-side form does not.
-                line.price_unit = 100000
+                line.product_id = self.package_product.product_variant_id
             self.assertGreater(self._total(form), before)
 
         self.assertEqual(len(order.order_line), 2)

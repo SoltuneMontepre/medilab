@@ -358,6 +358,7 @@
             <xpath expr="//list[@name='sol_list']/column[@name='price_unit']/field[@name='price_unit']" position="attributes">
                 <attribute name="widget">monetary</attribute>
                 <attribute name="options">{'currency_field': 'currency_id'}</attribute>
+                <attribute name="readonly">1</attribute>
             </xpath>
             <xpath expr="//list[@name='sol_list']/column[@name='sol_qty']/field[@name='product_uom_qty']" position="attributes">
                 <attribute name="digits">[16, 0]</attribute>
