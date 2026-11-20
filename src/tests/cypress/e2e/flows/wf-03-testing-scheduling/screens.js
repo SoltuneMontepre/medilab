@@ -31,7 +31,7 @@ export function cancellation(test) {
 }
 
 // The date and time on a user's clock for an Odoo UTC value, as the calendar labels its days and slots.
-function wallClock(value, zone) {
+export function wallClock(value, zone) {
   const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone: zone,
     year: "numeric",

@@ -54,7 +54,7 @@ class TestDepartmentPlan(SchedulingCase):
 
     def test_within_a_class_the_earlier_committed_date_then_the_earlier_arrival_goes_first(self):
         later_date, second, first = self.new_test(), self.new_test(), self.new_test()
-        later_date.sample_id.request_id.expected_date = "2026-10-25"
+        later_date.sample_id.request_id.committed_date = "2026-10-25"
         bookings = [
             self.propose(test, person) for test, person in ((later_date, self.tester), (second, self.other_tester))
         ]

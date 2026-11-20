@@ -130,7 +130,7 @@ def _received_tests(env, customer, kind, parameter, names, quantity, way=None):
     request = env[MODEL_TEST_REQUEST].create(
         {
             "customer_id": env.ref(f"sol_demo.demo_customer_{customer}").id,
-            "expected_date": fields.Date.today() + timedelta(days=5),
+            "committed_date": fields.Date.today() + timedelta(days=5),
             "sample_ids": [
                 Command.create(
                     {
@@ -155,7 +155,11 @@ def _received_tests(env, customer, kind, parameter, names, quantity, way=None):
             ],
         }
     )
-    request.action_confirm()
+    # A request from a paid order is confirmed with the order already.
+    if request.status == "draft":
+        request.action_confirm()
+    # Staff record the physical state at handover.
+    request.sample_ids.filtered(lambda sample: not sample.physical_state).physical_state = "liquid"
     request.sample_ids.with_user(env.ref("sol_demo.demo_res_users_sample_delivery_staff")).action_receive(
         quantity, "good"
     )

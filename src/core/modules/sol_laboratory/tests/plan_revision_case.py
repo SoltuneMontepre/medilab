@@ -49,7 +49,7 @@ class PlanRevisionCase(CrossDepartmentCase):
     def committed(cls):
         """A lead test whose results are promised on the Friday."""
         test = cls.new_test()
-        test.sample_id.request_id.expected_date = FRIDAY
+        test.sample_id.request_id.committed_date = FRIDAY
         return test
 
     @classmethod

@@ -32,7 +32,7 @@ def seed_signing_levels(env):
         env,
         env.ref("sol_demo.demo_customer_an_phu"),
         [(name, (lead,)) for name in SAMPLE_NAMES],
-        expected_date=fields.Date.today() + timedelta(days=7),
+        committed_date=fields.Date.today() + timedelta(days=7),
     )
     approved, sent = request.sample_ids.sorted("id")
 

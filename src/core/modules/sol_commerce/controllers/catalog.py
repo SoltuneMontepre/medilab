@@ -105,21 +105,23 @@ class Catalog(http.Controller):
         return request.redirect(CART_PATH)
 
     @http.route("/cart/save", type="http", auth="public", methods=["POST"])
-    def save(self, contact_id=None, **kwargs):
+    def save(self, contact_id=None, requested_date=None, priority=None, **kwargs):
         order = self._cart()
         if not order:
             return request.redirect("/catalog")
         try:
             self._choose_contact(order, contact_id)
+            order._set_portal_dates(requested_date, bool(priority))
         except UserError as error:
-            return request.redirect(f"/cart?error={quote(str(error))}")
+            return request.redirect(self._cart_error(error, requested_date, priority))
         return request.redirect(f"{ORDERS_PATH}?saved=1")
 
     @http.route("/cart/submit", type="http", auth="public", methods=["POST"])
-    def submit(self, name=None, email=None, phone=None, contact_id=None, **kwargs):
+    def submit(self, name=None, email=None, phone=None, contact_id=None, requested_date=None, priority=None, **kwargs):
         order = self._get_or_create_cart()
         try:
             self._choose_contact(order, contact_id)
+            order._set_portal_dates(requested_date, bool(priority))
             order.action_submit({"name": name, "email": email, "phone": phone})
         except UserError as error:
             return request.redirect(f"/cart?error={quote(str(error))}")
@@ -204,6 +206,11 @@ class Catalog(http.Controller):
         except ValueError:
             return records.browse()
         return records.browse(record_id).exists()
+
+    def _cart_error(self, error, requested_date, priority):
+        # Back to the cart with the error, keeping the date and the priority request the customer entered.
+        kept = f"&requested_date={quote(requested_date or '')}" + ("&priority=1" if priority else "")
+        return f"{CART_PATH}?error={quote(str(error))}{kept}"
 
     def _id(self, value):
         # A posted record id, or None when the field was not posted or is not a number.

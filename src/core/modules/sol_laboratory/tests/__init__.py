@@ -36,6 +36,7 @@ from . import (
     test_claim_races,
     test_cleanup,
     test_code_sequences,
+    test_committed_date_change,
     test_customer,
     test_customer_profile,
     test_customer_signup,

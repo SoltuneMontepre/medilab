@@ -18,3 +18,4 @@ configMapGenerator:
       - callback-signing.cjs
       - inspect_config.py
       - settings.json
+      - document_editor_service_worker.js

@@ -48,11 +48,11 @@ def seed_demo(env):
     from .demo_mandatory_notices import seed_mandatory_notices
     from .demo_notifications import seed_notifications
     from .demo_order_templates import seed_order_templates
-    from .demo_orders import seed_orders, seed_request_orders
+    from .demo_orders import seed_orders, seed_report_payments, seed_request_orders
     from .demo_payment_requests import seed_payment_requests
     from .demo_phones import seed_phones
     from .demo_plan_revisions import seed_plan_revisions
-    from .demo_quotations import seed_quotations, seed_sampling, seed_selected_ways
+    from .demo_quotations import seed_dates, seed_quotations, seed_sampling, seed_selected_ways
     from .demo_report_templates import seed_report_templates
     from .demo_reports import seed_reports
     from .demo_results import seed_assessments, seed_results, seed_warned_result
@@ -71,6 +71,7 @@ def seed_demo(env):
     seed_quotations(env)
     seed_selected_ways(env)
     seed_sampling(env)
+    seed_dates(env)
     seed_results(env)
     seed_assessments(env)
     seed_warned_result(env)
@@ -103,3 +104,4 @@ def seed_demo(env):
     seed_signing_levels(env)
     seed_plan_revisions(env)
     seed_request_orders(env)
+    seed_report_payments(env)

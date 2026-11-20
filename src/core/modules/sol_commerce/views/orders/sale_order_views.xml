@@ -98,11 +98,25 @@
                     invisible="order_status != 'submitted' or user_id"
                 />
                 <button
+                    name="action_accept_priority"
+                    type="object"
+                    string="Accept priority"
+                    class="btn-success"
+                    invisible="priority_request != 'requested' or state != 'draft'"
+                />
+                <button
+                    name="action_decline_priority"
+                    type="object"
+                    string="Decline priority"
+                    class="btn-secondary"
+                    invisible="priority_request != 'requested' or state != 'draft'"
+                />
+                <button
                     name="action_send_quotation"
                     type="object"
                     string="Send quotation"
                     class="btn-primary"
-                    invisible="order_status in ('draft', 'submitted', 'completed', 'cancelled') or quotation_follow_up in ('unpaid', 'paid', 'accepted') and state != 'draft'"
+                    invisible="order_status in ('draft', 'submitted', 'confirmed', 'completed', 'cancelled') or quotation_follow_up in ('unpaid', 'paid', 'accepted') and state != 'draft'"
                 />
                 <button
                     name="action_revise_quotation"
@@ -118,12 +132,22 @@
                     class="btn-success"
                     invisible="order_status != 'claimed' or state == 'draft' or quotation_follow_up not in ('paid', 'accepted')"
                 />
+                <field name="has_open_collection" invisible="1" />
                 <button
                     name="action_start_sample_collection"
                     type="object"
                     string="Start sample collection"
-                    class="btn-primary"
-                    invisible="order_status != 'confirmed' or show_unpaid_warning"
+                    class="btn-primary o_start_sample_collection"
+                    context="{'medilab_collection_dialog': True}"
+                    invisible="order_status != 'confirmed' or show_unpaid_warning or has_open_collection"
+                />
+                <button
+                    name="action_change_committed_date"
+                    type="object"
+                    string="Change committed date"
+                    class="btn-secondary"
+                    invisible="order_status != 'confirmed' or not test_request_id"
+                    groups="sol_laboratory.group_permission_committed_date_change_create_all"
                 />
                 <button name="%(action_payment_collection)d" type="action" string="Record payment" class="btn-primary"
                     context="{'default_order_id': id}" invisible="not can_record_collection" groups="base.group_user" />
@@ -178,18 +202,18 @@
                     <strong>Skipped catalog selections</strong>
                     <field name="template_omission_note" nolabel="1" readonly="1" />
                 </div>
-                <div
-                    class="alert alert-warning"
-                    role="alert"
-                    invisible="not show_unpaid_warning or order_status != 'confirmed'"
-                >
-                    Verify the order balance before collecting its samples.
+                <div class="alert alert-warning" role="alert" invisible="not reorder_note" groups="base.group_user">
+                    <field name="reorder_note" nolabel="1" readonly="1" />
+                </div>
+                <div class="alert alert-warning" role="alert" invisible="not payment_notice">
+                    <field name="payment_notice" nolabel="1" readonly="1" />
                 </div>
             </xpath>
             <!-- Each status says what it is about. -->
             <xpath expr="//div[hasclass('oe_title')]" position="inside">
-                <div class="d-flex flex-wrap align-items-center column-gap-4 row-gap-1">
-                    <div class="d-flex align-items-center gap-2">
+                <!-- A rule under the statuses sets them apart from the fields. -->
+                <div class="d-flex flex-wrap align-items-center column-gap-4 row-gap-1 pb-3 mb-3 border-bottom">
+                    <div class="d-flex align-items-center gap-2" invisible="not id">
                         <span class="text-muted">Customer sees</span>
                         <field
                             name="customer_status"
@@ -227,7 +251,8 @@
                 <field name="source" readonly="1" />
                 <field name="reordered_from_id" readonly="1" invisible="not reordered_from_id" />
                 <field name="test_request_id" readonly="1" invisible="not test_request_id" />
-                <field name="test_request_status" invisible="not test_request_id" />
+                <field name="test_request_status" readonly="1" invisible="not test_request_id" />
+                <field name="collection_summary" invisible="not collection_summary" />
                 <field name="show_unpaid_warning" invisible="1" />
                 <field name="can_invoice_credit_order" invisible="1" />
                 <field name="can_record_collection" invisible="1" />
@@ -236,11 +261,45 @@
             <xpath expr="//group[@name='order_details']/field[@name='validity_date']" position="before">
                 <field name="user_id" widget="many2one_avatar_user" />
             </xpath>
+            <!-- The quotation's validity no longer matters once the order is confirmed. -->
+            <xpath expr="//group[@name='order_details']/field[@name='validity_date']" position="attributes">
+                <attribute name="invisible">state == 'sale' or order_status in ('confirmed', 'completed', 'cancelled')</attribute>
+            </xpath>
             <xpath expr="//group[@name='order_details']/field[@name='validity_date']" position="after">
-                <field name="payment_deadline" />
-                <field name="expected_result_date" />
+                <field name="payment_deadline" invisible="order_status in ('confirmed', 'completed', 'cancelled')" />
+                <field name="requested_date" invisible="not requested_date and order_status in ('confirmed', 'completed', 'cancelled')" />
+                <field name="priority_request" invisible="not priority_request" decoration-warning="priority_request == 'requested'" widget="badge" />
+                <field name="turnaround_days" readonly="1" invisible="not turnaround_days" />
+                <div class="text-warning" colspan="2" invisible="not turnaround_missing">
+                    No standard turnaround yet: <field name="turnaround_missing" class="d-inline" />
+                </div>
+                <field name="estimated_result_date" invisible="not turnaround_days or committed_date" />
+                <field name="committed_date" placeholder="Fixed at sample receipt" />
             </xpath>
             <xpath expr="//group[@name='sales_person']/field[@name='user_id']" position="replace" />
+            <!-- The advance and the balance are set on the Payment tab; Odoo's payment terms, online signature,
+                 prepayment, preferred payment method and marketing source do not apply. -->
+            <xpath expr="//group[@name='order_details']/field[@name='payment_term_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//group[@name='confirmation_info']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//group[@name='sale_info']/field[@name='preferred_payment_method_line_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//group[@name='sale_reporting']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//group[@name='sale_reporting']" position="after">
+                <group name="medilab_timeline" string="Timeline">
+                    <field name="submitted_at" readonly="1" invisible="not submitted_at" />
+                    <field name="claimed_at" readonly="1" invisible="not claimed_at" />
+                    <field name="quoted_at" invisible="not quoted_at" />
+                    <field name="accepted_at" invisible="not accepted_at" />
+                    <field name="confirmed_at" invisible="not confirmed_at" />
+                </group>
+            </xpath>
             <!-- There are no customer price lists: special prices are discounts on the quotation. -->
             <xpath expr="//group[@name='order_details']/label[@for='pricelist_id']" position="attributes">
                 <attribute name="invisible">1</attribute>
@@ -314,6 +373,10 @@
             <xpath expr="//list[@name='sol_list']/column[field[@name='qty_delivered']]" position="attributes">
                 <attribute name="column_invisible">1</attribute>
             </xpath>
+            <!-- Invoices follow verified payments, not quantities, so the invoiced quantity says nothing here. -->
+            <xpath expr="//list[@name='sol_list']/field[@name='qty_invoiced']" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+            </xpath>
             <xpath expr="//list[@name='sol_list']/column[@name='product_and_description']" position="after">
                 <field name="sample_id" domain="[('order_id', '=', parent.id)]" options="{'no_create': True}" />
                 <field name="sample_type_id" readonly="sample_id or linked_line_id" options="{'no_create': True}" optional="show" />
@@ -365,8 +428,10 @@
                             <button name="action_copy_sample" type="object" string="Copy" class="btn-secondary" />
                         </list>
                     </field>
+                    <separator string="Expected samples" />
+                    <field name="expected_sampling_html" readonly="1" />
                 </page>
-                <page string="Revisions" name="revisions">
+                <page string="Revisions" name="revisions" invisible="not quotation_ids">
                     <field name="quotation_ids" readonly="1">
                         <list decoration-muted="status == 'replaced'">
                             <field name="revision" />
@@ -381,20 +446,18 @@
                         </list>
                     </field>
                 </page>
-                <page string="Expected Samples" name="expected_samples">
-                    <field name="expected_sampling_html" readonly="1" />
-                </page>
                 <page string="Payment" name="payment">
                     <group>
                         <group>
-                            <field name="advance_method" />
-                            <field name="advance_mode" invisible="not advance_method or advance_method == 'none'" />
-                            <field name="advance_value" invisible="advance_mode not in ('percentage', 'fixed')" />
+                            <field name="advance_method" readonly="state != 'draft'" />
+                            <field name="advance_mode" invisible="not advance_method or advance_method == 'none'" readonly="state != 'draft'" />
+                            <field name="advance_value" invisible="advance_mode not in ('percentage', 'fixed')" readonly="state != 'draft'" />
+                            <field name="balance_due" invisible="not advance_method or advance_mode == 'full' or on_credit" readonly="state != 'draft'" />
+                            <field name="on_credit" invisible="not on_credit" readonly="1" />
                         </group>
                         <group>
-                            <field name="payment_status" />
-                            <field name="pending_amount" />
-                            <field name="catalog_total" />
+                            <field name="payment_status" readonly="1" />
+                            <field name="pending_amount" readonly="1" invisible="not pending_amount" />
                         </group>
                     </group>
                     <field name="payment_request_ids" readonly="1" invisible="not payment_request_ids">
@@ -439,21 +502,7 @@
                         </form>
                     </field>
                 </page>
-                <page string="Tracking" name="tracking">
-                    <group>
-                        <group>
-                            <field name="submitted_at" readonly="1" />
-                            <field name="claimed_at" readonly="1" />
-                            <field name="quoted_at" invisible="not quoted_at" />
-                            <field name="accepted_at" invisible="not accepted_at" />
-                        </group>
-                        <group>
-                            <field name="confirmed_at" invisible="not confirmed_at" />
-                        </group>
-                    </group>
-                </page>
-                <page string="Cancellation" name="cancellation">
-                    <field name="reorder_note" invisible="not reorder_note" />
+                <page string="Cancellation" name="cancellation" invisible="not cancellation_request_ids">
                     <field name="cancellation_request_ids">
                         <list>
                             <field name="status" />
@@ -477,6 +526,8 @@
             <!-- The Order Lines tab edits the ordered parameters and packages; the Payment tab lists the down payments. -->
             <xpath expr="//page[@name='order_lines']/field[@name='order_line']" position="attributes">
                 <attribute name="name">product_line_ids</attribute>
+                <!-- A confirmed order's lines change only through a revised quotation. -->
+                <attribute name="readonly">state == 'cancel' or locked or order_status in ('confirmed', 'completed', 'cancelled')</attribute>
             </xpath>
         </field>
     </record>
@@ -496,7 +547,7 @@
                 <filter name="cancelled" string="Cancelled" domain="[('order_status', '=', 'cancelled')]" />
                 <separator />
                 <filter name="unpaid" string="Quotation unpaid" domain="[('quotation_follow_up', '=', 'unpaid')]" />
-                <filter name="paid" string="Quotation paid" domain="[('quotation_follow_up', '=', 'paid')]" />
+                <filter name="paid" string="Advance paid" domain="[('quotation_follow_up', '=', 'paid')]" />
                 <filter name="quotation_accepted" string="Quotation accepted" domain="[('quotation_follow_up', '=', 'accepted')]" />
                 <filter name="quotation_declined" string="Quotation declined" domain="[('quotation_follow_up', '=', 'declined')]" />
                 <filter name="quotation_expired" string="Quotation expired" domain="[('quotation_follow_up', '=', 'expired')]" />
