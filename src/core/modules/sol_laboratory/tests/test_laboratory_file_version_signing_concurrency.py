@@ -36,9 +36,9 @@ class TestLaboratoryFileVersionSigningConcurrency(LaboratoryFilesConcurrencyCase
     def setUp(self):
         super().setUp()
         self.ids = self.committed(self.prepare)
-        self.addCleanup(self.committed, self.remove)
         # In a transaction of its own: removing a person tracks their contact, which fails among the other removals.
         self.addCleanup(self.committed, self.remove_outsider)
+        self.addCleanup(self.committed, self.remove)
 
     def prepare(self, env):
         env.cr.execute("SELECT COALESCE(MAX(id), 0) FROM medilab_audit_entry")
