@@ -65,12 +65,18 @@ class PaymentCollection(models.TransientModel, PaymentCollectionBase):
                 '<div class="d-flex justify-content-between align-items-baseline border-top pt-2 mt-2 fw-bold">'
                 '<span>%s</span><span class="text-primary fs-5">%s</span></div>'
             ) % (_("Remaining due"), escape(currency.format(due)))
+            quotation = request.quotation_id if request and request.quotation_id else order._latest_quotation()
+            target = quotation or order
+            label = quotation.code if quotation else order.name
+            title = Markup(
+                '<a href="#" class="fw-semibold fs-5 text-decoration-none" data-res-model="%s" data-res-id="%s">%s</a>'
+            ) % (escape(target._name), target.id, escape(label))
             wizard.summary_html = Markup(
-                '<div class="bg-light border rounded p-3">'
-                '<div class="fw-semibold fs-5 mb-1">%s</div>'
+                '<div class="bg-light border rounded p-3 w-100">'
+                '<div class="mb-1">%s</div>'
                 '<div class="text-muted small mb-3">%s</div>'
                 '%s%s</div>'
-            ) % (escape(order.name), escape(order.customer_id.display_name or ""), body, footer)
+            ) % (title, escape(order.customer_id.display_name or ""), body, footer)
 
     @api.model
     def default_get(self, fields_list):

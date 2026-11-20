@@ -82,6 +82,8 @@
     ],
     "assets": {
         "web.assets_backend": [
+            "sol_commerce/static/src/views/html_record_link.js",
+            "sol_commerce/static/src/views/html_record_link.xml",
             "sol_commerce/static/src/views/open_tab_widget.js",
             "sol_commerce/static/src/views/open_tab_widget.xml",
             "sol_commerce/static/src/views/return_timeline.css",

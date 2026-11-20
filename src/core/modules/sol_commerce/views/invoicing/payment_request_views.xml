@@ -9,7 +9,7 @@
                 <field name="currency_id" invisible="1" />
                 <div class="row g-4 align-items-start">
                     <div class="col-md-5">
-                        <field name="summary_html" nolabel="1" readonly="1" />
+                        <field name="summary_html" widget="medilab_html_links" nolabel="1" readonly="1" />
                     </div>
                     <div class="col-md-7">
                         <group>
