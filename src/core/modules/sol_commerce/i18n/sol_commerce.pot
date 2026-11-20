@@ -6189,3 +6189,13 @@ msgstr ""
 #: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
 msgid "PayOS or a company bank account is not configured to generate a payment QR yet."
 msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "<span class=\"text-muted\">Payment</span>"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "<span class=\"text-muted\">Result</span>"
+msgstr ""

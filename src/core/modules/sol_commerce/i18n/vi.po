@@ -6396,3 +6396,13 @@ msgstr "Nội dung chuyển khoản"
 #: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
 msgid "PayOS or a company bank account is not configured to generate a payment QR yet."
 msgstr "Chưa cấu hình PayOS hoặc tài khoản ngân hàng công ty để tạo mã QR thanh toán."
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "<span class=\"text-muted\">Payment</span>"
+msgstr "<span class=\"text-muted\">Thanh toán</span>"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "<span class=\"text-muted\">Result</span>"
+msgstr "<span class=\"text-muted\">Kết quả</span>"
