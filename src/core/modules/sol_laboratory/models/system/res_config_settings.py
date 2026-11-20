@@ -8,11 +8,15 @@ from odoo.addons.sol_laboratory.constants.models import MODEL_RES_CONFIG_SETTING
 from odoo.addons.sol_laboratory.constants.settings import (
     AUDIT_RETENTION_PARAMETER,
     DEFAULT_LOCK_TIMEOUT_MINUTES,
+    DEFAULT_MANDATORY_EMAIL_RETRY_COUNT,
+    DEFAULT_MANDATORY_EMAIL_RETRY_INTERVAL_HOURS,
     DEFAULT_RETENTION_DAYS,
     DEVICE_RETENTION_PARAMETER,
     JOB_RETENTION_PARAMETER,
     LOCK_RETENTION_PARAMETER,
     LOCK_TIMEOUT_PARAMETER,
+    MANDATORY_EMAIL_RETRY_COUNT_PARAMETER,
+    MANDATORY_EMAIL_RETRY_INTERVAL_HOURS_PARAMETER,
     NOTIFICATION_RETENTION_PARAMETER,
 )
 
@@ -72,6 +76,20 @@ class ResConfigSettings(models.TransientModel, ResConfigSettingsBase):
             default=DEFAULT_RETENTION_DAYS,
             help="Days mobile devices that were turned off are kept before the cleanup job removes them.",
         )
+        # Number of extra attempts after the first temporary failure of a mandatory customer email.
+        mandatory_email_retry_count = fields.Integer(
+            string="Mandatory Email Retries",
+            default=DEFAULT_MANDATORY_EMAIL_RETRY_COUNT,
+            config_parameter=MANDATORY_EMAIL_RETRY_COUNT_PARAMETER,
+            help="How many times to retry a mandatory customer email after a temporary failure.",
+        )
+        # Hours between attempts for a mandatory customer email that failed temporarily.
+        mandatory_email_retry_interval_hours = fields.Integer(
+            string="Mandatory Email Retry Interval (hours)",
+            default=DEFAULT_MANDATORY_EMAIL_RETRY_INTERVAL_HOURS,
+            config_parameter=MANDATORY_EMAIL_RETRY_INTERVAL_HOURS_PARAMETER,
+            help="Hours to wait between retries of a mandatory customer email that failed temporarily.",
+        )
 
     @api.constrains("lock_timeout_minutes")
     def _check_lock_timeout(self):
@@ -92,3 +110,13 @@ class ResConfigSettings(models.TransientModel, ResConfigSettingsBase):
             raise ValidationError(
                 self.env._("The audit retention period cannot be negative; 0 keeps entries for ever.")
             )
+
+    @api.constrains("mandatory_email_retry_count")
+    def _check_mandatory_email_retry_count(self):
+        if any(settings.mandatory_email_retry_count < 0 for settings in self):
+            raise ValidationError(self.env._("The mandatory email retry count cannot be negative."))
+
+    @api.constrains("mandatory_email_retry_interval_hours")
+    def _check_mandatory_email_retry_interval(self):
+        if any(settings.mandatory_email_retry_interval_hours < 1 for settings in self):
+            raise ValidationError(self.env._("The mandatory email retry interval must be at least 1 hour."))
