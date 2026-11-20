@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-20 10:06+0000\n"
-"PO-Revision-Date: 2026-11-20 10:06+0000\n"
+"POT-Creation-Date: 2026-11-20 10:27+0000\n"
+"PO-Revision-Date: 2026-11-20 10:27+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -817,6 +817,18 @@ msgstr ""
 #: model:ir.model.fields.selection,name:sol_commerce.selection__account_move__invoice_kind__advance
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_payment_request__kind__advance
 msgid "Advance"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_quotation_send_form
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Advance (%)"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_quotation_send_form
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Advance Amount"
 msgstr ""
 
 #. module: sol_commerce
