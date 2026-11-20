@@ -6453,3 +6453,8 @@ msgstr "Đơn hàng đã bị huỷ"
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 msgid "Remaining"
 msgstr "Còn lại"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__expected_sample_summary
+msgid "Sample Volume"
+msgstr "Lượng mẫu"

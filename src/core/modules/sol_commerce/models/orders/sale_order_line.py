@@ -12,7 +12,12 @@ from odoo.addons.sol_commerce.constants.models import (
 )
 from odoo.addons.sol_commerce.constants.orders import FROZEN_LINE_FIELDS, PORTAL_LOCKED_LINE_FIELDS
 from odoo.addons.sol_laboratory.constants.catalog import WAY_BY_METHOD
-from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_PARAMETER_METHOD, MODEL_SAMPLE_TYPE
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_MIXIN,
+    MODEL_PARAMETER_METHOD,
+    MODEL_SAMPLE_TYPE,
+    MODEL_SAMPLING_REQUIREMENT,
+)
 from odoo.addons.sol_laboratory.services.record_id import persisted_ids
 
 if TYPE_CHECKING:
@@ -29,6 +34,10 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
     if not TYPE_CHECKING:
         # The sample the line is tested on.
         sample_id = fields.Many2one(MODEL_ORDER_SAMPLE, ondelete="restrict", index="btree_not_null", copy=False)
+        # Concise sample volume and container summary shown inline on the order line.
+        expected_sample_summary = fields.Char(string="Sample Volume", compute="_compute_expected_sample_summary")
+        # Sample preservation condition shown when opening the order line form.
+        sampling_preservation = fields.Char(string="Preservation", compute="_compute_expected_sample_summary")
         # The sample type the line is tested on: chosen in the cart, or the type of its sample; a package's parameter
         # takes its package's.
         sample_type_id = fields.Many2one(
@@ -106,6 +115,34 @@ class SaleOrderLine(models.Model, SaleOrderLineBase):
                         sample_type=line.sample_id.sample_type_id.display_name,
                     )
                 )
+
+    @api.depends(
+        "sample_type_id",
+        "parameter_method_id",
+        "parameter_method_id.method_id",
+        "linked_line_ids.parameter_method_id",
+        "linked_line_ids.parameter_method_id.method_id",
+    )
+    def _compute_expected_sample_summary(self):
+        requirements = self.env[MODEL_SAMPLING_REQUIREMENT].sudo()
+        for line in self:
+            methods = (line.linked_line_ids | line).parameter_method_id.sudo().method_id
+            if not line.sample_type_id or not methods:
+                line.expected_sample_summary = False
+                line.sampling_preservation = False
+                continue
+            rows, _missing = requirements._sampling_rows(line.sample_type_id, methods)
+            volumes = []
+            preservations = []
+            for row in rows:
+                amount = f"{row['amount']:g} {row['unit'].name}" if row.get("unit") else f"{row['amount']:g}"
+                container = row["requirements"][:1].container_type
+                volumes.append(f"{amount} ({container})" if container else amount)
+                preservation = row["requirements"][:1].preservation
+                if preservation and preservation not in preservations:
+                    preservations.append(preservation)
+            line.expected_sample_summary = ", ".join(volumes) or False
+            line.sampling_preservation = ", ".join(preservations) or False
 
     @api.depends("sample_id.sample_type_id", "linked_line_id.sample_type_id")
     def _compute_sample_type_id(self):
