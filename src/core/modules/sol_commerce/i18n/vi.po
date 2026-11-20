@@ -6257,3 +6257,9 @@ msgstr "Hạn thanh toán"
 msgid "Remaining due"
 msgstr "Cần thanh toán"
 
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
+msgid "Payment recorded; waiting for verification."
+msgstr "Đã ghi nhận thanh toán; đang chờ xác minh."

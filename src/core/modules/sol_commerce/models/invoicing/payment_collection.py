@@ -87,4 +87,12 @@ class PaymentCollection(models.TransientModel, PaymentCollectionBase):
     def action_record(self):
         self.ensure_one()
         self.order_id.action_record_collection(self.amount, self.method, self.received_at, self.reference)
-        return {"type": "ir.actions.act_window_close"}
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "type": "success",
+                "message": self.env._("Payment recorded; waiting for verification."),
+                "next": {"type": "ir.actions.act_window_close"},
+            },
+        }

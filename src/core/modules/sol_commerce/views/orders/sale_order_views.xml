@@ -504,27 +504,61 @@
                     </group>
                     <field name="payment_request_ids" readonly="1" invisible="not payment_request_ids">
                         <list decoration-muted="state == 'superseded'" decoration-warning="state == 'open'">
+                            <field name="order_id" column_invisible="1" />
                             <field name="quotation_id" />
                             <field name="kind" />
-                            <field name="state" />
+                            <field
+                                name="state"
+                                widget="badge"
+                                decoration-success="state == 'funded'"
+                                decoration-warning="state == 'open'"
+                                decoration-danger="state == 'expired'"
+                                decoration-muted="state == 'superseded'"
+                            />
                             <field name="deadline" />
                             <field name="currency_id" column_invisible="1" />
                             <field name="amount" />
                             <field name="verified_amount" />
                             <field name="pending_amount" />
                             <field name="remaining_amount" />
+                            <button
+                                name="%(action_payment_collection)d"
+                                type="action"
+                                string="Record payment"
+                                class="btn-link"
+                                context="{'default_order_id': order_id}"
+                                invisible="state not in ('open', 'expired') or remaining_amount &lt;= 0"
+                            />
                         </list>
                         <form>
+                            <field name="order_id" invisible="1" />
+                            <field name="currency_id" invisible="1" />
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <button
+                                    name="%(action_payment_collection)d"
+                                    type="action"
+                                    string="Record payment"
+                                    class="btn-primary"
+                                    context="{'default_order_id': order_id}"
+                                    invisible="state not in ('open', 'expired') or remaining_amount &lt;= 0"
+                                />
+                                <field name="state" widget="statusbar" statusbar_visible="open,funded" />
+                            </div>
+                            <div class="alert alert-info mb-3" role="status" invisible="not pending_amount">
+                                Waiting for verification: <field name="pending_amount" class="fw-bold d-inline" />
+                            </div>
                             <group>
-                                <field name="quotation_id" />
-                                <field name="kind" />
-                                <field name="state" />
-                                <field name="deadline" />
-                                <field name="currency_id" invisible="1" />
-                                <field name="amount" />
-                                <field name="verified_amount" />
-                                <field name="pending_amount" />
-                                <field name="remaining_amount" />
+                                <group>
+                                    <field name="quotation_id" />
+                                    <field name="kind" />
+                                    <field name="deadline" />
+                                </group>
+                                <group>
+                                    <field name="amount" />
+                                    <field name="verified_amount" />
+                                    <field name="pending_amount" />
+                                    <field name="remaining_amount" />
+                                </group>
                             </group>
                         </form>
                     </field>

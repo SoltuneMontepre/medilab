@@ -6050,3 +6050,9 @@ msgstr ""
 #: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
 msgid "Remaining due"
 msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
+msgid "Payment recorded; waiting for verification."
+msgstr ""
