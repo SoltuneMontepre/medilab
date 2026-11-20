@@ -3,11 +3,18 @@ from typing import TYPE_CHECKING
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError
+from odoo.tools import format_datetime
 
 from odoo.addons.sol_commerce.constants.models import (
     MODEL_QUOTATION_SEND,
     MODEL_SALE_ORDER,
     MODEL_SALE_ORDER_DISCOUNT,
+)
+from odoo.addons.sol_commerce.constants.orders import (
+    ADVANCE_FIXED,
+    ADVANCE_FULL,
+    ADVANCE_NONE,
+    ADVANCE_PERCENTAGE,
 )
 from odoo.addons.sol_commerce.constants.settings import DEFAULT_PAYMENT_DEADLINE_DAYS, PAYMENT_DEADLINE_PARAMETER
 from odoo.addons.sol_commerce.constants.xml_ids import QUOTATION_REPORT
@@ -64,12 +71,71 @@ class QuotationSend(models.TransientModel, QuotationSendBase):
         on_credit = fields.Boolean(related="order_id.on_credit")
         # The moment the customer has to pay the advance, or accept the quotation without one, by.
         payment_deadline = fields.Datetime(required=True)
+        # Editable preview of the email message sent to the contact with the quotation PDF.
+        email_body = fields.Text(
+            string="Email message", compute="_compute_email_body", readonly=False, store=True
+        )
+        # Filename of the PDF quotation attached to the email.
+        attachment_name = fields.Char(string="Attachment", compute="_compute_attachment_name")
 
     @api.depends("customer_id")
     def _compute_customer_address(self):
         for wizard in self:
             address = wizard.customer_id._display_address() if wizard.customer_id else ""
             wizard.customer_address = ", ".join(line.strip() for line in address.splitlines() if line.strip()) or False
+
+    @api.depends("order_id", "order_id.quotation_ids")
+    def _compute_attachment_name(self):
+        for wizard in self:
+            order = wizard.order_id
+            if not order:
+                wizard.attachment_name = False
+                continue
+            previous = order._latest_quotation()
+            revision = previous.revision + 1 if previous else 1
+            wizard.attachment_name = f"{order.name}-R{revision}.pdf"
+
+    @api.depends(
+        "order_id",
+        "order_id.amount_total",
+        "partner_id",
+        "payment_deadline",
+        "advance_mode",
+        "advance_value",
+        "on_credit",
+    )
+    def _compute_email_body(self):
+        for wizard in self:
+            order = wizard.order_id
+            if not order or not wizard.payment_deadline:
+                wizard.email_body = False
+                continue
+            localized = order.with_context(lang=order._get_lang())
+            deadline = format_datetime(localized.env, wizard.payment_deadline)
+            code = order._latest_quotation().code or order.name
+            if wizard.on_credit or wizard.advance_mode == ADVANCE_NONE:
+                advance_amount = 0
+            elif wizard.advance_mode == ADVANCE_FULL:
+                advance_amount = order.amount_total
+            elif wizard.advance_mode == ADVANCE_PERCENTAGE:
+                advance_amount = order.currency_id.round(order.amount_total * wizard.advance_value / 100.0)
+            elif wizard.advance_mode == ADVANCE_FIXED:
+                advance_amount = min(wizard.advance_value, order.amount_total)
+            else:
+                advance_amount = 0
+            if advance_amount > 0:
+                wizard.email_body = localized.env._(
+                    "Quotation %(code)s is ready. Pay the advance of %(amount)s before %(deadline)s.",
+                    code=code,
+                    amount=order.currency_id.format(advance_amount),
+                    deadline=deadline,
+                )
+            else:
+                wizard.email_body = localized.env._(
+                    "Quotation %(code)s is ready. Accept it before %(deadline)s.",
+                    code=code,
+                    deadline=deadline,
+                )
 
     @api.depends("partner_id", "partner_id.email", "partner_id.phone")
     def _compute_partner_contact(self):
@@ -152,4 +218,6 @@ class QuotationSend(models.TransientModel, QuotationSendBase):
             raise UserError(self.env._("Give a payment deadline that is still to come."))
         self.order_id.payment_deadline = self.payment_deadline
         # The order sends the quotation now instead of opening this dialog again.
-        return self.order_id.with_context(**{QUOTATION_DIALOG: False}).action_send_quotation()
+        return self.order_id.with_context(
+            **{QUOTATION_DIALOG: False, "medilab_quotation_email_body": self.email_body}
+        ).action_send_quotation()

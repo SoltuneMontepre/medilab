@@ -51,6 +51,14 @@
                         <field name="tax_totals" widget="account-tax-totals-field" nolabel="1" colspan="2" readonly="1" class="mt-2" />
                     </group>
                 </group>
+                <group string="Email &amp; Attachment">
+                    <field name="email_body" />
+                    <label for="attachment_name" />
+                    <div class="d-flex align-items-center gap-2">
+                        <field name="attachment_name" readonly="1" class="oe_inline fw-semibold" />
+                        <button name="action_preview" type="object" string="Preview PDF" class="btn-link p-0" />
+                    </div>
+                </group>
                 <footer>
                     <button name="action_send" type="object" string="Send quotation" class="btn-primary" />
                     <button name="action_preview" type="object" string="Preview" class="btn-secondary" />

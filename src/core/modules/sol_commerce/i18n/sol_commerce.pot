@@ -6199,3 +6199,18 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 msgid "<span class=\"text-muted\">Result</span>"
 msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation_send__email_body
+msgid "Email message"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_quotation_send_form
+msgid "Preview PDF"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_quotation_send_form
+msgid "Email & Attachment"
+msgstr ""

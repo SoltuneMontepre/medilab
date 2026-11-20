@@ -53,6 +53,7 @@
             "sol_theme/static/src/js/list_column_widths.js",
             "sol_theme/static/src/js/list_group_text.js",
             "sol_theme/static/src/js/user_menu.js",
+            "sol_theme/static/src/js/view_button_loading.js",
             "sol_theme/static/src/xml/app_drawer.xml",
             "sol_theme/static/src/xml/boolean_button_group_field.xml",
             "sol_theme/static/src/xml/form_status_indicator.xml",

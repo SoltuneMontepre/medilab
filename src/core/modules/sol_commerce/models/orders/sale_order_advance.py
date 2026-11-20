@@ -97,6 +97,9 @@ class SaleOrderAdvance(models.Model, SaleOrderAdvanceBase):
                 code=quotation.code,
                 deadline=deadline,
             )
+        custom_body = self.env.context.get("medilab_quotation_email_body")
+        if custom_body:
+            body = custom_body
         order.env[MODEL_MAIL_MESSAGE].raise_event(
             EVENT_QUOTATION_SENT,
             order.sudo(),
