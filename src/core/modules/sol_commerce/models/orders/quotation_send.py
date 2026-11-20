@@ -30,7 +30,7 @@ class QuotationSend(models.TransientModel, QuotationSendBase):
         # The customer the quotation is for, whose contacts may receive it.
         customer_id = fields.Many2one(related="order_id.customer_id")
         # The customer's address printed on the quotation.
-        customer_address = fields.Text(string="Address", compute="_compute_customer_address")
+        customer_address = fields.Char(string="Address", compute="_compute_customer_address")
         # The contact the quotation is sent to.
         partner_id = fields.Many2one(related="order_id.partner_id", readonly=False, string="To")
         # The contact's e-mail address and phone, which the quotation notice uses; changing them changes the contact.
@@ -68,7 +68,8 @@ class QuotationSend(models.TransientModel, QuotationSendBase):
     @api.depends("customer_id")
     def _compute_customer_address(self):
         for wizard in self:
-            wizard.customer_address = wizard.customer_id._display_address() if wizard.customer_id else False
+            address = wizard.customer_id._display_address() if wizard.customer_id else ""
+            wizard.customer_address = ", ".join(line.strip() for line in address.splitlines() if line.strip()) or False
 
     @api.depends("partner_id", "partner_id.email", "partner_id.phone")
     def _compute_partner_contact(self):
