@@ -58,7 +58,7 @@ class SaleOrderReturnTimeline(models.Model, SaleOrderReturnTimelineBase):
                 (
                     _("Standard turnaround"),
                     day(estimate["turnaround"]),
-                    _("%s working days, the least the estimate gives", self.turnaround_days),
+                    "",
                 )
             )
         expected = self.committed_date or estimate["date"]
