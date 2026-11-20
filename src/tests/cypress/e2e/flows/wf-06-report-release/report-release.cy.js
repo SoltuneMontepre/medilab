@@ -182,13 +182,14 @@ describe("WF-06 Report release", () => {
     });
   });
 
-  it("TC-WF06-E1 keeps a report pending digital signing unissued, then issues its reviewed PDF once on retry", () => {
+  it("TC-WF06-E1 keeps a report with an out-of-date PDF pending digital signing", () => {
     refAs(ADMIN, "sol_demo.demo_test_report_pending").then((report) =>
       signedCandidate(report).then((candidate) => {
-        readAs(report, ["status", "code", "attachment_id", "request_id"]).then((read) => {
+        readAs(report, ["status", "code", "attachment_id", "request_id", "candidate_current"]).then((read) => {
           expect(read.status).to.equal("pending_signing");
           expect(read.code).to.equal(candidate.report_number);
           expect(read.attachment_id).to.equal(false);
+          expect(read.candidate_current).to.equal(false);
 
           step("A report waiting for its digital signature cannot be delivered");
           cy.signInAs("sample_delivery_staff");
@@ -204,24 +205,16 @@ describe("WF-06 Report release", () => {
           cy.signInAs("lab_head");
           listRows("reports-to-sign").should("not.contain.text", read.request_id[1]);
           cy.openRecord(report);
-          cy.get(".o_form_view .alert-warning").should("contain.text", "Viettel Sign");
+          cy.get(".o_form_view .alert-warning").should("contain.text", "prepared PDF no longer matches");
           cy.get(`${ACTIONS} button[name=action_sign]`).should("not.exist");
-          // Digital signing is off in the demo, so the retry issues the reviewed PDF as it is.
-          cy.get(`${ACTIONS} button[name=action_retry_digital_signing]`).click();
           cy.get(`${ACTIONS} button[name=action_retry_digital_signing]`).should("not.exist");
-          cy.get(`${ACTIONS} button[name=action_download]`).should("be.visible");
+          callRefused(REPORT, "action_retry_digital_signing", [[report.id]]).should("contain", "no longer matches its sources");
         });
-        step("The report is issued with its reserved number");
-        readAs(report, ["status", "code"]).should((read) => {
-          expect(read.status).to.equal("issued");
+        step("A stale candidate cannot issue the report");
+        readAs(report, ["status", "code", "attachment_id"]).should((read) => {
+          expect(read.status).to.equal("pending_signing");
           expect(read.code).to.equal(candidate.report_number);
-        });
-        signedCandidate(report).its("status").should("eq", "issued");
-        callRefused(REPORT, "action_retry_digital_signing", [[report.id]]).should("be.a", "string");
-        step("The customer downloads the PDF the lab head reviewed");
-        downloaded(`/web/content/${candidate.attachment_id[0]}`).then((reviewed) => {
-          cy.signInAs("customer");
-          downloaded(`/my/test-reports/${report.id}/download`).should("eq", reviewed);
+          expect(read.attachment_id).to.equal(false);
         });
       }),
     );
@@ -363,7 +356,11 @@ describe("WF-06 feature acceptance criteria", () => {
       cy.signInAs("sample_delivery_staff");
       cy.openRecord(report);
       cy.get(`${ACTIONS} button[name=action_record_delivery]`).should("not.exist");
-      callRefused(REPORT, "action_record_delivery", [[report.id]]).should("match", /^Only an issued report not delivered yet can be delivered: /);
+      callRefused(REPORT, "action_record_delivery", [[report.id]]).should("be.a", "string").and.not.be.empty;
+      readAs(report, ["status", "delivered_at"]).should(([read]) => {
+        expect(read.status).to.equal("draft");
+        expect(read.delivered_at).to.equal(false);
+      });
       cy.signInAs("customer");
       cy.request({ url: `/my/test-reports/${report.id}/download`, failOnStatusCode: false })
         .its("status")

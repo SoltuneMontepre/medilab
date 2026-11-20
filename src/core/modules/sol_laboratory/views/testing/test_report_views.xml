@@ -86,7 +86,7 @@
                         type="object"
                         string="Retry Digital Signing"
                         class="btn-primary"
-                        invisible="not digital_signing_pending"
+                        invisible="not digital_signing_pending or not candidate_current"
                     />
                     <button
                         name="action_print_draft"
