@@ -1,20 +1,21 @@
 .o_medilab_return_timeline {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     align-items: flex-start;
+    overflow-x: auto;
     list-style: none;
     padding: 0.5rem 0 0;
     margin: 0;
-    row-gap: 1rem;
 }
 
 .o_medilab_timeline_step {
     position: relative;
     display: flex;
     flex-direction: column;
-    flex: 1 1 10rem;
+    flex: 1 1 0;
+    min-width: 0;
     padding-top: 1.5rem;
-    padding-right: 1.5rem;
+    padding-right: 1rem;
 }
 
 .o_medilab_timeline_step::before {
