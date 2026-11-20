@@ -6130,3 +6130,62 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 msgid "Awaiting confirmation"
 msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_payment_collection_form
+msgid "Generate PayOS QR"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
+msgid "Scan to pay with PayOS"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
+msgid "Open PayOS link"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
+msgid "Print QR"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
+msgid "Bank transfer QR"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
+msgid "Bank"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
+msgid "Account number"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
+msgid "Account holder"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
+msgid "Transfer content"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/payment_collection.py:0
+msgid "PayOS or a company bank account is not configured to generate a payment QR yet."
+msgstr ""
