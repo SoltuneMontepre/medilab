@@ -80,7 +80,7 @@ class TestRequestSimulation(models.Model, TestRequestSimulationBase):
                 & Domain("sample_id.request_id", "not in", exclude.ids if exclude else [])
                 & Domain("status", "in", ("waiting", "assigned"))
             )
-            .filtered(lambda test: (test.accepted_method_id or test.parameter_method_id).department_id in departments)
+            .filtered(lambda test: self._held_way(test).department_id in departments)
         )
         if urgent:
             tests = tests.filtered(lambda test: test.sample_id.request_id.priority)
@@ -95,6 +95,16 @@ class TestRequestSimulation(models.Model, TestRequestSimulationBase):
             if slot:
                 planned |= slot
         return planned
+
+    @api.model
+    def _held_way(self, test):
+        """The way an expected test will be tested by: the one the customer accepted, the one chosen, or the default way
+        of its parameter on the sample's type."""
+        return (
+            test.accepted_method_id
+            or test.parameter_method_id
+            or test.parameter_id._default_way(test.sample_id.sample_type_id)
+        )
 
     @api.model
     def _collection_appointments(self, requests):

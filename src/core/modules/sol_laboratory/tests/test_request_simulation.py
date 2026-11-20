@@ -48,6 +48,8 @@ class TestRequestSimulation(SchedulingCase):
                 "name": "Collect lead",
                 "document_model": request._name,
                 "document_id": request.id,
+                "assignee_id": self.other_tester.id,
+                "status": "assigned",
                 "deadline": MONDAY + timedelta(days=1),
                 "planned_start": MONDAY + timedelta(days=1),
             }
