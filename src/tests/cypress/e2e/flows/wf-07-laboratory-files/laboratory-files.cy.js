@@ -92,7 +92,7 @@ describe("WF-07 laboratory files", () => {
               person(ADMINISTRATOR).then(({ name: administratorName }) => {
                 cy.get(".o_field_widget[name=retention_approved_by_id]").should("contain", administratorName);
               });
-              cy.get("button[name=action_approve_retention_removal]").should("not.be.visible");
+              cy.get("button[name=action_approve_retention_removal]").should("not.exist");
             });
         });
       });
