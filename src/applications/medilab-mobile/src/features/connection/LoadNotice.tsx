@@ -1,8 +1,9 @@
-import { ActivityIndicator, Text } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
 import type { Load } from "../../load";
 import { useT } from "../../locale";
 import { styles as shared } from "../../styles";
+import { colors, space } from "../../theme";
 import { Unreachable } from "./Unreachable";
 
 /** What a screen shows until what it reads is ready: loading, MediLab not reached, the record gone with the screen's
@@ -11,7 +12,11 @@ export function LoadNotice({ load, gone, onRetry }: Readonly<{ load: Load<unknow
   const t = useT();
   switch (load.state) {
     case "loading":
-      return <ActivityIndicator accessibilityLabel={t("loading")} />;
+      return (
+        <View style={styles.loading}>
+          <ActivityIndicator size="large" color={colors.primary} accessibilityLabel={t("loading")} />
+        </View>
+      );
     case "unreachable":
       return <Unreachable onRetry={onRetry} />;
     case "gone":
@@ -26,3 +31,7 @@ export function LoadNotice({ load, gone, onRetry }: Readonly<{ load: Load<unknow
       return null;
   }
 }
+
+const styles = StyleSheet.create({
+  loading: { paddingVertical: space.xl, alignItems: "center" },
+});

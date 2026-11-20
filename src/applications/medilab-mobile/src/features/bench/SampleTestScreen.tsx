@@ -1,19 +1,25 @@
 import { randomUUID } from "expo-crypto";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { ScrollView, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { StyleSheet, Text, View } from "react-native";
 
 import type { Result, SampleTest } from "../../api";
 import { useT } from "../../locale";
 import { useAction, useRecord } from "../../record";
 import { useSession } from "../../session";
 import { styles as shared } from "../../styles";
+import { colors, space } from "../../theme";
 import { ActionProblem } from "../connection/ActionProblem";
 import { LoadNotice } from "../connection/LoadNotice";
 import { resultPath } from "../documents/documentPath";
+import { Badge } from "../shared/Badge";
+import { LinkRow } from "../shared/LinkRow";
+import { RecordHead } from "../shared/RecordHead";
+import { Screen } from "../shared/Screen";
+import { Sheet } from "../shared/Sheet";
+import { Fact } from "../tasks/TaskRow";
 import { ResultForm, type ResultEntry } from "./ResultForm";
-import { Button } from "../shared/Button";
+import { resultTone } from "./resultText";
 import { TestFacts } from "./TestFacts";
 
 /** A sample test at the bench: its facts, its reported result, and entering the result as the web's Enter Result
@@ -41,47 +47,51 @@ export function SampleTestScreen() {
     });
   }
 
+  const test = load.state === "ready" ? load.value : null;
   return (
-    <SafeAreaView style={shared.page}>
+    <Screen title={test?.code ?? t("test.title")}>
       <LoadNotice load={load} gone={t("test.gone")} onRetry={reload} />
-      {load.state === "ready" && (
-        <ScrollView contentContainerStyle={shared.pageContent} keyboardShouldPersistTaps="handled">
-          <Text style={shared.title}>{load.value.parameter}</Text>
-          <TestFacts test={load.value} />
-          {load.value.result && <ReportedResult result={load.value.result} />}
-          {load.value.can_enter_result && (
-            <View style={shared.section}>
-              <Text accessibilityRole="header" style={shared.heading}>
-                {t("test.enterResult")}
-              </Text>
-              <ResultForm
-                unit={load.value.unit}
-                comparisonRequested={load.value.comparison_requested}
-                busy={busy}
-                onSubmit={enter}
-              />
-            </View>
+      {test && (
+        <>
+          <RecordHead title={test.parameter}>
+            {!!test.way && <Fact icon="flask-outline" text={test.way} />}
+          </RecordHead>
+          {test.can_enter_result && (
+            <Sheet title={t("test.enterResult")}>
+              <ResultForm unit={test.unit} comparisonRequested={test.comparison_requested} busy={busy} onSubmit={enter} />
+              <ActionProblem problem={problem?.load ?? null} gone={t("test.gone")} onRetry={() => problem?.retry()} />
+            </Sheet>
           )}
-          {!load.value.can_enter_result && !load.value.result && (
-            <Text style={shared.detail}>{t("test.cannotEnter")}</Text>
-          )}
-          <ActionProblem problem={problem?.load ?? null} gone={t("test.gone")} onRetry={() => problem?.retry()} />
-        </ScrollView>
+          {test.result && <ReportedResult result={test.result} />}
+          {!test.can_enter_result && !test.result && <Text style={shared.detail}>{t("test.cannotEnter")}</Text>}
+          <Sheet title={t("task.info")}>
+            <TestFacts test={test} />
+          </Sheet>
+        </>
       )}
-    </SafeAreaView>
+    </Screen>
   );
 }
 
 function ReportedResult({ result }: Readonly<{ result: Result }>) {
   const t = useT();
   return (
-    <View style={shared.section}>
-      <Text accessibilityRole="header" style={shared.heading}>
-        {t("result.result")}
-      </Text>
-      <Text style={shared.text}>{result.value_display}</Text>
-      <Text style={shared.detail}>{result.status_label}</Text>
-      <Button label={t("test.openResult")} onPress={() => router.push(resultPath(result.id))} primary />
-    </View>
+    <Sheet title={t("result.result")}>
+      <View style={styles.value}>
+        <Text style={styles.valueText}>{result.value_display}</Text>
+        <Badge label={result.status_label} tone={resultTone(result.status)} />
+      </View>
+      <LinkRow
+        icon="file-document-outline"
+        label={t("test.openResult")}
+        testID="test-open-result"
+        onPress={() => router.push(resultPath(result.id))}
+      />
+    </Sheet>
   );
 }
+
+const styles = StyleSheet.create({
+  value: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: space.md },
+  valueText: { flex: 1, fontSize: 22, fontWeight: "700", color: colors.text },
+});

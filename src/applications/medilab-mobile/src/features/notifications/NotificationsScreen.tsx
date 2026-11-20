@@ -1,75 +1,57 @@
 import { router } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useCallback, useState } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import { ApiError, UnreachableError, type Notification, type NotificationPage } from "../../api";
+import type { Notification, NotificationPage } from "../../api";
+import { useBadges } from "../../badges";
+import { failed, useLoad, type Load } from "../../load";
 import { useT } from "../../locale";
 import { useSession } from "../../session";
-import { colors, styles as shared } from "../../styles";
-import { Unreachable } from "../connection/Unreachable";
+import { styles as shared } from "../../styles";
+import { colors, radius, space } from "../../theme";
+import { ActionProblem } from "../connection/ActionProblem";
 import { documentPath } from "../documents/documentPath";
+import { Icon } from "../shared/Icon";
+import { RecordList } from "../shared/RecordList";
+import { Screen } from "../shared/Screen";
+import { formatMoment } from "../tasks/taskText";
 
-type Load =
-  | { state: "loading" }
-  | { state: "ready"; notifications: Notification[]; nextAfter: number | null }
-  | { state: "unreachable" }
-  | { state: "refused"; message: string };
+interface Listed {
+  notifications: Notification[];
+  nextAfter: number | null;
+}
 
 /** The person's notifications, unread first, as the web's inbox has them: opening one marks it read and opens its
  * document. */
 export function NotificationsScreen() {
   const t = useT();
-  const { call, language } = useSession();
-  const [load, setLoad] = useState<Load>({ state: "loading" });
-  const [problem, setProblem] = useState<Load | null>(null);
+  const { call } = useSession();
+  const badges = useBadges();
+  const [problem, setProblem] = useState<{ load: Load<never>; retry: () => void } | null>(null);
 
   const page = useCallback(
-    async (after: number | null): Promise<NotificationPage> =>
-      (await call<NotificationPage>(after ? `/notifications?after=${after}` : "/notifications")) ?? {
-        notifications: [],
-        next_after: null,
-      },
+    async (after: number | null): Promise<Listed> => {
+      const answer = await call<NotificationPage>(after ? `/notifications?after=${after}` : "/notifications");
+      return { notifications: answer?.notifications ?? [], nextAfter: answer?.next_after ?? null };
+    },
     [call],
   );
-
-  const first = useCallback(async (): Promise<Load> => {
-    try {
-      const answer = await page(null);
-      return { state: "ready", notifications: answer.notifications, nextAfter: answer.next_after };
-    } catch (error) {
-      return failed(error);
-    }
-  }, [page]);
-
-  useEffect(() => {
-    let shown = true;
-    first()
-      .then((loaded) => shown && setLoad(loaded))
-      .catch(() => shown && setLoad({ state: "unreachable" }));
-    return () => {
-      shown = false;
-    };
-  }, [first]);
-
-  async function retry() {
-    setLoad({ state: "loading" });
-    setLoad(await first());
-  }
+  const first = useCallback(() => page(null), [page]);
+  const { load, setLoad, reload, refresh } = useLoad(first);
 
   async function more() {
-    if (load.state !== "ready" || !load.nextAfter) {
+    if (load.state !== "ready" || !load.value.nextAfter) {
       return;
     }
+    setProblem(null);
     try {
-      const answer = await page(load.nextAfter);
+      const next = await page(load.value.nextAfter);
       setLoad({
         state: "ready",
-        notifications: [...load.notifications, ...answer.notifications],
-        nextAfter: answer.next_after,
+        value: { notifications: [...load.value.notifications, ...next.notifications], nextAfter: next.nextAfter },
       });
     } catch (error) {
-      setProblem(failed(error));
+      setProblem({ load: failed(error), retry: () => void more() });
     }
   }
 
@@ -79,19 +61,21 @@ export function NotificationsScreen() {
       try {
         await call(`/notifications/${notification.id}/read`, { method: "POST" });
       } catch (error) {
-        setProblem(failed(error));
+        setProblem({ load: failed(error), retry: () => void open(notification) });
         return;
       }
-      setLoad((current) =>
-        current.state === "ready"
-          ? {
-              ...current,
-              notifications: current.notifications.map((item) =>
-                item.id === notification.id ? { ...item, read: true } : item,
-              ),
-            }
-          : current,
-      );
+      if (load.state === "ready") {
+        setLoad({
+          state: "ready",
+          value: {
+            ...load.value,
+            notifications: load.value.notifications.map((item) =>
+              item.id === notification.id ? { ...item, read: true } : item,
+            ),
+          },
+        });
+      }
+      badges.refresh();
     }
     if (notification.document) {
       router.push(documentPath(notification.document));
@@ -99,61 +83,66 @@ export function NotificationsScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.screen}>
-      <Text style={shared.title}>{t("notifications.title")}</Text>
-      {load.state === "loading" && <ActivityIndicator accessibilityLabel={t("loading")} />}
-      {load.state === "unreachable" && <Unreachable onRetry={retry} />}
-      {load.state === "refused" && <Text style={shared.error}>{load.message}</Text>}
-      {problem?.state === "unreachable" && <Unreachable onRetry={() => setProblem(null)} />}
-      {problem?.state === "refused" && <Text style={shared.error}>{problem.message}</Text>}
-      {load.state === "ready" && (
-        <ScrollView contentContainerStyle={styles.list}>
-          {load.notifications.length === 0 && <Text style={shared.detail}>{t("notifications.empty")}</Text>}
-          {load.notifications.map((notification) => (
-            <Pressable
-              key={notification.id}
-              accessibilityRole="button"
-              accessibilityLabel={[
-                notification.title,
-                notification.document?.code,
-                notification.read ? null : t("notifications.unread"),
-              ]
-                .filter(Boolean)
-                .join(", ")}
-              style={[styles.item, !notification.read && styles.unread]}
-              onPress={() => open(notification)}
-            >
-              <Text style={[shared.label, !notification.read && styles.unreadText]}>{notification.title}</Text>
-              {!!notification.document?.code && <Text style={shared.detail}>{notification.document.code}</Text>}
-              <Text style={shared.detail}>{new Date(notification.date).toLocaleString(language)}</Text>
-            </Pressable>
-          ))}
-          {load.nextAfter !== null && (
-            <Pressable accessibilityRole="button" style={shared.secondaryButton} onPress={more}>
-              <Text style={shared.secondaryButtonText}>{t("more")}</Text>
-            </Pressable>
-          )}
-        </ScrollView>
-      )}
-    </SafeAreaView>
+    <Screen title={t("notifications.title")} bell={false} scroll={false}>
+      <RecordList
+        load={load}
+        items={load.state === "ready" ? load.value.notifications : []}
+        keyOf={(notification) => notification.id}
+        renderItem={(notification) => <Row notification={notification} onOpen={() => open(notification)} />}
+        icon="bell-outline"
+        empty={t("notifications.empty")}
+        onRetry={reload}
+        onRefresh={refresh}
+        hasMore={load.state === "ready" && load.value.nextAfter !== null}
+        onMore={more}
+        header={
+          problem ? <ActionProblem problem={problem.load} gone={t("document.gone")} onRetry={problem.retry} /> : undefined
+        }
+      />
+    </Screen>
   );
 }
 
-// A refused key has already returned the person to sign-in.
-function failed(error: unknown): Load {
-  if (error instanceof UnreachableError) {
-    return { state: "unreachable" };
-  }
-  if (error instanceof ApiError) {
-    return { state: "refused", message: error.message };
-  }
-  throw error;
+function Row({ notification, onOpen }: Readonly<{ notification: Notification; onOpen: () => void }>) {
+  const t = useT();
+  const { language } = useSession();
+  const unread = !notification.read;
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={[notification.title, notification.document?.code, unread ? t("notifications.unread") : null]
+        .filter(Boolean)
+        .join(", ")}
+      style={({ pressed }) => [shared.card, styles.row, unread && styles.unread, pressed && styles.pressed]}
+      onPress={onOpen}
+    >
+      <View style={[styles.icon, unread && styles.iconUnread]}>
+        <Icon name={unread ? "bell-ring-outline" : "bell-outline"} size={20} color={unread ? colors.primary : colors.textMuted} />
+      </View>
+      <View style={styles.text}>
+        <Text style={[shared.label, unread && styles.unreadText]}>{notification.title}</Text>
+        {!!notification.document?.code && <Text style={shared.detail}>{notification.document.code}</Text>}
+        <Text style={shared.detail}>{formatMoment(notification.date, language)}</Text>
+      </View>
+      {unread && <View style={styles.dot} />}
+    </Pressable>
+  );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, padding: 24, gap: 16 },
-  list: { gap: 8 },
-  item: { borderWidth: 1, borderColor: colors.border, borderRadius: 8, padding: 12, gap: 4 },
-  unread: { borderColor: colors.primary },
+  row: { flexDirection: "row", alignItems: "center", gap: space.md },
+  unread: { borderColor: colors.accentLight, backgroundColor: colors.accentSoft },
+  pressed: { opacity: 0.7 },
+  icon: {
+    width: 40,
+    height: 40,
+    borderRadius: radius.pill,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.secondaryLight,
+  },
+  iconUnread: { backgroundColor: colors.surface },
+  text: { flex: 1, gap: 2 },
   unreadText: { fontWeight: "700" },
+  dot: { width: 10, height: 10, borderRadius: 5, backgroundColor: colors.accent },
 });

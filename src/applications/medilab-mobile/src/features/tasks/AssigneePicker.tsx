@@ -5,8 +5,12 @@ import type { Assignees } from "../../api";
 import { failed, type Load } from "../../load";
 import { useT } from "../../locale";
 import { useSession } from "../../session";
-import { colors, styles as shared } from "../../styles";
+import { styles as shared } from "../../styles";
+import { colors, layout, radius, space } from "../../theme";
 import { Unreachable } from "../connection/Unreachable";
+import { Avatar } from "../shared/Avatar";
+import { Button } from "../shared/Button";
+import { Icon } from "../shared/Icon";
 
 /** Whom a task goes to: a person, or a department's queue. */
 export type Assignee = { kind: "person" | "department"; id: number; name: string };
@@ -52,41 +56,84 @@ export function AssigneePicker({
   return (
     <View style={styles.box}>
       <Text style={shared.label}>{t("assignee.label")}</Text>
-      {chosen && <Text style={styles.chosen}>{t("assignee.chosen", { name: chosen.name })}</Text>}
-      <TextInput
-        accessibilityLabel={t("assignee.search")}
-        placeholder={t("assignee.search")}
-        style={shared.input}
-        value={query}
-        onChangeText={setQuery}
-        onSubmitEditing={search}
-        returnKeyType="search"
-      />
-      <Pressable accessibilityRole="button" style={shared.secondaryButton} onPress={search}>
-        <Text style={shared.secondaryButtonText}>{t("assignee.find")}</Text>
-      </Pressable>
+      {chosen && (
+        <View style={styles.chosenBox}>
+          <Icon name="check-circle" color={colors.primary} />
+          <Text style={styles.chosen}>{t("assignee.chosen", { name: chosen.name })}</Text>
+        </View>
+      )}
+      <View style={styles.search}>
+        <TextInput
+          accessibilityLabel={t("assignee.search")}
+          placeholder={t("assignee.search")}
+          placeholderTextColor={colors.textMuted}
+          style={[shared.input, styles.query]}
+          value={query}
+          onChangeText={setQuery}
+          onSubmitEditing={search}
+          returnKeyType="search"
+        />
+        <Button label={t("assignee.find")} icon="magnify" onPress={search} />
+      </View>
       {found?.state === "loading" && <Text style={shared.detail}>{t("loading")}</Text>}
       {found?.state === "unreachable" && <Unreachable onRetry={search} />}
       {found?.state === "refused" && <Text style={shared.error}>{found.message}</Text>}
       {found?.state === "ready" && options.length === 0 && <Text style={shared.detail}>{t("assignee.none")}</Text>}
-      {options.map((option) => (
-        <Pressable
-          key={`${option.kind}-${option.id}`}
-          accessibilityRole="radio"
-          accessibilityLabel={option.name}
-          accessibilityState={{ checked: chosen?.kind === option.kind && chosen.id === option.id }}
-          style={styles.option}
-          onPress={() => onChoose(option)}
-        >
-          <Text style={shared.label}>{option.name}</Text>
-        </Pressable>
-      ))}
+      {options.map((option) => {
+        const picked = chosen?.kind === option.kind && chosen.id === option.id;
+        return (
+          <Pressable
+            key={`${option.kind}-${option.id}`}
+            accessibilityRole="radio"
+            accessibilityLabel={option.name}
+            accessibilityState={{ checked: picked }}
+            style={[styles.option, picked && styles.picked]}
+            onPress={() => onChoose(option)}
+          >
+            {option.kind === "person" ? (
+              <Avatar name={option.name} size={32} />
+            ) : (
+              <View style={styles.queue}>
+                <Icon name="account-group-outline" size={18} color={colors.primary} />
+              </View>
+            )}
+            <Text style={[shared.label, styles.optionName]}>{option.name}</Text>
+            <Icon
+              name={picked ? "radiobox-marked" : "radiobox-blank"}
+              color={picked ? colors.primary : colors.borderControl}
+            />
+          </Pressable>
+        );
+      })}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  box: { gap: 8 },
-  chosen: { fontSize: 15, fontWeight: "600", color: colors.primary },
-  option: { borderWidth: 1, borderColor: colors.border, borderRadius: 8, padding: 10 },
+  box: { gap: space.sm },
+  chosenBox: { flexDirection: "row", alignItems: "center", gap: space.sm },
+  chosen: { flex: 1, fontSize: 15, fontWeight: "600", color: colors.primary },
+  search: { flexDirection: "row", gap: space.sm },
+  query: { flex: 1 },
+  option: {
+    minHeight: layout.touch,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: space.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    paddingHorizontal: space.md,
+    paddingVertical: space.sm,
+  },
+  picked: { borderColor: colors.primary, backgroundColor: colors.primaryLight },
+  optionName: { flex: 1 },
+  queue: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.pill,
+    backgroundColor: colors.primaryLight,
+    alignItems: "center",
+    justifyContent: "center",
+  },
 });
