@@ -502,7 +502,6 @@
                                 ]"
                             />
                             <field name="regulation_notice" class="text-warning" optional="show" />
-                            <button name="action_copy_sample" type="object" string="Copy" class="btn-secondary" />
                         </list>
                     </field>
                 </page>
